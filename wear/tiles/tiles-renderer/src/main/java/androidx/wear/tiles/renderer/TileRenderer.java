@@ -26,13 +26,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
 import androidx.wear.protolayout.LayoutElementBuilders;
+import androidx.wear.protolayout.ResourceBuilders;
+import androidx.wear.protolayout.StateBuilders;
 import androidx.wear.protolayout.expression.pipeline.ObservableStateStore;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 import androidx.wear.protolayout.proto.ResourceProto;
-import androidx.wear.protolayout.proto.StateProto;
 import androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance;
-import androidx.wear.tiles.ResourceBuilders;
-import androidx.wear.tiles.StateBuilders;
 import androidx.wear.tiles.TileService;
 
 import com.google.common.collect.ImmutableMap;
@@ -41,6 +40,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 /**
  * Renderer for Wear Tiles.
@@ -51,7 +51,11 @@ public final class TileRenderer {
     /**
      * Listener for clicks on Clickable objects that have an Action to (re)load the contents of a
      * tile.
+     *
+     * @deprecated Use {@link Consumer<StateBuilders.State>} with {@link #TileRenderer(Context,
+     *     Executor, Consumer)}.
      */
+    @Deprecated
     public interface LoadActionListener {
 
         /**
@@ -59,12 +63,12 @@ public final class TileRenderer {
          *
          * @param nextState The state that the next tile should be in.
          */
-        void onClick(@NonNull StateBuilders.State nextState);
+        void onClick(@NonNull androidx.wear.tiles.StateBuilders.State nextState);
     }
 
     @NonNull private final ProtoLayoutViewInstance mInstance;
-    @NonNull private final LayoutElementProto.Layout mLayout;
-    @NonNull private final ResourceProto.Resources mResources;
+    @Nullable private final LayoutElementProto.Layout mLayout;
+    @Nullable private final ResourceProto.Resources mResources;
     @NonNull private final ListeningExecutorService mUiExecutor;
 
     /**
@@ -73,8 +77,13 @@ public final class TileRenderer {
      * @param uiContext A {@link Context} suitable for interacting with the UI.
      * @param layout The portion of the Tile to render.
      * @param resources The resources for the Tile.
+     * @param loadActionExecutor Executor for {@code loadActionListener}.
      * @param loadActionListener Listener for clicks that will cause the contents to be reloaded.
+     * @deprecated Use {@link #TileRenderer(Context, Executor, Consumer)} which accepts Layout and
+     *     Resources in {@link #inflate(LayoutElementBuilders.Layout, ResourceBuilders.Resources,
+     *     ViewGroup)} method.
      */
+    @Deprecated
     public TileRenderer(
             @NonNull Context uiContext,
             @NonNull androidx.wear.tiles.LayoutElementBuilders.Layout layout,
@@ -83,11 +92,10 @@ public final class TileRenderer {
             @NonNull LoadActionListener loadActionListener) {
         this(
                 uiContext,
-                layout,
-                /* tilesTheme= */ 0,
-                resources,
                 loadActionExecutor,
-                loadActionListener);
+                toStateConsumer(loadActionListener),
+                layout.toProto(),
+                resources.toProto());
     }
 
     /**
@@ -98,8 +106,13 @@ public final class TileRenderer {
      * @param tilesTheme The theme to use for this Tile instance. This can be used to customise
      *     things like the default font family. Pass 0 to use the default theme.
      * @param resources The resources for the Tile.
+     * @param loadActionExecutor Executor for {@code loadActionListener}.
      * @param loadActionListener Listener for clicks that will cause the contents to be reloaded.
+     * @deprecated Use {@link #TileRenderer(Context, Executor, Consumer)} which accepts Layout and
+     *     Resources in {@link #inflate(LayoutElementBuilders.Layout, ResourceBuilders.Resources,
+     *     ViewGroup)} method.
      */
+    @Deprecated
     public TileRenderer(
             @NonNull Context uiContext,
             @NonNull androidx.wear.tiles.LayoutElementBuilders.Layout layout,
@@ -107,16 +120,51 @@ public final class TileRenderer {
             @NonNull androidx.wear.tiles.ResourceBuilders.Resources resources,
             @NonNull Executor loadActionExecutor,
             @NonNull LoadActionListener loadActionListener) {
-        this.mLayout = fromTileLayout(layout);
-        this.mResources = fromTileResources(resources);
+        // TODO(b/272527869): Enable setting theme.
+        this(
+                uiContext,
+                loadActionExecutor,
+                toStateConsumer(loadActionListener),
+                layout.toProto(),
+                resources.toProto());
+    }
+
+    /**
+     * @param uiContext A {@link Context} suitable for interacting with the UI.
+     * @param loadActionExecutor Executor for {@code loadActionListener}.
+     * @param loadActionListener Listener for clicks that will cause the contents to be reloaded.
+     */
+    public TileRenderer(
+            @NonNull Context uiContext,
+            @NonNull Executor loadActionExecutor,
+            @NonNull Consumer<StateBuilders.State> loadActionListener) {
+        this(
+                uiContext,
+                loadActionExecutor,
+                loadActionListener,
+                /* layout= */ null,
+                /* resources= */ null);
+    }
+
+    private TileRenderer(
+            @NonNull Context uiContext,
+            @NonNull Executor loadActionExecutor,
+            @NonNull Consumer<StateBuilders.State> loadActionListener,
+            @Nullable LayoutElementProto.Layout layout,
+            @Nullable ResourceProto.Resources resources) {
+        this.mLayout = layout;
+        this.mResources = resources;
         this.mUiExecutor = MoreExecutors.newDirectExecutorService();
         ProtoLayoutViewInstance.LoadActionListener instanceListener =
-                nextState -> loadActionExecutor.execute(
-                        () -> loadActionListener.onClick(fromProtoLayoutState(nextState)));
+                nextState ->
+                        loadActionExecutor.execute(
+                                () ->
+                                        loadActionListener.accept(
+                                                StateBuilders.State.fromProto(nextState)));
 
         ProtoLayoutViewInstance.Config.Builder config =
-                new ProtoLayoutViewInstance.Config.Builder(uiContext, mUiExecutor, mUiExecutor,
-                        TileService.EXTRA_CLICKABLE_ID)
+                new ProtoLayoutViewInstance.Config.Builder(
+                                uiContext, mUiExecutor, mUiExecutor, TileService.EXTRA_CLICKABLE_ID)
                         .setAnimationEnabled(true)
                         .setIsViewFullyVisible(true)
                         .setStateStore(new ObservableStateStore(ImmutableMap.of()))
@@ -124,35 +172,61 @@ public final class TileRenderer {
         this.mInstance = new ProtoLayoutViewInstance(config.build());
     }
 
-    @NonNull private ResourceProto.Resources fromTileResources(
-            @NonNull androidx.wear.tiles.ResourceBuilders.Resources resources) {
-        return checkNotNull(
-                ResourceBuilders.Resources
-                        .fromByteArray(resources.toByteArray())).toProto();
-    }
-
-    @NonNull private LayoutElementProto.Layout fromTileLayout(
-            @NonNull androidx.wear.tiles.LayoutElementBuilders.Layout layout) {
-        return checkNotNull(
-                LayoutElementBuilders.Layout
-                        .fromByteArray(layout.toByteArray())).toProto();
-    }
-
-    @NonNull StateBuilders.State fromProtoLayoutState(@NonNull StateProto.State state) {
-        return StateBuilders.State.fromProto(state);
+    @NonNull
+    private static Consumer<StateBuilders.State> toStateConsumer(
+            @NonNull LoadActionListener loadActionListener) {
+        return nextState ->
+                loadActionListener.onClick(
+                        androidx.wear.tiles.StateBuilders.State.fromProto(nextState.toProto()));
     }
 
     /**
      * Inflates a Tile into {@code parent}.
      *
      * @param parent The view to attach the tile into.
-     * @return The first child that was inflated. This may be null if the proto is empty the
+     * @return The first child that was inflated. This may be null if the Layout is empty or the
+     *     top-level LayoutElement has no inner set, or the top-level LayoutElement contains an
+     *     unsupported inner type.
+     * @deprecated Use {@link #inflate(LayoutElementBuilders.Layout, ResourceBuilders.Resources,
+     *     ViewGroup)} instead. Note: This method only works with the deprecated constructors that
+     *     accept Layout and Resources.
+     */
+    @Deprecated
+    @Nullable
+    public View inflate(@NonNull ViewGroup parent) {
+        String errorMessage =
+                "This method only works with the deprecated constructors that accept Layout and"
+                    + " Resources.";
+        return inflateLayout(
+                checkNotNull(mLayout, errorMessage),
+                checkNotNull(mResources, errorMessage),
+                parent);
+    }
+
+    /**
+     * Inflates a Tile into {@code parent}.
+     *
+     * @param layout The portion of the Tile to render.
+     * @param resources The resources for the Tile.
+     * @param parent The view to attach the tile into.
+     * @return The first child that was inflated. This may be null if the Layout is empty or the
      *     top-level LayoutElement has no inner set, or the top-level LayoutElement contains an
      *     unsupported inner type.
      */
     @Nullable
-    public View inflate(@NonNull ViewGroup parent) {
-        mInstance.renderAndAttach(mLayout, mResources, parent);
+    public View inflate(
+            @NonNull LayoutElementBuilders.Layout layout,
+            @NonNull ResourceBuilders.Resources resources,
+            @NonNull ViewGroup parent) {
+        return inflateLayout(layout.toProto(), resources.toProto(), parent);
+    }
+
+    @Nullable
+    private View inflateLayout(
+            @NonNull LayoutElementProto.Layout layout,
+            @NonNull ResourceProto.Resources resources,
+            @NonNull ViewGroup parent) {
+        mInstance.renderAndAttach(layout, resources, parent);
         boolean finished;
         try {
             mUiExecutor.shutdown();
