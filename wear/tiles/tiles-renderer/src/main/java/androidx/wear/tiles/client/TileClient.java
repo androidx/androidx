@@ -16,15 +16,17 @@
 
 package androidx.wear.tiles.client;
 
+import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
+
 import androidx.annotation.NonNull;
+import androidx.wear.protolayout.ResourceBuilders;
 import androidx.wear.tiles.RequestBuilders;
 import androidx.wear.tiles.TileBuilders;
 
+import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 
-/**
- * Client to connect and interact with a TileService.
- */
+/** Client to connect and interact with a TileService. */
 public interface TileClient {
     /** Gets the API version supported by the connected TileService. */
     @NonNull
@@ -37,7 +39,22 @@ public interface TileClient {
 
     /** Request a resource bundle from the connected TileService. */
     @NonNull
-    @SuppressWarnings("deprecation") // TODO(b/276343540): Use protolayout types
+    @SuppressWarnings("deprecation") // For backward compatibility
+    default ListenableFuture<ResourceBuilders.Resources> requestTileResourcesAsync(
+            @NonNull RequestBuilders.ResourcesRequest requestParams) {
+        return FluentFuture.from(requestResources(requestParams))
+                .transform(
+                        res -> ResourceBuilders.Resources.fromProto(res.toProto()),
+                        directExecutor());
+    }
+
+    /**
+     * Request a resource bundle from the connected TileService.
+     *
+     * @deprecated Use {@link #requestTileResourcesAsync(RequestBuilders.ResourcesRequest)} instead.
+     */
+    @NonNull
+    @Deprecated
     ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources> requestResources(
             @NonNull RequestBuilders.ResourcesRequest requestParams);
 

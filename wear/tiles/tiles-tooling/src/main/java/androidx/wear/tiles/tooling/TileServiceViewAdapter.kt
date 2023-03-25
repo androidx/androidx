@@ -26,6 +26,7 @@ import androidx.wear.protolayout.DeviceParametersBuilders
 import androidx.wear.protolayout.LayoutElementBuilders
 import androidx.wear.protolayout.ResourceBuilders
 import androidx.wear.protolayout.StateBuilders
+import androidx.wear.protolayout.TimelineBuilders
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.TileBuilders
 import androidx.wear.tiles.TileService
@@ -35,6 +36,8 @@ import com.google.common.util.concurrent.ListenableFuture
 import java.lang.reflect.Method
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
+import kotlinx.coroutines.guava.await
+import kotlinx.coroutines.runBlocking
 
 private const val TOOLS_NS_URI = "http://schemas.android.com/tools"
 
@@ -50,13 +53,12 @@ internal fun Class<out Any>.findMethod(
     while (currentClass != null) {
         try {
             return currentClass.getDeclaredMethod(name, *parameterTypes)
-        } catch (_: NoSuchMethodException) {}
+        } catch (_: NoSuchMethodException) { }
         currentClass = currentClass.superclass
     }
     val methodSignature = "$name(${parameterTypes.joinToString { ", " }})"
     throw NoSuchMethodException(
-        "Could not find method $methodSignature neither in $this nor in its superclasses."
-    )
+        "Could not find method $methodSignature neither in $this nor in its superclasses.")
 }
 
 /**
@@ -76,7 +78,7 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
     }
 
     @SuppressLint("BanUncheckedReflection")
-    @Suppress("UNCHECKED_CAST", "deprecation") // TODO(b/276343540): Use protolayout types
+    @Suppress("UNCHECKED_CAST")
     internal fun init(tileServiceName: String) {
         val tileServiceClass = Class.forName(tileServiceName)
 
@@ -85,9 +87,9 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
 
         // tileService.attachBaseContext(context)
         val attachBaseContextMethod =
-            tileServiceClass.findMethod("attachBaseContext", Context::class.java).apply {
-                isAccessible = true
-            }
+            tileServiceClass
+                .findMethod("attachBaseContext", Context::class.java)
+                .apply { isAccessible = true }
         attachBaseContextMethod.invoke(tileService, context)
 
         val deviceParams = context.buildDeviceParameters()
@@ -103,9 +105,8 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
                 .findMethod("onTileRequest", RequestBuilders.TileRequest::class.java)
                 .apply { isAccessible = true }
         val tile =
-            (onTileRequestMethod.invoke(tileService, tileRequest)
-                    as ListenableFuture<TileBuilders.Tile>)
-                .get(1, TimeUnit.SECONDS)
+            (onTileRequestMethod.invoke(tileService, tileRequest) as
+                ListenableFuture<TileBuilders.Tile>).get(1, TimeUnit.SECONDS)
 
         val resourceRequest = RequestBuilders.ResourcesRequest
             .Builder()
@@ -113,51 +114,51 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
             .setDeviceConfiguration(deviceParams)
             .build()
 
-        // val resources = tileService.onTileResourcesRequest(resourceRequest).get(1, TimeUnit.SECONDS)
+        // val resources = tileService.onTileResourcesRequest(resourceRequest).get(1,
+        // TimeUnit.SECONDS)
         val onTileResourcesRequestMethod =
             tileServiceClass
                 .findMethod("onTileResourcesRequest", RequestBuilders.ResourcesRequest::class.java)
                 .apply { isAccessible = true }
         val resources =
             ResourceBuilders.Resources.fromProto(
-                (onTileResourcesRequestMethod.invoke(tileService, resourceRequest) as
-                    ListenableFuture<ResourceBuilders.Resources>)
-                    .get(1, TimeUnit.SECONDS).toProto()
-            )
+                (onTileResourcesRequestMethod.invoke(tileService, resourceRequest)
+                        as ListenableFuture<ResourceBuilders.Resources>)
+                    .get(1, TimeUnit.SECONDS)
+                    .toProto())
 
-        val layout = tile.timeline?.getCurrentLayout()
+        val layout = tile.tileTimeline?.getCurrentLayout()
         if (layout != null) {
             val renderer = TileRenderer(context, ContextCompat.getMainExecutor(context)) {}
-            val result = renderer.inflateAsync(layout, resources, this)
-            result.addListener(
-                {
-                    (result.get().layoutParams as FrameLayout.LayoutParams).gravity = Gravity.CENTER
-                },
-                ContextCompat.getMainExecutor(context)
-            )
+            runBlocking {
+                renderer
+                    .inflateAsync(layout, resources, this@TileServiceViewAdapter)
+                    .await()
+                    ?.apply { (layoutParams as FrameLayout.LayoutParams).gravity = Gravity.CENTER }
+            }
         }
     }
 }
 
-@Suppress("deprecation") // For backwards compatibility.
-internal fun androidx.wear.tiles.TimelineBuilders.Timeline?.getCurrentLayout():
-    LayoutElementBuilders.Layout? {
+internal fun TimelineBuilders.Timeline?.getCurrentLayout(): LayoutElementBuilders.Layout? {
     val now = System.currentTimeMillis()
     return this?.let {
-            val cache = TilesTimelineCache(it)
-            cache.findTimelineEntryForTime(now) ?: cache.findClosestTimelineEntry(now)
-        }
-        ?.layout
-        ?.let { LayoutElementBuilders.Layout.fromProto(it.toProto()) }
+        val cache = TilesTimelineCache(it)
+        cache.findTileTimelineEntryForTime(now) ?: cache.findClosestTileTimelineEntry(now)
+    }?.layout
 }
 
-/** Creates an instance of [DeviceParametersBuilders.DeviceParameters] from the [Context]. */
+/**
+ * Creates an instance of [DeviceParametersBuilders.DeviceParameters] from the [Context].
+ */
 internal fun Context.buildDeviceParameters(): DeviceParametersBuilders.DeviceParameters {
     val displayMetrics = resources.displayMetrics
     val isScreenRound = resources.configuration.isScreenRound
     return DeviceParametersBuilders.DeviceParameters.Builder()
-        .setScreenWidthDp((displayMetrics.widthPixels / displayMetrics.density).roundToInt())
-        .setScreenHeightDp((displayMetrics.heightPixels / displayMetrics.density).roundToInt())
+        .setScreenWidthDp(
+            (displayMetrics.widthPixels / displayMetrics.density).roundToInt())
+        .setScreenHeightDp(
+            (displayMetrics.heightPixels / displayMetrics.density).roundToInt())
         .setScreenDensity(displayMetrics.density)
         .setScreenShape(
             if (isScreenRound) DeviceParametersBuilders.SCREEN_SHAPE_ROUND

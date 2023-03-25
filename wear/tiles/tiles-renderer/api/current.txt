@@ -3,8 +3,9 @@ package androidx.wear.tiles.client {
 
   public interface TileClient {
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Integer!> requestApiVersion();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources!> requestResources(androidx.wear.tiles.RequestBuilders.ResourcesRequest);
+    method @Deprecated public com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources!> requestResources(androidx.wear.tiles.RequestBuilders.ResourcesRequest);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.TileBuilders.Tile!> requestTile(androidx.wear.tiles.RequestBuilders.TileRequest);
+    method public default com.google.common.util.concurrent.ListenableFuture<androidx.wear.protolayout.ResourceBuilders.Resources!> requestTileResourcesAsync(androidx.wear.tiles.RequestBuilders.ResourcesRequest);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> sendOnTileAddedEvent();
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> sendOnTileEnterEvent();
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> sendOnTileLeaveEvent();
@@ -19,7 +20,7 @@ package androidx.wear.tiles.connection {
     ctor public DefaultTileClient(android.content.Context context, android.content.ComponentName componentName, java.util.concurrent.Executor executor);
     ctor public DefaultTileClient(android.content.Context context, android.content.ComponentName componentName, kotlinx.coroutines.CoroutineScope coroutineScope, kotlinx.coroutines.CoroutineDispatcher coroutineDispatcher);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Integer> requestApiVersion();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources> requestResources(androidx.wear.tiles.RequestBuilders.ResourcesRequest requestParams);
+    method @Deprecated public com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources> requestResources(androidx.wear.tiles.RequestBuilders.ResourcesRequest requestParams);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.TileBuilders.Tile> requestTile(androidx.wear.tiles.RequestBuilders.TileRequest requestParams);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> sendOnTileAddedEvent();
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> sendOnTileEnterEvent();
@@ -58,14 +59,19 @@ package androidx.wear.tiles.renderer {
 package androidx.wear.tiles.timeline {
 
   public final class TilesTimelineCache {
-    ctor public TilesTimelineCache(androidx.wear.tiles.TimelineBuilders.Timeline);
-    method @MainThread public androidx.wear.tiles.TimelineBuilders.TimelineEntry? findClosestTimelineEntry(long);
-    method @MainThread public long findCurrentTimelineEntryExpiry(androidx.wear.tiles.TimelineBuilders.TimelineEntry, long);
-    method @MainThread public androidx.wear.tiles.TimelineBuilders.TimelineEntry? findTimelineEntryForTime(long);
+    ctor public TilesTimelineCache(androidx.wear.protolayout.TimelineBuilders.Timeline);
+    ctor @Deprecated public TilesTimelineCache(androidx.wear.tiles.TimelineBuilders.Timeline);
+    method @MainThread public androidx.wear.protolayout.TimelineBuilders.TimelineEntry? findClosestTileTimelineEntry(long);
+    method @Deprecated @MainThread public androidx.wear.tiles.TimelineBuilders.TimelineEntry? findClosestTimelineEntry(long);
+    method @MainThread public long findCurrentTimelineEntryExpiry(androidx.wear.protolayout.TimelineBuilders.TimelineEntry, long);
+    method @Deprecated @MainThread public long findCurrentTimelineEntryExpiry(androidx.wear.tiles.TimelineBuilders.TimelineEntry, long);
+    method @MainThread public androidx.wear.protolayout.TimelineBuilders.TimelineEntry? findTileTimelineEntryForTime(long);
+    method @Deprecated @MainThread public androidx.wear.tiles.TimelineBuilders.TimelineEntry? findTimelineEntryForTime(long);
   }
 
   public class TilesTimelineManager implements java.lang.AutoCloseable {
-    ctor public TilesTimelineManager(android.app.AlarmManager, androidx.wear.tiles.timeline.TilesTimelineManager.Clock, androidx.wear.tiles.TimelineBuilders.Timeline, int, java.util.concurrent.Executor, androidx.wear.tiles.timeline.TilesTimelineManager.Listener);
+    ctor public TilesTimelineManager(android.app.AlarmManager, androidx.wear.tiles.timeline.TilesTimelineManager.Clock, androidx.wear.protolayout.TimelineBuilders.Timeline, int, java.util.concurrent.Executor, androidx.wear.tiles.timeline.TilesTimelineManager.LayoutUpdateListener);
+    ctor @Deprecated public TilesTimelineManager(android.app.AlarmManager, androidx.wear.tiles.timeline.TilesTimelineManager.Clock, androidx.wear.tiles.TimelineBuilders.Timeline, int, java.util.concurrent.Executor, androidx.wear.tiles.timeline.TilesTimelineManager.Listener);
     method public void close();
     method public void init();
   }
@@ -74,8 +80,12 @@ package androidx.wear.tiles.timeline {
     method public long getCurrentTimeMillis();
   }
 
-  public static interface TilesTimelineManager.Listener {
-    method public void onLayoutUpdate(int, androidx.wear.tiles.LayoutElementBuilders.Layout);
+  public static interface TilesTimelineManager.LayoutUpdateListener {
+    method public void onLayoutUpdate(int, androidx.wear.protolayout.LayoutElementBuilders.Layout);
+  }
+
+  @Deprecated public static interface TilesTimelineManager.Listener {
+    method @Deprecated public void onLayoutUpdate(int, androidx.wear.tiles.LayoutElementBuilders.Layout);
   }
 
 }
