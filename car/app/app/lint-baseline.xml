@@ -327,7 +327,7 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one of: CarAppApiLevels.UNKNOWN, CarAppApiLevels.LEVEL_1, CarAppApiLevels.LEVEL_2, CarAppApiLevels.LEVEL_3, CarAppApiLevels.LEVEL_4, CarAppApiLevels.LEVEL_5, CarAppApiLevels.LEVEL_6"
+        message="Must be one of: CarAppApiLevels.UNKNOWN, CarAppApiLevels.LEVEL_1, CarAppApiLevels.LEVEL_2, CarAppApiLevels.LEVEL_3, CarAppApiLevels.LEVEL_4, CarAppApiLevels.LEVEL_5, CarAppApiLevels.LEVEL_6, CarAppApiLevels.LEVEL_7"
         errorLine1="        mCarAppApiLevel = handshakeInfo.getHostCarAppApiLevel();"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -368,6 +368,15 @@
         errorLine2="                                                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/navigation/model/PanModeDelegateImpl.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="class PersonsEqualityHelper {"
+        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/messaging/model/PersonsEqualityHelper.java"/>
     </issue>
 
     <issue

@@ -2,21 +2,30 @@
 <issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
 
     <issue
+        id="BanInlineOptIn"
+        message="Inline functions cannot opt into experimental APIs."
+        errorLine1="    internal inline fun fetchCustomEnter("
+        errorLine2="                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/focus/FocusTargetModifierNode.kt"/>
+    </issue>
+
+    <issue
+        id="BanInlineOptIn"
+        message="Inline functions cannot opt into experimental APIs."
+        errorLine1="    internal inline fun fetchCustomExit("
+        errorLine2="                        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/focus/FocusTargetModifierNode.kt"/>
+    </issue>
+
+    <issue
         id="BanThreadSleep"
         message="Uses Thread.sleep()"
         errorLine1="                Thread.sleep(sleepTime)"
         errorLine2="                       ~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/compose/ui/input/pointer/AndroidPointerInputTest.kt"/>
-    </issue>
-
-    <issue
-        id="ExperimentalPropertyAnnotation"
-        message="This property does not have all required annotations to correctly mark it as experimental."
-        errorLine1="@InternalComposeUiApi // used by testing infra"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeView.android.kt"/>
     </issue>
 
     <issue

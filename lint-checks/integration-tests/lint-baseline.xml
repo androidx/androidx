@@ -515,6 +515,33 @@
     </issue>
 
     <issue
+        id="ImplicitCastClassVerificationFailure"
+        message="This expression has type android.app.Notification.CarExtender (introduced in API level 23) but it used as type android.app.Notification.Extender (introduced in API level 20). Run-time class verification will not be able to validate this implicit cast on devices between these API levels."
+        errorLine1="        builder.extend(extender);"
+        errorLine2="                       ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitParamCast.java"/>
+    </issue>
+
+    <issue
+        id="ImplicitCastClassVerificationFailure"
+        message="This expression has type android.graphics.drawable.AdaptiveIconDrawable (introduced in API level 26) but it used as type android.graphics.drawable.Drawable (introduced in API level 1). Run-time class verification will not be able to validate this implicit cast on devices between these API levels."
+        errorLine1="        return new AdaptiveIconDrawable(null, null);"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitReturnCast.java"/>
+    </issue>
+
+    <issue
+        id="ImplicitCastClassVerificationFailure"
+        message="This expression has type android.app.Notification.DecoratedCustomViewStyle (introduced in API level 24) but it used as type android.app.Notification.Style (introduced in API level 16). Run-time class verification will not be able to validate this implicit cast on devices between these API levels."
+        errorLine1="        useStyle(new Notification.DecoratedCustomViewStyle());"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitReturnCast.java"/>
+    </issue>
+
+    <issue
         id="LongLogTag"
         message="The logging tag can be at most 23 characters, was 24 (ActivityRecreatorChecked)"
         errorLine1="                    Log.e(LOG_TAG, &quot;Exception while invoking performStopActivity&quot;, t);"

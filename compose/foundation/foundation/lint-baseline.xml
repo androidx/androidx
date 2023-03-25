@@ -46,4 +46,13 @@
             file="src/androidMain/kotlin/androidx/compose/foundation/Magnifier.kt"/>
     </issue>
 
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="    @OptIn(ExperimentalTextApi::class)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/modifiers/TextStringSimpleNode.kt"/>
+    </issue>
+
 </issues>
