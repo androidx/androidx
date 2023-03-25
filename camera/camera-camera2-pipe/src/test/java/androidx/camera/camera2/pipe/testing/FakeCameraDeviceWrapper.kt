@@ -61,12 +61,14 @@ internal class FakeCameraDeviceWrapper(val fakeCamera: RobolectricCameras.FakeCa
         outputs: List<Surface>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
         handler: Handler?
-    ) {
+    ): Boolean {
         createFakeCaptureSession(stateCallback)
+        return true
     }
 
-    override fun createCaptureSession(config: SessionConfigData) {
+    override fun createCaptureSession(config: SessionConfigData): Boolean {
         createFakeCaptureSession(config.stateCallback)
+        return true
     }
 
     override fun createReprocessableCaptureSession(
@@ -74,24 +76,27 @@ internal class FakeCameraDeviceWrapper(val fakeCamera: RobolectricCameras.FakeCa
         outputs: List<Surface>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
         handler: Handler?
-    ) {
+    ): Boolean {
         createFakeCaptureSession(stateCallback)
+        return true
     }
 
     override fun createConstrainedHighSpeedCaptureSession(
         outputs: List<Surface>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
         handler: Handler?
-    ) {
+    ): Boolean {
         createFakeCaptureSession(stateCallback)
+        return true
     }
 
     override fun createCaptureSessionByOutputConfigurations(
         outputConfigurations: List<OutputConfigurationWrapper>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
         handler: Handler?
-    ) {
+    ): Boolean {
         createFakeCaptureSession(stateCallback)
+        return true
     }
 
     override fun createReprocessableCaptureSessionByConfigurations(
@@ -99,8 +104,9 @@ internal class FakeCameraDeviceWrapper(val fakeCamera: RobolectricCameras.FakeCa
         outputs: List<OutputConfigurationWrapper>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
         handler: Handler?
-    ) {
+    ): Boolean {
         createFakeCaptureSession(stateCallback)
+        return true
     }
 
     override fun onDeviceClosed() {

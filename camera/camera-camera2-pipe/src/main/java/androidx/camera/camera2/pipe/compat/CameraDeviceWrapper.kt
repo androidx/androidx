@@ -37,6 +37,7 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.SystemTimeSource
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
+import androidx.camera.camera2.pipe.internal.CameraErrorListener
 import androidx.camera.camera2.pipe.writeParameter
 import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
@@ -52,64 +53,56 @@ internal interface CameraDeviceWrapper : UnsafeWrapper {
     val cameraId: CameraId
 
     /** @see CameraDevice.createCaptureRequest */
-    @Throws(ObjectUnavailableException::class)
-    fun createCaptureRequest(template: RequestTemplate): CaptureRequest.Builder
+    fun createCaptureRequest(template: RequestTemplate): CaptureRequest.Builder?
 
     /** @see CameraDevice.createReprocessCaptureRequest */
     @RequiresApi(Build.VERSION_CODES.M)
-    @Throws(ObjectUnavailableException::class)
-    fun createReprocessCaptureRequest(inputResult: TotalCaptureResult): CaptureRequest.Builder
+    fun createReprocessCaptureRequest(inputResult: TotalCaptureResult): CaptureRequest.Builder?
 
     /** @see CameraDevice.createCaptureSession */
-    @Throws(ObjectUnavailableException::class)
     fun createCaptureSession(
         outputs: List<Surface>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
         handler: Handler?
-    )
+    ): Boolean
 
     /** @see CameraDevice.createReprocessableCaptureSession */
     @RequiresApi(Build.VERSION_CODES.M)
-    @Throws(ObjectUnavailableException::class)
     fun createReprocessableCaptureSession(
         input: InputConfiguration,
         outputs: List<Surface>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
         handler: Handler?
-    )
+    ): Boolean
 
     /** @see CameraDevice.createConstrainedHighSpeedCaptureSession */
     @RequiresApi(Build.VERSION_CODES.M)
-    @Throws(ObjectUnavailableException::class)
     fun createConstrainedHighSpeedCaptureSession(
         outputs: List<Surface>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
         handler: Handler?
-    )
+    ): Boolean
 
     /** @see CameraDevice.createCaptureSessionByOutputConfigurations */
     @RequiresApi(Build.VERSION_CODES.N)
-    @Throws(ObjectUnavailableException::class)
     fun createCaptureSessionByOutputConfigurations(
         outputConfigurations: List<OutputConfigurationWrapper>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
         handler: Handler?
-    )
+    ): Boolean
 
     /** @see CameraDevice.createReprocessableCaptureSessionByConfigurations */
     @RequiresApi(Build.VERSION_CODES.N)
-    @Throws(ObjectUnavailableException::class)
     fun createReprocessableCaptureSessionByConfigurations(
         inputConfig: InputConfigData,
         outputs: List<OutputConfigurationWrapper>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
         handler: Handler?
-    )
+    ): Boolean
 
     /** @see CameraDevice.createCaptureSession */
     @RequiresApi(Build.VERSION_CODES.P)
-    @Throws(ObjectUnavailableException::class)
-    fun createCaptureSession(config: SessionConfigData)
+    fun createCaptureSession(config: SessionConfigData): Boolean
 
     /** Invoked when the [CameraDevice] has been closed */
     fun onDeviceClosed()
@@ -138,6 +131,7 @@ internal class AndroidCameraDevice(
     private val cameraMetadata: CameraMetadata,
     private val cameraDevice: CameraDevice,
     override val cameraId: CameraId,
+    private val cameraErrorListener: CameraErrorListener,
     private val interopSessionStateCallback: CameraCaptureSession.StateCallback? = null
 ) : CameraDeviceWrapper {
     private val _lastStateCallback = atomic<CameraCaptureSessionWrapper.StateCallback?>(null)
@@ -146,7 +140,7 @@ internal class AndroidCameraDevice(
         outputs: List<Surface>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
         handler: Handler?
-    ) = rethrowCamera2Exceptions {
+    ): Boolean = catchAndReportCameraExceptions(cameraId, cameraErrorListener) {
         val previousStateCallback = _lastStateCallback.value
         check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
 
@@ -156,11 +150,15 @@ internal class AndroidCameraDevice(
         cameraDevice.createCaptureSession(
             outputs,
             AndroidCaptureSessionStateCallback(
-                this, stateCallback, previousStateCallback, interopSessionStateCallback
+                this,
+                stateCallback,
+                previousStateCallback,
+                cameraErrorListener,
+                interopSessionStateCallback
             ),
             handler
         )
-    }
+    } != null
 
     @RequiresApi(23)
     override fun createReprocessableCaptureSession(
@@ -168,7 +166,7 @@ internal class AndroidCameraDevice(
         outputs: List<Surface>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
         handler: Handler?
-    ) = rethrowCamera2Exceptions {
+    ): Boolean = catchAndReportCameraExceptions(cameraId, cameraErrorListener) {
         val previousStateCallback = _lastStateCallback.value
         check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
 
@@ -179,18 +177,22 @@ internal class AndroidCameraDevice(
             input,
             outputs,
             AndroidCaptureSessionStateCallback(
-                this, stateCallback, previousStateCallback, interopSessionStateCallback
+                this,
+                stateCallback,
+                previousStateCallback,
+                cameraErrorListener,
+                interopSessionStateCallback
             ),
             handler
         )
-    }
+    } != null
 
     @RequiresApi(23)
     override fun createConstrainedHighSpeedCaptureSession(
         outputs: List<Surface>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
         handler: Handler?
-    ) = rethrowCamera2Exceptions {
+    ): Boolean = catchAndReportCameraExceptions(cameraId, cameraErrorListener) {
         val previousStateCallback = _lastStateCallback.value
         check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
 
@@ -200,18 +202,22 @@ internal class AndroidCameraDevice(
             cameraDevice,
             outputs,
             AndroidCaptureSessionStateCallback(
-                this, stateCallback, previousStateCallback, interopSessionStateCallback
+                this,
+                stateCallback,
+                previousStateCallback,
+                cameraErrorListener,
+                interopSessionStateCallback
             ),
             handler
         )
-    }
+    } != null
 
     @RequiresApi(24)
     override fun createCaptureSessionByOutputConfigurations(
         outputConfigurations: List<OutputConfigurationWrapper>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
         handler: Handler?
-    ) = rethrowCamera2Exceptions {
+    ): Boolean = catchAndReportCameraExceptions(cameraId, cameraErrorListener) {
         val previousStateCallback = _lastStateCallback.value
         check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
 
@@ -221,11 +227,15 @@ internal class AndroidCameraDevice(
             cameraDevice,
             outputConfigurations.map { it.unwrapAs(OutputConfiguration::class) },
             AndroidCaptureSessionStateCallback(
-                this, stateCallback, previousStateCallback, interopSessionStateCallback
+                this,
+                stateCallback,
+                previousStateCallback,
+                cameraErrorListener,
+                interopSessionStateCallback
             ),
             handler
         )
-    }
+    } != null
 
     @RequiresApi(24)
     override fun createReprocessableCaptureSessionByConfigurations(
@@ -233,7 +243,7 @@ internal class AndroidCameraDevice(
         outputs: List<OutputConfigurationWrapper>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
         handler: Handler?
-    ) = rethrowCamera2Exceptions {
+    ): Boolean = catchAndReportCameraExceptions(cameraId, cameraErrorListener) {
         val previousStateCallback = _lastStateCallback.value
         check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
 
@@ -246,66 +256,75 @@ internal class AndroidCameraDevice(
             ),
             outputs.map { it.unwrapAs(OutputConfiguration::class) },
             AndroidCaptureSessionStateCallback(
-                this, stateCallback, previousStateCallback, interopSessionStateCallback
+                this,
+                stateCallback,
+                previousStateCallback,
+                cameraErrorListener,
+                interopSessionStateCallback
             ),
             handler
         )
-    }
+    } != null
 
     @RequiresApi(28)
-    override fun createCaptureSession(config: SessionConfigData) = rethrowCamera2Exceptions {
-        val stateCallback = config.stateCallback
-        val previousStateCallback = _lastStateCallback.value
-        check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
+    override fun createCaptureSession(config: SessionConfigData): Boolean =
+        catchAndReportCameraExceptions(cameraId, cameraErrorListener) {
+            val stateCallback = config.stateCallback
+            val previousStateCallback = _lastStateCallback.value
+            check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
 
-        val sessionConfig =
-            Api28Compat.newSessionConfiguration(
-                config.sessionType,
-                config.outputConfigurations.map { it.unwrapAs(OutputConfiguration::class) },
-                config.executor,
-                AndroidCaptureSessionStateCallback(
-                    this, stateCallback, previousStateCallback, interopSessionStateCallback
+            val sessionConfig =
+                Api28Compat.newSessionConfiguration(
+                    config.sessionType,
+                    config.outputConfigurations.map { it.unwrapAs(OutputConfiguration::class) },
+                    config.executor,
+                    AndroidCaptureSessionStateCallback(
+                        this,
+                        stateCallback,
+                        previousStateCallback,
+                        cameraErrorListener,
+                        interopSessionStateCallback
+                    )
                 )
-            )
 
-        if (config.inputConfiguration != null) {
-            Api28Compat.setInputConfiguration(
-                sessionConfig,
-                Api23Compat.newInputConfiguration(
-                    config.inputConfiguration.width,
-                    config.inputConfiguration.height,
-                    config.inputConfiguration.format
+            if (config.inputConfiguration != null) {
+                Api28Compat.setInputConfiguration(
+                    sessionConfig,
+                    Api23Compat.newInputConfiguration(
+                        config.inputConfiguration.width,
+                        config.inputConfiguration.height,
+                        config.inputConfiguration.format
+                    )
                 )
-            )
-        }
-
-        val requestBuilder = cameraDevice.createCaptureRequest(config.sessionTemplateId)
-
-        // This compares and sets ONLY the session keys for this camera. Setting parameters that are
-        // not listed in availableSessionKeys can cause an unusual amount of extra latency.
-        val sessionKeyNames = cameraMetadata.sessionKeys.map { it.name }
-
-        // Iterate template parameters and CHECK BY NAME, as there have been cases where equality
-        // checks did not pass.
-        for ((key, value) in config.sessionParameters) {
-            if (key !is CaptureRequest.Key<*>) continue
-            if (sessionKeyNames.contains(key.name)) {
-                requestBuilder.writeParameter(key, value)
             }
-        }
-        Api28Compat.setSessionParameters(sessionConfig, requestBuilder.build())
-        Api28Compat.createCaptureSession(cameraDevice, sessionConfig)
-    }
 
-    override fun createCaptureRequest(template: RequestTemplate): CaptureRequest.Builder =
-        rethrowCamera2Exceptions {
+            val requestBuilder = cameraDevice.createCaptureRequest(config.sessionTemplateId)
+
+            // This compares and sets ONLY the session keys for this camera. Setting parameters that are
+            // not listed in availableSessionKeys can cause an unusual amount of extra latency.
+            val sessionKeyNames = cameraMetadata.sessionKeys.map { it.name }
+
+            // Iterate template parameters and CHECK BY NAME, as there have been cases where equality
+            // checks did not pass.
+            for ((key, value) in config.sessionParameters) {
+                if (key !is CaptureRequest.Key<*>) continue
+                if (sessionKeyNames.contains(key.name)) {
+                    requestBuilder.writeParameter(key, value)
+                }
+            }
+            Api28Compat.setSessionParameters(sessionConfig, requestBuilder.build())
+            Api28Compat.createCaptureSession(cameraDevice, sessionConfig)
+        } != null
+
+    override fun createCaptureRequest(template: RequestTemplate): CaptureRequest.Builder? =
+        catchAndReportCameraExceptions(cameraId, cameraErrorListener) {
             cameraDevice.createCaptureRequest(template.value)
         }
 
     @RequiresApi(23)
     override fun createReprocessCaptureRequest(
         inputResult: TotalCaptureResult
-    ): CaptureRequest.Builder = rethrowCamera2Exceptions {
+    ): CaptureRequest.Builder? = catchAndReportCameraExceptions(cameraId, cameraErrorListener) {
         Api23Compat.createReprocessCaptureRequest(cameraDevice, inputResult)
     }
 

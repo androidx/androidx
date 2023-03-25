@@ -60,6 +60,7 @@ internal class VirtualCameraManager
 constructor(
     private val permissions: Permissions,
     private val retryingCameraStateOpener: RetryingCameraStateOpener,
+    private val camera2ErrorProcessor: Camera2ErrorProcessor,
     private val threads: Threads
 ) {
     // TODO: Consider rewriting this as a MutableSharedFlow
@@ -75,7 +76,7 @@ constructor(
         share: Boolean = false,
         graphListener: GraphListener
     ): VirtualCamera {
-        val result = VirtualCameraState(cameraId)
+        val result = VirtualCameraState(cameraId, graphListener)
         offerChecked(RequestOpen(result, share, graphListener))
         return result
     }
@@ -178,10 +179,11 @@ constructor(
             }
 
             // Stage 3: Open or select an active camera device.
+            camera2ErrorProcessor.setActiveVirtualCamera(cameraIdToOpen, request.virtualCamera)
             var realCamera = activeCameras.firstOrNull { it.cameraId == cameraIdToOpen }
             if (realCamera == null) {
                 val openResult =
-                    openCameraWithRetry(cameraIdToOpen, request.graphListener, scope = this)
+                    openCameraWithRetry(cameraIdToOpen, scope = this)
                 if (openResult.activeCamera != null) {
                     realCamera = openResult.activeCamera
                     activeCameras.add(realCamera)
@@ -200,7 +202,6 @@ constructor(
 
     private suspend fun openCameraWithRetry(
         cameraId: CameraId,
-        graphListener: GraphListener,
         scope: CoroutineScope
     ): OpenVirtualCameraResult {
         // TODO: Figure out how 1-time permissions work, and see if they can be reset without
@@ -208,14 +209,15 @@ constructor(
         check(permissions.hasCameraPermission) { "Missing camera permissions!" }
 
         Log.debug { "Opening $cameraId with retries..." }
-        val result = retryingCameraStateOpener.openCameraWithRetry(cameraId, graphListener)
+        val result = retryingCameraStateOpener.openCameraWithRetry(cameraId)
         if (result.cameraState == null) {
             return OpenVirtualCameraResult(lastCameraError = result.errorCode)
         }
         return OpenVirtualCameraResult(
             activeCamera =
             ActiveCamera(
-                androidCameraState = result.cameraState, scope = scope, channel = requestQueue
+                androidCameraState = result.cameraState,
+                scope = scope, channel = requestQueue
             )
         )
     }

@@ -24,6 +24,7 @@ import androidx.camera.camera2.pipe.CameraController.ControllerState
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.CameraStatusMonitor.CameraStatus
 import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.config.Camera2ControllerScope
@@ -66,6 +67,9 @@ constructor(
     @GuardedBy("lock")
     private var controllerState: ControllerState = ControllerState.STOPPED
 
+    @GuardedBy("lock")
+    private var lastCameraError: CameraError? = null
+
     private var currentCamera: VirtualCamera? = null
     private var currentSession: CaptureSessionState? = null
     private var currentSurfaceMap: Map<StreamId, Surface>? = null
@@ -80,6 +84,7 @@ constructor(
             Log.warn { "Ignoring start(): Camera2CameraController is already started" }
             return
         }
+        lastCameraError = null
         val camera = virtualCameraManager.open(
             config.camera,
             config.flags.allowMultipleActiveCameras,
@@ -135,11 +140,30 @@ constructor(
         }
     }
 
-    override fun tryRestart(): Unit = synchronized(lock) {
-        if (controllerState != ControllerState.DISCONNECTED) {
-            Log.debug { "Ignoring restart(): CameraController is $controllerState" }
+    override fun tryRestart(cameraStatus: CameraStatus): Unit = synchronized(lock) {
+        var shouldRestart = false
+        when (controllerState) {
+            ControllerState.DISCONNECTED ->
+                if (cameraStatus is CameraStatus.CameraAvailable ||
+                    cameraStatus is CameraStatus.CameraPrioritiesChanged
+                ) {
+                    shouldRestart = true
+                }
+
+            ControllerState.ERROR ->
+                if (cameraStatus is CameraStatus.CameraAvailable &&
+                    lastCameraError == CameraError.ERROR_CAMERA_DEVICE
+                ) {
+                    shouldRestart = true
+                }
+        }
+        if (!shouldRestart) {
+            Log.debug {
+                "Ignoring tryRestart(): state = $controllerState, cameraStatus = $cameraStatus"
+            }
             return
         }
+        Log.debug { "Restarting Camera2CameraController" }
         stop()
         start()
     }
@@ -222,6 +246,7 @@ constructor(
                         "unrecoverable error: ${cameraState.cameraErrorCode}"
                 }
             }
+            lastCameraError = cameraState.cameraErrorCode
         } else {
             controllerState = ControllerState.STOPPED
         }

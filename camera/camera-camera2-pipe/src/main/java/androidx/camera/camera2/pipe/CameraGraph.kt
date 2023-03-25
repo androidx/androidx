@@ -380,5 +380,8 @@ abstract class GraphState internal constructor() {
      * will retry opening the camera (and creating a capture session).
      */
     class GraphStateError(val cameraError: CameraError, val willAttemptRetry: Boolean) :
-        GraphState()
+        GraphState() {
+        override fun toString(): String =
+            super.toString() + "(cameraError = $cameraError, willAttemptRetry = $willAttemptRetry)"
+    }
 }

@@ -53,10 +53,10 @@ interface CameraController {
 
     /**
      * Restart the current session. This should basically perform stop() then start(). However, the
-     * implementation should handle its internal states correctly, and only restart when the
-     * conditions are appropriate.
+     * implementation should handle its internal states correctly, and only restart under the right
+     * [CameraStatusMonitor.CameraStatus] and [ControllerState].
      */
-    fun tryRestart()
+    fun tryRestart(cameraStatus: CameraStatusMonitor.CameraStatus)
 
     /**
      * Close this instance. [start] and [stop] should not be invoked, and any additional calls will

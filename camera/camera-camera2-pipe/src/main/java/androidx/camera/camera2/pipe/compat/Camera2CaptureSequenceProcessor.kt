@@ -124,10 +124,8 @@ internal class Camera2CaptureSequenceProcessor(
             // null
             // if the CameraDevice has been closed or disconnected. If this fails, indicate that the
             // request was not submitted.
-            val requestBuilder: CaptureRequest.Builder
-            try {
-                requestBuilder = session.device.createCaptureRequest(requestTemplate)
-            } catch (exception: ObjectUnavailableException) {
+            val requestBuilder = session.device.createCaptureRequest(requestTemplate)
+            if (requestBuilder == null) {
                 Log.info { "  Failed to create a CaptureRequest.Builder from $requestTemplate!" }
                 return null
             }
@@ -247,7 +245,7 @@ internal class Camera2CaptureSequenceProcessor(
         )
     }
 
-    override fun submit(captureSequence: Camera2CaptureSequence): Int {
+    override fun submit(captureSequence: Camera2CaptureSequence): Int? {
         val captureCallback = captureSequence as CameraCaptureSession.CaptureCallback
         // TODO: Update these calls to use executors on newer versions of the OS
         return if (captureSequence.captureRequestList.size == 1 &&
