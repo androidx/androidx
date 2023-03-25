@@ -19,6 +19,7 @@ package androidx.camera.core.impl
 import android.os.Build
 import android.util.Range
 import android.util.Size
+import androidx.camera.core.DynamicRange
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,6 +37,20 @@ class StreamSpecTest {
         val streamSpec = StreamSpec.builder(TEST_RESOLUTION).build()
 
         assertThat(streamSpec.resolution).isEqualTo(TEST_RESOLUTION)
+    }
+
+    fun defaultDynamicRangeIsSdr() {
+        val streamSpec = StreamSpec.builder(TEST_RESOLUTION).build()
+
+        assertThat(streamSpec.dynamicRange).isEqualTo(DynamicRange.SDR)
+    }
+
+    @Test
+    fun canRetrieveDynamicRange() {
+        val dynamicRange = DynamicRange(DynamicRange.FORMAT_HLG, DynamicRange.BIT_DEPTH_10_BIT)
+        val streamSpec = StreamSpec.builder(TEST_RESOLUTION).setDynamicRange(dynamicRange).build()
+
+        assertThat(streamSpec.dynamicRange).isEqualTo(dynamicRange)
     }
 
     @Test

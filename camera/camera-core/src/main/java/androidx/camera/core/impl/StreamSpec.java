@@ -21,6 +21,7 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.DynamicRange;
 
 import com.google.auto.value.AutoValue;
 
@@ -45,6 +46,13 @@ public abstract class StreamSpec {
     public abstract Size getResolution();
 
     /**
+     * Returns the {@link DynamicRange} for the stream associated with this stream specification.
+     * @return the dynamic range for the stream.
+     */
+    @NonNull
+    public abstract DynamicRange getDynamicRange();
+
+    /**
      * Returns the expected frame rate range for the stream associated with this stream
      * specification.
      * @return the expected frame rate range for the stream.
@@ -57,7 +65,8 @@ public abstract class StreamSpec {
     public static Builder builder(@NonNull Size resolution) {
         return new AutoValue_StreamSpec.Builder()
                 .setResolution(resolution)
-                .setExpectedFrameRateRange(FRAME_RATE_RANGE_UNSPECIFIED);
+                .setExpectedFrameRateRange(FRAME_RATE_RANGE_UNSPECIFIED)
+                .setDynamicRange(DynamicRange.SDR);
     }
 
     /** Returns a builder pre-populated with the current specification. */
@@ -74,6 +83,14 @@ public abstract class StreamSpec {
         /** Sets the resolution, overriding the existing resolution set in this builder. */
         @NonNull
         public abstract Builder setResolution(@NonNull Size resolution);
+
+        /**
+         * Sets the dynamic range.
+         *
+         * <p>If not set, the default dynamic range is {@link DynamicRange#SDR}.
+         */
+        @NonNull
+        public abstract Builder setDynamicRange(@NonNull DynamicRange dynamicRange);
 
         /**
          * Sets the expected frame rate range.
