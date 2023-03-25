@@ -42,6 +42,7 @@ final class TypeSpecBuilder<T, BuilderT extends BuilderOf<T>> {
     private final List<FieldBinding<T, BuilderT>> mBindings = new ArrayList<>();
     private final Supplier<BuilderT> mBuilderSupplier;
     private CheckedInterfaces.Consumer<Struct> mStructValidator;
+    private Function<T, Optional<String>> mIdentifierGetter = (unused) -> Optional.empty();
 
     private TypeSpecBuilder(Supplier<BuilderT> builderSupplier) {
         this.mBuilderSupplier = builderSupplier;
@@ -66,29 +67,30 @@ final class TypeSpecBuilder<T, BuilderT extends BuilderOf<T>> {
      * StructConversionException.
      *
      * @param struct the Struct to get values from.
-     * @param key    the String key of the field to retrieve.
+     * @param key the String key of the field to retrieve.
      */
     private static Value getFieldFromStruct(Struct struct, String key)
             throws StructConversionException {
         try {
             return struct.getFieldsOrThrow(key);
         } catch (IllegalArgumentException e) {
-            throw new StructConversionException(String.format("%s does not exist in Struct", key),
-                    e);
+            throw new StructConversionException(
+                    String.format("%s does not exist in Struct", key), e);
         }
     }
 
     static <T, BuilderT extends BuilderOf<T>> TypeSpecBuilder<T, BuilderT> newBuilder(
             String typeName, Supplier<BuilderT> builderSupplier) {
         return new TypeSpecBuilder<>(builderSupplier)
-                .bindStringField("@type", (unused) -> Optional.of(typeName), (builder, val) -> {
-                })
+                .bindStringField("@type", (unused) -> Optional.of(typeName), (builder, val) -> {})
                 .setStructValidator(
                         struct -> {
-                            if (!getFieldFromStruct(struct, "@type").getStringValue().equals(
-                                    typeName)) {
+                            if (!getFieldFromStruct(struct, "@type")
+                                    .getStringValue()
+                                    .equals(typeName)) {
                                 throw new StructConversionException(
-                                        String.format("Struct @type field must be equal to %s.",
+                                        String.format(
+                                                "Struct @type field must be equal to %s.",
                                                 typeName));
                             }
                         });
@@ -103,6 +105,7 @@ final class TypeSpecBuilder<T, BuilderT extends BuilderOf<T>> {
             TypeSpecBuilder<T, BuilderT> newBuilderForThing(
                     String typeName, Supplier<BuilderT> builderSupplier) {
         return newBuilder(typeName, builderSupplier)
+                .bindIdentifier(T::getId)
                 .bindStringField("identifier", T::getId, BuilderT::setId)
                 .bindStringField("name", T::getName, BuilderT::setName);
     }
@@ -110,6 +113,11 @@ final class TypeSpecBuilder<T, BuilderT extends BuilderOf<T>> {
     private TypeSpecBuilder<T, BuilderT> setStructValidator(
             CheckedInterfaces.Consumer<Struct> structValidator) {
         this.mStructValidator = structValidator;
+        return this;
+    }
+
+    TypeSpecBuilder<T, BuilderT> bindIdentifier(Function<T, Optional<String>> identifierGetter) {
+        this.mIdentifierGetter = identifierGetter;
         return this;
     }
 
@@ -166,8 +174,7 @@ final class TypeSpecBuilder<T, BuilderT extends BuilderOf<T>> {
                 name,
                 (object) -> stringGetter.apply(object).map(TypeSpecBuilder::getStringValue),
                 (builder, value) ->
-                        value
-                                .map(Value::getStringValue)
+                        value.map(Value::getStringValue)
                                 .ifPresent(
                                         stringValue -> stringSetter.accept(builder, stringValue)));
     }
@@ -184,8 +191,10 @@ final class TypeSpecBuilder<T, BuilderT extends BuilderOf<T>> {
         return bindFieldInternal(
                 name,
                 (object) ->
-                        valueGetter.apply(object).map(Enum::toString).map(
-                                TypeSpecBuilder::getStringValue),
+                        valueGetter
+                                .apply(object)
+                                .map(Enum::toString)
+                                .map(TypeSpecBuilder::getStringValue),
                 (builder, value) -> {
                     if (value.isPresent()) {
                         String stringValue = value.get().getStringValue();
@@ -215,13 +224,15 @@ final class TypeSpecBuilder<T, BuilderT extends BuilderOf<T>> {
         return bindFieldInternal(
                 name,
                 (object) ->
-                        valueGetter.apply(object).map(Duration::toString).map(
-                                TypeSpecBuilder::getStringValue),
+                        valueGetter
+                                .apply(object)
+                                .map(Duration::toString)
+                                .map(TypeSpecBuilder::getStringValue),
                 (builder, value) -> {
                     if (value.isPresent()) {
                         try {
-                            valueSetter.accept(builder,
-                                    Duration.parse(value.get().getStringValue()));
+                            valueSetter.accept(
+                                    builder, Duration.parse(value.get().getStringValue()));
                         } catch (DateTimeParseException e) {
                             throw new StructConversionException(
                                     "Failed to parse ISO 8601 string to Duration", e);
@@ -249,8 +260,8 @@ final class TypeSpecBuilder<T, BuilderT extends BuilderOf<T>> {
                 (builder, value) -> {
                     if (value.isPresent()) {
                         try {
-                            valueSetter.accept(builder,
-                                    ZonedDateTime.parse(value.get().getStringValue()));
+                            valueSetter.accept(
+                                    builder, ZonedDateTime.parse(value.get().getStringValue()));
                         } catch (DateTimeParseException e) {
                             throw new StructConversionException(
                                     "Failed to parse ISO 8601 string to ZonedDateTime", e);
@@ -270,9 +281,7 @@ final class TypeSpecBuilder<T, BuilderT extends BuilderOf<T>> {
                 (object) ->
                         valueGetter
                                 .apply(object)
-                                .map(
-                                        Function
-                                                .identity()) // Static analyzer incorrectly
+                                .map(Function.identity()) // Static analyzer incorrectly
                                 // throws error stating that the
                                 // input to toStruct is nullable. This is a workaround to avoid
                                 // the error from the analyzer.
@@ -296,12 +305,16 @@ final class TypeSpecBuilder<T, BuilderT extends BuilderOf<T>> {
                 valueGetter,
                 valueSetter,
                 (element) ->
-                        Optional.ofNullable(element).map(
-                                value -> getStructValue(spec.toStruct(value))),
+                        Optional.ofNullable(element)
+                                .map(value -> getStructValue(spec.toStruct(value))),
                 (value) -> spec.fromStruct(value.getStructValue()));
     }
 
     TypeSpec<T> build() {
-        return new TypeSpecImpl<>(mBindings, mBuilderSupplier, Optional.ofNullable(mStructValidator));
+        return new TypeSpecImpl<>(
+                mIdentifierGetter,
+                mBindings,
+                mBuilderSupplier,
+                Optional.ofNullable(mStructValidator));
     }
 }
