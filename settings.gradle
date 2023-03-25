@@ -600,6 +600,7 @@ includeProject(":constraintlayout:constraintlayout-core", [BuildType.MAIN, Build
 includeProject(":contentpager:contentpager", [BuildType.MAIN])
 includeProject(":coordinatorlayout:coordinatorlayout", [BuildType.MAIN])
 includeProject(":core:core", [BuildType.MAIN, BuildType.GLANCE, BuildType.MEDIA, BuildType.FLAN, BuildType.COMPOSE, BuildType.WEAR])
+includeProject(":core:core-testing", [BuildType.MAIN, BuildType.GLANCE, BuildType.MEDIA, BuildType.FLAN, BuildType.COMPOSE, BuildType.WEAR])
 includeProject(":core:core:integration-tests:publishing", [BuildType.MAIN])
 includeProject(":core:core-animation", [BuildType.MAIN])
 includeProject(":core:core-animation-integration-tests:testapp", [BuildType.MAIN])
