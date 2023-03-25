@@ -97,11 +97,10 @@ internal class AndroidLSessionFactory @Inject constructor(private val threads: T
         surfaces: Map<StreamId, Surface>,
         captureSessionState: CaptureSessionState
     ): Map<StreamId, OutputConfigurationWrapper> {
-        try {
-            cameraDevice.createCaptureSession(
+        if (!cameraDevice.createCaptureSession(
                 surfaces.map { it.value }, captureSessionState, threads.camera2Handler
             )
-        } catch (e: Throwable) {
+        ) {
             Log.warn {
                 "Failed to create capture session from $cameraDevice for $captureSessionState!"
             }
@@ -122,9 +121,8 @@ constructor(private val threads: Threads, private val graphConfig: CameraGraph.C
         captureSessionState: CaptureSessionState
     ): Map<StreamId, OutputConfigurationWrapper> {
         if (graphConfig.input != null) {
-            try {
-                val outputConfig = graphConfig.input.stream.outputs.single()
-                cameraDevice.createReprocessableCaptureSession(
+            val outputConfig = graphConfig.input.stream.outputs.single()
+            if (!cameraDevice.createReprocessableCaptureSession(
                     InputConfiguration(
                         outputConfig.size.width,
                         outputConfig.size.height,
@@ -134,7 +132,7 @@ constructor(private val threads: Threads, private val graphConfig: CameraGraph.C
                     captureSessionState,
                     threads.camera2Handler
                 )
-            } catch (e: Throwable) {
+            ) {
                 Log.warn {
                     "Failed to create reprocessable captures session from $cameraDevice for" +
                         " $captureSessionState!"
@@ -142,11 +140,10 @@ constructor(private val threads: Threads, private val graphConfig: CameraGraph.C
                 captureSessionState.disconnect()
             }
         } else {
-            try {
-                cameraDevice.createCaptureSession(
+            if (!cameraDevice.createCaptureSession(
                     surfaces.map { it.value }, captureSessionState, threads.camera2Handler
                 )
-            } catch (e: Throwable) {
+            ) {
                 Log.warn {
                     "Failed to create captures session from $cameraDevice for $captureSessionState!"
                 }
@@ -165,11 +162,10 @@ internal class AndroidMHighSpeedSessionFactory @Inject constructor(private val t
         surfaces: Map<StreamId, Surface>,
         captureSessionState: CaptureSessionState
     ): Map<StreamId, OutputConfigurationWrapper> {
-        try {
-            cameraDevice.createConstrainedHighSpeedCaptureSession(
+        if (!cameraDevice.createConstrainedHighSpeedCaptureSession(
                 surfaces.map { it.value }, captureSessionState, threads.camera2Handler
             )
-        } catch (e: Throwable) {
+        ) {
             Log.warn {
                 "Failed to create ConstrainedHighSpeedCaptureSession " +
                     "from $cameraDevice for $captureSessionState!"
@@ -206,25 +202,24 @@ constructor(
             return emptyMap()
         }
 
-        try {
-            if (graphConfig.input == null) {
-                cameraDevice.createCaptureSessionByOutputConfigurations(
-                    outputs.all, captureSessionState, threads.camera2Handler
-                )
-            } else {
-                val outputConfig = graphConfig.input.stream.outputs.single()
-                cameraDevice.createReprocessableCaptureSessionByConfigurations(
-                    InputConfigData(
-                        outputConfig.size.width,
-                        outputConfig.size.height,
-                        outputConfig.format.value
-                    ),
-                    outputs.all,
-                    captureSessionState,
-                    threads.camera2Handler
-                )
-            }
-        } catch (e: Throwable) {
+        val result = if (graphConfig.input == null) {
+            cameraDevice.createCaptureSessionByOutputConfigurations(
+                outputs.all, captureSessionState, threads.camera2Handler
+            )
+        } else {
+            val outputConfig = graphConfig.input.stream.outputs.single()
+            cameraDevice.createReprocessableCaptureSessionByConfigurations(
+                InputConfigData(
+                    outputConfig.size.width,
+                    outputConfig.size.height,
+                    outputConfig.format.value
+                ),
+                outputs.all,
+                captureSessionState,
+                threads.camera2Handler
+            )
+        }
+        if (!result) {
             Log.warn {
                 "Failed to create capture session from $cameraDevice for $captureSessionState!"
             }
@@ -286,9 +281,7 @@ constructor(
                 graphConfig.sessionParameters
             )
 
-        try {
-            cameraDevice.createCaptureSession(sessionConfig)
-        } catch (e: Throwable) {
+        if (!cameraDevice.createCaptureSession(sessionConfig)) {
             Log.warn {
                 "Failed to create capture session from $cameraDevice for $captureSessionState!"
             }

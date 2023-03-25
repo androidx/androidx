@@ -179,7 +179,7 @@ private constructor(
                         Log.warn { "Did not submit $captureSequence, $this was closed!" }
                         return false
                     }
-                    val sequenceNumber = captureSequenceProcessor.submit(captureSequence)
+                    val sequenceNumber = captureSequenceProcessor.submit(captureSequence) ?: -1
                     captureSequence.sequenceNumber = sequenceNumber
                     sequenceNumber
                 }

@@ -51,7 +51,7 @@ interface CaptureSequenceProcessor<
     ): TCaptureSequence?
 
     /** Issue a previously created [CaptureSequence] to the active camera instance. */
-    fun submit(captureSequence: TCaptureSequence): Int
+    fun submit(captureSequence: TCaptureSequence): Int?
 
     /**
      * Opportunistically abort any ongoing captures by the camera. This may or may not complete

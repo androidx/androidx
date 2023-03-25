@@ -202,6 +202,7 @@ internal class Camera2CaptureSequenceProcessorTest {
 
         val result = captureSequenceProcessor.submit(sequence!!)
 
+        assertThat(result).isNotNull()
         assertThat(result).isGreaterThan(0)
         assertThat(fakeCaptureSessionWrapper.lastCapture).hasSize(1)
         assertThat(fakeCaptureSessionWrapper.lastRepeating).isNull()
@@ -231,6 +232,7 @@ internal class Camera2CaptureSequenceProcessorTest {
         assertThat(captureSequence).isNotNull()
 
         val result = captureSequenceProcessor.submit(captureSequence!!)
+        assertThat(result).isNotNull()
         assertThat(result).isGreaterThan(0)
     }
 
@@ -320,6 +322,7 @@ internal class Camera2CaptureSequenceProcessorTest {
 
         val result = captureSequenceProcessor.submit(sequence!!)
 
+        assertThat(result).isNotNull()
         assertThat(result).isGreaterThan(0)
         assertThat(fakeCaptureSessionWrapper.lastCapture).hasSize(1)
         assertThat(fakeCaptureSessionWrapper.lastRepeating).isNull()

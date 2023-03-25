@@ -179,6 +179,7 @@ constructor(
     }
 
     override fun onGraphModified(requestProcessor: GraphRequestProcessor) {
+        debug { "$this onGraphModified" }
         synchronized(lock) {
             if (closed) {
                 return
@@ -191,6 +192,7 @@ constructor(
     }
 
     override fun onGraphError(graphStateError: GraphStateError) {
+        debug { "$this onGraphError($graphStateError)" }
         _graphState.update { graphState ->
             if (graphState is GraphStateStopping || graphState is GraphStateStopped) {
                 GraphStateStopped
