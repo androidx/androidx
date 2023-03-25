@@ -31,7 +31,6 @@ import static androidx.core.util.Preconditions.checkState;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.os.Build;
-import android.util.Range;
 import android.util.Size;
 import android.view.Surface;
 import android.view.SurfaceView;
@@ -238,32 +237,14 @@ public class SurfaceEdge {
     @MainThread
     @NonNull
     public SurfaceRequest createSurfaceRequest(@NonNull CameraInternal cameraInternal) {
-        return createSurfaceRequest(cameraInternal, null);
-    }
-
-    /**
-     * Creates a {@link SurfaceRequest} that is linked to this {@link SurfaceEdge}.
-     *
-     * <p>The {@link SurfaceRequest} is for requesting a {@link Surface} from an external source
-     * such as {@code PreviewView} or {@code VideoCapture}. {@link SurfaceEdge} uses the
-     * {@link Surface} provided by {@link SurfaceRequest#provideSurface} as its source. For how
-     * the ref-counting works, please see the Javadoc of {@link #setProvider}.
-     *
-     * <p>It throws {@link IllegalStateException} if the current {@link SurfaceEdge}
-     * already has a provider.
-     *
-     * <p>This overload optionally allows allows specifying the dynamic range and expected frame
-     * rate range with which the surface should operate.
-     */
-    @MainThread
-    @NonNull
-    public SurfaceRequest createSurfaceRequest(@NonNull CameraInternal cameraInternal,
-            @Nullable Range<Integer> expectedFrameRateRange) {
         checkMainThread();
         checkNotClosed();
         // TODO(b/238230154) figure out how to support HDR.
-        SurfaceRequest surfaceRequest = new SurfaceRequest(mStreamSpec.getResolution(),
-                cameraInternal, mStreamSpec.getDynamicRange(), expectedFrameRateRange,
+        SurfaceRequest surfaceRequest = new SurfaceRequest(
+                mStreamSpec.getResolution(),
+                cameraInternal,
+                mStreamSpec.getDynamicRange(),
+                mStreamSpec.getExpectedFrameRateRange(),
                 () -> mainThreadExecutor().execute(() -> {
                     if (!mIsClosed) {
                         invalidate();

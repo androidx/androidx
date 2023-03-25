@@ -20,14 +20,16 @@ import android.util.Range;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
+import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy;
 import androidx.camera.core.impl.Timebase;
 import androidx.camera.video.VideoSpec;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
 import androidx.core.util.Supplier;
+
+import java.util.Objects;
 
 /**
  * A {@link VideoEncoderConfig} supplier that resolves requested encoder settings from a
@@ -44,7 +46,6 @@ public class VideoEncoderConfigVideoProfileResolver implements Supplier<VideoEnc
     private final VideoSpec mVideoSpec;
     private final Size mSurfaceSize;
     private final VideoProfileProxy mVideoProfile;
-    @Nullable
     private final Range<Integer> mExpectedFrameRateRange;
 
     /**
@@ -58,18 +59,19 @@ public class VideoEncoderConfigVideoProfileResolver implements Supplier<VideoEnc
      * @param videoProfile     The {@link VideoProfileProxy} used to resolve automatic and range
      *                         settings.
      * @param expectedFrameRateRange The expected source frame rate range. This should act as an
-     *                               envelope for any frame rate calculated from {@code videoSpec
-     *                               } and {@code videoProfile} since the source should not
-     *                               produce frames at a frame rate outside this range. If {@code
-     *                               null}, then no information about the source frame rate is
-     *                               available and it does not need to be used in calculations.
+     *                               envelope for any frame rate calculated from {@code videoSpec}
+     *                               and {@code videoProfile} since the source should not
+     *                               produce frames at a frame rate outside this range. If
+     *                               equal to {@link SurfaceRequest#FRAME_RATE_RANGE_UNSPECIFIED},
+     *                               then no information about the source frame rate is available
+     *                               and it does not need to be used in calculations.
      */
     public VideoEncoderConfigVideoProfileResolver(@NonNull String mimeType,
             @NonNull Timebase inputTimebase,
             @NonNull VideoSpec videoSpec,
             @NonNull Size surfaceSize,
             @NonNull VideoProfileProxy videoProfile,
-            @Nullable Range<Integer> expectedFrameRateRange) {
+            @NonNull Range<Integer> expectedFrameRateRange) {
         mMimeType = mimeType;
         mInputTimebase = inputTimebase;
         mVideoSpec = videoSpec;
@@ -103,16 +105,21 @@ public class VideoEncoderConfigVideoProfileResolver implements Supplier<VideoEnc
     }
 
     private int resolveFrameRate() {
-        Range<Integer> videoSpecFrameRateRange = mVideoSpec.getFrameRate();
         int videoProfileFrameRate = mVideoProfile.getFrameRate();
-        Logger.d(TAG,
-                String.format("Frame rate from video profile: %dfps. [Requested range: %s, "
-                        + "Expected operating range: %s]", videoProfileFrameRate,
-                        videoSpecFrameRateRange, mExpectedFrameRateRange));
+        int resolvedFrameRate;
+        if (!Objects.equals(mExpectedFrameRateRange, SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED)) {
+            resolvedFrameRate = mExpectedFrameRateRange.clamp(videoProfileFrameRate);
+        } else {
+            resolvedFrameRate = videoProfileFrameRate;
+        }
 
-        return VideoConfigUtil.resolveFrameRate(
-                /*preferredRange=*/ videoSpecFrameRateRange,
-                /*exactFrameRateHint=*/ videoProfileFrameRate,
-                /*strictOperatingFpsRange=*/mExpectedFrameRateRange);
+        Logger.d(TAG,
+                String.format("Resolved frame rate %dfps [Video profile frame rate: %dfps, "
+                                + "Expected operating range: %s]", resolvedFrameRate,
+                        videoProfileFrameRate, Objects.equals(mExpectedFrameRateRange,
+                                SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED)
+                                ? mExpectedFrameRateRange : "<UNSPECIFIED>"));
+
+        return resolvedFrameRate;
     }
 }

@@ -203,6 +203,15 @@ class PreviewTest {
     }
 
     @Test
+    fun surfaceRequestFrameRateRange_isUnspecified() {
+        // Target frame rate range isn't specified, so SurfaceRequest
+        // expected frame rate range should be unspecified.
+        assertThat(bindToLifecycleAndGetSurfaceRequest().expectedFrameRate).isEqualTo(
+            SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
+        )
+    }
+
+    @Test
     fun defaultMirrorModeIsOnFrontOnly() {
         val preview = Preview.Builder().build()
         assertThat(preview.mirrorModeInternal).isEqualTo(MIRROR_MODE_ON_FRONT_ONLY)

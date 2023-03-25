@@ -230,7 +230,7 @@ public final class Preview extends UseCase {
                 streamSpec.getResolution(),
                 getCamera(),
                 streamSpec.getDynamicRange(),
-                /* expectedFrameRate= */null,
+                streamSpec.getExpectedFrameRateRange(),
                 this::notifyReset);
         mCurrentSurfaceRequest = surfaceRequest;
 
@@ -287,8 +287,7 @@ public final class Preview extends UseCase {
 
         // Send the app Surface to the app.
         mSessionDeferrableSurface = mCameraEdge.getDeferrableSurface();
-        mCurrentSurfaceRequest = appEdge.createSurfaceRequest(camera,
-                /* expectedFrameRateRange= */null);
+        mCurrentSurfaceRequest = appEdge.createSurfaceRequest(camera);
         if (mSurfaceProvider != null) {
             // Only send surface request if the provider is set.
             sendSurfaceRequest();
