@@ -38,6 +38,7 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_FRAME_RATE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 import static androidx.camera.core.impl.utils.Threads.isMainThread;
 import static androidx.camera.core.impl.utils.TransformUtils.rectToString;
+import static androidx.camera.core.impl.utils.TransformUtils.within360;
 import static androidx.camera.core.internal.TargetConfig.OPTION_TARGET_CLASS;
 import static androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECUTOR;
@@ -247,13 +248,12 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      *
      * <p>The rotation can be set prior to constructing a VideoCapture using
      * {@link VideoCapture.Builder#setTargetRotation(int)} or dynamically by calling
-     * {@link VideoCapture#setTargetRotation(int)} or {@link #setTargetRotationDegrees(int)}.
+     * {@link VideoCapture#setTargetRotation(int)}.
      * If not set, the target rotation defaults to the value of {@link Display#getRotation()} of
      * the default display at the time the use case is bound.
      *
      * @return The rotation of the intended target.
      * @see VideoCapture#setTargetRotation(int)
-     * @see VideoCapture#setTargetRotationDegrees(int)
      */
     @RotationValue
     public int getTargetRotation() {
@@ -290,10 +290,11 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      * the target rotation. This way, the rotation output will indicate which way is down for a
      * given video. This is important since display orientation may be locked by device default,
      * user setting, or app configuration, and some devices may not transition to a
-     * reverse-portrait display orientation. In these cases, use
-     * {@link #setTargetRotationDegrees} to set target rotation dynamically according to the
-     * {@link android.view.OrientationEventListener}, without re-creating the use case.
-     * See {@link #setTargetRotationDegrees} for more information.
+     * reverse-portrait display orientation. In these cases, set target rotation dynamically
+     * according to the {@link android.view.OrientationEventListener}, without re-creating the
+     * use case. {@link UseCase#snapToSurfaceRotation(int)} is a helper function to convert the
+     * orientation of the {@link android.view.OrientationEventListener} to a rotation value.
+     * See {@link UseCase#snapToSurfaceRotation(int)} for more information and sample code.
      *
      * <p>If not set, the target rotation will default to the value of
      * {@link Display#getRotation()} of the default display at the time the use case is bound. To
@@ -385,9 +386,12 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      * will choose a strategy according to the use case.
      *
      * @param degrees Desired rotation degree of the output video.
+     * @deprecated Use {@link UseCase#snapToSurfaceRotation(int)} and
+     * {@link #setTargetRotation(int)} to convert and set the rotation.
      */
+    @Deprecated // TODO(b/277999375): Remove API setTargetRotationDegrees.
     public void setTargetRotationDegrees(int degrees) {
-        setTargetRotation(orientationDegreesToSurfaceRotation(degrees));
+        setTargetRotation(snapToSurfaceRotation(within360(degrees)));
     }
 
     /**
@@ -1479,7 +1483,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
          * Rotation values are relative to the "natural" rotation, {@link Surface#ROTATION_0}.
          *
          * <p>In general, it is best to additionally set the target rotation dynamically on the
-         * use case. See {@link VideoCapture#setTargetRotationDegrees(int)} for additional
+         * use case. See {@link VideoCapture#setTargetRotation(int)} for additional
          * documentation.
          *
          * <p>If not set, the target rotation will default to the value of
@@ -1495,7 +1499,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
          * @param rotation The rotation of the intended target.
          * @return The current Builder.
          * @see VideoCapture#setTargetRotation(int)
-         * @see VideoCapture#setTargetRotationDegrees(int)
          * @see android.view.OrientationEventListener
          */
         @NonNull
