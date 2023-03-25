@@ -50,6 +50,8 @@ public interface WindowAreaComponent {
      * WindowArea status constant to signify that the feature is
      * unsupported on this device. Could be due to the device not supporting that
      * specific feature.
+     *
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     int STATUS_UNSUPPORTED = 0;
 
@@ -58,18 +60,24 @@ public interface WindowAreaComponent {
      * currently unavailable but is supported on this device. This value could signify
      * that the current device state does not support the specific feature or another
      * process is currently enabled in that feature.
+     *
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     int STATUS_UNAVAILABLE = 1;
 
     /**
      * WindowArea status constant to signify that the feature is
      * available to be entered or enabled.
+     *
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     int STATUS_AVAILABLE = 2;
 
     /**
      * WindowArea status constant to signify that the feature is
      * already enabled.
+     *
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
     int STATUS_ACTIVE = 3;
 
