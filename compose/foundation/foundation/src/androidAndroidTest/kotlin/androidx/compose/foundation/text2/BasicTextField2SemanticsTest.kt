@@ -3,9 +3,7 @@ package androidx.compose.foundation.text2
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.text.InternalFoundationTextApi
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.TextDelegate
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,6 +14,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
@@ -23,23 +22,21 @@ import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasImeAction
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.isEnabled
 import androidx.compose.ui.test.isFocused
+import androidx.compose.ui.test.isNotEnabled
 import androidx.compose.ui.test.isNotFocused
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.test.performTextInputSelection
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.Density
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -53,20 +50,6 @@ class BasicTextField2SemanticsTest {
     val rule = createComposeRule()
 
     private val Tag = "TextField"
-
-    private var defaultDensity = Density(1f)
-    private val context = InstrumentationRegistry.getInstrumentation().context
-    private val defaultFontFamilyResolver = createFontFamilyResolver(context)
-
-    @OptIn(InternalFoundationTextApi::class)
-    private var textLayoutState = TextLayoutState(
-        TextDelegate(
-            AnnotatedString(""),
-            TextStyle.Default,
-            fontFamilyResolver = defaultFontFamilyResolver,
-            density = defaultDensity
-        )
-    )
 
     @Test
     fun defaultSemantics() {
@@ -105,6 +88,28 @@ class BasicTextField2SemanticsTest {
         rule.onNodeWithTag(Tag)
             .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(textLayoutResults) }
         assert(textLayoutResults.size == 1) { "TextLayoutResult is null" }
+    }
+
+    @Test
+    fun semantics_enabledStatus() {
+        var enabled by mutableStateOf(true)
+        rule.setContent {
+            val state = remember { TextFieldState() }
+            BasicTextField2(
+                state = state,
+                modifier = Modifier.testTag(Tag),
+                enabled = enabled
+            )
+        }
+
+        rule.onNodeWithTag(Tag)
+            .assert(isEnabled())
+
+        enabled = false
+        rule.waitForIdle()
+
+        rule.onNodeWithTag(Tag)
+            .assert(isNotEnabled())
     }
 
     @Test
@@ -204,6 +209,24 @@ class BasicTextField2SemanticsTest {
         with(rule.onNodeWithTag(Tag)) {
             assertTextEquals("hello")
             assertSelection(TextRange(2))
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun inputSelection_changesSelectionState() {
+        val state = TextFieldState(TextFieldValue("hello"))
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                modifier = Modifier.testTag(Tag)
+            )
+        }
+
+        rule.onNodeWithTag(Tag).performTextInputSelection(TextRange(2))
+
+        rule.runOnIdle {
+            assertThat(state.value.selection).isEqualTo(TextRange(2))
         }
     }
 

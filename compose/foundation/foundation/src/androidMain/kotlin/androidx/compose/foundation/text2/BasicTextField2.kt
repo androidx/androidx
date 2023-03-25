@@ -27,18 +27,15 @@ import androidx.compose.foundation.text.InternalFoundationTextApi
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.TextDelegate
 import androidx.compose.foundation.text.heightInLines
-import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.SimpleLayout
 import androidx.compose.foundation.text.textFieldMinSize
 import androidx.compose.foundation.text2.service.AndroidTextInputPlugin
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.layout.Layout
@@ -47,7 +44,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalPlatformTextInputPluginRegistry
 import androidx.compose.ui.text.TextLayoutResult
-import androidx.compose.ui.text.TextPainter
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -115,7 +111,6 @@ fun BasicTextField2(
 
     val fontFamilyResolver = LocalFontFamilyResolver.current
     val density = LocalDensity.current
-    val selectionBackgroundColor = LocalTextSelectionColors.current.backgroundColor
     val singleLine = minLines == 1 && maxLines == 1
     // We're using this to communicate focus state to cursor for now.
     @Suppress("NAME_SHADOWING")
@@ -133,33 +128,6 @@ fun BasicTextField2(
             )
         )
     }
-
-    val drawModifier = Modifier.drawBehind {
-        textLayoutState.layoutResult?.let { layoutResult ->
-            // draw selection
-            val value = state.value
-            if (!value.selection.collapsed) {
-                val start = value.selection.min
-                val end = value.selection.max
-                if (start != end) {
-                    val selectionPath = layoutResult.getPathForRange(start, end)
-                    drawPath(selectionPath, color = selectionBackgroundColor)
-                }
-            }
-            // draw text
-            drawIntoCanvas { canvas ->
-                TextPainter.paint(canvas, layoutResult)
-            }
-        }
-    }
-
-    val cursorModifier = Modifier.cursor(
-        textLayoutState = textLayoutState,
-        isFocused = interactionSource.collectIsFocusedAsState().value,
-        state = state,
-        cursorBrush = cursorBrush,
-        enabled = enabled && !readOnly
-    )
 
     val decorationModifiers = modifier
         .then(
@@ -184,9 +152,14 @@ fun BasicTextField2(
                     minLines = minLines,
                     maxLines = maxLines
                 )
-                .then(drawModifier)
                 .textFieldMinSize(textStyle)
-                .then(cursorModifier)
+                .then(TextFieldCoreModifierElement(
+                    isFocused = interactionSource.collectIsFocusedAsState().value,
+                    textLayoutState = textLayoutState,
+                    textFieldState = state,
+                    cursorBrush = cursorBrush,
+                    writeable = enabled && !readOnly
+                ))
                 .onGloballyPositioned {
                     textLayoutState.proxy?.innerTextFieldCoordinates = it
                 }

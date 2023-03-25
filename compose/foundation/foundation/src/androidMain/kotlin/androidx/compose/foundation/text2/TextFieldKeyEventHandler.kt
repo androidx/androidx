@@ -28,7 +28,6 @@ import androidx.compose.foundation.text2.input.CommitTextCommand
 import androidx.compose.foundation.text2.input.DeleteSurroundingTextCommand
 import androidx.compose.foundation.text2.input.EditCommand
 import androidx.compose.foundation.text2.input.FinishComposingTextCommand
-import androidx.compose.foundation.text2.input.SetSelectionCommand
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.type
@@ -216,11 +215,9 @@ internal class TextFieldKeyEventHandler {
         preparedSelection.block()
         if (preparedSelection.selection != preparedSelection.initialValue.selection) {
             // update the editProcessor with the latest selection state.
-            state.editProcessor.update(
-                listOf(SetSelectionCommand(
-                    preparedSelection.selection.start,
-                    preparedSelection.selection.end
-                ))
+            // this has to be a reset because EditCommands do not inform IME.
+            state.editProcessor.reset(
+                preparedSelection.initialValue.copy(selection = preparedSelection.selection)
             )
         }
     }

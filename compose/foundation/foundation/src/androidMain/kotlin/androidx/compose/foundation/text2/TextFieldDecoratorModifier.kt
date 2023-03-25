@@ -46,10 +46,12 @@ import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.imeAction
 import androidx.compose.ui.semantics.insertTextAtCursor
 import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.setSelection
 import androidx.compose.ui.semantics.setText
 import androidx.compose.ui.semantics.textSelectionRange
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastAny
 
@@ -116,8 +118,11 @@ internal class TextFieldDecoratorModifierNode(
     PointerInputModifierNode,
     KeyInputModifierNode {
 
+    // semantics properties that require semantics invalidation
     private var lastText: AnnotatedString? = null
     private var lastSelection: TextRange? = null
+    private var lastEnabled: Boolean = enabled
+
     private var isFocused: Boolean = false
     private var semanticsConfigurationCache: SemanticsConfiguration? = null
     private var textInputSession: TextInputSession? = null
@@ -183,7 +188,8 @@ internal class TextFieldDecoratorModifierNode(
             // selection might change without triggering a modifier update.
             if (localSemantics == null ||
                 lastText != value.annotatedString ||
-                lastSelection != value.selection
+                lastSelection != value.selection ||
+                lastEnabled != enabled
             ) {
                 localSemantics = generateSemantics(value.annotatedString, value.selection)
             }
@@ -255,6 +261,7 @@ internal class TextFieldDecoratorModifierNode(
     ): SemanticsConfiguration {
         lastText = text
         lastSelection = selection
+        lastEnabled = enabled
         return SemanticsConfiguration().apply {
             this.isMergingSemanticsOfDescendants = true
             getTextLayoutResult {
@@ -273,6 +280,30 @@ internal class TextFieldDecoratorModifierNode(
                     )
                 )
                 true
+            }
+            setSelection { start, end, _ ->
+                // BasicTextField2 doesn't have VisualTransformation for the time being and
+                // probably won't have something that uses offsetMapping design. We can safely
+                // skip relativeToOriginalText flag. Assume it's always true.
+
+                if (!enabled) {
+                    false
+                } else if (start == selection.start && end == selection.end) {
+                    false
+                } else if (start.coerceAtMost(end) >= 0 &&
+                    start.coerceAtLeast(end) <= text.length
+                ) {
+                    // reset is required to make sure IME gets the update.
+                    textFieldState.editProcessor.reset(
+                        TextFieldValue(
+                            annotatedString = text,
+                            selection = TextRange(start, end)
+                        )
+                    )
+                    true
+                } else {
+                    false
+                }
             }
             insertTextAtCursor { text ->
                 textFieldState.editProcessor.update(
