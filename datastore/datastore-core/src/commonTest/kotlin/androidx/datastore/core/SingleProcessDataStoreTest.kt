@@ -912,6 +912,22 @@ abstract class SingleProcessDataStoreTest<F : TestFile>(private val testIO: Test
         assertThat(asyncCollector.await()).containsExactly(2.toByte(), 3.toByte()).inOrder()
     }
 
+    @Test
+    fun testCancelledDataStoreScopeCantRead() = doTest {
+        // TODO(b/273990827): decide the contract of accessing when state is Final
+        dataStoreScope.cancel()
+
+        val flowCollector = async {
+            store.data.toList()
+        }
+        runCurrent()
+        assertThrows<CancellationException> { flowCollector.await() }
+
+        assertThrows<CancellationException> {
+            store.data.first()
+        }
+    }
+
     private class TestingCorruptionHandler(
         private val replaceWith: Byte? = null
     ) : CorruptionHandler<Byte> {
