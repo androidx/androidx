@@ -23,7 +23,7 @@ import androidx.glance.unit.ColorProvider
 /**
  * Description of a text style for the [androidx.glance.text.Text] composable.
  *
- * @param color optionally specifies which font family to use for the text, defaults to
+ * @param color optionally specifies the color to use for the text, defaults to
  *         [TextDefaults.defaultTextColor].
  * @param fontSize optionally specifies the size to use for the text, defaults to system when null.
  * @param fontWeight optionally specifies the weight to use for the text, defaults to system
