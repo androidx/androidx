@@ -3690,6 +3690,30 @@ class CompositionTests {
         assertEquals(2, i2)
         assertEquals(3, i3)
     }
+
+    @Test
+    fun test_crossinline_differentComposition() = compositionTest {
+        var branch by mutableStateOf(false)
+        compose {
+            if (branch) {
+                Text("Content")
+            }
+            InlineSubcomposition {
+                if (false) {
+                    remember { "Something" }
+                }
+            }
+        }
+        validate {
+            if (branch) {
+                Text("Content")
+            }
+        }
+
+        branch = true
+        expectChanges()
+        revalidate()
+    }
 }
 
 class SomeUnstableClass(val a: Any = "abc")
@@ -3937,3 +3961,8 @@ private inline fun simulatedIf(condition: Boolean, block: () -> Unit) {
 private inline fun MockViewValidator.simulatedIf(condition: Boolean, block: () -> Unit) {
     if (condition) block()
 }
+
+@Composable
+private inline fun InlineSubcomposition(
+    crossinline content: @Composable () -> Unit
+) = TestSubcomposition { content() }
