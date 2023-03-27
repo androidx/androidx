@@ -23,7 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.wear.protolayout.ColorBuilders.ColorProp;
 
 /**
- * Represents the indicator and track colors used in a progress indicator Tiles component.
+ * Represents the indicator and track colors used in {@link CircularProgressIndicator}.
  *
  * <p>See {@link ProgressIndicatorDefaults#DEFAULT_COLORS} for the default colors used in a {@link
  * CircularProgressIndicator}.
@@ -35,10 +35,9 @@ public class ProgressIndicatorColors {
     /**
      * Constructor for {@link ProgressIndicatorColors} object.
      *
-     * @param indicatorColor The indicator color to be used for a progress indicator Tiles
-     *     component.
-     * @param trackColor The background track color to be used for a progress indicator Tiles
-     *     component.
+     * @param indicatorColor The indicator color to be used for {@link CircularProgressIndicator}.
+     * @param trackColor The background track color to be used for
+     * {@link CircularProgressIndicator}.
      */
     public ProgressIndicatorColors(
             @NonNull ColorProp indicatorColor, @NonNull ColorProp trackColor) {
@@ -49,10 +48,10 @@ public class ProgressIndicatorColors {
     /**
      * Constructor for {@link ProgressIndicatorColors} object.
      *
-     * @param indicatorColor The indicator color to be used for a progress indicator Tiles
-     *     component. Should be in ARGB format.
-     * @param trackColor The background track color to be used for a progress indicator Tiles
-     *     component. Should be in ARGB format.
+     * @param indicatorColor The indicator color to be used for {@link CircularProgressIndicator}.
+     *     Should be in ARGB format.
+     * @param trackColor The background track color to be used for
+     *     {@link CircularProgressIndicator}. Should be in ARGB format.
      */
     public ProgressIndicatorColors(@ColorInt int indicatorColor, @ColorInt int trackColor) {
         this.mIndicatorColor = argb(indicatorColor);
@@ -69,13 +68,13 @@ public class ProgressIndicatorColors {
         return new ProgressIndicatorColors(colors.getPrimary(), colors.getSurface());
     }
 
-    /** The indicator color to be used for a progress indicator Tiles component. */
+    /** The indicator color to be used for {@link CircularProgressIndicator}. */
     @NonNull
     public ColorProp getIndicatorColor() {
         return mIndicatorColor;
     }
 
-    /** The background track color to be used for a progress indicator Tiles component. */
+    /** The background track color to be used for {@link CircularProgressIndicator}. */
     @NonNull
     public ColorProp getTrackColor() {
         return mTrackColor;

@@ -23,7 +23,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.DimensionBuilders.DpProp;
 
-/** Contains the default values used by chip Tiles components. */
+/** Contains the default values used by {@link Chip}. */
 public class ChipDefaults {
     private ChipDefaults() {}
 

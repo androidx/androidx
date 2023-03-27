@@ -61,7 +61,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Tiles component {@link Button} that represents clickable button with the given content.
+ * ProtoLayout component {@link Button} that represents clickable button with the given content.
  *
  * <p>The Button is circular in shape. The recommended sizes are defined in {@link ButtonDefaults}.
  *
