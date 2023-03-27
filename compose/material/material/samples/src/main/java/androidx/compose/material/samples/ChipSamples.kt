@@ -166,12 +166,13 @@ fun ChipGroupReflowSample() {
             Modifier
                 .fillMaxWidth(1f)
                 .wrapContentHeight(align = Alignment.Top),
-            verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
         ) {
             repeat(10) { index ->
                 Chip(
-                    modifier = Modifier.padding(horizontal = 4.dp),
+                    modifier = Modifier
+                        .padding(horizontal = 4.dp)
+                        .align(alignment = Alignment.CenterVertically),
                     onClick = { /* do something*/ }) {
                     Text("Chip $index")
                 }
