@@ -68,22 +68,17 @@ class SensorGatewayPlatformDataSource {
                     public void onData(double value) {
                         mUiExecutor.execute(() -> callback.onData((int) value));
                     }
-
-                    @Override
-                    @SensorDataType
-                    public int getRequestedDataType() {
-                        return sensorDataType;
-                    }
                 };
         mCallbackToRegisteredSensorConsumer.put(callback, sensorConsumer);
-        mSensorGateway.registerSensorGatewayConsumer(sensorConsumer);
+        mSensorGateway.registerSensorGatewayConsumer(sensorDataType, sensorConsumer);
     }
 
     public void unregisterForData(
             PlatformInt32SourceType sourceType, DynamicTypeValueReceiver<Integer> consumer) {
+        @SensorDataType int sensorDataType = mapSensorPlatformSource(sourceType);
         SensorGateway.Consumer sensorConsumer = mCallbackToRegisteredSensorConsumer.get(consumer);
         if (sensorConsumer != null) {
-            mSensorGateway.unregisterSensorGatewayConsumer(sensorConsumer);
+            mSensorGateway.unregisterSensorGatewayConsumer(sensorDataType, sensorConsumer);
         }
     }
 
