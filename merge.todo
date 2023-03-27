@@ -1,0 +1,111 @@
+1. fix SkiaBasedOwner after commits:
+  * e863b47cef2abb54ca595c679f4801bb9faf3b56
+  * 92d3c662f9b1f404c980a06c5e59fa000d5ad237
+  * d1dcb385886fc7840d7c0203ee7daf460c71a9de
+
+2. Check gradlew, jdk 17 started to be used in androidx
+
+3. Wear OS build files doesn't support multiplaftorm anymore after commits:
+  * ff8d60482c23e06be78e19283af4fd2e6d2094db
+
+4. Check LibraryVersionsService, there were a lot of changes. Androidx state is used. Latest commit from androidx:
+  * 302779dfdc820629d527660c692ab1d9eda58850
+
+5. Check sendKeyEvent and sendPointerEvent (our changes were moved to another place) after androidx commit:
+  * 92d3c662
+
+6. Check SkiaLayer after commits:
+  * b4f1d512
+  * 06fdca89
+
+7. Check SkiaLayerTest after commits:
+  * b4f1d512
+  * 06fdca89
+
+8. Check ComposeUiTest after commits:
+  * d1dcb385
+  * fd593836
+
+9. Check ContextMenuProvider.desktop.kt -- use awaitEachGesture after commits:
+  * 32de9dd2
+
+10. Check Scrollbar.desktop.kt -- use awaitEachGesture after commits:
+  * 32de9dd2
+
+11. Fix SkiaParagraph after commits:
+  * 3b6bc9fd
+
+12. Check AndroidX extensions. Androidx version is used. There are a lot of commits, latest is:
+  * 1f288d8d
+
+13. Check AbstractIrTransformTest. There are a lot of commits, latest is:
+  * 97262c0a
+
+14. Check androidx.compose.compiler.plugins.kotlin.analysis.Stability
+
+15. Check CompositionGroup, new methods were added in this interface. Should we implement them?
+
+16. Implement or remove `except fun Expect.logError` (androidx/compose/runtime/Expect.kt:103)
+
+17. Check MultiWidgetSelectionDelegate. Synchronized is not resolved there.
+    Seems jvm part is used on Google side? Where is import then?
+
+18. Check that androidx.compose.foundation.text.CoreTextFieldKt.notifyFocusedRect
+    is better then our previous solution with focusing rectangle
+
+19. Check ComposePlugin. Androidx version was taken
+
+20. Check ComposableTypRemapper. Androidx version was taken
+
+21. Check ClassStabilityTransformer. Androidx version was taken. Especially stabilityProp in the end of the file
+
+22. Check AbstractComposeLowering.kt. It was merged with keeping both changes.
+
+23. Check compose/mpp/demo/build.gradle.kts:25. It was commented because of gradle 8.0 update. With it there were issues with Gradle Sync
+
+
+Common part conflicts:
+androidx.compose.foundation.foundation.commonMain
+    CoreTextField.kt
+    LazyGridMeasure.kt
+    LazyGridMeasureResult.kt
+    LazyListMeasure.kt
+    LazyListMeasureResult.kt
+    LazyStaggeredGridMeasure.kt
+    LazyStaggeredGridMeasureResult.kt
+    MultiWidgetSelectionDelegate.kt
+    Selectable.kt
+    TapGestureDetector.kt
+    TextFieldCursor.kt
+    TextFieldDelegate.kt
+    TextSelectionMouseDetector.kt
+androidx.compose.runtime.runtime.commonMain
+    CompositionData.kt
+    Expect.kt
+androidx.compose.runtime.runtime.commonTest
+    CompositionTests.kt
+androidx.compose.ui.ui.commonMain
+    FocusManager.kt
+    FocusOrderModifier.kt
+    FocusProperties.kt
+    NodeCoordinator.kt
+    OneDimensionalFocusSearch.kt
+    PointerIcon.kt
+androidx.compose.ui.ui-text.commonMain
+    TextInputService.kt
+
+
+Compiler-hosted.main conflicts:
+    AbstractComposeLowering.kt
+    ClassStabilityTransformer.kt
+    ComposableTypeRemapper.kt
+    ComposePlugin.kt
+    ComposerLambdaMemoization.kt
+    ComposerParamTransformer.kt
+    CreateDecoysTransformer.kt
+    DecoyTransformBase.kt
+    DurableFunctionKeyTransformer.kt
+    LiveLiteralTransformer.kt
+    Stability.kt
+    SubstituteDecoyCallsTransformer.kt
+    WrapJsComposableLambdaLowering.kt

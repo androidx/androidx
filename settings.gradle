@@ -1111,7 +1111,8 @@ includeProject(":icing", new File(externalRoot, "icing"), [BuildType.MAIN])
 includeProject(":icing:nativeLib", new File(externalRoot, "icing/nativeLib"), [BuildType.MAIN])
 includeProject(":external:libyuv", [BuildType.CAMERA])
 includeProject(":noto-emoji-compat-font", new File(externalRoot, "noto-fonts/emoji-compat"), [BuildType.MAIN])
-includeProject(":noto-emoji-compat-flatbuffers", new File(externalRoot, "noto-fonts/emoji-compat-flatbuffers"), [BuildType.MAIN, BuildType.COMPOSE])
+// temporary excluded from COMPOSE in JetBrains Fork, so project can compile without external. Android part won't compile.
+includeProject(":noto-emoji-compat-flatbuffers", new File(externalRoot, "noto-fonts/emoji-compat-flatbuffers"), [BuildType.MAIN])
 includeProject(":external:paparazzi:paparazzi", [BuildType.COMPOSE])
 includeProject(":external:paparazzi:paparazzi-agent", [BuildType.COMPOSE])
 
