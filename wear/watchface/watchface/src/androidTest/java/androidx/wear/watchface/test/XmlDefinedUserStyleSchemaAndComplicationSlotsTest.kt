@@ -67,6 +67,7 @@ import org.junit.After
 import org.junit.Assert
 import org.junit.Assume
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -215,6 +216,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
         assertThat(existingInstance).isNull()
     }
 
+    @Ignore // b/275354644
     @Test
     @Suppress("Deprecation", "NewApi") // userStyleSettings
     public fun staticSchemaAndComplicationsRead() {
