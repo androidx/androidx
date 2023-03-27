@@ -18,10 +18,11 @@ package androidx.camera.testing.fakes;
 
 import android.util.Range;
 import android.util.Rational;
+import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraState;
@@ -29,9 +30,9 @@ import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.ZoomState;
-import androidx.camera.core.impl.CamcorderProfileProvider;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.Quirk;
 import androidx.camera.core.impl.Quirks;
@@ -43,7 +44,10 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 /**
@@ -59,15 +63,17 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     private final int mLensFacing;
     private final MutableLiveData<Integer> mTorchState = new MutableLiveData<>(TorchState.OFF);
     private final MutableLiveData<ZoomState> mZoomLiveData;
+    private final Map<Integer, List<Size>> mSupportedResolutionMap = new HashMap<>();
     private MutableLiveData<CameraState> mCameraStateLiveData;
     private String mImplementationType = IMPLEMENTATION_TYPE_FAKE;
 
     // Leave uninitialized to support camera-core:1.0.0 dependencies.
     // Can be initialized during class init once there are no more pinned dependencies on
     // camera-core:1.0.0
-    private CamcorderProfileProvider mCamcorderProfileProvider;
+    private EncoderProfilesProvider mEncoderProfilesProvider;
 
     private boolean mIsPrivateReprocessingSupported = false;
+    private float mIntrinsicZoomRatio = 1.0F;
 
     @NonNull
     private final List<Quirk> mCameraQuirks = new ArrayList<>();
@@ -94,10 +100,8 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         mZoomLiveData = new MutableLiveData<>(ImmutableZoomState.create(1.0f, 4.0f, 1.0f, 0.0f));
     }
 
-    @SuppressWarnings("ConstantConditions") // Super method is nullable.
-    @Nullable
     @Override
-    public Integer getLensFacing() {
+    public int getLensFacing() {
         return mLensFacing;
     }
 
@@ -169,15 +173,22 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
     @NonNull
     @Override
-    public CamcorderProfileProvider getCamcorderProfileProvider() {
-        return mCamcorderProfileProvider == null ? CamcorderProfileProvider.EMPTY :
-                mCamcorderProfileProvider;
+    public EncoderProfilesProvider getEncoderProfilesProvider() {
+        return mEncoderProfilesProvider == null ? EncoderProfilesProvider.EMPTY :
+                mEncoderProfilesProvider;
     }
 
     @NonNull
     @Override
     public Timebase getTimebase() {
         return mTimebase;
+    }
+
+    @NonNull
+    @Override
+    public List<Size> getSupportedResolutions(int format) {
+        List<Size> resolutions = mSupportedResolutionMap.get(format);
+        return resolutions != null ? resolutions : Collections.emptyList();
     }
 
     @Override
@@ -212,6 +223,12 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         return mIsPrivateReprocessingSupported;
     }
 
+    @FloatRange(from = 0, fromInclusive = false)
+    @Override
+    public float getIntrinsicZoomRatio() {
+        return mIntrinsicZoomRatio;
+    }
+
     /** Adds a quirk to the list of this camera's quirks. */
     @SuppressWarnings("unused")
     public void addCameraQuirk(@NonNull final Quirk quirk) {
@@ -225,10 +242,10 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         mImplementationType = implementationType;
     }
 
-    /** Set the CamcorderProfileProvider for testing */
-    public void setCamcorderProfileProvider(
-            @NonNull CamcorderProfileProvider camcorderProfileProvider) {
-        mCamcorderProfileProvider = Preconditions.checkNotNull(camcorderProfileProvider);
+    /** Set the EncoderProfilesProvider for testing */
+    public void setEncoderProfilesProvider(
+            @NonNull EncoderProfilesProvider encoderProfilesProvider) {
+        mEncoderProfilesProvider = Preconditions.checkNotNull(encoderProfilesProvider);
     }
 
     /** Set the timebase for testing */
@@ -236,9 +253,19 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         mTimebase = timebase;
     }
 
+    /** Set the supported resolutions for testing */
+    public void setSupportedResolutions(int format, @NonNull List<Size> resolutions) {
+        mSupportedResolutionMap.put(format, resolutions);
+    }
+
     /** Set the isPrivateReprocessingSupported flag for testing */
     public void setPrivateReprocessingSupported(boolean supported) {
         mIsPrivateReprocessingSupported = supported;
+    }
+
+    /** Adds a available view angle for testing. */
+    public void setIntrinsicZoomRatio(float zoomRatio) {
+        mIntrinsicZoomRatio = zoomRatio;
     }
 
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java

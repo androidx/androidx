@@ -21,6 +21,8 @@ import android.view.Surface;
 
 /**
  * Use Surface directly to create the OutputConfiguration.
+ *
+ * @since 1.2
  */
 @SuppressLint("UnknownNullness")
 public interface SurfaceOutputConfigImpl extends Camera2OutputConfigImpl {

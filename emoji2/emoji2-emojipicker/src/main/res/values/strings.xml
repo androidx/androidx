@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
+<?xml version="1.0" encoding="UTF-8"?><!--
   Copyright 2022 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +15,8 @@
   -->
 
 <resources>
+    <!-- Emoji recent sub category. -->
+    <string name="emoji_category_recent">RECENTLY USED</string>
     <!-- Emoji keyboard's smileys and emotions sub category. -->
     <string name="emoji_category_emotions">SMILEYS AND EMOTIONS</string>
     <!-- Emoji keyboard's people sub category. -->
@@ -34,4 +35,9 @@
     <string name="emoji_category_symbols">SYMBOLS</string>
     <!-- Emoji keyboard's flags sub category. Flags sub category contains emojis that represent country and regional flags. -->
     <string name="emoji_category_flags">FLAGS</string>
+
+    <!-- Shown in emoji keyboard (non-Recent category) when the category is empty. -->
+    <string name="emoji_empty_non_recent_category">No emojis available</string>
+    <!-- Shown in emoji keyboard when Recent emoji is empty. -->
+    <string name="emoji_empty_recent_category">You haven\'t used any emojis yet</string>
 </resources>

@@ -23,7 +23,9 @@ import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
+import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
@@ -39,7 +41,10 @@ import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.TagBundle
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asExecutor
@@ -48,8 +53,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -72,6 +75,7 @@ class UseCaseCameraRequestControlTest {
     private val fakeUseCaseGraphConfig = UseCaseGraphConfig(
         graph = fakeCameraGraph,
         surfaceToStreamMap = surfaceToStreamMap,
+        cameraStateAdapter = CameraStateAdapter(),
     )
     private val fakeConfigAdapter = CaptureConfigAdapter(
         useCaseGraphConfig = fakeUseCaseGraphConfig,
@@ -299,6 +303,62 @@ class UseCaseCameraRequestControlTest {
         val lastRequest = fakeCameraGraph.fakeCameraGraphSession.repeatingRequests.last()
         assertThat(lastRequest.template!!.value).isEqualTo(template)
     }
+
+    @Test
+    fun testMergeTemplate(): Unit = runBlocking {
+        // Arrange
+        val sessionConfigBuilder = SessionConfig.Builder().also { sessionConfigBuilder ->
+            sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_RECORD)
+            sessionConfigBuilder.addSurface(surface)
+            sessionConfigBuilder.addImplementationOptions(
+                Camera2ImplConfig.Builder()
+                    .setCaptureRequestOption<Int>(
+                        CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON
+                    ).build()
+            )
+        }
+        val camera2CameraControlConfig = Camera2ImplConfig.Builder()
+            .setCaptureRequestOption(
+                CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_SINGLE
+            ).build()
+
+        // Act
+        requestControl.setSessionConfigAsync(
+            sessionConfigBuilder.build()
+        ).await()
+        requestControl.addParametersAsync(
+            values = mapOf(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION to 5)
+        ).await()
+        requestControl.setConfigAsync(
+            type = UseCaseCameraRequestControl.Type.CAMERA2_CAMERA_CONTROL,
+            config = camera2CameraControlConfig
+        ).await()
+
+        // Assert
+        assertThat(fakeCameraGraph.fakeCameraGraphSession.repeatingRequests.size).isEqualTo(3)
+        val lastRequest = fakeCameraGraph.fakeCameraGraphSession.repeatingRequests.removeLast()
+        assertThat(
+            lastRequest.template!!.value
+        ).isEqualTo(RequestTemplate(CameraDevice.TEMPLATE_RECORD).value)
+    }
+
+    private fun UseCaseCameraRequestControl.setSessionConfigAsync(
+        sessionConfig: SessionConfig
+    ): Deferred<Unit> = setConfigAsync(
+        type = UseCaseCameraRequestControl.Type.SESSION_CONFIG,
+        config = sessionConfig.implementationOptions,
+        tags = sessionConfig.repeatingCaptureConfig.tagBundle.toMap(),
+        listeners = setOf(
+            CameraCallbackMap.createFor(
+                sessionConfig.repeatingCameraCaptureCallbacks,
+                useCaseThreads.backgroundExecutor
+            )
+        ),
+        template = RequestTemplate(sessionConfig.repeatingCaptureConfig.templateType),
+        streams = fakeUseCaseGraphConfig.getStreamIdsFromSurfaces(
+            sessionConfig.repeatingCaptureConfig.surfaces
+        )
+    )
 }
 
 private class TestRequestListener : Request.Listener {

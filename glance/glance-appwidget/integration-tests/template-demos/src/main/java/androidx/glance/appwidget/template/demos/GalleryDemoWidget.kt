@@ -17,10 +17,10 @@
 package androidx.glance.appwidget.template.demos
 
 import androidx.compose.runtime.Composable
+import androidx.glance.GlanceTheme
 import androidx.glance.ImageProvider
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
-import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.template.GalleryTemplate
 import androidx.glance.appwidget.template.GlanceTemplateAppWidget
@@ -81,7 +81,6 @@ class LargeImageGalleryReceiver : GlanceAppWidgetReceiver() {
  * It is overridable by gallery image aspect ratio, image size, and main blocks ordering.
  */
 abstract class BaseGalleryTemplateWidget : GlanceTemplateAppWidget() {
-    override val sizeMode = SizeMode.Exact
 
     @Composable
     internal fun GalleryTemplateContent(
@@ -89,57 +88,60 @@ abstract class BaseGalleryTemplateWidget : GlanceTemplateAppWidget() {
         aspectRatio: AspectRatio = AspectRatio.Ratio1x1,
         isMainTextBlockFirst: Boolean = true,
     ) {
-        val galleryContent = mutableListOf<TemplateImageWithDescription>()
-        for (i in 1..30) {
-            galleryContent.add(
-                TemplateImageWithDescription(
-                    ImageProvider(R.drawable.compose),
-                    "gallery image $i"
+        GlanceTheme {
+            val galleryContent = mutableListOf<TemplateImageWithDescription>()
+            for (i in 1..30) {
+                galleryContent.add(
+                    TemplateImageWithDescription(
+                        ImageProvider(R.drawable.palm_leaf),
+                        "gallery image $i"
+                    )
+                )
+            }
+            GalleryTemplate(
+                GalleryTemplateData(
+                    header = HeaderBlock(
+                        text = TemplateText("Gallery Template example"),
+                        icon = TemplateImageWithDescription(
+                            ImageProvider(R.drawable.ic_widgets),
+                            "test logo"
+                        ),
+                    ),
+                    mainTextBlock = TextBlock(
+                        text1 = TemplateText("Title1", TextType.Title),
+                        text2 = TemplateText("Headline1", TextType.Headline),
+                        text3 = TemplateText("Label1", TextType.Label),
+                        priority = if (isMainTextBlockFirst) 0 else 1,
+                    ),
+                    mainImageBlock = ImageBlock(
+                        images = listOf(
+                            TemplateImageWithDescription(
+                                ImageProvider(R.drawable.palm_leaf),
+                                "test image"
+                            )
+                        ),
+                        size = ImageSize.Medium,
+                        priority = if (isMainTextBlockFirst) 1 else 0,
+                    ),
+                    mainActionBlock = ActionBlock(
+                        actionButtons = listOf(
+                            TemplateTextButton(
+                                actionRunCallback<DefaultNoopAction>(),
+                                "Act1"
+                            ),
+                            TemplateTextButton(
+                                actionRunCallback<DefaultNoopAction>(),
+                                "Act2"
+                            ),
+                        ),
+                    ),
+                    galleryImageBlock = ImageBlock(
+                        images = galleryContent,
+                        aspectRatio = aspectRatio,
+                        size = imageSize,
+                    ),
                 )
             )
         }
-        GalleryTemplate(
-            GalleryTemplateData(
-                header = HeaderBlock(
-                    text = TemplateText("Gallery Template example"),
-                    icon = TemplateImageWithDescription(
-                        ImageProvider(R.drawable.compose),
-                        "test logo"
-                    ),
-                ),
-                mainTextBlock = TextBlock(
-                    text1 = TemplateText("Title1", TextType.Title),
-                    text2 = TemplateText("Headline1", TextType.Headline),
-                    text3 = TemplateText("Label1", TextType.Label),
-                    priority = if (isMainTextBlockFirst) 0 else 1,
-                ),
-                mainImageBlock = ImageBlock(
-                    images = listOf(
-                        TemplateImageWithDescription(
-                            ImageProvider(R.drawable.compose),
-                            "test image"
-                        )
-                    ),
-                    priority = if (isMainTextBlockFirst) 1 else 0,
-                ),
-                mainActionBlock = ActionBlock(
-                    actionButtons = listOf(
-                        TemplateTextButton(
-                            actionRunCallback<DefaultNoopAction>(),
-                            "Act1"
-                        ),
-                        TemplateTextButton(
-                            actionRunCallback<DefaultNoopAction>(),
-                            "Act2"
-                        ),
-                    ),
-                ),
-                galleryImageBlock = ImageBlock(
-                    images = galleryContent,
-                    aspectRatio = aspectRatio,
-                    size = imageSize,
-                ),
-            )
-        )
     }
 }

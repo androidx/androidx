@@ -16,9 +16,11 @@
 
 package androidx.glance.appwidget
 
+import android.content.ComponentName
 import android.content.Context
 import android.os.Build
 import android.util.Log
+import android.util.SizeF
 import android.view.Gravity
 import android.view.View
 import android.widget.RemoteViews
@@ -66,6 +68,8 @@ internal fun translateComposition(
     layoutConfiguration: LayoutConfiguration?,
     rootViewIndex: Int,
     layoutSize: DpSize,
+    actionBroadcastReceiver: ComponentName? = null,
+
 ) =
     translateComposition(
         TranslationContext(
@@ -75,6 +79,7 @@ internal fun translateComposition(
             layoutConfiguration,
             itemPosition = -1,
             layoutSize = layoutSize,
+            actionBroadcastReceiver = actionBroadcastReceiver,
         ),
         element.children,
         rootViewIndex,
@@ -87,21 +92,58 @@ private val Context.isRtl: Boolean
     get() = forceRtl
         ?: (resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL)
 
+@RequiresApi(Build.VERSION_CODES.S)
+private object Api31Impl {
+    @DoNotInline
+    fun createRemoteViews(sizeMap: Map<SizeF, RemoteViews>): RemoteViews = RemoteViews(sizeMap)
+}
+
 internal fun translateComposition(
     translationContext: TranslationContext,
     children: List<Emittable>,
     rootViewIndex: Int
 ): RemoteViews {
-    require(children.size == 1) {
-        "The root of the tree must have exactly one child. " +
-            "The normalization of the composition tree failed."
+    if (children.all { it is EmittableSizeBox }) {
+        // If the children of root are all EmittableSizeBoxes, then we must translate each
+        // EmittableSizeBox into a distinct RemoteViews object. Then, we combine them into one
+        // multi-sized RemoteViews (a RemoteViews that contains either landscape & portrait RVs or
+        // multiple RVs mapped by size).
+        val sizeMode = (children.first() as EmittableSizeBox).sizeMode
+        val views = children.map { child ->
+            val size = (child as EmittableSizeBox).size
+            val remoteViewsInfo = createRootView(translationContext, child.modifier, rootViewIndex)
+            val rv = remoteViewsInfo.remoteViews.apply {
+                translateChild(translationContext.forRoot(root = remoteViewsInfo), child)
+            }
+            size.toSizeF() to rv
+        }
+        return when (sizeMode) {
+            is SizeMode.Single -> views.single().second
+            is SizeMode.Responsive, SizeMode.Exact -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    Api31Impl.createRemoteViews(views.toMap())
+                } else {
+                    require(views.size == 1 || views.size == 2)
+                    combineLandscapeAndPortrait(views.map { it.second })
+                }
+            }
+        }
+    } else {
+        return children.single().let { child ->
+            val remoteViewsInfo = createRootView(translationContext, child.modifier, rootViewIndex)
+            remoteViewsInfo.remoteViews.apply {
+                translateChild(translationContext.forRoot(root = remoteViewsInfo), child)
+            }
+        }
     }
-    val child = children.first()
-    val remoteViewsInfo = createRootView(translationContext, child.modifier, rootViewIndex)
-    val rv = remoteViewsInfo.remoteViews
-    rv.translateChild(translationContext.forRoot(root = remoteViewsInfo), child)
-    return rv
 }
+
+private fun combineLandscapeAndPortrait(views: List<RemoteViews>): RemoteViews =
+    when (views.size) {
+        2 -> RemoteViews(views[0], views[1])
+        1 -> views[0]
+        else -> throw IllegalArgumentException("There must be between 1 and 2 views.")
+    }
 
 internal data class TranslationContext(
     val context: Context,
@@ -118,8 +160,7 @@ internal data class TranslationContext(
     val layoutCollectionItemId: Int = -1,
     val canUseSelectableGroup: Boolean = false,
     val actionTargetId: Int? = null,
-    val isAdapterView: Boolean = false,
-    val isCompoundButton: Boolean = false,
+    val actionBroadcastReceiver: ComponentName? = null
 ) {
     fun nextViewId() = lastViewId.incrementAndGet()
 
@@ -128,6 +169,10 @@ internal data class TranslationContext(
 
     fun forRoot(root: RemoteViewsInfo): TranslationContext =
         forChild(pos = 0, parent = root.view)
+            .copy(
+                isBackgroundSpecified = AtomicBoolean(false),
+                lastViewId = AtomicInteger(0),
+            )
 
     fun resetViewId(newViewId: Int = 0) = copy(lastViewId = AtomicInteger(newViewId))
 
@@ -140,10 +185,6 @@ internal data class TranslationContext(
     fun canUseSelectableGroup() = copy(canUseSelectableGroup = true)
 
     fun forActionTargetId(viewId: Int) = copy(actionTargetId = viewId)
-
-    fun forAdapterView() = copy(isAdapterView = true)
-
-    fun forCompoundButton() = copy(isCompoundButton = true)
 }
 
 internal fun RemoteViews.translateChild(
@@ -178,12 +219,24 @@ internal fun RemoteViews.translateChild(
           translateEmittableLazyVerticalGridListItem(translationContext, element)
         }
         is EmittableRadioButton -> translateEmittableRadioButton(translationContext, element)
+        is EmittableSizeBox -> translateEmittableSizeBox(translationContext, element)
         else -> {
             throw IllegalArgumentException(
                 "Unknown element type ${element.javaClass.canonicalName}"
             )
         }
     }
+}
+
+internal fun RemoteViews.translateEmittableSizeBox(
+    translationContext: TranslationContext,
+    element: EmittableSizeBox
+) {
+    require(element.children.size <= 1) {
+        "Size boxes can only have at most one child ${element.children.size}. " +
+            "The normalization of the composition tree failed."
+    }
+    element.children.firstOrNull()?.let { translateChild(translationContext, it) }
 }
 
 internal fun remoteViews(translationContext: TranslationContext, @LayoutRes layoutId: Int) =
@@ -363,7 +416,6 @@ private fun RemoteViews.translateEmittableButton(
             GlanceModifier
                 .fillMaxSize()
                 .padding(horizontal = 16.dp, vertical = 8.dp)
-                .doNotUnsetAction()
     }
     translateEmittableText(translationContext, content)
 }
@@ -382,9 +434,9 @@ private fun RemoteViews.translateEmittableSpacer(
 internal fun RemoteViews.setChildren(
     translationContext: TranslationContext,
     parentDef: InsertedViewInfo,
-    children: Iterable<Emittable>
+    children: List<Emittable>
 ) {
-    children.forEachIndexed { index, child ->
+    children.take(10).forEachIndexed { index, child ->
         translateChild(
             translationContext.forChild(parent = parentDef, pos = index),
             child,

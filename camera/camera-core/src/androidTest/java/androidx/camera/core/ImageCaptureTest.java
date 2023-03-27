@@ -16,8 +16,11 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.testing.AndroidUtil.isEmulatorAndAPI21;
+
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
@@ -36,16 +39,19 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.concurrent.CameraCoordinator;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureMetaData;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.ImageCaptureConfig;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraCaptureResult;
 import androidx.camera.testing.fakes.FakeCameraControl;
+import androidx.camera.testing.fakes.FakeCameraCoordinator;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeImageInfo;
 import androidx.camera.testing.fakes.FakeImageProxy;
@@ -86,6 +92,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 21)
 public class ImageCaptureTest {
+    private CameraCoordinator mCameraCoordinator;
     private CameraUseCaseAdapter mCameraUseCaseAdapter;
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private Matrix mSensorToBufferTransformMatrix;
@@ -96,14 +103,15 @@ public class ImageCaptureTest {
 
         FakeCameraDeviceSurfaceManager fakeCameraDeviceSurfaceManager =
                 new FakeCameraDeviceSurfaceManager();
-        fakeCameraDeviceSurfaceManager.setSuggestedResolution("fakeCameraId",
+        fakeCameraDeviceSurfaceManager.setSuggestedStreamSpec("fakeCameraId",
                 ImageCaptureConfig.class,
-                new Size(640, 480));
+                StreamSpec.builder(new Size(640, 480)).build());
 
         UseCaseConfigFactory useCaseConfigFactory = new FakeUseCaseConfigFactory();
-
+        mCameraCoordinator = new FakeCameraCoordinator();
         mCameraUseCaseAdapter = new CameraUseCaseAdapter(
                 new LinkedHashSet<>(Collections.singleton(fakeCamera)),
+                mCameraCoordinator,
                 fakeCameraDeviceSurfaceManager,
                 useCaseConfigFactory);
 
@@ -390,6 +398,7 @@ public class ImageCaptureTest {
     @Test
     public void dispatchImage_cropRectIsUpdatedBasedOnExifOrientation()
             throws InterruptedException, IOException {
+        assumeFalse(isEmulatorAndAPI21());
         // Arrange: assume the sensor buffer is 6x4, the crop rect is (0, 0) - (2, 1) and the
         // rotation degrees is 90°.
         Semaphore semaphore = new Semaphore(0);

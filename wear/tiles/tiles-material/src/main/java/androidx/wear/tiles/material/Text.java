@@ -44,8 +44,8 @@ import androidx.wear.tiles.LayoutElementBuilders.TextOverflow;
 import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.material.Typography.TypographyName;
-import androidx.wear.tiles.proto.LayoutElementProto;
-import androidx.wear.tiles.proto.ModifiersProto;
+import androidx.wear.protolayout.proto.LayoutElementProto;
+import androidx.wear.protolayout.proto.ModifiersProto;
 
 /**
  * Tiles component {@link Text} that represents text object holding any information.

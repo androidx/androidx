@@ -146,7 +146,7 @@ class Cea708CaptionRenderer extends SubtitleController.Renderer {
         }
 
         @Override
-        public void onDraw(Canvas canvas) {
+        public void onDraw(@NonNull Canvas canvas) {
             super.onDraw(canvas);
             ((ViewGroup) mClosedCaptionLayout).draw(canvas);
         }

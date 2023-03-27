@@ -28,8 +28,8 @@ import androidx.annotation.RestrictTo
  * A style descriptor for watch faces.
  *
  * <p>Parameters here affect how the system UI will be drawn over a watch face. An instance of this
- * class should be passed in to [WatchFaceService.Engine.setWatchFaceStyle] in the `onCreate`
- * method of your [WatchFaceService.Engine.onCreate] override.
+ * class should be passed in to [WatchFaceService.Engine.setWatchFaceStyle] in the `onCreate` method
+ * of your [WatchFaceService.Engine.onCreate] override.
  *
  * <p>To construct a WatchFaceStyle use [WatchFaceStyle.Builder].
  *
@@ -62,9 +62,7 @@ public open class WatchFaceStyle(
                 putBoolean(Constants.KEY_SHOW_UNREAD_INDICATOR, showUnreadCountIndicator)
                 putBoolean(Constants.KEY_HIDE_NOTIFICATION_INDICATOR, hideNotificationIndicator)
                 putBoolean(Constants.KEY_ACCEPTS_TAPS, acceptsTapEvents)
-                compatBundle?.let {
-                    putAll(compatBundle)
-                }
+                compatBundle?.let { putAll(compatBundle) }
             }
         )
     }
@@ -104,14 +102,14 @@ public open class WatchFaceStyle(
         public const val DEFAULT_ACCENT_COLOR: Int = Color.WHITE
 
         /**
-         * Whether to put a semi-transparent black background behind the status bar to make it visible
-         * on white backgrounds.
+         * Whether to put a semi-transparent black background behind the status bar to make it
+         * visible on white backgrounds.
          */
         public const val PROTECT_STATUS_BAR: Int = 0x1
 
         /**
-         * Whether to put a semi-transparent black background behind the "Ok Google" string to make it
-         * visible on a white background.
+         * Whether to put a semi-transparent black background behind the "Ok Google" string to make
+         * it visible on a white background.
          */
         public const val PROTECT_HOTWORD_INDICATOR: Int = 0x2
 

@@ -52,6 +52,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Delay
 
+@Suppress("DEPRECATION")
 @InternalCoroutinesApi
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -182,6 +183,7 @@ class PausingDispatcherTest {
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
+    @Suppress("DEPRECATION")
     @Test
     fun yieldImmediateTest() {
         Dispatchers.resetMain()
@@ -199,6 +201,7 @@ class PausingDispatcherTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun yieldLoop() {
         runBlocking(Dispatchers.Main.immediate) {
@@ -558,6 +561,7 @@ class PausingDispatcherTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun launchWhenCreated() {
         val owner = FakeLifecycleOwner()
@@ -575,6 +579,7 @@ class PausingDispatcherTest {
         drain()
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun launchWhenStarted() {
         val owner = FakeLifecycleOwner(Lifecycle.State.CREATED)
@@ -593,6 +598,7 @@ class PausingDispatcherTest {
         drain()
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun launchWhenResumed() {
         val owner = FakeLifecycleOwner(Lifecycle.State.STARTED)

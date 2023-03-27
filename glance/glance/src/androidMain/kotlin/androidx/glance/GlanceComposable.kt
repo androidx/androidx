@@ -16,7 +16,7 @@
 package androidx.glance
 import androidx.compose.runtime.ComposableTargetMarker
 /**
- * An annotation that can be used to mark an composable function as being expected to be use in a
+ * An annotation that can be used to mark a composable function as being expected to be use in a
  * composable function that is also marked or inferred to be marked as a [GlanceComposable].
  *
  * Using this annotation explicitly is rarely necessary as the Compose compiler plugin will infer

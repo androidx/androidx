@@ -70,6 +70,7 @@ private fun RemoteViews.translateEmittableLazyVerticalGrid(
           "Only counts from 1 to 5 are supported."
       }
     }
+    // TODO(b/205868100): Add FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT for api 34
     setPendingIntentTemplate(
         viewDef.mainViewId,
         PendingIntent.getActivity(
@@ -109,7 +110,7 @@ private fun RemoteViews.translateEmittableLazyVerticalGrid(
                              value = gridCells.minSize.value,
                              unit = android.util.TypedValue.COMPLEX_UNIT_DIP)
     }
-    applyModifiers(translationContext.forAdapterView(), this, element.modifier, viewDef)
+    applyModifiers(translationContext, this, element.modifier, viewDef)
 }
 
 /**

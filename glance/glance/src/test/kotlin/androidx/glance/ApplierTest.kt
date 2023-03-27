@@ -142,16 +142,40 @@ class ApplierTest {
 
 private class RootEmittable(maxDepth: Int = Int.MAX_VALUE) : EmittableWithChildren(maxDepth) {
     override var modifier: GlanceModifier = GlanceModifier
+
+    override fun copy(): Emittable = RootEmittable().also {
+        it.modifier = modifier
+    }
+
+    override fun toString(): String = "RootEmittable(modifier=$modifier)"
 }
 
 private class MiddleEmittable : EmittableWithChildren() {
     override var modifier: GlanceModifier = GlanceModifier
+
+    override fun copy(): Emittable = MiddleEmittable().also {
+        it.modifier = modifier
+    }
+
+    override fun toString(): String = "MiddleEmittable(modifier=$modifier)"
 }
 
 private class LeafEmittable : Emittable {
     override var modifier: GlanceModifier = GlanceModifier
+
+    override fun copy(): Emittable = LeafEmittable().also {
+        it.modifier = modifier
+    }
+
+    override fun toString(): String = "LeafEmittable(modifier=$modifier)"
 }
 
 private class ResetsDepthEmittable : EmittableWithChildren(resetsDepthForChildren = true) {
     override var modifier: GlanceModifier = GlanceModifier
+
+    override fun copy(): Emittable = ResetsDepthEmittable().also {
+        it.modifier = modifier
+    }
+
+    override fun toString(): String = "ResetsDepthEmittable(modifier=$modifier)"
 }

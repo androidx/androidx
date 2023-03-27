@@ -72,6 +72,9 @@ public class PerfettoCapture(
                     listOf("*")
                 }
                 configProtoFile.writeBytes(perfettoConfig(atraceApps).validateAndEncode())
+                if (Outputs.forceFilesForShellAccessible) {
+                    configProtoFile.setReadable(true, /* ownerOnly = */ false)
+                }
             }
             userspaceTrace("start perfetto process") {
                 helper.startCollecting(configProtoFile.absolutePath, false)
@@ -116,7 +119,7 @@ public class PerfettoCapture(
                     }
                 }.toMap()
             },
-            executeShellCommand = Shell::executeCommand
+            executeShellCommand = Shell::executeScriptCaptureStdout
         )
 
         // negotiate enabling tracing in the app
@@ -130,8 +133,8 @@ public class PerfettoCapture(
                     baseApk,
                     Outputs.dirUsableByAppAndShell
                 ) { tmpFile, dstFile ->
-                    executeShellCommand("mkdir -p ${dstFile.parentFile!!.path}", Regex("^$"))
-                    executeShellCommand("mv ${tmpFile.path} ${dstFile.path}", Regex("^$"))
+                    Shell.executeScriptSilent("mkdir -p ${dstFile.parentFile!!.path}")
+                    Shell.executeScriptSilent("mv ${tmpFile.path} ${dstFile.path}")
                 }
                 handshake.enableTracing(libraryProvider)
             } // provide binaries and retry
@@ -167,14 +170,5 @@ public class PerfettoCapture(
             RESULT_CODE_ERROR_OTHER -> "Error: ${response.message}."
             else -> throw RuntimeException("Unrecognized exit code: ${response.exitCode}.")
         }
-    }
-
-    private fun executeShellCommand(command: String, expectedResponse: Regex) {
-        val response = Shell.executeCommand(command)
-        if (!response.matches(expectedResponse)) throw IllegalStateException(
-            "Command response not matching expected." +
-                " Command: $command." +
-                " Expected response: ${expectedResponse.pattern}."
-        )
     }
 }

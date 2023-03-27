@@ -26,8 +26,8 @@ import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
 import androidx.car.app.sample.showcase.common.R;
-import androidx.car.app.sample.showcase.common.misc.NotificationDemoScreen;
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.gridtemplates.GridTemplateDemoScreen;
+import androidx.car.app.sample.showcase.common.screens.templatelayouts.gridtemplates.NotificationDemoScreen;
 import androidx.lifecycle.DefaultLifecycleObserver;
 
 /**

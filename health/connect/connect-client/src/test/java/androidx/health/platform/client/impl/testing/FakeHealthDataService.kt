@@ -42,6 +42,7 @@ import androidx.health.platform.client.response.ReadExerciseRouteResponse
 import androidx.health.platform.client.service.IAggregateDataCallback
 import androidx.health.platform.client.service.IDeleteDataCallback
 import androidx.health.platform.client.service.IDeleteDataRangeCallback
+import androidx.health.platform.client.service.IFilterGrantedPermissionsCallback
 import androidx.health.platform.client.service.IGetChangesCallback
 import androidx.health.platform.client.service.IGetChangesTokenCallback
 import androidx.health.platform.client.service.IGetGrantedPermissionsCallback
@@ -60,7 +61,7 @@ import androidx.health.platform.client.service.IUpsertExerciseRouteCallback
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class FakeHealthDataService : IHealthDataService.Stub() {
     /** Change this state to control permission responses. Not thread safe */
-    val grantedPermissions: MutableSet<Permission> = mutableSetOf()
+    private val grantedPermissions: MutableSet<Permission> = mutableSetOf()
 
     /** State retaining last requested parameters. */
     var lastRequestContext: RequestContext? = null
@@ -102,6 +103,21 @@ class FakeHealthDataService : IHealthDataService.Stub() {
         errorCode?.let {
             callback.onError(ErrorStatus.create(it, "" + it))
             return@getGrantedPermissions
+        }
+
+        val granted = permissions.filter { it in grantedPermissions }.toList()
+        callback.onSuccess(granted)
+    }
+
+    override fun filterGrantedPermissions(
+        context: RequestContext,
+        permissions: List<Permission>,
+        callback: IFilterGrantedPermissionsCallback,
+    ) {
+        lastRequestContext = context
+        errorCode?.let {
+            callback.onError(ErrorStatus.create(it, "" + it))
+            return@filterGrantedPermissions
         }
 
         val granted = permissions.filter { it in grantedPermissions }.toList()

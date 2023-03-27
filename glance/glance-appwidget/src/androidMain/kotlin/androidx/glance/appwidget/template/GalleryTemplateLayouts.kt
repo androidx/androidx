@@ -20,12 +20,14 @@ import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.LocalSize
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.lazy.GridCells
 import androidx.glance.appwidget.lazy.LazyVerticalGrid
 import androidx.glance.appwidget.lazy.itemsIndexed
+import androidx.glance.appwidget.template.GlanceTemplateAppWidget.Companion.sizeMin
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
@@ -41,7 +43,6 @@ import androidx.glance.layout.width
 import androidx.glance.template.AspectRatio
 import androidx.glance.template.GalleryTemplateData
 import androidx.glance.template.ImageSize
-import androidx.glance.template.LocalTemplateColors
 import androidx.glance.template.LocalTemplateMode
 import androidx.glance.template.TemplateMode
 import kotlin.math.ceil
@@ -94,6 +95,7 @@ private fun WidgetLayoutVertical(data: GalleryTemplateData) {
         ImageSize.Small -> 64.0.pow(2.0)
         ImageSize.Medium -> 96.0.pow(2.0)
         ImageSize.Large -> 128.0.pow(2.0)
+        ImageSize.Undefined -> 64.0.pow(2.0)
         else -> 64.0.pow(2.0)
     }
     val margin = 16
@@ -105,7 +107,7 @@ private fun WidgetLayoutVertical(data: GalleryTemplateData) {
     val gridCells = if (Build.VERSION.SDK_INT >= 31) {
         GridCells.Adaptive((imageWidth + margin).dp)
     } else {
-        GridCells.Fixed(nCols)
+        GridCells.Fixed(nCols.coerceAtMost(5))
     }
     Column {
         Row(
@@ -143,7 +145,7 @@ private fun createTopLevelModifier(
 ): GlanceModifier {
     var modifier = GlanceModifier
         .fillMaxSize().padding(16.dp).cornerRadius(16.dp)
-        .background(LocalTemplateColors.current.primaryContainer)
+        .background(GlanceTheme.colors.primaryContainer)
     if (isImmersive && data.mainImageBlock.images.isNotEmpty()) {
         val mainImage = data.mainImageBlock.images[0]
         modifier = modifier.background(mainImage.image, ContentScale.Crop)
@@ -154,19 +156,22 @@ private fun createTopLevelModifier(
 
 @Composable
 private fun createCardModifier() = GlanceModifier.fillMaxWidth().padding(16.dp).cornerRadius(16.dp)
-    .background(LocalTemplateColors.current.primaryContainer)
+    .background(GlanceTheme.colors.primaryContainer)
 
 @Composable
 private fun HeaderAndTextBlocks(data: GalleryTemplateData, modifier: GlanceModifier) {
-    // TODO(b/247613894): Weird that we add space after header block but not after text block. For
-    //  consistency should we handle all the spacing here rather than in the sub-template functions?
     Column(modifier = modifier) {
-        HeaderBlockTemplate(data.header)
-        // TODO(b/247613894): Should this space always be added? The blocks below may be empty,
-        //  which would lead to extra spacing at the bottom
-        Spacer(modifier = GlanceModifier.height(16.dp).defaultWeight())
+        data.header?.let {
+            HeaderBlockTemplate(data.header)
+            Spacer(modifier = GlanceModifier.height(16.dp).defaultWeight())
+        }
         TextBlockTemplate(data.mainTextBlock)
-        ActionBlockTemplate(data.mainActionBlock)
+        data.mainActionBlock?.let {
+            if (LocalSize.current.width > sizeMin && LocalSize.current.height > sizeMin) {
+                Spacer(modifier = GlanceModifier.height(16.dp))
+                ActionBlockTemplate(data.mainActionBlock)
+            }
+        }
     }
 }
 
@@ -175,11 +180,15 @@ private fun MainEntity(data: GalleryTemplateData, modifier: GlanceModifier) {
     // Show first block by lower numbered priority
     if (data.mainTextBlock.priority <= data.mainImageBlock.priority) {
         HeaderAndTextBlocks(data, modifier)
-        Spacer(modifier = GlanceModifier.width(16.dp))
-        SingleImageBlockTemplate(data.mainImageBlock)
+        if (LocalSize.current.width > sizeMin && LocalSize.current.height > sizeMin) {
+            Spacer(modifier = GlanceModifier.width(16.dp))
+            SingleImageBlockTemplate(data.mainImageBlock)
+        }
     } else {
-        SingleImageBlockTemplate(data.mainImageBlock)
-        Spacer(modifier = GlanceModifier.width(16.dp))
+        if (LocalSize.current.width > sizeMin && LocalSize.current.height > sizeMin) {
+            SingleImageBlockTemplate(data.mainImageBlock)
+            Spacer(modifier = GlanceModifier.width(16.dp))
+        }
         HeaderAndTextBlocks(data, modifier)
     }
 }

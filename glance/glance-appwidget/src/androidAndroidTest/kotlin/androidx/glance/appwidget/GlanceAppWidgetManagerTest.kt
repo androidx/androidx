@@ -23,12 +23,15 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.uiautomator.UiSelector
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @SdkSuppress(minSdkVersion = 29)
 @MediumTest
 class GlanceAppWidgetManagerTest {
@@ -85,34 +88,28 @@ class GlanceAppWidgetManagerTest {
     }
 
     @Test
-    fun pinAppWidget() {
+    fun pinAppWidget() = runTest {
         val text = "Something"
         TestGlanceAppWidget.uiDefinition = {
             Text(text)
         }
 
-        mHostRule.onHostActivity { activity ->
-            val manager = GlanceAppWidgetManager(activity)
-
-            val result = manager.requestPinGlanceAppWidget(
-                TestGlanceAppWidgetReceiver::class.java,
-                preview = TestGlanceAppWidget
-            )
-            assertThat(result).isTrue()
+        val result = GlanceAppWidgetManager(context).requestPinGlanceAppWidget(
+            TestGlanceAppWidgetReceiver::class.java,
+            preview = TestGlanceAppWidget
+        )
+        assertThat(result).isTrue()
+        mHostRule.onHostActivity {
             assertThat(mHostRule.device.findObject(UiSelector().text(text)).exists())
         }
     }
 
     @Test
-    fun pinInvalidAppWidget() {
-        mHostRule.onHostActivity { activity ->
-            val manager = GlanceAppWidgetManager(activity)
-
-            val result = manager.requestPinGlanceAppWidget(
-                DummyGlanceAppWidgetReceiver::class.java
-            )
-            assertThat(result).isFalse()
-        }
+    fun pinInvalidAppWidget() = runTest {
+        val result = GlanceAppWidgetManager(context).requestPinGlanceAppWidget(
+            DummyGlanceAppWidgetReceiver::class.java,
+        )
+        assertThat(result).isFalse()
     }
 
     @Test

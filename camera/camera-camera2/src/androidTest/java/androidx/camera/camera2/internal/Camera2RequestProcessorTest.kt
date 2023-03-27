@@ -93,7 +93,8 @@ class Camera2RequestProcessorTest {
             .getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
         return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
-            cameraManager.getCameraCharacteristics(cameraId)
+            cameraManager.getCameraCharacteristics(cameraId),
+            cameraId
         )
     }
 

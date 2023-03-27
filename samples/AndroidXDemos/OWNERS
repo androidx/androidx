@@ -1,9 +1,6 @@
 # Media
-bachinger@google.com
-christosts@google.com
-ibaker@google.com
-olly@google.com
-tonihei@google.com
+file: ../../media/OWNERS
+file: ../../mediarouter/OWNERS
 
 # RecyclerView
 ryanmentley@google.com

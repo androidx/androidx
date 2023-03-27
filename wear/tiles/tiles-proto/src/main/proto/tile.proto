@@ -3,6 +3,7 @@ syntax = "proto3";
 
 package androidx.wear.tiles.proto;
 
+import "state.proto";
 import "timeline.proto";
 import "version.proto";
 
@@ -19,10 +20,10 @@ message Tile {
   string resources_version = 1;
 
   // The tiles to show in the carousel, along with their validity periods.
-  Timeline timeline = 2;
+  androidx.wear.protolayout.proto.Timeline tile_timeline = 2;
 
   // The schema version that this tile was built with.
-  VersionInfo schema_version = 3;
+  androidx.wear.protolayout.expression.proto.VersionInfo schema_version = 3;
 
   // How many milliseconds of elapsed time (**not** wall clock time) this tile
   // can be considered to be "fresh". The platform will attempt to refresh
@@ -37,4 +38,13 @@ message Tile {
   // on-screen, although this is not guaranteed due to system-level
   // optimizations.
   uint64 freshness_interval_millis = 4;
+
+  // State for this tile.
+  androidx.wear.protolayout.proto.State state = 5;
+
+  // How many milliseconds of elapsed time (**not** wall clock time) the state
+  // for this tile can be considered to be fresh. The platform will attempt to
+  // fetch new state at some point in the future after this interval has lapsed.
+  // A value of 0 here signifies that auto-refreshes should not be used.
+  uint64 state_freshness_interval_millis = 6;
 }

@@ -31,7 +31,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.fragment.app.test.FragmentTestActivity
+import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.fragment.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -46,13 +46,19 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.rules.RuleChain
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class FragmentContainerViewTest {
     @Suppress("DEPRECATION")
+    val activityRule = androidx.test.rule.ActivityTestRule(EmptyFragmentTestActivity::class.java)
+
     @get:Rule
-    var activityRule = androidx.test.rule.ActivityTestRule(FragmentTestActivity::class.java)
+    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
+        .around(activityRule)
+
     lateinit var context: Context
 
     @Before
@@ -421,6 +427,8 @@ class FragmentContainerViewTest {
             .that(drawnFirstCountDownLatch.await(1, TimeUnit.SECONDS))
             .isTrue()
         assertThat(drawnFirst!!).isEqualTo(frag1View)
+
+        drawnFirst = null
     }
 
     // Disappearing child views should be drawn last if transaction is a pop.
@@ -479,6 +487,8 @@ class FragmentContainerViewTest {
             .isTrue()
         // The popped Fragment will be drawn last and therefore will be on top
         assertThat(drawnFirst!!).isNotEqualTo(frag2View)
+
+        drawnFirst = null
     }
 
     @Test
@@ -543,6 +553,8 @@ class FragmentContainerViewTest {
             .that(drawnFirstCountDownLatch.await(1, TimeUnit.SECONDS))
             .isTrue()
         assertThat(drawnFirst!!).isNotEqualTo(frag2View)
+
+        drawnFirst = null
     }
 
     @Test
@@ -610,6 +622,8 @@ class FragmentContainerViewTest {
             .that(drawnFirstCountDownLatch.await(1, TimeUnit.SECONDS))
             .isTrue()
         assertThat(drawnFirst!!).isNotEqualTo(frag2View)
+
+        drawnFirst = null
     }
 
     @Test
@@ -678,6 +692,8 @@ class FragmentContainerViewTest {
             .isTrue()
         // The view that was popped is drawn first which means it is on the bottom.
         assertThat(drawnFirst!!).isEqualTo(frag2View)
+
+        drawnFirst = null
     }
 
     @Test
@@ -753,7 +769,7 @@ class FragmentContainerViewTest {
         var onDetachFromWindowLatch = CountDownLatch(1)
         var onAnimationEndLatch = CountDownLatch(1)
 
-        override fun onDraw(canvas: Canvas?) {
+        override fun onDraw(canvas: Canvas) {
             super.onDraw(canvas)
             setDrawnFirstView(this)
         }

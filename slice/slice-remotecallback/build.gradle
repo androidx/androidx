@@ -39,7 +39,6 @@ androidx {
     name = "Slice Remote Callback"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.SLICE_REMOTECALLBACK
-    mavenGroup = LibraryGroups.SLICE
     inceptionYear = "2019"
     description = "A library that handles PendingIntents in slices as remote callbacks"
     failOnDeprecationWarnings = false

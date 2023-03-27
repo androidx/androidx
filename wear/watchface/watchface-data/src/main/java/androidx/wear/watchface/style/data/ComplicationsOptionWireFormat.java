@@ -46,9 +46,8 @@ public class ComplicationsOptionWireFormat extends OptionWireFormat {
     // WARNING: This class is held in a list and can't change due to flaws in VersionedParcelable.
 
     /**
-     * Great care should be taken to ensure backwards compatibility of the versioned parcelable
-     * if {@link ComplicationOverlayWireFormat} is ever
-     * extended.
+     * Great care should be taken to ensure backwards compatibility of the versioned parcelable if
+     * {@link ComplicationOverlayWireFormat} is ever extended.
      */
     @ParcelField(100)
     @NonNull
@@ -67,8 +66,7 @@ public class ComplicationsOptionWireFormat extends OptionWireFormat {
     @Nullable
     public List<Integer> mComplicationScreenReaderNameResourceIds;
 
-    ComplicationsOptionWireFormat() {
-    }
+    ComplicationsOptionWireFormat() {}
 
     public ComplicationsOptionWireFormat(
             @NonNull byte[] id,
@@ -77,8 +75,7 @@ public class ComplicationsOptionWireFormat extends OptionWireFormat {
             @NonNull ComplicationOverlayWireFormat[] complicationOverlays,
             @Nullable List<PerComplicationTypeMargins> complicationOverlaysMargins,
             @Nullable List<Integer> complicationNameResourceIds,
-            @Nullable List<Integer> complicationScreenReaderNameResourceIds
-    ) {
+            @Nullable List<Integer> complicationScreenReaderNameResourceIds) {
         super(id);
         mDisplayName = displayName;
         mIcon = icon;
@@ -88,15 +85,15 @@ public class ComplicationsOptionWireFormat extends OptionWireFormat {
         mComplicationScreenReaderNameResourceIds = complicationScreenReaderNameResourceIds;
     }
 
-    /** @deprecated Use a constructor with perComplicationTypeMargins instead. */
+    /**
+     * @deprecated Use a constructor with perComplicationTypeMargins instead.
+     */
     @Deprecated
     public ComplicationsOptionWireFormat(
             @NonNull byte[] id,
             @NonNull CharSequence displayName,
             @Nullable Icon icon,
-            @NonNull ComplicationOverlayWireFormat[]
-                    complicationOverlays
-    ) {
+            @NonNull ComplicationOverlayWireFormat[] complicationOverlays) {
         super(id);
         mDisplayName = displayName;
         mIcon = icon;

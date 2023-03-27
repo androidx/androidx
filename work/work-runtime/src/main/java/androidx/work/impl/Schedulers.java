@@ -35,6 +35,7 @@ import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * Helper methods for {@link Scheduler}s.
@@ -49,6 +50,32 @@ public class Schedulers {
 
     public static final String GCM_SCHEDULER = "androidx.work.impl.background.gcm.GcmScheduler";
     private static final String TAG = Logger.tagWithPrefix("Schedulers");
+
+    /**
+     * Make sure that once worker has run its dependants are run.
+     */
+    public static void registerRescheduling(
+            @NonNull List<Scheduler> schedulers,
+            @NonNull Processor processor,
+            @NonNull Executor executor,
+            @NonNull WorkDatabase workDatabase,
+            @NonNull Configuration configuration) {
+        processor.addExecutionListener((id, needsReschedule) -> {
+            executor.execute(() -> {
+                // Try to schedule any newly-unblocked workers, and workers requiring rescheduling
+                // (such as periodic work using AlarmManager). This code runs after runWorker()
+                // because it should happen in its own transaction.
+
+                // Cancel this work in other schedulers. For example, if this work was
+                // handled by GreedyScheduler, we should make sure JobScheduler is informed
+                // that it should remove this job and AlarmManager should remove all related alarms.
+                for (Scheduler scheduler : schedulers) {
+                    scheduler.cancel(id.getWorkSpecId());
+                }
+                Schedulers.schedule(configuration, workDatabase, schedulers);
+            });
+        });
+    }
 
     /**
      * Schedules {@link WorkSpec}s while honoring the {@link Scheduler#MAX_SCHEDULER_LIMIT}.
@@ -78,8 +105,7 @@ public class Schedulers {
             allEligibleWorkSpecs = workSpecDao.getAllEligibleWorkSpecsForScheduling(
                     MAX_GREEDY_SCHEDULER_LIMIT);
 
-            if (eligibleWorkSpecsForLimitedSlots != null
-                    && eligibleWorkSpecsForLimitedSlots.size() > 0) {
+            if (eligibleWorkSpecsForLimitedSlots.size() > 0) {
                 long now = System.currentTimeMillis();
 
                 // Mark all the WorkSpecs as scheduled.
@@ -94,8 +120,7 @@ public class Schedulers {
             workDatabase.endTransaction();
         }
 
-        if (eligibleWorkSpecsForLimitedSlots != null
-                && eligibleWorkSpecsForLimitedSlots.size() > 0) {
+        if (eligibleWorkSpecsForLimitedSlots.size() > 0) {
 
             WorkSpec[] eligibleWorkSpecsArray =
                     new WorkSpec[eligibleWorkSpecsForLimitedSlots.size()];
@@ -110,7 +135,7 @@ public class Schedulers {
             }
         }
 
-        if (allEligibleWorkSpecs != null && allEligibleWorkSpecs.size() > 0) {
+        if (allEligibleWorkSpecs.size() > 0) {
             WorkSpec[] enqueuedWorkSpecsArray = new WorkSpec[allEligibleWorkSpecs.size()];
             enqueuedWorkSpecsArray = allEligibleWorkSpecs.toArray(enqueuedWorkSpecsArray);
             // Delegate to the underlying schedulers.

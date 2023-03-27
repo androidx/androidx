@@ -26,7 +26,7 @@ import android.view.SurfaceControl
 import android.view.SurfaceView
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
-import androidx.graphics.lowlatency.SyncFenceCompat
+import androidx.hardware.SyncFenceCompat
 import java.util.concurrent.Executor
 
 /**
@@ -60,7 +60,7 @@ class SurfaceControlCompat internal constructor(
                 BUFFER_TRANSFORM_MIRROR_VERTICAL, BUFFER_TRANSFORM_ROTATE_180,
                 BUFFER_TRANSFORM_ROTATE_90, BUFFER_TRANSFORM_ROTATE_270]
         )
-        private annotation class BufferTransform
+        internal annotation class BufferTransform
 
         /**
          * The identity transformation. Maps a coordinate (x, y) onto itself.
@@ -134,6 +134,19 @@ class SurfaceControlCompat internal constructor(
         }
 
         /**
+         * Set a parent [SurfaceControlCompat] for the new [SurfaceControlCompat] instance.
+         * Furthermore they stack relatively in Z order, and inherit the transformation of the
+         * parent.
+         * @param surfaceControl Target [SurfaceControlCompat] used as the parent for the newly
+         * created [SurfaceControlCompat] instance
+         */
+        @Suppress("MissingGetterMatchingBuilder")
+        fun setParent(surfaceControl: SurfaceControlCompat): Builder {
+            mBuilderImpl.setParent(surfaceControl)
+            return this
+        }
+
+        /**
          * Set a debugging-name for the [SurfaceControlCompat].
          * @param name Debugging name configured on the [SurfaceControlCompat] instance.
          */
@@ -189,6 +202,11 @@ class SurfaceControlCompat internal constructor(
      * An atomic set of changes to a set of [SurfaceControlCompat].
      */
     class Transaction : AutoCloseable {
+        /**
+         * internal mapping of buffer transforms used for testing purposes
+         */
+        internal val mBufferTransforms = HashMap<SurfaceControlCompat, Int>()
+
         private val mImpl = createImpl()
 
         /**
@@ -325,6 +343,7 @@ class SurfaceControlCompat internal constructor(
          * transaction has been committed.
          */
         @Suppress("PairedRegistration")
+        @RequiresApi(Build.VERSION_CODES.S)
         fun addTransactionCommittedListener(
             executor: Executor,
             listener: TransactionCommittedListener
@@ -446,6 +465,7 @@ class SurfaceControlCompat internal constructor(
             surfaceControl: SurfaceControlCompat,
             @BufferTransform transformation: Int
         ): Transaction {
+            mBufferTransforms[surfaceControl] = transformation
             mImpl.setBufferTransform(surfaceControl.scImpl, transformation)
             return this
         }
@@ -456,6 +476,7 @@ class SurfaceControlCompat internal constructor(
          * called to release the transaction.
          */
         fun commit() {
+            mBufferTransforms.clear()
             mImpl.commit()
         }
 

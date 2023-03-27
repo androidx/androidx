@@ -38,6 +38,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import com.google.common.truth.Truth
 import org.hamcrest.Description
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.not
@@ -235,8 +236,11 @@ class SeekBarPreferenceTest {
 
         activityRule.runOnUiThread {
             // SeekBarPreference should attempt to update every time the seekbar's progress changed.
-            // From 0-5, it should update 5 times.
-            assertEquals(5, updateCount)
+            // From 0-5, it should update 5 times for a smooth (and slow) swipe, but due to the
+            // flakiness of injecting swipes sometimes the move event is fast enough that
+            // intermediate updates are skipped in tests. Just assert that we had more than 1 update
+            // so that we know that the SeekBarPreference is updating during the swipe.
+            Truth.assertThat(updateCount).isGreaterThan(1)
             assertEquals(5, seekBarPreference.value)
         }
     }

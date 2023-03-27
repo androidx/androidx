@@ -25,6 +25,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
@@ -47,6 +48,7 @@ public class PanelSlideListenerTest {
         TestActivity.onActivityCreated = {}
     }
 
+    @FlakyTest(bugId = 259937748)
     @Test
     public fun testAddPanelSlideListener() {
         with(ActivityScenario.launch(TestActivity::class.java)) {

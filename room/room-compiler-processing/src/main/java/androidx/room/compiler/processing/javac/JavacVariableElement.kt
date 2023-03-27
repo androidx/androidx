@@ -18,7 +18,7 @@ package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XVariableElement
-import androidx.room.compiler.processing.javac.kotlin.KmType
+import androidx.room.compiler.processing.javac.kotlin.KmTypeContainer
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.VariableElement
 
@@ -27,7 +27,7 @@ internal abstract class JavacVariableElement(
     override val element: VariableElement
 ) : JavacElement(env, element), XVariableElement {
 
-    abstract val kotlinType: KmType?
+    abstract val kotlinType: KmTypeContainer?
 
     override val name: String
         get() = element.simpleName.toString()

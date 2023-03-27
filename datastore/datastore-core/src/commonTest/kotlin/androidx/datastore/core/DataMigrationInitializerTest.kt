@@ -197,7 +197,7 @@ abstract class DataMigrationInitializerTest<F : TestFile, IOE : Throwable>
             TestingSerializerConfig()
         )
     ): DataStore<Byte> {
-        return SingleProcessDataStore(
+        return DataStoreImpl(
             storage,
             scope = dataStoreScope,
             initTasksList = initTasksList

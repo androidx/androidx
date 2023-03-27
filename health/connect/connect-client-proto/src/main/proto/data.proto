@@ -50,6 +50,13 @@ message SeriesValue {
   optional int64 instant_time_millis = 2;
 }
 
+message SubTypeDataValue {
+  map<string, Value> values = 1;
+  optional int64 start_time_millis = 2;
+  optional int64 end_time_millis = 3;
+}
+
+// Next Id: 22
 message DataPoint {
   optional DataType data_type = 1;
   map<string, Value> values = 2;
@@ -82,6 +89,12 @@ message DataPoint {
 
   optional int32 start_zone_offset_seconds = 19;
   optional int32 end_zone_offset_seconds = 20;
+
+  optional SubTypeDataValue sub_type_data_values = 21;
+
+  message SubTypeDataList {
+    repeated SubTypeDataValue values = 1;
+  }
 }
 
 message AggregatedValue {

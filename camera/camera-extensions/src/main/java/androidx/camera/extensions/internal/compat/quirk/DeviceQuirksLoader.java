@@ -44,6 +44,10 @@ public class DeviceQuirksLoader {
             quirks.add(new ExtensionDisabledQuirk());
         }
 
+        if (CrashWhenOnDisableTooSoon.load()) {
+            quirks.add(new CrashWhenOnDisableTooSoon());
+        }
+
         return quirks;
     }
 }

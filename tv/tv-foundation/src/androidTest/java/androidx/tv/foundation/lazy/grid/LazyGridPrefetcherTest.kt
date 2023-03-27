@@ -85,6 +85,7 @@ class LazyGridPrefetcherTest(
         }
 
         waitForPrefetch(4)
+        waitForPrefetch(5)
 
         rule.onNodeWithTag("4")
             .assertExists()
@@ -105,6 +106,7 @@ class LazyGridPrefetcherTest(
         }
 
         waitForPrefetch(2)
+        waitForPrefetch(3)
 
         rule.onNodeWithTag("2")
             .assertExists()
@@ -125,6 +127,7 @@ class LazyGridPrefetcherTest(
         }
 
         waitForPrefetch(6)
+        waitForPrefetch(7)
 
         rule.onNodeWithTag("6")
             .assertExists()
@@ -141,6 +144,7 @@ class LazyGridPrefetcherTest(
         }
 
         waitForPrefetch(0)
+        waitForPrefetch(1)
 
         rule.onNodeWithTag("0")
             .assertExists()
@@ -221,6 +225,7 @@ class LazyGridPrefetcherTest(
         }
 
         waitForPrefetch(6)
+        waitForPrefetch(7)
 
         rule.onNodeWithTag("6")
             .assertExists()
@@ -239,6 +244,7 @@ class LazyGridPrefetcherTest(
         }
 
         waitForPrefetch(0)
+        waitForPrefetch(1)
 
         rule.onNodeWithTag("0")
             .assertExists()

@@ -53,8 +53,8 @@ interface SupportSQLiteDatabase : Closeable {
      *
      * ```
      *  db.beginTransaction()
-     *      try {
-     *          ...
+     *  try {
+     *      ...
      *      db.setTransactionSuccessful()
      *  } finally {
      *      db.endTransaction()
@@ -75,10 +75,10 @@ interface SupportSQLiteDatabase : Closeable {
      *
      * ```
      *  db.beginTransactionNonExclusive()
-     *      try {
-     *          ...
+     *  try {
+     *      ...
      *      db.setTransactionSuccessful()
-     *          } finally {
+     *  } finally {
      *      db.endTransaction()
      *  }
      *  ```
@@ -126,7 +126,7 @@ interface SupportSQLiteDatabase : Closeable {
      *  db.beginTransactionWithListenerNonExclusive(listener)
      *  try {
      *      ...
-     *  db.setTransactionSuccessful()
+     *      db.setTransactionSuccessful()
      *  } finally {
      *      db.endTransaction()
      *  }
@@ -234,7 +234,7 @@ interface SupportSQLiteDatabase : Closeable {
     @Suppress("AcronymName") // To keep consistency with framework method name.
     fun execPerConnectionSQL(
         sql: String,
-        @SuppressLint("ArrayReturn") bindArgs: Array<Any?>?
+        @SuppressLint("ArrayReturn") bindArgs: Array<out Any?>?
     ) {
         throw UnsupportedOperationException()
     }
@@ -288,7 +288,7 @@ interface SupportSQLiteDatabase : Closeable {
      * @return A [Cursor] object, which is positioned before the first entry. Note that
      * [Cursor]s are not synchronized, see the documentation for more details.
      */
-    fun query(query: String, bindArgs: Array<Any?>): Cursor
+    fun query(query: String, bindArgs: Array<out Any?>): Cursor
 
     /**
      * Runs the given query on the database.
@@ -354,7 +354,7 @@ interface SupportSQLiteDatabase : Closeable {
      * otherwise. To remove all rows and get a count pass "1" as the
      * whereClause.
      */
-    fun delete(table: String, whereClause: String?, whereArgs: Array<Any?>?): Int
+    fun delete(table: String, whereClause: String?, whereArgs: Array<out Any?>?): Int
 
     /**
      * Convenience method for updating rows in the database.
@@ -381,7 +381,7 @@ interface SupportSQLiteDatabase : Closeable {
         conflictAlgorithm: Int,
         values: ContentValues,
         whereClause: String?,
-        whereArgs: Array<Any?>?
+        whereArgs: Array<out Any?>?
     ): Int
 
     /**
@@ -413,7 +413,7 @@ interface SupportSQLiteDatabase : Closeable {
      * @throws SQLException if the SQL string is invalid
      */
     @Throws(SQLException::class)
-    fun execSQL(sql: String, bindArgs: Array<Any?>)
+    fun execSQL(sql: String, bindArgs: Array<out Any?>)
 
     /**
      * Is true if the database is opened as read only.

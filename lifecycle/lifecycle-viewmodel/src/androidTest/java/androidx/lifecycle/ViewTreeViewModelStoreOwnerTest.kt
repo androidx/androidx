@@ -36,19 +36,19 @@ class ViewTreeViewModelStoreOwnerTest {
         val v = View(InstrumentationRegistry.getInstrumentation().context)
 
         assertWithMessage("initial ViewModelStoreOwner expects null")
-            .that(ViewTreeViewModelStoreOwner.get(v))
+            .that(v.findViewTreeViewModelStoreOwner())
             .isNull()
 
         val fakeOwner: ViewModelStoreOwner = FakeViewModelStoreOwner()
-        ViewTreeViewModelStoreOwner.set(v, fakeOwner)
+        v.setViewTreeViewModelStoreOwner(fakeOwner)
 
         assertWithMessage("get the ViewModelStoreOwner set directly")
-            .that(ViewTreeViewModelStoreOwner.get(v))
+            .that(v.findViewTreeViewModelStoreOwner())
             .isEqualTo(fakeOwner)
     }
 
     /**
-     * minimal test that checks View.findViewTreeViewModelStoreOwner works
+     * minimal test that checks View..findViewTreeViewModelStoreOwner works
      */
     @Test
     fun setFindsSameView() {
@@ -59,7 +59,7 @@ class ViewTreeViewModelStoreOwnerTest {
             .isNull()
 
         val fakeOwner: ViewModelStoreOwner = FakeViewModelStoreOwner()
-        ViewTreeViewModelStoreOwner.set(v, fakeOwner)
+        v.setViewTreeViewModelStoreOwner(fakeOwner)
 
         assertWithMessage("get the ViewModelStoreOwner set directly")
             .that(v.findViewTreeViewModelStoreOwner())
@@ -80,20 +80,20 @@ class ViewTreeViewModelStoreOwnerTest {
         parent.addView(child)
 
         assertWithMessage("initial ViewModelStoreOwner expects null")
-            .that(ViewTreeViewModelStoreOwner.get(child))
+            .that(child.findViewTreeViewModelStoreOwner())
             .isNull()
 
         val fakeOwner: ViewModelStoreOwner = FakeViewModelStoreOwner()
-        ViewTreeViewModelStoreOwner.set(root, fakeOwner)
+        root.setViewTreeViewModelStoreOwner(fakeOwner)
 
         assertWithMessage("root sees owner")
-            .that(ViewTreeViewModelStoreOwner.get(root))
+            .that(root.findViewTreeViewModelStoreOwner())
             .isEqualTo(fakeOwner)
         assertWithMessage("direct child sees owner")
-            .that(ViewTreeViewModelStoreOwner.get(parent))
+            .that(parent.findViewTreeViewModelStoreOwner())
             .isEqualTo(fakeOwner)
         assertWithMessage("grandchild sees owner")
-            .that(ViewTreeViewModelStoreOwner.get(child))
+            .that(child.findViewTreeViewModelStoreOwner())
             .isEqualTo(fakeOwner)
     }
 
@@ -112,29 +112,30 @@ class ViewTreeViewModelStoreOwnerTest {
         parent.addView(child)
 
         assertWithMessage("initial ViewModelStoreOwner expects null")
-            .that(ViewTreeViewModelStoreOwner.get(child))
+            .that(child.findViewTreeViewModelStoreOwner())
             .isNull()
 
         val rootFakeOwner: ViewModelStoreOwner = FakeViewModelStoreOwner()
-        ViewTreeViewModelStoreOwner.set(root, rootFakeOwner)
+        root.setViewTreeViewModelStoreOwner(rootFakeOwner)
 
         val parentFakeOwner: ViewModelStoreOwner = FakeViewModelStoreOwner()
-        ViewTreeViewModelStoreOwner.set(parent, parentFakeOwner)
+        parent.setViewTreeViewModelStoreOwner(parentFakeOwner)
 
         assertWithMessage("root sees owner")
-            .that(ViewTreeViewModelStoreOwner.get(root))
+            .that(root.findViewTreeViewModelStoreOwner())
             .isEqualTo(rootFakeOwner)
         assertWithMessage("direct child sees owner")
-            .that(ViewTreeViewModelStoreOwner.get(parent))
+            .that(parent.findViewTreeViewModelStoreOwner())
             .isEqualTo(parentFakeOwner)
         assertWithMessage("grandchild sees owner")
-            .that(ViewTreeViewModelStoreOwner.get(child))
+            .that(child.findViewTreeViewModelStoreOwner())
             .isEqualTo(parentFakeOwner)
     }
 
     internal class FakeViewModelStoreOwner : ViewModelStoreOwner {
-        override fun getViewModelStore(): ViewModelStore {
-            throw UnsupportedOperationException("not a real ViewModelStoreOwner")
-        }
+        override val viewModelStore: ViewModelStore
+            get() {
+                throw UnsupportedOperationException("not a real ViewModelStoreOwner")
+            }
     }
 }

@@ -35,7 +35,6 @@ dependencies {
 androidx {
     name = "Android Fragment-Testing Lint Checks"
     type = LibraryType.LINT
-    mavenGroup = LibraryGroups.FRAGMENT
     inceptionYear = "2019"
     description = "Lint Checks for the Fragment Testing module"
 }

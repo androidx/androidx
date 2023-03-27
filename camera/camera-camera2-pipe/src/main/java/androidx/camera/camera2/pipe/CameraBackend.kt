@@ -17,12 +17,26 @@ package androidx.camera.camera2.pipe
 
 import androidx.camera.camera2.pipe.graph.GraphListener
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.flow.Flow
+
+/** This is used to uniquely identify a specific backend implementation. */
+@JvmInline
+value class CameraBackendId(val value: String)
 
 /**
- * This is used to uniquely identify a specific backend implementation.
+ * A CameraStatusMonitors monitors the status of the cameras, and emits updates when the status of
+ * cameras changes, for instance when the camera access priorities have changed or when a particular
+ * camera has become available.
  */
-@JvmInline
-value class CameraBackendId(public val value: String)
+interface CameraStatusMonitor {
+    val cameraStatus: Flow<CameraStatus>
+
+    abstract class CameraStatus internal constructor() {
+        object CameraPrioritiesChanged : CameraStatus()
+
+        class CameraAvailable(val cameraId: CameraId) : CameraStatus()
+    }
+}
 
 /**
  * A CameraBackend is used by [CameraPipe] to abstract out the lifecycle, state, and interactions
@@ -40,21 +54,33 @@ interface CameraBackend {
     val id: CameraBackendId
 
     /**
-     * Read out a list of openable [CameraId]s for this backend. This call may block the calling
-     * thread and should not cache the list of [CameraId]s if it's possible for them to change at
-     * runtime.
+     * A flow of camera statuses that provide camera status updates such as when the camera access
+     * priorities have changed, or a certain camera has become available.
      */
-    fun readCameraIdList(): List<CameraId>
+    val cameraStatus: Flow<CameraStatusMonitor.CameraStatus>
 
-    /** Retrieve [CameraMetadata] for this backend. This call may block the calling thread and
-     * should not internally cache the [CameraMetadata] instance if it's possible for it to change
-     * at runtime.
-     *
-     * This call should should succeed if the [CameraId] is in the list of ids returned by
-     * [readCameraIdList]. For some backends, it may be possible to retrieve metadata for cameras
-     * that cannot be opened directly.
+    /**
+     * Read out a list of _openable_ [CameraId]s for this backend. The backend may be able to report
+     * Metadata for non-openable cameras. However, these cameras should not appear the list of
+     * cameras returned by [getCameraIds].
      */
-    fun readCameraMetadata(cameraId: CameraId): CameraMetadata
+    suspend fun getCameraIds(): List<CameraId>? = awaitCameraIds()
+
+    /** Thread-blocking version of [getCameraIds] for compatibility. */
+    fun awaitCameraIds(): List<CameraId>?
+
+    /**
+     * Retrieve [CameraMetadata] for this backend. Backends may cache the results of these calls.
+     *
+     * This call should should always succeed if the [CameraId] is in the list of ids returned by
+     * [getCameraIds]. For some backends, it may be possible to retrieve metadata for cameras that
+     * cannot be opened directly.
+     */
+    suspend fun getCameraMetadata(cameraId: CameraId): CameraMetadata? =
+        awaitCameraMetadata(cameraId)
+
+    /** Thread-blocking version of [getCameraMetadata] for compatibility. */
+    fun awaitCameraMetadata(cameraId: CameraId): CameraMetadata?
 
     /**
      * Stops all active [CameraController]s, which may disconnect any cached camera connection(s).
@@ -78,8 +104,8 @@ interface CameraBackend {
 
     /**
      * Creates a new [CameraController] instance that can be used to initialize and interact with a
-     * specific camera device defined by this CameraBackend. Creating a [CameraController] should
-     * _not_ begin opening or interacting with the camera device until [CameraController.start] is
+     * specific Camera that is available from this CameraBackend. Creating a [CameraController]
+     * should _not_ begin opening or interacting with the Camera until [CameraController.start] is
      * called.
      */
     fun createCameraController(
@@ -98,9 +124,7 @@ interface CameraBackend {
  * and release previously created [CameraBackend]s.
  */
 fun interface CameraBackendFactory {
-    /**
-     * Create a new [CameraBackend] instance based on the provided [CameraContext].
-     */
+    /** Create a new [CameraBackend] instance based on the provided [CameraContext]. */
     fun create(cameraContext: CameraContext): CameraBackend
 }
 
@@ -129,8 +153,8 @@ interface CameraBackends {
     val activeIds: Set<CameraBackendId>
 
     /**
-     * Get a previously created [CameraBackend] instance, or create a new one. If the backend
-     * fails to load or is not available, this method will return null.
+     * Get a previously created [CameraBackend] instance, or create a new one. If the backend fails
+     * to load or is not available, this method will return null.
      */
     operator fun get(backendId: CameraBackendId): CameraBackend?
 }

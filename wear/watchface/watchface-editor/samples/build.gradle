@@ -34,7 +34,6 @@ dependencies {
 androidx {
     name = "AndroidX Wear Editor Samples"
     type = LibraryType.SAMPLES
-    mavenGroup = LibraryGroups.WEAR_WATCHFACE
     inceptionYear = "2020"
     description = "Contains sample code for the Androidx Wear Editor library"
 }

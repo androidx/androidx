@@ -34,7 +34,7 @@ import androidx.car.app.model.Template;
 import androidx.car.app.navigation.model.PlaceListNavigationTemplate;
 import androidx.car.app.sample.showcase.common.R;
 import androidx.car.app.sample.showcase.common.common.SamplePlaces;
-import androidx.car.app.sample.showcase.common.navigation.routing.RoutingDemoModels;
+import androidx.car.app.sample.showcase.common.screens.navigationdemos.navigationtemplates.RoutingDemoModels;
 import androidx.core.graphics.drawable.IconCompat;
 
 /** Creates a screen using the {@link PlaceListNavigationTemplate} */
@@ -78,6 +78,7 @@ public final class PlaceListNavigationTemplateDemoScreen extends Screen {
                                                         : R.drawable.ic_favorite_white_24dp))
                                         .build())
                         .setOnClickListener(() -> {
+                            mIsFavorite = !mIsFavorite;
                             CarToast.makeText(
                                             getCarContext(),
                                             mIsFavorite
@@ -87,7 +88,6 @@ public final class PlaceListNavigationTemplateDemoScreen extends Screen {
                                                             R.string.not_favorite_toast_msg),
                                             LENGTH_SHORT)
                                     .show();
-                            mIsFavorite = !mIsFavorite;
                             invalidate();
                         })
                         .build())

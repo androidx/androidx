@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.core.performance {
 
-  public interface DevicePerformance {
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface DevicePerformance {
     method public default static androidx.core.performance.DevicePerformance create(android.content.Context context);
     method public int getMediaPerformanceClass();
     property public abstract int mediaPerformanceClass;

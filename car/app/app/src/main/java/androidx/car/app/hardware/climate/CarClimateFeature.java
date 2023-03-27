@@ -16,12 +16,12 @@
 
 package androidx.car.app.hardware.climate;
 
-import androidx.annotation.Keep;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarZone;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,12 +36,11 @@ import java.util.Objects;
 @RequiresCarApi(5)
 @MainThread
 @ExperimentalCarApi
+@KeepFields
 public final class CarClimateFeature {
-    @Keep
     @ClimateProfileRequest.ClimateProfileFeature
     private final int mFeature;
 
-    @Keep
     @NonNull
     private final List<CarZone> mCarZones;
 
@@ -106,8 +105,8 @@ public final class CarClimateFeature {
         /**
          * Creates an instance of builder.
          *
-         * @param feature   one of integer flags in ClimateStateFeature or
-         *                      ClimateProfileFeatures
+         * @param feature one of integer flags in ClimateStateFeature or
+         *                ClimateProfileFeatures
          */
         public Builder(@ClimateProfileRequest.ClimateProfileFeature int feature) {
             mFeature = feature;

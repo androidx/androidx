@@ -16,12 +16,12 @@ package androidx.work {
   public final class Configuration {
     method public String? getDefaultProcessName();
     method public java.util.concurrent.Executor getExecutor();
-    method public androidx.work.InitializationExceptionHandler? getInitializationExceptionHandler();
+    method public androidx.core.util.Consumer<java.lang.Throwable!>? getInitializationExceptionHandler();
     method public androidx.work.InputMergerFactory getInputMergerFactory();
     method public int getMaxJobSchedulerId();
     method public int getMinJobSchedulerId();
     method public androidx.work.RunnableScheduler getRunnableScheduler();
-    method public androidx.work.SchedulingExceptionHandler? getSchedulingExceptionHandler();
+    method public androidx.core.util.Consumer<java.lang.Throwable!>? getSchedulingExceptionHandler();
     method public java.util.concurrent.Executor getTaskExecutor();
     method public androidx.work.WorkerFactory getWorkerFactory();
     field public static final int MIN_SCHEDULER_LIMIT = 20; // 0x14
@@ -32,13 +32,13 @@ package androidx.work {
     method public androidx.work.Configuration build();
     method public androidx.work.Configuration.Builder setDefaultProcessName(String);
     method public androidx.work.Configuration.Builder setExecutor(java.util.concurrent.Executor);
-    method public androidx.work.Configuration.Builder setInitializationExceptionHandler(androidx.work.InitializationExceptionHandler);
+    method public androidx.work.Configuration.Builder setInitializationExceptionHandler(androidx.core.util.Consumer<java.lang.Throwable!>);
     method public androidx.work.Configuration.Builder setInputMergerFactory(androidx.work.InputMergerFactory);
     method public androidx.work.Configuration.Builder setJobSchedulerJobIdRange(int, int);
     method public androidx.work.Configuration.Builder setMaxSchedulerLimit(int);
     method public androidx.work.Configuration.Builder setMinimumLoggingLevel(int);
     method public androidx.work.Configuration.Builder setRunnableScheduler(androidx.work.RunnableScheduler);
-    method public androidx.work.Configuration.Builder setSchedulingExceptionHandler(androidx.work.SchedulingExceptionHandler);
+    method public androidx.work.Configuration.Builder setSchedulingExceptionHandler(androidx.core.util.Consumer<java.lang.Throwable!>);
     method public androidx.work.Configuration.Builder setTaskExecutor(java.util.concurrent.Executor);
     method public androidx.work.Configuration.Builder setWorkerFactory(androidx.work.WorkerFactory);
   }
@@ -173,10 +173,6 @@ package androidx.work {
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setForegroundAsync(android.content.Context, java.util.UUID, androidx.work.ForegroundInfo);
   }
 
-  public interface InitializationExceptionHandler {
-    method public void handleException(Throwable);
-  }
-
   public abstract class InputMerger {
     ctor public InputMerger();
     method public abstract androidx.work.Data merge(java.util.List<androidx.work.Data!>);
@@ -307,10 +303,6 @@ package androidx.work {
   public interface RunnableScheduler {
     method public void cancel(Runnable);
     method public void scheduleWithDelay(@IntRange(from=0) long, Runnable);
-  }
-
-  public interface SchedulingExceptionHandler {
-    method public void handleException(Throwable);
   }
 
   public abstract class WorkContinuation {

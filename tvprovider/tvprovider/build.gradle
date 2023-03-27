@@ -26,7 +26,6 @@ android {
 androidx {
     name = "Android Support TV Provider"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.TVPROVIDER
     inceptionYear = "2017"
     description = "Android Support Library for TV Provider"
     failOnDeprecationWarnings = false

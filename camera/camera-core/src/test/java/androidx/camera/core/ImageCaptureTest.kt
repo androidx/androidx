@@ -25,21 +25,23 @@ import android.os.HandlerThread
 import android.os.Looper.getMainLooper
 import android.util.Pair
 import android.util.Rational
-import android.util.Size
 import android.view.Surface
 import androidx.camera.core.ImageCapture.ImageCaptureRequest
 import androidx.camera.core.ImageCapture.ImageCaptureRequestProcessor
 import androidx.camera.core.ImageCapture.ImageCaptureRequestProcessor.ImageCaptor
+import androidx.camera.core.impl.CameraConfig
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CaptureConfig
-import androidx.camera.core.impl.CaptureProcessor
-import androidx.camera.core.impl.ImageProxyBundle
+import androidx.camera.core.impl.Identifier
+import androidx.camera.core.impl.OptionsBundle
 import androidx.camera.core.impl.SessionConfig
+import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.TagBundle
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.core.internal.utils.SizeUtil
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.fakes.FakeAppConfig
@@ -50,6 +52,7 @@ import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.fakes.FakeImageInfo
 import androidx.camera.testing.fakes.FakeImageProxy
 import androidx.camera.testing.fakes.FakeImageReaderProxy
+import androidx.camera.testing.fakes.FakeSessionProcessor
 import androidx.concurrent.futures.ResolvableFuture
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -60,6 +63,7 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicReference
 import org.junit.After
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -192,13 +196,32 @@ class ImageCaptureTest {
     }
 
     @Test
-    fun processingPipelineOffByDefault() {
-        assertThat(
-            bindImageCapture(
-                useProcessingPipeline = false,
-                bufferFormat = ImageFormat.JPEG,
-            ).isProcessingPipelineEnabled
-        ).isFalse()
+    fun onError_surfaceIsRecreated() {
+        // Arrange: create ImageCapture and get the Surface
+        val imageCapture = bindImageCapture(
+            bufferFormat = ImageFormat.JPEG,
+        )
+        val oldSurface = imageCapture.sessionConfig.surfaces.single().surface.get()
+        assertTakePictureManagerHasTheSameSurface(imageCapture)
+
+        // Act: invoke onError callback.
+        imageCapture.sessionConfig.errorListeners.single().onError(
+            imageCapture.sessionConfig,
+            SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET
+        )
+
+        // Assert: the surface has been recreated.
+        val newSurface = imageCapture.sessionConfig.surfaces.single().surface.get()
+        assertThat(newSurface).isNotEqualTo(oldSurface)
+        assertTakePictureManagerHasTheSameSurface(imageCapture)
+    }
+
+    private fun assertTakePictureManagerHasTheSameSurface(imageCapture: ImageCapture) {
+        val takePictureManagerSurface =
+            imageCapture.takePictureManager.imagePipeline.createSessionConfigBuilder()
+                .build().surfaces.single().surface.get()
+        val useCaseSurface = imageCapture.sessionConfig.surfaces.single().surface.get()
+        assertThat(takePictureManagerSurface).isEqualTo(useCaseSurface)
     }
 
     @Test
@@ -209,6 +232,11 @@ class ImageCaptureTest {
                 bufferFormat = ImageFormat.JPEG,
             ).isProcessingPipelineEnabled
         ).isTrue()
+    }
+
+    @Test
+    fun detachWithoutAttach_doesNotCrash() {
+        ImageCapture.Builder().build().onUnbind()
     }
 
     @Test
@@ -232,21 +260,14 @@ class ImageCaptureTest {
         ).isFalse()
     }
 
+    @Config(minSdk = 28)
     @Test
     fun extensionIsOn_pipelineDisabled() {
         assertThat(
             bindImageCapture(
                 useProcessingPipeline = true,
-                captureProcessor = object : CaptureProcessor {
-                    override fun onOutputSurface(surface: Surface, imageFormat: Int) {
-                    }
-
-                    override fun process(bundle: ImageProxyBundle) {
-                    }
-
-                    override fun onResolutionUpdate(size: Size) {
-                    }
-                }
+                bufferFormat = ImageFormat.JPEG,
+                sessionProcessor = FakeSessionProcessor(null, null)
             ).isProcessingPipelineEnabled
         ).isFalse()
     }
@@ -557,6 +578,32 @@ class ImageCaptureTest {
         assertThat(cameraControl.isZslConfigAdded).isTrue()
     }
 
+    @Test
+    fun throwException_whenSetBothTargetResolutionAndAspectRatio() {
+        assertThrows(IllegalArgumentException::class.java) {
+            ImageCapture.Builder().setTargetResolution(SizeUtil.RESOLUTION_VGA)
+                .setTargetAspectRatio(AspectRatio.RATIO_4_3).build()
+        }
+    }
+
+    @Test
+    fun throwException_whenSetTargetResolutionWithResolutionSelector() {
+        assertThrows(IllegalArgumentException::class.java) {
+            ImageCapture.Builder().setTargetResolution(SizeUtil.RESOLUTION_VGA)
+                .setResolutionSelector(ResolutionSelector.Builder().build())
+                .build()
+        }
+    }
+
+    @Test
+    fun throwException_whenSetTargetAspectRatioWithResolutionSelector() {
+        assertThrows(IllegalArgumentException::class.java) {
+            ImageCapture.Builder().setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                .setResolutionSelector(ResolutionSelector.Builder().build())
+                .build()
+        }
+    }
+
     private fun bindImageCapture(
         captureMode: Int = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
         viewPort: ViewPort? = null,
@@ -564,14 +611,13 @@ class ImageCaptureTest {
         bufferFormat: Int = ImageFormat.YUV_420_888,
         imageReaderProxyProvider: ImageReaderProxyProvider? = null,
         useProcessingPipeline: Boolean? = null,
-        captureProcessor: CaptureProcessor? = null
+        sessionProcessor: SessionProcessor? = null
     ): ImageCapture {
         // Arrange.
         val imageCapture = createImageCapture(
             captureMode,
             bufferFormat,
             imageReaderProxyProvider,
-            captureProcessor
         )
         if (useProcessingPipeline != null) {
             imageCapture.mUseProcessingPipeline = useProcessingPipeline
@@ -584,6 +630,28 @@ class ImageCaptureTest {
         )
 
         cameraUseCaseAdapter.setViewPort(viewPort)
+        if (sessionProcessor != null) {
+            cameraUseCaseAdapter.setExtendedConfig(object : CameraConfig {
+                override fun getConfig(): androidx.camera.core.impl.Config {
+                    return OptionsBundle.emptyBundle()
+                }
+
+                override fun getSessionProcessor(
+                    valueIfMissing: SessionProcessor?
+                ): SessionProcessor? {
+                    return sessionProcessor
+                }
+
+                override fun getSessionProcessor(): SessionProcessor {
+                    return sessionProcessor
+                }
+
+                override fun getCompatibilityId(): Identifier {
+                    return Identifier.create(Any())
+                }
+            })
+        }
+
         cameraUseCaseAdapter.addUseCases(Collections.singleton<UseCase>(imageCapture))
         return imageCapture
     }
@@ -592,8 +660,7 @@ class ImageCaptureTest {
         captureMode: Int = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
         // Set non jpg format by default so it doesn't trigger the exif code path.
         bufferFormat: Int = ImageFormat.YUV_420_888,
-        imageReaderProxyProvider: ImageReaderProxyProvider? = null,
-        captureProcessor: CaptureProcessor? = null
+        imageReaderProxyProvider: ImageReaderProxyProvider? = null
     ): ImageCapture {
         val builder = ImageCapture.Builder()
             .setTargetRotation(Surface.ROTATION_0)
@@ -602,11 +669,7 @@ class ImageCaptureTest {
             .setCaptureOptionUnpacker { _: UseCaseConfig<*>?, _: CaptureConfig.Builder? -> }
             .setSessionOptionUnpacker { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
 
-        if (captureProcessor != null) {
-            builder.setCaptureProcessor(captureProcessor)
-        } else {
-            builder.setBufferFormat(bufferFormat)
-        }
+        builder.setBufferFormat(bufferFormat)
         if (imageReaderProxyProvider != null) {
             builder.setImageReaderProxyProvider(imageReaderProxyProvider)
         }

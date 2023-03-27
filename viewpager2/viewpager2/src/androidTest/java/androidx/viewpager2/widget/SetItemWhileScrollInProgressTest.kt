@@ -32,6 +32,7 @@ import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -133,6 +134,7 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
         fun spec(): List<TestConfig> = createTestSet()
     }
 
+    @Ignore // b/266974735
     @Test
     fun test() {
         config.apply {

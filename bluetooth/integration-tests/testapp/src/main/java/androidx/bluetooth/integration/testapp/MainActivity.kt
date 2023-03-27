@@ -22,10 +22,8 @@ import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.bluetooth.integration.testapp.databinding.ActivityMainBinding
-import androidx.core.view.WindowCompat
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 
 class MainActivity : AppCompatActivity() {
@@ -41,18 +39,18 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-    private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val navController = findNavController(R.id.nav_host_fragment)
-        appBarConfiguration = AppBarConfiguration(navController.graph)
+        val navController = findNavController(R.id.nav_host_fragment_activity_main)
+        val appBarConfiguration = AppBarConfiguration(
+            setOf(R.id.navigation_home)
+        )
         setupActionBarWithNavController(navController, appBarConfiguration)
     }
 
@@ -61,15 +59,12 @@ class MainActivity : AppCompatActivity() {
 
         requestBluetoothPermissions.launch(
             arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.BLUETOOTH_ADVERTISE,
+                Manifest.permission.BLUETOOTH_CONNECT,
                 Manifest.permission.BLUETOOTH_SCAN,
             )
         )
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment)
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 }

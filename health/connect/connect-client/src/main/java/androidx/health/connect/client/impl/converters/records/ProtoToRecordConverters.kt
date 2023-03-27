@@ -24,33 +24,27 @@ import androidx.health.connect.client.records.BasalMetabolicRateRecord
 import androidx.health.connect.client.records.BloodGlucoseRecord
 import androidx.health.connect.client.records.BloodPressureRecord
 import androidx.health.connect.client.records.BodyFatRecord
+import androidx.health.connect.client.records.BodyTemperatureMeasurementLocation
 import androidx.health.connect.client.records.BodyTemperatureRecord
 import androidx.health.connect.client.records.BodyWaterMassRecord
 import androidx.health.connect.client.records.BoneMassRecord
 import androidx.health.connect.client.records.CervicalMucusRecord
+import androidx.health.connect.client.records.CervicalMucusRecord.Companion.APPEARANCE_STRING_TO_INT_MAP
+import androidx.health.connect.client.records.CervicalMucusRecord.Companion.SENSATION_STRING_TO_INT_MAP
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
-import androidx.health.connect.client.records.ExerciseEventRecord
-import androidx.health.connect.client.records.ExerciseLapRecord
-import androidx.health.connect.client.records.ExerciseRepetitionsRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRateRecord
-import androidx.health.connect.client.records.HeartRateVariabilityDifferentialIndexRecord
 import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySd2Record
-import androidx.health.connect.client.records.HeartRateVariabilitySdannRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySdnnIndexRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySdnnRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySdsdRecord
-import androidx.health.connect.client.records.HeartRateVariabilityTinnRecord
-import androidx.health.connect.client.records.MenstruationFlowRecord
 import androidx.health.connect.client.records.HeightRecord
-import androidx.health.connect.client.records.HipCircumferenceRecord
 import androidx.health.connect.client.records.HydrationRecord
+import androidx.health.connect.client.records.IntermenstrualBleedingRecord
 import androidx.health.connect.client.records.LeanBodyMassRecord
+import androidx.health.connect.client.records.MealType
+import androidx.health.connect.client.records.MenstruationFlowRecord
+import androidx.health.connect.client.records.MenstruationPeriodRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.OvulationTestRecord
 import androidx.health.connect.client.records.OxygenSaturationRecord
@@ -64,10 +58,8 @@ import androidx.health.connect.client.records.SleepStageRecord
 import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
-import androidx.health.connect.client.records.SwimmingStrokesRecord
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import androidx.health.connect.client.records.Vo2MaxRecord
-import androidx.health.connect.client.records.WaistCircumferenceRecord
 import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.WheelchairPushesRecord
 import androidx.health.connect.client.units.BloodGlucose
@@ -92,7 +84,13 @@ fun toRecord(proto: DataProto.DataPoint): Record =
             "BasalBodyTemperature" ->
                 BasalBodyTemperatureRecord(
                     temperature = getDouble("temperature").celsius,
-                    measurementLocation = getEnum("measurementLocation"),
+                    measurementLocation =
+                        mapEnum(
+                            "measurementLocation",
+                            BodyTemperatureMeasurementLocation
+                                .MEASUREMENT_LOCATION_STRING_TO_INT_MAP,
+                            BodyTemperatureMeasurementLocation.MEASUREMENT_LOCATION_UNKNOWN,
+                        ),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
@@ -107,9 +105,24 @@ fun toRecord(proto: DataProto.DataPoint): Record =
             "BloodGlucose" ->
                 BloodGlucoseRecord(
                     level = BloodGlucose.millimolesPerLiter(getDouble("level")),
-                    specimenSource = getEnum("specimenSource"),
-                    mealType = getEnum("mealType"),
-                    relationToMeal = getEnum("relationToMeal"),
+                    specimenSource =
+                        mapEnum(
+                            "specimenSource",
+                            BloodGlucoseRecord.SPECIMEN_SOURCE_STRING_TO_INT_MAP,
+                            BloodGlucoseRecord.SPECIMEN_SOURCE_UNKNOWN
+                        ),
+                    mealType =
+                        mapEnum(
+                            "mealType",
+                            MealType.MEAL_TYPE_STRING_TO_INT_MAP,
+                            MealType.MEAL_TYPE_UNKNOWN
+                        ),
+                    relationToMeal =
+                        mapEnum(
+                            "relationToMeal",
+                            BloodGlucoseRecord.RELATION_TO_MEAL_STRING_TO_INT_MAP,
+                            BloodGlucoseRecord.RELATION_TO_MEAL_UNKNOWN
+                        ),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
@@ -118,8 +131,18 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 BloodPressureRecord(
                     systolic = getDouble("systolic").millimetersOfMercury,
                     diastolic = getDouble("diastolic").millimetersOfMercury,
-                    bodyPosition = getEnum("bodyPosition"),
-                    measurementLocation = getEnum("measurementLocation"),
+                    bodyPosition =
+                        mapEnum(
+                            "bodyPosition",
+                            BloodPressureRecord.BODY_POSITION_STRING_TO_INT_MAP,
+                            BloodPressureRecord.BODY_POSITION_UNKNOWN
+                        ),
+                    measurementLocation =
+                        mapEnum(
+                            "measurementLocation",
+                            BloodPressureRecord.MEASUREMENT_LOCATION_STRING_TO_INT_MAP,
+                            BloodPressureRecord.MEASUREMENT_LOCATION_UNKNOWN
+                        ),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
@@ -134,7 +157,13 @@ fun toRecord(proto: DataProto.DataPoint): Record =
             "BodyTemperature" ->
                 BodyTemperatureRecord(
                     temperature = getDouble("temperature").celsius,
-                    measurementLocation = getEnum("measurementLocation"),
+                    measurementLocation =
+                        mapEnum(
+                            "measurementLocation",
+                            BodyTemperatureMeasurementLocation
+                                .MEASUREMENT_LOCATION_STRING_TO_INT_MAP,
+                            BodyTemperatureMeasurementLocation.MEASUREMENT_LOCATION_UNKNOWN
+                        ),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
@@ -155,8 +184,18 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "CervicalMucus" ->
                 CervicalMucusRecord(
-                    appearance = getEnum("texture"),
-                    sensation = getEnum("amount"),
+                    appearance =
+                        mapEnum(
+                            "texture",
+                            APPEARANCE_STRING_TO_INT_MAP,
+                            CervicalMucusRecord.APPEARANCE_UNKNOWN
+                        ),
+                    sensation =
+                        mapEnum(
+                            "amount",
+                            SENSATION_STRING_TO_INT_MAP,
+                            CervicalMucusRecord.SENSATION_UNKNOWN
+                        ),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
@@ -198,71 +237,8 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
-            "HipCircumference" ->
-                HipCircumferenceRecord(
-                    circumference = getDouble("circumference").meters,
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
-                )
-            "HeartRateVariabilityDifferentialIndex" ->
-                HeartRateVariabilityDifferentialIndexRecord(
-                    heartRateVariabilityMillis = getDouble("heartRateVariability"),
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
-                )
             "HeartRateVariabilityRmssd" ->
                 HeartRateVariabilityRmssdRecord(
-                    heartRateVariabilityMillis = getDouble("heartRateVariability"),
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
-                )
-            "HeartRateVariabilityS" ->
-                HeartRateVariabilitySRecord(
-                    heartRateVariabilityMillis = getDouble("heartRateVariability"),
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
-                )
-            "HeartRateVariabilitySd2" ->
-                HeartRateVariabilitySd2Record(
-                    heartRateVariabilityMillis = getDouble("heartRateVariability"),
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
-                )
-            "HeartRateVariabilitySdann" ->
-                HeartRateVariabilitySdannRecord(
-                    heartRateVariabilityMillis = getDouble("heartRateVariability"),
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
-                )
-            "HeartRateVariabilitySdnnIndex" ->
-                HeartRateVariabilitySdnnIndexRecord(
-                    heartRateVariabilityMillis = getDouble("heartRateVariability"),
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
-                )
-            "HeartRateVariabilitySdnn" ->
-                HeartRateVariabilitySdnnRecord(
-                    heartRateVariabilityMillis = getDouble("heartRateVariability"),
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
-                )
-            "HeartRateVariabilitySdsd" ->
-                HeartRateVariabilitySdsdRecord(
-                    heartRateVariabilityMillis = getDouble("heartRateVariability"),
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
-                )
-            "HeartRateVariabilityTinn" ->
-                HeartRateVariabilityTinnRecord(
                     heartRateVariabilityMillis = getDouble("heartRateVariability"),
                     time = time,
                     zoneOffset = zoneOffset,
@@ -277,14 +253,32 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "Menstruation" ->
                 MenstruationFlowRecord(
-                    flow = getEnum("flow"),
+                    flow =
+                        mapEnum(
+                            "flow",
+                            MenstruationFlowRecord.FLOW_TYPE_STRING_TO_INT_MAP,
+                            MenstruationFlowRecord.FLOW_UNKNOWN
+                        ),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
+            "MenstruationPeriod" ->
+                MenstruationPeriodRecord(
+                    startTime = startTime,
+                    startZoneOffset = startZoneOffset,
+                    endTime = endTime,
+                    endZoneOffset = endZoneOffset,
+                    metadata = metadata,
+                )
             "OvulationTest" ->
                 OvulationTestRecord(
-                    result = getEnum("result") ?: "",
+                    result =
+                        mapEnum(
+                            "result",
+                            OvulationTestRecord.RESULT_STRING_TO_INT_MAP,
+                            OvulationTestRecord.RESULT_INCONCLUSIVE
+                        ),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
@@ -327,7 +321,12 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "SexualActivity" ->
                 SexualActivityRecord(
-                    protectionUsed = getEnum("protectionUsed"),
+                    protectionUsed =
+                        mapEnum(
+                            "protectionUsed",
+                            SexualActivityRecord.PROTECTION_USED_STRING_TO_INT_MAP,
+                            SexualActivityRecord.PROTECTION_USED_UNKNOWN
+                        ),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
@@ -365,14 +364,12 @@ fun toRecord(proto: DataProto.DataPoint): Record =
             "Vo2Max" ->
                 Vo2MaxRecord(
                     vo2MillilitersPerMinuteKilogram = getDouble("vo2"),
-                    measurementMethod = getEnum("measurementMethod"),
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
-                )
-            "WaistCircumference" ->
-                WaistCircumferenceRecord(
-                    circumference = getDouble("circumference").meters,
+                    measurementMethod =
+                        mapEnum(
+                            "measurementMethod",
+                            Vo2MaxRecord.MEASUREMENT_METHOD_STRING_TO_INT_MAP,
+                            Vo2MaxRecord.MEASUREMENT_METHOD_OTHER
+                        ),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
@@ -393,27 +390,14 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     endZoneOffset = endZoneOffset,
                     metadata = metadata
                 )
-            "ActivityEvent" ->
-                ExerciseEventRecord(
-                    eventType = getEnum("eventType") ?: "",
-                    startTime = startTime,
-                    startZoneOffset = startZoneOffset,
-                    endTime = endTime,
-                    endZoneOffset = endZoneOffset,
-                    metadata = metadata
-                )
-            "ActivityLap" ->
-                ExerciseLapRecord(
-                    length = getDouble("length").meters,
-                    startTime = startTime,
-                    startZoneOffset = startZoneOffset,
-                    endTime = endTime,
-                    endZoneOffset = endZoneOffset,
-                    metadata = metadata
-                )
             "ActivitySession" ->
                 ExerciseSessionRecord(
-                    exerciseType = getEnum("activityType") ?: "",
+                    exerciseType =
+                        mapEnum(
+                            "activityType",
+                            ExerciseSessionRecord.EXERCISE_TYPE_STRING_TO_INT_MAP,
+                            ExerciseSessionRecord.EXERCISE_TYPE_OTHER_WORKOUT
+                        ),
                     title = getString("title"),
                     notes = getString("notes"),
                     startTime = startTime,
@@ -502,18 +486,13 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     vitaminE = valuesMap["vitaminE"]?.doubleVal?.grams,
                     vitaminK = valuesMap["vitaminK"]?.doubleVal?.grams,
                     zinc = valuesMap["zinc"]?.doubleVal?.grams,
-                    mealType = getEnum("mealType"),
+                    mealType =
+                        mapEnum(
+                            "mealType",
+                            MealType.MEAL_TYPE_STRING_TO_INT_MAP,
+                            MealType.MEAL_TYPE_UNKNOWN
+                        ),
                     name = getString("name"),
-                    startTime = startTime,
-                    startZoneOffset = startZoneOffset,
-                    endTime = endTime,
-                    endZoneOffset = endZoneOffset,
-                    metadata = metadata
-                )
-            "Repetitions" ->
-                ExerciseRepetitionsRecord(
-                    count = getLong("count"),
-                    type = getEnum("type") ?: "",
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,
@@ -532,26 +511,27 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "SleepStage" ->
                 SleepStageRecord(
-                    stage = getEnum("stage") ?: "",
+                    stage =
+                        mapEnum(
+                            "stage",
+                            SleepStageRecord.STAGE_TYPE_STRING_TO_INT_MAP,
+                            SleepStageRecord.STAGE_TYPE_UNKNOWN
+                        ),
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,
                     endZoneOffset = endZoneOffset,
+                    metadata = metadata
+                )
+            "IntermenstrualBleeding" ->
+                IntermenstrualBleedingRecord(
+                    time = time,
+                    zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "Steps" ->
                 StepsRecord(
                     count = getLong("count"),
-                    startTime = startTime,
-                    startZoneOffset = startZoneOffset,
-                    endTime = endTime,
-                    endZoneOffset = endZoneOffset,
-                    metadata = metadata
-                )
-            "SwimmingStrokes" ->
-                SwimmingStrokesRecord(
-                    count = getLong("count"),
-                    type = getEnum("type") ?: "",
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,

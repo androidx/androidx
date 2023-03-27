@@ -153,6 +153,142 @@ class SubjectTest {
             assertThat(StringBuilder("foo")).isEqualTo(StringBuilder("foo"))
         }
     }
+
+    @Test
+    fun isIn() {
+        assertThat("b").isIn(oneShotIterable("a", "b", "c"))
+    }
+
+    @Test
+    fun isInJustTwo() {
+        assertThat("b").isIn(oneShotIterable("a", "b"))
+    }
+
+    @Test
+    fun isInFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat("x").isIn(oneShotIterable("a", "b", "c"))
+        }
+    }
+
+    @Test
+    fun isInNullInListWithNull() {
+        assertThat(null as String?).isIn(oneShotIterable("a", "b", null as String?))
+    }
+
+    @Test
+    fun isInNonnullInListWithNull() {
+        assertThat("b").isIn(oneShotIterable("a", "b", null as String?))
+    }
+
+    @Test
+    fun isInNullFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat(null as String?).isIn(oneShotIterable("a", "b", "c"))
+        }
+    }
+
+    @Test
+    fun isInEmptyFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat("b").isIn(emptyList<String>())
+        }
+    }
+
+    @Test
+    fun isAnyOf() {
+        assertThat("b").isAnyOf("a", "b", "c")
+    }
+
+    @Test
+    fun isAnyOfJustTwo() {
+        assertThat("b").isAnyOf("a", "b")
+    }
+
+    @Test
+    fun isAnyOfFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat("x").isAnyOf("a", "b", "c")
+        }
+    }
+
+    @Test
+    fun isAnyOfNullInListWithNull() {
+        assertThat(null as String?).isAnyOf("a", "b", null as String?)
+    }
+
+    @Test
+    fun isAnyOfNonnullInListWithNull() {
+        assertThat("b").isAnyOf("a", "b", null as String?)
+    }
+
+    @Test
+    fun isAnyOfNullFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat(null as String?).isAnyOf("a", "b", "c")
+        }
+    }
+
+    @Test
+    fun isNotIn() {
+        assertThat("x").isNotIn(oneShotIterable("a", "b", "c"))
+    }
+
+    @Test
+    fun isNotInFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat("b").isNotIn(oneShotIterable("a", "b", "c"))
+        }
+    }
+
+    @Test
+    fun isNotInNull() {
+        assertThat(null as String?).isNotIn(oneShotIterable("a", "b", "c"))
+    }
+
+    @Test
+    fun isNotInNullFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat(null as String?).isNotIn(oneShotIterable("a", "b", null as String?))
+        }
+    }
+
+    @Test
+    fun isNotInEmpty() {
+        assertThat("b").isNotIn(emptyList<String>())
+    }
+
+    @Test
+    fun isNoneOf() {
+        assertThat("x").isNoneOf("a", "b", "c")
+    }
+
+    @Test
+    fun isNoneOfFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat("b").isNoneOf("a", "b", "c")
+        }
+    }
+
+    @Test
+    fun isNoneOfNull() {
+        assertThat(null as String?).isNoneOf("a", "b", "c")
+    }
+
+    @Test
+    fun isNoneOfNullFailure() {
+        assertFailsWith<AssertionError> {
+            assertThat(null as String?).isNoneOf("a", "b", null as String?)
+        }
+    }
+
+    private fun <T> oneShotIterable(vararg values: T): Iterable<T> =
+        object : Iterable<T> {
+            private val iterator = values.iterator()
+
+            override fun iterator(): Iterator<T> = iterator
+            override fun toString(): String = values.contentToString()
+        }
 }
 
 @Suppress("EqualsOrHashCode")

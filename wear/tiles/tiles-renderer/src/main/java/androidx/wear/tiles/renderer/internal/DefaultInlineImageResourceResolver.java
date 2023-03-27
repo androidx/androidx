@@ -25,8 +25,8 @@ import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.wear.tiles.proto.ResourceProto.ImageFormat;
-import androidx.wear.tiles.proto.ResourceProto.InlineImageResource;
+import androidx.wear.protolayout.proto.ResourceProto.ImageFormat;
+import androidx.wear.protolayout.proto.ResourceProto.InlineImageResource;
 import androidx.wear.tiles.renderer.internal.ResourceResolvers.InlineImageResourceResolver;
 import androidx.wear.tiles.renderer.internal.ResourceResolvers.ResourceAccessException;
 

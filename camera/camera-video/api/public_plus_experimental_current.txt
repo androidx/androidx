@@ -9,6 +9,7 @@ package androidx.camera.video {
     field public static final int AUDIO_STATE_ACTIVE = 0; // 0x0
     field public static final int AUDIO_STATE_DISABLED = 1; // 0x1
     field public static final int AUDIO_STATE_ENCODER_ERROR = 3; // 0x3
+    field public static final int AUDIO_STATE_SOURCE_ERROR = 4; // 0x4
     field public static final int AUDIO_STATE_SOURCE_SILENCED = 2; // 0x2
   }
 
@@ -26,7 +27,8 @@ package androidx.camera.video {
   @RequiresApi(21) public static final class FileDescriptorOutputOptions.Builder {
     ctor public FileDescriptorOutputOptions.Builder(android.os.ParcelFileDescriptor);
     method public androidx.camera.video.FileDescriptorOutputOptions build();
-    method public androidx.camera.video.FileDescriptorOutputOptions.Builder setFileSizeLimit(long);
+    method public androidx.camera.video.FileDescriptorOutputOptions.Builder setDurationLimitMillis(@IntRange(from=0) long);
+    method public androidx.camera.video.FileDescriptorOutputOptions.Builder setFileSizeLimit(@IntRange(from=0) long);
     method public androidx.camera.video.FileDescriptorOutputOptions.Builder setLocation(android.location.Location?);
   }
 
@@ -37,7 +39,8 @@ package androidx.camera.video {
   @RequiresApi(21) public static final class FileOutputOptions.Builder {
     ctor public FileOutputOptions.Builder(java.io.File);
     method public androidx.camera.video.FileOutputOptions build();
-    method public androidx.camera.video.FileOutputOptions.Builder setFileSizeLimit(long);
+    method public androidx.camera.video.FileOutputOptions.Builder setDurationLimitMillis(@IntRange(from=0) long);
+    method public androidx.camera.video.FileOutputOptions.Builder setFileSizeLimit(@IntRange(from=0) long);
     method public androidx.camera.video.FileOutputOptions.Builder setLocation(android.location.Location?);
   }
 
@@ -52,13 +55,16 @@ package androidx.camera.video {
     ctor public MediaStoreOutputOptions.Builder(android.content.ContentResolver, android.net.Uri);
     method public androidx.camera.video.MediaStoreOutputOptions build();
     method public androidx.camera.video.MediaStoreOutputOptions.Builder setContentValues(android.content.ContentValues);
-    method public androidx.camera.video.MediaStoreOutputOptions.Builder setFileSizeLimit(long);
+    method public androidx.camera.video.MediaStoreOutputOptions.Builder setDurationLimitMillis(@IntRange(from=0) long);
+    method public androidx.camera.video.MediaStoreOutputOptions.Builder setFileSizeLimit(@IntRange(from=0) long);
     method public androidx.camera.video.MediaStoreOutputOptions.Builder setLocation(android.location.Location?);
   }
 
   @RequiresApi(21) public abstract class OutputOptions {
-    method public long getFileSizeLimit();
+    method @IntRange(from=0) public long getDurationLimitMillis();
+    method @IntRange(from=0) public long getFileSizeLimit();
     method public android.location.Location? getLocation();
+    field public static final int DURATION_UNLIMITED = 0; // 0x0
     field public static final int FILE_SIZE_UNLIMITED = 0; // 0x0
   }
 
@@ -92,8 +98,10 @@ package androidx.camera.video {
   }
 
   @RequiresApi(21) public final class Recorder implements androidx.camera.video.VideoOutput {
+    method public int getAspectRatio();
     method public java.util.concurrent.Executor? getExecutor();
     method public androidx.camera.video.QualitySelector getQualitySelector();
+    method public int getTargetVideoEncodingBitRate();
     method public void onSurfaceRequested(androidx.camera.core.SurfaceRequest);
     method public androidx.camera.video.PendingRecording prepareRecording(android.content.Context, androidx.camera.video.FileOutputOptions);
     method @RequiresApi(26) public androidx.camera.video.PendingRecording prepareRecording(android.content.Context, androidx.camera.video.FileDescriptorOutputOptions);
@@ -104,8 +112,10 @@ package androidx.camera.video {
   @RequiresApi(21) public static final class Recorder.Builder {
     ctor public Recorder.Builder();
     method public androidx.camera.video.Recorder build();
+    method public androidx.camera.video.Recorder.Builder setAspectRatio(int);
     method public androidx.camera.video.Recorder.Builder setExecutor(java.util.concurrent.Executor);
     method public androidx.camera.video.Recorder.Builder setQualitySelector(androidx.camera.video.QualitySelector);
+    method public androidx.camera.video.Recorder.Builder setTargetVideoEncodingBitRate(@IntRange(from=1) int);
   }
 
   @RequiresApi(21) public final class Recording implements java.lang.AutoCloseable {
@@ -140,6 +150,7 @@ package androidx.camera.video {
     method public int getError();
     method public androidx.camera.video.OutputResults getOutputResults();
     method public boolean hasError();
+    field public static final int ERROR_DURATION_LIMIT_REACHED = 9; // 0x9
     field public static final int ERROR_ENCODING_FAILED = 6; // 0x6
     field public static final int ERROR_FILE_SIZE_LIMIT_REACHED = 2; // 0x2
     field public static final int ERROR_INSUFFICIENT_STORAGE = 3; // 0x3

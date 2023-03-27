@@ -30,25 +30,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="clazz" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/desc_family"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="The button desc."
-            android:text="desc_family" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
 
         <Button
             android:id="@+id/res"
@@ -63,10 +44,18 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/text_family"
+            android:id="@+id/desc_family"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="This is the text." />
+            android:contentDescription="The is\nthe desc."
+            android:text="desc_family" />
+
+        <Button
+            android:id="@+id/text_family"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="This is\nthe text."
+            android:lineSpacingMultiplier="0.5" />
     </LinearLayout>
 
     <LinearLayout

@@ -28,12 +28,12 @@ import androidx.wear.watchface.style.CurrentUserStyleRepository
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.SettableFuture
-import kotlinx.coroutines.async
-import org.junit.Test
-import org.junit.runner.RunWith
 import java.time.ZonedDateTime
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.async
+import org.junit.Test
+import org.junit.runner.RunWith
 
 internal class TestAsyncGlesRenderWithSharedAssetsTestWatchFaceService(
     testContext: Context,
@@ -61,49 +61,51 @@ internal class TestAsyncGlesRenderWithSharedAssetsTestWatchFaceService(
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
-    ) = WatchFace(
-        WatchFaceType.DIGITAL,
-        object : ListenableGlesRenderer2<TestSharedAssets>(
-            surfaceHolder,
-            currentUserStyleRepository,
-            watchState,
-            16
-        ) {
-            override fun onUiThreadGlSurfaceCreatedFuture(
-                width: Int,
-                height: Int
-            ): ListenableFuture<Unit> {
-                onUiThreadGlSurfaceCreatedFutureLatch.countDown()
-                return onUiThreadGlSurfaceCreatedFuture
-            }
-
-            override fun createSharedAssetsFuture(): ListenableFuture<TestSharedAssets> {
-                sharedAssetsFutureLatch.countDown()
-                return sharedAssetsFuture
-            }
-
-            override fun onBackgroundThreadGlContextCreatedFuture(): ListenableFuture<Unit> {
-                onBackgroundThreadGlContextFutureLatch.countDown()
-                return onBackgroundThreadGlContextFuture
-            }
-
-            override fun render(zonedDateTime: ZonedDateTime, sharedAssets: TestSharedAssets) {
-                // GLES rendering is complicated and not strictly necessary for our test.
-                synchronized(lock) {
-                    hasRendered = true
-                    sharedAssetsPassedToRenderer = sharedAssets
+    ) =
+        WatchFace(
+            WatchFaceType.DIGITAL,
+            object :
+                ListenableGlesRenderer2<TestSharedAssets>(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    16
+                ) {
+                override fun onUiThreadGlSurfaceCreatedFuture(
+                    width: Int,
+                    height: Int
+                ): ListenableFuture<Unit> {
+                    onUiThreadGlSurfaceCreatedFutureLatch.countDown()
+                    return onUiThreadGlSurfaceCreatedFuture
                 }
-                renderLatch.countDown()
-            }
 
-            override fun renderHighlightLayer(
-                zonedDateTime: ZonedDateTime,
-                sharedAssets: TestSharedAssets
-            ) {
-                // NOP
+                override fun createSharedAssetsFuture(): ListenableFuture<TestSharedAssets> {
+                    sharedAssetsFutureLatch.countDown()
+                    return sharedAssetsFuture
+                }
+
+                override fun onBackgroundThreadGlContextCreatedFuture(): ListenableFuture<Unit> {
+                    onBackgroundThreadGlContextFutureLatch.countDown()
+                    return onBackgroundThreadGlContextFuture
+                }
+
+                override fun render(zonedDateTime: ZonedDateTime, sharedAssets: TestSharedAssets) {
+                    // GLES rendering is complicated and not strictly necessary for our test.
+                    synchronized(lock) {
+                        hasRendered = true
+                        sharedAssetsPassedToRenderer = sharedAssets
+                    }
+                    renderLatch.countDown()
+                }
+
+                override fun renderHighlightLayer(
+                    zonedDateTime: ZonedDateTime,
+                    sharedAssets: TestSharedAssets
+                ) {
+                    // NOP
+                }
             }
-        }
-    )
+        )
 }
 
 @MediumTest
@@ -117,72 +119,66 @@ public class AsyncListenableGlesRenderer2Test : WatchFaceControlClientServiceTes
         val onUiThreadGlSurfaceCreatedFuture = SettableFuture.create<Unit>()
         val onBackgroundThreadGlContextFuture = SettableFuture.create<Unit>()
         val sharedAssetsFuture = SettableFuture.create<TestSharedAssets>()
-        val watchFaceService = TestAsyncGlesRenderWithSharedAssetsTestWatchFaceService(
-            context,
-            glSurfaceHolder,
-            onUiThreadGlSurfaceCreatedFuture,
-            onBackgroundThreadGlContextFuture,
-            sharedAssetsFuture
-        )
-
-        val deferredClient = handlerCoroutineScope.async {
-            @Suppress("deprecation")
-            watchFaceControlClientService.getOrCreateInteractiveWatchFaceClient(
-                "testId",
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
-                WatchUiState(false, 0),
-                null,
-                emptyMap()
+        val watchFaceService =
+            TestAsyncGlesRenderWithSharedAssetsTestWatchFaceService(
+                context,
+                glSurfaceHolder,
+                onUiThreadGlSurfaceCreatedFuture,
+                onBackgroundThreadGlContextFuture,
+                sharedAssetsFuture
             )
-        }
 
-        handler.post {
-            watchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
-        }
+        val deferredClient =
+            handlerCoroutineScope.async {
+                @Suppress("deprecation")
+                watchFaceControlClientService.getOrCreateInteractiveWatchFaceClient(
+                    "testId",
+                    DeviceConfig(false, false, 0, 0),
+                    WatchUiState(false, 0),
+                    null,
+                    emptyMap()
+                )
+            }
+
+        handler.post { watchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper }
 
         val client = awaitWithTimeout(deferredClient)
         try {
             assertThat(
-                watchFaceService.sharedAssetsFutureLatch.await(
-                    TIMEOUT_MILLIS,
-                    TimeUnit.MILLISECONDS
+                    watchFaceService.sharedAssetsFutureLatch.await(
+                        TIMEOUT_MILLIS,
+                        TimeUnit.MILLISECONDS
+                    )
                 )
-            ).isTrue()
+                .isTrue()
             sharedAssetsFuture.set(testSharedAssets)
 
             assertThat(
-                watchFaceService.onBackgroundThreadGlContextFutureLatch.await(
-                    TIMEOUT_MILLIS,
-                    TimeUnit.MILLISECONDS
+                    watchFaceService.onBackgroundThreadGlContextFutureLatch.await(
+                        TIMEOUT_MILLIS,
+                        TimeUnit.MILLISECONDS
+                    )
                 )
-            ).isTrue()
+                .isTrue()
             synchronized(watchFaceService.lock) {
                 assertThat(watchFaceService.hasRendered).isFalse()
             }
             onBackgroundThreadGlContextFuture.set(Unit)
 
             assertThat(
-                watchFaceService.onUiThreadGlSurfaceCreatedFutureLatch.await(
-                    TIMEOUT_MILLIS,
-                    TimeUnit.MILLISECONDS
+                    watchFaceService.onUiThreadGlSurfaceCreatedFutureLatch.await(
+                        TIMEOUT_MILLIS,
+                        TimeUnit.MILLISECONDS
+                    )
                 )
-            ).isTrue()
+                .isTrue()
             synchronized(watchFaceService.lock) {
                 assertThat(watchFaceService.hasRendered).isFalse()
             }
             onUiThreadGlSurfaceCreatedFuture.set(Unit)
 
-            assertThat(
-                watchFaceService.renderLatch.await(
-                    TIMEOUT_MILLIS,
-                    TimeUnit.MILLISECONDS
-                )
-            ).isTrue()
+            assertThat(watchFaceService.renderLatch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS))
+                .isTrue()
 
             assertThat(watchFaceService.sharedAssetsPassedToRenderer).isEqualTo(testSharedAssets)
         } finally {

@@ -24,10 +24,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
-import androidx.camera.core.impl.CamcorderProfileProxy;
+import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy;
 import androidx.camera.core.impl.Timebase;
 import androidx.camera.video.MediaSpec;
 import androidx.camera.video.VideoSpec;
+import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
 import androidx.core.util.Supplier;
 
@@ -48,51 +49,51 @@ public final class VideoConfigUtil {
      * Resolves the video mime information into a {@link MimeInfo}.
      *
      * @param mediaSpec        the media spec to resolve the mime info.
-     * @param camcorderProfile the camcorder profile to resolve the mime info. It can be null if
-     *                         there is no relevant camcorder profile.
+     * @param encoderProfiles  the encoder profiles to resolve the mime info. It can be null if
+     *                         there is no relevant encoder profiles.
      * @return the video MimeInfo.
      */
     @NonNull
     public static MimeInfo resolveVideoMimeInfo(@NonNull MediaSpec mediaSpec,
-            @Nullable CamcorderProfileProxy camcorderProfile) {
+            @Nullable VideoValidatedEncoderProfilesProxy encoderProfiles) {
         String mediaSpecVideoMime = MediaSpec.outputFormatToVideoMime(mediaSpec.getOutputFormat());
         String resolvedVideoMime = mediaSpecVideoMime;
-        boolean camcorderProfileIsCompatible = false;
-        if (camcorderProfile != null) {
-            String camcorderProfileVideoMime = camcorderProfile.getVideoCodecMimeType();
-            // Use camcorder profile settings if the media spec's output format
-            // is set to auto or happens to match the CamcorderProfile's output format.
-            if (camcorderProfileVideoMime == null) {
-                Logger.d(TAG, "CamcorderProfile contains undefined VIDEO mime type so cannot be "
+        boolean encoderProfilesIsCompatible = false;
+        if (encoderProfiles != null) {
+            VideoProfileProxy videoProfile = encoderProfiles.getDefaultVideoProfile();
+            String encoderProfilesVideoMime = videoProfile.getMediaType();
+            // Use EncoderProfiles settings if the media spec's output format is set to auto or
+            // happens to match the EncoderProfiles' output format.
+            if (Objects.equals(encoderProfilesVideoMime, VideoProfileProxy.MEDIA_TYPE_NONE)) {
+                Logger.d(TAG, "EncoderProfiles contains undefined VIDEO mime type so cannot be "
                         + "used. May rely on fallback defaults to derive settings [chosen mime "
                         + "type: " + resolvedVideoMime + "]");
             } else if (mediaSpec.getOutputFormat() == MediaSpec.OUTPUT_FORMAT_AUTO) {
-                camcorderProfileIsCompatible = true;
-                resolvedVideoMime = camcorderProfileVideoMime;
-                Logger.d(TAG, "MediaSpec contains OUTPUT_FORMAT_AUTO. Using CamcorderProfile "
+                encoderProfilesIsCompatible = true;
+                resolvedVideoMime = encoderProfilesVideoMime;
+                Logger.d(TAG, "MediaSpec contains OUTPUT_FORMAT_AUTO. Using EncoderProfiles "
                         + "to derive VIDEO settings [mime type: " + resolvedVideoMime + "]");
-            } else if (Objects.equals(mediaSpecVideoMime, camcorderProfileVideoMime)) {
-                camcorderProfileIsCompatible = true;
-                resolvedVideoMime = camcorderProfileVideoMime;
-                Logger.d(TAG, "MediaSpec video mime matches CamcorderProfile. Using "
-                        + "CamcorderProfile to derive VIDEO settings [mime type: "
+            } else if (Objects.equals(mediaSpecVideoMime, encoderProfilesVideoMime)) {
+                encoderProfilesIsCompatible = true;
+                resolvedVideoMime = encoderProfilesVideoMime;
+                Logger.d(TAG, "MediaSpec video mime matches EncoderProfiles. Using "
+                        + "EncoderProfiles to derive VIDEO settings [mime type: "
                         + resolvedVideoMime + "]");
             } else {
-                Logger.d(TAG, "MediaSpec video mime does not match CamcorderProfile, so "
-                        + "CamcorderProfile settings cannot be used. May rely on fallback "
-                        + "defaults to derive VIDEO settings [CamcorderProfile mime type: "
-                        + camcorderProfileVideoMime + ", chosen mime type: "
+                Logger.d(TAG, "MediaSpec video mime does not match EncoderProfiles, so "
+                        + "EncoderProfiles settings cannot be used. May rely on fallback "
+                        + "defaults to derive VIDEO settings [EncoderProfiles mime type: "
+                        + encoderProfilesVideoMime + ", chosen mime type: "
                         + resolvedVideoMime + "]");
             }
         } else {
-            Logger.d(TAG,
-                    "No CamcorderProfile present. May rely on fallback defaults to derive VIDEO "
-                            + "settings [chosen mime type: " + resolvedVideoMime + "]");
+            Logger.d(TAG, "No EncoderProfiles present. May rely on fallback defaults to derive "
+                    + "VIDEO settings [chosen mime type: " + resolvedVideoMime + "]");
         }
 
         MimeInfo.Builder mimeInfoBuilder = MimeInfo.builder(resolvedVideoMime);
-        if (camcorderProfileIsCompatible) {
-            mimeInfoBuilder.setCompatibleCamcorderProfile(camcorderProfile);
+        if (encoderProfilesIsCompatible) {
+            mimeInfoBuilder.setCompatibleEncoderProfiles(encoderProfiles);
         }
 
         return mimeInfoBuilder.build();
@@ -113,11 +114,11 @@ public final class VideoConfigUtil {
             @NonNull Timebase inputTimebase, @NonNull VideoSpec videoSpec,
             @NonNull Size surfaceSize, @Nullable Range<Integer> expectedFrameRateRange) {
         Supplier<VideoEncoderConfig> configSupplier;
-        if (videoMimeInfo.getCompatibleCamcorderProfile() != null) {
-            configSupplier = new VideoEncoderConfigCamcorderProfileResolver(
+        VideoValidatedEncoderProfilesProxy profiles = videoMimeInfo.getCompatibleEncoderProfiles();
+        if (profiles != null) {
+            configSupplier = new VideoEncoderConfigVideoProfileResolver(
                     videoMimeInfo.getMimeType(), inputTimebase, videoSpec, surfaceSize,
-                    videoMimeInfo.getCompatibleCamcorderProfile(),
-                    expectedFrameRateRange);
+                    profiles.getDefaultVideoProfile(), expectedFrameRateRange);
         } else {
             configSupplier = new VideoEncoderConfigDefaultResolver(videoMimeInfo.getMimeType(),
                     inputTimebase, videoSpec, surfaceSize, expectedFrameRateRange);

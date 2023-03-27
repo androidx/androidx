@@ -56,6 +56,9 @@ public class ExtraSupportedSurfaceCombinationsQuirk implements Quirk {
     private static final SurfaceCombination FULL_LEVEL_YUV_YUV_YUV_CONFIGURATION =
             createFullYuvYuvYuvConfiguration();
 
+    private static final SurfaceCombination LEVEL_3_LEVEL_PRIV_PRIV_YUV_RAW_CONFIGURATION =
+            createLevel3PrivPrivYuvRawConfiguration();
+
     private static final Set<String> SUPPORT_EXTRA_FULL_CONFIGURATIONS_SAMSUNG_MODELS =
             new HashSet<>(Arrays.asList(
                     "SM-A515F", // Galaxy A51
@@ -207,8 +210,16 @@ public class ExtraSupportedSurfaceCombinationsQuirk implements Quirk {
                     "SM-F916W"// Galaxy Z Fold2 5G
             ));
 
+    private static final Set<String> SUPPORT_EXTRA_LEVEL_3_CONFIGURATIONS_GOOGLE_MODELS =
+            new HashSet<>(Arrays.asList(
+                    "PIXEL 6",
+                    "PIXEL 6 PRO",
+                    "PIXEL 7",
+                    "PIXEL 7 PRO"));
+
     static boolean load() {
-        return isSamsungS7() || supportExtraFullConfigurationsSamsungDevice();
+        return isSamsungS7() || supportExtraFullConfigurationsSamsungDevice()
+                || supportExtraLevel3ConfigurationsGoogleDevice();
     }
 
     private static boolean isSamsungS7() {
@@ -226,6 +237,16 @@ public class ExtraSupportedSurfaceCombinationsQuirk implements Quirk {
         return SUPPORT_EXTRA_FULL_CONFIGURATIONS_SAMSUNG_MODELS.contains(capitalModelName);
     }
 
+    private static boolean supportExtraLevel3ConfigurationsGoogleDevice() {
+        if (!"google".equalsIgnoreCase(Build.BRAND)) {
+            return false;
+        }
+
+        String capitalModelName = Build.MODEL.toUpperCase(Locale.US);
+
+        return SUPPORT_EXTRA_LEVEL_3_CONFIGURATIONS_GOOGLE_MODELS.contains(capitalModelName);
+    }
+
     /**
      * Returns the extra supported surface combinations for specific camera on the device.
      */
@@ -238,6 +259,10 @@ public class ExtraSupportedSurfaceCombinationsQuirk implements Quirk {
 
         if (supportExtraFullConfigurationsSamsungDevice()) {
             return getLimitedDeviceExtraSupportedFullConfigurations(hardwareLevel);
+        }
+
+        if (supportExtraLevel3ConfigurationsGoogleDevice()) {
+            return Collections.singletonList(LEVEL_3_LEVEL_PRIV_PRIV_YUV_RAW_CONFIGURATION);
         }
 
         return Collections.emptyList();
@@ -293,6 +318,21 @@ public class ExtraSupportedSurfaceCombinationsQuirk implements Quirk {
         surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.YUV,
                 SurfaceConfig.ConfigSize.PREVIEW));
         surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.YUV,
+                SurfaceConfig.ConfigSize.MAXIMUM));
+
+        return surfaceCombination;
+    }
+
+    private static SurfaceCombination createLevel3PrivPrivYuvRawConfiguration() {
+        // (PRIV, PREVIEW) + (PRIV, ANALYSIS) + (YUV, MAXIMUM) + (RAW, MAXIMUM)
+        SurfaceCombination surfaceCombination = new SurfaceCombination();
+        surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.PRIV,
+                SurfaceConfig.ConfigSize.PREVIEW));
+        surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.PRIV,
+                SurfaceConfig.ConfigSize.VGA));
+        surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.YUV,
+                SurfaceConfig.ConfigSize.MAXIMUM));
+        surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.RAW,
                 SurfaceConfig.ConfigSize.MAXIMUM));
 
         return surfaceCombination;

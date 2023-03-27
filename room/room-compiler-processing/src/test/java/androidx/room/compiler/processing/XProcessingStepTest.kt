@@ -28,6 +28,7 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.asJClassName
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.compile
+import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertAbout
 import com.google.common.truth.Truth.assertThat
 import com.google.devtools.ksp.processing.SymbolProcessor
@@ -1462,5 +1463,49 @@ class XProcessingStepTest {
         assertThat(
             roundReceivedElementsHashes[0].none { roundReceivedElementsHashes[1].contains(it) }
         ).isTrue()
+    }
+
+    @Test
+    fun starSupportedAnnotation_multiRound() {
+        val kotlinSrc = Source.kotlin(
+            "Foo.kt",
+            """
+            package foo
+            class Foo { }
+            """.trimIndent()
+        )
+        val invocations = mutableMapOf<XProcessingEnv.Backend, Int>()
+        val step = object : XProcessingStep {
+            override fun annotations() = setOf("*")
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
+            ): Set<XElement> {
+                invocations[env.backend] = invocations.getOrDefault(env.backend, 0) + 1
+                val className = ClassName.get("foo", "Bar")
+                val typeElement = env.findTypeElement(className)
+                if (typeElement == null) {
+                    val spec = TypeSpec.classBuilder(className)
+                        .addOriginatingElement(env.requireTypeElement("foo.Foo"))
+                        .build()
+                    JavaFile.builder(className.packageName(), spec)
+                        .build()
+                        .writeTo(env.filer)
+                }
+                return super.process(env, elementsByAnnotation, isLastRound)
+            }
+        }
+        runProcessorTest(
+            sources = listOf(kotlinSrc),
+            createProcessingSteps = { listOf(step) }
+        ) { }
+        // 3 for each backend, 1st initial round, 2nd round due to new gen sources, 3rd round over
+        assertThat(invocations).isEqualTo(
+            mapOf(
+                XProcessingEnv.Backend.JAVAC to 3,
+                XProcessingEnv.Backend.KSP to 3,
+            )
+        )
     }
 }

@@ -21,35 +21,43 @@ import android.app.Dialog
 import android.os.Bundle
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.fragment.test.R
-import androidx.lifecycle.ViewTreeLifecycleOwner
-import androidx.lifecycle.ViewTreeViewModelStoreOwner
+import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertWithMessage
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class DialogFragmentViewTreeTest {
+
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
+
     @Test
     fun testDialogFragmentViewTree() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val dialogFragment = TestDialogFragment()
 
             onActivity {
                 dialogFragment.showNow(it.supportFragmentManager, null)
             }
 
-            val decorView = dialogFragment.requireDialog().window?.decorView
+           val decorView =
+               dialogFragment.requireDialog().window?.decorView ?: error("no decor view available")
 
             assertWithMessage("DialogFragment dialog should have a ViewTreeLifecycleOwner")
-                .that(ViewTreeLifecycleOwner.get(decorView ?: error("no decor view available")))
+                .that(decorView.findViewTreeLifecycleOwner())
                 .isNotNull()
             assertWithMessage("DialogFragment dialog should have a ViewTreeViewModelStoreOwner")
-                .that(ViewTreeViewModelStoreOwner.get(decorView))
+                .that(decorView.findViewTreeViewModelStoreOwner())
                 .isNotNull()
             assertWithMessage("DialogFragment dialog should have a ViewTreeSavedStateRegistryOwner")
                 .that(decorView.findViewTreeSavedStateRegistryOwner())

@@ -28,8 +28,7 @@ import java.util.Objects
  *
  * @param text [ComplicationText] associated with the region, to be read by the screen reader.
  * @param bounds [Rect] describing the area of the feature on screen.
- * @param tapAction [PendingIntent] to be used if the screen reader's user triggers a tap
- * action.
+ * @param tapAction [PendingIntent] to be used if the screen reader's user triggers a tap action.
  */
 public class ContentDescriptionLabel(
     public val text: ComplicationText,
@@ -52,10 +51,6 @@ public class ContentDescriptionLabel(
             tapAction == other.tapAction
 
     override fun hashCode(): Int {
-        return Objects.hash(
-            text,
-            bounds,
-            tapAction
-        )
+        return Objects.hash(text, bounds, tapAction)
     }
 }

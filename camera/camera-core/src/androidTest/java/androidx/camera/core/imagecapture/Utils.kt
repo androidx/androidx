@@ -22,22 +22,29 @@ import android.os.Build
 import android.util.Size
 import androidx.annotation.RequiresApi
 import androidx.camera.core.ImageCapture
+import androidx.camera.testing.fakes.FakeCameraCaptureResult
 import java.io.File
+import java.sql.Types.TIMESTAMP
 import java.util.UUID
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 object Utils {
     const val WIDTH = 640
     const val HEIGHT = 480
+    internal val EXIF_DESCRIPTION = "description"
     const val ROTATION_DEGREES = 90
     const val FOCAL_LENGTH = 10F
+    internal const val TIMESTAMP = 9999L
     val SENSOR_TO_BUFFER = Matrix().also { it.setScale(-1F, 1F, 320F, 240F) }
     val SIZE = Size(WIDTH, HEIGHT)
     val CROP_RECT = Rect(0, 240, WIDTH, HEIGHT)
-    private val TEMP_FILE = File.createTempFile(
+    internal val TEMP_FILE = File.createTempFile(
         "unit_test_" + UUID.randomUUID().toString(), ".temp"
     ).also { it.deleteOnExit() }
     internal val OUTPUT_FILE_OPTIONS = ImageCapture.OutputFileOptions.Builder(
         TEMP_FILE
     ).build()
+    internal val CAMERA_CAPTURE_RESULT = FakeCameraCaptureResult().also {
+        it.timestamp = TIMESTAMP
+    }
 }

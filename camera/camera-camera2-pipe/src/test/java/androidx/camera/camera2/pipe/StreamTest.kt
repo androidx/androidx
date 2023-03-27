@@ -27,20 +27,14 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 internal class StreamTest {
-    private val streamConfig1 = CameraStream.Config.create(
-        size = Size(640, 480),
-        format = StreamFormat.YUV_420_888
-    )
+    private val streamConfig1 =
+        CameraStream.Config.create(size = Size(640, 480), format = StreamFormat.YUV_420_888)
 
-    private val streamConfig2 = CameraStream.Config.create(
-        size = Size(640, 480),
-        format = StreamFormat.YUV_420_888
-    )
+    private val streamConfig2 =
+        CameraStream.Config.create(size = Size(640, 480), format = StreamFormat.YUV_420_888)
 
-    private val streamConfig3 = CameraStream.Config.create(
-        size = Size(640, 480),
-        format = StreamFormat.JPEG
-    )
+    private val streamConfig3 =
+        CameraStream.Config.create(size = Size(640, 480), format = StreamFormat.JPEG)
 
     @Test
     fun differentStreamConfigsAreNotEqual() {
@@ -63,10 +57,8 @@ internal class StreamTest {
 
     @Test
     fun sharedOutputsAreShared() {
-        val outputConfig = OutputStream.Config.create(
-            size = Size(640, 480),
-            format = StreamFormat.YUV_420_888
-        )
+        val outputConfig =
+            OutputStream.Config.create(size = Size(640, 480), format = StreamFormat.YUV_420_888)
         val sharedConfig1 = CameraStream.Config.create(outputConfig)
         val sharedConfig2 = CameraStream.Config.create(outputConfig)
         assertThat(sharedConfig1).isNotEqualTo(sharedConfig2)

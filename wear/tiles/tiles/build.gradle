@@ -24,9 +24,12 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.2.0")
+    api(project(":wear:protolayout:protolayout"))
+    api(project(":wear:protolayout:protolayout-expression"))
     api(libs.guavaListenableFuture)
 
     implementation("androidx.annotation:annotation-experimental:1.2.0")
+    implementation("androidx.concurrent:concurrent-futures:1.1.0")
     implementation(project(path: ":wear:tiles:tiles-proto"))
 
     compileOnly(libs.kotlinStdlib) // For annotation-experimental
@@ -36,14 +39,13 @@ dependencies {
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.testRules)
-    testImplementation("androidx.concurrent:concurrent-futures:1.1.0")
     testImplementation(libs.robolectric)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
 }
 
 android {
     defaultConfig {
-        minSdkVersion 25
+        minSdkVersion 26
     }
     buildFeatures {
         aidl = true
@@ -61,7 +63,6 @@ androidx {
     name = "Android Wear Tiles"
     type = LibraryType.PUBLISHED_LIBRARY
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WEAR_TILES
     inceptionYear = "2020"
     description = "Android Wear Tiles"
 }

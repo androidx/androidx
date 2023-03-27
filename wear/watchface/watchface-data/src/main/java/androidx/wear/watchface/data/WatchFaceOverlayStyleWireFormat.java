@@ -37,7 +37,7 @@ import androidx.versionedparcelable.VersionedParcelize;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage")
-public class WatchFaceOverlayStyleWireFormat implements VersionedParcelable, Parcelable  {
+public class WatchFaceOverlayStyleWireFormat implements VersionedParcelable, Parcelable {
     @ParcelField(1)
     boolean mHasBackgroundColor;
 
@@ -53,8 +53,7 @@ public class WatchFaceOverlayStyleWireFormat implements VersionedParcelable, Par
     WatchFaceOverlayStyleWireFormat() {}
 
     public WatchFaceOverlayStyleWireFormat(
-            @Nullable Color backgroundColor,
-            @Nullable Color foregroundColor) {
+            @Nullable Color backgroundColor, @Nullable Color foregroundColor) {
         if (backgroundColor == null) {
             mHasBackgroundColor = false;
         } else {

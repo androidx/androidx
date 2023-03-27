@@ -172,6 +172,7 @@ final class PropertyRequestProcessor {
         listener.onGetProperties(values, errors);
     }
 
+    @SuppressWarnings("deprecation")
     public void fetchCarPropertyProfiles(List<Integer> propertyIds,
             @NonNull OnGetCarPropertyProfilesListener listener) {
         ImmutableList.Builder<CarInternalError> errors = new ImmutableList.Builder<>();

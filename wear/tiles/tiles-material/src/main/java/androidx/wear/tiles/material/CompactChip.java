@@ -39,7 +39,7 @@ import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
 import androidx.wear.tiles.ModifiersBuilders.Clickable;
 import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
-import androidx.wear.tiles.proto.LayoutElementProto;
+import androidx.wear.protolayout.proto.LayoutElementProto;
 
 /**
  * Tiles component {@link CompactChip} that represents clickable object with the text.

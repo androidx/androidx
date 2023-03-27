@@ -157,7 +157,7 @@ final class GapWorker implements Runnable {
     }
 
     public void add(RecyclerView recyclerView) {
-        if (RecyclerView.DEBUG && mRecyclerViews.contains(recyclerView)) {
+        if (RecyclerView.sDebugAssertionsEnabled && mRecyclerViews.contains(recyclerView)) {
             throw new IllegalStateException("RecyclerView already present in worker list!");
         }
         mRecyclerViews.add(recyclerView);
@@ -165,7 +165,7 @@ final class GapWorker implements Runnable {
 
     public void remove(RecyclerView recyclerView) {
         boolean removeSuccess = mRecyclerViews.remove(recyclerView);
-        if (RecyclerView.DEBUG && !removeSuccess) {
+        if (RecyclerView.sDebugAssertionsEnabled && !removeSuccess) {
             throw new IllegalStateException("RecyclerView removal failed!");
         }
     }
@@ -175,7 +175,7 @@ final class GapWorker implements Runnable {
      */
     void postFromTraversal(RecyclerView recyclerView, int prefetchDx, int prefetchDy) {
         if (recyclerView.isAttachedToWindow()) {
-            if (RecyclerView.DEBUG && !mRecyclerViews.contains(recyclerView)) {
+            if (RecyclerView.sDebugAssertionsEnabled && !mRecyclerViews.contains(recyclerView)) {
                 throw new IllegalStateException("attempting to post unregistered view!");
             }
             if (mPostTimeNs == 0) {

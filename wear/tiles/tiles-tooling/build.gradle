@@ -1,0 +1,49 @@
+import androidx.build.LibraryType
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("kotlin-android")
+}
+
+dependencies {
+    implementation(project(":wear:tiles:tiles"))
+    implementation(project(":wear:tiles:tiles-renderer"))
+
+    implementation(libs.kotlinStdlib)
+
+    implementation("androidx.core:core:1.1.0")
+
+    testImplementation(libs.junit)
+
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.guava)
+    // To fix Failed resolution of: Landroidx/wear/tiles/proto/RequestProto$TileRequest;
+    // Caused by:
+    //   java.lang.ClassNotFoundException: androidx.wear.tiles.proto.RequestProto$TileRequest
+    // Caused by:
+    //   java.lang.NoClassDefFoundError: Failed resolution of: Lcom/google/protobuf/GeneratedMessageLite;
+    // Caused by:
+    //   java.lang.ClassNotFoundException: Didn't find class "com.google.protobuf.GeneratedMessageLite"
+    //   on path: DexPathList[ ... ]
+    androidTestRuntimeOnly(project(path: ":wear:tiles:tiles-proto", configuration: "shadow"))
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 26
+    }
+
+    namespace "androidx.wear.tiles.tooling"
+}
+
+androidx {
+    name = "Android Wear Tiles Tooling"
+    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    inceptionYear = "2023"
+    description = "A set of tools that are used to preview TilesService in Android Studio"
+}

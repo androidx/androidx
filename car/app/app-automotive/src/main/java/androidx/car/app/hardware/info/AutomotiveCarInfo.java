@@ -35,6 +35,7 @@ import static android.car.VehiclePropertyIds.PERF_VEHICLE_SPEED_DISPLAY;
 import static android.car.VehiclePropertyIds.RANGE_REMAINING;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.car.app.hardware.common.CarValue.STATUS_UNKNOWN;
 import static androidx.car.app.hardware.common.CarValueUtils.getCarValue;
 
 import static java.util.Objects.requireNonNull;
@@ -97,7 +98,6 @@ public class AutomotiveCarInfo implements CarInfo {
     // VEHICLE_SPEED_DISPLAY_UNIT in VehiclePropertyIds. The property is added after Android Q.
     public static final int SPEED_DISPLAY_UNIT_ID = 289408516;
 
-    private static final float UNKNOWN_CAPACITY = Float.NEGATIVE_INFINITY;
     static final ImmutableMap<Integer, List<CarZone>> ENERGY_LEVEL_REQUEST = ImmutableMap.<Integer,
                     List<CarZone>>builder()
             .put(EV_BATTERY_LEVEL, GLOBAL_CAR_ZONE)
@@ -284,14 +284,12 @@ public class AutomotiveCarInfo implements CarInfo {
                 return;
             }
             for (CarPropertyResponse<?> carPropertyResponse : carPropertyResponses) {
-                if (carPropertyResponse.getPropertyId() == INFO_EV_BATTERY_CAPACITY
-                        && carPropertyResponse.getValue() != null) {
-                    energyLevelListener.updateEvBatteryCapacity(
-                            (Float) carPropertyResponse.getValue());
+                if (carPropertyResponse.getPropertyId() == INFO_EV_BATTERY_CAPACITY) {
+                    energyLevelListener.updateEvBatteryCapacityPropertyResponse(
+                            carPropertyResponse);
                 }
-                if (carPropertyResponse.getPropertyId() == INFO_FUEL_CAPACITY
-                        && carPropertyResponse.getValue() != null) {
-                    energyLevelListener.updateFuelCapacity((Float) carPropertyResponse.getValue());
+                if (carPropertyResponse.getPropertyId() == INFO_FUEL_CAPACITY) {
+                    energyLevelListener.updateFuelCapacityPropertyResponse(carPropertyResponse);
                 }
             }
         }, executor);
@@ -563,20 +561,25 @@ public class AutomotiveCarInfo implements CarInfo {
         private final OnCarDataAvailableListener<EnergyLevel>
                 mEnergyLevelOnCarDataAvailableListener;
         private final Executor mExecutor;
-        private float mEvBatteryCapacity = UNKNOWN_CAPACITY;
-        private float mFuelCapacity = UNKNOWN_CAPACITY;
+        private CarPropertyResponse<?> mEvBatteryCapacityPropertyResponse = CarPropertyResponse
+                .builder().setPropertyId(INFO_EV_BATTERY_CAPACITY).setStatus(STATUS_UNKNOWN)
+                .build();
+        private CarPropertyResponse<?> mFuelCapacityPropertyResponse = CarPropertyResponse.builder()
+                .setPropertyId(INFO_FUEL_CAPACITY).setStatus(STATUS_UNKNOWN).build();
 
         EnergyLevelListener(OnCarDataAvailableListener<EnergyLevel> listener, Executor executor) {
             mEnergyLevelOnCarDataAvailableListener = listener;
             mExecutor = executor;
         }
 
-        void updateEvBatteryCapacity(float evBatteryCapacity) {
-            mEvBatteryCapacity = evBatteryCapacity;
+        void updateEvBatteryCapacityPropertyResponse(
+                CarPropertyResponse<?> evBatteryCapacityPropertyResponse) {
+            mEvBatteryCapacityPropertyResponse = evBatteryCapacityPropertyResponse;
         }
 
-        void updateFuelCapacity(float fuelCapacity) {
-            mFuelCapacity = fuelCapacity;
+        void updateFuelCapacityPropertyResponse(
+                CarPropertyResponse<?> fuelCapacityPropertyResponse) {
+            mFuelCapacityPropertyResponse = fuelCapacityPropertyResponse;
         }
 
         // TODO(b/202303614): Remove this annotation once FuelVolumeDisplayUnit is ready.
@@ -589,29 +592,27 @@ public class AutomotiveCarInfo implements CarInfo {
                 for (CarPropertyResponse<?> response : carPropertyResponses) {
                     switch (response.getPropertyId()) {
                         case EV_BATTERY_LEVEL:
-                            if (mEvBatteryCapacity == UNKNOWN_CAPACITY) {
-                                Log.w(LogTags.TAG_CAR_HARDWARE, "EV battery capacity is still "
-                                        + "unknown, skipping EV_BATTERY_LEVEL update");
-                                continue;
-                            }
-                            if (response.getValue() != null) {
-                                energyLevelBuilder.setBatteryPercent(getCarValue(response,
-                                        (Float) response.getValue() / mEvBatteryCapacity * 100));
-                            } else {
+                            if (response.getValue() == null) {
                                 energyLevelBuilder.setBatteryPercent(getCarValue(response));
+                            } else if (mEvBatteryCapacityPropertyResponse.getValue() == null) {
+                                energyLevelBuilder.setBatteryPercent(
+                                        getCarValue(mEvBatteryCapacityPropertyResponse));
+                            } else {
+                                energyLevelBuilder.setBatteryPercent(getCarValue(response,
+                                        (Float) response.getValue() / (Float)
+                                        mEvBatteryCapacityPropertyResponse.getValue() * 100));
                             }
                             break;
                         case FUEL_LEVEL:
-                            if (mFuelCapacity == UNKNOWN_CAPACITY) {
-                                Log.w(LogTags.TAG_CAR_HARDWARE, "Fuel capacity is still unknown, "
-                                        + "skipping FUEL_LEVEL update");
-                                continue;
-                            }
-                            if (response.getValue() != null) {
-                                energyLevelBuilder.setFuelPercent(getCarValue(response,
-                                        (Float) response.getValue() / mFuelCapacity * 100));
-                            } else {
+                            if (response.getValue() == null) {
                                 energyLevelBuilder.setFuelPercent(getCarValue(response));
+                            } else if (mFuelCapacityPropertyResponse.getValue() == null) {
+                                energyLevelBuilder.setFuelPercent(
+                                        getCarValue(mFuelCapacityPropertyResponse));
+                            } else {
+                                energyLevelBuilder.setFuelPercent(getCarValue(response,
+                                        (Float) response.getValue() / (Float)
+                                        mFuelCapacityPropertyResponse.getValue() * 100));
                             }
                             break;
                         case FUEL_LEVEL_LOW:

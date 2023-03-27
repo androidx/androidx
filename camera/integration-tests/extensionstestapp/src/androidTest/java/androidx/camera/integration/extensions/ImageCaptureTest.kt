@@ -25,6 +25,7 @@ import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.ass
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.launchCameraExtensionsActivity
 import androidx.camera.integration.extensions.util.HOME_TIMEOUT_MS
 import androidx.camera.integration.extensions.util.takePictureAndWaitForImageSavedIdle
+import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
@@ -48,7 +49,7 @@ import org.junit.runners.Parameterized
  */
 @LargeTest
 @RunWith(Parameterized::class)
-class ImageCaptureTest(private val cameraId: String, private val extensionMode: Int) {
+class ImageCaptureTest(private val config: CameraIdExtensionModePair) {
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @get:Rule
@@ -57,13 +58,12 @@ class ImageCaptureTest(private val cameraId: String, private val extensionMode: 
     )
 
     @get:Rule
-    val storagePermissionRule =
-        GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)!!
+    val permissionRule = GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
     companion object {
-        @Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
+        @Parameterized.Parameters(name = "config = {0}")
         @JvmStatic
         fun parameters() = CameraXExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
@@ -88,7 +88,7 @@ class ImageCaptureTest(private val cameraId: String, private val extensionMode: 
             cameraProvider
         )[10000, TimeUnit.MILLISECONDS]
 
-        assumeExtensionModeSupported(extensionsManager, cameraId, extensionMode)
+        assumeExtensionModeSupported(extensionsManager, config.cameraId, config.extensionMode)
     }
 
     @After
@@ -115,7 +115,7 @@ class ImageCaptureTest(private val cameraId: String, private val extensionMode: 
      */
     @Test
     fun takePictureWithExtensionMode() {
-        val activityScenario = launchCameraExtensionsActivity(cameraId, extensionMode)
+        val activityScenario = launchCameraExtensionsActivity(config.cameraId, config.extensionMode)
 
         with(activityScenario) {
             use {

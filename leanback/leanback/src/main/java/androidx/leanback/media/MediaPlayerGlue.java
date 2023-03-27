@@ -476,7 +476,7 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
      * This implementation is required in order to detect KEY_DOWN events
      * on the {@link androidx.leanback.widget.PlaybackControlsRow.FastForwardAction} and
      * {@link androidx.leanback.widget.PlaybackControlsRow.RewindAction}. Thus you
-     * should <u>NOT</u> set another {@link OnItemViewSelectedListener} on your
+     * should <b>NOT</b> set another {@link OnItemViewSelectedListener} on your
      * Fragment. Instead, override this method and call its super (this)
      * implementation.
      *

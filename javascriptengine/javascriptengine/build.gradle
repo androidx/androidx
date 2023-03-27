@@ -48,7 +48,6 @@ android {
 androidx {
     name = "JavaScript Engine"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.JAVASCRIPTENGINE
     inceptionYear = "2022"
     description = "Javascript Engine is a static library you can add to your Android application in order to evaluate JavaScript."
 }

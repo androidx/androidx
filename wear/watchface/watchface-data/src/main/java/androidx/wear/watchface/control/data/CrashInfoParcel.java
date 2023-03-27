@@ -28,6 +28,7 @@ import androidx.annotation.RestrictTo;
 
 /**
  * Used for sending details of an exception over aidl.
+ *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

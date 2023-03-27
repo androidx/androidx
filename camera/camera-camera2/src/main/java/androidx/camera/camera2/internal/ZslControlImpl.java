@@ -38,6 +38,8 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.camera2.internal.compat.quirk.ZslDisablerQuirk;
 import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Logger;
@@ -86,6 +88,8 @@ final class ZslControlImpl implements ZslControl {
     private boolean mIsZslDisabledByFlashMode = false;
     private boolean mIsPrivateReprocessingSupported = false;
 
+    private boolean mShouldZslDisabledByQuirks = false;
+
     @SuppressWarnings("WeakerAccess")
     SafeCloseImageReaderProxy mReprocessingImageReader;
     private CameraCaptureCallback mMetadataMatchingCaptureCallback;
@@ -101,6 +105,8 @@ final class ZslControlImpl implements ZslControl {
                         REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING);
 
         mReprocessingInputSizeMap = createReprocessingInputSizeMap(mCameraCharacteristicsCompat);
+
+        mShouldZslDisabledByQuirks = DeviceQuirks.get(ZslDisablerQuirk.class) != null;
 
         mImageRingBuffer = new ZslRingBuffer(
                 RING_BUFFER_CAPACITY,
@@ -136,6 +142,10 @@ final class ZslControlImpl implements ZslControl {
         // regular capture request when taking pictures. So when user switches flash mode, we
         // could create reprocessing capture request if flash mode allows.
         if (mIsZslDisabledByUseCaseConfig) {
+            return;
+        }
+
+        if (mShouldZslDisabledByQuirks) {
             return;
         }
 

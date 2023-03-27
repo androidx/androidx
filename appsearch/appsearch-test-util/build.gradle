@@ -29,6 +29,7 @@ dependencies {
     implementation('androidx.collection:collection:1.1.0')
     implementation(libs.truth)
 
+    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
@@ -39,11 +40,14 @@ androidx {
     name = 'AppSearch Test Util'
     type = LibraryType.INTERNAL_TEST_LIBRARY
     publish = Publish.NONE
-    mavenGroup = LibraryGroups.APPSEARCH
     inceptionYear = '2021'
     description = 'Test Utilities to be used by any test module for AppSearch'
 }
 
 android {
     namespace "androidx.appsearch.testutil"
+
+    defaultConfig {
+        multiDexEnabled true
+    }
 }

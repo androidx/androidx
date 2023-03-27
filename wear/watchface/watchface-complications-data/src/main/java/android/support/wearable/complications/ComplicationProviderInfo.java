@@ -29,9 +29,9 @@ import androidx.annotation.RestrictTo;
 
 /**
  * Holder of details of a complication provider, for use by watch faces (for example, to show the
- * current provider in settings). A
- * {@link androidx.wear.watchface.complications.ComplicationDataSourceInfoRetriever} can be used to
- * obtain instances of this class for each of a watch face's complications.
+ * current provider in settings). A {@link
+ * androidx.wear.watchface.complications.ComplicationDataSourceInfoRetriever} can be used to obtain
+ * instances of this class for each of a watch face's complications.
  *
  * @hide
  */
@@ -78,7 +78,9 @@ public final class ComplicationProviderInfo implements Parcelable {
      * @param providerComponentName The component name of the complication provider
      */
     public ComplicationProviderInfo(
-            @NonNull String appName, @NonNull String providerName, @NonNull Icon providerIcon,
+            @NonNull String appName,
+            @NonNull String providerName,
+            @NonNull Icon providerIcon,
             @ComplicationData.ComplicationType int complicationType,
             @Nullable ComponentName providerComponentName) {
         this.mAppName = appName;
@@ -88,9 +90,7 @@ public final class ComplicationProviderInfo implements Parcelable {
         this.mProviderComponentName = providerComponentName;
     }
 
-    /**
-     * Constructs a {@link ComplicationProviderInfo} from details stored in a {@link Parcel}.
-     */
+    /** Constructs a {@link ComplicationProviderInfo} from details stored in a {@link Parcel}. */
     @SuppressWarnings({"ParcelConstructor", "deprecation"})
     public ComplicationProviderInfo(@NonNull Parcel in) {
         Bundle bundle = in.readBundle(getClass().getClassLoader());
@@ -135,7 +135,7 @@ public final class ComplicationProviderInfo implements Parcelable {
         return mProviderName;
     }
 
-    /** Sets the  name of the complication provider */
+    /** Sets the name of the complication provider */
     public void setProviderName(@NonNull String providerName) {
         mProviderName = providerName;
     }

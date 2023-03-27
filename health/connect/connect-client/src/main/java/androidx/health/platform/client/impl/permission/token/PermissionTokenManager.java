@@ -38,7 +38,7 @@ public final class PermissionTokenManager {
 
     /** Sets current token. */
     public static void setCurrentToken(@NonNull Context context, @Nullable String token) {
-        getSharedPreferences(context).edit().putString(KEY_TOKEN, token).apply();
+        getSharedPreferences(context).edit().putString(KEY_TOKEN, token).commit();
     }
 
     private static SharedPreferences getSharedPreferences(@NonNull Context context) {

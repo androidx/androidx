@@ -17,6 +17,7 @@
 package androidx.camera.extensions;
 
 
+import android.os.Build;
 import android.util.Range;
 import android.util.Size;
 
@@ -204,7 +205,7 @@ final class ExtensionsInfo {
                 vendorExtender.init(cameraInfo);
 
                 ExtensionsUseCaseConfigFactory factory = new
-                        ExtensionsUseCaseConfigFactory(mode, vendorExtender, context);
+                        ExtensionsUseCaseConfigFactory(mode, vendorExtender);
 
                 ExtensionsConfig.Builder builder = new ExtensionsConfig.Builder()
                         .setExtensionMode(mode)
@@ -231,8 +232,11 @@ final class ExtensionsInfo {
         VendorExtender vendorExtender;
         if (isAdvancedExtenderSupported) {
             vendorExtender = new AdvancedVendorExtender(mode);
-        } else {
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             vendorExtender = new BasicVendorExtender(mode);
+        } else {
+            vendorExtender = new VendorExtender() {
+            };
         }
         return vendorExtender;
     }

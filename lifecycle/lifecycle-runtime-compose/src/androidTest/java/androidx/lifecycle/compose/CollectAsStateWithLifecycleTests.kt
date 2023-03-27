@@ -28,7 +28,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 
-@OptIn(ExperimentalLifecycleComposeApi::class)
 class CollectAsStateWithLifecycleTests {
 
     @get:Rule

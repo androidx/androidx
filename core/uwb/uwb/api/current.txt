@@ -123,7 +123,7 @@ package androidx.core.uwb {
     method public androidx.core.uwb.UwbDevice createForAddress(byte[] address);
   }
 
-  public interface UwbManager {
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface UwbManager {
     method @Deprecated public suspend Object? clientSessionScope(kotlin.coroutines.Continuation<? super androidx.core.uwb.UwbClientSessionScope>);
     method public suspend Object? controleeSessionScope(kotlin.coroutines.Continuation<? super androidx.core.uwb.UwbControleeSessionScope>);
     method public suspend Object? controllerSessionScope(kotlin.coroutines.Continuation<? super androidx.core.uwb.UwbControllerSessionScope>);
@@ -153,13 +153,6 @@ package androidx.core.uwb.exceptions {
 
   public final class UwbSystemCallbackException extends androidx.core.uwb.exceptions.UwbApiException {
     ctor public UwbSystemCallbackException(String message);
-  }
-
-}
-
-package androidx.core.uwb.helper {
-
-  public final class UwbHelperKt {
   }
 
 }

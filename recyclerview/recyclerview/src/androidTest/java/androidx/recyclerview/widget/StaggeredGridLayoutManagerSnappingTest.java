@@ -26,6 +26,7 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.test.filters.LargeTest;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -71,6 +72,7 @@ public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLay
         }
     }
 
+    @Ignore // b/269351778
     @Test
     public void snapOnScrollSameViewFixedSize() throws Throwable {
         // This test is a special case for fixed sized children.

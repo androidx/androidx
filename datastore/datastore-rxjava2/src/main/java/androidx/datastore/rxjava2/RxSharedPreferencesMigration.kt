@@ -24,6 +24,7 @@ import androidx.datastore.migrations.SharedPreferencesView
 import io.reactivex.Single
 import kotlinx.coroutines.rx2.await
 
+@JvmDefaultWithCompatibility
 /**
  * Client implemented migration interface.
  **/

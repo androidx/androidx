@@ -47,7 +47,6 @@ dependencies {
 androidx {
     name = "Room Paging RxJava3"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2022"
     description = "RxJava3 integration in Room Paging"
     publish = Publish.SNAPSHOT_AND_RELEASE

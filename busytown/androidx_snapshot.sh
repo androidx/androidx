@@ -6,10 +6,11 @@ echo "Starting $0 at $(date)"
 cd "$(dirname $0)"
 
 SNAPSHOT=true impl/build.sh \
-    createArchive \
+    createAllArchives \
     -Pandroidx.enableAffectedModuleDetection=false \
     -Pandroidx.enableComposeCompilerMetrics=true \
     -Pandroidx.enableComposeCompilerReports=true \
+    -Pandroidx.constraints=true \
     "$@"
 
 echo "Completing $0 at $(date)"

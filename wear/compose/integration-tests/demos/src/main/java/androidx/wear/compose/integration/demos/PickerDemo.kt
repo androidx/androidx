@@ -17,10 +17,16 @@
 package androidx.wear.compose.integration.demos
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Build
 import android.view.MotionEvent
+import android.view.accessibility.AccessibilityManager
+import android.view.accessibility.AccessibilityManager.AccessibilityStateChangeListener
+import android.view.accessibility.AccessibilityManager.TouchExplorationStateChangeListener
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -38,7 +44,9 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,21 +55,34 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.focused
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Picker
+import androidx.wear.compose.material.PickerGroupItem
 import androidx.wear.compose.material.PickerDefaults
+import androidx.wear.compose.material.PickerGroup
+import androidx.wear.compose.material.PickerGroupState
 import androidx.wear.compose.material.PickerScope
 import androidx.wear.compose.material.PickerState
+import androidx.wear.compose.material.TouchExplorationStateProvider
 import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.rememberPickerGroupState
 import androidx.wear.compose.material.rememberPickerState
 import java.time.LocalDate
 import java.time.LocalTime
@@ -107,23 +128,48 @@ public fun TimePicker(
         initialNumberOfOptions = 60,
         initiallySelectedOption = time.second
     )
-    val hourContentDescription by remember { derivedStateOf {
-        "${hourState.selectedOption} hours"
-    } }
-    val minuteContentDescription by remember { derivedStateOf {
-        "${minuteState.selectedOption} minutes"
-    } }
-    val secondContentDescription by remember { derivedStateOf {
-        "${secondState.selectedOption} seconds"
-    } }
+    val touchExplorationServicesEnabled by DefaultTouchExplorationStateProvider()
+        .touchExplorationState()
 
     MaterialTheme(typography = typography) {
-        var selectedColumn by remember { mutableStateOf(0) }
+        // When the time picker loads, none of the individual pickers are selected in talkback mode,
+        // otherwise hours picker should be focused.
+        val pickerGroupState = if (touchExplorationServicesEnabled) {
+            rememberPickerGroupState(FocusableElementsTimePicker.NONE.index)
+        } else {
+            rememberPickerGroupState(FocusableElementsTimePicker.HOURS.index)
+        }
         val textStyle = MaterialTheme.typography.display3
         val optionColor = MaterialTheme.colors.secondary
-        val focusRequester1 = remember { FocusRequester() }
-        val focusRequester2 = remember { FocusRequester() }
-        val focusRequester3 = remember { FocusRequester() }
+        val pickerOption = pickerTextOption(textStyle) { "%02d".format(it) }
+        val focusRequesterConfirmButton = remember { FocusRequester() }
+
+        val hourContentDescription by remember {
+            derivedStateOf {
+                createDescription(pickerGroupState, hourState.selectedOption, "hours")
+            }
+        }
+        val minuteContentDescription by remember {
+            derivedStateOf {
+                createDescription(pickerGroupState, minuteState.selectedOption, "minutes")
+            }
+        }
+        val secondContentDescription by remember {
+            derivedStateOf {
+                createDescription(pickerGroupState, secondState.selectedOption, "seconds")
+            }
+        }
+        val onPickerSelected = { curr: FocusableElementsTimePicker,
+            next: FocusableElementsTimePicker ->
+            if (pickerGroupState.selectedIndex != curr.index) {
+                pickerGroupState.selectedIndex = curr.index
+            } else if (next == FocusableElementsTimePicker.CONFIRM_BUTTON) {
+                focusRequesterConfirmButton.requestFocus()
+            } else {
+                pickerGroupState.selectedIndex = next.index
+            }
+        }
+
         Box(modifier = modifier.fillMaxSize()) {
             Column(
                 verticalArrangement = Arrangement.Center,
@@ -131,10 +177,11 @@ public fun TimePicker(
             ) {
                 Spacer(Modifier.height(12.dp))
                 Text(
-                    text = when (selectedColumn) {
-                        0 -> "Hour"
-                        1 -> "Minute"
-                        else -> "Second"
+                    text = when (FocusableElementsTimePicker[pickerGroupState.selectedIndex]) {
+                        FocusableElementsTimePicker.HOURS -> "Hour"
+                        FocusableElementsTimePicker.MINUTES -> "Minute"
+                        FocusableElementsTimePicker.SECONDS -> "Second"
+                        else -> ""
                     },
                     color = optionColor,
                     style = MaterialTheme.typography.button,
@@ -151,80 +198,80 @@ public fun TimePicker(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
                 ) {
-                    PickerWithRSB(
-                        readOnly = selectedColumn != 0,
-                        state = hourState,
-                        focusRequester = focusRequester1,
-                        modifier = Modifier.size(40.dp, 100.dp),
-                        onSelected = { selectedColumn = 0 },
-                        contentDescription = hourContentDescription,
-                    ) { hour: Int ->
-                        TimePiece(
-                            selected = selectedColumn == 0,
-                            onSelected = { selectedColumn = 0 },
-                            text = "%02d".format(hour),
-                            style = textStyle,
-                        )
-                    }
-                    Separator(6.dp, textStyle)
-                    PickerWithRSB(
-                        readOnly = selectedColumn != 1,
-                        state = minuteState,
-                        focusRequester = focusRequester2,
-                        modifier = Modifier.size(40.dp, 100.dp),
-                        onSelected = { selectedColumn = 1 },
-                        contentDescription = minuteContentDescription,
-                    ) { minute: Int ->
-                        TimePiece(
-                            selected = selectedColumn == 1,
-                            onSelected = { selectedColumn = 1 },
-                            text = "%02d".format(minute),
-                            style = textStyle,
-                        )
-                    }
-                    Separator(6.dp, textStyle)
-                    PickerWithRSB(
-                        readOnly = selectedColumn != 2,
-                        state = secondState,
-                        focusRequester = focusRequester3,
-                        modifier = Modifier.size(40.dp, 100.dp),
-                        onSelected = { selectedColumn = 2 },
-                        contentDescription = secondContentDescription,
-                    ) { second: Int ->
-                        TimePiece(
-                            selected = selectedColumn == 2,
-                            onSelected = { selectedColumn = 2 },
-                            text = "%02d".format(second),
-                            style = textStyle,
-                        )
-                    }
+                    PickerGroup(
+                        PickerGroupItem(
+                            pickerState = hourState,
+                            modifier = Modifier.size(40.dp, 100.dp),
+                            focusRequester = remember { FocusRequester() },
+                            onSelected = {
+                                onPickerSelected(
+                                    FocusableElementsTimePicker.HOURS,
+                                    FocusableElementsTimePicker.MINUTES
+                                )
+                            },
+                            contentDescription = hourContentDescription,
+                            option = pickerOption
+                        ),
+                        PickerGroupItem(
+                            pickerState = minuteState,
+                            modifier = Modifier.size(40.dp, 100.dp),
+                            focusRequester = remember { FocusRequester() },
+                            onSelected = {
+                                onPickerSelected(
+                                    FocusableElementsTimePicker.MINUTES,
+                                    FocusableElementsTimePicker.SECONDS
+                                )
+                            },
+                            contentDescription = minuteContentDescription,
+                            option = pickerOption
+                        ),
+                        PickerGroupItem(
+                            pickerState = secondState,
+                            modifier = Modifier.size(40.dp, 100.dp),
+                            focusRequester = remember { FocusRequester() },
+                            onSelected = {
+                                onPickerSelected(
+                                    FocusableElementsTimePicker.SECONDS,
+                                    FocusableElementsTimePicker.CONFIRM_BUTTON
+                                )
+                            },
+                            contentDescription = secondContentDescription,
+                            option = pickerOption
+                        ),
+                        pickerGroupState = pickerGroupState,
+                        separator = { Separator(6.dp, textStyle) },
+                        autoCenter = false
+                    )
                 }
                 Spacer(
                     Modifier
                         .fillMaxWidth()
                         .weight(weightsToCenterVertically)
                 )
-                Button(onClick = {
-                    val confirmedTime = LocalTime.of(
-                        hourState.selectedOption,
-                        minuteState.selectedOption,
-                        secondState.selectedOption
-                    )
-                    onTimeConfirm(confirmedTime)
-                }) {
+                Button(
+                    onClick = {
+                        val confirmedTime = LocalTime.of(
+                            hourState.selectedOption,
+                            minuteState.selectedOption,
+                            secondState.selectedOption
+                        )
+                        onTimeConfirm(confirmedTime)
+                    },
+                    modifier = Modifier
+                        .semantics {
+                            focused = pickerGroupState.selectedIndex > 2
+                        }
+                        .focusRequester(focusRequesterConfirmButton)
+                ) {
                     Icon(
                         imageVector = Icons.Filled.Check,
-                        contentDescription = "check",
+                        contentDescription = "confirm",
                         modifier = Modifier
                             .size(24.dp)
                             .wrapContentSize(align = Alignment.Center),
                     )
                 }
                 Spacer(Modifier.height(12.dp))
-            }
-            LaunchedEffect(selectedColumn) {
-                listOf(focusRequester1, focusRequester2, focusRequester3)[selectedColumn]
-                    .requestFocus()
             }
         }
     }
@@ -266,132 +313,172 @@ public fun TimePickerWith12HourClock(
     )
     val periodState = rememberPickerState(
         initialNumberOfOptions = 2,
-        initiallySelectedOption = time[ChronoField.AMPM_OF_DAY]
+        initiallySelectedOption = time[ChronoField.AMPM_OF_DAY],
+        repeatItems = false
     )
-    val hoursContentDescription by remember {
-        derivedStateOf { "${hourState.selectedOption + 1} hours" }
-    }
-    val minutesContentDescription by remember {
-        derivedStateOf { "${minuteState.selectedOption} minutes" }
-    }
-
-    val amString = remember {
-        LocalTime.of(6, 0).format(DateTimeFormatter.ofPattern("a"))
-    }
-    val pmString = remember {
-        LocalTime.of(18, 0).format(DateTimeFormatter.ofPattern("a"))
-    }
-    val periodContentDescription by remember {
-        derivedStateOf { if (periodState.selectedOption == 0) amString else pmString }
-    }
+    val touchExplorationServicesEnabled by DefaultTouchExplorationStateProvider()
+        .touchExplorationState()
 
     MaterialTheme(typography = typography) {
-        var selectedColumn by remember { mutableStateOf(0) }
+        val pickerGroupState =
+            if (touchExplorationServicesEnabled) {
+                rememberPickerGroupState(FocusableElement12Hour.NONE.index)
+            } else {
+                rememberPickerGroupState(FocusableElement12Hour.HOURS.index)
+            }
         val textStyle = MaterialTheme.typography.display3
-        val focusRequester1 = remember { FocusRequester() }
-        val focusRequester2 = remember { FocusRequester() }
-        val focusRequester3 = remember { FocusRequester() }
+        val pickerOption = pickerTextOption(textStyle) { "%02d".format(it) }
+        val focusRequesterConfirmButton = remember { FocusRequester() }
 
-        Column(
-            modifier = modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(Modifier.height(12.dp))
-            Text(
-                text = when (selectedColumn) {
-                    0 -> "Hour"
-                    1 -> "Minute"
-                    else -> ""
-                },
-                color = MaterialTheme.colors.secondary,
-                style = MaterialTheme.typography.button,
-                maxLines = 1,
-            )
-            Spacer(
-                Modifier
-                    .fillMaxWidth()
-                    .weight(0.5f)
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
+        val hoursContentDescription by remember { derivedStateOf {
+                createDescription12Hour(pickerGroupState, hourState.selectedOption + 1, "hours")
+            } }
+        val minutesContentDescription by remember { derivedStateOf {
+                createDescription12Hour(pickerGroupState, minuteState.selectedOption, "minutes")
+            } }
+
+        val amString = remember {
+            LocalTime.of(6, 0).format(DateTimeFormatter.ofPattern("a"))
+        }
+        val pmString = remember {
+            LocalTime.of(18, 0).format(DateTimeFormatter.ofPattern("a"))
+        }
+        val periodContentDescription by remember { derivedStateOf {
+                if (pickerGroupState.selectedIndex == FocusableElement12Hour.NONE.index)
+                    createDescription12Hour(pickerGroupState, periodState.selectedOption, "period")
+                else if (periodState.selectedOption == 0)
+                    createDescription12Hour(pickerGroupState, periodState.selectedOption, amString)
+                else createDescription12Hour(pickerGroupState, periodState.selectedOption, pmString)
+            } }
+        Box(modifier = modifier.fillMaxSize()) {
+            Column(
+                modifier = modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(Modifier.width(8.dp))
-                PickerWithRSB(
-                    readOnly = selectedColumn != 0,
-                    state = hourState,
-                    focusRequester = focusRequester1,
-                    modifier = Modifier.size(48.dp, 100.dp),
-                    onSelected = { selectedColumn = 0 },
-                    contentDescription = hoursContentDescription,
-                ) { hour: Int ->
-                    TimePiece(
-                        selected = selectedColumn == 0,
-                        onSelected = { selectedColumn = 0 },
-                        text = "%02d".format(hour + 1),
-                        style = textStyle,
-                    )
-                }
-                Separator(2.dp, textStyle)
-                PickerWithRSB(
-                    readOnly = selectedColumn != 1,
-                    state = minuteState,
-                    focusRequester = focusRequester2,
-                    modifier = Modifier.size(48.dp, 100.dp),
-                    onSelected = { selectedColumn = 1 },
-                    contentDescription = minutesContentDescription,
-                ) { minute: Int ->
-                    TimePiece(
-                        selected = selectedColumn == 1,
-                        onSelected = { selectedColumn = 1 },
-                        text = "%02d".format(minute),
-                        style = textStyle,
-                    )
-                }
-                Spacer(Modifier.width(6.dp))
-                PickerWithRSB(
-                    readOnly = selectedColumn != 2,
-                    state = periodState,
-                    focusRequester = focusRequester3,
-                    modifier = Modifier.size(64.dp, 100.dp),
-                    onSelected = { selectedColumn = 2 },
-                    contentDescription = periodContentDescription,
-                ) { period: Int ->
-                    TimePiece(
-                        selected = selectedColumn == 2,
-                        onSelected = { selectedColumn = 2 },
-                        text = if (period == 0) amString else pmString,
-                        style = textStyle,
-                    )
-                }
-            }
-            Spacer(
-                Modifier
-                    .fillMaxWidth()
-                    .weight(0.5f)
-            )
-            Button(onClick = {
-                val confirmedTime = LocalTime.of(
-                    hourState.selectedOption + 1,
-                    minuteState.selectedOption,
-                    0
-                ).with(ChronoField.AMPM_OF_DAY, periodState.selectedOption.toLong())
-                onTimeConfirm(confirmedTime)
-            }) {
-                Icon(
-                    imageVector = Icons.Filled.Check,
-                    contentDescription = "check",
-                    modifier = Modifier
-                        .size(24.dp)
-                        .wrapContentSize(align = Alignment.Center),
+                Spacer(Modifier.height(12.dp))
+                Text(
+                    text = when (FocusableElement12Hour[pickerGroupState.selectedIndex]) {
+                        FocusableElement12Hour.HOURS -> "Hour"
+                        FocusableElement12Hour.MINUTES -> "Minute"
+                        else -> ""
+                    },
+                    color = MaterialTheme.colors.secondary,
+                    style = MaterialTheme.typography.button,
+                    maxLines = 1,
                 )
-            }
-            Spacer(Modifier.height(8.dp))
-            LaunchedEffect(selectedColumn) {
-                listOf(focusRequester1, focusRequester2, focusRequester3)[selectedColumn]
-                    .requestFocus()
+                val weightsToCenterVertically = 0.5f
+                Spacer(
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(weightsToCenterVertically)
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+
+                    ) {
+                    val doubleTapToNext =
+                        { current: FocusableElement12Hour, next: FocusableElement12Hour ->
+                            if (pickerGroupState.selectedIndex != current.index) {
+                                focusRequesterConfirmButton.requestFocus()
+                            } else if (next == FocusableElement12Hour.CONFIRM_BUTTON) {
+                                pickerGroupState.selectedIndex = current.index
+                            } else {
+                                pickerGroupState.selectedIndex = next.index
+                            }
+                        }
+                    PickerGroup(
+                        PickerGroupItem(
+                            pickerState = hourState,
+                            modifier = Modifier.size(40.dp, 100.dp),
+                            focusRequester = remember { FocusRequester() },
+                            onSelected = {
+                                doubleTapToNext(
+                                    FocusableElement12Hour.HOURS,
+                                    FocusableElement12Hour.MINUTES
+                                )
+                            },
+                            contentDescription = hoursContentDescription,
+                            option = pickerOption
+                        ),
+                        PickerGroupItem(
+                            pickerState = minuteState,
+                            modifier = Modifier.size(48.dp, 100.dp),
+                            focusRequester = remember { FocusRequester() },
+
+                            onSelected = {
+                                doubleTapToNext(
+                                    FocusableElement12Hour.MINUTES,
+                                    FocusableElement12Hour.PERIOD
+                                )
+                            },
+                            contentDescription = minutesContentDescription,
+                            option = pickerOption
+                        ),
+                        PickerGroupItem(
+                            pickerState = periodState,
+                            modifier = Modifier.size(64.dp, 100.dp),
+                            focusRequester = remember { FocusRequester() },
+                            contentDescription = periodContentDescription,
+                            onSelected = {
+                                doubleTapToNext(
+                                    FocusableElement12Hour.PERIOD,
+                                    FocusableElement12Hour.CONFIRM_BUTTON
+                                )
+                            },
+                            option = { optionIndex: Int, pickerSelected: Boolean ->
+                                Box(modifier = Modifier.fillMaxSize()) {
+                                    Text(
+                                        text = if (optionIndex == 0) amString else pmString,
+                                        maxLines = 1,
+                                        style = textStyle,
+                                        color =
+                                        if (pickerSelected) MaterialTheme.colors.secondary
+                                        else MaterialTheme.colors.onBackground,
+                                        modifier = Modifier
+                                            .align(Alignment.Center)
+                                            .wrapContentSize()
+                                    )
+                                }
+                            }
+                        ),
+                        autoCenter = false,
+                        pickerGroupState = pickerGroupState,
+                        separator = { Separator(6.dp, textStyle) },
+                    )
+                }
+                Spacer(
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(weightsToCenterVertically)
+                )
+                Button(onClick = {
+                    val confirmedTime = LocalTime.of(
+                        hourState.selectedOption + 1,
+                        minuteState.selectedOption,
+                        0
+                    ).with(ChronoField.AMPM_OF_DAY, periodState.selectedOption.toLong())
+                    onTimeConfirm(confirmedTime)
+                },
+                    modifier = Modifier
+                        .semantics {
+                            focused = pickerGroupState.selectedIndex ==
+                                FocusableElement12Hour.CONFIRM_BUTTON.index
+                        }
+                        .focusRequester(focusRequesterConfirmButton)
+
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Check,
+                        contentDescription = "confirm",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .wrapContentSize(align = Alignment.Center),
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
             }
         }
     }
@@ -408,6 +495,8 @@ public fun TimePickerWith12HourClock(
  * @param onDateConfirm the button event handler.
  * @param modifier the modifiers for the `Box` containing the UI elements.
  * @param date the initial value to seed the picker with.
+ * @param fromDate the minimum date to be selected in picker
+ * @param toDate the maximum date to be selected in picker
  */
 @SuppressLint("ClassVerificationFailure")
 @RequiresApi(Build.VERSION_CODES.O)
@@ -415,67 +504,107 @@ public fun TimePickerWith12HourClock(
 public fun DatePicker(
     onDateConfirm: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
-    date: LocalDate = LocalDate.now()
+    date: LocalDate = LocalDate.now(),
+    fromDate: LocalDate? = null,
+    toDate: LocalDate? = null
 ) {
+    if (fromDate != null && toDate != null) {
+        verifyDates(date, fromDate, toDate)
+    }
+
+    val datePickerState = remember(date) {
+        if (fromDate != null && toDate == null) {
+            DatePickerState(date = date, fromDate = fromDate, toDate = fromDate.plusYears(3000))
+        } else if (fromDate == null && toDate != null) {
+            DatePickerState(date = date, fromDate = toDate.minusYears(3000), toDate = toDate)
+        } else {
+            DatePickerState(date, fromDate, toDate)
+        }
+    }
+
     // Omit scaling according to Settings > Display > Font size for this screen
     val typography = MaterialTheme.typography.copy(
         display2 = MaterialTheme.typography.display2.copy(
             fontSize = with(LocalDensity.current) { 34.dp.toSp() }
         )
     )
+    val touchExplorationServicesEnabled by DefaultTouchExplorationStateProvider()
+        .touchExplorationState()
+
     MaterialTheme(typography = typography) {
-        val yearState = rememberPickerState(
-            initialNumberOfOptions = 3000,
-            initiallySelectedOption = date.year - 1
-        )
-        val monthState = rememberPickerState(
-            initialNumberOfOptions = 12,
-            initiallySelectedOption = date.monthValue - 1
-        )
-        val maxDayInMonth by remember {
+        var focusedElement by remember {
+            mutableStateOf(
+                if (touchExplorationServicesEnabled)
+                    FocusableElementDatePicker.NONE else FocusableElementDatePicker.DAY
+            )
+        }
+        val focusRequesterDay = remember { FocusRequester() }
+        val focusRequesterMonth = remember { FocusRequester() }
+        val focusRequesterYear = remember { FocusRequester() }
+        val focusRequesterConfirmButton = remember { FocusRequester() }
+
+        LaunchedEffect(
+            datePickerState.yearState.selectedOption,
+            datePickerState.monthState.selectedOption
+        ) {
+            if (datePickerState.numOfMonths != datePickerState.monthState.numberOfOptions) {
+                datePickerState.monthState.numberOfOptions = datePickerState.numOfMonths
+            }
+            if (datePickerState.numOfDays != datePickerState.dayState.numberOfOptions) {
+                if (datePickerState.dayState.selectedOption >= datePickerState.numOfDays) {
+                    datePickerState.dayState.animateScrollToOption(datePickerState.numOfDays - 1)
+                }
+                datePickerState.dayState.numberOfOptions = datePickerState.numOfDays
+            }
+        }
+        val shortMonthNames = remember { getMonthNames("MMM") }
+        val fullMonthNames = remember { getMonthNames("MMMM") }
+        val yearContentDescription by remember(focusedElement, datePickerState.currentYear()) {
             derivedStateOf {
-                val firstDayOfMonth =
-                    LocalDate.of(
-                        yearState.selectedOption + 1,
-                        monthState.selectedOption + 1,
-                        1
-                    )
-                firstDayOfMonth.with(TemporalAdjusters.lastDayOfMonth()).dayOfMonth
+                createDescriptionDatePicker(
+                    focusedElement,
+                    datePickerState.currentYear(),
+                    "${datePickerState.currentYear()}"
+                )
             }
         }
-        val dayState = rememberPickerState(
-            initialNumberOfOptions = maxDayInMonth,
-            initiallySelectedOption = date.dayOfMonth - 1
-        )
-        val focusRequester1 = remember { FocusRequester() }
-        val focusRequester2 = remember { FocusRequester() }
-        val focusRequester3 = remember { FocusRequester() }
+        val monthContentDescription by remember(focusedElement, datePickerState.currentMonth()) {
+            derivedStateOf {
+                createDescriptionDatePicker(
+                    focusedElement,
+                    datePickerState.currentMonth(),
+                    fullMonthNames[(datePickerState.currentMonth() - 1) % 12]
+                )
+            } }
+        val dayContentDescription by remember(focusedElement, datePickerState.currentDay()) {
+            derivedStateOf {
+                createDescriptionDatePicker(
+                    focusedElement, datePickerState.currentDay(), "${datePickerState.currentDay()}"
+                )
+            } }
 
-        LaunchedEffect(maxDayInMonth) {
-            if (maxDayInMonth != dayState.numberOfOptions) {
-                dayState.numberOfOptions = maxDayInMonth
-            }
-        }
-        val monthNames = remember {
-            val monthFormatter = DateTimeFormatter.ofPattern("MMM")
-            val months = 1..12
-            months.map {
-                // Translate month index into 3-character month string e.g. Jan.
-                LocalDate.of(2022, it, 1).format(monthFormatter)
-            }
-        }
-        val yearContentDescription by remember { derivedStateOf {
-            "${yearState.selectedOption + 1}"
-        } }
-        val monthContentDescription by remember { derivedStateOf {
-            monthNames[monthState.selectedOption]
-        } }
-        val dayContentDescription by remember { derivedStateOf {
-            "${dayState.selectedOption + 1}"
-        } }
+        BoxWithConstraints(
+            modifier = modifier
+                .fillMaxSize()
+                .then(
+                    if (touchExplorationServicesEnabled) {
+                        when (focusedElement) {
+                            FocusableElementDatePicker.DAY ->
+                                Modifier.scrollablePicker(datePickerState.dayState)
 
-        var selectedColumn by remember { mutableStateOf(0) }
-        BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+                            FocusableElementDatePicker.MONTH ->
+                                Modifier.scrollablePicker(datePickerState.monthState)
+
+                            FocusableElementDatePicker.YEAR ->
+                                Modifier.scrollablePicker(datePickerState.yearState)
+
+                            else -> Modifier
+                        }
+                    } else {
+                        Modifier
+                    }
+                )
+        ) {
             val boxConstraints = this
             Column(
                 verticalArrangement = Arrangement.Center,
@@ -483,10 +612,11 @@ public fun DatePicker(
             ) {
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    text = when (selectedColumn) {
-                        0 -> "Day"
-                        1 -> "Month"
-                        else -> "Year"
+                    text = when (focusedElement) {
+                        FocusableElementDatePicker.DAY -> "Day"
+                        FocusableElementDatePicker.MONTH -> "Month"
+                        FocusableElementDatePicker.YEAR -> "Year"
+                        else -> ""
                     },
                     color = MaterialTheme.colors.secondary,
                     style = MaterialTheme.typography.button,
@@ -502,9 +632,18 @@ public fun DatePicker(
                 val dayWidth = 54.dp
                 val monthWidth = 80.dp
                 val yearWidth = 128.dp
-                val offset = when (selectedColumn) {
-                    0 -> (boxConstraints.maxWidth - dayWidth) / 2
-                    1 -> (boxConstraints.maxWidth - monthWidth) / 2 - dayWidth - spacerWidth
+                val doubleTapToNext = {
+                        position: FocusableElementDatePicker, next: FocusableElementDatePicker ->
+                    focusedElement = when (focusedElement) {
+                        position -> next
+                        else -> position
+                    }
+                }
+                val offset = when (focusedElement) {
+                    FocusableElementDatePicker.DAY -> (boxConstraints.maxWidth - dayWidth) / 2
+                    FocusableElementDatePicker.MONTH ->
+                        (boxConstraints.maxWidth - monthWidth) / 2 - dayWidth - spacerWidth
+                    FocusableElementDatePicker.NONE -> (boxConstraints.maxWidth - dayWidth) / 2
                     else -> (boxConstraints.maxWidth - yearWidth) / 2 - monthWidth
                 }
                 Row(
@@ -512,37 +651,62 @@ public fun DatePicker(
                         .fillMaxWidth()
                         .offset(offset)
                 ) {
-                    if (selectedColumn < 2) {
+                    if (focusedElement.index < 2) {
                         DatePickerImpl(
-                            state = dayState,
-                            readOnly = selectedColumn != 0,
-                            onSelected = { selectedColumn = 0 },
-                            text = { day: Int -> "%d".format(day + 1) },
+                            state = datePickerState.dayState,
+                            readOnly = focusedElement != FocusableElementDatePicker.DAY,
+                            onSelected = {
+                                doubleTapToNext(
+                                    FocusableElementDatePicker.DAY,
+                                    FocusableElementDatePicker.MONTH
+                                )
+                            },
+                            text = { day: Int -> "%d".format(datePickerState.currentDay(day)) },
                             width = dayWidth,
-                            focusRequester = focusRequester1,
+                            focusRequester = focusRequesterDay,
                             contentDescription = dayContentDescription,
+                            userScrollEnabled = !touchExplorationServicesEnabled ||
+                                focusedElement == FocusableElementDatePicker.DAY,
+                            touchExplorationServicesEnabled = touchExplorationServicesEnabled
                         )
                         Spacer(modifier = Modifier.width(spacerWidth))
                     }
                     DatePickerImpl(
-                        state = monthState,
-                        readOnly = selectedColumn != 1,
-                        onSelected = { selectedColumn = 1 },
-                        text = { month: Int -> monthNames[month] },
+                        state = datePickerState.monthState,
+                        readOnly = focusedElement != FocusableElementDatePicker.MONTH,
+                        onSelected = {
+                            doubleTapToNext(
+                                FocusableElementDatePicker.MONTH,
+                                FocusableElementDatePicker.YEAR
+                            )
+                        },
+                        text = { month: Int ->
+                            shortMonthNames[(datePickerState.currentMonth(month) - 1) % 12] },
                         width = monthWidth,
-                        focusRequester = focusRequester2,
+                        focusRequester = focusRequesterMonth,
                         contentDescription = monthContentDescription,
+                        userScrollEnabled = !touchExplorationServicesEnabled ||
+                            focusedElement == FocusableElementDatePicker.MONTH,
+                        touchExplorationServicesEnabled = touchExplorationServicesEnabled
                     )
-                    if (selectedColumn > 0) {
+                    if (focusedElement.index > 0) {
                         Spacer(modifier = Modifier.width(spacerWidth))
                         DatePickerImpl(
-                            state = yearState,
-                            readOnly = selectedColumn != 2,
-                            onSelected = { selectedColumn = 2 },
-                            text = { year: Int -> "%4d".format(year + 1) },
+                            state = datePickerState.yearState,
+                            readOnly = focusedElement != FocusableElementDatePicker.YEAR,
+                            onSelected = {
+                                doubleTapToNext(
+                                    FocusableElementDatePicker.YEAR,
+                                    FocusableElementDatePicker.CONFIRM_BUTTON
+                                )
+                            },
+                            text = { year: Int -> "%4d".format(datePickerState.currentYear(year)) },
                             width = yearWidth,
-                            focusRequester = focusRequester3,
+                            focusRequester = focusRequesterYear,
                             contentDescription = yearContentDescription,
+                            userScrollEnabled = !touchExplorationServicesEnabled ||
+                                focusedElement == FocusableElementDatePicker.YEAR,
+                            touchExplorationServicesEnabled = touchExplorationServicesEnabled
                         )
                     }
                 }
@@ -553,29 +717,41 @@ public fun DatePicker(
                 )
                 Button(
                     onClick = {
-                        if (selectedColumn == 2) {
-                            val confirmedDate = LocalDate.of(
-                                yearState.selectedOption + 1,
-                                monthState.selectedOption + 1,
-                                dayState.selectedOption + 1
-                            )
+                        if (focusedElement.index >= 2) {
+                            val confirmedYear: Int = datePickerState.currentYear()
+                            val confirmedMonth: Int = datePickerState.currentMonth()
+                            val confirmedDay: Int = datePickerState.currentDay()
+                            val confirmedDate =
+                                LocalDate.of(confirmedYear, confirmedMonth, confirmedDay)
                             onDateConfirm(confirmedDate)
-                        } else {
-                            selectedColumn = (selectedColumn + 1) % 3
+                        } else if (focusedElement == FocusableElementDatePicker.DAY) {
+                            doubleTapToNext(
+                                FocusableElementDatePicker.DAY,
+                                FocusableElementDatePicker.MONTH
+                            )
+                        } else if (focusedElement == FocusableElementDatePicker.MONTH) {
+                            doubleTapToNext(
+                                FocusableElementDatePicker.MONTH,
+                                FocusableElementDatePicker.YEAR
+                            )
                         }
                     },
+                    modifier = Modifier
+                        .semantics {
+                            focused = focusedElement == FocusableElementDatePicker.CONFIRM_BUTTON
+                        }
+                        .focusRequester(focusRequesterConfirmButton)
                 ) {
                     DemoIcon(
                         resourceId =
-                        if (selectedColumn < 2) R.drawable.ic_chevron_right_24
-                        else R.drawable.ic_check_24px
+                        if (focusedElement.index < 2) R.drawable.ic_chevron_right_24
+                        else R.drawable.ic_check_24px,
+                        contentDescription =
+                        if (focusedElement.index >= 2) "confirm"
+                        else "next"
                     )
                 }
                 Spacer(Modifier.height(12.dp))
-            }
-            LaunchedEffect(selectedColumn) {
-                listOf(focusRequester1, focusRequester2, focusRequester3)[selectedColumn]
-                    .requestFocus()
             }
         }
     }
@@ -590,6 +766,8 @@ private fun DatePickerImpl(
     focusRequester: FocusRequester,
     width: Dp,
     contentDescription: String,
+    userScrollEnabled: Boolean,
+    touchExplorationServicesEnabled: Boolean
 ) {
     PickerWithRSB(
         readOnly = readOnly,
@@ -598,16 +776,20 @@ private fun DatePickerImpl(
         modifier = Modifier.size(width, 100.dp),
         onSelected = onSelected,
         contentDescription = contentDescription,
+        userScrollEnabled = userScrollEnabled
     ) { option ->
         TimePiece(
             selected = !readOnly,
             onSelected = onSelected,
             text = text(option),
             style = MaterialTheme.typography.display2,
+            touchExplorationServicesEnabled = touchExplorationServicesEnabled
         )
     }
 }
 
+// This is a demo file, suppressing the annotation group error.
+@SuppressLint("NullAnnotationGroup")
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 internal fun TimePiece(
@@ -615,6 +797,7 @@ internal fun TimePiece(
     onSelected: () -> Unit,
     text: String,
     style: TextStyle,
+    touchExplorationServicesEnabled: Boolean = false
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         val modifier = Modifier
@@ -628,7 +811,7 @@ internal fun TimePiece(
             if (selected) MaterialTheme.colors.secondary
             else MaterialTheme.colors.onBackground,
             modifier =
-            if (selected) modifier
+            if (selected || touchExplorationServicesEnabled) modifier
             else modifier.pointerInteropFilter {
                 if (it.action == MotionEvent.ACTION_DOWN) onSelected()
                 true
@@ -656,20 +839,24 @@ private fun Separator(width: Dp, textStyle: TextStyle) {
     focusRequester: FocusRequester,
     contentDescription: String?,
     readOnlyLabel: @Composable (BoxScope.() -> Unit)? = null,
+    userScrollEnabled: Boolean = true,
     flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state = state),
     onSelected: () -> Unit = {},
     option: @Composable PickerScope.(optionIndex: Int) -> Unit
 ) {
     Picker(
         state = state,
-        modifier = modifier.rsbScroll(
-            scrollableState = state,
-            flingBehavior = flingBehavior,
-            focusRequester = focusRequester
-        ),
+        modifier = if (userScrollEnabled) {
+            modifier.rsbScroll(
+                scrollableState = state,
+                flingBehavior = flingBehavior,
+                focusRequester = focusRequester,
+            )
+        } else modifier,
         flingBehavior = flingBehavior,
         readOnly = readOnly,
         readOnlyLabel = readOnlyLabel,
+        userScrollEnabled = userScrollEnabled,
         onSelected = onSelected,
         contentDescription = contentDescription,
         option = option
@@ -696,5 +883,279 @@ fun PickerWithoutGradient() {
         ) {
             Text(items[it])
         }
+    }
+}
+
+private fun pickerTextOption(textStyle: TextStyle, indexToText: (Int) -> String):
+    (@Composable PickerScope.(optionIndex: Int, pickerSelected: Boolean) -> Unit) = {
+        value: Int, pickerSelected: Boolean ->
+    Box(modifier = Modifier.fillMaxSize()) {
+        Text(
+            text = indexToText(value),
+            maxLines = 1,
+            style = textStyle,
+            color =
+            if (pickerSelected) MaterialTheme.colors.secondary
+            else MaterialTheme.colors.onBackground,
+            modifier = Modifier
+                .align(Alignment.Center)
+                .wrapContentSize()
+        )
+    }
+}
+
+private fun Modifier.scrollablePicker(
+    pickerState: PickerState
+) = Modifier.composed {
+    this.scrollable(
+        state = pickerState,
+        orientation = Orientation.Vertical,
+        flingBehavior = PickerDefaults.flingBehavior(state = pickerState),
+        reverseDirection = true
+    )
+}
+
+private fun createDescription(
+    pickerGroupState: PickerGroupState,
+    selectedValue: Int,
+    label: String
+): String {
+    return when (pickerGroupState.selectedIndex) {
+        FocusableElementsTimePicker.NONE.index -> label
+        else -> "$selectedValue" + label
+    }
+}
+
+private fun createDescription12Hour(
+    pickerGroupState: PickerGroupState,
+    selectedValue: Int,
+    label: String
+): String {
+    return when (pickerGroupState.selectedIndex) {
+        FocusableElement12Hour.HOURS.index -> {
+            "$selectedValue" + label
+        }
+        FocusableElement12Hour.MINUTES.index -> {
+            "$selectedValue" + label
+        }
+        else -> label
+    }
+}
+
+private fun createDescriptionDatePicker(
+    focusedElement: FocusableElementDatePicker,
+    selectedValue: Int,
+    label: String
+): String {
+    return when (focusedElement) {
+        FocusableElementDatePicker.DAY -> {
+            "$selectedValue"
+        }
+        FocusableElementDatePicker.YEAR -> {
+            "$selectedValue"
+        }
+        else -> label
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun verifyDates(
+    date: LocalDate,
+    fromDate: LocalDate,
+    toDate: LocalDate
+) {
+    require(toDate >= fromDate) { "toDate should be greater than or equal to fromDate" }
+    require(date in fromDate..toDate) { "date should lie between fromDate and toDate" }
+}
+
+@SuppressLint("ClassVerificationFailure")
+@RequiresApi(Build.VERSION_CODES.O)
+private fun getMonthNames(pattern: String): List<String> {
+    val monthFormatter = DateTimeFormatter.ofPattern(pattern)
+    val months = 1..12
+    return months.map {
+        LocalDate.of(2022, it, 1).format(monthFormatter)
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+internal class DatePickerState constructor(
+    private val date: LocalDate,
+    private val fromDate: LocalDate?,
+    private val toDate: LocalDate?
+) {
+    private val yearOffset = fromDate?.year ?: 1
+    val numOfYears = (toDate?.year ?: 3000) - (yearOffset - 1)
+    val yearState =
+        PickerState(
+            initialNumberOfOptions = numOfYears,
+            initiallySelectedOption = date.year - yearOffset
+        )
+    val selectedYearEqualsFromYear: Boolean
+        get() = (yearState.selectedOption == 0)
+    val selectedYearEqualsToYear: Boolean
+        get() = (yearState.selectedOption == yearState.numberOfOptions - 1)
+
+    private val monthOffset: Int
+        get() = (if (selectedYearEqualsFromYear) (fromDate?.monthValue ?: 1) else 1)
+    private val maxMonths: Int
+        get() = (if (selectedYearEqualsToYear) (toDate?.monthValue ?: 12) else 12)
+    val numOfMonths: Int
+        get() = (maxMonths.minus(monthOffset - 1))
+    val monthState =
+        PickerState(
+            initialNumberOfOptions = numOfMonths,
+            initiallySelectedOption = date.monthValue - monthOffset
+        )
+    val selectedMonthEqualsFromMonth: Boolean
+        get() = (selectedYearEqualsFromYear && monthState.selectedOption == 0)
+    val selectedMonthEqualsToMonth: Boolean
+        get() = (selectedYearEqualsToYear &&
+            monthState.selectedOption == monthState.numberOfOptions - 1)
+
+    private val dayOffset: Int
+        get() = (if (selectedMonthEqualsFromMonth) (fromDate?.dayOfMonth ?: 1) else 1)
+    private val firstDayOfMonth: LocalDate
+        get() = LocalDate.of(
+            currentYear(),
+            currentMonth(),
+            1
+        )
+    private val maxDaysInMonth: Int
+        get() = (
+            if (toDate != null && selectedMonthEqualsToMonth) {
+                toDate.dayOfMonth
+            } else {
+                firstDayOfMonth.with(TemporalAdjusters.lastDayOfMonth()).dayOfMonth
+            }
+            )
+    val numOfDays: Int
+        get() = maxDaysInMonth.minus(dayOffset - 1)
+
+    val dayState =
+        PickerState(
+            initialNumberOfOptions = numOfDays,
+            initiallySelectedOption = date.dayOfMonth - dayOffset
+        )
+
+    fun currentYear(year: Int = yearState.selectedOption): Int {
+        return year + yearOffset
+    }
+    fun currentMonth(month: Int = monthState.selectedOption): Int {
+        return month + monthOffset
+    }
+    fun currentDay(day: Int = dayState.selectedOption): Int {
+        return day + dayOffset
+    }
+}
+
+/**
+ * This is copied from [TouchExplorationStateProvider]. Please updated if something changes over there.
+ */
+private class DefaultTouchExplorationStateProvider : TouchExplorationStateProvider {
+
+    @Composable
+    public override fun touchExplorationState(): State<Boolean> {
+        val context = LocalContext.current
+        val accessibilityManager = remember {
+            context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+        }
+
+        val listener = remember { Listener() }
+
+        LocalLifecycleOwner.current.lifecycle.ObserveState(
+            handleEvent = { event ->
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    listener.register(accessibilityManager)
+                }
+            },
+            onDispose = {
+                listener.unregister(accessibilityManager)
+            }
+        )
+
+        return remember { derivedStateOf { listener.isEnabled() } }
+    }
+
+    @Composable
+    private fun Lifecycle.ObserveState(
+        handleEvent: (Lifecycle.Event) -> Unit = {},
+        onDispose: () -> Unit = {}
+    ) {
+        DisposableEffect(this) {
+            val observer = LifecycleEventObserver { _, event ->
+                handleEvent(event)
+            }
+            this@ObserveState.addObserver(observer)
+            onDispose {
+                onDispose()
+                this@ObserveState.removeObserver(observer)
+            }
+        }
+    }
+
+    private class Listener : AccessibilityStateChangeListener, TouchExplorationStateChangeListener {
+        private var accessibilityEnabled by mutableStateOf(false)
+        private var touchExplorationEnabled by mutableStateOf(false)
+
+        fun isEnabled() = accessibilityEnabled && touchExplorationEnabled
+
+        override fun onAccessibilityStateChanged(it: Boolean) {
+            accessibilityEnabled = it
+        }
+
+        override fun onTouchExplorationStateChanged(it: Boolean) {
+            touchExplorationEnabled = it
+        }
+
+        fun register(am: AccessibilityManager) {
+            accessibilityEnabled = am.isEnabled
+            touchExplorationEnabled = am.isTouchExplorationEnabled
+
+            am.addTouchExplorationStateChangeListener(this)
+            am.addAccessibilityStateChangeListener(this)
+        }
+
+        fun unregister(am: AccessibilityManager) {
+            am.removeTouchExplorationStateChangeListener(this)
+            am.removeAccessibilityStateChangeListener(this)
+        }
+    }
+}
+
+enum class FocusableElementsTimePicker(val index: Int) {
+    HOURS(0),
+    MINUTES(1),
+    SECONDS(2),
+    CONFIRM_BUTTON(3),
+    NONE(-1);
+
+    companion object {
+        private val map = FocusableElementsTimePicker.values().associateBy { it.index }
+        operator fun get(value: Int) = map[value]
+    }
+}
+
+enum class FocusableElement12Hour(val index: Int) {
+    HOURS(0),
+    MINUTES(1),
+    PERIOD(2),
+    CONFIRM_BUTTON(3),
+    NONE(-1);
+    companion object {
+        private val map = FocusableElement12Hour.values().associateBy { it.index }
+        operator fun get(value: Int) = map[value]
+    }
+}
+
+enum class FocusableElementDatePicker(val index: Int) {
+    DAY(0),
+    MONTH(1),
+    YEAR(2),
+    CONFIRM_BUTTON(3),
+    NONE(-1);
+    companion object {
+        private val map = FocusableElementDatePicker.values().associateBy { it.index }
+        operator fun get(value: Int) = map[value]
     }
 }

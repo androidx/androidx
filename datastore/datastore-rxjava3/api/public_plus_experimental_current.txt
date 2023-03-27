@@ -29,7 +29,7 @@ package androidx.datastore.rxjava3 {
     method public static <T> kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.rxjava3.RxDataStore<T>> rxDataStore(String fileName, androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional kotlin.jvm.functions.Function1<? super android.content.Context,? extends java.util.List<? extends androidx.datastore.core.DataMigration<T>>> produceMigrations, optional io.reactivex.rxjava3.core.Scheduler scheduler);
   }
 
-  public interface RxSharedPreferencesMigration<T> {
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface RxSharedPreferencesMigration<T> {
     method public io.reactivex.rxjava3.core.Single<T> migrate(androidx.datastore.migrations.SharedPreferencesView sharedPreferencesView, T? currentData);
     method public default io.reactivex.rxjava3.core.Single<java.lang.Boolean> shouldMigrate(T? currentData);
   }

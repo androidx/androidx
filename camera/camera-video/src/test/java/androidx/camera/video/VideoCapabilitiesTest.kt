@@ -16,13 +16,18 @@
 
 package androidx.camera.video
 
+import android.media.CamcorderProfile.QUALITY_2160P
+import android.media.CamcorderProfile.QUALITY_720P
+import android.media.CamcorderProfile.QUALITY_HIGH
+import android.media.CamcorderProfile.QUALITY_LOW
 import android.os.Build
 import android.util.Size
-import androidx.camera.testing.CamcorderProfileUtil
-import androidx.camera.testing.CamcorderProfileUtil.PROFILE_2160P
-import androidx.camera.testing.CamcorderProfileUtil.PROFILE_720P
-import androidx.camera.testing.fakes.FakeCamcorderProfileProvider
+import androidx.camera.testing.EncoderProfilesUtil
+import androidx.camera.testing.EncoderProfilesUtil.PROFILES_2160P
+import androidx.camera.testing.EncoderProfilesUtil.PROFILES_720P
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
+import androidx.camera.testing.fakes.FakeEncoderProfilesProvider
+import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy
 import androidx.core.util.component1
 import androidx.core.util.component2
 import com.google.common.truth.Truth.assertThat
@@ -32,22 +37,21 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
-private val PROFILE_HIGH = CamcorderProfileUtil.asHighQuality(PROFILE_2160P)
-private val PROFILE_LOW = CamcorderProfileUtil.asLowQuality(PROFILE_720P)
-
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class VideoCapabilitiesTest {
 
     private val cameraInfo = FakeCameraInfoInternal().apply {
-        camcorderProfileProvider = FakeCamcorderProfileProvider.Builder()
-            .addProfile(PROFILE_HIGH) // UHD (2160p) per above definition
-            .addProfile(PROFILE_2160P) // UHD (2160p)
-            .addProfile(PROFILE_720P) // HD (720p)
-            .addProfile(PROFILE_LOW) // HD (720p) per above definition
+        encoderProfilesProvider = FakeEncoderProfilesProvider.Builder()
+            .add(QUALITY_HIGH, PROFILES_2160P) // UHD (2160p) per above definition
+            .add(QUALITY_2160P, PROFILES_2160P) // UHD (2160p)
+            .add(QUALITY_720P, PROFILES_720P) // HD (720p)
+            .add(QUALITY_LOW, PROFILES_720P) // HD (720p) per above definition
             .build()
     }
+    private val validatedProfiles2160p = VideoValidatedEncoderProfilesProxy.from(PROFILES_2160P)
+    private val validatedProfiles720p = VideoValidatedEncoderProfilesProxy.from(PROFILES_720P)
 
     @Test
     fun isQualitySupported() {
@@ -63,23 +67,19 @@ class VideoCapabilitiesTest {
     @Test
     fun getProfile() {
         val videoCapabilities = VideoCapabilities.from(cameraInfo)
-        assertThat(videoCapabilities.getProfile(Quality.HIGHEST))
-            .isEqualTo(PROFILE_2160P)
-        assertThat(videoCapabilities.getProfile(Quality.LOWEST))
-            .isEqualTo(PROFILE_720P)
-        assertThat(videoCapabilities.getProfile(Quality.UHD))
-            .isEqualTo(PROFILE_2160P)
-        assertThat(videoCapabilities.getProfile(Quality.FHD)).isNull()
-        assertThat(videoCapabilities.getProfile(Quality.HD))
-            .isEqualTo(PROFILE_720P)
-        assertThat(videoCapabilities.getProfile(Quality.SD)).isNull()
+        assertThat(videoCapabilities.getProfiles(Quality.HIGHEST)).isEqualTo(validatedProfiles2160p)
+        assertThat(videoCapabilities.getProfiles(Quality.LOWEST)).isEqualTo(validatedProfiles720p)
+        assertThat(videoCapabilities.getProfiles(Quality.UHD)).isEqualTo(validatedProfiles2160p)
+        assertThat(videoCapabilities.getProfiles(Quality.FHD)).isNull()
+        assertThat(videoCapabilities.getProfiles(Quality.HD)).isEqualTo(validatedProfiles720p)
+        assertThat(videoCapabilities.getProfiles(Quality.SD)).isNull()
     }
 
     @Test
     fun findHighestSupportedQuality_returnsHigherQuality() {
         val videoCapabilities = VideoCapabilities.from(cameraInfo)
         // Create a size between 720p and 2160p
-        val (width720p, height720p) = CamcorderProfileUtil.RESOLUTION_720P
+        val (width720p, height720p) = EncoderProfilesUtil.RESOLUTION_720P
         val inBetweenSize = Size(width720p + 10, height720p)
 
         assertThat(videoCapabilities.findHighestSupportedQualityFor(inBetweenSize))
@@ -90,7 +90,7 @@ class VideoCapabilitiesTest {
     fun findHighestSupportedQuality_returnsHighestQuality_whenAboveHighest() {
         val videoCapabilities = VideoCapabilities.from(cameraInfo)
         // Create a size between greater than the max quality (UHD)
-        val (width2160p, height2160p) = CamcorderProfileUtil.RESOLUTION_2160P
+        val (width2160p, height2160p) = EncoderProfilesUtil.RESOLUTION_2160P
         val aboveHighestSize = Size(width2160p + 10, height2160p)
 
         assertThat(videoCapabilities.findHighestSupportedQualityFor(aboveHighestSize))
@@ -101,7 +101,7 @@ class VideoCapabilitiesTest {
     fun findHighestSupportedQuality_returnsLowestQuality_whenBelowLowest() {
         val videoCapabilities = VideoCapabilities.from(cameraInfo)
         // Create a size below the lowest quality (HD)
-        val (width720p, height720p) = CamcorderProfileUtil.RESOLUTION_720P
+        val (width720p, height720p) = EncoderProfilesUtil.RESOLUTION_720P
         val belowLowestSize = Size(width720p - 10, height720p)
 
         assertThat(videoCapabilities.findHighestSupportedQualityFor(belowLowestSize))
@@ -111,51 +111,51 @@ class VideoCapabilitiesTest {
     @Test
     fun findHighestSupportedQuality_returnsExactQuality_whenExactSizeGiven() {
         val videoCapabilities = VideoCapabilities.from(cameraInfo)
-        val exactSize720p = CamcorderProfileUtil.RESOLUTION_720P
+        val exactSize720p = EncoderProfilesUtil.RESOLUTION_720P
 
         assertThat(videoCapabilities.findHighestSupportedQualityFor(exactSize720p))
             .isEqualTo(Quality.HD)
     }
 
     @Test
-    fun findHighestSupportedCamcorderProfileFor_returnsHigherProfile() {
+    fun findHighestSupportedEncoderProfilesFor_returnsHigherProfile() {
         val videoCapabilities = VideoCapabilities.from(cameraInfo)
         // Create a size between 720p and 2160p
-        val (width720p, height720p) = CamcorderProfileUtil.RESOLUTION_720P
+        val (width720p, height720p) = EncoderProfilesUtil.RESOLUTION_720P
         val inBetweenSize = Size(width720p + 10, height720p)
 
-        assertThat(videoCapabilities.findHighestSupportedCamcorderProfileFor(inBetweenSize))
-            .isEqualTo(PROFILE_2160P)
+        assertThat(videoCapabilities.findHighestSupportedEncoderProfilesFor(inBetweenSize))
+            .isEqualTo(validatedProfiles2160p)
     }
 
     @Test
-    fun findHighestSupportedCamcorderProfileFor_returnsHighestProfile_whenAboveHighest() {
+    fun findHighestSupportedEncoderProfilesFor_returnsHighestProfile_whenAboveHighest() {
         val videoCapabilities = VideoCapabilities.from(cameraInfo)
         // Create a size between greater than the max quality (UHD)
-        val (width2160p, height2160p) = CamcorderProfileUtil.RESOLUTION_2160P
+        val (width2160p, height2160p) = EncoderProfilesUtil.RESOLUTION_2160P
         val aboveHighestSize = Size(width2160p + 10, height2160p)
 
-        assertThat(videoCapabilities.findHighestSupportedCamcorderProfileFor(aboveHighestSize))
-            .isEqualTo(PROFILE_2160P)
+        assertThat(videoCapabilities.findHighestSupportedEncoderProfilesFor(aboveHighestSize))
+            .isEqualTo(validatedProfiles2160p)
     }
 
     @Test
-    fun findHighestSupportedCamcorderProfileFor_returnsLowestProfile_whenBelowLowest() {
+    fun findHighestSupportedEncoderProfilesFor_returnsLowestProfile_whenBelowLowest() {
         val videoCapabilities = VideoCapabilities.from(cameraInfo)
         // Create a size below the lowest quality (HD)
-        val (width720p, height720p) = CamcorderProfileUtil.RESOLUTION_720P
+        val (width720p, height720p) = EncoderProfilesUtil.RESOLUTION_720P
         val belowLowestSize = Size(width720p - 10, height720p)
 
-        assertThat(videoCapabilities.findHighestSupportedCamcorderProfileFor(belowLowestSize))
-            .isEqualTo(PROFILE_720P)
+        assertThat(videoCapabilities.findHighestSupportedEncoderProfilesFor(belowLowestSize))
+            .isEqualTo(validatedProfiles720p)
     }
 
     @Test
-    fun findHighestSupportedCamcorderProfileFor_returnsExactProfile_whenExactSizeGiven() {
+    fun findHighestSupportedEncoderProfilesFor_returnsExactProfile_whenExactSizeGiven() {
         val videoCapabilities = VideoCapabilities.from(cameraInfo)
-        val exactSize720p = CamcorderProfileUtil.RESOLUTION_720P
+        val exactSize720p = EncoderProfilesUtil.RESOLUTION_720P
 
-        assertThat(videoCapabilities.findHighestSupportedCamcorderProfileFor(exactSize720p))
-            .isEqualTo(PROFILE_720P)
+        assertThat(videoCapabilities.findHighestSupportedEncoderProfilesFor(exactSize720p))
+            .isEqualTo(validatedProfiles720p)
     }
 }

@@ -44,29 +44,39 @@ public final class RowConstraints {
                     .setToggleAllowed(false)
                     .build();
 
-    /** The constraints for a full-width row in a pane. */
+    /**
+     * The constraints for a row in a pane.
+     *
+     * <p>Note: Toggles are allowed from API >= 6. Old hosts may render bad UI if the
+     * toggles are added to hosts that don't support them.
+     */
     @NonNull
     public static final RowConstraints ROW_CONSTRAINTS_PANE =
             new RowConstraints.Builder()
                     .setMaxActionsExclusive(2)
                     .setImageAllowed(true)
                     .setMaxTextLinesPerRow(2)
-                    .setToggleAllowed(false)
+                    .setToggleAllowed(true)
                     .setOnClickListenerAllowed(false)
                     .build();
 
-    /** The constraints for a simple row (2 rows of text and 1 image */
+    /**
+     * The constraints for a simple row (2 rows of text, 1 image, 1 toggle)
+     *
+     * <p>Note: Toggles are allowed from API >= 6. Old hosts may render bad UI if the
+     * toggles are added to hosts that don't support them.
+     */
     @NonNull
     public static final RowConstraints ROW_CONSTRAINTS_SIMPLE =
             new RowConstraints.Builder()
                     .setMaxActionsExclusive(0)
                     .setImageAllowed(true)
                     .setMaxTextLinesPerRow(2)
-                    .setToggleAllowed(false)
+                    .setToggleAllowed(true)
                     .setOnClickListenerAllowed(true)
                     .build();
 
-    /** The constraints for a full-width row in a list (simple + toggle support). */
+    /** The constraints for a row in a list (simple + toggle support). */
     @NonNull
     public static final RowConstraints ROW_CONSTRAINTS_FULL_LIST =
             new RowConstraints.Builder(ROW_CONSTRAINTS_SIMPLE).setToggleAllowed(true).build();

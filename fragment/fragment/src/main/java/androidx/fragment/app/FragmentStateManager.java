@@ -860,6 +860,16 @@ class FragmentStateManager {
     }
 
     void addViewToContainer() {
+        Fragment expectedParent = FragmentManager.findViewFragment(mFragment.mContainer);
+        Fragment actualParent = mFragment.getParentFragment();
+        // onFindViewById prevents any wrong nested hierarchies when expectedParent is null already
+        if (expectedParent != null) {
+            if (!expectedParent.equals(actualParent)) {
+                FragmentStrictMode.onWrongNestedHierarchy(mFragment, expectedParent,
+                        mFragment.mContainerId);
+            }
+        }
+
         // Ensure that our new Fragment is placed in the right index
         // based on its relative position to Fragments already in the
         // same container

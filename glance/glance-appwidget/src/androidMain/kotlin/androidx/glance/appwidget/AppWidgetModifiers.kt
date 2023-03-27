@@ -32,11 +32,3 @@ internal data class ClipToOutlineModifier(val clip: Boolean) : GlanceModifier.El
  */
 internal fun GlanceModifier.enabled(enabled: Boolean) = this.then(EnabledModifier(enabled))
 internal data class EnabledModifier(val enabled: Boolean) : GlanceModifier.Element
-
-/**
- * An internal AppWidget modifier that specifies that we should not call unsetAction() when applying
- * modifier to the specified item. This prevents the item from becoming clickable.
- */
-internal object DoNotUnsetActionModifier : GlanceModifier.Element
-internal fun GlanceModifier.doNotUnsetAction(): GlanceModifier =
-    this.then(DoNotUnsetActionModifier)

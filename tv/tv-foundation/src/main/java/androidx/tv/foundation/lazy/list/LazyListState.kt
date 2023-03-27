@@ -23,6 +23,7 @@ import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -39,6 +40,7 @@ import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import androidx.tv.foundation.lazy.layout.animateScrollToItem
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -87,6 +89,8 @@ class TvLazyListState constructor(
      */
     private val scrollPosition =
         LazyListScrollPosition(firstVisibleItemIndex, firstVisibleItemScrollOffset)
+
+    private val animateScrollScope = LazyListAnimateScrollScope(this)
 
     /**
      * The index of the first item that is visible.
@@ -214,6 +218,11 @@ class TvLazyListState constructor(
     internal var premeasureConstraints by mutableStateOf(Constraints())
 
     /**
+     * Stores currently pinned items which are always composed.
+     */
+    internal val pinnedItems = LazyLayoutPinnedItemList()
+
+    /**
      * Instantly brings the item at [index] to the top of the viewport, offset by [scrollOffset]
      * pixels.
      *
@@ -261,8 +270,9 @@ class TvLazyListState constructor(
     override val isScrollInProgress: Boolean
         get() = scrollableState.isScrollInProgress
 
-    private var canScrollBackward: Boolean = false
-    internal var canScrollForward: Boolean = false
+    override var canScrollForward: Boolean by mutableStateOf(false)
+        private set
+    override var canScrollBackward: Boolean by mutableStateOf(false)
         private set
 
     // TODO: Coroutine scrolling APIs will allow this to be private again once we have more
@@ -308,7 +318,6 @@ class TvLazyListState constructor(
         }
         val info = layoutInfo
         if (info.visibleItemsInfo.isNotEmpty()) {
-            // check(isActive)
             val scrollingForward = delta < 0
             val indexToPrefetch = if (scrollingForward) {
                 info.visibleItemsInfo.last().index + 1
@@ -334,6 +343,21 @@ class TvLazyListState constructor(
         }
     }
 
+    private fun cancelPrefetchIfVisibleItemsChanged(info: TvLazyListLayoutInfo) {
+        if (indexToPrefetch != -1 && info.visibleItemsInfo.isNotEmpty()) {
+            val expectedPrefetchIndex = if (wasScrollingForward) {
+                info.visibleItemsInfo.last().index + 1
+            } else {
+                info.visibleItemsInfo.first().index - 1
+            }
+            if (indexToPrefetch != expectedPrefetchIndex) {
+                indexToPrefetch = -1
+                currentPrefetchHandle?.cancel()
+                currentPrefetchHandle = null
+            }
+        }
+    }
+
     internal val prefetchState = LazyLayoutPrefetchState()
 
     /**
@@ -349,7 +373,7 @@ class TvLazyListState constructor(
         index: Int,
         scrollOffset: Int = 0
     ) {
-        doSmoothScrollToItem(index, scrollOffset)
+        animateScrollScope.animateScrollToItem(index, scrollOffset)
     }
 
     /**
@@ -367,21 +391,6 @@ class TvLazyListState constructor(
         numMeasurePasses++
 
         cancelPrefetchIfVisibleItemsChanged(result)
-    }
-
-    private fun cancelPrefetchIfVisibleItemsChanged(info: TvLazyListLayoutInfo) {
-        if (indexToPrefetch != -1 && info.visibleItemsInfo.isNotEmpty()) {
-            val expectedPrefetchIndex = if (wasScrollingForward) {
-                info.visibleItemsInfo.last().index + 1
-            } else {
-                info.visibleItemsInfo.first().index - 1
-            }
-            if (indexToPrefetch != expectedPrefetchIndex) {
-                indexToPrefetch = -1
-                currentPrefetchHandle?.cancel()
-                currentPrefetchHandle = null
-            }
-        }
     }
 
     /**
@@ -419,6 +428,7 @@ private object EmptyLazyListLayoutInfo : TvLazyListLayoutInfo {
     override val reverseLayout = false
     override val beforeContentPadding = 0
     override val afterContentPadding = 0
+    override val mainAxisItemSpacing = 0
 }
 
 internal class AwaitFirstLayoutModifier : OnGloballyPositionedModifier {

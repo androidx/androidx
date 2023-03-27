@@ -77,9 +77,6 @@ package androidx.navigation {
     property public Args value;
   }
 
-  public final class NavArgsLazyKt {
-  }
-
   public final class NavArgument {
     method public Object? getDefaultValue();
     method public androidx.navigation.NavType<java.lang.Object> getType();
@@ -123,10 +120,14 @@ package androidx.navigation {
     method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
     property public final android.os.Bundle? arguments;
+    property public androidx.lifecycle.viewmodel.CreationExtras defaultViewModelCreationExtras;
+    property public androidx.lifecycle.ViewModelProvider.Factory defaultViewModelProviderFactory;
     property public final androidx.navigation.NavDestination destination;
     property public final String id;
+    property public androidx.lifecycle.Lifecycle lifecycle;
     property public final androidx.lifecycle.SavedStateHandle savedStateHandle;
     property public androidx.savedstate.SavedStateRegistry savedStateRegistry;
+    property public androidx.lifecycle.ViewModelStore viewModelStore;
   }
 
   public final class NavDeepLink {
@@ -325,6 +326,8 @@ package androidx.navigation {
   @androidx.navigation.Navigator.Name("navigation") public class NavGraphNavigator extends androidx.navigation.Navigator<androidx.navigation.NavGraph> {
     ctor public NavGraphNavigator(androidx.navigation.NavigatorProvider navigatorProvider);
     method public androidx.navigation.NavGraph createDestination();
+    method public final kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.navigation.NavBackStackEntry>> getBackStack();
+    property public final kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.navigation.NavBackStackEntry>> backStack;
   }
 
   public final class NavOptions {
@@ -398,6 +401,7 @@ package androidx.navigation {
     method public abstract T! parseValue(String value);
     method public T! parseValue(String value, T? previousValue);
     method public abstract void put(android.os.Bundle bundle, String key, T? value);
+    method public String serializeAsValue(T? value);
     property public boolean isNullableAllowed;
     property public String name;
     field public static final androidx.navigation.NavType<boolean[]> BoolArrayType;
@@ -502,8 +506,10 @@ package androidx.navigation {
     method public final kotlinx.coroutines.flow.StateFlow<java.util.Set<androidx.navigation.NavBackStackEntry>> getTransitionsInProgress();
     method public void markTransitionComplete(androidx.navigation.NavBackStackEntry entry);
     method @CallSuper public void onLaunchSingleTop(androidx.navigation.NavBackStackEntry backStackEntry);
+    method @CallSuper public void onLaunchSingleTopWithTransition(androidx.navigation.NavBackStackEntry backStackEntry);
     method public void pop(androidx.navigation.NavBackStackEntry popUpTo, boolean saveState);
     method public void popWithTransition(androidx.navigation.NavBackStackEntry popUpTo, boolean saveState);
+    method @CallSuper public void prepareForTransition(androidx.navigation.NavBackStackEntry entry);
     method public void push(androidx.navigation.NavBackStackEntry backStackEntry);
     method public void pushWithTransition(androidx.navigation.NavBackStackEntry backStackEntry);
     property public final kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.navigation.NavBackStackEntry>> backStack;

@@ -16,13 +16,18 @@
 
 package androidx.camera.core.impl;
 
+import android.graphics.SurfaceTexture;
+import android.view.Surface;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.UseCase;
+import androidx.camera.core.streamsharing.StreamSharing;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -131,6 +136,13 @@ public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
     }
 
     /**
+     * Whether the camera is front facing.
+     */
+    default boolean isFrontFacing() {
+        return getCameraInfo().getLensFacing() == CameraSelector.LENS_FACING_FRONT;
+    }
+
+    /**
      * Release the camera.
      *
      * <p>Once the camera is released it is permanently closed. A new instance must be created to
@@ -178,6 +190,19 @@ public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
     @Override
     default CameraInfo getCameraInfo() {
         return getCameraInfoInternal();
+    }
+
+    /**
+     * Whether the camera writes the camera transform to the Surface.
+     *
+     * <p> Camera2 writes the camera transform to the {@link Surface}, which can be used to
+     * correct the output. However, if the producer is not the camera, for example, a OpenGL
+     * renderer in {@link StreamSharing}, then this field will be false.
+     *
+     * @see SurfaceTexture#getTransformMatrix
+     */
+    default boolean getHasTransform() {
+        return true;
     }
 
     /**

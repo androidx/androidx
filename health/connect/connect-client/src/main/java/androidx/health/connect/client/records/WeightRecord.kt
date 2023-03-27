@@ -18,6 +18,7 @@ package androidx.health.connect.client.records
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Mass
+import androidx.health.connect.client.units.kilograms
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -27,15 +28,16 @@ import java.time.ZoneOffset
  * See [Mass] for supported units.
  */
 public class WeightRecord(
-    /** User's weight in kilograms. Required field. Valid range: 0-1000 kilograms. */
-    public val weight: Mass,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
+    /** User's weight in kilograms. Required field. Valid range: 0-1000 kilograms. */
+    public val weight: Mass,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
 
     init {
         weight.requireNotLess(other = weight.zero(), name = "weight")
+        weight.requireNotMore(other = MAX_WEIGHT, name = "weight")
     }
 
     override fun equals(other: Any?): Boolean {
@@ -67,6 +69,7 @@ public class WeightRecord(
     companion object {
         private const val WEIGHT_NAME = "Weight"
         private const val WEIGHT_FIELD = "weight"
+        private val MAX_WEIGHT = 1000.kilograms
 
         /**
          * Metric identifier to retrieve the average weight from

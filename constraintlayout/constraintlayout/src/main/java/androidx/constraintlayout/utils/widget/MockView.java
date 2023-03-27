@@ -26,6 +26,7 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.R;
 
 /**
@@ -102,7 +103,7 @@ public class MockView extends View {
     }
 
     @Override
-    public void onDraw(Canvas canvas) {
+    public void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
         int w = getWidth();
         int h = getHeight();

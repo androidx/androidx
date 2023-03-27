@@ -50,6 +50,14 @@ object LocalesUtils {
         }
     }
 
+    fun getRTLLocaleList(): LocaleListCompat {
+        if (Build.VERSION.SDK_INT >= 24) {
+            return LocaleListCompat.forLanguageTags("ar-AE")
+        } else {
+            return LocaleListCompat.create(Locale("ar-AE"))
+        }
+    }
+
     fun assertConfigurationLocalesEquals(
         expectedLocales: LocaleListCompat,
         context: Context

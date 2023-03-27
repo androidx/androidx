@@ -120,8 +120,7 @@ public class WorkManagerImplLargeExecutorTest {
         Processor processor = new Processor(context,
                 configuration,
                 mWorkManagerImplSpy.getWorkTaskExecutor(),
-                mWorkManagerImplSpy.getWorkDatabase(),
-                Collections.singletonList((Scheduler) trackingScheduler));
+                mWorkManagerImplSpy.getWorkDatabase());
 
         when(mWorkManagerImplSpy.getSchedulers()).thenReturn(
                 Collections.singletonList((Scheduler) trackingScheduler));

@@ -16,24 +16,21 @@
 
 package androidx.room.writer
 
-import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.codegen.VisibilityModifier
+import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
+import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.processing.XNullability
-import androidx.room.ext.L
+import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.RoomTypeNames
-import androidx.room.ext.S
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.FieldWithIndex
 import androidx.room.vo.Pojo
 import androidx.room.vo.ShortcutEntity
 import androidx.room.vo.columnNames
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.ParameterSpec
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeSpec
-import javax.lang.model.element.Modifier.PUBLIC
 
 class EntityInsertionAdapterWriter private constructor(
     val tableName: String,
@@ -67,20 +64,21 @@ class EntityInsertionAdapterWriter private constructor(
         }
     }
 
-    fun createAnonymous(typeWriter: TypeWriter, dbParam: String): TypeSpec {
-        @Suppress("RemoveSingleExpressionStringTemplate")
-        return TypeSpec.anonymousClassBuilder("$L", dbParam).apply {
+    fun createAnonymous(typeWriter: TypeWriter, dbProperty: XPropertySpec): XTypeSpec {
+        return XTypeSpec.anonymousClassBuilder(
+            typeWriter.codeLanguage, "%N", dbProperty
+        ).apply {
             superclass(
-                ParameterizedTypeName.get(
-                    RoomTypeNames.INSERTION_ADAPTER,
-                    pojo.typeName.toJavaPoet()
-                )
+                RoomTypeNames.INSERTION_ADAPTER.parametrizedBy(pojo.typeName)
             )
-            addMethod(
-                MethodSpec.methodBuilder("createQuery").apply {
-                    addAnnotation(Override::class.java)
-                    addModifiers(PUBLIC)
-                    returns(ClassName.get("java.lang", "String"))
+            addFunction(
+                XFunSpec.builder(
+                    language = language,
+                    name = "createQuery",
+                    visibility = VisibilityModifier.PUBLIC,
+                    isOverride = true
+                ).apply {
+                    returns(CommonTypeNames.STRING)
                     val query = buildString {
                         if (onConflict.isNotEmpty()) {
                             append("INSERT OR $onConflict INTO `$tableName`")
@@ -100,34 +98,30 @@ class EntityInsertionAdapterWriter private constructor(
                         )
                         append(")")
                     }
-                    addStatement("return $S", query)
+                    addStatement("return %S", query)
                 }.build()
             )
-            addMethod(
-                MethodSpec.methodBuilder("bind").apply {
-                    val bindScope = CodeGenScope(typeWriter)
-                    addAnnotation(Override::class.java)
-                    addModifiers(PUBLIC)
-                    returns(TypeName.VOID)
-                    val stmtParam = "stmt"
-                    addParameter(
-                        ParameterSpec.builder(
-                            SupportDbTypeNames.SQLITE_STMT,
-                            stmtParam
-                        ).build()
-                    )
-                    val valueParam = "value"
-                    addParameter(
-                        ParameterSpec.builder(pojo.typeName.toJavaPoet(), valueParam).build()
-                    )
+            addFunction(
+                XFunSpec.builder(
+                    language = language,
+                    name = "bind",
+                    visibility = VisibilityModifier.PUBLIC,
+                    isOverride = true
+                ).apply {
+                    returns(XTypeName.UNIT_VOID)
+                    val stmtParam = "statement"
+                    addParameter(SupportDbTypeNames.SQLITE_STMT, stmtParam)
+                    val entityParam = "entity"
+                    addParameter(pojo.typeName, entityParam)
                     val mapped = FieldWithIndex.byOrder(pojo.fields)
+                    val bindScope = CodeGenScope(typeWriter)
                     FieldReadWriteWriter.bindToStatement(
-                        ownerVar = valueParam,
+                        ownerVar = entityParam,
                         stmtParamVar = stmtParam,
                         fieldsWithIndices = mapped,
                         scope = bindScope
                     )
-                    addCode(bindScope.builder().build())
+                    addCode(bindScope.generate())
                 }.build()
             )
         }.build()

@@ -32,7 +32,9 @@ import androidx.core.i18n.DateTimeFormatterSkeletonOptions.Second;
 import androidx.core.i18n.DateTimeFormatterSkeletonOptions.Timezone;
 import androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay;
 import androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year;
+import androidx.core.os.BuildCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -84,7 +86,12 @@ public class CheckTheJavaApisTest {
     }
 
     @Test @SmallTest
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Do not run this test on pre-release Android U.
     public void testSkeletonOptions() {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         final DateTimeFormatterSkeletonOptions.Builder builder =
                 new DateTimeFormatterSkeletonOptions.Builder()
                         .setYear(Year.NUMERIC)
@@ -101,7 +108,9 @@ public class CheckTheJavaApisTest {
 
         DateTimeFormatterSkeletonOptions dateTimeFormatterOptions = builder.build();
         String expected;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        if (BuildCompat.isAtLeastU()) {
+            expected = "Mo., 23. August 2021 n. Chr. um 19:53:47,123 MEZ";
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             expected = "Mo., 23. August 2021 n. Chr., 19:53:47,123 MEZ";
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             expected = "Mo., 23. August 2021 n. Chr., 10:53:47,123 GMT-07:00";
@@ -139,7 +148,9 @@ public class CheckTheJavaApisTest {
 
         // Verify DateTimeFormatterSkeletonOptions.fromString
         dateTimeFormatterOptions = DateTimeFormatterSkeletonOptions.fromString("yMMMMdjmsEEEE");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        if (BuildCompat.isAtLeastU()) {
+            expected = "Montag, 23. August 2021 um 19:53:47";
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             expected = "Montag, 23. August 2021, 19:53:47";
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             expected = "Montag, 23. August 2021, 10:53:47";

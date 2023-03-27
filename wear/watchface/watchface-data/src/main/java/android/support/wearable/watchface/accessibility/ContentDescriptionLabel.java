@@ -34,7 +34,8 @@ import androidx.annotation.RestrictTo;
 
 import java.util.Objects;
 
-/** Holds labels for screen regions which should respond to accessibility events.
+/**
+ * Holds labels for screen regions which should respond to accessibility events.
  *
  * @hide
  */
@@ -120,9 +121,7 @@ public final class ContentDescriptionLabel implements Parcelable {
         return mText;
     }
 
-    /**
-     * Returns the optional {@link PendingIntent} to launch when this label is tapped.
-     */
+    /** Returns the optional {@link PendingIntent} to launch when this label is tapped. */
     @Nullable
     public PendingIntent getTapAction() {
         return mTapAction;

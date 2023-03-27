@@ -22,7 +22,7 @@ import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.XTypeParameterElement
-import androidx.room.compiler.processing.javac.kotlin.KmFunction
+import androidx.room.compiler.processing.javac.kotlin.KmFunctionContainer
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.ElementKind
@@ -51,8 +51,8 @@ internal class JavacMethodElement(
 
     override val typeParameters: List<XTypeParameterElement> by lazy {
         element.typeParameters.mapIndexed { index, typeParameter ->
-            val typeArgument = kotlinMetadata?.typeArguments?.get(index)
-            JavacTypeParameterElement(env, this, typeParameter, typeArgument)
+            val typeParameterMetadata = kotlinMetadata?.typeParameters?.get(index)
+            JavacTypeParameterElement(env, this, typeParameter, typeParameterMetadata)
         }
     }
 
@@ -71,7 +71,7 @@ internal class JavacMethodElement(
         }
     }
 
-    override val kotlinMetadata: KmFunction? by lazy {
+    override val kotlinMetadata: KmFunctionContainer? by lazy {
         (enclosingElement as? JavacTypeElement)?.kotlinMetadata?.getFunctionMetadata(element)
     }
 
@@ -177,4 +177,6 @@ internal class JavacMethodElement(
             env.wrapTypeElement(it)
         }
     }
+
+    override fun isKotlinPropertyMethod() = kotlinMetadata?.isPropertyFunction() ?: false
 }

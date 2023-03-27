@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +31,7 @@ import androidx.leanback.test.R;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
@@ -436,8 +438,13 @@ public class TimePickerTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void testInitiallyActiveTimePicker()
             throws Throwable {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         Intent intent = new Intent();
         intent.putExtra(TimePickerActivity.EXTRA_LAYOUT_RESOURCE_ID,
                 R.layout.timepicker_alone);

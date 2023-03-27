@@ -29,6 +29,7 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation((libs.kotlinCoroutinesAndroid))
     testImplementation(project(":internal-testutils-paging"))
     testImplementation(libs.kotlinTest)
     testImplementation(libs.truth)
@@ -37,10 +38,9 @@ dependencies {
 androidx {
     name = "androidx.paging:paging-testing"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.PAGING
     inceptionYear = "2022"
     description = "Test artifact for Paging implementation"
-    publish = Publish.SNAPSHOT_ONLY
+    publish = Publish.SNAPSHOT_AND_RELEASE
 }
 
 android {

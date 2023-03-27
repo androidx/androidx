@@ -17,32 +17,26 @@
 package androidx.camera.core.imagecapture;
 
 import static android.graphics.ImageFormat.JPEG;
-import static android.graphics.ImageFormat.NV21;
 import static android.graphics.ImageFormat.YUV_420_888;
 
 import static androidx.camera.core.ImageCapture.ERROR_UNKNOWN;
 import static androidx.camera.core.impl.utils.Exif.createFromInputStream;
 import static androidx.camera.core.impl.utils.TransformUtils.updateSensorToBufferTransform;
 import static androidx.camera.core.internal.utils.ImageUtil.jpegImageToJpegByteArray;
-import static androidx.camera.core.internal.utils.ImageUtil.yuv_420_888toNv21;
 
-import static java.nio.ByteBuffer.allocateDirect;
 import static java.util.Objects.requireNonNull;
 
 import android.graphics.Rect;
-import android.graphics.YuvImage;
 import android.os.Build;
-import android.util.Log;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.utils.Exif;
-import androidx.camera.core.impl.utils.ExifData;
-import androidx.camera.core.impl.utils.ExifOutputStream;
-import androidx.camera.core.internal.ByteBufferOutputStream;
+import androidx.camera.core.internal.utils.ImageUtil;
 import androidx.camera.core.processing.Operation;
 import androidx.camera.core.processing.Packet;
 
@@ -50,8 +44,6 @@ import com.google.auto.value.AutoValue;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
 
 /**
  * Converts a {@link ImageProxy} to JPEG bytes.
@@ -86,7 +78,8 @@ final class Image2JpegBytes implements Operation<Image2JpegBytes.In, Packet<byte
                 packet.getSize(),
                 packet.getCropRect(),
                 packet.getRotationDegrees(),
-                packet.getSensorToBufferTransform());
+                packet.getSensorToBufferTransform(),
+                packet.getCameraCaptureResult());
     }
 
     private Packet<byte[]> processYuvImage(@NonNull Image2JpegBytes.In input)
@@ -95,16 +88,17 @@ final class Image2JpegBytes implements Operation<Image2JpegBytes.In, Packet<byte
         ImageProxy image = packet.getData();
         Rect cropRect = packet.getCropRect();
 
-        // Converts YUV_420_888 to NV21.
-        byte[] yuvBytes = yuv_420_888toNv21(image);
-        YuvImage yuvImage = new YuvImage(yuvBytes, NV21, image.getWidth(), image.getHeight(), null);
-
-        // Compress NV21 to JPEG and crop.
-        ByteBuffer buffer = allocateDirect(cropRect.width() * cropRect.height() * 2);
-        OutputStream outputStream = new ExifOutputStream(new ByteBufferOutputStream(buffer),
-                ExifData.create(image, packet.getRotationDegrees()));
-        yuvImage.compressToJpeg(cropRect, input.getJpegQuality(), outputStream);
-        byte[] jpegBytes = byteBufferToByteArray(buffer);
+        byte[] jpegBytes;
+        try {
+            jpegBytes = ImageUtil.yuvImageToJpegByteArray(
+                    image,
+                    cropRect,
+                    input.getJpegQuality(),
+                    packet.getRotationDegrees());
+        } catch (ImageUtil.CodecFailedException e) {
+            throw new ImageCaptureException(ImageCapture.ERROR_FILE_IO,
+                    "Failed to encode the image to JPEG.", e);
+        }
 
         // Return bytes with a new format, size, and crop rect.
         return Packet.of(
@@ -114,16 +108,8 @@ final class Image2JpegBytes implements Operation<Image2JpegBytes.In, Packet<byte
                 new Size(cropRect.width(), cropRect.height()),
                 new Rect(0, 0, cropRect.width(), cropRect.height()),
                 packet.getRotationDegrees(),
-                updateSensorToBufferTransform(packet.getSensorToBufferTransform(), cropRect));
-    }
-
-    private static byte[] byteBufferToByteArray(@NonNull ByteBuffer buffer) {
-        int jpegSize = buffer.position();
-        Log.d("asdf", "jpeg size " + jpegSize);
-        byte[] bytes = new byte[jpegSize];
-        buffer.rewind();
-        buffer.get(bytes, 0, jpegSize);
-        return bytes;
+                updateSensorToBufferTransform(packet.getSensorToBufferTransform(), cropRect),
+                packet.getCameraCaptureResult());
     }
 
     private static Exif extractExif(@NonNull byte[] jpegBytes) throws ImageCaptureException {

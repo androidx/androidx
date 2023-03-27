@@ -22,22 +22,22 @@ import android.view.View
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService
 import kotlin.random.Random
 
-/**
- * Config activity for data source which generates random in [0..100) range
- */
+/** Config activity for data source which generates random in [0..100) range */
 class ConfigActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.config_activity_layout)
 
-        val complicationId = intent.getIntExtra(
-            ComplicationDataSourceService.EXTRA_CONFIG_COMPLICATION_ID, -1)
+        val complicationId =
+            intent.getIntExtra(ComplicationDataSourceService.EXTRA_CONFIG_COMPLICATION_ID, -1)
 
         findViewById<View>(R.id.config_gen_button).setOnClickListener {
             val num = Random.nextInt(100)
-            getSharedPreferences(SHARED_PREF_NAME, 0).edit()
-                .putInt(getKey(complicationId, SHARED_PREF_KEY), num).apply()
+            getSharedPreferences(SHARED_PREF_NAME, 0)
+                .edit()
+                .putInt(getKey(complicationId, SHARED_PREF_KEY), num)
+                .apply()
 
             setResult(RESULT_OK)
             finish()

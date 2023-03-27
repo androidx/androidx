@@ -44,6 +44,7 @@ import androidx.glance.wear.tiles.GlanceTileService
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
 import androidx.glance.wear.tiles.state.updateWearTileState
 
 private val prefsCountKey = intPreferencesKey("count")
@@ -64,6 +65,7 @@ class CountTileService : GlanceTileService() {
             Text(
                 text = currentCount.toString(),
                 style = TextStyle(
+                    color = ColorProvider(Color.Gray),
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
                 )

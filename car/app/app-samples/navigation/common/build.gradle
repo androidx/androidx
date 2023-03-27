@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+import androidx.build.LibraryType
+import androidx.build.Publish
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -36,4 +39,9 @@ dependencies {
     compileOnly libs.kotlinStdlib
     implementation 'androidx.lifecycle:lifecycle-livedata:2.3.1'
     implementation 'androidx.activity:activity:1.2.3'
+}
+
+androidx {
+    type = LibraryType.SAMPLES
+    publish = Publish.NONE
 }

@@ -20,19 +20,25 @@ import android.content.Context
 import android.os.Build
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
+import androidx.glance.Image
+import androidx.glance.ImageProvider
 import androidx.glance.appwidget.ViewSubject.Companion.assertThat
 import androidx.glance.appwidget.test.R
 import androidx.glance.layout.Column
+import androidx.glance.layout.ContentScale
 import androidx.glance.layout.Row
 import androidx.glance.layout.fillMaxHeight
+import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.width
 import androidx.glance.layout.wrapContentHeight
+import androidx.glance.layout.wrapContentSize
 import androidx.glance.layout.wrapContentWidth
 import androidx.glance.text.Text
 import androidx.test.core.app.ApplicationProvider
@@ -259,6 +265,89 @@ class ApplyDimensionModifierTest {
             assertThat(sizeView.minHeight).isEqualTo(targetHeight)
             assertThat(sizeView.maxHeight).isEqualTo(targetHeight)
         }
+    }
+
+    @Test
+    fun wrappedFitImageAdjustsSize() = fakeCoroutineScope.runTest {
+        // Any dimension set to wrap should cause the view bounds to be adjusted
+        setOf(
+            GlanceModifier.wrapContentSize(),
+            GlanceModifier.wrapContentWidth().fillMaxHeight(),
+            GlanceModifier.fillMaxWidth().wrapContentHeight(),
+            GlanceModifier.width(100.dp).wrapContentHeight(),
+            GlanceModifier.wrapContentWidth().height(100.dp)
+        ).forEach { sizeModifier ->
+            val imageView = getSizedAndTranslatedImageView(sizeModifier, ContentScale.Fit)
+            assertThat(imageView?.adjustViewBounds).isEqualTo(true)
+        }
+    }
+
+    @Test
+    fun cropImageDoesntAdjustsSize() = fakeCoroutineScope.runTest {
+        // If the contentScale is crop, never adjust the view bounds
+        setOf(
+            GlanceModifier.wrapContentSize(),
+            GlanceModifier.wrapContentWidth().fillMaxHeight(),
+            GlanceModifier.fillMaxWidth().wrapContentHeight(),
+            GlanceModifier.width(100.dp).wrapContentHeight(),
+            GlanceModifier.wrapContentWidth().height(100.dp),
+            GlanceModifier.fillMaxSize(),
+            GlanceModifier.width(100.dp).height(100.dp),
+            GlanceModifier.fillMaxWidth().height(100.dp),
+            GlanceModifier.width(100.dp).fillMaxHeight()
+        ).forEach { sizeModifier ->
+            val imageView = getSizedAndTranslatedImageView(sizeModifier, ContentScale.Crop)
+            assertThat(imageView?.adjustViewBounds).isEqualTo(false)
+        }
+    }
+
+    @Test
+    fun fillImageDoesntAdjustsSize() = fakeCoroutineScope.runTest {
+        // Image with FillBounds contentScale should never set adjust view bounds
+        setOf(
+            GlanceModifier.wrapContentSize(),
+            GlanceModifier.wrapContentWidth().fillMaxHeight(),
+            GlanceModifier.fillMaxWidth().wrapContentHeight(),
+            GlanceModifier.width(100.dp).wrapContentHeight(),
+            GlanceModifier.wrapContentWidth().height(100.dp),
+            GlanceModifier.fillMaxSize(),
+            GlanceModifier.width(100.dp).height(100.dp),
+            GlanceModifier.fillMaxWidth().height(100.dp),
+            GlanceModifier.width(100.dp).fillMaxHeight()
+        ).forEach { sizeModifier ->
+            val imageView = getSizedAndTranslatedImageView(sizeModifier, ContentScale.FillBounds)
+            assertThat(imageView?.adjustViewBounds).isEqualTo(false)
+        }
+    }
+
+    @Test
+    fun nonwrappedFitImageDoesntAdjustsSize() = fakeCoroutineScope.runTest {
+        // No dimension set to wrap should not cause the view bounds to be adjusted
+        setOf(
+            GlanceModifier.fillMaxSize(),
+            GlanceModifier.width(100.dp).fillMaxHeight(),
+            GlanceModifier.fillMaxWidth().height(100.dp),
+            GlanceModifier.width(100.dp).height(100.dp)
+        ).forEach { sizeModifier ->
+            val imageView = getSizedAndTranslatedImageView(sizeModifier, ContentScale.Fit)
+            assertThat(imageView?.adjustViewBounds).isEqualTo(false)
+        }
+    }
+
+    private suspend fun getSizedAndTranslatedImageView(
+        modifier: GlanceModifier,
+        contentScale: ContentScale
+    ): ImageView? {
+        val rv = context.runAndTranslate {
+            Image(
+                provider = ImageProvider(resId = R.drawable.glance_button_outline),
+                contentDescription = "TEST",
+                modifier = modifier,
+                contentScale = contentScale
+            )
+        }
+
+        return context.applyRemoteViews(rv).findViewByType()
     }
 
     private fun getSizingView(view: View): TextView {

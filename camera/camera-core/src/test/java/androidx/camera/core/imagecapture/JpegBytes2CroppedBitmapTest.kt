@@ -23,6 +23,7 @@ import android.graphics.Matrix
 import android.graphics.Rect
 import android.os.Build
 import android.util.Size
+import androidx.camera.core.imagecapture.Utils.CAMERA_CAPTURE_RESULT
 import androidx.camera.core.imagecapture.Utils.HEIGHT
 import androidx.camera.core.imagecapture.Utils.WIDTH
 import androidx.camera.core.processing.Packet
@@ -60,7 +61,8 @@ class JpegBytes2CroppedBitmapTest {
             Size(WIDTH, HEIGHT),
             cropRect,
             90,
-            transform
+            transform,
+            CAMERA_CAPTURE_RESULT
         )
 
         // Act.
@@ -75,6 +77,7 @@ class JpegBytes2CroppedBitmapTest {
         assertThat(output.format).isEqualTo(ImageFormat.FLEX_RGBA_8888)
         assertThat(output.size).isEqualTo(Size(cropRect.width(), cropRect.height()))
         assertThat(output.rotationDegrees).isEqualTo(input.rotationDegrees)
+        assertThat(output.cameraCaptureResult).isEqualTo(CAMERA_CAPTURE_RESULT)
         // Assert: after mirroring and cropping, the bottom-right corner should map to the
         // bottom-left corner in the new image.
         val points = floatArrayOf(WIDTH.toFloat(), HEIGHT.toFloat())

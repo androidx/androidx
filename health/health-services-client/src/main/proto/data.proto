@@ -170,19 +170,42 @@ message ExerciseCapabilities {
     reserved 3 to max;  // Next ID
   }
   repeated TypeToCapabilitiesEntry type_to_capabilities = 1;
+  repeated BatchingMode supported_batching_mode_overrides = 2 [packed = true];
+  reserved 3 to max;  // Next ID
+}
+
+enum BatchingMode {
+  BATCHING_MODE_UNKNOWN = 0;
+  BATCHING_MODE_HEART_RATE_5_SECONDS = 1;
   reserved 2 to max;  // Next ID
+}
+
+enum GolfShotTrackingPlaceInfoType {
+  GOLF_SHOT_TRACKING_PLACE_INFO_UNSPECIFIED = 0;
+  GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY = 1;
+  GOLF_SHOT_TRACKING_PLACE_INFO_PUTTING_GREEN = 2;
+  GOLF_SHOT_TRACKING_PLACE_INFO_TEE_BOX = 3;
+  reserved 4 to max; // Next ID
+}
+
+message ExerciseTypeConfig {
+  optional GolfShotTrackingPlaceInfoType golf_shot_tracking_place_info = 1;
+  reserved 2 to max; // Next ID
 }
 
 message ExerciseConfig {
   optional ExerciseType exercise_type = 1;
   repeated DataType data_types = 2;
   repeated DataType aggregate_data_types = 3;
-  optional bool is_auto_pause_and_resume_enabled = 4; // TODO(sarakato): Move to dynamicExericseConfig
+  optional bool is_auto_pause_and_resume_enabled = 4;
   optional bool is_gps_usage_enabled = 5;
   repeated ExerciseGoal exercise_goals = 6;
   optional Bundle exercise_params = 7; // TODO(b/241015676): Deprecate
   optional float swimming_pool_length = 8;
-  reserved 9 to max;  // Next ID
+  optional ExerciseTypeConfig exercise_type_config = 10;
+  repeated BatchingMode batching_mode_overrides = 11 [packed = true];
+  reserved 9;
+  reserved 12 to max;  // Next ID
 }
 
 message ExerciseInfo {
@@ -240,7 +263,8 @@ enum ExerciseState {
   EXERCISE_STATE_TERMINATING = 13;
   EXERCISE_STATE_TERMINATED = 14;
   EXERCISE_STATE_ENDED = 18;
-  reserved 19 to max;  // Next ID
+  EXERCISE_STATE_ENDING = 19;
+  reserved 20 to max;  // Next ID
 }
 
 enum ExerciseTrackedStatus {

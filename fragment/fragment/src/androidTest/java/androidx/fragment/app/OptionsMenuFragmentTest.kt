@@ -36,11 +36,14 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O) // Previous SDK levels have issues passing
@@ -48,9 +51,14 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class OptionsMenuFragmentTest {
+
     @Suppress("DEPRECATION")
-    @get:Rule
     var activityRule = androidx.test.rule.ActivityTestRule(FragmentTestActivity::class.java)
+
+    // Detect leaks BEFORE and AFTER activity is destroyed
+    @get:Rule
+    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
+        .around(activityRule)
 
     @Test
     fun fragmentWithOptionsMenu() {
@@ -71,7 +79,7 @@ class OptionsMenuFragmentTest {
     @LargeTest
     @Test
     fun setMenuVisibilityShowHide() {
-        with(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+       withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
             val fm = withActivity { supportFragmentManager }
 
             val fragment = MenuFragment()

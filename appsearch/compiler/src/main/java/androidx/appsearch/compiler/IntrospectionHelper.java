@@ -25,6 +25,7 @@ import com.google.auto.value.AutoValue;
 import com.squareup.javapoet.ClassName;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
@@ -209,8 +210,8 @@ class IntrospectionHelper {
      * class at the top of the hierarchy and descending down the class hierarchy
      */
     @NonNull
-    public static Collection<TypeElement> generateClassHierarchy(@NonNull TypeElement element,
-            boolean isAutoValueDocument)
+    public static List<TypeElement> generateClassHierarchy(
+            @NonNull TypeElement element, boolean isAutoValueDocument)
             throws ProcessingException {
         Deque<TypeElement> hierarchy = new ArrayDeque<>();
         if (isAutoValueDocument) {
@@ -246,7 +247,7 @@ class IntrospectionHelper {
                 currentClass = MoreTypes.asTypeElement(currentClass.getSuperclass());
             }
         }
-        return hierarchy;
+        return new ArrayList<>(hierarchy);
     }
 
     enum PropertyClass {

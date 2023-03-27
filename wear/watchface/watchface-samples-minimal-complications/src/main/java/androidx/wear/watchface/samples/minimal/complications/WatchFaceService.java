@@ -46,9 +46,7 @@ import org.jetbrains.annotations.NotNull;
 public class WatchFaceService extends ListenableWatchFaceService {
     public static final RectF COMPLICATION_BOUNDS = new RectF(.3f, 0.7f, .7f, .9f);
 
-    /**
-     * Returns complication id that was specified in XML.
-     */
+    /** Returns complication id that was specified in XML. */
     public static int getComplicationId(@NonNull Resources resources) {
         return resources.getInteger(R.integer.complication_slot_id);
     }
@@ -72,8 +70,7 @@ public class WatchFaceService extends ListenableWatchFaceService {
                         .setComplicationDeniedDialogIntent(
                                 new Intent(this, ComplicationDeniedActivity.class))
                         .setComplicationRationaleDialogIntent(
-                                new Intent(this, ComplicationRationalActivity.class))
-        );
+                                new Intent(this, ComplicationRationalActivity.class)));
     }
 
     @NotNull
@@ -87,9 +84,7 @@ public class WatchFaceService extends ListenableWatchFaceService {
             public CanvasComplicationFactory getCanvasComplicationFactory(int slotId) {
                 return (watchState, invalidateCallback) ->
                         new CanvasComplicationDrawable(
-                                new ComplicationDrawable(context),
-                                watchState,
-                                invalidateCallback);
+                                new ComplicationDrawable(context), watchState, invalidateCallback);
             }
         };
     }

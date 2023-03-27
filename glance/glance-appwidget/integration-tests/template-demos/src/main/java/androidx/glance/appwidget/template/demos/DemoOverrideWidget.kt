@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceTheme
 import androidx.glance.ImageProvider
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
@@ -51,35 +52,40 @@ class DemoOverrideWidget : GlanceTemplateAppWidget() {
 
     @Composable
     override fun TemplateContent() {
-        if (LocalTemplateMode.current == TemplateMode.Horizontal) {
-            MyHorizontalContent()
-        } else {
-            SingleEntityTemplate(
-                SingleEntityTemplateData(
-                    headerBlock = HeaderBlock(
-                        text = TemplateText("Single Entity Demo", TextType.Title),
-                        icon = TemplateImageWithDescription(
-                            ImageProvider(R.drawable.compose),
-                            "icon"
+        GlanceTheme {
+            if (LocalTemplateMode.current == TemplateMode.Horizontal) {
+                MyHorizontalContent()
+            } else {
+                SingleEntityTemplate(
+                    SingleEntityTemplateData(
+                        headerBlock = HeaderBlock(
+                            text = TemplateText("Single Entity Demo", TextType.Title),
+                            icon = TemplateImageWithDescription(
+                                ImageProvider(R.drawable.ic_widgets),
+                                "icon"
+                            ),
                         ),
-                    ),
-                    textBlock = TextBlock(
-                        text1 = TemplateText("title", TextType.Title),
-                        text2 = TemplateText("Subtitle", TextType.Label),
-                        text3 = TemplateText(
-                            "Body Lorem ipsum dolor sit amet, consectetur adipiscing",
-                            TextType.Label
+                        textBlock = TextBlock(
+                            text1 = TemplateText("title", TextType.Title),
+                            text2 = TemplateText("Subtitle", TextType.Label),
+                            text3 = TemplateText(
+                                "Body Lorem ipsum dolor sit amet, consectetur adipiscing",
+                                TextType.Label
+                            ),
+                            priority = 0,
                         ),
-                        priority = 0,
-                    ),
-                    imageBlock = ImageBlock(
-                        images = listOf(
-                            TemplateImageWithDescription(ImageProvider(R.drawable.compose), "image")
+                        imageBlock = ImageBlock(
+                            images = listOf(
+                                TemplateImageWithDescription(
+                                    ImageProvider(R.drawable.palm_leaf),
+                                    "image"
+                                )
+                            ),
+                            priority = 1,
                         ),
-                        priority = 1,
-                    ),
+                    )
                 )
-            )
+            }
         }
     }
 

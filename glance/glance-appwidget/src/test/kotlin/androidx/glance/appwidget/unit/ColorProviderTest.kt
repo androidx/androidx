@@ -24,6 +24,7 @@ import androidx.glance.unit.ColorProvider
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import androidx.glance.appwidget.ColorSubject.Companion.assertThat
+import androidx.glance.color.ColorProvider
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -37,65 +38,11 @@ class ColorProviderTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
     @Test
-    fun createCheckableColorProvider_checkedNull_uncheckedNull_shouldFallBackToSingleResource() {
-        val provider = createCheckableColorProvider(
-            source = "ColorProviderTest",
-            checked = null,
-            unchecked = null,
-            fallback = R.color.my_checkbox_colors
-        )
-
-        assertIs<ResourceCheckableColorProvider>(provider)
-        assertThat(provider.resId).isEqualTo(R.color.my_checkbox_colors)
-    }
-
-    @Test
-    fun createCheckableColorProvider_checkedNull_uncheckedNotNull_shouldUseCheckedFromFallback() {
-        val provider = createCheckableColorProvider(
-            source = "ColorProviderTest",
-            checked = null,
-            unchecked = ColorProvider(day = Color.Red, night = Color.Yellow),
-            fallback = R.color.my_checkbox_colors
-        )
-
-        assertIs<CheckedUncheckedColorProvider>(provider)
-        assertThat(provider.getColor(context, isNightMode = false, isChecked = true))
-            .isSameColorAs("#FF0000")
-        assertThat(provider.getColor(context, isNightMode = true, isChecked = true))
-            .isSameColorAs("#FFFF00")
-        assertThat(provider.getColor(context, isNightMode = false, isChecked = false))
-            .isSameColorAs(Color.Red)
-        assertThat(provider.getColor(context, isNightMode = true, isChecked = false))
-            .isSameColorAs(Color.Yellow)
-    }
-
-    @Test
-    fun createCheckableColorProvider_checkedNotNull_uncheckedNull_shouldUseUncheckedFromFallback() {
-        val provider = createCheckableColorProvider(
-            source = "ColorProviderTest",
-            checked = ColorProvider(day = Color.Blue, night = Color.Green),
-            unchecked = null,
-            fallback = R.color.my_checkbox_colors
-        )
-
-        assertIs<CheckedUncheckedColorProvider>(provider)
-        assertThat(provider.getColor(context, isNightMode = false, isChecked = true))
-            .isSameColorAs(Color.Blue)
-        assertThat(provider.getColor(context, isNightMode = true, isChecked = true))
-            .isSameColorAs(Color.Green)
-        assertThat(provider.getColor(context, isNightMode = false, isChecked = false))
-            .isSameColorAs("#0000FF")
-        assertThat(provider.getColor(context, isNightMode = true, isChecked = false))
-            .isSameColorAs("#00FFFF")
-    }
-
-    @Test
     fun createCheckableColorProvider_checkedNotNull_uncheckedNotNull_shouldNotUseFallback() {
         val provider = createCheckableColorProvider(
             source = "ColorProviderTest",
             checked = ColorProvider(day = Color.Blue, night = Color.Green),
             unchecked = ColorProvider(day = Color.Red, night = Color.Yellow),
-            fallback = R.color.my_checkbox_colors
         )
 
         assertIs<CheckedUncheckedColorProvider>(provider)
@@ -115,7 +62,6 @@ class ColorProviderTest {
             source = "ColorProviderTest",
             checked = ColorProvider(Color.Blue),
             unchecked = ColorProvider(Color.Red),
-            fallback = R.color.my_checkbox_colors
         )
 
         assertIs<CheckedUncheckedColorProvider>(provider)
@@ -136,7 +82,6 @@ class ColorProviderTest {
                 source = "ColorProviderTest",
                 checked = ColorProvider(day = Color.Blue, night = Color.Green),
                 unchecked = ColorProvider(R.color.my_checkbox_colors),
-                fallback = R.color.my_checkbox_colors
             )
         }
     }
@@ -148,7 +93,6 @@ class ColorProviderTest {
                 source = "ColorProviderTest",
                 checked = ColorProvider(R.color.my_checkbox_colors),
                 unchecked = ColorProvider(Color.Blue),
-                fallback = R.color.my_checkbox_colors
             )
         }
     }

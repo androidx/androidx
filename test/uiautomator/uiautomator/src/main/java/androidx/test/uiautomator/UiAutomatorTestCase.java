@@ -21,6 +21,8 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.test.InstrumentationTestCase;
 
+import androidx.annotation.NonNull;
+
 /**
  * UI Automator test case that is executed on the device.
  * @deprecated It is no longer necessary to extend UiAutomatorTestCase. You can use
@@ -37,7 +39,6 @@ public class UiAutomatorTestCase extends InstrumentationTestCase {
     /**
      * Get current instance of {@link UiDevice}. Works similar to calling the static
      * {@link UiDevice#getInstance()} from anywhere in the test classes.
-     * @since API Level 16
      */
     public UiDevice getUiDevice() {
         return mDevice;
@@ -47,7 +48,6 @@ public class UiAutomatorTestCase extends InstrumentationTestCase {
      * Get command line parameters. On the command line when passing <code>-e key value</code>
      * pairs, the {@link Bundle} will have the key value pairs conveniently available to the
      * tests.
-     * @since API Level 16
      */
     public Bundle getParams() {
         return mParams;
@@ -57,13 +57,15 @@ public class UiAutomatorTestCase extends InstrumentationTestCase {
      * Provides support for running tests to report interim status
      *
      * @return IAutomationSupport
-     * @since API Level 16
      * @deprecated Use {@link Instrumentation#sendStatus(int, Bundle)} instead
      */
     @Deprecated
     public IAutomationSupport getAutomationSupport() {
         if (mAutomationSupport == null) {
-            mAutomationSupport = new InstrumentationAutomationSupport(getInstrumentation());
+            Instrumentation instrumentation =  getInstrumentation();
+            mAutomationSupport = (int resultCode, @NonNull Bundle status) -> {
+                instrumentation.sendStatus(resultCode, status);
+            };
         }
         return mAutomationSupport;
     }
@@ -84,14 +86,13 @@ public class UiAutomatorTestCase extends InstrumentationTestCase {
         if (monkeyVal != null) {
             // only if the monkey key is specified, we alter the state of monkey
             // else we should leave things as they are.
-            getUiDevice().getUiAutomation().setRunAsMonkey(Boolean.valueOf(monkeyVal));
+            getUiDevice().getUiAutomation().setRunAsMonkey(Boolean.parseBoolean(monkeyVal));
         }
     }
 
     /**
      * Calls {@link SystemClock#sleep(long)} to sleep
      * @param ms is in milliseconds.
-     * @since API Level 16
      * @deprecated Use {@link SystemClock#sleep(long)} instead.
      */
     @Deprecated

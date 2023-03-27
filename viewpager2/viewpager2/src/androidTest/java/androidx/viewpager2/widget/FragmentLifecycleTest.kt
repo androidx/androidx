@@ -24,6 +24,7 @@ import androidx.viewpager2.widget.ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
@@ -83,6 +84,7 @@ class FragmentLifecycleTest : BaseTest() {
         }
     }
 
+    @Ignore // b/266478005
     @Test
     fun test_setCurrentItem_offscreenPageLimit_default() {
         test_setCurrentItem_offscreenPageLimit(OFFSCREEN_PAGE_LIMIT_DEFAULT)

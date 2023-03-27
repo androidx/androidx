@@ -487,9 +487,10 @@ class WindowInsetsControllerPlayground : Activity() {
 
     private fun setupBehaviorSpinner() {
         val types = mapOf(
-            "BY TOUCH" to WindowInsetsControllerCompat.BEHAVIOR_SHOW_BARS_BY_TOUCH,
-            "BY SWIPE" to WindowInsetsControllerCompat.BEHAVIOR_SHOW_BARS_BY_SWIPE,
+            "DEFAULT" to WindowInsetsControllerCompat.BEHAVIOR_DEFAULT,
             "TRANSIENT" to WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE,
+            "BY TOUCH (Deprecated)" to WindowInsetsControllerCompat.BEHAVIOR_SHOW_BARS_BY_TOUCH,
+            "BY SWIPE (Deprecated)" to WindowInsetsControllerCompat.BEHAVIOR_SHOW_BARS_BY_SWIPE,
         )
         findViewById<Spinner>(R.id.spn_behavior).apply {
             adapter = ArrayAdapter(

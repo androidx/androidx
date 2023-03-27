@@ -16,6 +16,8 @@
 
 package androidx.tv.foundation
 
+import androidx.compose.runtime.Immutable
+
 /**
  * Holds the offsets needed for scrolling-with-offset.
  *
@@ -25,6 +27,7 @@ package androidx.tv.foundation
  * {@property childFraction} defines the offset of the starting edge of the child from
  * the pivot defined by parentFraction. This value should be between 0 and 1.
  */
+@Immutable
 class PivotOffsets constructor(
     val parentFraction: Float = 0.3f,
     val childFraction: Float = 0f

@@ -8,16 +8,16 @@ import kotlin.Suppress
 import kotlin.Unit
 
 @Generated(value = ["androidx.room.RoomProcessor"])
-@Suppress(names = ["unchecked", "deprecation"])
-public class MyDatabase_AutoMigration_1_2_Impl : Migration {
+@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION"])
+internal class MyDatabase_AutoMigration_1_2_Impl : Migration {
     private val callback: AutoMigrationSpec
 
     public constructor(callback: AutoMigrationSpec) : super(1, 2) {
         this.callback = callback
     }
 
-    public override fun migrate(database: SupportSQLiteDatabase): Unit {
-        database.execSQL("ALTER TABLE `Song` ADD COLUMN `artistId` INTEGER DEFAULT NULL")
-        callback.onPostMigrate(database)
+    public override fun migrate(db: SupportSQLiteDatabase): Unit {
+        db.execSQL("ALTER TABLE `Song` ADD COLUMN `artistId` INTEGER DEFAULT NULL")
+        callback.onPostMigrate(db)
     }
 }

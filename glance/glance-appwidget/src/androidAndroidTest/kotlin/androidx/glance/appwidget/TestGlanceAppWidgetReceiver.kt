@@ -17,21 +17,44 @@
 package androidx.glance.appwidget
 
 import android.content.Context
+import android.content.Intent
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.glance.GlanceId
 
 class TestGlanceAppWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = TestGlanceAppWidget
+    companion object {
+        var ignoreBroadcasts = false
+    }
+
+    override fun onReceive(context: Context, intent: Intent) {
+        if (VERBOSE_LOG) {
+            Log.d(RECEIVER_TEST_TAG, "Test Receiver onReceive ${intent.action}")
+        }
+
+        if (ignoreBroadcasts) {
+            Log.w("TestGlanceAppWidgetReceiver", "Ignored $intent")
+            return
+        }
+        super.onReceive(context, intent)
+    }
 }
 
 object TestGlanceAppWidget : GlanceAppWidget(errorUiLayout = 0) {
 
     override var sizeMode: SizeMode = SizeMode.Single
 
-    @Composable
-    override fun Content() {
-        uiDefinition()
+    override suspend fun provideGlance(
+        context: Context,
+        id: GlanceId
+    ) {
+        onProvideGlance?.invoke(this)
+        onProvideGlance = null
+        provideContent(uiDefinition)
     }
+
+    var onProvideGlance: (suspend TestGlanceAppWidget.() -> Unit)? = null
 
     private var onDeleteBlock: ((GlanceId) -> Unit)? = null
 

@@ -24,16 +24,32 @@ import androidx.compose.runtime.Immutable
 @Immutable
 internal class DslConstraintSet constructor(
     val description: ConstraintSetScope.() -> Unit,
-    override val extendFrom: ConstraintSet? = null
+    extendFrom: ConstraintSet? = null
 ) : DerivedConstraintSet {
+    internal val scope: ConstraintSetScope =
+        ConstraintSetScope(
+            extendFrom = (extendFrom as? DslConstraintSet)?.scope?.containerObject
+        ).apply(description)
+
+    override val extendFrom: ConstraintSet? = null // Not needed
+
     override fun applyToState(state: State) {
-        val scope = ConstraintSetScope()
-        scope.description()
         scope.applyTo(state)
     }
 
     override fun override(name: String, value: Float): ConstraintSet {
         // nothing yet
         return this
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other is DslConstraintSet) {
+            return scope == other.scope
+        }
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return scope.hashCode()
     }
 }

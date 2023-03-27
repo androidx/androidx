@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.content.Context
+import android.content.pm.PackageManager.FEATURE_CAMERA_CONCURRENT
 import android.graphics.Point
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
@@ -34,15 +35,17 @@ import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.Logger
 import androidx.camera.core.impl.AttachedSurfaceInfo
-import androidx.camera.core.impl.CamcorderProfileProxy
+import androidx.camera.core.impl.EncoderProfilesProxy
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.ImageOutputConfig
+import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.SurfaceCombination
 import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.SurfaceSizeDefinition
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.utils.AspectRatioUtil
-import androidx.camera.core.impl.utils.AspectRatioUtil.CompareAspectRatiosByDistanceToTargetRatio
+import androidx.camera.core.impl.utils.AspectRatioUtil.CompareAspectRatiosByMappingAreaInFullFovAspectRatioSpace
+import androidx.camera.core.impl.utils.AspectRatioUtil.hasMatchingAspectRatio
 import androidx.camera.core.impl.utils.CameraOrientationUtil
 import androidx.camera.core.impl.utils.CompareSizesByArea
 import androidx.camera.core.internal.utils.SizeUtil
@@ -67,17 +70,15 @@ import java.util.Collections
 // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class SupportedSurfaceCombination(
     context: Context,
-    cameraMetadata: CameraMetadata,
-    cameraId: String,
-    camcorderProfileProviderAdapter: CamcorderProfileProviderAdapter
+    private val cameraMetadata: CameraMetadata,
+    private val encoderProfilesProviderAdapter: EncoderProfilesProviderAdapter
 ) {
-    private val cameraMetadata = cameraMetadata
-    private val cameraId = cameraId
-    private val camcorderProfileProviderAdapter = camcorderProfileProviderAdapter
+    private val cameraId = cameraMetadata.camera.value
     private val hardwareLevel =
         cameraMetadata[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL]
             ?: CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
     private val isSensorLandscapeResolution = isSensorLandscapeResolution(cameraMetadata)
+    private val concurrentSurfaceCombinations: MutableList<SurfaceCombination> = ArrayList()
     private val surfaceCombinations: MutableList<SurfaceCombination> = ArrayList()
     private val outputSizesCache: MutableMap<Int, Array<Size>> = HashMap()
     private var isRawSupported = false
@@ -85,10 +86,15 @@ class SupportedSurfaceCombination(
     internal lateinit var surfaceSizeDefinition: SurfaceSizeDefinition
     private val displayManager: DisplayManager =
         (context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
+    private val activeArraySize =
+        cameraMetadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]
 
     init {
         checkCapabilities()
         generateSupportedCombinationList()
+        if (context.packageManager.hasSystemFeature(FEATURE_CAMERA_CONCURRENT)) {
+            generateConcurrentSupportedCombinationList()
+        }
         generateSurfaceSizeDefinition()
     }
 
@@ -96,11 +102,18 @@ class SupportedSurfaceCombination(
      * Check whether the input surface configuration list is under the capability of any combination
      * of this object.
      *
+     * @param isConcurrentCameraModeOn true if concurrent camera mode is on, otherwise false.
      * @param surfaceConfigList the surface configuration list to be compared
      * @return the check result that whether it could be supported
      */
-    fun checkSupported(surfaceConfigList: List<SurfaceConfig>): Boolean {
-        for (surfaceCombination in surfaceCombinations) {
+    fun checkSupported(
+        isConcurrentCameraModeOn: Boolean,
+        surfaceConfigList: List<SurfaceConfig>
+    ): Boolean {
+        // TODO(b/262772650): camera-pipe support for concurrent camera
+        val targetSurfaceCombinations = if (isConcurrentCameraModeOn)
+            concurrentSurfaceCombinations else surfaceCombinations
+        for (surfaceCombination in targetSurfaceCombinations) {
             if (surfaceCombination.isSupported(surfaceConfigList)) {
                 return true
             }
@@ -111,29 +124,38 @@ class SupportedSurfaceCombination(
     /**
      * Transform to a SurfaceConfig object with image format and size info
      *
+     * @param isConcurrentCameraModeOn true if concurrent camera mode is on, otherwise false.
      * @param imageFormat the image format info for the surface configuration object
      * @param size        the size info for the surface configuration object
      * @return new [SurfaceConfig] object
      */
-    fun transformSurfaceConfig(imageFormat: Int, size: Size): SurfaceConfig {
-        return SurfaceConfig.transformSurfaceConfig(imageFormat, size, surfaceSizeDefinition)
+    fun transformSurfaceConfig(
+        isConcurrentCameraModeOn: Boolean,
+        imageFormat: Int,
+        size: Size
+    ): SurfaceConfig {
+        val maxOutputSizeForConcurrentMode = if (isConcurrentCameraModeOn)
+            getMaxOutputSizeByFormat(imageFormat) else null
+        return SurfaceConfig.transformSurfaceConfig(isConcurrentCameraModeOn,
+            imageFormat, size, surfaceSizeDefinition, maxOutputSizeForConcurrentMode)
     }
 
     /**
-     * Finds the suggested resolutions of the newly added UseCaseConfig.
+     * Finds the suggested stream specification of the newly added UseCaseConfig.
      *
+     * @param isConcurrentCameraModeOn true if concurrent camera mode is on, otherwise false.
      * @param existingSurfaces  the existing surfaces.
      * @param newUseCaseConfigs newly added UseCaseConfig.
-     * @return the suggested resolutions, which is a mapping from UseCaseConfig to the suggested
-     * resolution.
+     * @return the suggested stream specs, which is a mapping from UseCaseConfig to the suggested
+     * stream specification.
      * @throws IllegalArgumentException if the suggested solution for newUseCaseConfigs cannot be
-     * found. This may be due to no available output size or no
-     * available surface combination.
+     * found. This may be due to no available output size or no available surface combination.
      */
-    fun getSuggestedResolutions(
+    fun getSuggestedStreamSpecifications(
+        isConcurrentCameraModeOn: Boolean,
         existingSurfaces: List<AttachedSurfaceInfo>,
         newUseCaseConfigs: List<UseCaseConfig<*>>
-    ): Map<UseCaseConfig<*>, Size> {
+    ): Map<UseCaseConfig<*>, StreamSpec> {
         refreshPreviewSize()
         val surfaceConfigs: MutableList<SurfaceConfig> = ArrayList()
         for (scc in existingSurfaces) {
@@ -142,16 +164,20 @@ class SupportedSurfaceCombination(
         // Use the small size (640x480) for new use cases to check whether there is any possible
         // supported combination first
         for (useCaseConfig in newUseCaseConfigs) {
+            val maxOutputSizeForConcurrentMode = if (isConcurrentCameraModeOn)
+                getMaxOutputSizeByFormat(useCaseConfig.inputFormat) else null
             surfaceConfigs.add(
                 SurfaceConfig.transformSurfaceConfig(
+                    isConcurrentCameraModeOn,
                     useCaseConfig.inputFormat,
                     RESOLUTION_VGA,
-                    surfaceSizeDefinition
+                    surfaceSizeDefinition,
+                    maxOutputSizeForConcurrentMode
                 )
             )
         }
 
-        if (!checkSupported(surfaceConfigs)) {
+        if (!checkSupported(isConcurrentCameraModeOn, surfaceConfigs)) {
             throw java.lang.IllegalArgumentException(
                 "No supported surface combination is found for camera device - Id : " + cameraId +
                     ".  May be attempting to bind too many use cases. " + "Existing surfaces: " +
@@ -176,7 +202,7 @@ class SupportedSurfaceCombination(
             supportedOutputSizesList
         )
 
-        var suggestedResolutionsMap: Map<UseCaseConfig<*>, Size>? = null
+        var suggestedStreamSpecMap: Map<UseCaseConfig<*>, StreamSpec>? = null
         // Transform use cases to SurfaceConfig list and find the first (best) workable combination
         for (possibleSizeList in allPossibleSizeArrangements) {
             // Attach SurfaceConfig of original use cases since it will impact the new use cases
@@ -189,30 +215,34 @@ class SupportedSurfaceCombination(
             for (i in possibleSizeList.indices) {
                 val size = possibleSizeList[i]
                 val newUseCase = newUseCaseConfigs[useCasesPriorityOrder[i]]
+                val maxOutputSizeForConcurrentMode = if (isConcurrentCameraModeOn)
+                    getMaxOutputSizeByFormat(newUseCase.inputFormat) else null
                 surfaceConfigList.add(
                     SurfaceConfig.transformSurfaceConfig(
+                        isConcurrentCameraModeOn,
                         newUseCase.inputFormat,
                         size,
-                        surfaceSizeDefinition
+                        surfaceSizeDefinition,
+                        maxOutputSizeForConcurrentMode
                     )
                 )
             }
 
             // Check whether the SurfaceConfig combination can be supported
-            if (checkSupported(surfaceConfigList)) {
-                suggestedResolutionsMap = HashMap()
+            if (checkSupported(isConcurrentCameraModeOn, surfaceConfigList)) {
+                suggestedStreamSpecMap = HashMap()
                 for (useCaseConfig in newUseCaseConfigs) {
-                    suggestedResolutionsMap.put(
+                    suggestedStreamSpecMap.put(
                         useCaseConfig,
-                        possibleSizeList[useCasesPriorityOrder.indexOf(
+                        StreamSpec.builder(possibleSizeList[useCasesPriorityOrder.indexOf(
                             newUseCaseConfigs.indexOf(useCaseConfig)
-                        )]
+                        )]).build()
                     )
                 }
                 break
             }
         }
-        if (suggestedResolutionsMap == null) {
+        if (suggestedStreamSpecMap == null) {
             throw java.lang.IllegalArgumentException(
                 "No supported surface combination is found for camera device - Id : " +
                     cameraId + " and Hardware level: " + hardwareLevel +
@@ -221,7 +251,7 @@ class SupportedSurfaceCombination(
                     " New configs: " + newUseCaseConfigs
             )
         }
-        return suggestedResolutionsMap
+        return suggestedStreamSpecMap
     }
 
     // Utility classes and methods:
@@ -234,7 +264,9 @@ class SupportedSurfaceCombination(
         val previewSize: Size = calculatePreviewSize()
         surfaceSizeDefinition = SurfaceSizeDefinition.create(
             surfaceSizeDefinition.analysisSize,
+            surfaceSizeDefinition.s720pSize,
             previewSize,
+            surfaceSizeDefinition.s1440pSize,
             surfaceSizeDefinition.recordSize
         )
     }
@@ -267,14 +299,26 @@ class SupportedSurfaceCombination(
         //  surface combinations to the list
     }
 
+    private fun generateConcurrentSupportedCombinationList() {
+        concurrentSurfaceCombinations.addAll(
+            GuaranteedConfigurationsUtil.generateConcurrentSupportedCombinationList())
+    }
+
     /**
-     * Generation the size definition for VGA, PREVIEW, and RECORD.
+     * Generation the size definition for VGA, s720p, PREVIEW, s1440p, and RECORD.
      */
     private fun generateSurfaceSizeDefinition() {
         val vgaSize = Size(640, 480)
+        // s720p is not a fixed size, it refers to 720p (1280 x 720) or the maximum supported
+        // resolution for the particular format returned by
+        // {@link StreamConfigurationMap#getOutputSizes(int)}, whichever is smaller.
+        // Same for s1440p.
+        val s720pSize = Size(1280, 720)
+        val s1440pSize = Size(1920, 1440)
         val previewSize: Size = calculatePreviewSize()
         val recordSize: Size = getRecordSize()
-        surfaceSizeDefinition = SurfaceSizeDefinition.create(vgaSize, previewSize, recordSize)
+        surfaceSizeDefinition = SurfaceSizeDefinition.create(vgaSize, s720pSize, previewSize,
+            s1440pSize, recordSize)
     }
 
     /**
@@ -289,12 +333,12 @@ class SupportedSurfaceCombination(
             // StreamConfigurationMap to determine the RECORD size.
             return getRecordSizeFromStreamConfigurationMap()
         }
-        var profile: CamcorderProfileProxy? = null
-        if (camcorderProfileProviderAdapter.hasProfile(cameraId)) {
-            profile = camcorderProfileProviderAdapter.get(cameraId)
+        var profiles: EncoderProfilesProxy? = null
+        if (encoderProfilesProviderAdapter.hasProfile(cameraId)) {
+            profiles = encoderProfilesProviderAdapter.getAll(cameraId)
         }
-        return if (profile != null) {
-            Size(profile.videoFrameWidth, profile.videoFrameHeight)
+        return if (profiles != null && profiles.videoProfiles.isNotEmpty()) {
+            Size(profiles.videoProfiles[0].width, profiles.videoProfiles[0].height)
         } else getRecordSizeByHasProfile()
     }
 
@@ -337,25 +381,25 @@ class SupportedSurfaceCombination(
      */
     private fun getRecordSizeByHasProfile(): Size {
         var recordSize: Size = RESOLUTION_480P
-        var profile: CamcorderProfileProxy? = null
+        var profiles: EncoderProfilesProxy? = null
 
         // Check whether 4KDCI, 2160P, 2K, 1080P, 720P, 480P (sorted by size) are supported by
-        // CamcorderProfile
-        if (camcorderProfileProviderAdapter.hasProfile(CamcorderProfile.QUALITY_4KDCI)) {
-            profile = camcorderProfileProviderAdapter.get(CamcorderProfile.QUALITY_4KDCI)
-        } else if (camcorderProfileProviderAdapter.hasProfile(CamcorderProfile.QUALITY_2160P)) {
-            profile = camcorderProfileProviderAdapter.get(CamcorderProfile.QUALITY_2160P)
-        } else if (camcorderProfileProviderAdapter.hasProfile(CamcorderProfile.QUALITY_2K)) {
-            profile = camcorderProfileProviderAdapter.get(CamcorderProfile.QUALITY_2K)
-        } else if (camcorderProfileProviderAdapter.hasProfile(CamcorderProfile.QUALITY_1080P)) {
-            profile = camcorderProfileProviderAdapter.get(CamcorderProfile.QUALITY_1080P)
-        } else if (camcorderProfileProviderAdapter.hasProfile(CamcorderProfile.QUALITY_720P)) {
-            profile = camcorderProfileProviderAdapter.get(CamcorderProfile.QUALITY_720P)
-        } else if (camcorderProfileProviderAdapter.hasProfile(CamcorderProfile.QUALITY_480P)) {
-            profile = camcorderProfileProviderAdapter.get(CamcorderProfile.QUALITY_480P)
+        // EncoderProfiles
+        if (encoderProfilesProviderAdapter.hasProfile(CamcorderProfile.QUALITY_4KDCI)) {
+            profiles = encoderProfilesProviderAdapter.getAll(CamcorderProfile.QUALITY_4KDCI)
+        } else if (encoderProfilesProviderAdapter.hasProfile(CamcorderProfile.QUALITY_2160P)) {
+            profiles = encoderProfilesProviderAdapter.getAll(CamcorderProfile.QUALITY_2160P)
+        } else if (encoderProfilesProviderAdapter.hasProfile(CamcorderProfile.QUALITY_2K)) {
+            profiles = encoderProfilesProviderAdapter.getAll(CamcorderProfile.QUALITY_2K)
+        } else if (encoderProfilesProviderAdapter.hasProfile(CamcorderProfile.QUALITY_1080P)) {
+            profiles = encoderProfilesProviderAdapter.getAll(CamcorderProfile.QUALITY_1080P)
+        } else if (encoderProfilesProviderAdapter.hasProfile(CamcorderProfile.QUALITY_720P)) {
+            profiles = encoderProfilesProviderAdapter.getAll(CamcorderProfile.QUALITY_720P)
+        } else if (encoderProfilesProviderAdapter.hasProfile(CamcorderProfile.QUALITY_480P)) {
+            profiles = encoderProfilesProviderAdapter.getAll(CamcorderProfile.QUALITY_480P)
         }
-        if (profile != null) {
-            recordSize = Size(profile.videoFrameWidth, profile.videoFrameHeight)
+        if (profiles != null && profiles.videoProfiles.isNotEmpty()) {
+            recordSize = Size(profiles.videoProfiles[0].width, profiles.videoProfiles[0].height)
         }
         return recordSize
     }
@@ -583,10 +627,90 @@ class SupportedSurfaceCombination(
     }
 
     /**
-     * Obtains the target aspect ratio from ImageOutputConfig
+     * Returns the aspect ratio group key of the target size when grouping the input resolution
+     * candidate list.
+     *
+     * The resolution candidate list will be grouped with mod 16 consideration. Therefore, we
+     * also need to consider the mod 16 factor to find which aspect ratio of group the target size
+     * might be put in. So that sizes of the group will be selected to use in the highest priority.
      */
-    private fun getTargetAspectRatio(imageOutputConfig: ImageOutputConfig): Rational? {
-        val targetSize = getTargetSize(imageOutputConfig)
+    private fun getAspectRatioGroupKeyOfTargetSize(
+        targetSize: Size?,
+        resolutionCandidateList: List<Size>
+    ): Rational? {
+        if (targetSize == null) {
+            return null
+        }
+
+        val aspectRatios = getResolutionListGroupingAspectRatioKeys(
+            resolutionCandidateList
+        )
+        aspectRatios.forEach {
+            if (hasMatchingAspectRatio(targetSize, it)) {
+                return it
+            }
+        }
+        return Rational(targetSize.width, targetSize.height)
+    }
+
+    /**
+     * Returns the grouping aspect ratio keys of the input resolution list.
+     *
+     * Some sizes might be mod16 case. When grouping, those sizes will be grouped into an
+     * existing aspect ratio group if the aspect ratio can match by the mod16 rule.
+     */
+    private fun getResolutionListGroupingAspectRatioKeys(
+        resolutionCandidateList: List<Size>
+    ): List<Rational> {
+        val aspectRatios: MutableList<Rational> = mutableListOf()
+
+        // Adds the default 4:3 and 16:9 items first to avoid their mod16 sizes to create
+        // additional items.
+        aspectRatios.add(AspectRatioUtil.ASPECT_RATIO_4_3)
+        aspectRatios.add(AspectRatioUtil.ASPECT_RATIO_16_9)
+
+        // Tries to find the aspect ratio which the target size belongs to.
+        resolutionCandidateList.forEach { size ->
+            val newRatio = Rational(size.width, size.height)
+            var aspectRatioFound = aspectRatios.contains(newRatio)
+
+            // The checking size might be a mod16 size which can be mapped to an existing aspect
+            // ratio group.
+            if (!aspectRatioFound) {
+                var hasMatchingAspectRatio = false
+                aspectRatios.forEach loop@{ aspectRatio ->
+                    if (hasMatchingAspectRatio(size, aspectRatio)) {
+                        hasMatchingAspectRatio = true
+                        return@loop
+                    }
+                }
+                if (!hasMatchingAspectRatio) {
+                    aspectRatios.add(newRatio)
+                }
+            }
+        }
+        return aspectRatios
+    }
+
+    /**
+     * Returns the target aspect ratio value corrected by quirks.
+     *
+     * The final aspect ratio is determined by the following order:
+     * 1. The aspect ratio returned by TargetAspectRatio quirk (not implemented yet).
+     * 2. The use case's original aspect ratio if TargetAspectRatio quirk returns RATIO_ORIGINAL
+     * and the use case has target aspect ratio setting.
+     * 3. The aspect ratio of use case's target size setting if TargetAspectRatio quirk returns
+     * RATIO_ORIGINAL and the use case has no target aspect ratio but has target size setting.
+     *
+     * @param imageOutputConfig       the image output config of the use case.
+     * @param resolutionCandidateList the resolution candidate list which will be used to
+     *                                determine the aspect ratio by target size when target
+     *                                aspect ratio setting is not set.
+     */
+    private fun getTargetAspectRatio(
+        imageOutputConfig: ImageOutputConfig,
+        resolutionCandidateList: List<Size>
+    ): Rational? {
         var outputRatio: Rational? = null
         // TODO(b/245622117) Get the corrected aspect ratio from quirks instead of always using
         //  TargetAspectRatio.RATIO_ORIGINAL
@@ -598,16 +722,23 @@ class SupportedSurfaceCombination(
                 AspectRatio.RATIO_16_9 -> outputRatio =
                     if (isSensorLandscapeResolution) AspectRatioUtil.ASPECT_RATIO_16_9
                     else AspectRatioUtil.ASPECT_RATIO_9_16
+                AspectRatio.RATIO_DEFAULT -> Unit
                 else -> Logger.e(
                     TAG,
                     "Undefined target aspect ratio: $aspectRatio"
                 )
             }
-        } else if (targetSize != null) {
-            // Target size is calculated from the target resolution. If target size is not
-            // null, sizes which aspect ratio is nearest to the aspect ratio of target size
-            // will be selected in priority.
-            outputRatio = Rational(targetSize.width, targetSize.height)
+        } else {
+            // The legacy resolution API will use the aspect ratio of the target size to
+            // be the fallback target aspect ratio value when the use case has no target
+            // aspect ratio setting.
+            val targetSize = getTargetSize(imageOutputConfig)
+            if (targetSize != null) {
+                outputRatio = getAspectRatioGroupKeyOfTargetSize(
+                    targetSize,
+                    resolutionCandidateList
+                )
+            }
         }
         return outputRatio
     }
@@ -656,32 +787,21 @@ class SupportedSurfaceCombination(
      * Groups sizes together according to their aspect ratios.
      */
     private fun groupSizesByAspectRatio(sizes: List<Size>): Map<Rational, MutableList<Size>> {
-        val aspectRatioSizeListMap: MutableMap<Rational, MutableList<Size>> = java.util.HashMap()
+        val aspectRatioSizeListMap: MutableMap<Rational, MutableList<Size>> = mutableMapOf()
 
-        // Add 4:3 and 16:9 entries first. Most devices should mainly have supported sizes of
-        // these two aspect ratios. Adding them first can avoid that if the first one 4:3 or 16:9
-        // size is a mod16 alignment size, the aspect ratio key may be different from the 4:3 or
-        // 16:9 value.
-        aspectRatioSizeListMap[AspectRatioUtil.ASPECT_RATIO_4_3] = ArrayList()
-        aspectRatioSizeListMap[AspectRatioUtil.ASPECT_RATIO_16_9] = ArrayList()
-        for (outputSize in sizes) {
-            var matchedKey: Rational? = null
-            for (key in aspectRatioSizeListMap.keys) {
+        val aspectRatioKeys = getResolutionListGroupingAspectRatioKeys(sizes)
+
+        aspectRatioKeys.forEach {
+            aspectRatioSizeListMap[it] = mutableListOf()
+        }
+
+        sizes.forEach { size ->
+            aspectRatioSizeListMap.keys.forEach { aspectRatio ->
                 // Put the size into all groups that is matched in mod16 condition since a size
                 // may match multiple aspect ratio in mod16 algorithm.
-                if (AspectRatioUtil.hasMatchingAspectRatio(outputSize, key)) {
-                    matchedKey = key
-                    val sizeList = aspectRatioSizeListMap[matchedKey]!!
-                    if (!sizeList.contains(outputSize)) {
-                        sizeList.add(outputSize)
-                    }
+                if (hasMatchingAspectRatio(size, aspectRatio)) {
+                    aspectRatioSizeListMap[aspectRatio]?.add(size)
                 }
-            }
-
-            // Create new item if no matching group is found.
-            if (matchedKey == null) {
-                aspectRatioSizeListMap[Rational(outputSize.width, outputSize.height)] =
-                    ArrayList(setOf(outputSize))
             }
         }
         return aspectRatioSizeListMap
@@ -693,6 +813,10 @@ class SupportedSurfaceCombination(
     internal fun getSupportedOutputSizes(config: UseCaseConfig<*>): List<Size> {
         val imageFormat = config.inputFormat
         val imageOutputConfig = config as ImageOutputConfig
+        val customOrderedResolutions = imageOutputConfig.getCustomOrderedResolutions(null)
+        if (customOrderedResolutions != null) {
+            return customOrderedResolutions
+        }
         var outputSizes: Array<Size>? =
             getCustomizedSupportSizesFromConfig(imageFormat, imageOutputConfig)
         if (outputSizes == null) {
@@ -714,8 +838,8 @@ class SupportedSurfaceCombination(
         // result.
         Arrays.sort(outputSizes, CompareSizesByArea(true))
         var targetSize: Size? = getTargetSize(imageOutputConfig)
-        var minSize = SizeUtil.RESOLUTION_VGA
-        val defaultSizeArea = SizeUtil.getArea(SizeUtil.RESOLUTION_VGA)
+        var minSize = RESOLUTION_VGA
+        val defaultSizeArea = SizeUtil.getArea(RESOLUTION_VGA)
         val maxSizeArea = SizeUtil.getArea(maxSize)
         // When maxSize is smaller than 640x480, set minSize as 0x0. It means the min size bound
         // will be ignored. Otherwise, set the minimal size according to min(DEFAULT_SIZE,
@@ -742,7 +866,8 @@ class SupportedSurfaceCombination(
                     imageFormat
             )
         }
-        val aspectRatio: Rational? = getTargetAspectRatio(imageOutputConfig)
+
+        val aspectRatio: Rational? = getTargetAspectRatio(imageOutputConfig, outputSizeCandidates)
 
         // Check the default resolution if the target resolution is not set
         targetSize = targetSize ?: imageOutputConfig.getDefaultResolution(null)
@@ -773,9 +898,17 @@ class SupportedSurfaceCombination(
 
             // Sort the aspect ratio key set by the target aspect ratio.
             val aspectRatios: List<Rational?> = ArrayList(aspectRatioSizeListMap.keys)
+            val fullFovRatio = if (activeArraySize != null) {
+                Rational(activeArraySize.width(), activeArraySize.height())
+            } else {
+                null
+            }
             Collections.sort(
                 aspectRatios,
-                CompareAspectRatiosByDistanceToTargetRatio(aspectRatio)
+                CompareAspectRatiosByMappingAreaInFullFovAspectRatioSpace(
+                    aspectRatio,
+                    fullFovRatio
+                )
             )
 
             // Put available sizes into final result list by aspect ratio distance to target ratio.

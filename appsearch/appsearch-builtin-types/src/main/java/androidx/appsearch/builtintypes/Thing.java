@@ -34,7 +34,7 @@ import java.util.List;
  * type of an item.
  */
 @Document(name = "builtin:Thing")
-public final class Thing {
+public class Thing {
     @Document.Namespace
     private final String mNamespace;
 
@@ -67,7 +67,7 @@ public final class Thing {
 
     Thing(@NonNull String namespace, @NonNull String id, int documentScore,
             long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
-            @NonNull List<String> alternateNames, @Nullable String description,
+            @Nullable List<String> alternateNames, @Nullable String description,
             @Nullable String image, @Nullable String url) {
         mNamespace = Preconditions.checkNotNull(namespace);
         mId = Preconditions.checkNotNull(id);
@@ -75,7 +75,13 @@ public final class Thing {
         mCreationTimestampMillis = creationTimestampMillis;
         mDocumentTtlMillis = documentTtlMillis;
         mName = name;
-        mAlternateNames = Collections.unmodifiableList(alternateNames);
+        // If an old schema does not define the alternateNames field, AppSearch may attempt to
+        // pass in null when converting its GenericDocument to the java class.
+        if (alternateNames == null) {
+            mAlternateNames = Collections.emptyList();
+        } else {
+            mAlternateNames = Collections.unmodifiableList(alternateNames);
+        }
         mDescription = description;
         mImage = image;
         mUrl = url;
@@ -149,13 +155,7 @@ public final class Thing {
     }
 
     /** Builder for {@link Thing}. */
-    public static final class Builder extends BaseBuiltinTypeBuilder<Builder> {
-        private String mName;
-        private List<String> mAlternateNames = new ArrayList<>();
-        private String mDescription;
-        private String mImage;
-        private String mUrl;
-
+    public static final class Builder extends BuilderImpl<Builder> {
         /** Constructs {@link Thing.Builder} with given {@code namespace} and {@code id} */
         public Builder(@NonNull String namespace, @NonNull String id) {
             super(namespace, id);
@@ -163,6 +163,35 @@ public final class Thing {
 
         /** Constructs {@link Thing.Builder} from existing values in given {@link Thing}. */
         public Builder(@NonNull Thing thing) {
+            super(thing);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    // TODO: currently this can only be extends by classes in this package. Make this publicly
+    //  extensible.
+    static class BuilderImpl<T extends BuilderImpl<T>> {
+        protected final String mNamespace;
+        protected final String mId;
+        protected int mDocumentScore;
+        protected long mCreationTimestampMillis;
+        protected long mDocumentTtlMillis;
+        protected String mName;
+        protected List<String> mAlternateNames = new ArrayList<>();
+        protected String mDescription;
+        protected String mImage;
+        protected String mUrl;
+
+        BuilderImpl(@NonNull String namespace, @NonNull String id) {
+            mNamespace = Preconditions.checkNotNull(namespace);
+            mId = Preconditions.checkNotNull(id);
+
+            // Default for unset creationTimestampMillis. AppSearch will internally convert this
+            // to current time when creating the GenericDocument.
+            mCreationTimestampMillis = -1;
+        }
+
+        BuilderImpl(@NonNull Thing thing) {
             this(thing.getNamespace(), thing.getId());
             mDocumentScore = thing.getDocumentScore();
             mCreationTimestampMillis = thing.getCreationTimestampMillis();
@@ -174,40 +203,92 @@ public final class Thing {
             mUrl = thing.getUrl();
         }
 
+        /**
+         * Sets the user-provided opaque document score of the current AppSearch document, which can
+         * be used for ranking using
+         * {@link androidx.appsearch.app.SearchSpec.RankingStrategy#RANKING_STRATEGY_DOCUMENT_SCORE}.
+         *
+         * <p>See {@link androidx.appsearch.annotation.Document.Score} for more information on
+         * score.
+         */
+        @NonNull
+        @SuppressWarnings("unchecked")
+        public T setDocumentScore(int documentScore) {
+            mDocumentScore = documentScore;
+            return (T) this;
+        }
+
+        /**
+         * Sets the creation timestamp for the current AppSearch entity, in milliseconds using the
+         * {@link System#currentTimeMillis()} time base.
+         *
+         * <p>This timestamp refers to the creation time of the AppSearch entity, not when the
+         * document is written into AppSearch.
+         *
+         * <p>If not set, then the current timestamp will be used.
+         *
+         * <p>See {@link androidx.appsearch.annotation.Document.CreationTimestampMillis} for more
+         * information on creation timestamp.
+         */
+        @NonNull
+        @SuppressWarnings("unchecked")
+        public T setCreationTimestampMillis(long creationTimestampMillis) {
+            mCreationTimestampMillis = creationTimestampMillis;
+            return (T) this;
+        }
+
+        /**
+         * Sets the time-to-live (TTL) for the current AppSearch document as a duration in
+         * milliseconds.
+         *
+         * <p>The document will be automatically deleted when the TTL expires.
+         *
+         * <p>If not set, then the document will never expire.
+         *
+         * <p>See {@link androidx.appsearch.annotation.Document.TtlMillis} for more information on
+         * TTL.
+         */
+        @NonNull
+        @SuppressWarnings("unchecked")
+        public T setDocumentTtlMillis(long documentTtlMillis) {
+            mDocumentTtlMillis = documentTtlMillis;
+            return (T) this;
+        }
+
         /** Sets the name of the item. */
         @NonNull
-        public Builder setName(@Nullable String name) {
+        public T setName(@Nullable String name) {
             mName = name;
-            return this;
+            return (T) this;
         }
 
         /** Adds an alias for the item. */
         @NonNull
-        public Builder addAlternateName(@NonNull String alternateName) {
+        public T addAlternateName(@NonNull String alternateName) {
             Preconditions.checkNotNull(alternateName);
             mAlternateNames.add(alternateName);
-            return this;
+            return (T) this;
         }
 
         /** Clears the aliases, if any, for the item. */
         @NonNull
-        public Builder clearAlternateNames() {
+        public T clearAlternateNames() {
             mAlternateNames.clear();
-            return this;
+            return (T) this;
         }
 
         /** Sets the description for the item. */
         @NonNull
-        public Builder setDescription(@Nullable String description) {
+        public T setDescription(@Nullable String description) {
             mDescription = description;
-            return this;
+            return (T) this;
         }
 
         /** Sets the URL for an image of the item. */
         @NonNull
-        public Builder setImage(@Nullable String image) {
+        public T setImage(@Nullable String image) {
             mImage = image;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -225,9 +306,9 @@ public final class Thing {
          * apps by defining intent filters.
          */
         @NonNull
-        public Builder setUrl(@Nullable String url) {
+        public T setUrl(@Nullable String url) {
             mUrl = url;
-            return this;
+            return (T) this;
         }
 
         /** Builds a {@link Thing} object. */

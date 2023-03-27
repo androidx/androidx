@@ -36,7 +36,7 @@ abstract class LifecycleCoroutineScopeTestBase {
     fun initialization() {
         val owner = TestLifecycleOwner(Lifecycle.State.INITIALIZED, UnconfinedTestDispatcher())
         val scope = owner.lifecycleScope
-        assertThat(owner.lifecycle.mInternalScopeRef.get()).isSameInstanceAs(scope)
+        assertThat(owner.lifecycle.internalScopeRef.get()).isSameInstanceAs(scope)
         val scope2 = owner.lifecycleScope
         assertThat(scope).isSameInstanceAs(scope2)
         runBlocking(Dispatchers.Main) {

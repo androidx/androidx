@@ -28,10 +28,10 @@ import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
 /**
- * Wire format for Map<{@link androidx.wear.watchface.style.Layer},
- * {@link androidx.wear.watchface.LayerMode}>
+ * Wire format for Map<{@link androidx.wear.watchface.style.Layer}, {@link
+ * androidx.wear.watchface.LayerMode}>
  *
- * Unfortunately we can't ever add new members to this because we use it in lists and
+ * <p>Unfortunately we can't ever add new members to this because we use it in lists and
  * VersionedParcelable isn't fully backwards compatible when new members are added to lists.
  *
  * @hide
@@ -48,8 +48,7 @@ public class LayerParameterWireFormat implements VersionedParcelable, Parcelable
     @ParcelField(2)
     int mLayerMode;
 
-    LayerParameterWireFormat() {
-    }
+    LayerParameterWireFormat() {}
 
     public LayerParameterWireFormat(int layer, int layerMode) {
         mLayer = layer;

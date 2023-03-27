@@ -44,9 +44,7 @@ import org.robolectric.shadows.ShadowApplication
 import org.robolectric.shadows.ShadowCameraCharacteristics
 import org.robolectric.shadows.ShadowCameraManager
 
-/**
- * Utility class for creating, configuring, and interacting with Robolectric's [CameraManager].
- */
+/** Utility class for creating, configuring, and interacting with Robolectric's [CameraManager]. */
 public object RobolectricCameras {
     private val cameraIds = atomic(0)
 
@@ -69,12 +67,8 @@ public object RobolectricCameras {
      * CameraDevice objects to be created for tests.
      */
     @Suppress("MissingPermission")
-    fun create(
-        metadata: Map<CameraCharacteristics.Key<*>, Any> = emptyMap()
-    ): CameraId {
-        val shadowCameraManager = Shadow.extract<Any>(
-            cameraManager
-        ) as ShadowCameraManager
+    fun create(metadata: Map<CameraCharacteristics.Key<*>, Any> = emptyMap()): CameraId {
+        val shadowCameraManager = Shadow.extract<Any>(cameraManager) as ShadowCameraManager
 
         val characteristics = ShadowCameraCharacteristics.newCameraCharacteristics()
         val shadowCharacteristics = Shadow.extract<ShadowCameraCharacteristics>(characteristics)
@@ -105,41 +99,30 @@ public object RobolectricCameras {
     fun open(cameraId: CameraId): FakeCamera {
         check(initializedCameraIds.contains(cameraId))
         val characteristics = cameraManager.getCameraCharacteristics(cameraId.value)
-        val metadata = Camera2CameraMetadata(
-            cameraId,
-            false,
-            characteristics,
-            FakeCameraMetadataProvider(),
-            emptyMap(),
-            emptySet()
-        )
+        val metadata =
+            Camera2CameraMetadata(
+                cameraId,
+                false,
+                characteristics,
+                FakeCameraMetadataProvider(),
+                emptyMap(),
+                emptySet()
+            )
 
-        @Suppress("SyntheticAccessor")
-        val callback = CameraStateCallback(cameraId)
-        cameraManager.openCamera(
-            cameraId.value,
-            callback,
-            Handler()
-        )
+        @Suppress("SyntheticAccessor") val callback = CameraStateCallback(cameraId)
+        cameraManager.openCamera(cameraId.value, callback, Handler())
 
         // Wait until the camera is "opened" by robolectric.
         shadowOf(Looper.myLooper()).idle()
         val cameraDevice = callback.camera!!
 
         @Suppress("SyntheticAccessor")
-        return FakeCamera(
-            cameraId,
-            characteristics,
-            metadata,
-            cameraDevice
-        )
+        return FakeCamera(cameraId, characteristics, metadata, cameraDevice)
     }
 
     /** Remove all fake camera instances from Robolectric */
     fun clear() {
-        val shadowCameraManager = Shadow.extract<Any>(
-            cameraManager
-        ) as ShadowCameraManager
+        val shadowCameraManager = Shadow.extract<Any>(cameraManager) as ShadowCameraManager
         for (cameraId in initializedCameraIds) {
             try {
                 shadowCameraManager.removeCamera(cameraId.value)
@@ -150,9 +133,7 @@ public object RobolectricCameras {
         initializedCameraIds.clear()
     }
 
-    /**
-     * The [FakeCamera] instance wraps up several useful objects for use in tests.
-     */
+    /** The [FakeCamera] instance wraps up several useful objects for use in tests. */
     data class FakeCamera(
         val cameraId: CameraId,
         val characteristics: CameraCharacteristics,
@@ -174,10 +155,7 @@ public object RobolectricCameras {
             )
         }
 
-        override fun onError(
-            camera: CameraDevice,
-            error: Int
-        ) {
+        override fun onError(camera: CameraDevice, error: Int) {
             throw UnsupportedOperationException("onError is not expected for Robolectric Camera")
         }
     }
@@ -191,9 +169,10 @@ class RobolectricCamerasTest {
 
     @Test
     fun fakeCamerasCanBeOpened() {
-        val fakeCameraId = RobolectricCameras.create(
-            mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK)
-        )
+        val fakeCameraId =
+            RobolectricCameras.create(
+                mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK)
+            )
         val fakeCamera = RobolectricCameras.open(fakeCameraId)
 
         Truth.assertThat(fakeCamera).isNotNull()

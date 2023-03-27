@@ -38,6 +38,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.resolveAsTypeface
 import androidx.compose.ui.text.style.TextOverflow
 import kotlin.math.roundToInt
 
@@ -90,12 +91,12 @@ internal actual class CurvedTextDelegate {
         val fontFamilyResolver = LocalFontFamilyResolver.current
         typeFace = remember(fontFamily, fontWeight, fontStyle, fontSynthesis, fontFamilyResolver) {
             derivedStateOf {
-                fontFamilyResolver.resolve(
+                fontFamilyResolver.resolveAsTypeface(
                     fontFamily,
                     fontWeight ?: FontWeight.Normal,
                     fontStyle ?: FontStyle.Normal,
                     fontSynthesis ?: FontSynthesis.All
-                ).value as Typeface
+                ).value
             }
         }
         updateTypeFace()

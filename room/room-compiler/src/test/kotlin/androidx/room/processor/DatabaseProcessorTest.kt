@@ -18,6 +18,7 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.DatabaseProcessingStep
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.CompilationResultSubject
@@ -25,6 +26,7 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.compileFilesIntoJar
+import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.QueryType
@@ -39,12 +41,14 @@ import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
 import com.google.auto.service.processor.AutoServiceProcessor
 import com.google.common.truth.Truth.assertThat
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.TypeName
-import org.hamcrest.CoreMatchers.`is`
+import java.io.File
+import java.io.FileOutputStream
+import java.net.URL
+import java.net.URLClassLoader
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.hasItems
 import org.hamcrest.CoreMatchers.instanceOf
+import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.CoreMatchers.sameInstance
@@ -55,10 +59,6 @@ import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
-import java.io.File
-import java.io.FileOutputStream
-import java.net.URL
-import java.net.URLClassLoader
 
 @RunWith(JUnit4::class)
 class DatabaseProcessorTest {
@@ -253,7 +253,7 @@ class DatabaseProcessorTest {
             assertThat(db.entities.size, `is`(2))
             assertThat(db.daoMethods.map { it.element.jvmName }, `is`(listOf("userDao", "bookDao")))
             assertThat(
-                db.entities.map { it.type.typeName.toString() },
+                db.entities.map { it.type.asTypeName().toString(CodeLanguage.JAVA) },
                 `is`(listOf("foo.bar.User", "foo.bar.Book"))
             )
         }
@@ -483,7 +483,7 @@ class DatabaseProcessorTest {
         )
         runProcessorTest(
             sources = listOf(BOOK, BOOK_DAO, DB1, DB2, db1_2),
-            createProcessingStep = { DatabaseProcessingStep() }
+            createProcessingSteps = { listOf(DatabaseProcessingStep()) }
         ) { result ->
             result.generatedSourceFileWithPath("foo/bar/Db1_Impl.java")
             result.generatedSourceFileWithPath("foo/bar/Db2_Impl.java")
@@ -512,7 +512,7 @@ class DatabaseProcessorTest {
                 )
                 hasErrorContaining(
                     ProcessorErrors.duplicateDao(
-                        ClassName.get("foo.bar", "UserDao"), listOf("userDao", "userDao2")
+                        "foo.bar.UserDao", listOf("userDao", "userDao2")
                     )
                 )
             }
@@ -594,7 +594,8 @@ class DatabaseProcessorTest {
             """
                 package foo.bar;
                 import androidx.room.*;
-                @Entity(foreignKeys = @ForeignKey(entity = ${COMMON.USER_TYPE_NAME}.class,
+                @Entity(foreignKeys = @ForeignKey(
+                        entity = ${COMMON.USER_TYPE_NAME.canonicalName}.class,
                         parentColumns = "lastName",
                         childColumns = "name"))
                 public class Entity1 {
@@ -630,7 +631,8 @@ class DatabaseProcessorTest {
             """
                 package foo.bar;
                 import androidx.room.*;
-                @Entity(foreignKeys = @ForeignKey(entity = ${COMMON.USER_TYPE_NAME}.class,
+                @Entity(foreignKeys = @ForeignKey(
+                        entity = ${COMMON.USER_TYPE_NAME.canonicalName}.class,
                         parentColumns = "lastName",
                         childColumns = "name"))
                 public class Entity1 {
@@ -651,7 +653,7 @@ class DatabaseProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.foreignKeyMissingIndexInParent(
-                        parentEntity = COMMON.USER_TYPE_NAME.toString(),
+                        parentEntity = COMMON.USER_TYPE_NAME.canonicalName,
                         parentColumns = listOf("lastName"),
                         childEntity = "foo.bar.Entity1",
                         childColumns = listOf("name")
@@ -1247,14 +1249,10 @@ class DatabaseProcessorTest {
             } else {
                 invocation.assertCompilationResult {
                     hasErrorContaining(
-                        ProcessorErrors.invalidEntityTypeInDatabaseAnnotation(
-                            TypeName.LONG
-                        )
+                        ProcessorErrors.invalidEntityTypeInDatabaseAnnotation("long")
                     )
                     hasErrorContaining(
-                        ProcessorErrors.invalidViewTypeInDatabaseAnnotation(
-                            TypeName.INT
-                        )
+                        ProcessorErrors.invalidViewTypeInDatabaseAnnotation("int")
                     )
                 }
             }
@@ -1509,6 +1507,46 @@ class DatabaseProcessorTest {
         }
     }
 
+    @Test
+    fun disallowPropertyDao() {
+        val src = Source.kotlin(
+            "MyDatabase.kt",
+            """
+            import androidx.room.*
+
+            @Database(entities = [MyEntity::class], version = 1, exportSchema = false)
+            abstract class MyDatabase : RoomDatabase() {
+              abstract val dao: MyDao
+            }
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              fun getEntity(): MyEntity
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                var pk: Int
+            )
+            """.trimIndent()
+        )
+        runKspTest(
+            sources = listOf(src),
+            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "true"),
+        ) { invocation ->
+            val element = invocation.processingEnv.requireTypeElement("MyDatabase")
+            DatabaseProcessor(
+                baseContext = invocation.context,
+                element = element
+            ).process()
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.KOTLIN_PROPERTY_OVERRIDE)
+            }
+        }
+    }
+
     private fun resolveDatabaseViews(
         views: Map<String, Set<String>>,
         body: (List<DatabaseView>, XTestInvocation) -> Unit
@@ -1565,13 +1603,13 @@ class DatabaseProcessorTest {
         )
         runProcessorTest(
             sources = listOf(BOOK, bookDao) + dbs,
-            createProcessingStep = { DatabaseProcessingStep() },
+            createProcessingSteps = { listOf(DatabaseProcessingStep()) },
         ) {
             onCompilationResult?.invoke(it)
         }
     }
 
-    fun singleDb(
+    private fun singleDb(
         input: String,
         vararg otherFiles: Source,
         classpath: List<File> = emptyList(),

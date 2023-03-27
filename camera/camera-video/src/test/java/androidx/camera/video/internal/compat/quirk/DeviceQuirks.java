@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.impl.Quirk;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -55,5 +56,25 @@ public class DeviceQuirks {
             }
         }
         return null;
+    }
+
+    /**
+     * Retrieves all device {@link Quirk} instances that are or inherit the given type.
+     *
+     * @param quirkClass The super type of device quirk to retrieve.
+     * @return A device {@link Quirk} list of the provided type. An empty list is returned if it
+     * isn't found.
+     */
+    @SuppressWarnings("unchecked")
+    @NonNull
+    public static <T extends Quirk> List<T> getAll(@NonNull Class<T> quirkClass) {
+        List<Quirk> quirks = DeviceQuirksLoader.loadQuirks();
+        List<T> list = new ArrayList<>();
+        for (Quirk quirk : quirks) {
+            if (quirkClass.isAssignableFrom(quirk.getClass())) {
+                list.add((T) quirk);
+            }
+        }
+        return list;
     }
 }

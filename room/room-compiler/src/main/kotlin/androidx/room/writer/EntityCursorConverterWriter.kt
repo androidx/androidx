@@ -16,59 +16,57 @@
 
 package androidx.room.writer
 
-import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.ext.AndroidTypeNames.CURSOR
-import androidx.room.ext.L
-import androidx.room.ext.N
-import androidx.room.ext.RoomTypeNames
-import androidx.room.ext.S
-import androidx.room.ext.T
+import androidx.room.ext.RoomMemberNames
 import androidx.room.ext.capitalize
 import androidx.room.ext.stripNonJava
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.Entity
 import androidx.room.vo.FieldWithIndex
-import com.squareup.javapoet.CodeBlock
-import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.ParameterSpec
-import com.squareup.javapoet.TypeName
 import java.util.Locale
-import javax.lang.model.element.Modifier.PRIVATE
 
-class EntityCursorConverterWriter(val entity: Entity) : TypeWriter.SharedMethodSpec(
-    "entityCursorConverter_${entity.typeName.toJavaPoet().toString().stripNonJava()}"
+class EntityCursorConverterWriter(val entity: Entity) : TypeWriter.SharedFunctionSpec(
+    "entityCursorConverter_${entity.typeName.toString(CodeLanguage.JAVA).stripNonJava()}"
 ) {
     override fun getUniqueKey(): String {
         return "generic_entity_converter_of_${entity.element.qualifiedName}"
     }
 
-    override fun prepare(methodName: String, writer: TypeWriter, builder: MethodSpec.Builder) {
+    override fun prepare(methodName: String, writer: TypeWriter, builder: XFunSpec.Builder) {
         builder.apply {
-            val cursorParam = ParameterSpec
-                .builder(CURSOR.toJavaPoet(), "cursor").build()
-            addParameter(cursorParam)
-            addModifiers(PRIVATE)
-            returns(entity.typeName.toJavaPoet())
-            addCode(buildConvertMethodBody(writer, cursorParam))
+            val cursorParamName = "cursor"
+            addParameter(CURSOR, cursorParamName)
+            returns(entity.typeName)
+            addCode(buildConvertMethodBody(writer, cursorParamName))
         }
     }
 
-    private fun buildConvertMethodBody(writer: TypeWriter, cursorParam: ParameterSpec): CodeBlock {
+    private fun buildConvertMethodBody(writer: TypeWriter, cursorParamName: String): XCodeBlock {
         val scope = CodeGenScope(writer)
         val entityVar = scope.getTmpVar("_entity")
-        scope.builder().apply {
-            scope.builder().addStatement(
-                "final $T $L",
-                entity.typeName.toJavaPoet(),
-                entityVar
+        scope.builder.apply {
+            addLocalVariable(
+                entityVar,
+                entity.typeName
             )
             val fieldsWithIndices = entity.fields.map {
                 val indexVar = scope.getTmpVar(
                     "_cursorIndexOf${it.name.stripNonJava().capitalize(Locale.US)}"
                 )
-                scope.builder().addStatement(
-                    "final $T $L = $T.getColumnIndex($N, $S)",
-                    TypeName.INT, indexVar, RoomTypeNames.CURSOR_UTIL, cursorParam, it.columnName
+                addLocalVariable(
+                    name = indexVar,
+                    typeName = XTypeName.PRIMITIVE_INT,
+                    assignExpr = XCodeBlock.of(
+                        language,
+                        "%M(%N, %S)",
+                        RoomMemberNames.CURSOR_UTIL_GET_COLUMN_INDEX,
+                        cursorParamName,
+                        it.columnName
+                    )
                 )
                 FieldWithIndex(
                     field = it,
@@ -79,13 +77,13 @@ class EntityCursorConverterWriter(val entity: Entity) : TypeWriter.SharedMethodS
             FieldReadWriteWriter.readFromCursor(
                 outVar = entityVar,
                 outPojo = entity,
-                cursorVar = cursorParam.name,
+                cursorVar = cursorParamName,
                 fieldsWithIndices = fieldsWithIndices,
                 relationCollectors = emptyList(), // no relationship for entities
                 scope = scope
             )
-            addStatement("return $L", entityVar)
+            addStatement("return %L", entityVar)
         }
-        return scope.builder().build()
+        return scope.generate()
     }
 }

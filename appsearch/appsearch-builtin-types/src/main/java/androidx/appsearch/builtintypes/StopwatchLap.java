@@ -17,8 +17,11 @@
 package androidx.appsearch.builtintypes;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appsearch.annotation.Document;
 import androidx.core.util.Preconditions;
+
+import java.util.List;
 
 /**
  * An AppSearch document representing a {@link StopwatchLap} entity.
@@ -29,22 +32,7 @@ import androidx.core.util.Preconditions;
  * created two Laps with 5 minutes duration and 10 minutes duration respectively.
  */
 @Document(name = "builtin:StopwatchLap")
-public class StopwatchLap {
-    @Document.Namespace
-    private final String mNamespace;
-
-    @Document.Id
-    private final String mId;
-
-    @Document.Score
-    private final int mDocumentScore;
-
-    @Document.CreationTimestampMillis
-    private final long mCreationTimestampMillis;
-
-    @Document.TtlMillis
-    private final long mDocumentTtlMillis;
-
+public class StopwatchLap extends Thing {
     @Document.LongProperty
     private final int mLapNumber;
 
@@ -55,67 +43,15 @@ public class StopwatchLap {
     private final long mAccumulatedLapDurationMillis;
 
     StopwatchLap(@NonNull String namespace, @NonNull String id, int documentScore,
-            long creationTimestampMillis, long documentTtlMillis, int lapNumber,
+            long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
+            @Nullable List<String> alternateNames, @Nullable String description,
+            @Nullable String image, @Nullable String url, int lapNumber,
             long lapDurationMillis, long accumulatedLapDurationMillis) {
-        mNamespace = Preconditions.checkNotNull(namespace);
-        mId = Preconditions.checkNotNull(id);
-        mDocumentScore = documentScore;
-        mCreationTimestampMillis = creationTimestampMillis;
-        mDocumentTtlMillis = documentTtlMillis;
+        super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
+                alternateNames, description, image, url);
         mLapNumber = lapNumber;
         mLapDurationMillis = lapDurationMillis;
         mAccumulatedLapDurationMillis = accumulatedLapDurationMillis;
-    }
-
-    /** Returns the namespace. */
-    @NonNull
-    public String getNamespace() {
-        return mNamespace;
-    }
-
-    /** Returns the unique identifier. */
-    @NonNull
-    public String getId() {
-        return mId;
-    }
-
-    /**
-     * Returns the user-provided opaque document score of the current AppSearch document, which can
-     * be used for ranking using
-     * {@link androidx.appsearch.app.SearchSpec.RankingStrategy#RANKING_STRATEGY_DOCUMENT_SCORE}.
-     *
-     * <p>See {@link Document.Score} for more information on score.
-     */
-    public int getDocumentScore() {
-        return mDocumentScore;
-    }
-
-    /**
-     * Returns the creation timestamp for the current AppSearch entity, in milliseconds using the
-     * {@link System#currentTimeMillis()} time base.
-     *
-     * <p>This timestamp refers to the creation time of the AppSearch entity, not when the
-     * document is written into AppSearch.
-     *
-     * <p>If not set, then the current timestamp will be used.
-     *
-     * <p>See {@link androidx.appsearch.annotation.Document.CreationTimestampMillis} for more
-     * information on creation timestamp.
-     */
-    public long getCreationTimestampMillis() {
-        return mCreationTimestampMillis;
-    }
-
-    /**
-     * Returns the time-to-live (TTL) for the current AppSearch document as a duration in
-     * milliseconds.
-     *
-     * <p>The document will be automatically deleted when the TTL expires.
-     *
-     * <p>See {@link Document.TtlMillis} for more information on TTL.
-     */
-    public long getDocumentTtlMillis() {
-        return mDocumentTtlMillis;
     }
 
     /** Returns the position of the current {@link StopwatchLap}, starting at 1. */
@@ -139,11 +75,7 @@ public class StopwatchLap {
     }
 
     /** Builder for {@link StopwatchLap}. */
-    public static final class Builder extends BaseBuiltinTypeBuilder<Builder> {
-        private int mLapNumber;
-        private long mLapDurationMillis;
-        private long mAccumulatedLapDurationMillis;
-
+    public static final class Builder extends BuilderImpl<Builder> {
         /**
          * Constructor for {@link StopwatchLap.Builder}.
          *
@@ -158,11 +90,23 @@ public class StopwatchLap {
          * Constructor for {@link StopwatchLap.Builder} with all the existing values.
          */
         public Builder(@NonNull StopwatchLap stopwatchLap) {
-            this(stopwatchLap.getNamespace(), stopwatchLap.getId());
+            super(stopwatchLap);
+        }
+    }
 
-            this.mDocumentScore = stopwatchLap.getDocumentScore();
-            this.mCreationTimestampMillis = stopwatchLap.getCreationTimestampMillis();
-            this.mDocumentTtlMillis = stopwatchLap.getDocumentTtlMillis();
+    @SuppressWarnings("unchecked")
+    static class BuilderImpl<T extends BuilderImpl<T>> extends Thing.BuilderImpl<T> {
+        protected int mLapNumber;
+        protected long mLapDurationMillis;
+        protected long mAccumulatedLapDurationMillis;
+
+        BuilderImpl(@NonNull String namespace, @NonNull String id) {
+            super(namespace, id);
+        }
+
+        BuilderImpl(@NonNull StopwatchLap stopwatchLap) {
+            super(new Thing.Builder(stopwatchLap).build());
+
             this.mLapNumber = stopwatchLap.getLapNumber();
             this.mLapDurationMillis = stopwatchLap.getLapDurationMillis();
             this.mAccumulatedLapDurationMillis =
@@ -171,19 +115,19 @@ public class StopwatchLap {
 
         /** Sets the position of the current {@link StopwatchLap}, starting at 1. */
         @NonNull
-        public Builder setLapNumber(int lapNumber) {
+        public T setLapNumber(int lapNumber) {
             Preconditions.checkArgument(lapNumber >= 1, "Lap number must start at 1");
             mLapNumber = lapNumber;
-            return this;
+            return (T) this;
         }
 
         /**
          * Sets the total duration in milliseconds accumulated by the current {@link StopwatchLap}.
          */
         @NonNull
-        public Builder setLapDurationMillis(long lapDurationMillis) {
+        public T setLapDurationMillis(long lapDurationMillis) {
             mLapDurationMillis = lapDurationMillis;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -191,17 +135,18 @@ public class StopwatchLap {
          * instances up to and including this one.
          */
         @NonNull
-        public Builder setAccumulatedLapDurationMillis(long accumulatedLapDurationMillis) {
+        public T setAccumulatedLapDurationMillis(long accumulatedLapDurationMillis) {
             mAccumulatedLapDurationMillis = accumulatedLapDurationMillis;
-            return this;
+            return (T) this;
         }
 
         /** Builds the {@link StopwatchLap}. */
         @NonNull
+        @Override
         public StopwatchLap build() {
-            return new StopwatchLap(mNamespace, mId, mDocumentScore,
-                    mCreationTimestampMillis, mDocumentTtlMillis, mLapNumber,
-                    mLapDurationMillis, mAccumulatedLapDurationMillis);
+            return new StopwatchLap(mNamespace, mId, mDocumentScore, mCreationTimestampMillis,
+                    mDocumentTtlMillis, mName, mAlternateNames, mDescription, mImage, mUrl,
+                    mLapNumber, mLapDurationMillis, mAccumulatedLapDurationMillis);
         }
     }
 }

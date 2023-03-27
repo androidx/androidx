@@ -76,6 +76,14 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
     }
 
     /**
+     * Only searches through deep links added directly to this graph. Does not recursively search
+     * through its children as [matchDeepLink] does.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun matchDeepLinkExcludingChildren(request: NavDeepLinkRequest): DeepLinkMatch? =
+        super.matchDeepLink(request)
+
+    /**
      * Adds a destination to this NavGraph. The destination must have an
      * [NavDestination.id] id} set.
      *
@@ -189,8 +197,13 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun findNode(route: String, searchParents: Boolean): NavDestination? {
+        // first try matching with routePattern
         val id = createRoute(route).hashCode()
-        val destination = nodes[id]
+        val destination = nodes[id] ?: nodes.valueIterator().asSequence().firstOrNull {
+            // if not found with routePattern, try matching with route args
+            it.matchDeepLink(route) != null
+        }
+
         // Search the parent for the NavDestination if it is not a child of this navigation graph
         // and searchParents is true
         return destination

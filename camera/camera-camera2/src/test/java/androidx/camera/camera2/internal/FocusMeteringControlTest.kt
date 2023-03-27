@@ -136,12 +136,13 @@ class FocusMeteringControlTest(private val template: Int) {
     }
 
     private fun initFocusMeteringControl(
-        cameraID: String,
+        cameraId: String,
         cameraQuirks: Quirks
     ): FocusMeteringControl {
         val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         val cameraCharacteristics = CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
-            cameraManager.getCameraCharacteristics(cameraID)
+            cameraManager.getCameraCharacteristics(cameraId),
+            cameraId
         )
         val updateCallback = Mockito.mock(ControlUpdateCallback::class.java)
 

@@ -18,11 +18,11 @@ package androidx.car.app.navigation.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.CarText;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -53,19 +53,14 @@ import java.util.Objects;
  * </ul>
  */
 @CarProtocol
+@KeepFields
 public final class Trip {
-    @Keep
     private final List<Destination> mDestinations;
-    @Keep
     private final List<Step> mSteps;
-    @Keep
     private final List<TravelEstimate> mDestinationTravelEstimates;
-    @Keep
     private final List<TravelEstimate> mStepTravelEstimates;
-    @Keep
     @Nullable
     private final CarText mCurrentRoad;
-    @Keep
     private final boolean mIsLoading;
 
     /**

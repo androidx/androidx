@@ -24,6 +24,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -31,6 +32,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -38,9 +41,13 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
 class FullyDrawnReporterTest {
+
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
+
     @Test
     fun findFullyDrawnReporterOwner() {
-        with(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
+        withUse(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
             val provider1 = object : FullyDrawnReporterOwner {
                 override val fullyDrawnReporter: FullyDrawnReporter
                     get() = withActivity { fullyDrawnReporter }
@@ -69,7 +76,7 @@ class FullyDrawnReporterTest {
 
     @Test
     fun reportWhenComplete() {
-        with(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
+        withUse(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
             lateinit var fullyDrawnReporter: FullyDrawnReporter
             withActivity {
                 val view = View(this)
@@ -85,12 +92,12 @@ class FullyDrawnReporterTest {
                     }
                 }
                 delay(1L)
-                waitForPostAnimation {
+                waitForOnDrawComplete {
                     assertThat(fullyDrawnReported).isFalse()
                 }
                 mutex.unlock()
                 delay(1L)
-                waitForPostAnimation {
+                waitForOnDrawComplete {
                     assertThat(fullyDrawnReported).isTrue()
                 }
             }
@@ -99,17 +106,17 @@ class FullyDrawnReporterTest {
 
     @Test
     fun addReporter() {
-        with(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
+        withUse(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
             val fullyDrawnReporter = withActivity { fullyDrawnReporter }
             fullyDrawnReporter.addReporter()
             fullyDrawnReporter.addReporter()
             fullyDrawnReporter.removeReporter()
 
-            waitForPostAnimation {
+            waitForOnDrawComplete {
                 assertThat(fullyDrawnReported).isFalse()
             }
             fullyDrawnReporter.removeReporter()
-            waitForPostAnimation {
+            waitForOnDrawComplete {
                 assertThat(fullyDrawnReported).isTrue()
             }
         }
@@ -117,7 +124,7 @@ class FullyDrawnReporterTest {
 
     @Test
     fun reporterAndReportWhen() {
-        with(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
+        withUse(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
             val fullyDrawnReporter = withActivity { fullyDrawnReporter }
             fullyDrawnReporter.addReporter()
             val mutex = Mutex(true)
@@ -131,12 +138,12 @@ class FullyDrawnReporterTest {
                 delay(1L) // wait for launch
                 fullyDrawnReporter.removeReporter()
 
-                waitForPostAnimation {
+                waitForOnDrawComplete {
                     assertThat(fullyDrawnReported).isFalse()
                 }
                 mutex.unlock()
                 delay(1L) // allow launch to continue
-                waitForPostAnimation {
+                waitForOnDrawComplete {
                     assertThat(fullyDrawnReported).isTrue()
                 }
             }
@@ -145,7 +152,7 @@ class FullyDrawnReporterTest {
 
     @Test
     fun reportWhenAndReporter() {
-        with(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
+        withUse(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
             val fullyDrawnReporter = withActivity { fullyDrawnReporter }
             fullyDrawnReporter.addReporter()
             val mutex = Mutex(true)
@@ -159,12 +166,12 @@ class FullyDrawnReporterTest {
                 delay(1L) // wait for launch
                 mutex.unlock()
                 delay(1L) // allow launch to continue
-                waitForPostAnimation {
+                waitForOnDrawComplete {
                     assertThat(fullyDrawnReported).isFalse()
                 }
 
                 fullyDrawnReporter.removeReporter()
-                waitForPostAnimation {
+                waitForOnDrawComplete {
                     assertThat(fullyDrawnReported).isTrue()
                 }
             }
@@ -173,7 +180,7 @@ class FullyDrawnReporterTest {
 
     @Test
     fun reportListener() {
-        with(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
+        withUse(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
             var report1 = false
             var report2 = false
             var report3 = false
@@ -190,7 +197,7 @@ class FullyDrawnReporterTest {
             fullyDrawnReporter.addOnReportDrawnListener(reportListener2)
             fullyDrawnReporter.removeOnReportDrawnListener(reportListener2)
             fullyDrawnReporter.removeReporter()
-            waitForPostAnimation {
+            waitForOnDrawComplete {
                 assertThat(report1).isTrue()
                 assertThat(report2).isFalse()
             }
@@ -205,7 +212,7 @@ class FullyDrawnReporterTest {
      */
     @Test
     fun fakeoutReport() {
-        with(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
+        withUse(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
             withActivity {
                 setContentView(View(this))
             }
@@ -216,13 +223,13 @@ class FullyDrawnReporterTest {
                 fullyDrawnReporter.removeReporter()
                 fullyDrawnReporter.addReporter()
             }
-            waitForPostAnimation {
+            waitForOnDrawComplete {
                 assertThat(fullyDrawnReporter.isFullyDrawnReported).isFalse()
             }
             onActivity {
                 fullyDrawnReporter.removeReporter()
             }
-            waitForPostAnimation {
+            waitForOnDrawComplete {
                 assertThat(fullyDrawnReporter.isFullyDrawnReported).isTrue()
             }
         }
@@ -233,7 +240,7 @@ class FullyDrawnReporterTest {
      */
     @Test
     fun reportedInOnDraw() {
-        with(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
+        withUse(ActivityScenario.launch(FullyDrawnActivity::class.java)) {
             withActivity {
                 setContentView(View(this))
             }
@@ -247,35 +254,41 @@ class FullyDrawnReporterTest {
                 OneShotPreDrawListener.add(activity.window.decorView) {
                     fullyDrawnInOnPreDraw = fullyDrawnReporter.isFullyDrawnReported
                 }
-                val onDrawListener = OnDrawListener {
-                    fullyDrawnInOnDraw = fullyDrawnReporter.isFullyDrawnReported
+                val onDrawListener = object : OnDrawListener {
+                    override fun onDraw() {
+                        fullyDrawnInOnDraw = fullyDrawnReporter.isFullyDrawnReported
+                        activity.window.decorView.post {
+                            activity.window.decorView.viewTreeObserver.removeOnDrawListener(this)
+                        }
+                    }
                 }
                 activity.window.decorView.viewTreeObserver.addOnDrawListener(onDrawListener)
-                activity.window.decorView.post {
-                    activity.window.decorView.viewTreeObserver.removeOnDrawListener(onDrawListener)
-                }
             }
-            waitForPostAnimation {
+            waitForOnDrawComplete {
                 assertThat(fullyDrawnInOnPreDraw).isFalse()
                 assertThat(fullyDrawnInOnDraw).isTrue()
             }
         }
     }
 
-    private fun ActivityScenario<FullyDrawnActivity>.waitForPostAnimation(
+    private fun ActivityScenario<FullyDrawnActivity>.waitForOnDrawComplete(
         block: FullyDrawnActivity.() -> Unit = {}
     ) {
         val countDownLatch = CountDownLatch(1)
+        val observer = OnDrawListener {
+            countDownLatch.countDown()
+        }
         withActivity {
             runOnUiThread {
-                window.decorView.postOnAnimation {
-                    countDownLatch.countDown()
-                }
+                window.decorView.viewTreeObserver.addOnDrawListener(observer)
                 window.decorView.invalidate()
             }
         }
         assertThat(countDownLatch.await(10, TimeUnit.SECONDS)).isTrue()
         withActivity {
+            runOnUiThread {
+                window.decorView.viewTreeObserver.removeOnDrawListener(observer)
+            }
             block()
         }
     }

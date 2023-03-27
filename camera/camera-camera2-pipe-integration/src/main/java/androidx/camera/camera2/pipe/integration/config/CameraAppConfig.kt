@@ -22,6 +22,7 @@ import android.content.Context
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.integration.impl.CameraInteropStateCallbackRepository
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
 import dagger.Component
@@ -37,9 +38,18 @@ abstract class CameraAppModule {
     companion object {
         @Singleton
         @Provides
-        fun provideCameraPipe(context: Context): CameraPipe {
-            return CameraPipe(CameraPipe.Config(appContext = context.applicationContext))
-        }
+        fun provideCameraPipe(
+            context: Context,
+            cameraInteropStateCallbackRepository: CameraInteropStateCallbackRepository
+        ): CameraPipe = CameraPipe(
+            CameraPipe.Config(
+                appContext = context.applicationContext,
+                cameraInteropConfig = CameraPipe.CameraInteropConfig(
+                    cameraInteropStateCallbackRepository.deviceStateCallback,
+                    cameraInteropStateCallbackRepository.sessionStateCallback
+                )
+            )
+        )
 
         @Provides
         fun provideCameraDevices(cameraPipe: CameraPipe): CameraDevices {
@@ -52,7 +62,7 @@ abstract class CameraAppModule {
 @Module
 class CameraAppConfig(
     private val context: Context,
-    private val cameraThreadConfig: CameraThreadConfig
+    private val cameraThreadConfig: CameraThreadConfig,
 ) {
     @Provides
     fun provideContext(): Context = context

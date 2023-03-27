@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,29 +17,36 @@
 package com.example.androidx.webkit;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.webkit.ProcessGlobalConfig;
-
 
 /**
- * An {@link Activity} which makes use of {@link androidx.webkit.ProcessGlobalConfig} to set up
- * process global configuration prior to loading WebView.
+ * An {@link Activity} which lists features that make use of
+ * {@link androidx.webkit.ProcessGlobalConfig} to set up process global configuration prior to
+ * loading WebView.
  */
 public class ProcessGlobalConfigActivity extends AppCompatActivity {
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ProcessGlobalConfig.createInstance()
-                .setDataDirectorySuffix("per_process_webview_data_0")
-                .apply();
-        WebView wv = new WebView(this);
-        setContentView(wv);
-        wv.setWebViewClient(new WebViewClient());
-        wv.loadUrl("www.google.com");
+        setContentView(R.layout.activity_main);
+        setTitle(R.string.process_global_config_activity_title);
+        WebkitHelpers.appendWebViewVersionToTitle(this);
+        final Context activityContext = this;
+        MenuListView listView = findViewById(R.id.top_level_list);
+        MenuListView.MenuItem[] menuItems = new MenuListView.MenuItem[] {
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.data_directory_suffix_activity_title),
+                        new Intent(activityContext, DataDirectorySuffixActivity.class)),
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.directory_base_path_activity_title),
+                        new Intent(activityContext, DirectoryBasePathActivity.class)),
+        };
+        listView.setItems(menuItems);
     }
 }

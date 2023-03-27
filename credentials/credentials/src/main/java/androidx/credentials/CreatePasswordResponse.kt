@@ -16,5 +16,19 @@
 
 package androidx.credentials
 
+import android.os.Bundle
+
 /** A response of a password saving flow. */
-class CreatePasswordResponse : CreateCredentialResponse()
+class CreatePasswordResponse : CreateCredentialResponse(
+    PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
+    Bundle(),
+) {
+    /** @hide */
+    companion object {
+        @Suppress("UNUSED_PARAMETER")
+        @JvmStatic
+        internal fun createFrom(data: Bundle): CreatePasswordResponse {
+            return CreatePasswordResponse()
+        }
+    }
+}

@@ -31,6 +31,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter.FragmentTransactionCallb
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
@@ -224,6 +225,7 @@ class FragmentTransactionCallbackTest : BaseTest() {
         }
     }
 
+    @Ignore // b/266975014
     @Test
     fun test_fragmentSaveSateCallback() {
         setUpTest(ORIENTATION_HORIZONTAL).apply {

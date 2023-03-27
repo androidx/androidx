@@ -36,8 +36,7 @@ public class ComplicationSlotState {
     public val bounds: Rect
 
     /** The type of the complication's bounds. */
-    @ComplicationSlotBoundsType
-    public val boundsType: Int
+    @ComplicationSlotBoundsType public val boundsType: Int
 
     /** The [ComplicationType]s supported by this complication. */
     public val supportedTypes: List<ComplicationType>
@@ -51,16 +50,14 @@ public class ComplicationSlotState {
         get() = defaultDataSourcePolicy.systemDataSourceFallbackDefaultType
 
     /** Whether or not the complication is currently enabled (i.e. it should be drawn. */
-    @get:JvmName("isEnabled")
-    public val isEnabled: Boolean
+    @get:JvmName("isEnabled") public val isEnabled: Boolean
 
     /**
      * Whether or not the complication was initially enabled before considering any
      * [ComplicationSlotsOption] whose [ComplicationSlotOverlay]s may enable or disable
      * complicationSlots.
      */
-    @get:JvmName("isInitiallyEnabled")
-    public val isInitiallyEnabled: Boolean
+    @get:JvmName("isInitiallyEnabled") public val isInitiallyEnabled: Boolean
 
     /** The [ComplicationType] of the complication's current [ComplicationData]. */
     public val currentType: ComplicationType
@@ -78,45 +75,41 @@ public class ComplicationSlotState {
      * The ID of a string resource (or `null` if absent) to identify the complication slot visually
      * in an editor. This is supposed to be short and without the word complication in it.
      */
-    @get:Suppress("AutoBoxing")
-    public val nameResourceId: Int?
+    @get:Suppress("AutoBoxing") public val nameResourceId: Int?
 
     /**
      * The ID of a string resource (or `null` if absent) to identify the complication slot in a
      * screen reader. This is supposed to be a complete sentence.
      */
-    @get:Suppress("AutoBoxing")
-    public val screenReaderNameResourceId: Int?
+    @get:Suppress("AutoBoxing") public val screenReaderNameResourceId: Int?
 
-    @OptIn(ComplicationExperimental::class)
-    private val boundingArc: BoundingArc?
+    @OptIn(ComplicationExperimental::class) private val boundingArc: BoundingArc?
 
     /** Describes the geometry of an edge complication if specified, or `null` otherwise. */
     // TODO(b/230364881): Make this a normal primary property when BoundingArc is no longer
     // experimental.
-    @ComplicationExperimental
-    public fun getBoundingArc(): BoundingArc? = boundingArc
+    @ComplicationExperimental public fun getBoundingArc(): BoundingArc? = boundingArc
 
     /**
      * @param bounds Screen space bounds of the [ComplicationSlot] in pixels.
      * @param boundsType The type of the complication's bounds.
      * @param supportedTypes The [ComplicationType]s supported by this complication.
      * @param defaultDataSourcePolicy The [DefaultComplicationDataSourcePolicy] for this
-     * complication slot.
+     *   complication slot.
      * @param isEnabled Whether or not the complication is currently enabled (i.e. it should be
-     * drawn).
+     *   drawn).
      * @param isInitiallyEnabled Whether or not the complication was initially enabled before
-     * considering any [ComplicationSlotsOption] whose [ComplicationSlotOverlay]s may enable or
-     * disable complicationSlots.
+     *   considering any [ComplicationSlotsOption] whose [ComplicationSlotOverlay]s may enable or
+     *   disable complicationSlots.
      * @param currentType The [ComplicationType] of the complication's current [ComplicationData].
      * @param fixedComplicationDataSource Whether or not the complication data source is fixed (i.e
-     * the user can't configure it).
+     *   the user can't configure it).
      * @param complicationConfigExtras Extras to be merged into the Intent sent when invoking the
-     * complication data source chooser activity.
+     *   complication data source chooser activity.
      * @param nameResourceId The ID of a string resource (or `null` if absent) to visually identify
-     * the complication slot in an editor.
+     *   the complication slot in an editor.
      * @param screenReaderNameResourceId The ID of a string resource (or `null` if absent) to
-     * identify the complication slot in a screen reader.
+     *   identify the complication slot in a screen reader.
      */
     public constructor(
         bounds: Rect,
@@ -128,10 +121,8 @@ public class ComplicationSlotState {
         currentType: ComplicationType,
         fixedComplicationDataSource: Boolean,
         complicationConfigExtras: Bundle,
-        @Suppress("AutoBoxing")
-        nameResourceId: Int?,
-        @Suppress("AutoBoxing")
-        screenReaderNameResourceId: Int?
+        @Suppress("AutoBoxing") nameResourceId: Int?,
+        @Suppress("AutoBoxing") screenReaderNameResourceId: Int?
     ) {
         this.bounds = bounds
         this.boundsType = boundsType
@@ -154,23 +145,23 @@ public class ComplicationSlotState {
      * @param boundsType The type of the complication's bounds.
      * @param supportedTypes The [ComplicationType]s supported by this complication.
      * @param defaultDataSourcePolicy The [DefaultComplicationDataSourcePolicy] for this
-     * complication slot.
+     *   complication slot.
      * @param isEnabled Whether or not the complication is currently enabled (i.e. it should be
-     * drawn).
+     *   drawn).
      * @param isInitiallyEnabled Whether or not the complication was initially enabled before
-     * considering any [ComplicationSlotsOption] whose [ComplicationSlotOverlay]s may enable or
-     * disable complicationSlots.
+     *   considering any [ComplicationSlotsOption] whose [ComplicationSlotOverlay]s may enable or
+     *   disable complicationSlots.
      * @param currentType The [ComplicationType] of the complication's current [ComplicationData].
      * @param fixedComplicationDataSource Whether or not the complication data source is fixed (i.e
-     * the user can't configure it).
+     *   the user can't configure it).
      * @param complicationConfigExtras Extras to be merged into the Intent sent when invoking the
-     * complication data source chooser activity.
+     *   complication data source chooser activity.
      * @param nameResourceId The ID of a string resource (or `null` if absent) to visually identify
-     * the complication slot in an editor.
+     *   the complication slot in an editor.
      * @param screenReaderNameResourceId The ID of a string resource (or `null` if absent) to
-     * identify the complication slot in a screen reader.
+     *   identify the complication slot in a screen reader.
      * @param edgeComplicationBoundingArc The [BoundingArc] describing the geometry of an edge
-     * complication if specified, or `null` otherwise.
+     *   complication if specified, or `null` otherwise.
      */
     @ComplicationExperimental
     public constructor(
@@ -183,10 +174,8 @@ public class ComplicationSlotState {
         currentType: ComplicationType,
         fixedComplicationDataSource: Boolean,
         complicationConfigExtras: Bundle,
-        @Suppress("AutoBoxing")
-        nameResourceId: Int?,
-        @Suppress("AutoBoxing")
-        screenReaderNameResourceId: Int?,
+        @Suppress("AutoBoxing") nameResourceId: Int?,
+        @Suppress("AutoBoxing") screenReaderNameResourceId: Int?,
         edgeComplicationBoundingArc: BoundingArc?
     ) {
         this.bounds = bounds
@@ -208,21 +197,22 @@ public class ComplicationSlotState {
      * @param boundsType The type of the complication's bounds.
      * @param supportedTypes The [ComplicationType]s supported by this complication.
      * @param defaultDataSourcePolicy The [DefaultComplicationDataSourcePolicy] for this
-     * complication slot.
+     *   complication slot.
      * @param defaultDataSourceType The default [ComplicationType] for this complication.
      * @param isEnabled Whether or not the complication is currently enabled (i.e. it should be
-     * drawn).
+     *   drawn).
      * @param isInitiallyEnabled Whether or not the complication was initially enabled before
-     * considering any [ComplicationSlotsOption] whose [ComplicationSlotOverlay]s may enable or
-     * disable complicationSlots.
+     *   considering any [ComplicationSlotsOption] whose [ComplicationSlotOverlay]s may enable or
+     *   disable complicationSlots.
      * @param currentType The [ComplicationType] of the complication's current [ComplicationData].
      * @param fixedComplicationDataSource Whether or not the complication data source is fixed (i.e
-     * the user can't configure it).
+     *   the user can't configure it).
      * @param complicationConfigExtras Extras to be merged into the Intent sent when invoking the
-     * complication data source chooser activity.
+     *   complication data source chooser activity.
      */
     @Deprecated(
-        "defaultDataSourceType is depreciated", ReplaceWith(
+        "defaultDataSourceType is depreciated",
+        ReplaceWith(
             "ComplicationSlotState(Rect, Int, List<ComplicationType>, " +
                 "DefaultComplicationDataSourcePolicy, Boolean, Boolean, ComplicationType, Boolean" +
                 ", Bundle)"
@@ -243,33 +233,33 @@ public class ComplicationSlotState {
         this.bounds = bounds
         this.boundsType = boundsType
         this.supportedTypes = supportedTypes
-        this.defaultDataSourcePolicy = when {
-            defaultDataSourcePolicy.secondaryDataSource != null ->
-                DefaultComplicationDataSourcePolicy(
-                    defaultDataSourcePolicy.primaryDataSource!!,
-                    defaultDataSourcePolicy.primaryDataSourceDefaultType
-                        ?: defaultDataSourceType,
-                    defaultDataSourcePolicy.secondaryDataSource!!,
-                    defaultDataSourcePolicy.secondaryDataSourceDefaultType
-                        ?: defaultDataSourceType,
-                    defaultDataSourcePolicy.systemDataSourceFallback,
-                    defaultDataSourceType
-                )
-
-            defaultDataSourcePolicy.primaryDataSource != null ->
-                DefaultComplicationDataSourcePolicy(
-                    defaultDataSourcePolicy.primaryDataSource!!,
-                    defaultDataSourcePolicy.primaryDataSourceDefaultType
-                        ?: defaultDataSourceType,
-                    defaultDataSourcePolicy.systemDataSourceFallback,
-                    defaultDataSourceType
-                )
-
-            else -> DefaultComplicationDataSourcePolicy(
-                defaultDataSourcePolicy.systemDataSourceFallback,
-                defaultDataSourceType
-            )
-        }
+        this.defaultDataSourcePolicy =
+            when {
+                defaultDataSourcePolicy.secondaryDataSource != null ->
+                    DefaultComplicationDataSourcePolicy(
+                        defaultDataSourcePolicy.primaryDataSource!!,
+                        defaultDataSourcePolicy.primaryDataSourceDefaultType
+                            ?: defaultDataSourceType,
+                        defaultDataSourcePolicy.secondaryDataSource!!,
+                        defaultDataSourcePolicy.secondaryDataSourceDefaultType
+                            ?: defaultDataSourceType,
+                        defaultDataSourcePolicy.systemDataSourceFallback,
+                        defaultDataSourceType
+                    )
+                defaultDataSourcePolicy.primaryDataSource != null ->
+                    DefaultComplicationDataSourcePolicy(
+                        defaultDataSourcePolicy.primaryDataSource!!,
+                        defaultDataSourcePolicy.primaryDataSourceDefaultType
+                            ?: defaultDataSourceType,
+                        defaultDataSourcePolicy.systemDataSourceFallback,
+                        defaultDataSourceType
+                    )
+                else ->
+                    DefaultComplicationDataSourcePolicy(
+                        defaultDataSourcePolicy.systemDataSourceFallback,
+                        defaultDataSourceType
+                    )
+            }
         this.isEnabled = isEnabled
         this.isInitiallyEnabled = isInitiallyEnabled
         this.currentType = currentType
@@ -293,9 +283,7 @@ public class ComplicationSlotState {
         DefaultComplicationDataSourcePolicy(
             complicationStateWireFormat.defaultDataSourcesToTry ?: emptyList(),
             complicationStateWireFormat.fallbackSystemProvider,
-            ComplicationType.fromWireType(
-                complicationStateWireFormat.primaryDataSourceDefaultType
-            ),
+            ComplicationType.fromWireType(complicationStateWireFormat.primaryDataSourceDefaultType),
             ComplicationType.fromWireType(
                 complicationStateWireFormat.secondaryDataSourceDefaultType
             ),
@@ -348,8 +336,7 @@ public class ComplicationSlotState {
         if (complicationConfigExtras != other.complicationConfigExtras) return false
         if (nameResourceId != other.nameResourceId) return false
         if (screenReaderNameResourceId != other.screenReaderNameResourceId) return false
-        @OptIn(ComplicationExperimental::class)
-        if (boundingArc != other.boundingArc) return false
+        @OptIn(ComplicationExperimental::class) if (boundingArc != other.boundingArc) return false
 
         return true
     }

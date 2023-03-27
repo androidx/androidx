@@ -16,16 +16,14 @@
 
 package androidx.room.solver.query.result
 
-import androidx.room.ext.L
-import androidx.room.ext.RoomTypeNames
-import androidx.room.ext.S
-import androidx.room.ext.T
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.ext.RoomMemberNames
 import androidx.room.ext.capitalize
 import androidx.room.ext.stripNonJava
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.types.CursorValueReader
 import androidx.room.vo.ColumnIndexVar
-import com.squareup.javapoet.TypeName
 import java.util.Locale
 
 /**
@@ -46,14 +44,16 @@ class SingleNamedColumnRowAdapter(
 
         override fun onCursorReady(cursorVarName: String, scope: CodeGenScope) {
             indexVarName = scope.getTmpVar(indexVarNamePrefix)
-            scope.builder().addStatement(
-                "final $T $L = $T.$L($L, $S)",
-                TypeName.INT,
-                indexVarName,
-                RoomTypeNames.CURSOR_UTIL,
-                "getColumnIndexOrThrow",
-                cursorVarName,
-                columnName
+            scope.builder.addLocalVariable(
+                name = indexVarName,
+                typeName = XTypeName.PRIMITIVE_INT,
+                assignExpr = XCodeBlock.of(
+                    scope.language,
+                    "%M(%L, %S)",
+                    RoomMemberNames.CURSOR_UTIL_GET_COLUMN_INDEX_OR_THROW,
+                    cursorVarName,
+                    columnName
+                )
             )
         }
 

@@ -25,6 +25,8 @@ import java.nio.ByteBuffer;
 /**
  * Fake {@link ImageProxy.PlaneProxy} with JPEG format.
  *
+ * TODO: Rename this to FakeByteArrayPlaneProxy and inherit {@link FakePlaneProxy}.
+ *
  * @hide
  */
 @RequiresApi(21)

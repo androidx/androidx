@@ -23,14 +23,15 @@ import java.time.ZoneOffset
  * Captures the user's respiratory rate. Each record represents a single instantaneous measurement.
  */
 public class RespiratoryRateRecord(
-    /** Respiratory rate in breaths per minute. Required field. Valid range: 0-1000. */
-    public val rate: Double,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
+    /** Respiratory rate in breaths per minute. Required field. Valid range: 0-1000. */
+    public val rate: Double,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
     init {
         requireNonNegative(value = rate, name = "rate")
+        rate.requireNotMore(other = 100.0, name = "rate")
     }
 
     override fun equals(other: Any?): Boolean {

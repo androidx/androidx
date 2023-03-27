@@ -34,11 +34,14 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
+import android.os.Bundle;
 import android.util.SparseIntArray;
 import android.util.StateSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.GridView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.view.AccessibilityDelegateCompat;
@@ -847,6 +850,102 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
     }
 
     @Test
+    public void rowCountForAccessibility_verticalOrientation() throws Throwable {
+        final RecyclerView recyclerView = setupBasic(new Config(3, 100));
+        waitForFirstLayout(recyclerView);
+
+        int count = mGlm.getRowCountForAccessibility(recyclerView.mRecycler,
+                recyclerView.mState);
+
+        assertEquals(34, count);
+    }
+
+    @Test
+    public void rowCountForAccessibility_horizontalOrientation() throws Throwable {
+        final RecyclerView recyclerView = setupBasic(new Config(3, 100));
+        mGlm.setOrientation(RecyclerView.HORIZONTAL);
+        waitForFirstLayout(recyclerView);
+
+        int count = mGlm.getRowCountForAccessibility(recyclerView.mRecycler,
+                recyclerView.mState);
+
+        assertEquals(3, count);
+    }
+
+    @Test
+    public void rowCountForAccessibility_verticalOrientation_fewerItemsThanSpanCount()
+            throws Throwable {
+        final RecyclerView recyclerView = setupBasic(new Config(3, 2));
+        waitForFirstLayout(recyclerView);
+
+        int count = mGlm.getRowCountForAccessibility(recyclerView.mRecycler,
+                recyclerView.mState);
+
+        assertEquals(1, count);
+    }
+
+    @Test
+    public void rowCountForAccessibility_horizontalOrientation_fewerItemsThanSpanCount()
+            throws Throwable {
+        final RecyclerView recyclerView = setupBasic(new Config(3, 2));
+        mGlm.setOrientation(RecyclerView.HORIZONTAL);
+        waitForFirstLayout(recyclerView);
+
+        int count = mGlm.getRowCountForAccessibility(recyclerView.mRecycler,
+                recyclerView.mState);
+
+        assertEquals(2, count);
+    }
+
+    @Test
+    public void columnCountForAccessibility_verticalOrientation() throws Throwable {
+        final RecyclerView recyclerView = setupBasic(new Config(3, 100));
+        waitForFirstLayout(recyclerView);
+
+        int count = mGlm.getColumnCountForAccessibility(recyclerView.mRecycler,
+                recyclerView.mState);
+
+        assertEquals(3, count);
+    }
+
+    @Test
+    public void columnCountForAccessibility_horizontalOrientation() throws Throwable {
+        final RecyclerView recyclerView = setupBasic(new Config(3, 100));
+        mGlm.setOrientation(RecyclerView.HORIZONTAL);
+        waitForFirstLayout(recyclerView);
+
+        int count = mGlm.getColumnCountForAccessibility(recyclerView.mRecycler,
+                recyclerView.mState);
+
+        assertEquals(34, count);
+    }
+
+    @Test
+    public void columnCountForAccessibility_verticalOrientation_fewerItemsThanSpanCount()
+            throws Throwable {
+        final RecyclerView recyclerView = setupBasic(new Config(3, 2));
+        waitForFirstLayout(recyclerView);
+
+        int count = mGlm.getColumnCountForAccessibility(recyclerView.mRecycler,
+                recyclerView.mState);
+
+        assertEquals(2, count);
+    }
+
+    @Test
+    public void columnCountForAccessibility_horizontalOrientation_fewerItemsThanSpanCount()
+            throws Throwable {
+        final RecyclerView recyclerView = setupBasic(new Config(3, 2));
+        mGlm.setOrientation(RecyclerView.HORIZONTAL);
+        waitForFirstLayout(recyclerView);
+
+        int count = mGlm.getColumnCountForAccessibility(recyclerView.mRecycler,
+                recyclerView.mState);
+
+        assertEquals(1, count);
+    }
+
+    @Test
     public void accessibilityClassName() throws Throwable {
         final RecyclerView recyclerView = setupBasic(new Config(3, 100));
         waitForFirstLayout(recyclerView);
@@ -856,6 +955,151 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         mActivityRule.runOnUiThread(
                 () -> delegateCompat.onInitializeAccessibilityNodeInfo(recyclerView, info));
         assertEquals(GridView.class.getName(), info.getClassName());
+    }
+
+    @Test
+    public void onInitializeAccessibilityNodeInfo_addActionScrollToPosition_notAddedWithEmptyList()
+            throws Throwable {
+        final RecyclerView recyclerView = setupBasic(new Config(3, 0));
+        waitForFirstLayout(recyclerView);
+
+        final AccessibilityNodeInfoCompat nodeInfo = AccessibilityNodeInfoCompat.obtain();
+        assertFalse(nodeInfo.getActionList().contains(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_TO_POSITION));
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGlm.onInitializeAccessibilityNodeInfo(nodeInfo);
+            }
+        });
+
+        assertFalse(nodeInfo.getActionList().contains(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_TO_POSITION));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
+    public void onInitializeAccessibilityNodeInfo_addActionScrollToPosition_addedWithNonEmptyList()
+            throws Throwable {
+        final RecyclerView recyclerView = setupBasic(new Config(3, 1));
+        waitForFirstLayout(recyclerView);
+
+        final AccessibilityNodeInfoCompat nodeInfo = AccessibilityNodeInfoCompat.obtain();
+        assertFalse(nodeInfo.getActionList().contains(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_TO_POSITION));
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGlm.onInitializeAccessibilityNodeInfo(nodeInfo);
+            }
+        });
+
+        assertTrue(nodeInfo.getActionList().contains(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_TO_POSITION));
+    }
+
+    @Test
+    public void performAccessibilityAction_actionScrollToPosition_withNullArgs_returnsFalse()
+            throws Throwable {
+        final RecyclerView recyclerView = setupBasic(new Config(3, 100));
+        waitForFirstLayout(recyclerView);
+
+        final boolean[] returnValue = {false};
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                returnValue[0] = mGlm.performAccessibilityAction(
+                        android.R.id.accessibilityActionScrollToPosition, null);
+            }
+        });
+
+        assertFalse(returnValue[0]);
+    }
+
+    @Test
+    public void performAccessibilityAction_actionScrollToPosition_noRow_returnsFalse()
+            throws Throwable {
+        final RecyclerView recyclerView = setupBasic(new Config(3, 100));
+        waitForFirstLayout(recyclerView);
+
+        Bundle bundle = new Bundle();
+        bundle.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_COLUMN_INT, 10);
+
+        final boolean[] returnValue = {false};
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                returnValue[0] = mGlm.performAccessibilityAction(
+                        android.R.id.accessibilityActionScrollToPosition, bundle);
+            }
+        });
+
+        assertFalse(returnValue[0]);
+    }
+
+    @Test
+    public void performAccessibilityAction_actionScrollToPosition_noColumn_returnsFalse()
+            throws Throwable {
+        final RecyclerView recyclerView = setupBasic(new Config(3, 100));
+        waitForFirstLayout(recyclerView);
+
+        Bundle bundle = new Bundle();
+        bundle.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_ROW_INT, 10);
+
+        final boolean[] returnValue = {false};
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                returnValue[0] = mGlm.performAccessibilityAction(
+                        android.R.id.accessibilityActionScrollToPosition, bundle);
+            }
+        });
+
+        assertFalse(returnValue[0]);
+    }
+
+    @Test
+    public void performAccessibilityAction_withValidRowAndColumn_performsScroll() throws Throwable {
+        final RecyclerView recyclerView = setupBasic(new Config(3, 100));
+        final GridLayoutManager.SpanSizeLookup spanSizeLookup =
+                new GridLayoutManager.SpanSizeLookup() {
+                    @Override
+                    public int getSpanSize(int position) {
+                        if (position % 5 == 0) {
+                            return 2;
+                        }
+                        return 1;
+                    }
+                };
+
+        mGlm.setOrientation(RecyclerView.HORIZONTAL);
+        mGlm.setSpanSizeLookup(spanSizeLookup);
+        /*
+        This generates the following grid, with items 1, 6, 11, etc. (at indices 0, 5, 10, etc.)
+        spanning two rows.
+        1   3   6   8   11  13  16  etc.
+            4       9       14      etc.
+        2   5   7   10  12  15  17  etc.
+        */
+        waitForFirstLayout(recyclerView);
+        mGlm.expectLayout(1);
+
+        Bundle bundle = new Bundle();
+        bundle.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_ROW_INT, 0);
+        bundle.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_COLUMN_INT, 2);
+
+        final boolean[] returnValue = {false};
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                returnValue[0] = recyclerView.getLayoutManager().performAccessibilityAction(
+                        android.R.id.accessibilityActionScrollToPosition, bundle);
+            }
+        });
+        mGlm.waitForLayout(2);
+
+        assertTrue(returnValue[0]);
+        assertEquals(((TextView) mGlm.getChildAt(0)).getText(), "Item (6)");
     }
 
     public GridLayoutManager.LayoutParams ensureGridLp(View view) {

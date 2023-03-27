@@ -41,7 +41,7 @@ dependencies {
     androidTestImplementation(libs.protobuf)
 
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.robolectric)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testExtTruth)
@@ -73,7 +73,6 @@ androidx {
     name = "Android Wear Tiles Material"
     type = LibraryType.PUBLISHED_LIBRARY
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WEAR_TILES
     inceptionYear = "2021"
     description = "Material components library for Android Wear Tiles."
 }

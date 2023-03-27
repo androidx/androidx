@@ -91,7 +91,7 @@ abstract class EntityDeletionOrUpdateAdapter<T> (
      * @param entities Entities to delete or update
      * @return The number of affected rows
      */
-    fun handleMultiple(entities: Array<T>): Int {
+    fun handleMultiple(entities: Array<out T>): Int {
         val stmt: SupportSQLiteStatement = acquire()
         return try {
             var total = 0

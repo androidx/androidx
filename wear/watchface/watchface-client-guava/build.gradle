@@ -42,7 +42,6 @@ dependencies {
 androidx {
     name = "Android Wear Watchface Client Guava"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.WEAR_WATCHFACE
     inceptionYear = "2021"
     description = "Guava wrappers for the Androidx Wear Watchface library"
 }

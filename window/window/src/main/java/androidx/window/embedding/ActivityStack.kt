@@ -16,63 +16,57 @@
 package androidx.window.embedding
 
 import android.app.Activity
-import androidx.window.core.ExperimentalWindowApi
 
 /**
  * A container that holds a stack of activities, overlapping and bound to the same rectangle on the
  * screen.
  */
-@ExperimentalWindowApi
-class ActivityStack(
+class ActivityStack internal constructor(
     /**
-     * The [Activity] list in this application's process that belongs to this ActivityStack.
+     * The [Activity] list in this application's process that belongs to this [ActivityStack].
      *
-     * Note that Activities that are running in other processes do not contain in this [Activity]
+     * Note that Activities that are running in other processes will not be contained in this
      * list. They can be in any position in terms of ordering relative to the activities in the
      * list.
      */
-    internal val activities: List<Activity>,
-    private val isEmpty: Boolean = false
+    internal val activitiesInProcess: List<Activity>,
+    /**
+     * Whether there is no [Activity] running in this [ActivityStack].
+     *
+     * Note that [activitiesInProcess] only report [Activity] in the process used to create this
+     * ActivityStack. That said, if this ActivityStack only contains activities from other
+     * process(es), [activitiesInProcess] will return an empty list, but this method will return
+     * `false`.
+     */
+    val isEmpty: Boolean
 ) {
 
-    operator fun contains(activity: Activity): Boolean {
-        return activities.contains(activity)
-    }
-
     /**
-     * Returns `true` if there's no [Activity] running in this ActivityStack.
-     *
-     * Note that [activities] only report Activity in the process used to create this
-     * ActivityStack. That said, if this ActivityStack only contains activities from other
-     * process(es), [activities] will return empty list, and this method will return `false`.
+     * Whether this [ActivityStack] contains the [activity].
      */
-    fun isEmpty(): Boolean {
-        return isEmpty
+    operator fun contains(activity: Activity): Boolean {
+        return activitiesInProcess.contains(activity)
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        if (other !is ActivityStack) return false
 
-        other as ActivityStack
-
-        if (activities != other.activities) return false
+        if (activitiesInProcess != other.activitiesInProcess) return false
         if (isEmpty != other.isEmpty) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = activities.hashCode()
+        var result = activitiesInProcess.hashCode()
         result = 31 * result + isEmpty.hashCode()
         return result
     }
 
-    override fun toString(): String {
-        return buildString {
-            append("ActivityStack{")
-            append("activities=$activities")
-            append("isEmpty=$isEmpty}")
-        }
-    }
+    override fun toString(): String =
+        "ActivityStack{" +
+            "activitiesInProcess=$activitiesInProcess" +
+            ", isEmpty=$isEmpty" +
+            "}"
 }

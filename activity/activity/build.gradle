@@ -9,28 +9,25 @@ plugins {
 android {
     defaultConfig {
         multiDexEnabled true
-        testInstrumentationRunnerArgument "listener", "leakcanary.FailTestOnLeakRunListener"
     }
     namespace "androidx.activity"
 }
 
 dependencies {
-    // Atomic group
-    constraints {
-        implementation(project(":activity:activity-ktx"))
-    }
 
     api("androidx.annotation:annotation:1.1.0")
     implementation("androidx.collection:collection:1.0.0")
     api("androidx.core:core:1.8.0")
-    api("androidx.lifecycle:lifecycle-runtime:2.5.1")
-    api("androidx.lifecycle:lifecycle-viewmodel:2.5.1")
-    api("androidx.savedstate:savedstate:1.2.0")
-    api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.5.1")
+    api("androidx.lifecycle:lifecycle-runtime:2.6.1")
+    api("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
+    api("androidx.savedstate:savedstate:1.2.1")
+    api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.6.1")
+    implementation("androidx.profileinstaller:profileinstaller:1.2.1")
     implementation("androidx.tracing:tracing:1.0.0")
     api(libs.kotlinStdlib)
 
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.espressoCore, excludes.espresso)
     androidTestImplementation(libs.leakcanary)
@@ -51,7 +48,6 @@ dependencies {
 androidx {
     name = "Activity"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.ACTIVITY
     inceptionYear = "2018"
     description = "Provides the base Activity subclass and the relevant hooks to build a composable structure on top."
 }

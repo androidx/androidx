@@ -25,9 +25,7 @@ import androidx.annotation.Px
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.data.SmallImageType
 
-/**
- * Defines attributes to customize appearance of rendered [ ].
- */
+/** Defines attributes to customize appearance of rendered [ ]. */
 public class ComplicationStyle {
     /**
      * Constants used to define border styles for complicationSlots.
@@ -36,28 +34,30 @@ public class ComplicationStyle {
      */
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(BORDER_STYLE_NONE, BORDER_STYLE_SOLID, BORDER_STYLE_DASHED)
-    @RestrictTo(
-        RestrictTo.Scope.LIBRARY_GROUP
-    )
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public annotation class BorderStyle
 
     /** The background color to be used. */
     @ColorInt
     public var backgroundColor: Int = BACKGROUND_COLOR_DEFAULT
         @ColorInt get() = field
-        set(@ColorInt backgroundColor: Int) { field = backgroundColor }
+        set(@ColorInt backgroundColor: Int) {
+            field = backgroundColor
+        }
 
-    /** The background drawable to be used, or null if there's no background drawable.  */
+    /** The background drawable to be used, or null if there's no background drawable. */
     public var backgroundDrawable: Drawable? = null
 
     /**
-     * The color to render the text with. Text color is used for rendering short text and long
-     * text fields.
+     * The color to render the text with. Text color is used for rendering short text and long text
+     * fields.
      */
     @ColorInt
     public var textColor: Int = PRIMARY_COLOR_DEFAULT
         @ColorInt get() = field
-        set(@ColorInt textColor: Int) { field = textColor }
+        set(@ColorInt textColor: Int) {
+            field = textColor
+        }
 
     /**
      * The color to render the title with. Title color is used for rendering short title and long
@@ -66,56 +66,45 @@ public class ComplicationStyle {
     @ColorInt
     public var titleColor: Int = SECONDARY_COLOR_DEFAULT
         @ColorInt get() = field
-        set(@ColorInt titleColor: Int) { field = titleColor }
+        set(@ColorInt titleColor: Int) {
+            field = titleColor
+        }
 
-    /** The typeface to be used for short and long text.  */
+    /** The typeface to be used for short and long text. */
     public var textTypeface: Typeface = TYPEFACE_DEFAULT
         private set
 
-    /** The typeface to be used for short and long title.  */
+    /** The typeface to be used for short and long title. */
     public var titleTypeface: Typeface = TYPEFACE_DEFAULT
         private set
 
-    @Px
-    private var mTextSize = TEXT_SIZE_DEFAULT
+    @Px private var mTextSize = TEXT_SIZE_DEFAULT
 
-    @Px
-    private var mTitleSize = TEXT_SIZE_DEFAULT
+    @Px private var mTitleSize = TEXT_SIZE_DEFAULT
 
     private var mImageColorFilter: ColorFilter? = null
 
-    @ColorInt
-    private var mIconColor = PRIMARY_COLOR_DEFAULT
+    @ColorInt private var mIconColor = PRIMARY_COLOR_DEFAULT
 
-    @ColorInt
-    private var mBorderColor = BORDER_COLOR_DEFAULT
+    @ColorInt private var mBorderColor = BORDER_COLOR_DEFAULT
 
-    @BorderStyle
-    private var mBorderStyle = BORDER_STYLE_SOLID
+    @BorderStyle private var mBorderStyle = BORDER_STYLE_SOLID
 
-    @Px
-    private var mBorderDashWidth = DASH_WIDTH_DEFAULT
+    @Px private var mBorderDashWidth = DASH_WIDTH_DEFAULT
 
-    @Px
-    private var mBorderDashGap = DASH_GAP_DEFAULT
+    @Px private var mBorderDashGap = DASH_GAP_DEFAULT
 
-    @Px
-    private var mBorderRadius = BORDER_RADIUS_DEFAULT
+    @Px private var mBorderRadius = BORDER_RADIUS_DEFAULT
 
-    @Px
-    private var mBorderWidth = BORDER_WIDTH_DEFAULT
+    @Px private var mBorderWidth = BORDER_WIDTH_DEFAULT
 
-    @Px
-    private var mRangedValueRingWidth = RING_WIDTH_DEFAULT
+    @Px private var mRangedValueRingWidth = RING_WIDTH_DEFAULT
 
-    @ColorInt
-    private var mRangedValuePrimaryColor = PRIMARY_COLOR_DEFAULT
+    @ColorInt private var mRangedValuePrimaryColor = PRIMARY_COLOR_DEFAULT
 
-    @ColorInt
-    private var mRangedValueSecondaryColor = SECONDARY_COLOR_DEFAULT
+    @ColorInt private var mRangedValueSecondaryColor = SECONDARY_COLOR_DEFAULT
 
-    @ColorInt
-    private var mHighlightColor = HIGHLIGHT_COLOR_DEFAULT
+    @ColorInt private var mHighlightColor = HIGHLIGHT_COLOR_DEFAULT
 
     @get:JvmName(name = "isDirty")
     internal var isDirty: Boolean = true
@@ -152,8 +141,8 @@ public class ComplicationStyle {
     }
 
     /**
-     * The color filter used in active mode when rendering large images and small images
-     * with style [SmallImageType.PHOTO].
+     * The color filter used in active mode when rendering large images and small images with style
+     * [SmallImageType.PHOTO].
      */
     public var imageColorFilter: ColorFilter?
         get() = mImageColorFilter
@@ -162,7 +151,7 @@ public class ComplicationStyle {
             isDirty = true
         }
 
-    /** The color for tinting icons.  */
+    /** The color for tinting icons. */
     public var iconColor: Int
         @ColorInt get() = mIconColor
         set(@ColorInt iconColor) {
@@ -186,9 +175,7 @@ public class ComplicationStyle {
             isDirty = true
         }
 
-    /**
-     * The color to render the complication border with.
-     */
+    /** The color to render the complication border with. */
     public var borderColor: Int
         @ColorInt get() = mBorderColor
         set(@ColorInt borderColor) {
@@ -196,17 +183,16 @@ public class ComplicationStyle {
             isDirty = true
         }
 
-    /**
-     * The style to render the complication border with.
-     */
+    /** The style to render the complication border with. */
     public var borderStyle: Int
         @BorderStyle get() = mBorderStyle
         set(@BorderStyle borderStyle) {
-            mBorderStyle = when (borderStyle) {
-                BORDER_STYLE_SOLID -> BORDER_STYLE_SOLID
-                BORDER_STYLE_DASHED -> BORDER_STYLE_DASHED
-                else -> BORDER_STYLE_NONE
-            }
+            mBorderStyle =
+                when (borderStyle) {
+                    BORDER_STYLE_SOLID -> BORDER_STYLE_SOLID
+                    BORDER_STYLE_DASHED -> BORDER_STYLE_DASHED
+                    else -> BORDER_STYLE_NONE
+                }
             isDirty = true
         }
     /** The dash width to be used when drawing borders of type [.BORDER_STYLE_DASHED]. */
@@ -217,9 +203,7 @@ public class ComplicationStyle {
             isDirty = true
         }
 
-    /**
-     * The dash gap to be used when drawing borders of type [.BORDER_STYLE_DASHED].
-     */
+    /** The dash gap to be used when drawing borders of type [.BORDER_STYLE_DASHED]. */
     public var borderDashGap: Int
         @Px get() = mBorderDashGap
         set(@Px borderDashGap) {
@@ -227,10 +211,10 @@ public class ComplicationStyle {
             isDirty = true
         }
     /**
-     * The border radius to be applied to the corners of the bounds of the complication in
-     * active mode. Border radius will be limited to the half of width or height, depending
-     * on which one is smaller. If [ComplicationStyle.BORDER_RADIUS_DEFAULT] is returned, border
-     * radius should be reduced to half of the minimum of width or height during the rendering.
+     * The border radius to be applied to the corners of the bounds of the complication in active
+     * mode. Border radius will be limited to the half of width or height, depending on which one is
+     * smaller. If [ComplicationStyle.BORDER_RADIUS_DEFAULT] is returned, border radius should be
+     * reduced to half of the minimum of width or height during the rendering.
      */
     public var borderRadius: Int
         @Px get() = mBorderRadius
@@ -239,9 +223,7 @@ public class ComplicationStyle {
             isDirty = true
         }
 
-    /**
-     * The width to render the complication border with.
-     */
+    /** The width to render the complication border with. */
     public var borderWidth: Int
         @Px get() = mBorderWidth
         set(@Px borderWidth) {
@@ -303,25 +285,27 @@ public class ComplicationStyle {
 
     /**
      * Returns a copy of the ComplicationStyle [tint]ed by [tintColor].
+     *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    fun asTinted(tintColor: Int): ComplicationStyle = ComplicationStyle(this).apply {
-        backgroundColor = tint(backgroundColor, tintColor)
-        borderColor = tint(borderColor, tintColor)
-        highlightColor = tint(highlightColor, tintColor)
-        iconColor = tint(iconColor, tintColor)
-        rangedValuePrimaryColor = tint(rangedValuePrimaryColor, tintColor)
-        rangedValueSecondaryColor = tint(rangedValueSecondaryColor, tintColor)
-        textColor = tint(textColor, tintColor)
-        titleColor = tint(titleColor, tintColor)
-    }
+    fun asTinted(tintColor: Int): ComplicationStyle =
+        ComplicationStyle(this).apply {
+            backgroundColor = tint(backgroundColor, tintColor)
+            borderColor = tint(borderColor, tintColor)
+            highlightColor = tint(highlightColor, tintColor)
+            iconColor = tint(iconColor, tintColor)
+            rangedValuePrimaryColor = tint(rangedValuePrimaryColor, tintColor)
+            rangedValueSecondaryColor = tint(rangedValueSecondaryColor, tintColor)
+            textColor = tint(textColor, tintColor)
+            titleColor = tint(titleColor, tintColor)
+        }
 
     public companion object {
-        /** Style where the borders are not drawn.  */
+        /** Style where the borders are not drawn. */
         public const val BORDER_STYLE_NONE: Int = 0
 
-        /** Style where the borders are drawn without any gap.  */
+        /** Style where the borders are drawn without any gap. */
         public const val BORDER_STYLE_SOLID: Int = 1
 
         /**
@@ -331,55 +315,49 @@ public class ComplicationStyle {
          */
         public const val BORDER_STYLE_DASHED: Int = 2
 
-        /** Default primary color.  */
+        /** Default primary color. */
         private const val PRIMARY_COLOR_DEFAULT = Color.WHITE
 
-        /** Default secondary color.  */
+        /** Default secondary color. */
         private const val SECONDARY_COLOR_DEFAULT = Color.LTGRAY
 
-        /** Default background color.  */
+        /** Default background color. */
         private const val BACKGROUND_COLOR_DEFAULT = Color.BLACK
 
-        /** Default background color.  */
+        /** Default background color. */
         private const val HIGHLIGHT_COLOR_DEFAULT = Color.LTGRAY
 
-        /** Default border color.  */
+        /** Default border color. */
         private const val BORDER_COLOR_DEFAULT = Color.WHITE
 
-        /** Default text size.  */
-        @Px
-        private const val TEXT_SIZE_DEFAULT = Int.MAX_VALUE
+        /** Default text size. */
+        @Px private const val TEXT_SIZE_DEFAULT = Int.MAX_VALUE
 
-        /** Default typeface.  */
-        private val TYPEFACE_DEFAULT =
-            Typeface.create("sans-serif-condensed", Typeface.NORMAL)
+        /** Default typeface. */
+        private val TYPEFACE_DEFAULT = Typeface.create("sans-serif-condensed", Typeface.NORMAL)
 
-        /** Default dash width.  */
-        @Px
-        private const val DASH_WIDTH_DEFAULT = 3
+        /** Default dash width. */
+        @Px private const val DASH_WIDTH_DEFAULT = 3
 
-        /** Default dash gap.  */
-        @Px
-        private const val DASH_GAP_DEFAULT = 3
+        /** Default dash gap. */
+        @Px private const val DASH_GAP_DEFAULT = 3
 
-        /** Default border width.  */
-        @Px
-        private const val BORDER_WIDTH_DEFAULT = 1
+        /** Default border width. */
+        @Px private const val BORDER_WIDTH_DEFAULT = 1
 
-        /** Default ring width.  */
-        @Px
-        private const val RING_WIDTH_DEFAULT = 2
+        /** Default ring width. */
+        @Px private const val RING_WIDTH_DEFAULT = 2
 
-        /** Default border radius.  */
-        @Px
-        public const val BORDER_RADIUS_DEFAULT: Int = Int.MAX_VALUE
+        /** Default border radius. */
+        @Px public const val BORDER_RADIUS_DEFAULT: Int = Int.MAX_VALUE
 
         /** Computes the luminance of [color] and applies that to [tint]. */
         internal fun tint(color: Int, tint: Int): Int {
             // See https://en.wikipedia.org/wiki/Relative_luminance
-            val luminance = (Color.red(color).toFloat() * (0.2126f / 255.0f)) +
-                (Color.green(color).toFloat() * (0.7152f / 255.0f)) +
-                (Color.blue(color).toFloat() * (0.0722f / 255.0f))
+            val luminance =
+                (Color.red(color).toFloat() * (0.2126f / 255.0f)) +
+                    (Color.green(color).toFloat() * (0.7152f / 255.0f)) +
+                    (Color.blue(color).toFloat() * (0.0722f / 255.0f))
 
             return Color.argb(
                 Color.alpha(color).toFloat() / 255.0f,

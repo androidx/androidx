@@ -22,6 +22,8 @@ import android.annotation.SuppressLint;
  * A interface to receive and process the upcoming next available Image.
  *
  * <p>Implemented by OEM.
+ *
+ * @since 1.2
  */
 @SuppressLint("UnknownNullness")
 public interface ImageProcessorImpl {

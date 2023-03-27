@@ -54,14 +54,9 @@ public final class IdAndTapEventWireFormat implements VersionedParcelable, Parce
     @Px
     long mCalendarTapTimeMillis;
 
-    IdAndTapEventWireFormat() {
-    }
+    IdAndTapEventWireFormat() {}
 
-    public IdAndTapEventWireFormat(
-            int id,
-            int x,
-            int y,
-            long calendarTapTimeMillis) {
+    public IdAndTapEventWireFormat(int id, int x, int y, long calendarTapTimeMillis) {
         mId = id;
         mX = x;
         mY = y;

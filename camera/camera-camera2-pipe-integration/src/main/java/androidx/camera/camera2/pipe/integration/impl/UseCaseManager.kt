@@ -16,15 +16,24 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
+import android.media.MediaCodec
+import android.os.Build
+import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraComponent
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraConfig
-import androidx.camera.core.ImageCapture
+import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
+import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.UseCase
+import androidx.camera.core.impl.DeferrableSurface
+import androidx.camera.core.impl.SessionConfig.ValidatingBuilder
 import javax.inject.Inject
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.joinAll
 
 /**
  * This class keeps track of the currently attached and active [UseCase]'s for a specific camera.
@@ -52,6 +61,7 @@ import javax.inject.Inject
  *  both "attached" and "active". This means we should have a camera opened, a capture session with
  *  the streams created and have capture requests submitting.
  */
+@OptIn(ExperimentalCamera2Interop::class)
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @CameraScope
 class UseCaseManager @Inject constructor(
@@ -59,39 +69,67 @@ class UseCaseManager @Inject constructor(
     private val builder: UseCaseCameraComponent.Builder,
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // Java version required for Dagger
     private val controls: java.util.Set<UseCaseCameraControl>,
+    private val camera2CameraControl: Camera2CameraControl,
+    private val cameraStateAdapter: CameraStateAdapter,
     cameraProperties: CameraProperties,
+    displayInfoManager: DisplayInfoManager,
 ) {
+    private val lock = Any()
+
+    @GuardedBy("lock")
     private val attachedUseCases = mutableSetOf<UseCase>()
+
+    @GuardedBy("lock")
     private val activeUseCases = mutableSetOf<UseCase>()
 
-    private val meteringRepeating by lazy { MeteringRepeating.Builder(cameraProperties).build() }
+    private val meteringRepeating by lazy {
+        MeteringRepeating.Builder(
+            cameraProperties,
+            displayInfoManager
+        ).build()
+    }
 
     @Volatile
     private var _activeComponent: UseCaseCameraComponent? = null
     val camera: UseCaseCamera?
         get() = _activeComponent?.getUseCaseCamera()
 
+    private val closingCameraJobs = mutableListOf<Job>()
+
+    private val allControls = controls.toMutableSet().apply { add(camera2CameraControl) }
+
     /**
      * This attaches the specified [useCases] to the current set of attached use cases. When any
      * changes are identified (i.e., a new use case is added), the subsequent actions would trigger
      * a recreation of the current CameraGraph if there is one.
      */
-    fun attach(useCases: List<UseCase>) {
+    fun attach(useCases: List<UseCase>) = synchronized(lock) {
         if (useCases.isEmpty()) {
             Log.warn { "Attach [] from $this (Ignored)" }
             return
         }
         Log.debug { "Attaching $useCases from $this" }
 
+        val unattachedUseCases = useCases.filter { useCase ->
+            !attachedUseCases.contains(useCase)
+        }
+
         // Notify state attached to use cases
-        for (useCase in useCases) {
-            if (!attachedUseCases.contains(useCase)) {
-                useCase.onStateAttached()
-            }
+        for (useCase in unattachedUseCases) {
+            useCase.onStateAttached()
         }
 
         if (attachedUseCases.addAll(useCases)) {
-            refreshAttachedUseCases(attachedUseCases)
+            if (shouldAddRepeatingUseCase(getRunningUseCases())) {
+                addRepeatingUseCase()
+            } else {
+                refreshAttachedUseCases(attachedUseCases)
+            }
+        }
+
+        unattachedUseCases.forEach { useCase ->
+            // Notify CameraControl is ready after the UseCaseCamera is created
+            useCase.onCameraControlReady()
         }
     }
 
@@ -100,7 +138,7 @@ class UseCaseManager @Inject constructor(
      * changes are identified (i.e., an existing use case is removed), the subsequent actions would
      * trigger a recreation of the current CameraGraph.
      */
-    fun detach(useCases: List<UseCase>) {
+    fun detach(useCases: List<UseCase>) = synchronized(lock) {
         if (useCases.isEmpty()) {
             Log.warn { "Detaching [] from $this (Ignored)" }
             return
@@ -122,6 +160,10 @@ class UseCaseManager @Inject constructor(
         // TODO: We might only want to tear down when the number of attached use cases goes to
         //  zero. If a single UseCase is removed, we could deactivate it?
         if (attachedUseCases.removeAll(useCases)) {
+            if (shouldRemoveRepeatingUseCase(getRunningUseCases())) {
+                removeRepeatingUseCase()
+                return
+            }
             refreshAttachedUseCases(attachedUseCases)
         }
     }
@@ -132,7 +174,7 @@ class UseCaseManager @Inject constructor(
      * latest set of "running" (attached and active) use cases, which will in turn trigger actions
      * for SessionConfig updates.
      */
-    fun activate(useCase: UseCase) {
+    fun activate(useCase: UseCase) = synchronized(lock) {
         if (activeUseCases.add(useCase)) {
             refreshRunningUseCases()
         }
@@ -144,26 +186,38 @@ class UseCaseManager @Inject constructor(
      * latest set of "running" (attached and active) use cases, which will in turn trigger actions
      * for SessionConfig updates.
      */
-    fun deactivate(useCase: UseCase) {
+    fun deactivate(useCase: UseCase) = synchronized(lock) {
         if (activeUseCases.remove(useCase)) {
             refreshRunningUseCases()
         }
     }
 
-    fun update(useCase: UseCase) {
+    fun update(useCase: UseCase) = synchronized(lock) {
         if (attachedUseCases.contains(useCase)) {
             refreshRunningUseCases()
         }
     }
 
-    fun reset(useCase: UseCase) {
+    fun reset(useCase: UseCase) = synchronized(lock) {
         if (attachedUseCases.contains(useCase)) {
             refreshAttachedUseCases(attachedUseCases)
         }
     }
 
+    suspend fun close() {
+        val closingJobs = synchronized(lock) {
+            if (attachedUseCases.isNotEmpty()) {
+                detach(attachedUseCases.toList())
+            }
+            meteringRepeating.onUnbind()
+            closingCameraJobs.toList()
+        }
+        closingJobs.joinAll()
+    }
+
     override fun toString(): String = "UseCaseManager<${cameraConfig.cameraId}>"
 
+    @GuardedBy("lock")
     private fun refreshRunningUseCases() {
         val runningUseCases = getRunningUseCases()
         when {
@@ -173,18 +227,26 @@ class UseCaseManager @Inject constructor(
         }
     }
 
+    @GuardedBy("lock")
     private fun refreshAttachedUseCases(newUseCases: Set<UseCase>) {
         val useCases = newUseCases.toList()
 
         // Close prior camera graph
         camera.let {
             _activeComponent = null
-            it?.close()
+            it?.close()?.let { closingJob ->
+                closingCameraJobs.add(closingJob)
+                closingJob.invokeOnCompletion {
+                    synchronized(lock) {
+                        closingCameraJobs.remove(closingJob)
+                    }
+                }
+            }
         }
 
         // Update list of active useCases
         if (useCases.isEmpty()) {
-            for (control in controls) {
+            for (control in allControls) {
                 control.useCaseCamera = null
                 control.reset()
             }
@@ -192,48 +254,79 @@ class UseCaseManager @Inject constructor(
         }
 
         // Create and configure the new camera component.
-        _activeComponent = builder.config(UseCaseCameraConfig(useCases)).build()
-        for (control in controls) {
+        _activeComponent = builder.config(UseCaseCameraConfig(useCases, cameraStateAdapter)).build()
+        for (control in allControls) {
             control.useCaseCamera = camera
         }
 
         refreshRunningUseCases()
     }
 
+    @GuardedBy("lock")
     private fun getRunningUseCases(): Set<UseCase> {
         return attachedUseCases.intersect(activeUseCases)
     }
 
+    @GuardedBy("lock")
     private fun shouldAddRepeatingUseCase(runningUseCases: Set<UseCase>): Boolean {
-        return !attachedUseCases.contains(meteringRepeating) &&
-            runningUseCases.only { it is ImageCapture }
-    }
+        val meteringRepeatingEnabled = attachedUseCases.contains(meteringRepeating)
 
+        val coreLibraryUseCases = runningUseCases.filterNot { it is MeteringRepeating }
+        val onlyVideoCapture = coreLibraryUseCases.onlyVideoCapture()
+        val requireMeteringRepeating = coreLibraryUseCases.requireMeteringRepeating()
+
+        return !meteringRepeatingEnabled && (onlyVideoCapture || requireMeteringRepeating)
+    }
+    @GuardedBy("lock")
     private fun addRepeatingUseCase() {
         meteringRepeating.setupSession()
         attach(listOf(meteringRepeating))
         activate(meteringRepeating)
     }
 
+    @GuardedBy("lock")
     private fun shouldRemoveRepeatingUseCase(runningUseCases: Set<UseCase>): Boolean {
-        val onlyMeteringRepeatingEnabled = runningUseCases.only { it is MeteringRepeating }
-        val meteringRepeatingAndNonImageCaptureEnabled =
-            runningUseCases.any { it is MeteringRepeating } &&
-                runningUseCases.any { it !is MeteringRepeating && it !is ImageCapture }
-        return onlyMeteringRepeatingEnabled || meteringRepeatingAndNonImageCaptureEnabled
+        val meteringRepeatingEnabled = runningUseCases.contains(meteringRepeating)
+
+        val coreLibraryUseCases = runningUseCases.filterNot { it is MeteringRepeating }
+        val onlyVideoCapture = coreLibraryUseCases.onlyVideoCapture()
+        val requireMeteringRepeating = coreLibraryUseCases.requireMeteringRepeating()
+
+        return meteringRepeatingEnabled && !onlyVideoCapture && !requireMeteringRepeating
     }
 
+    @GuardedBy("lock")
     private fun removeRepeatingUseCase() {
         deactivate(meteringRepeating)
         detach(listOf(meteringRepeating))
-        meteringRepeating.onDetached()
+        meteringRepeating.onUnbind()
     }
 
-    /**
-     * Returns true when the collection only has elements (1 or more) that verify the predicate,
-     * false otherwise.
-     */
-    private fun <T> Collection<T>.only(predicate: (T) -> Boolean): Boolean {
-        return isNotEmpty() && all(predicate)
+    private fun Collection<UseCase>.onlyVideoCapture(): Boolean {
+        return isNotEmpty() && checkSurfaces { _, sessionSurfaces ->
+            sessionSurfaces.isNotEmpty() && sessionSurfaces.all {
+                it.containerClass == MediaCodec::class.java
+            }
+        }
+    }
+
+    private fun Collection<UseCase>.requireMeteringRepeating(): Boolean {
+        return isNotEmpty() && checkSurfaces { repeatingSurfaces, sessionSurfaces ->
+            // There is no repeating UseCases
+            sessionSurfaces.isNotEmpty() && repeatingSurfaces.isEmpty()
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun Collection<UseCase>.checkSurfaces(
+        predicate: (
+            repeatingSurfaces: List<DeferrableSurface>,
+            sessionSurfaces: List<DeferrableSurface>
+        ) -> Boolean
+    ): Boolean = ValidatingBuilder().let { validatingBuilder ->
+        forEach { useCase -> validatingBuilder.add(useCase.sessionConfig) }
+        val sessionConfig = validatingBuilder.build()
+        val captureConfig = sessionConfig.repeatingCaptureConfig
+        return predicate(captureConfig.surfaces, sessionConfig.surfaces)
     }
 }

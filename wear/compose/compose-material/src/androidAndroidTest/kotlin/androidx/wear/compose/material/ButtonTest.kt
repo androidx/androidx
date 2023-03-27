@@ -178,7 +178,7 @@ public class ButtonBehaviourTest {
     }
 
     @Test
-    public fun is_correctly_enabled_when_enabled_equals_true() {
+    public fun is_correctly_enabled() {
         rule.setContentWithTheme {
             Button(
                 onClick = {},
@@ -193,7 +193,7 @@ public class ButtonBehaviourTest {
     }
 
     @Test
-    public fun is_correctly_disabled_when_enabled_equals_false() {
+    public fun is_correctly_disabled() {
         rule.setContentWithTheme {
             Button(
                 onClick = {},
@@ -208,7 +208,7 @@ public class ButtonBehaviourTest {
     }
 
     @Test
-    public fun responds_to_click_when_enabled_on_compact_button() {
+    public fun compact_button_responds_to_click_when_enabled() {
         var clicked = false
 
         rule.setContentWithTheme {
@@ -229,7 +229,7 @@ public class ButtonBehaviourTest {
     }
 
     @Test
-    public fun responds_to_click_when_enabled_on_button() {
+    public fun button_responds_to_click_when_enabled() {
         var clicked = false
 
         rule.setContentWithTheme {
@@ -250,7 +250,7 @@ public class ButtonBehaviourTest {
     }
 
     @Test
-    public fun does_not_respond_to_click_when_disabled_on_compact_button() {
+    public fun compact_button_does_not_respond_to_click_when_disabled() {
         var clicked = false
 
         rule.setContentWithTheme {
@@ -271,7 +271,7 @@ public class ButtonBehaviourTest {
     }
 
     @Test
-    public fun does_not_respond_to_click_when_disabled_on_button() {
+    public fun button_does_not_respond_to_click_when_disabled() {
         var clicked = false
 
         rule.setContentWithTheme {
@@ -549,21 +549,23 @@ public class ButtonColorTest {
         )
 
     @Test
-    public fun gives_disabled_button_primary_colors() =
+    public fun gives_disabled_primary_button_contrasting_content_color() =
         verifyButtonColors(
             Status.Disabled,
             { ButtonDefaults.primaryButtonColors() },
             { MaterialTheme.colors.primary },
-            { MaterialTheme.colors.onPrimary },
+            { MaterialTheme.colors.background },
+            applyAlphaForDisabledContent = false
         )
 
     @Test
-    public fun gives_disabled_compact_button_primary_colors() =
+    public fun gives_disabled_compact_button_contrasting_content_color() =
         verifyCompactButtonColors(
             Status.Disabled,
             { ButtonDefaults.primaryButtonColors() },
             { MaterialTheme.colors.primary },
-            { MaterialTheme.colors.onPrimary },
+            { MaterialTheme.colors.background },
+            applyAlphaForDisabledContent = false,
         )
 
     @Test
@@ -815,11 +817,13 @@ public class ButtonColorTest {
         buttonColors: @Composable () -> ButtonColors,
         backgroundColor: @Composable () -> Color,
         contentColor: @Composable () -> Color,
+        applyAlphaForDisabledContent: Boolean = true,
     ) {
         verifyColors(
             status,
             backgroundColor,
             contentColor,
+            applyAlphaForDisabledContent,
         ) {
             var actualColor = Color.Transparent
             Button(
@@ -863,11 +867,13 @@ public class ButtonColorTest {
         buttonColors: @Composable () -> ButtonColors,
         backgroundColor: @Composable () -> Color,
         contentColor: @Composable () -> Color,
+        applyAlphaForDisabledContent: Boolean = true,
     ) {
         verifyColors(
             status,
             backgroundColor,
             contentColor,
+            applyAlphaForDisabledContent,
         ) {
             var actualColor = Color.Transparent
             CompactButton(
@@ -888,6 +894,7 @@ public class ButtonColorTest {
         status: Status,
         backgroundColor: @Composable () -> Color,
         contentColor: @Composable () -> Color,
+        applyAlphaForDisabledContent: Boolean = true,
         threshold: Float = 50.0f,
         content: @Composable () -> Color,
     ) {
@@ -904,7 +911,11 @@ public class ButtonColorTest {
                 expectedBackground =
                     backgroundColor()
                         .copy(alpha = ContentAlpha.disabled).compositeOver(testBackground)
-                expectedContent = contentColor().copy(alpha = ContentAlpha.disabled)
+                expectedContent =
+                    if (applyAlphaForDisabledContent)
+                        contentColor().copy(alpha = ContentAlpha.disabled)
+                    else
+                        contentColor()
             }
             Box(
                 modifier = Modifier
@@ -1021,12 +1032,14 @@ private fun ComposeContentTestRule.isShape(
 
     setContentWithTheme {
         background = MaterialTheme.colors.surface
-        buttonColor = MaterialTheme.colors.primary
-        content(
-            Modifier
-                .testTag(TEST_TAG)
-                .padding(padding)
-                .background(background))
+        Box(Modifier.background(background)) {
+            buttonColor = MaterialTheme.colors.primary
+            content(
+                Modifier
+                    .testTag(TEST_TAG)
+                    .padding(padding)
+            )
+        }
     }
 
     onNodeWithTag(TEST_TAG)

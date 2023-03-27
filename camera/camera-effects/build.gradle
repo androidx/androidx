@@ -34,7 +34,6 @@ android {
 androidx {
     name = "Jetpack Camera Effects Library"
     publish = Publish.NONE
-    mavenGroup = LibraryGroups.CAMERA
     inceptionYear = "2022"
     runApiTasks = new RunApiTasks.Yes()
     description = "Camera effects components for the Jetpack Camera Library, a library providing " +

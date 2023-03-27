@@ -57,7 +57,6 @@ android {
 androidx {
     name = "Android Support Leanback v17"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.LEANBACK
     mavenVersion = LibraryVersions.LEANBACK
     inceptionYear = "2014"
     description = "Android Support Leanback v17"

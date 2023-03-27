@@ -17,12 +17,12 @@
 package androidx.glance.appwidget
 
 import android.Manifest
-import android.app.Activity
 import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.pm.ActivityInfo
-import android.os.Build
+import android.content.res.Configuration
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
@@ -31,30 +31,28 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.children
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.UiController
-import androidx.test.espresso.ViewAction
-import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
-import androidx.test.runner.lifecycle.Stage
 import androidx.test.uiautomator.UiDevice
-import org.hamcrest.Matcher
-import org.junit.rules.RuleChain
-import org.junit.rules.TestRule
-import org.junit.runner.Description
-import org.junit.runners.model.Statement
+import androidx.work.WorkManager
+import androidx.work.testing.WorkManagerTestInitHelper
+import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertIs
 import kotlin.test.fail
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.junit.rules.RuleChain
+import org.junit.rules.TestRule
+import org.junit.runner.Description
+import org.junit.runners.model.Statement
 
 @SdkSuppress(minSdkVersion = 29)
 class AppWidgetHostRule(
     private var mPortraitSize: DpSize = DpSize(200.dp, 300.dp),
-    private var mLandscapeSize: DpSize = DpSize(300.dp, 200.dp)
+    private var mLandscapeSize: DpSize = DpSize(300.dp, 200.dp),
 ) : TestRule {
 
     val portraitSize: DpSize
@@ -101,6 +99,7 @@ class AppWidgetHostRule(
     override fun apply(base: Statement, description: Description) = object : Statement() {
 
         override fun evaluate() {
+            WorkManagerTestInitHelper.initializeTestWorkManager(mContext)
             mInnerRules.apply(base, description).evaluate()
             stopHost()
         }
@@ -109,6 +108,7 @@ class AppWidgetHostRule(
             if (mHostStarted) {
                 mUiAutomation.dropShellPermissionIdentity()
             }
+            WorkManager.getInstance(mContext).cancelAllWork()
         }
     }
 
@@ -129,12 +129,38 @@ class AppWidgetHostRule(
         }
     }
 
-    suspend fun updateAppWidget() {
+    /**
+     * Run the [block] (usually some sort of app widget update) and wait for new RemoteViews to be
+     * applied.
+     *
+     * This should not be called from the main thread, i.e. in [onHostView] or [onHostActivity].
+     */
+    suspend fun runAndWaitForUpdate(block: suspend () -> Unit) {
         val hostView = checkNotNull(mMaybeHostView) { "Host view wasn't successfully started" }
         hostView.resetRemoteViewsLatch()
-        TestGlanceAppWidget.update(mContext, AppWidgetId(mAppWidgetId))
+        withContext(Dispatchers.Main) { block() }
+
+        // b/267494219 these tests are currently flaking due to possible changes to the views after
+        // the initial update. Sleeping here is not the final fix, we need a better way to decide
+        // the UI has settled. In the short term this does reduce the flakiness.
+        Thread.sleep(5000)
+
+        // Do not wait on the main thread so that the UI handlers can run.
         runAndWaitForChildren {
             hostView.waitForRemoteViews()
+        }
+    }
+
+    /**
+     * Set TestGlanceAppWidgetReceiver to ignore broadcasts, run [block], and then reset
+     * TestGlanceAppWidgetReceiver.
+     */
+    fun ignoreBroadcasts(block: () -> Unit) {
+        TestGlanceAppWidgetReceiver.ignoreBroadcasts = true
+        try {
+            block()
+        } finally {
+            TestGlanceAppWidgetReceiver.ignoreBroadcasts = false
         }
     }
 
@@ -160,20 +186,60 @@ class AppWidgetHostRule(
      * possibly the one to get the exact size.
      */
     inline fun <reified T : View> onUnboxedHostView(crossinline block: (T) -> Unit) {
-        onHostActivity {
-            val boxingView = assertIs<ViewGroup>(mHostView.getChildAt(0))
-            block(boxingView.children.single().getTargetView())
+
+        // b/267494219 these tests are currently flaking due to possible changes to the views after
+        // the initial update. Sleeping here is not the final fix, we need a better way to decide
+        // the UI has settled. In the short term this does reduce the flakiness.
+        var found = false
+        for (i in 1..20) {
+            if (!found) {
+                onHostActivity {
+                    val boxingView = assertIs<ViewGroup>(mHostView.getChildAt(0))
+                    val childCount = boxingView.childCount
+
+                    if (childCount != 0) {
+                        if (i > 1) Log.i(RECEIVER_TEST_TAG, "...now we have children")
+                        block(boxingView.children.single().getTargetView())
+                        found = true
+                    } else {
+                        Log.i(RECEIVER_TEST_TAG, "$i Boxing view is empty, waiting...")
+                        Log.i(RECEIVER_TEST_TAG, "Boxing view: $boxingView")
+                        Thread.sleep(500)
+                    }
+                }
+            } else {
+                return
+            }
         }
+        fail("Waited for boxing view not to be empty, but it never got children")
     }
 
     /** Change the orientation to landscape.*/
     fun setLandscapeOrientation() {
-        onView(isRoot()).perform(orientationLandscape())
+        var activity: AppWidgetHostTestActivity? = null
+        onHostActivity {
+            it.resetConfigurationChangedLatch()
+            it.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            activity = it
+        }
+        checkNotNull(activity).apply {
+            waitForConfigurationChange()
+            assertThat(lastConfiguration.orientation).isEqualTo(Configuration.ORIENTATION_LANDSCAPE)
+        }
     }
 
     /** Change the orientation to portrait.*/
     fun setPortraitOrientation() {
-        onView(isRoot()).perform(orientationPortrait())
+        var activity: AppWidgetHostTestActivity? = null
+        onHostActivity {
+            it.resetConfigurationChangedLatch()
+            it.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            activity = it
+        }
+        checkNotNull(activity).apply {
+            waitForConfigurationChange()
+            assertThat(lastConfiguration.orientation).isEqualTo(Configuration.ORIENTATION_PORTRAIT)
+        }
     }
 
     /**
@@ -262,47 +328,5 @@ class AppWidgetHostRule(
         runAndObserveUntilDraw("Expected new children on HostView within 5 seconds", action) {
             mHostView.childCount > 0
         }
-    }
-
-    private inner class OrientationChangeAction constructor(private val orientation: Int) :
-        ViewAction {
-        override fun getConstraints(): Matcher<View> = isRoot()
-
-        override fun getDescription() = "change orientation to $orientationName"
-
-        private val orientationName: String
-            get() =
-                if (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
-                    "landscape"
-                } else {
-                    "portrait"
-                }
-
-        override fun perform(uiController: UiController, view: View) {
-            uiController.loopMainThreadUntilIdle()
-            mActivityRule.scenario.onActivity { it.requestedOrientation = orientation }
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-                // Somehow, before Android S, changing the orientation doesn't trigger the
-                // onConfigurationChange
-                uiController.loopMainThreadUntilIdle()
-                mScenario.onActivity {
-                    it.updateAllSizes(it.resources.configuration.orientation)
-                    it.reapplyRemoteViews()
-                }
-            }
-            val resumedActivities: Collection<Activity> =
-                ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
-            if (resumedActivities.isEmpty()) {
-                throw RuntimeException("Could not change orientation")
-            }
-        }
-    }
-
-    private fun orientationLandscape(): ViewAction {
-        return OrientationChangeAction(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
-    }
-
-    private fun orientationPortrait(): ViewAction {
-        return OrientationChangeAction(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
     }
 }

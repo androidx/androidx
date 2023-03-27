@@ -20,11 +20,11 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.annotations.KeepFields;
 
 /**
  * The request for a call to open microphone.
@@ -34,8 +34,8 @@ import androidx.car.app.annotations.RequiresCarApi;
  */
 @CarProtocol
 @RequiresCarApi(5)
+@KeepFields
 public final class OpenMicrophoneRequest {
-    @Keep
     @Nullable
     private final CarAudioCallbackDelegate mCarAudioCallbackDelegate;
 

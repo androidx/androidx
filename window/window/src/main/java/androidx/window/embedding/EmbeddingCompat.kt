@@ -16,40 +16,73 @@
 
 package androidx.window.embedding
 
+import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
 import android.app.Activity
+import android.content.Context
 import android.util.Log
+import androidx.window.core.BuildConfig
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExperimentalWindowApi
+import androidx.window.core.ExtensionsUtil
+import androidx.window.core.VerificationMode
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
+import androidx.window.embedding.SplitController.SplitSupportStatus.Companion.SPLIT_AVAILABLE
+import androidx.window.extensions.WindowExtensions.VENDOR_API_LEVEL_2
 import androidx.window.extensions.WindowExtensionsProvider
+import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 import java.lang.reflect.Proxy
-import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
 
 /**
  * Adapter implementation for different historical versions of activity embedding OEM interface in
  * [ActivityEmbeddingComponent]. Only supports the single current version in this implementation.
  */
-@ExperimentalWindowApi
 internal class EmbeddingCompat constructor(
     private val embeddingExtension: ActivityEmbeddingComponent,
     private val adapter: EmbeddingAdapter,
-    private val consumerAdapter: ConsumerAdapter
+    private val consumerAdapter: ConsumerAdapter,
+    private val applicationContext: Context
 ) : EmbeddingInterfaceCompat {
 
-    override fun setSplitRules(rules: Set<EmbeddingRule>) {
-        val r = adapter.translate(rules)
+    override fun setRules(rules: Set<EmbeddingRule>) {
+        var hasSplitRule = false
+        for (rule in rules) {
+            if (rule is SplitRule) {
+                hasSplitRule = true
+                break
+            }
+        }
+        if (hasSplitRule &&
+            SplitController.getInstance(applicationContext).splitSupportStatus != SPLIT_AVAILABLE
+        ) {
+            if (BuildConfig.verificationMode == VerificationMode.LOG) {
+                Log.w(
+                    TAG, "Cannot set SplitRule because ActivityEmbedding Split is not " +
+                        "supported or PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED is not set."
+                )
+            }
+            return
+        }
+
+        val r = adapter.translate(applicationContext, rules)
         embeddingExtension.setEmbeddingRules(r)
     }
 
     override fun setEmbeddingCallback(embeddingCallback: EmbeddingCallbackInterface) {
-        consumerAdapter.addConsumer(
-            embeddingExtension,
-            List::class,
-            "setSplitInfoCallback"
-        ) { values ->
-            val splitInfoList = values.filterIsInstance<OEMSplitInfo>()
-            embeddingCallback.onSplitInfoChanged(adapter.translate(splitInfoList))
+        if (ExtensionsUtil.safeVendorApiLevel < VENDOR_API_LEVEL_2) {
+            consumerAdapter.addConsumer(
+                embeddingExtension,
+                List::class,
+                "setSplitInfoCallback"
+            ) { values ->
+                val splitInfoList = values.filterIsInstance<OEMSplitInfo>()
+                embeddingCallback.onSplitInfoChanged(adapter.translate(splitInfoList))
+            }
+        } else {
+            val callback = Consumer<List<OEMSplitInfo>> { splitInfoList ->
+                embeddingCallback.onSplitInfoChanged(adapter.translate(splitInfoList))
+            }
+            embeddingExtension.setSplitInfoCallback(callback)
         }
     }
 
@@ -57,29 +90,43 @@ internal class EmbeddingCompat constructor(
         return embeddingExtension.isActivityEmbedded(activity)
     }
 
+    @ExperimentalWindowApi
+    override fun setSplitAttributesCalculator(
+        calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
+    ) {
+        if (!isSplitAttributesCalculatorSupported()) {
+            throw UnsupportedOperationException("#setSplitAttributesCalculator is not supported " +
+                "on the device.")
+        }
+        embeddingExtension.setSplitAttributesCalculator(
+            adapter.translateSplitAttributesCalculator(calculator)
+        )
+    }
+
+    override fun clearSplitAttributesCalculator() {
+        if (!isSplitAttributesCalculatorSupported()) {
+            throw UnsupportedOperationException("#clearSplitAttributesCalculator is not " +
+                "supported on the device.")
+        }
+        embeddingExtension.clearSplitAttributesCalculator()
+    }
+
+    override fun isSplitAttributesCalculatorSupported(): Boolean =
+        ExtensionsUtil.safeVendorApiLevel >= VENDOR_API_LEVEL_2
+
     companion object {
         const val DEBUG = true
         private const val TAG = "EmbeddingCompat"
 
-        fun getExtensionApiLevel(): Int? {
-            return try {
-                WindowExtensionsProvider.getWindowExtensions().vendorApiLevel
-            } catch (e: NoClassDefFoundError) {
-                if (DEBUG) {
-                    Log.d(TAG, "Embedding extension version not found")
-                }
-                null
-            } catch (e: UnsupportedOperationException) {
-                if (DEBUG) {
-                    Log.d(TAG, "Stub Extension")
-                }
-                null
-            }
-        }
-
         fun isEmbeddingAvailable(): Boolean {
             return try {
-                WindowExtensionsProvider.getWindowExtensions().activityEmbeddingComponent != null
+                EmbeddingCompat::class.java.classLoader?.let { loader ->
+                    SafeActivityEmbeddingComponentProvider(
+                        loader,
+                        ConsumerAdapter(loader),
+                        WindowExtensionsProvider.getWindowExtensions(),
+                    ).activityEmbeddingComponent != null
+                } ?: false
             } catch (e: NoClassDefFoundError) {
                 if (DEBUG) {
                     Log.d(TAG, "Embedding extension version not found")
@@ -95,17 +142,23 @@ internal class EmbeddingCompat constructor(
 
         fun embeddingComponent(): ActivityEmbeddingComponent {
             return if (isEmbeddingAvailable()) {
-                WindowExtensionsProvider.getWindowExtensions().getActivityEmbeddingComponent()
-                    ?: Proxy.newProxyInstance(
-                        EmbeddingCompat::class.java.classLoader,
-                        arrayOf(ActivityEmbeddingComponent::class.java)
-                    ) { _, _, _ -> } as ActivityEmbeddingComponent
+                EmbeddingCompat::class.java.classLoader?.let { loader ->
+                    SafeActivityEmbeddingComponentProvider(
+                        loader,
+                        ConsumerAdapter(loader),
+                        WindowExtensionsProvider.getWindowExtensions(),
+                    ).activityEmbeddingComponent
+                } ?: emptyActivityEmbeddingProxy()
             } else {
-                Proxy.newProxyInstance(
-                    EmbeddingCompat::class.java.classLoader,
-                    arrayOf(ActivityEmbeddingComponent::class.java)
-                ) { _, _, _ -> } as ActivityEmbeddingComponent
+                emptyActivityEmbeddingProxy()
             }
+        }
+
+        private fun emptyActivityEmbeddingProxy(): ActivityEmbeddingComponent {
+            return Proxy.newProxyInstance(
+                EmbeddingCompat::class.java.classLoader,
+                arrayOf(ActivityEmbeddingComponent::class.java)
+            ) { _, _, _ -> } as ActivityEmbeddingComponent
         }
     }
 }

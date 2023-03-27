@@ -32,7 +32,7 @@ dependencies {
 
     testImplementation(libs.truth)
     testImplementation(libs.kotlinTest)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)
     testImplementation("androidx.arch.core:core-testing:2.0.1")
     testImplementation("androidx.lifecycle:lifecycle-livedata:2.0.0") // for mocking invalidation tracker
@@ -41,7 +41,6 @@ dependencies {
 androidx {
     name = "Android Room RXJava2"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2017"
     description = "Android Room RXJava2"
 }

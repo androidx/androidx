@@ -26,9 +26,7 @@ import androidx.core.util.Preconditions;
 
 /**
  * The result class of the {@link AppSearchSession#searchSuggestionAsync}.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SearchSuggestionResult {
 
     private static final String SUGGESTED_RESULT_FIELD = "suggestedResult";

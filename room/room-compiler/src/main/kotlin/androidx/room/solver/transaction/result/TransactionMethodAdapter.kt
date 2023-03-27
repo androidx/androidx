@@ -16,14 +16,12 @@
 
 package androidx.room.solver.transaction.result
 
-import androidx.room.compiler.processing.XType
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.ext.DEFAULT_IMPLS_CLASS_NAME
-import androidx.room.ext.L
-import androidx.room.ext.N
-import androidx.room.ext.T
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.TransactionMethod
-import com.squareup.javapoet.ClassName
 
 /**
  * Class that knows how to generate the transaction method delegate code. Callers should take
@@ -31,64 +29,90 @@ import com.squareup.javapoet.ClassName
  */
 class TransactionMethodAdapter(
     private val methodName: String,
+    private val jvmMethodName: String,
     private val callType: TransactionMethod.CallType
 ) {
     fun createDelegateToSuperCode(
-        returnType: XType,
         parameterNames: List<String>,
-        daoName: ClassName,
-        daoImplName: ClassName,
+        daoName: XClassName,
+        daoImplName: XClassName,
         resultVar: String? = null, // name of result var to assign to, null if none
         returnStmt: Boolean = false, // true or false to prepend statement with 'return'
         scope: CodeGenScope
     ) {
-        scope.builder().apply {
-            val params: MutableList<Any> = mutableListOf()
+        scope.builder.apply {
+            val args = mutableListOf<Any>()
             val format = buildString {
                 if (resultVar != null && returnStmt) {
-                    throw IllegalStateException(
-                        "Can't assign to var and return in the same statement."
-                    )
+                    error("Can't assign to var and return in the same statement.")
                 } else if (resultVar != null) {
-                    append("$T $L = ")
-                    params.add(returnType.typeName)
-                    params.add(resultVar)
+                    append("%L = ")
+                    args.add(resultVar)
                 } else if (returnStmt) {
                     append("return ")
                 }
-                when (callType) {
-                    TransactionMethod.CallType.CONCRETE,
-                    TransactionMethod.CallType.INHERITED_DEFAULT_JAVA8 -> {
-                        append("$T.super.$N(")
-                        params.add(daoImplName)
-                        params.add(methodName)
-                    }
-                    TransactionMethod.CallType.DEFAULT_JAVA8 -> {
-                        append("$T.super.$N(")
-                        params.add(daoName)
-                        params.add(methodName)
-                    }
-                    TransactionMethod.CallType.DEFAULT_KOTLIN -> {
-                        append("$T.$N.$N($T.this")
-                        params.add(daoName)
-                        params.add(DEFAULT_IMPLS_CLASS_NAME)
-                        params.add(methodName)
-                        params.add(daoImplName)
-                    }
+
+                val invokeExpr = when (scope.language) {
+                    CodeLanguage.JAVA -> scope.getJavaInvokeExpr(daoName, daoImplName)
+                    CodeLanguage.KOTLIN -> scope.getKotlinInvokeExpr(daoImplName)
                 }
-                var first = callType != TransactionMethod.CallType.DEFAULT_KOTLIN
-                parameterNames.forEach {
-                    if (first) {
-                        first = false
-                    } else {
+                append("%L")
+                args.add(invokeExpr)
+
+                if (scope.language == CodeLanguage.JAVA &&
+                    callType == TransactionMethod.CallType.DEFAULT_KOTLIN &&
+                    parameterNames.isNotEmpty()
+                ) {
+                    // An invoke to DefaultImpls has an extra 1st param so we need a comma if there
+                    // are more params.
+                    append(", ")
+                }
+                parameterNames.forEachIndexed { i, param ->
+                    append("%L")
+                    args.add(param)
+                    if (i < parameterNames.size - 1) {
                         append(", ")
                     }
-                    append(L)
-                    params.add(it)
                 }
                 append(")")
             }
-            add(format, *params.toTypedArray())
+            add(format, *args.toTypedArray())
         }
     }
+
+    private fun CodeGenScope.getJavaInvokeExpr(
+        daoName: XClassName,
+        daoImplName: XClassName,
+    ): XCodeBlock = when (callType) {
+        TransactionMethod.CallType.CONCRETE,
+        TransactionMethod.CallType.INHERITED_DEFAULT_JAVA8 -> {
+            XCodeBlock.of(
+                language,
+                "%T.super.%N(",
+                daoImplName, jvmMethodName
+            )
+        }
+        TransactionMethod.CallType.DEFAULT_JAVA8 -> {
+            XCodeBlock.of(
+                language,
+                "%T.super.%N(",
+                daoName, jvmMethodName
+            )
+        }
+        TransactionMethod.CallType.DEFAULT_KOTLIN -> {
+            XCodeBlock.of(
+                language,
+                "%T.%N.%N(%T.this",
+                daoName, DEFAULT_IMPLS_CLASS_NAME, jvmMethodName, daoImplName
+            )
+        }
+    }
+
+    private fun CodeGenScope.getKotlinInvokeExpr(
+        daoImplName: XClassName,
+    ): XCodeBlock = XCodeBlock.of(
+        language,
+        "super@%T.%N(",
+        daoImplName, methodName
+    )
 }

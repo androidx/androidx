@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+DocumentExceptions: androidx.health.services.client.ExerciseClient#updateExerciseTypeConfigAsync(androidx.health.services.client.data.ExerciseTypeConfig):
+    Method ExerciseClient.updateExerciseTypeConfigAsync appears to be throwing kotlin.NotImplementedError; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+
+
 ExecutorRegistration: androidx.health.services.client.ExerciseClient#clearUpdateCallbackAsync(androidx.health.services.client.ExerciseUpdateCallback):
     Registration methods should have overload that accepts delivery Executor: `clearUpdateCallbackAsync`
 
@@ -7,15 +11,9 @@ InvalidNullabilityOverride: androidx.health.services.client.PassiveListenerServi
     Invalid nullability on method `onBind` return. Overrides of unannotated super method cannot be Nullable.
 InvalidNullabilityOverride: androidx.health.services.client.PassiveListenerService#onBind(android.content.Intent) parameter #0:
     Invalid nullability on parameter `intent` in method `onBind`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.health.services.client.VersionApiService#onBind(android.content.Intent):
-    Invalid nullability on method `onBind` return. Overrides of unannotated super method cannot be Nullable.
 
 
 PairedRegistration: androidx.health.services.client.MeasureClient#registerMeasureCallback(androidx.health.services.client.data.DeltaDataType<?,?>, androidx.health.services.client.MeasureCallback):
     Found registerMeasureCallback but not unregisterMeasureCallback in androidx.health.services.client.MeasureClient
 PairedRegistration: androidx.health.services.client.MeasureClient#registerMeasureCallback(androidx.health.services.client.data.DeltaDataType<?,?>, java.util.concurrent.Executor, androidx.health.services.client.MeasureCallback):
     Found registerMeasureCallback but not unregisterMeasureCallback in androidx.health.services.client.MeasureClient
-
-
-ParcelCreator: androidx.health.services.client.data.ExerciseGoal:
-    Parcelable requires `void writeToParcel(Parcel, int)`; missing in androidx.health.services.client.data.ExerciseGoal

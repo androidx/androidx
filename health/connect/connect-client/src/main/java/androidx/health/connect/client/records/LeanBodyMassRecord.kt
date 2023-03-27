@@ -17,6 +17,7 @@ package androidx.health.connect.client.records
 
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Mass
+import androidx.health.connect.client.units.kilograms
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -24,15 +25,16 @@ import java.time.ZoneOffset
  * Captures the user's lean body mass. Each record represents a single instantaneous measurement.
  */
 public class LeanBodyMassRecord(
-    /** Mass in [Mass] unit. Required field. Valid range: 0-1000 kilograms. */
-    public val mass: Mass,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
+    /** Mass in [Mass] unit. Required field. Valid range: 0-1000 kilograms. */
+    public val mass: Mass,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
 
     init {
         mass.requireNotLess(other = mass.zero(), name = "mass")
+        mass.requireNotMore(other = MAX_MASS, name = "mass")
     }
 
     /*
@@ -59,5 +61,9 @@ public class LeanBodyMassRecord(
         result = 31 * result + (zoneOffset?.hashCode() ?: 0)
         result = 31 * result + metadata.hashCode()
         return result
+    }
+
+    private companion object {
+        private val MAX_MASS = 1000.kilograms
     }
 }

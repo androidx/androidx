@@ -48,6 +48,7 @@ import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.concurrent.CameraCoordinator;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
@@ -55,9 +56,11 @@ import androidx.camera.core.impl.CameraStateRegistry;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.fakes.FakeCameraCoordinator;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
@@ -116,6 +119,7 @@ public class ExposureDeviceTest {
     Semaphore mSemaphore;
     String mCameraId;
     SemaphoreReleasingCamera2Callbacks.SessionStateCallback mSessionStateCallback;
+    private CameraCoordinator mCameraCoordinator;
     private CameraUseCaseAdapter mCameraUseCaseAdapter;
     private CameraInfoInternal mCameraInfoInternal;
     private CameraControlInternal mCameraControlInternal;
@@ -167,11 +171,12 @@ public class ExposureDeviceTest {
 
         FakeCameraDeviceSurfaceManager fakeCameraDeviceSurfaceManager =
                 new FakeCameraDeviceSurfaceManager();
-        fakeCameraDeviceSurfaceManager.setSuggestedResolution(mCameraId, FakeUseCaseConfig.class,
-                new Size(640, 480));
-
+        fakeCameraDeviceSurfaceManager.setSuggestedStreamSpec(mCameraId, FakeUseCaseConfig.class,
+                StreamSpec.builder(new Size(640, 480)).build());
+        mCameraCoordinator = new FakeCameraCoordinator();
         mCameraUseCaseAdapter = new CameraUseCaseAdapter(
                 new LinkedHashSet<>(Collections.singleton(mCamera2CameraImpl)),
+                mCameraCoordinator,
                 fakeCameraDeviceSurfaceManager, new FakeUseCaseConfigFactory());
     }
 
@@ -190,7 +195,7 @@ public class ExposureDeviceTest {
         }
 
         for (FakeTestUseCase fakeUseCase : mFakeTestUseCases) {
-            fakeUseCase.onDetached();
+            fakeUseCase.onUnbind();
         }
     }
 
@@ -427,8 +432,8 @@ public class ExposureDeviceTest {
         }
 
         @Override
-        public void onDetached() {
-            super.onDetached();
+        public void onUnbind() {
+            super.onUnbind();
             if (mDeferrableSurface != null) {
                 mDeferrableSurface.close();
             }
@@ -436,14 +441,14 @@ public class ExposureDeviceTest {
 
         @Override
         @NonNull
-        protected Size onSuggestedResolutionUpdated(
-                @NonNull Size suggestedResolution) {
-            createPipeline(suggestedResolution);
+        protected StreamSpec onSuggestedStreamSpecUpdated(
+                @NonNull StreamSpec suggestedStreamSpec) {
+            createPipeline(suggestedStreamSpec);
             notifyActive();
-            return suggestedResolution;
+            return suggestedStreamSpec;
         }
 
-        private void createPipeline(Size resolution) {
+        private void createPipeline(StreamSpec streamSpec) {
             SessionConfig.Builder builder = SessionConfig.Builder.createFrom(getCurrentConfig());
 
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
@@ -452,6 +457,7 @@ public class ExposureDeviceTest {
             }
 
             // Create the metering DeferrableSurface
+            Size resolution = streamSpec.getResolution();
             SurfaceTexture surfaceTexture = new SurfaceTexture(0);
             surfaceTexture.setDefaultBufferSize(resolution.getWidth(), resolution.getHeight());
             Surface surface = new Surface(surfaceTexture);
@@ -477,7 +483,7 @@ public class ExposureDeviceTest {
 
             builder.addErrorListener((sessionConfig, error) -> {
                 // Create new pipeline and it will close the old one.
-                createPipeline(resolution);
+                createPipeline(streamSpec);
             });
             updateSessionConfig(builder.build());
         }

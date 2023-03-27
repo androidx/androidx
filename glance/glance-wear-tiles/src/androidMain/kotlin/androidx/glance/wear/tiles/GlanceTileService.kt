@@ -29,7 +29,6 @@ import androidx.glance.GlanceId
 import androidx.glance.state.GlanceState
 import androidx.glance.state.GlanceStateDefinition
 import androidx.glance.wear.tiles.action.RunCallbackAction
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ServiceLifecycleDispatcher
@@ -78,9 +77,8 @@ public abstract class GlanceTileService(
 ) : TileService() {
     private val lifecycleOwner = object : LifecycleOwner {
         val localLifecycle = LifecycleRegistry(this)
-        override fun getLifecycle(): Lifecycle = localLifecycle
+        override val lifecycle: LifecycleRegistry = localLifecycle
     }
-
     private val lifecycleDispatcher = ServiceLifecycleDispatcher(lifecycleOwner)
     private val coroutineScope =
         CoroutineScope(

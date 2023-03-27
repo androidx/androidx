@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -63,18 +62,18 @@ fun PlaceholderChips() {
         }
 
         item {
-            val labelText = remember { mutableStateOf("") }
+            var labelText by remember { mutableStateOf("") }
             ChipWithContentPlaceholders(
                 label = labelText,
                 textAlignment = TextAlign.Center
             )
             LaunchedEffect(Unit) {
                 delay(3000)
-                labelText.value = "Primary Label"
+                labelText = "Primary Label"
             }
         }
         item {
-            val labelText = remember { mutableStateOf("") }
+            var labelText by remember { mutableStateOf("") }
             ChipWithContentPlaceholders(
                 label = labelText,
                 textAlignment = TextAlign.Center,
@@ -82,11 +81,11 @@ fun PlaceholderChips() {
             )
             LaunchedEffect(Unit) {
                 delay(3000)
-                labelText.value = "Primary Label"
+                labelText = "Primary Label"
             }
         }
         item {
-            val labelText = remember { mutableStateOf("") }
+            var labelText by remember { mutableStateOf("") }
             ChipWithContentPlaceholders(
                 label = labelText,
                 textAlignment = TextAlign.Center,
@@ -94,40 +93,40 @@ fun PlaceholderChips() {
             )
             LaunchedEffect(Unit) {
                 delay(3000)
-                labelText.value = "Primary Label"
+                labelText = "Primary Label"
             }
         }
         item {
-            val labelText = remember { mutableStateOf("") }
+            var labelText by remember { mutableStateOf("") }
             ChipWithContentPlaceholders(
                 label = labelText,
                 textAlignment = TextAlign.Center,
             )
             LaunchedEffect(Unit) {
                 delay(3000)
-                labelText.value = "Primary Label"
+                labelText = "Primary Label"
             }
         }
         item {
-            val labelText = remember { mutableStateOf("") }
+            var labelText by remember { mutableStateOf("") }
             ChipWithOverlaidPlaceholder(
                 label = labelText,
                 textAlignment = TextAlign.Center
             )
             LaunchedEffect(Unit) {
                 delay(3000)
-                labelText.value = "Primary Label Center"
+                labelText = "Primary Label Center"
             }
         }
         item {
-            val labelText = remember { mutableStateOf("") }
+            var labelText by remember { mutableStateOf("") }
             ChipWithOverlaidPlaceholder(
                 label = labelText,
                 textAlignment = TextAlign.Center
             )
             LaunchedEffect(Unit) {
                 delay(3000)
-                labelText.value = "Primary Label Center"
+                labelText = "Primary Label Center"
             }
         }
 
@@ -137,47 +136,47 @@ fun PlaceholderChips() {
             }
         }
         item {
-            val label = remember { mutableStateOf("") }
+            var label by remember { mutableStateOf("") }
             ChipWithOverlaidPlaceholder(
                 label = label,
             )
             LaunchedEffect(key1 = Unit) {
                 delay(3000)
-                label.value = "Primary Label"
+                label = "Primary Label"
             }
         }
         item {
-            val label = remember { mutableStateOf("") }
+            var label by remember { mutableStateOf("") }
             ChipWithOverlaidPlaceholder(
                 label = label,
             )
             LaunchedEffect(key1 = Unit) {
                 delay(3000)
-                label.value =
+                label =
                     "Primary that is long, to show truncation, we shouldn't be able to see " +
                         "more than 2 lines"
             }
         }
         item {
-            val label = remember { mutableStateOf("") }
+            var label by remember { mutableStateOf("") }
             ChipWithOverlaidPlaceholder(
                 label = label,
                 icon = R.drawable.ic_accessibility_24px,
             )
             LaunchedEffect(key1 = Unit) {
                 delay(3000)
-                label.value = "Primary Label with icon"
+                label = "Primary Label with icon"
             }
         }
         item {
-            val label = remember { mutableStateOf("") }
+            var label by remember { mutableStateOf("") }
             ChipWithOverlaidPlaceholder(
                 label = label,
                 icon = R.drawable.ic_accessibility_24px,
             )
             LaunchedEffect(key1 = Unit) {
                 delay(3000)
-                label.value =
+                label =
                     "Primary that is long, to show truncation, we shouldn't be able to see " +
                         "more than 2 lines"
             }
@@ -188,43 +187,49 @@ fun PlaceholderChips() {
             }
         }
         item {
-            val label = remember { mutableStateOf("") }
+            var label by remember { mutableStateOf("") }
+            var secondaryLabel by remember { mutableStateOf("") }
             ChipWithOverlaidPlaceholder(
                 label = label,
-                secondaryLabel = remember { mutableStateOf("Secondary Label") },
+                secondaryLabel = secondaryLabel,
             )
             LaunchedEffect(key1 = Unit) {
                 delay(3000)
-                label.value = "Primary Label"
+                label = "Primary Label"
+                secondaryLabel = "Secondary Label"
             }
         }
         item {
-            val label = remember { mutableStateOf("") }
+            var label by remember { mutableStateOf("") }
+            var secondaryLabel by remember { mutableStateOf("") }
             ChipWithOverlaidPlaceholder(
                 label = label,
-                secondaryLabel = remember { mutableStateOf("Secondary Label") },
+                secondaryLabel = secondaryLabel,
             )
             LaunchedEffect(key1 = Unit) {
                 delay(3000)
-                label.value =
+                label =
                     "Primary that is long, to show truncation, we shouldn't be able to see " +
                         "more than 1 line"
+                secondaryLabel = "Secondary Label"
             }
         }
         item {
-            val label = remember { mutableStateOf("") }
+            var label by remember { mutableStateOf("") }
+            var secondaryLabel by remember { mutableStateOf("") }
             ChipWithOverlaidPlaceholder(
                 label = label,
                 icon = R.drawable.ic_accessibility_24px,
-                secondaryLabel = remember { mutableStateOf("Secondary Label") },
+                secondaryLabel = secondaryLabel,
             )
             LaunchedEffect(key1 = Unit) {
                 delay(3000)
-                label.value = "Primary Label with icon"
+                label = "Primary Label with icon"
+                secondaryLabel = "Secondary Label"
             }
         }
         item {
-            val label = remember { mutableStateOf("") }
+            var label by remember { mutableStateOf("") }
             ChipWithOverlaidPlaceholder(
                 label = label,
                 icon = R.drawable.ic_accessibility_24px,
@@ -235,40 +240,41 @@ fun PlaceholderChips() {
             )
             LaunchedEffect(key1 = Unit) {
                 delay(3000)
-                label.value = "Primary Label with icon"
+                label = "Primary Label with icon"
             }
         }
         item {
-            val label = remember { mutableStateOf("") }
+            var label by remember { mutableStateOf("") }
+            var secondaryLabel by remember { mutableStateOf("") }
             ChipWithOverlaidPlaceholder(
                 label = label,
                 icon = R.drawable.ic_accessibility_24px,
-                secondaryLabel = remember {
-                    mutableStateOf("Content color override")
-                },
+                secondaryLabel = secondaryLabel,
                 colors = ChipDefaults.chipColors(
                     backgroundColor = AlternatePrimaryColor2
                 ),
             )
             LaunchedEffect(key1 = Unit) {
                 delay(3000)
-                label.value = "Primary Label with icon"
+                label = "Primary Label with icon"
+                secondaryLabel = "Content color override"
             }
         }
         item {
-            val label = remember { mutableStateOf("") }
+            var label by remember { mutableStateOf("") }
+            var secondaryLabel by remember { mutableStateOf("") }
             ChipWithOverlaidPlaceholder(
                 label = label,
                 icon = R.drawable.ic_accessibility_24px,
-                secondaryLabel = remember {
-                    mutableStateOf("Long Secondary that is long, to show truncation, we " +
-                    "shouldn't be able to see more than 1 line") },
+                secondaryLabel = secondaryLabel,
             )
             LaunchedEffect(key1 = Unit) {
                 delay(3000)
-                label.value =
+                label =
                     "Primary that is long, to show truncation, we shouldn't be able to see " +
                         "more than 1 line"
+                secondaryLabel = "Long Secondary that is long, to show truncation, we " +
+                    "shouldn't be able to see more than 1 line"
             }
         }
     }
@@ -353,29 +359,31 @@ fun PlaceholderCards() {
 @OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun ChipWithOverlaidPlaceholder(
-    label: State<String>,
+    label: String,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
-    secondaryLabel: State<String?> = mutableStateOf(null),
+    secondaryLabel: String? = null,
     icon: Int? = null,
     textAlignment: TextAlign = TextAlign.Start,
     colors: ChipColors = ChipDefaults.secondaryChipColors(),
 ) {
-    val maxLabelLines = if (secondaryLabel.value != null) 1 else 2
+    val hasSecondaryLabel = secondaryLabel != null
+    val hasIcon = icon != null
     var iconReady by remember { mutableStateOf(icon == null) }
-    val iconCopy = icon
+    val maxLabelLines = if (secondaryLabel != null) 1 else 2
     val chipPlaceholderState = rememberPlaceholderState {
-        label.value.isNotEmpty() &&
-            (secondaryLabel.value == null || secondaryLabel.value!!.isNotEmpty()) && iconReady
+        label.isNotEmpty() &&
+            ((secondaryLabel == null) || secondaryLabel.isNotEmpty()) && iconReady
     }
 
     Box {
         Chip(
-            modifier = modifier.fillMaxWidth(),
+            modifier = modifier
+                .fillMaxWidth(),
             onClick = onClick,
             label = {
                 Text(
-                    text = label.value,
+                    text = label,
                     textAlign = textAlignment,
                     maxLines = maxLabelLines,
                     overflow = TextOverflow.Clip,
@@ -385,10 +393,10 @@ fun ChipWithOverlaidPlaceholder(
                         .wrapContentHeight(align = Alignment.CenterVertically)
                 )
             },
-            secondaryLabel = if (secondaryLabel.value != null) {
+            secondaryLabel = if (secondaryLabel != null) {
                 {
                     Text(
-                        text = secondaryLabel.value!!,
+                        text = secondaryLabel,
                         textAlign = textAlignment,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -415,7 +423,10 @@ fun ChipWithOverlaidPlaceholder(
                 null
             },
             enabled = true,
-            colors = colors
+            colors = PlaceholderDefaults.placeholderChipColors(
+                originalChipColors = colors,
+                placeholderState = chipPlaceholderState
+            )
         )
         if (! chipPlaceholderState.isShowContent) {
             Chip(
@@ -434,7 +445,7 @@ fun ChipWithOverlaidPlaceholder(
                             .placeholder(placeholderState = chipPlaceholderState)
                     )
                 },
-                secondaryLabel = if (secondaryLabel.value != null) {
+                secondaryLabel = if (hasSecondaryLabel) {
                     {
                         Box(
                             modifier = Modifier
@@ -447,7 +458,7 @@ fun ChipWithOverlaidPlaceholder(
                 } else {
                     null
                 },
-                icon = if (iconCopy != null) {
+                icon = if (hasIcon) {
                     {
                         Box(
                             modifier = Modifier
@@ -460,7 +471,7 @@ fun ChipWithOverlaidPlaceholder(
                 },
                 enabled = true,
                 colors = PlaceholderDefaults.placeholderChipColors(
-                    placeholderState = chipPlaceholderState,
+                    placeholderState = chipPlaceholderState
                 )
             )
         }
@@ -473,20 +484,19 @@ fun ChipWithOverlaidPlaceholder(
 @OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun ChipWithContentPlaceholders(
-    label: State<String>,
+    label: String,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
-    secondaryLabel: State<String?> = mutableStateOf(null),
+    secondaryLabel: String? = null,
     icon: Int? = null,
     textAlignment: TextAlign = TextAlign.Start,
     colors: ChipColors = ChipDefaults.secondaryChipColors(),
 ) {
-    val maxLabelLines = if (secondaryLabel.value != null) 1 else 2
+    val maxLabelLines = if (secondaryLabel != null) 1 else 2
     var iconReady by remember { mutableStateOf(icon == null) }
-    val iconCopy = icon
     val chipPlaceholderState = rememberPlaceholderState {
-        label.value.isNotEmpty() &&
-            ((secondaryLabel.value == null) || secondaryLabel.value!!.isNotEmpty()) && iconReady
+        label.isNotEmpty() &&
+            ((secondaryLabel == null) || secondaryLabel.isNotEmpty()) && iconReady
     }
 
     Chip(
@@ -501,7 +511,7 @@ fun ChipWithContentPlaceholders(
                     .height(IntrinsicSize.Max)
             ) {
                 Text(
-                    text = label.value,
+                    text = label,
                     textAlign = textAlignment,
                     maxLines = maxLabelLines,
                     overflow = TextOverflow.Clip,
@@ -513,10 +523,10 @@ fun ChipWithContentPlaceholders(
                 )
             }
         },
-        secondaryLabel = if (secondaryLabel.value != null) {
+        secondaryLabel = if (secondaryLabel != null) {
             {
                 Text(
-                    text = secondaryLabel.value!!,
+                    text = secondaryLabel,
                     textAlign = textAlignment,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -528,10 +538,10 @@ fun ChipWithContentPlaceholders(
         } else {
             null
         },
-        icon = if (iconCopy != null) {
+        icon = if (icon != null) {
             {
                 DemoIcon(
-                    resourceId = iconCopy,
+                    resourceId = icon,
                     modifier = Modifier
                         .placeholder(chipPlaceholderState)
                 )
@@ -606,7 +616,7 @@ fun CardWithOverlaidPlaceholder(
                         MaterialTheme.shapes.large
                     ),
                 backgroundPainter = PlaceholderDefaults.placeholderBackgroundBrush(
-                    placeholderState = cardPlaceholderState,
+                    placeholderState = cardPlaceholderState
                 )
             ) {
                 Spacer(modifier = Modifier.height(4.dp))

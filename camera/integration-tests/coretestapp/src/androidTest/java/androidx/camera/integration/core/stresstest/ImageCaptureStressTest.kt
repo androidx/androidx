@@ -18,7 +18,8 @@ package androidx.camera.integration.core.stresstest
 
 import android.Manifest
 import android.content.Context
-import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
+import androidx.camera.core.CameraXConfig
 import androidx.camera.integration.core.CameraXActivity.BIND_IMAGE_CAPTURE
 import androidx.camera.integration.core.CameraXActivity.BIND_PREVIEW
 import androidx.camera.integration.core.takePictureAndWaitForImageSavedIdle
@@ -28,6 +29,7 @@ import androidx.camera.integration.core.util.StressTestUtil.STRESS_TEST_OPERATIO
 import androidx.camera.integration.core.util.StressTestUtil.launchCameraXActivityAndWaitForPreviewReady
 import androidx.camera.integration.core.waitForViewfinderIdle
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.LabTestRule
@@ -58,12 +60,21 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
-class ImageCaptureStressTest(val cameraId: String) {
+class ImageCaptureStressTest(
+    val implName: String,
+    val cameraConfig: CameraXConfig,
+    val cameraId: String
+) {
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+    )
+
+    @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        CameraUtil.PreTestCameraIdList(cameraConfig)
     )
 
     @get:Rule
@@ -78,15 +89,17 @@ class ImageCaptureStressTest(val cameraId: String) {
     @get:Rule
     val repeatRule = RepeatRule()
 
+    private val context = ApplicationProvider.getApplicationContext<Context>()
+    private lateinit var cameraProvider: ProcessCameraProvider
+
     companion object {
         @ClassRule
         @JvmField
         val stressTest = StressTestRule()
 
         @JvmStatic
-        @get:Parameterized.Parameters(name = "cameraId = {0}")
-        val parameters: Collection<String>
-            get() = CameraUtil.getBackwardCompatibleCameraIdListOrThrow()
+        @Parameterized.Parameters(name = "config = {0}, cameraId = {2}")
+        fun data() = StressTestUtil.getAllCameraXConfigCameraIdCombinations()
     }
 
     @Before
@@ -94,6 +107,17 @@ class ImageCaptureStressTest(val cameraId: String) {
         Assume.assumeTrue(CameraUtil.deviceHasCamera())
         CoreAppTestUtil.assumeCompatibleDevice()
         CoreAppTestUtil.assumeNotUntestableFrontCamera(cameraId)
+
+        // For running the ImageCaptureStressTest, we need to get the target test camera to check
+        // whether the testing use case combination can be supported to skip unsupported cases. For
+        // the purpose, we force configure the target testing config first
+        // (Camera2Config/CameraPipeConfig) and gets the CameraProvider instance in the setup()
+        // function. Then, the activity launched afterward will also run on the same config
+        // environment. The setup config environment will be cleared after
+        // CameraProvider#shutdown() is called in the tearDown() function.
+        ProcessCameraProvider.configureInstance(cameraConfig)
+        cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window before start the test.
         CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
@@ -106,17 +130,17 @@ class ImageCaptureStressTest(val cameraId: String) {
 
     @After
     fun tearDown(): Unit = runBlocking {
+        if (::cameraProvider.isInitialized) {
+            withContext(Dispatchers.Main) {
+                cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
+            }
+        }
+
         // Unfreeze rotation so the device can choose the orientation via its own policy. Be nice
         // to other tests :)
         device.unfreezeRotation()
         device.pressHome()
         device.waitForIdle(StressTestUtil.HOME_TIMEOUT_MS)
-
-        withContext(Dispatchers.Main) {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
-            cameraProvider.shutdown()[10, TimeUnit.SECONDS]
-        }
     }
 
     @LabTestRule.LabTestOnly
@@ -248,5 +272,25 @@ class ImageCaptureStressTest(val cameraId: String) {
         }
         val randomDelayDuration = (Random.nextInt(maxDelaySeconds) + 1).toLong()
         delay(TimeUnit.SECONDS.toMillis(randomDelayDuration))
+    }
+
+    @LabTestRule.LabTestOnly
+    @Test
+    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    fun launchActivity_thenTakeMultiplePictures_withoutWaitingPreviousResults() {
+        val useCaseCombination = BIND_PREVIEW or BIND_IMAGE_CAPTURE
+
+        // Launches CameraXActivity and wait for the preview ready.
+        val activityScenario =
+            launchCameraXActivityAndWaitForPreviewReady(cameraId, useCaseCombination)
+
+        with(activityScenario) {
+            use {
+                // Checks whether multiple images can be captured successfully
+                repeat(STRESS_TEST_OPERATION_REPEAT_COUNT) {
+                    takePictureAndWaitForImageSavedIdle(3)
+                }
+            }
+        }
     }
 }

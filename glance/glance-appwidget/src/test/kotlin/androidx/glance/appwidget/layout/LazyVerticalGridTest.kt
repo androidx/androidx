@@ -149,8 +149,8 @@ class LazyVerticalGridTest {
         val verticalGrid = assertIs<EmittableLazyVerticalGrid>(root.children.single())
         val listItems = assertAre<EmittableLazyVerticalGridListItem>(verticalGrid.children)
         assertThat(listItems[0].itemId).isEqualTo(5L)
-        assertThat(listItems[1].itemId).isEqualTo(ReservedItemIdRangeEnd)
-        assertThat(listItems[2].itemId).isEqualTo(ReservedItemIdRangeEnd - 1)
+        assertThat(listItems[1].itemId).isEqualTo(ReservedItemIdRangeEnd - 1)
+        assertThat(listItems[2].itemId).isEqualTo(ReservedItemIdRangeEnd - 2)
         assertThat(listItems[3].itemId).isEqualTo(6L)
     }
 

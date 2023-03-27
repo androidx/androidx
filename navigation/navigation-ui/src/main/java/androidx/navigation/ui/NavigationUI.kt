@@ -16,6 +16,7 @@
 package androidx.navigation.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -46,6 +47,8 @@ import java.lang.ref.WeakReference
  * navigation patterns like a navigation drawer or bottom nav bar with your [NavController].
  */
 public object NavigationUI {
+    private const val TAG = "NavigationUI"
+
     /**
      * Attempt to navigate to the [NavDestination] associated with the given MenuItem. This
      * MenuItem should have been added via one of the helper methods in this class.
@@ -94,6 +97,13 @@ public object NavigationUI {
             // Return true only if the destination we've navigated to matches the MenuItem
             navController.currentDestination?.matchDestination(item.itemId) == true
         } catch (e: IllegalArgumentException) {
+            val name = NavDestination.getDisplayName(navController.context, item.itemId)
+            Log.i(
+                TAG,
+                "Ignoring onNavDestinationSelected for MenuItem $name as it cannot be found " +
+                    "from the current destination ${navController.currentDestination}",
+                e
+            )
             false
         }
     }
@@ -158,6 +168,13 @@ public object NavigationUI {
             // Return true only if the destination we've navigated to matches the MenuItem
             navController.currentDestination?.matchDestination(item.itemId) == true
         } catch (e: IllegalArgumentException) {
+            val name = NavDestination.getDisplayName(navController.context, item.itemId)
+            Log.i(
+                TAG,
+                "Ignoring onNavDestinationSelected for MenuItem $name as it cannot be found " +
+                    "from the current destination ${navController.currentDestination}",
+                e
+            )
             false
         }
     }

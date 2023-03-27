@@ -16,10 +16,15 @@
 
 package androidx.room.integration.kotlintestapp.test
 
+import android.content.Context
 import android.os.Build
+import android.os.StrictMode
+import android.os.StrictMode.ThreadPolicy
 import androidx.arch.core.executor.ArchTaskExecutor
+import androidx.arch.core.executor.TaskExecutor
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.androidx.room.integration.kotlintestapp.vo.Counter
 import androidx.room.integration.kotlintestapp.NewThreadDispatcher
 import androidx.room.integration.kotlintestapp.TestDatabase
 import androidx.room.integration.kotlintestapp.vo.Book
@@ -30,10 +35,25 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import java.io.IOException
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED
+import kotlin.coroutines.intrinsics.intercepted
+import kotlin.coroutines.intrinsics.suspendCoroutineUninterceptedOrReturn
+import kotlin.coroutines.resume
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ObsoleteCoroutinesApi
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
@@ -41,18 +61,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Assert.fail
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.IOException
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicInteger
-import kotlinx.coroutines.DelicateCoroutinesApi
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -140,6 +156,31 @@ class SuspendingQueryTest : TestDatabaseTest() {
     }
 
     @Test
+    fun allBookSuspend_autoClose() {
+        val context: Context = ApplicationProvider.getApplicationContext()
+        context.deleteDatabase("autoClose.db")
+        val db = Room.databaseBuilder(
+            context = context,
+            klass = TestDatabase::class.java,
+            name = "test.db"
+        ).setAutoCloseTimeout(10, TimeUnit.MILLISECONDS).build()
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            StrictMode.setThreadPolicy(
+                ThreadPolicy.Builder()
+                    .detectDiskReads()
+                    .detectDiskWrites()
+                    .penaltyDeath()
+                    .build()
+            )
+            runBlocking {
+                db.booksDao().getBooksSuspend()
+                delay(100) // let db auto-close
+                db.booksDao().getBooksSuspend()
+            }
+        }
+    }
+
+    @Test
     @Suppress("DEPRECATION")
     fun suspendingBlock_beginEndTransaction() {
         runBlocking {
@@ -158,9 +199,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 database.endTransaction()
             }
         }
-        runBlocking {
-            assertThat(booksDao.getBooksSuspend()).isEqualTo(listOf(TestUtil.BOOK_2))
-        }
+        assertThat(booksDao.getAllBooks()).isEqualTo(listOf(TestUtil.BOOK_2))
     }
 
     @Test
@@ -182,9 +221,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 database.endTransaction()
             }
         }
-        runBlocking {
-            assertThat(booksDao.getBooksSuspend()).isEqualTo(listOf(TestUtil.BOOK_2))
-        }
+        assertThat(booksDao.getAllBooks()).isEqualTo(listOf(TestUtil.BOOK_2))
     }
 
     @Test
@@ -206,9 +243,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 database.endTransaction()
             }
         }
-        runBlocking(NewThreadDispatcher()) {
-            assertThat(booksDao.getBooksSuspend()).isEqualTo(listOf(TestUtil.BOOK_2))
-        }
+        assertThat(booksDao.getAllBooks()).isEqualTo(listOf(TestUtil.BOOK_2))
     }
 
     @Test
@@ -256,10 +291,25 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 booksDao.deleteUnsoldBooks()
             }
         }
-        runBlocking(NewThreadDispatcher()) {
-            assertThat(booksDao.getBooksSuspend())
-                .isEqualTo(listOf(TestUtil.BOOK_2))
+        assertThat(booksDao.getAllBooks()).isEqualTo(listOf(TestUtil.BOOK_2))
+    }
+
+    @Test
+    fun withTransaction_withContext_newThreadDispatcher() {
+        runBlocking {
+            withContext(NewThreadDispatcher()) {
+                database.withTransaction {
+                    booksDao.insertPublisherSuspend(
+                        TestUtil.PUBLISHER.publisherId,
+                        TestUtil.PUBLISHER.name
+                    )
+                    booksDao.insertBookSuspend(TestUtil.BOOK_1.copy(salesCnt = 0))
+                    booksDao.insertBookSuspend(TestUtil.BOOK_2)
+                    booksDao.deleteUnsoldBooks()
+                }
+            }
         }
+        assertThat(booksDao.getAllBooks()).isEqualTo(listOf(TestUtil.BOOK_2))
     }
 
     @Test
@@ -275,10 +325,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 booksDao.deleteUnsoldBooks()
             }
         }
-        runBlocking(NewThreadDispatcher()) {
-            assertThat(booksDao.getBooksSuspend())
-                .isEqualTo(listOf(TestUtil.BOOK_2))
-        }
+        assertThat(booksDao.getAllBooks()).isEqualTo(listOf(TestUtil.BOOK_2))
     }
 
     @Test
@@ -301,6 +348,31 @@ class SuspendingQueryTest : TestDatabaseTest() {
     }
 
     @Test
+    fun withTransaction_contextSwitch_exception() {
+        runBlocking {
+            try {
+                database.withTransaction {
+                    booksDao.insertPublisherSuspend(
+                        TestUtil.PUBLISHER.publisherId,
+                        TestUtil.PUBLISHER.name
+                    )
+                    withContext(Dispatchers.IO) {
+                        booksDao.insertBookSuspend(TestUtil.BOOK_1.copy(salesCnt = 0))
+                        booksDao.insertBookSuspend(TestUtil.BOOK_2)
+                    }
+                    booksDao.deleteUnsoldBooks()
+                    throw IOException("Boom!")
+                }
+            } catch (ex: IOException) {
+                assertThat(ex).hasMessageThat()
+                    .contains("Boom")
+            }
+            assertThat(booksDao.getPublishersSuspend()).isEmpty()
+            assertThat(booksDao.getBooksSuspend()).isEmpty()
+        }
+    }
+
+    @Test
     fun withTransaction_exception() {
         runBlocking {
             database.withTransaction {
@@ -314,6 +386,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
             try {
                 database.withTransaction {
                     booksDao.insertBookSuspend(TestUtil.BOOK_2)
+                    booksDao.insertBookSuspend(TestUtil.BOOK_3)
                     throw IOException("Boom!")
                 }
                 @Suppress("UNREACHABLE_CODE")
@@ -369,8 +442,8 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 }
             }
 
-            assertThat(booksDao.getBooksSuspend())
-                .isEqualTo(emptyList<Book>())
+            assertThat(booksDao.getPublishersSuspend()).isEmpty()
+            assertThat(booksDao.getBooksSuspend()).isEmpty()
         }
     }
 
@@ -464,6 +537,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
 
     @Test
     fun withTransaction_cancelCoroutine() {
+
         runBlocking {
             booksDao.insertPublisherSuspend(
                 TestUtil.PUBLISHER.publisherId,
@@ -493,6 +567,42 @@ class SuspendingQueryTest : TestDatabaseTest() {
             assertThat(booksDao.getBooksSuspend())
                 .isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_3))
         }
+    }
+
+    @Test
+    fun withTransaction_busyExecutor_cancelCoroutine() {
+        val executorService = Executors.newSingleThreadExecutor()
+        val localDatabase = Room.inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(), TestDatabase::class.java
+        )
+            .setTransactionExecutor(executorService)
+            .build()
+
+        // Simulate a busy executor, no thread to acquire for transaction.
+        val busyLatch = CountDownLatch(1)
+        executorService.execute {
+            busyLatch.await()
+        }
+        runBlocking {
+            val startedRunning = CountDownLatch(1)
+            val job = launch(Dispatchers.IO) {
+                startedRunning.countDown()
+                delay(200) // yield and delay to queue the runnable in transaction executor
+                localDatabase.withTransaction {
+                    fail("Transaction block should have never run!")
+                }
+            }
+
+            assertThat(startedRunning.await(1, TimeUnit.SECONDS)).isTrue()
+            job.cancelAndJoin()
+        }
+
+        // free busy thread
+        busyLatch.countDown()
+        executorService.shutdown()
+        assertThat(executorService.awaitTermination(1, TimeUnit.SECONDS)).isTrue()
+
+        assertThat(localDatabase.booksDao().getPublishers()).isEmpty()
     }
 
     @Test
@@ -655,15 +765,12 @@ class SuspendingQueryTest : TestDatabaseTest() {
             }
         }
 
-        runBlocking {
-            // as Set since insertion order is undefined
-            assertThat(booksDao.getBooksSuspend().toSet())
-                .isEqualTo(setOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
-        }
+        // as Set since insertion order is undefined
+        assertThat(booksDao.getAllBooks().toSet())
+            .isEqualTo(setOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
     }
 
     @Test
-    @ObsoleteCoroutinesApi
     @Suppress("DeferredResultUnused")
     fun withTransaction_multipleTransactions_multipleThreads() {
         runBlocking {
@@ -689,31 +796,17 @@ class SuspendingQueryTest : TestDatabaseTest() {
             }
         }
 
-        runBlocking {
-            // as Set since insertion order is undefined
-            assertThat(booksDao.getBooksSuspend().toSet())
-                .isEqualTo(setOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
-        }
+        // as Set since insertion order is undefined
+        assertThat(booksDao.getAllBooks().toSet())
+            .isEqualTo(setOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
     }
 
+    @Ignore // b/263502892
     @Test
     @Suppress("DeferredResultUnused")
     fun withTransaction_multipleTransactions_verifyThreadUsage() {
         val busyThreadsCount = AtomicInteger()
-        // Executor wrapper that counts threads that are busy executing commands.
-        class WrappedService(val delegate: ExecutorService) : ExecutorService by delegate {
-            override fun execute(command: Runnable) {
-                delegate.execute {
-                    busyThreadsCount.incrementAndGet()
-                    try {
-                        command.run()
-                    } finally {
-                        busyThreadsCount.decrementAndGet()
-                    }
-                }
-            }
-        }
-        val wrappedExecutor = WrappedService(Executors.newCachedThreadPool())
+        val wrappedExecutor = BusyCountingService(busyThreadsCount, Executors.newCachedThreadPool())
         val localDatabase = Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(), TestDatabase::class.java
         )
@@ -740,57 +833,67 @@ class SuspendingQueryTest : TestDatabaseTest() {
             }
         }
 
-        wrappedExecutor.awaitTermination(1, TimeUnit.SECONDS)
+        assertThat(busyThreadsCount.get()).isEqualTo(0)
+        wrappedExecutor.shutdown()
+        assertThat(wrappedExecutor.awaitTermination(1, TimeUnit.SECONDS)).isTrue()
     }
 
     @Test
     fun withTransaction_busyExecutor() {
+        val executorService = Executors.newSingleThreadExecutor()
+        val localDatabase = Room.inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(), TestDatabase::class.java
+        )
+            .setTransactionExecutor(executorService)
+            .build()
+
+        // Simulate a busy executor, no thread to acquire for transaction.
+        val busyLatch = CountDownLatch(1)
+        executorService.execute {
+            busyLatch.await()
+        }
         runBlocking {
-            val executorService = Executors.newSingleThreadExecutor()
-            val localDatabase = Room.inMemoryDatabaseBuilder(
-                ApplicationProvider.getApplicationContext(), TestDatabase::class.java
-            )
-                .setTransactionExecutor(executorService)
-                .build()
-
-            // Simulate a busy executor, no thread to acquire for transaction.
-            val busyLatch = CountDownLatch(1)
-            executorService.execute {
-                busyLatch.await()
-            }
-
             var asyncExecuted = false
-            val transactionLatch = CountDownLatch(1)
             val job = async(Dispatchers.IO) {
                 asyncExecuted = true
                 localDatabase.withTransaction {
-                    transactionLatch.countDown()
+                    booksDao.insertPublisherSuspend(
+                        TestUtil.PUBLISHER.publisherId,
+                        TestUtil.PUBLISHER.name
+                    )
                 }
             }
 
-            assertThat(transactionLatch.await(1000, TimeUnit.MILLISECONDS)).isFalse()
+            try {
+                withTimeout(1000) {
+                    job.join()
+                }
+                fail("A timeout should have occurred!")
+            } catch (_: TimeoutCancellationException) { }
             job.cancelAndJoin()
 
             assertThat(asyncExecuted).isTrue()
-
-            // free busy thread
-            busyLatch.countDown()
-            executorService.awaitTermination(1, TimeUnit.SECONDS)
         }
+        // free busy thread
+        busyLatch.countDown()
+        executorService.shutdown()
+        assertThat(executorService.awaitTermination(1, TimeUnit.SECONDS)).isTrue()
+
+        assertThat(booksDao.getPublishers()).isEmpty()
     }
 
     @Test
     fun withTransaction_shutdownExecutor() {
+        val executorService = Executors.newCachedThreadPool()
+        val localDatabase = Room.inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(), TestDatabase::class.java
+        )
+            .setTransactionExecutor(executorService)
+            .build()
+
+        executorService.shutdownNow()
+
         runBlocking {
-            val executorService = Executors.newCachedThreadPool()
-            val localDatabase = Room.inMemoryDatabaseBuilder(
-                ApplicationProvider.getApplicationContext(), TestDatabase::class.java
-            )
-                .setTransactionExecutor(executorService)
-                .build()
-
-            executorService.shutdownNow()
-
             try {
                 localDatabase.withTransaction {
                     fail("This coroutine should never run.")
@@ -801,22 +904,24 @@ class SuspendingQueryTest : TestDatabaseTest() {
                     .contains("Unable to acquire a thread to perform the database transaction")
             }
         }
+
+        executorService.shutdown()
+        assertThat(executorService.awaitTermination(1, TimeUnit.SECONDS)).isTrue()
     }
 
     @Test
     fun withTransaction_databaseOpenError() {
+        val localDatabase = Room.inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(), TestDatabase::class.java
+        )
+            .addCallback(object : RoomDatabase.Callback() {
+                override fun onOpen(db: SupportSQLiteDatabase) {
+                    // this causes all transaction methods to throw, this can happen IRL
+                    throw RuntimeException("Error opening Database.")
+                }
+            })
+            .build()
         runBlocking {
-            val localDatabase = Room.inMemoryDatabaseBuilder(
-                ApplicationProvider.getApplicationContext(), TestDatabase::class.java
-            )
-                .addCallback(object : RoomDatabase.Callback() {
-                    override fun onOpen(db: SupportSQLiteDatabase) {
-                        // this causes all transaction methods to throw, this can happen IRL
-                        throw RuntimeException("Error opening Database.")
-                    }
-                })
-                .build()
-
             try {
                 localDatabase.withTransaction {
                     fail("This coroutine should never run.")
@@ -830,41 +935,40 @@ class SuspendingQueryTest : TestDatabaseTest() {
 
     @Test
     fun withTransaction_beginTransaction_error() {
-        runBlocking {
-            // delegate and delegate just so that we can throw in beginTransaction()
-            val localDatabase = Room.inMemoryDatabaseBuilder(
-                ApplicationProvider.getApplicationContext(), TestDatabase::class.java
-            )
-                .openHelperFactory(
-                    object : SupportSQLiteOpenHelper.Factory {
-                        val factoryDelegate = FrameworkSQLiteOpenHelperFactory()
-                        override fun create(
-                            configuration: SupportSQLiteOpenHelper.Configuration
-                        ): SupportSQLiteOpenHelper {
-                            val helperDelegate = factoryDelegate.create(configuration)
-                            return object : SupportSQLiteOpenHelper by helperDelegate {
-                                override val writableDatabase: SupportSQLiteDatabase
-                                    get() {
-                                        val databaseDelegate = helperDelegate.writableDatabase
-                                        return object : SupportSQLiteDatabase by databaseDelegate {
-                                            override fun beginTransaction() {
-                                                throw RuntimeException(
-                                                    "Error beginning transaction."
-                                                )
-                                            }
-                                            override fun beginTransactionNonExclusive() {
-                                                throw RuntimeException(
-                                                    "Error beginning transaction."
-                                                )
-                                            }
+        // delegate and delegate just so that we can throw in beginTransaction()
+        val localDatabase = Room.inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(), TestDatabase::class.java
+        )
+            .openHelperFactory(
+                object : SupportSQLiteOpenHelper.Factory {
+                    val factoryDelegate = FrameworkSQLiteOpenHelperFactory()
+                    override fun create(
+                        configuration: SupportSQLiteOpenHelper.Configuration
+                    ): SupportSQLiteOpenHelper {
+                        val helperDelegate = factoryDelegate.create(configuration)
+                        return object : SupportSQLiteOpenHelper by helperDelegate {
+                            override val writableDatabase: SupportSQLiteDatabase
+                                get() {
+                                    val databaseDelegate = helperDelegate.writableDatabase
+                                    return object : SupportSQLiteDatabase by databaseDelegate {
+                                        override fun beginTransaction() {
+                                            throw RuntimeException(
+                                                "Error beginning transaction."
+                                            )
+                                        }
+                                        override fun beginTransactionNonExclusive() {
+                                            throw RuntimeException(
+                                                "Error beginning transaction."
+                                            )
                                         }
                                     }
-                            }
+                                }
                         }
                     }
-                )
-                .build()
-
+                }
+            )
+            .build()
+        runBlocking {
             try {
                 localDatabase.withTransaction {
                     fail("This coroutine should never run.")
@@ -1022,5 +1126,287 @@ class SuspendingQueryTest : TestDatabaseTest() {
             .isEqualTo(true)
         assertThat(booksDao.getBooksSuspend())
             .contains(addedBook)
+    }
+
+    @Test
+    fun withTransaction_instantTaskExecutorRule() = runBlocking {
+        // Not the actual InstantTaskExecutorRule since this test class already uses
+        // CountingTaskExecutorRule but same behaviour.
+        ArchTaskExecutor.getInstance().setDelegate(object : TaskExecutor() {
+            override fun executeOnDiskIO(runnable: Runnable) {
+                runnable.run()
+            }
+
+            override fun postToMainThread(runnable: Runnable) {
+                runnable.run()
+            }
+
+            override fun isMainThread(): Boolean {
+                return false
+            }
+        })
+        database.withTransaction {
+            booksDao.insertPublisherSuspend(
+                TestUtil.PUBLISHER.publisherId,
+                TestUtil.PUBLISHER.name
+            )
+        }
+        assertThat(booksDao.getPublishers().size).isEqualTo(1)
+    }
+
+    @Test
+    fun withTransaction_singleExecutorDispatcher() {
+        val executor = Executors.newSingleThreadExecutor()
+        val localDatabase = Room.inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(), TestDatabase::class.java
+        )
+            .setTransactionExecutor(executor)
+            .build()
+        runBlocking {
+            withContext(executor.asCoroutineDispatcher()) {
+                localDatabase.withTransaction {
+                    localDatabase.booksDao().insertPublisherSuspend(
+                        TestUtil.PUBLISHER.publisherId,
+                        TestUtil.PUBLISHER.name
+                    )
+                }
+            }
+        }
+        assertThat(localDatabase.booksDao().getPublishers().size).isEqualTo(1)
+
+        executor.shutdown()
+        assertThat(executor.awaitTermination(1, TimeUnit.SECONDS)).isTrue()
+    }
+
+    @Test
+    fun withTransaction_reentrant_nested() {
+        val executor = Executors.newSingleThreadExecutor()
+        val localDatabase = Room.inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(), TestDatabase::class.java
+        )
+            .setTransactionExecutor(executor)
+            .build()
+        runBlocking {
+            withContext(executor.asCoroutineDispatcher()) {
+                localDatabase.withTransaction {
+                    localDatabase.booksDao().insertPublisherSuspend(
+                        TestUtil.PUBLISHER.publisherId,
+                        TestUtil.PUBLISHER.name
+                    )
+                    localDatabase.withTransaction {
+                        localDatabase.booksDao().insertBookSuspend(TestUtil.BOOK_1)
+                    }
+                }
+            }
+        }
+        assertThat(localDatabase.booksDao().getPublishers().size).isEqualTo(1)
+        assertThat(localDatabase.booksDao().getAllBooks().size).isEqualTo(1)
+
+        executor.shutdown()
+        assertThat(executor.awaitTermination(1, TimeUnit.SECONDS)).isTrue()
+    }
+
+    @Test
+    fun withTransaction_reentrant_nested_exception() {
+        val executor = Executors.newSingleThreadExecutor()
+        val localDatabase = Room.inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(), TestDatabase::class.java
+        )
+            .setTransactionExecutor(executor)
+            .build()
+        runBlocking {
+            withContext(executor.asCoroutineDispatcher()) {
+                localDatabase.withTransaction {
+                    localDatabase.booksDao().insertPublisherSuspend(
+                        TestUtil.PUBLISHER.publisherId,
+                        TestUtil.PUBLISHER.name
+                    )
+                    try {
+                        localDatabase.withTransaction {
+                            localDatabase.booksDao().insertBookSuspend(TestUtil.BOOK_1)
+                            throw IOException("Boom!")
+                        }
+                        @Suppress("UNREACHABLE_CODE")
+                        fail("An exception should have been thrown.")
+                    } catch (ex: IOException) {
+                        assertThat(ex).hasMessageThat()
+                            .contains("Boom")
+                    }
+                }
+            }
+        }
+        assertThat(localDatabase.booksDao().getPublishers()).isEmpty()
+        assertThat(localDatabase.booksDao().getAllBooks()).isEmpty()
+
+        executor.shutdown()
+        assertThat(executor.awaitTermination(1, TimeUnit.SECONDS)).isTrue()
+    }
+
+    @Test
+    fun withTransaction_reentrant_nested_contextSwitch() {
+        val executor = Executors.newSingleThreadExecutor()
+        val localDatabase = Room.inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(), TestDatabase::class.java
+        )
+            .setTransactionExecutor(executor)
+            .build()
+
+        runBlocking {
+            withContext(executor.asCoroutineDispatcher()) {
+                localDatabase.withTransaction {
+                    localDatabase.booksDao().insertPublisherSuspend(
+                        TestUtil.PUBLISHER.publisherId,
+                        TestUtil.PUBLISHER.name
+                    )
+                    withContext(Dispatchers.IO) {
+                        localDatabase.withTransaction {
+                            localDatabase.booksDao().insertBookSuspend(TestUtil.BOOK_1)
+                        }
+                    }
+                }
+            }
+        }
+        assertThat(localDatabase.booksDao().getPublishers().size).isEqualTo(1)
+        assertThat(localDatabase.booksDao().getAllBooks().size).isEqualTo(1)
+
+        executor.shutdown()
+        assertThat(executor.awaitTermination(1, TimeUnit.SECONDS)).isTrue()
+    }
+
+    @Test
+    fun withTransaction_reentrant_busyExecutor() {
+        val busyThreadsCount = AtomicInteger()
+        val executor =
+            BusyCountingService(busyThreadsCount, Executors.newFixedThreadPool(2))
+        val localDatabase = Room.inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(), TestDatabase::class.java
+        )
+            .setTransactionExecutor(executor)
+            .build()
+
+        // Grab one of the thread and simulate busy work
+        val busyLatch = CountDownLatch(1)
+        executor.execute {
+            busyLatch.await()
+        }
+
+        runBlocking {
+            // Using the other thread in the pool this will cause a reentrant situation
+            withContext(executor.asCoroutineDispatcher()) {
+                localDatabase.withTransaction {
+                    val transactionThread = Thread.currentThread()
+                    // Suspend transaction thread while freeing the busy thread from the pool
+                    withContext(Dispatchers.IO) {
+                        busyLatch.countDown()
+                        delay(200)
+                        // Only one thread is busy, the transaction thread
+                        assertThat(busyThreadsCount.get()).isEqualTo(1)
+                    }
+                    // Resume in the transaction thread, the recently free thread in the pool that
+                    // is not in a transaction should not be used.
+                    assertThat(Thread.currentThread()).isEqualTo(transactionThread)
+                    localDatabase.booksDao().insertPublisherSuspend(
+                        TestUtil.PUBLISHER.publisherId,
+                        TestUtil.PUBLISHER.name
+                    )
+                }
+            }
+        }
+
+        assertThat(localDatabase.booksDao().getPublishers().size).isEqualTo(1)
+
+        executor.shutdown()
+        assertThat(executor.awaitTermination(1, TimeUnit.SECONDS)).isTrue()
+    }
+
+    @Test
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun withTransaction_runTest() {
+        runTest {
+            database.withTransaction {
+                booksDao.insertPublisherSuspend(
+                    TestUtil.PUBLISHER.publisherId,
+                    TestUtil.PUBLISHER.name
+                )
+                booksDao.insertBookSuspend(TestUtil.BOOK_1.copy(salesCnt = 0))
+                booksDao.insertBookSuspend(TestUtil.BOOK_2)
+                booksDao.deleteUnsoldBooks()
+            }
+            assertThat(booksDao.getBooksSuspend())
+                .isEqualTo(listOf(TestUtil.BOOK_2))
+        }
+    }
+
+    @Test
+    fun withTransaction_stress_testMutation() {
+        val output = mutableListOf<String>()
+        runBlocking {
+            repeat(5000) { count ->
+                database.withTransaction {
+                    output.add("$count")
+                    suspendHere()
+                    output.add("$count")
+                }
+            }
+        }
+
+        val expectedOutput = buildList {
+            repeat(5000) { count ->
+                add("$count")
+                add("$count")
+            }
+        }
+        assertThat(output).isEqualTo(expectedOutput)
+    }
+
+    @Test
+    fun withTransaction_stress_dbMutation() {
+        val context: Context = ApplicationProvider.getApplicationContext()
+        context.deleteDatabase("test_stress_dbMutation.db")
+        val db = Room.databaseBuilder(
+            context,
+            TestDatabase::class.java,
+            "test.db"
+        ).build()
+        runBlocking {
+            db.counterDao().upsert(Counter(1, 0))
+            repeat(5000) {
+                launch(Dispatchers.IO) {
+                    db.withTransaction {
+                        val current = db.counterDao().getCounter(1)
+                        suspendHere()
+                        db.counterDao().upsert(current.copy(value = current.value + 1))
+                    }
+                }
+            }
+        }
+        runBlocking {
+            val count = db.counterDao().getCounter(1)
+            assertThat(count.value).isEqualTo(5000)
+        }
+        db.close()
+    }
+
+    // Utility function to _really_ suspend.
+    private suspend fun suspendHere(): Unit = suspendCoroutineUninterceptedOrReturn {
+        it.intercepted().resume(Unit)
+        COROUTINE_SUSPENDED
+    }
+
+    // Executor wrapper that counts threads that are busy executing commands.
+    class BusyCountingService(
+        val count: AtomicInteger,
+        val delegate: ExecutorService
+    ) : ExecutorService by delegate {
+        override fun execute(command: Runnable) {
+            delegate.execute {
+                count.incrementAndGet()
+                try {
+                    command.run()
+                } finally {
+                    count.decrementAndGet()
+                }
+            }
+        }
     }
 }

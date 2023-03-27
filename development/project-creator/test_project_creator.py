@@ -61,16 +61,16 @@ class TestNewDirectory(unittest.TestCase):
     def test_get_package_documentation_file_dir(self):
         package_info_dir_fp = get_package_documentation_file_dir("androidx.foo", "foo")
         frameworks_support_fp = os.path.abspath(os.path.join(os.getcwd(), '..', '..'))
-        self.assertEqual(frameworks_support_fp + "/foo/foo/src/main/androidx/foo", package_info_dir_fp)
+        self.assertEqual(frameworks_support_fp + "/foo/foo/src/main/java/androidx/foo", package_info_dir_fp)
 
         package_info_dir_fp = get_package_documentation_file_dir("androidx.foo", "foo-bar")
-        self.assertEqual(frameworks_support_fp + "/foo/foo-bar/src/main/androidx/foo", package_info_dir_fp)
+        self.assertEqual(frameworks_support_fp + "/foo/foo-bar/src/main/java/androidx/foo", package_info_dir_fp)
 
         package_info_dir_fp = get_package_documentation_file_dir("androidx.foo.bar", "bar")
-        self.assertEqual(frameworks_support_fp + "/foo/bar/bar/src/main/androidx/foo/bar", package_info_dir_fp)
+        self.assertEqual(frameworks_support_fp + "/foo/bar/bar/src/main/java/androidx/foo/bar", package_info_dir_fp)
 
         package_info_dir_fp = get_package_documentation_file_dir("androidx.foo.bar", "bar-qux")
-        self.assertEqual(frameworks_support_fp + "/foo/bar/bar-qux/src/main/androidx/foo/bar", package_info_dir_fp)
+        self.assertEqual(frameworks_support_fp + "/foo/bar/bar-qux/src/main/java/androidx/foo/bar", package_info_dir_fp)
 
         package_info_dir_fp = get_package_documentation_file_dir("androidx.compose.bar", "bar-qux")
         self.assertEqual(frameworks_support_fp + "/compose/bar/bar-qux/src/commonMain/kotlin/androidx/compose/bar",

@@ -17,6 +17,30 @@ package androidx.wear.activity {
 
 package androidx.wear.ambient {
 
+  public final class AmbientLifecycleObserver implements androidx.wear.ambient.AmbientLifecycleObserverInterface {
+    ctor public AmbientLifecycleObserver(android.app.Activity activity, java.util.concurrent.Executor callbackExecutor, androidx.wear.ambient.AmbientLifecycleObserverInterface.AmbientLifecycleCallback callbacks);
+    ctor public AmbientLifecycleObserver(android.app.Activity activity, androidx.wear.ambient.AmbientLifecycleObserverInterface.AmbientLifecycleCallback callbacks);
+    method public boolean isAmbient();
+  }
+
+  public interface AmbientLifecycleObserverInterface extends androidx.lifecycle.DefaultLifecycleObserver {
+    method public boolean isAmbient();
+  }
+
+  public static final class AmbientLifecycleObserverInterface.AmbientDetails {
+    ctor public AmbientLifecycleObserverInterface.AmbientDetails(boolean burnInProtectionRequired, boolean deviceHasLowBitAmbient);
+    method public boolean getBurnInProtectionRequired();
+    method public boolean getDeviceHasLowBitAmbient();
+    property public final boolean burnInProtectionRequired;
+    property public final boolean deviceHasLowBitAmbient;
+  }
+
+  public static interface AmbientLifecycleObserverInterface.AmbientLifecycleCallback {
+    method public default void onEnterAmbient(androidx.wear.ambient.AmbientLifecycleObserverInterface.AmbientDetails ambientDetails);
+    method public default void onExitAmbient();
+    method public default void onUpdateAmbient();
+  }
+
   @Deprecated public final class AmbientMode extends android.app.Fragment {
     ctor @Deprecated public AmbientMode();
     method @Deprecated public static <T extends android.app.Activity> androidx.wear.ambient.AmbientMode.AmbientController! attachAmbientSupport(T!);
@@ -50,30 +74,30 @@ package androidx.wear.ambient {
     method @Deprecated public void setAmbientOffloadEnabled(boolean);
   }
 
-  public final class AmbientModeSupport extends androidx.fragment.app.Fragment {
-    ctor public AmbientModeSupport();
-    method public static <T extends androidx.fragment.app.FragmentActivity> androidx.wear.ambient.AmbientModeSupport.AmbientController! attach(T!);
-    field public static final String EXTRA_BURN_IN_PROTECTION = "com.google.android.wearable.compat.extra.BURN_IN_PROTECTION";
-    field public static final String EXTRA_LOWBIT_AMBIENT = "com.google.android.wearable.compat.extra.LOWBIT_AMBIENT";
-    field public static final String FRAGMENT_TAG = "android.support.wearable.ambient.AmbientMode";
+  @Deprecated public final class AmbientModeSupport extends androidx.fragment.app.Fragment {
+    ctor @Deprecated public AmbientModeSupport();
+    method @Deprecated public static <T extends androidx.fragment.app.FragmentActivity> androidx.wear.ambient.AmbientModeSupport.AmbientController! attach(T!);
+    field @Deprecated public static final String EXTRA_BURN_IN_PROTECTION = "com.google.android.wearable.compat.extra.BURN_IN_PROTECTION";
+    field @Deprecated public static final String EXTRA_LOWBIT_AMBIENT = "com.google.android.wearable.compat.extra.LOWBIT_AMBIENT";
+    field @Deprecated public static final String FRAGMENT_TAG = "android.support.wearable.ambient.AmbientMode";
   }
 
-  public abstract static class AmbientModeSupport.AmbientCallback {
-    ctor public AmbientModeSupport.AmbientCallback();
-    method public void onAmbientOffloadInvalidated();
-    method public void onEnterAmbient(android.os.Bundle!);
-    method public void onExitAmbient();
-    method public void onUpdateAmbient();
+  @Deprecated public abstract static class AmbientModeSupport.AmbientCallback {
+    ctor @Deprecated public AmbientModeSupport.AmbientCallback();
+    method @Deprecated public void onAmbientOffloadInvalidated();
+    method @Deprecated public void onEnterAmbient(android.os.Bundle!);
+    method @Deprecated public void onExitAmbient();
+    method @Deprecated public void onUpdateAmbient();
   }
 
-  public static interface AmbientModeSupport.AmbientCallbackProvider {
-    method public androidx.wear.ambient.AmbientModeSupport.AmbientCallback! getAmbientCallback();
+  @Deprecated public static interface AmbientModeSupport.AmbientCallbackProvider {
+    method @Deprecated public androidx.wear.ambient.AmbientModeSupport.AmbientCallback! getAmbientCallback();
   }
 
-  public final class AmbientModeSupport.AmbientController {
-    method public boolean isAmbient();
-    method public void setAmbientOffloadEnabled(boolean);
-    method public void setAutoResumeEnabled(boolean);
+  @Deprecated public final class AmbientModeSupport.AmbientController {
+    method @Deprecated public boolean isAmbient();
+    method @Deprecated public void setAmbientOffloadEnabled(boolean);
+    method @Deprecated public void setAutoResumeEnabled(boolean);
   }
 
 }

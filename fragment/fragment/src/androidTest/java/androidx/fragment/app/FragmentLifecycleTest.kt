@@ -39,11 +39,14 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.times
@@ -54,8 +57,12 @@ import org.mockito.Mockito.verify
 class FragmentLifecycleTest {
 
     @Suppress("DEPRECATION")
-    @get:Rule
     val activityRule = androidx.test.rule.ActivityTestRule(EmptyFragmentTestActivity::class.java)
+
+    // Detect leaks BEFORE and AFTER activity is destroyed
+    @get:Rule
+    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
+        .around(activityRule)
 
     @Test
     fun basicLifecycle() {
@@ -1415,7 +1422,7 @@ class FragmentLifecycleTest {
 
     @Test
     fun inflatedFragmentTagAfterResume() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragment = withActivity {
                 setContentView(R.layout.activity_inflated_fragment)
                 val fm = supportFragmentManager
@@ -1429,7 +1436,7 @@ class FragmentLifecycleTest {
 
     @Test
     fun inflatedFragmentContainerViewAfterResume() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             var fragment = withActivity {
                 setContentView(R.layout.inflated_fragment_container_view)
                 val fm = supportFragmentManager
@@ -1455,7 +1462,7 @@ class FragmentLifecycleTest {
 
     @Test
     fun inflatedFragmentContainerViewWithMultipleFragmentsAfterResume() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val addedFragment1 = StrictViewFragment()
             val addedFragment2 = StrictViewFragment()
             var fragment = withActivity {

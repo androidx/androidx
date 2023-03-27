@@ -56,9 +56,11 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Surface;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.concurrent.futures.AbstractResolvableFuture;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.util.ObjectsCompat;
@@ -203,8 +205,12 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             mBroadcastReceiver = new MediaButtonReceiver();
             IntentFilter filter = new IntentFilter(Intent.ACTION_MEDIA_BUTTON);
             filter.addDataScheme(mSessionUri.getScheme());
-            // TODO(b/197817693): Explicitly indicate whether the receiver should be exported.
-            context.registerReceiver(mBroadcastReceiver, filter);
+            if (Build.VERSION.SDK_INT < 33) {
+                context.registerReceiver(mBroadcastReceiver, filter);
+            } else {
+                Api33.registerReceiver(context, mBroadcastReceiver, filter,
+                        Context.RECEIVER_NOT_EXPORTED);
+            }
         } else {
             // Has MediaSessionService to revive playback after it's dead.
             Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON, mSessionUri);
@@ -1690,4 +1696,13 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             getSessionCompat().getController().dispatchMediaButtonEvent(keyEvent);
         }
     };
+
+    @RequiresApi(33)
+    private static class Api33 {
+        @DoNotInline
+        static void registerReceiver(@NonNull Context context, @NonNull BroadcastReceiver receiver,
+                @NonNull IntentFilter filter, int flags) {
+            context.registerReceiver(receiver, filter, flags);
+        }
+    }
 }

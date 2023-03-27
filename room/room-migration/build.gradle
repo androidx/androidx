@@ -22,25 +22,18 @@ plugins {
     id("kotlin")
 }
 
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-Xjvm-default=all"]
-    }
-}
-
 dependencies {
     implementation(project(":room:room-common"))
     implementation(libs.kotlinStdlib)
     implementation(libs.gson)
     testImplementation(libs.junit)
     testImplementation(libs.intellijAnnotations)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
 }
 
 androidx {
     name = "Android Room Migration"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2017"
     description = "Android Room Migration"
 }

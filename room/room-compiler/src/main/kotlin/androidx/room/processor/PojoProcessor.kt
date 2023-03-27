@@ -22,14 +22,13 @@ import androidx.room.Ignore
 import androidx.room.Junction
 import androidx.room.PrimaryKey
 import androidx.room.Relation
-import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XExecutableElement
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.XVariableElement
-import androidx.room.compiler.processing.isCollection
 import androidx.room.compiler.processing.isVoid
+import androidx.room.ext.isCollection
 import androidx.room.ext.isNotVoid
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD
@@ -512,7 +511,7 @@ class PojoProcessor private constructor(
             context.logger.e(
                 relationElement,
                 ProcessorErrors.relationCannotFindEntityField(
-                    entityName = entity.typeName.toJavaPoet().toString(),
+                    entityName = entity.typeName.toString(context.codeLanguage),
                     columnName = annotation.value.entityColumn,
                     availableColumns = entity.columnNames
                 )
@@ -558,7 +557,7 @@ class PojoProcessor private constructor(
                         context.logger.w(
                             Warning.MISSING_INDEX_ON_JUNCTION, field.element,
                             ProcessorErrors.junctionColumnWithoutIndex(
-                                entityName = entityOrView.typeName.toJavaPoet().toString(),
+                                entityName = entityOrView.typeName.toString(context.codeLanguage),
                                 columnName = columnName
                             )
                         )
@@ -578,7 +577,7 @@ class PojoProcessor private constructor(
                     context.logger.e(
                         junctionElement,
                         ProcessorErrors.relationCannotFindJunctionParentField(
-                            entityName = entityOrView.typeName.toJavaPoet().toString(),
+                            entityName = entityOrView.typeName.toString(context.codeLanguage),
                             columnName = junctionParentColumn,
                             availableColumns = entityOrView.columnNames
                         )
@@ -597,7 +596,7 @@ class PojoProcessor private constructor(
                     context.logger.e(
                         junctionElement,
                         ProcessorErrors.relationCannotFindJunctionEntityField(
-                            entityName = entityOrView.typeName.toJavaPoet().toString(),
+                            entityName = entityOrView.typeName.toString(context.codeLanguage),
                             columnName = junctionEntityColumn,
                             availableColumns = entityOrView.columnNames
                         )
@@ -654,7 +653,7 @@ class PojoProcessor private constructor(
             context.logger.e(
                 relationElement,
                 ProcessorErrors.relationBadProject(
-                    entity.typeName.toJavaPoet().toString(),
+                    entity.typeName.toString(context.codeLanguage),
                     missingColumns, entity.columnNames
                 )
             )
@@ -677,7 +676,7 @@ class PojoProcessor private constructor(
         entityField: Field,
         typeArgElement: XTypeElement
     ): List<String> {
-        return if (inferEntity || typeArg.typeName == entity.typeName.toJavaPoet()) {
+        return if (inferEntity || typeArg.asTypeName() == entity.typeName) {
             entity.columnNames
         } else {
             val columnAdapter = context.typeAdapterStore.findCursorValueReader(typeArg, null)
@@ -740,16 +739,25 @@ class PojoProcessor private constructor(
             },
             assignFromField = {
                 field.getter = FieldGetter(
+                    fieldName = field.name,
                     jvmName = field.name,
                     type = field.type,
-                    callType = CallType.FIELD
+                    callType = CallType.FIELD,
+                    isMutableField = !field.element.isFinal()
                 )
             },
             assignFromMethod = { match ->
                 field.getter = FieldGetter(
+                    fieldName = field.name,
                     jvmName = match.element.jvmName,
                     type = match.resolvedType.returnType,
-                    callType = CallType.METHOD
+                    callType =
+                        if (match.element.isKotlinPropertyMethod()) {
+                            CallType.SYNTHETIC_METHOD
+                        } else {
+                            CallType.METHOD
+                        },
+                    isMutableField = !field.element.isFinal()
                 )
             },
             reportAmbiguity = { matching ->
@@ -771,9 +779,9 @@ class PojoProcessor private constructor(
                 element = field.element,
                 msg = ProcessorErrors.mismatchedGetter(
                     fieldName = field.name,
-                    ownerType = element.type.typeName,
-                    getterType = field.getter.type.typeName,
-                    fieldType = field.typeName.toJavaPoet()
+                    ownerType = element.type.asTypeName().toString(context.codeLanguage),
+                    getterType = field.getter.type.asTypeName().toString(context.codeLanguage),
+                    fieldType = field.typeName.toString(context.codeLanguage)
                 )
             )
             field.statementBinder = context.typeAdapterStore.findStatementValueBinder(
@@ -800,6 +808,7 @@ class PojoProcessor private constructor(
     ) {
         if (constructor != null && constructor.hasField(field)) {
             field.setter = FieldSetter(
+                fieldName = field.name,
                 jvmName = field.name,
                 type = field.type,
                 callType = CallType.CONSTRUCTOR
@@ -815,6 +824,7 @@ class PojoProcessor private constructor(
             },
             assignFromField = {
                 field.setter = FieldSetter(
+                    fieldName = field.name,
                     jvmName = field.name,
                     type = field.type,
                     callType = CallType.FIELD
@@ -823,9 +833,15 @@ class PojoProcessor private constructor(
             assignFromMethod = { match ->
                 val paramType = match.resolvedType.parameterTypes.first()
                 field.setter = FieldSetter(
+                    fieldName = field.name,
                     jvmName = match.element.jvmName,
                     type = paramType,
-                    callType = CallType.METHOD
+                    callType =
+                        if (match.element.isKotlinPropertyMethod()) {
+                            CallType.SYNTHETIC_METHOD
+                        } else {
+                            CallType.METHOD
+                        }
                 )
             },
             reportAmbiguity = { matching ->
@@ -847,9 +863,9 @@ class PojoProcessor private constructor(
                 element = field.element,
                 msg = ProcessorErrors.mismatchedSetter(
                     fieldName = field.name,
-                    ownerType = element.type.typeName,
-                    setterType = field.setter.type.typeName,
-                    fieldType = field.typeName.toJavaPoet()
+                    ownerType = element.type.asTypeName().toString(context.codeLanguage),
+                    setterType = field.setter.type.asTypeName().toString(context.codeLanguage),
+                    fieldType = field.typeName.toString(context.codeLanguage)
                 )
             )
             field.cursorValueReader = context.typeAdapterStore.findCursorValueReader(

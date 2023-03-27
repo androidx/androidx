@@ -21,7 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import android.os.Build;
@@ -49,6 +48,7 @@ public class AuthenticationCallbackProviderTest {
 
     private AuthenticationCallbackProvider mAuthenticationCallbackProvider;
 
+    @SuppressWarnings("deprecation") // b/251211046
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
@@ -102,7 +102,7 @@ public class AuthenticationCallbackProviderTest {
         mAuthenticationCallbackProvider.getBiometricCallback()
                 .onAuthenticationHelp(helpCode, helpMessage);
 
-        verifyZeroInteractions(mListener);
+        verifyNoMoreInteractions(mListener);
     }
 
     @Test

@@ -41,5 +41,10 @@ internal class EmittableAndroidLayoutElement : Emittable {
     override var modifier: GlanceModifier = GlanceModifier
     lateinit var layoutElement: LayoutElementBuilders.LayoutElement
 
-    override fun toString() = "EmittableAndroidLayoutElement()"
+    override fun copy(): Emittable = EmittableAndroidLayoutElement().also {
+        it.modifier = modifier
+        it.layoutElement = layoutElement
+    }
+
+    override fun toString(): String = "EmittableAndroidLayoutElement()"
 }

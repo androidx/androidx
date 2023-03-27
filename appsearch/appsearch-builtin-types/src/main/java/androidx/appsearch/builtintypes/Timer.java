@@ -26,18 +26,17 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.Document;
-import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 import androidx.appsearch.utils.BootCountUtil;
-import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.List;
 
 /**
  * AppSearch document representing a {@link Timer} entity.
  */
 @Document(name = "builtin:Timer")
-public final class Timer {
+public class Timer extends Thing {
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({STATUS_UNKNOWN, STATUS_STARTED, STATUS_PAUSED, STATUS_EXPIRED, STATUS_MISSED,
@@ -57,24 +56,6 @@ public final class Timer {
     public static final int STATUS_MISSED = 4;
     /** The {@link Timer} is reset to its initial value. */
     public static final int STATUS_RESET = 5;
-
-    @Document.Namespace
-    private final String mNamespace;
-
-    @Document.Id
-    private final String mId;
-
-    @Document.Score
-    private final int mDocumentScore;
-
-    @Document.CreationTimestampMillis
-    private final long mCreationTimestampMillis;
-
-    @Document.TtlMillis
-    private final long mDocumentTtlMillis;
-
-    @Document.StringProperty(indexingType = StringPropertyConfig.INDEXING_TYPE_PREFIXES)
-    private final String mName;
 
     @Document.LongProperty
     private final long mDurationMillis;
@@ -108,16 +89,14 @@ public final class Timer {
 
     Timer(@NonNull String namespace, @NonNull String id, int documentScore,
             long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
+            @Nullable List<String> alternateNames, @Nullable String description,
+            @Nullable String image, @Nullable String url,
             long durationMillis, long originalDurationMillis, long startTimeMillis,
             long baseTimeMillis, long baseTimeMillisInElapsedRealtime, int bootCount,
             long remainingDurationMillis, @Nullable String ringtone, int status,
             boolean shouldVibrate) {
-        mNamespace = Preconditions.checkNotNull(namespace);
-        mId = Preconditions.checkNotNull(id);
-        mDocumentScore = documentScore;
-        mCreationTimestampMillis = creationTimestampMillis;
-        mDocumentTtlMillis = documentTtlMillis;
-        mName = name;
+        super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
+                alternateNames, description, image, url);
         mDurationMillis = durationMillis;
         mOriginalDurationMillis = originalDurationMillis;
         mStartTimeMillis = startTimeMillis;
@@ -128,63 +107,6 @@ public final class Timer {
         mRingtone = ringtone;
         mStatus = status;
         mShouldVibrate = shouldVibrate;
-    }
-
-    /** Returns the namespace. */
-    @NonNull
-    public String getNamespace() {
-        return mNamespace;
-    }
-
-    /** Returns the unique identifier. */
-    @NonNull
-    public String getId() {
-        return mId;
-    }
-
-    /**
-     * Returns the user-provided opaque document score of the current AppSearch document, which can
-     * be used for ranking using
-     * {@link androidx.appsearch.app.SearchSpec.RankingStrategy#RANKING_STRATEGY_DOCUMENT_SCORE}.
-     *
-     * <p>See {@link Document.Score} for more information on score.
-     */
-    public int getDocumentScore() {
-        return mDocumentScore;
-    }
-
-    /**
-     * Returns the creation timestamp for the current AppSearch entity, in milliseconds using the
-     * {@link System#currentTimeMillis()} time base.
-     *
-     * <p>This timestamp refers to the creation time of the AppSearch entity, not when the
-     * document is written into AppSearch.
-     *
-     * <p>If not set, then the current timestamp will be used.
-     *
-     * <p>See {@link androidx.appsearch.annotation.Document.CreationTimestampMillis} for more
-     * information on creation timestamp.
-     */
-    public long getCreationTimestampMillis() {
-        return mCreationTimestampMillis;
-    }
-
-    /**
-     * Returns the time-to-live (TTL) for the current AppSearch document as a duration in
-     * milliseconds.
-     *
-     * <p>The document will be automatically deleted when the TTL expires.
-     *
-     * <p>See {@link Document.TtlMillis} for more information on TTL.
-     */
-    public long getDocumentTtlMillis() {
-        return mDocumentTtlMillis;
-    }
-
-    /** Returns the name. */
-    @Nullable
-    public String getName() {
-        return mName;
     }
 
     /**
@@ -373,19 +295,7 @@ public final class Timer {
     }
 
     /** Builder for {@link Timer}. */
-    public static final class Builder extends BaseBuiltinTypeBuilder<Builder> {
-        private String mName;
-        private long mDurationMillis;
-        private long mOriginalDurationMillis;
-        private long mStartTimeMillis;
-        private long mBaseTimeMillis;
-        private long mBaseTimeMillisInElapsedRealtime;
-        private int mBootCount;
-        private long mRemainingDurationMillis;
-        private String mRingtone;
-        private int mStatus;
-        private boolean mShouldVibrate;
-
+    public static final class Builder extends BuilderImpl<Builder> {
         /**
          * Constructor for {@link Timer.Builder}.
          *
@@ -400,11 +310,30 @@ public final class Timer {
          * Constructor for {@link Timer.Builder} with all the existing values.
          */
         public Builder(@NonNull Timer timer) {
-            this(timer.getNamespace(), timer.getId());
-            mDocumentScore = timer.getDocumentScore();
-            mCreationTimestampMillis = timer.getCreationTimestampMillis();
-            mDocumentTtlMillis = timer.getDocumentTtlMillis();
-            mName = timer.getName();
+            super(timer);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    static class BuilderImpl<T extends BuilderImpl<T>> extends Thing.BuilderImpl<T> {
+        protected long mDurationMillis;
+        protected long mOriginalDurationMillis;
+        protected long mStartTimeMillis;
+        protected long mBaseTimeMillis;
+        protected long mBaseTimeMillisInElapsedRealtime;
+        protected int mBootCount;
+        protected long mRemainingDurationMillis;
+        protected String mRingtone;
+        protected int mStatus;
+        protected boolean mShouldVibrate;
+
+        BuilderImpl(@NonNull String namespace, @NonNull String id) {
+            super(namespace, id);
+        }
+
+        BuilderImpl(@NonNull Timer timer) {
+            super(new Thing.Builder(timer).build());
+
             mDurationMillis = timer.getDurationMillis();
             mOriginalDurationMillis = timer.getOriginalDurationMillis();
             mStartTimeMillis = timer.getStartTimeMillis();
@@ -417,29 +346,22 @@ public final class Timer {
             mShouldVibrate = timer.shouldVibrate();
         }
 
-        /** Sets the name. */
-        @NonNull
-        public Builder setName(@Nullable String name) {
-            mName = name;
-            return this;
-        }
-
         /**
          * Sets the total duration in milliseconds, including additional time added by the user.
          */
         @NonNull
-        public Builder setDurationMillis(long durationMillis) {
+        public T setDurationMillis(long durationMillis) {
             mDurationMillis = durationMillis;
-            return this;
+            return (T) this;
         }
 
         /**
          * Sets the original duration in milliseconds when the {@link Timer} was first created.
          */
         @NonNull
-        public Builder setOriginalDurationMillis(long originalDurationMillis) {
+        public T setOriginalDurationMillis(long originalDurationMillis) {
             mOriginalDurationMillis = originalDurationMillis;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -450,9 +372,9 @@ public final class Timer {
          * started. Pausing and resuming should not change its start time.
          */
         @NonNull
-        public Builder setStartTimeMillis(long startTimeMillis) {
+        public T setStartTimeMillis(long startTimeMillis) {
             mStartTimeMillis = startTimeMillis;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -475,12 +397,12 @@ public final class Timer {
          * {@link android.provider.Settings.Global#BOOT_COUNT}.
          */
         @NonNull
-        public Builder setBaseTimeMillis(long baseTimeMillis,
+        public T setBaseTimeMillis(long baseTimeMillis,
                 long baseTimeMillisInElapsedRealtime, int bootCount) {
             mBaseTimeMillis = baseTimeMillis;
             mBaseTimeMillisInElapsedRealtime = baseTimeMillisInElapsedRealtime;
             mBootCount = bootCount;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -500,7 +422,7 @@ public final class Timer {
          */
         @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
         @NonNull
-        public Builder setBaseTimeMillis(@NonNull Context context, long baseTimeMillis,
+        public T setBaseTimeMillis(@NonNull Context context, long baseTimeMillis,
                 long baseTimeMillisInElapsedRealtime) {
             int bootCount = BootCountUtil.getCurrentBootCount(context);
             return setBaseTimeMillis(baseTimeMillis, baseTimeMillisInElapsedRealtime, bootCount);
@@ -514,9 +436,9 @@ public final class Timer {
          * remaining time.
          */
         @NonNull
-        public Builder setRemainingDurationMillis(long remainingDurationMillis) {
+        public T setRemainingDurationMillis(long remainingDurationMillis) {
             mRemainingDurationMillis = remainingDurationMillis;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -524,9 +446,9 @@ public final class Timer {
          * {@link android.provider.AlarmClock#VALUE_RINGTONE_SILENT} if no ringtone will be played.
          */
         @NonNull
-        public Builder setRingtone(@Nullable String ringtone) {
+        public T setRingtone(@Nullable String ringtone) {
             mRingtone = ringtone;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -537,26 +459,27 @@ public final class Timer {
          * {@link #STATUS_RESET}.
          */
         @NonNull
-        public Builder setStatus(@Status int status) {
+        public T setStatus(@Status int status) {
             mStatus = status;
-            return this;
+            return (T) this;
         }
 
         /** Sets whether or not to activate the device vibrator when the {@link Timer} expires. */
         @NonNull
-        public Builder setShouldVibrate(boolean shouldVibrate) {
+        public T setShouldVibrate(boolean shouldVibrate) {
             mShouldVibrate = shouldVibrate;
-            return this;
+            return (T) this;
         }
 
         /** Builds the {@link Timer}. */
         @NonNull
+        @Override
         public Timer build() {
-            return new Timer(mNamespace, mId, mDocumentScore,
-                    mCreationTimestampMillis, mDocumentTtlMillis, mName, mDurationMillis,
-                    mOriginalDurationMillis, mStartTimeMillis,
-                    mBaseTimeMillis, mBaseTimeMillisInElapsedRealtime, mBootCount,
-                    mRemainingDurationMillis, mRingtone, mStatus, mShouldVibrate);
+            return new Timer(mNamespace, mId, mDocumentScore, mCreationTimestampMillis,
+                    mDocumentTtlMillis, mName, mAlternateNames, mDescription, mImage, mUrl,
+                    mDurationMillis, mOriginalDurationMillis, mStartTimeMillis, mBaseTimeMillis,
+                    mBaseTimeMillisInElapsedRealtime, mBootCount, mRemainingDurationMillis,
+                    mRingtone, mStatus, mShouldVibrate);
         }
     }
 }

@@ -26,6 +26,7 @@ import androidx.annotation.RestrictTo
 import androidx.collection.SparseArrayCompat
 import androidx.collection.valueIterator
 import androidx.core.content.res.use
+import androidx.core.net.toUri
 import androidx.navigation.common.R
 import java.util.regex.Pattern
 import kotlin.reflect.KClass
@@ -107,6 +108,33 @@ public open class NavDestination(
                 return -1
             }
             return mimeTypeMatchLevel - other.mimeTypeMatchLevel
+        }
+
+        /**
+         * Returns true if all args from [DeepLinkMatch.matchingArgs] can be found within
+         * the [arguments].
+         *
+         * This returns true in both edge cases:
+         * 1. If the [arguments] contain more args than [DeepLinkMatch.matchingArgs].
+         * 2. If [DeepLinkMatch.matchingArgs] is empty
+         *
+         * @param [arguments] The arguments to match with the matchingArgs stored in this
+         * DeepLinkMatch.
+         */
+        public fun hasMatchingArgs(arguments: Bundle?): Boolean {
+            if (arguments == null || matchingArgs == null) return false
+
+            matchingArgs.keySet().forEach { key ->
+                // the arguments must at least contain every argument stored in this deep link
+                if (!arguments.containsKey(key)) return false
+
+                val type = destination.arguments[key]?.type
+                val matchingArgValue = type?.get(matchingArgs, key)
+                val entryArgValue = type?.get(arguments, key)
+                // fine if both argValues are null, i.e. arguments/params with nullable values
+                if (matchingArgValue != entryArgValue) return false
+            }
+            return true
         }
     }
 
@@ -336,6 +364,23 @@ public open class NavDestination(
     }
 
     /**
+     * Determines if this NavDestination has a deep link of this route.
+     *
+     * @param [route] The route to match against this [NavDestination.route]
+     * @return The matching [DeepLinkMatch], or null if no match was found.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun matchDeepLink(route: String): DeepLinkMatch? {
+        val request = NavDeepLinkRequest.Builder.fromUri(createRoute(route).toUri()).build()
+        val matchingDeepLink = if (this is NavGraph) {
+            matchDeepLinkExcludingChildren(request)
+        } else {
+            matchDeepLink(request)
+        }
+        return matchingDeepLink
+    }
+
+    /**
      * Determines if this NavDestination has a deep link matching the given Uri.
      * @param navDeepLinkRequest The request to match against all deep links added in
      * [addDeepLink]
@@ -407,6 +452,40 @@ public open class NavDestination(
             current = parent
         } while (current != null)
         return hierarchy.toList().map { it.id }.toIntArray()
+    }
+
+    /**
+     * Returns true if the [NavBackStackEntry.destination] contains the route.
+     *
+     * The route may be either:
+     * 1. an exact route without arguments
+     * 2. a route containing arguments where no arguments are filled in
+     * 3. a route containing arguments where some or all arguments are filled in
+     * 4. a partial route
+     *
+     * In the case of 3., it will only match if the entry arguments
+     * match exactly with the arguments that were filled in inside the route.
+     *
+     * @param [route] The route to match with the route of this destination
+     *
+     * @param [arguments] The [NavBackStackEntry.arguments] that was used to navigate
+     * to this destination
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun hasRoute(route: String, arguments: Bundle?): Boolean {
+        // this matches based on routePattern
+        if (this.route == route) return true
+
+        // if no match based on routePattern, this means route contains filled in args or query
+        // params
+        val matchingDeepLink = matchDeepLink(route)
+
+        // if no matchingDeepLink or mismatching destination, return false directly
+        if (this != matchingDeepLink?.destination) return false
+
+        // Any args (partially or completely filled in) must exactly match between
+        // the route and entry's route.
+        return matchingDeepLink.hasMatchingArgs(arguments)
     }
 
     /**

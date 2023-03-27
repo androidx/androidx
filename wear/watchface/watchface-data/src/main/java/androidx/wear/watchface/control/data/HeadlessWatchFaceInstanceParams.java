@@ -65,7 +65,9 @@ public class HeadlessWatchFaceInstanceParams implements VersionedParcelable, Par
     /** Used by VersionedParcelable. */
     HeadlessWatchFaceInstanceParams() {}
 
-    /** @deprecated Use the other constructor instead. */
+    /**
+     * @deprecated Use the other constructor instead.
+     */
     @Deprecated
     public HeadlessWatchFaceInstanceParams(
             @NonNull ComponentName watchFaceName,

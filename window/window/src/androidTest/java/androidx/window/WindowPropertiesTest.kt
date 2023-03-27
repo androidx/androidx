@@ -49,6 +49,24 @@ class WindowPropertiesTest {
         }
     }
 
+    @Test
+    fun test_property_activity_embedding_splits() {
+        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            // No-op, but to suppress lint
+            return
+        }
+        activityRule.scenario.onActivity { activity ->
+            // Should be true as defined in AndroidManifest.xml
+            assertTrue(
+                getProperty(
+                    activity,
+                    WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED
+                )
+            )
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.S)
     @Throws(PackageManager.NameNotFoundException::class)
     private fun getProperty(context: Context, propertyName: String): Boolean {

@@ -28,8 +28,8 @@ import java.util.Properties
  *
  * It should be used along side with SdkResourceGenerator in your build.gradle file
  */
-class ProjectSetupRule : ExternalResource() {
-    val testProjectDir = TemporaryFolder()
+class ProjectSetupRule(parentFolder: File? = null) : ExternalResource() {
+    val testProjectDir = TemporaryFolder(parentFolder)
 
     val props: ProjectProps by lazy { ProjectProps.load() }
 

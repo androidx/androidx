@@ -24,11 +24,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.SessionConfig;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * An interface for manipulating the session to capture images from the camera which is tied to a
@@ -120,4 +122,13 @@ interface CaptureSessionInterface {
      */
     @NonNull
     ListenableFuture<Void> release(boolean abortInFlightCaptures);
+
+    /**
+     * Sets the mapping relations between surfaces and the streamUseCases of their associated
+     * streams
+     *
+     * @param streamUseCaseMap the mapping between surfaces and the streamUseCase flag of the
+     *                         associated streams
+     */
+    void setStreamUseCaseMap(@NonNull Map<DeferrableSurface, Long> streamUseCaseMap);
 }

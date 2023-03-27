@@ -31,6 +31,7 @@ import androidx.glance.EmittableButton
 import androidx.glance.EmittableImage
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
+import androidx.glance.action.ActionModifier
 import androidx.glance.appwidget.lazy.EmittableLazyColumn
 import androidx.glance.appwidget.lazy.EmittableLazyList
 import androidx.glance.appwidget.lazy.EmittableLazyListItem
@@ -228,6 +229,7 @@ internal fun createNode(context: Context, element: Emittable): LayoutNode =
         type = element.getLayoutType()
         width = element.modifier.widthModifier.toProto(context)
         height = element.modifier.heightModifier.toProto(context)
+        hasAction = element.modifier.findModifier<ActionModifier>() != null
         if (element.modifier.findModifier<AppWidgetBackgroundModifier>() != null) {
             identity = NodeIdentity.BACKGROUND_NODE
         }
@@ -336,6 +338,7 @@ private fun Emittable.getLayoutType(): LayoutProto.LayoutType =
         is EmittableLazyVerticalGridListItem -> LayoutProto.LayoutType.LIST_ITEM
         is RemoteViewsRoot -> LayoutProto.LayoutType.REMOTE_VIEWS_ROOT
         is EmittableRadioButton -> LayoutProto.LayoutType.RADIO_BUTTON
+        is EmittableSizeBox -> LayoutProto.LayoutType.SIZE_BOX
         else ->
             throw IllegalArgumentException("Unknown element type ${this.javaClass.canonicalName}")
     }

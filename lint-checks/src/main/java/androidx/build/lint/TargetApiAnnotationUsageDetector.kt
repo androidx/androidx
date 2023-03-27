@@ -29,6 +29,7 @@ import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import org.jetbrains.uast.UAnnotation
+import org.jetbrains.uast.namePsiElement
 
 /**
  * Enforces policy banning use of the `@TargetApi` annotation.
@@ -44,9 +45,17 @@ class TargetApiAnnotationUsageDetector : Detector(), Detector.UastScanner {
     private inner class AnnotationChecker(val context: JavaContext) : UElementHandler() {
         override fun visitAnnotation(node: UAnnotation) {
             if (node.qualifiedName == "android.annotation.TargetApi") {
+
+                // To support Kotlin's type aliases, we need to check the pattern against the symbol
+                // instead of a constant ("TargetApi") to pass Lint's IMPORT_ALIAS test mode. In the
+                // case where namePsiElement returns null (which shouldn't happen), fall back to the
+                // RegEx check.
+                val searchPattern = node.namePsiElement?.text
+                    ?: "(?:android\\.annotation\\.)?TargetApi"
+
                 val lintFix = fix().name("Replace with `@RequiresApi`")
                     .replace()
-                    .pattern("(?:android\\.annotation\\.)?TargetApi")
+                    .pattern(searchPattern)
                     .with("androidx.annotation.RequiresApi")
                     .shortenNames()
                     .autoFix(true, true)

@@ -20,7 +20,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.wear.tiles.TimelineBuilders;
-import androidx.wear.tiles.proto.TimelineProto.TimelineEntry;
+import androidx.wear.protolayout.proto.TimelineProto.TimelineEntry;
 import androidx.wear.tiles.timeline.internal.TilesTimelineCacheInternal;
 
 /**

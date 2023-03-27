@@ -31,6 +31,9 @@ open class BaseActivity : AppCompatActivity() {
         private const val TAG = "BasicActivity"
         private const val LATCH_TIMEOUT: Long = 5000
         internal const val INTENT_LENS_FACING = "lens-facing"
+        internal const val INTENT_IMPLEMENTATION_MODE = "implementation-mode"
+        internal const val PERFORMANCE_MODE = 0
+        internal const val COMPATIBLE_MODE = 1
     }
 
     // The expected final streamState

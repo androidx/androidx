@@ -16,10 +16,12 @@
 
 package androidx.wear.watchface.complications.data
 
+import android.support.wearable.complications.ComplicationData as WireComplicationData
 import java.time.Instant
 
 /** A range of time, that may be unbounded on either side. */
-public class TimeRange internal constructor(
+public class TimeRange
+internal constructor(
     public val startDateTimeMillis: Instant,
     public val endDateTimeMillis: Instant
 ) {
@@ -55,20 +57,18 @@ public class TimeRange internal constructor(
 
     public companion object {
         /** The [TimeRange] that includes every point in time. */
-        @JvmField
-        public val ALWAYS: TimeRange = TimeRange(Instant.MIN, Instant.MAX)
+        @JvmField public val ALWAYS: TimeRange = TimeRange(Instant.MIN, Instant.MAX)
 
         /** Constructs a time range after a given point in time. */
         @JvmStatic
-        public fun after(startInstant: Instant): TimeRange =
-            TimeRange(startInstant, Instant.MAX)
+        public fun after(startInstant: Instant): TimeRange = TimeRange(startInstant, Instant.MAX)
 
         /** Constructs a time range until a given point in time. */
         @JvmStatic
         public fun before(endInstant: Instant): TimeRange = TimeRange(Instant.MIN, endInstant)
 
-        /** Constructs a time range between two points in time, inclusive of the points
-         * themselves.
+        /**
+         * Constructs a time range between two points in time, inclusive of the points themselves.
          */
         @JvmStatic
         public fun between(startInstant: Instant, endInstant: Instant): TimeRange =

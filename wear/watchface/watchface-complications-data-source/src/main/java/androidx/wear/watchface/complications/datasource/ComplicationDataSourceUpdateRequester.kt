@@ -47,14 +47,15 @@ public interface ComplicationDataSourceUpdateRequester {
      * as are complications configured to use a different complication data source.
      *
      * @param complicationInstanceIds The system's IDs for the complications to be updated as
-     * provided to [ComplicationDataSourceService.onComplicationActivated] and
-     * [ComplicationDataSourceService.onComplicationRequest].
+     *   provided to [ComplicationDataSourceService.onComplicationActivated] and
+     *   [ComplicationDataSourceService.onComplicationRequest].
      */
     public fun requestUpdate(vararg complicationInstanceIds: Int)
 
     public companion object {
         /**
          * The package of the service that accepts complication data source requests.
+         *
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -65,7 +66,7 @@ public interface ComplicationDataSourceUpdateRequester {
          *
          * @param context The [ComplicationDataSourceService]'s [Context]
          * @param complicationDataSourceComponent The [ComponentName] of the
-         * [ComplicationDataSourceService] to reload.
+         *   [ComplicationDataSourceService] to reload.
          * @return The constructed [ComplicationDataSourceUpdateRequester].
          */
         @JvmStatic
@@ -100,7 +101,7 @@ public interface ComplicationDataSourceUpdateRequester {
 /**
  * @param context The [ComplicationDataSourceService]'s [Context]
  * @param complicationDataSourceComponent The [ComponentName] of the ComplicationDataSourceService]
- * to reload.
+ *   to reload.
  */
 private class ComplicationDataSourceUpdateRequesterImpl(
     private val context: Context,
@@ -117,12 +118,7 @@ private class ComplicationDataSourceUpdateRequesterImpl(
         // Add a placeholder PendingIntent to allow the UID to be checked.
         intent.putExtra(
             ComplicationDataSourceUpdateRequesterConstants.EXTRA_PENDING_INTENT,
-            PendingIntent.getActivity(
-                context,
-                0,
-                Intent(""),
-                PendingIntent.FLAG_IMMUTABLE
-            )
+            PendingIntent.getActivity(context, 0, Intent(""), PendingIntent.FLAG_IMMUTABLE)
         )
         context.sendBroadcast(intent)
     }
@@ -141,12 +137,7 @@ private class ComplicationDataSourceUpdateRequesterImpl(
         // Add a placeholder PendingIntent to allow the UID to be checked.
         intent.putExtra(
             ComplicationDataSourceUpdateRequesterConstants.EXTRA_PENDING_INTENT,
-            PendingIntent.getActivity(
-                context,
-                0,
-                Intent(""),
-                PendingIntent.FLAG_IMMUTABLE
-            )
+            PendingIntent.getActivity(context, 0, Intent(""), PendingIntent.FLAG_IMMUTABLE)
         )
         context.sendBroadcast(intent)
     }

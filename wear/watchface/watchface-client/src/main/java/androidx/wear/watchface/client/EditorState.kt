@@ -35,8 +35,8 @@ import androidx.wear.watchface.style.UserStyleData
  * watch faces and editors should not need to do anything special because of this.
  *
  * @param id The system's id for a watch face being edited. This is passed in from
- * [androidx.wear.watchface.EditorRequest.watchFaceId] and matches the value passed to
- * [androidx.wear.watchface.WatchState.watchFaceInstanceId].
+ *   [androidx.wear.watchface.EditorRequest.watchFaceId] and matches the value passed to
+ *   [androidx.wear.watchface.WatchState.watchFaceInstanceId].
  */
 public class WatchFaceId(public val id: String) {
     override fun equals(other: Any?): Boolean {
@@ -65,23 +65,24 @@ public class WatchFaceId(public val id: String) {
  * @param watchFaceId The system's watch face instance ID. See [WatchFaceId] for details.
  * @param userStyle The current [UserStyle] encoded as a [UserStyleData].
  * @param previewComplicationsData Preview [ComplicationData] needed for taking screenshots without
- * live complication data.
+ *   live complication data.
  * @param shouldCommitChanges Whether or not this state should be committed (i.e. the user aborted
- * the session). If it's not committed then any changes (E.g. complication data source changes)
- * should  be abandoned. There's no need to resend the style to the watchface because the library
- * will have restored the previous style.
+ *   the session). If it's not committed then any changes (E.g. complication data source changes)
+ *   should be abandoned. There's no need to resend the style to the watchface because the library
+ *   will have restored the previous style.
  * @param previewImage If `non-null` this [Bitmap] contains a preview image of the watch face
- * rendered with the final style and complications and the
- * [androidx.wear.watchface.editor.PreviewScreenshotParams] specified in the
- * [androidx.wear.watchface.editor.EditorRequest]. If [shouldCommitChanges] is `false` then this
- * will also be `null` (see implementation of [androidx.wear.watchface.editor.EditorSession.close]).
+ *   rendered with the final style and complications and the
+ *   [androidx.wear.watchface.editor.PreviewScreenshotParams] specified in the
+ *   [androidx.wear.watchface.editor.EditorRequest]. If [shouldCommitChanges] is `false` then this
+ *   will also be `null` (see implementation of
+ *   [androidx.wear.watchface.editor.EditorSession.close]).
  */
-public class EditorState internal constructor(
+public class EditorState
+internal constructor(
     public val watchFaceId: WatchFaceId,
     public val userStyle: UserStyleData,
     public val previewComplicationsData: Map<Int, ComplicationData>,
-    @get:JvmName("shouldCommitChanges")
-    public val shouldCommitChanges: Boolean,
+    @get:JvmName("shouldCommitChanges") public val shouldCommitChanges: Boolean,
     public val previewImage: Bitmap?
 ) {
     override fun toString(): String =

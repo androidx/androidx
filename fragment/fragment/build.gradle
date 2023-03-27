@@ -19,7 +19,6 @@ android {
 
     defaultConfig {
         multiDexEnabled true
-        testInstrumentationRunnerArgument "listener", "leakcanary.FailTestOnLeakRunListener"
     }
     namespace "androidx.fragment"
 }
@@ -31,10 +30,12 @@ dependencies {
     api("androidx.viewpager:viewpager:1.0.0")
     api("androidx.loader:loader:1.0.0")
     api("androidx.activity:activity:1.5.1")
-    api("androidx.lifecycle:lifecycle-livedata-core:2.5.1")
-    api("androidx.lifecycle:lifecycle-viewmodel:2.5.1")
-    api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.5.1")
-    api("androidx.savedstate:savedstate:1.2.0")
+    api("androidx.lifecycle:lifecycle-runtime:2.6.1")
+    api("androidx.lifecycle:lifecycle-livedata-core:2.6.1")
+    api("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
+    api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.6.1")
+    implementation("androidx.profileinstaller:profileinstaller:1.2.1")
+    api("androidx.savedstate:savedstate:1.2.1")
     api("androidx.annotation:annotation-experimental:1.0.0")
     api(libs.kotlinStdlib)
 
@@ -58,7 +59,7 @@ dependencies {
         exclude group: "androidx.fragment", module: "fragment"
     })
 
-    testImplementation(project(":fragment:fragment"))
+    testImplementation(projectOrArtifact(":fragment:fragment"))
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testCore)
@@ -72,7 +73,6 @@ dependencies {
 androidx {
     name = "Android Support Library fragment"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.FRAGMENT
     inceptionYear = "2011"
     description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren\'t a part of the framework APIs. Compatible on devices running API 14 or later."
 }

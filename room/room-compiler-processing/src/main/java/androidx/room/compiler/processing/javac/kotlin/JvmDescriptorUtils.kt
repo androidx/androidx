@@ -16,7 +16,6 @@
 
 package androidx.room.compiler.processing.javac.kotlin
 
-import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
@@ -53,51 +52,9 @@ internal fun VariableElement.descriptor() = "$simpleName:${asType().descriptor()
  *
  * For reference, see the [JVM specification, section 4.3.3](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.3.3)
  */
-internal fun ExecutableElement.descriptor() =
-    "$simpleName${MoreTypes.asExecutable(asType()).descriptor()}"
+internal fun ExecutableElement.descriptor() = "$simpleName${asType().descriptor()}"
 
-/**
- * Returns the name of this [TypeElement] in its "internal form".
- *
- * For reference, see the [JVM specification, section 4.2](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.2).
- */
-internal val Element.internalName: String
-    get() = when (this) {
-        is TypeElement ->
-            when (nestingKind) {
-                NestingKind.TOP_LEVEL ->
-                    qualifiedName.toString().replace('.', '/')
-                NestingKind.MEMBER, NestingKind.LOCAL ->
-                    enclosingElement.internalName + "$" + simpleName
-                NestingKind.ANONYMOUS ->
-                    error("Unsupported nesting $nestingKind")
-                else ->
-                    error("Unsupported, nestingKind == null")
-            }
-        is ExecutableElement -> enclosingElement.internalName
-        is QualifiedNameable -> qualifiedName.toString().replace('.', '/')
-        else -> simpleName.toString()
-    }
-
-@Suppress("unused")
-internal val NoType.descriptor: String
-    get() = "V"
-
-internal val DeclaredType.descriptor: String
-    get() = "L" + asElement().internalName + ";"
-
-internal val PrimitiveType.descriptor: String
-    get() = when (this.kind) {
-        TypeKind.BYTE -> "B"
-        TypeKind.CHAR -> "C"
-        TypeKind.DOUBLE -> "D"
-        TypeKind.FLOAT -> "F"
-        TypeKind.INT -> "I"
-        TypeKind.LONG -> "J"
-        TypeKind.SHORT -> "S"
-        TypeKind.BOOLEAN -> "Z"
-        else -> error("Unknown primitive type $this")
-    }
+private fun TypeMirror.descriptor() = JvmDescriptorTypeVisitor.visit(this)
 
 // see https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.3.2-200
 internal fun String.typeNameFromJvmSignature(): TypeName {
@@ -146,63 +103,78 @@ internal fun String.typeNameFromJvmSignature(): TypeName {
     }
 }
 
-internal fun TypeMirror.descriptor(): String = accept(JvmDescriptorTypeVisitor, Unit)
-
-@Suppress("unused")
-internal fun WildcardType.descriptor(): String = ""
-
-// The erasure of a type variable is the erasure of its leftmost bound. - JVM Spec Sec 4.6
-internal fun TypeVariable.descriptor(): String = this.upperBound.descriptor()
-
-// For a type variable with multiple bounds: "the erasure of a type variable is determined by
-// the first type in its bound" - JVM Spec Sec 4.4
-internal fun IntersectionType.descriptor(): String =
-    this.bounds[0].descriptor()
-
-internal fun ArrayType.descriptor(): String =
-    "[" + componentType.descriptor()
-
-internal fun ExecutableType.descriptor(): String {
-    val parameterDescriptors =
-        parameterTypes.joinToString(separator = "") { it.descriptor() }
-    val returnDescriptor = returnType.descriptor()
-    return "($parameterDescriptors)$returnDescriptor"
-}
-
 /**
  * When applied over a type, it returns either:
  * + a "field descriptor", for example: `Ljava/lang/Object;`
  * + a "method descriptor", for example: `(Ljava/lang/Object;)Z`
  *
- * The easiest way to use this is through [TypeMirror.descriptor]
- *
  * For reference, see the [JVM specification, section 4.3](http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.3).
  */
-@Suppress("DEPRECATION")
-internal object JvmDescriptorTypeVisitor : AbstractTypeVisitor8<String, Unit>() {
+private object JvmDescriptorTypeVisitor : AbstractTypeVisitor8<String, Any?>() {
 
-    override fun visitNoType(t: NoType, u: Unit): String = t.descriptor
+    override fun visitNoType(t: NoType, u: Any?): String = "V"
 
-    override fun visitDeclared(t: DeclaredType, u: Unit): String = t.descriptor
+    override fun visitDeclared(t: DeclaredType, u: Any?): String = "L${t.asElement().internalName};"
 
-    override fun visitPrimitive(t: PrimitiveType, u: Unit): String = t.descriptor
+    override fun visitPrimitive(t: PrimitiveType, u: Any?): String {
+        return when (t.kind) {
+            TypeKind.BYTE -> "B"
+            TypeKind.CHAR -> "C"
+            TypeKind.DOUBLE -> "D"
+            TypeKind.FLOAT -> "F"
+            TypeKind.INT -> "I"
+            TypeKind.LONG -> "J"
+            TypeKind.SHORT -> "S"
+            TypeKind.BOOLEAN -> "Z"
+            else -> error("Unknown primitive type $this")
+        }
+    }
 
-    override fun visitArray(t: ArrayType, u: Unit): String = t.descriptor()
+    override fun visitArray(t: ArrayType, u: Any?): String = "[" + visit(t.componentType)
 
-    override fun visitWildcard(t: WildcardType, u: Unit): String = t.descriptor()
+    override fun visitWildcard(t: WildcardType, u: Any?): String = visitUnknown(t, u)
 
-    override fun visitExecutable(t: ExecutableType, u: Unit): String = t.descriptor()
+    override fun visitExecutable(t: ExecutableType, u: Any?): String {
+        val parameterDescriptors = t.parameterTypes.joinToString("") { visit(it) }
+        val returnDescriptor = visit(t.returnType)
+        return "($parameterDescriptors)$returnDescriptor"
+    }
 
-    override fun visitTypeVariable(t: TypeVariable, u: Unit): String = t.descriptor()
+    override fun visitTypeVariable(t: TypeVariable, u: Any?): String = visit(t.upperBound)
 
-    override fun visitNull(t: NullType, u: Unit): String = visitUnknown(t, u)
+    override fun visitNull(t: NullType, u: Any?): String = visitUnknown(t, u)
 
-    override fun visitError(t: ErrorType, u: Unit): String =
-        throw TypeNotPresentException(t.toString(), null)
+    override fun visitError(t: ErrorType, u: Any?): String = visitDeclared(t, u)
 
-    override fun visitIntersection(t: IntersectionType, u: Unit) = t.descriptor()
+    // For a type variable with multiple bounds: "the erasure of a type variable is determined
+    // by the first type in its bound" - JLS Sec 4.4
+    // See https://docs.oracle.com/javase/specs/jls/se16/html/jls-4.html#jls-4.4
+    override fun visitIntersection(t: IntersectionType, u: Any?): String = visit(t.bounds[0])
 
-    override fun visitUnion(t: UnionType, u: Unit) = visitUnknown(t, u)
+    override fun visitUnion(t: UnionType, u: Any?): String = visitUnknown(t, u)
 
-    override fun visitUnknown(t: TypeMirror, u: Unit): String = error("Unsupported type $t")
+    override fun visitUnknown(t: TypeMirror, u: Any?): String = error("Unsupported type $t")
+
+    /**
+     * Returns the name of this [TypeElement] in its "internal form".
+     *
+     * For reference, see the [JVM specification, section 4.2](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.2).
+     */
+    private val Element.internalName: String
+        get() = when (this) {
+            is TypeElement ->
+                when (nestingKind) {
+                    NestingKind.TOP_LEVEL ->
+                        qualifiedName.toString().replace('.', '/')
+                    NestingKind.MEMBER, NestingKind.LOCAL ->
+                        enclosingElement.internalName + "$" + simpleName
+                    NestingKind.ANONYMOUS ->
+                        error("Unsupported nesting $nestingKind")
+                    else ->
+                        error("Unsupported, nestingKind == null")
+                }
+            is ExecutableElement -> enclosingElement.internalName
+            is QualifiedNameable -> qualifiedName.toString().replace('.', '/')
+            else -> simpleName.toString()
+        }
 }

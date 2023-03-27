@@ -52,12 +52,12 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
     androidTestImplementation(project(":internal-testutils-common"))
+    androidTestImplementation(projectOrArtifact(":paging:paging-testing"))
 }
 
 androidx {
     name = "Room Paging"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2021"
     description = "Room Paging integration"
     publish = Publish.SNAPSHOT_AND_RELEASE

@@ -43,12 +43,19 @@ dependencies {
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.truth)
+
+    testImplementation(libs.robolectric)
+    testImplementation(libs.mockitoKotlin4)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.testRules)
+    testImplementation(libs.kotlinCoroutinesTest)
 }
 
 androidx {
     name = "WindowManager Test Library"
     type = LibraryType.PUBLISHED_TEST_LIBRARY
-    mavenGroup = LibraryGroups.WINDOW
     inceptionYear = "2021"
     description = "WindowManager Test Library"
 }

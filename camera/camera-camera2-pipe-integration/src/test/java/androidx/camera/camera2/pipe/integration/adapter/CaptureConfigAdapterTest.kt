@@ -33,6 +33,7 @@ import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.TagBundle
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executors
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -43,7 +44,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import java.util.concurrent.Executors
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -66,6 +66,7 @@ class CaptureConfigAdapterTest {
         useCaseGraphConfig = UseCaseGraphConfig(
             graph = FakeCameraGraph(),
             surfaceToStreamMap = mapOf(surface to StreamId(0)),
+            cameraStateAdapter = CameraStateAdapter(),
         ),
         cameraProperties = fakeCameraProperties,
         threads = fakeUseCaseThreads,

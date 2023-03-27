@@ -191,7 +191,9 @@ object MethodSpecHelper {
                 addModifiers(Modifier.PROTECTED)
             }
             addAnnotation(Override::class.java)
-            varargs(executableElement.isVarArgs())
+            // In Java, only the last argument can be a vararg so for suspend functions, it is never
+            // a vararg function.
+            varargs(!executableElement.isSuspendFunction() && executableElement.isVarArgs())
             executableElement.thrownTypes.forEach {
                 addException(it.asTypeName().java)
             }

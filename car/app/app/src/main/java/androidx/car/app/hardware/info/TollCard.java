@@ -20,13 +20,13 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarValue;
+import androidx.car.app.annotations.KeepFields;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -39,6 +39,7 @@ import java.util.Objects;
  */
 @CarProtocol
 @RequiresCarApi(3)
+@KeepFields
 public final class TollCard {
 
     /**
@@ -87,7 +88,6 @@ public final class TollCard {
     @TollCardState
     public static final int TOLLCARD_STATE_NOT_INSERTED = 3;
 
-    @Keep
     @NonNull
     private final CarValue<@TollCardState Integer> mCardState;
 

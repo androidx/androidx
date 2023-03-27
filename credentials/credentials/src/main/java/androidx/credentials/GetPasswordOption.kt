@@ -16,5 +16,29 @@
 
 package androidx.credentials
 
-/** A request to retrieve the user's saved application password from their password provider. */
-class GetPasswordOption : GetCredentialOption()
+import android.os.Bundle
+
+/** A request to retrieve the user's saved application password from their password provider.
+ *
+ * @property isAutoSelectAllowed false by default, allows auto selecting a password if there is
+ * only one available
+ */
+class GetPasswordOption @JvmOverloads constructor(
+    override val isAutoSelectAllowed: Boolean = false
+) : CredentialOption(
+    type = PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
+    requestData = Bundle(),
+    candidateQueryData = Bundle(),
+    isSystemProviderRequired = false,
+    isAutoSelectAllowed = isAutoSelectAllowed,
+) {
+
+    /** @hide */
+    companion object {
+        @Suppress("UNUSED_PARAMETER")
+        @JvmStatic
+        internal fun createFrom(data: Bundle): GetPasswordOption {
+            return GetPasswordOption()
+        }
+    }
+}

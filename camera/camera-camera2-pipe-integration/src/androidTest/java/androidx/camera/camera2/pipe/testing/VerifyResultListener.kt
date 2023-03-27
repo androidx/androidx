@@ -68,8 +68,12 @@ class VerifyResultListener(capturesCount: Int) : Request.Listener {
             signal.completeExceptionally(failureException)
             return
         }
-        if (_verifyBlock(requestMetadata, result)) {
-            signal.complete(Unit)
+        try {
+            if (_verifyBlock(requestMetadata, result)) {
+                signal.complete(Unit)
+            }
+        } catch (e: Throwable) {
+            signal.completeExceptionally(e)
         }
     }
 

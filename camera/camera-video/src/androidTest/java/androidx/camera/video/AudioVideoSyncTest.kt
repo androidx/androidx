@@ -22,12 +22,15 @@ import android.media.MediaRecorder
 import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraXConfig
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.AudioUtil
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.LabTestRule
@@ -36,7 +39,6 @@ import androidx.camera.video.internal.compat.quirk.DeactivateEncoderSurfaceBefor
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -51,13 +53,22 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
 
 @LargeTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
-class AudioVideoSyncTest {
+class AudioVideoSyncTest(
+    private val implName: String,
+    private val cameraConfig: CameraXConfig,
+) {
+
+    @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+    )
 
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
@@ -73,7 +84,6 @@ class AudioVideoSyncTest {
     @get:Rule
     val labTest: LabTestRule = LabTestRule()
 
-    private val cameraConfig = Camera2Config.defaultConfig()
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
@@ -215,5 +225,14 @@ class AudioVideoSyncTest {
         if (deactivateSurfaceBeforeStop && Build.VERSION.SDK_INT >= 23) {
             invokeSurfaceRequest(recorder)
         }
+    }
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun data() = listOf(
+            arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
+            arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+        )
     }
 }

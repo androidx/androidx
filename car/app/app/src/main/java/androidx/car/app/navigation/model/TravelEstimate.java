@@ -22,7 +22,6 @@ import android.annotation.SuppressLint;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.IntRange;
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -36,6 +35,7 @@ import androidx.car.app.model.Distance;
 import androidx.car.app.model.constraints.CarColorConstraints;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
+import androidx.car.app.annotations.KeepFields;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -47,26 +47,20 @@ import java.util.Objects;
  */
 @SuppressWarnings("MissingSummary")
 @CarProtocol
+@KeepFields
 public final class TravelEstimate {
     /** A value used to represent an unknown remaining amount of time. */
     public static final long REMAINING_TIME_UNKNOWN = -1L;
 
-    @Keep
     @Nullable
     private final Distance mRemainingDistance;
-    @Keep
     private final long mRemainingTimeSeconds;
-    @Keep
     @Nullable
     private final DateTimeWithZone mArrivalTimeAtDestination;
-    @Keep
     private final CarColor mRemainingTimeColor;
-    @Keep
     private final CarColor mRemainingDistanceColor;
-    @Keep
     @Nullable
     private final CarText mTripText;
-    @Keep
     @Nullable
     private final CarIcon mTripIcon;
 

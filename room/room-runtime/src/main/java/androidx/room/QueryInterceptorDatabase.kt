@@ -94,7 +94,7 @@ internal class QueryInterceptorDatabase(
         return delegate.query(query)
     }
 
-    override fun query(query: String, bindArgs: Array<Any?>): Cursor {
+    override fun query(query: String, bindArgs: Array<out Any?>): Cursor {
         queryCallbackExecutor.execute { queryCallback.onQuery(query, bindArgs.toList()) }
         return delegate.query(query, bindArgs)
     }
@@ -136,7 +136,7 @@ internal class QueryInterceptorDatabase(
     // Suppress warning about `SQL` in execSQL not being camel case. This is an override function
     // and it can't be renamed.
     @Suppress("AcronymName")
-    override fun execSQL(sql: String, bindArgs: Array<Any?>) {
+    override fun execSQL(sql: String, bindArgs: Array<out Any?>) {
         val inputArguments = mutableListOf<Any>()
         inputArguments.addAll(listOf(bindArgs))
         queryCallbackExecutor.execute {

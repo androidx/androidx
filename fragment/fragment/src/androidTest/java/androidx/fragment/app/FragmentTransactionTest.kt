@@ -32,14 +32,16 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.waitForExecution
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.After
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 /**
  * Tests usage of the [androidx.fragment.app.FragmentTransaction] class.
@@ -49,30 +51,37 @@ import java.util.concurrent.TimeUnit
 class FragmentTransactionTest {
 
     @Suppress("DEPRECATION")
-    @get:Rule
     var activityRule = androidx.test.rule.ActivityTestRule(FragmentTestActivity::class.java)
 
-    private lateinit var activity: FragmentTestActivity
+    // Detect leaks BEFORE and AFTER activity is destroyed
+    @get:Rule
+    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
+        .around(activityRule)
+
     private var onBackStackChangedTimes: Int = 0
     private lateinit var onBackStackChangedListener: FragmentManager.OnBackStackChangedListener
 
     @Before
     fun setUp() {
-        activity = activityRule.activity
         onBackStackChangedTimes = 0
         onBackStackChangedListener =
             FragmentManager.OnBackStackChangedListener { onBackStackChangedTimes++ }
-        activity.supportFragmentManager.addOnBackStackChangedListener(onBackStackChangedListener)
+        activityRule.activity.supportFragmentManager.addOnBackStackChangedListener(
+            onBackStackChangedListener
+        )
     }
 
     @After
     fun tearDown() {
-        activity.supportFragmentManager.removeOnBackStackChangedListener(onBackStackChangedListener)
+        activityRule.activity.supportFragmentManager.removeOnBackStackChangedListener(
+            onBackStackChangedListener
+        )
     }
 
     @Test
     @UiThreadTest
     fun testAddTransactionWithValidFragment() {
+        val activity = activityRule.activity
         val fragment = CorrectFragment()
         activity.supportFragmentManager.beginTransaction()
             .add(R.id.content, fragment)
@@ -86,6 +95,7 @@ class FragmentTransactionTest {
     @Test
     @UiThreadTest
     fun testAddTransactionByClassName() {
+        val activity = activityRule.activity
         val args = Bundle()
         activity.supportFragmentManager.beginTransaction()
             .add(R.id.content, CorrectFragment::class.java, args)
@@ -103,6 +113,7 @@ class FragmentTransactionTest {
     @Test
     @UiThreadTest
     fun testAddTransactionWithPrivateFragment() {
+        val activity = activityRule.activity
         val fragment = PrivateFragment()
         try {
             activity.supportFragmentManager.beginTransaction()
@@ -126,6 +137,7 @@ class FragmentTransactionTest {
     @Test
     @UiThreadTest
     fun testAddTransactionWithPackagePrivateFragment() {
+        val activity = activityRule.activity
         val fragment = OuterPackagePrivateFragment.PackagePrivateFragment()
         try {
             activity.supportFragmentManager.beginTransaction()
@@ -148,6 +160,7 @@ class FragmentTransactionTest {
     @Test
     @UiThreadTest
     fun testAddTransactionWithAnonymousFragment() {
+        val activity = activityRule.activity
         val fragment = object : Fragment() {}
         try {
             activity.supportFragmentManager.beginTransaction()
@@ -169,6 +182,7 @@ class FragmentTransactionTest {
     @Test
     @UiThreadTest
     fun testGetLayoutInflater() {
+        val activity = activityRule.activity
         val fragment1 = OnGetLayoutInflaterFragment()
         assertThat(fragment1.onGetLayoutInflaterCalls).isEqualTo(0)
         activity.supportFragmentManager.beginTransaction()
@@ -222,6 +236,7 @@ class FragmentTransactionTest {
     @Test
     @UiThreadTest
     fun testAddTransactionWithNonStaticFragment() {
+        val activity = activityRule.activity
         val fragment = NonStaticFragment()
         try {
             activity.supportFragmentManager.beginTransaction()
@@ -243,6 +258,7 @@ class FragmentTransactionTest {
     @Test
     @UiThreadTest
     fun testReplaceTransactionByClassName() {
+        val activity = activityRule.activity
         val firstFragment = StrictFragment()
         activity.supportFragmentManager.beginTransaction()
             .add(R.id.content, firstFragment)
@@ -295,6 +311,7 @@ class FragmentTransactionTest {
     // Ensure that getFragments() works during transactions, even if it is run off thread
     @Test
     fun getFragmentsOffThread() {
+        val activity = activityRule.activity
         val fm = activity.supportFragmentManager
 
         // Make sure that adding a fragment works
@@ -384,6 +401,7 @@ class FragmentTransactionTest {
      */
     @Test
     fun commitAllowStateLossDetached() {
+        val activity = activityRule.activity
         val fragment1 = CorrectFragment()
         activity.supportFragmentManager
             .beginTransaction()
@@ -424,6 +442,7 @@ class FragmentTransactionTest {
      */
     @Test
     fun newIntentUnlocks() {
+        val activity = activityRule.activity
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val intent1 = Intent(activity, NewIntentActivity::class.java)
             .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -453,6 +472,7 @@ class FragmentTransactionTest {
      */
     @Test
     fun newIntentProviderUnlocks() {
+        val activity = activityRule.activity
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val intent1 = Intent(activity, NewIntentProviderActivity::class.java)
             .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -482,7 +502,7 @@ class FragmentTransactionTest {
 
         do {
             assertThat(SystemClock.uptimeMillis() < endTime).isTrue()
-        } while (activity.supportFragmentManager.fragments.size != expectedSize)
+        } while (activityRule.activity.supportFragmentManager.fragments.size != expectedSize)
     }
 
     class CorrectFragment : Fragment()

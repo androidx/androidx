@@ -116,9 +116,8 @@ class ViewTreeSavedStateRegistryOwnerTest {
     }
 
     internal class FakeSavedStateRegistryOwner : SavedStateRegistryOwner {
-        override fun getLifecycle(): Lifecycle {
-            throw UnsupportedOperationException("not a real SavedStateRegistryOwner")
-        }
+        override val lifecycle: Lifecycle
+            get() = throw UnsupportedOperationException("not a real SavedStateRegistryOwner")
 
         override val savedStateRegistry: SavedStateRegistry
             get() = throw UnsupportedOperationException("not a real SavedStateRegistryOwner")

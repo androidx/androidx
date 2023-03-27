@@ -36,13 +36,12 @@ dependencies {
     implementation(project(":core:core-ktx"))
     implementation(projectOrArtifact(":appcompat:appcompat"))
     implementation projectOrArtifact(":annotation:annotation")
-    compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
+    compileOnly(project(":annotation:annotation-sampled"))
 }
 
 androidx {
     name = "AndroidX bitmap scaling Sample"
     // type = LibraryType.SAMPLES
-    // mavenGroup = LibraryGroups.CORE
     inceptionYear = "2021"
     description = "Sample for the AndoridX graphics bitmap compatibility"
 }

@@ -64,13 +64,10 @@ internal class ConfigFragment : Fragment() {
     companion object {
         const val SETTINGS_ID = "SETTINGS_ID"
 
-        fun newInstance(
-            settingIds: ArrayList<String>
-        ) = ConfigFragment().apply {
-            arguments = Bundle().apply {
-                this.putStringArrayList(SETTINGS_ID, settingIds)
+        fun newInstance(settingIds: ArrayList<String>) =
+            ConfigFragment().apply {
+                arguments = Bundle().apply { this.putStringArrayList(SETTINGS_ID, settingIds) }
             }
-        }
     }
 
     private var lifecycleObserver = LifecycleEventObserver { _, event ->
@@ -91,14 +88,15 @@ internal class ConfigFragment : Fragment() {
     ): View {
         settingIds = requireArguments().getStringArrayList(SETTINGS_ID)!!
 
-        view = inflater.inflate(R.layout.config_layout, container, false) as
-            SwipeDismissFrameLayout
+        view = inflater.inflate(R.layout.config_layout, container, false) as SwipeDismissFrameLayout
 
-        view.addCallback(object : SwipeDismissFrameLayout.Callback() {
-            override fun onDismissed(layout: SwipeDismissFrameLayout) {
-                parentFragmentManager.popBackStackImmediate()
+        view.addCallback(
+            object : SwipeDismissFrameLayout.Callback() {
+                override fun onDismissed(layout: SwipeDismissFrameLayout) {
+                    parentFragmentManager.popBackStackImmediate()
+                }
             }
-        })
+        )
 
         return view
     }
@@ -115,10 +113,11 @@ internal class ConfigFragment : Fragment() {
             configOptions.add(
                 ConfigOption(
                     id = Constants.KEY_COMPLICATIONS_SETTINGS,
-                    icon = Icon.createWithResource(
-                        context,
-                        R.drawable.ic_elements_settings_complications
-                    ),
+                    icon =
+                        Icon.createWithResource(
+                            context,
+                            R.drawable.ic_elements_settings_complications
+                        ),
                     title = resources.getString(R.string.settings_complications),
                     summary = "",
                     highlight = false
@@ -143,11 +142,7 @@ internal class ConfigFragment : Fragment() {
             )
         }
 
-        configViewAdapter = ConfigViewAdapter(
-            requireContext(),
-            configOptions,
-            this::onItemClick
-        )
+        configViewAdapter = ConfigViewAdapter(requireContext(), configOptions, this::onItemClick)
         view.findViewById<WearableRecyclerView>(R.id.configOptionsList).apply {
             adapter = configViewAdapter
             isEdgeItemsCenteringEnabled = true
@@ -159,30 +154,27 @@ internal class ConfigFragment : Fragment() {
 
     private fun createBackgroundConfigOption(): ConfigOption {
         // Initially assume there is no background image data source.
-        val backgroundConfigOption = ConfigOption(
-            id = Constants.KEY_BACKGROUND_IMAGE_SETTINGS,
-            icon = Icon.createWithResource(
-                context,
-                R.drawable.ic_elements_comps_bg
-            ),
-            title = getResources().getString(R.string.settings_background_image),
-            summary = resources.getString(R.string.none_background_image_provider),
-            highlight = false
-        )
+        val backgroundConfigOption =
+            ConfigOption(
+                id = Constants.KEY_BACKGROUND_IMAGE_SETTINGS,
+                icon = Icon.createWithResource(context, R.drawable.ic_elements_comps_bg),
+                title = getResources().getString(R.string.settings_background_image),
+                summary = resources.getString(R.string.none_background_image_provider),
+                highlight = false
+            )
 
         // Update the summary with the actual background complication data source name, if there is
         // one.
         watchFaceConfigActivity.coroutineScope.launch {
             val dataSourceInfoRetriever =
                 ComplicationDataSourceInfoRetriever(activity as WatchFaceConfigActivity)
-            val infoArray = dataSourceInfoRetriever.retrieveComplicationDataSourceInfo(
-                watchFaceConfigActivity.editorSession.watchFaceComponentName,
-                intArrayOf(watchFaceConfigActivity.editorSession.backgroundComplicationSlotId!!)
-            )
+            val infoArray =
+                dataSourceInfoRetriever.retrieveComplicationDataSourceInfo(
+                    watchFaceConfigActivity.editorSession.watchFaceComponentName,
+                    intArrayOf(watchFaceConfigActivity.editorSession.backgroundComplicationSlotId!!)
+                )
             infoArray?.let {
-                it[0].info?.apply {
-                    backgroundConfigOption.summary = name
-                }
+                it[0].info?.apply { backgroundConfigOption.summary = name }
                 configViewAdapter.notifyDataSetChanged()
             }
             dataSourceInfoRetriever.close()
@@ -199,7 +191,6 @@ internal class ConfigFragment : Fragment() {
         when (configOption.id) {
             Constants.KEY_COMPLICATIONS_SETTINGS ->
                 watchFaceConfigActivity.fragmentController.showComplicationConfigSelectionFragment()
-
             Constants.KEY_BACKGROUND_IMAGE_SETTINGS -> {
                 watchFaceConfigActivity.coroutineScope.launch {
                     watchFaceConfigActivity.fragmentController.showComplicationConfig(
@@ -207,7 +198,6 @@ internal class ConfigFragment : Fragment() {
                     )
                 }
             }
-
             else -> {
                 watchFaceConfigActivity.fragmentController.showStyleConfigFragment(
                     configOption.id,
@@ -242,10 +232,7 @@ internal class Helper {
          * @param icon the icon to wrap.
          * @return the wrapped icon.
          */
-        fun wrapIcon(
-            context: Context,
-            icon: Drawable
-        ): Drawable {
+        fun wrapIcon(context: Context, icon: Drawable): Drawable {
             if (icon is LayerDrawable && icon.findDrawableByLayerId(R.id.nested_icon) != null) {
                 return icon // icon was already wrapped, return the icon without modifying it
             }
@@ -272,15 +259,12 @@ internal class ConfigViewAdapter(
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ConfigViewHolder(
-        LayoutInflater.from(parent.context).inflate(
-            R.layout.configlist_item_layout,
-            parent,
-            false
-        )
-    ).apply {
-        itemView.setOnClickListener { clickListener(configOption!!) }
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        ConfigViewHolder(
+                LayoutInflater.from(parent.context)
+                    .inflate(R.layout.configlist_item_layout, parent, false)
+            )
+            .apply { itemView.setOnClickListener { clickListener(configOption!!) } }
 
     override fun onBindViewHolder(holder: ConfigViewHolder, position: Int) {
         val configOption = configOptions[position]

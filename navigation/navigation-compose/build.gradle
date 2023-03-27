@@ -28,27 +28,28 @@ dependencies {
 
     implementation(libs.kotlinStdlib)
     implementation("androidx.compose.foundation:foundation-layout:1.0.1")
-    api("androidx.activity:activity-compose:1.5.1")
+    api("androidx.activity:activity-compose:1.7.0")
     api("androidx.compose.animation:animation:1.0.1")
     api("androidx.compose.runtime:runtime:1.0.1")
     api("androidx.compose.runtime:runtime-saveable:1.0.1")
     api("androidx.compose.ui:ui:1.0.1")
-    api("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1")
-    // old version of common-java8 conflicts with newer version, because both have
-    // DefaultLifecycleEventObserver.
-    // Outside of androidx this is resolved via constraint added to lifecycle-common,
-    // but it doesn't work in androidx.
-    // See aosp/1804059
-    implementation "androidx.lifecycle:lifecycle-common-java8:2.5.1"
+    api("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
     api(projectOrArtifact(":navigation:navigation-runtime-ktx"))
 
     androidTestImplementation(projectOrArtifact(":compose:material:material"))
     androidTestImplementation projectOrArtifact(":compose:test-utils")
+    androidTestImplementation projectOrArtifact(":compose:ui:ui-tooling")
     androidTestImplementation(projectOrArtifact(":navigation:navigation-testing"))
     androidTestImplementation(projectOrArtifact(":internal-testutils-navigation"), {
         exclude group: "androidx.navigation", module: "navigation-common"
     })
     androidTestImplementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-common"))
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-common-java8"))
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-livedata-core"))
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-viewmodel-savedstate"))
+    androidTestImplementation(projectOrArtifact(":activity:activity-ktx"))
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
@@ -62,7 +63,6 @@ dependencies {
 androidx {
     name = "Compose Navigation"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2020"
     description = "Compose integration with Navigation"
     runApiTasks = new RunApiTasks.Yes()

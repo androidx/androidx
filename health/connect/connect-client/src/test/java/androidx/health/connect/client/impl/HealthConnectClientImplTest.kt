@@ -25,7 +25,8 @@ import android.os.Looper
 import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
 import androidx.health.connect.client.impl.converters.datatype.toDataType
-import androidx.health.connect.client.permission.HealthPermission.Companion.createReadPermission
+import androidx.health.connect.client.permission.HealthPermission.Companion.getReadPermission
+import androidx.health.connect.client.permission.HealthPermission.Companion.getWritePermission
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.NutritionRecord
@@ -86,7 +87,6 @@ private const val PROVIDER_PACKAGE_NAME = "com.google.fake.provider"
 
 private val API_METHOD_LIST =
     listOf<suspend HealthConnectClientImpl.() -> Unit>(
-        { getGrantedPermissions(setOf()) },
         { revokeAllPermissions() },
         { insertRecords(listOf()) },
         { updateRecords(listOf()) },
@@ -141,7 +141,6 @@ class HealthConnectClientImplTest {
 
         healthConnectClient =
             HealthConnectClientImpl(
-                PROVIDER_PACKAGE_NAME,
                 ServiceBackedHealthDataClient(
                     ApplicationProvider.getApplicationContext(),
                     clientConfig,
@@ -190,32 +189,34 @@ class HealthConnectClientImplTest {
 
     @Test
     fun getGrantedPermissions_none() = runTest {
-        val response = testBlocking {
-            healthConnectClient.getGrantedPermissions(
-                setOf(createReadPermission(StepsRecord::class))
-            )
-        }
+        val response = testBlocking { healthConnectClient.getGrantedPermissions() }
 
         assertThat(response).isEmpty()
     }
 
     @Test
-    fun getGrantedPermissions_steps() = runTest {
+    fun getGrantedPermissions() = runTest {
         fakeAhpServiceStub.addGrantedPermission(
             androidx.health.platform.client.permission.Permission(
                 PermissionProto.Permission.newBuilder()
-                    .setDataType(DataProto.DataType.newBuilder().setName("Steps"))
-                    .setAccessType(PermissionProto.AccessType.ACCESS_TYPE_READ)
+                    .setPermission(getReadPermission(StepsRecord::class))
                     .build()
             )
         )
-        val response = testBlocking {
-            healthConnectClient.getGrantedPermissions(
-                setOf(createReadPermission(StepsRecord::class))
+        fakeAhpServiceStub.addGrantedPermission(
+            androidx.health.platform.client.permission.Permission(
+                PermissionProto.Permission.newBuilder()
+                    .setPermission(getWritePermission(HeartRateRecord::class))
+                    .build()
             )
-        }
+        )
+        val response = testBlocking { healthConnectClient.getGrantedPermissions() }
 
-        assertThat(response).containsExactly(createReadPermission(StepsRecord::class))
+        assertThat(response)
+            .containsExactly(
+                getReadPermission(StepsRecord::class),
+                getWritePermission(HeartRateRecord::class)
+            )
     }
 
     @Test

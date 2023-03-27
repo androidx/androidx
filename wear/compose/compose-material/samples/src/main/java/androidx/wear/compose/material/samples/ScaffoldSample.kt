@@ -28,12 +28,12 @@ import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
-import androidx.wear.compose.material.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
 import androidx.wear.compose.material.Vignette
 import androidx.wear.compose.material.VignettePosition
-import androidx.wear.compose.material.rememberScalingLazyListState
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 
 @SuppressLint("UnrememberedMutableState")
 @Sampled

@@ -43,13 +43,13 @@ internal class RequestTest {
 
     @Test
     fun canReadCaptureParameters() {
-        val request = Request(
-            listOf(StreamId(1)),
-            parameters = mapOf(
-                CaptureRequest.EDGE_MODE to CaptureRequest.EDGE_MODE_HIGH_QUALITY
-            ),
-            extras = mapOf(FakeMetadata.TEST_KEY to 42)
-        )
+        val request =
+            Request(
+                listOf(StreamId(1)),
+                parameters =
+                mapOf(CaptureRequest.EDGE_MODE to CaptureRequest.EDGE_MODE_HIGH_QUALITY),
+                extras = mapOf(FakeMetadata.TEST_KEY to 42)
+            )
 
         // Check with a valid test key
         assertThat(request[FakeMetadata.TEST_KEY]).isEqualTo(42)
@@ -71,6 +71,7 @@ internal class RequestTest {
             request.getOrDefault(
                 CaptureRequest.CONTROL_AE_MODE, default = CaptureRequest.CONTROL_AE_MODE_ON
             )
-        ).isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON)
+        )
+            .isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON)
     }
 }

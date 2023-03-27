@@ -160,5 +160,63 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
         // b/229770338 was fixed in Android T, this test will fail on S_V2 devices and below.
         assumeTrue(BuildCompat.isAtLeastT());
         super.testEmojiSnippet();
+    }@Override
+    @Test
+    public void testSearchSuggestion() throws Exception {
+        // TODO(b/227356108) enable the test when suggestion is ready in platform.
+    }
+
+    @Override
+    @Test
+    public void testSearchSuggestion_namespaceFilter() throws Exception {
+        // TODO(b/227356108) enable the test when suggestion is ready in platform.
+    }
+
+    @Override
+    @Test
+    public void testSearchSuggestion_documentIdFilter() throws Exception {
+        // TODO(b/227356108) enable the test when suggestion is ready in platform.
+    }
+
+    @Override
+    @Test
+    public void testSearchSuggestion_differentPrefix() throws Exception {
+        // TODO(b/227356108) enable the test when suggestion is ready in platform.
+    }
+
+    @Override
+    @Test
+    public void testSearchSuggestion_differentRankingStrategy() throws Exception {
+        // TODO(b/227356108) enable the test when suggestion is ready in platform.
+    }
+
+    @Override
+    @Test
+    public void testSearchSuggestion_removeDocument() throws Exception {
+        // TODO(b/227356108) enable the test when suggestion is ready in platform.
+    }
+
+    @Override
+    @Test
+    public void testSearchSuggestion_replacementDocument() throws Exception {
+        // TODO(b/227356108) enable the test when suggestion is ready in platform.
+    }
+
+    @Override
+    @Test
+    public void testSearchSuggestion_ignoreOperators() throws Exception {
+        // TODO(b/227356108) enable the test when suggestion is ready in platform.
+    }
+
+    @Override
+    @Test
+    public void testSearchSuggestion_schemaFilter() throws Exception {
+        // TODO(b/227356108) enable the test when suggestion is ready in platform.
+    }
+
+    @Override
+    @Test
+    public void testSearchSuggestion_twoInstances() throws Exception {
+        // TODO(b/227356108) enable the test when suggestion is ready in platform.
     }
 }

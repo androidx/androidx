@@ -70,7 +70,7 @@ public class Keys {
     protected void append(StringBuilder builder, String name, float[] array) {
         if (array != null) {
             builder.append(name);
-            builder.append("percentWidth:[").append(Arrays.toString(array)).append("],\n");
+            builder.append("percentWidth:").append(Arrays.toString(array)).append(",\n");
         }
     }
 

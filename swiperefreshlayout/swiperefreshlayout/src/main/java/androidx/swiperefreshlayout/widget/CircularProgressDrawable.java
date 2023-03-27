@@ -395,7 +395,7 @@ public class CircularProgressDrawable extends Drawable implements Animatable {
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
         final Rect bounds = getBounds();
         canvas.save();
         canvas.rotate(mRotation, bounds.exactCenterX(), bounds.exactCenterY());
