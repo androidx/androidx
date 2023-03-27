@@ -176,11 +176,19 @@ package androidx.wear.protolayout.expression {
   }
 
   public static class DynamicBuilders.DynamicFloat.FloatFormatter {
-    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter groupingUsed(boolean);
-    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter maxFractionDigits(@IntRange(from=0) int);
-    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter minFractionDigits(@IntRange(from=0) int);
-    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter minIntegerDigits(@IntRange(from=0) int);
-    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter with();
+    method @IntRange(from=0) public int getMaxFractionDigits();
+    method @IntRange(from=0) public int getMinFractionDigits();
+    method @IntRange(from=0) public int getMinIntegerDigits();
+    method public boolean isGroupingUsed();
+  }
+
+  public static final class DynamicBuilders.DynamicFloat.FloatFormatter.Builder {
+    ctor public DynamicBuilders.DynamicFloat.FloatFormatter.Builder();
+    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter build();
+    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter.Builder setGroupingUsed(boolean);
+    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter.Builder setMaxFractionDigits(@IntRange(from=0) int);
+    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter.Builder setMinFractionDigits(@IntRange(from=0) int);
+    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter.Builder setMinIntegerDigits(@IntRange(from=0) int);
   }
 
   public static interface DynamicBuilders.DynamicInstant extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
@@ -241,9 +249,15 @@ package androidx.wear.protolayout.expression {
   }
 
   public static class DynamicBuilders.DynamicInt32.IntFormatter {
-    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32.IntFormatter groupingUsed(boolean);
-    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32.IntFormatter minIntegerDigits(@IntRange(from=0) int);
-    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32.IntFormatter with();
+    method @IntRange(from=0) public int getMinIntegerDigits();
+    method public boolean isGroupingUsed();
+  }
+
+  public static final class DynamicBuilders.DynamicInt32.IntFormatter.Builder {
+    ctor public DynamicBuilders.DynamicInt32.IntFormatter.Builder();
+    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32.IntFormatter build();
+    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32.IntFormatter.Builder setGroupingUsed(boolean);
+    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32.IntFormatter.Builder setMinIntegerDigits(@IntRange(from=0) int);
   }
 
   public static interface DynamicBuilders.DynamicString extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
