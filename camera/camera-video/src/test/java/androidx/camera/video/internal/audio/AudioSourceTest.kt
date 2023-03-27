@@ -33,14 +33,12 @@ import java.nio.ByteBuffer
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit.NANOSECONDS
 import org.junit.After
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
-@Ignore("b/274840083")
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -98,7 +96,6 @@ class AudioSourceTest {
         audioStream.verifyStopCall(CallTimes(1), COMMON_TIMEOUT_MS)
     }
 
-    @Ignore("b/273963265")
     @Test
     fun release_AudioStreamIsReleased() {
         // Arrange
@@ -153,7 +150,6 @@ class AudioSourceTest {
         }
     }
 
-    @Ignore("b/274588483")
     @Test
     fun bufferProviderBecomeActive_startSendingAudio() {
         // Arrange.
@@ -202,7 +198,6 @@ class AudioSourceTest {
         audioStream.verifyStopCall(CallTimes(1), COMMON_TIMEOUT_MS)
     }
 
-    @Ignore // b/273534749
     @Test
     fun canReceiveSilence() {
         // Arrange.

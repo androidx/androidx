@@ -183,11 +183,11 @@ public class MockConsumer<T> implements Consumer<T> {
         mClassTypeToVerify = classType;
         mCallTimes = callTimes;
         mInOrder = inOrder;
-        snapshotVerifyingEventList();
 
         CountDownLatch latch = null;
         boolean isVerified;
         synchronized (mLock) {
+            snapshotVerifyingEventList();
             isVerified = isVerified();
             if (!isVerified && timeoutInMillis != NO_TIMEOUT) {
                 latch = mLatch = new CountDownLatch(1);
