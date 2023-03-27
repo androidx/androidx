@@ -145,6 +145,14 @@ public class WorkContinuationImpl extends WorkContinuation {
             }
         }
         for (int i = 0; i < work.size(); i++) {
+            if (existingWorkPolicy == ExistingWorkPolicy.REPLACE
+                    && work.get(i).getWorkSpec().getNextScheduleTimeOverride() != Long.MAX_VALUE) {
+                // We can't enforce a minimum period on non-first overrides if REPLACE is used,
+                // since it gives us a new WorkSpec every time.
+                throw new IllegalArgumentException(
+                        "Next Schedule Time Override must be used with ExistingPeriodicWorkPolicy"
+                                + "UPDATE (preferably) or KEEP");
+            }
             String id = work.get(i).getStringId();
             mIds.add(id);
             mAllIds.add(id);
