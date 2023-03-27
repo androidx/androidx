@@ -19,6 +19,7 @@ package androidx.baselineprofile.gradle.consumer.task
 import androidx.baselineprofile.gradle.consumer.RuleType
 import androidx.baselineprofile.gradle.utils.TASK_NAME_SUFFIX
 import androidx.baselineprofile.gradle.utils.maybeRegister
+import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -57,13 +58,19 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
         private const val MERGE_TASK_NAME = "merge"
         private const val COPY_TASK_NAME = "copy"
 
+        // Filename parts to differentiate how to use the profile rules
+        private const val FILENAME_MATCHER_BASELINE_PROFILE = "baseline-prof"
+        private const val FILENAME_MATCHER_STARTUP_PROFILE = "startup-prof"
+
         // The output file for the HRF baseline profile file in `src/main`
         private const val BASELINE_PROFILE_FILENAME = "baseline-prof.txt"
+        private const val STARTUP_PROFILE_FILENAME = "startup-prof.txt"
 
         internal fun maybeRegisterForMerge(
             project: Project,
             variantName: String,
             hasDependencies: Boolean = false,
+            library: Boolean,
             sourceProfilesFileCollection: FileCollection,
             outputDir: Provider<Directory>,
             filterRules: List<Pair<RuleType, String>> = listOf(),
@@ -92,12 +99,17 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                     // Sets the package filter rules. Note that if this task already exists
                     // because of a mergeIntoMain rule, rules are added to the existing ones.
                     task.filterRules.addAll(filterRules)
+
+                    // Sets whether this task has been configured for a library. In this case,
+                    // startup profiles are not handled.
+                    task.library.set(library)
                 }
         }
 
         internal fun maybeRegisterForCopy(
             project: Project,
             variantName: String,
+            library: Boolean,
             sourceDir: Provider<Directory>,
             outputDir: Provider<Directory>,
         ): TaskProvider<MergeBaselineProfileTask> {
@@ -106,6 +118,7 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                 .maybeRegister(COPY_TASK_NAME, variantName, "baselineProfileIntoSrc") { task ->
                     task.baselineProfileFileCollection.from.add(sourceDir)
                     task.baselineProfileDir.set(outputDir)
+                    task.library.set(library)
                 }
         }
     }
@@ -117,6 +130,9 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
     @get: Input
     @get: Optional
     abstract val hasDependencies: Property<Boolean>
+
+    @get: Input
+    abstract val library: Property<Boolean>
 
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.NONE)
@@ -157,22 +173,7 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
         // Read the profile rules from the file collection that contains the profile artifacts from
         // all the configurations for this variant and merge them in a single list.
         val profileRules = baselineProfileFileCollection.files
-            .flatMap {
-                if (!it.exists()) {
-                    // Note that this can happen only if this task is misconfigured because of a
-                    // bug and not because of any user configuration.
-                    throw GradleException(
-                        """
-                        The specified merge task input `${it.absolutePath}` does not exist.
-                    """.trimIndent()
-                    )
-                }
-                if (it.isFile) {
-                    it.readLines()
-                } else {
-                    it.listFiles()!!.flatMap { f -> f.readLines() }
-                }
-            }
+            .readLines { FILENAME_MATCHER_BASELINE_PROFILE in it.name }
 
         if (variantName.isPresent && profileRules.isEmpty()) {
             logger.warn(
@@ -232,6 +233,32 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
             .get()
             .asFile
             .writeText(filteredProfileRules.joinToString(System.lineSeparator()))
+
+        // If this is a library we can stop here and don't manage the startup profiles.
+        if (library.get()) {
+            return
+        }
+
+        // Same process with startup profiles.
+        val startupRules = baselineProfileFileCollection.files
+            .readLines { FILENAME_MATCHER_STARTUP_PROFILE in it.name }
+
+        // Use same sorting without filter for startup profiles.
+        val sortedProfileRules = startupRules
+            .asSequence()
+            .sorted()
+            .mapNotNull { ProfileRule.parse(it) }
+            .groupBy { it.classDescriptor + it.methodDescriptor }
+            .map { it.value[0] }
+            .sortedWith(ProfileRule.comparator)
+            .map { it.underlying }
+            .toList()
+
+        baselineProfileDir
+            .file(STARTUP_PROFILE_FILENAME)
+            .get()
+            .asFile
+            .writeText(sortedProfileRules.joinToString(System.lineSeparator()))
     }
 
     private fun Pair<RuleType, String>.isInclude(): Boolean = first == RuleType.INCLUDE
@@ -261,4 +288,9 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
             }
         }
     }
+
+    private fun Iterable<File>.readLines(filterBlock: (File) -> (Boolean)): List<String> = this
+        .flatMap { if (it.isFile) listOf(it) else listOf(*it.listFiles()!!) }
+        .filter(filterBlock)
+        .flatMap { it.readLines() }
 }

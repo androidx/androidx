@@ -52,15 +52,21 @@ class BaselineProfileConsumerPluginTest {
         "src/$variantName/$EXPECTED_PROFILE_FOLDER/baseline-prof.txt"
     )
 
+    private fun startupProfileFile(variantName: String) = File(
+        projectSetup.consumer.rootDir,
+        "src/$variantName/$EXPECTED_PROFILE_FOLDER/startup-prof.txt"
+    )
+
     private fun readBaselineProfileFileContent(variantName: String): List<String> =
         baselineProfileFile(variantName).readLines()
 
+    private fun readStartupProfileFileContent(variantName: String): List<String> =
+        startupProfileFile(variantName).readLines()
+
     @Test
-    fun testGenerateTaskWithNoFlavors() {
+    fun testGenerateTaskWithNoFlavorsForLibrary() {
         projectSetup.consumer.setup(
-            androidPlugin = ANDROID_LIBRARY_PLUGIN,
-            dependencyOnProducerProject = true,
-            flavors = false
+            androidPlugin = ANDROID_LIBRARY_PLUGIN
         )
         projectSetup.producer.setupWithoutFlavors(
             releaseProfileLines = listOf(
@@ -68,6 +74,12 @@ class BaselineProfileConsumerPluginTest {
                 Fixtures.CLASS_1,
                 Fixtures.CLASS_2_METHOD_1,
                 Fixtures.CLASS_2
+            ),
+            releaseStartupProfileLines = listOf(
+                Fixtures.CLASS_3_METHOD_1,
+                Fixtures.CLASS_3,
+                Fixtures.CLASS_4_METHOD_1,
+                Fixtures.CLASS_4
             )
         )
 
@@ -81,6 +93,49 @@ class BaselineProfileConsumerPluginTest {
                 Fixtures.CLASS_1_METHOD_1,
                 Fixtures.CLASS_2,
                 Fixtures.CLASS_2_METHOD_1,
+            )
+
+        assertThat(startupProfileFile("main").exists()).isFalse()
+    }
+
+    @Test
+    fun testGenerateTaskWithNoFlavorsForApplication() {
+        projectSetup.consumer.setup(
+            androidPlugin = ANDROID_APPLICATION_PLUGIN
+        )
+        projectSetup.producer.setupWithoutFlavors(
+            releaseProfileLines = listOf(
+                Fixtures.CLASS_1_METHOD_1,
+                Fixtures.CLASS_1,
+                Fixtures.CLASS_2_METHOD_1,
+                Fixtures.CLASS_2
+            ),
+            releaseStartupProfileLines = listOf(
+                Fixtures.CLASS_3_METHOD_1,
+                Fixtures.CLASS_3,
+                Fixtures.CLASS_4_METHOD_1,
+                Fixtures.CLASS_4
+            )
+        )
+
+        gradleRunner
+            .withArguments("generateBaselineProfile", "--stacktrace")
+            .build()
+
+        assertThat(readBaselineProfileFileContent("release"))
+            .containsExactly(
+                Fixtures.CLASS_1,
+                Fixtures.CLASS_1_METHOD_1,
+                Fixtures.CLASS_2,
+                Fixtures.CLASS_2_METHOD_1,
+            )
+
+        assertThat(readStartupProfileFileContent("release"))
+            .containsExactly(
+                Fixtures.CLASS_3,
+                Fixtures.CLASS_3_METHOD_1,
+                Fixtures.CLASS_4,
+                Fixtures.CLASS_4_METHOD_1,
             )
     }
 
