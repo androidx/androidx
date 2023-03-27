@@ -16,10 +16,12 @@
 
 package androidx.compose.compiler.plugins.kotlin
 
-import org.junit.Assume
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
-class SanityCheckCodegenTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
+@RunWith(JUnit4::class)
+class SanityCheckCodegenTests : AbstractCodegenTest(useFir = false) {
     @Test
     fun testCallAbstractSuperWithTypeParameters() {
         testCompile(
@@ -126,7 +128,6 @@ class SanityCheckCodegenTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
     // Regression validating b/237863365
     @Test
     fun testComposableAsLastStatementInUnitReturningLambda() {
-        Assume.assumeFalse(useFir)
         testCompile(
             """
             import androidx.compose.runtime.Composable

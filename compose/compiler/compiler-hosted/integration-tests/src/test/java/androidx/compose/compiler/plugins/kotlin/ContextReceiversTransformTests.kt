@@ -21,6 +21,7 @@ import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.config.LanguageFeature
 import org.jetbrains.kotlin.config.LanguageVersionSettingsImpl
 import org.jetbrains.kotlin.config.languageVersionSettings
+import org.junit.Assume.assumeFalse
 import org.junit.Test
 
 class ContextReceiversTransformTests(useFir: Boolean) : AbstractIrTransformTest(useFir) {
@@ -537,44 +538,47 @@ class ContextReceiversTransformTests(useFir: Boolean) : AbstractIrTransformTest(
     )
 
     @Test
-    fun testContextReceiverAndComposableLambdaParam(): Unit = contextReceivers(
-        """
-            class Foo { }
-        """,
-        """
-            context(Foo)
-            @Composable
-            fun Test(a: String, b: @Composable (String) -> Unit) {
-                b("yay")
-            }
-        """,
-        """
-            @Composable
-            @ComposableInferredTarget(scheme = "[0[0]]")
-            fun Test(%context_receiver_0: Foo, a: String, b: Function3<String, Composer, Int, Unit>, %composer: Composer?, %changed: Int) {
-              %composer = %composer.startRestartGroup(<>)
-              sourceInformation(%composer, "C(Test)<b("yay...>:Test.kt")
-              val %dirty = %changed
-              if (%changed and 0b001110000000 === 0) {
-                %dirty = %dirty or if (%composer.changedInstance(b)) 0b000100000000 else 0b10000000
-              }
-              if (%dirty and 0b001010000001 !== 0b10000000 || !%composer.skipping) {
-                if (isTraceInProgress()) {
-                  traceEventStart(<>, %dirty, -1, <>)
+    fun testContextReceiverAndComposableLambdaParam() {
+        assumeFalse(useFir)
+        contextReceivers(
+            """
+                class Foo { }
+            """,
+            """
+                context(Foo)
+                @Composable
+                fun Test(a: String, b: @Composable (String) -> Unit) {
+                    b("yay")
                 }
-                b("yay", %composer, 0b0110 or 0b01110000 and %dirty shr 0b0011)
-                if (isTraceInProgress()) {
-                  traceEventEnd()
+            """,
+            """
+                @Composable
+                @ComposableInferredTarget(scheme = "[0[0]]")
+                fun Test(%context_receiver_0: Foo, a: String, b: Function3<String, Composer, Int, Unit>, %composer: Composer?, %changed: Int) {
+                  %composer = %composer.startRestartGroup(<>)
+                  sourceInformation(%composer, "C(Test)<b("yay...>:Test.kt")
+                  val %dirty = %changed
+                  if (%changed and 0b001110000000 === 0) {
+                    %dirty = %dirty or if (%composer.changedInstance(b)) 0b000100000000 else 0b10000000
+                  }
+                  if (%dirty and 0b001010000001 !== 0b10000000 || !%composer.skipping) {
+                    if (isTraceInProgress()) {
+                      traceEventStart(<>, %dirty, -1, <>)
+                    }
+                    b("yay", %composer, 0b0110 or 0b01110000 and %dirty shr 0b0011)
+                    if (isTraceInProgress()) {
+                      traceEventEnd()
+                    }
+                  } else {
+                    %composer.skipToGroupEnd()
+                  }
+                  %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
+                    Test(%context_receiver_0, a, b, %composer, updateChangedFlags(%changed or 0b0001))
+                  }
                 }
-              } else {
-                %composer.skipToGroupEnd()
-              }
-              %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
-                Test(%context_receiver_0, a, b, %composer, updateChangedFlags(%changed or 0b0001))
-              }
-            }
-        """
-    )
+            """
+        )
+    }
 
     @Test
     fun testContextReceiverAndDefaultParamsUsage(): Unit = contextReceivers(

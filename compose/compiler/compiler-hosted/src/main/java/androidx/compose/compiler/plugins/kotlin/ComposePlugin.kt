@@ -21,6 +21,7 @@ import androidx.compose.compiler.plugins.kotlin.k1.ComposableDeclarationChecker
 import androidx.compose.compiler.plugins.kotlin.k1.ComposableTargetChecker
 import androidx.compose.compiler.plugins.kotlin.k1.ComposeDiagnosticSuppressor
 import androidx.compose.compiler.plugins.kotlin.k1.ComposeTypeResolutionInterceptorExtension
+import androidx.compose.compiler.plugins.kotlin.k2.ComposeFirExtensionRegistrar
 import androidx.compose.compiler.plugins.kotlin.lower.ClassStabilityFieldSerializationPlugin
 import com.intellij.mock.MockProject
 import com.intellij.openapi.project.Project
@@ -38,6 +39,7 @@ import org.jetbrains.kotlin.config.JVMConfigurationKeys
 import org.jetbrains.kotlin.config.KotlinCompilerVersion
 import org.jetbrains.kotlin.extensions.StorageComponentContainerContributor
 import org.jetbrains.kotlin.extensions.internal.TypeResolutionInterceptor
+import org.jetbrains.kotlin.fir.extensions.FirExtensionRegistrarAdapter
 import org.jetbrains.kotlin.serialization.DescriptorSerializerPlugin
 
 object ComposeConfiguration {
@@ -210,6 +212,9 @@ class ComposeComponentRegistrar :
         }
     }
 
+    override val supportsK2: Boolean
+        get() = true
+
     companion object {
         fun checkCompilerVersion(configuration: CompilerConfiguration): Boolean {
             try {
@@ -314,6 +319,10 @@ class ComposeComponentRegistrar :
             DescriptorSerializerPlugin.registerExtension(
                 project,
                 ClassStabilityFieldSerializationPlugin()
+            )
+            FirExtensionRegistrarAdapter.registerExtension(
+                project,
+                ComposeFirExtensionRegistrar()
             )
         }
 
