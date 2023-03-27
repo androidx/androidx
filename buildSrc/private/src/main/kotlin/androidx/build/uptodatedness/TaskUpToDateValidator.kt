@@ -164,11 +164,6 @@ val DONT_TRY_RERUNNING_TASK_TYPES = setOf(
     "org.gradle.api.publish.maven.tasks.PublishToMavenRepository_Decorated",
     // This task is not cacheable by design due to large number of inputs
     "androidx.build.license.CheckExternalDependencyLicensesTask_Decorated",
-    // https://youtrack.jetbrains.com/issue/KT-55259
-    "org.jetbrains.kotlin.gradle.targets.native.internal." +
-        "CInteropMetadataDependencyTransformationTask_Decorated",
-    // https://youtrack.jetbrains.com/issue/KT-55051
-    "org.jetbrains.kotlin.gradle.plugin.mpp.MetadataDependencyTransformationTask_Decorated"
 )
 
 @Suppress("UnstableApiUsage") // usage of BuildService that's incubating
@@ -227,8 +222,7 @@ abstract class TaskUpToDateValidator :
             // the actual message looks something like:
             // Input property 'rootSpec$1$3' file <some-path>.klib has changed
             return result.executionReasons.orEmpty().any {
-                it.contains(".klib has changed") ||
-                it.contains(".klib has been removed")
+                it.contains(".klib has changed")
             }
         }
 
@@ -240,7 +234,12 @@ abstract class TaskUpToDateValidator :
             if (ALLOW_RERUNNING_TASKS.contains(taskName)) {
                 return true
             }
-            if (isCompileKotlinMetadataTask(taskName)) {
+            if (taskName.startsWith("compile") && taskName.endsWith("KotlinMetadata")) {
+                // these tasks' up-to-date checks might flake.
+                // https://youtrack.jetbrains.com/issue/KT-52675
+                // We are not adding the task type to the DONT_TRY_RERUNNING_TASKS list because it
+                // is a common compilation task that is shared w/ other kotlin native compilations.
+                // (e.g. similar to the Exec task in Gradle)
                 return true
             }
             return false
@@ -250,8 +249,7 @@ abstract class TaskUpToDateValidator :
             return !(
                 DONT_TRY_RERUNNING_TASKS.contains(task.name) ||
                     DONT_TRY_RERUNNING_TASKS.contains(task.path) ||
-                    DONT_TRY_RERUNNING_TASK_TYPES.contains(task::class.qualifiedName) ||
-                    isCompileKotlinMetadataTask(task.name)
+                    DONT_TRY_RERUNNING_TASK_TYPES.contains(task::class.qualifiedName)
                 )
         }
 
@@ -280,11 +278,3 @@ abstract class TaskUpToDateValidator :
         }
     }
 }
-
-// these tasks' up-to-date checks might flake.
-// https://youtrack.jetbrains.com/issue/KT-52675
-// We are not adding the task type to the DONT_TRY_RERUNNING_TASKS list because it
-// is a common compilation task that is shared w/ other kotlin native compilations.
-// (e.g. similar to the Exec task in Gradle)
-private fun isCompileKotlinMetadataTask(taskName: String) =
-    (taskName.startsWith("compile") && taskName.endsWith("KotlinMetadata"))
