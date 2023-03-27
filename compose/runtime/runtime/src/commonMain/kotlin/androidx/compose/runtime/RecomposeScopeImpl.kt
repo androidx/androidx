@@ -253,17 +253,26 @@ internal class RecomposeScopeImpl(
 
     /**
      * Track instances that were read in scope.
+     * @return whether the value was already read in scope during current pass
      */
-    fun recordRead(instance: Any) {
-        if (rereading) return
-        (trackedInstances ?: IdentityArrayIntMap().also { trackedInstances = it })
+    fun recordRead(instance: Any): Boolean {
+        if (rereading) return false // Re-reading should force composition to update its tracking
+
+        val token = (trackedInstances ?: IdentityArrayIntMap().also { trackedInstances = it })
             .add(instance, currentToken)
+
+        if (token == currentToken) {
+            return true
+        }
+
         if (instance is DerivedState<*>) {
             val tracked = trackedDependencies ?: IdentityArrayMap<DerivedState<*>, Any?>().also {
                 trackedDependencies = it
             }
             tracked[instance] = instance.currentValue
         }
+
+        return false
     }
 
     /**
