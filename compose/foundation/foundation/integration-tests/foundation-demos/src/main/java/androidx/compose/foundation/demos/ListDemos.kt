@@ -689,11 +689,14 @@ private fun LazyGridForMode(mode: GridCells) {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
+@Preview
 @Composable
 private fun LazyGridWithSpacingDemo() {
     val columnModes = listOf(
         GridCells.Fixed(3),
         GridCells.Adaptive(minSize = 60.dp),
+        GridCells.FixedSize(50.dp),
         object : GridCells {
             // columns widths have ratio 1:1:2:3
             override fun Density.calculateCrossAxisCellSizes(

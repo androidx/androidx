@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.LayoutDirection
 internal class LazyGridMeasuredLine constructor(
     val index: LineIndex,
     val items: Array<LazyGridMeasuredItem>,
+    private val slots: LazyGridSlots,
     private val spans: List<GridItemSpan>,
     private val isVertical: Boolean,
     private val slotsPerLine: Int,
@@ -35,7 +36,6 @@ internal class LazyGridMeasuredLine constructor(
      * Spacing to be added after [mainAxisSize], in the main axis direction.
      */
     private val mainAxisSpacing: Int,
-    private val crossAxisSpacing: Int
 ) {
     /**
      * Main axis size of the line - the max main axis size of the items on the line.
@@ -70,25 +70,19 @@ internal class LazyGridMeasuredLine constructor(
         layoutWidth: Int,
         layoutHeight: Int
     ): List<LazyGridPositionedItem> {
-        var usedCrossAxis = 0
         var usedSpan = 0
         return items.mapIndexed { itemIndex, item ->
             val span = spans[itemIndex].currentLineSpan
-            val startSlot = if (layoutDirection == LayoutDirection.Rtl) {
-                slotsPerLine - usedSpan - span
-            } else {
-                usedSpan
-            }
+            val startSlot = usedSpan
 
             item.position(
                 mainAxisOffset = offset,
-                crossAxisOffset = usedCrossAxis,
+                crossAxisOffset = slots.positions[startSlot],
                 layoutWidth = layoutWidth,
                 layoutHeight = layoutHeight,
                 row = if (isVertical) index.value else startSlot,
                 column = if (isVertical) startSlot else index.value
             ).also {
-                usedCrossAxis += item.crossAxisSize + crossAxisSpacing
                 usedSpan += span
             }
         }
