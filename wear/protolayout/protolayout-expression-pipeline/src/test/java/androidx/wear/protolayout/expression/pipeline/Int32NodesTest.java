@@ -156,8 +156,8 @@ public class Int32NodesTest {
     @Test
     public void stateInt32NodeTest() {
         List<Integer> results = new ArrayList<>();
-        ObservableStateStore oss =
-                new ObservableStateStore(
+        StateStore oss =
+                new StateStore(
                         ImmutableMap.of(
                                 "foo",
                                 StateEntryValue.newBuilder()
@@ -177,8 +177,8 @@ public class Int32NodesTest {
     @Test
     public void stateInt32UpdatesWithStateChanges() {
         List<Integer> results = new ArrayList<>();
-        ObservableStateStore oss =
-                new ObservableStateStore(
+        StateStore oss =
+                new StateStore(
                         ImmutableMap.of(
                                 "foo",
                                 StateEntryValue.newBuilder()
@@ -284,8 +284,8 @@ public class Int32NodesTest {
         int value3 = 17;
         List<Integer> results = new ArrayList<>();
         QuotaManager quotaManager = new FixedQuotaManagerImpl(MAX_VALUE);
-        ObservableStateStore oss =
-                new ObservableStateStore(
+        StateStore oss =
+                new StateStore(
                         ImmutableMap.of(
                                 "foo",
                                 StateEntryValue.newBuilder()

@@ -66,8 +66,8 @@ public class ColorNodesTest {
     @Test
     public void stateColorSourceNode_worksWithFixedColor() {
         List<Integer> results = new ArrayList<>();
-        ObservableStateStore oss =
-                new ObservableStateStore(
+        StateStore oss =
+                new StateStore(
                         ImmutableMap.of(
                                 "foo",
                                 StateEntryValue.newBuilder()
@@ -87,8 +87,8 @@ public class ColorNodesTest {
     @Test
     public void stateColorSourceNode_updatesWithStateChanges() {
         List<Integer> results = new ArrayList<>();
-        ObservableStateStore oss =
-                new ObservableStateStore(
+        StateStore oss =
+                new StateStore(
                         ImmutableMap.of(
                                 "foo",
                                 StateEntryValue.newBuilder()
@@ -113,8 +113,8 @@ public class ColorNodesTest {
     @Test
     public void stateColorSourceNode_noUpdatesAfterDestroy() {
         List<Integer> results = new ArrayList<>();
-        ObservableStateStore oss =
-                new ObservableStateStore(
+        StateStore oss =
+                new StateStore(
                         ImmutableMap.of(
                                 "foo",
                                 StateEntryValue.newBuilder()
@@ -210,8 +210,8 @@ public class ColorNodesTest {
     public void dynamicAnimatedColor_animatesWithStateChange() {
         List<Integer> results = new ArrayList<>();
         QuotaManager quotaManager = new FixedQuotaManagerImpl(MAX_VALUE);
-        ObservableStateStore oss =
-                new ObservableStateStore(
+        StateStore oss =
+                new StateStore(
                         ImmutableMap.of(
                                 "foo",
                                 StateEntryValue.newBuilder()
@@ -253,8 +253,8 @@ public class ColorNodesTest {
         int color3 = 0xFFFFFFFF;
         List<Integer> results = new ArrayList<>();
         QuotaManager quotaManager = new FixedQuotaManagerImpl(MAX_VALUE);
-        ObservableStateStore oss =
-                new ObservableStateStore(
+        StateStore oss =
+                new StateStore(
                         ImmutableMap.of(
                                 "foo",
                                 StateEntryValue.newBuilder()
@@ -313,8 +313,8 @@ public class ColorNodesTest {
         int color3 = 0xFFFFFFFF;
         List<Integer> results = new ArrayList<>();
         QuotaManager quotaManager = new FixedQuotaManagerImpl(1);
-        ObservableStateStore oss =
-                new ObservableStateStore(
+        StateStore oss =
+                new StateStore(
                         ImmutableMap.of(
                                 "foo",
                                 StateEntryValue.newBuilder()

@@ -36,7 +36,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.wear.protolayout.expression.pipeline.ObservableStateStore;
+import androidx.wear.protolayout.expression.pipeline.StateStore;
 import androidx.wear.protolayout.proto.LayoutElementProto.Layout;
 import androidx.wear.protolayout.proto.ResourceProto.Resources;
 import androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance.Config;
@@ -252,7 +252,7 @@ public class ProtoLayoutViewInstanceTest {
                         listeningExecutorService,
                         listeningExecutorService,
                         /* clickableIdExtra= */ "CLICKABLE_ID_EXTRA")
-                        .setStateStore(new ObservableStateStore(ImmutableMap.of()))
+                        .setStateStore(new StateStore(ImmutableMap.of()))
                         .setLoadActionListener(nextState -> {
                         })
                         .setAnimationEnabled(true)

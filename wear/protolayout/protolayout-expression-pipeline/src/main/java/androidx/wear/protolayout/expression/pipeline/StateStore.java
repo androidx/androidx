@@ -40,22 +40,22 @@ import java.util.stream.Stream;
  * the main thread, and because updates will eventually affect the main thread, this whole class
  * must only be used from the UI thread.
  */
-public class ObservableStateStore {
+public class StateStore {
     @NonNull private final Map<String, StateEntryValue> mCurrentState = new ArrayMap<>();
 
     @NonNull
     private final Map<String, Set<DynamicTypeValueReceiver<StateEntryValue>>> mRegisteredCallbacks =
             new ArrayMap<>();
 
-    /** Creates a {@link ObservableStateStore}. */
+    /** Creates a {@link StateStore}. */
     @NonNull
-    public static ObservableStateStore create(
+    public static StateStore create(
             @NonNull Map<String, StateEntryBuilders.StateEntryValue> initialState) {
-        return new ObservableStateStore(toProto(initialState));
+        return new StateStore(toProto(initialState));
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public ObservableStateStore(@NonNull Map<String, StateEntryValue> initialState) {
+    public StateStore(@NonNull Map<String, StateEntryValue> initialState) {
         mCurrentState.putAll(initialState);
     }
 

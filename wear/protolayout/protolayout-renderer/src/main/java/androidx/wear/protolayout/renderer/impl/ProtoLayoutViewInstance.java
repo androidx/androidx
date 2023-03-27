@@ -35,7 +35,7 @@ import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.wear.protolayout.expression.pipeline.FixedQuotaManagerImpl;
-import androidx.wear.protolayout.expression.pipeline.ObservableStateStore;
+import androidx.wear.protolayout.expression.pipeline.StateStore;
 import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway;
 import androidx.wear.protolayout.proto.LayoutElementProto.Layout;
 import androidx.wear.protolayout.proto.ResourceProto;
@@ -293,7 +293,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         @NonNull private final ResourceResolversProvider mResourceResolversProvider;
         @NonNull private final ProtoLayoutTheme mProtoLayoutTheme;
         @Nullable private final SensorGateway mSensorGateway;
-        @Nullable private final ObservableStateStore mStateStore;
+        @Nullable private final StateStore mStateStore;
         @NonNull private final LoadActionListener mLoadActionListener;
         @NonNull private final ListeningExecutorService mUiExecutorService;
         @NonNull private final ListeningExecutorService mBgExecutorService;
@@ -311,7 +311,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                 @NonNull ResourceResolversProvider resourceResolversProvider,
                 @NonNull ProtoLayoutTheme protoLayoutTheme,
                 @Nullable SensorGateway sensorGateway,
-                @Nullable ObservableStateStore stateStore,
+                @Nullable StateStore stateStore,
                 @NonNull LoadActionListener loadActionListener,
                 @NonNull ListeningExecutorService uiExecutorService,
                 @NonNull ListeningExecutorService bgExecutorService,
@@ -378,7 +378,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
 
         /** Returns state store. */
         @Nullable
-        public ObservableStateStore getStateStore() {
+        public StateStore getStateStore() {
             return mStateStore;
         }
 
@@ -466,7 +466,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             @Nullable private ResourceResolversProvider mResourceResolversProvider;
             @Nullable private ProtoLayoutTheme mProtoLayoutTheme;
             @Nullable private SensorGateway mSensorGateway;
-            @Nullable private ObservableStateStore mStateStore;
+            @Nullable private StateStore mStateStore;
             @Nullable private LoadActionListener mLoadActionListener;
             @NonNull private final ListeningExecutorService mUiExecutorService;
             @NonNull private final ListeningExecutorService mBgExecutorService;
@@ -536,7 +536,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
 
             /** Sets the storage for state updates. */
             @NonNull
-            public Builder setStateStore(@NonNull ObservableStateStore stateStore) {
+            public Builder setStateStore(@NonNull StateStore stateStore) {
                 this.mStateStore = stateStore;
                 return this;
             }
@@ -665,7 +665,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         this.mAdaptiveUpdateRatesEnabled = config.getAdaptiveUpdateRatesEnabled();
         this.mWasFullyVisibleBefore = false;
 
-        ObservableStateStore stateStore = config.getStateStore();
+        StateStore stateStore = config.getStateStore();
         if (stateStore != null) {
             boolean updatesEnabled = config.getUpdatesEnabled();
             mDataPipeline =

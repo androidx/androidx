@@ -62,11 +62,11 @@ class FloatNodes {
     /** Dynamic float node that gets value from the state. */
     static class StateFloatSourceNode extends StateSourceNode<Float> {
         StateFloatSourceNode(
-                ObservableStateStore observableStateStore,
+                StateStore stateStore,
                 StateFloatSource protoNode,
                 DynamicTypeValueReceiver<Float> downstream) {
             super(
-                    observableStateStore,
+                    stateStore,
                     protoNode.getSourceKey(),
                     se -> se.getFloatVal().getValue(),
                     downstream);

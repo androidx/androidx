@@ -18,12 +18,14 @@ package androidx.wear.protolayout.expression.pipeline;
 
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
+
 import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
 import androidx.collection.ArrayMap;
 import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway;
 import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway.SensorDataType;
 import androidx.wear.protolayout.expression.proto.DynamicProto.PlatformInt32SourceType;
+
 import java.util.Map;
 import java.util.concurrent.Executor;
 
