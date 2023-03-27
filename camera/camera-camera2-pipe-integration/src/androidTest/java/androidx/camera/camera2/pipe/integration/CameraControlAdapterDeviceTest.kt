@@ -44,6 +44,7 @@ import android.hardware.camera2.CaptureRequest.CONTROL_ZOOM_RATIO
 import android.hardware.camera2.CaptureRequest.FLASH_MODE
 import android.hardware.camera2.CaptureRequest.FLASH_MODE_TORCH
 import android.hardware.camera2.CaptureRequest.SCALER_CROP_REGION
+import android.hardware.camera2.params.MeteringRectangle
 import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraGraph
@@ -299,20 +300,22 @@ class CameraControlAdapterDeviceTest {
             characteristics.getMaxRegionCount(CONTROL_MAX_REGIONS_AWB).coerceAtMost(1)
         waitForResult(captureCount = 60).verify(
             { requestMeta: RequestMetadata, _ ->
+                // some devices may have a 0 weight region added by default, so weightedRegionCount
+
                 val afRegionMatched = requestMeta.getOrDefault(
                     CONTROL_AF_REGIONS,
                     emptyArray()
-                ).size == expectedAfCount
+                ).weightedRegionCount == expectedAfCount
 
                 val aeRegionMatched = requestMeta.getOrDefault(
                     CONTROL_AE_REGIONS,
                     emptyArray()
-                ).size == expectedAeCount
+                ).weightedRegionCount == expectedAeCount
 
                 val awbRegionMatched = requestMeta.getOrDefault(
                     CONTROL_AWB_REGIONS,
                     emptyArray()
-                ).size == expectedAwbCount
+                ).weightedRegionCount == expectedAwbCount
 
                 afRegionMatched && aeRegionMatched && awbRegionMatched
             },
@@ -552,4 +555,16 @@ class CameraControlAdapterDeviceTest {
     private fun CameraCharacteristics.isAeModeSupported(
         aeMode: Int
     ) = (get(CONTROL_AE_AVAILABLE_MODES) ?: intArrayOf(-1)).contains(aeMode)
+
+    /**
+     * Returns the number of metering regions whose weight is greater than 0.
+     */
+    private val Array<MeteringRectangle>.weightedRegionCount: Int
+        get() {
+            var count = 0
+            forEach {
+                count += if (it.meteringWeight != 0) 1 else 0
+            }
+            return count
+        }
 }
