@@ -26,7 +26,7 @@ import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.CustomValueUserStyleSetting
-import androidx.wear.watchface.style.UserStyleSetting.CustomValueUserStyleSetting2
+import androidx.wear.watchface.style.UserStyleSetting.LargeCustomValueUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption
@@ -194,8 +194,10 @@ public class StyleParcelableTest {
                 listOf(WatchFaceLayer.BASE),
                 true
             )
-        val styleSetting4 =
-            CustomValueUserStyleSetting2(listOf(WatchFaceLayer.BASE), "default".encodeToByteArray())
+        val styleSetting4 = LargeCustomValueUserStyleSetting(
+            listOf(WatchFaceLayer.BASE),
+            "default".encodeToByteArray()
+        )
         val srcSchema =
             UserStyleSchema(listOf(styleSetting1, styleSetting2, styleSetting3, styleSetting4))
 
@@ -263,7 +265,7 @@ public class StyleParcelableTest {
         assertThat(schema.userStyleSettings[2].affectedWatchFaceLayers.first())
             .isEqualTo(WatchFaceLayer.BASE)
 
-        assertThat(schema.userStyleSettings[3] is CustomValueUserStyleSetting2).isTrue()
+        assertThat(schema.userStyleSettings[3] is LargeCustomValueUserStyleSetting).isTrue()
         assertThat(schema.userStyleSettings[3].defaultOption.id.value.decodeToString())
             .isEqualTo("default")
         assertThat(schema.userStyleSettings[3].affectedWatchFaceLayers.size).isEqualTo(1)
