@@ -40,7 +40,7 @@ import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.Bo
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
 import androidx.wear.watchface.style.UserStyleSetting.CustomValueUserStyleSetting
-import androidx.wear.watchface.style.UserStyleSetting.CustomValueUserStyleSetting2
+import androidx.wear.watchface.style.UserStyleSetting.LargeCustomValueUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
@@ -132,7 +132,7 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
             is CustomValueUserStyleSetting -> {
                 // Not supported, ignore.
             }
-            is CustomValueUserStyleSetting2 -> {
+            is LargeCustomValueUserStyleSetting -> {
                 // Not supported, ignore.
             }
             is DoubleRangeUserStyleSetting -> {

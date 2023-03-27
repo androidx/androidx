@@ -193,19 +193,19 @@ public class UserStyleSettingTest {
     @Test
     public fun maximumCustomValueOption2Size() {
         // OK.
-        UserStyleSetting.CustomValueUserStyleSetting2.CustomValueOption(
+        UserStyleSetting.LargeCustomValueUserStyleSetting.CustomValueOption(
             ByteArray(Option.Id.MAX_LENGTH + 1)
         )
 
-        UserStyleSetting.CustomValueUserStyleSetting2.CustomValueOption(
-            ByteArray(UserStyleSetting.CustomValueUserStyleSetting2.CustomValueOption.MAX_SIZE)
+        UserStyleSetting.LargeCustomValueUserStyleSetting.CustomValueOption(
+            ByteArray(UserStyleSetting.LargeCustomValueUserStyleSetting.CustomValueOption.MAX_SIZE)
         )
 
         try {
             // Not OK.
-            UserStyleSetting.CustomValueUserStyleSetting2.CustomValueOption(
+            UserStyleSetting.LargeCustomValueUserStyleSetting.CustomValueOption(
                 ByteArray(
-                    UserStyleSetting.CustomValueUserStyleSetting2.CustomValueOption.MAX_SIZE + 1
+                    UserStyleSetting.LargeCustomValueUserStyleSetting.CustomValueOption.MAX_SIZE + 1
                 )
             )
             fail("Should have thrown an exception")

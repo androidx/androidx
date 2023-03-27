@@ -312,7 +312,7 @@ private constructor(
     }
 
     public companion object {
-        @Suppress("NewApi") // CustomValueUserStyleSetting2
+        @Suppress("NewApi") // LargeCustomValueUserStyleSetting
         internal fun createFromWireFormat(
             wireFormat: UserStyleSettingWireFormat
         ): UserStyleSetting =
@@ -322,7 +322,7 @@ private constructor(
                     ComplicationSlotsUserStyleSetting(wireFormat)
                 is CustomValueUserStyleSettingWireFormat -> CustomValueUserStyleSetting(wireFormat)
                 is CustomValueUserStyleSetting2WireFormat ->
-                    CustomValueUserStyleSetting2(wireFormat)
+                    LargeCustomValueUserStyleSetting(wireFormat)
                 is DoubleRangeUserStyleSettingWireFormat -> DoubleRangeUserStyleSetting(wireFormat)
                 is ListUserStyleSettingWireFormat -> ListUserStyleSetting(wireFormat)
                 is LongRangeUserStyleSettingWireFormat -> LongRangeUserStyleSetting(wireFormat)
@@ -659,7 +659,7 @@ private constructor(
                     is CustomValueOptionWireFormat ->
                         CustomValueUserStyleSetting.CustomValueOption(wireFormat)
                     is CustomValueOption2WireFormat ->
-                        CustomValueUserStyleSetting2.CustomValueOption(wireFormat)
+                        LargeCustomValueUserStyleSetting.CustomValueOption(wireFormat)
                     is DoubleRangeOptionWireFormat ->
                         DoubleRangeUserStyleSetting.DoubleRangeOption(wireFormat)
                     is ListOptionWireFormat -> ListUserStyleSetting.ListOption(wireFormat)
@@ -2817,11 +2817,11 @@ private constructor(
     /**
      * An application specific style setting. This style is ignored by the system editor. This is
      * expected to be used in conjunction with an on watch face editor. Only a single
-     * [ComplicationSlotsUserStyleSetting] or [CustomValueUserStyleSetting2] is permitted in the
+     * [ComplicationSlotsUserStyleSetting] or [LargeCustomValueUserStyleSetting] is permitted in the
      * [UserStyleSchema].
      *
      * The [CustomValueOption] can store at most [Option.Id.MAX_LENGTH] bytes. If you need more
-     * storage, consider using [CustomValueUserStyleSetting2].
+     * storage, consider using [LargeCustomValueUserStyleSetting].
      */
     public class CustomValueUserStyleSetting : UserStyleSetting {
         internal companion object {
@@ -2909,19 +2909,19 @@ private constructor(
      * An application specific style setting which supports a larger maximum size than
      * [CustomValueUserStyleSetting]. This style is ignored by the system editor. This is expected
      * to be used in conjunction with an on watch face editor. Only a single
-     * [ComplicationSlotsUserStyleSetting] or [CustomValueUserStyleSetting2] is permitted in the
+     * [ComplicationSlotsUserStyleSetting] or [LargeCustomValueUserStyleSetting] is permitted in the
      * [UserStyleSchema].
      *
      * The [CustomValueOption] can store at most [Option.Id.MAX_LENGTH] bytes.
      */
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    public class CustomValueUserStyleSetting2 : UserStyleSetting {
+    public class LargeCustomValueUserStyleSetting : UserStyleSetting {
         internal companion object {
             internal const val CUSTOM_VALUE_USER_STYLE_SETTING_ID = "CustomValue"
         }
 
         /**
-         * Constructs a CustomValueUserStyleSetting2.
+         * Constructs a LargeCustomValueUserStyleSetting.
          *
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
          *   face rendering layers this style affects.
@@ -2981,7 +2981,7 @@ private constructor(
             ) : super(Id(wireFormat.mId), emptyList())
 
             internal override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
-                CustomValueUserStyleSetting2::class.java
+                LargeCustomValueUserStyleSetting::class.java
 
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             override fun toWireFormat(): CustomValueOption2WireFormat =
