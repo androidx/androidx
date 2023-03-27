@@ -71,8 +71,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Tiles component {@link Chip} that represents clickable object with the text, optional label and
- * optional icon or with custom content.
+ * ProtoLayout component {@link Chip} that represents clickable object with the text, optional label
+ * and optional icon or with custom content.
  *
  * <p>The Chip is Stadium shape and has a max height designed to take no more than two lines of text
  * of {@link Typography#TYPOGRAPHY_BUTTON} style. The {@link Chip} can have an icon horizontally

@@ -21,7 +21,7 @@ import static androidx.wear.protolayout.DimensionBuilders.dp;
 import androidx.wear.protolayout.DimensionBuilders.DpProp;
 import androidx.wear.protolayout.material.ButtonDefaults;
 
-/** Contains the default values used by layout templates for Tiles. */
+/** Contains the default values used by layout templates for ProtoLayout. */
 public class LayoutDefaults {
     private LayoutDefaults() {}
 

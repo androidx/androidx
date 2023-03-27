@@ -44,7 +44,7 @@ import androidx.wear.protolayout.material.Typography.TypographyName;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 
 /**
- * Tiles component {@link Text} that represents text object holding any information.
+ * ProtoLayout component {@link Text} that represents text object holding any information.
  *
  * <p>There are pre-built typography styles that can be obtained from constants in {@link
  * FontStyle}.
@@ -109,8 +109,8 @@ public class Text implements LayoutElement {
         @NonNull
         @SuppressWarnings("MissingGetterMatchingBuilder")
         // There is getFontStyle matching getter for this setter as the serialized format of the
-        // Tiles do not allow for a direct reconstruction of the all arguments, but it has FontStyle
-        // object of that text.
+        // ProtoLayout do not allow for a direct reconstruction of the all arguments, but it has
+        // FontStyle object of that text.
         public Builder setTypography(@TypographyName int typography) {
             this.mTypographyName = typography;
             return this;

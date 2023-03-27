@@ -51,13 +51,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Opinionated Tiles layout, that can contain between 1 and {@link
+ * Opinionated ProtoLayout layout, that can contain between 1 and {@link
  * LayoutDefaults#MULTI_BUTTON_MAX_NUMBER} number of buttons arranged inline with the Material
  * guidelines. Can be used as a content passed in to the {@link PrimaryLayout}, but if there is
  * {@link LayoutDefaults#MULTI_BUTTON_MAX_NUMBER} buttons it should be used on its own.
- *
- * <p>For additional examples and suggested layouts see <a
- * href="/training/wearables/design/tiles-design-system">Tiles Design System</a>.
  *
  * <p>When accessing the contents of a container for testing, note that this element can't be simply
  * casted back to the original type, i.e.:
@@ -78,6 +75,7 @@ import java.util.List;
  * MultiButtonLayout myMbl = MultiButtonLayout.fromLayoutElement(box.getContents().get(0));
  * }</pre>
  */
+// TODO(b/274916652): Link visuals once they are available.
 public class MultiButtonLayout implements LayoutElement {
     /** Tool tag for Metadata in Modifiers, so we know that Box is actually a MultiButtonLayout. */
     static final String METADATA_TAG = "MBL";

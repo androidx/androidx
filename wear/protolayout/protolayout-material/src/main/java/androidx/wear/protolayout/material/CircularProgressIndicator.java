@@ -51,8 +51,9 @@ import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 
 /**
- * Tiles component {@link CircularProgressIndicator} that represents circular progress indicator
- * which supports a gap in the circular track between startAngle and endAngle. [Progress Indicator
+ * ProtoLayout component {@link CircularProgressIndicator} that represents circular progress
+ * indicator which supports a gap in the circular track between startAngle and endAngle.
+ * [Progress Indicator
  * doc] (https://developer.android.com/training/wearables/components/progress-indicator)
  *
  * <p>The CircularProgressIndicator is a colored arc around the edge of the screen with the given

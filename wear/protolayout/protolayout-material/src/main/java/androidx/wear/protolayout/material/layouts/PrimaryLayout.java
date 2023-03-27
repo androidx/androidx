@@ -67,17 +67,14 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Tiles layout that represents a suggested layout style for Material Tiles with the primary
- * (compact) chip at the bottom with the given content in the center and the recommended margin and
- * padding applied. There is a fixed slot for an optional primary label above or optional secondary
- * label below the main content area.
+ * ProtoLayout layout that represents a suggested layout style for Material ProtoLayout with the
+ * primary (compact) chip at the bottom with the given content in the center and the recommended
+ * margin and padding applied. There is a fixed slot for an optional primary label above or
+ * optional secondary label below the main content area.
  *
  * <p>It is highly recommended that main content has max lines between 2 and 4 (dependant on labels
  * present), i.e.: * No labels are present: content with max 4 lines, * 1 label is present: content
  * with max 3 lines, * 2 labels are present: content with max 2 lines.
- *
- * <p>For additional examples and suggested layouts see <a
- * href="/training/wearables/design/tiles-design-system">Tiles Design System</a>.
  *
  * <p>When accessing the contents of a container for testing, note that this element can't be simply
  * casted back to the original type, i.e.:
@@ -98,6 +95,7 @@ import java.util.List;
  * PrimaryLayout myPl = PrimaryLayout.fromLayoutElement(box.getContents().get(0));
  * }</pre>
  */
+// TODO(b/274916652): Link visuals once they are available.
 public class PrimaryLayout implements LayoutElement {
     /**
      * Prefix tool tag for Metadata in Modifiers, so we know that Box is actually a PrimaryLayout.

@@ -43,7 +43,7 @@ import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 
 /**
- * Tiles component {@link CompactChip} that represents clickable object with the text.
+ * ProtoLayout component {@link CompactChip} that represents clickable object with the text.
  *
  * <p>The Chip is Stadium shape and has a max height designed to take no more than one line of text
  * of {@link Typography#TYPOGRAPHY_CAPTION1} style. Width of the chip is adjustable to the text

@@ -33,7 +33,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 /**
- * Helper class used for Tiles Material.
+ * Helper class used for ProtoLayout Material.
  *
  */
 @RestrictTo(Scope.LIBRARY_GROUP)

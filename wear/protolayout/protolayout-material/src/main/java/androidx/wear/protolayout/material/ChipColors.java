@@ -23,7 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.wear.protolayout.ColorBuilders.ColorProp;
 
 /**
- * Represents the background and content colors used in a chip Tiles component.
+ * Represents the background and content colors used in {@link Chip}.
  *
  * <p>See {@link ChipDefaults#PRIMARY_COLORS} for the default colors used in a primary styled {@link
  * Chip}. See {@link ChipDefaults#SECONDARY_COLORS} for the default colors used in a secondary
@@ -38,14 +38,14 @@ public class ChipColors {
     /**
      * Constructor for the {@link ChipColors} object.
      *
-     * @param backgroundColor The background color to be used for a chip Tiles component. Should be
-     *     in ARGB format.
-     * @param iconColor The color to be used for an icon in a chip Tiles component. Should be in
-     *     ARGB format.
-     * @param contentColor The text color to be used for a main text in a chip Tiles component.
+     * @param backgroundColor The background color to be used for {@link Chip}.
      *     Should be in ARGB format.
-     * @param secondaryContentColor The text color to be used for a label text in a chip Tiles
-     *     component. Should be in ARGB format.
+     * @param iconColor The color to be used for an icon in {@link Chip}. Should be
+     *     in ARGB format.
+     * @param contentColor The text color to be used for a main text in {@link Chip}.
+     *     Should be in ARGB format.
+     * @param secondaryContentColor The text color to be used for a label text in {@link Chip}
+     *     Should be in ARGB format.
      */
     public ChipColors(
             @ColorInt int backgroundColor,
@@ -61,9 +61,9 @@ public class ChipColors {
     /**
      * Constructor for the {@link ChipColors} object.
      *
-     * @param backgroundColor The background color to be used for a chip Tiles component. Should be
-     *     in ARGB format.
-     * @param contentColor The content color to be used for all items inside a chip Tiles component.
+     * @param backgroundColor The background color to be used for {@link Chip}.
+     *     Should be in ARGB format.
+     * @param contentColor The content color to be used for all items inside {@link Chip}
      *     Should be in ARGB format.
      */
     public ChipColors(@ColorInt int backgroundColor, @ColorInt int contentColor) {
@@ -76,11 +76,10 @@ public class ChipColors {
     /**
      * Constructor for the {@link ChipColors} object.
      *
-     * @param backgroundColor The background color to be used for a chip Tiles component.
-     * @param iconColor The color to be used for an icon in a chip Tiles component.
-     * @param contentColor The text color to be used for a main text in a chip Tiles component.
-     * @param secondaryContentColor The text color to be used for a label text in a chip Tiles
-     *     component.
+     * @param backgroundColor The background color to be used for {@link Chip}.
+     * @param iconColor The color to be used for an icon in {@link Chip}.
+     * @param contentColor The text color to be used for a main text in {@link Chip}.
+     * @param secondaryContentColor The text color to be used for a label text in {@link Chip}.
      */
     public ChipColors(
             @NonNull ColorProp backgroundColor,
@@ -96,8 +95,8 @@ public class ChipColors {
     /**
      * Constructor for the {@link ChipColors} object.
      *
-     * @param backgroundColor The background color to be used for a chip Tiles component.
-     * @param contentColor The content color to be used for all items inside a chip Tiles component.
+     * @param backgroundColor The background color to be used for {@link Chip}.
+     * @param contentColor The content color to be used for all items inside {@link Chip}.
      */
     public ChipColors(@NonNull ColorProp backgroundColor, @NonNull ColorProp contentColor) {
         mBackgroundColor = backgroundColor;
@@ -124,25 +123,25 @@ public class ChipColors {
         return new ChipColors(colors.getSurface(), colors.getOnSurface());
     }
 
-    /** The background color to be used on a chip Tiles components. */
+    /** The background color to be used on {@link Chip}. */
     @NonNull
     public ColorProp getBackgroundColor() {
         return mBackgroundColor;
     }
 
-    /** The icon color to be used on a chip Tiles components. */
+    /** The icon color to be used on {@link Chip}. */
     @NonNull
     public ColorProp getIconColor() {
         return mIconColor;
     }
 
-    /** The main text color to be used on a chip Tiles components. */
+    /** The main text color to be used on {@link Chip}. */
     @NonNull
     public ColorProp getContentColor() {
         return mContentColor;
     }
 
-    /** The label text color to be used on a chip Tiles components. */
+    /** The label text color to be used on {@link Chip}. */
     @NonNull
     public ColorProp getSecondaryContentColor() {
         return mSecondaryContentColor;

@@ -54,13 +54,10 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Tiles layout that represents the suggested layout style for Material Tiles, which has content
- * around the edge of the screen (e.g. a ProgressIndicator) and the given content inside of it with
- * the recommended margin and padding applied. Optional primary or secondary label can be added
- * above and below the main content, respectively.
- *
- * <p>For additional examples and suggested layouts see <a
- * href="/training/wearables/design/tiles-design-system">Tiles Design System</a>.
+ * ProtoLayout layout that represents the suggested layout style for Material ProtoLayout, which has
+ * content around the edge of the screen (e.g. a ProgressIndicator) and the given content inside
+ * of it with the recommended margin and padding applied. Optional primary or secondary label can
+ * be added above and below the main content, respectively.
  *
  * <p>When accessing the contents of a container for testing, note that this element can't be simply
  * casted back to the original type, i.e.:
@@ -82,6 +79,7 @@ import java.util.List;
  *   EdgeContentLayout.fromLayoutElement(box.getContents().get(0));
  * }</pre>
  */
+// TODO(b/274916652): Link visuals once they are available.
 public class EdgeContentLayout implements LayoutElement {
     /**
      * Prefix tool tag for Metadata in Modifiers, so we know that Box is actually a
