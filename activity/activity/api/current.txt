@@ -59,9 +59,9 @@ package androidx.activity {
   }
 
   public final class EdgeToEdge {
-    method public static void setUp(androidx.activity.ComponentActivity, optional androidx.activity.SystemBarStyle statusBarStyle, optional androidx.activity.SystemBarStyle navigationBarStyle);
-    method public static void setUp(androidx.activity.ComponentActivity, optional androidx.activity.SystemBarStyle statusBarStyle);
-    method public static void setUp(androidx.activity.ComponentActivity);
+    method public static void enable(androidx.activity.ComponentActivity, optional androidx.activity.SystemBarStyle statusBarStyle, optional androidx.activity.SystemBarStyle navigationBarStyle);
+    method public static void enable(androidx.activity.ComponentActivity, optional androidx.activity.SystemBarStyle statusBarStyle);
+    method public static void enable(androidx.activity.ComponentActivity);
   }
 
   public final class FullyDrawnReporter {

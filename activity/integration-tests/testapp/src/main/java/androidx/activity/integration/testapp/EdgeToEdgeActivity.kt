@@ -22,7 +22,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.activity.SystemBarStyle
-import androidx.activity.setUpEdgeToEdge
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -35,7 +35,7 @@ class EdgeToEdgeActivity : AppCompatActivity(R.layout.edge_to_edge_activity) {
         if (Build.VERSION.SDK_INT >= 21) {
             installSplashScreen()
         }
-        setUpEdgeToEdge()
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         findViewById<View>(R.id.default_config).setOnClickListener {
             // The default style.
@@ -43,7 +43,7 @@ class EdgeToEdgeActivity : AppCompatActivity(R.layout.edge_to_edge_activity) {
             // API 26-28: Transparent status. Light or dark scrim on nav.
             // API 23-25: Transparent status. Dark scrim on nav.
             // API 21,22: Dark scrim (system default).
-            setUpEdgeToEdge()
+            enableEdgeToEdge()
         }
         findViewById<View>(R.id.custom_config).setOnClickListener {
             // API 29+: Transparent on gesture nav, Auto scrim on 3-button nav (same as default).
@@ -53,13 +53,13 @@ class EdgeToEdgeActivity : AppCompatActivity(R.layout.edge_to_edge_activity) {
                 lightScrim = Color.argb(0x64, 0xff, 0xeb, 0x3b),
                 darkScrim = Color.argb(0x64, 0x4a, 0x14, 0x8c)
             )
-            setUpEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
+            enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
         }
         findViewById<View>(R.id.transparent_config).setOnClickListener {
             // API 23+: Transparent regardless of the nav mode.
             // API 21,22: Dark scrim (system default).
             val style = SystemBarStyle.dark(Color.TRANSPARENT)
-            setUpEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
+            enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
         }
         findViewById<View>(R.id.purple_config).setOnClickListener {
             // API 23+: Purple.
@@ -67,7 +67,7 @@ class EdgeToEdgeActivity : AppCompatActivity(R.layout.edge_to_edge_activity) {
             val style = SystemBarStyle.dark(
                 scrim = Color.argb(0x64, 0x4a, 0x14, 0x8c)
             )
-            setUpEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
+            enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
         }
         findViewById<View>(R.id.yellow_config).setOnClickListener {
             // API 23+: Yellow.
@@ -76,7 +76,7 @@ class EdgeToEdgeActivity : AppCompatActivity(R.layout.edge_to_edge_activity) {
                 scrim = Color.argb(0x64, 0xff, 0xeb, 0x3b),
                 darkScrim = Color.rgb(0xf5, 0x7f, 0x17)
             )
-            setUpEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
+            enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
         }
         findViewById<View>(R.id.light_mode).setOnClickListener { setDarkMode(false) }
         findViewById<View>(R.id.dark_mode).setOnClickListener { setDarkMode(true) }
