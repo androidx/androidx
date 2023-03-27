@@ -237,13 +237,26 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
-            "HeartRateVariabilityRmssd" ->
+            "HeartRateVariabilityRmssd" -> {
+                // Ensure that the values being read from old APKs do not crash the client.
+                val heartRateVariabilityMillis =
+                    when {
+                        getDouble("heartRateVariability") <
+                            HeartRateVariabilityRmssdRecord.MIN_HRV_RMSSD ->
+                            HeartRateVariabilityRmssdRecord.MIN_HRV_RMSSD
+                        getDouble("heartRateVariability") >
+                            HeartRateVariabilityRmssdRecord.MAX_HRV_RMSSD ->
+                            HeartRateVariabilityRmssdRecord.MAX_HRV_RMSSD
+                        else -> getDouble("heartRateVariability")
+                    }
+
                 HeartRateVariabilityRmssdRecord(
-                    heartRateVariabilityMillis = getDouble("heartRateVariability"),
+                    heartRateVariabilityMillis = heartRateVariabilityMillis,
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
+            }
             "LeanBodyMass" ->
                 LeanBodyMassRecord(
                     mass = getDouble("mass").kilograms,
