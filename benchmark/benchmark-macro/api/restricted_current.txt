@@ -10,8 +10,8 @@ package androidx.benchmark.macro {
   }
 
   public final class BaselineProfilesKt {
-    method @RequiresApi(28) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void collectStableBaselineProfile(String uniqueName, String packageName, int stableIterations, int maxIterations, optional boolean strictStability, kotlin.jvm.functions.Function1<? super java.lang.String,java.lang.Boolean>? filterPredicate, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit> profileBlock);
-    method @RequiresApi(28) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void collectStableBaselineProfile(String uniqueName, String packageName, int stableIterations, int maxIterations, kotlin.jvm.functions.Function1<? super java.lang.String,java.lang.Boolean>? filterPredicate, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit> profileBlock);
+    method @RequiresApi(28) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void collectStableBaselineProfile(String uniqueName, String packageName, int stableIterations, int maxIterations, optional boolean strictStability, boolean includeInStartupProfile, kotlin.jvm.functions.Function1<? super java.lang.String,java.lang.Boolean>? filterPredicate, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit> profileBlock);
+    method @RequiresApi(28) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void collectStableBaselineProfile(String uniqueName, String packageName, int stableIterations, int maxIterations, boolean includeInStartupProfile, kotlin.jvm.functions.Function1<? super java.lang.String,java.lang.Boolean>? filterPredicate, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit> profileBlock);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class BatteryCharge {
