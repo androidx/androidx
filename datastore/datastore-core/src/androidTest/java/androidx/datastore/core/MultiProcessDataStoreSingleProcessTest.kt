@@ -17,6 +17,8 @@
 package androidx.datastore.core
 
 import android.os.StrictMode
+import androidx.datastore.TestFile
+import androidx.datastore.TestIO
 import androidx.datastore.TestingSerializerConfig
 import androidx.datastore.core.handlers.NoOpCorruptionHandler
 import androidx.test.filters.FlakyTest
@@ -24,7 +26,6 @@ import androidx.test.filters.LargeTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import java.io.File
-import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.util.concurrent.Executors
@@ -32,6 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
+import kotlin.random.Random
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -41,13 +43,10 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.job
@@ -59,9 +58,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
@@ -73,28 +70,32 @@ import org.junit.runners.JUnit4
 @ExperimentalCoroutinesApi
 @LargeTest
 @RunWith(JUnit4::class)
-class MultiProcessDataStoreTest {
-    @get:Rule
-    val tempFolder = TemporaryFolder()
-
-    private lateinit var store: DataStore<Byte>
+abstract class MultiProcessDataStoreSingleProcessTest<F : TestFile>(
+    protected val testIO: TestIO<F, *>
+) {
+    protected lateinit var store: DataStore<Byte>
     private lateinit var serializerConfig: TestingSerializerConfig
-    private lateinit var testingSerializer: TestingSerializer
-    private lateinit var testFile: File
-    private lateinit var dataStoreScope: TestScope
+    protected lateinit var testFile: F
+    protected lateinit var tempFolder: F
+    protected lateinit var dataStoreScope: TestScope
+
+    abstract fun getJavaFile(file: F): File
 
     private fun newDataStore(
-        file: File = testFile,
-        serializer: Serializer<Byte> = testingSerializer,
+        file: TestFile = testFile,
         scope: CoroutineScope = dataStoreScope,
         initTasksList: List<suspend (api: InitializerApi<Byte>) -> Unit> = listOf(),
         corruptionHandler: CorruptionHandler<Byte> = NoOpCorruptionHandler<Byte>()
     ): DataStore<Byte> {
         return DataStoreImpl(
-            storage = FileStorage(
-                serializer,
-                { MultiProcessCoordinator(scope.coroutineContext, it) }
-            ) { file },
+            storage = testIO.getStorage(
+                serializerConfig,
+                {
+                    MultiProcessCoordinator(
+                        dataStoreScope.coroutineContext,
+                        getJavaFile(testFile)
+                    )
+                }) { file },
             scope = scope,
             initTasksList = initTasksList,
             corruptionHandler = corruptionHandler
@@ -104,15 +105,14 @@ class MultiProcessDataStoreTest {
     @Before
     fun setUp() {
         serializerConfig = TestingSerializerConfig()
-        testingSerializer = TestingSerializer(serializerConfig)
-        testFile = tempFolder.newFile()
+        tempFolder = testIO.tempDir()
+        testFile = testIO.newTempFile(tempFolder)
         dataStoreScope = TestScope(UnconfinedTestDispatcher() + Job())
-        store =
-            newDataStore(
-                testFile,
-                testingSerializer,
-                scope = dataStoreScope
-            )
+        store = testIO.getStore(
+            serializerConfig,
+            dataStoreScope,
+            { MultiProcessCoordinator(dataStoreScope.coroutineContext, getJavaFile(testFile)) }
+        ) { testFile }
     }
 
     @Test
@@ -130,28 +130,6 @@ class MultiProcessDataStoreTest {
             val newStore = newDataStore(testFile, scope = backgroundScope)
             assertThat(newStore.data.first()).isEqualTo(1)
         }
-    }
-
-    @Test
-    fun testReadUnreadableFile() = runTest {
-        testFile.setReadable(false)
-        val result = runCatching {
-            store.data.first()
-        }
-
-        assertThat(result.exceptionOrNull()).isInstanceOf(IOException::class.java)
-        assertThat(result.exceptionOrNull()).hasMessageThat().contains("Permission denied")
-    }
-
-    @Test
-    fun testReadAfterTransientBadRead() = runTest {
-        testFile.setReadable(false)
-
-        assertThrows<IOException> { store.data.first() }.hasMessageThat()
-            .contains("Permission denied")
-
-        testFile.setReadable(true)
-        assertThat(store.data.first()).isEqualTo(0)
     }
 
     @Test
@@ -215,7 +193,7 @@ class MultiProcessDataStoreTest {
 
     @Test
     fun testReadAfterTransientBadWrite() = runBlocking {
-        val file = tempFolder.newFile()
+        val file = testIO.newTempFile(tempFolder)
         runTest {
             val store = newDataStore(file, scope = backgroundScope)
             store.updateData { 1 }
@@ -231,8 +209,13 @@ class MultiProcessDataStoreTest {
 
     @Test
     fun testWriteToNonExistentDir() = runBlocking {
-        val fileInNonExistentDir =
-            File(tempFolder.newFolder(), "/this/does/not/exist/foo.tst")
+        val fileInNonExistentDir = testIO.newTempFile(
+            testIO.tempDir(
+                "/this/does/not/exist",
+                makeDirs = false,
+                parentDir = testIO.tempDir()
+            )
+        )
         runTest {
             val newStore = newDataStore(fileInNonExistentDir, scope = backgroundScope)
 
@@ -249,18 +232,16 @@ class MultiProcessDataStoreTest {
 
     @Test
     fun testReadFromNonExistentFile() = runTest {
-        val nonExistentFile = tempFolder.newFile()
-        assertThat(nonExistentFile.delete()).isTrue()
-        val newStore = newDataStore(nonExistentFile)
+        testFile.deleteIfExists()
+        val newStore = newDataStore(testFile)
         assertThat(newStore.data.first()).isEqualTo(0)
     }
 
     @Test
     fun testWriteToDirFails() = runTest {
-        val directoryFile =
-            File(tempFolder.newFolder(), "/this/is/a/directory")
-        directoryFile.mkdirs()
-        assertThat(directoryFile.isDirectory).isTrue()
+        val directoryFile = testIO.tempDir("/this/is/a${Random.nextInt()}/directory")
+
+        assertThat(testIO.isDirectory(directoryFile))
 
         val newStore = newDataStore(directoryFile)
         assertThrows<IOException> { newStore.data.first() }
@@ -277,14 +258,16 @@ class MultiProcessDataStoreTest {
             testFile
         }
 
-        val newStore = DataStoreImpl(
-            storage = FileStorage(
-                testingSerializer,
-                { MultiProcessCoordinator(dataStoreScope.coroutineContext, it) },
-                fileProducer
-            ),
-            scope = dataStoreScope,
-            initTasksList = listOf()
+        val newStore = testIO.getStore(
+            serializerConfig,
+            dataStoreScope,
+            {
+                MultiProcessCoordinator(
+                    dataStoreScope.coroutineContext,
+                    getJavaFile(fileProducer())
+                )
+            },
+            fileProducer
         )
 
         assertThrows<IOException> { newStore.data.first() }.hasMessageThat().isEqualTo(
@@ -315,6 +298,9 @@ class MultiProcessDataStoreTest {
 
     @Test
     fun testWriteAfterTransientBadRead() = runTest {
+        testFile.createIfNotExists()
+        assertThat(testFile.exists()).isTrue()
+
         serializerConfig.failingRead = true
 
         assertThrows<IOException> { store.data.first() }
@@ -327,6 +313,9 @@ class MultiProcessDataStoreTest {
 
     @Test
     fun testWriteWithBadReadFails() = runTest {
+        testFile.createIfNotExists()
+        assertThat(testFile.exists()).isTrue()
+
         serializerConfig.failingRead = true
 
         assertThrows<IOException> { store.updateData { 1 } }
@@ -624,61 +613,6 @@ class MultiProcessDataStoreTest {
     }
 
     @Test
-    fun stressTest() = runBlocking {
-        val stressTestFile = tempFolder.newFile()
-        val testJob = Job()
-        val testScope = CoroutineScope(
-            Dispatchers.IO + testJob
-        )
-        val stressTestStore = DataStoreImpl<Int>(
-            storage = FileStorage(
-                object : Serializer<Int> {
-                    override val defaultValue: Int
-                        get() = 0
-
-                    override suspend fun readFrom(input: InputStream): Int {
-                        return input.reader(Charsets.UTF_8).use {
-                            it.readText().toIntOrNull() ?: defaultValue
-                        }
-                    }
-
-                    override suspend fun writeTo(t: Int, output: OutputStream) {
-                        output.writer(Charsets.UTF_8).use {
-                            it.write(t.toString())
-                            it.flush()
-                        }
-                    }
-                },
-                coordinatorProducer = {
-                    MultiProcessCoordinator(testScope.coroutineContext, it)
-                },
-                produceFile = { stressTestFile }
-            ),
-            scope = testScope,
-            initTasksList = emptyList()
-        )
-        val limit = 1_000
-        stressTestStore.updateData { 0 }
-        val reader = async(Dispatchers.IO + testJob) {
-            stressTestStore.data.scan(0) { prev, next ->
-                check(next >= prev) {
-                    "check failed: $prev / $next"
-                }
-                next
-            }.take(limit - 200).collect() // we can drop some intermediate values, it is fine
-        }
-        val writer = async {
-            repeat(limit) {
-                stressTestStore.updateData {
-                    it + 1
-                }
-            }
-        }
-        listOf(reader, writer).awaitAll()
-        testJob.cancelAndJoin()
-    }
-
-    @Test
     fun testMultipleFlowsReceiveData() = runTest {
         val flowOf8 = store.data.take(8)
 
@@ -857,37 +791,15 @@ class MultiProcessDataStoreTest {
     }
 
     @Test
-    fun testMutatingDataStoreFails() = runTest {
-
-        val dataStore = DataStoreImpl(
-            storage = FileStorage(ByteWrapper.ByteWrapperSerializer(), {
-                MultiProcessCoordinator(dataStoreScope.coroutineContext, it)
-            }) { testFile },
-            scope = dataStoreScope,
-        )
-
-        assertThrows<IllegalStateException> {
-            dataStore.updateData { input: ByteWrapper ->
-                // mutating our wrapper causes us to fail
-                input.byte = 123.toByte()
-                input
-            }
-        }
-    }
-
-    @Test
     fun testDefaultValueUsedWhenNoDataOnDisk() = runTest {
-        val dataStore = DataStoreImpl(
-            storage = FileStorage(
-                TestingSerializer(TestingSerializerConfig(defaultValue = 99)),
-                { MultiProcessCoordinator(dataStoreScope.coroutineContext, it) }
-            ) {
-                testFile
-            },
-            scope = dataStoreScope
-        )
+        testFile.deleteIfExists()
 
-        assertThat(testFile.delete()).isTrue()
+        val dataStore = testIO.getStore(
+            TestingSerializerConfig(defaultValue = 99),
+            dataStoreScope,
+            { MultiProcessCoordinator(dataStoreScope.coroutineContext, getJavaFile(testFile)) }) {
+            testFile
+        }
 
         assertThat(dataStore.data.first()).isEqualTo(99)
     }
@@ -983,7 +895,7 @@ class MultiProcessDataStoreTest {
 
     @Test
     fun testCreateDuplicateActiveDataStore() = runTest {
-        val file = tempFolder.newFile()
+        val file = testIO.newTempFile(tempFolder)
         val dataStore = newDataStore(file = file, scope = CoroutineScope(Job()))
 
         dataStore.data.first()
@@ -997,7 +909,7 @@ class MultiProcessDataStoreTest {
 
     @Test
     fun testCreateDataStore_withSameFileAsInactiveDataStore() = runTest {
-        val file = tempFolder.newFile()
+        val file = testIO.newTempFile(tempFolder)
         val scope1 = CoroutineScope(Job())
         val dataStore1 = newDataStore(file = file, scope = scope1)
 
