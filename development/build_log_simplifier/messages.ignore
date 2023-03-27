@@ -949,7 +949,7 @@ Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$setAutoCloseT
 # > Task :compose:ui:ui:compileReleaseKotlin
 w: \$SUPPORT/compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeViewAccessibilityDelegateCompat\.android\.kt: \([0-9]+, [0-9]+\): Unnecessary non\-null assertion \(!!\) on a non\-null receiver of type LayoutNode
 # When konan is downloading a dependency from another file, don't warn about it.
-\(KonanProperies\) Downloading dependency: file:\.\./\.\./.*
+\(KonanProperies\) Downloading dependency: file:(\.\.\/.\.\/)?prebuilts\/androidx\/konan\/.+
 Please wait while Kotlin/Native compiler .* is being installed\.
 Unpack Kotlin/Native compiler to .*
 Download file:\.\./\.\./.*
