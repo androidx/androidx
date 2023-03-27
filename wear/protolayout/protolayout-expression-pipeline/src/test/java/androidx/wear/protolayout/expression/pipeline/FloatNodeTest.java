@@ -165,8 +165,8 @@ public class FloatNodeTest {
                         .setOperationType(ArithmeticOpType.ARITHMETIC_OP_TYPE_ADD)
                         .build();
 
-        ArithmeticFloatNode node = new ArithmeticFloatNode(protoNode,
-                new AddToListCallback<>(results));
+        ArithmeticFloatNode node =
+                new ArithmeticFloatNode(protoNode, new AddToListCallback<>(results));
 
         float lhsValue = 6.6f;
         FixedFloat lhsProtoNode = FixedFloat.newBuilder().setValue(lhsValue).build();
@@ -197,8 +197,9 @@ public class FloatNodeTest {
                         StateEntryValue.newBuilder()
                                 .setFloatVal(FixedFloat.newBuilder().setValue(newRhsValue))
                                 .build()));
-        assertThat(results).containsExactly(lhsValue + oldRhsValue,
-                lhsValue + newRhsValue).inOrder();
+        assertThat(results)
+                .containsExactly(lhsValue + oldRhsValue, lhsValue + newRhsValue)
+                .inOrder();
     }
 
     @Test
@@ -242,11 +243,13 @@ public class FloatNodeTest {
         List<Float> results = new ArrayList<>();
         QuotaManager quotaManager = new FixedQuotaManagerImpl(MAX_VALUE);
         AnimatableFixedFloat protoNode =
-                AnimatableFixedFloat.newBuilder().setFromValue(startValue).setToValue(
-                        endValue).build();
+                AnimatableFixedFloat.newBuilder()
+                        .setFromValue(startValue)
+                        .setToValue(endValue)
+                        .build();
         AnimatableFixedFloatNode node =
-                new AnimatableFixedFloatNode(protoNode, new AddToListCallback<>(results),
-                        quotaManager);
+                new AnimatableFixedFloatNode(
+                        protoNode, new AddToListCallback<>(results), quotaManager);
         node.setVisibility(true);
 
         node.preInit();
@@ -265,11 +268,13 @@ public class FloatNodeTest {
         List<Float> results = new ArrayList<>();
         QuotaManager quotaManager = new FixedQuotaManagerImpl(MAX_VALUE);
         AnimatableFixedFloat protoNode =
-                AnimatableFixedFloat.newBuilder().setFromValue(startValue).setToValue(
-                        endValue).build();
+                AnimatableFixedFloat.newBuilder()
+                        .setFromValue(startValue)
+                        .setToValue(endValue)
+                        .build();
         AnimatableFixedFloatNode node =
-                new AnimatableFixedFloatNode(protoNode, new AddToListCallback<>(results),
-                        quotaManager);
+                new AnimatableFixedFloatNode(
+                        protoNode, new AddToListCallback<>(results), quotaManager);
         node.setVisibility(false);
 
         node.preInit();
@@ -287,11 +292,13 @@ public class FloatNodeTest {
         List<Float> results = new ArrayList<>();
         QuotaManager quotaManager = new FixedQuotaManagerImpl(0);
         AnimatableFixedFloat protoNode =
-                AnimatableFixedFloat.newBuilder().setFromValue(startValue).setToValue(
-                        endValue).build();
+                AnimatableFixedFloat.newBuilder()
+                        .setFromValue(startValue)
+                        .setToValue(endValue)
+                        .build();
         AnimatableFixedFloatNode node =
-                new AnimatableFixedFloatNode(protoNode, new AddToListCallback<>(results),
-                        quotaManager);
+                new AnimatableFixedFloatNode(
+                        protoNode, new AddToListCallback<>(results), quotaManager);
         node.setVisibility(true);
 
         node.preInit();
@@ -319,7 +326,8 @@ public class FloatNodeTest {
                                         .build()));
         DynamicAnimatedFloatNode floatNode =
                 new DynamicAnimatedFloatNode(
-                        new AddToListCallback<>(results), AnimationSpec.getDefaultInstance(),
+                        new AddToListCallback<>(results),
+                        AnimationSpec.getDefaultInstance(),
                         quotaManager);
         floatNode.setVisibility(false);
         StateFloatSourceNode stateNode =

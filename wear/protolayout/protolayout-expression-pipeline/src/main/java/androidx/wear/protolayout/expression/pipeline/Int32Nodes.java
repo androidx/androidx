@@ -39,15 +39,16 @@ import java.time.Duration;
 /** Dynamic data nodes which yield integers. */
 class Int32Nodes {
 
-    private Int32Nodes() {
-    }
+    private Int32Nodes() {}
 
     /** Dynamic integer node that has a fixed value. */
     static class FixedInt32Node implements DynamicDataSourceNode<Integer> {
         private final int mValue;
-        private final DynamicTypeValueReceiver<Integer> mDownstream;
+        private final DynamicTypeValueReceiverWithPreUpdate<Integer> mDownstream;
 
-        FixedInt32Node(FixedInt32 protoNode, DynamicTypeValueReceiver<Integer> downstream) {
+        FixedInt32Node(
+                FixedInt32 protoNode,
+                DynamicTypeValueReceiverWithPreUpdate<Integer> downstream) {
             this.mValue = protoNode.getValue();
             this.mDownstream = downstream;
         }
@@ -75,17 +76,18 @@ class Int32Nodes {
 
         @Nullable private final SensorGatewayPlatformDataSource mSensorGatewaySource;
         private final PlatformInt32SourceType mPlatformSourceType;
-        private final DynamicTypeValueReceiver<Integer> mDownstream;
+        private final DynamicTypeValueReceiverWithPreUpdate<Integer> mDownstream;
 
         PlatformInt32SourceNode(
                 PlatformInt32Source protoNode,
                 @Nullable SensorGatewayPlatformDataSource sensorGatewaySource,
-                DynamicTypeValueReceiver<Integer> downstream) {
+                DynamicTypeValueReceiverWithPreUpdate<Integer> downstream) {
             this.mPlatformSourceType = protoNode.getSourceType();
             if (mPlatformSourceType
-                    == PlatformInt32SourceType.PLATFORM_INT32_SOURCE_TYPE_CURRENT_HEART_RATE
+                            == PlatformInt32SourceType.PLATFORM_INT32_SOURCE_TYPE_CURRENT_HEART_RATE
                     || mPlatformSourceType
-                    == PlatformInt32SourceType.PLATFORM_INT32_SOURCE_TYPE_DAILY_STEP_COUNT) {
+                            == PlatformInt32SourceType
+                                    .PLATFORM_INT32_SOURCE_TYPE_DAILY_STEP_COUNT) {
                 this.mSensorGatewaySource = sensorGatewaySource;
             } else {
                 this.mSensorGatewaySource = null;
@@ -132,7 +134,8 @@ class Int32Nodes {
         private static final String TAG = "ArithmeticInt32Node";
 
         ArithmeticInt32Node(
-                ArithmeticInt32Op protoNode, DynamicTypeValueReceiver<Integer> downstream) {
+                ArithmeticInt32Op protoNode,
+                DynamicTypeValueReceiverWithPreUpdate<Integer> downstream) {
             super(
                     downstream,
                     (lhs, rhs) -> {
@@ -170,7 +173,7 @@ class Int32Nodes {
         StateInt32SourceNode(
                 StateStore stateStore,
                 StateInt32Source protoNode,
-                DynamicTypeValueReceiver<Integer> downstream) {
+                DynamicTypeValueReceiverWithPreUpdate<Integer> downstream) {
             super(
                     stateStore,
                     protoNode.getSourceKey(),
@@ -182,7 +185,9 @@ class Int32Nodes {
     /** Dynamic integer node that gets value from float. */
     static class FloatToInt32Node extends DynamicDataTransformNode<Float, Integer> {
 
-        FloatToInt32Node(FloatToInt32Op protoNode, DynamicTypeValueReceiver<Integer> downstream) {
+        FloatToInt32Node(
+                FloatToInt32Op protoNode,
+                DynamicTypeValueReceiverWithPreUpdate<Integer> downstream) {
             super(
                     downstream,
                     x -> {
@@ -206,7 +211,8 @@ class Int32Nodes {
         private static final String TAG = "GetDurationPartOpNode";
 
         GetDurationPartOpNode(
-                GetDurationPartOp protoNode, DynamicTypeValueReceiver<Integer> downstream) {
+                GetDurationPartOp protoNode,
+                DynamicTypeValueReceiverWithPreUpdate<Integer> downstream) {
             super(
                     downstream,
                     duration -> (int) getDurationPart(duration, protoNode.getDurationPart()));
@@ -244,11 +250,11 @@ class Int32Nodes {
             implements DynamicDataSourceNode<Integer> {
 
         private final AnimatableFixedInt32 mProtoNode;
-        private final DynamicTypeValueReceiver<Integer> mDownstream;
+        private final DynamicTypeValueReceiverWithPreUpdate<Integer> mDownstream;
 
         AnimatableFixedInt32Node(
                 AnimatableFixedInt32 protoNode,
-                DynamicTypeValueReceiver<Integer> downstream,
+                DynamicTypeValueReceiverWithPreUpdate<Integer> downstream,
                 QuotaManager quotaManager) {
             super(quotaManager, protoNode.getAnimationSpec());
             this.mProtoNode = protoNode;
@@ -281,8 +287,8 @@ class Int32Nodes {
     static class DynamicAnimatedInt32Node extends AnimatableNode
             implements DynamicDataNode<Integer> {
 
-        final DynamicTypeValueReceiver<Integer> mDownstream;
-        private final DynamicTypeValueReceiver<Integer> mInputCallback;
+        final DynamicTypeValueReceiverWithPreUpdate<Integer> mDownstream;
+        private final DynamicTypeValueReceiverWithPreUpdate<Integer> mInputCallback;
 
         @Nullable Integer mCurrentValue = null;
         int mPendingCalls = 0;
@@ -291,7 +297,7 @@ class Int32Nodes {
         // initialization but mInputCallback is only used after the constructor is finished.
         @SuppressWarnings("method.invocation.invalid")
         DynamicAnimatedInt32Node(
-                DynamicTypeValueReceiver<Integer> downstream,
+                DynamicTypeValueReceiverWithPreUpdate<Integer> downstream,
                 @NonNull AnimationSpec spec,
                 QuotaManager quotaManager) {
             super(quotaManager, spec);
@@ -304,7 +310,7 @@ class Int32Nodes {
                         }
                     });
             this.mInputCallback =
-                    new DynamicTypeValueReceiver<Integer>() {
+                    new DynamicTypeValueReceiverWithPreUpdate<Integer>() {
                         @Override
                         public void onPreUpdate() {
                             mPendingCalls++;
@@ -315,7 +321,7 @@ class Int32Nodes {
                         }
 
                         @Override
-                        public void onData(Integer newData) {
+                        public void onData(@NonNull Integer newData) {
                             if (mPendingCalls > 0) {
                                 mPendingCalls--;
                             }
@@ -345,7 +351,7 @@ class Int32Nodes {
                     };
         }
 
-        public DynamicTypeValueReceiver<Integer> getInputCallback() {
+        public DynamicTypeValueReceiverWithPreUpdate<Integer> getInputCallback() {
             return mInputCallback;
         }
     }

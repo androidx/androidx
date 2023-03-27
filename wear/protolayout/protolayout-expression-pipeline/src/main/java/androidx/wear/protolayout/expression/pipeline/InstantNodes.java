@@ -29,9 +29,11 @@ class InstantNodes {
     /** Dynamic instant node that has a fixed value. */
     static class FixedInstantNode implements DynamicDataSourceNode<Integer> {
         private final Instant mValue;
-        private final DynamicTypeValueReceiver<Instant> mDownstream;
+        private final DynamicTypeValueReceiverWithPreUpdate<Instant> mDownstream;
 
-        FixedInstantNode(FixedInstant protoNode, DynamicTypeValueReceiver<Instant> downstream) {
+        FixedInstantNode(
+                FixedInstant protoNode,
+                DynamicTypeValueReceiverWithPreUpdate<Instant> downstream) {
             this.mValue = Instant.ofEpochSecond(protoNode.getEpochSeconds());
             this.mDownstream = downstream;
         }
@@ -55,11 +57,11 @@ class InstantNodes {
     /** Dynamic Instant node that gets value from the platform source. */
     static class PlatformTimeSourceNode implements DynamicDataSourceNode<Integer> {
         @Nullable private final EpochTimePlatformDataSource mEpochTimePlatformDataSource;
-        private final DynamicTypeValueReceiver<Instant> mDownstream;
+        private final DynamicTypeValueReceiverWithPreUpdate<Instant> mDownstream;
 
         PlatformTimeSourceNode(
                 @Nullable EpochTimePlatformDataSource epochTimePlatformDataSource,
-                DynamicTypeValueReceiver<Instant> downstream) {
+                DynamicTypeValueReceiverWithPreUpdate<Instant> downstream) {
             this.mEpochTimePlatformDataSource = epochTimePlatformDataSource;
             this.mDownstream = downstream;
         }

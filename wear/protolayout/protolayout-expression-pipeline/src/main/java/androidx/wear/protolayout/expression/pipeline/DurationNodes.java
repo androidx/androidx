@@ -27,7 +27,7 @@ class DurationNodes {
     static class BetweenInstancesNode
             extends DynamicDataBiTransformNode<Instant, Instant, Duration> {
 
-        BetweenInstancesNode(DynamicTypeValueReceiver<Duration> downstream) {
+        BetweenInstancesNode(DynamicTypeValueReceiverWithPreUpdate<Duration> downstream) {
             super(downstream, Duration::between);
         }
     }

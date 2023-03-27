@@ -63,7 +63,7 @@ import java.util.concurrent.Executor;
 public class Int32NodesTest {
     @Rule public final MockitoRule mockito = MockitoJUnit.rule();
 
-    @Mock private DynamicTypeValueReceiver<Integer> mockValueReceiver;
+    @Mock private DynamicTypeValueReceiverWithPreUpdate<Integer> mMockValueReceiver;
 
     @Test
     public void testFixedInt32Node() {
@@ -365,16 +365,16 @@ public class Int32NodesTest {
                 new PlatformInt32SourceNode(
                         platformSource,
                         new SensorGatewayPlatformDataSource(Runnable::run, fakeSensorGateway),
-                        mockValueReceiver);
+                        mMockValueReceiver);
 
         platformSourceNode.preInit();
-        verify(mockValueReceiver).onPreUpdate();
+        verify(mMockValueReceiver).onPreUpdate();
 
         platformSourceNode.init();
         assertThat(fakeSensorGateway.registeredConsumers).hasSize(1);
 
         fakeSensorGateway.registeredConsumers.get(0).onInvalidated();
-        verify(mockValueReceiver).onInvalidated();
+        verify(mMockValueReceiver).onInvalidated();
     }
 
     private static class FakeSensorGateway implements SensorGateway {
