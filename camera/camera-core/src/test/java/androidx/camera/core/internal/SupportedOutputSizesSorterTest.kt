@@ -37,6 +37,7 @@ import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.fakes.FakeUseCaseConfig
 import com.google.common.truth.Truth.assertThat
 import java.util.Collections
+import java.util.Collections.unmodifiableList
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -517,6 +518,23 @@ class SupportedOutputSizesSorterTest {
                 resolutionFilter = resolutionFilter
             )
         }
+    }
+
+    @Test
+    fun getSortedSupportedOutputSizesReturns_whenCameraInfoProvidesUnmodifiableList() {
+        // Arrange
+        val imageFormat = ImageFormat.JPEG
+        val cameraInfoInternal = FakeCameraInfoInternal().apply {
+            setSupportedResolutions(imageFormat, unmodifiableList(DEFAULT_SUPPORTED_SIZES))
+        }
+        val supportedOutputSizesSorter =
+            SupportedOutputSizesSorter(cameraInfoInternal, LANDSCAPE_ACTIVE_ARRAY_SIZE)
+        // Sets up a no-op useCaseConfig
+        val useCaseConfig =
+            FakeUseCaseConfig.Builder(CaptureType.IMAGE_CAPTURE, imageFormat).useCaseConfig
+
+        // Act & Assert
+        supportedOutputSizesSorter.getSortedSupportedOutputSizes(useCaseConfig)
     }
 
     private fun verifySupportedOutputSizesWithResolutionSelectorSettings(
