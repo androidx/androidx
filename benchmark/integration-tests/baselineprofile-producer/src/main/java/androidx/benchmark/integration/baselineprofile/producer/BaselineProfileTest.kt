@@ -23,6 +23,7 @@ import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import org.junit.Assume.assumeTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
@@ -33,19 +34,30 @@ class BaselineProfileTest {
     @get:Rule
     val baselineRule = BaselineProfileRule()
 
-    @Test
-    fun startupBaselineProfile() {
+    @Before
+    fun setUp() {
         assumeTrue(DeviceInfo.isRooted || Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-
-        // Collects the baseline profile
-        baselineRule.collectBaselineProfile(
-            packageName = PACKAGE_NAME,
-            profileBlock = {
-                startActivityAndWait(Intent(ACTION))
-                device.waitForIdle()
-            }
-        )
     }
+
+    @Test
+    fun standardBaselineProfile() = baselineRule.collectBaselineProfile(
+        packageName = PACKAGE_NAME,
+        includeInStartupProfile = false,
+        profileBlock = {
+            startActivityAndWait(Intent(ACTION))
+            device.waitForIdle()
+        }
+    )
+
+    @Test
+    fun startupBaselineProfile() = baselineRule.collectBaselineProfile(
+        packageName = PACKAGE_NAME,
+        includeInStartupProfile = true,
+        profileBlock = {
+            startActivityAndWait(Intent(ACTION))
+            device.waitForIdle()
+        }
+    )
 
     companion object {
         private const val PACKAGE_NAME =
