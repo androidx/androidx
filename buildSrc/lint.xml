@@ -40,4 +40,8 @@
     <issue id="WrongThread" severity="fatal" />
     <issue id="MissingTestSizeAnnotation" severity="fatal" />
     <issue id="IgnoreClassLevelDetector" severity="fatal" />
+    <!-- Disable all lint checks on transformed classes by default. -->
+    <issue id="all">
+        <ignore path="**/.transforms/**" />
+    </issue>
 </lint>

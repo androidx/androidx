@@ -3356,6 +3356,9 @@
         errorLine2="                                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -3365,6 +3368,9 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -3374,6 +3380,9 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -3383,6 +3392,9 @@
         errorLine2="                                       ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -3392,6 +3404,9 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -3410,6 +3425,9 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -3419,6 +3437,9 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            message="Setter here"/>
     </issue>
 
     <issue

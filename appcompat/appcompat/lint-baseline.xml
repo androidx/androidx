@@ -48,24 +48,6 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 24 (current min is 14): `onDropForTextView`"
-        errorLine1="                    ? OnDropApi24Impl.onDropForTextView(event, (TextView) view, activity)"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatReceiveContentHelper.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 14): `onDropForView`"
-        errorLine1="                    : OnDropApi24Impl.onDropForView(event, view, activity);"
-        errorLine2="                                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatReceiveContentHelper.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
         message="Call requires API level 17 (current min is 14): `android.view.ContextThemeWrapper#applyOverrideConfiguration`"
         errorLine1="        wrappedBase.applyOverrideConfiguration(overrideConfig);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -458,6 +440,9 @@
         errorLine2="                ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"/>
+        <location
+            file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -476,6 +461,9 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"/>
+        <location
+            file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -485,6 +473,9 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatDelegate.java"/>
+        <location
+            file="src/main/java/androidx/appcompat/app/AppCompatDelegate.java"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -494,6 +485,9 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/ContextThemeWrapper.java"/>
+        <location
+            file="src/main/java/androidx/appcompat/view/ContextThemeWrapper.java"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -539,6 +533,9 @@
         errorLine2="                   ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/MenuItemImpl.java"/>
+        <location
+            file="src/main/java/androidx/appcompat/view/menu/MenuItemImpl.java"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -3428,15 +3425,6 @@
         errorLine2="                                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatRadioButton.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected synchronized void onDraw(Canvas canvas) {"
-        errorLine2="                                       ~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatSeekBar.java"/>
     </issue>
 
     <issue
@@ -7105,15 +7093,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void onDraw(Canvas canvas) {"
-        errorLine2="                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static TintTypedArray obtainStyledAttributes(Context context, AttributeSet set,"
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
@@ -7962,15 +7941,6 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public LayoutInflater getLayoutInflater() {"
         errorLine2="           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ViewStubCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void dispatchDraw(Canvas canvas) {"
-        errorLine2="                                ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ViewStubCompat.java"/>
     </issue>
