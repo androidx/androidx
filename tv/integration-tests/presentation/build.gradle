@@ -32,6 +32,10 @@ dependencies {
     implementation(project(":compose:material3:material3"))
     implementation(project(":navigation:navigation-runtime"))
     implementation(project(":profileinstaller:profileinstaller"))
+    implementation "androidx.compose.material:material-icons-extended:1.3.1"
+
+//    implementation 'io.coil-kt:coil-compose:2.2.2'
+//    implementation 'com.google.code.gson:gson:2.8.9'
 
     implementation(project(":tv:tv-foundation"))
     implementation(project(":tv:tv-material"))
@@ -74,4 +78,9 @@ configurations.all {
         substitute(module("androidx.lifecycle:lifecycle-viewmodel-savedstate:")).
                 using project(":lifecycle:lifecycle-viewmodel-savedstate")
     }
+}
+
+repositories {
+    mavenCentral()
+    google()
 }
