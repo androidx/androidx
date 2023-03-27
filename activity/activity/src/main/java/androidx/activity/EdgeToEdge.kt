@@ -46,12 +46,12 @@ internal val DefaultDarkScrim = Color.argb(0x80, 0x1b, 0x1b, 0x1b)
 private var Impl: EdgeToEdgeImpl? = null
 
 /**
- * Sets up edge-to-edge display for this [ComponentActivity].
+ * Enables the edge-to-edge display for this [ComponentActivity].
  *
  * To set it up with the default style, call this method in your Activity's onCreate method:
  * ```
  *     override fun onCreate(savedInstanceState: Bundle?) {
- *         setUpEdgeToEdge()
+ *         enableEdgeToEdge()
  *         super.onCreate(savedInstanceState)
  *         ...
  *     }
@@ -66,9 +66,9 @@ private var Impl: EdgeToEdgeImpl? = null
  * @param statusBarStyle The [SystemBarStyle] for the status bar.
  * @param navigationBarStyle The [SystemBarStyle] for the navigation bar.
  */
-@JvmName("setUp")
+@JvmName("enable")
 @JvmOverloads
-fun ComponentActivity.setUpEdgeToEdge(
+fun ComponentActivity.enableEdgeToEdge(
     statusBarStyle: SystemBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT),
     navigationBarStyle: SystemBarStyle = SystemBarStyle.auto(DefaultLightScrim, DefaultDarkScrim)
 ) {
@@ -92,7 +92,7 @@ fun ComponentActivity.setUpEdgeToEdge(
 }
 
 /**
- * The style for the status bar or the navigation bar used in [setUpEdgeToEdge].
+ * The style for the status bar or the navigation bar used in [enableEdgeToEdge].
  */
 class SystemBarStyle private constructor(
     private val lightScrim: Int,
