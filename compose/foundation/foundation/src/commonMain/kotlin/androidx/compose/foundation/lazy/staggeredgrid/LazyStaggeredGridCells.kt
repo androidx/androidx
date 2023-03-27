@@ -123,8 +123,8 @@ interface StaggeredGridCells {
             spacing: Int
         ): IntArray {
             val cellSize = size.roundToPx()
-            return if (cellSize + spacing < availableSize) {
-                val cellCount = availableSize / (cellSize + spacing)
+            return if (cellSize + spacing < availableSize + spacing) {
+                val cellCount = (availableSize + spacing) / (cellSize + spacing)
                 IntArray(cellCount) { cellSize }
             } else {
                 IntArray(1) { availableSize }
