@@ -322,9 +322,10 @@ public class SearchSuggestionSpec {
          *
          * <p>If unset, the query will search over all schema.
          *
+         * <p>Merged list available from {@link #getFilterSchemas()}.
+         *
          * @param documentClasses classes annotated with {@link Document}.
          */
-        // Merged list available from getFilterSchemas()
         @SuppressLint("MissingGetterMatchingBuilder")
         @CanIgnoreReturnValue
         @NonNull
@@ -345,9 +346,10 @@ public class SearchSuggestionSpec {
          *
          * <p>If unset, the query will search over all schema.
          *
+         * <p>Merged list available from {@link #getFilterSchemas()}.
+         *
          * @param documentClasses classes annotated with {@link Document}.
          */
-        // Merged list available from getFilterSchemas
         @SuppressLint("MissingGetterMatchingBuilder")
         @CanIgnoreReturnValue
         @NonNull
