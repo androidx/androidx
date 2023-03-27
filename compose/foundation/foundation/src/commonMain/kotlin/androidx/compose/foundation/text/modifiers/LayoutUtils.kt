@@ -92,16 +92,13 @@ internal fun finalMaxLines(softWrap: Boolean, overflow: TextOverflow, maxLinesIn
  *
  * If text or other text-layout attributes change, this method will not return accurate results.
  */
-internal fun canChangeBreaks(
-    canWrap: Boolean,
+internal fun canChangeLayoutWidth(
     newConstraints: Constraints,
     oldConstraints: Constraints,
     maxIntrinsicWidth: Float,
     softWrap: Boolean,
     overflow: TextOverflow,
 ): Boolean {
-    // no breaks
-    if (!canWrap) return false
     // we can assume maxIntrinsicWidth is the same, or other invalidate would have happened
     // earlier (resetting para, etc)
     val prevMaxWidth = finalMaxWidth(oldConstraints, softWrap, overflow, maxIntrinsicWidth)

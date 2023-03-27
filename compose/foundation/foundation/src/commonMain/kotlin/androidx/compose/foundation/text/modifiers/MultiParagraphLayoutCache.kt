@@ -305,8 +305,7 @@ internal class MultiParagraphLayoutCache(
         if (constraints == layoutInput.constraints) return false
 
         // see if width would produce the same wraps
-        if (canChangeBreaks(
-                canWrap = softWrap && maxLines > 1,
+        if (canChangeLayoutWidth(
                 newConstraints = constraints,
                 oldConstraints = layoutInput.constraints,
                 maxIntrinsicWidth = this.multiParagraph.intrinsics.maxIntrinsicWidth,

@@ -301,8 +301,7 @@ internal class ParagraphLayoutCache(
         if (constraints == prevConstraints) return false
 
         // see if width would produce the same wraps
-        if (canChangeBreaks(
-                canWrap = softWrap && maxLines > 1,
+        if (canChangeLayoutWidth(
                 newConstraints = constraints,
                 oldConstraints = prevConstraints,
                 maxIntrinsicWidth = localParagraphIntrinsics.maxIntrinsicWidth,

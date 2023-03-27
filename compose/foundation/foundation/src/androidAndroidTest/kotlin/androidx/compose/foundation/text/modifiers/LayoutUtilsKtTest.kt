@@ -91,22 +91,8 @@ class LayoutUtilsKtTest {
     }
 
     @Test
-    fun canChangeBreak_canWrap_false() {
-        val subject = canChangeBreaks(
-            canWrap = false,
-            newConstraints = Constraints(0),
-            oldConstraints = Constraints(0),
-            maxIntrinsicWidth = 42f,
-            softWrap = true,
-            overflow = TextOverflow.Ellipsis
-        )
-        assertThat(subject).isFalse()
-    }
-
-    @Test
     fun canChangeBreak_sameWidth() {
-        val subject = canChangeBreaks(
-            canWrap = true,
+        val subject = canChangeLayoutWidth(
             newConstraints = Constraints.fixedWidth(50),
             oldConstraints = Constraints.fixedWidth(50),
             maxIntrinsicWidth = 1234f,
@@ -118,8 +104,7 @@ class LayoutUtilsKtTest {
 
     @Test
     fun canChangeBreak_textSmallerThanConstraints() {
-        val subject = canChangeBreaks(
-            canWrap = true,
+        val subject = canChangeLayoutWidth(
             newConstraints = Constraints.fixedWidth(50),
             oldConstraints = Constraints.fixedWidth(40),
             maxIntrinsicWidth = 12f,
@@ -131,8 +116,7 @@ class LayoutUtilsKtTest {
 
     @Test
     fun canChangeBreak_textBiggerThanConstraints() {
-        val subject = canChangeBreaks(
-            canWrap = true,
+        val subject = canChangeLayoutWidth(
             newConstraints = Constraints.fixedWidth(100),
             oldConstraints = Constraints.fixedWidth(200),
             maxIntrinsicWidth = 300f,
@@ -144,8 +128,7 @@ class LayoutUtilsKtTest {
 
     @Test
     fun canChangeBreak_shrinking_textSmallerThanNewConstraints() {
-        val subject = canChangeBreaks(
-            canWrap = true,
+        val subject = canChangeLayoutWidth(
             newConstraints = Constraints.fixedWidth(50),
             oldConstraints = Constraints.fixedWidth(60),
             maxIntrinsicWidth = 45f,
@@ -157,8 +140,7 @@ class LayoutUtilsKtTest {
 
     @Test
     fun canChangeBreak_shrinking_textBiggerThanNewConstraints() {
-        val subject = canChangeBreaks(
-            canWrap = true,
+        val subject = canChangeLayoutWidth(
             newConstraints = Constraints.fixedWidth(50),
             oldConstraints = Constraints.fixedWidth(60),
             maxIntrinsicWidth = 59f,
@@ -170,8 +152,7 @@ class LayoutUtilsKtTest {
 
     @Test
     fun canChangeBreak_growing_textSmallerThanNewConstraints() {
-        val subject = canChangeBreaks(
-            canWrap = true,
+        val subject = canChangeLayoutWidth(
             newConstraints = Constraints.fixedWidth(60),
             oldConstraints = Constraints.fixedWidth(50),
             maxIntrinsicWidth = 45f,
@@ -183,8 +164,7 @@ class LayoutUtilsKtTest {
 
     @Test
     fun canChangeBreak_growing_textBiggerThanNewConstraints() {
-        val subject = canChangeBreaks(
-            canWrap = true,
+        val subject = canChangeLayoutWidth(
             newConstraints = Constraints.fixedWidth(60),
             oldConstraints = Constraints.fixedWidth(50),
             maxIntrinsicWidth = 59f,
