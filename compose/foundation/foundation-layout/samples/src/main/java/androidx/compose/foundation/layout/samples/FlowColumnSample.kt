@@ -48,14 +48,15 @@ fun SimpleFlowColumn() {
             .wrapContentHeight(align = Alignment.Top)
             .requiredHeight(200.dp)
             .border(BorderStroke(2.dp, Color.Gray)),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalArrangement = Arrangement.Center,
         maxItemsInEachColumn = 3
     ) {
-        repeat(9) { index ->
+        repeat(10) { index ->
             Box(
                 Modifier
-                    .padding(10.dp)
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = 10.dp)
                     .width(50.dp)
                     .height(50.dp)
                     .background(color = Color.Green)
@@ -76,17 +77,18 @@ fun SimpleFlowColumnWithWeights() {
             .wrapContentHeight(align = Alignment.Top)
             .requiredHeight(200.dp)
             .border(BorderStroke(2.dp, Color.Gray)),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.Center,
         maxItemsInEachColumn = 3
     ) {
         repeat(10) { index ->
             Box(
                 Modifier
-                    .padding(10.dp)
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = 10.dp)
                     .width(50.dp)
                     .height(50.dp)
-                    .weight(if (index % 3 == 0) 1f else 2f, fill = true)
+                    .weight(if (index % 2 == 0) 1f else 2f, fill = true)
                     .background(color = Color.Green)
             )
         }
