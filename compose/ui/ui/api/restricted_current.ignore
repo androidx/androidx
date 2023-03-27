@@ -1,3 +1,7 @@
 // Baseline format: 1.0
 RemovedClass: androidx.compose.ui.platform.AndroidComposeView_androidKt:
     Removed class androidx.compose.ui.platform.AndroidComposeView_androidKt
+
+
+RemovedMethod: androidx.compose.ui.ComposedModifierKt#materialize(androidx.compose.runtime.Composer, androidx.compose.ui.Modifier):
+    Removed method androidx.compose.ui.ComposedModifierKt.materialize(androidx.compose.runtime.Composer,androidx.compose.ui.Modifier)

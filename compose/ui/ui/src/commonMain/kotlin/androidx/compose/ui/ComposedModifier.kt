@@ -18,7 +18,10 @@ package androidx.compose.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composer
+import androidx.compose.runtime.CompositionLocalMap
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.InspectorValueInfo
 import androidx.compose.ui.platform.NoInspectorInfo
@@ -244,6 +247,8 @@ private class KeyedComposedModifierN(
  * You almost certainly do not need to call this function directly.
  */
 @Suppress("ModifierFactoryExtensionFunction")
+// "materialize" JVM name is taken below to solve a backwards-incompatibility
+@JvmName("materializeModifier")
 fun Composer.materialize(modifier: Modifier): Modifier {
     if (modifier.all { it !is ComposedModifier }) {
         return modifier
@@ -272,4 +277,65 @@ fun Composer.materialize(modifier: Modifier): Modifier {
 
     endReplaceableGroup()
     return result
+}
+
+/**
+ * This class is only used for backwards compatibility purposes to inject the CompositionLocalMap
+ * into LayoutNodes that were created by inlined code of older versions of the Layout composable.
+ * More details can be found at https://issuetracker.google.com/275067189
+ */
+internal class CompositionLocalMapInjectionNode(map: CompositionLocalMap) : Modifier.Node() {
+    var map: CompositionLocalMap = map
+        set(value) {
+            field = value
+            requireLayoutNode().compositionLocalMap = value
+        }
+    override fun onAttach() {
+        requireLayoutNode().compositionLocalMap = map
+    }
+}
+
+/**
+ * This class is only used for backwards compatibility purposes to inject the CompositionLocalMap
+ * into LayoutNodes that were created by inlined code of older versions of the Layout composable.
+ * More details can be found at https://issuetracker.google.com/275067189
+ */
+internal class CompositionLocalMapInjectionElement(
+    val map: CompositionLocalMap
+) : ModifierNodeElement<CompositionLocalMapInjectionNode>() {
+    override fun create() = CompositionLocalMapInjectionNode(map)
+    override fun update(node: CompositionLocalMapInjectionNode) = node.also { it.map = map }
+    override fun hashCode(): Int = map.hashCode()
+    override fun equals(other: Any?): Boolean {
+        return other is CompositionLocalMapInjectionElement && other.map == map
+    }
+    override fun InspectorInfo.inspectableProperties() {
+        name = "<Injected CompositionLocalMap>"
+    }
+}
+
+/**
+ * This function exists solely for solving a backwards-incompatibility with older compilations
+ * that used an older version of the `Layout` composable. New code paths should not call this.
+ * More details can be found at https://issuetracker.google.com/275067189
+ */
+@Suppress("ModifierFactoryExtensionFunction")
+@JvmName("materialize")
+@Deprecated(
+    "Kept for backwards compatibility only. If you are recompiling, use materialize.",
+    ReplaceWith("materialize"),
+    DeprecationLevel.HIDDEN
+)
+fun Composer.materializeWithCompositionLocalInjection(modifier: Modifier): Modifier =
+    materializeWithCompositionLocalInjectionInternal(modifier)
+
+// This method is here to be called from tests since the deprecated hidden API cannot be.
+@Suppress("ModifierFactoryExtensionFunction")
+internal fun Composer.materializeWithCompositionLocalInjectionInternal(
+    modifier: Modifier
+): Modifier {
+    return if (modifier === Modifier)
+        modifier
+    else
+        materialize(CompositionLocalMapInjectionElement(currentCompositionLocalMap).then(modifier))
 }

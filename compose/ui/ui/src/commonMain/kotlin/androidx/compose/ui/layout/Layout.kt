@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.materialize
+import androidx.compose.ui.materializeWithCompositionLocalInjectionInternal
 import androidx.compose.ui.node.ComposeUiNode
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.unit.Constraints
@@ -173,11 +174,37 @@ internal fun combineAsVirtualLayouts(
     }
 }
 
+/**
+ * This function uses a JVM-Name because the original name now has a different implementation for
+ * backwards compatibility [materializerOfWithCompositionLocalInjection].
+ * More details can be found at https://issuetracker.google.com/275067189
+ */
 @PublishedApi
+@JvmName("modifierMaterializerOf")
 internal fun materializerOf(
     modifier: Modifier
 ): @Composable SkippableUpdater<ComposeUiNode>.() -> Unit = {
     val materialized = currentComposer.materialize(modifier)
+    update {
+        set(materialized, ComposeUiNode.SetModifier)
+    }
+}
+
+/**
+ * This function exists solely for solving a backwards-incompatibility with older compilations
+ * that used an older version of the `Layout` composable. New code paths should not call this.
+ * More details can be found at https://issuetracker.google.com/275067189
+ */
+@JvmName("materializerOf")
+@Deprecated(
+    "Needed only for backwards compatibility. Do not use.",
+    level = DeprecationLevel.WARNING
+)
+@PublishedApi
+internal fun materializerOfWithCompositionLocalInjection(
+    modifier: Modifier
+): @Composable SkippableUpdater<ComposeUiNode>.() -> Unit = {
+    val materialized = currentComposer.materializeWithCompositionLocalInjectionInternal(modifier)
     update {
         set(materialized, ComposeUiNode.SetModifier)
     }
