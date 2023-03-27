@@ -322,7 +322,7 @@ package androidx.camera.core {
   }
 
   public static interface ImageProcessor.Response {
-    method public androidx.camera.core.ImageProxy? getOutputImage();
+    method public androidx.camera.core.ImageProxy getOutputImage();
   }
 
   @RequiresApi(21) public interface ImageProxy extends java.lang.AutoCloseable {
