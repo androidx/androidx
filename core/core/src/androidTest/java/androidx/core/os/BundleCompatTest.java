@@ -22,7 +22,9 @@ import static org.junit.Assert.assertNull;
 
 import android.content.Intent;
 import android.content.pm.Signature;
+import android.os.Binder;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.SparseArray;
@@ -180,5 +182,14 @@ public class BundleCompatTest {
         bundle.writeToParcel(p, 0);
         p.setDataPosition(0);
         bundle.readFromParcel(p);
+    }
+
+    @Test
+    public void getBinder() {
+        IBinder binder = new Binder();
+        Bundle bundle = new Bundle();
+        BundleCompat.putBinder(bundle, "binder", binder);
+        IBinder result = BundleCompat.getBinder(bundle, "binder");
+        assertEquals(binder, result);
     }
 }
