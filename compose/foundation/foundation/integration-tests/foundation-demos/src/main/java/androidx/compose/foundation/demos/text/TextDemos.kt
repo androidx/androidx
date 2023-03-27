@@ -143,7 +143,8 @@ val TextDemos = DemoCategory(
             "\uD83D\uDD75️️️ Memory allocs",
             listOf(
                 ComposableDemo("\uD83D\uDD75️ SetText") { MemoryAllocsSetText() },
-                ComposableDemo("\uD83D\uDD75️ IfNotEmptyText") { MemoryAllocsIfNotEmptyText() }
+                ComposableDemo("\uD83D\uDD75️ IfNotEmptyText") { MemoryAllocsIfNotEmptyText() },
+                ComposableDemo("\uD83E\uDDA5 LazyList reuse") { MemoryAllocsLazyList() }
             )
         )
     )
