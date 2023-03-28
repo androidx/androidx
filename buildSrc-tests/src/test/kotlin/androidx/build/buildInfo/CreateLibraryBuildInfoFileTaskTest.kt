@@ -29,6 +29,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import com.google.common.truth.Truth.assertThat
 
 class CreateLibraryBuildInfoFileTaskTest {
     @get:Rule
@@ -70,23 +71,23 @@ class CreateLibraryBuildInfoFileTaskTest {
         val buildInfoFile = distDir.root.resolve(
             "build-info/androidx.build_info_test_test_build_info.txt"
         )
-        buildInfoFile.check { it.exists() }
+        assertThat(buildInfoFile.exists()).isTrue()
+
         val buildInfo = parseBuildInfo(buildInfoFile)
-        buildInfo.check {
-            it.groupId == "androidx.build_info_test"
-            it.artifactId == "test"
-            it.groupIdRequiresSameVersion == false
-            it.version == "0.0.1"
-            it.dependencies == listOf(
-                LibraryBuildInfoFile.Dependency().apply {
-                    groupId = "androidx.core"
-                    artifactId = "core"
-                    version = "1.1.0"
-                    isTipOfTree = false
-                }
-            )
-            it.kotlinVersion == projectSetup.props.kotlinVersion
-        }
+
+        assertThat(buildInfo.groupId).isEqualTo("androidx.build_info_test")
+        assertThat(buildInfo.artifactId).isEqualTo("test")
+        assertThat(buildInfo.version).isEqualTo("0.0.1")
+        assertThat(buildInfo.kotlinVersion).isEqualTo(projectSetup.props.kotlinVersion)
+        assertThat(buildInfo.groupIdRequiresSameVersion).isFalse()
+        assertThat(buildInfo.dependencies).hasSize(1)
+        assertThat(buildInfo.dependencies.single().groupId).isEqualTo("androidx.core")
+        assertThat(buildInfo.dependencies.single().artifactId).isEqualTo("core")
+        assertThat(buildInfo.dependencyConstraints).hasSize(1)
+        assertThat(buildInfo.dependencyConstraints.single().groupId)
+            .isEqualTo("androidx.core")
+        assertThat(buildInfo.dependencyConstraints.single().artifactId)
+            .isEqualTo("core-ktx")
     }
 
     fun setupBuildInfoProject() {
@@ -103,29 +104,36 @@ class CreateLibraryBuildInfoFileTaskTest {
                 }
             """.trimIndent(),
             suffix = """
+            version = "0.0.1"
             dependencies {
+                constraints {
+                    implementation("androidx.core:core-ktx:1.1.0")
+                }
                 implementation("androidx.core:core:1.1.0")
             }
             android {
                  namespace 'androidx.build_info'
             }
             group = "androidx.build_info_test"
-            publishing {
-                publications {
-                    maven(MavenPublication) {
-                        groupId = 'androidx.build_info_test'
-                        artifactId = 'test'
-                        version = '0.0.1'
+            afterEvaluate {
+                publishing {
+                    publications {
+                        maven(MavenPublication) {
+                            groupId = 'androidx.build_info_test'
+                            artifactId = 'test'
+                            version = '0.0.1'
+                            from(components.release)
+                        }
                     }
-                }
-                publications.withType(MavenPublication) {
-                    CreateLibraryBuildInfoFileTaskKt.createBuildInfoTask(
-                        project,
-                        it,
-                        null,
-                        it.artifactId,
-                        project.provider { "fakeSha" }
-                    )
+                    publications.withType(MavenPublication) {
+                        CreateLibraryBuildInfoFileTaskKt.createBuildInfoTask(
+                            project,
+                            it,
+                            null,
+                            it.artifactId,
+                            project.provider { "fakeSha" }
+                        )
+                    }
                 }
             }
             """.trimIndent()
