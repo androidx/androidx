@@ -149,7 +149,7 @@ public class SearchSpecToProtoConverterTest {
 
         JoinSpecProto joinSpecProto = searchSpecProto.getJoinSpec();
         assertThat(joinSpecProto.hasNestedSpec()).isTrue();
-        assertThat(joinSpecProto.getParentPropertyExpression()).isEqualTo(JoinSpec.QUALIFIED_ID);
+        assertThat(joinSpecProto.getParentPropertyExpression()).isEqualTo("this.qualifiedId()");
         assertThat(joinSpecProto.getChildPropertyExpression()).isEqualTo("childPropertyExpression");
         assertThat(joinSpecProto.getAggregationScoringStrategy())
                 .isEqualTo(JoinSpecProto.AggregationScoringStrategy.Code.SUM);
