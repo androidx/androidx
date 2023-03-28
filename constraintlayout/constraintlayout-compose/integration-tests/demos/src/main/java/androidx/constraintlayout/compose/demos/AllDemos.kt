@@ -61,7 +61,8 @@ val AllComposeConstraintLayoutDemos: List<ComposeDemo> =
         ComposeDemo("MotionLayout in LazyList") { MotionInLazyColumnDslDemo() },
         ComposeDemo("Animated Graphs") { AnimateGraphsOnRevealDemo() },
         ComposeDemo("Animated Reactions Selector") { ReactionSelectorDemo() },
-        ComposeDemo("Animated Puzzle Pieces") { AnimatedPuzzlePiecesDemo() }
+        ComposeDemo("Animated Puzzle Pieces") { AnimatedPuzzlePiecesDemo() },
+        ComposeDemo("Simple Staggered") { SimpleStaggeredDemo() }
     )
 
 /**

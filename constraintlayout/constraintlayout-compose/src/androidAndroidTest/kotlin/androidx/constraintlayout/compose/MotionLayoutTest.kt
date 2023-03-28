@@ -36,8 +36,11 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,6 +50,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -72,6 +76,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import kotlin.math.roundToInt
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
+import kotlin.test.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -493,6 +499,103 @@ internal class MotionLayoutTest {
                 globallyPositionedBounds,
                 endBoundsOfBox.roundToIntRect()
             )
+        }
+    }
+
+    @Test
+    fun testStaggeredAndCustomWeights() = with(rule.density) {
+        val rootSizePx = 100
+        val boxSizePx = 10
+        val progress = mutableStateOf(0f)
+        val staggeredValue = mutableStateOf(0.31f)
+        val weights = mutableStateListOf(Float.NaN, Float.NaN, Float.NaN)
+
+        val ids = IntArray(3) { it }
+        val positions = mutableMapOf<Int, IntOffset>()
+
+        rule.setContent {
+            MotionLayout(
+                motionScene = remember {
+                    derivedStateOf {
+                        MotionScene {
+                            val refs = ids.map { createRefFor(it) }.toTypedArray()
+                            defaultTransition(
+                                from = constraintSet {
+                                    createVerticalChain(*refs, chainStyle = ChainStyle.Packed(0.0f))
+                                    refs.forEachIndexed { index, ref ->
+                                        constrain(ref) {
+                                            staggeredWeight = weights[index]
+                                        }
+                                    }
+                                },
+                                to = constraintSet {
+                                    createVerticalChain(*refs, chainStyle = ChainStyle.Packed(0.0f))
+                                    constrain(*refs) {
+                                        end.linkTo(parent.end)
+                                    }
+                                }
+                            ) {
+                                staggered = staggeredValue.value
+                            }
+                        }
+                    }
+                }.value,
+                progress = progress.value,
+                modifier = Modifier.size(rootSizePx.toDp())
+            ) {
+                for (id in ids) {
+                    Box(
+                        Modifier
+                            .size(boxSizePx.toDp())
+                            .layoutId(id)
+                            .onGloballyPositioned {
+                                positions[id] = it
+                                    .positionInParent()
+                                    .round()
+                            })
+                }
+            }
+        }
+
+        // Set the progress to just before the stagger value (0.31f)
+        progress.value = 0.3f
+
+        rule.runOnIdle {
+            assertEquals(0, positions[0]!!.x)
+            assertNotEquals(0, positions[1]!!.x)
+            assertNotEquals(0, positions[2]!!.x)
+
+            // Widget 2 has higher weight since it's laid out further towards the bottom
+            assertTrue(positions[2]!!.x > positions[1]!!.x)
+        }
+
+        // Invert the staggering order
+        staggeredValue.value = -(staggeredValue.value)
+
+        rule.runOnIdle {
+            assertNotEquals(0, positions[0]!!.x)
+            assertNotEquals(0, positions[1]!!.x)
+            assertEquals(0, positions[2]!!.x)
+
+            // While inverted, widget 0 has the higher weight
+            assertTrue(positions[0]!!.x > positions[1]!!.x)
+        }
+
+        // Set the widget in the middle to have the lowest weight
+        weights[0] = 3f
+        weights[1] = 1f
+        weights[2] = 2f
+
+        // Set the staggering order back to normal
+        staggeredValue.value = -(staggeredValue.value)
+
+        rule.runOnIdle {
+            assertNotEquals(0, positions[0]!!.x)
+            assertEquals(0, positions[1]!!.x)
+            assertNotEquals(0, positions[2]!!.x)
+
+            // Widget 0 has higher weight, starts earlier
+            assertTrue(positions[0]!!.x > positions[2]!!.x)
         }
     }
 
