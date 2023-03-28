@@ -16,7 +16,10 @@
 
 package androidx.credentials
 
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.CancellationSignal
 import androidx.annotation.RequiresApi
 import androidx.credentials.exceptions.ClearCredentialException
@@ -90,6 +93,13 @@ class CredentialManager private constructor(private val context: Context) {
     companion object {
         @JvmStatic
         fun create(context: Context): CredentialManager = CredentialManager(context)
+
+        /**
+         * An intent action that shows a screen that let user enable a Credential Manager provider.
+         */
+        private const val
+        INTENT_ACTION_FOR_CREDENTIAL_PROVIDER_SETTINGS: String =
+        "android.settings.CREDENTIAL_PROVIDER"
     }
 
     /**
@@ -474,5 +484,16 @@ class CredentialManager private constructor(private val context: Context) {
             return
         }
         provider.onClearCredential(request, cancellationSignal, executor, callback)
+    }
+
+    /**
+     * Returns a pending intent that shows a screen that lets a user enable a Credential Manager provider.
+     * @return the pending intent that can be launched
+     */
+    @RequiresApi(34)
+    fun createSettingsPendingIntent(): PendingIntent {
+        val intent: Intent = Intent(INTENT_ACTION_FOR_CREDENTIAL_PROVIDER_SETTINGS)
+        intent.setData(Uri.parse("package:" + context.getPackageName()))
+        return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
     }
 }
