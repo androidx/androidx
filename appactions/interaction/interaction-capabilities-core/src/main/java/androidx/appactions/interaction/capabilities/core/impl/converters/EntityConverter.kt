@@ -33,7 +33,7 @@ fun interface EntityConverter<T> {
     companion object {
         fun <T> of(typeSpec: TypeSpec<T>): EntityConverter<T> {
             return EntityConverter { entity ->
-                val builder = Entity.newBuilder().setValue(typeSpec.toStruct(entity))
+                val builder = Entity.newBuilder().setStructValue(typeSpec.toStruct(entity))
                 typeSpec.getIdentifier(entity)?.let { builder.setIdentifier(it) }
                 builder.build()
             }

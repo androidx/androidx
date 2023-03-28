@@ -46,8 +46,13 @@ message Entity {
   // Alternate names for the entity.
   repeated string alternate_names = 3;
 
-  // Structured entity value.
-  google.protobuf.Struct value = 4;
+  oneof entity_value {
+    // Structured entity value.
+    google.protobuf.Struct struct_value = 4;
+    string string_value = 5;
+    bool bool_value = 6;
+    double number_value = 7;
+  }
 }
 
 // Data for disambiguation of the parameter value.

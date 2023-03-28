@@ -74,10 +74,10 @@ internal object TaskCapabilityUtils {
     }
 
     fun groundedValueToParamValue(groundedEntity: Entity): ParamValue =
-        if (groundedEntity.hasValue())
+        if (groundedEntity.hasStructValue())
             ParamValue.newBuilder()
                 .setIdentifier(groundedEntity.identifier)
-                .setStructValue(groundedEntity.value)
+                .setStructValue(groundedEntity.structValue)
                 .build()
         else
             ParamValue.newBuilder()
@@ -151,8 +151,8 @@ internal object TaskCapabilityUtils {
                 candidates[currentValue.value.identifier] = currentValue.value.structValue
             } else if (currentValue.status == CurrentValue.Status.DISAMBIG) {
                 for (entity in currentValue.disambiguationData.entitiesList) {
-                    if (entity.hasValue()) {
-                        candidates[entity.identifier] = entity.value
+                    if (entity.hasStructValue()) {
+                        candidates[entity.identifier] = entity.structValue
                     }
                 }
             }
