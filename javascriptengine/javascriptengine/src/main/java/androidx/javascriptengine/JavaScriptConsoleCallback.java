@@ -19,7 +19,6 @@ package androidx.javascriptengine;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 
 import org.chromium.android_webview.js_sandbox.common.IJsSandboxConsoleCallback;
 
@@ -27,11 +26,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * A JavaScriptConsoleCallback can be used to receive and process console messages and events which
- * originate from the isolate.
- * @hide
+ * Can be associated with an isolate to receive and process console messages and events from it.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface JavaScriptConsoleCallback {
     /**
      * Representation of a console message, such as produced by console.log.
@@ -39,6 +35,7 @@ public interface JavaScriptConsoleCallback {
     final class ConsoleMessage {
         /**
          * Console message (error) level
+         * @hide
          */
         @IntDef({LEVEL_LOG, LEVEL_DEBUG, LEVEL_INFO, LEVEL_ERROR, LEVEL_WARNING})
         @Retention(RetentionPolicy.SOURCE)
@@ -70,7 +67,7 @@ public interface JavaScriptConsoleCallback {
          * @param source The source file/expression where the message was generated.
          * @param line Line number of where the message was generated.
          * @param column Column number of where the message was generated.
-         * @param trace Stack trace of where the message was generated.
+         * @param trace Stack trace of where the message was generated, if available.
          */
         public ConsoleMessage(@Level int level, @NonNull String message, @NonNull String source,
                 int line, int column, @Nullable String trace) {
@@ -129,7 +126,14 @@ public interface JavaScriptConsoleCallback {
             return mColumn;
         }
 
-        /** Return a stringified stack trace */
+        /**
+         * Return a stringified stack trace.
+         * <p>
+         * A stack trace is not guaranteed to be available, and this method may return null. Console
+         * messages may originate from outside of an evaluation (where a stack trace would not make
+         * sense), or may be omitted for performance reasons. A stack trace is not guaranteed to be
+         * complete if present. The precise formatting of the trace is not defined.
+         */
         @Nullable
         public String trace() {
             return mTrace;
@@ -156,8 +160,6 @@ public interface JavaScriptConsoleCallback {
      * <p>
      * Do not rely on console messages for the transfer of large volumes of data. Overly large
      * messages, stack traces, or source identifiers may be truncated.
-     * <p>
-     * The default implementation does nothing.
      */
     void onConsoleMessage(@NonNull ConsoleMessage message);
 
