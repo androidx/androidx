@@ -17,6 +17,7 @@
 package com.example.androidx.webkit;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -32,9 +33,9 @@ import java.io.File;
 
 /**
  * An {@link Activity} which makes use of
- * {@link androidx.webkit.ProcessGlobalConfig#setDirectoryBasePath(Context, String, String)}.
+ * {@link androidx.webkit.ProcessGlobalConfig#setDirectoryBasePaths(Context, File, File)}
  */
-public class DirectoryBasePathActivity extends AppCompatActivity {
+public class DirectoryBasePathsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +43,7 @@ public class DirectoryBasePathActivity extends AppCompatActivity {
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
         if (!WebViewFeature.isStartupFeatureSupported(this,
-                WebViewFeature.STARTUP_FEATURE_SET_DIRECTORY_BASE_PATH)) {
+                WebViewFeature.STARTUP_FEATURE_SET_DIRECTORY_BASE_PATHS)) {
             WebkitHelpers.showMessageInActivity(this, R.string.webkit_api_not_available);
             return;
         }
@@ -54,7 +55,7 @@ public class DirectoryBasePathActivity extends AppCompatActivity {
                 new File(ContextCompat.getDataDir(this),
                         "cache_dir");
         ProcessGlobalConfig config = new ProcessGlobalConfig();
-        config.setDirectoryBasePath(this, dataBasePath.getPath(), cacheBasePath.getPath());
+        config.setDirectoryBasePaths(this, dataBasePath, cacheBasePath);
         config.setDataDirectorySuffix(this, "directory_base_path_activity_suffix");
         ProcessGlobalConfig.apply(config);
         setContentView(R.layout.activity_data_directory_config);
