@@ -17,12 +17,9 @@
 package androidx.bluetooth.integration.testapp.ui.scanner
 
 // TODO(ofy) Migrate to androidx.bluetooth.AdvertiseParams
-// TODO(ofy) Migrate to androidx.bluetooth.BluetoothDevice
 // TODO(ofy) Migrate to androidx.bluetooth.BluetoothGattCharacteristic
 import android.annotation.SuppressLint
-import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGattCharacteristic
-import android.bluetooth.le.ScanSettings
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -32,12 +29,14 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.bluetooth.BluetoothDevice
+import androidx.bluetooth.BluetoothLe
 import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.data.connection.DeviceConnection
 import androidx.bluetooth.integration.testapp.data.connection.OnClickCharacteristic
 import androidx.bluetooth.integration.testapp.data.connection.Status
 import androidx.bluetooth.integration.testapp.databinding.FragmentScannerBinding
-import androidx.bluetooth.integration.testapp.experimental.BluetoothLe
+import androidx.bluetooth.integration.testapp.experimental.BluetoothLe as ExperimentalLe
 import androidx.bluetooth.integration.testapp.ui.common.getColor
 import androidx.bluetooth.integration.testapp.ui.common.toast
 import androidx.core.view.isVisible
@@ -64,8 +63,9 @@ class ScannerFragment : Fragment() {
         internal const val MANUAL_DISCONNECT = "MANUAL_DISCONNECT"
     }
 
-    // TODO(ofy) Migrate to androidx.bluetooth.BluetoothLe once scan API is in place
     private lateinit var bluetoothLe: BluetoothLe
+    // TODO(ofy) Migrate to androidx.bluetooth.BluetoothLe once scan API is in place
+    private lateinit var experimenalLe: ExperimentalLe
 
     private var deviceServicesAdapter: DeviceServicesAdapter? = null
 
@@ -146,6 +146,7 @@ class ScannerFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         bluetoothLe = BluetoothLe(requireContext())
+        experimenalLe = ExperimentalLe(requireContext())
 
         binding.tabLayout.addOnTabSelectedListener(onTabSelectedListener)
 
@@ -194,15 +195,12 @@ class ScannerFragment : Fragment() {
         viewModel.deviceConnections.map { it.bluetoothDevice }.forEach(::addNewTab)
     }
 
+    @SuppressLint("MissingPermission")
     private fun startScan() {
-        // TODO(ofy) Migrate to androidx.bluetooth.BluetoothLe once scan API is in place
-        val scanSettings = ScanSettings.Builder()
-            .build()
-
         scanJob = scanScope.launch {
             isScanning = true
 
-            bluetoothLe.scan(scanSettings)
+            bluetoothLe.scan()
                 .collect {
                     Log.d(TAG, "ScanResult collected: $it")
 
@@ -264,7 +262,8 @@ class ScannerFragment : Fragment() {
             }
 
             try {
-                bluetoothLe.connectGatt(requireContext(), deviceConnection.bluetoothDevice) {
+                experimenalLe.connectGatt(requireContext(),
+                    deviceConnection.bluetoothDevice.fwkDevice) {
                     Log.d(TAG, "connectGatt result: getServices() = ${getServices()}")
 
                     deviceConnection.status = Status.CONNECTED

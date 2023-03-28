@@ -20,10 +20,15 @@ import android.bluetooth.BluetoothManager
 import android.bluetooth.le.AdvertiseCallback
 import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.AdvertiseSettings
+import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanFilter
+import android.bluetooth.le.ScanResult as FwkScanResult
+import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.os.ParcelUuid
 import android.util.Log
 import androidx.annotation.RequiresPermission
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -41,7 +46,6 @@ class BluetoothLe(private val context: Context) {
 
     private val bluetoothManager =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-
     /**
      * Returns a [Flow] to start Bluetooth LE Advertising. When the flow is successfully collected,
      * the operation status [AdvertiseResult] will be delivered via the
@@ -60,10 +64,13 @@ class BluetoothLe(private val context: Context) {
                     when (errorCode) {
                         AdvertiseCallback.ADVERTISE_FAILED_DATA_TOO_LARGE ->
                             trySend(AdvertiseResult.ADVERTISE_FAILED_DATA_TOO_LARGE)
+
                         AdvertiseCallback.ADVERTISE_FAILED_FEATURE_UNSUPPORTED ->
                             trySend(AdvertiseResult.ADVERTISE_FAILED_FEATURE_UNSUPPORTED)
+
                         AdvertiseCallback.ADVERTISE_FAILED_INTERNAL_ERROR ->
                             trySend(AdvertiseResult.ADVERTISE_FAILED_INTERNAL_ERROR)
+
                         AdvertiseCallback.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS ->
                             trySend(AdvertiseResult.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS)
                     }
@@ -110,5 +117,36 @@ class BluetoothLe(private val context: Context) {
             }
         }
 
-    // TODO(ofy) Add remainder of class functions such as scan, connectGatt, openGattServer...
+    /**
+     * Returns a cold [Flow] to start Bluetooth LE scanning. Scanning is used to
+     * discover advertising devices nearby.
+     *
+     * @param filters [ScanFilter]s for finding exact Bluetooth LE devices.
+     *
+     * @return A cold [Flow] of [ScanResult] that matches with the given scan filter.
+     */
+    @RequiresPermission("android.permission.BLUETOOTH_SCAN")
+    fun scan(filters: List<ScanFilter> = emptyList()): Flow<ScanResult> = callbackFlow {
+        val callback = object : ScanCallback() {
+            override fun onScanResult(callbackType: Int, result: FwkScanResult) {
+                trySend(ScanResult(result))
+            }
+
+            override fun onScanFailed(errorCode: Int) {
+                // TODO(b/270492198): throw precise exception
+                cancel("onScanFailed() called with: errorCode = $errorCode")
+            }
+        }
+
+        val bluetoothAdapter = bluetoothManager.adapter
+        val bleScanner = bluetoothAdapter?.bluetoothLeScanner
+        val scanSettings = ScanSettings.Builder().build()
+
+        bleScanner?.startScan(filters, scanSettings, callback)
+
+        awaitClose {
+            Log.d(TAG, "awaitClose() called")
+            bleScanner?.stopScan(callback)
+        }
+    }
 }
