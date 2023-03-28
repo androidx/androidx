@@ -14,6 +14,7 @@ dependencies {
     docs(project(":activity:activity-ktx"))
     kmpDocs(project(":annotation:annotation"))
     docs(project(":annotation:annotation-experimental"))
+    docs(project(":appactions:builtintypes:builtintypes-core"))
     docs(project(":appactions:interaction:interaction-capabilities-communication"))
     docs(project(":appactions:interaction:interaction-capabilities-core"))
     docs(project(":appactions:interaction:interaction-capabilities-productivity"))
