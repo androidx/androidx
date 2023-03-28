@@ -21,16 +21,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.LimitExceededException
 import android.os.TransactionTooLargeException
-import android.os.ext.SdkExtensions
-import androidx.annotation.DoNotInline
-import androidx.annotation.RequiresExtension
 import androidx.annotation.RequiresPermission
-import androidx.core.os.asOutcomeReceiver
-import androidx.privacysandbox.ads.adservices.common.AdSelectionSignals
-import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
 import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
 import java.util.concurrent.TimeoutException
-import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * AdSelection Manager provides APIs for app and ad-SDKs to run ad selection processes as well
@@ -75,109 +68,6 @@ abstract class AdSelectionManager internal constructor() {
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
     abstract suspend fun reportImpression(reportImpressionRequest: ReportImpressionRequest)
 
-    @SuppressLint("NewApi", "ClassVerificationFailure")
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
-    private class Api33Ext4Impl(
-        private val mAdSelectionManager: android.adservices.adselection.AdSelectionManager
-    ) : AdSelectionManager() {
-        constructor(context: Context) : this(
-            context.getSystemService<android.adservices.adselection.AdSelectionManager>(
-                android.adservices.adselection.AdSelectionManager::class.java
-            )
-        )
-
-        @DoNotInline
-        @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
-        override suspend fun selectAds(adSelectionConfig: AdSelectionConfig): AdSelectionOutcome {
-            return convertResponse(selectAdsInternal(convertAdSelectionConfig(adSelectionConfig)))
-        }
-
-        @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
-        private suspend fun selectAdsInternal(
-            adSelectionConfig: android.adservices.adselection.AdSelectionConfig
-        ): android.adservices.adselection.AdSelectionOutcome = suspendCancellableCoroutine { cont
-            ->
-            mAdSelectionManager.selectAds(
-                adSelectionConfig,
-                Runnable::run,
-                cont.asOutcomeReceiver()
-            )
-        }
-
-        private fun convertAdSelectionConfig(
-            request: AdSelectionConfig
-        ): android.adservices.adselection.AdSelectionConfig {
-            return android.adservices.adselection.AdSelectionConfig.Builder()
-                .setAdSelectionSignals(convertAdSelectionSignals(request.adSelectionSignals))
-                .setCustomAudienceBuyers(convertBuyers(request.customAudienceBuyers))
-                .setDecisionLogicUri(request.decisionLogicUri)
-                .setSeller(android.adservices.common.AdTechIdentifier.fromString(
-                    request.seller.identifier))
-                .setPerBuyerSignals(convertPerBuyerSignals(request.perBuyerSignals))
-                .setSellerSignals(convertAdSelectionSignals(request.sellerSignals))
-                .setTrustedScoringSignalsUri(request.trustedScoringSignalsUri)
-                .build()
-        }
-
-        private fun convertAdSelectionSignals(
-            request: AdSelectionSignals
-        ): android.adservices.common.AdSelectionSignals {
-            return android.adservices.common.AdSelectionSignals.fromString(request.signals)
-        }
-
-        private fun convertBuyers(
-            buyers: List<AdTechIdentifier>
-        ): MutableList<android.adservices.common.AdTechIdentifier> {
-            var ids = mutableListOf<android.adservices.common.AdTechIdentifier>()
-            for (buyer in buyers) {
-                ids.add(android.adservices.common.AdTechIdentifier.fromString(buyer.identifier))
-            }
-            return ids
-        }
-
-        private fun convertPerBuyerSignals(
-            request: Map<AdTechIdentifier, AdSelectionSignals>
-        ): Map<android.adservices.common.AdTechIdentifier,
-            android.adservices.common.AdSelectionSignals?> {
-            var map = HashMap<android.adservices.common.AdTechIdentifier,
-                android.adservices.common.AdSelectionSignals?>()
-            for (key in request.keys) {
-                val id = android.adservices.common.AdTechIdentifier.fromString(key.identifier)
-                val value = if (request[key] != null) convertAdSelectionSignals(request[key]!!)
-                    else null
-                map[id] = value
-            }
-            return map
-        }
-
-        private fun convertResponse(
-            response: android.adservices.adselection.AdSelectionOutcome
-        ): AdSelectionOutcome {
-            return AdSelectionOutcome(response.adSelectionId, response.renderUri)
-        }
-
-        @DoNotInline
-        @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
-        override suspend fun reportImpression(reportImpressionRequest: ReportImpressionRequest) {
-            suspendCancellableCoroutine<Any> { continuation ->
-                mAdSelectionManager.reportImpression(
-                    convertReportImpressionRequest(reportImpressionRequest),
-                    Runnable::run,
-                    continuation.asOutcomeReceiver()
-                )
-            }
-        }
-
-        private fun convertReportImpressionRequest(
-            request: ReportImpressionRequest
-        ): android.adservices.adselection.ReportImpressionRequest {
-            return android.adservices.adselection.ReportImpressionRequest(
-                request.adSelectionId,
-                convertAdSelectionConfig(request.adSelectionConfig)
-            )
-        }
-    }
-
     companion object {
         /**
          *  Creates [AdSelectionManager].
@@ -188,8 +78,10 @@ abstract class AdSelectionManager internal constructor() {
         @JvmStatic
         @SuppressLint("NewApi", "ClassVerificationFailure")
         fun obtain(context: Context): AdSelectionManager? {
-            return if (AdServicesInfo.version() >= 4) {
-                Api33Ext4Impl(context)
+            return if (AdServicesInfo.adServicesVersion() >= 4) {
+                AdSelectionManagerApi33Ext4Impl(context)
+            } else if (AdServicesInfo.extServicesVersion() >= 9) {
+                AdSelectionManagerApi31Ext9Impl(context)
             } else {
                 null
             }

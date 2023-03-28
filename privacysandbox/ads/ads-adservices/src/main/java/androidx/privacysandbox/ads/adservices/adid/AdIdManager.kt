@@ -87,7 +87,7 @@ abstract class AdIdManager internal constructor() {
         @JvmStatic
         @SuppressLint("NewApi", "ClassVerificationFailure")
         fun obtain(context: Context): AdIdManager? {
-            return if (AdServicesInfo.version() >= 4) {
+            return if (AdServicesInfo.adServicesVersion() >= 4) {
                 Api33Ext4Impl(context)
             } else {
                 // TODO(b/261770989): Extend this to older versions.
