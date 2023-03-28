@@ -315,6 +315,17 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         canSaveToFile(saveLocation)
     }
 
+    @Test
+    fun saveCanSucceed_toExternalStoragePublicFolderFile() {
+        val pictureFolder = Environment.getExternalStoragePublicDirectory(
+            Environment.DIRECTORY_PICTURES
+        )
+        assumeTrue(pictureFolder.exists())
+        val saveLocation = File(pictureFolder, "test.jpg")
+        canSaveToFile(saveLocation)
+        saveLocation.delete()
+    }
+
     private fun canSaveToFile(saveLocation: File) = runBlocking {
         val useCase = defaultBuilder.build()
         withContext(Dispatchers.Main) {
