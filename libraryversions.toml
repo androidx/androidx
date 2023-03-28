@@ -2,6 +2,7 @@
 ACTIVITY = "1.8.0-alpha02"
 ANNOTATION = "1.7.0-alpha02"
 ANNOTATION_EXPERIMENTAL = "1.4.0-alpha01"
+APPACTIONS_BUILTINTYPES = "1.0.0-alpha01"
 APPACTIONS_INTERACTION = "1.0.0-alpha01"
 APPCOMPAT = "1.7.0-alpha03"
 APPSEARCH = "1.1.0-alpha03"
@@ -158,6 +159,7 @@ WORK = "2.9.0-alpha01"
 [groups]
 ACTIVITY = { group = "androidx.activity", atomicGroupVersion = "versions.ACTIVITY" }
 ANNOTATION = { group = "androidx.annotation" }
+APPACTIONS_BUILTINTYPES = { group = "androidx.appactions.builtintypes", atomicGroupVersion = "versions.APPACTIONS_BUILTINTYPES" }
 APPACTIONS_INTERACTION = { group = "androidx.appactions.interaction", atomicGroupVersion = "versions.APPACTIONS_INTERACTION" }
 APPCOMPAT = { group = "androidx.appcompat", atomicGroupVersion = "versions.APPCOMPAT" }
 APPSEARCH = { group = "androidx.appsearch", atomicGroupVersion = "versions.APPSEARCH" }
