@@ -3714,8 +3714,11 @@ public final class LayoutElementBuilders {
         }
     }
 
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    static LayoutElement layoutElementFromProto(@NonNull LayoutElementProto.LayoutElement proto) {
+    public static LayoutElement layoutElementFromProto(
+            @NonNull LayoutElementProto.LayoutElement proto) {
         if (proto.hasColumn()) {
             return Column.fromProto(proto.getColumn());
         }
@@ -3829,8 +3832,10 @@ public final class LayoutElementBuilders {
             }
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static Layout fromProto(@NonNull LayoutElementProto.Layout proto) {
+        public static Layout fromProto(@NonNull LayoutElementProto.Layout proto) {
             return new Layout(proto);
         }
 
