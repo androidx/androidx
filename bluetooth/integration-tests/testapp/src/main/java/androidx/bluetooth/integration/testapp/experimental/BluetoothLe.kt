@@ -31,6 +31,7 @@ import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.util.Log
+import java.util.UUID
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -103,6 +104,29 @@ class BluetoothLe(private val context: Context) {
                 bleAdvertiser?.stopAdvertising(callback)
             }
         }
+
+    interface GattClientScope {
+
+        fun getServices(): List<BluetoothGattService>
+        fun getService(uuid: UUID): BluetoothGattService?
+
+        suspend fun read(characteristic: BluetoothGattCharacteristic): Result<ByteArray>
+        suspend fun write(
+            characteristic: BluetoothGattCharacteristic,
+            value: ByteArray,
+            writeType: Int
+        ): Result<Unit>
+        fun subscribeCharacteristic(characteristic: BluetoothGattCharacteristic): Flow<ByteArray>
+        suspend fun awaitClose(onClosed: () -> Unit)
+    }
+
+    suspend fun <R> connectGatt(
+        context: Context,
+        device: BluetoothDevice,
+        block: GattClientScope.() -> R
+    ) {
+        GattClientImpl().connect(context, device, block)
+    }
 
     @SuppressLint("MissingPermission")
     fun gattServer(): Flow<GattServerCallback> =
