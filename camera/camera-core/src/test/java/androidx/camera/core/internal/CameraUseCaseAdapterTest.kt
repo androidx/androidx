@@ -140,6 +140,24 @@ class CameraUseCaseAdapterTest {
         executor.shutdown()
     }
 
+    @Test(expected = CameraException::class)
+    fun attachTwoPreviews_streamSharingNotEnabled() {
+        // Arrange: bind 2 previews with an ImageCapture. Request fails without enabling
+        // StreamSharing because StreamSharing only allows one use case per type.
+        val preview2 = Preview.Builder().build()
+        adapter.addUseCases(setOf(preview, preview2, image))
+    }
+
+    @Test(expected = CameraException::class)
+    fun attachTwoVideoCaptures_streamSharingNotEnabled() {
+        // Arrange: bind 2 videos with an ImageCapture. Request fails without enabling StreamSharing
+        // because StreamSharing only allows one use case per type.
+        val video2 = FakeUseCase().apply {
+            this.supportedEffectTargets = setOf(VIDEO_CAPTURE)
+        }
+        adapter.addUseCases(setOf(video, video2, image))
+    }
+
     @Test
     fun attachAndDetachUseCases_cameraUseCasesAttachedAndDetached() {
         // Arrange: bind UseCases that requires sharing.
