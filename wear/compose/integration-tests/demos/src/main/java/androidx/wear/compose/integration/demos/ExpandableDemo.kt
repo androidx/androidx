@@ -28,13 +28,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.ExpandableItemsState
+import androidx.wear.compose.foundation.ExpandableState
 import androidx.wear.compose.foundation.expandableButton
 import androidx.wear.compose.foundation.expandableItem
 import androidx.wear.compose.foundation.expandableItems
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListScope
-import androidx.wear.compose.foundation.rememberExpandableItemsState
+import androidx.wear.compose.foundation.rememberExpandableState
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CompactChip
@@ -43,7 +43,7 @@ import androidx.wear.compose.material.Text
 
 @Composable
 fun ExpandableListItems() {
-    val state = rememberExpandableItemsState()
+    val state = rememberExpandableState()
 
     val items = List(10) { "Item $it" }
     val top = items.take(3)
@@ -62,7 +62,7 @@ fun ExpandableListItems() {
 
 @Composable
 fun ExpandableText() {
-    val state = rememberExpandableItemsState()
+    val state = rememberExpandableState()
 
     ContainingScalingLazyColumn {
         expandableItem(state) { expanded ->
@@ -104,7 +104,7 @@ private fun ContainingScalingLazyColumn(content: ScalingLazyListScope.() -> Unit
 }
 
 private fun ScalingLazyListScope.expandButton(
-    state: ExpandableItemsState,
+    state: ExpandableState,
     outline: Boolean = true
 ) {
     expandableButton(state) {

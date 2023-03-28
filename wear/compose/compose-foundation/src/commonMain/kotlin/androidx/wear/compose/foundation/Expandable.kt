@@ -34,7 +34,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /**
- * Create and [remember] an [ExpandableItemsState]
+ * Create and [remember] an [ExpandableState]
  *
  * Example of an expandable list:
  * @sample androidx.wear.compose.foundation.samples.ExpandableWithItemsSample
@@ -47,24 +47,24 @@ import kotlinx.coroutines.launch
  * @param collapseAnimationSpec The [AnimationSpec] to use when hiding the extra information.
  */
 @Composable
-public fun rememberExpandableItemsState(
+public fun rememberExpandableState(
     initiallyExpanded: Boolean = false,
     expandAnimationSpec: AnimationSpec<Float> = ExpandableItemsDefaults.expandAnimationSpec,
     collapseAnimationSpec: AnimationSpec<Float> = ExpandableItemsDefaults.collapseAnimationSpec,
-): ExpandableItemsState {
+): ExpandableState {
     val scope = rememberCoroutineScope()
     return remember {
-        ExpandableItemsState(initiallyExpanded, scope, expandAnimationSpec, collapseAnimationSpec)
+        ExpandableState(initiallyExpanded, scope, expandAnimationSpec, collapseAnimationSpec)
     }
 }
 
 /**
- * Adds a series of items, that will be expanded/collapsed according to the [ExpandableItemsState]
+ * Adds a series of items, that will be expanded/collapsed according to the [ExpandableState]
  *
  * Example of an expandable list:
  * @sample androidx.wear.compose.foundation.samples.ExpandableWithItemsSample
  *
- * @param state The [ExpandableItemsState] connected to these items to.
+ * @param state The [ExpandableState] connected to these items.
  * @param count The number of items
  * @param key a factory of stable and unique keys representing the item. Using the same key
  * for multiple items in the list is not allowed. Type of the key should be saveable
@@ -75,7 +75,7 @@ public fun rememberExpandableItemsState(
  * @param itemContent the content displayed by a single item
  */
 public fun ScalingLazyListScope.expandableItems(
-    state: ExpandableItemsState,
+    state: ExpandableState,
     count: Int,
     key: ((index: Int) -> Any)? = null,
     itemContent: @Composable BoxScope.(index: Int) -> Unit
@@ -104,7 +104,7 @@ public fun ScalingLazyListScope.expandableItems(
 }
 
 /**
- * Adds a single item, that will be expanded/collapsed according to the [ExpandableItemsState].
+ * Adds a single item, that will be expanded/collapsed according to the [ExpandableState].
  *
  * Example of an expandable text:
  * @sample androidx.wear.compose.foundation.samples.ExpandableTextSample
@@ -112,7 +112,7 @@ public fun ScalingLazyListScope.expandableItems(
  * The item should support two levels of information display (for example, a text showing a few
  * lines in the collapsed state, and more in the expanded state)
  *
- * @param state The [ExpandableItemsState] to connect this items to.
+ * @param state The [ExpandableState] connected to this item.
  * @param key A stable and unique key representing the item. Using the same key
  * for multiple items in the list is not allowed. Type of the key should be saveable
  * via Bundle on Android. If null is passed the position in the list will represent the key.
@@ -122,7 +122,7 @@ public fun ScalingLazyListScope.expandableItems(
  * @param content the content displayed by the item, according to its expanded/collapsed state.
  */
 public fun ScalingLazyListScope.expandableItem(
-    state: ExpandableItemsState,
+    state: ExpandableState,
     key: Any? = null,
     content: @Composable (expanded: Boolean) -> Unit
 ) = expandableItemImpl(state, key, content = content)
@@ -134,7 +134,7 @@ public fun ScalingLazyListScope.expandableItem(
  * Example of an expandable text:
  * @sample androidx.wear.compose.foundation.samples.ExpandableTextSample
  *
- * @param state The [ExpandableItemsState] to connect this button to.
+ * @param state The [ExpandableState] to connect this button to.
  * @param key A stable and unique key representing the item. Using the same key
  * for multiple items in the list is not allowed. Type of the key should be saveable
  * via Bundle on Android. If null is passed the position in the list will represent the key.
@@ -144,13 +144,13 @@ public fun ScalingLazyListScope.expandableItem(
  * @param content the content displayed, this should usually be a CompactChip or OutlineCompactChip.
  */
 public fun ScalingLazyListScope.expandableButton(
-    state: ExpandableItemsState,
+    state: ExpandableState,
     key: Any? = null,
     content: @Composable () -> Unit
 ) = expandableItemImpl(state, key, invertProgress = true, content = { if (it) content() })
 
 private fun ScalingLazyListScope.expandableItemImpl(
-    state: ExpandableItemsState,
+    state: ExpandableState,
     key: Any? = null,
     invertProgress: Boolean = false,
     content: @Composable (expanded: Boolean) -> Unit
@@ -188,7 +188,7 @@ private fun ScalingLazyListScope.expandableItemImpl(
  * It's used to control the showing/hiding of extra information either directly or connecting it
  * with something like a button.
  */
-public class ExpandableItemsState internal constructor(
+public class ExpandableState internal constructor(
     initiallyExpanded: Boolean,
     private val coroutineScope: CoroutineScope,
     private val expandAnimationSpec: AnimationSpec<Float>,

@@ -29,7 +29,7 @@ import androidx.wear.compose.foundation.expandableButton
 import androidx.wear.compose.foundation.expandableItem
 import androidx.wear.compose.foundation.expandableItems
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
-import androidx.wear.compose.foundation.rememberExpandableItemsState
+import androidx.wear.compose.foundation.rememberExpandableState
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.OutlinedCompactChip
@@ -38,7 +38,7 @@ import androidx.wear.compose.material.Text
 @Sampled
 @Composable
 fun ExpandableWithItemsSample() {
-    val expandableState = rememberExpandableItemsState()
+    val expandableState = rememberExpandableState()
 
     val sampleItem: @Composable (String) -> Unit = { label ->
         Chip(
@@ -82,7 +82,7 @@ fun ExpandableWithItemsSample() {
 @Sampled
 @Composable
 fun ExpandableTextSample() {
-    val expandableState = rememberExpandableItemsState()
+    val expandableState = rememberExpandableState()
 
     ScalingLazyColumn(
         modifier = Modifier.fillMaxSize()
