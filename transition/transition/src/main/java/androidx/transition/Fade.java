@@ -163,7 +163,11 @@ public class Fade extends Visibility {
             @Nullable TransitionValues startValues, @Nullable TransitionValues endValues) {
         ViewUtils.saveNonTransitionAlpha(view);
         float startAlpha = getStartAlpha(startValues, 1);
-        return createAnimation(view, startAlpha, 0);
+        Animator animator = createAnimation(view, startAlpha, 0);
+        if (animator == null) {
+            ViewUtils.setTransitionAlpha(view, getStartAlpha(endValues, 1f));
+        }
+        return animator;
     }
 
     private static float getStartAlpha(TransitionValues startValues, float fallbackValue) {

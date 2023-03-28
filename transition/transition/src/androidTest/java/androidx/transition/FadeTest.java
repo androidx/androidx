@@ -45,6 +45,7 @@ import androidx.annotation.Nullable;
 import androidx.core.os.BuildCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.testutils.AnimationDurationScaleRule;
 import androidx.transition.test.R;
@@ -402,6 +403,54 @@ public class FadeTest extends BaseTest {
         rule.runOnUiThread(() -> {
             // It should start from 0.5 and then fade in
             assertTrue(ViewUtils.getTransitionAlpha(view) >= 0.5f);
+        });
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    public void seekingFadeInBeforeStart() throws Throwable {
+        if (!BuildCompat.isAtLeastU()) {
+            return; // only supported on U+
+        }
+        TransitionSeekController[] seekControllerArr = new TransitionSeekController[1];
+
+        TransitionSet transition = new TransitionSet();
+        transition.addTransition(new AlwaysTransition("before"));
+        transition.addTransition(new Fade());
+        transition.addTransition(new AlwaysTransition("after"));
+        transition.setOrdering(TransitionSet.ORDERING_SEQUENTIAL);
+
+        View view = new View(rule.getActivity());
+
+        // Animate it in
+        rule.runOnUiThread(() -> {
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, transition);
+            mRoot.addView(view, new ViewGroup.LayoutParams(100, 100));
+        });
+
+        rule.runOnUiThread(() -> {
+            // Starts off invisible
+            assertEquals(0f, view.getTransitionAlpha(), 0f);
+            assertEquals(View.VISIBLE, view.getVisibility());
+
+            // Fade all the way in
+            seekControllerArr[0].setCurrentPlayTimeMillis(600);
+            assertEquals(1f, view.getTransitionAlpha(), 0f);
+            assertEquals(View.VISIBLE, view.getVisibility());
+
+            // Fade out again
+            seekControllerArr[0].setCurrentPlayTimeMillis(0);
+            assertEquals(0f, view.getTransitionAlpha(), 0f);
+
+            // Animate to GONE
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, new Fade());
+            view.setVisibility(View.GONE);
+        });
+
+        rule.runOnUiThread(() -> {
+            // It is already not shown, so it can just go straight to GONE
+            assertEquals(1f, view.getTransitionAlpha(), 0f);
+            assertEquals(View.GONE, view.getVisibility());
         });
     }
 
