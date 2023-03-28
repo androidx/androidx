@@ -300,17 +300,10 @@ internal class ParagraphLayoutCache(
         // if we were passed identical constraints just skip more work
         if (constraints == prevConstraints) return false
 
-        // see if width would produce the same wraps
-        if (canChangeLayoutWidth(
-                newConstraints = constraints,
-                oldConstraints = prevConstraints,
-                maxIntrinsicWidth = localParagraphIntrinsics.maxIntrinsicWidth,
-                softWrap = softWrap,
-                overflow = overflow
-            )) return true
+        if (constraints.maxWidth != prevConstraints.maxWidth) return true
 
         // if we get here width won't change, height may be clipped
-        if (constraints.maxHeight < localParagraph.height) {
+        if (constraints.maxHeight < localParagraph.height || localParagraph.didExceedMaxLines) {
             // vertical clip changes
             return true
         }

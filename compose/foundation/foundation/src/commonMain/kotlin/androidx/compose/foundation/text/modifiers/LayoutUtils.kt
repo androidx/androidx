@@ -86,39 +86,3 @@ internal fun finalMaxLines(softWrap: Boolean, overflow: TextOverflow, maxLinesIn
     val overwriteMaxLines = !softWrap && overflow == TextOverflow.Ellipsis
     return if (overwriteMaxLines) 1 else maxLinesIn.coerceAtLeast(1)
 }
-
-/**
- * Assuming we're laying out the same text in two different constraints, see if breaks could change
- *
- * If text or other text-layout attributes change, this method will not return accurate results.
- */
-internal fun canChangeLayoutWidth(
-    newConstraints: Constraints,
-    oldConstraints: Constraints,
-    maxIntrinsicWidth: Float,
-    softWrap: Boolean,
-    overflow: TextOverflow,
-): Boolean {
-    // we can assume maxIntrinsicWidth is the same, or other invalidate would have happened
-    // earlier (resetting para, etc)
-    val prevMaxWidth = finalMaxWidth(oldConstraints, softWrap, overflow, maxIntrinsicWidth)
-    val newMaxWidth = finalMaxWidth(newConstraints, softWrap, overflow, maxIntrinsicWidth)
-
-    if (prevMaxWidth != newMaxWidth) {
-        if (prevMaxWidth >= maxIntrinsicWidth && newMaxWidth >= maxIntrinsicWidth) {
-            // nothing can change, layout >= text width.
-            return false
-        }
-
-        return if (prevMaxWidth < newMaxWidth) {
-            // we're growing, so return if we could have broken last time
-            prevMaxWidth < maxIntrinsicWidth
-        } else {
-            // we're shrinking, so return if we could have broken this time
-            newMaxWidth < maxIntrinsicWidth
-        }
-    }
-
-    // widths haven't changed, layouts will be same
-    return false
-}
