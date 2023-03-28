@@ -26,6 +26,9 @@
         android:id="@+id/empty_fragment"
         android:name="androidx.navigation.fragment.test.EmptyFragment"/>
     <fragment
+        android:id="@+id/animator_fragment"
+        android:name="androidx.navigation.fragment.AnimatorFragment"/>
+    <fragment
         android:id="@+id/empty_fragment_2"
         android:name="androidx.navigation.fragment.test.EmptyFragment"/>
     <fragment

@@ -16,16 +16,23 @@
 
 package androidx.navigation.fragment
 
+import android.animation.Animator
+import android.animation.AnimatorInflater
+import android.animation.AnimatorListenerAdapter
+import android.animation.ValueAnimator
+import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentFactory
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.StrictFragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -50,7 +57,6 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -918,17 +924,21 @@ class FragmentNavigatorTest {
 
             // navigate to second destination -- assert states
             onActivity {
-                navController1.navigate(R.id.empty_fragment, null, options)
+                navController1.navigate(R.id.animator_fragment, null, options)
                 fm1.executePendingTransactions()
             }
             assertThat(fragNavigator1.backStack.value.size).isEqualTo(2)
             val entry2 = fragNavigator1.backStack.value[1]
-            val fragment2 = fm1.findFragmentByTag(entry2.id)
-            assertWithMessage("Fragment should be added")
-                .that(fragment2)
-                .isNotNull()
+            val fragment2 = fm1.findFragmentByTag(entry2.id) as AnimatorFragment
+
             assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
-            assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+            if (fragment2.endLatch.count == 1L) {
+                // Entry 2 should move back to STARTED if animating
+                assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+            } else {
+                // And to RESUMED if it finishes
+                assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+            }
 
             // recreate activity - imitate configuration change
             recreate()
@@ -1204,12 +1214,11 @@ class FragmentNavigatorTest {
         assertWithMessage("Entry2 should never be resumed").that(entry2Resumed).isFalse()
     }
 
-    @Ignore // b/271634544
     @LargeTest
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     fun testNavigatePopInterrupt() {
-        val entry1 = createBackStackEntry()
+        val entry1 = createBackStackEntry(clazz = AnimatorFragment::class)
         var entry1Stopped = false
 
         // Add observer to entry to verify lifecycle events.
@@ -1223,7 +1232,7 @@ class FragmentNavigatorTest {
             })
         }
 
-        val entry2 = createBackStackEntry(SECOND_FRAGMENT)
+        val entry2 = createBackStackEntry(SECOND_FRAGMENT, clazz = AnimatorFragment::class)
 
         val options = navOptions {
             anim {
@@ -1245,7 +1254,7 @@ class FragmentNavigatorTest {
             .that(fragment)
             .isNotNull()
 
-        // navigate to both the second and third entry back to back.
+        // navigate to the second entry and pop it back to back.
         fragmentNavigator.navigate(listOf(entry2), options, null)
         fragmentNavigator.popBackStack(entry2, false)
         assertThat(navigatorState.backStack.value).containsExactly(entry1)
@@ -1256,13 +1265,6 @@ class FragmentNavigatorTest {
         assertWithMessage("Fragment should be added")
             .that(fragment1)
             .isNotNull()
-
-        // middle of transition
-
-        // Entry 1 should move back to STARTED
-        assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
-        // Entry 2 should be DESTROYED since it was popped
-        assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
 
         // Add an observer to ensure that we don't attempt to verify the state until animations
         // are complete and the viewLifecycle has been RESUMED.
@@ -1279,19 +1281,20 @@ class FragmentNavigatorTest {
         assertThat(countDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
         // Entry 1 should move back to RESUMED
         assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        // Entry 2 should be DESTROYED
+        assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
 
         // verify that the first entry made it down to CREATED
         assertWithMessage("Entry2 should have been stopped").that(entry1Stopped).isTrue()
     }
 
-    @Ignore // b/269297210
     @LargeTest
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     fun testPopPopInterrupt() {
-        val entry1 = createBackStackEntry()
-        val entry2 = createBackStackEntry(SECOND_FRAGMENT)
-        val entry3 = createBackStackEntry(THIRD_FRAGMENT)
+        val entry1 = createBackStackEntry(clazz = AnimatorFragment::class)
+        val entry2 = createBackStackEntry(SECOND_FRAGMENT, AnimatorFragment::class)
+        val entry3 = createBackStackEntry(THIRD_FRAGMENT, AnimatorFragment::class)
 
         val options = navOptions {
             anim {
@@ -1361,24 +1364,27 @@ class FragmentNavigatorTest {
         activityRule.runOnUiThread {
             fragmentManager.executePendingTransactions()
         }
-        val fragment1 = fragmentManager.findFragmentById(R.id.container)
+        val fragment1 = fragmentManager.findFragmentById(R.id.container) as AnimatorFragment
         assertWithMessage("Fragment should be added")
             .that(fragment1)
             .isNotNull()
 
         // middle of transition
 
-        // Entry 1 should move back to STARTED
-        assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
-
-        assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
-        assertThat(entry3.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+        if (fragment1.endLatch.count == 1L) {
+            // Entry 1 should move back to STARTED while animating
+            assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        } else {
+            assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+            assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+            assertThat(entry3.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+        }
 
         // Add an observer to ensure that we don't attempt to verify the state until animations
         // are complete and the viewLifecycle has been RESUMED.
         val countDownLatch2 = CountDownLatch(1)
         activityRule.runOnUiThread {
-            fragment1?.viewLifecycleOwner?.lifecycle?.addObserver(object : LifecycleEventObserver {
+            fragment1.viewLifecycleOwner.lifecycle.addObserver(object : LifecycleEventObserver {
                 override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
                     if (event == Lifecycle.Event.ON_RESUME) {
                         countDownLatch2.countDown()
@@ -1390,8 +1396,9 @@ class FragmentNavigatorTest {
 
         // Entry 1 should move back to RESUMED
         assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
-        // Entry 2 should be DESTROYED
+        // Entry 2 and 3 should be DESTROYED
         assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+        assertThat(entry3.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
 
         // verify that the second entry moved to started
         assertWithMessage("Entry2 should have been started").that(entry2Started).isTrue()
@@ -1792,6 +1799,36 @@ class SavedStateFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         return FrameLayout(requireContext())
+    }
+}
+
+class AnimatorFragment(@LayoutRes contentLayoutId: Int = R.layout.strict_view_fragment) :
+    StrictFragment(contentLayoutId) {
+    lateinit var endLatch: CountDownLatch
+
+    override fun onCreateAnimator(
+        transit: Int,
+        enter: Boolean,
+        nextAnim: Int
+    ): Animator? {
+        if (nextAnim == 0) {
+            return null
+        }
+
+        val animator: Animator = try {
+            AnimatorInflater.loadAnimator(context, nextAnim)
+        } catch (_: Resources.NotFoundException) {
+            null
+        } ?: ValueAnimator.ofFloat(0f, 1f).setDuration(1)
+
+        return animator.apply {
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    endLatch.countDown()
+                }
+            })
+            endLatch = CountDownLatch(1)
+        }
     }
 }
 
