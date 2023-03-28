@@ -29,6 +29,7 @@ class InkCanvasView(context: Context) : SurfaceView(context) {
 
     private var mCanvasFrontBufferedRenderer: CanvasFrontBufferedRenderer<FloatArray>? = null
     private val mLinesDrawable = LinesDrawable()
+    private val mSceneParams = ArrayList<FloatArray>()
     private val mCallbacks = object : CanvasFrontBufferedRenderer.Callback<FloatArray> {
 
         override fun onDrawFrontBufferedLayer(
@@ -51,10 +52,11 @@ class InkCanvasView(context: Context) : SurfaceView(context) {
             bufferHeight: Int,
             params: Collection<FloatArray>
         ) {
+            mSceneParams.addAll(params)
             with(mLinesDrawable) {
                 setBounds(0, 0, bufferWidth, bufferHeight)
                 setColor(Color.MAGENTA)
-                for (param in params) {
+                for (param in mSceneParams) {
                     setLines(param)
                     draw(canvas)
                 }

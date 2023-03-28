@@ -117,6 +117,10 @@ class CanvasFrontBufferedRenderer<T>(
         }
     }
 
+    private var inverse = BufferTransformHintResolver.UNKNOWN_TRANSFORM
+    private val mBufferTransform = BufferTransformer()
+    private val mParentLayerTransform = android.graphics.Matrix()
+
     init {
         surfaceView.holder.addCallback(object : SurfaceHolder.Callback2 {
 
@@ -124,9 +128,8 @@ class CanvasFrontBufferedRenderer<T>(
             private var mHeight = -1
 
             private var transformHint = BufferTransformHintResolver.UNKNOWN_TRANSFORM
-            private var inverse = BufferTransformHintResolver.UNKNOWN_TRANSFORM
+
             private val mTransformResolver = BufferTransformHintResolver()
-            private val mBufferTransform = BufferTransformer()
 
             override fun surfaceCreated(p0: SurfaceHolder) {
                 // NO-OP
@@ -144,6 +147,7 @@ class CanvasFrontBufferedRenderer<T>(
                 transformHint = mTransformResolver.getBufferTransformHint(surfaceView)
                 inverse = mBufferTransform.invertBufferTransform(transformHint)
                 mBufferTransform.computeTransform(width, height, inverse)
+                updateMatrixTransform(width.toFloat(), height.toFloat(), inverse)
 
                 mPersistedCanvasRenderer = SingleBufferedCanvasRenderer.create<T>(
                     width,
@@ -199,13 +203,13 @@ class CanvasFrontBufferedRenderer<T>(
                     }
 
                 val multiBufferNode = RenderNode("MultiBufferNode").apply {
-                    setPosition(0, 0, width, height)
+                    setPosition(0, 0, mBufferTransform.glWidth, mBufferTransform.glHeight)
                     mMultiBufferNode = this
                 }
                 mMultiBufferedCanvasRenderer = MultiBufferedCanvasRenderer(
                     multiBufferNode,
-                    width,
-                    height
+                    mBufferTransform.glWidth,
+                    mBufferTransform.glHeight
                 )
 
                 mFrontBufferSurfaceControl = SurfaceControlCompat.Builder()
@@ -314,6 +318,7 @@ class CanvasFrontBufferedRenderer<T>(
      */
     fun isValid() = !mIsReleased
 
+    @SuppressLint("WrongConstant")
     internal fun setParentSurfaceControlBuffer(
         buffer: HardwareBuffer,
         block: Runnable? = null
@@ -328,6 +333,10 @@ class CanvasFrontBufferedRenderer<T>(
                 .setBuffer(parentSurfaceControl, buffer) {
                     buffer.close()
                 }
+
+            if (inverse != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
+                transaction.setBufferTransform(parentSurfaceControl, inverse)
+            }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 val listener = if (block != null) {
                     object : SurfaceControlCompat.TransactionCommittedListener {
@@ -376,7 +385,10 @@ class CanvasFrontBufferedRenderer<T>(
             val height = surfaceView.height
             mExecutor.execute {
                 mMultiBufferNode?.record { canvas ->
+                    canvas.save()
+                    canvas.setMatrix(mParentLayerTransform)
                     callback.onDrawMultiBufferedLayer(canvas, width, height, params)
+                    canvas.restore()
                 }
                 params.clear()
                 mMultiBufferedCanvasRenderer?.renderFrame(mExecutor) { buffer ->
@@ -387,6 +399,28 @@ class CanvasFrontBufferedRenderer<T>(
             Log.w(TAG, "Attempt to render to the multi buffered layer when " +
                     "CanvasFrontBufferedRenderer has been released"
             )
+        }
+    }
+
+    internal fun updateMatrixTransform(width: Float, height: Float, transform: Int) {
+        mParentLayerTransform.apply {
+            when (transform) {
+                SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90 -> {
+                    setRotate(270f)
+                    postTranslate(0f, width)
+                }
+                SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180 -> {
+                    setRotate(180f)
+                    postTranslate(width, height)
+                }
+                SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270 -> {
+                    setRotate(90f)
+                    postTranslate(height, 0f)
+                }
+                else -> {
+                    reset()
+                }
+            }
         }
     }
 
