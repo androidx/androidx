@@ -68,9 +68,9 @@ public class ProcessGlobalConfigActivityTestAppTest {
     }
 
     @Test
-    public void testSetDirectoryBasePath() throws Throwable {
+    public void testSetDirectoryBasePaths() throws Throwable {
         WebkitTestHelpers.assumeStartupFeature(
-                WebViewFeature.STARTUP_FEATURE_SET_DIRECTORY_BASE_PATH,
+                WebViewFeature.STARTUP_FEATURE_SET_DIRECTORY_BASE_PATHS,
                 ApplicationProvider.getApplicationContext());
         final String dataDirPrefix = "webview_";
         final String dataDirSuffix = "directory_base_path_activity_suffix";
