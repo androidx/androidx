@@ -16,22 +16,7 @@
 
 package androidx.tv.integration.presentation
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
+import android.content.res.AssetManager
 
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        // Create the "data.json" file in "presentation/src/main/assets" directory and add the
-        // content from this link: go/compose-tv-presentation-app-data
-        val jsonData = assets.readAssetsFile("data.json")
-        val deserializedData = getRootDataFromJson(jsonData)
-
-        initializeData(deserializedData)
-
-        super.onCreate(savedInstanceState)
-        setContent {
-            App()
-        }
-    }
-}
+fun AssetManager.readAssetsFile(fileName: String): String =
+    open(fileName).bufferedReader().use { it.readText() }
