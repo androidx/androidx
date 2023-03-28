@@ -189,7 +189,7 @@ fun ModalBottomSheet(
                         val expandActionLabel = getString(Strings.BottomSheetExpandDescription)
                         Box(Modifier
                             .align(Alignment.CenterHorizontally)
-                            .semantics {
+                            .semantics(mergeDescendants = true) {
                                 // Provides semantics to interact with the bottomsheet based on its
                                 // current value.
                                 with(sheetState) {
