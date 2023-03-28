@@ -18,7 +18,7 @@ BundleInsideHelper.forInsideAar(
 )
 
 dependencies {
-//  Commented for JetBrains Fork to simplify project setup
+//  [1.4 Update] Commented for JetBrains Fork to simplify project setup
 //    bundleInside(project(":noto-emoji-compat-flatbuffers"))
 
     api("androidx.core:core:1.3.0")
