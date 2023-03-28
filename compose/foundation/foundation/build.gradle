@@ -23,6 +23,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
+    id("AndroidXPaparazziPlugin")
 }
 
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
@@ -57,6 +58,8 @@ dependencies {
         testImplementation(libs.mockitoCore4)
         testImplementation(libs.kotlinReflect)
         testImplementation(libs.mockitoKotlin4)
+
+        testImplementation(project(":constraintlayout:constraintlayout-compose"))
 
         androidTestImplementation(project(":compose:test-utils"))
         androidTestImplementation(project(":internal-testutils-fonts"))
