@@ -18,6 +18,7 @@ package androidx.privacysandbox.sdkruntime.client.loader
 import android.content.Context
 import android.os.Binder
 import android.os.Bundle
+import android.os.IBinder
 import android.view.View
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
 import androidx.privacysandbox.sdkruntime.client.loader.impl.SandboxedSdkContextCompat
@@ -27,6 +28,7 @@ import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkInfo
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
+import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.privacysandbox.sdkruntime.core.Versions
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 import androidx.test.core.app.ApplicationProvider
@@ -295,6 +297,18 @@ internal class LocalSdkProviderTest(
 
         override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
             return sandboxedSdksResult
+        }
+
+        override fun registerSdkSandboxActivityHandler(
+            handlerCompat: SdkSandboxActivityHandlerCompat
+        ): IBinder {
+            throw UnsupportedOperationException("Not supported")
+        }
+
+        override fun unregisterSdkSandboxActivityHandler(
+            handlerCompat: SdkSandboxActivityHandlerCompat
+        ) {
+            throw UnsupportedOperationException("Not supported")
         }
     }
 }

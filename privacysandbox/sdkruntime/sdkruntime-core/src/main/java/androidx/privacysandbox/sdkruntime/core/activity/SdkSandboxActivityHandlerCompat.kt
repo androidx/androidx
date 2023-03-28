@@ -18,9 +18,15 @@ package androidx.privacysandbox.sdkruntime.core.activity
 
 import android.app.Activity
 import android.app.sdksandbox.sdkprovider.SdkSandboxActivityHandler
+import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 
 /**
  * This is used to notify the SDK when an [Activity] is created for it.
+ *
+ * When an SDK wants to start an [Activity], it should register an implementation of this class by
+ * calling [SdkSandboxControllerCompat.registerSdkSandboxActivityHandler] that will return an
+ * [android.os.Binder] identifier for the registered [SdkSandboxControllerCompat].
+ *
  * @see SdkSandboxActivityHandler
  */
 interface SdkSandboxActivityHandlerCompat {

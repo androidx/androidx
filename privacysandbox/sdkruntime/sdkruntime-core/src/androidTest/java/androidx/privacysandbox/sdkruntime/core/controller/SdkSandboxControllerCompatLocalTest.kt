@@ -18,8 +18,11 @@ package androidx.privacysandbox.sdkruntime.core.controller
 
 import android.content.Context
 import android.os.Binder
+import android.os.IBinder
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
+import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.privacysandbox.sdkruntime.core.Versions
+import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -71,9 +74,51 @@ class SdkSandboxControllerCompatLocalTest {
         assertThat(sandboxedSdks).isEqualTo(expectedResult)
     }
 
-    private class TestStubImpl(
+    @Test
+    fun registerSdkSandboxActivityHandler_withLocalImpl_registerItInLocalImpl() {
+        val localImpl = TestStubImpl()
+        SdkSandboxControllerCompat.injectLocalImpl(localImpl)
+
+        val controllerCompat = SdkSandboxControllerCompat.from(context)
+        val handlerCompat = object : SdkSandboxActivityHandlerCompat {
+            override fun onActivityCreated(activityHolder: ActivityHolder) {}
+        }
+        val token = controllerCompat.registerSdkSandboxActivityHandler(handlerCompat)
+        assertThat(token).isEqualTo(localImpl.token)
+    }
+
+    @Test
+    fun unregisterSdkSandboxActivityHandler_withLocalImpl_unregisterItFromLocalImpl() {
+        val localImpl = TestStubImpl()
+        SdkSandboxControllerCompat.injectLocalImpl(localImpl)
+
+        val controllerCompat = SdkSandboxControllerCompat.from(context)
+        val handlerCompat = object : SdkSandboxActivityHandlerCompat {
+            override fun onActivityCreated(activityHolder: ActivityHolder) {}
+        }
+        val token = controllerCompat.registerSdkSandboxActivityHandler(handlerCompat)
+        assertThat(token).isEqualTo(localImpl.token)
+
+        controllerCompat.unregisterSdkSandboxActivityHandler(handlerCompat)
+        assertThat(localImpl.token).isNull()
+    }
+
+    internal class TestStubImpl(
         private val sandboxedSdks: List<SandboxedSdkCompat> = emptyList()
     ) : SdkSandboxControllerCompat.SandboxControllerImpl {
+        var token: IBinder? = null
         override fun getSandboxedSdks() = sandboxedSdks
+        override fun registerSdkSandboxActivityHandler(
+            handlerCompat: SdkSandboxActivityHandlerCompat
+        ): IBinder {
+            token = Binder()
+            return token!!
+        }
+
+        override fun unregisterSdkSandboxActivityHandler(
+            handlerCompat: SdkSandboxActivityHandlerCompat
+        ) {
+            token = null
+        }
     }
 }

@@ -18,10 +18,12 @@ package androidx.privacysandbox.sdkruntime.core.controller.impl
 
 import android.app.sdksandbox.sdkprovider.SdkSandboxController
 import android.content.Context
+import android.os.IBinder
 import android.os.ext.SdkExtensions.AD_SERVICES
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
+import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 
 /**
@@ -29,7 +31,7 @@ import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCo
  */
 @RequiresApi(33)
 @RequiresExtension(extension = AD_SERVICES, version = 5)
-internal class PlatformImpl(
+internal open class PlatformImpl(
     private val controller: SdkSandboxController
 ) : SdkSandboxControllerCompat.SandboxControllerImpl {
 
@@ -37,6 +39,18 @@ internal class PlatformImpl(
         return controller
             .sandboxedSdks
             .map { platformSdk -> SandboxedSdkCompat(platformSdk) }
+    }
+
+    override fun registerSdkSandboxActivityHandler(
+        handlerCompat: SdkSandboxActivityHandlerCompat
+    ): IBinder {
+        throw UnsupportedOperationException("This API only available for devices run on Android U+")
+    }
+
+    override fun unregisterSdkSandboxActivityHandler(
+        handlerCompat: SdkSandboxActivityHandlerCompat
+    ) {
+        throw UnsupportedOperationException("This API only available for devices run on Android U+")
     }
 
     companion object {
