@@ -56,7 +56,7 @@ private val ACTION_SPEC =
             "message.text",
             { property -> Optional.ofNullable(property.messageText) },
             CreateMessage.Argument.Builder::setMessageText,
-            TypeConverters::toStringValue,
+            TypeConverters.STRING_PARAM_VALUE_CONVERTER,
             PropertyConverter::stringValueToProto
         )
         .bindOptionalOutput(

@@ -200,13 +200,13 @@ class SingleTurnCapabilityTest {
                     "optionalString",
                     Property::optionalStringField,
                     Argument.Builder::setOptionalStringField,
-                    TypeConverters::toStringValue,
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                     PropertyConverter::stringValueToProto
                 )
                 .bindOptionalOutput(
                     "optionalStringOutput",
                     Output::optionalStringField,
-                    TypeConverters::toParamValue,
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER::toParamValue,
                 )
                 .build()
     }

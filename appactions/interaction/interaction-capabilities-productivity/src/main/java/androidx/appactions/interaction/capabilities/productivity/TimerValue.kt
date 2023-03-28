@@ -66,9 +66,7 @@ private constructor(
                 )
                 .build()
 
-        internal val FROM_PARAM_VALUE = ParamValueConverter {
-            TYPE_SPEC.fromStruct(it.structValue)
-        }
+        internal val FROM_PARAM_VALUE = ParamValueConverter.of(TYPE_SPEC)
 
         internal val TO_ENTITY_VALUE =
             EntityConverter<TimerValue> { it ->

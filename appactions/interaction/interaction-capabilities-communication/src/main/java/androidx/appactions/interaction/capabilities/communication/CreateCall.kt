@@ -48,7 +48,7 @@ private val ACTION_SPEC =
             "call.callFormat",
             { property -> Optional.ofNullable(property.callFormat) },
             CreateCall.Argument.Builder::setCallFormat,
-            TypeConverters::toCallFormat,
+            TypeConverters.CALL_FORMAT_PARAM_VALUE_CONVERTER,
             TypeConverters::toEntity
         )
         .bindRepeatedParameter(

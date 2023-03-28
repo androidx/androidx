@@ -43,14 +43,14 @@ private val ACTION_SPEC =
             "exercise.duration",
             { property -> Optional.ofNullable(property.duration) },
             StartExercise.Argument.Builder::setDuration,
-            TypeConverters::toDuration,
+            TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
             TypeConverters::toEntity
         )
         .bindOptionalParameter(
             "exercise.name",
             { property -> Optional.ofNullable(property.name) },
             StartExercise.Argument.Builder::setName,
-            TypeConverters::toStringValue,
+            TypeConverters.STRING_PARAM_VALUE_CONVERTER,
             PropertyConverter::stringValueToProto
         )
         .build()

@@ -128,7 +128,7 @@ class TaskSlotProcessorTest {
                 "singularValue",
                 { false },
                 createValueResolver(newAccepted()),
-                { TypeConverters.toStringValue(it) },
+                TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                 null,
                 null
             )
@@ -159,7 +159,7 @@ class TaskSlotProcessorTest {
                 "singularValue",
                 { false },
                 createValueResolver(newRejected()),
-                { TypeConverters.toStringValue(it) },
+                TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                 null,
                 null
             )
@@ -191,7 +191,7 @@ class TaskSlotProcessorTest {
                 "repeatedValue",
                 { false },
                 createValueListResolver(newAccepted()) { lastReceivedArgs.set(it) },
-                { TypeConverters.toStringValue(it) },
+                TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                 null,
                 null
             )
@@ -232,7 +232,7 @@ class TaskSlotProcessorTest {
                 "repeatedValue",
                 { false },
                 createValueListResolver(newRejected()) { lastReceivedArgs.set(it) },
-                { TypeConverters.toStringValue(it) },
+                TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                 null,
                 null
             )
@@ -277,7 +277,7 @@ class TaskSlotProcessorTest {
                     createAssistantDisambigResolver(newAccepted(), { onReceivedCb.set(it) }) {
                         renderCb.set(it)
                     },
-                    { TypeConverters.toStringValue(it) },
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                     null,
                     null
                 )
@@ -348,7 +348,7 @@ class TaskSlotProcessorTest {
                 "appDrivenSlot",
                 { true }, // always invoke app-grounding in all cases
                 resolver,
-                { TypeConverters.toStringValue(it) }, // Not invoked
+                TypeConverters.STRING_PARAM_VALUE_CONVERTER, // Not invoked
                 { Entity.getDefaultInstance() }
             ) {
                 SearchAction.newBuilder<String>().setQuery("A").setObject("nested").build()

@@ -26,6 +26,7 @@ import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySe
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
+import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.PropertyConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.SearchActionConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
@@ -187,7 +188,10 @@ class TaskCapabilityImplTest {
         fun setRequiredEntityValue(entityValue: EntityValue) {
             super.updateParamValues(
                 mapOf(
-                    "required" to listOf(TypeConverters.toParamValue(entityValue)),
+                    "required" to
+                        listOf(
+                            TypeConverters.ENTITY_PARAM_VALUE_CONVERTER.toParamValue(entityValue)
+                        ),
                 ),
             )
         }
@@ -292,12 +296,12 @@ class TaskCapabilityImplTest {
                     .registerValueTaskParam(
                         "slotA",
                         AUTO_ACCEPT_ENTITY_VALUE,
-                        TypeConverters::toEntityValue,
+                        TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
                     )
                     .registerValueTaskParam(
                         "slotB",
                         AUTO_ACCEPT_ENTITY_VALUE,
-                        TypeConverters::toEntityValue,
+                        TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
                     )
                     .build()
             }
@@ -390,12 +394,12 @@ class TaskCapabilityImplTest {
                     .registerValueTaskParam(
                         "slotA",
                         AUTO_ACCEPT_ENTITY_VALUE,
-                        TypeConverters::toEntityValue,
+                        TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
                     )
                     .registerValueTaskParam(
                         "slotB",
                         AUTO_REJECT_ENTITY_VALUE,
-                        TypeConverters::toEntityValue,
+                        TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
                     )
                     .build()
             }
@@ -552,7 +556,7 @@ class TaskCapabilityImplTest {
                             builder.registerAppEntityTaskParam(
                                 "required",
                                 listener,
-                                TypeConverters::toEntityValue,
+                                TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
                                 TypeConverters::toEntity,
                                 getTrivialSearchActionConverter(),
                             )
@@ -708,7 +712,7 @@ class TaskCapabilityImplTest {
                     .registerAppEntityTaskParam(
                         "listItem",
                         session.getListItemListener(),
-                        TypeConverters::toListItem,
+                        ParamValueConverter.of(LIST_ITEM_TYPE_SPEC),
                         EntityConverter.of(LIST_ITEM_TYPE_SPEC)::convert,
                         getTrivialSearchActionConverter(),
                     )
@@ -944,6 +948,16 @@ class TaskCapabilityImplTest {
         }
 
         private const val CAPABILITY_NAME = "actions.intent.TEST"
+        private val ENUM_CONVERTER: ParamValueConverter<TestEnum> =
+            object : ParamValueConverter<TestEnum> {
+                override fun fromParamValue(paramValue: ParamValue): TestEnum {
+                    return TestEnum.VALUE_1
+                }
+
+                override fun toParamValue(value: TestEnum): ParamValue {
+                    return ParamValue.newBuilder().build()
+                }
+            }
         private val ACTION_SPEC: ActionSpec<Property, Argument, Output> =
             ActionSpecBuilder.ofCapabilityNamed(
                     CAPABILITY_NAME,
@@ -955,39 +969,39 @@ class TaskCapabilityImplTest {
                     "required",
                     Property::requiredEntityField,
                     Argument.Builder::setRequiredEntityField,
-                    TypeConverters::toEntityValue,
+                    TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
                     PropertyConverter::entityToProto
                 )
                 .bindOptionalParameter(
                     "optional",
                     Property::optionalStringField,
                     Argument.Builder::setOptionalStringField,
-                    TypeConverters::toStringValue,
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                     PropertyConverter::stringValueToProto
                 )
                 .bindOptionalParameter(
                     "optionalEnum",
                     Property::enumField,
                     Argument.Builder::setEnumField,
-                    { TestEnum.VALUE_1 },
+                    ENUM_CONVERTER,
                     { Entity.newBuilder().setIdentifier(it.toString()).build() }
                 )
                 .bindRepeatedParameter(
                     "repeated",
                     Property::repeatedStringField,
                     Argument.Builder::setRepeatedStringField,
-                    TypeConverters::toStringValue,
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                     PropertyConverter::stringValueToProto
                 )
                 .bindOptionalOutput(
                     "optionalStringOutput",
                     Output::optionalStringField,
-                    TypeConverters::toParamValue,
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER::toParamValue,
                 )
                 .bindRepeatedOutput(
                     "repeatedStringOutput",
                     Output::repeatedStringField,
-                    TypeConverters::toParamValue,
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER::toParamValue,
                 )
                 .build()
 
@@ -1001,10 +1015,6 @@ class TaskCapabilityImplTest {
                         .build()
                 )
                 .build()
-
-        private fun groundingPredicate(paramValue: ParamValue): Boolean {
-            return !paramValue.hasIdentifier()
-        }
 
         private fun getCurrentValues(
             argName: String,
