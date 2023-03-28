@@ -38,7 +38,7 @@ private val VALID_GROUNDING_REQUEST = GroundingRequest.newBuilder()
                         Struct.newBuilder()
                             .putFields(
                                 "@type",
-                                Value.newBuilder().setStringValue("SearchAction").build()
+                                Value.newBuilder().setStringValue("SearchAction").build(),
                             )
                             .putFields(
                                 "object",
@@ -49,13 +49,13 @@ private val VALID_GROUNDING_REQUEST = GroundingRequest.newBuilder()
                                                 "@type",
                                                 Value.newBuilder()
                                                     .setStringValue("Order")
-                                                    .build()
-                                            )
+                                                    .build(),
+                                            ),
                                     )
-                                    .build()
-                            )
-                    )
-            )
+                                    .build(),
+                            ),
+                    ),
+            ),
     )
     .build()
 
@@ -63,7 +63,7 @@ private val VALID_GROUNDING_REQUEST = GroundingRequest.newBuilder()
 class EntityProviderTest {
     private fun createExternalResponse(
         candidateList: List<EntityLookupCandidate<Order>>,
-        status: Int
+        status: Int,
     ): EntityLookupResponse<Order> {
         return EntityLookupResponse.Builder<Order>()
             .setCandidateList(candidateList)
@@ -74,11 +74,11 @@ class EntityProviderTest {
 
     private fun createInternalResponse(
         candidateList: List<GroundingResponse.Candidate>,
-        status: GroundingResponse.Status
+        status: GroundingResponse.Status,
     ): GroundingResponse? {
         return GroundingResponse.newBuilder().setResponse(
             GroundingResponse.Response.newBuilder().addAllCandidates(candidateList)
-                .setStatus(status).build()
+                .setStatus(status).build(),
         ).build()
     }
 
@@ -93,12 +93,13 @@ class EntityProviderTest {
         return GroundingResponse.Candidate.newBuilder()
             .setGroundedEntity(
                 Entity.newBuilder()
+                    .setIdentifier(id)
                     .setStructValue(
                         Struct.newBuilder()
                             .putFields("@type", Value.newBuilder().setStringValue("Order").build())
                             .putFields("identifier", Value.newBuilder().setStringValue(id).build())
-                            .putFields("name", Value.newBuilder().setStringValue(name).build())
-                    )
+                            .putFields("name", Value.newBuilder().setStringValue(name).build()),
+                    ),
             )
             .build()
     }
@@ -106,9 +107,11 @@ class EntityProviderTest {
     @Test
     fun invalidEntity_returnError() {
         val entityProvider = OrderProvider(
-            "id", createExternalResponse(
-                listOf(), EntityLookupResponse.SUCCESS
-            )
+            "id",
+            createExternalResponse(
+                listOf(),
+                EntityLookupResponse.SUCCESS,
+            ),
         )
 
         val response: GroundingResponse? =
@@ -117,17 +120,20 @@ class EntityProviderTest {
         assertThat(response)
             .isEqualTo(
                 createInternalResponse(
-                    listOf(), GroundingResponse.Status.INVALID_ENTITY_ARGUMENT
-                )
+                    listOf(),
+                    GroundingResponse.Status.INVALID_ENTITY_ARGUMENT,
+                ),
             )
     }
 
     @Test
     fun errorInExternalResponse_returnError() {
         val entityProvider = OrderProvider(
-            "id", createExternalResponse(
-                listOf(), EntityLookupResponse.CANCELED
-            )
+            "id",
+            createExternalResponse(
+                listOf(),
+                EntityLookupResponse.CANCELED,
+            ),
         )
 
         val response: GroundingResponse? = entityProvider.lookupInternal(VALID_GROUNDING_REQUEST)
@@ -142,26 +148,26 @@ class EntityProviderTest {
             EntityLookupCandidate.Builder()
         candidateBuilder.setCandidate(Order.newBuilder().setName("testing-order").build())
         val entityProvider = OrderProvider(
-            "id", createExternalResponse(
+            "id",
+            createExternalResponse(
                 listOf(
                     createExternalCandidate("id-1", "name-1"),
-                    createExternalCandidate("id-2", "name-2")
+                    createExternalCandidate("id-2", "name-2"),
                 ),
-                EntityLookupResponse.SUCCESS
-            )
+                EntityLookupResponse.SUCCESS,
+            ),
         )
 
         val response: GroundingResponse? = entityProvider.lookupInternal(VALID_GROUNDING_REQUEST)
-
         assertThat(response)
             .isEqualTo(
                 createInternalResponse(
                     listOf(
                         createInternalCandidate("id-1", "name-1"),
-                        createInternalCandidate("id-2", "name-2")
+                        createInternalCandidate("id-2", "name-2"),
                     ),
-                    GroundingResponse.Status.SUCCESS
-                )
+                    GroundingResponse.Status.SUCCESS,
+                ),
             )
     }
 }

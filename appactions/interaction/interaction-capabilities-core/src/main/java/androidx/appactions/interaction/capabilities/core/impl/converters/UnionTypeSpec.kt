@@ -18,7 +18,7 @@ package androidx.appactions.interaction.capabilities.core.impl.converters
 
 import androidx.annotation.RestrictTo
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
-import androidx.appactions.interaction.protobuf.Struct
+import androidx.appactions.interaction.protobuf.Value
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class UnionTypeSpec<T : Any> internal constructor(
@@ -30,12 +30,12 @@ class UnionTypeSpec<T : Any> internal constructor(
         val typeSpec: TypeSpec<M>,
     ) {
         @Throws(StructConversionException::class)
-        fun tryDeserialize(struct: Struct): T {
-            return ctor(typeSpec.fromStruct(struct))
+        fun tryDeserialize(value: Value): T {
+            return ctor(typeSpec.fromValue(value))
         }
 
-        fun serialize(obj: T): Struct {
-            return typeSpec.toStruct(memberGetter(obj)!!)
+        fun serialize(obj: T): Value {
+            return typeSpec.toValue(memberGetter(obj)!!)
         }
 
         fun getIdentifier(obj: T): String? {
@@ -62,20 +62,20 @@ class UnionTypeSpec<T : Any> internal constructor(
         return getApplicableBinding(obj).getIdentifier(obj)
     }
 
-    override fun toStruct(obj: T): Struct {
+    override fun toValue(obj: T): Value {
         return getApplicableBinding(obj).serialize(obj)
     }
 
     @Throws(StructConversionException::class)
-    override fun fromStruct(struct: Struct): T {
+    override fun fromValue(value: Value): T {
         for (binding in bindings) {
             try {
-                return binding.tryDeserialize(struct)
+                return binding.tryDeserialize(value)
             } catch (e: StructConversionException) {
                 continue
             }
         }
-        throw StructConversionException("all member TypeSpecs failed to deserialize input Struct.")
+        throw StructConversionException("all member TypeSpecs failed to deserialize input Value.")
     }
 
     class Builder<T : Any> {

@@ -224,8 +224,8 @@ public final class TypeConverters {
                 @NonNull
                 @Override
                 public ParamValue toParamValue(EntityValue value) {
-                    throw new IllegalStateException("EntityValue should never be sent back to "
-                            + "Assistant.");
+                    throw new IllegalStateException(
+                            "EntityValue should never be sent back to " + "Assistant.");
                 }
 
                 @Override
@@ -477,7 +477,7 @@ public final class TypeConverters {
     public static <T> SearchActionConverter<T> createSearchActionConverter(
             @NonNull TypeSpec<T> nestedTypeSpec) {
         final TypeSpec<SearchAction<T>> typeSpec = createSearchActionTypeSpec(nestedTypeSpec);
-        return (paramValue) -> typeSpec.fromStruct(paramValue.getStructValue());
+        return ParamValueConverter.Companion.of(typeSpec)::fromParamValue;
     }
 
     /** Converts a Call to a ParamValue. */
@@ -498,10 +498,7 @@ public final class TypeConverters {
         for (Participant participant : value.getParticipantList()) {
             if (participant.asPerson().isPresent()) {
                 participantListBuilder.addValues(
-                        Value.newBuilder()
-                                .setStructValue(
-                                        PERSON_TYPE_SPEC.toStruct(participant.asPerson().get()))
-                                .build());
+                        PERSON_TYPE_SPEC.toValue(participant.asPerson().get()));
             }
         }
         if (!participantListBuilder.getValuesList().isEmpty()) {
@@ -530,10 +527,7 @@ public final class TypeConverters {
         for (Recipient recipient : value.getRecipientList()) {
             if (recipient.asPerson().isPresent()) {
                 recipientListBuilder.addValues(
-                        Value.newBuilder()
-                                .setStructValue(
-                                        PERSON_TYPE_SPEC.toStruct(recipient.asPerson().get()))
-                                .build());
+                        PERSON_TYPE_SPEC.toValue(recipient.asPerson().get()));
             }
         }
         if (!recipientListBuilder.getValuesList().isEmpty()) {
