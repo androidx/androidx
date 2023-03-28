@@ -51,6 +51,18 @@ package androidx.privacysandbox.sdkruntime.core {
 
 }
 
+package androidx.privacysandbox.sdkruntime.core.activity {
+
+  public interface ActivityHolder {
+    method public android.app.Activity getActivity();
+  }
+
+  public interface SdkSandboxActivityHandlerCompat {
+    method public void onActivityCreated(androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder activityHolder);
+  }
+
+}
+
 package androidx.privacysandbox.sdkruntime.core.controller {
 
   public final class SdkSandboxControllerCompat {
