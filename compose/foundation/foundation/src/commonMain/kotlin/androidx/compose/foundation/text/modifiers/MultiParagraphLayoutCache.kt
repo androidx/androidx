@@ -304,18 +304,10 @@ internal class MultiParagraphLayoutCache(
         // if we were passed identical constraints just skip more work
         if (constraints == layoutInput.constraints) return false
 
-        // see if width would produce the same wraps
-        if (canChangeBreaks(
-                canWrap = softWrap && maxLines > 1,
-                newConstraints = constraints,
-                oldConstraints = layoutInput.constraints,
-                maxIntrinsicWidth = this.multiParagraph.intrinsics.maxIntrinsicWidth,
-                softWrap = softWrap,
-                overflow = overflow
-            )) return true
+        if (constraints.maxWidth != layoutInput.constraints.maxWidth) return true
 
         // if we get here width won't change, height may be clipped
-        if (constraints.maxHeight < multiParagraph.height) {
+        if (constraints.maxHeight < multiParagraph.height || multiParagraph.didExceedMaxLines) {
             // vertical clip changes
             return true
         }
