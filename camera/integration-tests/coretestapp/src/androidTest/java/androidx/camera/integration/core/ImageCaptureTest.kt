@@ -1397,6 +1397,11 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @Test
     @SdkSuppress(minSdkVersion = 28)
     fun returnJpegImage_whenSessionProcessorIsSet() = runBlocking {
+        assumeTrue(
+            "TODO(b/275493663): Enable when camera-pipe has extensions support",
+            implName != CameraPipeConfig::class.simpleName
+        )
+
         val builder = ImageCapture.Builder()
         val sessionProcessor = FakeSessionProcessor(
             inputFormatPreview = null, // null means using the same output surface
