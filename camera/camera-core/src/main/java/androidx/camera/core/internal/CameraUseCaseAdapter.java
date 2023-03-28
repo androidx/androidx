@@ -217,9 +217,9 @@ public final class CameraUseCaseAdapter implements Camera {
      */
     public void addUseCases(@NonNull Collection<UseCase> appUseCasesToAdd) throws CameraException {
         synchronized (mLock) {
-            List<UseCase> appUseCases = new ArrayList<>(mAppUseCases);
-            // Removing new from existing to avoid duplicate UseCases.
-            appUseCases.removeAll(appUseCasesToAdd);
+            Set<UseCase> appUseCases = new LinkedHashSet<>(mAppUseCases);
+            //TODO(b/266641900): must be LinkedHashSet otherwise ExistingActivityLifecycleTest
+            // fails due to a camera-pipe integration bug.
             appUseCases.addAll(appUseCasesToAdd);
             try {
                 updateUseCases(appUseCases);
@@ -234,7 +234,7 @@ public final class CameraUseCaseAdapter implements Camera {
      */
     public void removeUseCases(@NonNull Collection<UseCase> useCasesToRemove) {
         synchronized (mLock) {
-            List<UseCase> appUseCases = new ArrayList<>(mAppUseCases);
+            Set<UseCase> appUseCases = new LinkedHashSet<>(mAppUseCases);
             appUseCases.removeAll(useCasesToRemove);
             updateUseCases(appUseCases);
         }
