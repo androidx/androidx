@@ -1426,7 +1426,6 @@ class ComposableCheckerTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(u
 
     @Test
     fun testComposableValueOperator() {
-        assumeFalse(useFir)
         check(
             """
             import androidx.compose.runtime.Composable

@@ -39,29 +39,26 @@ import com.sun.jdi.request.MethodExitRequest
 import com.sun.jdi.request.StepRequest
 import com.sun.tools.jdi.SocketAttachingConnector
 import java.io.File
+import java.net.URL
+import java.net.URLClassLoader
+import kotlin.properties.Delegates
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.backend.common.output.SimpleOutputFileCollection
 import org.jetbrains.kotlin.cli.common.output.writeAllTo
 import org.jetbrains.kotlin.codegen.GeneratedClassLoader
-import java.net.URL
-import java.net.URLClassLoader
-import kotlin.properties.Delegates
 import org.junit.After
 import org.junit.AfterClass
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 private const val RUNNER_CLASS = "RunnerKt"
 private const val MAIN_METHOD = "main"
 private const val CONTENT_METHOD = "content"
 private const val TEST_CLASS = "TestKt"
 
-@RunWith(JUnit4::class)
-abstract class AbstractDebuggerTest : AbstractCodegenTest(useFir = false) {
+abstract class AbstractDebuggerTest(useFir: Boolean) : AbstractCodegenTest(useFir) {
     companion object {
         private lateinit var testServerProcess: Process
         lateinit var virtualMachine: VirtualMachine

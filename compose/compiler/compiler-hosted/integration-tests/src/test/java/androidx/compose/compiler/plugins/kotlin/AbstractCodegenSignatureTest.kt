@@ -20,11 +20,11 @@ import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.widget.LinearLayout
+import java.net.URLClassLoader
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.backend.common.output.OutputFile
-import org.robolectric.Robolectric
-import java.net.URLClassLoader
 import org.junit.Assert.assertEquals
+import org.robolectric.Robolectric
 
 fun printPublicApi(classDump: String, name: String): String {
     return classDump
@@ -60,7 +60,7 @@ fun printPublicApi(classDump: String, name: String): String {
         .replace('$', '%') // replace $ to % to make comparing it to kotlin string literals easier
 }
 
-abstract class AbstractCodegenSignatureTest : AbstractCodegenTest(useFir = false) {
+abstract class AbstractCodegenSignatureTest(useFir: Boolean) : AbstractCodegenTest(useFir) {
     private fun OutputFile.printApi(): String {
         return printPublicApi(asText(), relativePath)
     }

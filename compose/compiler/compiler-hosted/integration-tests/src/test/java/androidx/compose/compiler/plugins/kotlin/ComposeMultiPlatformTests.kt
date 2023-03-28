@@ -18,6 +18,7 @@ package androidx.compose.compiler.plugins.kotlin
 
 import org.junit.Test
 
+// TODO: Run with FIR?
 @Suppress("unused")
 class ComposeMultiPlatformTests : AbstractMultiPlatformIntegrationTest() {
     @Test

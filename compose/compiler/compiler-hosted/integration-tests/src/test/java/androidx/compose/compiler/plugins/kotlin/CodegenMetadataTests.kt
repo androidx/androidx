@@ -18,7 +18,6 @@ package androidx.compose.compiler.plugins.kotlin
 
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.junit.Assert.assertEquals
-import org.junit.Assume.assumeFalse
 import org.junit.Test
 
 class CodegenMetadataTests(useFir: Boolean) : AbstractLoweringTests(useFir) {
@@ -46,7 +45,6 @@ class CodegenMetadataTests(useFir: Boolean) : AbstractLoweringTests(useFir) {
 
     @Test
     fun testDelegatedProperties() {
-        assumeFalse(useFir)
         val className = "Test_${uniqueNumber++}"
         val fileName = "$className.kt"
         val loader = classLoader(

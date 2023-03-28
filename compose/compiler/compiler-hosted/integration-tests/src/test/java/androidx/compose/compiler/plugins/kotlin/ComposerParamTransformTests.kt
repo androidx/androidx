@@ -27,8 +27,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@RunWith(JUnit4::class)
-class ComposerParamTransformTests : AbstractIrTransformTest(useFir = false) {
+class ComposerParamTransformTests(useFir: Boolean) : AbstractIrTransformTest(useFir) {
     private fun composerParam(
         @Language("kotlin")
         source: String,

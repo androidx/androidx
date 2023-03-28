@@ -17,6 +17,7 @@
 package androidx.compose.compiler.plugins.kotlin.lower
 
 import androidx.compose.compiler.plugins.kotlin.ComposeFqNames
+import androidx.compose.compiler.plugins.kotlin.hasComposableAnnotation
 import androidx.compose.compiler.plugins.kotlin.lower.decoys.isDecoy
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContextImpl
@@ -421,16 +422,6 @@ class ComposerTypeRemapper(
         scopeStack.pop()
     }
 
-    private fun IrType.isComposable(): Boolean {
-        return annotations.hasAnnotation(ComposeFqNames.Composable)
-    }
-
-    private val IrConstructorCall.annotationClass
-        get() = this.symbol.owner.returnType.classifierOrNull
-
-    private fun List<IrConstructorCall>.hasAnnotation(fqName: FqName): Boolean =
-        any { it.annotationClass?.isClassWithFqName(fqName.toUnsafe()) ?: false }
-
     @OptIn(ObsoleteDescriptorBasedAPI::class)
     private fun IrType.isFunction(): Boolean {
         val classifier = classifierOrNull ?: return false
@@ -440,10 +431,13 @@ class ComposerTypeRemapper(
         return true
     }
 
+    private fun IrType.isComposableFunction(): Boolean {
+        return isSyntheticComposableFunction() || isFunction() && hasComposableAnnotation()
+    }
+
     override fun remapType(type: IrType): IrType {
         if (type !is IrSimpleType) return type
-        if (!type.isFunction()) return underlyingRemapType(type)
-        if (!type.isComposable()) return underlyingRemapType(type)
+        if (!type.isComposableFunction()) return underlyingRemapType(type)
         // do not convert types for decoys
         if (scopeStack.peek()?.isDecoy() == true) {
             return underlyingRemapType(type)

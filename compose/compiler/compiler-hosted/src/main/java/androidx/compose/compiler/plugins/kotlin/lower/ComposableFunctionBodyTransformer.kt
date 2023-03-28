@@ -2031,7 +2031,7 @@ class ComposableFunctionBodyTransformer(
 
             val name = declaration.kotlinFqName
             val file = declaration.file.name
-            val line = declaration.file.fileEntry.getLineNumber(declaration.startOffset)
+            val line = declaration.file.fileEntry.getLineNumber(startOffset) //declaration.startOffset)
             val traceInfo = "$name ($file:$line)" // TODO(174715171) decide on what to log
             val dirty = scope.dirty
             val changed = scope.changedParameter
