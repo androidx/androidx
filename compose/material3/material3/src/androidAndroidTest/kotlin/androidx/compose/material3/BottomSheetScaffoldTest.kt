@@ -21,8 +21,10 @@ import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Build
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,9 +34,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.tokens.SheetBottomTokens
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.testutils.assertContainsColor
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -44,6 +49,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -100,6 +106,7 @@ class BottomSheetScaffoldTest {
     private val dragHandleSize = 44.dp
     private val peekHeight = 75.dp
     private val sheetTag = "sheetContentTag"
+    private val scaffoldContentTag = "scaffoldContentTag"
     private val dragHandleTag = "dragHandleTag"
 
     @Test
@@ -654,6 +661,99 @@ class BottomSheetScaffoldTest {
         } finally {
             rule.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun bottomSheetScaffold_testNestedScrollConnection() {
+        lateinit var sheetState: SheetState
+        lateinit var sheetScrollState: ScrollState
+        lateinit var scaffoldContentScrollState: ScrollState
+        lateinit var topAppBarScrollBehavior: TopAppBarScrollBehavior
+        var expectedPreScrollContentColor: Color = Color.Unspecified
+        var expectedPostScrolledContainerColor: Color = Color.Unspecified
+
+        rule.setContent {
+            sheetState = rememberStandardBottomSheetState()
+            topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+            BottomSheetScaffold(
+                modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
+                scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState),
+                sheetContent = {
+                    sheetScrollState = rememberScrollState()
+                    Column(
+                        Modifier
+                            .verticalScroll(sheetScrollState)
+                            .testTag(sheetTag)
+                    ) {
+                        repeat(100) {
+                            Text(it.toString(), Modifier.requiredHeight(50.dp))
+                        }
+                    }
+                },
+                sheetPeekHeight = peekHeight,
+                topBar = {
+                    TopAppBar(
+                        title = {
+                            Text("Title")
+                            // fraction = 1f to indicate a scroll.
+                            expectedPreScrollContentColor = MaterialTheme.colorScheme.surface
+                            expectedPostScrolledContainerColor =
+                                TopAppBarDefaults.topAppBarColors()
+                                    .containerColor(colorTransitionFraction = 1f)
+                        },
+                    modifier = Modifier.testTag("AppBar"),
+                    scrollBehavior = topAppBarScrollBehavior
+                )
+            }
+            ) {
+                scaffoldContentScrollState = rememberScrollState()
+                Column(
+                    Modifier
+                        .verticalScroll(scaffoldContentScrollState)
+                        .testTag(scaffoldContentTag)
+                ) {
+                    repeat(100) {
+                        Text(it.toString(), Modifier.requiredHeight(50.dp))
+                    }
+                }
+            }
+        }
+
+        // Initial sheetScrollStateValue is at 0 and partially expanded
+        assertThat(sheetScrollState.value).isEqualTo(0)
+        assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
+
+        // At a partial scroll, sheet expands but sheetScrollStateValue is at 0.
+        rule.onNodeWithTag(sheetTag)
+            .performTouchInput {
+                swipeUp(startY = bottom, endY = bottom / 2)
+            }
+        rule.waitForIdle()
+        assertThat(sheetScrollState.value).isEqualTo(0)
+        assertThat(sheetState.currentValue).isEqualTo(SheetValue.Expanded)
+        // Color of TopAppBar has not changed.
+        rule.onNodeWithTag("AppBar").captureToImage()
+            .assertContainsColor(expectedPreScrollContentColor)
+
+        rule.onNodeWithTag(sheetTag)
+            .performTouchInput {
+                swipeDown(startY = top, endY = bottom)
+            }
+        rule.waitForIdle()
+        assertThat(sheetScrollState.value).isEqualTo(0)
+        assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
+
+        // On content scroll, TopAppBar color updates while sheet state remains PartiallyExpanded
+        rule.onNodeWithTag(scaffoldContentTag)
+            .performTouchInput {
+                swipeUp(startY = bottom / 2, endY = top)
+            }
+        assertThat(sheetScrollState.value).isEqualTo(0)
+        assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
+        assertThat(scaffoldContentScrollState.value).isGreaterThan(0)
+        rule.onNodeWithTag("AppBar").captureToImage()
+            .assertContainsColor(expectedPostScrolledContainerColor)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
