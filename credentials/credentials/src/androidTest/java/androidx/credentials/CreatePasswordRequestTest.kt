@@ -42,6 +42,17 @@ class CreatePasswordRequestTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+    @Test
+    fun constructor_defaultProvider() {
+        val defaultProvider = "com.test/com.test.TestProviderComponent"
+
+        val request = CreatePasswordRequest(
+            id = "id", password = "password", origin = null, defaultProvider = defaultProvider)
+
+        assertThat(request.displayInfo.preferDefaultProvider).isEqualTo(defaultProvider)
+    }
+
     @Test
     fun getter_id() {
         val idExpected = "id"

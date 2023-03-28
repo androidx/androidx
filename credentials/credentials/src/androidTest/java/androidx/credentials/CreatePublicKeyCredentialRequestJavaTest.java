@@ -81,6 +81,18 @@ public class CreatePublicKeyCredentialRequestJavaTest {
                 "{\"user\":{\"name\":{\"lol\":\"Value\"}}}");
     }
 
+    @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+    @Test
+    public void constructor_defaultProvider() {
+        String defaultProvider = "com.test/com.test.TestProviderComponent";
+
+        CreatePublicKeyCredentialRequest request = new CreatePublicKeyCredentialRequest(
+                "{\"user\":{\"name\":{\"lol\":\"Value\"}}}",
+                null, false, null, defaultProvider);
+
+        assertThat(request.getDisplayInfo().getPreferDefaultProvider()).isEqualTo(defaultProvider);
+    }
+
     @Test
     public void constructor_setsPreferImmediatelyAvailableCredentialsToFalseByDefault() {
         CreatePublicKeyCredentialRequest createPublicKeyCredentialRequest =

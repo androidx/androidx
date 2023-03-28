@@ -58,10 +58,38 @@ class CreatePasswordRequest private constructor(
      * @throws NullPointerException If [id] is null
      * @throws NullPointerException If [password] is null
      * @throws IllegalArgumentException If [password] is empty
-     * @throws SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present
+     * @throws SecurityException if [origin] is set but
+     * android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present
      */
     @JvmOverloads constructor(id: String, password: String, origin: String? = null) : this(id,
         password, DisplayInfo(id, null), origin)
+
+    /**
+     * Constructs a [CreatePasswordRequest] to save the user password credential with their
+     * password provider.
+     *
+     * @param id the user id associated with the password
+     * @param password the password
+     * @param origin the origin of a different application if the request is being made on behalf of
+     * that application. For API level >=34, setting a non-null value for this parameter, will throw
+     * a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present.
+     * @param defaultProvider the preferred default provider component name to prioritize in the
+     * selection UI flows. Your app must have the permission
+     * android.permission.CREDENTIAL_MANAGER_QUERY_CANDIDATE_CREDENTIALS to specify this, or it
+     * would not take effect. Also this bit will not take effect for Android API level 33 and below.
+     * @throws NullPointerException If [id] is null
+     * @throws NullPointerException If [password] is null
+     * @throws IllegalArgumentException If [password] is empty
+     * @throws SecurityException if [origin] is set but
+     * android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present
+     */
+    constructor(id: String, password: String, origin: String?, defaultProvider: String?) : this(
+        id, password, DisplayInfo(
+            userId = id,
+            userDisplayName = null,
+            preferDefaultProvider = defaultProvider,
+        ), origin,
+    )
 
     init {
         require(password.isNotEmpty()) { "password should not be empty" }

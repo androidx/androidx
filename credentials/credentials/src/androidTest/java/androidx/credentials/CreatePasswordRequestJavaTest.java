@@ -63,6 +63,20 @@ public class CreatePasswordRequestJavaTest {
         );
     }
 
+    @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+    @Test
+    public void constructor_defaultProvider() {
+        String defaultProvider = "com.test/com.test.TestProviderComponent";
+
+        CreatePasswordRequest request = new CreatePasswordRequest(
+                "id",
+                "password",
+                null,
+                defaultProvider);
+
+        assertThat(request.getDisplayInfo().getPreferDefaultProvider()).isEqualTo(defaultProvider);
+    }
+
     @Test
     public void getter_id() {
         String idExpected = "id";

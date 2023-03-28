@@ -55,7 +55,8 @@ class CreatePublicKeyCredentialRequest private constructor(
 ) {
 
     /**
-     * Constructs a [CreatePublicKeyCredentialRequest] to register a passkey from the user's public key credential provider.
+     * Constructs a [CreatePublicKeyCredentialRequest] to register a passkey from the user's public
+     * key credential provider.
      *
      * @param requestJson the privileged request in JSON format in the [standard webauthn web json](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson).
      * @param clientDataHash a hash that is used to verify the relying party identity
@@ -77,6 +78,37 @@ class CreatePublicKeyCredentialRequest private constructor(
     ) : this(requestJson, clientDataHash, preferImmediatelyAvailableCredentials,
         getRequestDisplayInfo(requestJson), origin)
 
+    /**
+     * Constructs a [CreatePublicKeyCredentialRequest] to register a passkey from the user's public
+     * key credential provider.
+     *
+     * @param requestJson the privileged request in JSON format in the [standard webauthn web
+     * json](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson).
+     * @param clientDataHash a hash that is used to verify the relying party identity
+     * @param preferImmediatelyAvailableCredentials true if you prefer the operation to return
+     * immediately when there is no available passkey registration offering instead of falling back to
+     * discovering remote options, and false (preferably) otherwise
+     * @param origin the origin of a different application if the request is being made on behalf of
+     * that application. For API level >=34, setting a non-null value for this parameter, will throw
+     * a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present.
+     * @param defaultProvider the preferred default provider component name to prioritize in the
+     * selection UI flows. Your app must have the permission
+     * android.permission.CREDENTIAL_MANAGER_QUERY_CANDIDATE_CREDENTIALS to specify this, or it
+     * would not take effect. Also this bit will not take effect for Android API level 33 and below.
+     * @throws NullPointerException If [requestJson] is null
+     * @throws IllegalArgumentException If [requestJson] is empty, or if it doesn't have a valid
+     * `user.name` defined according to the [webauthn
+     * spec](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson)
+     */
+    constructor(
+        requestJson: String,
+        clientDataHash: String?,
+        preferImmediatelyAvailableCredentials: Boolean,
+        origin: String?,
+        defaultProvider: String?
+    ) : this(requestJson, clientDataHash, preferImmediatelyAvailableCredentials,
+        getRequestDisplayInfo(requestJson, defaultProvider), origin)
+
     init {
         require(requestJson.isNotEmpty()) { "requestJson must not be empty" }
     }
@@ -92,14 +124,22 @@ class CreatePublicKeyCredentialRequest private constructor(
             "androidx.credentials.BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST"
 
         @JvmStatic
-        internal fun getRequestDisplayInfo(requestJson: String): DisplayInfo {
+        internal fun getRequestDisplayInfo(
+            requestJson: String,
+            defaultProvider: String? = null,
+        ): DisplayInfo {
             return try {
                 val json = JSONObject(requestJson)
                 val user = json.getJSONObject("user")
                 val userName = user.getString("name")
                 val displayName: String? =
                     if (user.isNull("displayName")) null else user.getString("displayName")
-                DisplayInfo(userName, displayName)
+                DisplayInfo(
+                    userId = userName,
+                    userDisplayName = displayName,
+                    credentialTypeIcon = null,
+                    preferDefaultProvider = defaultProvider,
+                )
             } catch (e: Exception) {
                 throw IllegalArgumentException("user.name must be defined in requestJson")
             }

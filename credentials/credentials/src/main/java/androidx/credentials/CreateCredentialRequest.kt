@@ -73,7 +73,7 @@ abstract class CreateCredentialRequest internal constructor(
         /** @hide */
         val credentialTypeIcon: Icon?,
         /** @hide */
-        val defaultProvider: String?,
+        val preferDefaultProvider: String?,
     ) {
 
         /**
@@ -95,6 +95,31 @@ abstract class CreateCredentialRequest internal constructor(
             null,
         )
 
+        /**
+         * Constructs a [DisplayInfo].
+         *
+         * @param userId the user id of the created credential
+         * @param userDisplayName an optional display name in addition to the [userId] that may be
+         * displayed next to the `userId` during the user consent to help your user better
+         * understand the credential being created
+         * @param preferDefaultProvider the preferred default provider component name to prioritize in the
+         * selection UI flows. Your app must have the permission
+         * android.permission.CREDENTIAL_MANAGER_QUERY_CANDIDATE_CREDENTIALS to specify this, or it
+         * would not take effect. Notice that this bit will not take effect for Android API level
+         * 33 and below.
+         * @throws IllegalArgumentException If [userId] is empty
+         */
+        constructor(
+            userId: CharSequence,
+            userDisplayName: CharSequence?,
+            preferDefaultProvider: String?
+        ) : this(
+            userId,
+            userDisplayName,
+            null,
+            preferDefaultProvider,
+        )
+
         init {
             require(userId.isNotEmpty()) { "userId should not be empty" }
         }
@@ -107,8 +132,8 @@ abstract class CreateCredentialRequest internal constructor(
             if (!TextUtils.isEmpty(userDisplayName)) {
                 bundle.putCharSequence(BUNDLE_KEY_USER_DISPLAY_NAME, userDisplayName)
             }
-            if (!TextUtils.isEmpty(defaultProvider)) {
-                bundle.putString(BUNDLE_KEY_DEFAULT_PROVIDER, defaultProvider)
+            if (!TextUtils.isEmpty(preferDefaultProvider)) {
+                bundle.putString(BUNDLE_KEY_DEFAULT_PROVIDER, preferDefaultProvider)
             }
             // Today the type icon is determined solely within this library right before the
             // request is passed into the framework. Later if needed a new API can be added for

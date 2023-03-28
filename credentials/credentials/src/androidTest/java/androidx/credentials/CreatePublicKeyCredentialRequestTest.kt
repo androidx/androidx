@@ -88,6 +88,22 @@ class CreatePublicKeyCredentialRequestTest {
         assertThat(createPublicKeyCredentialRequest.origin).isEqualTo(origin)
     }
 
+    @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+    @Test
+    fun constructor_defaultProvider() {
+        val defaultProvider = "com.test/com.test.TestProviderComponent"
+
+        val request = CreatePublicKeyCredentialRequest(
+            requestJson = "{\"user\":{\"name\":{\"lol\":\"Value\"}}}",
+            clientDataHash = null,
+            preferImmediatelyAvailableCredentials = false,
+            origin = null,
+            defaultProvider = defaultProvider
+        )
+
+        assertThat(request.displayInfo.preferDefaultProvider).isEqualTo(defaultProvider)
+    }
+
     @Test
     fun getter_requestJson_success() {
         val testJsonExpected = "{\"user\":{\"name\":{\"lol\":\"Value\"}}}"
