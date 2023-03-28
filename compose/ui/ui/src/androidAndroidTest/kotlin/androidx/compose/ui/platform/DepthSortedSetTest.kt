@@ -23,7 +23,7 @@ import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.add
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import com.nhaarman.mockitokotlin2.spy
+import org.mockito.kotlin.spy
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
