@@ -247,6 +247,7 @@ public suspend fun ExerciseClient.overrideAutoPauseAndResumeForActiveExercise(
  * @throws HealthServicesException if an exercise is not active for this app or Health Service fails
  * to process the call
  */
+@kotlin.jvm.Throws(HealthServicesException::class)
 public suspend fun ExerciseClient.overrideBatchingModesForActiveExercise(
     batchingModes: Set<BatchingMode>
 ) = overrideBatchingModesForActiveExerciseAsync(batchingModes).awaitWithException()
