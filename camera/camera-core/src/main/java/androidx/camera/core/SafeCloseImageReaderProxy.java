@@ -220,4 +220,15 @@ public class SafeCloseImageReaderProxy implements ImageReaderProxy {
             mImageReaderProxy.clearOnImageAvailableListener();
         }
     }
+
+    /**
+     * Returns the underlying {@link ImageReaderProxy} for testing.
+     */
+    @VisibleForTesting
+    @NonNull
+    public ImageReaderProxy getImageReaderProxy() {
+        synchronized (mLock) {
+            return mImageReaderProxy;
+        }
+    }
 }

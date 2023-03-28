@@ -1870,6 +1870,12 @@ public final class ImageCapture extends UseCase {
         return mImagePipeline != null && mTakePictureManager != null;
     }
 
+    @Nullable
+    @VisibleForTesting
+    ImagePipeline getImagePipeline() {
+        return mImagePipeline;
+    }
+
     @VisibleForTesting
     @NonNull
     TakePictureManager getTakePictureManager() {

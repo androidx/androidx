@@ -36,6 +36,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.ForwardingImageProxy;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.core.ImageReaderProxys;
 import androidx.camera.core.Logger;
 import androidx.camera.core.MetadataImageReader;
 import androidx.camera.core.SafeCloseImageReaderProxy;
@@ -48,6 +49,7 @@ import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.processing.Edge;
 import androidx.camera.core.processing.Node;
+import androidx.core.util.Consumer;
 
 import com.google.auto.value.AutoValue;
 
@@ -95,15 +97,34 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         Size size = inputEdge.getSize();
         int format = inputEdge.getFormat();
 
-        // Creates ImageReaders.
-        MetadataImageReader metadataImageReader = new MetadataImageReader(size.getWidth(),
-                size.getHeight(), format, MAX_IMAGES);
-        mSafeCloseImageReaderProxy = new SafeCloseImageReaderProxy(metadataImageReader);
-        inputEdge.setCameraCaptureCallback(metadataImageReader.getCameraCaptureCallback());
-        inputEdge.setSurface(requireNonNull(metadataImageReader.getSurface()));
+        // Create and configure ImageReader.
+        Consumer<ProcessingRequest> requestConsumer;
+        ImageReaderProxy wrappedImageReader;
+        boolean hasMetadata = !inputEdge.isVirtualCamera();
+        if (hasMetadata) {
+            // Use MetadataImageReader if the input edge expects metadata.
+            MetadataImageReader metadataImageReader = new MetadataImageReader(size.getWidth(),
+                    size.getHeight(), format, MAX_IMAGES);
+            inputEdge.setCameraCaptureCallback(metadataImageReader.getCameraCaptureCallback());
+            wrappedImageReader = metadataImageReader;
+            requestConsumer = this::onRequestAvailable;
+        } else {
+            // Use NoMetadataImageReader if the input edge does not expect metadata.
+            NoMetadataImageReader noMetadataImageReader = new NoMetadataImageReader(
+                    ImageReaderProxys.createIsolatedReader(
+                            size.getWidth(), size.getHeight(), format, MAX_IMAGES));
+            wrappedImageReader = noMetadataImageReader;
+            // Forward the request to the NoMetadataImageReader to create fake metadata.
+            requestConsumer = request -> {
+                onRequestAvailable(request);
+                noMetadataImageReader.acceptProcessingRequest(request);
+            };
+        }
+        inputEdge.setSurface(requireNonNull(wrappedImageReader.getSurface()));
+        mSafeCloseImageReaderProxy = new SafeCloseImageReaderProxy(wrappedImageReader);
 
         // Listen to the input edges.
-        metadataImageReader.setOnImageAvailableListener(imageReader -> {
+        wrappedImageReader.setOnImageAvailableListener(imageReader -> {
             try {
                 ImageProxy image = imageReader.acquireLatestImage();
                 if (image != null) {
@@ -117,7 +138,7 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
                         + "acquire latest image", e));
             }
         }, mainThreadExecutor());
-        inputEdge.getRequestEdge().setListener(this::onRequestAvailable);
+        inputEdge.getRequestEdge().setListener(requestConsumer);
         inputEdge.getErrorEdge().setListener(this::sendCaptureError);
 
         mOutputEdge = Out.of(inputEdge.getFormat(), inputEdge.isVirtualCamera());
@@ -220,6 +241,12 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         return requireNonNull(mInputEdge);
     }
 
+    @VisibleForTesting
+    @NonNull
+    public SafeCloseImageReaderProxy getSafeCloseImageReaderProxy() {
+        return requireNonNull(mSafeCloseImageReaderProxy);
+    }
+
     @MainThread
     public int getCapacity() {
         checkMainThread();
@@ -242,8 +269,11 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
     @AutoValue
     abstract static class In {
 
-        private CameraCaptureCallback mCameraCaptureCallback;
+        @NonNull
+        private CameraCaptureCallback mCameraCaptureCallback = new CameraCaptureCallback() {
+        };
 
+        @Nullable
         private DeferrableSurface mSurface;
 
         /**
@@ -280,7 +310,7 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
          */
         @NonNull
         DeferrableSurface getSurface() {
-            return mSurface;
+            return requireNonNull(mSurface);
         }
 
         void setSurface(@NonNull Surface surface) {
@@ -293,6 +323,7 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
          *
          * <p>The value will be used in a capture request sent to the camera.
          */
+        @NonNull
         CameraCaptureCallback getCameraCaptureCallback() {
             return mCameraCaptureCallback;
         }
