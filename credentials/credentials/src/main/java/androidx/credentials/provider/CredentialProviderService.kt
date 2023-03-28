@@ -105,7 +105,7 @@ abstract class CredentialProviderService : CredentialProviderService() {
                 )
                 callback.onResult(
                     BeginGetCredentialUtil
-                        .convertToFrameworkResponse(response)
+                        .convertJetpackResponseToFrameworkResponse(response)
                 )
             }
 
@@ -138,7 +138,7 @@ abstract class CredentialProviderService : CredentialProviderService() {
                 )
                 callback.onResult(
                     BeginCreateCredentialUtil
-                        .convertToFrameworkResponse(response)
+                        .convertJetpackResponseToFrameworkResponse(response)
                 )
             }
 
@@ -156,7 +156,7 @@ abstract class CredentialProviderService : CredentialProviderService() {
             }
         }
         onBeginCreateCredentialRequest(
-            BeginCreateCredentialUtil.convertToJetpackRequest(request),
+            BeginCreateCredentialUtil.convertToStructuredRequest(request),
             cancellationSignal, outcome
         )
     }
