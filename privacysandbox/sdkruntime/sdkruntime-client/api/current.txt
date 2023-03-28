@@ -7,6 +7,7 @@ package androidx.privacysandbox.sdkruntime.client {
     method public java.util.List<androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat> getSandboxedSdks();
     method @kotlin.jvm.Throws(exceptionClasses=LoadSdkCompatException::class) public suspend Object? loadSdk(String sdkName, android.os.Bundle params, kotlin.coroutines.Continuation<? super androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat>) throws androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException;
     method public void removeSdkSandboxProcessDeathCallback(androidx.privacysandbox.sdkruntime.client.SdkSandboxProcessDeathCallbackCompat callback);
+    method public void startSdkSandboxActivity(android.app.Activity fromActivity, android.os.IBinder sdkActivityToken);
     method public void unloadSdk(String sdkName);
     field public static final androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat.Companion Companion;
   }

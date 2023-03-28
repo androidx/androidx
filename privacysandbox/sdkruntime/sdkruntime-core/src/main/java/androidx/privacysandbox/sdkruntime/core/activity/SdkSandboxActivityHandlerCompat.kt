@@ -27,6 +27,11 @@ import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCo
  * calling [SdkSandboxControllerCompat.registerSdkSandboxActivityHandler] that will return an
  * [android.os.Binder] identifier for the registered [SdkSandboxControllerCompat].
  *
+ * The SDK should be notified about the [Activity] creation through calling
+ * [SdkSandboxActivityHandlerCompat.onActivityCreated] which happens when the caller app calls
+ * `SdkSandboxManagerCompat#startSdkSandboxActivity(Activity, IBinder)` using the same
+ * [android.os.IBinder] identifier for the registered [SdkSandboxActivityHandlerCompat].
+ *
  * @see SdkSandboxActivityHandler
  */
 interface SdkSandboxActivityHandlerCompat {
