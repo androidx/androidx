@@ -26,7 +26,6 @@ import androidx.credentials.provider.AuthenticationAction
 import androidx.credentials.provider.BeginGetCredentialResponse
 import androidx.credentials.provider.CredentialEntry
 import androidx.credentials.provider.RemoteEntry
-import java.util.stream.Collectors
 
 /**
  * @hide
@@ -53,7 +52,7 @@ class BeginGetCredentialUtil {
             )
         }
 
-        fun convertToFrameworkResponse(response: BeginGetCredentialResponse):
+        fun convertJetpackResponseToFrameworkResponse(response: BeginGetCredentialResponse):
             android.service.credentials.BeginGetCredentialResponse {
             val frameworkBuilder = android.service.credentials.BeginGetCredentialResponse.Builder()
             populateCredentialEntries(frameworkBuilder, response.credentialEntries)
@@ -118,46 +117,6 @@ class BeginGetCredentialUtil {
                     )
                 )
             }
-        }
-
-        fun convertToFrameworkRequest(request: BeginGetCredentialRequest):
-            android.service.credentials.BeginGetCredentialRequest {
-            return android.service.credentials.BeginGetCredentialRequest.Builder()
-                .setCallingAppInfo(request.callingAppInfo)
-                .setBeginGetCredentialOptions(request.beginGetCredentialOptions.stream()
-                    .map { option -> convertToJetpackBeginOption(option) }
-                    .collect(Collectors.toList()))
-                .build()
-        }
-
-        private fun convertToJetpackBeginOption(option: BeginGetCredentialOption):
-            android.service.credentials.BeginGetCredentialOption {
-            return android.service.credentials.BeginGetCredentialOption(option.id, option.type,
-                option.candidateQueryData)
-        }
-
-        fun convertToJetpackResponse(
-            response: android.service.credentials.BeginGetCredentialResponse
-        ): BeginGetCredentialResponse {
-            return BeginGetCredentialResponse(
-                credentialEntries = response.credentialEntries.stream()
-                    .map { entry -> CredentialEntry.createFrom(entry.slice) }
-                    .filter { entry -> entry != null }
-                    .map { entry -> entry!! }
-                    .collect(Collectors.toList()),
-                actions = response.actions.stream()
-                    .map { entry -> Action.fromSlice(entry.slice) }
-                    .filter { entry -> entry != null }
-                    .map { entry -> entry!! }
-                    .collect(Collectors.toList()),
-                authenticationActions = response.authenticationActions.stream()
-                    .map { entry -> AuthenticationAction.fromSlice(entry.slice) }
-                    .filter { entry -> entry != null }
-                    .map { entry -> entry!! }
-                    .collect(Collectors.toList()),
-                remoteEntry =
-                response.remoteCredentialEntry?.let { RemoteEntry.fromSlice(it.slice) }
-            )
         }
     }
 }
