@@ -21,7 +21,9 @@ import androidx.appactions.interaction.capabilities.core.BaseSession
 import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
+import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
+import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.PARTICIPANT_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
 import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
@@ -54,7 +56,7 @@ private val ACTION_SPEC =
             { property -> Optional.ofNullable(property.participant) },
             CreateCall.Argument.Builder::setParticipantList,
             ParticipantValue.FROM_PARAM_VALUE,
-            TypeConverters::toEntity
+            EntityConverter.of(PARTICIPANT_TYPE_SPEC)
         )
         .bindOptionalOutput(
             "call",
