@@ -114,7 +114,7 @@ class CameraInfoAdapterTest {
         zoomControl.useCaseCamera = FakeUseCaseCamera()
 
         val expectedZoomState = ZoomValue(3.0f, 1.0f, 10.0f)
-        zoomControl.setZoomValue(expectedZoomState)[3, TimeUnit.SECONDS]
+        zoomControl.applyZoomState(expectedZoomState)[3, TimeUnit.SECONDS]
 
         assertWithMessage("zoomState did not return the correct zoom state successfully")
             .that(currentZoomState)
