@@ -26,15 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.wear.compose.foundation.lazy.ScalingLazyListScope
 import kotlin.math.roundToInt
@@ -42,7 +34,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /**
- * Create and [remember] an [ExpandableItemsState]
+ * Create and [remember] an [ExpandableState]
  *
  * Example of an expandable list:
  * @sample androidx.wear.compose.foundation.samples.ExpandableWithItemsSample
@@ -55,24 +47,24 @@ import kotlinx.coroutines.launch
  * @param collapseAnimationSpec The [AnimationSpec] to use when hiding the extra information.
  */
 @Composable
-public fun rememberExpandableItemsState(
+public fun rememberExpandableState(
     initiallyExpanded: Boolean = false,
     expandAnimationSpec: AnimationSpec<Float> = ExpandableItemsDefaults.expandAnimationSpec,
     collapseAnimationSpec: AnimationSpec<Float> = ExpandableItemsDefaults.collapseAnimationSpec,
-): ExpandableItemsState {
+): ExpandableState {
     val scope = rememberCoroutineScope()
     return remember {
-        ExpandableItemsState(initiallyExpanded, scope, expandAnimationSpec, collapseAnimationSpec)
+        ExpandableState(initiallyExpanded, scope, expandAnimationSpec, collapseAnimationSpec)
     }
 }
 
 /**
- * Adds a series of items, that will be expanded/collapsed according to the [ExpandableItemsState]
+ * Adds a series of items, that will be expanded/collapsed according to the [ExpandableState]
  *
  * Example of an expandable list:
  * @sample androidx.wear.compose.foundation.samples.ExpandableWithItemsSample
  *
- * @param state The [ExpandableItemsState] connected to these items to.
+ * @param state The [ExpandableState] connected to these items.
  * @param count The number of items
  * @param key a factory of stable and unique keys representing the item. Using the same key
  * for multiple items in the list is not allowed. Type of the key should be saveable
@@ -83,7 +75,7 @@ public fun rememberExpandableItemsState(
  * @param itemContent the content displayed by a single item
  */
 public fun ScalingLazyListScope.expandableItems(
-    state: ExpandableItemsState,
+    state: ExpandableState,
     count: Int,
     key: ((index: Int) -> Any)? = null,
     itemContent: @Composable BoxScope.(index: Int) -> Unit
@@ -112,7 +104,7 @@ public fun ScalingLazyListScope.expandableItems(
 }
 
 /**
- * Adds a single item, that will be expanded/collapsed according to the [ExpandableItemsState].
+ * Adds a single item, that will be expanded/collapsed according to the [ExpandableState].
  *
  * Example of an expandable text:
  * @sample androidx.wear.compose.foundation.samples.ExpandableTextSample
@@ -120,7 +112,7 @@ public fun ScalingLazyListScope.expandableItems(
  * The item should support two levels of information display (for example, a text showing a few
  * lines in the collapsed state, and more in the expanded state)
  *
- * @param state The [ExpandableItemsState] to connect this items to.
+ * @param state The [ExpandableState] connected to this item.
  * @param key A stable and unique key representing the item. Using the same key
  * for multiple items in the list is not allowed. Type of the key should be saveable
  * via Bundle on Android. If null is passed the position in the list will represent the key.
@@ -130,11 +122,40 @@ public fun ScalingLazyListScope.expandableItems(
  * @param content the content displayed by the item, according to its expanded/collapsed state.
  */
 public fun ScalingLazyListScope.expandableItem(
-    state: ExpandableItemsState,
+    state: ExpandableState,
     key: Any? = null,
     content: @Composable (expanded: Boolean) -> Unit
+) = expandableItemImpl(state, key, content = content)
+
+/**
+ * Adds a single item, for the button that controls expandable item(s). The button will be animated
+ * out when the corresponding expandables are expanded.
+ *
+ * Example of an expandable text:
+ * @sample androidx.wear.compose.foundation.samples.ExpandableTextSample
+ *
+ * @param state The [ExpandableState] to connect this button to.
+ * @param key A stable and unique key representing the item. Using the same key
+ * for multiple items in the list is not allowed. Type of the key should be saveable
+ * via Bundle on Android. If null is passed the position in the list will represent the key.
+ * When you specify the key the scroll position will be maintained based on the key, which
+ * means if you add/remove items before the current visible item the item with the given key
+ * will be kept as the first visible one.
+ * @param content the content displayed, this should usually be a CompactChip or OutlineCompactChip.
+ */
+public fun ScalingLazyListScope.expandableButton(
+    state: ExpandableState,
+    key: Any? = null,
+    content: @Composable () -> Unit
+) = expandableItemImpl(state, key, invertProgress = true, content = { if (it) content() })
+
+private fun ScalingLazyListScope.expandableItemImpl(
+    state: ExpandableState,
+    key: Any? = null,
+    invertProgress: Boolean = false,
+    content: @Composable (expanded: Boolean) -> Unit
 ) {
-    val progress = state.expandProgress
+    val progress = if (invertProgress) 1f - state.expandProgress else state.expandProgress
 
     item(key = key) {
         Layout(
@@ -167,7 +188,7 @@ public fun ScalingLazyListScope.expandableItem(
  * It's used to control the showing/hiding of extra information either directly or connecting it
  * with something like a button.
  */
-public class ExpandableItemsState internal constructor(
+public class ExpandableState internal constructor(
     initiallyExpanded: Boolean,
     private val coroutineScope: CoroutineScope,
     private val expandAnimationSpec: AnimationSpec<Float>,
@@ -205,13 +226,6 @@ public class ExpandableItemsState internal constructor(
                 }
             }
         }
-
-    /**
-     * Trigger a change to expand/collapse to the inverse of the current state.
-     */
-    fun toggle() {
-        expanded = !expanded
-    }
 }
 
 /**
@@ -227,48 +241,4 @@ public object ExpandableItemsDefaults {
      * Default animation used to hide extra information.
      */
     val collapseAnimationSpec: AnimationSpec<Float> = TweenSpec(1000)
-
-    /**
-     * [Chevron] provides an animatable chevron, to use in an expand button.
-     *
-     * @param progress The point in the animation we are displaying this chevron in. 0f means pointing
-     * downward, 1f means pointing upward.
-     * @param color The color to draw this chevron on.
-     * @param modifier Modifier to be applied to the AnimatableChevron. This can be used to provide a
-     * content description for accessibility.
-     * @param strokeWidth The stroke width used to draw this chevron.
-     */
-    @Composable
-    public fun Chevron(
-        progress: Float,
-        color: Color,
-        modifier: Modifier = Modifier,
-        strokeWidth: Dp = 3.dp
-    ) {
-        Box(
-            modifier.drawBehind {
-                val strokeWidthPx = strokeWidth.toPx()
-
-                val halfStrokeWidthPx = strokeWidthPx / 2f
-
-                val animatedY = lerp(halfStrokeWidthPx, size.height - halfStrokeWidthPx, progress)
-
-                val path = Path().apply {
-                    moveTo(halfStrokeWidthPx, animatedY)
-                    lineTo(size.width / 2, size.height - animatedY)
-                    lineTo(size.width - halfStrokeWidthPx, animatedY)
-                }
-
-                drawPath(
-                    path,
-                    color,
-                    style = Stroke(
-                        width = strokeWidthPx,
-                        cap = StrokeCap.Round,
-                        join = StrokeJoin.Round
-                    )
-                )
-            }
-        )
-    }
 }
