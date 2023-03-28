@@ -16,6 +16,7 @@
 
 package androidx.camera.core.internal;
 
+import static androidx.camera.core.CameraEffect.IMAGE_CAPTURE;
 import static androidx.camera.core.CameraEffect.PREVIEW;
 import static androidx.camera.core.CameraEffect.VIDEO_CAPTURE;
 import static androidx.camera.core.impl.utils.TransformUtils.rectToSize;
@@ -405,8 +406,11 @@ public final class CameraUseCaseAdapter implements Camera {
     /**
      * Creates a new {@link StreamSharing} or returns the existing one.
      *
-     * <p> Returns the existing {@link StreamSharing} if the children have not changed.
+     * <p>Returns the existing {@link StreamSharing} if the children have not changed.
      * Otherwise, create a new {@link StreamSharing} and return.
+     *
+     * <p>Returns null when there is no need to share the stream, or the combination of children
+     * UseCase are invalid(e.g. contains more than 1 UseCase per type).
      */
     @Nullable
     private StreamSharing createOrReuseStreamSharing(@NonNull Collection<UseCase> appUseCases,
@@ -422,8 +426,35 @@ public final class CameraUseCaseAdapter implements Camera {
                 // Returns the current instance if the new children equals the old.
                 return requireNonNull(mStreamSharing);
             }
+
+            if (!isStreamSharingChildrenCombinationValid(newChildren)) {
+                return null;
+            }
+
             return new StreamSharing(mCameraInternal, newChildren, mUseCaseConfigFactory);
         }
+    }
+
+    /**
+     * Returns true if the children are valid for {@link StreamSharing}.
+     */
+    static boolean isStreamSharingChildrenCombinationValid(
+            @NonNull Collection<UseCase> children) {
+        int[] validChildrenTypes = {PREVIEW, VIDEO_CAPTURE, IMAGE_CAPTURE};
+        Set<Integer> childrenTypes = new HashSet<>();
+        // Loop through all children and add supported types.
+        for (UseCase child : children) {
+            for (int type : validChildrenTypes) {
+                if (child.isEffectTargetsSupported(type)) {
+                    if (childrenTypes.contains(type)) {
+                        // Return false if there are 2 use case supporting the same type.
+                        return false;
+                    }
+                    childrenTypes.add(type);
+                }
+            }
+        }
+        return true;
     }
 
     /**
