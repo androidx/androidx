@@ -21,6 +21,7 @@ import android.os.Bundle
 import androidx.credentials.provider.BeginGetCredentialOption
 import androidx.credentials.provider.BeginGetCredentialRequest
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.credentials.provider.Action
 import androidx.credentials.provider.AuthenticationAction
 import androidx.credentials.provider.BeginGetCredentialResponse
@@ -28,10 +29,8 @@ import androidx.credentials.provider.CredentialEntry
 import androidx.credentials.provider.RemoteEntry
 import java.util.stream.Collectors
 
-/**
- * @hide
- */
 @RequiresApi(34)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class BeginGetCredentialUtil {
     companion object {
         @JvmStatic
