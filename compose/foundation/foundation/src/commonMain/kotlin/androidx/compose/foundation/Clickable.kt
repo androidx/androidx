@@ -22,7 +22,6 @@ import androidx.compose.foundation.gestures.detectTapAndPress
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -38,8 +37,8 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.modifier.ModifierLocalConsumer
-import androidx.compose.ui.modifier.ModifierLocalReadScope
+import androidx.compose.ui.modifier.ModifierLocalNode
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.platform.InspectorInfo
@@ -138,20 +137,18 @@ fun Modifier.clickable(
 ) = composed(
     factory = {
         val onClickState = rememberUpdatedState(onClick)
-        val pressedInteraction = remember { mutableStateOf<PressInteraction.Press?>(null) }
+        val pressInteraction = remember { mutableStateOf<PressInteraction.Press?>(null) }
         val currentKeyPressInteractions = remember { mutableMapOf<Key, PressInteraction.Press>() }
-        if (enabled) {
-            PressedInteractionSourceDisposableEffect(
+        val delayPressInteraction = remember { mutableStateOf({ true }) }
+        val interactionModifier = if (enabled) {
+            ClickableInteractionElement(
                 interactionSource,
-                pressedInteraction,
-                currentKeyPressInteractions
+                pressInteraction,
+                currentKeyPressInteractions,
+                delayPressInteraction
             )
-        }
-        val isRootInScrollableContainer = isComposeRootInScrollableContainer()
-        val isClickableInScrollableContainer = remember { mutableStateOf(true) }
-        val delayPressInteraction = rememberUpdatedState {
-            isClickableInScrollableContainer.value || isRootInScrollableContainer()
-        }
+        } else Modifier
+
         val centreOffset = remember { mutableStateOf(Offset.Zero) }
 
         val gesture = Modifier.pointerInput(interactionSource, enabled) {
@@ -162,7 +159,7 @@ fun Modifier.clickable(
                         handlePressInteraction(
                             offset,
                             interactionSource,
-                            pressedInteraction,
+                            pressInteraction,
                             delayPressInteraction
                         )
                     }
@@ -171,18 +168,6 @@ fun Modifier.clickable(
             )
         }
         Modifier
-            .then(
-                remember {
-                    object : ModifierLocalConsumer {
-                        override fun onModifierLocalsUpdated(scope: ModifierLocalReadScope) {
-                            with(scope) {
-                                isClickableInScrollableContainer.value =
-                                    ModifierLocalScrollableContainer.current
-                            }
-                        }
-                    }
-                }
-            )
             .genericClickableWithoutGesture(
                 gestureModifiers = gesture,
                 interactionSource = interactionSource,
@@ -197,6 +182,7 @@ fun Modifier.clickable(
                 onLongClick = null,
                 onClick = onClick
             )
+            .then(interactionModifier)
     },
     inspectorInfo = debugInspectorInfo {
         name = "clickable"
@@ -313,31 +299,31 @@ fun Modifier.combinedClickable(
         val onDoubleClickState = rememberUpdatedState(onDoubleClick)
         val hasLongClick = onLongClick != null
         val hasDoubleClick = onDoubleClick != null
-        val pressedInteraction = remember { mutableStateOf<PressInteraction.Press?>(null) }
+        val pressInteraction = remember { mutableStateOf<PressInteraction.Press?>(null) }
         val currentKeyPressInteractions = remember { mutableMapOf<Key, PressInteraction.Press>() }
         if (enabled) {
             // Handles the case where a long click causes a null onLongClick lambda to be passed,
             // so we can cancel the existing press.
             DisposableEffect(hasLongClick) {
                 onDispose {
-                    pressedInteraction.value?.let { oldValue ->
+                    pressInteraction.value?.let { oldValue ->
                         val interaction = PressInteraction.Cancel(oldValue)
                         interactionSource.tryEmit(interaction)
-                        pressedInteraction.value = null
+                        pressInteraction.value = null
                     }
                 }
             }
-            PressedInteractionSourceDisposableEffect(
+        }
+        val delayPressInteraction = remember { mutableStateOf({ true }) }
+        val interactionModifier = if (enabled) {
+            ClickableInteractionElement(
                 interactionSource,
-                pressedInteraction,
-                currentKeyPressInteractions
+                pressInteraction,
+                currentKeyPressInteractions,
+                delayPressInteraction
             )
-        }
-        val isRootInScrollableContainer = isComposeRootInScrollableContainer()
-        val isClickableInScrollableContainer = remember { mutableStateOf(true) }
-        val delayPressInteraction = rememberUpdatedState {
-            isClickableInScrollableContainer.value || isRootInScrollableContainer()
-        }
+        } else Modifier
+
         val centreOffset = remember { mutableStateOf(Offset.Zero) }
 
         val gesture =
@@ -359,7 +345,7 @@ fun Modifier.combinedClickable(
                             handlePressInteraction(
                                 offset,
                                 interactionSource,
-                                pressedInteraction,
+                                pressInteraction,
                                 delayPressInteraction
                             )
                         }
@@ -368,18 +354,6 @@ fun Modifier.combinedClickable(
                 )
             }
         Modifier
-            .then(
-                remember {
-                    object : ModifierLocalConsumer {
-                        override fun onModifierLocalsUpdated(scope: ModifierLocalReadScope) {
-                            with(scope) {
-                                isClickableInScrollableContainer.value =
-                                    ModifierLocalScrollableContainer.current
-                            }
-                        }
-                    }
-                }
-            )
             .genericClickableWithoutGesture(
                 gestureModifiers = gesture,
                 interactionSource = interactionSource,
@@ -394,6 +368,7 @@ fun Modifier.combinedClickable(
                 onLongClick = onLongClick,
                 onClick = onClick
             )
+            .then(interactionModifier)
     },
     inspectorInfo = debugInspectorInfo {
         name = "combinedClickable"
@@ -409,31 +384,10 @@ fun Modifier.combinedClickable(
     }
 )
 
-@Composable
-internal fun PressedInteractionSourceDisposableEffect(
-    interactionSource: MutableInteractionSource,
-    pressedInteraction: MutableState<PressInteraction.Press?>,
-    currentKeyPressInteractions: MutableMap<Key, PressInteraction.Press>
-) {
-    DisposableEffect(interactionSource) {
-        onDispose {
-            pressedInteraction.value?.let { oldValue ->
-                val interaction = PressInteraction.Cancel(oldValue)
-                interactionSource.tryEmit(interaction)
-                pressedInteraction.value = null
-            }
-            currentKeyPressInteractions.values.forEach {
-                interactionSource.tryEmit(PressInteraction.Cancel(it))
-            }
-            currentKeyPressInteractions.clear()
-        }
-    }
-}
-
 internal suspend fun PressGestureScope.handlePressInteraction(
     pressPoint: Offset,
     interactionSource: MutableInteractionSource,
-    pressedInteraction: MutableState<PressInteraction.Press?>,
+    pressInteraction: MutableState<PressInteraction.Press?>,
     delayPressInteraction: State<() -> Boolean>
 ) {
     coroutineScope {
@@ -441,9 +395,9 @@ internal suspend fun PressGestureScope.handlePressInteraction(
             if (delayPressInteraction.value()) {
                 delay(TapIndicationDelay)
             }
-            val pressInteraction = PressInteraction.Press(pressPoint)
-            interactionSource.emit(pressInteraction)
-            pressedInteraction.value = pressInteraction
+            val press = PressInteraction.Press(pressPoint)
+            interactionSource.emit(press)
+            pressInteraction.value = press
         }
         val success = tryAwaitRelease()
         if (delayJob.isActive) {
@@ -452,13 +406,13 @@ internal suspend fun PressGestureScope.handlePressInteraction(
             // interaction instantly. No else branch - if the press was cancelled before the
             // timeout, we don't want to emit a press interaction.
             if (success) {
-                val pressInteraction = PressInteraction.Press(pressPoint)
-                val releaseInteraction = PressInteraction.Release(pressInteraction)
-                interactionSource.emit(pressInteraction)
-                interactionSource.emit(releaseInteraction)
+                val press = PressInteraction.Press(pressPoint)
+                val release = PressInteraction.Release(press)
+                interactionSource.emit(press)
+                interactionSource.emit(release)
             }
         } else {
-            pressedInteraction.value?.let { pressInteraction ->
+            pressInteraction.value?.let { pressInteraction ->
                 val endInteraction = if (success) {
                     PressInteraction.Release(pressInteraction)
                 } else {
@@ -467,7 +421,7 @@ internal suspend fun PressGestureScope.handlePressInteraction(
                 interactionSource.emit(endInteraction)
             }
         }
-        pressedInteraction.value = null
+        pressInteraction.value = null
     }
 }
 
@@ -478,18 +432,18 @@ internal suspend fun PressGestureScope.handlePressInteraction(
 internal expect val TapIndicationDelay: Long
 
 /**
- * Returns a lambda that calculates whether the root Compose layout node is hosted in a scrollable
- * container outside of Compose. On Android this will be whether the root View is in a scrollable
- * ViewGroup, as even if nothing in the Compose part of the hierarchy is scrollable, if the View
- * itself is in a scrollable container, we still want to delay presses in case presses in Compose
- * convert to a scroll outside of Compose.
+ * Returns whether the root Compose layout node is hosted in a scrollable container outside of
+ * Compose. On Android this will be whether the root View is in a scrollable ViewGroup, as even if
+ * nothing in the Compose part of the hierarchy is scrollable, if the View itself is in a scrollable
+ * container, we still want to delay presses in case presses in Compose convert to a scroll outside
+ * of Compose.
  *
  * Combine this with [ModifierLocalScrollableContainer], which returns whether a [Modifier] is
  * within a scrollable Compose layout, to calculate whether this modifier is within some form of
  * scrollable container, and hence should delay presses.
  */
-@Composable
-internal expect fun isComposeRootInScrollableContainer(): () -> Boolean
+internal expect fun CompositionLocalConsumerModifierNode
+    .isComposeRootInScrollableContainer(): Boolean
 
 /**
  * Whether the specified [KeyEvent] should trigger a press for a clickable component.
@@ -638,4 +592,76 @@ private class ClickableSemanticsNode(
                 disabled()
             }
         }
+}
+
+// Only interactionSource should ever change - the rest must be remembered with no keys.
+private class ClickableInteractionElement(
+    private val interactionSource: MutableInteractionSource?,
+    private val pressInteraction: MutableState<PressInteraction.Press?>,
+    private val currentKeyPressInteractions: MutableMap<Key, PressInteraction.Press>,
+    private val delayPressInteraction: MutableState<() -> Boolean>
+) : ModifierNodeElement<ClickableInteractionNode>() {
+    override fun create(): ClickableInteractionNode = ClickableInteractionNode(
+        interactionSource,
+        pressInteraction,
+        currentKeyPressInteractions,
+        delayPressInteraction
+    )
+
+    override fun update(node: ClickableInteractionNode) = node.also {
+        it.updateInteractionSource(interactionSource)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ClickableInteractionElement) return false
+
+        if (interactionSource != other.interactionSource) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return interactionSource?.hashCode() ?: 0
+    }
+
+    override fun InspectorInfo.inspectableProperties() = Unit
+}
+
+private class ClickableInteractionNode(
+    private var interactionSource: MutableInteractionSource?,
+    private val pressInteraction: MutableState<PressInteraction.Press?>,
+    private val currentKeyPressInteractions: MutableMap<Key, PressInteraction.Press>,
+    private val delayPressInteraction: MutableState<() -> Boolean>
+) : Modifier.Node(), ModifierLocalNode, CompositionLocalConsumerModifierNode {
+    fun updateInteractionSource(interactionSource: MutableInteractionSource?) {
+        if (this.interactionSource != interactionSource) {
+            disposeInteractionSource()
+            this.interactionSource = interactionSource
+        }
+    }
+
+    override fun onAttach() {
+        delayPressInteraction.value = {
+            ModifierLocalScrollableContainer.current || isComposeRootInScrollableContainer()
+        }
+    }
+
+    override fun onDetach() {
+        disposeInteractionSource()
+    }
+
+    private fun disposeInteractionSource() {
+        interactionSource?.let { interactionSource ->
+            pressInteraction.value?.let { oldValue ->
+                val interaction = PressInteraction.Cancel(oldValue)
+                interactionSource.tryEmit(interaction)
+            }
+            currentKeyPressInteractions.values.forEach {
+                interactionSource.tryEmit(PressInteraction.Cancel(it))
+            }
+        }
+        pressInteraction.value = null
+        currentKeyPressInteractions.clear()
+    }
 }

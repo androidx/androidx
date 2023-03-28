@@ -19,7 +19,6 @@ package androidx.compose.foundation
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,6 +44,7 @@ import androidx.compose.ui.input.pointer.changedToDown
 import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.isOutOfBounds
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.center
@@ -52,8 +52,10 @@ import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.util.fastAll
 import java.awt.event.KeyEvent.VK_ENTER
 
-@Composable
-internal actual fun isComposeRootInScrollableContainer(): () -> Boolean = { false }
+internal actual fun CompositionLocalConsumerModifierNode
+    .isComposeRootInScrollableContainer(): Boolean {
+    return false
+}
 
 // TODO: b/168524931 - should this depend on the input device?
 internal actual val TapIndicationDelay: Long = 0L
