@@ -16,6 +16,10 @@
 
 package androidx.appactions.interaction.capabilities.core.impl.converters;
 
+import static androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.ITEM_LIST_TYPE_SPEC;
+import static androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.LIST_ITEM_TYPE_SPEC;
+import static androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.ORDER_TYPE_SPEC;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -342,7 +346,8 @@ public final class TypeConvertersTest {
         Entity listItemProto =
                 Entity.newBuilder().setIdentifier("itemId").setValue(listItemStruct).build();
 
-        assertThat(TypeConverters.toEntity(listItem)).isEqualTo(listItemProto);
+        assertThat(EntityConverter.Companion.of(LIST_ITEM_TYPE_SPEC).convert(listItem))
+                .isEqualTo(listItemProto);
         assertThat(TypeConverters.toListItem(toParamValue(listItemStruct, "itemId")))
                 .isEqualTo(listItem);
     }
@@ -428,18 +433,21 @@ public final class TypeConvertersTest {
         Entity itemListProto =
                 Entity.newBuilder().setIdentifier("testList").setValue(itemListStruct).build();
 
-        assertThat(TypeConverters.toEntity(itemList)).isEqualTo(itemListProto);
+        assertThat(EntityConverter.Companion.of(ITEM_LIST_TYPE_SPEC).convert(itemList))
+                .isEqualTo(itemListProto);
         assertThat(TypeConverters.toItemList(toParamValue(itemListStruct, "testList")))
                 .isEqualTo(itemList);
     }
 
     @Test
     public void order_conversions_matchesExpected() throws Exception {
+        EntityConverter<Order> entityConverter = EntityConverter.Companion.of(ORDER_TYPE_SPEC);
+
         assertThat(TypeConverters.toParamValue(ORDER_JAVA_THING))
                 .isEqualTo(toParamValue(ORDER_STRUCT, "id"));
         assertThat(TypeConverters.toOrder(toParamValue(ORDER_STRUCT, "id")))
                 .isEqualTo(ORDER_JAVA_THING);
-        assertThat(TypeConverters.toEntity(ORDER_JAVA_THING)).isEqualTo(toEntity(ORDER_STRUCT));
+        assertThat(entityConverter.convert(ORDER_JAVA_THING)).isEqualTo(toEntity(ORDER_STRUCT));
     }
 
     @Test

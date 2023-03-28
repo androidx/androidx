@@ -25,9 +25,11 @@ import androidx.appactions.interaction.capabilities.core.SessionFactory
 import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
+import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.PropertyConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.SearchActionConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
+import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.LIST_ITEM_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
@@ -707,7 +709,7 @@ class TaskCapabilityImplTest {
                         "listItem",
                         session.getListItemListener(),
                         TypeConverters::toListItem,
-                        TypeConverters::toEntity,
+                        EntityConverter.of(LIST_ITEM_TYPE_SPEC)::convert,
                         getTrivialSearchActionConverter(),
                     )
                     .build()
@@ -751,14 +753,12 @@ class TaskCapabilityImplTest {
                                     .setDisambiguationData(
                                         DisambiguationData.newBuilder()
                                             .addEntities(
-                                                TypeConverters.toEntity(
-                                                    item1,
-                                                ),
+                                                EntityConverter.of(LIST_ITEM_TYPE_SPEC)
+                                                    .convert(item1),
                                             )
                                             .addEntities(
-                                                TypeConverters.toEntity(
-                                                    item2,
-                                                ),
+                                                EntityConverter.of(LIST_ITEM_TYPE_SPEC)
+                                                    .convert(item2),
                                             )
                                             .build(),
                                     )
