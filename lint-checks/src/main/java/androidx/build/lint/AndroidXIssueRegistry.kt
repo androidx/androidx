@@ -41,6 +41,7 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 AndroidManifestServiceExportedDetector.ISSUE,
                 BanParcelableUsage.ISSUE,
                 BanConcurrentHashMap.ISSUE,
+                BanHideAnnotation.ISSUE,
                 BanInappropriateExperimentalUsage.ISSUE,
                 BanInappropriateExperimentalUsage.NULL_ANNOTATION_GROUP_ISSUE,
                 BanInlineOptIn.ISSUE,
