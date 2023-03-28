@@ -16,10 +16,10 @@
 
 package androidx.graphics.lowlatency
 
+import android.app.UiAutomation
 import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Build
-import android.util.Log
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
 import androidx.graphics.drawSquares
@@ -30,6 +30,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.test.platform.app.InstrumentationRegistry
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -128,7 +129,6 @@ class CanvasFrontBufferedRendererTest {
                 bufferHeight: Int,
                 param: Any
             ) {
-                Log.v("MultiBufferTest", "")
                 canvas.drawColor(Color.RED)
             }
 
@@ -477,6 +477,134 @@ class CanvasFrontBufferedRendererTest {
                     ) == Color.RED)
             }
         } finally {
+            renderer.blockingRelease()
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testParentLayerRotate90() = parentLayerRotationTest(UiAutomation.ROTATION_FREEZE_90)
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testParentLayerRotate180() = parentLayerRotationTest(UiAutomation.ROTATION_FREEZE_180)
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testParentLayerRotate270() = parentLayerRotationTest(UiAutomation.ROTATION_FREEZE_270)
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testParentLayerRotate0() = parentLayerRotationTest(UiAutomation.ROTATION_FREEZE_0)
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    fun parentLayerRotationTest(rotation: Int) {
+        var surfaceView: SurfaceView? = null
+        val renderLatch = CountDownLatch(1)
+        val topLeftColor = Color.RED
+        val topRightColor = Color.YELLOW
+        val bottomRightColor = Color.BLACK
+        val bottomLeftColor = Color.BLUE
+        val callbacks = object : CanvasFrontBufferedRenderer.Callback<Any> {
+            override fun onDrawFrontBufferedLayer(
+                canvas: Canvas,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                param: Any
+            ) {
+                // NO-OP
+            }
+
+            override fun onDrawMultiBufferedLayer(
+                canvas: Canvas,
+                bufferWidth: Int,
+                bufferHeight: Int,
+                params: Collection<Any>
+            ) {
+                drawSquares(
+                    canvas,
+                    bufferWidth,
+                    bufferHeight,
+                    topLeft = topLeftColor,
+                    topRight = topRightColor,
+                    bottomRight = bottomRightColor,
+                    bottomLeft = bottomLeftColor
+                )
+            }
+
+            override fun onMultiBufferedLayerRenderComplete(
+                frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                transaction: SurfaceControlCompat.Transaction
+            ) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    transaction.addTransactionCommittedListener(
+                        Executors.newSingleThreadExecutor(),
+                        object : SurfaceControlCompat.TransactionCommittedListener {
+                            override fun onTransactionCommitted() {
+                                renderLatch.countDown()
+                            }
+                        })
+                } else {
+                    renderLatch.countDown()
+                }
+            }
+        }
+
+        val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
+        var renderer: CanvasFrontBufferedRenderer<Any>? = null
+
+        try {
+            Assert.assertTrue(automation.setRotation(rotation))
+            automation.waitForIdle(1000, 3000)
+
+            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
+                .onActivity {
+                    surfaceView = it.getSurfaceView()
+                    renderer = CanvasFrontBufferedRenderer(surfaceView!!, callbacks)
+                }
+
+            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+                renderer?.renderFrontBufferedLayer(Any())
+                renderer?.commit()
+            }
+
+            Assert.assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+
+            val coords = IntArray(2)
+            val width: Int
+            val height: Int
+            with(surfaceView!!) {
+                getLocationOnScreen(coords)
+                width = this.width
+                height = this.height
+            }
+
+            SurfaceControlUtils.validateOutput { bitmap ->
+                val topLeftActual = bitmap.getPixel(
+                    coords[0] + width / 4,
+                    coords[1] + height / 4
+                )
+                val topRightActual = bitmap.getPixel(
+                    coords[0] + width / 2 + width / 4,
+                    coords[1] + height / 4
+                )
+                val bottomRightActual = bitmap.getPixel(
+                    coords[0] + width / 2 + width / 4,
+                    coords[1] + height / 2 + height / 4
+                )
+                val bottomLeftActual = bitmap.getPixel(
+                    coords[0] + width / 4,
+                    coords[1] + height / 2 + height / 4
+                )
+                topLeftActual == topLeftColor &&
+                    topRightActual == topRightColor &&
+                    bottomRightActual == bottomRightColor &&
+                    bottomLeftActual == bottomLeftColor
+            }
+        } finally {
+            automation.setRotation(UiAutomation.ROTATION_UNFREEZE)
+            automation.waitForIdle(1000, 3000)
             renderer.blockingRelease()
         }
     }
