@@ -194,8 +194,8 @@ public final class JavaScriptSandbox implements AutoCloseable {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * <p>
-     * When this feature is present, {@link JavaScriptIsolateClient} can be used.
-     * @hide
+     * When this feature is present, {@link JavaScriptIsolate#setConsoleCallback} can be used to set
+     * a {@link JavaScriptConsoleCallback} for processing console messages.
      */
     public static final String JS_FEATURE_CONSOLE_MESSAGING = "JS_FEATURE_CONSOLE_MESSAGING";
 

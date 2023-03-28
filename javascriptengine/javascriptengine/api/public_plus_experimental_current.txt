@@ -24,16 +24,40 @@ package androidx.javascriptengine {
     ctor public IsolateTerminatedException();
   }
 
+  public interface JavaScriptConsoleCallback {
+    method public default void onConsoleClear();
+    method public void onConsoleMessage(androidx.javascriptengine.JavaScriptConsoleCallback.ConsoleMessage);
+  }
+
+  public static final class JavaScriptConsoleCallback.ConsoleMessage {
+    ctor public JavaScriptConsoleCallback.ConsoleMessage(int, String, String, int, int, String?);
+    method public int column();
+    method public int level();
+    method public int line();
+    method public String message();
+    method public String source();
+    method public String? trace();
+    field public static final int LEVEL_ALL = 31; // 0x1f
+    field public static final int LEVEL_DEBUG = 2; // 0x2
+    field public static final int LEVEL_ERROR = 8; // 0x8
+    field public static final int LEVEL_INFO = 4; // 0x4
+    field public static final int LEVEL_LOG = 1; // 0x1
+    field public static final int LEVEL_WARNING = 16; // 0x10
+  }
+
   public class JavaScriptException extends java.lang.Exception {
     ctor public JavaScriptException(String);
     ctor public JavaScriptException();
   }
 
   public final class JavaScriptIsolate implements java.lang.AutoCloseable {
+    method @RequiresFeature(name=androidx.javascriptengine.JavaScriptSandbox.JS_FEATURE_CONSOLE_MESSAGING, enforcement="androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported") public void clearConsoleCallback();
     method public void close();
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.String!> evaluateJavaScriptAsync(String);
     method @RequiresFeature(name=androidx.javascriptengine.JavaScriptSandbox.JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT, enforcement="androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported") public com.google.common.util.concurrent.ListenableFuture<java.lang.String!> evaluateJavaScriptAsync(byte[]);
     method @RequiresFeature(name=androidx.javascriptengine.JavaScriptSandbox.JS_FEATURE_PROVIDE_CONSUME_ARRAY_BUFFER, enforcement="androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported") public boolean provideNamedData(String, byte[]);
+    method @RequiresFeature(name=androidx.javascriptengine.JavaScriptSandbox.JS_FEATURE_CONSOLE_MESSAGING, enforcement="androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported") public void setConsoleCallback(java.util.concurrent.Executor, androidx.javascriptengine.JavaScriptConsoleCallback);
+    method @RequiresFeature(name=androidx.javascriptengine.JavaScriptSandbox.JS_FEATURE_CONSOLE_MESSAGING, enforcement="androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported") public void setConsoleCallback(androidx.javascriptengine.JavaScriptConsoleCallback);
   }
 
   public final class JavaScriptSandbox implements java.lang.AutoCloseable {
@@ -43,6 +67,7 @@ package androidx.javascriptengine {
     method public androidx.javascriptengine.JavaScriptIsolate createIsolate(androidx.javascriptengine.IsolateStartupParameters);
     method public boolean isFeatureSupported(String);
     method public static boolean isSupported();
+    field public static final String JS_FEATURE_CONSOLE_MESSAGING = "JS_FEATURE_CONSOLE_MESSAGING";
     field public static final String JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT = "JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT";
     field public static final String JS_FEATURE_ISOLATE_MAX_HEAP_SIZE = "JS_FEATURE_ISOLATE_MAX_HEAP_SIZE";
     field public static final String JS_FEATURE_ISOLATE_TERMINATION = "JS_FEATURE_ISOLATE_TERMINATION";
