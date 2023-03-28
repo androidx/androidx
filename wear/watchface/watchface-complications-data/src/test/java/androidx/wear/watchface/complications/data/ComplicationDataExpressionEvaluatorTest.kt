@@ -20,23 +20,32 @@ import android.support.wearable.complications.ComplicationData as WireComplicati
 import android.support.wearable.complications.ComplicationText as WireComplicationText
 import android.util.Log
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue
 import androidx.wear.protolayout.expression.pipeline.ObservableStateStore
+import androidx.wear.protolayout.expression.pipeline.TimeGateway
 import androidx.wear.watchface.complications.data.ComplicationDataExpressionEvaluator.Companion.INVALID_DATA
 import androidx.wear.watchface.complications.data.ComplicationDataExpressionEvaluator.Companion.hasExpression
 import com.google.common.truth.Expect
 import com.google.common.truth.Truth.assertThat
+import java.time.Instant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.verifyNoMoreInteractions
 import org.robolectric.shadows.ShadowLog
 
 @RunWith(SharedRobolectricTestRunner::class)
@@ -214,6 +223,37 @@ class ComplicationDataExpressionEvaluatorTest {
                 .that(allEvaluations.replayCache)
                 .isEqualTo(scenario.evaluated)
         }
+    }
+
+    @Test
+    fun evaluate_cancelled_cleansUp() = runBlocking {
+        val expressed =
+            WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
+                .setRangedValueExpression(
+                    // Uses TimeGateway, which needs cleaning up.
+                    DynamicInstant.withSecondsPrecision(Instant.EPOCH)
+                        .durationUntil(DynamicInstant.platformTimeWithSecondsPrecision())
+                        .secondsPart
+                        .asFloat()
+                )
+                .build()
+        val timeGateway = mock<TimeGateway>()
+        val evaluator = ComplicationDataExpressionEvaluator(timeGateway = timeGateway)
+        val flow = evaluator.evaluate(expressed)
+
+        // Validity check - TimeGateway not used until Flow collection.
+        verifyNoInteractions(timeGateway)
+        val job = launch(Dispatchers.Main.immediate) { flow.collect {} }
+        try {
+            // Validity check - TimeGateway registered while collection is in progress.
+            verify(timeGateway).registerForUpdates(any(), any())
+            verifyNoMoreInteractions(timeGateway)
+        } finally {
+            job.cancel()
+        }
+
+        verify(timeGateway).unregisterForUpdates(any())
+        verifyNoMoreInteractions(timeGateway)
     }
 
     @Test

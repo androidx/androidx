@@ -269,10 +269,11 @@ public class DynamicTypeEvaluatorTest {
 
         DynamicTypeEvaluator evaluator =
                 new DynamicTypeEvaluator(
-                        /* platformDataSourcesInitiallyEnabled= */ true,
-                        stateStore,
-                        new FixedQuotaManagerImpl(MAX_VALUE),
-                        /* sensorGateway= */ null);
+                        new DynamicTypeEvaluator.Config.Builder()
+                                .setPlatformDataSourcesInitiallyEnabled(true)
+                                .setStateStore(stateStore)
+                                .setAnimationQuotaManager(new FixedQuotaManagerImpl(MAX_VALUE))
+                                .build());
 
         mTestCase.runTest(evaluator);
     }

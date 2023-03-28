@@ -26,6 +26,7 @@ import androidx.wear.protolayout.expression.pipeline.BoundDynamicType
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver
 import androidx.wear.protolayout.expression.pipeline.ObservableStateStore
+import androidx.wear.protolayout.expression.pipeline.TimeGateway
 import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway
 import java.util.concurrent.Executor
 import kotlin.coroutines.ContinuationInterceptor
@@ -52,7 +53,8 @@ import kotlinx.coroutines.launch
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ComplicationDataExpressionEvaluator(
-    private val stateStore: ObservableStateStore = ObservableStateStore(emptyMap()),
+    private val stateStore: ObservableStateStore? = null,
+    private val timeGateway: TimeGateway? = null,
     private val sensorGateway: SensorGateway? = null,
     private val keepExpression: Boolean = false,
 ) {
@@ -207,9 +209,12 @@ class ComplicationDataExpressionEvaluator(
             require(!this::evaluator.isInitialized) { "initEvaluator must be called exactly once." }
             evaluator =
                 DynamicTypeEvaluator(
-                    /* platformDataSourcesInitiallyEnabled = */ true,
-                    stateStore,
-                    sensorGateway,
+                    DynamicTypeEvaluator.Config.Builder()
+                        .setPlatformDataSourcesInitiallyEnabled(true)
+                        .apply { stateStore?.let { setStateStore(it) } }
+                        .apply { timeGateway?.let { setTimeGateway(it) } }
+                        .apply { sensorGateway?.let { setSensorGateway(it) } }
+                        .build()
                 )
             try {
                 for (receiver in pendingReceivers) receiver.bind()
@@ -217,7 +222,6 @@ class ComplicationDataExpressionEvaluator(
                 Dispatchers.Main.immediate.invoke {
                     // These need to be called on the main thread.
                     for (receiver in pendingReceivers) receiver.startEvaluation()
-                    evaluator.enablePlatformDataSources()
                 }
             } catch (e: Throwable) {
                 // Cleanup on initialization failure.
