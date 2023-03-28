@@ -1197,4 +1197,32 @@ public class NotificationManagerCompatTest {
             assertEquals(0, notifs.size());
         }
     }
+
+    @Test
+    public void testInterruptionFilterConstantCorrespondence() {
+        assertEquals(NotificationManager.INTERRUPTION_FILTER_UNKNOWN,
+                NotificationManagerCompat.INTERRUPTION_FILTER_UNKNOWN);
+        assertEquals(NotificationManager.INTERRUPTION_FILTER_ALL,
+                NotificationManagerCompat.INTERRUPTION_FILTER_ALL);
+        assertEquals(NotificationManager.INTERRUPTION_FILTER_PRIORITY,
+                NotificationManagerCompat.INTERRUPTION_FILTER_PRIORITY);
+        assertEquals(NotificationManager.INTERRUPTION_FILTER_NONE,
+                NotificationManagerCompat.INTERRUPTION_FILTER_NONE);
+        assertEquals(NotificationManager.INTERRUPTION_FILTER_ALARMS,
+                NotificationManagerCompat.INTERRUPTION_FILTER_ALARMS);
+    }
+
+    @Test
+    public void testGetCurrentInterruptionFilter() {
+        NotificationManager fakeManager = mock(NotificationManager.class);
+        NotificationManagerCompat notificationManager = new NotificationManagerCompat(fakeManager,
+                mContext);
+        int filter = notificationManager.getCurrentInterruptionFilter();
+
+        if (Build.VERSION.SDK_INT >= 23) {
+            verify(fakeManager, times(1)).getCurrentInterruptionFilter();
+        } else {
+            assertEquals(NotificationManagerCompat.INTERRUPTION_FILTER_UNKNOWN, filter);
+        }
+    }
 }
