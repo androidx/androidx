@@ -618,7 +618,7 @@ class ModalBottomSheetTest {
             assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
         }
 
-        rule.onNodeWithTag(dragHandleTag).onParent()
+        rule.onNodeWithTag(dragHandleTag, useUnmergedTree = true).onParent()
             .performSemanticsAction(SemanticsActions.Dismiss)
 
         rule.runOnIdle {
@@ -764,7 +764,7 @@ class ModalBottomSheetTest {
             }
         }
 
-        rule.onNodeWithTag(dragHandleTag).onParent()
+        rule.onNodeWithTag(dragHandleTag, useUnmergedTree = true).onParent()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.Collapse))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Expand))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Dismiss))
@@ -792,7 +792,7 @@ class ModalBottomSheetTest {
             }
         }
 
-        rule.onNodeWithTag(dragHandleTag).onParent()
+        rule.onNodeWithTag(dragHandleTag, useUnmergedTree = true).onParent()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.Collapse))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Expand))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Dismiss))
@@ -840,7 +840,7 @@ class ModalBottomSheetTest {
         }
         rule.waitForIdle()
 
-        rule.onNodeWithTag(dragHandleTag).onParent()
+        rule.onNodeWithTag(dragHandleTag, useUnmergedTree = true).onParent()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.Expand))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Collapse))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Dismiss))
@@ -888,7 +888,7 @@ class ModalBottomSheetTest {
         }
         rule.waitForIdle()
 
-        rule.onNodeWithTag(dragHandleTag).onParent()
+        rule.onNodeWithTag(dragHandleTag, useUnmergedTree = true).onParent()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.Expand))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Collapse))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Dismiss))

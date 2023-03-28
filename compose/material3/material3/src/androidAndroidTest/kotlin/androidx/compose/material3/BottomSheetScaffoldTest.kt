@@ -171,7 +171,7 @@ class BottomSheetScaffoldTest {
             }
         }
 
-        rule.onNodeWithTag(sheetTag)
+        rule.onNodeWithTag(sheetTag, useUnmergedTree = true)
             .assertTopPositionInRootIsEqualTo(rule.rootHeight() - (sheetHeight + dragHandleSize))
     }
 
@@ -196,7 +196,7 @@ class BottomSheetScaffoldTest {
             }
         }
 
-        rule.onNodeWithTag(dragHandleTag).onParent()
+        rule.onNodeWithTag(dragHandleTag, useUnmergedTree = true).onParent()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.Collapse))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Expand))
             .performSemanticsAction(SemanticsActions.Expand)
@@ -204,7 +204,7 @@ class BottomSheetScaffoldTest {
         rule.waitForIdle()
         val expectedSheetHeight = sheetHeight + dragHandleSize
 
-        rule.onNodeWithTag(dragHandleTag)
+        rule.onNodeWithTag(dragHandleTag, useUnmergedTree = true)
             .assertTopPositionInRootIsEqualTo(rule.rootHeight() - expectedSheetHeight)
     }
 
@@ -234,7 +234,7 @@ class BottomSheetScaffoldTest {
             }
         }
 
-        rule.onNodeWithTag(dragHandleTag).onParent()
+        rule.onNodeWithTag(dragHandleTag, useUnmergedTree = true).onParent()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.Collapse))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Dismiss))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Expand))
@@ -242,7 +242,7 @@ class BottomSheetScaffoldTest {
 
         rule.waitForIdle()
 
-        rule.onNodeWithTag(dragHandleTag)
+        rule.onNodeWithTag(dragHandleTag, useUnmergedTree = true)
             .assertTopPositionInRootIsEqualTo(rule.rootHeight())
     }
 
@@ -303,14 +303,14 @@ class BottomSheetScaffoldTest {
             }
         }
 
-        rule.onNodeWithTag(dragHandleTag).onParent()
+        rule.onNodeWithTag(dragHandleTag, useUnmergedTree = true).onParent()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.Expand))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Collapse))
             .performSemanticsAction(SemanticsActions.Collapse)
 
         rule.waitForIdle()
 
-        rule.onNodeWithTag(dragHandleTag)
+        rule.onNodeWithTag(dragHandleTag, useUnmergedTree = true)
             .assertTopPositionInRootIsEqualTo(rule.rootHeight() - peekHeight)
     }
 
@@ -369,19 +369,19 @@ class BottomSheetScaffoldTest {
         }
         val expectedHeight = sheetHeight + dragHandleSize
 
-        rule.onNodeWithTag(sheetTag)
+        rule.onNodeWithTag(sheetTag, useUnmergedTree = true)
             .assertTopPositionInRootIsEqualTo(rule.rootHeight() - peekHeight)
 
         bottomSheetState.expand()
         rule.waitForIdle()
 
-        rule.onNodeWithTag(sheetTag)
+        rule.onNodeWithTag(sheetTag, useUnmergedTree = true)
             .assertTopPositionInRootIsEqualTo(rule.rootHeight() - expectedHeight)
 
         bottomSheetState.partialExpand()
         rule.waitForIdle()
 
-        rule.onNodeWithTag(sheetTag)
+        rule.onNodeWithTag(sheetTag, useUnmergedTree = true)
             .assertTopPositionInRootIsEqualTo(rule.rootHeight() - peekHeight)
     }
 
@@ -816,7 +816,7 @@ class BottomSheetScaffoldTest {
         }
         // Assert that the drag handle has vertical padding of 22.dp
         rule
-            .onNodeWithContentDescription(dragHandleContentDescription)
+            .onNodeWithContentDescription(dragHandleContentDescription, useUnmergedTree = true)
             .captureToImage()
             .assertShape(
                 density = rule.density,
