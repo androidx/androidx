@@ -138,14 +138,17 @@ public class ProtoLayoutDynamicDataPipeline {
             @NonNull QuotaManager animationQuotaManager) {
         this.mEnableAnimations = enableAnimations;
         this.mAnimationQuotaManager = animationQuotaManager;
-        if (enableAnimations) {
-            this.mEvaluator =
-                    new DynamicTypeEvaluator(
-                            canUpdateGateways, stateStore, animationQuotaManager, sensorGateway);
-        } else {
-            this.mEvaluator =
-                    new DynamicTypeEvaluator(canUpdateGateways, stateStore, sensorGateway);
+        DynamicTypeEvaluator.Config.Builder evaluatorConfigBuilder =
+                new DynamicTypeEvaluator.Config.Builder()
+                        .setPlatformDataSourcesInitiallyEnabled(canUpdateGateways)
+                        .setStateStore(stateStore);
+        if (sensorGateway != null) {
+            evaluatorConfigBuilder.setSensorGateway(sensorGateway);
         }
+        if (enableAnimations) {
+            evaluatorConfigBuilder.setAnimationQuotaManager(animationQuotaManager);
+        }
+        this.mEvaluator = new DynamicTypeEvaluator(evaluatorConfigBuilder.build());
     }
 
     /**

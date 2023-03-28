@@ -7,8 +7,7 @@ package androidx.wear.protolayout.expression.pipeline {
   }
 
   public class DynamicTypeEvaluator implements java.lang.AutoCloseable {
-    ctor public DynamicTypeEvaluator(boolean, androidx.wear.protolayout.expression.pipeline.ObservableStateStore, androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway?);
-    ctor public DynamicTypeEvaluator(boolean, androidx.wear.protolayout.expression.pipeline.ObservableStateStore, androidx.wear.protolayout.expression.pipeline.QuotaManager, androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway?);
+    ctor public DynamicTypeEvaluator(androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config);
     method public androidx.wear.protolayout.expression.pipeline.BoundDynamicType bind(androidx.wear.protolayout.expression.DynamicBuilders.DynamicString, android.icu.util.ULocale, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.String!>);
     method public androidx.wear.protolayout.expression.pipeline.BoundDynamicType bind(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.Integer!>);
     method public androidx.wear.protolayout.expression.pipeline.BoundDynamicType bind(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.Float!>);
@@ -19,6 +18,24 @@ package androidx.wear.protolayout.expression.pipeline {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void close();
     method @UiThread public void disablePlatformDataSources();
     method @UiThread public void enablePlatformDataSources();
+  }
+
+  public static final class DynamicTypeEvaluator.Config {
+    method public androidx.wear.protolayout.expression.pipeline.QuotaManager? getAnimationQuotaManager();
+    method public androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway? getSensorGateway();
+    method public androidx.wear.protolayout.expression.pipeline.ObservableStateStore? getStateStore();
+    method public androidx.wear.protolayout.expression.pipeline.TimeGateway? getTimeGateway();
+    method public boolean isPlatformDataSourcesInitiallyEnabled();
+  }
+
+  public static final class DynamicTypeEvaluator.Config.Builder {
+    ctor public DynamicTypeEvaluator.Config.Builder();
+    method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config build();
+    method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setAnimationQuotaManager(androidx.wear.protolayout.expression.pipeline.QuotaManager);
+    method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setPlatformDataSourcesInitiallyEnabled(boolean);
+    method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setSensorGateway(androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway);
+    method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setStateStore(androidx.wear.protolayout.expression.pipeline.ObservableStateStore);
+    method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setTimeGateway(androidx.wear.protolayout.expression.pipeline.TimeGateway);
   }
 
   public interface DynamicTypeValueReceiver<T> {
@@ -36,6 +53,16 @@ package androidx.wear.protolayout.expression.pipeline {
   public interface QuotaManager {
     method public void releaseQuota(int);
     method public boolean tryAcquireQuota(int);
+  }
+
+  public interface TimeGateway {
+    method public void registerForUpdates(java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.TimeGateway.TimeCallback);
+    method public void unregisterForUpdates(androidx.wear.protolayout.expression.pipeline.TimeGateway.TimeCallback);
+  }
+
+  public static interface TimeGateway.TimeCallback {
+    method public void onData();
+    method public void onPreUpdate();
   }
 
 }
