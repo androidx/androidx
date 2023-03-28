@@ -42,13 +42,13 @@ public final class CapabilityTwoEntityValues {
                             "slotA",
                             Property::slotA,
                             Argument.Builder::setSlotA,
-                            TypeConverters::toEntityValue,
+                            TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
                             PropertyConverter::entityToProto)
                     .bindOptionalParameter(
                             "slotB",
                             Property::slotB,
                             Argument.Builder::setSlotB,
-                            TypeConverters::toEntityValue,
+                            TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
                             PropertyConverter::entityToProto)
                     .build();
 

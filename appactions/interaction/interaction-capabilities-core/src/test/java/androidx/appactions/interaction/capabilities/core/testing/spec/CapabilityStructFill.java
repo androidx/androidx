@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.appactions.interaction.capabilities.core.BaseSession;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter;
+import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.PropertyConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec;
@@ -47,13 +48,13 @@ public final class CapabilityStructFill {
                             "listItem",
                             Property::listItem,
                             Argument.Builder::setListItem,
-                            TypeConverters::toListItem,
+                            ParamValueConverter.Companion.of(LIST_ITEM_TYPE_SPEC),
                             EntityConverter.Companion.of(LIST_ITEM_TYPE_SPEC)::convert)
                     .bindOptionalParameter(
                             "string",
                             Property::anyString,
                             Argument.Builder::setAnyString,
-                            TypeConverters::toStringValue,
+                            TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                             PropertyConverter::stringValueToProto)
                     .build();
 

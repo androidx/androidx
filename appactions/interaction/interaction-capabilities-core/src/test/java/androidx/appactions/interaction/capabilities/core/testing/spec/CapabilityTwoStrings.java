@@ -40,13 +40,13 @@ public final class CapabilityTwoStrings {
                             "stringSlotA",
                             Property::stringSlotA,
                             Argument.Builder::setStringSlotA,
-                            TypeConverters::toStringValue,
+                            TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                             PropertyConverter::stringValueToProto)
                     .bindOptionalParameter(
                             "stringSlotB",
                             Property::stringSlotB,
                             Argument.Builder::setStringSlotB,
-                            TypeConverters::toStringValue,
+                            TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                             PropertyConverter::stringValueToProto)
                     .build();
 

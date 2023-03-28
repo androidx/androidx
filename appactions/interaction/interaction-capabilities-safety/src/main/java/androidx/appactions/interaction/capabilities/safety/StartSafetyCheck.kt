@@ -16,11 +16,13 @@
 
 package androidx.appactions.interaction.capabilities.safety
 
-import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
 import androidx.appactions.interaction.capabilities.core.ActionCapability
 import androidx.appactions.interaction.capabilities.core.BaseSession
+import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
+import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
+import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.SAFETY_CHECK_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
 import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
@@ -51,20 +53,20 @@ private val ACTION_SPEC =
             "safetyCheck.duration",
             { property -> Optional.ofNullable(property.duration) },
             StartSafetyCheck.Argument.Builder::setDuration,
-            TypeConverters::toDuration,
+            TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
             TypeConverters::toEntity
         )
         .bindOptionalParameter(
             "safetyCheck.checkInTime",
             { property -> Optional.ofNullable(property.checkInTime) },
             StartSafetyCheck.Argument.Builder::setCheckInTime,
-            TypeConverters::toZonedDateTime,
+            TypeConverters.ZONED_DATETIME_PARAM_VALUE_CONVERTER,
             TypeConverters::toEntity
         )
         .bindOptionalOutput(
             "safetyCheck",
             { output -> Optional.ofNullable(output.safetyCheck) },
-            TypeConverters::toParamValue
+            ParamValueConverter.of(SAFETY_CHECK_TYPE_SPEC)::toParamValue
         )
         .bindOptionalOutput(
             "executionStatus",
