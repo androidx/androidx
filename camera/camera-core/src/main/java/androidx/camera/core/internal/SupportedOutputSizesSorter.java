@@ -258,6 +258,10 @@ class SupportedOutputSizesSorter {
             resolutionCandidateList = mCameraInfoInternal.getSupportedResolutions(imageFormat);
         }
 
+        // CameraInfoInternal.getSupportedResolutions is not guaranteed to return a modifiable list
+        // needed by Collections.sort(), so it is converted to a modifiable list here
+        resolutionCandidateList = new ArrayList<>(resolutionCandidateList);
+
         Collections.sort(resolutionCandidateList, new CompareSizesByArea(true));
 
         return resolutionCandidateList;
