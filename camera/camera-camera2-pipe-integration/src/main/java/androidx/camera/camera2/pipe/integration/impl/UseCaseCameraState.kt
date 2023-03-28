@@ -18,16 +18,21 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
+import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.FrameInfo
+import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import javax.inject.Inject
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
@@ -57,6 +62,14 @@ class UseCaseCameraState @Inject constructor(
     private var updateSignal: CompletableDeferred<Unit>? = null
 
     @GuardedBy("lock")
+    private val submittedRequestCounter = atomic(0)
+
+    data class RequestSignal(val requestNo: Int, val signal: CompletableDeferred<Unit>)
+
+    @GuardedBy("lock")
+    private var updateSignals = ArrayDeque<RequestSignal>()
+
+    @GuardedBy("lock")
     private var updating = false
 
     @GuardedBy("lock")
@@ -74,6 +87,8 @@ class UseCaseCameraState @Inject constructor(
     @GuardedBy("lock")
     private var currentTemplate: RequestTemplate? = null
 
+    private val requestListener = RequestListener()
+
     fun updateAsync(
         parameters: Map<CaptureRequest.Key<*>, Any>? = null,
         appendParameters: Boolean = true,
@@ -81,7 +96,7 @@ class UseCaseCameraState @Inject constructor(
         appendInternalParameters: Boolean = true,
         streams: Set<StreamId>? = null,
         template: RequestTemplate? = null,
-        listeners: Set<Request.Listener>? = null
+        listeners: Set<Request.Listener>? = null,
     ): Deferred<Unit> {
         val result: Deferred<Unit>
         synchronized(lock) {
@@ -209,8 +224,8 @@ class UseCaseCameraState @Inject constructor(
 
         threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
             val result: CompletableDeferred<Unit>?
+            val request: Request?
             cameraGraph.acquireSession().use {
-                val request: Request?
                 synchronized(lock) {
                     request = if (currentStreams.isEmpty()) {
                         null
@@ -219,25 +234,106 @@ class UseCaseCameraState @Inject constructor(
                             template = currentTemplate,
                             streams = currentStreams.toList(),
                             parameters = currentParameters.toMap(),
-                            extras = currentInternalParameters.toMap(),
-                            listeners = currentListeners.toList()
+                            extras = currentInternalParameters.toMutableMap().also { parameters ->
+                                parameters[USE_CASE_CAMERA_STATE_CUSTOM_TAG] =
+                                    submittedRequestCounter.incrementAndGet()
+                            },
+                            listeners = currentListeners.toMutableList().also { listeners ->
+                                listeners.add(requestListener)
+                            }
                         )
                     }
                     result = updateSignal
-                    updateSignal = null
                     updating = false
+                    updateSignal = null
                 }
 
                 if (request == null) {
                     it.stopRepeating()
                 } else {
+                    result?.let { result ->
+                        updateSignals.add(RequestSignal(submittedRequestCounter.value, result))
+                    }
+
                     it.startRepeating(request)
                 }
             }
 
-            // Complete the result after the session closes to allow other threads to acquire a
-            // lock. This also avoids cases where complete() synchronously invokes expensive calls.
-            result?.complete(Unit)
+            // complete the result instantly only when the request was not submitted
+            if (request == null) {
+                // Complete the result after the session closes to allow other threads to acquire a
+                // lock. This also avoids cases where complete() synchronously invokes expensive
+                // calls.
+                result?.complete(Unit)
+            }
+        }
+    }
+
+    inner class RequestListener() : Request.Listener {
+        override fun onTotalCaptureResult(
+            requestMetadata: RequestMetadata,
+            frameNumber: FrameNumber,
+            totalCaptureResult: FrameInfo,
+        ) {
+            super.onTotalCaptureResult(requestMetadata, frameNumber, totalCaptureResult)
+            threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
+                requestMetadata[USE_CASE_CAMERA_STATE_CUSTOM_TAG]?.let { requestNo ->
+                    synchronized(lock) {
+                        updateSignals.complete(requestNo)
+                    }
+                }
+            }
+        }
+
+        override fun onFailed(
+            requestMetadata: RequestMetadata,
+            frameNumber: FrameNumber,
+            captureFailure: CaptureFailure,
+        ) {
+            super.onFailed(requestMetadata, frameNumber, captureFailure)
+            completeExceptionally(requestMetadata, captureFailure)
+        }
+
+        override fun onRequestSequenceAborted(requestMetadata: RequestMetadata) {
+            super.onRequestSequenceAborted(requestMetadata)
+            completeExceptionally(requestMetadata)
+        }
+
+        private fun completeExceptionally(
+            requestMetadata: RequestMetadata,
+            captureFailure: CaptureFailure? = null
+        ) {
+            threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
+                requestMetadata[USE_CASE_CAMERA_STATE_CUSTOM_TAG]?.let { requestNo ->
+                    synchronized(lock) {
+                        updateSignals.completeExceptionally(
+                            requestNo,
+                            Throwable(
+                                "Failed in framework level" + (captureFailure?.reason?.let {
+                                    " with CaptureFailure.reason = $it"
+                                } ?: "")
+                            )
+                        )
+                    }
+                }
+            }
+        }
+
+        private fun ArrayDeque<RequestSignal>.complete(requestNo: Int) {
+            while (isNotEmpty() && first().requestNo <= requestNo) {
+                first().signal.complete(Unit)
+                removeFirst()
+            }
+        }
+
+        private fun ArrayDeque<RequestSignal>.completeExceptionally(
+            requestNo: Int,
+            throwable: Throwable
+        ) {
+            while (isNotEmpty() && first().requestNo <= requestNo) {
+                first().signal.completeExceptionally(throwable)
+                removeFirst()
+            }
         }
     }
 }

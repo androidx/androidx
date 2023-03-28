@@ -20,14 +20,21 @@ import android.os.Build
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCamera
 import androidx.camera.camera2.pipe.integration.testing.FakeZoomCompat
+import androidx.camera.core.CameraControl
 import androidx.testutils.MainDispatcherRule
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
+import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -68,10 +75,123 @@ class ZoomControlTest {
     fun canUpdateZoomRatioInCompat() {
         zoomControl.setZoomRatio(3.0f)[3, TimeUnit.SECONDS]
 
-        Truth.assertWithMessage("zoomCompat not updated with correct zoom ratio")
+        assertWithMessage("zoomCompat not updated with correct zoom ratio")
             .that(zoomCompat.zoomRatio)
             .isEqualTo(3.0f)
     }
 
+    @Test
+    fun setZoomRatioResultWaits_whenZoomCompatIncomplete() {
+        zoomCompat.applyAsyncResult = CompletableDeferred() // never completing deferred
+        val result = zoomControl.setZoomRatio(3.0f)
+
+        assertWithMessage("setZoomRatio result completed before ZoomCompat work is done")
+            .that(result.isDone)
+            .isFalse()
+    }
+
+    @Test
+    fun setZoomRatioResultCompletes_afterZoomCompatCompletes() {
+        zoomCompat.applyAsyncResult = CompletableDeferred() // incomplete deferred
+
+        val result = zoomControl.setZoomRatio(3.0f)
+        zoomCompat.applyAsyncResult.complete(Unit)
+
+        assertWithMessage("setZoomRatio result not completed after ZoomCompat work is done")
+            .that(result.isDone)
+            .isTrue()
+    }
+
+    @Test
+    fun setZoomRatioResultPropagates_whenUseCaseCameraUpdated(): Unit = runBlocking {
+        zoomCompat.applyAsyncResult = CompletableDeferred() // initial incomplete deferred
+        zoomControl.setZoomRatio(3.0f)
+
+        // Act. Simulate the UseCaseCamera is recreated before applying zoom.
+        zoomCompat.applyAsyncResult = CompletableDeferred() // incomplete deferred of new camera
+        zoomControl.useCaseCamera = FakeUseCaseCamera()
+        zoomCompat.applyAsyncResult.complete(Unit)
+
+        // Assert. The setZoomRatio task should be completed.
+        assertWithMessage("zoomCompat not updated with correct zoom ratio")
+            .that(zoomCompat.zoomRatio)
+            .isEqualTo(3.0f)
+    }
+
+    @Test
+    fun onlyLatestRequestCompletes_whenMultipleZoomRatiosSet(): Unit = runBlocking {
+        zoomCompat.applyAsyncResult = CompletableDeferred() // incomplete deferred
+
+        val result1 = zoomControl.setZoomRatio(3.0f)
+        val result2 = zoomControl.setZoomRatio(2.0f)
+        zoomControl.setZoomRatio(4.0f)
+        zoomCompat.applyAsyncResult.complete(Unit)
+
+        zoomCompat.applyAsyncResult.complete(Unit)
+
+        assertFutureFailedWithOperationCancellation(result1)
+        assertFutureFailedWithOperationCancellation(result2)
+        // Assert. Only the last setZoomRatio value should be applied.
+        assertWithMessage("zoomCompat not updated with correct zoom ratio")
+            .that(zoomCompat.zoomRatio)
+            .isEqualTo(4.0f)
+    }
+
+    @Test
+    fun onlyLatestRequestCompletes_whenUseCaseCameraUpdated(): Unit = runBlocking {
+        zoomCompat.applyAsyncResult = CompletableDeferred() // incomplete deferred
+        val result1 = zoomControl.setZoomRatio(3.0f)
+
+        // Act. Simulate the UseCaseCamera is recreated,
+        zoomControl.useCaseCamera = FakeUseCaseCamera()
+        // Act. Submit a new zoom ratio.
+        val result2 = zoomControl.setZoomRatio(2.0f)
+        zoomCompat.applyAsyncResult.complete(Unit)
+
+        // Assert 1. The previous setZoomRatio task should be cancelled
+        assertFutureFailedWithOperationCancellation(result1)
+        // Assert 2. The latest setZoomRatio task should be completed.
+        assertWithMessage("setZoomRatio result not completed after ZoomCompat work is done")
+            .that(result2.isDone)
+            .isTrue()
+    }
+
+    @Test
+    fun setZoomRatioResultCancels_whenUseCaseCameraClosed(): Unit = runBlocking {
+        zoomCompat.applyAsyncResult = CompletableDeferred() // incomplete deferred
+        val result = zoomControl.setZoomRatio(3.0f)
+
+        zoomControl.useCaseCamera = null
+
+        assertFutureFailedWithOperationCancellation(result)
+    }
+
+    @Test
+    fun previousSetZoomRatioResultCancels_whenZoomControlReset(): Unit = runBlocking {
+        zoomCompat.applyAsyncResult = CompletableDeferred() // incomplete deferred
+        val result = zoomControl.setZoomRatio(3.0f)
+
+        zoomControl.reset()
+
+        assertFutureFailedWithOperationCancellation(result)
+    }
+
+    @Test
+    fun zoomValueUpdatesToDefault_whenZoomControlReset(): Unit = runBlocking {
+        zoomControl.reset()
+
+        assertWithMessage("zoomCompat not updated with correct zoom ratio")
+            .that(zoomCompat.zoomRatio)
+            .isEqualTo(DEFAULT_ZOOM_RATIO)
+    }
+
     // TODO: port tests from camera-camera2
+
+    private fun <T> assertFutureFailedWithOperationCancellation(future: ListenableFuture<T>) {
+        Assert.assertThrows(ExecutionException::class.java) {
+            future[3, TimeUnit.SECONDS]
+        }.apply {
+            assertThat(cause).isInstanceOf(CameraControl.OperationCanceledException::class.java)
+        }
+    }
 }

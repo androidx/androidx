@@ -16,24 +16,39 @@
 
 package androidx.camera.camera2.pipe.integration.testing
 
+import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.params.MeteringRectangle
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.TorchState
+import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraphSession.RequestStatus.ABORTED
+import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraphSession.RequestStatus.FAILED
+import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraphSession.RequestStatus.TOTAL_CAPTURE_DONE
+import androidx.camera.camera2.pipe.testing.FakeFrameInfo
+import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import java.util.concurrent.Semaphore
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.runBlocking
 
 open class FakeCameraGraphSession : CameraGraph.Session {
 
     val repeatingRequests = mutableListOf<Request>()
     var repeatingRequestSemaphore = Semaphore(0)
     val stopRepeatingSemaphore = Semaphore(0)
+
+    enum class RequestStatus {
+        TOTAL_CAPTURE_DONE,
+        FAILED,
+        ABORTED
+    }
+    var startRepeatingSignal = CompletableDeferred(TOTAL_CAPTURE_DONE) // already completed
 
     override fun abort() {
         // No-op
@@ -71,6 +86,14 @@ open class FakeCameraGraphSession : CameraGraph.Session {
     override fun startRepeating(request: Request) {
         repeatingRequests.add(request)
         repeatingRequestSemaphore.release()
+
+        startRepeatingSignal.invokeOnCompletion {
+            // completes immediately if startRepeatingListenerInvoker is the initial one
+            runBlocking {
+                // the real GraphSession processes only the last successful repeating request
+                repeatingRequests.notifyLastRequestListeners(request, startRepeatingSignal.await())
+            }
+        }
     }
 
     override fun stopRepeating() {
@@ -119,5 +142,32 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         awbRegions: List<MeteringRectangle>?
     ): Deferred<Result3A> {
         return CompletableDeferred(Result3A(Result3A.Status.OK))
+    }
+
+    // CaptureFailure is package-private so this workaround is used
+    private fun getFakeCaptureFailure(): CaptureFailure {
+        val c = Class.forName("android.hardware.camera2.CaptureFailure")
+        val constructor = c.getDeclaredConstructor()
+        constructor.isAccessible = true // Make the constructor accessible.
+        return (constructor.newInstance() as CaptureFailure)
+    }
+
+    private fun MutableList<Request>.notifyLastRequestListeners(
+        request: Request,
+        status: RequestStatus
+    ) {
+        last().listeners.forEach { listener ->
+            when (status) {
+                TOTAL_CAPTURE_DONE -> listener.onTotalCaptureResult(
+                    FakeRequestMetadata(request = request), FrameNumber(0), FakeFrameInfo()
+                )
+                FAILED -> listener.onFailed(
+                    FakeRequestMetadata(request = request), FrameNumber(0), getFakeCaptureFailure()
+                )
+                ABORTED -> listener.onRequestSequenceAborted(
+                    FakeRequestMetadata(request = request)
+                )
+            }
+        }
     }
 }
