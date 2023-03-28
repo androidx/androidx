@@ -105,7 +105,7 @@ internal fun suspendOverrides(
     }
     val ownerType = MoreTypes.asDeclared(owner.asType())
     val overriderExecutable = MoreTypes.asExecutable(typeUtils.asMemberOf(ownerType, overrider))
-    val overriddenExecutable = MoreTypes.asExecutable(typeUtils.asMemberOf(ownerType, overrider))
+    val overriddenExecutable = MoreTypes.asExecutable(typeUtils.asMemberOf(ownerType, overridden))
     if (overriderExecutable.parameterTypes.size != overriddenExecutable.parameterTypes.size) {
         return false
     }
@@ -124,10 +124,10 @@ internal fun suspendOverrides(
     }
     val overriderContinuationTypeArg =
         MoreTypes.asDeclared(overriderExecutable.parameterTypes.last())
-            .typeArguments.single().extendsBound()
+            .typeArguments.single().let { it.extendsBound() ?: it }
     val overriddenContinuationTypeArg =
-        MoreTypes.asDeclared(overriderExecutable.parameterTypes.last())
-            .typeArguments.single().extendsBound()
+        MoreTypes.asDeclared(overriddenExecutable.parameterTypes.last())
+            .typeArguments.single().let { it.extendsBound() ?: it }
     if (!typeUtils.isSameType(
             typeUtils.erasure(overriderContinuationTypeArg),
             typeUtils.erasure(overriddenContinuationTypeArg))
