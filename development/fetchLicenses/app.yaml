@@ -1,2 +1,2 @@
-runtime: nodejs16
+runtime: nodejs18
 instance_class: F4_1G
