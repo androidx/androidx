@@ -17,20 +17,24 @@
 package androidx.privacysandbox.sdkruntime.core.controller
 
 import android.app.Activity
+import android.app.Application
 import android.app.sdksandbox.SandboxedSdk
 import android.app.sdksandbox.sdkprovider.SdkSandboxActivityHandler
 import android.app.sdksandbox.sdkprovider.SdkSandboxController
 import android.content.Context
 import android.os.Binder
 import android.os.Build
+import android.os.Bundle
 import android.os.ext.SdkExtensions
 import android.window.OnBackInvokedDispatcher
 import androidx.annotation.RequiresExtension
+import androidx.lifecycle.Lifecycle
 import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
 import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
+import androidx.test.internal.runner.junit4.statement.UiThreadStatement
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Assume.assumeFalse
@@ -138,15 +142,57 @@ class SdkSandboxControllerCompatSandboxedTest {
         )
 
         val activityMock = mock(Activity::class.java)
+        val onBackInvokedDispatcher = mock(OnBackInvokedDispatcher::class.java)
+        doReturn(onBackInvokedDispatcher).`when`(activityMock).onBackInvokedDispatcher
+
         platformRegisteredHandlerCaptor.value.onActivityCreated(activityMock)
         var activityHolderCaptor: ArgumentCaptor<ActivityHolder> =
             ArgumentCaptor.forClass(ActivityHolder::class.java)
         verify(handlerCompat).onActivityCreated(capture(activityHolderCaptor))
         assertThat(activityHolderCaptor.value.getActivity()).isEqualTo(activityMock)
 
-        val onBackInvokedDispatcherr = mock(OnBackInvokedDispatcher::class.java)
-        doReturn(onBackInvokedDispatcherr).`when`(activityMock).onBackInvokedDispatcher
         assertThat(activityHolderCaptor.value.getOnBackPressedDispatcher()).isNotNull()
+
+        assertThat(activityHolderCaptor.value.lifecycle).isNotNull()
+        var activityLifecycleCallbackCaptor:
+            ArgumentCaptor<Application.ActivityLifecycleCallbacks> =
+            ArgumentCaptor.forClass(Application.ActivityLifecycleCallbacks::class.java)
+        verify(activityMock).registerActivityLifecycleCallbacks(
+            activityLifecycleCallbackCaptor.capture()
+        )
+        var bundleMock = mock(Bundle::class.java)
+        UiThreadStatement.runOnUiThread {
+            assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
+                Lifecycle.State.INITIALIZED)
+            activityLifecycleCallbackCaptor.value.onActivityCreated(activityMock, bundleMock)
+            assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
+                Lifecycle.State.CREATED)
+
+            activityLifecycleCallbackCaptor.value.onActivityStarted(activityMock)
+            assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
+                Lifecycle.State.STARTED)
+
+            activityLifecycleCallbackCaptor.value.onActivityResumed(activityMock)
+            assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
+                Lifecycle.State.RESUMED)
+
+            activityLifecycleCallbackCaptor.value.onActivityPaused(activityMock)
+            assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
+                Lifecycle.State.STARTED)
+
+            activityLifecycleCallbackCaptor.value.onActivityStopped(activityMock)
+            assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
+                Lifecycle.State.CREATED)
+
+            activityLifecycleCallbackCaptor.value.onActivityDestroyed(activityMock)
+            assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
+                Lifecycle.State.DESTROYED)
+
+            val currentState = activityHolderCaptor.value.lifecycle.currentState
+            activityLifecycleCallbackCaptor.value.onActivitySaveInstanceState(
+                activityMock, bundleMock)
+            assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(currentState)
+        }
     }
 
     @Test

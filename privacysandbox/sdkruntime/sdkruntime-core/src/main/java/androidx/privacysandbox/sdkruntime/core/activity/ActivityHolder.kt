@@ -18,14 +18,18 @@ package androidx.privacysandbox.sdkruntime.core.activity
 
 import android.app.Activity
 import androidx.activity.OnBackPressedDispatcher
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 
 /**
  * A holder for the [Activity] created for SDK.
  *
  * This is passed to SDKs through [SdkSandboxActivityHandlerCompat.onActivityCreated] to notify SDKs
  * about the created [Activity].
+ *
+ * SDK can add [LifecycleObserver]s into it to observe the [Activity] lifecycle state.
  */
-interface ActivityHolder {
+interface ActivityHolder : LifecycleOwner {
     /**
      * The [Activity] created for SDK.
      */

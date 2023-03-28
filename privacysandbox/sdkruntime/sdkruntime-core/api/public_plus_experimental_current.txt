@@ -53,7 +53,7 @@ package androidx.privacysandbox.sdkruntime.core {
 
 package androidx.privacysandbox.sdkruntime.core.activity {
 
-  public interface ActivityHolder {
+  public interface ActivityHolder extends androidx.lifecycle.LifecycleOwner {
     method public android.app.Activity getActivity();
     method public androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
   }
