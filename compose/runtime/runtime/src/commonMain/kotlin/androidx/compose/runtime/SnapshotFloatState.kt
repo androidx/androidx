@@ -18,6 +18,7 @@
 @file:JvmMultifileClass
 package androidx.compose.runtime
 
+import androidx.compose.runtime.snapshots.AutoboxingStateValueProperty
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotMutableState
 import androidx.compose.runtime.snapshots.StateObject
@@ -54,6 +55,7 @@ fun mutableStateOf(
 @Stable
 @JvmDefaultWithCompatibility
 interface FloatState : State<Float> {
+    @AutoboxingStateValueProperty("floatValue")
     override val value: Float
         @Suppress("AutoBoxing") get() = floatValue
 
@@ -79,6 +81,7 @@ inline operator fun FloatState.getValue(thisObj: Any?, property: KProperty<*>): 
 @Stable
 @JvmDefaultWithCompatibility
 interface MutableFloatState : FloatState, MutableState<Float> {
+    @AutoboxingStateValueProperty("floatValue")
     override var value: Float
         @Suppress("AutoBoxing") get() = floatValue
         set(value) { floatValue = value }

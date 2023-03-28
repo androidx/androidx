@@ -153,6 +153,7 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                     error.add("ComposableLambdaParameterPosition")
                     error.add("CompositionLocalNaming")
                     error.add("ComposableModifierFactory")
+                    error.add("AutoboxingStateValueProperty")
                     error.add("InvalidColorHexValue")
                     error.add("MissingColorAlphaChannel")
                     error.add("ModifierFactoryReturnType")
