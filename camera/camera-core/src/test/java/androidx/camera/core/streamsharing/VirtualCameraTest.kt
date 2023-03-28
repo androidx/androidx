@@ -19,11 +19,15 @@ package androidx.camera.core.streamsharing
 import android.graphics.ImageFormat
 import android.graphics.Matrix
 import android.graphics.Rect
+import android.graphics.SurfaceTexture
 import android.os.Build
 import android.os.Looper.getMainLooper
 import android.util.Size
 import android.view.Surface
+import androidx.camera.core.CameraEffect.IMAGE_CAPTURE
 import androidx.camera.core.CameraEffect.PREVIEW
+import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
 import androidx.camera.core.ImageCapture.FLASH_MODE_AUTO
 import androidx.camera.core.MirrorMode.MIRROR_MODE_ON
@@ -31,10 +35,12 @@ import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CaptureConfig
+import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionConfig.defaultEmptySessionConfig
 import androidx.camera.core.impl.StreamSpec
+import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.processing.SurfaceEdge
 import androidx.camera.testing.fakes.FakeCamera
@@ -119,6 +125,40 @@ class VirtualCameraTest {
     }
 
     @Test
+    fun getImageCaptureSurface_returnsNonRepeatingSurface() {
+        assertThat(getUseCaseSurface(ImageCapture.Builder().build())).isNotNull()
+    }
+
+    @Test
+    fun getChildSurface_returnsRepeatingSurface() {
+        // Arrange.
+        val surfaceTexture = SurfaceTexture(0)
+        val surface = Surface(surfaceTexture)
+        val preview = Preview.Builder().build().apply {
+            this.setSurfaceProvider {
+                it.provideSurface(surface, directExecutor()) {
+                    surfaceTexture.release()
+                    surface.release()
+                }
+            }
+        }
+        // Act & Assert.
+        assertThat(getUseCaseSurface(preview)).isNotNull()
+        // Cleanup.
+        preview.unbindFromCamera(parentCamera)
+    }
+
+    private fun getUseCaseSurface(useCase: UseCase): DeferrableSurface? {
+        useCase.bindToCamera(
+            parentCamera,
+            null,
+            useCase.getDefaultConfig(true, useCaseConfigFactory)
+        )
+        useCase.updateSuggestedStreamSpec(StreamSpec.builder(INPUT_SIZE).build())
+        return VirtualCamera.getChildSurface(useCase)
+    }
+
+    @Test
     fun setUseCaseActiveAndInactive_surfaceConnectsAndDisconnects() {
         // Arrange.
         virtualCamera.bindChildren()
@@ -190,8 +230,9 @@ class VirtualCameraTest {
         // Arrange.
         val cropRect = Rect(10, 10, 410, 310)
         val preview = Preview.Builder().setTargetRotation(Surface.ROTATION_90).build()
+        val imageCapture = ImageCapture.Builder().build()
         virtualCamera = VirtualCamera(
-            parentCamera, setOf(preview, child2), useCaseConfigFactory
+            parentCamera, setOf(preview, child2, imageCapture), useCaseConfigFactory
         ) {
             Futures.immediateFuture(null)
         }
@@ -201,14 +242,22 @@ class VirtualCameraTest {
             createSurfaceEdge(cropRect = cropRect)
         )
 
-        // Assert: child1
+        // Assert: preview config
         val previewOutConfig = outConfigs[preview]!!
+        assertThat(previewOutConfig.format).isEqualTo(INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE)
+        assertThat(previewOutConfig.targets).isEqualTo(PREVIEW)
         assertThat(previewOutConfig.cropRect).isEqualTo(cropRect)
         assertThat(previewOutConfig.size).isEqualTo(Size(300, 400))
         assertThat(previewOutConfig.rotationDegrees).isEqualTo(270)
         assertThat(previewOutConfig.mirroring).isFalse()
+        // Assert: ImageCapture config
+        val imageOutConfig = outConfigs[imageCapture]!!
+        assertThat(imageOutConfig.format).isEqualTo(ImageFormat.JPEG)
+        assertThat(imageOutConfig.targets).isEqualTo(IMAGE_CAPTURE)
         // Assert: child2
         val outConfig2 = outConfigs[child2]!!
+        assertThat(outConfig2.format).isEqualTo(INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE)
+        assertThat(outConfig2.targets).isEqualTo(VIDEO_CAPTURE)
         assertThat(outConfig2.cropRect).isEqualTo(cropRect)
         assertThat(outConfig2.size).isEqualTo(Size(400, 300))
         assertThat(outConfig2.mirroring).isTrue()
