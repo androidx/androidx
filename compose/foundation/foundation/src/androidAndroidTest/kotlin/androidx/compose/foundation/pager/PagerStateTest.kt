@@ -311,6 +311,24 @@ class PagerStateTest(val config: ParamConfig) : BasePagerTest(config) {
     }
 
     @Test
+    fun animateScrollToPage_moveToSamePageWithOffset_shouldScroll() = runBlocking {
+        // Arrange
+        val state = PagerState(initialPage = 5)
+        createPager(state = state, modifier = Modifier.fillMaxSize())
+
+        // Act
+        assertThat(state.currentPage).isEqualTo(5)
+
+        withContext(Dispatchers.Main + AutoTestFrameClock()) {
+            state.animateScrollToPage(5, 0.4f)
+        }
+
+        // Assert
+        rule.runOnIdle { assertThat(state.currentPage).isEqualTo(5) }
+        rule.runOnIdle { assertThat(state.currentPageOffsetFraction).isWithin(0.01f).of(0.4f) }
+    }
+
+    @Test
     fun animateScrollToPage_withPassedAnimation() = runBlocking {
         // Arrange
         val state = PagerState()
