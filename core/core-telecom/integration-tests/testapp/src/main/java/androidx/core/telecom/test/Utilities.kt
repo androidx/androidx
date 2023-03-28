@@ -21,7 +21,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributes
 import androidx.core.telecom.CallAttributes.Companion.DIRECTION_INCOMING
 import androidx.core.telecom.CallAttributes.Companion.DIRECTION_OUTGOING
-import androidx.core.telecom.CallAttributes.Companion.VIDEO_CALL
+import androidx.core.telecom.CallAttributes.Companion.CALL_TYPE_VIDEO_CALL
 
 @RequiresApi(34)
 class Utilities {
@@ -48,7 +48,7 @@ class Utilities {
                 INCOMING_NAME,
                 INCOMING_URI,
                 DIRECTION_INCOMING,
-                VIDEO_CALL,
+                CALL_TYPE_VIDEO_CALL,
                 ALL_CALL_CAPABILITIES)
     }
 }

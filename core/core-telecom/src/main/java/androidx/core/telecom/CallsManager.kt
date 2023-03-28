@@ -33,7 +33,7 @@ import android.telecom.TelecomManager
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
-import androidx.core.telecom.CallAttributes.Companion.VIDEO_CALL
+import androidx.core.telecom.CallAttributes.Companion.CALL_TYPE_VIDEO_CALL
 import androidx.core.telecom.internal.CallSession
 import androidx.core.telecom.internal.Utils
 import java.util.concurrent.Executor
@@ -52,7 +52,6 @@ import kotlinx.coroutines.job
  * application if the call is added to the Telecom system.  VoIP applications that manage calls and
  * do not inform the Telecom system may experience issues with resources (ex. microphone access).
  *
- * <p>
  * Note that access to some telecom information is permission-protected. Your app cannot access the
  * protected information or gain access to protected functionality unless it has the appropriate
  * permissions declared in its manifest file. Where permissions apply, they are noted in the method
@@ -82,30 +81,34 @@ class CallsManager constructor(context: Context) {
         /**
          * If your VoIP application does not want support any of the capabilities below, then your
          * application can register with [CAPABILITY_BASELINE].
-         * <p>
+         *
          * Note: Calls can still be added and to the Telecom system but if other services request to
          * perform a capability that is not supported by your application, Telecom will notify the
          * service of the inability to perform the action instead of hitting an error.
          */
-        const val CAPABILITY_BASELINE = 0
+        const val CAPABILITY_BASELINE = 1 shl 0
 
         /**
          * Flag indicating that your VoIP application supports video calling.
          * This is not an indication that your application is currently able to make a video
          * call, but rather that it has the ability to make video calls (but not necessarily at this
          * time).
-         * <p>
+         *
          * Whether a call can make a video call is ultimately controlled by
          * [androidx.core.telecom.CallAttributes]s capability
-         * [androidx.core.telecom.CallAttributes.CallType]#[VIDEO_CALL],
+         * [androidx.core.telecom.CallAttributes.CallType]#[CALL_TYPE_VIDEO_CALL],
          * which indicates that particular call is currently capable of making a video call.
-         * <p>
          */
         const val CAPABILITY_SUPPORTS_VIDEO_CALLING = 1 shl 1
 
         /**
-         * Flag indicating that this VoIP application supports the call streaming
-         * session to stream call audio to another remote device via streaming app.
+         * Flag indicating that this VoIP application supports call streaming. Call streaming means
+         * a call can be streamed from a root device to another device to continue the call
+         * without completely transferring it. The call continues to take place on the source
+         * device, however media and control are streamed to another device.
+         * [androidx.core.telecom.CallAttributes.CallType]#[CAPABILITY_SUPPORTS_CALL_STREAMING]
+         * must also be set on per call basis in the event an application wants to gate this
+         * capability on a stricter basis.
          */
         const val CAPABILITY_SUPPORTS_CALL_STREAMING = 1 shl 2
 
@@ -130,7 +133,7 @@ class CallsManager constructor(context: Context) {
     /**
      * VoIP applications should look at each [Capability] annotated above and call this API in
      * order to start adding calls via [addCall].
-     * <p>
+     *
      * Note: Registering capabilities must be done before calling [addCall] or an exception will
      * be thrown by [addCall].
      * @throws Exception
