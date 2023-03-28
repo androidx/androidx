@@ -709,8 +709,8 @@ internal class CompositionImpl(
             observations.removeValueIf { scope ->
                 scope in conditionallyInvalidatedScopes || invalidated?.let { scope in it } == true
             }
-            cleanUpDerivedStateObservations()
             conditionallyInvalidatedScopes.clear()
+            cleanUpDerivedStateObservations()
         } else {
             invalidated?.let {
                 observations.removeValueIf { scope -> scope in it }
@@ -720,8 +720,10 @@ internal class CompositionImpl(
     }
 
     private fun cleanUpDerivedStateObservations() {
-        derivedStates.removeValueIf { derivedValue -> derivedValue !in observations }
-        conditionallyInvalidatedScopes.removeValueIf { scope -> !scope.isConditional }
+        derivedStates.removeValueIf { derivedState -> derivedState !in observations }
+        if (conditionallyInvalidatedScopes.isNotEmpty()) {
+            conditionallyInvalidatedScopes.removeValueIf { scope -> !scope.isConditional }
+        }
     }
 
     override fun recordReadOf(value: Any) {
@@ -729,19 +731,20 @@ internal class CompositionImpl(
         if (!areChildrenComposing) {
             composer.currentRecomposeScope?.let {
                 it.used = true
-                observations.add(value, it)
+                val alreadyRead = it.recordRead(value)
+                if (!alreadyRead) {
+                    observations.add(value, it)
 
-                // Record derived state dependency mapping
-                if (value is DerivedState<*>) {
-                    derivedStates.removeScope(value)
-                    for (dependency in value.dependencies) {
-                        // skip over empty objects from dependency array
-                        if (dependency == null) break
-                        derivedStates.add(dependency, value)
+                    // Record derived state dependency mapping
+                    if (value is DerivedState<*>) {
+                        derivedStates.removeScope(value)
+                        for (dependency in value.dependencies) {
+                            // skip over empty objects from dependency array
+                            if (dependency == null) break
+                            derivedStates.add(dependency, value)
+                        }
                     }
                 }
-
-                it.recordRead(value)
             }
         }
     }
