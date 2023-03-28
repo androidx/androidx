@@ -56,49 +56,60 @@ public final class ActionSpecTest {
                             "requiredEntity",
                             Property::requiredEntityField,
                             Argument.Builder::setRequiredEntityField,
-                            TypeConverters::toEntityValue,
+                            TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
                             PropertyConverter::entityToProto)
                     .bindOptionalParameter(
                             "optionalEntity",
                             Property::optionalEntityField,
                             Argument.Builder::setOptionalEntityField,
-                            TypeConverters::toEntityValue,
+                            TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
                             PropertyConverter::entityToProto)
                     .bindRepeatedParameter(
                             "repeatedEntity",
                             Property::repeatedEntityField,
                             Argument.Builder::setRepeatedEntityField,
-                            TypeConverters::toEntityValue,
+                            TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
                             PropertyConverter::entityToProto)
                     .bindParameter(
                             "requiredString",
                             Property::requiredStringField,
                             Argument.Builder::setRequiredStringField,
-                            TypeConverters::toStringValue,
+                            TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                             PropertyConverter::stringValueToProto)
                     .bindOptionalParameter(
                             "optionalString",
                             Property::optionalStringField,
                             Argument.Builder::setOptionalStringField,
-                            TypeConverters::toStringValue,
+                            TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                             PropertyConverter::stringValueToProto)
                     .bindRepeatedParameter(
                             "repeatedString",
                             Property::repeatedStringField,
                             Argument.Builder::setRepeatedStringField,
-                            TypeConverters::toStringValue,
+                            TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                             PropertyConverter::stringValueToProto)
                     .bindOptionalOutput(
                             "optionalStringOutput",
                             Output::optionalStringField,
-                            TypeConverters::toParamValue)
+                            TypeConverters.STRING_PARAM_VALUE_CONVERTER::toParamValue)
                     .bindRepeatedOutput(
                             "repeatedStringOutput",
                             Output::repeatedStringField,
-                            TypeConverters::toParamValue)
+                            TypeConverters.STRING_PARAM_VALUE_CONVERTER::toParamValue)
                     .build();
     private static final ParamValueConverter<String> STRING_PARAM_VALUE_CONVERTER =
-            (paramValue) -> "test";
+            new ParamValueConverter<String>() {
+                @NonNull
+                @Override
+                public ParamValue toParamValue(String type) {
+                    return ParamValue.newBuilder().setStringValue(type).build();
+                }
+
+                @Override
+                public String fromParamValue(@NonNull ParamValue paramValue) {
+                    return "test";
+                }
+            };
     private static final EntityConverter<String> STRING_ENTITY_CONVERTER =
             (theString) ->
                     androidx.appactions.interaction.proto.Entity.newBuilder()

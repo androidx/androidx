@@ -17,8 +17,6 @@
 package androidx.appactions.interaction.capabilities.core.impl.converters;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appactions.interaction.capabilities.core.ExecutionResult;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
 import androidx.appactions.interaction.capabilities.core.values.Alarm;
 import androidx.appactions.interaction.capabilities.core.values.CalendarEvent;
@@ -39,7 +37,6 @@ import androidx.appactions.interaction.capabilities.core.values.properties.Atten
 import androidx.appactions.interaction.capabilities.core.values.properties.Participant;
 import androidx.appactions.interaction.capabilities.core.values.properties.Recipient;
 import androidx.appactions.interaction.proto.Entity;
-import androidx.appactions.interaction.proto.FulfillmentResponse;
 import androidx.appactions.interaction.proto.ParamValue;
 import androidx.appactions.interaction.protobuf.ListValue;
 import androidx.appactions.interaction.protobuf.Struct;
@@ -181,143 +178,228 @@ public final class TypeConverters {
     private static final String FIELD_NAME_CALL_FORMAT = "callFormat";
     private static final String FIELD_NAME_PARTICIPANT = "participant";
     private static final String FIELD_NAME_TYPE_CALL = "Call";
-    private static final String FIELD_NAME_TYPE_PERSON = "Person";
     private static final String FIELD_NAME_TYPE_MESSAGE = "Message";
     private static final String FIELD_NAME_RECIPIENT = "recipient";
     private static final String FIELD_NAME_TEXT = "text";
 
+    public static final ParamValueConverter<Integer> INTEGER_PARAM_VALUE_CONVERTER =
+            new ParamValueConverter<Integer>() {
+                @NonNull
+                @Override
+                public ParamValue toParamValue(Integer value) {
+                    return ParamValue.newBuilder().setNumberValue(value * 1.0).build();
+                }
+
+                @Override
+                public Integer fromParamValue(@NonNull ParamValue paramValue)
+                        throws StructConversionException {
+                    if (paramValue.hasNumberValue()) {
+                        return (int) paramValue.getNumberValue();
+                    }
+                    throw new StructConversionException(
+                            "Cannot parse integer because number_value"
+                                    + " is missing from ParamValue.");
+                }
+            };
+    public static final ParamValueConverter<Boolean> BOOLEAN_PARAM_VALUE_CONVERTER =
+            new ParamValueConverter<Boolean>() {
+                @NonNull
+                @Override
+                public ParamValue toParamValue(Boolean value) {
+                    return ParamValue.newBuilder().setBoolValue(value).build();
+                }
+
+                @Override
+                public Boolean fromParamValue(@NonNull ParamValue paramValue)
+                        throws StructConversionException {
+                    if (paramValue.hasBoolValue()) {
+                        return paramValue.getBoolValue();
+                    }
+                    throw new StructConversionException(
+                            "Cannot parse boolean because bool_value is missing from ParamValue.");
+                }
+            };
+    public static final ParamValueConverter<EntityValue> ENTITY_PARAM_VALUE_CONVERTER =
+            new ParamValueConverter<EntityValue>() {
+                @NonNull
+                @Override
+                public ParamValue toParamValue(EntityValue value) {
+                    throw new IllegalStateException("EntityValue should never be sent back to "
+                            + "Assistant.");
+                }
+
+                @Override
+                public EntityValue fromParamValue(@NonNull ParamValue paramValue) {
+                    EntityValue.Builder value = EntityValue.newBuilder();
+                    if (paramValue.hasIdentifier()) {
+                        value.setId(paramValue.getIdentifier());
+                    }
+                    value.setValue(paramValue.getStringValue());
+                    return value.build();
+                }
+            };
+    public static final ParamValueConverter<String> STRING_PARAM_VALUE_CONVERTER =
+            new ParamValueConverter<String>() {
+                @NonNull
+                @Override
+                public ParamValue toParamValue(String value) {
+                    return ParamValue.newBuilder().setStringValue(value).build();
+                }
+
+                @Override
+                public String fromParamValue(@NonNull ParamValue paramValue) {
+                    if (paramValue.hasIdentifier()) {
+                        return paramValue.getIdentifier();
+                    }
+                    return paramValue.getStringValue();
+                }
+            };
+    public static final ParamValueConverter<LocalDate> LOCAL_DATE_PARAM_VALUE_CONVERTER =
+            new ParamValueConverter<LocalDate>() {
+                @NonNull
+                @Override
+                public ParamValue toParamValue(LocalDate value) {
+                    // TODO(b/275456249): Implement backwards conversion.
+                    return ParamValue.getDefaultInstance();
+                }
+
+                @Override
+                public LocalDate fromParamValue(@NonNull ParamValue paramValue)
+                        throws StructConversionException {
+                    if (paramValue.hasStringValue()) {
+                        try {
+                            return LocalDate.parse(paramValue.getStringValue());
+                        } catch (DateTimeParseException e) {
+                            throw new StructConversionException(
+                                    "Failed to parse ISO 8601 string to LocalDate", e);
+                        }
+                    }
+                    throw new StructConversionException(
+                            "Cannot parse date because string_value is missing from ParamValue.");
+                }
+            };
+    public static final ParamValueConverter<LocalTime> LOCAL_TIME_PARAM_VALUE_CONVERTER =
+            new ParamValueConverter<LocalTime>() {
+                @NonNull
+                @Override
+                public ParamValue toParamValue(LocalTime value) {
+                    // TODO(b/275456249)): Implement backwards conversion.
+                    return ParamValue.getDefaultInstance();
+                }
+
+                @Override
+                public LocalTime fromParamValue(@NonNull ParamValue paramValue)
+                        throws StructConversionException {
+                    if (paramValue.hasStringValue()) {
+                        try {
+                            return LocalTime.parse(paramValue.getStringValue());
+                        } catch (DateTimeParseException e) {
+                            throw new StructConversionException(
+                                    "Failed to parse ISO 8601 string to LocalTime", e);
+                        }
+                    }
+                    throw new StructConversionException(
+                            "Cannot parse time because string_value is missing from ParamValue.");
+                }
+            };
+    public static final ParamValueConverter<ZoneId> ZONE_ID_PARAM_VALUE_CONVERTER =
+            new ParamValueConverter<ZoneId>() {
+                @NonNull
+                @Override
+                public ParamValue toParamValue(ZoneId value) {
+                    // TODO(b/275456249)): Implement backwards conversion.
+                    return ParamValue.getDefaultInstance();
+                }
+
+                @Override
+                public ZoneId fromParamValue(@NonNull ParamValue paramValue)
+                        throws StructConversionException {
+                    if (paramValue.hasStringValue()) {
+                        try {
+                            return ZoneId.of(paramValue.getStringValue());
+                        } catch (DateTimeParseException e) {
+                            throw new StructConversionException(
+                                    "Failed to parse ISO 8601 string to ZoneId", e);
+                        }
+                    }
+                    throw new StructConversionException(
+                            "Cannot parse ZoneId because string_value is missing from ParamValue.");
+                }
+            };
+    public static final ParamValueConverter<ZonedDateTime> ZONED_DATETIME_PARAM_VALUE_CONVERTER =
+            new ParamValueConverter<ZonedDateTime>() {
+                @NonNull
+                @Override
+                public ParamValue toParamValue(ZonedDateTime value) {
+                    // TODO(b/275456249)): Implement backwards conversion.
+                    return ParamValue.getDefaultInstance();
+                }
+
+                @Override
+                public ZonedDateTime fromParamValue(@NonNull ParamValue paramValue)
+                        throws StructConversionException {
+                    if (paramValue.hasStringValue()) {
+                        try {
+                            return ZonedDateTime.parse(paramValue.getStringValue());
+                        } catch (DateTimeParseException e) {
+                            throw new StructConversionException(
+                                    "Failed to parse ISO 8601 string to ZonedDateTime", e);
+                        }
+                    }
+                    throw new StructConversionException(
+                            "Cannot parse datetime because string_value"
+                                    + " is missing from ParamValue.");
+                }
+            };
+    public static final ParamValueConverter<Duration> DURATION_PARAM_VALUE_CONVERTER =
+            new ParamValueConverter<Duration>() {
+                @NonNull
+                @Override
+                public ParamValue toParamValue(Duration value) {
+                    // TODO(b/275456249)): Implement backwards conversion.
+                    return ParamValue.getDefaultInstance();
+                }
+
+                @Override
+                public Duration fromParamValue(@NonNull ParamValue paramValue)
+                        throws StructConversionException {
+                    if (!paramValue.hasStringValue()) {
+                        throw new StructConversionException(
+                                "Cannot parse duration because string_value"
+                                        + " is missing from ParamValue.");
+                    }
+                    try {
+                        return Duration.parse(paramValue.getStringValue());
+                    } catch (DateTimeParseException e) {
+                        throw new StructConversionException(
+                                "Failed to parse ISO 8601 string to Duration", e);
+                    }
+                }
+            };
+    public static final ParamValueConverter<Call.CallFormat> CALL_FORMAT_PARAM_VALUE_CONVERTER =
+            new ParamValueConverter<Call.CallFormat>() {
+                @NonNull
+                @Override
+                public ParamValue toParamValue(Call.CallFormat value) {
+                    // TODO(b/275456249)): Implement backwards conversion.
+                    return ParamValue.getDefaultInstance();
+                }
+
+                @Override
+                public Call.CallFormat fromParamValue(@NonNull ParamValue paramValue)
+                        throws StructConversionException {
+                    String identifier = paramValue.getIdentifier();
+                    if (identifier.equals(Call.CallFormat.AUDIO.toString())) {
+                        return Call.CallFormat.AUDIO;
+                    } else if (identifier.equals(Call.CallFormat.VIDEO.toString())) {
+                        return Call.CallFormat.VIDEO;
+                    }
+                    throw new StructConversionException(
+                            String.format("Unknown enum format '%s'.", identifier));
+                }
+            };
+
     private TypeConverters() {}
-
-    /**
-     * @param paramValue
-     * @return
-     */
-    @NonNull
-    public static Call.CallFormat toCallFormat(@NonNull ParamValue paramValue)
-            throws StructConversionException {
-        String identifier = paramValue.getIdentifier();
-        if (identifier.equals(Call.CallFormat.AUDIO.toString())) {
-            return Call.CallFormat.AUDIO;
-        } else if (identifier.equals(Call.CallFormat.VIDEO.toString())) {
-            return Call.CallFormat.VIDEO;
-        }
-        throw new StructConversionException(String.format("Unknown enum format '%s'.", identifier));
-    }
-
-    /**
-     * @param paramValue
-     * @return
-     */
-    @NonNull
-    public static EntityValue toEntityValue(@NonNull ParamValue paramValue) {
-        EntityValue.Builder value = EntityValue.newBuilder();
-        if (paramValue.hasIdentifier()) {
-            value.setId(paramValue.getIdentifier());
-        }
-        value.setValue(paramValue.getStringValue());
-        return value.build();
-    }
-
-    /**
-     * @param paramValue
-     * @return
-     */
-    public static int toIntegerValue(@NonNull ParamValue paramValue) {
-        return (int) paramValue.getNumberValue();
-    }
-
-    /**
-     * Converts a ParamValue to a Boolean object.
-     *
-     * @param paramValue
-     * @return
-     * @throws StructConversionException
-     */
-    @NonNull
-    public static Boolean toBooleanValue(@NonNull ParamValue paramValue)
-            throws StructConversionException {
-        if (paramValue.hasBoolValue()) {
-            return paramValue.getBoolValue();
-        }
-
-        throw new StructConversionException(
-                "Cannot parse boolean because bool_value is missing from ParamValue.");
-    }
-
-    /**
-     * @param paramValue
-     * @return
-     * @throws StructConversionException
-     */
-    @NonNull
-    public static LocalDate toLocalDate(@NonNull ParamValue paramValue)
-            throws StructConversionException {
-        if (paramValue.hasStringValue()) {
-            try {
-                return LocalDate.parse(paramValue.getStringValue());
-            } catch (DateTimeParseException e) {
-                throw new StructConversionException(
-                        "Failed to parse ISO 8601 string to LocalDate", e);
-            }
-        }
-        throw new StructConversionException(
-                "Cannot parse date because string_value is missing from ParamValue.");
-    }
-
-    /**
-     * @param paramValue
-     * @return
-     * @throws StructConversionException
-     */
-    @NonNull
-    public static LocalTime toLocalTime(@NonNull ParamValue paramValue)
-            throws StructConversionException {
-        if (paramValue.hasStringValue()) {
-            try {
-                return LocalTime.parse(paramValue.getStringValue());
-            } catch (DateTimeParseException e) {
-                throw new StructConversionException(
-                        "Failed to parse ISO 8601 string to LocalTime", e);
-            }
-        }
-        throw new StructConversionException(
-                "Cannot parse time because string_value is missing from ParamValue.");
-    }
-
-    /**
-     * @param paramValue
-     * @return
-     * @throws StructConversionException
-     */
-    @NonNull
-    public static ZoneId toZoneId(@NonNull ParamValue paramValue) throws StructConversionException {
-        if (paramValue.hasStringValue()) {
-            try {
-                return ZoneId.of(paramValue.getStringValue());
-            } catch (DateTimeParseException e) {
-                throw new StructConversionException("Failed to parse ISO 8601 string to ZoneId", e);
-            }
-        }
-        throw new StructConversionException(
-                "Cannot parse ZoneId because string_value is missing from ParamValue.");
-    }
-
-    /**
-     * Gets String value for a string property.
-     *
-     * <p>If identifier is present, it's the String value, otherwise it is {@code
-     * paramValue.getStringValue()}
-     *
-     * @param paramValue
-     * @return
-     */
-    @NonNull
-    public static String toStringValue(@NonNull ParamValue paramValue) {
-        if (paramValue.hasIdentifier()) {
-            return paramValue.getIdentifier();
-        }
-        return paramValue.getStringValue();
-    }
 
     /**
      * @param entityValue
@@ -371,118 +453,6 @@ public final class TypeConverters {
     }
 
     /**
-     * Converts a ParamValue to a single ItemList object.
-     *
-     * @param paramValue
-     * @return
-     * @throws StructConversionException
-     */
-    @NonNull
-    public static ItemList toItemList(@NonNull ParamValue paramValue)
-            throws StructConversionException {
-        return ITEM_LIST_TYPE_SPEC.fromStruct(paramValue.getStructValue());
-    }
-
-    /**
-     * Converts a ParamValue to a single ListItem object.
-     *
-     * @param paramValue
-     * @return
-     * @throws StructConversionException
-     */
-    @NonNull
-    public static ListItem toListItem(@NonNull ParamValue paramValue)
-            throws StructConversionException {
-        return LIST_ITEM_TYPE_SPEC.fromStruct(paramValue.getStructValue());
-    }
-
-    /**
-     * Converts a ParamValue to a single Order object.
-     *
-     * @param paramValue
-     * @return
-     * @throws StructConversionException
-     */
-    @NonNull
-    public static Order toOrder(@NonNull ParamValue paramValue) throws StructConversionException {
-        return ORDER_TYPE_SPEC.fromStruct(paramValue.getStructValue());
-    }
-
-    /**
-     * Converts a ParamValue to a Timer object.
-     *
-     * @param paramValue
-     * @return
-     * @throws StructConversionException
-     */
-    @NonNull
-    public static Timer toTimer(@NonNull ParamValue paramValue) throws StructConversionException {
-        return TIMER_TYPE_SPEC.fromStruct(paramValue.getStructValue());
-    }
-
-    /**
-     * Converts a ParamValue to a single Alarm object.
-     *
-     * @param paramValue
-     * @return
-     */
-    @NonNull
-    public static Alarm toAssistantAlarm(@NonNull ParamValue paramValue) {
-        return Alarm.newBuilder().setId(paramValue.getIdentifier()).build();
-    }
-
-    /**
-     * @param executionResult
-     * @return
-     */
-    @NonNull
-    public static FulfillmentResponse toFulfillmentResponseProto(
-            @NonNull ExecutionResult<Void> executionResult) {
-        return FulfillmentResponse.newBuilder()
-                .setStartDictation(executionResult.getStartDictation())
-                .build();
-    }
-
-    /**
-     * @param paramValue
-     * @return
-     * @throws StructConversionException
-     */
-    @NonNull
-    public static ZonedDateTime toZonedDateTime(@NonNull ParamValue paramValue)
-            throws StructConversionException {
-        if (paramValue.hasStringValue()) {
-            try {
-                return ZonedDateTime.parse(paramValue.getStringValue());
-            } catch (DateTimeParseException e) {
-                throw new StructConversionException(
-                        "Failed to parse ISO 8601 string to ZonedDateTime", e);
-            }
-        }
-        throw new StructConversionException(
-                "Cannot parse datetime because string_value is missing from ParamValue.");
-    }
-
-    /**
-     * @param paramValue
-     * @return
-     * @throws StructConversionException
-     */
-    @NonNull
-    public static Duration toDuration(@NonNull ParamValue paramValue)
-            throws StructConversionException {
-        if (!paramValue.hasStringValue()) {
-            throw new StructConversionException(
-                    "Cannot parse duration because string_value is missing from ParamValue.");
-        }
-        try {
-            return Duration.parse(paramValue.getStringValue());
-        } catch (DateTimeParseException e) {
-            throw new StructConversionException("Failed to parse ISO 8601 string to Duration", e);
-        }
-    }
-
-    /**
      * @param nestedTypeSpec
      * @param <T>
      * @return
@@ -502,115 +472,12 @@ public final class TypeConverters {
                 .build();
     }
 
-    /** Converts a ParamValue to a single Participant object. */
-    @NonNull
-    public static Participant toParticipant(@NonNull ParamValue paramValue)
-            throws StructConversionException {
-        if (FIELD_NAME_TYPE_PERSON.equals(getStructType(paramValue.getStructValue()))) {
-            return new Participant(PERSON_TYPE_SPEC.fromStruct(paramValue.getStructValue()));
-        }
-        throw new StructConversionException("The type is not expected.");
-    }
-
-    /** Converts a ParamValue to a single Recipient object. */
-    @NonNull
-    public static Recipient toRecipient(@NonNull ParamValue paramValue)
-            throws StructConversionException {
-        if (FIELD_NAME_TYPE_PERSON.equals(getStructType(paramValue.getStructValue()))) {
-            return new Recipient(PERSON_TYPE_SPEC.fromStruct(paramValue.getStructValue()));
-        }
-        throw new StructConversionException("The type is not expected.");
-    }
-
     /** Given some class with a corresponding TypeSpec, create a SearchActionConverter instance. */
     @NonNull
     public static <T> SearchActionConverter<T> createSearchActionConverter(
             @NonNull TypeSpec<T> nestedTypeSpec) {
         final TypeSpec<SearchAction<T>> typeSpec = createSearchActionTypeSpec(nestedTypeSpec);
         return (paramValue) -> typeSpec.fromStruct(paramValue.getStructValue());
-    }
-
-    /** Converts a string to a ParamValue. */
-    @NonNull
-    public static ParamValue toParamValue(@NonNull String value) {
-        return ParamValue.newBuilder().setStringValue(value).build();
-    }
-
-    /** Converts an EntityValue to a ParamValue. */
-    @NonNull
-    public static ParamValue toParamValue(@NonNull EntityValue value) {
-        ParamValue.Builder builder = ParamValue.newBuilder().setStringValue(value.getValue());
-        value.getId().ifPresent(builder::setIdentifier);
-        return builder.build();
-    }
-
-    /** Converts a ItemList to a ParamValue. */
-    @NonNull
-    public static ParamValue toParamValue(@NonNull ItemList value) {
-        ParamValue.Builder builder =
-                ParamValue.newBuilder().setStructValue(ITEM_LIST_TYPE_SPEC.toStruct(value));
-        value.getId().ifPresent(builder::setIdentifier);
-        return builder.build();
-    }
-
-    /** Converts a ListItem to a ParamValue. */
-    @NonNull
-    public static ParamValue toParamValue(@NonNull ListItem value) {
-        ParamValue.Builder builder =
-                ParamValue.newBuilder().setStructValue(LIST_ITEM_TYPE_SPEC.toStruct(value));
-        value.getId().ifPresent(builder::setIdentifier);
-        return builder.build();
-    }
-
-    /** Converts an Order to a ParamValue. */
-    @NonNull
-    public static ParamValue toParamValue(@NonNull Order value) {
-        ParamValue.Builder builder =
-                ParamValue.newBuilder().setStructValue(ORDER_TYPE_SPEC.toStruct(value));
-        value.getId().ifPresent(builder::setIdentifier);
-        return builder.build();
-    }
-
-    /** Converts an Alarm to a ParamValue. */
-    @NonNull
-    public static ParamValue toParamValue(@NonNull Alarm value) {
-        ParamValue.Builder builder =
-                ParamValue.newBuilder().setStructValue(ALARM_TYPE_SPEC.toStruct(value));
-        value.getId().ifPresent(builder::setIdentifier);
-        return builder.build();
-    }
-
-    /** Converts an SafetyCheck to a ParamValue. */
-    @NonNull
-    public static ParamValue toParamValue(@NonNull SafetyCheck value) {
-        ParamValue.Builder builder =
-                ParamValue.newBuilder().setStructValue(SAFETY_CHECK_TYPE_SPEC.toStruct(value));
-        value.getId().ifPresent(builder::setIdentifier);
-        return builder.build();
-    }
-
-    /** Converts a Participant to a ParamValue. */
-    @NonNull
-    public static ParamValue toParamValue(@NonNull Participant value) {
-        ParamValue.Builder builder =
-                ParamValue.newBuilder().setStructValue(PARTICIPANT_TYPE_SPEC.toStruct(value));
-        @Nullable String identifier = PARTICIPANT_TYPE_SPEC.getIdentifier(value);
-        if (identifier != null) {
-            builder.setIdentifier(identifier);
-        }
-        return builder.build();
-    }
-
-    /** Converts a Recipient to a ParamValue. */
-    @NonNull
-    public static ParamValue toParamValue(@NonNull Recipient value) {
-        ParamValue.Builder builder =
-                ParamValue.newBuilder().setStructValue(RECIPIENT_TYPE_SPEC.toStruct(value));
-        @Nullable String identifier = RECIPIENT_TYPE_SPEC.getIdentifier(value);
-        if (identifier != null) {
-            builder.setIdentifier(identifier);
-        }
-        return builder.build();
     }
 
     /** Converts a Call to a ParamValue. */
@@ -676,14 +543,5 @@ public final class TypeConverters {
         }
         value.getId().ifPresent(builder::setIdentifier);
         return builder.setStructValue(Struct.newBuilder().putAllFields(fieldsMap).build()).build();
-    }
-
-    static String getStructType(Struct struct) throws StructConversionException {
-        Map<String, Value> fieldsMap = struct.getFieldsMap();
-        if (!fieldsMap.containsKey(FIELD_NAME_TYPE)
-                || fieldsMap.get(FIELD_NAME_TYPE).getStringValue().isEmpty()) {
-            throw new StructConversionException("There is no type specified.");
-        }
-        return fieldsMap.get(FIELD_NAME_TYPE).getStringValue();
     }
 }

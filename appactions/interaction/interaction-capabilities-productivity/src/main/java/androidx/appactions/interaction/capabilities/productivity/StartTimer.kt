@@ -48,21 +48,21 @@ private val ACTION_SPEC =
             "timer.identifier",
             { property -> Optional.ofNullable(property.identifier) },
             StartTimer.Argument.Builder::setIdentifier,
-            TypeConverters::toStringValue,
+            TypeConverters.STRING_PARAM_VALUE_CONVERTER,
             PropertyConverter::stringValueToProto
         )
         .bindOptionalParameter(
             "timer.name",
             { property -> Optional.ofNullable(property.name) },
             StartTimer.Argument.Builder::setName,
-            TypeConverters::toStringValue,
+            TypeConverters.STRING_PARAM_VALUE_CONVERTER,
             PropertyConverter::stringValueToProto
         )
         .bindOptionalParameter(
             "timer.duration",
             { property -> Optional.ofNullable(property.duration) },
             StartTimer.Argument.Builder::setDuration,
-            TypeConverters::toDuration,
+            TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
             TypeConverters::toEntity
         )
         .bindOptionalOutput(

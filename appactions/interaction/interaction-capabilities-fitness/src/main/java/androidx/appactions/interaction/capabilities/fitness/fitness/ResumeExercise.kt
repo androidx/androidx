@@ -42,7 +42,7 @@ private val ACTION_SPEC =
             "exercise.name",
             { property -> Optional.ofNullable(property.name) },
             ResumeExercise.Argument.Builder::setName,
-            TypeConverters::toStringValue,
+            TypeConverters.STRING_PARAM_VALUE_CONVERTER,
             PropertyConverter::stringValueToProto
         )
         .build()
