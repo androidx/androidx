@@ -21,6 +21,7 @@ import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IM
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_RESOLUTIONS;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
+import static androidx.camera.core.impl.utils.TransformUtils.getRotatedSize;
 import static androidx.camera.core.impl.utils.TransformUtils.rectToSize;
 import static androidx.camera.core.streamsharing.ResolutionUtils.getMergedResolutions;
 import static androidx.core.util.Preconditions.checkState;
@@ -30,6 +31,7 @@ import static java.util.Objects.requireNonNull;
 import android.os.Build;
 import android.util.Size;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -175,15 +177,14 @@ class VirtualCamera implements CameraInternal {
             //  stream without changing it. Later we will update it to allow
             //  cropping/down-sampling to better match children UseCase config.
             int target = useCase instanceof Preview ? PREVIEW : VIDEO_CAPTURE;
-            boolean mirroring = useCase.isMirroringRequired(this);
+            int rotationDegrees = getChildRotationDegrees(useCase);
             outConfigs.put(useCase, OutConfig.of(
                     target,
                     INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE, // TODO: use JPEG for ImageCapture
                     cameraEdge.getCropRect(),
-                    rectToSize(cameraEdge.getCropRect()),
-                    // TODO: set rotation degrees for ImageCapture.
-                    0,
-                    mirroring));
+                    getRotatedSize(cameraEdge.getCropRect(), rotationDegrees),
+                    rotationDegrees,
+                    useCase.isMirroringRequired(this)));
         }
         return outConfigs;
     }
@@ -302,6 +303,17 @@ class VirtualCamera implements CameraInternal {
     }
 
     // --- private methods ---
+
+    @IntRange(from = 0, to = 359)
+    private int getChildRotationDegrees(@NonNull UseCase child) {
+        if (child instanceof Preview) {
+            // Rotate the buffer for Preview because SurfaceView cannot handle rotation.
+            return mParentCamera.getCameraInfo().getSensorRotationDegrees(
+                    ((Preview) child).getTargetRotation());
+        }
+        // By default, sharing node does not rotate
+        return 0;
+    }
 
     private static int getHighestSurfacePriority(Set<UseCaseConfig<?>> childrenConfigs) {
         int highestPriority = 0;
