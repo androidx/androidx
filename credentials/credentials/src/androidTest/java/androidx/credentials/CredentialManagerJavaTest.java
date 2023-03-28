@@ -20,14 +20,11 @@ import static androidx.credentials.TestUtilsKt.isPostFrameworkApiLevel;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
-
 import android.app.Activity;
 import android.content.Context;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.credentials.exceptions.ClearCredentialException;
 import androidx.credentials.exceptions.ClearCredentialProviderConfigurationException;
 import androidx.credentials.exceptions.CreateCredentialException;
@@ -38,10 +35,9 @@ import androidx.credentials.exceptions.GetCredentialProviderConfigurationExcepti
 import androidx.credentials.exceptions.NoCredentialException;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
-
-import kotlin.NotImplementedError;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -147,45 +143,61 @@ public class CredentialManagerJavaTest {
     }
 
     @Test
-    @RequiresApi(34)
-    public void testGetCredentialAsyc_pendingHandleBasedApi_throwsUnimplementedError() {
+    @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+    public void testPrepareGetCredentialAsyc_throwsUnimplementedError() throws Exception {
+        CountDownLatch latch1 = new CountDownLatch(1);
+        AtomicReference<PrepareGetCredentialResponse> prepareResult = new AtomicReference<>();
+
+        mCredentialManager.prepareGetCredentialAsync(
+                new GetCredentialRequest.Builder()
+                        .addCredentialOption(new GetPasswordOption())
+                        .build(),
+                null,
+                Runnable::run,
+                new CredentialManagerCallback<PrepareGetCredentialResponse,
+                        GetCredentialException>() {
+                    @Override
+                    public void onError(@NonNull GetCredentialException e) {}
+
+                    @Override
+                    public void onResult(@NonNull PrepareGetCredentialResponse result) {
+                        prepareResult.set(result);
+                        latch1.countDown();
+                    }
+                });
+        latch1.await(100L, TimeUnit.MILLISECONDS);
+        assertThat(prepareResult.get()).isNotNull();
+
+
         if (Looper.myLooper() == null) {
             Looper.prepare();
         }
-        assertThrows(NotImplementedError.class,
-                () -> mCredentialManager.getCredentialAsync(
-                        new Activity(),
-                        new PrepareGetCredentialResponse.PendingGetCredentialHandle(),
-                        null,
-                        Runnable::run,
-                        new CredentialManagerCallback<GetCredentialResponse,
-                                GetCredentialException>() {
-                            @Override
-                            public void onError(@NonNull GetCredentialException e) {}
+        CountDownLatch latch2 = new CountDownLatch(1);
+        AtomicReference<GetCredentialException> getResult = new AtomicReference<>();
 
-                            @Override
-                            public void onResult(@NonNull GetCredentialResponse result) {}
-                        }));
-    }
+        ActivityScenario<TestActivity> activityScenario =
+                ActivityScenario.launch(TestActivity.class);
+        activityScenario.onActivity(activity -> {
+            mCredentialManager.getCredentialAsync(
+                    activity,
+                    prepareResult.get().getPendingGetCredentialHandle(),
+                    null,
+                    Runnable::run,
+                    new CredentialManagerCallback<GetCredentialResponse,
+                            GetCredentialException>() {
+                        @Override
+                        public void onError(@NonNull GetCredentialException e) {
+                            getResult.set(e);
+                            latch2.countDown();
+                        }
 
-    @Test
-    @RequiresApi(34)
-    public void testPrepareGetCredentialAsyc_throwsUnimplementedError() {
-        assertThrows(NotImplementedError.class,
-                () -> mCredentialManager.prepareGetCredentialAsync(
-                        new GetCredentialRequest.Builder()
-                                .addCredentialOption(new GetPasswordOption())
-                                .build(),
-                        null,
-                        Runnable::run,
-                        new CredentialManagerCallback<PrepareGetCredentialResponse,
-                                GetCredentialException>() {
-                            @Override
-                            public void onError(@NonNull GetCredentialException e) {}
+                        @Override
+                        public void onResult(@NonNull GetCredentialResponse result) {}
+                    });
+        });
 
-                            @Override
-                            public void onResult(@NonNull PrepareGetCredentialResponse result) {}
-                        }));
+        latch2.await(100L, TimeUnit.MILLISECONDS);
+        assertThat(getResult.get().getClass()).isEqualTo(NoCredentialException.class);
     }
 
     @Test

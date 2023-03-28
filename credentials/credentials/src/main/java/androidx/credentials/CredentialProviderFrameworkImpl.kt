@@ -54,6 +54,73 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
     private val credentialManager: CredentialManager? =
         context.getSystemService(Context.CREDENTIAL_SERVICE) as CredentialManager?
 
+    override fun onPrepareCredential(
+        request: GetCredentialRequest,
+        cancellationSignal: CancellationSignal?,
+        executor: Executor,
+        callback: CredentialManagerCallback<PrepareGetCredentialResponse, GetCredentialException>
+    ) {
+        if (isCredmanDisabled {
+                callback.onError(
+                    GetCredentialUnsupportedException(
+                        "Your device doesn't support credential manager"
+                    )
+                )
+            }) return
+        val outcome = object : OutcomeReceiver<
+            android.credentials.PrepareGetCredentialResponse,
+            android.credentials.GetCredentialException> {
+            override fun onResult(response: android.credentials.PrepareGetCredentialResponse) {
+                callback.onResult(convertPrepareGetResponseToJetpackClass(response))
+            }
+
+            override fun onError(error: android.credentials.GetCredentialException) {
+                callback.onError(convertToJetpackGetException(error))
+            }
+        }
+
+        credentialManager!!.prepareGetCredential(
+            convertGetRequestToFrameworkClass(request),
+            cancellationSignal,
+            Executors.newSingleThreadExecutor(),
+            outcome
+        )
+    }
+
+    override fun onGetCredential(
+        context: Context,
+        pendingGetCredentialHandle: PrepareGetCredentialResponse.PendingGetCredentialHandle,
+        cancellationSignal: CancellationSignal?,
+        executor: Executor,
+        callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>
+    ) {
+        if (isCredmanDisabled {
+                callback.onError(
+                    GetCredentialUnsupportedException(
+                        "Your device doesn't support credential manager"
+                    )
+                )
+            }) return
+        val outcome = object : OutcomeReceiver<
+            android.credentials.GetCredentialResponse, android.credentials.GetCredentialException> {
+            override fun onResult(response: android.credentials.GetCredentialResponse) {
+                callback.onResult(convertGetResponseToJetpackClass(response))
+            }
+
+            override fun onError(error: android.credentials.GetCredentialException) {
+                callback.onError(convertToJetpackGetException(error))
+            }
+        }
+
+        credentialManager!!.getCredential(
+            context,
+            pendingGetCredentialHandle.frameworkHandle!!,
+            cancellationSignal,
+            Executors.newSingleThreadExecutor(),
+            outcome
+        )
+    }
+
     override fun onGetCredential(
         context: Context,
         request: GetCredentialRequest,
@@ -61,7 +128,6 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
         executor: Executor,
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>
     ) {
-        Log.i(TAG, "In CredentialProviderFrameworkImpl onGetCredential")
         if (isCredmanDisabled {
                 callback.onError(
                     GetCredentialUnsupportedException(
@@ -107,7 +173,6 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
         executor: Executor,
         callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>
     ) {
-        Log.i(TAG, "In CredentialProviderFrameworkImpl onCreateCredential")
         if (isCredmanDisabled {
                 callback.onError(
                     CreateCredentialUnsupportedException(
@@ -242,8 +307,19 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
         )
     }
 
+    internal fun convertPrepareGetResponseToJetpackClass(
+        response: android.credentials.PrepareGetCredentialResponse
+    ): PrepareGetCredentialResponse {
+        return PrepareGetCredentialResponse(
+            response,
+            PrepareGetCredentialResponse.PendingGetCredentialHandle(
+                response.pendingGetCredentialHandle,
+            )
+        )
+    }
+
     override fun isAvailableOnDevice(): Boolean {
-        // TODO("Base it on API level check")
+        // TODO("b/276492529 Base it on API level check")
         return true
     }
 

@@ -18,7 +18,6 @@ package androidx.credentials
 
 import android.app.Activity
 import android.os.Looper
-import androidx.annotation.RequiresApi
 import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.ClearCredentialProviderConfigurationException
 import androidx.credentials.exceptions.CreateCredentialException
@@ -28,9 +27,12 @@ import androidx.credentials.exceptions.GetCredentialProviderConfigurationExcepti
 import androidx.credentials.exceptions.NoCredentialException
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.assertThrows
+import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
@@ -93,25 +95,26 @@ class CredentialManagerTest {
     }
 
     @Test
-    @RequiresApi(34)
-    fun testGetCredential_pendingHandleBasedApi_throwsUnimplementedError() = runBlocking<Unit> {
+    @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+    fun testPrepareGetCredential_throwsUnimplementedError() = runBlocking<Unit> {
+        val prepareGetCredentialResponse = credentialManager.prepareGetCredential(
+            GetCredentialRequest(listOf(GetPasswordOption())))
+
         if (Looper.myLooper() == null) {
             Looper.prepare()
         }
-        assertThrows<NotImplementedError> {
-            credentialManager.getCredential(
-                Activity(),
-                PrepareGetCredentialResponse.PendingGetCredentialHandle()
-            )
-        }
-    }
 
-    @Test
-    @RequiresApi(34)
-    fun testPrepareGetCredential_throwsUnimplementedError() = runBlocking<Unit> {
-        assertThrows<NotImplementedError> {
-            credentialManager.prepareGetCredential(
-                GetCredentialRequest(listOf(GetPasswordOption())))
+        withUse(ActivityScenario.launch(TestActivity::class.java)) {
+            withActivity {
+                runBlocking {
+                    assertThrows<NoCredentialException> {
+                        credentialManager.getCredential(
+                            this@withActivity,
+                            prepareGetCredentialResponse.pendingGetCredentialHandle
+                        )
+                    }
+                }
+            }
         }
     }
 
