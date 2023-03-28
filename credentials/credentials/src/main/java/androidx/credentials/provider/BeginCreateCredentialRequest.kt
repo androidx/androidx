@@ -18,7 +18,10 @@ package androidx.credentials.provider
 
 import android.os.Bundle
 import android.service.credentials.CallingAppInfo
+import androidx.annotation.OptIn
 import androidx.annotation.RestrictTo
+import androidx.core.os.BuildCompat
+import androidx.credentials.provider.utils.BeginCreateCredentialUtil
 
 /**
  * Abstract request class for beginning a create credential request.
@@ -34,4 +37,42 @@ abstract class BeginCreateCredentialRequest constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open val candidateQueryData: Bundle,
     val callingAppInfo: CallingAppInfo?
-)
+) {
+    companion object {
+        private const val REQUEST_KEY = "androidx.credentials.provider.BeginCreateCredentialRequest"
+
+        /**
+         * Helper method to convert the class to a parcelable [Bundle], in case the class
+         * instance needs to be sent across a process. Consumers of this method should use
+         * [readFromBundle] to reconstruct the class instance back from the bundle returned here.
+         */
+        @JvmStatic
+        @OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
+        fun writeToBundle(request: BeginCreateCredentialRequest): Bundle {
+            val bundle = Bundle()
+            if (BuildCompat.isAtLeastU()) {
+                bundle.putParcelable(REQUEST_KEY,
+                    BeginCreateCredentialUtil.convertToFrameworkRequest(request))
+            }
+            return bundle
+        }
+
+        /**
+         * Helper method to convert a [Bundle] retrieved through [writeToBundle], back
+         * to an instance of [BeginCreateCredentialRequest].
+         */
+        @JvmStatic
+        @OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
+        fun readFromBundle(bundle: Bundle): BeginCreateCredentialRequest? {
+            if (BuildCompat.isAtLeastU()) {
+                val frameworkRequest = bundle.getParcelable(REQUEST_KEY,
+                    android.service.credentials.BeginCreateCredentialRequest::class.java)
+                if (frameworkRequest != null) {
+                    return BeginCreateCredentialUtil.convertToJetpackRequest(frameworkRequest)
+                }
+                return null
+            }
+            return null
+        }
+    }
+}
