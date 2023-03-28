@@ -16,9 +16,12 @@
 
 package androidx.appactions.interaction.capabilities.core.testing.spec;
 
+import static androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.LIST_ITEM_TYPE_SPEC;
+
 import androidx.annotation.NonNull;
 import androidx.appactions.interaction.capabilities.core.BaseSession;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
+import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.PropertyConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec;
@@ -45,7 +48,7 @@ public final class CapabilityStructFill {
                             Property::listItem,
                             Argument.Builder::setListItem,
                             TypeConverters::toListItem,
-                            TypeConverters::toEntity)
+                            EntityConverter.Companion.of(LIST_ITEM_TYPE_SPEC)::convert)
                     .bindOptionalParameter(
                             "string",
                             Property::anyString,

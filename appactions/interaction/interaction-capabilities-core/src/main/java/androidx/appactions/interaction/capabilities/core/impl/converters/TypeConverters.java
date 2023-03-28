@@ -332,73 +332,6 @@ public final class TypeConverters {
     }
 
     /**
-     * Converts an ItemList object to an Entity proto message.
-     *
-     * @param itemList
-     * @return
-     */
-    @NonNull
-    public static Entity toEntity(@NonNull ItemList itemList) {
-        Entity.Builder builder =
-                Entity.newBuilder().setValue(ITEM_LIST_TYPE_SPEC.toStruct(itemList));
-        itemList.getId().ifPresent(builder::setIdentifier);
-        return builder.build();
-    }
-
-    /**
-     * Converts a ListItem object to an Entity proto message.
-     *
-     * @param listItem
-     * @return
-     */
-    @NonNull
-    public static Entity toEntity(@NonNull ListItem listItem) {
-        Entity.Builder builder =
-                Entity.newBuilder().setValue(LIST_ITEM_TYPE_SPEC.toStruct(listItem));
-        listItem.getId().ifPresent(builder::setIdentifier);
-        return builder.build();
-    }
-
-    /**
-     * Converts an Order object to an Entity proto message.
-     *
-     * @param order
-     * @return
-     */
-    @NonNull
-    public static Entity toEntity(@NonNull Order order) {
-        Entity.Builder builder = Entity.newBuilder().setValue(ORDER_TYPE_SPEC.toStruct(order));
-        order.getId().ifPresent(builder::setIdentifier);
-        return builder.build();
-    }
-
-    /**
-     * Converts an Alarm object to an Entity proto message.
-     *
-     * @param alarm
-     * @return
-     */
-    @NonNull
-    public static Entity toEntity(@NonNull Alarm alarm) {
-        Entity.Builder builder = Entity.newBuilder().setValue(ALARM_TYPE_SPEC.toStruct(alarm));
-        alarm.getId().ifPresent(builder::setIdentifier);
-        return builder.build();
-    }
-
-    /**
-     * Converts a Timer object to an Entity proto message.
-     *
-     * @param timer
-     * @return
-     */
-    @NonNull
-    public static Entity toEntity(@NonNull Timer timer) {
-        Entity.Builder builder = Entity.newBuilder().setValue(TIMER_TYPE_SPEC.toStruct(timer));
-        timer.getId().ifPresent(builder::setIdentifier);
-        return builder.build();
-    }
-
-    /**
      * @param zonedDateTime
      * @return
      */
@@ -435,36 +368,6 @@ public final class TypeConverters {
     @NonNull
     public static Entity toEntity(@NonNull Call.CallFormat callFormat) {
         return Entity.newBuilder().setIdentifier(callFormat.toString()).build();
-    }
-
-    /**
-     * @param participant
-     * @return
-     */
-    @NonNull
-    public static Entity toEntity(@NonNull Participant participant) {
-        Entity.Builder builder =
-                Entity.newBuilder().setValue(PARTICIPANT_TYPE_SPEC.toStruct(participant));
-        @Nullable String identifier = PARTICIPANT_TYPE_SPEC.getIdentifier(participant);
-        if (identifier != null) {
-            builder.setIdentifier(identifier);
-        }
-        return builder.build();
-    }
-
-    /**
-     * @param recipient
-     * @return
-     */
-    @NonNull
-    public static Entity toEntity(@NonNull Recipient recipient) {
-        Entity.Builder builder =
-                Entity.newBuilder().setValue(RECIPIENT_TYPE_SPEC.toStruct(recipient));
-        @Nullable String identifier = RECIPIENT_TYPE_SPEC.getIdentifier(recipient);
-        if (identifier != null) {
-            builder.setIdentifier(identifier);
-        }
-        return builder.build();
     }
 
     /**
