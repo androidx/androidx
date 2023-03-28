@@ -276,7 +276,7 @@ private fun StandardBottomSheet(
                 val expandActionLabel = getString(Strings.BottomSheetExpandDescription)
                 Box(Modifier
                     .align(CenterHorizontally)
-                    .semantics {
+                    .semantics(mergeDescendants = true) {
                         with(state) {
                             // Provides semantics to interact with the bottomsheet if there is more
                             // than one anchor to swipe to and swiping is enabled.
