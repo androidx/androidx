@@ -104,6 +104,17 @@ class ImagePipelineTest {
     }
 
     @Test
+    fun createPipelineWithVirtualCamera_receivesImageProxy() {
+        // Arrange: close the pipeline and create a new one not expecting metadata.
+        imagePipeline.close()
+        imagePipeline =
+            ImagePipeline(imageCaptureConfig, SIZE, /*cameraEffect=*/null, /*isVirtualCamera=*/true)
+
+        // Act & assert: send and receive ImageProxy.
+        sendInMemoryRequest_receivesImageProxy()
+    }
+
+    @Test
     fun createPipelineWithoutEffect_processingNodeHasNoEffect() {
         assertThat(imagePipeline.processingNode.mImageProcessor).isNull()
     }
