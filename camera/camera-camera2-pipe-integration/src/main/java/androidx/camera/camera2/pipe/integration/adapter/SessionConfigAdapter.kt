@@ -27,6 +27,7 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
 import androidx.camera.camera2.pipe.integration.impl.STREAM_USE_CASE_OPTION
+import androidx.camera.camera2.pipe.integration.impl.STREAM_USE_HINT_OPTION
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
@@ -51,6 +52,10 @@ class SessionConfigAdapter(
             sessionConfigs.add(useCase.sessionConfig)
         }
         getSurfaceToStreamUseCaseMapping(sessionConfigs, shouldSetStreamUseCaseByDefault = false)
+    }
+    val surfaceToStreamUseHintMap: Map<DeferrableSurface, Long> by lazy {
+        val sessionConfigs = useCases.map { it.sessionConfig }
+        getSurfaceToStreamUseHintMapping(sessionConfigs)
     }
     private val validatingBuilder: SessionConfig.ValidatingBuilder by lazy {
         val validatingBuilder = SessionConfig.ValidatingBuilder()
@@ -151,6 +156,34 @@ class SessionConfigAdapter(
         return mapping
     }
 
+    /**
+     * Populates the mapping between surfaces of a capture session and the Stream Use Hint of their
+     * associated stream.
+     *
+     * @param sessionConfigs collection of all session configs for this capture session
+     * @return the mapping between surfaces and Stream Use Hint flag
+     */
+    @VisibleForTesting
+    fun getSurfaceToStreamUseHintMapping(
+        sessionConfigs: Collection<SessionConfig>
+    ): Map<DeferrableSurface, Long> {
+        val mapping = mutableMapOf<DeferrableSurface, Long>()
+        for (sessionConfig in sessionConfigs) {
+            for (surface in sessionConfig.surfaces) {
+                if (sessionConfig.implementationOptions.containsOption(STREAM_USE_HINT_OPTION) &&
+                    sessionConfig.implementationOptions.retrieveOption(STREAM_USE_HINT_OPTION)
+                    != null
+                ) {
+                    mapping[surface] =
+                        sessionConfig.implementationOptions
+                            .retrieveOption(STREAM_USE_HINT_OPTION)!!
+                    continue
+                }
+            }
+        }
+        return mapping
+    }
+
     private fun getStreamUseCaseForContainerClass(kClass: Class<*>?): Long {
         return when (kClass) {
             ImageAnalysis::class.java -> OutputStream.StreamUseCase.PREVIEW.value
@@ -159,6 +192,14 @@ class SessionConfigAdapter(
             MediaCodec::class.java -> OutputStream.StreamUseCase.VIDEO_RECORD.value
             StreamSharing::class.java -> OutputStream.StreamUseCase.VIDEO_RECORD.value
             else -> OutputStream.StreamUseCase.DEFAULT.value
+        }
+    }
+
+    private fun getStreamUseHintForContainerClass(kClass: Class<*>?): Long {
+        return when (kClass) {
+            MediaCodec::class.java -> OutputStream.StreamUseHint.VIDEO_RECORD.value
+            StreamSharing::class.java -> OutputStream.StreamUseHint.VIDEO_RECORD.value
+            else -> OutputStream.StreamUseHint.DEFAULT.value
         }
     }
 

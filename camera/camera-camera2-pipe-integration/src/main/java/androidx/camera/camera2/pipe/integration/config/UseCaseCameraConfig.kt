@@ -116,6 +116,10 @@ class UseCaseCameraConfig(
                         deferrableSurface,
                         sessionConfigAdapter.surfaceToStreamUseCaseMap
                     ),
+                    streamUseHint = getStreamUseHint(
+                        deferrableSurface,
+                        sessionConfigAdapter.surfaceToStreamUseHintMap
+                    ),
                     size = deferrableSurface.prescribedSize,
                     format = StreamFormat(deferrableSurface.prescribedStreamFormat),
                     camera = CameraId(
@@ -181,6 +185,13 @@ class UseCaseCameraConfig(
         mapping: Map<DeferrableSurface, Long>
     ): OutputStream.StreamUseCase? {
         return mapping[deferrableSurface]?.let { OutputStream.StreamUseCase(it) }
+    }
+
+    private fun getStreamUseHint(
+        deferrableSurface: DeferrableSurface,
+        mapping: Map<DeferrableSurface, Long>
+    ): OutputStream.StreamUseHint? {
+        return mapping[deferrableSurface]?.let { OutputStream.StreamUseHint(it) }
     }
 }
 

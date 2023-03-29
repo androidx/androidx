@@ -136,6 +136,7 @@ object Debug {
                         output.timestampBase?.let { append(" [$it]") }
                         output.dynamicRangeProfile?.let { append(" [$it]") }
                         output.streamUseCase?.let { append(" [$it]") }
+                        output.streamUseHint?.let { append(" [$it]") }
                         if (output.camera != graphConfig.camera) {
                             append(" [")
                             append(output.camera)
