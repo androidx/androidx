@@ -2054,7 +2054,7 @@ class PagingDataDifferTest(
                 pagingSourceFactory = {
                     TestPagingSource(
                         loadDelay = 0,
-                        loadDispatcher = loadDispatcher,
+                        loadContext = loadDispatcher,
                     ).also { pagingSources.add(it) }
                 }
             ),
