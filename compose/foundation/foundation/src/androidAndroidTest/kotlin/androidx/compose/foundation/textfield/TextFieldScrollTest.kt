@@ -241,7 +241,7 @@ class TextFieldScrollTest {
         rule.onNodeWithTag(tag)
             .captureToImage()
             .assertPixels(expectedSize = IntSize(parentSize, parentSize)) { position ->
-                if (position.x > textFieldSize && position.y > textFieldSize) Color.White else null
+                if (position.x > textFieldSize || position.y > textFieldSize) Color.White else null
             }
     }
 
@@ -276,7 +276,7 @@ class TextFieldScrollTest {
         rule.onNodeWithTag(tag)
             .captureToImage()
             .assertPixels(expectedSize = IntSize(parentSize, parentSize)) { position ->
-                if (position.x > textFieldSize && position.y > textFieldSize) Color.White else null
+                if (position.x > textFieldSize || position.y > textFieldSize) Color.White else null
             }
     }
 
