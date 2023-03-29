@@ -298,8 +298,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"ထပ်တိုးစာသားအချို့"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"နမူနာ ရွေးချယ်နိုင်သည့်စာရင်း"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"လုပ်ဆောင်စရာကန့်သတ်မှု သရုပ်ပြချက်"</string>
-    <!-- no translation found for task_limit_reached_msg (7162842196382260992) -->
-    <skip />
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"၎င်းသည် အဆင့်အရေအတွက်ကို ကျော်လွန်သွားမည်ဖြစ်၍ စခရင်သစ်သို့ ရောက်ရှိသွားမည်။"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"လုပ်ဆောင်စရာအဆင့် %2$d ခုအနက် %1$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"ရှေ့ဆက်သွားရန် နှိပ်ပါ"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"ပုံစံအမျိုးမျိုးကို ဝင်ကြည့်ပြီး ကားသည် မောင်းနှင်မုဒ်တွင်ရှိကြောင်း သေချာပါစေ"</string>

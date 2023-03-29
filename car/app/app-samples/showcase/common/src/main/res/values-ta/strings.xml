@@ -298,8 +298,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"சில கூடுதல் உரை"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"தேர்ந்தெடுக்கக்கூடிய மாதிரிப் பட்டியல்"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"பணிக் கட்டுப்பாட்டின் டெமோ"</string>
-    <!-- no translation found for task_limit_reached_msg (7162842196382260992) -->
-    <skip />
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"இது சில படிகளைக் கடந்து புதிய திரைக்கு அழைத்துச் செல்லும்."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"%1$d / %2$d படியை எடுங்கள்"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"முன்னேறிச் செல்ல கிளிக் செய்யவும்"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"வெவ்வேறு டெம்ப்ளேட்களைப் பாருங்கள். கார் \'வாகனம் ஓட்டும் பயன்முறையில்\' இருப்பதை உறுதிசெய்துகொள்ளுங்கள்."</string>

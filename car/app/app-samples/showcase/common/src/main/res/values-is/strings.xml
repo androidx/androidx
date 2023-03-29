@@ -298,8 +298,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Einhver viðbótartexti"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Dæmi um veljanlegan lista"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Sýnishorn verkefnismarka"</string>
-    <!-- no translation found for task_limit_reached_msg (7162842196382260992) -->
-    <skip />
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Með þessu ferðu yfir hámarksfjölda skrefa og þér verður beint á nýjan skjá."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Verkefnisskref %1$d af %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Smelltu til að halda áfram"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Opnaðu mismunandi sniðmát og gakktu úr skugga um að bíllinn sé í akstursstillingu"</string>

@@ -298,8 +298,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Một số văn bản bổ sung"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Danh sách có thể chọn mẫu"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Bản demo tác vụ hạn chế"</string>
-    <!-- no translation found for task_limit_reached_msg (7162842196382260992) -->
-    <skip />
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Thao tác nhấp này sẽ vượt quá giới hạn về số bước và chuyển bạn đến màn hình mới."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Bước %1$d trong số %2$d của nhiệm vụ"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Nhấp để tiếp tục"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Vui lòng truy cập nhiều mẫu riêng biệt và đảm bảo xe đang ở chế độ lái"</string>
