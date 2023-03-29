@@ -53,7 +53,7 @@ android {
     }
     defaultConfig {
         // TODO(b/266649259): lower minSdk version to 19.
-        minSdkVersion 33
+        minSdkVersion 26
         resValue "string", "appactions_interaction_library_version", androidx.LibraryVersions.APPACTIONS_INTERACTION.toString()
     }
 
