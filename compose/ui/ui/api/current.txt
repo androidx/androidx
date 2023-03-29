@@ -1646,16 +1646,19 @@ package androidx.compose.ui.input.pointer {
   }
 
   @androidx.compose.runtime.Immutable public final class PointerInputChange {
+    ctor public PointerInputChange(long id, long uptimeMillis, long position, boolean pressed, float pressure, long previousUptimeMillis, long previousPosition, boolean previousPressed, boolean isInitiallyConsumed, optional int type, optional long scrollDelta);
     ctor public PointerInputChange(long id, long uptimeMillis, long position, boolean pressed, long previousUptimeMillis, long previousPosition, boolean previousPressed, boolean isInitiallyConsumed, optional int type, optional long scrollDelta);
     ctor @Deprecated public PointerInputChange(long id, long uptimeMillis, long position, boolean pressed, long previousUptimeMillis, long previousPosition, boolean previousPressed, androidx.compose.ui.input.pointer.ConsumedData consumed, optional int type);
     method public void consume();
     method public androidx.compose.ui.input.pointer.PointerInputChange copy(optional long id, optional long currentTime, optional long currentPosition, optional boolean currentPressed, optional long previousTime, optional long previousPosition, optional boolean previousPressed, optional int type, optional long scrollDelta);
     method @Deprecated public androidx.compose.ui.input.pointer.PointerInputChange copy(optional long id, optional long currentTime, optional long currentPosition, optional boolean currentPressed, optional long previousTime, optional long previousPosition, optional boolean previousPressed, androidx.compose.ui.input.pointer.ConsumedData consumed, optional int type, optional long scrollDelta);
+    method public androidx.compose.ui.input.pointer.PointerInputChange copy(optional long id, optional long currentTime, optional long currentPosition, optional boolean currentPressed, optional float pressure, optional long previousTime, optional long previousPosition, optional boolean previousPressed, optional int type, optional long scrollDelta);
     method @Deprecated public androidx.compose.ui.input.pointer.PointerInputChange copy(optional long id, optional long currentTime, optional long currentPosition, optional boolean currentPressed, optional long previousTime, optional long previousPosition, optional boolean previousPressed, optional androidx.compose.ui.input.pointer.ConsumedData consumed, optional int type);
     method @Deprecated public androidx.compose.ui.input.pointer.ConsumedData getConsumed();
     method public long getId();
     method public long getPosition();
     method public boolean getPressed();
+    method public float getPressure();
     method public long getPreviousPosition();
     method public boolean getPreviousPressed();
     method public long getPreviousUptimeMillis();
@@ -1668,6 +1671,7 @@ package androidx.compose.ui.input.pointer {
     property public final boolean isConsumed;
     property public final long position;
     property public final boolean pressed;
+    property public final float pressure;
     property public final long previousPosition;
     property public final boolean previousPressed;
     property public final long previousUptimeMillis;
@@ -1679,10 +1683,12 @@ package androidx.compose.ui.input.pointer {
   public abstract class PointerInputFilter {
     ctor public PointerInputFilter();
     method public boolean getInterceptOutOfBoundsChildEvents();
+    method public boolean getShareWithSiblings();
     method public final long getSize();
     method public abstract void onCancel();
     method public abstract void onPointerEvent(androidx.compose.ui.input.pointer.PointerEvent pointerEvent, androidx.compose.ui.input.pointer.PointerEventPass pass, long bounds);
     property public boolean interceptOutOfBoundsChildEvents;
+    property public boolean shareWithSiblings;
     property public final long size;
   }
 
