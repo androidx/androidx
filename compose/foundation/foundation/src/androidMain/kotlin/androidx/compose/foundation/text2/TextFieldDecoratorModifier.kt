@@ -63,7 +63,7 @@ import androidx.compose.ui.util.fastAny
  * This modifier handles input events (both key and pointer), semantics, and focus.
  */
 @OptIn(ExperimentalFoundationApi::class)
-internal data class TextFieldDecoratorModifierElement(
+internal data class TextFieldDecoratorModifier(
     private val textFieldState: TextFieldState,
     private val textLayoutState: TextLayoutState,
     private val textInputAdapter: AndroidTextInputAdapter?,
@@ -100,7 +100,7 @@ internal data class TextFieldDecoratorModifierElement(
     }
 }
 
-/** Modifier node for [TextFieldDecoratorModifierElement]. */
+/** Modifier node for [TextFieldDecoratorModifier]. */
 @OptIn(ExperimentalFoundationApi::class)
 internal class TextFieldDecoratorModifierNode(
     var textFieldState: TextFieldState,
