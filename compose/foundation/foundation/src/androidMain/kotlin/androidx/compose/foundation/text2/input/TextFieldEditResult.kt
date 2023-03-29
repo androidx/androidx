@@ -176,21 +176,12 @@ private open class SelectRangeResult(
     private val inCodepoints: Boolean
 ) : TextFieldEditResult() {
 
-    val charRange: TextRange = if (inCodepoints) value.codepointsToChars(rawRange) else rawRange
-
     init {
-        val validCharRange = TextRange(0, value.length)
-        require(charRange in validCharRange) {
-            // The "units" of the range in the error message should match the units passed in.
-            // If the input was in codepoint indices, the output should be in codepoint indices.
-            val expectedRange =
-                if (inCodepoints) value.charsToCodepoints(validCharRange) else validCharRange
-            "Expected $rawRange to be in $expectedRange"
-        }
+        value.requireValidRange(rawRange, inCodepoints)
     }
 
     final override fun calculateSelection(
         oldValue: TextFieldValue,
         newValue: MutableTextFieldValue
-    ): TextRange = charRange
+    ): TextRange = if (inCodepoints) newValue.codepointsToChars(rawRange) else rawRange
 }

@@ -17,6 +17,7 @@
 package androidx.compose.foundation.demos.text
 
 import androidx.compose.foundation.demos.text2.BasicTextField2Demos
+import androidx.compose.foundation.demos.text2.BasicTextField2FilterDemos
 import androidx.compose.foundation.demos.text2.ScrollableDemos
 import androidx.compose.foundation.demos.text2.DecorationBoxDemos
 import androidx.compose.foundation.demos.text2.KeyboardOptionsDemos
@@ -132,7 +133,10 @@ val TextDemos = DemoCategory(
                 },
                 ComposableDemo("Scroll") {
                     ScrollableDemos()
-                }
+                },
+                ComposableDemo("Filters") {
+                    BasicTextField2FilterDemos()
+                },
             )
         ),
         DemoCategory(
