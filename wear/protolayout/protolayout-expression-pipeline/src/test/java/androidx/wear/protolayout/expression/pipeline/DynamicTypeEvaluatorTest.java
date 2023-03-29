@@ -265,7 +265,7 @@ public class DynamicTypeEvaluatorTest {
 
     @Test
     public void runTest() {
-        ObservableStateStore stateStore = new ObservableStateStore(generateExampleState());
+        StateStore stateStore = new StateStore(generateExampleState());
 
         DynamicTypeEvaluator evaluator =
                 new DynamicTypeEvaluator(

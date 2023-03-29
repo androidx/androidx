@@ -76,11 +76,11 @@ class StringNodes {
     /** Dynamic string node that gets a value from the state. */
     static class StateStringNode extends StateSourceNode<String> {
         StateStringNode(
-                ObservableStateStore observableStateStore,
+                StateStore stateStore,
                 StateStringSource protoNode,
                 DynamicTypeValueReceiver<String> downstream) {
             super(
-                    observableStateStore,
+                    stateStore,
                     protoNode.getSourceKey(),
                     se -> se.getStringVal().getValue(),
                     downstream);

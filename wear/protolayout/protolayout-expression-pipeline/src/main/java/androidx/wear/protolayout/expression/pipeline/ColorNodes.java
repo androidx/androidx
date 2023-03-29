@@ -57,11 +57,11 @@ class ColorNodes {
     /** Dynamic color node that gets value from the platform source. */
     static class StateColorSourceNode extends StateSourceNode<Integer> {
         StateColorSourceNode(
-                ObservableStateStore observableStateStore,
+                StateStore stateStore,
                 StateColorSource protoNode,
                 DynamicTypeValueReceiver<Integer> downstream) {
             super(
-                    observableStateStore,
+                    stateStore,
                     protoNode.getSourceKey(),
                     se -> se.getColorVal().getArgb(),
                     downstream);

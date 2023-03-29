@@ -42,8 +42,8 @@ import androidx.wear.protolayout.expression.pipeline.BoundDynamicType;
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator;
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver;
 import androidx.wear.protolayout.expression.pipeline.FixedQuotaManagerImpl;
-import androidx.wear.protolayout.expression.pipeline.ObservableStateStore;
 import androidx.wear.protolayout.expression.pipeline.QuotaManager;
+import androidx.wear.protolayout.expression.pipeline.StateStore;
 import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicBool;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicColor;
@@ -100,7 +100,7 @@ public class ProtoLayoutDynamicDataPipeline {
     public ProtoLayoutDynamicDataPipeline(
             boolean canUpdateGateways,
             @Nullable SensorGateway sensorGateway,
-            @NonNull ObservableStateStore stateStore) {
+            @NonNull StateStore stateStore) {
         // Build pipeline with quota that doesn't allow any animations.
         this(
                 canUpdateGateways,
@@ -119,7 +119,7 @@ public class ProtoLayoutDynamicDataPipeline {
     public ProtoLayoutDynamicDataPipeline(
             boolean canUpdateGateways,
             @Nullable SensorGateway sensorGateway,
-            @NonNull ObservableStateStore stateStore,
+            @NonNull StateStore stateStore,
             @NonNull QuotaManager animationQuotaManager) {
         this(
                 canUpdateGateways,
@@ -133,7 +133,7 @@ public class ProtoLayoutDynamicDataPipeline {
     private ProtoLayoutDynamicDataPipeline(
             boolean canUpdateGateways,
             @Nullable SensorGateway sensorGateway,
-            @NonNull ObservableStateStore stateStore,
+            @NonNull StateStore stateStore,
             boolean enableAnimations,
             @NonNull QuotaManager animationQuotaManager) {
         this.mEnableAnimations = enableAnimations;

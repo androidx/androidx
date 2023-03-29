@@ -16,16 +16,16 @@
 
 package androidx.wear.watchface.complications.data
 
-import android.icu.util.ULocale
 import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.support.wearable.complications.ComplicationText as WireComplicationText
+import android.icu.util.ULocale
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
 import androidx.wear.protolayout.expression.pipeline.BoundDynamicType
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver
-import androidx.wear.protolayout.expression.pipeline.ObservableStateStore
+import androidx.wear.protolayout.expression.pipeline.StateStore
 import androidx.wear.protolayout.expression.pipeline.TimeGateway
 import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway
 import java.util.concurrent.Executor
@@ -53,7 +53,7 @@ import kotlinx.coroutines.launch
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ComplicationDataExpressionEvaluator(
-    private val stateStore: ObservableStateStore? = null,
+    private val stateStore: StateStore? = StateStore(emptyMap()),
     private val timeGateway: TimeGateway? = null,
     private val sensorGateway: SensorGateway? = null,
     private val keepExpression: Boolean = false,

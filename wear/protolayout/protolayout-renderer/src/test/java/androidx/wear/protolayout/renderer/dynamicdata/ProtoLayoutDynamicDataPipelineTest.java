@@ -43,8 +43,8 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable;
 import androidx.wear.protolayout.expression.pipeline.FixedQuotaManagerImpl;
-import androidx.wear.protolayout.expression.pipeline.ObservableStateStore;
 import androidx.wear.protolayout.expression.pipeline.QuotaManager;
+import androidx.wear.protolayout.expression.pipeline.StateStore;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.RepeatMode;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.Repeatable;
@@ -111,7 +111,7 @@ public class ProtoLayoutDynamicDataPipelineTest {
     private static final String NODE_1_11 = createNodePosId(ROOT_NODE_ID, FIRST_CHILD_INDEX + 10);
     private static final String NODE_1_1_1 = createNodePosId(NODE_1_1, FIRST_CHILD_INDEX);
     private static final String NODE_1_1_1_1 = createNodePosId(NODE_1_1_1, FIRST_CHILD_INDEX);
-    private final ObservableStateStore mStateStore = new ObservableStateStore(ImmutableMap.of());
+    private final StateStore mStateStore = new StateStore(ImmutableMap.of());
     public static final String TEST_POS_ID = ROOT_NODE_ID;
     @Rule public final Expect expect = Expect.create();
 

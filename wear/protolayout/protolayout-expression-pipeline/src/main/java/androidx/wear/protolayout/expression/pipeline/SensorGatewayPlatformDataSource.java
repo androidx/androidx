@@ -18,12 +18,14 @@ package androidx.wear.protolayout.expression.pipeline;
 
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
+
 import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
 import androidx.collection.ArrayMap;
 import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway;
 import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway.SensorDataType;
 import androidx.wear.protolayout.expression.proto.DynamicProto.PlatformInt32SourceType;
+
 import java.util.Map;
 import java.util.concurrent.Executor;
 
@@ -66,22 +68,17 @@ class SensorGatewayPlatformDataSource {
                     public void onData(double value) {
                         mUiExecutor.execute(() -> callback.onData((int) value));
                     }
-
-                    @Override
-                    @SensorDataType
-                    public int getRequestedDataType() {
-                        return sensorDataType;
-                    }
                 };
         mCallbackToRegisteredSensorConsumer.put(callback, sensorConsumer);
-        mSensorGateway.registerSensorGatewayConsumer(sensorConsumer);
+        mSensorGateway.registerSensorGatewayConsumer(sensorDataType, sensorConsumer);
     }
 
     public void unregisterForData(
             PlatformInt32SourceType sourceType, DynamicTypeValueReceiver<Integer> consumer) {
+        @SensorDataType int sensorDataType = mapSensorPlatformSource(sourceType);
         SensorGateway.Consumer sensorConsumer = mCallbackToRegisteredSensorConsumer.get(consumer);
         if (sensorConsumer != null) {
-            mSensorGateway.unregisterSensorGatewayConsumer(sensorConsumer);
+            mSensorGateway.unregisterSensorGatewayConsumer(sensorDataType, sensorConsumer);
         }
     }
 
