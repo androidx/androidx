@@ -31,13 +31,12 @@ package androidx.javascriptengine {
 
   public static final class JavaScriptConsoleCallback.ConsoleMessage {
     ctor public JavaScriptConsoleCallback.ConsoleMessage(int, String, String, int, int, String?);
-    method public int column();
-    method public int level();
-    method public int line();
-    method public String message();
-    method public String source();
-    method public String? trace();
-    field public static final int LEVEL_ALL = 31; // 0x1f
+    method public int getColumn();
+    method public int getLevel();
+    method public int getLine();
+    method public String getMessage();
+    method public String getSource();
+    method public String? getTrace();
     field public static final int LEVEL_DEBUG = 2; // 0x2
     field public static final int LEVEL_ERROR = 8; // 0x8
     field public static final int LEVEL_INFO = 4; // 0x4
