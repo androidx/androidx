@@ -524,7 +524,7 @@ class TimePickerTest {
         val state = TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = true)
 
         rule.setMaterialContent(lightColorScheme()) {
-            ClockFace(state, TimePickerDefaults.colors())
+            ClockFace(state, TimePickerDefaults.colors(), autoSwitchToMinute = true)
         }
 
         repeat(24) { number ->
@@ -541,7 +541,7 @@ class TimePickerTest {
         val state = TimePickerState(initialHour = 0, initialMinute = 0, is24Hour = false)
 
         rule.setMaterialContent(lightColorScheme()) {
-            ClockFace(state, TimePickerDefaults.colors())
+            ClockFace(state, TimePickerDefaults.colors(), autoSwitchToMinute = true)
         }
 
         repeat(24) { number ->
@@ -568,7 +568,7 @@ class TimePickerTest {
         val state = TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = true)
         state.selection = Selection.Minute
         rule.setMaterialContent(lightColorScheme()) {
-            ClockFace(state, TimePickerDefaults.colors())
+            ClockFace(state, TimePickerDefaults.colors(), autoSwitchToMinute = true)
         }
 
         repeat(11) { number ->
@@ -588,7 +588,7 @@ class TimePickerTest {
         val state = TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = false)
         state.selection = Selection.Minute
         rule.setMaterialContent(lightColorScheme()) {
-            ClockFace(state, TimePickerDefaults.colors())
+            ClockFace(state, TimePickerDefaults.colors(), autoSwitchToMinute = true)
         }
 
         repeat(11) { number ->
