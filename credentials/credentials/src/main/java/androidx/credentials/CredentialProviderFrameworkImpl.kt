@@ -17,7 +17,6 @@
 package androidx.credentials
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.credentials.CredentialManager
 import android.os.Bundle
@@ -56,8 +55,8 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
         context.getSystemService(Context.CREDENTIAL_SERVICE) as CredentialManager?
 
     override fun onGetCredential(
+        context: Context,
         request: GetCredentialRequest,
-        activity: Activity,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>
@@ -85,8 +84,8 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
         }
 
         credentialManager!!.getCredential(
+            context,
             convertGetRequestToFrameworkClass(request),
-            activity,
             cancellationSignal,
             Executors.newSingleThreadExecutor(),
             outcome
@@ -102,8 +101,8 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
     }
 
     override fun onCreateCredential(
+        context: Context,
         request: CreateCredentialRequest,
-        activity: Activity,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>
@@ -135,8 +134,8 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
         }
 
         credentialManager!!.createCredential(
-            convertCreateRequestToFrameworkClass(request, activity),
-            activity,
+            context,
+            convertCreateRequestToFrameworkClass(request, context),
             cancellationSignal,
             Executors.newSingleThreadExecutor(),
             outcome
@@ -145,12 +144,12 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
 
     private fun convertCreateRequestToFrameworkClass(
         request: CreateCredentialRequest,
-        activity: Activity
+        context: Context
     ): android.credentials.CreateCredentialRequest {
         val createCredentialRequestBuilder: android.credentials.CreateCredentialRequest.Builder =
             android.credentials.CreateCredentialRequest
                 .Builder(request.type,
-                    FrameworkImplHelper.getFinalCreateCredentialData(request, activity),
+                    FrameworkImplHelper.getFinalCreateCredentialData(request, context),
                     request.candidateQueryData)
                 .setIsSystemProviderRequired(request.isSystemProviderRequired)
                 // TODO("change to taking value from the request when ready")

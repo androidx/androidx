@@ -16,7 +16,6 @@
 
 package androidx.credentials.playservices
 
-import android.app.Activity
 import android.content.Context
 import android.os.CancellationSignal
 import android.util.Log
@@ -56,21 +55,21 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
     @set:RestrictTo(RestrictTo.Scope.TESTS)
     var googleApiAvailability = GoogleApiAvailability.getInstance()
     override fun onGetCredential(
+        context: Context,
         request: GetCredentialRequest,
-        activity: Activity,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>
     ) {
         if (cancellationReviewer(cancellationSignal)) { return }
-        CredentialProviderBeginSignInController(activity).invokePlayServices(
+        CredentialProviderBeginSignInController(context).invokePlayServices(
             request, callback, executor, cancellationSignal)
     }
 
     @SuppressWarnings("deprecated")
     override fun onCreateCredential(
+        context: Context,
         request: CreateCredentialRequest,
-        activity: Activity,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>
@@ -79,7 +78,7 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
         when (request) {
             is CreatePasswordRequest -> {
                 CredentialProviderCreatePasswordController.getInstance(
-                    activity).invokePlayServices(
+                    context).invokePlayServices(
                     request,
                     callback,
                     executor,
@@ -87,7 +86,7 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
             }
             is CreatePublicKeyCredentialRequest -> {
                 CredentialProviderCreatePublicKeyCredentialController.getInstance(
-                    activity).invokePlayServices(
+                    context).invokePlayServices(
                     request,
                     callback,
                     executor,

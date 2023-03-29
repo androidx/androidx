@@ -75,8 +75,8 @@ public class CredentialManagerJavaTest {
                 ActivityScenario.launch(TestActivity.class);
         activityScenario.onActivity(activity -> {
             mCredentialManager.createCredentialAsync(
-                    new CreatePasswordRequest("test-user-id", "test-password"),
                     activity,
+                    new CreatePasswordRequest("test-user-id", "test-password"),
                     null,
                     Runnable::run,
                     new CredentialManagerCallback<CreateCredentialResponse,
@@ -115,10 +115,10 @@ public class CredentialManagerJavaTest {
         AtomicReference<GetCredentialException> loadedResult = new AtomicReference<>();
 
         mCredentialManager.getCredentialAsync(
+                new Activity(),
                 new GetCredentialRequest.Builder()
                         .addCredentialOption(new GetPasswordOption())
                         .build(),
-                new Activity(),
                 null,
                 Runnable::run,
                 new CredentialManagerCallback<GetCredentialResponse,
@@ -154,8 +154,8 @@ public class CredentialManagerJavaTest {
         }
         assertThrows(NotImplementedError.class,
                 () -> mCredentialManager.getCredentialAsync(
-                        new PrepareGetCredentialResponse.PendingGetCredentialHandle(),
                         new Activity(),
+                        new PrepareGetCredentialResponse.PendingGetCredentialHandle(),
                         null,
                         Runnable::run,
                         new CredentialManagerCallback<GetCredentialResponse,

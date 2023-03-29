@@ -61,8 +61,8 @@ class CredentialManagerTest {
         if (!isPostFrameworkApiLevel()) {
             assertThrows<CreateCredentialProviderConfigurationException> {
                 credentialManager.createCredential(
-                    CreatePasswordRequest("test-user-id", "test-password"),
-                    Activity()
+                    Activity(),
+                    CreatePasswordRequest("test-user-id", "test-password")
                 )
             }
         }
@@ -81,11 +81,11 @@ class CredentialManagerTest {
 
         if (!isPostFrameworkApiLevel()) {
             assertThrows<GetCredentialProviderConfigurationException> {
-                credentialManager.getCredential(request, Activity())
+                credentialManager.getCredential(Activity(), request)
             }
         } else {
             assertThrows<NoCredentialException> {
-                credentialManager.getCredential(request, Activity())
+                credentialManager.getCredential(Activity(), request)
             }
         }
         // TODO("Add manifest tests and possibly further separate these tests by API Level
@@ -100,8 +100,9 @@ class CredentialManagerTest {
         }
         assertThrows<NotImplementedError> {
             credentialManager.getCredential(
-                PrepareGetCredentialResponse.PendingGetCredentialHandle(),
-                Activity())
+                Activity(),
+                PrepareGetCredentialResponse.PendingGetCredentialHandle()
+            )
         }
     }
 
@@ -142,8 +143,8 @@ class CredentialManagerTest {
 
         activityScenario.onActivity { activity ->
             credentialManager.createCredentialAsync(
-                CreatePasswordRequest("test-user-id", "test-password"),
                 activity,
+                CreatePasswordRequest("test-user-id", "test-password"),
                 null, Executor { obj: Runnable -> obj.run() },
                 object : CredentialManagerCallback<CreateCredentialResponse,
                     CreateCredentialException> {
