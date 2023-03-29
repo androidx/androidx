@@ -30,7 +30,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.with
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -75,11 +75,13 @@ fun AnimateIncrementDecrementSample() {
                 if (targetState > initialState) {
                     // If the incoming number is larger, new number slides up and fades in while
                     // the previous (smaller) number slides up to make room and fades out.
-                    slideInVertically { it } + fadeIn() with slideOutVertically { -it } + fadeOut()
+                    slideInVertically { it } + fadeIn() togetherWith
+                        slideOutVertically { -it } + fadeOut()
                 } else {
                     // If the incoming number is smaller, new number slides down and fades in while
                     // the previous number slides down and fades out.
-                    slideInVertically { -it } + fadeIn() with slideOutVertically { it } + fadeOut()
+                    slideInVertically { -it } + fadeIn() togetherWith
+                        slideOutVertically { it } + fadeOut()
                     // Disable clipping since the faded slide-out is desired out of bounds, but
                     // the size transform is still needed from number getting longer
                 }.using(SizeTransform(clip = false)) // Using default spring for the size change.
@@ -110,17 +112,26 @@ fun SimpleAnimatedContentSample() {
     // enum class ContentState { Foo, Bar, Baz }
     @Composable
     fun Foo() {
-        Box(Modifier.size(200.dp).background(Color(0xffffdb00)))
+        Box(
+            Modifier
+                .size(200.dp)
+                .background(Color(0xffffdb00)))
     }
 
     @Composable
     fun Bar() {
-        Box(Modifier.size(40.dp).background(Color(0xffff8100)))
+        Box(
+            Modifier
+                .size(40.dp)
+                .background(Color(0xffff8100)))
     }
 
     @Composable
     fun Baz() {
-        Box(Modifier.size(80.dp, 20.dp).background(Color(0xffff4400)))
+        Box(
+            Modifier
+                .size(80.dp, 20.dp)
+                .background(Color(0xffff4400)))
     }
 
     var contentState: ContentState by remember { mutableStateOf(ContentState.Foo) }
@@ -144,7 +155,7 @@ fun AnimatedContentTransitionSpecSample() {
         {
             // Fade in with a delay so that it starts after fade out
             fadeIn(animationSpec = tween(150, delayMillis = 150))
-                .with(fadeOut(animationSpec = tween(150)))
+                .togetherWith(fadeOut(animationSpec = tween(150)))
                 .using(
                     SizeTransform { initialSize, targetSize ->
                         // Using different SizeTransform for different state change
@@ -192,6 +203,7 @@ fun TransitionExtensionAnimatedContentSample() {
             when {
                 CartState.Expanded isTransitioningTo CartState.Collapsed ->
                     tween(durationMillis = 433, delayMillis = 67)
+
                 else ->
                     tween(durationMillis = 150)
             }
@@ -199,7 +211,8 @@ fun TransitionExtensionAnimatedContentSample() {
     ) { if (it == CartState.Expanded) 0.dp else 24.dp }
 
     Surface(
-        Modifier.shadow(8.dp, CutCornerShape(topStart = cornerSize))
+        Modifier
+            .shadow(8.dp, CutCornerShape(topStart = cornerSize))
             .clip(CutCornerShape(topStart = cornerSize)),
         color = Color(0xfffff0ea),
     ) {
@@ -210,7 +223,7 @@ fun TransitionExtensionAnimatedContentSample() {
         cartOpenTransition.AnimatedContent(
             transitionSpec = {
                 fadeIn(animationSpec = tween(150, delayMillis = 150))
-                    .with(fadeOut(animationSpec = tween(150)))
+                    .togetherWith(fadeOut(animationSpec = tween(150)))
                     .using(
                         SizeTransform { initialSize, targetSize ->
                             // Using different SizeTransform for different state change
@@ -269,7 +282,7 @@ fun SlideIntoContainerSample() {
     val transitionSpec: AnimatedContentTransitionScope<NestedMenuState>.() -> ContentTransform = {
         if (initialState < targetState) {
             // Going from parent menu to child menu, slide towards left
-            slideIntoContainer(towards = SlideDirection.Left) with
+            slideIntoContainer(towards = SlideDirection.Left) togetherWith
                 // Slide the parent out by 1/2 the amount required to be completely
                 // out of the bounds. This creates a sense of child menu catching up. Since
                 // the child menu has a higher z-order, it will cover the parent meu as it
@@ -283,7 +296,7 @@ fun SlideIntoContainerSample() {
             // parallax visual effect.
             slideIntoContainer(towards = SlideDirection.Right) { offsetForFullSlide ->
                 offsetForFullSlide / 2
-            } with slideOutOfContainer(towards = SlideDirection.Right)
+            } togetherWith slideOutOfContainer(towards = SlideDirection.Right)
         }.apply {
             // Here we can specify the zIndex for the target (i.e. incoming) content.
             targetContentZIndex = when (targetState) {

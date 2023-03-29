@@ -88,16 +88,17 @@ class AnimatedContentTest {
                     testModifier,
                     transitionSpec = {
                         if (true isTransitioningTo false) {
-                            fadeIn() with fadeOut() using SizeTransform { initialSize, targetSize ->
-                                keyframes {
-                                    durationMillis = 320
-                                    IntSize(targetSize.width, initialSize.height) at 160 with
-                                        LinearEasing
-                                    targetSize at 320 with LinearEasing
+                            fadeIn() togetherWith fadeOut() using
+                                SizeTransform { initialSize, targetSize ->
+                                    keyframes {
+                                        durationMillis = 320
+                                        IntSize(targetSize.width, initialSize.height) at 160 with
+                                            LinearEasing
+                                        targetSize at 320 with LinearEasing
+                                    }
                                 }
-                            }
                         } else {
-                            fadeIn() with fadeOut() using SizeTransform { _, _ ->
+                            fadeIn() togetherWith fadeOut() using SizeTransform { _, _ ->
                                 tween(durationMillis = 80, easing = LinearEasing)
                             }
                         }
@@ -166,9 +167,10 @@ class AnimatedContentTest {
                 transition.AnimatedContent(
                     testModifier,
                     transitionSpec = {
-                        EnterTransition.None with ExitTransition.None using SizeTransform { _, _ ->
-                            tween(durationMillis = 160, easing = LinearEasing)
-                        }
+                        EnterTransition.None togetherWith ExitTransition.None using
+                            SizeTransform { _, _ ->
+                                tween(durationMillis = 160, easing = LinearEasing)
+                            }
                     }
                 ) {
                     if (it) {
@@ -235,7 +237,7 @@ class AnimatedContentTest {
                     testModifier,
                     contentAlignment = contentAlignment,
                     transitionSpec = {
-                        fadeIn(animationSpec = tween(durationMillis = 80)) with fadeOut(
+                        fadeIn(animationSpec = tween(durationMillis = 80)) togetherWith fadeOut(
                             animationSpec = tween(durationMillis = 80)
                         ) using SizeTransform { _, _ ->
                             tween(durationMillis = 80, easing = LinearEasing)
@@ -359,14 +361,14 @@ class AnimatedContentTest {
                         if (true isTransitioningTo false) {
                             slideIntoContainer(
                                 AnimatedContentTransitionScope.SlideDirection.Start, animSpec
-                            ) with
+                            ) togetherWith
                                 slideOutOfContainer(
                                     AnimatedContentTransitionScope.SlideDirection.Start, animSpec
                                 )
                         } else {
                             slideIntoContainer(
                                 AnimatedContentTransitionScope.SlideDirection.End, animSpec
-                            ) with
+                            ) togetherWith
                                 slideOutOfContainer(
                                     towards = AnimatedContentTransitionScope.SlideDirection.End,
                                     animSpec
@@ -494,7 +496,7 @@ class AnimatedContentTest {
                 modifier = Modifier.onGloballyPositioned { rootCoords = it },
                 transitionSpec = {
                     if (targetState) {
-                        fadeIn(tween(2000)) with slideOut(
+                        fadeIn(tween(2000)) togetherWith slideOut(
                             tween(2000)
                         ) { fullSize ->
                             IntOffset(0, fullSize.height / 2)
@@ -502,7 +504,7 @@ class AnimatedContentTest {
                             tween(2000)
                         )
                     } else {
-                        fadeIn(tween(2000)) with fadeOut(tween(2000))
+                        fadeIn(tween(2000)) togetherWith fadeOut(tween(2000))
                     }
                 }) { state ->
                 if (state) {

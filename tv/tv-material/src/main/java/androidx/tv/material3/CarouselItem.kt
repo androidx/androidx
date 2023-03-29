@@ -21,7 +21,7 @@ import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.with
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
@@ -120,7 +120,7 @@ object CarouselItemDefaults {
     val contentTransformRightToLeft: ContentTransform
         @Composable get() =
             slideInHorizontally { it * 4 }
-                .with(slideOutHorizontally { it * 4 })
+                .togetherWith(slideOutHorizontally { it * 4 })
 
     /**
      * Transform the content from left to right
@@ -129,7 +129,7 @@ object CarouselItemDefaults {
     val contentTransformLeftToRight: ContentTransform
         @Composable get() =
             slideInHorizontally()
-                .with(slideOutHorizontally())
+                .togetherWith(slideOutHorizontally())
 
     /**
      * Content transform applied when moving forward taking isLTR into account

@@ -24,7 +24,7 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.with
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
@@ -162,7 +162,7 @@ by boxScope {
         targetState: Int,
         modifier: Modifier = Modifier,
         transitionSpec: AnimatedContentTransitionScope<Int>.() -> ContentTransform = {
-            ImmersiveListDefaults.EnterTransition.with(ImmersiveListDefaults.ExitTransition)
+            ImmersiveListDefaults.EnterTransition.togetherWith(ImmersiveListDefaults.ExitTransition)
         },
         contentAlignment: Alignment = Alignment.TopStart,
         content: @Composable AnimatedVisibilityScope.(targetState: Int) -> Unit
