@@ -192,17 +192,21 @@ fun TimePicker(
     colors: TimePickerColors = TimePickerDefaults.colors(),
     layoutType: TimePickerLayoutType = TimePickerDefaults.layoutType(),
 ) {
+    val touchExplorationServicesEnabled by touchExplorationState()
+
     if (layoutType == TimePickerLayoutType.Vertical) {
         VerticalTimePicker(
             state = state,
             modifier = modifier,
             colors = colors,
+            autoSwitchToMinute = !touchExplorationServicesEnabled
         )
     } else {
         HorizontalTimePicker(
             state = state,
             modifier = modifier,
-            colors = colors
+            colors = colors,
+            autoSwitchToMinute = !touchExplorationServicesEnabled
         )
     }
 }
@@ -612,12 +616,18 @@ class TimePickerState(
         currentAngle.animateTo(targetValue.second, tween(200))
     }
 
-    internal suspend fun onTap(x: Float, y: Float, maxDist: Float) {
+    internal suspend fun onTap(x: Float, y: Float, maxDist: Float, autoSwitchToMinute: Boolean) {
         update(atan(y - center.y, x - center.x), true)
         moveSelector(x, y, maxDist)
 
         if (selection == Selection.Hour) {
-            selection = Selection.Minute
+            if (autoSwitchToMinute) {
+                selection = Selection.Minute
+            } else {
+                val targetValue = valuesForAnimation(currentAngle.value, hourAngle)
+                currentAngle.snapTo(targetValue.first)
+                currentAngle.animateTo(targetValue.second, tween(200))
+            }
         } else {
             settle()
         }
@@ -652,11 +662,12 @@ internal fun VerticalTimePicker(
     state: TimePickerState,
     modifier: Modifier = Modifier,
     colors: TimePickerColors = TimePickerDefaults.colors(),
+    autoSwitchToMinute: Boolean
 ) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         VerticalClockDisplay(state, colors)
         Spacer(modifier = Modifier.height(ClockDisplayBottomMargin))
-        ClockFace(state, colors)
+        ClockFace(state, colors, autoSwitchToMinute)
         Spacer(modifier = Modifier.height(ClockFaceBottomMargin))
     }
 }
@@ -666,6 +677,7 @@ internal fun HorizontalTimePicker(
     state: TimePickerState,
     modifier: Modifier = Modifier,
     colors: TimePickerColors = TimePickerDefaults.colors(),
+    autoSwitchToMinute: Boolean
 ) {
     Row(
         modifier = modifier.padding(bottom = ClockFaceBottomMargin),
@@ -673,7 +685,7 @@ internal fun HorizontalTimePicker(
     ) {
         HorizontalClockDisplay(state, colors)
         Spacer(modifier = Modifier.width(ClockDisplayBottomMargin))
-        ClockFace(state, colors)
+        ClockFace(state, colors, autoSwitchToMinute)
     }
 }
 
@@ -701,6 +713,7 @@ private fun TimeInputImpl(
             )
 
         CompositionLocalProvider(LocalTextStyle provides textStyle) {
+
             TimePickerTextField(
                 modifier = Modifier
                     .onKeyEvent { event ->
@@ -1109,7 +1122,11 @@ private fun TimeSelector(
 }
 
 @Composable
-internal fun ClockFace(state: TimePickerState, colors: TimePickerColors) {
+internal fun ClockFace(
+    state: TimePickerState,
+    colors: TimePickerColors,
+    autoSwitchToMinute: Boolean
+) {
     Crossfade(
         modifier = Modifier
             .background(shape = CircleShape, color = colors.clockDialColor)
@@ -1123,7 +1140,7 @@ internal fun ClockFace(state: TimePickerState, colors: TimePickerColors) {
     ) { screen ->
         CircularLayout(
             modifier = Modifier
-                .clockDial(state)
+                .clockDial(state, autoSwitchToMinute)
                 .size(ClockDialContainerSize)
                 .drawSelector(state, colors),
             radius = OuterCircleSizeRadius,
@@ -1137,7 +1154,7 @@ internal fun ClockFace(state: TimePickerState, colors: TimePickerColors) {
                     } else {
                         screen[it] % 12
                     }
-                    ClockText(state = state, value = outerValue)
+                    ClockText(state = state, value = outerValue, autoSwitchToMinute)
                 }
 
                 if (state.selection == Selection.Hour && state.is24hour) {
@@ -1150,7 +1167,7 @@ internal fun ClockFace(state: TimePickerState, colors: TimePickerColors) {
                     ) {
                         repeat(ExtraHours.size) {
                             val innerValue = ExtraHours[it]
-                            ClockText(state = state, value = innerValue)
+                            ClockText(state = state, value = innerValue, autoSwitchToMinute)
                         }
                     }
                 }
@@ -1220,7 +1237,8 @@ private fun Modifier.drawSelector(
     )
 }
 
-private fun Modifier.clockDial(state: TimePickerState): Modifier = composed(debugInspectorInfo {
+private fun Modifier.clockDial(state: TimePickerState, autoSwitchToMinute: Boolean): Modifier =
+    composed(debugInspectorInfo {
     name = "clockDial"
     properties["state"] = state
 }) {
@@ -1230,42 +1248,42 @@ private fun Modifier.clockDial(state: TimePickerState): Modifier = composed(debu
     val scope = rememberCoroutineScope()
     val maxDist = with(LocalDensity.current) { MaxDistance.toPx() }
 
-    Modifier
-        .onSizeChanged { state.center = it.center }
-        .pointerInput(state, center, maxDist) {
-            detectTapGestures(
-                onPress = {
-                    offsetX = it.x
-                    offsetY = it.y
-                },
-                onTap = {
-                    scope.launch { state.onTap(it.x, it.y, maxDist) }
-                },
-            )
-        }
-        .pointerInput(state, center, maxDist) {
-            detectDragGestures(onDragEnd = {
-                scope.launch {
-                    if (state.selection == Selection.Hour) {
-                        state.selection = Selection.Minute
-                        state.animateToCurrent()
-                    } else {
-                        state.settle()
-                    }
-                }
-            }) { _, dragAmount ->
-                scope.launch {
-                    offsetX += dragAmount.x
-                    offsetY += dragAmount.y
-                    state.update(atan(offsetY - state.center.y, offsetX - state.center.x))
-                }
-                state.moveSelector(offsetX, offsetY, maxDist)
+        Modifier
+            .onSizeChanged { state.center = it.center }
+            .pointerInput(state, center, maxDist) {
+                detectTapGestures(
+                    onPress = {
+                        offsetX = it.x
+                        offsetY = it.y
+                    },
+                    onTap = {
+                        scope.launch { state.onTap(it.x, it.y, maxDist, autoSwitchToMinute) }
+                    },
+                )
             }
-        }
+            .pointerInput(state, center, maxDist) {
+                detectDragGestures(onDragEnd = {
+                    scope.launch {
+                        if (state.selection == Selection.Hour && autoSwitchToMinute) {
+                            state.selection = Selection.Minute
+                            state.animateToCurrent()
+                        } else if (state.selection == Selection.Minute) {
+                            state.settle()
+                        }
+                    }
+                }) { _, dragAmount ->
+                    scope.launch {
+                        offsetX += dragAmount.x
+                        offsetY += dragAmount.y
+                        state.update(atan(offsetY - state.center.y, offsetX - state.center.x))
+                    }
+                    state.moveSelector(offsetX, offsetY, maxDist)
+                }
+            }
 }
 
 @Composable
-private fun ClockText(state: TimePickerState, value: Int) {
+private fun ClockText(state: TimePickerState, value: Int, autoSwitchToMinute: Boolean) {
     val style = MaterialTheme.typography.fromToken(ClockDialLabelTextFont).let {
         copyAndSetFontPadding(style = it, false)
     }
@@ -1296,7 +1314,7 @@ private fun ClockText(state: TimePickerState, value: Int) {
             .focusable()
             .semantics(mergeDescendants = true) {
                 onClick {
-                    scope.launch { state.onTap(center.x, center.y, maxDist) }
+                    scope.launch { state.onTap(center.x, center.y, maxDist, autoSwitchToMinute) }
                     true
                 }
                 this.selected = selected
