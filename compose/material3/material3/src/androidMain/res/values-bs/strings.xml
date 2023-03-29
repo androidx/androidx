@@ -61,7 +61,7 @@
     <string name="tooltip_pane_description" msgid="8191239805703103845">"Skočni opis"</string>
     <string name="tooltip_long_press_label" msgid="2732804537909054941">"Prikaži skočni opis"</string>
     <string name="time_picker_pm" msgid="2232702812657998674">"poslijepodne"</string>
-    <string name="time_picker_am" msgid="5096144640014509074">"prijepodne"</string>
+    <string name="time_picker_am" msgid="5096144640014509074">"prij."</string>
     <string name="time_picker_period_toggle_description" msgid="7352665290700284516">"Odaberite prijepodne ili poslijepodne"</string>
     <string name="time_picker_hour_selection" msgid="6081676287789101196">"Odaberite sate"</string>
     <string name="time_picker_minute_selection" msgid="8494777394375441602">"Odaberite minute"</string>
