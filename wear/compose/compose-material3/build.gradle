@@ -54,7 +54,7 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
 
-    samples(project(":wear:compose:compose-material3-samples"))
+    samples(project(":wear:compose:compose-material-samples"))
 }
 
 android {

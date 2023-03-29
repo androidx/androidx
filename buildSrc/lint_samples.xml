@@ -30,7 +30,6 @@
     <!-- Re-enable sampled lint checks for all projects. -->
     <issue id="InvalidSamplesLocation" severity="fatal" />
     <issue id="MultipleSampledFunctions" severity="fatal" />
-    <!-- Temporarily ignore checks that fail when using CI flag. -->
-    <issue id="UnresolvedSampleLink" severity="ignore" />
-    <issue id="ObsoleteSampledAnnotation" severity="ignore" />
+    <issue id="UnresolvedSampleLink" severity="fatal" />
+    <issue id="ObsoleteSampledAnnotation" severity="fatal" />
 </lint>
