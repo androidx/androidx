@@ -298,8 +298,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"一些其他文字"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"可選取的清單範本"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"「工作限制」示範"</string>
-    <!-- no translation found for task_limit_reached_msg (7162842196382260992) -->
-    <skip />
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"這會導致步驟數超出上限，並將你導向到新畫面。"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"工作步驟 %1$d，共 %2$d 個步驟"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"點選即可繼續使用"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"請前往不同範本並確認車輛處於行車模式"</string>

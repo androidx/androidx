@@ -298,8 +298,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Texto adicional"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Exemplo de lista seleccionable"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Demostración de restrición de tarefas"</string>
-    <!-- no translation found for task_limit_reached_msg (7162842196382260992) -->
-    <skip />
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Con esta acción superarase o límite de pasos e irás a unha nova pantalla."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Paso %1$d de %2$d da tarefa"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Fai clic para continuar"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Consulta os diferentes modelos e comproba que o coche estea no modo de condución"</string>

@@ -298,8 +298,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"অতিরিক্ত টেক্সট"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"বেছে নেওয়া যায় এমন তালিকার নমুনা"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"টাস্কের উপর আরোপ করা বিধিনিষেধ সম্পর্কিত ডেমো"</string>
-    <!-- no translation found for task_limit_reached_msg (7162842196382260992) -->
-    <skip />
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"এর ফলে টাস্কের সর্বাধিক সীমা ছাড়িয়ে যাবে এবং আপনাকে নতুন স্ক্রিনে নিয়ে যাবে।"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"টাস্কের %2$d ধাপের %1$d নম্বর ধাপ"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"এগিয়ে যাওয়ার জন্য ক্লিক করুন"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"বিভিন্ন টেমপ্লেট দেখুন ও নিশ্চিত করুন যে গাড়িটি \'ড্রাইভিং\' মোডে আছে"</string>

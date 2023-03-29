@@ -298,8 +298,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"සමහර අතිරේක පෙළ"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"නියැදි තේරිය හැකි ලැයිස්තුව"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"කාර්ය සීමා කිරීම් ආදර්ශනය"</string>
-    <!-- no translation found for task_limit_reached_msg (7162842196382260992) -->
-    <skip />
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"මෙය පියවර ගණන පිරී ඉතිරී යනු ඇති අතර, ඔබව නව තිරයකට ගෙන යනු ඇත."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"%2$d කින් %1$dවන කාර්ය පියවර"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"ඉදිරියට යාමට ක්ලික් කරන්න"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"විවිධ අච්චු වෙත පැමිණ මෝටර් රථය ධාවන ප්‍රකාරයේ ඇති බව තහවුරු කර ගන්න"</string>
