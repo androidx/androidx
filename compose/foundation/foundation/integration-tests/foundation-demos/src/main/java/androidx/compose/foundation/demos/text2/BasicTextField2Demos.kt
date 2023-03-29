@@ -20,8 +20,11 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.demos.text.TagLine
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -34,7 +37,11 @@ import androidx.core.text.isDigitsOnly
 
 @Composable
 fun BasicTextField2Demos() {
-    Column {
+    Column(
+        Modifier
+            .imePadding()
+            .verticalScroll(rememberScrollState())
+    ) {
         TagLine(tag = "Plain BasicTextField2")
         PlainBasicTextField2()
 
@@ -85,10 +92,13 @@ fun StateTogglingBasicTextField2() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DigitsOnlyBasicTextField2() {
-    val state = remember {
-        TextFieldState { old, new ->
+    val state = remember { TextFieldState() }
+    BasicTextField2(
+        state = state,
+        filter = { old, new ->
             if (new.text.isDigitsOnly()) new else old
-        }
-    }
-    BasicTextField2(state, demoTextFieldModifiers, textStyle = LocalTextStyle.current)
+        },
+        modifier = demoTextFieldModifiers,
+        textStyle = LocalTextStyle.current
+    )
 }

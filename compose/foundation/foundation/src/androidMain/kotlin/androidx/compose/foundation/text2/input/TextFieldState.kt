@@ -19,7 +19,6 @@
 package androidx.compose.foundation.text2.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text2.input.TextFieldState.TextEditFilter
 import androidx.compose.foundation.text2.input.internal.EditProcessor
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
@@ -33,11 +32,9 @@ import androidx.compose.ui.text.input.TextFieldValue
  * calling one of the methods on [MutableTextFieldValue].
  */
 @ExperimentalFoundationApi
-class TextFieldState(
-    initialValue: TextFieldValue = TextFieldValue(),
-    filter: TextEditFilter = TextEditFilter.Default
-) {
-    internal var editProcessor = EditProcessor(initialValue, filter)
+class TextFieldState(initialValue: TextFieldValue = TextFieldValue()) {
+
+    internal var editProcessor = EditProcessor(initialValue)
 
     val value: TextFieldValue
         get() = editProcessor.value
@@ -73,16 +70,6 @@ class TextFieldState(
         val newSelection = result.calculateSelection(value, newValue)
         val finalValue = newValue.toTextFieldValue(newSelection)
         editProcessor.reset(finalValue)
-    }
-
-    @ExperimentalFoundationApi
-    fun interface TextEditFilter {
-
-        fun filter(oldValue: TextFieldValue, newValue: TextFieldValue): TextFieldValue
-
-        companion object {
-            val Default = TextEditFilter { _, new -> new }
-        }
     }
 }
 

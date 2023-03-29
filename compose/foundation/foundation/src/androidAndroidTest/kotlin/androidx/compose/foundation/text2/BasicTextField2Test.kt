@@ -23,8 +23,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.KeyboardHelper
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldState
-import androidx.compose.foundation.text2.input.TextFieldState.TextEditFilter
 import androidx.compose.foundation.text2.input.internal.AndroidTextInputAdapter
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -366,32 +366,27 @@ internal class BasicTextField2Test {
         AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { _, ic ->
             inputConnection = ic
         }
-        val state = TextFieldState(filter = RejectAllTextFilter)
+        val state = TextFieldState()
         rule.setContent {
             BasicTextField2(
                 state = state,
+                filter = RejectAllTextFilter,
                 modifier = Modifier.testTag(Tag)
             )
         }
         requestFocus(Tag)
 
-        rule.runOnIdle {
-            with(inputConnection!!) {
-                beginBatchEdit()
-                finishComposingText()
-                commitText("hello", 1)
-                endBatchEdit()
-            }
-        }
+        rule.runOnIdle { inputConnection!!.commitText("hello") }
         rule.onNodeWithTag(Tag).assertTextEquals("")
     }
 
     @Test
     fun textField_appliesFilter_toSetTextSemanticsAction() {
-        val state = TextFieldState(filter = RejectAllTextFilter)
+        val state = TextFieldState()
         rule.setContent {
             BasicTextField2(
                 state = state,
+                filter = RejectAllTextFilter,
                 modifier = Modifier.testTag(Tag)
             )
         }
@@ -402,10 +397,11 @@ internal class BasicTextField2Test {
 
     @Test
     fun textField_appliesFilter_toInsertTextSemanticsAction() {
-        val state = TextFieldState(filter = RejectAllTextFilter)
+        val state = TextFieldState()
         rule.setContent {
             BasicTextField2(
                 state = state,
+                filter = RejectAllTextFilter,
                 modifier = Modifier.testTag(Tag)
             )
         }
@@ -416,10 +412,11 @@ internal class BasicTextField2Test {
 
     @Test
     fun textField_appliesFilter_toKeyEvents() {
-        val state = TextFieldState(filter = RejectAllTextFilter)
+        val state = TextFieldState()
         rule.setContent {
             BasicTextField2(
                 state = state,
+                filter = RejectAllTextFilter,
                 modifier = Modifier.testTag(Tag)
             )
         }
@@ -428,8 +425,125 @@ internal class BasicTextField2Test {
         rule.onNodeWithTag(Tag).assertTextEquals("")
     }
 
+    @Test
+    fun textField_appliesFilter_toInputConnection_afterChanging() {
+        var inputConnection: InputConnection? = null
+        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { _, ic ->
+            inputConnection = ic
+        }
+
+        val state = TextFieldState()
+        var filter by mutableStateOf<TextEditFilter?>(null)
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                filter = filter,
+                modifier = Modifier.testTag(Tag)
+            )
+        }
+        requestFocus(Tag)
+
+        rule.runOnIdle { inputConnection!!.commitText("hello") }
+        rule.onNodeWithTag(Tag).assertTextEquals("hello")
+
+        filter = RejectAllTextFilter
+
+        rule.runOnIdle { inputConnection!!.commitText("world") }
+        rule.onNodeWithTag(Tag).assertTextEquals("hello")
+
+        filter = null
+
+        rule.runOnIdle { inputConnection!!.commitText("world") }
+        rule.onNodeWithTag(Tag).assertTextEquals("helloworld")
+    }
+
+    @Test
+    fun textField_appliesFilter_toSetTextSemanticsAction_afterChanging() {
+        val state = TextFieldState()
+        var filter by mutableStateOf<TextEditFilter?>(null)
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                filter = filter,
+                modifier = Modifier.testTag(Tag)
+            )
+        }
+
+        rule.onNodeWithTag(Tag).performTextInput("hello")
+        rule.onNodeWithTag(Tag).assertTextEquals("hello")
+
+        filter = RejectAllTextFilter
+
+        rule.onNodeWithTag(Tag).performTextReplacement("world")
+        rule.onNodeWithTag(Tag).assertTextEquals("hello")
+
+        filter = null
+
+        rule.onNodeWithTag(Tag).performTextReplacement("world")
+        rule.onNodeWithTag(Tag).assertTextEquals("world")
+    }
+
+    @Test
+    fun textField_appliesFilter_toInsertTextSemanticsAction_afterChanging() {
+        val state = TextFieldState()
+        var filter by mutableStateOf<TextEditFilter?>(null)
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                filter = filter,
+                modifier = Modifier.testTag(Tag)
+            )
+        }
+
+        rule.onNodeWithTag(Tag).performTextInput("hello")
+        rule.onNodeWithTag(Tag).assertTextEquals("hello")
+
+        filter = RejectAllTextFilter
+
+        rule.onNodeWithTag(Tag).performTextInput("world")
+        rule.onNodeWithTag(Tag).assertTextEquals("hello")
+
+        filter = null
+
+        rule.onNodeWithTag(Tag).performTextInput("world")
+        rule.onNodeWithTag(Tag).assertTextEquals("helloworld")
+    }
+
+    @Test
+    fun textField_appliesFilter_toKeyEvents_afterChanging() {
+        val state = TextFieldState()
+        var filter by mutableStateOf<TextEditFilter?>(null)
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                filter = filter,
+                modifier = Modifier.testTag(Tag)
+            )
+        }
+
+        rule.onNodeWithTag(Tag).performTextInput("hello")
+        rule.onNodeWithTag(Tag).assertTextEquals("hello")
+
+        filter = RejectAllTextFilter
+
+        rule.onNodeWithTag(Tag).performKeyInput { pressKey(Key.Spacebar) }
+        rule.onNodeWithTag(Tag).assertTextEquals("hello")
+
+        filter = null
+
+        rule.onNodeWithTag(Tag).performKeyInput { pressKey(Key.Spacebar) }
+        rule.onNodeWithTag(Tag).assertTextEquals("hello ")
+    }
+
     private fun requestFocus(tag: String) =
         rule.onNodeWithTag(tag).performSemanticsAction(SemanticsActions.RequestFocus)
+
+    private fun InputConnection.commitText(text: String) {
+        beginBatchEdit()
+        finishComposingText()
+        commitText(text, 1)
+        endBatchEdit()
+    }
 
     private object RejectAllTextFilter : TextEditFilter {
         override fun filter(oldValue: TextFieldValue, newValue: TextFieldValue): TextFieldValue =

@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text2.input.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.google.common.truth.Truth.assertThat
@@ -279,11 +280,11 @@ class EditProcessorTest {
                 selection = TextRange(3),
                 composition = TextRange(0, 3)
             )
-        ) { _, new -> new }
+        )
 
         val initialBuffer = processor.mBuffer
 
-        processor.update(CommitTextCommand("d", 4))
+        processor.update(CommitTextCommand("d", 4)) { _, new -> new }
 
         val value = processor.value
 
@@ -299,11 +300,11 @@ class EditProcessorTest {
                 selection = TextRange(3),
                 composition = TextRange(0, 3)
             )
-        ) { _, new -> new.copy() }
+        )
 
         val initialBuffer = processor.mBuffer
 
-        processor.update(CommitTextCommand("d", 4))
+        processor.update(CommitTextCommand("d", 4)) { _, new -> new.copy() }
 
         val value = processor.value
 
@@ -319,7 +320,7 @@ class EditProcessorTest {
                 selection = TextRange(3),
                 composition = TextRange(0, 3)
             )
-        ) { old, _ -> old }
+        )
 
         var resetCalledOld: TextFieldValue? = null
         var resetCalledNew: TextFieldValue? = null
@@ -330,7 +331,7 @@ class EditProcessorTest {
 
         val initialBuffer = processor.mBuffer
 
-        processor.update(CommitTextCommand("d", 4))
+        processor.update(CommitTextCommand("d", 4)) { old, _ -> old }
 
         val value = processor.value
 
@@ -340,7 +341,10 @@ class EditProcessorTest {
         assertThat(resetCalledNew?.text).isEqualTo("abc") // what is decided by filter
     }
 
-    private fun EditProcessor.update(vararg editCommand: EditCommand) {
-        update(editCommand.toList())
+    private fun EditProcessor.update(
+        vararg editCommand: EditCommand,
+        filter: TextEditFilter? = null
+    ) {
+        update(editCommand.toList(), filter)
     }
 }
