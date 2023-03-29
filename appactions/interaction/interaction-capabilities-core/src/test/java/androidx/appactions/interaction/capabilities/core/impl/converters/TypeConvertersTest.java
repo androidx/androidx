@@ -272,7 +272,7 @@ public final class TypeConvertersTest {
     }
 
     private static Entity toEntity(Struct struct) {
-        return Entity.newBuilder().setIdentifier("id").setValue(struct).build();
+        return Entity.newBuilder().setIdentifier("id").setStructValue(struct).build();
     }
 
     @Test
@@ -350,7 +350,7 @@ public final class TypeConvertersTest {
                         .putFields("name", Value.newBuilder().setStringValue("Test Item").build())
                         .build();
         Entity listItemProto =
-                Entity.newBuilder().setIdentifier("itemId").setValue(listItemStruct).build();
+                Entity.newBuilder().setIdentifier("itemId").setStructValue(listItemStruct).build();
 
         assertThat(EntityConverter.Companion.of(LIST_ITEM_TYPE_SPEC).convert(listItem))
                 .isEqualTo(listItemProto);
@@ -439,7 +439,10 @@ public final class TypeConvertersTest {
                                         .build())
                         .build();
         Entity itemListProto =
-                Entity.newBuilder().setIdentifier("testList").setValue(itemListStruct).build();
+                Entity.newBuilder()
+                        .setIdentifier("testList")
+                        .setStructValue(itemListStruct)
+                        .build();
 
         assertThat(EntityConverter.Companion.of(ITEM_LIST_TYPE_SPEC).convert(itemList))
                 .isEqualTo(itemListProto);

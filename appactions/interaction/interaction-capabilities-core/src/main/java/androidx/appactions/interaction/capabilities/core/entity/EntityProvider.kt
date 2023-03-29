@@ -34,8 +34,8 @@ import androidx.appactions.interaction.proto.GroundingResponse
  */
 abstract class EntityProvider<T : Thing> internal constructor(private val typeSpec: TypeSpec<T>) {
     /**
-     * Unique identifier for this EntityFilter. Must match the shortcuts.xml declaration, which allows
-     * different filters to be assigned to types on a per-BII basis.
+     * Unique identifier for this EntityFilter. Must match the shortcuts.xml declaration, which
+     * allows different filters to be assigned to types on a per-BII basis.
      */
     abstract fun getId(): String
 
@@ -56,16 +56,18 @@ abstract class EntityProvider<T : Thing> internal constructor(private val typeSp
     fun lookupInternal(request: GroundingRequest): GroundingResponse {
         val converter: SearchActionConverter<T> =
             TypeConverters.createSearchActionConverter(this.typeSpec)
-        val searchAction: SearchAction<T> = try {
-            converter.toSearchAction(request.request.searchAction)
-        } catch (e: StructConversionException) {
-            return createResponse(GroundingResponse.Status.INVALID_ENTITY_ARGUMENT)
-        }
-        val lookupRequest = EntityLookupRequest.Builder<T>()
-            .setSearchAction(searchAction)
-            .setPageSize(request.request.pageSize)
-            .setPageToken(request.request.pageToken)
-            .build()
+        val searchAction: SearchAction<T> =
+            try {
+                converter.toSearchAction(request.request.searchAction)
+            } catch (e: StructConversionException) {
+                return createResponse(GroundingResponse.Status.INVALID_ENTITY_ARGUMENT)
+            }
+        val lookupRequest =
+            EntityLookupRequest.Builder<T>()
+                .setSearchAction(searchAction)
+                .setPageSize(request.request.pageSize)
+                .setPageToken(request.request.pageToken)
+                .build()
         val response = lookup(lookupRequest)
         @EntityLookupResponse.EntityLookupStatus val status: Int = response.status
         return if (status == EntityLookupResponse.SUCCESS) {
@@ -86,7 +88,7 @@ abstract class EntityProvider<T : Thing> internal constructor(private val typeSp
             builder.addCandidates(
                 GroundingResponse.Candidate.newBuilder()
                     .setGroundedEntity(
-                        Entity.newBuilder().setValue(typeSpec.toStruct(candidate.candidate))
+                        Entity.newBuilder().setStructValue(typeSpec.toStruct(candidate.candidate))
                     )
                     .build()
             )
