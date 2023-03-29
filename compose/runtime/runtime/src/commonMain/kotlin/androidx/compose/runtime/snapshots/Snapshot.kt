@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(InternalComposeApi::class)
-
 package androidx.compose.runtime.snapshots
 
 import androidx.compose.runtime.AtomicReference
@@ -179,6 +177,7 @@ sealed class Snapshot(
     /*
      * Handle to use when unpinning this snapshot. -1 if this snapshot has been unpinned.
      */
+    @Suppress("LeakingThis")
     private var pinningTrackingHandle =
         if (id != INVALID_SNAPSHOT) trackPinning(id, invalid) else -1
 
@@ -715,7 +714,7 @@ open class MutableSnapshot internal constructor(
                 val previousGlobalSnapshot = currentGlobalSnapshot.get()
                 takeNewGlobalSnapshot(previousGlobalSnapshot, emptyLambda)
                 val globalModified = previousGlobalSnapshot.modified
-                if (globalModified != null && globalModified.isNotEmpty())
+                if (!globalModified.isNullOrEmpty())
                     applyObservers.toMutableList() to globalModified
                 else
                     emptyList<(Set<Any>, Snapshot) -> Unit>() to null
@@ -761,9 +760,11 @@ open class MutableSnapshot internal constructor(
         // before unpinning records that need to be retained in this case.
         sync {
             releasePinnedSnapshotsForCloseLocked()
-
-            globalModified?.forEach(::overwriteUnusedRecordsLocked)
-            modified?.forEach(::overwriteUnusedRecordsLocked)
+            checkAndOverwriteUnusedRecordsLocked()
+            globalModified?.fastForEach { processForUnusedRecordsLocked(it) }
+            modified?.fastForEach { processForUnusedRecordsLocked(it) }
+            merged?.fastForEach { processForUnusedRecordsLocked(it) }
+            merged = null
         }
 
         return SnapshotApplyResult.Success
@@ -824,13 +825,13 @@ open class MutableSnapshot internal constructor(
         super.releasePinnedSnapshotsForCloseLocked()
     }
 
-    internal fun validateNotApplied() {
+    private fun validateNotApplied() {
         check(!applied) {
             "Unsupported operation on a snapshot that has been applied"
         }
     }
 
-    internal fun validateNotAppliedOrPinned() {
+    private fun validateNotAppliedOrPinned() {
         check(!applied || isPinned) {
             "Unsupported operation on a disposed or applied snapshot"
         }
@@ -944,9 +945,10 @@ open class MutableSnapshot internal constructor(
             }
         }
 
-        statesToRemove?.fastForEach {
-            // Remove from modified any state objects that have reverted to the parent value.
-            modified.remove(it)
+        statesToRemove?.let { list ->
+            list.fastForEach { modified.remove(it) }
+            val mergedList = merged
+            merged = if (mergedList == null) list else mergedList + list
         }
 
         return SnapshotApplyResult.Success
@@ -980,18 +982,17 @@ open class MutableSnapshot internal constructor(
 
     internal fun recordPreviousPinnedSnapshot(id: Int) {
         if (id >= 0)
-            previousPinnedSnapshots = previousPinnedSnapshots + id
+            previousPinnedSnapshots += id
     }
 
     internal fun recordPreviousPinnedSnapshots(handles: IntArray) {
         // Avoid unnecessary copies implied by the `+` below.
         if (handles.isEmpty()) return
         val pinned = previousPinnedSnapshots
-        if (pinned.isEmpty()) previousPinnedSnapshots = handles
-        else previousPinnedSnapshots = pinned + handles
+        previousPinnedSnapshots = if (pinned.isEmpty()) handles else pinned + handles
     }
 
-    internal fun releasePreviouslyPinnedSnapshotsLocked() {
+    private fun releasePreviouslyPinnedSnapshotsLocked() {
         for (index in previousPinnedSnapshots.indices) {
             releasePinningLocked(previousPinnedSnapshots[index])
         }
@@ -1008,6 +1009,8 @@ open class MutableSnapshot internal constructor(
     }
 
     override var modified: IdentityArraySet<StateObject>? = null
+
+    internal var merged: List<StateObject>? = null
 
     /**
      * A set of the id's previously associated with this snapshot. When this snapshot closes
@@ -1707,6 +1710,13 @@ private var nextSnapshotId = INVALID_SNAPSHOT + 1
  */
 private val pinningTable = SnapshotDoubleIndexHeap()
 
+/**
+ * The set of objects who have more than one active state record. These are traversed during
+ * apply of mutable snapshots and when the global snapshot is advanced to determine if any of the
+ * records can be cleared.
+ */
+private val extraStateObjects = SnapshotWeakSet<StateObject>()
+
 /** A list of apply observers */
 private val applyObservers = mutableListOf<(Set<Any>, Snapshot) -> Unit>()
 
@@ -1775,7 +1785,8 @@ private fun <T> advanceGlobalSnapshot(block: (invalid: SnapshotIdSet) -> T): T {
     }
 
     sync {
-        modified?.forEach(::overwriteUnusedRecordsLocked)
+        checkAndOverwriteUnusedRecordsLocked()
+        modified?.fastForEach { processForUnusedRecordsLocked(it) }
     }
 
     return result
@@ -1919,7 +1930,6 @@ private fun usedLocked(state: StateObject): StateRecord? {
  * pinned by 4, it is uncertain whether the record for 2 is needed by 4 so it must be kept even if 4
  * also modified [state] and would not select 2. Accurately determine if a record is selectable
  * would require keeping a list of all open [Snapshot] instances which currently is not kept and
- * would require keeping a list of all open [Snapshot] instances which currently is not kept and
  * traversing that list for each record.
  *
  * If any such records are possible this method returns true. In other words, this method returns
@@ -1927,30 +1937,70 @@ private fun usedLocked(state: StateObject): StateRecord? {
  */
 private fun overwriteUnusedRecordsLocked(state: StateObject): Boolean {
     var current: StateRecord? = state.firstStateRecord
+    var overwriteRecord: StateRecord? = null
     var validRecord: StateRecord? = null
-    val reuseLimit = pinningTable.lowestOrDefault(nextSnapshotId) - 1
-    var uncertainRecords = 0
+    val reuseLimit = pinningTable.lowestOrDefault(nextSnapshotId)
+    var retainedRecords = 0
+
     while (current != null) {
         val currentId = current.snapshotId
         if (currentId != INVALID_SNAPSHOT) {
-            if (currentId <= reuseLimit) {
+            if (currentId < reuseLimit) {
                 if (validRecord == null) {
+                    // If any records are below [reuseLimit] then we must keep the highest one
+                    // so the lowest snapshot can select it.
                     validRecord = current
+                    retainedRecords++
                 } else {
+                    // If [validRecord] is from an earlier snapshot, overwrite it instead
                     val recordToOverwrite = if (current.snapshotId < validRecord.snapshotId) {
                         current
                     } else {
-                        validRecord.also { validRecord = current }
+                        // We cannot use `.also { }` here as it prevents smart casting of other
+                        // uses of [validRecord].
+                        val result = validRecord
+                        validRecord = current
+                        result
+                    }
+                    if (overwriteRecord == null) {
+                        // Find a record we will definitely keep
+                        overwriteRecord = state.firstStateRecord.findYoungestOr {
+                            it.snapshotId >= reuseLimit
+                        }
                     }
                     recordToOverwrite.snapshotId = INVALID_SNAPSHOT
-                    validRecord?.let { recordToOverwrite.assign(it) }
+                    recordToOverwrite.assign(overwriteRecord)
                 }
-            } else uncertainRecords++
+            } else {
+                retainedRecords++
+            }
         }
         current = current.next
     }
 
-    return uncertainRecords < 1
+    return retainedRecords > 1
+}
+
+private inline fun StateRecord.findYoungestOr(predicate: (StateRecord) -> Boolean): StateRecord {
+    var current: StateRecord? = this
+    var youngest = this
+    while (current != null) {
+        if (predicate(current)) return current
+        if (youngest.snapshotId < current.snapshotId)
+            youngest = current
+        current = current.next
+    }
+    return youngest
+}
+
+private fun checkAndOverwriteUnusedRecordsLocked() {
+    extraStateObjects.removeIf { !overwriteUnusedRecordsLocked(it) }
+}
+
+private fun processForUnusedRecordsLocked(state: StateObject) {
+    if (overwriteUnusedRecordsLocked(state)) {
+        extraStateObjects.add(state)
+    }
 }
 
 @PublishedApi
@@ -2010,7 +2060,6 @@ private fun <T : StateRecord> T.newWritableRecordLocked(state: StateObject, snap
     // single writer, of a snapshot. Note that threads reading a mutating snapshot should not
     // cache the result of readable() as the mutating thread calls to writable() can change the
     // result of readable().
-    @Suppress("UNCHECKED_CAST")
     val newData = newOverwritableRecordLocked(state)
     newData.assign(this)
     newData.snapshotId = snapshot.id
