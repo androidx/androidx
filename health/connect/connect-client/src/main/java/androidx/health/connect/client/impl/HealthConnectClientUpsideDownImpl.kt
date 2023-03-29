@@ -266,17 +266,6 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
             .token
     }
 
-    override suspend fun registerForDataNotifications(
-        notificationIntentAction: String,
-        recordTypes: Iterable<KClass<out Record>>
-    ) {
-        throw UnsupportedOperationException("Method not supported yet")
-    }
-
-    override suspend fun unregisterFromDataNotifications(notificationIntentAction: String) {
-        throw UnsupportedOperationException("Method not supported yet")
-    }
-
     override suspend fun getChanges(changesToken: String): ChangesResponse {
         try {
             val response = suspendCancellableCoroutine { continuation ->
