@@ -22,10 +22,10 @@ import android.util.AttributeSet
 import android.view.Gravity
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
+import androidx.wear.protolayout.LayoutElementBuilders
+import androidx.wear.protolayout.ResourceBuilders
 import androidx.wear.tiles.DeviceParametersBuilders
-import androidx.wear.tiles.LayoutElementBuilders
 import androidx.wear.tiles.RequestBuilders
-import androidx.wear.tiles.ResourceBuilders
 import androidx.wear.tiles.StateBuilders
 import androidx.wear.tiles.TileBuilders
 import androidx.wear.tiles.TileService
@@ -118,18 +118,19 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
                 .findMethod("onResourcesRequest", RequestBuilders.ResourcesRequest::class.java)
                 .apply { isAccessible = true }
         val resources =
-            (onResourcesRequestMethod.invoke(tileService, resourceRequest) as
-                ListenableFuture<ResourceBuilders.Resources>).get(1, TimeUnit.SECONDS)
+            ResourceBuilders.Resources.fromProto(
+                (onResourcesRequestMethod.invoke(tileService, resourceRequest) as
+                    ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources>)
+                    .get(1, TimeUnit.SECONDS).toProto()
+            )
 
         val layout = tile.timeline?.getCurrentLayout()
         if (layout != null) {
             val renderer = TileRenderer(
                 context,
-                layout,
-                resources,
                 ContextCompat.getMainExecutor(context)
             ) { }
-            renderer.inflate(this)?.apply {
+            renderer.inflate(layout, resources, this)?.apply {
                 (layoutParams as FrameLayout.LayoutParams).gravity = Gravity.CENTER
             }
         }
@@ -141,7 +142,9 @@ internal fun TimelineBuilders.Timeline?.getCurrentLayout(): LayoutElementBuilder
     return this?.let {
         val cache = TilesTimelineCache(it)
         cache.findTimelineEntryForTime(now) ?: cache.findClosestTimelineEntry(now)
-    }?.layout
+    }?.layout?.let {
+        LayoutElementBuilders.Layout.fromProto(it.toProto())
+    }
 }
 
 /**

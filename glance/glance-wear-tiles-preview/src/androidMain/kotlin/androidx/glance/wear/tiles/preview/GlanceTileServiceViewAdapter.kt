@@ -87,6 +87,7 @@ internal class GlanceTileServiceViewAdapter : FrameLayout {
             .build()
         val layout = tile.timeline?.timelineEntries?.get(0)?.layout
 
+        @Suppress("DEPRECATION")
         if (layout != null) {
             val renderer = TileRenderer(
                 context,

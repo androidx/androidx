@@ -33,11 +33,11 @@ import android.widget.FrameLayout.LayoutParams;
 
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.wear.tiles.LayoutElementBuilders;
-import androidx.wear.tiles.LayoutElementBuilders.Layout;
-import androidx.wear.tiles.ResourceBuilders.AndroidImageResourceByResId;
-import androidx.wear.tiles.ResourceBuilders.ImageResource;
-import androidx.wear.tiles.ResourceBuilders.Resources;
+import androidx.wear.protolayout.LayoutElementBuilders;
+import androidx.wear.protolayout.LayoutElementBuilders.Layout;
+import androidx.wear.protolayout.ResourceBuilders.AndroidImageResourceByResId;
+import androidx.wear.protolayout.ResourceBuilders.ImageResource;
+import androidx.wear.protolayout.ResourceBuilders.Resources;
 import androidx.wear.tiles.material.R;
 import androidx.wear.protolayout.proto.LayoutElementProto.LayoutElement;
 import androidx.wear.tiles.renderer.TileRenderer;
@@ -62,7 +62,7 @@ public class GoldenTestActivity extends Activity {
         }
 
         LayoutElementBuilders.LayoutElement rootLayoutElement =
-                LayoutElementBuilders.LayoutElement.fromLayoutElementProto(layoutElementProto);
+                LayoutElementBuilders.layoutElementFromProto(layoutElementProto);
 
         Context appContext = getApplicationContext();
         FrameLayout root = new FrameLayout(appContext);
@@ -75,9 +75,9 @@ public class GoldenTestActivity extends Activity {
 
         Resources resources = generateResources();
         TileRenderer renderer =
-                new TileRenderer(appContext, layout, resources, mainExecutor, i -> {});
+                new TileRenderer(appContext, mainExecutor, i -> {});
 
-        View firstChild = renderer.inflate(root);
+        View firstChild = renderer.inflate(layout, resources, root);
 
         // Simulate what the thing outside the renderer should do. Center the contents.
         LayoutParams layoutParams = (LayoutParams) firstChild.getLayoutParams();
