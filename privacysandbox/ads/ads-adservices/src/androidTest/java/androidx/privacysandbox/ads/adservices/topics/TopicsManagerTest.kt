@@ -27,9 +27,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
-import java.lang.IllegalArgumentException
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Assume
@@ -78,10 +76,9 @@ class TopicsManagerTest {
 
         // Actually invoke the compat code.
         val result = runBlocking {
-            val request = GetTopicsRequest.Builder()
-                .setAdsSdkName(mSdkName)
-                .setShouldRecordObservation(true)
-                .build()
+            val request =
+                GetTopicsRequest.Builder().setAdsSdkName(mSdkName).setShouldRecordObservation(true)
+                    .build()
 
             managerCompat!!.getTopics(request)
         }
@@ -99,7 +96,7 @@ class TopicsManagerTest {
 
     @Test
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
-    fun testTopicsAsyncPreviewNotSupported() {
+    fun testTopicsAsyncPreviewSupported() {
         val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
 
         Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
@@ -107,17 +104,24 @@ class TopicsManagerTest {
         setupTopicsResponse(topicsManager)
         val managerCompat = obtain(mContext)
 
-        val request = GetTopicsRequest.Builder()
-            .setAdsSdkName(mSdkName)
-            .setShouldRecordObservation(false)
-            .build()
+        // Actually invoke the compat Preview API code.
+        val result = runBlocking {
+            val request =
+                GetTopicsRequest.Builder().setAdsSdkName(mSdkName).setShouldRecordObservation(false)
+                    .build()
 
-        // Actually invoke the compat code.
-        assertThrows<IllegalArgumentException> {
-            runBlocking {
-                managerCompat!!.getTopics(request)
-            }
-        }.hasMessageThat().contains("shouldRecordObservation not supported yet.")
+            managerCompat!!.getTopics(request)
+        }
+
+        // Verify that the compat code was invoked correctly.
+        val captor = ArgumentCaptor.forClass(android.adservices.topics.GetTopicsRequest::class.java)
+        verify(topicsManager).getTopics(captor.capture(), any(), any())
+
+        // Verify that the request that the compat code makes to the platform is correct.
+        verifyRequestPreviewApi(captor.value)
+
+        // Verify that the result of the compat call is correct.
+        verifyResponse(result)
     }
 
     @SdkSuppress(minSdkVersion = 30)
@@ -128,8 +132,7 @@ class TopicsManagerTest {
 
         private fun mockTopicsManager(spyContext: Context): TopicsManager {
             val topicsManager = mock(TopicsManager::class.java)
-            `when`(spyContext.getSystemService(TopicsManager::class.java))
-                .thenReturn(topicsManager)
+            `when`(spyContext.getSystemService(TopicsManager::class.java)).thenReturn(topicsManager)
             return topicsManager
         }
 
@@ -145,19 +148,27 @@ class TopicsManagerTest {
                 receiver.onResult(response)
                 null
             }
-            doAnswer(answer)
-                .`when`(topicsManager).getTopics(
-                    any(),
-                    any(),
-                    any()
-                )
+            doAnswer(answer).`when`(topicsManager).getTopics(
+                any(), any(), any()
+            )
         }
 
         private fun verifyRequest(topicsRequest: android.adservices.topics.GetTopicsRequest) {
             // Set up the request that we expect the compat code to invoke.
-            val expectedRequest = android.adservices.topics.GetTopicsRequest.Builder()
-                .setAdsSdkName(mSdkName)
-                .build()
+            val expectedRequest =
+                android.adservices.topics.GetTopicsRequest.Builder().setAdsSdkName(mSdkName)
+                    .setShouldRecordObservation(true).build()
+
+            Assert.assertEquals(expectedRequest.adsSdkName, topicsRequest.adsSdkName)
+        }
+
+        private fun verifyRequestPreviewApi(
+            topicsRequest: android.adservices.topics.GetTopicsRequest
+        ) {
+            // Set up the request that we expect the compat code to invoke.
+            val expectedRequest =
+                android.adservices.topics.GetTopicsRequest.Builder().setAdsSdkName(mSdkName)
+                    .setShouldRecordObservation(false).build()
 
             Assert.assertEquals(expectedRequest.adsSdkName, topicsRequest.adsSdkName)
         }
