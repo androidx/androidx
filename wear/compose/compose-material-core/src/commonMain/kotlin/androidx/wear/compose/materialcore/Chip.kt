@@ -32,7 +32,6 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -76,7 +75,6 @@ import androidx.compose.ui.unit.Dp
  * [Interaction]s for this Chip. You can create and pass in your own remembered
  * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
  * appearance / behavior of this Chip in different [Interaction]s.
- * @param defaultChipHeight Height for this chip unless overridden in the modifier.
  * @param role The type of user interface element. Accessibility services might use this
  * to describe the element or do customizations
  */
@@ -91,14 +89,12 @@ fun Chip(
     contentPadding: PaddingValues,
     shape: Shape,
     interactionSource: MutableInteractionSource,
-    defaultChipHeight: Dp,
     role: Role?,
     content: @Composable RowScope.() -> Unit,
 ) {
     val borderStroke = border(enabled)?.value
     Row(
         modifier = modifier
-            .height(defaultChipHeight)
             .then(
                 if (borderStroke != null) Modifier.border(
                     border = borderStroke,
@@ -166,7 +162,6 @@ fun Chip(
  * shape is a key characteristic of the Wear Material Theme.
  * @param border Resolves the chip border in different states.
  * @param defaultIconSpacing Spacing between icon and label, if both are provided.
- * @param defaultChipHeight Height for this chip unless overridden in the modifier.
  * @param role Role semantics that accessibility services can use to provide more
  * context to users.
  */
@@ -185,7 +180,6 @@ fun Chip(
     shape: Shape,
     border: @Composable (enabled: Boolean) -> State<BorderStroke?>?,
     defaultIconSpacing: Dp,
-    defaultChipHeight: Dp,
     role: Role?,
 ) {
     Chip(
@@ -197,7 +191,6 @@ fun Chip(
         contentPadding = contentPadding,
         shape = shape,
         interactionSource = interactionSource,
-        defaultChipHeight = defaultChipHeight,
         role = role
     ) {
         Row(
@@ -215,7 +208,7 @@ fun Chip(
             }
             Column {
                 Row(content = label)
-                if (secondaryLabel != null) {
+                secondaryLabel?.let {
                     Row(content = secondaryLabel)
                 }
             }
@@ -228,8 +221,7 @@ fun Chip(
  * Both the icon and label are optional however it is expected that at least one will be provided.
  *
  * The [CompactChip] has a max height designed to take no more than one line
- * of text and/or one icon. The default max height is
- * [defaultCompactChipHeight]. This includes a visible chip height of 32.dp and
+ * of text and/or one icon. This includes a visible chip height of 32.dp and
  * 8.dp of padding above and below the chip in order to meet accessibility guidelines that
  * request a minimum of 48.dp height and width of tappable area.
  *
@@ -239,11 +231,10 @@ fun Chip(
  * The items are laid out as follows.
  *
  * 1. If a label is provided then the chip will be laid out with the optional icon at the start of a
- * row followed by the label with a default max height of [defaultCompactChipHeight].
+ * row followed by the label.
  *
- * 2. If only an icon is provided it will be laid out vertically and horizontally centered with a
- * default height of [defaultCompactChipHeight] and the default width of
- * [defaultIconOnlyCompactChipWidth]
+ * 2. If only an icon is provided it will be laid out vertically and horizontally centered
+ * and the default width of [defaultIconOnlyCompactChipWidth]
  *
  * If neither icon nor label is provided then the chip will displayed like an icon only chip but
  * with no contents and [background] color.
@@ -275,8 +266,6 @@ fun Chip(
  * @param shape Defines the chip's shape. It is strongly recommended to use the default as this
  * shape is a key characteristic of the Wear Material Theme
  * @param border Resolves the border for this chip in different states.
- * @param defaultCompactChipHeight Defines the height of the CompactChip, unless overridden
- * in [modifier].
  * @param defaultIconOnlyCompactChipWidth The default width of the compact chip if there is no label
  * @param defaultCompactChipTapTargetPadding Default padding to increase the tap target
  * @param defaultIconSpacing Spacing between icon and label, if both are provided
@@ -296,7 +285,6 @@ fun CompactChip(
     contentPadding: PaddingValues,
     shape: Shape,
     border: @Composable (enabled: Boolean) -> State<BorderStroke?>?,
-    defaultCompactChipHeight: Dp,
     defaultIconOnlyCompactChipWidth: Dp,
     defaultCompactChipTapTargetPadding: PaddingValues,
     defaultIconSpacing: Dp,
@@ -305,7 +293,6 @@ fun CompactChip(
     if (label != null) {
         Chip(
             modifier = modifier
-                .height(defaultCompactChipHeight)
                 .padding(defaultCompactChipTapTargetPadding),
             label = label,
             onClick = onClick,
@@ -318,7 +305,6 @@ fun CompactChip(
             shape = shape,
             border = border,
             defaultIconSpacing = defaultIconSpacing,
-            defaultChipHeight = defaultCompactChipHeight,
             role = role
         )
     } else {
@@ -326,7 +312,6 @@ fun CompactChip(
         // content. We use the base simple single slot Chip under the covers.
         Chip(
             modifier = modifier
-                .height(defaultCompactChipHeight)
                 .width(defaultIconOnlyCompactChipWidth)
                 .padding(defaultCompactChipTapTargetPadding),
             onClick = onClick,
@@ -336,7 +321,6 @@ fun CompactChip(
             contentPadding = contentPadding,
             shape = shape,
             interactionSource = interactionSource,
-            defaultChipHeight = defaultCompactChipHeight,
             role = role,
         ) {
             // Use a box to fill and center align the icon into the single slot of the Chip

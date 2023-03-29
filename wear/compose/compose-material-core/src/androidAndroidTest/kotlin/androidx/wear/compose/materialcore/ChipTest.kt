@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
@@ -424,36 +425,6 @@ class ChipTest {
         }
 
     @Test
-    fun basechip_uses_default_height_override() {
-        val testHeight = 48.dp
-        rule.verifyHeight(testHeight) {
-            BaseChipWithDefaults(
-                defaultChipHeight = testHeight
-            ) {}
-        }
-    }
-
-    @Test
-    fun threeslotchip_uses_default_height_override() {
-        val testHeight = 48.dp
-        rule.verifyHeight(testHeight) {
-            ThreeSlotChipWithDefaults(
-                defaultChipHeight = testHeight
-            )
-        }
-    }
-
-    @Test
-    fun compactchip_uses_default_height_override() {
-        val testHeight = 48.dp
-        rule.verifyHeight(testHeight) {
-            CompactChipWithDefaults(
-                defaultCompactChipHeight = testHeight
-            )
-        }
-    }
-
-    @Test
     fun threeslotchip_has_icon_in_correct_location_when_only_single_line_of_text() {
         val iconTag = "TestIcon"
         val chipTag = "chip"
@@ -484,7 +455,7 @@ class ChipTest {
                     modifier = Modifier.testTag(chipTag),
                     icon = { TestImage(iconLabel = iconTag) },
                     defaultIconOnlyCompactChipWidth = width,
-                    defaultCompactChipHeight = height,
+                    height = height,
                 )
             }
         rule.onRoot()
@@ -501,7 +472,7 @@ class ChipTest {
                 CompactChipWithDefaults(
                     modifier = Modifier.testTag(chipTag),
                     label = { TestText("Test") },
-                    defaultCompactChipHeight = height,
+                    height = height,
                 )
             }
         rule.onRoot().assertHeightIsEqualTo(height)
@@ -515,8 +486,8 @@ class ChipTest {
             .setContentForSizeAssertions(useUnmergedTree = true) {
                 CompactChipWithDefaults(
                     modifier = Modifier.testTag(TEST_TAG),
-                    defaultCompactChipHeight = height,
                     defaultIconOnlyCompactChipWidth = width,
+                    height = height,
                 )
             }
         rule.onRoot()
@@ -752,10 +723,11 @@ class ChipTest {
         contentPadding: PaddingValues = PaddingValues(14.dp, 6.dp),
         shape: Shape = RoundedCornerShape(corner = CornerSize(50)),
         interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-        defaultChipHeight: Dp = 52.dp,
         role: Role? = Role.Button,
+        height: Dp = 52.dp,
         content: @Composable RowScope.() -> Unit,
     ) = Chip(
+        modifier = modifier.height(height),
         onClick = onClick,
         background = background,
         border = border,
@@ -763,8 +735,6 @@ class ChipTest {
         contentPadding = contentPadding,
         shape = shape,
         interactionSource = interactionSource,
-        defaultChipHeight = defaultChipHeight,
-        modifier = modifier,
         role = role,
         content = content
     )
@@ -785,9 +755,10 @@ class ChipTest {
         shape: Shape = RoundedCornerShape(corner = CornerSize(50)),
         border: @Composable (enabled: Boolean) -> State<BorderStroke?>? = { null },
         defaultIconSpacing: Dp = 6.dp,
-        defaultChipHeight: Dp = 52.dp,
+        height: Dp = 52.dp,
         role: Role? = Role.Button,
     ) = Chip(
+        modifier = modifier.height(height),
         label = label,
         onClick = onClick,
         background = background,
@@ -799,8 +770,6 @@ class ChipTest {
         shape = shape,
         border = border,
         defaultIconSpacing = defaultIconSpacing,
-        defaultChipHeight = defaultChipHeight,
-        modifier = modifier,
         role = role,
     )
 
@@ -818,14 +787,15 @@ class ChipTest {
         contentPadding: PaddingValues = PaddingValues(14.dp, 6.dp),
         shape: Shape = RoundedCornerShape(corner = CornerSize(50)),
         border: @Composable (enabled: Boolean) -> State<BorderStroke?>? = { null },
-        defaultCompactChipHeight: Dp = 48.dp,
         defaultIconOnlyCompactChipWidth: Dp = 52.dp,
         defaultCompactChipTapTargetPadding: PaddingValues = PaddingValues(
             vertical = DEFAULT_COMPACT_CHIP_VERTICAL_PADDING
         ),
         defaultIconSpacing: Dp = 6.dp,
+        height: Dp = 48.dp,
         role: Role? = Role.Button,
     ) = CompactChip(
+        modifier = modifier.height(height),
         onClick = onClick,
         background = background,
         label = label,
@@ -835,12 +805,10 @@ class ChipTest {
         contentPadding = contentPadding,
         shape = shape,
         border = border,
-        defaultCompactChipHeight = defaultCompactChipHeight,
         defaultIconOnlyCompactChipWidth = defaultIconOnlyCompactChipWidth,
         defaultCompactChipTapTargetPadding = defaultCompactChipTapTargetPadding,
         defaultIconSpacing = defaultIconSpacing,
         role = role,
-        modifier = modifier,
     )
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
