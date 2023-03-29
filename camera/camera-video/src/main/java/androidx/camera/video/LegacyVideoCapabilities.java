@@ -46,15 +46,15 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * VideoCapabilities is used to query video recording capabilities on the device.
+ * LegacyVideoCapabilities is used to query video recording capabilities on the device.
  *
- * <p>Calling {@link #from(CameraInfo)} to obtain the VideoCapabilities.
+ * <p>Calling {@link #from(CameraInfo)} to obtain the LegacyVideoCapabilities.
  *
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(Scope.LIBRARY)
-public final class VideoCapabilities {
-    private static final String TAG = "VideoCapabilities";
+public final class LegacyVideoCapabilities {
+    private static final String TAG = "LegacyVideoCapabilities";
 
     /**
      * Maps quality to supported {@link VideoValidatedEncoderProfilesProxy}. The order is from
@@ -69,13 +69,13 @@ public final class VideoCapabilities {
     private final EncoderProfilesProvider mEncoderProfilesProvider;
 
     /**
-     * Creates a VideoCapabilities.
+     * Creates a LegacyVideoCapabilities.
      *
      * @param cameraInfoInternal the cameraInfo
      * @throws IllegalArgumentException if unable to get the capability information from the
      *                                  CameraInfo.
      */
-    VideoCapabilities(@NonNull CameraInfoInternal cameraInfoInternal) {
+    LegacyVideoCapabilities(@NonNull CameraInfoInternal cameraInfoInternal) {
         Quirks cameraQuirks = cameraInfoInternal.getCameraQuirks();
         mEncoderProfilesProvider = new ResolutionValidatedEncoderProfilesProvider(
                 cameraInfoInternal.getEncoderProfilesProvider(), cameraQuirks);
@@ -115,10 +115,10 @@ public final class VideoCapabilities {
         }
     }
 
-    /** Gets VideoCapabilities by the {@link CameraInfo} */
+    /** Gets LegacyVideoCapabilities by the {@link CameraInfo} */
     @NonNull
-    public static VideoCapabilities from(@NonNull CameraInfo cameraInfo) {
-        return new VideoCapabilities((CameraInfoInternal) cameraInfo);
+    public static LegacyVideoCapabilities from(@NonNull CameraInfo cameraInfo) {
+        return new LegacyVideoCapabilities((CameraInfoInternal) cameraInfo);
     }
 
     /**

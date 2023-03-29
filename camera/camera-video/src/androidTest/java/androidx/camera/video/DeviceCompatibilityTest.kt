@@ -140,7 +140,7 @@ class DeviceCompatibilityTest(
             return emptyList()
         }
         val cameraInfo = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector).cameraInfo
-        val videoCapabilities = VideoCapabilities.from(cameraInfo)
+        val videoCapabilities = LegacyVideoCapabilities.from(cameraInfo)
         return videoCapabilities.supportedQualities
             .mapNotNull { videoCapabilities.getProfiles(it) }
     }

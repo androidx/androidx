@@ -574,7 +574,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         Range<Integer> targetFpsRange = requireNonNull(
                 config.getTargetFramerate(Defaults.DEFAULT_FPS_RANGE));
         MediaSpec mediaSpec = requireNonNull(getMediaSpec());
-        VideoCapabilities videoCapabilities = VideoCapabilities.from(camera.getCameraInfo());
+        LegacyVideoCapabilities videoCapabilities = LegacyVideoCapabilities.from(
+                camera.getCameraInfo());
         VideoEncoderInfo videoEncoderInfo = getVideoEncoderInfo(config.getVideoEncoderInfoFinder(),
                 videoCapabilities, mediaSpec, resolution, targetFpsRange);
         mCropRect = calculateCropRect(resolution, videoEncoderInfo);
@@ -927,7 +928,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return cropRect;
         }
 
-        // New width/height should be multiple of 2 since VideoCapabilities.get*Alignment()
+        // New width/height should be multiple of 2 since LegacyVideoCapabilities.get*Alignment()
         // returns power of 2. This ensures width/2 and height/2 are not rounded off.
         // New width/height smaller than resolution ensures calculated cropRect never exceeds
         // the resolution.
@@ -1022,7 +1023,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @Nullable
     private VideoEncoderInfo getVideoEncoderInfo(
             @NonNull Function<VideoEncoderConfig, VideoEncoderInfo> videoEncoderInfoFinder,
-            @NonNull VideoCapabilities videoCapabilities,
+            @NonNull LegacyVideoCapabilities videoCapabilities,
             @NonNull MediaSpec mediaSpec,
             @NonNull Size resolution,
             @NonNull Range<Integer> targetFps) {

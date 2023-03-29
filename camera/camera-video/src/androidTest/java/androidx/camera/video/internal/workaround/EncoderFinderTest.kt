@@ -33,7 +33,7 @@ import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.LabTestRule
 import androidx.camera.video.Quality
 import androidx.camera.video.QualitySelector
-import androidx.camera.video.VideoCapabilities
+import androidx.camera.video.LegacyVideoCapabilities
 import androidx.camera.video.VideoSpec
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
 import androidx.camera.video.internal.compat.quirk.MediaCodecInfoReportIncorrectInfoQuirk
@@ -153,7 +153,7 @@ class EncoderFinderTest(
             resolution != null
         )
 
-        val encoderProfiles = VideoCapabilities.from(cameraInfo).getProfiles(quality)
+        val encoderProfiles = LegacyVideoCapabilities.from(cameraInfo).getProfiles(quality)
         val videoProfile = encoderProfiles!!.defaultVideoProfile
 
         val videoSpec =

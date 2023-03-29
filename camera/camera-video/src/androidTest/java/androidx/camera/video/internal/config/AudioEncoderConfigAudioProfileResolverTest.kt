@@ -29,7 +29,7 @@ import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.video.AudioSpec
 import androidx.camera.video.Quality
-import androidx.camera.video.VideoCapabilities
+import androidx.camera.video.LegacyVideoCapabilities
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -73,7 +73,7 @@ class AudioEncoderConfigAudioProfileResolverTest(
     private val timebase = Timebase.UPTIME
 
     private lateinit var cameraUseCaseAdapter: CameraUseCaseAdapter
-    private lateinit var videoCapabilities: VideoCapabilities
+    private lateinit var videoCapabilities: LegacyVideoCapabilities
 
     @Before
     fun setUp() {
@@ -85,7 +85,7 @@ class AudioEncoderConfigAudioProfileResolverTest(
         ).get()
 
         val cameraInfo = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector).cameraInfo
-        videoCapabilities = VideoCapabilities.from(cameraInfo)
+        videoCapabilities = LegacyVideoCapabilities.from(cameraInfo)
         Assume.assumeTrue(videoCapabilities.supportedQualities.isNotEmpty())
     }
 
