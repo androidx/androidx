@@ -33,7 +33,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.TextDelegate
 import androidx.compose.foundation.text.heightInLines
 import androidx.compose.foundation.text.textFieldMinSize
-import androidx.compose.foundation.text2.service.AndroidTextInputPlugin
+import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.text2.input.internal.AndroidTextInputPlugin
+import androidx.compose.foundation.text2.input.internal.TextFieldCoreModifier
+import androidx.compose.foundation.text2.input.internal.TextFieldDecoratorModifier
+import androidx.compose.foundation.text2.input.internal.TextLayoutState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -177,7 +181,8 @@ fun BasicTextField2(
                 )
                 .textFieldMinSize(textStyle)
                 .clipToBounds()
-                .then(TextFieldCoreModifier(
+                .then(
+                    TextFieldCoreModifier(
                     isFocused = interactionSource.collectIsFocusedAsState().value,
                     textLayoutState = textLayoutState,
                     textFieldState = state,
@@ -185,7 +190,8 @@ fun BasicTextField2(
                     writeable = enabled && !readOnly,
                     scrollState = scrollState,
                     orientation = orientation
-                ))
+                )
+                )
 
             Layout(modifier = coreModifiers) { _, constraints ->
                 val result = with(textLayoutState) {
