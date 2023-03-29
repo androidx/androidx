@@ -72,6 +72,7 @@ public class CallStats {
             CALL_TYPE_GET_STORAGE_INFO,
             CALL_TYPE_REGISTER_OBSERVER_CALLBACK,
             CALL_TYPE_UNREGISTER_OBSERVER_CALLBACK,
+            CALL_TYPE_GLOBAL_GET_NEXT_PAGE,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface CallType {
@@ -107,6 +108,7 @@ public class CallStats {
     public static final int CALL_TYPE_GET_STORAGE_INFO = 27;
     public static final int CALL_TYPE_REGISTER_OBSERVER_CALLBACK = 28;
     public static final int CALL_TYPE_UNREGISTER_OBSERVER_CALLBACK = 29;
+    public static final int CALL_TYPE_GLOBAL_GET_NEXT_PAGE = 30;
 
     @Nullable
     private final String mPackageName;
@@ -224,16 +226,16 @@ public class CallStats {
         /** Sets the PackageName used by the session. */
         @CanIgnoreReturnValue
         @NonNull
-        public Builder setPackageName(@NonNull String packageName) {
-            mPackageName = Preconditions.checkNotNull(packageName);
+        public Builder setPackageName(@Nullable String packageName) {
+            mPackageName = packageName;
             return this;
         }
 
         /** Sets the database used by the session. */
         @CanIgnoreReturnValue
         @NonNull
-        public Builder setDatabase(@NonNull String database) {
-            mDatabase = Preconditions.checkNotNull(database);
+        public Builder setDatabase(@Nullable String database) {
+            mDatabase = database;
             return this;
         }
 

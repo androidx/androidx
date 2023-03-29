@@ -366,8 +366,8 @@ public final class SearchStats {
         /** Sets the database used by the session. */
         @CanIgnoreReturnValue
         @NonNull
-        public Builder setDatabase(@NonNull String database) {
-            mDatabase = Preconditions.checkNotNull(database);
+        public Builder setDatabase(@Nullable String database) {
+            mDatabase = database;
             return this;
         }
 
