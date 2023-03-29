@@ -298,8 +298,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Зарим нэмэлт текст"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Сонгох боломжтой жагсаалтын жишээ"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Ажлын хязгаарлалтын демо"</string>
-    <!-- no translation found for task_limit_reached_msg (7162842196382260992) -->
-    <skip />
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Энэ нь алхмын тооны хязгаараас хэтрүүлэх бөгөөд таныг шинэ дэлгэцэд аваачна."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Ажлын %2$d-н %1$d-р алхам"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Үргэлжлүүлэхийн тулд товшино уу"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Өөр загварт зочилж, машин нь втомашин жолоодох горимд байгаа эсэхийг баталгаажуулна уу"</string>

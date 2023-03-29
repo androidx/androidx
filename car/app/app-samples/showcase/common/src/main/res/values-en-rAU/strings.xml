@@ -298,8 +298,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Some additional text"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Sample selectable list"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Task restriction demo"</string>
-    <!-- no translation found for task_limit_reached_msg (7162842196382260992) -->
-    <skip />
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"This will overflow the step count and lead you to a new screen."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Task step %1$d of %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Click to go forward"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Please visit the different templates and ensure that the car is in driving mode"</string>

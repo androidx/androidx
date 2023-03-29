@@ -298,8 +298,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Mais texto"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Lista selecionável de exemplos"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Demonstração de restrição de tarefa"</string>
-    <!-- no translation found for task_limit_reached_msg (7162842196382260992) -->
-    <skip />
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Essa ação vai sobrecarregar a contagem de etapas e uma nova tela será aberta."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Etapa da tarefa: %1$d de %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Clique para continuar"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Visite os diferentes modelos e confira se o veículo está no modo carro"</string>

@@ -298,8 +298,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"일부 추가 텍스트"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"샘플 선택 가능 목록"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"작업 제한사항 데모"</string>
-    <!-- no translation found for task_limit_reached_msg (7162842196382260992) -->
-    <skip />
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"이렇게 하면 걸음 수가 오버플로되며 새로운 화면으로 이동합니다."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"작업 단계 %1$d/%2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"클릭하여 진행"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"다른 템플릿을 방문하여 자동차가 운전 모드인지 확인하세요."</string>

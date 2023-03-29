@@ -298,8 +298,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Beberapa teks tambahan"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Contoh daftar yang dapat dipilih"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Demo Batasan Tugas"</string>
-    <!-- no translation found for task_limit_reached_msg (7162842196382260992) -->
-    <skip />
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Tindakan ini menunjukkan bahwa batas jumlah langkah terlampaui, dan akan mengarahkan Anda ke layar baru."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Langkah tugas %1$d dari %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Klik untuk melanjutkan"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Buka template lain dan pastikan mobil dalam mode mengemudi"</string>
