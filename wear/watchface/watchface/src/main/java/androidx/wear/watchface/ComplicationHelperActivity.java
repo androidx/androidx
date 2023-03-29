@@ -26,11 +26,11 @@ import android.os.Bundle;
 import android.support.wearable.complications.ComplicationData;
 import android.support.wearable.complications.ComplicationProviderInfo;
 
+import androidx.activity.ComponentActivity;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.FragmentActivity;
 import androidx.wear.watchface.complications.ComplicationDataSourceUpdateRequesterConstants;
 import androidx.wear.watchface.complications.data.ComplicationType;
 
@@ -58,7 +58,7 @@ import java.util.Objects;
  *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public final class ComplicationHelperActivity extends FragmentActivity
+public final class ComplicationHelperActivity extends ComponentActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback {
 
     /**
