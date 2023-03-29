@@ -28,6 +28,7 @@ import androidx.credentials.provider.BeginCreatePasswordCredentialRequest
 import androidx.credentials.provider.BeginCreatePublicKeyCredentialRequest
 import androidx.credentials.provider.CreateEntry
 import androidx.credentials.provider.RemoteEntry
+import java.util.stream.Collectors
 
 /**
  * @hide
@@ -36,7 +37,7 @@ import androidx.credentials.provider.RemoteEntry
 class BeginCreateCredentialUtil {
     companion object {
         @JvmStatic
-        internal fun convertToStructuredRequest(
+        internal fun convertToJetpackRequest(
             request: android.service.credentials.BeginCreateCredentialRequest
         ):
             BeginCreateCredentialRequest {
@@ -70,7 +71,7 @@ class BeginCreateCredentialUtil {
             }
         }
 
-        fun convertJetpackResponseToFrameworkResponse(
+        fun convertToFrameworkResponse(
             response: BeginCreateCredentialResponse
         ): android.service.credentials.BeginCreateCredentialResponse {
             val frameworkBuilder = android.service.credentials.BeginCreateCredentialResponse
@@ -106,6 +107,26 @@ class BeginCreateCredentialUtil {
                     )
                 )
             }
+        }
+
+        fun convertToFrameworkRequest(request: BeginCreateCredentialRequest):
+            android.service.credentials.BeginCreateCredentialRequest {
+            return android.service.credentials.BeginCreateCredentialRequest(request.type,
+            request.candidateQueryData, request.callingAppInfo)
+        }
+
+        fun convertToJetpackResponse(
+            frameworkResponse: android.service.credentials.BeginCreateCredentialResponse
+        ): BeginCreateCredentialResponse {
+            return BeginCreateCredentialResponse(
+                createEntries = frameworkResponse.createEntries.stream()
+                    .map { entry -> CreateEntry.fromSlice(entry.slice) }
+                    .filter { entry -> entry != null }
+                    .map { entry -> entry!! }
+                    .collect(Collectors.toList()),
+                remoteEntry =
+                frameworkResponse.remoteCreateEntry?.let { RemoteEntry.fromSlice(it.slice) }
+            )
         }
     }
 }
