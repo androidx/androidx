@@ -28,9 +28,12 @@ import androidx.compose.ui.text.input.TextFieldValue
  *
  * Predefined results include:
  *  - [MutableTextFieldValue.placeCursorAtEnd]
+ *  - [MutableTextFieldValue.placeCursorBeforeFirstChange]
+ *  - [MutableTextFieldValue.placeCursorAfterLastChange]
  *  - [MutableTextFieldValue.placeCursorBeforeCharAt]
  *  - [MutableTextFieldValue.placeCursorBeforeCodepointAt]
  *  - [MutableTextFieldValue.selectAll]
+ *  - [MutableTextFieldValue.selectAllChanges]
  *  - [MutableTextFieldValue.selectCharsIn]
  *  - [MutableTextFieldValue.selectCodepointsIn]
  */
@@ -90,11 +93,37 @@ fun MutableTextFieldValue.placeCursorBeforeCharAt(index: Int): TextFieldEditResu
 /**
  * Returns a [TextFieldEditResult] that places the cursor at the end of the text.
  *
+ * @see placeCursorAfterLastChange
  * @see TextFieldState.edit
  */
 @Suppress("UnusedReceiverParameter")
 @ExperimentalFoundationApi
 fun MutableTextFieldValue.placeCursorAtEnd(): TextFieldEditResult = PlaceCursorAtEndResult
+
+/**
+ * Returns a [TextFieldEditResult] that places the cursor after the last change made to this
+ * [MutableTextFieldValue].
+ *
+ * @see placeCursorAtEnd
+ * @see placeCursorBeforeFirstChange
+ * @see TextFieldState.edit
+ */
+@Suppress("UnusedReceiverParameter")
+@ExperimentalFoundationApi
+fun MutableTextFieldValue.placeCursorAfterLastChange(): TextFieldEditResult =
+    PlaceCursorAfterLastChangeResult
+
+/**
+ * Returns a [TextFieldEditResult] that places the cursor before the first change made to this
+ * [MutableTextFieldValue].
+ *
+ * @see placeCursorAfterLastChange
+ * @see TextFieldState.edit
+ */
+@Suppress("UnusedReceiverParameter")
+@ExperimentalFoundationApi
+fun MutableTextFieldValue.placeCursorBeforeFirstChange(): TextFieldEditResult =
+    PlaceCursorBeforeFirstChangeResult
 
 /**
  * Returns a [TextFieldEditResult] that places the selection around the given [range] in codepoints.
@@ -143,8 +172,20 @@ fun MutableTextFieldValue.selectCharsIn(range: TextRange): TextFieldEditResult =
     }
 
 /**
+ * Returns a [TextFieldEditResult] that places the selection before the first change and after the
+ * last change.
+ *
+ * @see selectAll
+ * @see TextFieldState.edit
+ */
+@Suppress("UnusedReceiverParameter")
+@ExperimentalFoundationApi
+fun MutableTextFieldValue.selectAllChanges(): TextFieldEditResult = SelectAllChangesResult
+
+/**
  * Returns a [TextFieldEditResult] that places the selection around all the text.
  *
+ * @see selectAllChanges
  * @see TextFieldState.edit
  */
 @Suppress("UnusedReceiverParameter")
@@ -158,6 +199,55 @@ private object PlaceCursorAtEndResult : TextFieldEditResult() {
     ): TextRange = TextRange(newValue.length)
 
     override fun toString(): String = "placeCursorAtEnd()"
+}
+
+private object PlaceCursorAfterLastChangeResult : TextFieldEditResult() {
+    override fun calculateSelection(
+        oldValue: TextFieldValue,
+        newValue: MutableTextFieldValue
+    ): TextRange {
+        return if (newValue.changes.changeCount == 0) {
+            oldValue.selection
+        } else {
+            TextRange(newValue.changes.getRange(newValue.changes.changeCount).max)
+        }
+    }
+
+    override fun toString(): String = "placeCursorAfterLastChange()"
+}
+
+private object PlaceCursorBeforeFirstChangeResult : TextFieldEditResult() {
+    override fun calculateSelection(
+        oldValue: TextFieldValue,
+        newValue: MutableTextFieldValue
+    ): TextRange {
+        return if (newValue.changes.changeCount == 0) {
+            oldValue.selection
+        } else {
+            TextRange(newValue.changes.getRange(0).min)
+        }
+    }
+
+    override fun toString(): String = "placeCursorBeforeFirstChange()"
+}
+
+private object SelectAllChangesResult : TextFieldEditResult() {
+    override fun calculateSelection(
+        oldValue: TextFieldValue,
+        newValue: MutableTextFieldValue
+    ): TextRange {
+        val changes = newValue.changes
+        return if (changes.changeCount == 0) {
+            oldValue.selection
+        } else {
+            TextRange(
+                changes.getRange(0).min,
+                changes.getRange(changes.changeCount).max
+            )
+        }
+    }
+
+    override fun toString(): String = "selectAllChanges()"
 }
 
 private object SelectAllResult : TextFieldEditResult() {

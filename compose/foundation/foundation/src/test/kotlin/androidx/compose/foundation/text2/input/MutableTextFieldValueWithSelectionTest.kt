@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text2.input.internal
+package androidx.compose.foundation.text2.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text2.input.MutableTextFieldValueWithSelection
-import androidx.compose.foundation.text2.input.insert
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.google.common.truth.Truth.assertThat

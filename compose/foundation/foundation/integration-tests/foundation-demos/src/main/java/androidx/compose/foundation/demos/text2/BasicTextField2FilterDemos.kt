@@ -24,6 +24,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.samples.BasicTextField2ChangeIterationSample
+import androidx.compose.foundation.samples.BasicTextField2ChangeReverseIterationSample
 import androidx.compose.foundation.samples.BasicTextField2CustomFilterSample
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextEditFilter
@@ -53,9 +55,19 @@ fun BasicTextField2FilterDemos() {
         TagLine(tag = "Digits Only BasicTextField2")
         DigitsOnlyBasicTextField2()
 
-        TagLine(tag = "Custom")
+        TagLine(tag = "Custom (wrap the text in parentheses)")
         Box(demoTextFieldModifiers, propagateMinConstraints = true) {
             BasicTextField2CustomFilterSample()
+        }
+
+        TagLine(tag = "Change tracking (change logging sample)")
+        Box(demoTextFieldModifiers, propagateMinConstraints = true) {
+            BasicTextField2ChangeIterationSample()
+        }
+
+        TagLine(tag = "Change tracking (insert mode sample)")
+        Box(demoTextFieldModifiers, propagateMinConstraints = true) {
+            BasicTextField2ChangeReverseIterationSample()
         }
     }
 }
