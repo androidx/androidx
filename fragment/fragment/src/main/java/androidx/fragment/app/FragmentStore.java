@@ -151,6 +151,10 @@ class FragmentStore {
             mNonConfig.removeRetainedFragment(f);
         }
 
+        if (mActive.get(f.mWho) != newlyInactive) {
+            return;
+        }
+
         // Don't remove yet. That happens in burpActive(). This prevents
         // concurrent modification while iterating over mActive
         FragmentStateManager removedStateManager = mActive.put(f.mWho, null);
