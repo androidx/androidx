@@ -187,7 +187,7 @@ class PendingIntentHandler {
         ) {
             intent.putExtra(
                 CredentialProviderService.EXTRA_BEGIN_GET_CREDENTIAL_RESPONSE,
-                BeginGetCredentialUtil.convertJetpackResponseToFrameworkResponse(response)
+                BeginGetCredentialUtil.convertToFrameworkResponse(response)
             )
         }
 
