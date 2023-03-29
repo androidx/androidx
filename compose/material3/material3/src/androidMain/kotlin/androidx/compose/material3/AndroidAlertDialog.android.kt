@@ -100,7 +100,6 @@ fun AlertDialog(
                 confirmButton()
             }
         },
-        modifier = modifier,
         icon = icon,
         title = title,
         text = text,
