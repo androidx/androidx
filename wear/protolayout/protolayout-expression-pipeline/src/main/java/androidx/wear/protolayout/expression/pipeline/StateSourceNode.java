@@ -24,17 +24,17 @@ import java.util.function.Function;
 
 class StateSourceNode<T>
         implements DynamicDataSourceNode<T>, DynamicTypeValueReceiver<StateEntryValue> {
-    private final ObservableStateStore mObservableStateStore;
+    private final StateStore mStateStore;
     private final String mBindKey;
     private final Function<StateEntryValue, T> mStateExtractor;
     private final DynamicTypeValueReceiver<T> mDownstream;
 
     StateSourceNode(
-            ObservableStateStore observableStateStore,
+            StateStore stateStore,
             String bindKey,
             Function<StateEntryValue, T> stateExtractor,
             DynamicTypeValueReceiver<T> downstream) {
-        this.mObservableStateStore = observableStateStore;
+        this.mStateStore = stateStore;
         this.mBindKey = bindKey;
         this.mStateExtractor = stateExtractor;
         this.mDownstream = downstream;
@@ -49,8 +49,8 @@ class StateSourceNode<T>
     @Override
     @UiThread
     public void init() {
-        mObservableStateStore.registerCallback(mBindKey, this);
-        StateEntryValue item = mObservableStateStore.getStateEntryValuesProto(mBindKey);
+        mStateStore.registerCallback(mBindKey, this);
+        StateEntryValue item = mStateStore.getStateEntryValuesProto(mBindKey);
 
         if (item != null) {
             this.onData(item);
@@ -62,7 +62,7 @@ class StateSourceNode<T>
     @Override
     @UiThread
     public void destroy() {
-        mObservableStateStore.unregisterCallback(mBindKey, this);
+        mStateStore.unregisterCallback(mBindKey, this);
     }
 
     @Override

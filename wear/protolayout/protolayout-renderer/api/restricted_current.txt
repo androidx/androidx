@@ -12,7 +12,7 @@ package androidx.wear.protolayout.renderer.impl {
     method public com.google.common.util.concurrent.ListeningExecutorService getBgExecutorService();
     method public String getClickableIdExtra();
     method public androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway? getSensorGateway();
-    method public androidx.wear.protolayout.expression.pipeline.ObservableStateStore? getStateStore();
+    method public androidx.wear.protolayout.expression.pipeline.StateStore? getStateStore();
     method public android.content.Context getUiContext();
     method public com.google.common.util.concurrent.ListeningExecutorService getUiExecutorService();
   }

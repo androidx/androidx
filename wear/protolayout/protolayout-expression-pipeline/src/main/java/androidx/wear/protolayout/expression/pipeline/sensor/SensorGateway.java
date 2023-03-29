@@ -137,10 +137,6 @@ public interface SensorGateway extends Closeable {
          */
         @AnyThread
         default void onInvalidated() {}
-
-        /** The sensor data type to be consumed. */
-        @SensorDataType
-        int getRequestedDataType();
     }
 
     /**
@@ -160,27 +156,28 @@ public interface SensorGateway extends Closeable {
     void disableUpdates();
 
     /**
-     * Register for updates for {@link Consumer#getRequestedDataType()} data type. This may cause
-     * {@link Consumer} to immediately fire if there is suitable cached data, otherwise {@link
-     * Consumer} will fire when there is appropriate updates to the requested sensor data.
+     * Register for updates for the given data type. This may cause {@link Consumer} to immediately
+     * fire if there is suitable cached data, otherwise {@link Consumer} will fire when there is
+     * appropriate updates to the requested sensor data.
      *
      * <p>Implementations should check if the provider has permission to provide the requested data
      * type.
      *
      * <p>Note that the callback will be executed on the single background thread (implementation
      * dependent). To specify the execution thread, use {@link
-     * #registerSensorGatewayConsumer(Executor, Consumer)}.
+     * #registerSensorGatewayConsumer(int, Executor, Consumer)}.
      *
      * @throws SecurityException if the provider does not have permission to provide requested data
      *     type.
      */
     @UiThread
-    void registerSensorGatewayConsumer(@NonNull Consumer consumer);
+    void registerSensorGatewayConsumer(
+            @SensorDataType int requestedDataType, @NonNull Consumer consumer);
 
     /**
-     * Register for updates for {@link Consumer#getRequestedDataType()} data type. This may cause
-     * {@link Consumer} to immediately fire if there is suitable cached data, otherwise {@link
-     * Consumer} will fire when there is appropriate updates to the requested sensor data.
+     * Register for updates for the given data type. This may cause {@link Consumer} to
+     * immediately fire if there is suitable cached data, otherwise {@link Consumer} will fire
+     * when there is appropriate updates to the requested sensor data.
      *
      * <p>Implementations should check if the provider has permission to provide the requested data
      * type.
@@ -192,11 +189,14 @@ public interface SensorGateway extends Closeable {
      */
     @UiThread
     void registerSensorGatewayConsumer(
-            @NonNull /* @CallbackExecutor */ Executor executor, @NonNull Consumer consumer);
+            @SensorDataType int requestedDataType,
+            @NonNull /* @CallbackExecutor */ Executor executor,
+            @NonNull Consumer consumer);
 
-    /** Unregister for updates for {@link Consumer#getRequestedDataType()} data type. */
+    /** Unregister for updates for the given data type. */
     @UiThread
-    void unregisterSensorGatewayConsumer(@NonNull Consumer consumer);
+    void unregisterSensorGatewayConsumer(
+            @SensorDataType int requestedDataType, @NonNull Consumer consumer);
 
     /** See {@link Closeable#close()}. */
     @Override

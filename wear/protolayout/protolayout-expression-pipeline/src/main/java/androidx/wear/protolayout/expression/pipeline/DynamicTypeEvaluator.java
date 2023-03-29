@@ -123,11 +123,10 @@ public class DynamicTypeEvaluator implements AutoCloseable {
             };
 
     @NonNull
-    private static final ObservableStateStore EMPTY_STATE_STORE =
-            new ObservableStateStore(emptyMap());
+    private static final StateStore EMPTY_STATE_STORE = new StateStore(emptyMap());
 
     @NonNull private final Config mConfig;
-    @NonNull private final ObservableStateStore mStateStore;
+    @NonNull private final StateStore mStateStore;
     @NonNull private final QuotaManager mAnimationQuotaManager;
     @NonNull private final TimeGateway mTimeGateway;
     @Nullable private final EpochTimePlatformDataSource mTimeDataSource;
@@ -136,14 +135,14 @@ public class DynamicTypeEvaluator implements AutoCloseable {
     /** Configuration for {@link #DynamicTypeEvaluator(Config)}. */
     public static final class Config {
         private final boolean mPlatformDataSourcesInitiallyEnabled;
-        @Nullable private final ObservableStateStore mStateStore;
+        @Nullable private final StateStore mStateStore;
         @Nullable private final QuotaManager mAnimationQuotaManager;
         @Nullable private final TimeGateway mTimeGateway;
         @Nullable private final SensorGateway mSensorGateway;
 
         Config(
                 boolean platformDataSourcesInitiallyEnabled,
-                @Nullable ObservableStateStore stateStore,
+                @Nullable StateStore stateStore,
                 @Nullable QuotaManager animationQuotaManager,
                 @Nullable TimeGateway timeGateway,
                 @Nullable SensorGateway sensorGateway) {
@@ -157,7 +156,7 @@ public class DynamicTypeEvaluator implements AutoCloseable {
         /** Builds a {@link DynamicTypeEvaluator.Config}. */
         public static final class Builder {
             private boolean mPlatformDataSourcesInitiallyEnabled = false;
-            @Nullable private ObservableStateStore mStateStore = null;
+            @Nullable private StateStore mStateStore = null;
             @Nullable private QuotaManager mAnimationQuotaManager = null;
             @Nullable private TimeGateway mTimeGateway = null;
             @Nullable private SensorGateway mSensorGateway = null;
@@ -183,7 +182,7 @@ public class DynamicTypeEvaluator implements AutoCloseable {
              * will trigger {@link DynamicTypeValueReceiver#onInvalidated()}).
              */
             @NonNull
-            public Builder setStateStore(@NonNull ObservableStateStore value) {
+            public Builder setStateStore(@NonNull StateStore value) {
                 mStateStore = value;
                 return this;
             }
@@ -251,7 +250,7 @@ public class DynamicTypeEvaluator implements AutoCloseable {
          * trigger {@link DynamicTypeValueReceiver#onInvalidated()}).
          */
         @Nullable
-        public ObservableStateStore getStateStore() {
+        public StateStore getStateStore() {
             return mStateStore;
         }
 

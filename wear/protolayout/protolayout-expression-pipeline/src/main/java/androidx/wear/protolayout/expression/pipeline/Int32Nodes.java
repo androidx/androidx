@@ -168,11 +168,11 @@ class Int32Nodes {
     static class StateInt32SourceNode extends StateSourceNode<Integer> {
 
         StateInt32SourceNode(
-                ObservableStateStore observableStateStore,
+                StateStore stateStore,
                 StateInt32Source protoNode,
                 DynamicTypeValueReceiver<Integer> downstream) {
             super(
-                    observableStateStore,
+                    stateStore,
                     protoNode.getSourceKey(),
                     se -> se.getInt32Val().getValue(),
                     downstream);

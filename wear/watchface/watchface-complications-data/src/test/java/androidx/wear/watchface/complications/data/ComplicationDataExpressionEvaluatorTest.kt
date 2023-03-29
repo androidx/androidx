@@ -23,7 +23,7 @@ import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue
-import androidx.wear.protolayout.expression.pipeline.ObservableStateStore
+import androidx.wear.protolayout.expression.pipeline.StateStore
 import androidx.wear.protolayout.expression.pipeline.TimeGateway
 import androidx.wear.watchface.complications.data.ComplicationDataExpressionEvaluator.Companion.INVALID_DATA
 import androidx.wear.watchface.complications.data.ComplicationDataExpressionEvaluator.Companion.hasExpression
@@ -203,7 +203,8 @@ class ComplicationDataExpressionEvaluatorTest {
         for (scenario in DataWithExpressionScenario.values()) {
             // Defensive copy due to in-place evaluation.
             val expressed = WireComplicationData.Builder(scenario.expressed).build()
-            val stateStore = ObservableStateStore(mapOf())
+            val stateStore =
+                StateStore(mapOf())
             val evaluator = ComplicationDataExpressionEvaluator(stateStore)
             val allEvaluations =
                 evaluator

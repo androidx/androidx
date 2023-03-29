@@ -72,8 +72,8 @@ public class StringNodesTest {
     @Test
     public void stateStringNodeTest() {
         List<String> results = new ArrayList<>();
-        ObservableStateStore oss =
-                new ObservableStateStore(
+        StateStore oss =
+                new StateStore(
                         ImmutableMap.of(
                                 "foo",
                                 StateEntryValue.newBuilder()
@@ -93,8 +93,8 @@ public class StringNodesTest {
     @Test
     public void stateStringUpdatesWithStateChanges() {
         List<String> results = new ArrayList<>();
-        ObservableStateStore oss =
-                new ObservableStateStore(
+        StateStore oss =
+                new StateStore(
                         ImmutableMap.of(
                                 "foo",
                                 StateEntryValue.newBuilder()
@@ -123,8 +123,8 @@ public class StringNodesTest {
     @Test
     public void stateStringNoUpdatesAfterDestroy() {
         List<String> results = new ArrayList<>();
-        ObservableStateStore oss =
-                new ObservableStateStore(
+        StateStore oss =
+                new StateStore(
                         ImmutableMap.of(
                                 "foo",
                                 StateEntryValue.newBuilder()

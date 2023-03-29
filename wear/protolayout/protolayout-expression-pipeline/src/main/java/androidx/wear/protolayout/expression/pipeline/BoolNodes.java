@@ -59,7 +59,7 @@ class BoolNodes {
     /** Dynamic boolean node that gets value from the state. */
     static class StateBoolNode extends StateSourceNode<Boolean> {
         StateBoolNode(
-                ObservableStateStore stateStore,
+                StateStore stateStore,
                 StateBoolSource protoNode,
                 DynamicTypeValueReceiver<Boolean> downstream) {
             super(

@@ -39,11 +39,11 @@ import org.mockito.InOrder;
 import org.mockito.Mockito;
 
 @RunWith(AndroidJUnit4.class)
-public class ObservableStateStoreTest {
+public class StateStoreTest {
     @Rule public Expect mExpect = Expect.create();
 
-    private final ObservableStateStore mStateStoreUnderTest =
-            new ObservableStateStore(
+    private final StateStore mStateStoreUnderTest =
+            new StateStore(
                     ImmutableMap.of(
                             "foo", buildStateEntry("bar"),
                             "baz", buildStateEntry("foobar")));
