@@ -388,8 +388,8 @@ fun ElevatedFilterChip(
  * Input chips should appear in a set and can be horizontally scrollable:
  * @sample androidx.compose.material3.samples.ChipGroupSingleLineSample
  *
- * Alternatively, use Accompanist's [Flow Layouts](https://google.github.io/accompanist/flowlayout/)
- * to wrap chips to a new line.
+ * Alternatively, use [androidx.compose.foundation.layout.FlowRow] to wrap chips to a new line.
+ * @sample androidx.compose.material3.samples.ChipGroupReflowSample
  *
  * @param selected whether this chip is selected or not
  * @param onClick called when this chip is clicked

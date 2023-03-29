@@ -34,6 +34,7 @@ import androidx.compose.material3.samples.ButtonWithIconSample
 import androidx.compose.material3.samples.CardSample
 import androidx.compose.material3.samples.CheckboxSample
 import androidx.compose.material3.samples.CheckboxWithTextSample
+import androidx.compose.material3.samples.ChipGroupReflowSample
 import androidx.compose.material3.samples.ChipGroupSingleLineSample
 import androidx.compose.material3.samples.CircularProgressIndicatorSample
 import androidx.compose.material3.samples.ClickableCardSample
@@ -369,6 +370,13 @@ val ChipsExamples = listOf(
         sourceUrl = ChipsExampleSourceUrl
     ) {
         ChipGroupSingleLineSample()
+    },
+    Example(
+        name = ::ChipGroupReflowSample.name,
+        description = ChipsExampleDescription,
+        sourceUrl = ChipsExampleSourceUrl
+    ) {
+        ChipGroupReflowSample()
     }
 )
 
