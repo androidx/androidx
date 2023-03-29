@@ -79,7 +79,9 @@ object DeviceQuirksLoader {
         if (TorchIsClosedAfterImageCapturingQuirk.isEnabled()) {
             quirks.add(TorchIsClosedAfterImageCapturingQuirk())
         }
-
+        if (SurfaceOrderQuirk.load()) {
+            quirks.add(SurfaceOrderQuirk())
+        }
         return quirks
     }
 }
