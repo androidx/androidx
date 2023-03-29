@@ -13,14 +13,14 @@ package androidx.health.connect.client {
     method @androidx.core.os.BuildCompat.PrereleaseSdkCheck public default static androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context, optional String providerPackageName);
     method @androidx.core.os.BuildCompat.PrereleaseSdkCheck public default static androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context);
     method public androidx.health.connect.client.PermissionController getPermissionController();
+    method @androidx.core.os.BuildCompat.PrereleaseSdkCheck public default static int getSdkStatus(android.content.Context context, optional String providerPackageName);
+    method @androidx.core.os.BuildCompat.PrereleaseSdkCheck public default static int getSdkStatus(android.content.Context context);
     method public suspend Object? insertRecords(java.util.List<? extends androidx.health.connect.client.records.Record> records, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.InsertRecordsResponse>);
     method @Deprecated public default static boolean isApiSupported();
     method @Deprecated @androidx.core.os.BuildCompat.PrereleaseSdkCheck public default static boolean isProviderAvailable(android.content.Context context, optional String providerPackageName);
     method @Deprecated @androidx.core.os.BuildCompat.PrereleaseSdkCheck public default static boolean isProviderAvailable(android.content.Context context);
     method public suspend <T extends androidx.health.connect.client.records.Record> Object? readRecord(kotlin.reflect.KClass<T> recordType, String recordId, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ReadRecordResponse<T>>);
     method public suspend <T extends androidx.health.connect.client.records.Record> Object? readRecords(androidx.health.connect.client.request.ReadRecordsRequest<T> request, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ReadRecordsResponse<T>>);
-    method @androidx.core.os.BuildCompat.PrereleaseSdkCheck public default static int sdkStatus(android.content.Context context, optional String providerPackageName);
-    method @androidx.core.os.BuildCompat.PrereleaseSdkCheck public default static int sdkStatus(android.content.Context context);
     method public suspend Object? updateRecords(java.util.List<? extends androidx.health.connect.client.records.Record> records, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property @androidx.core.os.BuildCompat.PrereleaseSdkCheck public default static String ACTION_HEALTH_CONNECT_SETTINGS;
     property public abstract androidx.health.connect.client.PermissionController permissionController;
@@ -34,11 +34,11 @@ package androidx.health.connect.client {
     method @androidx.core.os.BuildCompat.PrereleaseSdkCheck public String getHealthConnectSettingsAction();
     method @androidx.core.os.BuildCompat.PrereleaseSdkCheck public androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context, optional String providerPackageName);
     method @androidx.core.os.BuildCompat.PrereleaseSdkCheck public androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context);
+    method @androidx.core.os.BuildCompat.PrereleaseSdkCheck public int getSdkStatus(android.content.Context context, optional String providerPackageName);
+    method @androidx.core.os.BuildCompat.PrereleaseSdkCheck public int getSdkStatus(android.content.Context context);
     method @Deprecated public boolean isApiSupported();
     method @Deprecated @androidx.core.os.BuildCompat.PrereleaseSdkCheck public boolean isProviderAvailable(android.content.Context context, optional String providerPackageName);
     method @Deprecated @androidx.core.os.BuildCompat.PrereleaseSdkCheck public boolean isProviderAvailable(android.content.Context context);
-    method @androidx.core.os.BuildCompat.PrereleaseSdkCheck public int sdkStatus(android.content.Context context, optional String providerPackageName);
-    method @androidx.core.os.BuildCompat.PrereleaseSdkCheck public int sdkStatus(android.content.Context context);
     property @androidx.core.os.BuildCompat.PrereleaseSdkCheck public final String ACTION_HEALTH_CONNECT_SETTINGS;
     field public static final int SDK_AVAILABLE = 3; // 0x3
     field public static final int SDK_UNAVAILABLE = 1; // 0x1
