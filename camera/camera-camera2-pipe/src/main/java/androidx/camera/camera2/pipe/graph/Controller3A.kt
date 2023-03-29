@@ -37,6 +37,7 @@ import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_FRAME_LIMIT
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.FlashMode
+import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.Result3A.Status
@@ -247,6 +248,8 @@ internal class Controller3A(
         afLockBehavior: Lock3ABehavior? = null,
         awbLockBehavior: Lock3ABehavior? = null,
         afTriggerStartAeMode: AeMode? = null,
+        convergedCondition: ((FrameMetadata) -> Boolean)? = null,
+        lockedCondition: ((FrameMetadata) -> Boolean)? = null,
         frameLimit: Int = DEFAULT_FRAME_LIMIT,
         timeLimitNs: Long? = DEFAULT_TIME_LIMIT_NS
     ): Deferred<Result3A> {
@@ -283,12 +286,11 @@ internal class Controller3A(
             afLockBehaviorSanitized.shouldWaitForAfToConverge() ||
             awbLockBehavior.shouldWaitForAwbToConverge()
         ) {
-            val converged3AExitConditions =
-                createConverged3AExitConditions(
-                    aeLockBehavior.shouldWaitForAeToConverge(),
-                    afLockBehaviorSanitized.shouldWaitForAfToConverge(),
-                    awbLockBehavior.shouldWaitForAwbToConverge()
-                )
+            val converged3AExitConditions = convergedCondition ?: createConverged3AExitConditions(
+                aeLockBehavior.shouldWaitForAeToConverge(),
+                afLockBehaviorSanitized.shouldWaitForAfToConverge(),
+                awbLockBehavior.shouldWaitForAwbToConverge()
+            ).toConditionChecker()
             val listener =
                 Result3AStateListenerImpl(converged3AExitConditions, frameLimit, timeLimitNs)
             graphListener3A.addListener(listener)
@@ -330,6 +332,7 @@ internal class Controller3A(
             afLockBehaviorSanitized,
             awbLockBehavior,
             afTriggerStartAeMode,
+            lockedCondition,
             frameLimit,
             timeLimitNs
         )
@@ -347,6 +350,7 @@ internal class Controller3A(
         ae: Boolean? = null,
         af: Boolean? = null,
         awb: Boolean? = null,
+        unlockedCondition: ((FrameMetadata) -> Boolean)? = null,
         frameLimit: Int = DEFAULT_FRAME_LIMIT,
         timeLimitNs: Long? = DEFAULT_TIME_LIMIT_NS
     ): Deferred<Result3A> {
@@ -372,8 +376,11 @@ internal class Controller3A(
         }
 
         // As needed unlock ae, awb and wait for ae, af and awb to converge.
-        val unlocked3AExitConditions =
-            createUnLocked3AExitConditions(ae == true, afSanitized == true, awb == true)
+        val unlocked3AExitConditions = unlockedCondition ?: createUnLocked3AExitConditions(
+            ae == true,
+            afSanitized == true,
+            awb == true,
+        ).toConditionChecker()
         val listener = Result3AStateListenerImpl(unlocked3AExitConditions, frameLimit, timeLimitNs)
         graphListener3A.addListener(listener)
 
@@ -390,6 +397,7 @@ internal class Controller3A(
     }
 
     suspend fun lock3AForCapture(
+        lockedCondition: ((FrameMetadata) -> Boolean)? = null,
         frameLimit: Int = DEFAULT_FRAME_LIMIT,
         timeLimitNs: Long = DEFAULT_TIME_LIMIT_NS
     ): Deferred<Result3A> {
@@ -399,10 +407,10 @@ internal class Controller3A(
         }
         val listener =
             Result3AStateListenerImpl(
-                mapOf<CaptureResult.Key<*>, List<Any>>(
+                lockedCondition ?: mapOf<CaptureResult.Key<*>, List<Any>>(
                     CaptureResult.CONTROL_AE_STATE to aePostPrecaptureStateList,
                     CaptureResult.CONTROL_AF_STATE to afLockedStateList
-                ),
+                ).toConditionChecker(),
                 frameLimit,
                 timeLimitNs
             )
@@ -523,6 +531,7 @@ internal class Controller3A(
         afLockBehavior: Lock3ABehavior?,
         awbLockBehavior: Lock3ABehavior?,
         afTriggerStartAeMode: AeMode? = null,
+        lockedCondition: ((FrameMetadata) -> Boolean)?,
         frameLimit: Int?,
         timeLimitNs: Long?
     ): Deferred<Result3A> {
@@ -534,9 +543,10 @@ internal class Controller3A(
             )
 
         var resultForLocked: Deferred<Result3A>? = null
-        if (locked3AExitConditions.isNotEmpty()) {
+        if (lockedCondition != null || locked3AExitConditions.isNotEmpty()) {
+            val exitCondition = lockedCondition ?: locked3AExitConditions.toConditionChecker()
             val listener =
-                Result3AStateListenerImpl(locked3AExitConditions, frameLimit, timeLimitNs)
+                Result3AStateListenerImpl(exitCondition, frameLimit, timeLimitNs)
             graphListener3A.addListener(listener)
             graphState3A.update(aeLock = finalAeLockValue, awbLock = finalAwbLockValue)
             debug {
