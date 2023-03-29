@@ -241,14 +241,42 @@ public final class AudioSource {
      * is called.
      * <li>Trigger {@link AudioSourceCallback#onSilenceStateChanged(boolean)} with {@code true}
      * on the first failure and {@code false} on the successful retry.</li>
+     *
+     * <p>Use {@link #mute(boolean)} to mute the audio source before starting it. If not call,
+     * the audio source will be started unmuted by default.
      */
     public void start() {
+        mExecutor.execute(() -> start(mMuted));
+    }
+
+    /**
+     * Starts the AudioSource.
+     *
+     * <p>Before starting, a {@link BufferProvider} should be set with
+     * {@link #setBufferProvider(BufferProvider)}. If a buffer provider is not set, audio data
+     * will be dropped.
+     *
+     * <p>Audio data will start being sent to the {@link BufferProvider} when
+     * {@link BufferProvider}'s state is {@link BufferProvider.State#ACTIVE}.
+     *
+     * <p>If the AudioSource fails to start, instead of firing
+     * {@link AudioSourceCallback#onError(Throwable)}, it will
+     * <li>Retry internally with a fixed interval.</li>
+     * <li>Write silent audio to the BufferProvider until a successful retry or {@link #stop()}
+     * is called.
+     * <li>Trigger {@link AudioSourceCallback#onSilenceStateChanged(boolean, int)} with {@code true}
+     * on the first failure and {@code false} on the successful retry.</li>
+     *
+     * @param muted {@code true} to start the audio source muted, otherwise {@code false}.
+     */
+    public void start(boolean muted) {
         mExecutor.execute(() -> {
             switch (mState) {
                 case CONFIGURED:
                     mNotifiedSilenceState.set(null);
                     mNotifiedSuspendState.set(false);
                     setState(STARTED);
+                    mute(muted);
                     updateSendingAudio();
                     break;
                 case STARTED:

@@ -93,8 +93,13 @@ public abstract class AudioStats {
      */
     public static final int AUDIO_STATE_SOURCE_ERROR = 4;
 
+    /**
+     * The recording is muted by {@link Recording#mute(boolean)}.
+     */
+    public static final int AUDIO_STATE_MUTED = 5;
+
     @IntDef({AUDIO_STATE_ACTIVE, AUDIO_STATE_DISABLED, AUDIO_STATE_SOURCE_SILENCED,
-            AUDIO_STATE_ENCODER_ERROR, AUDIO_STATE_SOURCE_ERROR})
+            AUDIO_STATE_ENCODER_ERROR, AUDIO_STATE_SOURCE_ERROR, AUDIO_STATE_MUTED})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public @interface AudioState {
