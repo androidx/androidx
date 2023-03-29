@@ -121,7 +121,9 @@ fun ModalNavigationDrawer(
             drawerState = drawerState,
             sizeAnimationFinishedListener = { _, targetSize ->
                 if (drawerState.currentValue == DrawerValue.Closed) {
-                    closedDrawerWidth.value = targetSize.width.dp
+                    with(localDensity) {
+                        closedDrawerWidth.value = targetSize.width.toDp()
+                    }
                 }
             },
             content = drawerContent
@@ -278,7 +280,7 @@ private fun DrawerSheet(
 ) {
     // indicates that the drawer has been set to its initial state and has grabbed focus if
     // necessary. Controls whether focus is used to decide the state of the drawer going forward.
-    var initializationComplete: Boolean = remember { false }
+    var initializationComplete: Boolean by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     var focusState by remember { mutableStateOf<FocusState?>(null) }
 
