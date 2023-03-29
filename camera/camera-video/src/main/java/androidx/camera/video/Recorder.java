@@ -1039,8 +1039,8 @@ public final class Recorder implements VideoOutput {
                 (transformationInfo) -> mSurfaceTransformationInfo = transformationInfo);
         Size surfaceSize = surfaceRequest.getResolution();
         // Fetch and cache nearest encoder profiles, if one exists.
-        VideoCapabilities capabilities =
-                VideoCapabilities.from(surfaceRequest.getCamera().getCameraInfo());
+        LegacyVideoCapabilities capabilities =
+                LegacyVideoCapabilities.from(surfaceRequest.getCamera().getCameraInfo());
         Quality highestSupportedQuality = capabilities.findHighestSupportedQualityFor(surfaceSize);
         Logger.d(TAG, "Using supported quality of " + highestSupportedQuality
                 + " for surface size " + surfaceSize);

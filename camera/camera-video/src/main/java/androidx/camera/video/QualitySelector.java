@@ -96,7 +96,7 @@ public final class QualitySelector {
      */
     @NonNull
     public static List<Quality> getSupportedQualities(@NonNull CameraInfo cameraInfo) {
-        return VideoCapabilities.from(cameraInfo).getSupportedQualities();
+        return LegacyVideoCapabilities.from(cameraInfo).getSupportedQualities();
     }
 
     /**
@@ -119,7 +119,7 @@ public final class QualitySelector {
      */
     public static boolean isQualitySupported(@NonNull CameraInfo cameraInfo,
             @NonNull Quality quality) {
-        return VideoCapabilities.from(cameraInfo).isQualitySupported(quality);
+        return LegacyVideoCapabilities.from(cameraInfo).isQualitySupported(quality);
     }
 
     /**
@@ -141,7 +141,7 @@ public final class QualitySelector {
     public static Size getResolution(@NonNull CameraInfo cameraInfo, @NonNull Quality quality) {
         checkQualityConstantsOrThrow(quality);
         VideoValidatedEncoderProfilesProxy profiles =
-                VideoCapabilities.from(cameraInfo).getProfiles(quality);
+                LegacyVideoCapabilities.from(cameraInfo).getProfiles(quality);
         return profiles != null ? getProfileVideoSize(profiles) : null;
     }
 
@@ -153,7 +153,7 @@ public final class QualitySelector {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull
     public static Map<Quality, Size> getQualityToResolutionMap(@NonNull CameraInfo cameraInfo) {
-        VideoCapabilities videoCapabilities = VideoCapabilities.from(cameraInfo);
+        LegacyVideoCapabilities videoCapabilities = LegacyVideoCapabilities.from(cameraInfo);
         Map<Quality, Size> map = new HashMap<>();
         for (Quality supportedQuality : videoCapabilities.getSupportedQualities()) {
             map.put(supportedQuality, getProfileVideoSize(
@@ -274,7 +274,7 @@ public final class QualitySelector {
      */
     @NonNull
     List<Quality> getPrioritizedQualities(@NonNull CameraInfo cameraInfo) {
-        VideoCapabilities videoCapabilities = VideoCapabilities.from(cameraInfo);
+        LegacyVideoCapabilities videoCapabilities = LegacyVideoCapabilities.from(cameraInfo);
 
         List<Quality> supportedQualities = videoCapabilities.getSupportedQualities();
         if (supportedQualities.isEmpty()) {
