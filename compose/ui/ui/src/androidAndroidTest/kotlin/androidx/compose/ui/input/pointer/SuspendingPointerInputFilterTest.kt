@@ -20,11 +20,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.platform.debugInspectorInfo
@@ -75,32 +73,31 @@ class SuspendingPointerInputFilterTest {
         val emitter = PointerInputChangeEmitter()
         val expectedChange = emitter.nextChange(Offset(5f, 5f))
 
-        // Used to manually trigger a PointerEvent created from our PointerInputChange.
-        var testSuspendPointerInputModifierNodeElement:
-            TestSuspendPointerInputModifierNodeElement? = null
         var returnedChange: PointerEvent? = null
 
-        rule.setContent {
-            testSuspendPointerInputModifierNodeElement = Modifier.customTestingPointerInput(Unit) {
-                awaitPointerEventScope {
-                    returnedChange = awaitPointerEvent()
-                    latch.countDown()
-                }
-            } as TestSuspendPointerInputModifierNodeElement
+        // Used to manually trigger a PointerEvent created from our PointerInputChange.
+        val suspendingPointerInputModifierNode = SuspendingPointerInputModifierNode {
+            awaitPointerEventScope {
+                returnedChange = awaitPointerEvent()
+                latch.countDown()
+            }
+        }
 
+        rule.setContent {
             Box(
-                modifier = testSuspendPointerInputModifierNodeElement!!
+                modifier = elementFor(
+                    key1 = Unit,
+                    instance = suspendingPointerInputModifierNode as Modifier.Node
+                )
             )
         }
 
         rule.runOnIdle {
-            testSuspendPointerInputModifierNodeElement?.let {
-                it.pointerInputModifierNode?.onPointerEvent(
-                    expectedChange.toPointerEvent(),
-                    PointerEventPass.Main,
-                    IntSize(10, 10)
-                )
-            }
+            suspendingPointerInputModifierNode.onPointerEvent(
+                expectedChange.toPointerEvent(),
+                PointerEventPass.Main,
+                IntSize(10, 10)
+            )
         }
 
         rule.runOnIdle {
@@ -116,22 +113,22 @@ class SuspendingPointerInputFilterTest {
         val results = Channel<PointerEvent>(Channel.UNLIMITED)
 
         // Used to manually trigger a PointerEvent(s) created from our PointerInputChange(s).
-        var testSuspendPointerInputModifierNodeElement:
-            TestSuspendPointerInputModifierNodeElement? = null
+        val suspendingPointerInputModifierNode = SuspendingPointerInputModifierNode {
+            awaitPointerEventScope {
+                repeat(3) {
+                    results.trySend(awaitPointerEvent())
+                    latch.countDown()
+                }
+                results.close()
+            }
+        }
 
         rule.setContent {
-            testSuspendPointerInputModifierNodeElement = Modifier.customTestingPointerInput(Unit) {
-                awaitPointerEventScope {
-                    repeat(3) {
-                        results.trySend(awaitPointerEvent())
-                        latch.countDown()
-                    }
-                    results.close()
-                }
-            } as TestSuspendPointerInputModifierNodeElement
-
             Box(
-                modifier = testSuspendPointerInputModifierNodeElement!!
+                modifier = elementFor(
+                    key1 = Unit,
+                    instance = suspendingPointerInputModifierNode as Modifier.Node
+                )
             )
         }
 
@@ -146,13 +143,11 @@ class SuspendingPointerInputFilterTest {
 
         rule.runOnIdle {
             expected.forEach { pointerInputChange ->
-                testSuspendPointerInputModifierNodeElement?.let { testerNodeElement ->
-                    testerNodeElement.pointerInputModifierNode?.onPointerEvent(
-                        pointerInputChange.toPointerEvent(),
-                        PointerEventPass.Main,
-                        bounds
-                    )
-                }
+                suspendingPointerInputModifierNode.onPointerEvent(
+                    pointerInputChange.toPointerEvent(),
+                    PointerEventPass.Main,
+                    bounds
+                )
             }
         }
 
@@ -178,26 +173,26 @@ class SuspendingPointerInputFilterTest {
         val results = Channel<PointerEvent>(Channel.UNLIMITED)
 
         // Used to manually trigger a PointerEvent(s) created from our PointerInputChange(s).
-        var testSuspendPointerInputModifierNodeElement:
-            TestSuspendPointerInputModifierNodeElement? = null
+        val suspendingPointerInputModifierNode = SuspendingPointerInputModifierNode {
+            awaitPointerEventScope {
+                try {
+                    repeat(3) {
+                        results.trySend(awaitPointerEvent())
+                        latch.countDown()
+                    }
+                    results.close()
+                } finally {
+                    currentEventAtEnd = currentEvent
+                }
+            }
+        }
 
         rule.setContent {
-            testSuspendPointerInputModifierNodeElement = Modifier.customTestingPointerInput(Unit) {
-                awaitPointerEventScope {
-                    try {
-                        repeat(3) {
-                            results.trySend(awaitPointerEvent())
-                            latch.countDown()
-                        }
-                        results.close()
-                    } finally {
-                        currentEventAtEnd = currentEvent
-                    }
-                }
-            } as TestSuspendPointerInputModifierNodeElement
-
             Box(
-                modifier = testSuspendPointerInputModifierNodeElement!!
+                modifier = elementFor(
+                    key1 = Unit,
+                    instance = suspendingPointerInputModifierNode as Modifier.Node
+                )
             )
         }
 
@@ -250,34 +245,30 @@ class SuspendingPointerInputFilterTest {
 
         rule.runOnIdle {
             expectedEvents.take(expectedEvents.size - 1).forEach { pointerEvent ->
-                testSuspendPointerInputModifierNodeElement?.let { testerNodeElement ->
-                    // Initial
-                    testerNodeElement.pointerInputModifierNode?.onPointerEvent(
-                        pointerEvent,
-                        PointerEventPass.Initial,
-                        bounds
-                    )
+                // Initial
+                suspendingPointerInputModifierNode.onPointerEvent(
+                    pointerEvent,
+                    PointerEventPass.Initial,
+                    bounds
+                )
 
-                    // Main
-                    testerNodeElement.pointerInputModifierNode?.onPointerEvent(
-                        pointerEvent,
-                        PointerEventPass.Main,
-                        bounds
-                    )
+                // Main
+                suspendingPointerInputModifierNode.onPointerEvent(
+                    pointerEvent,
+                    PointerEventPass.Main,
+                    bounds
+                )
 
-                    // Final
-                    testerNodeElement.pointerInputModifierNode?.onPointerEvent(
-                        pointerEvent,
-                        PointerEventPass.Final,
-                        bounds
-                    )
-                }
+                // Final
+                suspendingPointerInputModifierNode.onPointerEvent(
+                    pointerEvent,
+                    PointerEventPass.Final,
+                    bounds
+                )
             }
 
             // Triggers cancel event
-            testSuspendPointerInputModifierNodeElement?.let { testerNodeElement ->
-                testerNodeElement.pointerInputModifierNode?.onCancelPointerInput()
-            }
+            suspendingPointerInputModifierNode.onCancelPointerInput()
         }
 
         // Checks events triggered are the correct ones
@@ -309,32 +300,32 @@ class SuspendingPointerInputFilterTest {
         val results = Channel<PointerEvent>(Channel.UNLIMITED)
 
         // Used to manually trigger a PointerEvent(s) created from our PointerInputChange(s).
-        var testSuspendPointerInputModifierNodeElement:
-            TestSuspendPointerInputModifierNodeElement? = null
+        val suspendingPointerInputModifierNode = SuspendingPointerInputModifierNode {
+            awaitPointerEventScope {
+                try {
+                    // NOTE: This will never trigger 3 times. There are only two events
+                    // triggered followed by a onCancelPointerInput() call which doesn't trigger
+                    // an event because the previous event has down (press) set to false, so we
+                    // will always get an exception thrown with the last repeat's timeout
+                    // (we expect this).
+                    repeat(3) {
+                        withTimeout(200) {
+                            results.trySend(awaitPointerEvent())
+                        }
+                    }
+                } finally {
+                    currentEventAtEnd = currentEvent
+                    results.close()
+                }
+            }
+        }
 
         rule.setContent {
-            testSuspendPointerInputModifierNodeElement = Modifier.customTestingPointerInput(Unit) {
-                awaitPointerEventScope {
-                    try {
-                        // NOTE: This will never trigger 3 times. There are only two events
-                        // triggered followed by a onCancelPointerInput() call which doesn't trigger
-                        // an event because the previous event has down (press) set to false, so we
-                        // will always get an exception thrown with the last repeat's timeout
-                        // (we expect this).
-                        repeat(3) {
-                            withTimeout(200) {
-                                results.trySend(awaitPointerEvent())
-                            }
-                        }
-                    } finally {
-                        currentEventAtEnd = currentEvent
-                        results.close()
-                    }
-                }
-            } as TestSuspendPointerInputModifierNodeElement
-
             Box(
-                modifier = testSuspendPointerInputModifierNodeElement!!
+                modifier = elementFor(
+                    key1 = Unit,
+                    instance = suspendingPointerInputModifierNode as Modifier.Node
+                )
             )
         }
 
@@ -359,36 +350,32 @@ class SuspendingPointerInputFilterTest {
 
         rule.runOnIdle {
             twoExpectedEvents.forEach { pointerEvent ->
-                testSuspendPointerInputModifierNodeElement?.let { testerNodeElement ->
-                    // Initial
-                    testerNodeElement.pointerInputModifierNode?.onPointerEvent(
-                        pointerEvent,
-                        PointerEventPass.Initial,
-                        bounds
-                    )
+                // Initial
+                suspendingPointerInputModifierNode.onPointerEvent(
+                    pointerEvent,
+                    PointerEventPass.Initial,
+                    bounds
+                )
 
-                    // Main
-                    testerNodeElement.pointerInputModifierNode?.onPointerEvent(
-                        pointerEvent,
-                        PointerEventPass.Main,
-                        bounds
-                    )
+                // Main
+                suspendingPointerInputModifierNode.onPointerEvent(
+                    pointerEvent,
+                    PointerEventPass.Main,
+                    bounds
+                )
 
-                    // Final
-                    testerNodeElement.pointerInputModifierNode?.onPointerEvent(
-                        pointerEvent,
-                        PointerEventPass.Final,
-                        bounds
-                    )
-                }
+                // Final
+                suspendingPointerInputModifierNode.onPointerEvent(
+                    pointerEvent,
+                    PointerEventPass.Final,
+                    bounds
+                )
             }
 
             // Manually triggers cancel event.
             // Note: This will not trigger an event in the customPointerInput block because the
             // previous events don't have any pressed pointers.
-            testSuspendPointerInputModifierNodeElement?.let { testerNodeElement ->
-                testerNodeElement.pointerInputModifierNode?.onCancelPointerInput()
-            }
+            suspendingPointerInputModifierNode.onCancelPointerInput()
         }
 
         rule.mainClock.advanceTimeBy(1000)
@@ -422,40 +409,40 @@ class SuspendingPointerInputFilterTest {
         val counter = TestCounter()
 
         // Used to manually trigger a PointerEvent(s) created from our PointerInputChange(s).
-        var testSuspendPointerInputModifierNodeElement:
-            TestSuspendPointerInputModifierNodeElement? = null
+        val suspendingPointerInputModifierNode = SuspendingPointerInputModifierNode {
+            try {
+                awaitPointerEventScope {
+                    try {
+                        counter.expect(3, "about to call awaitPointerEvent")
+
+                        // With only one event triggered, this will stay stuck in the repeat
+                        // block until the Job is cancelled via
+                        // SuspendPointerInputModifierNode.resetHandling()
+                        repeat(2) {
+                            awaitPointerEvent()
+                            counter.expect(
+                                4,
+                                "One and only pointer event triggered to create Job."
+                            )
+                        }
+
+                        fail("awaitPointerEvent returned; should have thrown for cancel")
+                    } finally {
+                        counter.expect(6, "inner finally block running")
+                    }
+                }
+            } finally {
+                counter.expect(7, "outer finally block running; inner " +
+                    "finally should have run")
+            }
+        }
 
         rule.setContent {
-            testSuspendPointerInputModifierNodeElement = Modifier.customTestingPointerInput(Unit) {
-                try {
-                    awaitPointerEventScope {
-                        try {
-                            counter.expect(3, "about to call awaitPointerEvent")
-
-                            // With only one event triggered, this will stay stuck in the repeat
-                            // block until the Job is cancelled via
-                            // SuspendPointerInputModifierNode.resetHandling()
-                            repeat(2) {
-                                awaitPointerEvent()
-                                counter.expect(
-                                    4,
-                                    "One and only pointer event triggered to create Job."
-                                )
-                            }
-
-                            fail("awaitPointerEvent returned; should have thrown for cancel")
-                        } finally {
-                            counter.expect(6, "inner finally block running")
-                        }
-                    }
-                } finally {
-                    counter.expect(7, "outer finally block running; inner " +
-                        "finally should have run")
-                }
-            } as TestSuspendPointerInputModifierNodeElement
-
             Box(
-                modifier = testSuspendPointerInputModifierNodeElement!!
+                modifier = elementFor(
+                    key1 = Unit,
+                    instance = suspendingPointerInputModifierNode as Modifier.Node
+                )
             )
         }
 
@@ -470,25 +457,23 @@ class SuspendingPointerInputFilterTest {
                     "be suspended"
             )
 
-            testSuspendPointerInputModifierNodeElement?.let { testerNodeElement ->
-                counter.expect(
-                    2,
-                    "Trigger pointer input event to create Job for handing handle pointer" +
-                        " input (done lazily in SuspendPointerInputModifierNode)."
-                )
+            counter.expect(
+                2,
+                "Trigger pointer input event to create Job for handing handle pointer" +
+                    " input (done lazily in SuspendPointerInputModifierNode)."
+            )
 
-                testerNodeElement.pointerInputModifierNode?.onPointerEvent(
-                    singleEvent.toPointerEvent(),
-                    PointerEventPass.Main,
-                    singleEventBounds
-                )
-            }
+            suspendingPointerInputModifierNode.onPointerEvent(
+                singleEvent.toPointerEvent(),
+                PointerEventPass.Main,
+                singleEventBounds
+            )
 
             counter.expect(5, "before cancelling handler; awaitPointerEvent " +
                 "should be suspended")
 
             // Cancels Job that manages pointer input events in SuspendPointerInputModifierNode.
-            testSuspendPointerInputModifierNodeElement?.resetsPointerInputBlockHandler()
+            suspendingPointerInputModifierNode.resetPointerInputHandler()
             counter.expect(8, "after cancelling; finally blocks should have run")
         }
     }
@@ -499,9 +484,10 @@ class SuspendingPointerInputFilterTest {
         isDebugInspectorInfoEnabled = true
 
         rule.setContent {
-            val block: suspend PointerInputScope.() -> Unit = {}
+            val pointerInputHandler: suspend PointerInputScope.() -> Unit = {}
             val modifier =
-                Modifier.pointerInput(Unit, block) as SuspendPointerInputModifierNodeElement
+                Modifier.pointerInput(Unit, pointerInputHandler)
+                    as SuspendPointerInputModifierNodeElement
 
             assertThat(modifier.nameFallback).isEqualTo("pointerInput")
             assertThat(modifier.valueOverride).isNull()
@@ -509,7 +495,7 @@ class SuspendingPointerInputFilterTest {
                 ValueElement("key1", Unit),
                 ValueElement("key2", null),
                 ValueElement("keys", null),
-                ValueElement("block", block)
+                ValueElement("pointerInputHandler", pointerInputHandler)
             )
         }
     }
@@ -520,27 +506,28 @@ class SuspendingPointerInputFilterTest {
         val emitter = PointerInputChangeEmitter()
         val expectedChange = emitter.nextChange(Offset(5f, 5f))
 
-        // Used to manually trigger a PointerEvent created from our PointerInputChange.
-        var testSuspendPointerInputModifierNodeElement:
-            TestSuspendPointerInputModifierNodeElement? = null
-
         var forceRecompositionCount by mutableStateOf(0)
         var compositionCount = 0
         var pointerInputBlockExecutionCount = 0
+
+        val suspendingPointerInputModifierNode = SuspendingPointerInputModifierNode {
+            // pointerInput now lazily executes this block of code meaning it won't be
+            // executed until an actual event happens.
+            pointerInputBlockExecutionCount++
+            suspendCancellableCoroutine<Unit> {}
+        }
 
         rule.setContent {
             // Read the value in composition to change the lambda capture below
             val toCapture = forceRecompositionCount
             compositionCount++
 
-            testSuspendPointerInputModifierNodeElement =
-                Modifier.customTestingPointerInput(toCapture) {
-                    // pointerInput now lazily executes this block of code meaning it won't be
-                    // executed until an actual event happens.
-                    pointerInputBlockExecutionCount++
-                    suspendCancellableCoroutine<Unit> {}
-                } as TestSuspendPointerInputModifierNodeElement
-            Box(modifier = testSuspendPointerInputModifierNodeElement!!)
+            Box(
+                modifier = elementFor(
+                    key1 = toCapture,
+                    instance = suspendingPointerInputModifierNode as Modifier.Node
+                )
+            )
         }
 
         forceRecompositionCount = 1
@@ -549,13 +536,11 @@ class SuspendingPointerInputFilterTest {
             // Triggers first and only event (and launches coroutine).
             // Note: SuspendPointerInputModifierNode actually launches its coroutine lazily, so it
             // will not be launched until the first event is triggered which is what we do here.
-            testSuspendPointerInputModifierNodeElement?.let {
-                it.pointerInputModifierNode?.onPointerEvent(
-                    expectedChange.toPointerEvent(),
-                    PointerEventPass.Main,
-                    IntSize(5, 5)
-                )
-            }
+            suspendingPointerInputModifierNode.onPointerEvent(
+                expectedChange.toPointerEvent(),
+                PointerEventPass.Main,
+                IntSize(5, 5)
+            )
         }
 
         rule.runOnIdle {
@@ -602,45 +587,45 @@ class SuspendingPointerInputFilterTest {
         val emitter = PointerInputChangeEmitter()
         val expectedChange = emitter.nextChange(Offset(5f, 5f))
 
-        // Used to manually trigger a PointerEvent created from our PointerInputChange.
-        var testSuspendPointerInputModifierNodeElement:
-            TestSuspendPointerInputModifierNodeElement? = null
+        // Used to manually trigger a PointerEvent(s) created from our PointerInputChange(s).
+        val suspendingPointerInputModifierNode = SuspendingPointerInputModifierNode {
+            awaitPointerEventScope {
+                try {
+                    // Handles first event (needed to trigger the creation of the coroutine
+                    // since it is lazily created).
+                    awaitPointerEvent()
+
+                    // Times out waiting for second event (no second event is triggered in this
+                    // test).
+                    withTimeout(10) {
+                        awaitPointerEvent()
+                    }
+                } catch (exception: Exception) {
+                    assertThat(exception)
+                        .isInstanceOf(PointerEventTimeoutCancellationException::class.java)
+                    latch.countDown()
+                }
+            }
+        }
 
         rule.setContent {
-            testSuspendPointerInputModifierNodeElement = Modifier.customTestingPointerInput(Unit) {
-                awaitPointerEventScope {
-                    try {
-                        // Handles first event (needed to trigger the creation of the coroutine
-                        // since it is lazily created).
-                        awaitPointerEvent()
-
-                        // Times out waiting for second event (no second event is triggered in this
-                        // test).
-                        withTimeout(10) {
-                            awaitPointerEvent()
-                        }
-                    } catch (exception: Exception) {
-                        assertThat(exception)
-                            .isInstanceOf(PointerEventTimeoutCancellationException::class.java)
-                        latch.countDown()
-                    }
-                }
-            } as TestSuspendPointerInputModifierNodeElement
-
-            Box(modifier = testSuspendPointerInputModifierNodeElement!!)
+            Box(
+                modifier = elementFor(
+                    key1 = Unit,
+                    instance = suspendingPointerInputModifierNode as Modifier.Node
+                )
+            )
         }
 
         rule.runOnIdle {
             // Triggers first event (and launches coroutine).
             // Note: SuspendPointerInputModifierNode actually launches its coroutine lazily, so it
             // will not be launched until the first event is triggered which is what we do here.
-            testSuspendPointerInputModifierNodeElement?.let {
-                it.pointerInputModifierNode?.onPointerEvent(
-                    expectedChange.toPointerEvent(),
-                    PointerEventPass.Main,
-                    IntSize(5, 5)
-                )
-            }
+            suspendingPointerInputModifierNode.onPointerEvent(
+                expectedChange.toPointerEvent(),
+                PointerEventPass.Main,
+                IntSize(5, 5)
+            )
         }
 
         rule.mainClock.advanceTimeBy(1000)
@@ -659,34 +644,34 @@ class SuspendingPointerInputFilterTest {
         // Sets an empty default (if not updated to null after call (expected), it will fail).
         var resultOfTimeoutOrNull: PointerEvent? = PointerEvent(listOf())
 
-        // Used to manually trigger a PointerEvent created from our PointerInputChange.
-        var testSuspendPointerInputModifierNodeElement:
-            TestSuspendPointerInputModifierNodeElement? = null
+        // Used to manually trigger a PointerEvent(s) created from our PointerInputChange(s).
+        val suspendingPointerInputModifierNode = SuspendingPointerInputModifierNode {
+            awaitPointerEventScope {
+                try {
+                    // Handles first event (needed to trigger the creation of the coroutine
+                    // since it is lazily created).
+                    awaitPointerEvent()
+
+                    // Times out waiting for second event (no second event is triggered in this
+                    // test).
+                    resultOfTimeoutOrNull = withTimeoutOrNull(10) {
+                        awaitPointerEvent()
+                    }
+                } catch (exception: Exception) {
+                    // An exception should not be raised in this test, but, just in case one is,
+                    // we want to verify it isn't the one withTimeout will usually raise.
+                    assertThat(exception)
+                        .isNotInstanceOf(PointerEventTimeoutCancellationException::class.java)
+                }
+            }
+        }
 
         rule.setContent {
-            testSuspendPointerInputModifierNodeElement = Modifier.customTestingPointerInput(Unit) {
-                awaitPointerEventScope {
-                    try {
-                        // Handles first event (needed to trigger the creation of the coroutine
-                        // since it is lazily created).
-                        awaitPointerEvent()
-
-                        // Times out waiting for second event (no second event is triggered in this
-                        // test).
-                        resultOfTimeoutOrNull = withTimeoutOrNull(10) {
-                            awaitPointerEvent()
-                        }
-                    } catch (exception: Exception) {
-                        // An exception should not be raised in this test, but, just in case one is,
-                        // we want to verify it isn't the one withTimeout will usually raise.
-                        assertThat(exception)
-                            .isNotInstanceOf(PointerEventTimeoutCancellationException::class.java)
-                    }
-                }
-            } as TestSuspendPointerInputModifierNodeElement
-
             Box(
-                modifier = testSuspendPointerInputModifierNodeElement!!
+                modifier = elementFor(
+                    key1 = Unit,
+                    instance = suspendingPointerInputModifierNode as Modifier.Node
+                )
             )
         }
 
@@ -694,13 +679,11 @@ class SuspendingPointerInputFilterTest {
             // Triggers first event (and launches coroutine).
             // Note: SuspendPointerInputModifierNode actually launches its coroutine lazily, so it
             // will not be launched until the first event is triggered which is what we do here.
-            testSuspendPointerInputModifierNodeElement?.let {
-                it.pointerInputModifierNode?.onPointerEvent(
-                    expectedChange.toPointerEvent(),
-                    PointerEventPass.Main,
-                    IntSize(5, 5)
-                )
-            }
+            suspendingPointerInputModifierNode.onPointerEvent(
+                expectedChange.toPointerEvent(),
+                PointerEventPass.Main,
+                IntSize(5, 5)
+            )
         }
 
         rule.mainClock.advanceTimeBy(1000)
@@ -755,75 +738,27 @@ private class TestCounter {
     }
 }
 
-// Customized version of [Modifier.pointerInput] that uses the customized version of the
-// [SuspendPointerInputModifierNodeElement] class below (it allows us to manually trigger
-// [PointerEvent] events.
-internal fun Modifier.customTestingPointerInput(
-    key1: Any?,
-    block: suspend PointerInputScope.() -> Unit
-): Modifier = this then TestSuspendPointerInputModifierNodeElement(
-    key1 = key1,
-    block = block
-)
-
-// Matches [SuspendPointerInputModifierNodeElement] implementation but maintains a reference to a
-// [SuspendPointerInputModifierNode], so we can manually trigger [PointerEvent] events.
-@OptIn(ExperimentalComposeUiApi::class)
-internal class TestSuspendPointerInputModifierNodeElement(
-    val key1: Any? = null,
-    val key2: Any? = null,
-    val keys: Array<out Any?>? = null,
-    val block: suspend PointerInputScope.() -> Unit
-) : ModifierNodeElement<SuspendPointerInputModifierNode>() {
-    private var suspendPointerInputModifierNode: SuspendPointerInputModifierNode? = null
-    var pointerInputModifierNode: PointerInputModifierNode? = null
-
+private fun elementFor(
+    key1: Any? = null,
+    instance: Modifier.Node
+) = object : ModifierNodeElement<Modifier.Node>() {
     override fun InspectorInfo.inspectableProperties() {
         debugInspectorInfo {
             name = "pointerInput"
             properties["key1"] = key1
-            properties["key2"] = key2
-            properties["keys"] = keys
-            properties["block"] = block
+            properties["instance"] = instance
         }
     }
 
-    override fun create(): SuspendPointerInputModifierNode {
-        suspendPointerInputModifierNode = SuspendPointerInputModifierNode(block)
-        pointerInputModifierNode = suspendPointerInputModifierNode
-        return suspendPointerInputModifierNode as SuspendPointerInputModifierNode
-    }
-
-    override fun update(node: SuspendPointerInputModifierNode): SuspendPointerInputModifierNode {
-        node.block = block
-        suspendPointerInputModifierNode = node
-        pointerInputModifierNode = suspendPointerInputModifierNode
-        return suspendPointerInputModifierNode as SuspendPointerInputModifierNode
-    }
-
-    // Cancels Job that manages pointer input events in SuspendPointerInputModifierNode.
-    fun resetsPointerInputBlockHandler() {
-        suspendPointerInputModifierNode?.resetBlock()
-    }
-
+    override fun create() = instance
+    override fun update(node: Modifier.Node) = node
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is SuspendPointerInputModifierNodeElement) return false
         if (key1 != other.key1) return false
-        if (key2 != other.key2) return false
-        if (keys != null) {
-            if (other.keys == null) return false
-            if (!keys.contentEquals(other.keys)) return false
-        } else if (other.keys != null) return false
-        if (block != other.block) return false
         return true
     }
-
     override fun hashCode(): Int {
-        var result = key1?.hashCode() ?: 0
-        result = 31 * result + (key2?.hashCode() ?: 0)
-        result = 31 * result + (keys?.contentHashCode() ?: 0)
-        result = 31 * result + block.hashCode()
-        return result
+        return key1?.hashCode() ?: 0
     }
 }
