@@ -178,6 +178,8 @@ fun <T : View> AndroidView(
  *
  * @sample androidx.compose.ui.samples.ReusableAndroidViewInLazyColumnSample
  *
+ * @sample androidx.compose.ui.samples.AndroidViewWithReleaseSample
+ *
  * @param factory The block creating the [View] to be composed.
  * @param onReset A callback invoked as a signal that the view is about to be attached to the
  * composition hierarchy in a different context than its original creation. This callback is invoked
