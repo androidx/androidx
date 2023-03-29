@@ -298,8 +298,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"一些其他文本"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"可选列表示例"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"任务限制演示"</string>
-    <!-- no translation found for task_limit_reached_msg (7162842196382260992) -->
-    <skip />
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"这会超出步骤数限制，并使您进入新的界面。"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"任务第 %1$d 步（共 %2$d 步）"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"点击以继续"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"请访问不同模板并确保此车辆处于驾驶模式"</string>

@@ -298,8 +298,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"追加のテキスト"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"選択可能リストの例"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"タスク制限のデモ"</string>
-    <!-- no translation found for task_limit_reached_msg (7162842196382260992) -->
-    <skip />
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"この操作で上限を超え、新しい画面に遷移します。"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"タスクのステップ %1$d / %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"クリックして続行"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"別のテンプレートにアクセスして自動車が運転モードであることを確認してください"</string>

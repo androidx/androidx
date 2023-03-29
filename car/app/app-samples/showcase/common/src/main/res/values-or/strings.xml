@@ -298,8 +298,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"କିଛି ଅତିରିକ୍ତ ଟେକ୍ସଟ"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"ଚୟନ କରାଯାଇପାରୁଥିବା ନମୁନାର ତାଲିକା"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"ଟାସ୍କ ପ୍ରତିବନ୍ଧିତ କରିବାର ଡେମୋ"</string>
-    <!-- no translation found for task_limit_reached_msg (7162842196382260992) -->
-    <skip />
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"ଏହା ଷ୍ଟେପ ଗଣନାକୁ ଓଭରଫ୍ଲୋ କରିବ ଏବଂ ଆପଣଙ୍କୁ ଏକ ନୂଆ ସ୍କ୍ରିନକୁ ନେଇଯିବ।"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"%2$dଟିରୁ %1$d ନମ୍ବର ଟାସ୍କର ଷ୍ଟେପ"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"ଆଗକୁ ଯିବା ପାଇଁ କ୍ଲିକ କରନ୍ତୁ"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"ଦୟାକରି ବିଭିନ୍ନ ଟେମ୍ପଲେଟକୁ ଭିଜିଟ କରନ୍ତୁ ଏବଂ କାରଟି ଡ୍ରାଇଭିଂ ମୋଡରେ ଥିବା ସୁନିଶ୍ଚିତ କରନ୍ତୁ"</string>

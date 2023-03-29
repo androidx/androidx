@@ -298,8 +298,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Papildu teksts"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Atlasāma saraksta paraugs"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Uzdevumu ierobežojuma demonstrācija"</string>
-    <!-- no translation found for task_limit_reached_msg (7162842196382260992) -->
-    <skip />
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Tādējādi tiks pārsniegts darbību skaita ierobežojums un jūs tiksiet novirzīts uz jaunu ekrānu."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Uzdevuma darbība: %1$d. no %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Noklikšķiniet, lai dotos tālāk"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Lūdzu, skatiet dažādas veidnes un nodrošiniet, ka automašīna ir braukšanas režīmā."</string>

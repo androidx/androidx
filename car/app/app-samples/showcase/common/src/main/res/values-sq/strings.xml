@@ -298,8 +298,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Pak tekst shtesë"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Shabllon i listës së zgjedhshme"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Demonstrimi i kufizimit të detyrës"</string>
-    <!-- no translation found for task_limit_reached_msg (7162842196382260992) -->
-    <skip />
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Kjo do të tejkalojë numërimin e hapave dhe do të të çojë në një ekran të ri."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Hapi i detyrës: %1$d nga %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Kliko për të vazhduar përpara"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Vizito shabllonet e ndryshme dhe sigurohu që makina të jetë në modalitetin e lëvizjes"</string>

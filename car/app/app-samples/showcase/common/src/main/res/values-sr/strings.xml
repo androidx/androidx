@@ -298,8 +298,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Додатни текст"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Пример листе која може да се изабере"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Демонстрација ограничења за задатке"</string>
-    <!-- no translation found for task_limit_reached_msg (7162842196382260992) -->
-    <skip />
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Тиме ће се премашити ограничење броја корака и преусмериће вас на нов екран."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"%1$d. корак задатка од %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Кликните да бисте ишли напред"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Посетите различите шаблоне и уверите се да је аутомобил у режиму вожње"</string>

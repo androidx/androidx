@@ -298,8 +298,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Айрым кошумча текст"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Тандалуучу үлгү тизмеси"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Тапшырманы чектөө демосу"</string>
-    <!-- no translation found for task_limit_reached_msg (7162842196382260992) -->
-    <skip />
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Ушуну менен аткарылуучу кадамдардын саны көбөйүп, жаңы экранга өтөсүз."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Тапшырма кадамы %1$d of %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Алдыга өтүү үчүн чыкылдатыңыз"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Башка үлгүлөргө өтүп, унаа айдоо режиминде экенин текшериңиз"</string>

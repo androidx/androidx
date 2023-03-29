@@ -302,8 +302,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"کچھ اضافی ٹیکسٹ"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"قابل انتخاب نمونہ کی فہرست"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"ٹاسک کی پابندی کا ڈیمو"</string>
-    <!-- no translation found for task_limit_reached_msg (7162842196382260992) -->
-    <skip />
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"یہ قدم کی گنتی کو اوور فلو کرے گا اور آپ کو ایک نئی اسکرین پر لے جائے گا۔"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"‏%2$d میں سے ‎%1$d ٹاسک کا مرحلہ"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"آگے بڑھنے کے لیے کلک کریں"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"براہ کرم مختلف ٹیمپلیٹس دیکھیں اور یقینی بنائیں کہ کار ڈرائیونگ موڈ میں ہے"</string>
