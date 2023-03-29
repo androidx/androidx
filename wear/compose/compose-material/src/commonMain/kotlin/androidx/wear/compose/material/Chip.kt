@@ -21,8 +21,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
@@ -38,7 +38,6 @@ import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -167,7 +166,7 @@ public fun Chip(
     content: @Composable RowScope.() -> Unit,
 ) {
     androidx.wear.compose.materialcore.Chip(
-        modifier = modifier,
+        modifier = modifier.height(ChipDefaults.Height),
         onClick = onClick,
         background = { colors.background(enabled = it) },
         border = { border.borderStroke(enabled = it) },
@@ -175,18 +174,12 @@ public fun Chip(
         contentPadding = contentPadding,
         shape = shape,
         interactionSource = interactionSource,
-        defaultChipHeight = ChipDefaults.Height,
         role = role,
-        content = {
-            val contentColor = colors.contentColor(enabled = enabled).value
-            CompositionLocalProvider(
-                LocalContentColor provides contentColor,
-                LocalContentAlpha provides contentColor.alpha,
-                LocalTextStyle provides MaterialTheme.typography.button,
-            ) {
-                content()
-            }
-        }
+        content = provideContent(
+            colors.contentColor(enabled = enabled),
+            MaterialTheme.typography.button,
+            content
+        ),
     )
 }
 
@@ -347,21 +340,21 @@ public fun Chip(
     border: ChipBorder = ChipDefaults.chipBorder()
 ) {
     androidx.wear.compose.materialcore.Chip(
-        modifier = modifier,
-        label = provideLabel(
-            colors.contentColor(enabled = enabled).value,
+        modifier = modifier.height(ChipDefaults.Height),
+        label = provideContent(
+            colors.contentColor(enabled = enabled),
             MaterialTheme.typography.button,
             label
         ),
         onClick = onClick,
         background = { colors.background(enabled = it) },
-        secondaryLabel = secondaryLabel?.let { provideLabel(
-            colors.secondaryContentColor(enabled = enabled).value,
+        secondaryLabel = secondaryLabel?.let { provideContent(
+            colors.secondaryContentColor(enabled = enabled),
             textStyle = MaterialTheme.typography.caption2,
             secondaryLabel
         ) },
         icon = icon?.let {
-            provideIcon(colors.iconColor(enabled = enabled).value, icon)
+            provideIcon(colors.iconColor(enabled = enabled), icon)
         },
         enabled = enabled,
         interactionSource = interactionSource,
@@ -369,7 +362,6 @@ public fun Chip(
         shape = shape,
         border = { border.borderStroke(enabled = it) },
         defaultIconSpacing = ChipDefaults.IconSpacing,
-        defaultChipHeight = ChipDefaults.Height,
         role = null
     )
 }
@@ -634,16 +626,16 @@ public fun CompactChip(
     border: ChipBorder = ChipDefaults.chipBorder()
 ) {
     androidx.wear.compose.materialcore.CompactChip(
-        modifier = modifier,
+        modifier = modifier.height(ChipDefaults.CompactChipHeight),
         onClick = onClick,
         background = { colors.background(enabled = it) },
-        label = label?.let { provideLabel(
-            colors.contentColor(enabled = enabled).value,
+        label = label?.let { provideContent(
+            colors.contentColor(enabled = enabled),
             MaterialTheme.typography.caption1,
             label
         ) },
         icon = icon?.let { provideIcon(
-            colors.iconColor(enabled = enabled).value,
+            colors.iconColor(enabled = enabled),
             icon
         ) },
         enabled = enabled,
@@ -651,7 +643,6 @@ public fun CompactChip(
         contentPadding = contentPadding,
         shape = shape,
         border = { border.borderStroke(enabled = it) },
-        defaultCompactChipHeight = ChipDefaults.CompactChipHeight,
         defaultIconOnlyCompactChipWidth = ChipDefaults.IconOnlyCompactChipWidth,
         defaultCompactChipTapTargetPadding = ChipDefaults.CompactChipTapTargetPadding,
         defaultIconSpacing = ChipDefaults.IconSpacing,
@@ -1356,31 +1347,5 @@ private class DefaultChipBorder(
         var result = borderStroke.hashCode()
         result = 31 * result + disabledBorderStroke.hashCode()
         return result
-    }
-}
-
-private fun provideLabel(
-    contentColor: Color,
-    textStyle: TextStyle,
-    content: (@Composable RowScope.() -> Unit)
-): (@Composable RowScope.() -> Unit) = {
-    CompositionLocalProvider(
-        LocalContentColor provides contentColor,
-        LocalContentAlpha provides contentColor.alpha,
-        LocalTextStyle provides textStyle,
-    ) {
-        content()
-    }
-}
-
-private fun provideIcon(
-    contentColor: Color,
-    content: (@Composable BoxScope.() -> Unit)
-): (@Composable BoxScope.() -> Unit) = {
-    CompositionLocalProvider(
-        LocalContentColor provides contentColor,
-        LocalContentAlpha provides contentColor.alpha,
-    ) {
-        content()
     }
 }
