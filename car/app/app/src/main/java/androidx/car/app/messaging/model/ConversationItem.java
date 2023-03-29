@@ -95,7 +95,7 @@ public class ConversationItem implements Item {
     ConversationItem(@NonNull Builder builder) {
         this.mId = requireNonNull(builder.mId);
         this.mTitle = requireNonNull(builder.mTitle);
-        this.mSelf = requireNonNull(builder.mSelf).toBundle();
+        this.mSelf = validateSender(builder.mSelf).toBundle();
         this.mIcon = builder.mIcon;
         this.mIsGroupConversation = builder.mIsGroupConversation;
         this.mMessages = requireNonNull(CollectionUtils.unmodifiableCopy(builder.mMessages));
@@ -175,6 +175,19 @@ public class ConversationItem implements Item {
         return mConversationCallbackDelegate;
     }
 
+    /**
+     * Verifies that a given {@link Person} has the required fields to be a message sender. Returns
+     * the input {@link Person} if valid, or throws an exception if invalid.
+     *
+     * <p> See also {@link ConversationItem#getSelf()} and {@link CarMessage#getSender()}.
+     */
+    static Person validateSender(@Nullable Person person) {
+        requireNonNull(person);
+        requireNonNull(person.getName());
+        requireNonNull(person.getKey());
+        return person;
+    }
+
     /** A builder for {@link ConversationItem} */
     public static final class Builder {
         @Nullable
@@ -221,7 +234,13 @@ public class ConversationItem implements Item {
             return this;
         }
 
-        /** Sets a {@link Person} for the conversation */
+        /**
+         * Sets a {@link Person} for the conversation
+         *
+         * <p> The {@link Person} must specify a non-null
+         * {@link Person.Builder#setName(CharSequence)} and
+         * {@link Person.Builder#setKey(String)}.
+         */
         @NonNull
         public Builder setSelf(@NonNull Person self) {
             mSelf = self;

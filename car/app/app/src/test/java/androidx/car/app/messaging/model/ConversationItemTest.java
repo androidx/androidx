@@ -62,6 +62,28 @@ public class ConversationItemTest {
         );
     }
 
+    public void build_throwsException_ifSenderNameMissing() {
+        assertThrows(
+                NullPointerException.class,
+                () -> TestConversationFactory.createMinimalConversationItemBuilder()
+                        .setSelf(TestConversationFactory.createMinimalMessageSenderBuilder()
+                                .setName(null)
+                                .build())
+                        .build()
+        );
+    }
+
+    public void build_throwsException_ifSenderKeyMissing() {
+        assertThrows(
+                NullPointerException.class,
+                () -> TestConversationFactory.createMinimalConversationItemBuilder()
+                        .setSelf(TestConversationFactory.createMinimalMessageSenderBuilder()
+                                .setKey(null)
+                                .build())
+                        .build()
+        );
+    }
+
     // region .equals() & .hashCode()
     @Test
     public void equalsAndHashCode_areEqual_forMinimalConversationItem() {
@@ -131,7 +153,8 @@ public class ConversationItemTest {
         ConversationItem modifiedConversationCallback =
                 TestConversationFactory
                         .createFullyPopulatedConversationItemBuilder()
-                        .setSelf(TestConversationFactory.createMinimalPersonBuilder().build())
+                        .setSelf(
+                                TestConversationFactory.createMinimalMessageSenderBuilder().build())
                         .setConversationCallback(new ConversationCallback() {
                             @Override
                             public void onMarkAsRead() {

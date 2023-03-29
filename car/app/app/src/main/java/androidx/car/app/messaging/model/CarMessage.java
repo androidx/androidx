@@ -16,6 +16,8 @@
 
 package androidx.car.app.messaging.model;
 
+import static androidx.car.app.messaging.model.ConversationItem.validateSender;
+
 import static java.util.Objects.requireNonNull;
 
 import android.os.Bundle;
@@ -72,7 +74,7 @@ public class CarMessage {
     }
 
     CarMessage(@NonNull Builder builder) {
-        this.mSender = builder.mSender == null ? null : requireNonNull(builder.mSender).toBundle();
+        this.mSender = builder.mSender == null ? null : validateSender(builder.mSender).toBundle();
         this.mBody = requireNonNull(builder.mBody);
         this.mReceivedTimeEpochMillis = builder.mReceivedTimeEpochMillis;
         this.mIsRead = builder.mIsRead;
@@ -123,7 +125,13 @@ public class CarMessage {
         long mReceivedTimeEpochMillis;
         boolean mIsRead;
 
-        /** Sets a {@link Person} representing the message sender */
+        /**
+         * Sets a {@link Person} representing the message sender
+         *
+         * <p> The {@link Person} must specify a non-null
+         * {@link Person.Builder#setName(CharSequence)} and
+         * {@link Person.Builder#setKey(String)}.
+         */
         public @NonNull Builder setSender(@Nullable Person sender) {
             mSender = sender;
             return this;
