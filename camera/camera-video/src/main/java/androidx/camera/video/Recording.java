@@ -157,6 +157,25 @@ public final class Recording implements AutoCloseable {
     }
 
     /**
+     * Mutes or un-mutes the current recording.
+     *
+     * <p>The output file will contain an audio track even the whole recording is muted. Create a
+     * recording without calling {@link PendingRecording#withAudioEnabled()} to record a file
+     * with no audio track.
+     *
+     * <p>Muting or unmuting a recording that isn't created
+     * {@link PendingRecording#withAudioEnabled()} with audio enabled is no-op.
+     *
+     * @param muted mutes the recording if {@code true}, un-mutes otherwise.
+     */
+    public void mute(boolean muted) {
+        if (mIsClosed.get()) {
+            throw new IllegalStateException("The recording has been stopped.");
+        }
+        mRecorder.mute(this, muted);
+    }
+
+    /**
      * Close this recording.
      *
      * <p>Once {@link #stop()} or {@code close()} called, all methods for controlling the state of
