@@ -64,32 +64,6 @@ public class ButtonTest {
     @get:Rule
     public val rule = createComposeRule()
 
-    @Composable
-    internal fun ButtonWithDefaults(
-        modifier: Modifier = Modifier,
-        onClick: () -> Unit = {},
-        enabled: Boolean = true,
-        backgroundColor: @Composable (enabled: Boolean) -> State<Color> = {
-            remember { mutableStateOf(Color.Blue) }
-        },
-        interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-        shape: Shape = CircleShape,
-        border: @Composable (enabled: Boolean) -> State<BorderStroke?>? = { null },
-        contentProviderValues: Array<ProvidedValue<*>> = arrayOf(),
-        content: @Composable BoxScope.() -> Unit
-    ) = Button(
-        onClick = onClick,
-        modifier = modifier,
-        enabled = enabled,
-        backgroundColor = backgroundColor,
-        interactionSource = interactionSource,
-        shape = shape,
-        border = border,
-        minButtonSize = 52.dp,
-        contentProviderValues = contentProviderValues,
-        content = content
-    )
-
     @Test
     public fun supports_testtag_on_button() {
         rule.setContent {
@@ -398,4 +372,30 @@ public class ButtonTest {
             .assertHeightIsEqualTo(expected)
             .assertWidthIsEqualTo(expected)
     }
+
+    @Composable
+    internal fun ButtonWithDefaults(
+        modifier: Modifier = Modifier,
+        onClick: () -> Unit = {},
+        enabled: Boolean = true,
+        backgroundColor: @Composable (enabled: Boolean) -> State<Color> = {
+            remember { mutableStateOf(DEFAULT_SHAPE_COLOR) }
+        },
+        interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+        shape: Shape = CircleShape,
+        border: @Composable (enabled: Boolean) -> State<BorderStroke?>? = { null },
+        contentProviderValues: Array<ProvidedValue<*>> = arrayOf(),
+        content: @Composable BoxScope.() -> Unit
+    ) = Button(
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        backgroundColor = backgroundColor,
+        interactionSource = interactionSource,
+        shape = shape,
+        border = border,
+        minButtonSize = 52.dp,
+        contentProviderValues = contentProviderValues,
+        content = content
+    )
 }
