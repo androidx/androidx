@@ -33,7 +33,8 @@ import kotlinx.atomicfu.atomic
 internal interface Camera2DeviceCloser {
     fun closeCamera(
         cameraDeviceWrapper: CameraDeviceWrapper? = null,
-        cameraDevice: CameraDevice? = null
+        cameraDevice: CameraDevice? = null,
+        androidCameraState: AndroidCameraState,
     )
 }
 
@@ -46,6 +47,7 @@ internal class Camera2DeviceCloserImpl @Inject constructor(
     override fun closeCamera(
         cameraDeviceWrapper: CameraDeviceWrapper?,
         cameraDevice: CameraDevice?,
+        androidCameraState: AndroidCameraState,
     ) {
         val unwrappedCameraDevice = cameraDeviceWrapper?.unwrapAs(CameraDevice::class)
         if (unwrappedCameraDevice != null) {
@@ -55,17 +57,20 @@ internal class Camera2DeviceCloserImpl @Inject constructor(
                         "but the accompanied camera device has camera ID ${it.id}"
                 }
             }
-            closeCameraDevice(unwrappedCameraDevice)
+            closeCameraDevice(unwrappedCameraDevice, androidCameraState)
             cameraDeviceWrapper.onDeviceClosed()
 
             // We only need to close the device once (don't want to create another capture session).
             // Return here.
             return
         }
-        cameraDevice?.let { closeCameraDevice(it) }
+        cameraDevice?.let { closeCameraDevice(it, androidCameraState) }
     }
 
-    private fun closeCameraDevice(cameraDevice: CameraDevice) {
+    private fun closeCameraDevice(
+        cameraDevice: CameraDevice,
+        androidCameraState: AndroidCameraState,
+    ) {
         val cameraId = CameraId.fromCamera2Id(cameraDevice.id)
         if (camera2Quirks.shouldCreateCaptureSessionBeforeClosing(cameraId)) {
             Debug.trace("Camera2DeviceCloserImpl#createCaptureSession") {
@@ -76,6 +81,14 @@ internal class Camera2DeviceCloserImpl @Inject constructor(
         }
         Log.debug { "Closing $cameraDevice" }
         cameraDevice.closeWithTrace()
+        if (camera2Quirks.shouldWaitForCameraDeviceOnClosed(cameraId)) {
+            Log.debug { "Waiting for camera device to be completely closed" }
+            if (androidCameraState.awaitCameraDeviceClosed(timeoutMillis = 2000)) {
+                Log.debug { "Camera device is closed" }
+            } else {
+                Log.warn { "Failed to wait for camera device to close after 1500ms" }
+            }
+        }
     }
 
     private fun createCaptureSession(cameraDevice: CameraDevice) {

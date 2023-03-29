@@ -296,7 +296,7 @@ internal class CaptureSessionState(
             // If the CameraDevice is never opened, the session will never be created. For cleanup
             // reasons, make sure the session is finalized after shutdown if the cameraDevice was
             // never set.
-            shouldFinalizeSession = _cameraDevice == null
+            shouldFinalizeSession = _cameraDevice == null && state != State.CLOSED
             _cameraDevice = null
             state = State.CLOSED
         }

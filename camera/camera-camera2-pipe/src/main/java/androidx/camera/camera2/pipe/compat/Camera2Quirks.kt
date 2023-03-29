@@ -69,4 +69,20 @@ internal class Camera2Quirks @Inject constructor(
             CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL]
         return level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
     }
+
+    /**
+     * A quirk that waits for [android.hardware.camera2.CameraDevice.StateCallback.onClosed] to
+     * come back before finalizing the current session during camera close. This is needed because
+     * on legacy camera devices, releasing a Surface while camera frames are still being produced
+     * would trigger crashes.
+     *
+     * - Bug(s): b/130759707
+     * - Device(s): Camera devices on hardware level LEGACY
+     * - API levels: All
+     */
+    internal fun shouldWaitForCameraDeviceOnClosed(cameraId: CameraId): Boolean {
+        val level = metadataProvider.awaitCameraMetadata(cameraId)[
+            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL]
+        return level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+    }
 }

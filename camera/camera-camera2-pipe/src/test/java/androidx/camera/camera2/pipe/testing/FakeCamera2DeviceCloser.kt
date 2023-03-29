@@ -17,13 +17,15 @@
 package androidx.camera.camera2.pipe.testing
 
 import android.hardware.camera2.CameraDevice
+import androidx.camera.camera2.pipe.compat.AndroidCameraState
 import androidx.camera.camera2.pipe.compat.Camera2DeviceCloser
 import androidx.camera.camera2.pipe.compat.CameraDeviceWrapper
 
 internal class FakeCamera2DeviceCloser : Camera2DeviceCloser {
     override fun closeCamera(
         cameraDeviceWrapper: CameraDeviceWrapper?,
-        cameraDevice: CameraDevice?
+        cameraDevice: CameraDevice?,
+        androidCameraState: AndroidCameraState,
     ) {
         cameraDeviceWrapper?.onDeviceClosed()
     }
