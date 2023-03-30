@@ -39,10 +39,12 @@ import androidx.compose.animation.demos.lookahead.AnimateBoundsModifierDemo
 import androidx.compose.animation.demos.lookahead.CraneDemo
 import androidx.compose.animation.demos.lookahead.LookaheadLayoutWithAlignmentLinesDemo
 import androidx.compose.animation.demos.lookahead.LookaheadSamplesDemo
+import androidx.compose.animation.demos.lookahead.LookaheadWithBoxWithConstraints
 import androidx.compose.animation.demos.lookahead.LookaheadWithDisappearingMovableContentDemo
 import androidx.compose.animation.demos.lookahead.LookaheadWithFlowRowDemo
 import androidx.compose.animation.demos.lookahead.LookaheadWithIntrinsicsDemo
 import androidx.compose.animation.demos.lookahead.LookaheadWithMovableContentDemo
+import androidx.compose.animation.demos.lookahead.LookaheadWithSubcompose
 import androidx.compose.animation.demos.lookahead.ScreenSizeChangeDemo
 import androidx.compose.animation.demos.singlevalue.SingleValueAnimationDemo
 import androidx.compose.animation.demos.statetransition.CrossfadeDemo
@@ -114,6 +116,10 @@ val AnimationDemos = DemoCategory(
                 ComposableDemo("Lookahead With Alignment Lines") {
                     LookaheadLayoutWithAlignmentLinesDemo()
                 },
+                ComposableDemo("Lookahead With BoxWithConstraints") {
+                    LookaheadWithBoxWithConstraints()
+                },
+                ComposableDemo("Lookahead With Subcompose") { LookaheadWithSubcompose() },
                 ComposableDemo("Lookahead With Flow Row") { LookaheadWithFlowRowDemo() },
                 ComposableDemo("Lookahead With Intrinsics") {
                     LookaheadWithIntrinsicsDemo()

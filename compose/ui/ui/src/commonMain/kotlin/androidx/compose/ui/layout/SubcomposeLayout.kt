@@ -32,18 +32,22 @@ import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.SubcomposeLayoutState.PrecomposedSlotHandle
 import androidx.compose.ui.UiComposable
+import androidx.compose.ui.layout.SubcomposeLayoutState.PrecomposedSlotHandle
 import androidx.compose.ui.materialize
 import androidx.compose.ui.node.ComposeUiNode
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.LayoutNode.LayoutState
 import androidx.compose.ui.node.LayoutNode.UsageByParent
+import androidx.compose.ui.node.LayoutNodeLayoutDelegate
 import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.platform.createSubcomposition
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.util.fastForEach
 
 /**
  * Analogue of [Layout] which allows to subcompose the actual content during the measuring stage
@@ -81,6 +85,112 @@ fun SubcomposeLayout(
  * for example to use the values calculated during the measurement as params for the composition
  * of the children.
  *
+ * When in a [LookaheadScope], [SubcomposeLayout] will be measured up to twice per frame.
+ * The two measurements will be using different measure policies and potentially different
+ * constraints.
+ *
+ * The first measurement happens in the lookahead pass, where new layout is calculated based on
+ * the target constraints. Therefore, [measurePolicy] will receive the target constraints, and
+ * subcompose its content based on the target constraints. Note: Target constraints refers to
+ * the constraints that the [SubcomposeLayout] will receive once all the lookahead-based
+ * animations on size/constraints in the ancestor layouts have finished.
+ *
+ * The second measurement is done in the intermediate measure pass after the lookahead pass.
+ * The intermediate measure pass allows adjustments to the measurement/placement using the
+ * pre-calculated layout information as animation targets to smooth over any
+ * any layout changes. In this measurement, [intermediateMeasurePolicy] will be invoked with
+ * the intermediate/animating constraints. It is recommended to separate out
+ * the logic for measuring/laying out children (that was used in [measurePolicy]) from subcomposing,
+ * and share that logic in the [intermediateMeasurePolicy]. This will allow the measure/layout
+ * logic to be _each frame_ (rather than only in the frames where the target constraints change)
+ * with intermediate (or animating) constraints passed from parent layout.
+ *
+ * When no [intermediateMeasurePolicy] is provided (i.e. [intermediateMeasurePolicy] is `null`),
+ * the default intermediateMeasurePolicy will be used to measure & layout all children with
+ * the same constraints at the same position as the lookahead pass.
+ *
+ * Possible use cases:
+ * * You need to know the constraints passed by the parent during the composition and can't solve
+ * your use case with just custom [Layout] or [LayoutModifier].
+ * See [androidx.compose.foundation.layout.BoxWithConstraints].
+ * * You want to use the size of one child during the composition of the second child.
+ * * You want to compose your items lazily based on the available size. For example you have a
+ * list of 100 items and instead of composing all of them you only compose the ones which are
+ * currently visible(say 5 of them) and compose next items when the component is scrolled.
+ *
+ * @sample androidx.compose.ui.samples.SubcomposeLayoutWithIntermediateMeasurePolicySample
+ *
+ * @param modifier [Modifier] to apply for the layout.
+ * @param intermediateMeasurePolicy A measure policy that will be invoked during the intermediate
+ *                                  measure pass.
+ * @param measurePolicy Measure policy which provides ability to subcompose during the measuring.
+ */
+@ExperimentalComposeUiApi
+@Composable
+fun SubcomposeLayout(
+    modifier: Modifier = Modifier,
+    intermediateMeasurePolicy:
+    (SubcomposeIntermediateMeasureScope.(Constraints) -> MeasureResult)? = null,
+    measurePolicy: SubcomposeMeasureScope.(Constraints) -> MeasureResult
+) {
+    SubcomposeLayout(
+        state = remember { SubcomposeLayoutState() },
+        modifier = modifier,
+        intermediateMeasurePolicy = intermediateMeasurePolicy,
+        measurePolicy = measurePolicy
+    )
+}
+
+/**
+ * [SubcomposeIntermediateMeasureScope] is the receiver scope for the intermediate measurer policy
+ * that gets invoked during the intermediate measure pass.
+ *
+ * When in a [LookaheadScope], [SubcomposeLayout] will be measured up to twice per frame.
+ * The two measurements will be using different measure policies and potentially different
+ * constraints.
+ *
+ * The first measurement happens in the lookahead pass, where new layout is calculated based on
+ * the target constraints. Therefore, measurePolicy will receive the target constraints, and
+ * subcompose its content based on the target constraints. Note: Target constraints refers to
+ * the constraints that the [SubcomposeLayout] will receive once all the lookahead-based
+ * animations on size/constraints in the ancestor layouts have finished.
+ *
+ * The second measurement is done in the intermediate measure pass after the lookahead pass.
+ * The intermediate measure pass allows adjustments to the measurement/placement using the
+ * pre-calculated layout information as animation targets to smooth over any
+ * any layout changes. In this measurement, intermediateMeasurePolicy will be invoked with
+ * the intermediate/animating constraints. It is recommended to separate out
+ * the logic for measuring/laying out children (that was used in measurePolicy) from subcomposing,
+ * and share that logic in the intermediateMeasurePolicy. This will allow the measure/layout
+ * logic to be _each frame_ (rather than only in the frames where the target constraints change)
+ * with intermediate (or animating) constraints passed from parent layout.
+ *
+ * Note: Unlike [SubcomposeMeasureScope], [SubcomposeIntermediateMeasureScope] does NOT permit
+ * subcomposition. Instead, it allows retrieval of measurables from already subcomposed content
+ * based on their slotId using [measurablesForSlot].
+ *
+ * @sample androidx.compose.ui.samples.SubcomposeLayoutWithIntermediateMeasurePolicySample
+ */
+@ExperimentalComposeUiApi
+sealed interface SubcomposeIntermediateMeasureScope : MeasureScope {
+    /**
+     * Returns the list of measureables associated with [slotId] that was subcomposed in the
+     * [SubcomposeLayout]'s measurePolicy block. If the given [slotId] was not used in the
+     * subcomoposition, the returned list will be empty.
+     */
+    fun measurablesForSlot(slotId: Any?): List<Measurable>
+
+    /**
+     * The size returned in the [MeasureResult] by the measurePolicy invoked during lookahead pass.
+     */
+    val lookaheadSize: IntSize
+}
+
+/**
+ * Analogue of [Layout] which allows to subcompose the actual content during the measuring stage
+ * for example to use the values calculated during the measurement as params for the composition
+ * of the children.
+ *
  * Possible use cases:
  * * You need to know the constraints passed by the parent during the composition and can't solve
  * your use case with just custom [Layout] or [LayoutModifier].
@@ -103,6 +213,64 @@ fun SubcomposeLayout(
     modifier: Modifier = Modifier,
     measurePolicy: SubcomposeMeasureScope.(Constraints) -> MeasureResult
 ) {
+    @OptIn(ExperimentalComposeUiApi::class)
+    SubcomposeLayout(state, modifier, null, measurePolicy)
+}
+
+/**
+ * Analogue of [Layout] which allows to subcompose the actual content during the measuring stage
+ * for example to use the values calculated during the measurement as params for the composition
+ * of the children.
+ *
+ * When in a [LookaheadScope], [SubcomposeLayout] will be measured up to twice per frame.
+ * The two measurements will be using different measure policies and potentially different
+ * constraints.
+ *
+ * The first measurement happens in the lookahead pass, where new layout is calculated based on
+ * the target constraints. Therefore, [measurePolicy] will receive the target constraints, and
+ * subcompose its content based on the target constraints. Note: Target constraints refers to
+ * the constraints that the [SubcomposeLayout] will receive once all the lookahead-based
+ * animations on size/constraints in the ancestor layouts have finished.
+ *
+ * The second measurement is done in the intermediate measure pass after the lookahead pass.
+ * The intermediate measure pass allows adjustments to the measurement/placement using the
+ * pre-calculated layout information as animation targets to smooth over any
+ * any layout changes. In this measurement, [intermediateMeasurePolicy] will be invoked with
+ * the intermediate/animating constraints. It is recommended to separate out
+ * the logic for measuring/laying out children (that was used in [measurePolicy]) from subcomposing,
+ * and share that logic in the [intermediateMeasurePolicy]. This will allow the measure/layout
+ * logic to be _each frame_ (rather than only in the frames where the target constraints change)
+ * with intermediate (or animating) constraints passed from parent layout.
+ *
+ * When no [intermediateMeasurePolicy] is provided (i.e. [intermediateMeasurePolicy] is `null`),
+ * the default intermediateMeasurePolicy will be used to measure & layout all children with
+ * the same constraints at the same position as the lookahead pass.
+ *
+ * Possible use cases:
+ * * You need to know the constraints passed by the parent during the composition and can't solve
+ * your use case with just custom [Layout] or [LayoutModifier].
+ * See [androidx.compose.foundation.layout.BoxWithConstraints].
+ * * You want to use the size of one child during the composition of the second child.
+ * * You want to compose your items lazily based on the available size. For example you have a
+ * list of 100 items and instead of composing all of them you only compose the ones which are
+ * currently visible(say 5 of them) and compose next items when the component is scrolled.
+ *
+ * @param state the state object to be used by the layout.
+ * @param modifier [Modifier] to apply for the layout.
+ * @param intermediateMeasurePolicy A measure policy that will be invoked during the intermediate
+ *                                  measure pass.
+ * @param measurePolicy Measure policy which provides ability to subcompose during the measuring.
+ */
+@Composable
+@UiComposable
+@ExperimentalComposeUiApi
+fun SubcomposeLayout(
+    state: SubcomposeLayoutState,
+    modifier: Modifier = Modifier,
+    intermediateMeasurePolicy:
+    (SubcomposeIntermediateMeasureScope.(Constraints) -> MeasureResult)? = null,
+    measurePolicy: SubcomposeMeasureScope.(Constraints) -> MeasureResult
+) {
     val compositionContext = rememberCompositionContext()
     val materialized = currentComposer.materialize(modifier)
     val localMap = currentComposer.currentCompositionLocalMap
@@ -112,6 +280,10 @@ fun SubcomposeLayout(
             set(state, state.setRoot)
             set(compositionContext, state.setCompositionContext)
             set(measurePolicy, state.setMeasurePolicy)
+            set(
+                intermediateMeasurePolicy,
+                state.setIntermediateMeasurePolicy
+            )
             set(localMap, ComposeUiNode.SetResolvedCompositionLocals)
             set(materialized, ComposeUiNode.SetModifier)
         }
@@ -153,6 +325,7 @@ interface SubcomposeMeasureScope : MeasureScope {
  *
  * [slotReusePolicy] the policy defining what slots should be retained to be reused later.
  */
+@OptIn(ExperimentalComposeUiApi::class)
 class SubcomposeLayoutState(
     private val slotReusePolicy: SubcomposeSlotReusePolicy
 ) {
@@ -177,8 +350,18 @@ class SubcomposeLayoutState(
         )
     )
     constructor(maxSlotsToRetainForReuse: Int) : this(
-       SubcomposeSlotReusePolicy(maxSlotsToRetainForReuse)
+        SubcomposeSlotReusePolicy(maxSlotsToRetainForReuse)
     )
+
+    /**
+     * Returns whether the [SubcomposeLayout] is in a [LookaheadScope]. Intermediate measure policy
+     * will be only invoked when in a [LookaheadScope].
+     */
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalComposeUiApi
+    @ExperimentalComposeUiApi
+    val isInLookaheadScope: Boolean
+        get() = state.isInLookaheadScope
 
     private var _state: LayoutNodeSubcompositionsState? = null
     private val state: LayoutNodeSubcompositionsState
@@ -199,8 +382,12 @@ class SubcomposeLayoutState(
         LayoutNode.(CompositionContext) -> Unit =
         { state.compositionContext = it }
     internal val setMeasurePolicy:
-        LayoutNode.(SubcomposeMeasureScope.(Constraints) -> MeasureResult) -> Unit =
+        LayoutNode.((SubcomposeMeasureScope.(Constraints) -> MeasureResult)) -> Unit =
         { measurePolicy = state.createMeasurePolicy(it) }
+
+    internal val setIntermediateMeasurePolicy:
+        LayoutNode.((SubcomposeIntermediateMeasureScope.(Constraints) -> MeasureResult)?) -> Unit =
+        { state.intermediateMeasurePolicy = it ?: state.defaultIntermediateMeasurePolicy }
 
     /**
      * Composes the content for the given [slotId]. This makes the next scope.subcompose(slotId)
@@ -346,6 +533,7 @@ fun SubcomposeSlotReusePolicy(maxSlotsToRetainForReuse: Int): SubcomposeSlotReus
  * when a new SubcomposeLayoutState is applied to SubcomposeLayout and even when the
  * SubcomposeLayout's LayoutNode is reused via the ReusableComposeNode mechanism.
  */
+@OptIn(ExperimentalComposeUiApi::class)
 internal class LayoutNodeSubcompositionsState(
     private val root: LayoutNode,
     slotReusePolicy: SubcomposeSlotReusePolicy
@@ -361,11 +549,62 @@ internal class LayoutNodeSubcompositionsState(
             }
         }
 
+    val isInLookaheadScope: Boolean
+        get() = root.lookaheadRoot != null
+
     private var currentIndex = 0
     private val nodeToNodeState = mutableMapOf<LayoutNode, NodeState>()
+
     // this map contains active slotIds (without precomposed or reusable nodes)
     private val slotIdToNode = mutableMapOf<Any?, LayoutNode>()
     private val scope = Scope()
+    private val intermediateMeasureScope = IntermediateMeasureScopeImpl()
+
+    /**
+     * Default intermediate measure policy. It measures the children with the lookahead constraints
+     * in the same phase as lookahead (e.g. if a child is measured in placement block in lookahead
+     * it will be measured in placement block in the intermediate measure pass.)
+     * Children will be placed at the lookahead position. Child placement order is also ensured to
+     * be consistent with lookahead.
+     */
+    internal val defaultIntermediateMeasurePolicy:
+        SubcomposeIntermediateMeasureScope.(Constraints) -> MeasureResult = {
+        // Measure all the children that were lookahead-measured in the measure pass
+        root.measurePassDelegate.childDelegates.fastForEach {
+            it.measureBasedOnLookahead()
+        }
+
+        layout(lookaheadSize.width, lookaheadSize.height) {
+            // Going through the children again to measure any child that is supposed to be
+            // measured in the layout pass.
+            root.measurePassDelegate.childDelegates.fastForEach {
+                it.measureBasedOnLookahead()
+            }
+            // Place all the placeables in the sequence they were placed in lookahead
+            val placeOrderList = arrayOfNulls<LayoutNodeLayoutDelegate.MeasurePassDelegate?>(
+                root.childLookaheadMeasurables.size
+            )
+            // Create a list to store the delegates in the order they are placed
+            root.lookaheadPassDelegate!!.childDelegates.fastForEach {
+                if (it.placeOrder != LayoutNode.NotPlacedPlaceOrder) {
+                    placeOrderList[it.placeOrder] = it.measurePassDelegate
+                }
+            }
+            placeOrderList.forEach {
+                it?.placeBasedOnLookahead()
+            }
+        }
+    }
+
+    /**
+     * This is the intermediateMeasurePolicy that developers set in [SubcomposeLayout]. It defaults
+     * to [defaultIntermediateMeasurePolicy].
+     *
+     * Note: This intermediate measure policy is only invoked when in a [LookaheadScope].
+     */
+    internal var intermediateMeasurePolicy:
+        (SubcomposeIntermediateMeasureScope.(Constraints) -> MeasureResult) =
+        defaultIntermediateMeasurePolicy
     private val precomposeMap = mutableMapOf<Any?, LayoutNode>()
     private val reusableSlotIdsSet = SubcomposeSlotReusePolicy.SlotIdsSet()
 
@@ -384,7 +623,11 @@ internal class LayoutNodeSubcompositionsState(
     fun subcompose(slotId: Any?, content: @Composable () -> Unit): List<Measurable> {
         makeSureStateIsConsistent()
         val layoutState = root.layoutState
-        check(layoutState == LayoutState.Measuring || layoutState == LayoutState.LayingOut) {
+        check(
+            layoutState == LayoutState.Measuring || layoutState == LayoutState.LayingOut ||
+                layoutState == LayoutState.LookaheadMeasuring ||
+                layoutState == LayoutState.LookaheadLayingOut
+        ) {
             "subcompose can only be used inside the measure or layout blocks"
         }
 
@@ -410,7 +653,12 @@ internal class LayoutNodeSubcompositionsState(
         currentIndex++
 
         subcompose(node, slotId, content)
-        return node.childMeasurables
+
+        return if (layoutState == LayoutState.Measuring || layoutState == LayoutState.LayingOut) {
+            node.childMeasurables
+        } else {
+            node.childLookaheadMeasurables
+        }
     }
 
     private fun subcompose(node: LayoutNode, slotId: Any?, content: @Composable () -> Unit) {
@@ -516,9 +764,10 @@ internal class LayoutNodeSubcompositionsState(
 
     fun makeSureStateIsConsistent() {
         require(nodeToNodeState.size == root.foldedChildren.size) {
-            "Inconsistency between the count of nodes tracked by the state (${nodeToNodeState
-                .size}) and the children count on the SubcomposeLayout (${root.foldedChildren
-                .size}). Are you trying to use the state of the disposed SubcomposeLayout?"
+            "Inconsistency between the count of nodes tracked by the state " +
+                "(${nodeToNodeState.size}) and the children count on the SubcomposeLayout" +
+                " (${root.foldedChildren.size}). Are you trying to use the state of the" +
+                " disposed SubcomposeLayout?"
         }
         require(root.foldedChildren.size - reusableCount - precomposedCount >= 0) {
             "Incorrect state. Total children ${root.foldedChildren.size}. Reusable children " +
@@ -590,21 +839,28 @@ internal class LayoutNodeSubcompositionsState(
             scope.layoutDirection = layoutDirection
             scope.density = density
             scope.fontScale = fontScale
-            currentIndex = 0
-            val result = scope.block(constraints)
-            val indexAfterMeasure = currentIndex
-            return object : MeasureResult {
-                override val width: Int
-                    get() = result.width
-                override val height: Int
-                    get() = result.height
-                override val alignmentLines: Map<AlignmentLine, Int>
-                    get() = result.alignmentLines
+            val isIntermediate =
+                (root.layoutState == LayoutState.Measuring ||
+                    root.layoutState == LayoutState.LayingOut) && root.lookaheadRoot != null
+            if (isIntermediate) {
+                return intermediateMeasurePolicy.invoke(intermediateMeasureScope, constraints)
+            } else {
+                currentIndex = 0
+                val result = scope.block(constraints)
+                val indexAfterMeasure = currentIndex
+                return object : MeasureResult {
+                    override val width: Int
+                        get() = result.width
+                    override val height: Int
+                        get() = result.height
+                    override val alignmentLines: Map<AlignmentLine, Int>
+                        get() = result.alignmentLines
 
-                override fun placeChildren() {
-                    currentIndex = indexAfterMeasure
-                    result.placeChildren()
-                    disposeOrReuseStartingFromIndex(currentIndex)
+                    override fun placeChildren() {
+                        currentIndex = indexAfterMeasure
+                        result.placeChildren()
+                        disposeOrReuseStartingFromIndex(currentIndex)
+                    }
                 }
             }
         }
@@ -734,6 +990,15 @@ internal class LayoutNodeSubcompositionsState(
 
         override fun subcompose(slotId: Any?, content: @Composable () -> Unit) =
             this@LayoutNodeSubcompositionsState.subcompose(slotId, content)
+    }
+
+    private inner class IntermediateMeasureScopeImpl :
+        SubcomposeIntermediateMeasureScope, MeasureScope by scope {
+        override fun measurablesForSlot(slotId: Any?): List<Measurable> =
+            slotIdToNode[slotId]?.childMeasurables ?: emptyList()
+
+        override val lookaheadSize: IntSize
+            get() = root.layoutDelegate.lookaheadPassDelegate!!.run { IntSize(width, height) }
     }
 }
 

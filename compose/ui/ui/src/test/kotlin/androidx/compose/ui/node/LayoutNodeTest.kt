@@ -2603,7 +2603,7 @@ internal class MockOwner(
     override fun measureAndLayout(layoutNode: LayoutNode, constraints: Constraints) {
     }
 
-    override fun forceMeasureTheSubtree(layoutNode: LayoutNode) {
+    override fun forceMeasureTheSubtree(layoutNode: LayoutNode, affectsLookahead: Boolean) {
     }
 
     override fun registerOnEndApplyChangesListener(listener: () -> Unit) {
