@@ -855,8 +855,8 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
         rotationDegrees == 180 && mirrored -> ExifInterface.ORIENTATION_FLIP_VERTICAL
         rotationDegrees == 90 && !mirrored -> ExifInterface.ORIENTATION_ROTATE_90
         rotationDegrees == 90 && mirrored -> ExifInterface.ORIENTATION_TRANSPOSE
-        rotationDegrees == 270 && mirrored -> ExifInterface.ORIENTATION_ROTATE_270
-        rotationDegrees == 270 && !mirrored -> ExifInterface.ORIENTATION_TRANSVERSE
+        rotationDegrees == 270 && !mirrored -> ExifInterface.ORIENTATION_ROTATE_270
+        rotationDegrees == 270 && mirrored -> ExifInterface.ORIENTATION_TRANSVERSE
         else -> ExifInterface.ORIENTATION_UNDEFINED
     }
 
