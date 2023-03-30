@@ -57,7 +57,7 @@ public abstract class ItemList extends Thing {
         /** Add a list of ListItem to the ItemList to be built. */
         @NonNull
         public final Builder addAllListItems(@NonNull List<ListItem> listItems) {
-            return addListItem(listItems.toArray(ListItem[]::new));
+            return addListItem(listItems.toArray(new ListItem[0]));
         }
 
         abstract Builder setListItems(List<ListItem> listItems);

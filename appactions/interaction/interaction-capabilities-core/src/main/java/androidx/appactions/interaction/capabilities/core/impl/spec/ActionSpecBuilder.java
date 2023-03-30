@@ -247,10 +247,14 @@ public final class ActionSpecBuilder<
                     @NonNull Function<T, ParamValue> converter) {
         mOutputBindings.put(
                 name,
-                output ->
-                        outputGetter.apply(output).stream()
-                                .map(converter)
-                                .collect(toImmutableList()));
+                output -> {
+                    Optional<T> optionalOut = outputGetter.apply(output);
+                    List<ParamValue> paramValues = new ArrayList<>();
+                    if (optionalOut.isPresent()) {
+                        paramValues.add(converter.apply(optionalOut.get()));
+                    }
+                    return Collections.unmodifiableList(paramValues);
+                });
         return this;
     }
 
