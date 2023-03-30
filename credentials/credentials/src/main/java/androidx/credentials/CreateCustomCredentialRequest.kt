@@ -55,12 +55,12 @@ import android.os.Bundle
  */
 open class CreateCustomCredentialRequest
 @JvmOverloads constructor(
-    final override val type: String,
-    final override val credentialData: Bundle,
-    final override val candidateQueryData: Bundle,
-    final override val isSystemProviderRequired: Boolean,
+    type: String,
+    credentialData: Bundle,
+    candidateQueryData: Bundle,
+    isSystemProviderRequired: Boolean,
     displayInfo: DisplayInfo,
-    final override val isAutoSelectAllowed: Boolean = false,
+    isAutoSelectAllowed: Boolean = false,
     origin: String? = null,
 ) : CreateCredentialRequest(
     type,
@@ -71,6 +71,25 @@ open class CreateCustomCredentialRequest
     displayInfo,
     origin
 ) {
+    /** Returns the credential type that this request is for. */
+    fun getCustomRequestType() = type
+
+    /** Returns the content of this [CreateCustomCredentialRequest] in the [Bundle] format. */
+    fun getCustomRequestData() = credentialData
+
+    /**
+     * Returns the part of the request content that will be sent to the provider during the initial
+     * candidate query stage, which should not contain sensitive user credential information.
+     */
+    fun getCustomRequestCandidateQueryData() = candidateQueryData
+
+    /**
+     * Returns the origin of a different application if the request is being made on behalf of
+     * that application. For API level >=34, only apps with the permission
+     * android.permission.CREDENTIAL_MANAGER_SET_ORIGIN will be able to set this value, as
+     * validated by the framework.
+     */
+    fun getCustomRequestOrigin() = origin
 
     init {
         require(type.isNotEmpty()) { "type should not be empty" }

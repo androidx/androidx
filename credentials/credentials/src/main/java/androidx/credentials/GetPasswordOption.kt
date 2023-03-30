@@ -18,13 +18,14 @@ package androidx.credentials
 
 import android.os.Bundle
 
-/** A request to retrieve the user's saved application password from their password provider.
+/**
+ * A request to retrieve the user's saved application password from their password provider.
  *
- * @property isAutoSelectAllowed false by default, allows auto selecting a password if there is
+ * @param isAutoSelectAllowed false by default, allows auto selecting a password if there is
  * only one available
  */
 class GetPasswordOption @JvmOverloads constructor(
-    override val isAutoSelectAllowed: Boolean = false
+    isAutoSelectAllowed: Boolean = false
 ) : CredentialOption(
     type = PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
     requestData = Bundle(),
@@ -38,7 +39,9 @@ class GetPasswordOption @JvmOverloads constructor(
         @Suppress("UNUSED_PARAMETER")
         @JvmStatic
         internal fun createFrom(data: Bundle): GetPasswordOption {
-            return GetPasswordOption()
+            return GetPasswordOption(
+                data.getBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false)
+            )
         }
     }
 }

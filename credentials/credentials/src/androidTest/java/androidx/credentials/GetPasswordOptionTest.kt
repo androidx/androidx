@@ -28,6 +28,22 @@ import org.junit.runner.RunWith
 @SmallTest
 class GetPasswordOptionTest {
     @Test
+    fun emptyConstructor_success() {
+        val option = GetPasswordOption()
+
+        assertThat(option.isAutoSelectAllowed).isFalse()
+    }
+
+    @Test
+    fun construction_setOptionalValues_success() {
+        val expectedIsAutoSelectAllowed = true
+
+        val option = GetPasswordOption(expectedIsAutoSelectAllowed)
+
+        assertThat(option.isAutoSelectAllowed).isEqualTo(expectedIsAutoSelectAllowed)
+    }
+
+    @Test
     fun getter_frameworkProperties() {
         val option = GetPasswordOption()
         val expectedRequestDataBundle = Bundle()
@@ -35,16 +51,22 @@ class GetPasswordOptionTest {
             CredentialOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
             false
         )
+        val expectedCandidateData = Bundle()
+        expectedCandidateData.putBoolean(
+            CredentialOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
+            false
+        )
 
         assertThat(option.type).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL)
         assertThat(equals(option.requestData, expectedRequestDataBundle)).isTrue()
-        assertThat(equals(option.candidateQueryData, expectedRequestDataBundle)).isTrue()
+        assertThat(equals(option.candidateQueryData, expectedCandidateData)).isTrue()
         assertThat(option.isSystemProviderRequired).isFalse()
     }
 
     @Test
     fun frameworkConversion_success() {
-        val option = GetPasswordOption()
+        val expectedAutoSelectAllowed = true
+        val option = GetPasswordOption(isAutoSelectAllowed = expectedAutoSelectAllowed)
 
         val convertedOption = createFrom(
             option.type,
@@ -54,5 +76,6 @@ class GetPasswordOptionTest {
         )
 
         assertThat(convertedOption).isInstanceOf(GetPasswordOption::class.java)
+        assertThat(convertedOption.isAutoSelectAllowed).isEqualTo(expectedAutoSelectAllowed)
     }
 }

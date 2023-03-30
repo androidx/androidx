@@ -82,10 +82,48 @@ public class GetCustomCredentialOptionJavaTest {
                 expectedAutoSelectAllowed);
 
         assertThat(option.getType()).isEqualTo(expectedType);
+        assertThat(option.getCustomRequestType()).isEqualTo(expectedType);
         assertThat(TestUtilsKt.equals(option.getRequestData(), expectedBundle)).isTrue();
+        assertThat(TestUtilsKt.equals(option.getCustomRequestData(), expectedBundle)).isTrue();
         assertThat(TestUtilsKt.equals(option.getCandidateQueryData(),
+                expectedCandidateQueryDataBundle)).isTrue();
+        assertThat(TestUtilsKt.equals(option.getCustomRequestCandidateQueryData(),
                 expectedCandidateQueryDataBundle)).isTrue();
         assertThat(option.isAutoSelectAllowed()).isEqualTo(expectedAutoSelectAllowed);
         assertThat(option.isSystemProviderRequired()).isEqualTo(expectedSystemProvider);
+    }
+
+    @Test
+    public void frameworkConversion_success() {
+        String expectedType = "TYPE";
+        Bundle expectedBundle = new Bundle();
+        expectedBundle.putString("Test", "Test");
+        Bundle expectedCandidateQueryDataBundle = new Bundle();
+        expectedCandidateQueryDataBundle.putBoolean("key", true);
+        boolean expectedSystemProvider = true;
+        boolean expectedAutoSelectAllowed = false;
+        GetCustomCredentialOption option = new GetCustomCredentialOption(expectedType,
+                expectedBundle,
+                expectedCandidateQueryDataBundle,
+                expectedSystemProvider,
+                expectedAutoSelectAllowed);
+
+        CredentialOption convertedOption = CredentialOption.createFrom(
+                option.getType(), option.getRequestData(), option.getCandidateQueryData(),
+                option.isSystemProviderRequired());
+
+        assertThat(convertedOption).isInstanceOf(GetCustomCredentialOption.class);
+        GetCustomCredentialOption actualOption = (GetCustomCredentialOption) convertedOption;
+        assertThat(actualOption.getCustomRequestType()).isEqualTo(expectedType);
+        assertThat(actualOption.getType()).isEqualTo(expectedType);
+        assertThat(TestUtilsKt.equals(actualOption.getRequestData(), expectedBundle)).isTrue();
+        assertThat(TestUtilsKt.equals(actualOption.getCustomRequestData(), expectedBundle))
+                .isTrue();
+        assertThat(TestUtilsKt.equals(actualOption.getCandidateQueryData(),
+                expectedCandidateQueryDataBundle)).isTrue();
+        assertThat(TestUtilsKt.equals(actualOption.getCustomRequestCandidateQueryData(),
+                expectedCandidateQueryDataBundle)).isTrue();
+        assertThat(actualOption.isAutoSelectAllowed()).isEqualTo(expectedAutoSelectAllowed);
+        assertThat(actualOption.isSystemProviderRequired()).isEqualTo(expectedSystemProvider);
     }
 }

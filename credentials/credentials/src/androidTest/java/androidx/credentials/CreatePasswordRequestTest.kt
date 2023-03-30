@@ -71,11 +71,16 @@ class CreatePasswordRequestTest {
         )
         expectedCredentialData.putBoolean(CreateCredentialRequest.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
             expectedAutoSelect)
+        val expectedCandidateData = Bundle()
+        expectedCandidateData.putBoolean(
+            CreateCredentialRequest.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
+            expectedAutoSelect
+        )
 
         val request = CreatePasswordRequest(idExpected, passwordExpected)
 
         assertThat(request.type).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL)
-        assertThat(equals(request.candidateQueryData, Bundle.EMPTY)).isTrue()
+        assertThat(equals(request.candidateQueryData, expectedCandidateData)).isTrue()
         assertThat(request.isSystemProviderRequired).isFalse()
         assertThat(request.displayInfo.userDisplayName).isNull()
         assertThat(request.displayInfo.userId).isEqualTo(idExpected)

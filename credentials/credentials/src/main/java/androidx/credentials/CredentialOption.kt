@@ -30,30 +30,24 @@ import androidx.credentials.internal.FrameworkClassParsingException
 abstract class CredentialOption internal constructor(
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open val type: String,
+    val type: String,
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open val requestData: Bundle,
+    val requestData: Bundle,
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open val candidateQueryData: Bundle,
+    val candidateQueryData: Bundle,
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open val isSystemProviderRequired: Boolean,
+    val isSystemProviderRequired: Boolean,
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open val isAutoSelectAllowed: Boolean,
+    val isAutoSelectAllowed: Boolean,
 ) {
 
     init {
-        @Suppress("UNNECESSARY_SAFE_CALL")
-        requestData?.let {
-            it.putBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, isAutoSelectAllowed)
-        }
-        @Suppress("UNNECESSARY_SAFE_CALL")
-        candidateQueryData?.let {
-            it.putBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, isAutoSelectAllowed)
-        }
+        requestData.putBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, isAutoSelectAllowed)
+        candidateQueryData.putBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, isAutoSelectAllowed)
     }
 
     /** @hide */
@@ -92,11 +86,12 @@ abstract class CredentialOption internal constructor(
                 // Parsing failed but don't crash the process. Instead just output a request with
                 // the raw framework values.
                 GetCustomCredentialOption(
-                    type,
-                    requestData,
-                    candidateQueryData,
-                    requireSystemProvider,
-                    requestData.getBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false)
+                    type = type,
+                    requestData = requestData,
+                    candidateQueryData = candidateQueryData,
+                    isSystemProviderRequired = requireSystemProvider,
+                    isAutoSelectAllowed = requestData.getBoolean(
+                        BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false)
                 )
             }
         }

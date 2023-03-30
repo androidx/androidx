@@ -17,7 +17,9 @@
 package androidx.credentials
 
 import android.os.Bundle
+import androidx.credentials.CreateCredentialRequest.Companion.createFrom
 import androidx.credentials.CreateCredentialRequest.DisplayInfo
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -46,6 +48,7 @@ class CreateCustomCredentialRequestTest {
         val expectedDisplayInfo = DisplayInfo("userId")
         val expectedAutoSelectAllowed = false
         val expectedSystemProvider = true
+        val expectedOrigin = "Origin"
 
         val request = CreateCustomCredentialRequest(
             expectedType,
@@ -53,11 +56,15 @@ class CreateCustomCredentialRequestTest {
             expectedCandidateQueryDataBundle,
             expectedSystemProvider,
             expectedDisplayInfo,
-            expectedAutoSelectAllowed
+            expectedAutoSelectAllowed,
+            expectedOrigin
         )
 
         assertThat(request.type).isEqualTo(expectedType)
+        assertThat(request.getCustomRequestType()).isEqualTo(expectedType)
         assertThat(equals(request.credentialData, expectedCredentialDataBundle))
+            .isTrue()
+        assertThat(equals(request.getCustomRequestData(), expectedCredentialDataBundle))
             .isTrue()
         assertThat(
             equals(
@@ -65,8 +72,87 @@ class CreateCustomCredentialRequestTest {
                 expectedCandidateQueryDataBundle
             )
         ).isTrue()
-        assertThat(request.isAutoSelectAllowed).isEqualTo(expectedAutoSelectAllowed)
+        assertThat(
+            equals(
+                request.getCustomRequestCandidateQueryData(),
+                expectedCandidateQueryDataBundle
+            )
+        ).isTrue()
         assertThat(request.isSystemProviderRequired).isEqualTo(expectedSystemProvider)
+        assertThat(request.isAutoSelectAllowed).isEqualTo(expectedAutoSelectAllowed)
         assertThat(request.displayInfo).isEqualTo(expectedDisplayInfo)
+        assertThat(request.origin).isEqualTo(expectedOrigin)
+        assertThat(request.getCustomRequestOrigin()).isEqualTo(expectedOrigin)
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    fun frameworkConversion_success() {
+        val expectedType = "TYPE"
+        val expectedCredentialDataBundle = Bundle()
+        expectedCredentialDataBundle.putString("Test", "Test")
+        val expectedCandidateQueryDataBundle = Bundle()
+        expectedCandidateQueryDataBundle.putBoolean("key", true)
+        val expectedDisplayInfo = DisplayInfo("userId")
+        val expectedSystemProvider = true
+        val expectedAutoSelectAllowed = true
+        val expectedOrigin = "Origin"
+        val request = CreateCustomCredentialRequest(
+            expectedType,
+            expectedCredentialDataBundle,
+            expectedCandidateQueryDataBundle,
+            expectedSystemProvider,
+            expectedDisplayInfo,
+            expectedAutoSelectAllowed,
+            expectedOrigin
+        )
+        val finalCredentialData = request.credentialData
+        finalCredentialData.putBundle(
+            DisplayInfo.BUNDLE_KEY_REQUEST_DISPLAY_INFO,
+            expectedDisplayInfo.toBundle()
+        )
+
+        val convertedRequest = createFrom(
+            request.type, request.credentialData, request.candidateQueryData,
+            request.isSystemProviderRequired, request.origin
+        )!!
+
+        assertThat(convertedRequest).isInstanceOf(CreateCustomCredentialRequest::class.java)
+        val actualRequest = convertedRequest as CreateCustomCredentialRequest
+        assertThat(actualRequest.type).isEqualTo(expectedType)
+        assertThat(actualRequest.getCustomRequestType()).isEqualTo(expectedType)
+        assertThat(
+            equals(
+                actualRequest.credentialData,
+                expectedCredentialDataBundle
+            )
+        ).isTrue()
+        assertThat(
+            equals(
+                actualRequest.getCustomRequestData(),
+                expectedCredentialDataBundle
+            )
+        ).isTrue()
+        assertThat(
+            equals(
+                actualRequest.candidateQueryData,
+                expectedCandidateQueryDataBundle
+            )
+        ).isTrue()
+        assertThat(
+            equals(
+                actualRequest.getCustomRequestCandidateQueryData(),
+                expectedCandidateQueryDataBundle
+            )
+        ).isTrue()
+        assertThat(actualRequest.isSystemProviderRequired).isEqualTo(expectedSystemProvider)
+        assertThat(actualRequest.isAutoSelectAllowed).isEqualTo(expectedAutoSelectAllowed)
+        assertThat(actualRequest.displayInfo.userId)
+            .isEqualTo(expectedDisplayInfo.userId)
+        assertThat(actualRequest.displayInfo.userDisplayName)
+            .isEqualTo(expectedDisplayInfo.userDisplayName)
+        assertThat(actualRequest.origin).isEqualTo(expectedOrigin)
+        assertThat(actualRequest.origin).isEqualTo(expectedOrigin)
+        assertThat(actualRequest.getCustomRequestOrigin()).isEqualTo(expectedOrigin)
     }
 }

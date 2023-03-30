@@ -35,29 +35,27 @@ import androidx.credentials.internal.FrameworkClassParsingException
 abstract class CreateCredentialRequest internal constructor(
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open val type: String,
+    val type: String,
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open val credentialData: Bundle,
+    val credentialData: Bundle,
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open val candidateQueryData: Bundle,
+    val candidateQueryData: Bundle,
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open val isSystemProviderRequired: Boolean,
+    val isSystemProviderRequired: Boolean,
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open val isAutoSelectAllowed: Boolean,
+    val isAutoSelectAllowed: Boolean,
     /** @hide */
     val displayInfo: DisplayInfo,
     val origin: String?,
 ) {
 
     init {
-        @Suppress("UNNECESSARY_SAFE_CALL")
-        credentialData?.let {
-            credentialData.putBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, isAutoSelectAllowed)
-        }
+        credentialData.putBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, isAutoSelectAllowed)
+        candidateQueryData.putBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, isAutoSelectAllowed)
     }
 
     /**
@@ -218,7 +216,8 @@ abstract class CreateCredentialRequest internal constructor(
                     DisplayInfo.parseFromCredentialDataBundle(
                         credentialData
                     ) ?: return null,
-                    credentialData.getBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false)
+                    credentialData.getBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false),
+                    origin,
                 )
             }
         }
