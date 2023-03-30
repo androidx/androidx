@@ -70,6 +70,8 @@ public class ExerciseUpdate internal constructor(
      * phase and hasn't started yet.
      */
     public val startTime: Instant? = null,
+
+    internal val activeDurationLegacy: Duration,
 ) {
     @RestrictTo(Scope.LIBRARY)
     public constructor(
@@ -95,6 +97,7 @@ public class ExerciseUpdate internal constructor(
             null
         },
         if (proto.hasStartTimeEpochMs()) Instant.ofEpochMilli(proto.startTimeEpochMs) else null,
+        Duration.ofMillis(proto.activeDurationMs),
     )
 
     /**
@@ -168,6 +171,7 @@ public class ExerciseUpdate internal constructor(
         val builder =
             DataProto.ExerciseUpdate.newBuilder()
                 .setState(exerciseStateInfo.state.toProto())
+                .setActiveDurationMs(activeDurationLegacy.toMillis())
                 .addAllLatestMetrics(
                     latestMetrics.sampleDataPoints
                         .groupBy { it.dataType }
@@ -213,7 +217,6 @@ public class ExerciseUpdate internal constructor(
         exerciseConfig?.let { builder.setExerciseConfig(exerciseConfig.toProto()) }
         activeDurationCheckpoint?.let {
             builder.setActiveDurationCheckpoint(activeDurationCheckpoint.toProto())
-            builder.setActiveDurationMs(activeDurationCheckpoint.activeDuration.toMillis())
         }
 
         return builder.build()
@@ -277,7 +280,7 @@ public class ExerciseUpdate internal constructor(
         // by working backwards.
         // First find time since this point was generated.
         val durationSinceProvidedTime = getUpdateDurationFromBoot().minus(durationFromBoot)
-        return activeDurationCheckpoint.activeDuration.minus(durationSinceProvidedTime)
+        return activeDurationLegacy.minus(durationSinceProvidedTime)
     }
 
     override fun toString(): String =
