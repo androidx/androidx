@@ -1949,12 +1949,31 @@ class FlowStyle internal constructor(
     }
 }
 
+/**
+ * Defines how many rows and/or columns to skip, starting from the given position.
+ * For Grid, specify the Skip with Skip(position, rows, columns)
+ * For Row/Column, specify the Skip with Skip(position, size)
+ *
+ * @constructor create a new Skip containing the position and size information of the skipped area
+ * @param description string to specify span. For Grid: "position:rowsxcolumns";
+ *                    For Row/Columns: "position:size"
+ */
 @JvmInline
 value class Skip(val description: String) {
     constructor(position: Int, rows: Int, columns: Int) : this("$position:${rows}x$columns")
     constructor(position: Int, size: Int) : this("$position:$size")
 }
 
+/**
+ * Defines the spanned area (that crosses multiple columns and/or rows) that a widget will take
+ * when placed at the given position.
+ * For Grid, specify the Span with Span(position, rows, columns)
+ * For Row/Column, specify the Span with Span(position, size)
+ *
+ * @constructor create a new Span containing the position and size information of the spanned area
+ * @param description string to specify skip. For Grid: "position:rowsxcolumns";
+ *                    For Row/Columns: "position:size"
+ */
 @JvmInline
 value class Span(val description: String) {
     constructor(position: Int, rows: Int, columns: Int) : this("$position:${rows}x$columns")
