@@ -50,6 +50,7 @@ import androidx.wear.watchface.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.complications.data.WeightedElementsComplicationData
 import androidx.wear.watchface.control.IHeadlessWatchFace
 import androidx.wear.watchface.control.IWatchFaceControlService
+import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.control.data.ComplicationRenderParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
@@ -142,6 +143,7 @@ public class WatchFaceControlServiceTest {
         if (this::instance.isInitialized) {
             instance.release()
         }
+        InteractiveInstanceManager.setParameterlessEngine(null)
     }
 
     private fun createInstance(width: Int, height: Int) {
