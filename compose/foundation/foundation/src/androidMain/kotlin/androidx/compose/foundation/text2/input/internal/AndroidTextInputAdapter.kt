@@ -24,6 +24,7 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
+import androidx.annotation.RestrictTo
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.runtime.collection.mutableVectorOf
@@ -36,6 +37,7 @@ import androidx.compose.ui.text.input.PlatformTextInputAdapter
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.core.view.inputmethod.EditorInfoCompat
 import java.util.concurrent.Executor
+import org.jetbrains.annotations.TestOnly
 
 private const val DEBUG = true
 private const val TAG = "BasicTextInputAdapter"
@@ -61,9 +63,11 @@ internal class AndroidTextInputAdapter constructor(
 
         outAttrs.update(value, imeOptions)
 
-        return StatelessInputConnection(
+        val inputConnection = StatelessInputConnection(
             activeSessionProvider = { currentTextInputSession }
         )
+        testInputConnectionCreatedListener?.invoke(outAttrs, inputConnection)
+        return inputConnection
     }
 
     private val resetListener = EditProcessor.ResetListener { old, new ->
@@ -132,6 +136,24 @@ internal class AndroidTextInputAdapter constructor(
             currentTextInputSession = null
             platformTextInput.releaseInputFocus()
             textInputCommandExecutor.send(TextInputCommand.StopInput)
+        }
+    }
+
+    companion object {
+        private var testInputConnectionCreatedListener: ((EditorInfo, InputConnection) -> Unit)? =
+            null
+
+        /**
+         * Set a function to be called when an [AndroidTextInputAdapter] returns from
+         * [createInputConnection]. This method should only be used to assert on the [EditorInfo]
+         * and grab the [InputConnection] to inject commands.
+         */
+        @TestOnly
+        @RestrictTo(RestrictTo.Scope.TESTS)
+        fun setInputConnectionCreatedListenerForTests(
+            listener: ((EditorInfo, InputConnection) -> Unit)?
+        ) {
+            testInputConnectionCreatedListener = listener
         }
     }
 }

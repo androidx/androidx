@@ -25,18 +25,23 @@ import android.view.View
 import android.view.Window
 import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.ExtractedText
+import android.view.inputmethod.InputMethodManager
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.compose.ui.window.DialogWindowProvider
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import org.jetbrains.annotations.TestOnly
 
 /**
- * Compatibility interface for [android.view.inputmethod.InputMethodManager] to use in Compose text
- * input systems.
+ * Compatibility interface for [InputMethodManager] to use in Compose text input systems.
  *
  * This interface is responsible for handling the calls made to platform InputMethodManager in
  * Android. There are different ways to show and hide software keyboard depending on API level.
+ *
+ * This interface also allows us to fake out the IMM for testing. For that reason, it should match
+ * the relevant platform [InputMethodManager] APIs as closely as possible.
  */
 internal interface ComposeInputMethodManager {
     fun restartInput()
@@ -64,46 +69,65 @@ internal interface ComposeInputMethodManager {
     fun sendKeyEvent(event: KeyEvent)
 }
 
-internal fun ComposeInputMethodManager(view: View): ComposeInputMethodManager {
-    return ComposeInputMethodManagerImpl(view)
+/**
+ * Creates a new instance of [ComposeInputMethodManager].
+ *
+ * The value returned by this function can be changed for tests by calling
+ * [overrideComposeInputMethodManagerFactoryForTests].
+ */
+internal fun ComposeInputMethodManager(view: View): ComposeInputMethodManager =
+    ComposeInputMethodManagerFactory(view)
+
+/** This lets us swap out the implementation in our own tests. */
+private var ComposeInputMethodManagerFactory: (View) -> ComposeInputMethodManager = { view ->
+    when {
+        Build.VERSION.SDK_INT >= 30 -> ComposeInputMethodManagerImplApi30(view)
+        Build.VERSION.SDK_INT >= 24 -> ComposeInputMethodManagerImplApi24(view)
+        else -> ComposeInputMethodManagerImplApi21(view)
+    }
 }
 
-private class ComposeInputMethodManagerImpl(private val view: View) : ComposeInputMethodManager {
+/**
+ * Sets the factory used by [ComposeInputMethodManager] to create instances and returns the previous
+ * factory.
+ *
+ * Any test that calls this should call it again to restore the factory after the test finishes, to
+ * avoid breaking unrelated tests.
+ */
+@TestOnly
+@RestrictTo(RestrictTo.Scope.TESTS)
+internal fun overrideComposeInputMethodManagerFactoryForTests(
+    factory: (View) -> ComposeInputMethodManager
+): (View) -> ComposeInputMethodManager {
+    val oldFactory = ComposeInputMethodManagerFactory
+    ComposeInputMethodManagerFactory = factory
+    return oldFactory
+}
 
-    private val imm by lazy(LazyThreadSafetyMode.NONE) {
-        view.context.getSystemService(Context.INPUT_METHOD_SERVICE)
-            as android.view.inputmethod.InputMethodManager
-    }
+private abstract class ComposeInputMethodManagerImpl(protected val view: View) :
+    ComposeInputMethodManager {
 
-    private val helper = if (Build.VERSION.SDK_INT >= 30) {
-        ImmHelper30(view)
-    } else if (Build.VERSION.SDK_INT >= 24) {
-        ImmHelper24(view)
-    } else {
-        ImmHelper21(view)
-    }
+    private var imm: InputMethodManager? = null
 
     override fun restartInput() {
-        imm.restartInput(view)
+        requireImm().restartInput(view)
     }
 
     override fun showSoftInput() {
-        helper.showSoftInput(imm)
+        view.post {
+            requireImm().showSoftInput(view, 0)
+        }
     }
 
     override fun hideSoftInput() {
-        helper.hideSoftInput(imm)
+        requireImm().hideSoftInputFromWindow(view.windowToken, 0)
     }
 
     override fun updateExtractedText(
         token: Int,
         extractedText: ExtractedText
     ) {
-        imm.updateExtractedText(view, token, extractedText)
-    }
-
-    override fun sendKeyEvent(event: KeyEvent) {
-        helper.sendKeyEvent(imm, event)
+        requireImm().updateExtractedText(view, token, extractedText)
     }
 
     override fun updateSelection(
@@ -112,70 +136,49 @@ private class ComposeInputMethodManagerImpl(private val view: View) : ComposeInp
         compositionStart: Int,
         compositionEnd: Int
     ) {
-        imm.updateSelection(view, selectionStart, selectionEnd, compositionStart, compositionEnd)
+        requireImm().updateSelection(
+            view,
+            selectionStart,
+            selectionEnd,
+            compositionStart,
+            compositionEnd
+        )
     }
+
+    protected fun requireImm(): InputMethodManager = imm ?: createImm().also { imm = it }
+
+    private fun createImm() =
+        view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 }
 
-private interface ImmHelper {
-
-    fun showSoftInput(imm: android.view.inputmethod.InputMethodManager)
-
-    fun hideSoftInput(imm: android.view.inputmethod.InputMethodManager)
-
-    fun sendKeyEvent(imm: android.view.inputmethod.InputMethodManager, event: KeyEvent)
-}
-
-private class ImmHelper21(private val view: View) : ImmHelper {
+private open class ComposeInputMethodManagerImplApi21(view: View) :
+    ComposeInputMethodManagerImpl(view) {
 
     /**
      * Prior to API24, the safest way to delegate IME originated KeyEvents to the window was
      * through BaseInputConnection.
      */
-    private val baseInputConnection by lazy(LazyThreadSafetyMode.NONE) {
-        BaseInputConnection(view, false)
-    }
+    private var baseInputConnection: BaseInputConnection? = null
 
-    @DoNotInline
-    override fun showSoftInput(imm: android.view.inputmethod.InputMethodManager) {
-        view.post {
-            imm.showSoftInput(view, 0)
-        }
-    }
-
-    @DoNotInline
-    override fun hideSoftInput(imm: android.view.inputmethod.InputMethodManager) {
-        imm.hideSoftInputFromWindow(view.windowToken, 0)
-    }
-
-    @DoNotInline
-    override fun sendKeyEvent(imm: android.view.inputmethod.InputMethodManager, event: KeyEvent) {
+    override fun sendKeyEvent(event: KeyEvent) {
+        val baseInputConnection = baseInputConnection
+            ?: BaseInputConnection(view, false).also { baseInputConnection = it }
         baseInputConnection.sendKeyEvent(event)
     }
 }
 
 @RequiresApi(24)
-private class ImmHelper24(private val view: View) : ImmHelper {
+private open class ComposeInputMethodManagerImplApi24(view: View) :
+    ComposeInputMethodManagerImplApi21(view) {
 
-    @DoNotInline
-    override fun showSoftInput(imm: android.view.inputmethod.InputMethodManager) {
-        view.post {
-            imm.showSoftInput(view, 0)
-        }
-    }
-
-    @DoNotInline
-    override fun hideSoftInput(imm: android.view.inputmethod.InputMethodManager) {
-        imm.hideSoftInputFromWindow(view.windowToken, 0)
-    }
-
-    @DoNotInline
-    override fun sendKeyEvent(imm: android.view.inputmethod.InputMethodManager, event: KeyEvent) {
-        imm.dispatchKeyEventFromInputMethod(view, event)
+    override fun sendKeyEvent(event: KeyEvent) {
+        requireImm().dispatchKeyEventFromInputMethod(view, event)
     }
 }
 
 @RequiresApi(30)
-private class ImmHelper30(private val view: View) : ImmHelper {
+private class ComposeInputMethodManagerImplApi30(view: View) :
+    ComposeInputMethodManagerImplApi24(view) {
 
     /**
      * Get a [WindowInsetsControllerCompat] for the view. This returns a new instance every time,
@@ -186,31 +189,18 @@ private class ImmHelper30(private val view: View) : ImmHelper {
         // This can return null when, for example, the view is not attached to a window.
         get() = view.findWindow()?.let { WindowInsetsControllerCompat(it, view) }
 
-    /**
-     * This class falls back to the legacy implementation when the window insets controller isn't
-     * available.
-     */
-    private val immHelper21: ImmHelper21
-        get() = _immHelper21 ?: ImmHelper21(view).also { _immHelper21 = it }
-    private var _immHelper21: ImmHelper21? = null
-
     @DoNotInline
-    override fun showSoftInput(imm: android.view.inputmethod.InputMethodManager) {
-        insetsControllerCompat?.apply {
-            show(WindowInsetsCompat.Type.ime())
-        } ?: immHelper21.showSoftInput(imm)
+    override fun showSoftInput() {
+        insetsControllerCompat
+            ?.apply { show(WindowInsetsCompat.Type.ime()) }
+            ?: super.showSoftInput()
     }
 
     @DoNotInline
-    override fun hideSoftInput(imm: android.view.inputmethod.InputMethodManager) {
-        insetsControllerCompat?.apply {
-            hide(WindowInsetsCompat.Type.ime())
-        } ?: immHelper21.hideSoftInput(imm)
-    }
-
-    @DoNotInline
-    override fun sendKeyEvent(imm: android.view.inputmethod.InputMethodManager, event: KeyEvent) {
-        imm.dispatchKeyEventFromInputMethod(view, event)
+    override fun hideSoftInput() {
+        insetsControllerCompat
+            ?.apply { hide(WindowInsetsCompat.Type.ime()) }
+            ?: super.showSoftInput()
     }
 
     // TODO(b/221889664) Replace with composition local when available.
