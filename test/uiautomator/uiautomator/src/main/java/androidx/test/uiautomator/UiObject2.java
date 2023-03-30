@@ -71,7 +71,7 @@ public class UiObject2 implements Searchable {
     private static final int DEFAULT_SCROLL_SPEED = 5_000; // dp/s
     private static final int DEFAULT_FLING_SPEED = 7_500; // dp/s
     private static final int DEFAULT_DRAG_SPEED = 2_500; // dp/s
-    private static final int DEFAULT_PINCH_SPEED = 2_500; // dp/s
+    private static final int DEFAULT_PINCH_SPEED = 1_000; // dp/s
     private static final long SCROLL_TIMEOUT = 1_000; // ms
     private static final long FLING_TIMEOUT = 5_000; // ms; longer as motion may continue.
 
