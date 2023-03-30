@@ -151,6 +151,18 @@ package androidx.camera.core {
     method public androidx.camera.core.CameraXConfig getCameraXConfig();
   }
 
+  @RequiresApi(21) public class ConcurrentCamera {
+    ctor public ConcurrentCamera(java.util.List<androidx.camera.core.Camera!>);
+    method public java.util.List<androidx.camera.core.Camera!> getCameras();
+  }
+
+  public static final class ConcurrentCamera.SingleCameraConfig {
+    ctor public ConcurrentCamera.SingleCameraConfig(androidx.camera.core.CameraSelector, androidx.camera.core.UseCaseGroup, androidx.lifecycle.LifecycleOwner);
+    method public androidx.camera.core.CameraSelector getCameraSelector();
+    method public androidx.lifecycle.LifecycleOwner getLifecycleOwner();
+    method public androidx.camera.core.UseCaseGroup getUseCaseGroup();
+  }
+
   @RequiresApi(21) public final class DisplayOrientedMeteringPointFactory extends androidx.camera.core.MeteringPointFactory {
     ctor public DisplayOrientedMeteringPointFactory(android.view.Display, androidx.camera.core.CameraInfo, float, float);
   }
