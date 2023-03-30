@@ -16,34 +16,38 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.processing.XType
-import androidx.room.ext.L
-import androidx.room.ext.T
+import androidx.room.ext.CommonTypeNames
+import androidx.room.ext.CommonTypeNames.ARRAY_LIST
 import androidx.room.solver.CodeGenScope
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.ParameterizedTypeName
-import java.util.ArrayList
 
 class ListQueryResultAdapter(
     private val typeArg: XType,
     private val rowAdapter: RowAdapter
 ) : QueryResultAdapter(listOf(rowAdapter)) {
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
-        scope.builder().apply {
+        scope.builder.apply {
             rowAdapter.onCursorReady(cursorVarName = cursorVarName, scope = scope)
-            val collectionType = ParameterizedTypeName
-                .get(ClassName.get(List::class.java), typeArg.typeName)
-            val arrayListType = ParameterizedTypeName
-                .get(ClassName.get(ArrayList::class.java), typeArg.typeName)
-            addStatement(
-                "final $T $L = new $T($L.getCount())",
-                collectionType, outVarName, arrayListType, cursorVarName
+            val listTypeName = CommonTypeNames.MUTABLE_LIST.parametrizedBy(typeArg.asTypeName())
+            addLocalVariable(
+                name = outVarName,
+                typeName = listTypeName,
+                assignExpr = XCodeBlock.ofNewInstance(
+                    language,
+                    ARRAY_LIST.parametrizedBy(typeArg.asTypeName()),
+                    "%L.getCount()",
+                    cursorVarName
+                )
             )
             val tmpVarName = scope.getTmpVar("_item")
-            beginControlFlow("while($L.moveToNext())", cursorVarName).apply {
-                addStatement("final $T $L", typeArg.typeName, tmpVarName)
+            beginControlFlow("while (%L.moveToNext())", cursorVarName).apply {
+                addLocalVariable(
+                    name = tmpVarName,
+                    typeName = typeArg.asTypeName()
+                )
                 rowAdapter.convert(tmpVarName, cursorVarName, scope)
-                addStatement("$L.add($L)", outVarName, tmpVarName)
+                addStatement("%L.add(%L)", outVarName, tmpVarName)
             }
             endControlFlow()
         }

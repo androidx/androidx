@@ -17,18 +17,18 @@
 package androidx.room.solver.types
 
 import androidx.room.ProvidedTypeConverter
-import androidx.room.ext.L
-import androidx.room.ext.N
-import androidx.room.ext.T
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.apply
+import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.decapitalize
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.CustomTypeConverter
 import androidx.room.writer.DaoWriter
 import androidx.room.writer.TypeWriter
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.CodeBlock
-import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.MethodSpec
 import java.util.Locale
 import javax.lang.model.element.Modifier
 
@@ -38,118 +38,165 @@ import javax.lang.model.element.Modifier
 class CustomTypeConverterWrapper(
     val custom: CustomTypeConverter
 ) : SingleStatementTypeConverter(custom.from, custom.to) {
-    override fun buildStatement(inputVarName: String, scope: CodeGenScope): CodeBlock {
+    override fun buildStatement(inputVarName: String, scope: CodeGenScope): XCodeBlock {
         return if (custom.isEnclosingClassKotlinObject) {
-            CodeBlock.of(
-                "$T.INSTANCE.$L($L)",
-                custom.typeName,
-                custom.methodName, inputVarName
-            )
+            when (scope.language) {
+                CodeLanguage.JAVA -> XCodeBlock.of(
+                    scope.language,
+                    "%T.INSTANCE.%L(%L)",
+                    custom.className,
+                    custom.getMethodName(scope.language),
+                    inputVarName
+                )
+                CodeLanguage.KOTLIN -> XCodeBlock.of(
+                    scope.language,
+                    "%T.%L(%L)",
+                    custom.className,
+                    custom.getMethodName(scope.language),
+                    inputVarName
+                )
+            }
         } else if (custom.isStatic) {
-            CodeBlock.of(
-                "$T.$L($L)",
-                custom.typeName,
-                custom.methodName, inputVarName
+            XCodeBlock.of(
+                scope.language,
+                "%T.%L(%L)",
+                custom.className,
+                custom.getMethodName(scope.language),
+                inputVarName
             )
         } else {
             if (custom.isProvidedConverter) {
-                CodeBlock.of(
-                    "$N().$L($L)",
+                XCodeBlock.of(
+                    scope.language,
+                    "%N().%L(%L)",
                     providedTypeConverter(scope),
-                    custom.methodName, inputVarName
+                    custom.getMethodName(scope.language),
+                    inputVarName
                 )
             } else {
-                CodeBlock.of(
-                    "$N.$L($L)",
+                XCodeBlock.of(
+                    scope.language,
+                    "%N.%L(%L)",
                     typeConverter(scope),
-                    custom.methodName, inputVarName
+                    custom.getMethodName(scope.language),
+                    inputVarName
                 )
             }
         }
     }
 
-    private fun providedTypeConverter(scope: CodeGenScope): MethodSpec {
-        val className = custom.typeName as ClassName
-        val baseName = className.simpleName().decapitalize(Locale.US)
-
-        val converterClassName = custom.typeName as ClassName
+    private fun providedTypeConverter(scope: CodeGenScope): XFunSpec {
+        val fieldTypeName = when (scope.language) {
+            CodeLanguage.JAVA -> custom.className
+            CodeLanguage.KOTLIN -> KotlinTypeNames.LAZY.parametrizedBy(custom.className)
+        }
+        val baseName = custom.className.simpleNames.last().decapitalize(Locale.US)
+        val converterClassName = custom.className
         scope.writer.addRequiredTypeConverter(converterClassName)
-        val converterField = scope.writer.getOrCreateField(
-            object : TypeWriter.SharedFieldSpec(
-                baseName, custom.typeName
+        val converterField = scope.writer.getOrCreateProperty(
+            object : TypeWriter.SharedPropertySpec(
+                baseName, fieldTypeName
             ) {
+                override val isMutable = scope.language == CodeLanguage.JAVA
+
                 override fun getUniqueKey(): String {
-                    return "converter_${custom.typeName}"
+                    return "converter_${custom.className}"
                 }
 
-                override fun prepare(writer: TypeWriter, builder: FieldSpec.Builder) {
-                    builder.addModifiers(Modifier.PRIVATE)
+                override fun prepare(writer: TypeWriter, builder: XPropertySpec.Builder) {
+                    // For Kotlin we'll rely on kotlin.Lazy while for Java we'll memoize the
+                    // provided converter in the getter.
+                    if (builder.language == CodeLanguage.KOTLIN) {
+                        builder.apply {
+                            initializer(
+                                XCodeBlock.builder(language).apply {
+                                    beginControlFlow("lazy")
+                                    addStatement(
+                                        "checkNotNull(%L.getTypeConverter(%L))",
+                                        DaoWriter.DB_PROPERTY_NAME,
+                                        XCodeBlock.ofJavaClassLiteral(language, custom.className)
+                                    )
+                                    endControlFlow()
+                                }.build()
+                            )
+                        }
+                    }
                 }
             }
         )
-
-        return scope.writer.getOrCreateMethod(object : TypeWriter.SharedMethodSpec(baseName) {
+        val funSpec = object : TypeWriter.SharedFunctionSpec(baseName) {
             override fun getUniqueKey(): String {
-                return "converterMethod_${custom.typeName}"
+                return "converterMethod_${custom.className}"
             }
 
             override fun prepare(
                 methodName: String,
                 writer: TypeWriter,
-                builder: MethodSpec.Builder
+                builder: XFunSpec.Builder
             ) {
-                builder.apply {
-                    addModifiers(Modifier.PRIVATE)
-                    addModifiers(Modifier.SYNCHRONIZED)
-                    returns(custom.typeName)
-                    addCode(buildConvertMethodBody(writer))
-                }
+                val body = buildConvertFunctionBody(builder.language)
+                builder.apply(
+                    // Apply synchronized modifier for Java since function checks and sets the
+                    // converter in the shared field.
+                    javaMethodBuilder = {
+                        addModifiers(Modifier.SYNCHRONIZED)
+                    },
+                    kotlinFunctionBuilder = { }
+                )
+                builder.addCode(body)
+                builder.returns(custom.className)
             }
 
-            private fun buildConvertMethodBody(
-                writer: TypeWriter
-            ): CodeBlock {
-                val methodScope = CodeGenScope(writer)
-                methodScope.builder().apply {
-                    beginControlFlow("if ($N == null)", converterField)
-                    addStatement(
-                        "$N = $N.getTypeConverter($T.class)",
-                        converterField,
-                        DaoWriter.dbField,
-                        custom.typeName
-                    )
-                    endControlFlow()
-                    addStatement("return $N", converterField)
+            private fun buildConvertFunctionBody(
+                language: CodeLanguage
+            ) = XCodeBlock.builder(language).apply {
+                // For Java we implement the memoization logic in the converter getter, meanwhile
+                // for Kotlin we rely on kotlin.Lazy so the getter just delegates to it.
+                when (language) {
+                    CodeLanguage.JAVA -> {
+                        beginControlFlow("if (%N == null)", converterField).apply {
+                            addStatement(
+                                "%N = %L.getTypeConverter(%L)",
+                                converterField,
+                                DaoWriter.DB_PROPERTY_NAME,
+                                XCodeBlock.ofJavaClassLiteral(language, custom.className)
+                            )
+                        }
+                        endControlFlow()
+                        addStatement("return %N", converterField)
+                    }
+                    CodeLanguage.KOTLIN -> {
+                        addStatement("return %N.value", converterField)
+                    }
                 }
-                return methodScope.builder().build()
-            }
-        })
+            }.build()
+        }
+        return scope.writer.getOrCreateFunction(funSpec)
     }
 
-    fun typeConverter(scope: CodeGenScope): FieldSpec {
-        val baseName = (custom.typeName as ClassName).simpleName().decapitalize(Locale.US)
-        return scope.writer.getOrCreateField(
-            object : TypeWriter.SharedFieldSpec(
-                baseName, custom.typeName
-            ) {
-                override fun getUniqueKey(): String {
-                    return "converter_${custom.typeName}"
-                }
-
-                override fun prepare(writer: TypeWriter, builder: FieldSpec.Builder) {
-                    builder.addModifiers(Modifier.PRIVATE)
-                    builder.addModifiers(Modifier.FINAL)
-                    builder.initializer("new $T()", custom.typeName)
-                }
+    private fun typeConverter(scope: CodeGenScope): XPropertySpec {
+        val baseName = custom.className.simpleNames.last().decapitalize(Locale.US)
+        val propertySpec = object : TypeWriter.SharedPropertySpec(
+            baseName, custom.className
+        ) {
+            override fun getUniqueKey(): String {
+                return "converter_${custom.className}"
             }
-        )
+
+            override fun prepare(writer: TypeWriter, builder: XPropertySpec.Builder) {
+                builder.initializer(
+                    XCodeBlock.ofNewInstance(builder.language, custom.className)
+                )
+            }
+        }
+        return scope.writer.getOrCreateProperty(propertySpec)
     }
 }
 
-fun TypeWriter.addRequiredTypeConverter(className: ClassName) {
+fun TypeWriter.addRequiredTypeConverter(className: XClassName) {
     this[ProvidedTypeConverter::class] = getRequiredTypeConverters() + setOf(className)
 }
 
-fun TypeWriter.getRequiredTypeConverters(): Set<ClassName> {
-    return this.get<Set<ClassName>>(ProvidedTypeConverter::class) ?: emptySet()
+fun TypeWriter.getRequiredTypeConverters(): Set<XClassName> {
+    return this.get<Set<XClassName>>(ProvidedTypeConverter::class) ?: emptySet()
 }

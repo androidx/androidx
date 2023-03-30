@@ -18,7 +18,10 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.Dao
-import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.asMutableClassName
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
@@ -36,10 +39,6 @@ import androidx.room.solver.shortcut.result.InsertOrUpsertMethodAdapter
 import androidx.room.testing.context
 import androidx.room.vo.InsertOrUpsertShortcutMethod
 import com.google.common.truth.Truth.assertThat
-import com.squareup.javapoet.ArrayTypeName
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeName
 import kotlin.reflect.KClass
 import org.junit.Test
 
@@ -62,19 +61,19 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
                 import androidx.room.*
                 import java.util.*
                 import io.reactivex.*
-                io.reactivex.rxjava3.core.*
-                androidx.lifecycle.*
-                com.google.common.util.concurrent.*
-                org.reactivestreams.*
-                kotlinx.coroutines.flow.*
+                import io.reactivex.rxjava3.core.*
+                import androidx.lifecycle.*
+                import com.google.common.util.concurrent.*
+                import org.reactivestreams.*
+                import kotlinx.coroutines.flow.*
 
                 @Dao
                 abstract class MyClass {
                 """
         const val DAO_SUFFIX = "}"
-        val USER_TYPE_NAME: TypeName = COMMON.USER_TYPE_NAME
-        val USERNAME_TYPE_NAME: TypeName = ClassName.get("foo.bar", "Username")
-        val BOOK_TYPE_NAME: TypeName = ClassName.get("foo.bar", "Book")
+        val USER_TYPE_NAME: XTypeName = COMMON.USER_TYPE_NAME
+        val USERNAME_TYPE_NAME: XTypeName = XClassName.get("foo.bar", "Username")
+        val BOOK_TYPE_NAME: XTypeName = XClassName.get("foo.bar", "Book")
     }
 
     @Test
@@ -87,7 +86,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
         ) { insertionUpsertion, invocation ->
             assertThat(insertionUpsertion.element.jvmName).isEqualTo("foo")
             assertThat(insertionUpsertion.parameters.size).isEqualTo(0)
-            assertThat(insertionUpsertion.returnType.typeName).isEqualTo(TypeName.VOID)
+            assertThat(insertionUpsertion.returnType.asTypeName()).isEqualTo(XTypeName.UNIT_VOID)
             assertThat(insertionUpsertion.entities.size).isEqualTo(0)
             invocation.assertCompilationResult {
                 hasErrorContaining(noParamsError())
@@ -129,22 +128,37 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             assertThat(insertionUpsertion.parameters.size).isEqualTo(1)
 
             val param = insertionUpsertion.parameters.first()
-            assertThat(param.type.typeName)
+            assertThat(param.type.asTypeName())
                 .isEqualTo(USER_TYPE_NAME)
 
-            assertThat(param.pojoType?.typeName)
+            assertThat(param.pojoType?.asTypeName())
                 .isEqualTo(USER_TYPE_NAME)
 
             assertThat(insertionUpsertion.entities["user"]?.isPartialEntity)
                 .isEqualTo(false)
 
-            assertThat(insertionUpsertion.entities["user"]?.pojo?.typeName?.toJavaPoet())
-                .isEqualTo(ClassName.get("foo.bar", "User") as TypeName)
+            assertThat(insertionUpsertion.entities["user"]?.pojo?.typeName)
+                .isEqualTo(XClassName.get("foo.bar", "User"))
 
-            assertThat(insertionUpsertion.returnType.typeName)
-                .isEqualTo(TypeName.LONG)
+            assertThat(insertionUpsertion.returnType.asTypeName())
+                .isEqualTo(XTypeName.PRIMITIVE_LONG)
         }
     }
+
+    @Test
+    fun singleNullableParamError() {
+        singleInsertUpsertShortcutMethodKotlin(
+            """
+                @${annotation.java.canonicalName}
+                abstract fun foo(user: User?)
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.nullableParamInShortcutMethod("foo.bar.User"))
+            }
+        }
+    }
+
     @Test
     fun two() {
         singleInsertUpsertShortcutMethod(
@@ -157,23 +171,38 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
             assertThat(insertionUpsertion.parameters.size).isEqualTo(2)
             insertionUpsertion.parameters.forEach {
-                assertThat(it.type.typeName).isEqualTo(USER_TYPE_NAME)
-                assertThat(it.pojoType?.typeName).isEqualTo(USER_TYPE_NAME)
+                assertThat(it.type.asTypeName()).isEqualTo(USER_TYPE_NAME)
+                assertThat(it.pojoType?.asTypeName()).isEqualTo(USER_TYPE_NAME)
             }
             assertThat(insertionUpsertion.entities.size)
                 .isEqualTo(2)
 
-            assertThat(insertionUpsertion.entities["u1"]?.pojo?.typeName?.toJavaPoet())
+            assertThat(insertionUpsertion.entities["u1"]?.pojo?.typeName)
                 .isEqualTo(USER_TYPE_NAME)
 
-            assertThat(insertionUpsertion.entities["u2"]?.pojo?.typeName?.toJavaPoet())
+            assertThat(insertionUpsertion.entities["u2"]?.pojo?.typeName)
                 .isEqualTo(USER_TYPE_NAME)
 
             assertThat(insertionUpsertion.parameters.map { it.name })
                 .isEqualTo(listOf("u1", "u2"))
 
-            assertThat(insertionUpsertion.returnType.typeName)
-                .isEqualTo(TypeName.VOID)
+            assertThat(insertionUpsertion.returnType.asTypeName())
+                .isEqualTo(XTypeName.UNIT_VOID)
+        }
+    }
+
+    @Test
+    fun twoNullableParamError() {
+        singleInsertUpsertShortcutMethodKotlin(
+            """
+                @${annotation.java.canonicalName}
+                abstract fun foo(user1: User?, user2: User?)
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.nullableParamInShortcutMethod("foo.bar.User"))
+                hasErrorCount(2)
+            }
         }
     }
 
@@ -188,29 +217,41 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             assertThat(insertionUpsertion.element.jvmName).isEqualTo("insertUsers")
             assertThat(insertionUpsertion.parameters.size).isEqualTo(1)
             val param = insertionUpsertion.parameters.first()
-            assertThat(param.type.typeName)
+            assertThat(param.type.asTypeName())
                 .isEqualTo(
-                    ParameterizedTypeName.get(
-                        ClassName.get("java.util", "List"),
-                        USER_TYPE_NAME
-                    ) as TypeName
+                    CommonTypeNames.MUTABLE_LIST.parametrizedBy(USER_TYPE_NAME)
                 )
 
-            assertThat(param.pojoType?.typeName)
+            assertThat(param.pojoType?.asTypeName())
                 .isEqualTo(USER_TYPE_NAME)
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
 
-            assertThat(insertionUpsertion.entities["users"]?.pojo?.typeName?.toJavaPoet())
+            assertThat(insertionUpsertion.entities["users"]?.pojo?.typeName)
                 .isEqualTo(USER_TYPE_NAME)
 
-            assertThat(insertionUpsertion.returnType.typeName)
+            assertThat(insertionUpsertion.returnType.asTypeName())
                 .isEqualTo(
-                    ParameterizedTypeName.get(
-                        ClassName.get("java.util", "List"),
-                        ClassName.get("java.lang", "Long")
-                    ) as TypeName
+                    CommonTypeNames.MUTABLE_LIST.parametrizedBy(XTypeName.BOXED_LONG)
                 )
+        }
+    }
+
+    @Test
+    fun nullableListParamError() {
+        singleInsertUpsertShortcutMethodKotlin(
+            """
+                @${annotation.java.canonicalName}
+                abstract fun foo(users: List<User?>)
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.nullableParamInShortcutMethod(
+                        "java.util.List<? extends foo.bar.User>"
+                    )
+                )
+            }
         }
     }
 
@@ -225,16 +266,30 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             assertThat(insertionUpsertion.element.jvmName).isEqualTo("insertUsers")
             assertThat(insertionUpsertion.parameters.size).isEqualTo(1)
             val param = insertionUpsertion.parameters.first()
-            assertThat(param.type.typeName)
-                .isEqualTo(ArrayTypeName.of(COMMON.USER_TYPE_NAME) as TypeName)
+            assertThat(param.type.asTypeName())
+                .isEqualTo(XTypeName.getArrayName(COMMON.USER_TYPE_NAME))
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
 
-            assertThat(insertionUpsertion.entities["users"]?.pojo?.typeName?.toJavaPoet())
+            assertThat(insertionUpsertion.entities["users"]?.pojo?.typeName)
                 .isEqualTo(USER_TYPE_NAME)
 
-            assertThat(insertionUpsertion.returnType.typeName)
-                .isEqualTo(TypeName.VOID)
+            assertThat(insertionUpsertion.returnType.asTypeName())
+                .isEqualTo(XTypeName.UNIT_VOID)
+        }
+    }
+
+    @Test
+    fun nullableArrayParamError() {
+        singleInsertUpsertShortcutMethodKotlin(
+            """
+                @${annotation.java.canonicalName}
+                abstract fun foo(users: Array<User?>)
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.nullableParamInShortcutMethod("foo.bar.User[]"))
+            }
         }
     }
 
@@ -249,20 +304,35 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             assertThat(insertionUpsertion.element.jvmName).isEqualTo("insertUsers")
             assertThat(insertionUpsertion.parameters.size).isEqualTo(1)
             val param = insertionUpsertion.parameters.first()
-            assertThat(param.type.typeName)
+            assertThat(param.type.asTypeName())
                 .isEqualTo(
-                    ParameterizedTypeName.get(
-                        ClassName.get("java.util", "Set"),
-                        COMMON.USER_TYPE_NAME
-                    ) as TypeName
+                    CommonTypeNames.MUTABLE_SET.parametrizedBy(COMMON.USER_TYPE_NAME)
                 )
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
 
-            assertThat(insertionUpsertion.entities["users"]?.pojo?.typeName?.toJavaPoet())
+            assertThat(insertionUpsertion.entities["users"]?.pojo?.typeName)
                 .isEqualTo(USER_TYPE_NAME)
 
-            assertThat(insertionUpsertion.returnType.typeName).isEqualTo(TypeName.VOID)
+            assertThat(insertionUpsertion.returnType.asTypeName()).isEqualTo(XTypeName.UNIT_VOID)
+        }
+    }
+
+    @Test
+    fun nullableSetParamError() {
+        singleInsertUpsertShortcutMethodKotlin(
+            """
+                @${annotation.java.canonicalName}
+                abstract fun foo(users: Set<User?>)
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.nullableParamInShortcutMethod(
+                        "java.util.Set<? extends foo.bar.User>"
+                    )
+                )
+            }
         }
     }
 
@@ -277,20 +347,17 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             assertThat(insertionUpsertion.element.jvmName).isEqualTo("insertUsers")
             assertThat(insertionUpsertion.parameters.size).isEqualTo(1)
             val param = insertionUpsertion.parameters.first()
-            assertThat(param.type.typeName)
+            assertThat(param.type.asTypeName())
                 .isEqualTo(
-                    ParameterizedTypeName.get(
-                        ClassName.get("java.util", "Queue"),
-                        USER_TYPE_NAME
-                    ) as TypeName
+                    CommonTypeNames.QUEUE.parametrizedBy(USER_TYPE_NAME)
                 )
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
 
-            assertThat(insertionUpsertion.entities["users"]?.pojo?.typeName?.toJavaPoet())
+            assertThat(insertionUpsertion.entities["users"]?.pojo?.typeName)
                 .isEqualTo(USER_TYPE_NAME)
 
-            assertThat(insertionUpsertion.returnType.typeName).isEqualTo(TypeName.VOID)
+            assertThat(insertionUpsertion.returnType.asTypeName()).isEqualTo(XTypeName.UNIT_VOID)
         }
     }
 
@@ -305,20 +372,17 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             assertThat(insertionUpsertion.element.jvmName).isEqualTo("insert")
             assertThat(insertionUpsertion.parameters.size).isEqualTo(1)
             val param = insertionUpsertion.parameters.first()
-            assertThat(param.type.typeName)
+            assertThat(param.type.asTypeName())
                 .isEqualTo(
-                    ParameterizedTypeName.get(
-                        ClassName.get("java.lang", "Iterable"),
-                        USER_TYPE_NAME
-                    ) as TypeName
+                    Iterable::class.asMutableClassName().parametrizedBy(USER_TYPE_NAME)
                 )
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
 
-            assertThat(insertionUpsertion.entities["users"]?.pojo?.typeName?.toJavaPoet())
+            assertThat(insertionUpsertion.entities["users"]?.pojo?.typeName)
                 .isEqualTo(USER_TYPE_NAME)
 
-            assertThat(insertionUpsertion.returnType.typeName).isEqualTo(TypeName.VOID)
+            assertThat(insertionUpsertion.returnType.asTypeName()).isEqualTo(XTypeName.UNIT_VOID)
         }
     }
 
@@ -334,20 +398,38 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             assertThat(insertionUpsertion.element.jvmName).isEqualTo("insert")
             assertThat(insertionUpsertion.parameters.size).isEqualTo(1)
             val param = insertionUpsertion.parameters.first()
-            assertThat(param.type.typeName)
+            assertThat(param.type.asTypeName())
                 .isEqualTo(
-                    ParameterizedTypeName.get(
-                        ClassName.get("foo.bar", "MyClass.MyList"),
+                    XClassName.get("foo.bar", "MyClass.MyList").parametrizedBy(
                         CommonTypeNames.STRING, USER_TYPE_NAME
-                    ) as TypeName
+                    )
                 )
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
 
-            assertThat(insertionUpsertion.entities["users"]?.pojo?.typeName?.toJavaPoet())
+            assertThat(insertionUpsertion.entities["users"]?.pojo?.typeName)
                 .isEqualTo(USER_TYPE_NAME)
 
-            assertThat(insertionUpsertion.returnType.typeName).isEqualTo(TypeName.VOID)
+            assertThat(insertionUpsertion.returnType.asTypeName()).isEqualTo(XTypeName.UNIT_VOID)
+        }
+    }
+
+    @Test
+    fun nullableCustomCollectionParamError() {
+        singleInsertUpsertShortcutMethodKotlin(
+            """
+                class MyList<Irrelevant, Item> : ArrayList<Item> {}
+                @${annotation.java.canonicalName}
+                abstract fun foo(users: MyList<String?, User?>)
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.nullableParamInShortcutMethod(
+                        "foo.bar.MyClass.MyList<java.lang.String, foo.bar.User>"
+                    )
+                )
+            }
         }
     }
 
@@ -360,23 +442,58 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
                 """
         ) { insertionUpsertion, _ ->
             assertThat(insertionUpsertion.parameters.size).isEqualTo(2)
-            assertThat(insertionUpsertion.parameters[0].type.typeName.toString())
-                .isEqualTo("foo.bar.User")
+            assertThat(
+                insertionUpsertion.parameters[0].type.asTypeName().toString(CodeLanguage.JAVA)
+            ).isEqualTo("foo.bar.User")
 
-            assertThat(insertionUpsertion.parameters[1].type.typeName.toString())
-                .isEqualTo("foo.bar.Book")
+            assertThat(
+                insertionUpsertion.parameters[1].type.asTypeName().toString(CodeLanguage.JAVA)
+            ).isEqualTo("foo.bar.Book")
 
             assertThat(insertionUpsertion.parameters.map { it.name }).isEqualTo(listOf("u1", "b1"))
 
-            assertThat(insertionUpsertion.returnType.typeName).isEqualTo(TypeName.VOID)
+            assertThat(insertionUpsertion.returnType.asTypeName()).isEqualTo(XTypeName.UNIT_VOID)
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(2)
 
-            assertThat(insertionUpsertion.entities["u1"]?.pojo?.typeName?.toJavaPoet())
+            assertThat(insertionUpsertion.entities["u1"]?.pojo?.typeName)
                 .isEqualTo(USER_TYPE_NAME)
 
-            assertThat(insertionUpsertion.entities["b1"]?.pojo?.typeName?.toJavaPoet())
+            assertThat(insertionUpsertion.entities["b1"]?.pojo?.typeName)
                 .isEqualTo(BOOK_TYPE_NAME)
+        }
+    }
+
+    @Test
+    fun multipleParamCompletable() {
+        listOf(
+            RxJava2TypeNames.COMPLETABLE.canonicalName,
+            RxJava3TypeNames.COMPLETABLE.canonicalName
+        ).forEach { type ->
+            singleInsertUpsertShortcutMethodKotlin(
+                """
+                @${annotation.java.canonicalName}
+                abstract fun bookUserCompletable(user: User, book: Book): $type
+                """
+            ) { insertionUpsertion, _ ->
+                assertThat(insertionUpsertion.parameters.size).isEqualTo(2)
+            }
+        }
+    }
+
+    @Test
+    fun twoNullableDifferentParamError() {
+        singleInsertUpsertShortcutMethodKotlin(
+            """
+                @${annotation.java.canonicalName}
+                abstract fun foo(user1: User?, book1: Book?)
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.nullableParamInShortcutMethod("foo.bar.User"))
+                hasErrorContaining(ProcessorErrors.nullableParamInShortcutMethod("foo.bar.Book"))
+                hasErrorCount(2)
+            }
         }
     }
 
@@ -384,12 +501,12 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
     fun invalidReturnType() {
         listOf(
             "int",
-            "${RxJava2TypeNames.SINGLE}<Int>",
-            "${RxJava2TypeNames.MAYBE}<Int>",
-            "${RxJava2TypeNames.SINGLE}<String>",
-            "${RxJava2TypeNames.MAYBE}<String>",
-            "${RxJava2TypeNames.SINGLE}<User>",
-            "${RxJava2TypeNames.MAYBE}<User>"
+            "${RxJava2TypeNames.SINGLE.canonicalName}<Int>",
+            "${RxJava2TypeNames.MAYBE.canonicalName}<Int>",
+            "${RxJava2TypeNames.SINGLE.canonicalName}<String>",
+            "${RxJava2TypeNames.MAYBE.canonicalName}<String>",
+            "${RxJava2TypeNames.SINGLE.canonicalName}<User>",
+            "${RxJava2TypeNames.MAYBE.canonicalName}<User>"
         ).forEach { type ->
             singleInsertUpsertShortcutMethod(
                 """
@@ -413,8 +530,8 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             "long[]",
             "Long[]",
             "List<Long>",
-            "${RxJava2TypeNames.SINGLE}<List<Long>>",
-            "${RxJava2TypeNames.MAYBE}<List<Long>>"
+            "${RxJava2TypeNames.SINGLE.canonicalName}<List<Long>>",
+            "${RxJava2TypeNames.MAYBE.canonicalName}<List<Long>>"
         ).forEach { type ->
             singleInsertUpsertShortcutMethod(
                 """
@@ -437,8 +554,8 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
         listOf(
             "long",
             "Long",
-            "${RxJava2TypeNames.SINGLE}<Long>",
-            "${RxJava2TypeNames.MAYBE}<Long>"
+            "${RxJava2TypeNames.SINGLE.canonicalName}<Long>",
+            "${RxJava2TypeNames.MAYBE.canonicalName}<Long>"
         ).forEach { type ->
             singleInsertUpsertShortcutMethod(
                 """
@@ -460,8 +577,8 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
         listOf(
             "long",
             "Long",
-            "${RxJava2TypeNames.SINGLE}<Long>",
-            "${RxJava2TypeNames.MAYBE}<Long>"
+            "${RxJava2TypeNames.SINGLE.canonicalName}<Long>",
+            "${RxJava2TypeNames.MAYBE.canonicalName}<Long>"
         ).forEach { type ->
             singleInsertUpsertShortcutMethod(
                 """
@@ -481,56 +598,56 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
     @Test
     fun validReturnTypes() {
         listOf(
-            Pair("void", InsertOrUpsertMethodAdapter.ReturnType.VOID),
-            Pair("long", InsertOrUpsertMethodAdapter.ReturnType.SINGLE_ID),
-            Pair("long[]", InsertOrUpsertMethodAdapter.ReturnType.ID_ARRAY),
-            Pair("Long[]", InsertOrUpsertMethodAdapter.ReturnType.ID_ARRAY_BOX),
-            Pair("List<Long>", InsertOrUpsertMethodAdapter.ReturnType.ID_LIST),
+            Pair("void", InsertOrUpsertMethodAdapter.ReturnInfo.VOID),
+            Pair("long", InsertOrUpsertMethodAdapter.ReturnInfo.SINGLE_ID),
+            Pair("long[]", InsertOrUpsertMethodAdapter.ReturnInfo.ID_ARRAY),
+            Pair("Long[]", InsertOrUpsertMethodAdapter.ReturnInfo.ID_ARRAY_BOX),
+            Pair("List<Long>", InsertOrUpsertMethodAdapter.ReturnInfo.ID_LIST),
             Pair(
-                RxJava2TypeNames.COMPLETABLE,
-                InsertOrUpsertMethodAdapter.ReturnType.VOID_OBJECT
+                RxJava2TypeNames.COMPLETABLE.canonicalName,
+                InsertOrUpsertMethodAdapter.ReturnInfo.VOID_OBJECT
             ),
             Pair(
-                "${RxJava2TypeNames.SINGLE}<Long>",
-                InsertOrUpsertMethodAdapter.ReturnType.SINGLE_ID
+                "${RxJava2TypeNames.SINGLE.canonicalName}<Long>",
+                InsertOrUpsertMethodAdapter.ReturnInfo.SINGLE_ID
             ),
             Pair(
-                "${RxJava2TypeNames.SINGLE}<List<Long>>",
-                InsertOrUpsertMethodAdapter.ReturnType.ID_LIST
+                "${RxJava2TypeNames.SINGLE.canonicalName}<List<Long>>",
+                InsertOrUpsertMethodAdapter.ReturnInfo.ID_LIST
             ),
             Pair(
-                "${RxJava2TypeNames.MAYBE}<Long>",
-                InsertOrUpsertMethodAdapter.ReturnType.SINGLE_ID
+                "${RxJava2TypeNames.MAYBE.canonicalName}<Long>",
+                InsertOrUpsertMethodAdapter.ReturnInfo.SINGLE_ID
             ),
             Pair(
-                "${RxJava2TypeNames.MAYBE}<List<Long>>",
-                InsertOrUpsertMethodAdapter.ReturnType.ID_LIST
+                "${RxJava2TypeNames.MAYBE.canonicalName}<List<Long>>",
+                InsertOrUpsertMethodAdapter.ReturnInfo.ID_LIST
             ),
             Pair(
-                RxJava3TypeNames.COMPLETABLE,
-                InsertOrUpsertMethodAdapter.ReturnType.VOID_OBJECT
+                RxJava3TypeNames.COMPLETABLE.canonicalName,
+                InsertOrUpsertMethodAdapter.ReturnInfo.VOID_OBJECT
             ),
             Pair(
-                "${RxJava3TypeNames.SINGLE}<Long>",
-                InsertOrUpsertMethodAdapter.ReturnType.SINGLE_ID
+                "${RxJava3TypeNames.SINGLE.canonicalName}<Long>",
+                InsertOrUpsertMethodAdapter.ReturnInfo.SINGLE_ID
             ),
             Pair(
-                "${RxJava3TypeNames.SINGLE}<List<Long>>",
-                InsertOrUpsertMethodAdapter.ReturnType.ID_LIST
+                "${RxJava3TypeNames.SINGLE.canonicalName}<List<Long>>",
+                InsertOrUpsertMethodAdapter.ReturnInfo.ID_LIST
             ),
             Pair(
-                "${RxJava3TypeNames.MAYBE}<Long>",
-                InsertOrUpsertMethodAdapter.ReturnType.SINGLE_ID
+                "${RxJava3TypeNames.MAYBE.canonicalName}<Long>",
+                InsertOrUpsertMethodAdapter.ReturnInfo.SINGLE_ID
             ),
             Pair(
-                "${RxJava3TypeNames.MAYBE}<List<Long>>",
-                InsertOrUpsertMethodAdapter.ReturnType.ID_LIST
+                "${RxJava3TypeNames.MAYBE.canonicalName}<List<Long>>",
+                InsertOrUpsertMethodAdapter.ReturnInfo.ID_LIST
             )
         ).forEach { pair ->
             val dots = if (pair.second in setOf(
-                    InsertOrUpsertMethodAdapter.ReturnType.ID_LIST,
-                    InsertOrUpsertMethodAdapter.ReturnType.ID_ARRAY,
-                    InsertOrUpsertMethodAdapter.ReturnType.ID_ARRAY_BOX
+                    InsertOrUpsertMethodAdapter.ReturnInfo.ID_LIST,
+                    InsertOrUpsertMethodAdapter.ReturnInfo.ID_ARRAY,
+                    InsertOrUpsertMethodAdapter.ReturnInfo.ID_ARRAY_BOX
                 )
             ) {
                 "..."
@@ -582,9 +699,9 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
             val param = insertionUpsertion.parameters.first()
 
-            assertThat(param.type.typeName).isEqualTo(USERNAME_TYPE_NAME)
+            assertThat(param.type.asTypeName()).isEqualTo(USERNAME_TYPE_NAME)
 
-            assertThat(param.pojoType?.typeName).isEqualTo(USERNAME_TYPE_NAME)
+            assertThat(param.pojoType?.asTypeName()).isEqualTo(USERNAME_TYPE_NAME)
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
 
@@ -594,7 +711,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             assertThat(insertionUpsertion.entities["username"]?.entityTypeName)
                 .isEqualTo(USER_TYPE_NAME)
 
-            assertThat(insertionUpsertion.entities["username"]?.pojo?.typeName?.toJavaPoet())
+            assertThat(insertionUpsertion.entities["username"]?.pojo?.typeName)
                 .isEqualTo(USERNAME_TYPE_NAME)
         }
     }
@@ -660,7 +777,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.missingRequiredColumnsInPartialEntity(
-                        partialEntityName = USERNAME_TYPE_NAME.toString(),
+                        partialEntityName = USERNAME_TYPE_NAME.toString(CodeLanguage.JAVA),
                         missingColumnNames = listOf("ageColumn")
                     )
                 )
@@ -939,21 +1056,21 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
     @Test
     fun suspendReturnsDeferredType() {
         listOf(
-            "${RxJava2TypeNames.FLOWABLE}<Int>",
-            "${RxJava2TypeNames.OBSERVABLE}<Int>",
-            "${RxJava2TypeNames.MAYBE}<Int>",
-            "${RxJava2TypeNames.SINGLE}<Int>",
-            "${RxJava2TypeNames.COMPLETABLE}",
-            "${RxJava3TypeNames.FLOWABLE}<Int>",
-            "${RxJava3TypeNames.OBSERVABLE}<Int>",
-            "${RxJava3TypeNames.MAYBE}<Int>",
-            "${RxJava3TypeNames.SINGLE}<Int>",
-            "${RxJava3TypeNames.COMPLETABLE}",
-            "${LifecyclesTypeNames.LIVE_DATA}<Int>",
-            "${LifecyclesTypeNames.COMPUTABLE_LIVE_DATA}<Int>",
-            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE}<Int>",
-            "${ReactiveStreamsTypeNames.PUBLISHER}<Int>",
-            "${KotlinTypeNames.FLOW}<Int>"
+            "${RxJava2TypeNames.FLOWABLE.canonicalName}<Int>",
+            "${RxJava2TypeNames.OBSERVABLE.canonicalName}<Int>",
+            "${RxJava2TypeNames.MAYBE.canonicalName}<Int>",
+            "${RxJava2TypeNames.SINGLE.canonicalName}<Int>",
+            "${RxJava2TypeNames.COMPLETABLE.canonicalName}",
+            "${RxJava3TypeNames.FLOWABLE.canonicalName}<Int>",
+            "${RxJava3TypeNames.OBSERVABLE.canonicalName}<Int>",
+            "${RxJava3TypeNames.MAYBE.canonicalName}<Int>",
+            "${RxJava3TypeNames.SINGLE.canonicalName}<Int>",
+            "${RxJava3TypeNames.COMPLETABLE.canonicalName}",
+            "${LifecyclesTypeNames.LIVE_DATA.canonicalName}<Int>",
+            "${LifecyclesTypeNames.COMPUTABLE_LIVE_DATA.canonicalName}<Int>",
+            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.canonicalName}<Int>",
+            "${ReactiveStreamsTypeNames.PUBLISHER.canonicalName}<Int>",
+            "${KotlinTypeNames.FLOW.canonicalName}<Int>"
         ).forEach { type ->
             singleInsertUpsertShortcutMethodKotlin(
                 """
@@ -969,13 +1086,27 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
         }
     }
 
+    @Test
+    fun nonNullVoidGuava() {
+        singleInsertUpsertShortcutMethodKotlin(
+            """
+                @${annotation.java.canonicalName}
+                abstract fun foo(user: User): ListenableFuture<Void>
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.NONNULL_VOID)
+            }
+        }
+    }
+
     abstract fun process(
         baseContext: Context,
         containing: XType,
         executableElement: XMethodElement
     ): T
 
-    fun singleInsertUpsertShortcutMethod(
+    protected fun singleInsertUpsertShortcutMethod(
         vararg input: String,
         additionalSources: List<Source> = emptyList(),
         handler: (T, XTestInvocation) -> Unit
@@ -1013,7 +1144,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
         }
     }
 
-    fun singleInsertUpsertShortcutMethodKotlin(
+    protected fun singleInsertUpsertShortcutMethodKotlin(
         vararg input: String,
         additionalSources: List<Source> = emptyList(),
         handler: (T, XTestInvocation) -> Unit

@@ -29,7 +29,6 @@ import android.text.TextUtils;
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
 import androidx.annotation.IntDef;
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -37,6 +36,7 @@ import androidx.car.app.CarContext;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
+import androidx.car.app.annotations.KeepFields;
 import androidx.lifecycle.LifecycleOwner;
 
 import java.lang.annotation.Retention;
@@ -62,6 +62,7 @@ import java.util.Objects;
  * the action will note them accordingly.
  */
 @CarProtocol
+@KeepFields
 public final class Action {
     /**
      * The type of action represented by the {@link Action} instance.
@@ -187,23 +188,16 @@ public final class Action {
     @NonNull
     public static final Action PAN = new Action(TYPE_PAN);
 
-    @Keep
     private final boolean mIsEnabled;
-    @Keep
     @Nullable
     private final CarText mTitle;
-    @Keep
     @Nullable
     private final CarIcon mIcon;
-    @Keep
     private final CarColor mBackgroundColor;
-    @Keep
     @Nullable
     private final OnClickDelegate mOnClickDelegate;
-    @Keep
     @ActionType
     private final int mType;
-    @Keep
     @ActionFlag
     private final int mFlags;
 

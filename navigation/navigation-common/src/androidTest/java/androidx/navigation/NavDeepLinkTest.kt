@@ -24,6 +24,7 @@ import androidx.navigation.test.stringArrayArgument
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlin.test.assertFailsWith
 import org.junit.Test
 import java.io.UnsupportedEncodingException
 
@@ -1380,9 +1381,22 @@ class NavDeepLinkTest {
             .contains("name2")
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun deepLinkNoRepeatedQueryParamsInPattern() {
         val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?myarg={myarg}&myarg={myarg}"
-        NavDeepLink(deepLinkArgument)
+        val deepLink = NavDeepLink(deepLinkArgument)
+        val message = assertFailsWith<IllegalArgumentException> {
+            // query params are parsed lazily, need to run getMatchingArguments to resolve it
+            deepLink.getMatchingArguments(
+                Uri.parse(deepLinkArgument),
+                emptyMap()
+            )
+        }.message
+        assertThat(message).isEqualTo(
+            "Query parameter myarg must only be present once in $deepLinkArgument. " +
+                "To support repeated query parameters, use an array type for your " +
+                "argument and the pattern provided in your URI will be used to " +
+                "parse each query parameter instance."
+        )
     }
 }

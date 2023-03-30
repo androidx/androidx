@@ -29,7 +29,7 @@ dependencies {
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.truth)
     testImplementation("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
     testImplementation(libs.testRunner)
@@ -43,18 +43,10 @@ dependencies {
 androidx {
     name = "Android Room Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2019"
     description = "Android Room Kotlin Extensions"
 }
 
 android {
     namespace "androidx.room.ktx"
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-Xjvm-default=all"]
-    }
 }

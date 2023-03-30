@@ -26,7 +26,10 @@ import androidx.fragment.test.R
 import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertWithMessage
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -78,9 +81,12 @@ class DialogFragmentInflatedChildTest(
         }
     }
 
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
+
     @Test
     fun testInflatedChildDialogFragment() {
-        with(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+       withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
             val dialogFragment = TestInflatedChildDialogFragment.newInstance(
                 false, inflatedView.getLayoutId(), inflateLocation is OnCreateDialog
             )
@@ -108,7 +114,7 @@ class DialogFragmentInflatedChildTest(
 
     @Test
     fun testInflatedChildAppCompatDialogFragment() {
-        with(ActivityScenario.launch(TestAppCompatActivity::class.java)) {
+       withUse(ActivityScenario.launch(TestAppCompatActivity::class.java)) {
             val dialogFragment = TestInflatedChildDialogFragment.newInstance(
                 true, inflatedView.getLayoutId(), inflateLocation is OnCreateDialog
             )

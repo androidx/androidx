@@ -115,8 +115,7 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
     private static final int NULL_NAME_RESOURCE_ID = 0;
 
     /** Used by VersionedParcelable. */
-    ComplicationStateWireFormat() {
-    }
+    ComplicationStateWireFormat() {}
 
     @ComplicationExperimental
     public ComplicationStateWireFormat(
@@ -153,7 +152,8 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
         mComplicationConfigExtras = complicationConfigExtras;
         mNameResourceId = (nameResourceId != null) ? nameResourceId : NULL_NAME_RESOURCE_ID;
         mScreenReaderNameResourceId =
-                (screenReaderNameResourceId != null) ? screenReaderNameResourceId
+                (screenReaderNameResourceId != null)
+                        ? screenReaderNameResourceId
                         : NULL_NAME_RESOURCE_ID;
         mBoundingArc = boundingArc;
     }
@@ -191,7 +191,8 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
         mComplicationConfigExtras = complicationConfigExtras;
         mNameResourceId = (nameResourceId != null) ? nameResourceId : NULL_NAME_RESOURCE_ID;
         mScreenReaderNameResourceId =
-                (screenReaderNameResourceId != null) ? screenReaderNameResourceId
+                (screenReaderNameResourceId != null)
+                        ? screenReaderNameResourceId
                         : NULL_NAME_RESOURCE_ID;
     }
 
@@ -274,7 +275,9 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
         return mFallbackSystemProvider;
     }
 
-    /** @deprecated Use {@link #getDefaultDataSourceType} instead. */
+    /**
+     * @deprecated Use {@link #getDefaultDataSourceType} instead.
+     */
     @Deprecated
     @ComplicationData.ComplicationType
     public int getDefaultProviderType() {
@@ -290,27 +293,29 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
     }
 
     /**
-     * @return The {@link ComplicationData.ComplicationType} for the first entry from
-     * {@link #getDefaultDataSourcesToTry}.
+     * @return The {@link ComplicationData.ComplicationType} for the first entry from {@link
+     *     #getDefaultDataSourcesToTry}.
      */
     @ComplicationData.ComplicationType
     public int getPrimaryDataSourceDefaultType() {
         // Not supported in library v1.0. TYPE_NOT_CONFIGURED is not a valid API choice indicating
         // and old client.
         return (mPrimaryDataSourceDefaultType == ComplicationData.TYPE_NOT_CONFIGURED)
-                ? mDefaultType : mPrimaryDataSourceDefaultType;
+                ? mDefaultType
+                : mPrimaryDataSourceDefaultType;
     }
 
     /**
-     * @return The {@link ComplicationData.ComplicationType} for the second entry from
-     * {@link #getDefaultDataSourcesToTry}.
+     * @return The {@link ComplicationData.ComplicationType} for the second entry from {@link
+     *     #getDefaultDataSourcesToTry}.
      */
     @ComplicationData.ComplicationType
     public int getSecondaryDataSourceDefaultType() {
         // Not supported in library v1.0. TYPE_NOT_CONFIGURED is not a valid API choice indicating
         // and old client.
         return (mSecondaryDataSourceDefaultType == ComplicationData.TYPE_NOT_CONFIGURED)
-                ? mDefaultType : mSecondaryDataSourceDefaultType;
+                ? mDefaultType
+                : mSecondaryDataSourceDefaultType;
     }
 
     public boolean isEnabled() {
@@ -342,7 +347,8 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
 
     @Nullable
     public Integer getScreenReaderNameResourceId() {
-        return mScreenReaderNameResourceId != NULL_NAME_RESOURCE_ID ? mScreenReaderNameResourceId
+        return mScreenReaderNameResourceId != NULL_NAME_RESOURCE_ID
+                ? mScreenReaderNameResourceId
                 : null;
     }
 

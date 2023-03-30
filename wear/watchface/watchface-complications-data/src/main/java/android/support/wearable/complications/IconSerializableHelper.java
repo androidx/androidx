@@ -105,8 +105,8 @@ class IconSerializableHelper implements Serializable {
 
             case Icon.TYPE_BITMAP:
             case Icon.TYPE_ADAPTIVE_BITMAP:
-                return Icon.createWithBitmap(BitmapFactory.decodeByteArray(mBitmap, 0,
-                        mBitmap.length));
+                return Icon.createWithBitmap(
+                        BitmapFactory.decodeByteArray(mBitmap, 0, mBitmap.length));
 
             default:
                 return null;

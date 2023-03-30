@@ -52,7 +52,6 @@ dependencies {
 androidx {
     name = "AndroidX Widget ViewPager2"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.VIEWPAGER2
     inceptionYear = "2017"
     description = "AndroidX Widget ViewPager2"
 }

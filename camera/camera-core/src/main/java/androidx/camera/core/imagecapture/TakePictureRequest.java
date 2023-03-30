@@ -16,6 +16,7 @@
 
 package androidx.camera.core.imagecapture;
 
+import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.core.util.Preconditions.checkArgument;
 
 import static java.util.Objects.requireNonNull;
@@ -25,9 +26,11 @@ import android.graphics.Rect;
 import android.os.Build;
 
 import androidx.annotation.IntRange;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
@@ -35,6 +38,7 @@ import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.internal.compat.workaround.CaptureFailedRetryEnabler;
 
 import com.google.auto.value.AutoValue;
 
@@ -51,7 +55,12 @@ import java.util.concurrent.Executor;
 @AutoValue
 public abstract class TakePictureRequest {
 
-    // TODO(b/242683221): add a retry counter.
+    /**
+     * By default, ImageCapture does not retry requests. For some problematic devices, the
+     * capture request can become success after retrying. The allowed retry count will be
+     * provided by the {@link CaptureFailedRetryEnabler}.
+     */
+    private int mRemainingRetires = new CaptureFailedRetryEnabler().getRetryCount();
 
     /**
      * Gets the callback {@link Executor} provided by the app.
@@ -123,6 +132,43 @@ public abstract class TakePictureRequest {
     abstract List<CameraCaptureCallback> getSessionConfigCameraCaptureCallbacks();
 
     /**
+     * Decrements retry counter.
+     *
+     * @return true if there is still remaining retries at the time of calling. In that case, the
+     * request should be retried. False when there is no retry left. The caller needs to fail the
+     * request.
+     */
+    @MainThread
+    boolean decrementRetryCounter() {
+        checkMainThread();
+        if (mRemainingRetires > 0) {
+            mRemainingRetires--;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Increments retry counter.
+     */
+    @MainThread
+    void incrementRetryCounter() {
+        checkMainThread();
+        mRemainingRetires++;
+    }
+
+    /**
+     * Gets the current retry count for testing.
+     */
+    @MainThread
+    @VisibleForTesting
+    int getRemainingRetries() {
+        checkMainThread();
+        return mRemainingRetires;
+    }
+
+    /**
      * Delivers {@link ImageCaptureException} to the app.
      */
     void onError(@NonNull ImageCaptureException imageCaptureException) {
@@ -176,5 +222,18 @@ public abstract class TakePictureRequest {
         return new AutoValue_TakePictureRequest(appExecutor, inMemoryCallback,
                 onDiskCallback, outputFileOptions, cropRect, sensorToBufferTransform,
                 rotationDegrees, jpegQuality, captureMode, sessionConfigCameraCaptureCallbacks);
+    }
+
+    /**
+     * Interface for retrying a {@link TakePictureRequest}.
+     */
+    interface RetryControl {
+
+        /**
+         * Retries the given {@link TakePictureRequest}.
+         *
+         * <p>The request should be injected to the front of the queue.
+         */
+        void retryRequest(@NonNull TakePictureRequest takePictureRequest);
     }
 }

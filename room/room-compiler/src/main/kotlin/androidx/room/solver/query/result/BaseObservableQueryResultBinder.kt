@@ -16,42 +16,51 @@
 
 package androidx.room.solver.query.result
 
-import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.VisibilityModifier
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
+import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
+import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.ext.AndroidTypeNames.CURSOR
-import androidx.room.ext.L
-import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames
-import androidx.room.ext.T
 import androidx.room.solver.CodeGenScope
-import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.MethodSpec
-import javax.lang.model.element.Modifier
 
 /**
  * Base class for query result binders that observe the database. It includes common functionality
  * like creating a finalizer to release the query or creating the actual adapter call code.
  */
-abstract class BaseObservableQueryResultBinder(adapter: QueryResultAdapter?) :
-    QueryResultBinder(adapter) {
+abstract class BaseObservableQueryResultBinder(
+    adapter: QueryResultAdapter?
+) : QueryResultBinder(adapter) {
 
-    protected fun createFinalizeMethod(roomSQLiteQueryVar: String): MethodSpec {
-        return MethodSpec.methodBuilder("finalize").apply {
-            addModifiers(Modifier.PROTECTED)
-            addAnnotation(Override::class.java)
-            addStatement("$L.release()", roomSQLiteQueryVar)
-        }.build()
+    protected fun XTypeSpec.Builder.createFinalizeMethod(roomSQLiteQueryVar: String) {
+        addFunction(
+            XFunSpec.builder(
+                language = language,
+                name = "finalize",
+                visibility = VisibilityModifier.PROTECTED,
+                // To 'override' finalize in Kotlin one does not use the 'override' keyword, but in
+                // Java the @Override is needed
+                isOverride = language == CodeLanguage.JAVA
+            ).apply {
+                addStatement("%L.release()", roomSQLiteQueryVar)
+            }.build()
+        )
     }
 
     protected fun createRunQueryAndReturnStatements(
-        builder: MethodSpec.Builder,
+        builder: XCodeBlock.Builder,
         roomSQLiteQueryVar: String,
-        dbField: FieldSpec,
+        dbProperty: XPropertySpec,
         inTransaction: Boolean,
         scope: CodeGenScope,
         cancellationSignalVar: String
     ) {
         val transactionWrapper = if (inTransaction) {
-            builder.transactionWrapper(dbField)
+            builder.transactionWrapper(dbProperty.name)
         } else {
             null
         }
@@ -60,25 +69,28 @@ abstract class BaseObservableQueryResultBinder(adapter: QueryResultAdapter?) :
         val cursorVar = scope.getTmpVar("_cursor")
         transactionWrapper?.beginTransactionWithControlFlow()
         builder.apply {
-            addStatement(
-                "final $T $L = $T.query($N, $L, $L, $L)",
-                CURSOR.toJavaPoet(),
-                cursorVar,
-                RoomTypeNames.DB_UTIL,
-                dbField,
-                roomSQLiteQueryVar,
-                if (shouldCopyCursor) "true" else "false",
-                cancellationSignalVar
+            addLocalVariable(
+                name = cursorVar,
+                typeName = CURSOR,
+                assignExpr = XCodeBlock.of(
+                    language = language,
+                    format = "%M(%N, %L, %L, %L)",
+                    RoomTypeNames.DB_UTIL.packageMember("query"),
+                    dbProperty,
+                    roomSQLiteQueryVar,
+                    if (shouldCopyCursor) "true" else "false",
+                    cancellationSignalVar
+                )
             )
             beginControlFlow("try").apply {
                 val adapterScope = scope.fork()
                 adapter?.convert(outVar, cursorVar, adapterScope)
-                addCode(adapterScope.builder().build())
+                add(adapterScope.generate())
                 transactionWrapper?.commitTransaction()
-                addStatement("return $L", outVar)
+                addStatement("return %L", outVar)
             }
             nextControlFlow("finally").apply {
-                addStatement("$L.close()", cursorVar)
+                addStatement("%L.close()", cursorVar)
             }
             endControlFlow()
         }

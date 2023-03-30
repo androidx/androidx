@@ -17,7 +17,7 @@ class DelayedView(context: Context?, attrs: AttributeSet?) :
     var perFrameStateData: List<JankStatsTest.FrameStateInputData> = listOf()
 
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         repetitions++
         if (delayMs > 0) {
             try {
@@ -30,7 +30,7 @@ class DelayedView(context: Context?, attrs: AttributeSet?) :
             (((Math.random() * 127) + 128).toInt() shl 8) or
             ((Math.random() * 127) + 128).toInt()
 
-        canvas!!.drawColor(randomColor)
+        canvas.drawColor(randomColor)
         if (perFrameStateData.isNotEmpty()) {
             val metricsState = PerformanceMetricsState.getHolderForHierarchy(this).state!!
             val stateData = perFrameStateData[repetitions - 1]

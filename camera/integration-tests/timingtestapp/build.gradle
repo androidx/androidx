@@ -67,6 +67,7 @@ dependencies {
     implementation(libs.kotlinCoroutinesAndroid)
 
     // Testing framework
+    androidTestImplementation(project(":concurrent:concurrent-futures"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)

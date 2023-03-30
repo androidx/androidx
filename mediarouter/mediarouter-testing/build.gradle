@@ -29,7 +29,6 @@ dependencies {
 androidx {
     name = "AndroidX MediaRouter Testing"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.MEDIAROUTER
     inceptionYear = "2021"
     description = "Test utilities for AndroidX MediaRouter"
 }

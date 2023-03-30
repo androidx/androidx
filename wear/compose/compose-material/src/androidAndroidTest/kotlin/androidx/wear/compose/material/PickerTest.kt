@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.ui.Modifier
@@ -44,6 +45,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -180,20 +183,42 @@ class PickerTest {
 
     @Test
     fun uses_positive_separation_correctly() =
-        uses_separation_correctly(1)
+        scroll_with_separation(1)
 
     @Test
     fun uses_negative_separation_correctly() =
-        uses_separation_correctly(-1)
+        scroll_with_separation(-1)
 
-    private fun uses_separation_correctly(separationSign: Int) {
+    /**
+     * Test that picker is properly scrolled with scrollOffset, which equals to a half of the
+     * (itemSizePx + separationPx) and minus 1 pixel
+     * for making it definitely less than a half of an item
+     */
+    @Test
+    fun scroll_with_positive_separation_and_offset() =
+        scroll_with_separation(1, scrollOffset = (itemSizePx + separationPx) / 2 - 1)
+
+    /**
+     * Test that picker is properly scrolled with scrollOffset, which equals to a half of the
+     * (itemSizePx - separationPx) and minus 1 pixel
+     * for making it definitely less than a half of an item
+     */
+    @Test
+    fun scroll_with_negative_separation_and_offset() =
+        scroll_with_separation(-1, scrollOffset = (itemSizePx - separationPx) / 2 - 1)
+
+    private fun scroll_with_separation(
+        separationSign: Int,
+        scrollOffset: Int = 0
+    ) {
         lateinit var state: PickerState
         rule.setContent {
             WithTouchSlop(0f) {
                 Picker(
                     state = rememberPickerState(20).also { state = it },
                     contentDescription = CONTENT_DESCRIPTION,
-                    modifier = Modifier.testTag(TEST_TAG)
+                    modifier = Modifier
+                        .testTag(TEST_TAG)
                         .requiredSize(itemSizeDp * 11 + separationDp * 10 * separationSign),
                     separation = separationDp * separationSign
                 ) {
@@ -206,18 +231,132 @@ class PickerTest {
         val itemsToScroll = 4
 
         rule.onNodeWithTag(TEST_TAG).performTouchInput {
-            // Start at bottom - 2 to allow for 1.dp padding around the Picker
+            // Start at bottom - 5 to allow for around 2.dp padding around the Picker
             // (which was added to prevent jitter around the start of the gradient).
             swipeWithVelocity(
-                start = Offset(centerX, bottom - 2),
-                end = Offset(centerX, bottom - 2 -
-                    (itemSizePx + separationPx * separationSign) * itemsToScroll),
+                start = Offset(centerX, bottom - 5),
+                end = Offset(
+                    centerX, bottom - 5 - scrollOffset -
+                        (itemSizePx + separationPx * separationSign) * itemsToScroll
+                ),
                 endVelocity = NOT_A_FLING_SPEED
             )
         }
 
         rule.waitForIdle()
         assertThat(state.selectedOption).isEqualTo(itemsToScroll)
+    }
+
+    @Test
+    fun scroll_to_next_item_with_animation() {
+        animateScrollTo(
+            initialOption = 2,
+            targetOption = 3,
+            totalOptions = 10,
+            expectedItemsScrolled = 1,
+        )
+    }
+
+    @Test
+    fun scroll_forward_by_two_items_with_animation() {
+        animateScrollTo(
+            initialOption = 2,
+            targetOption = 4,
+            totalOptions = 10,
+            expectedItemsScrolled = 2,
+        )
+    }
+
+    @Test
+    fun scroll_to_prev_item_with_animation() {
+        animateScrollTo(
+            initialOption = 2,
+            targetOption = 1,
+            totalOptions = 5,
+            expectedItemsScrolled = -1,
+        )
+    }
+
+    @Test
+    fun scroll_backward_by_two_items_with_animation() {
+        animateScrollTo(
+            initialOption = 3,
+            targetOption = 1,
+            totalOptions = 5,
+            expectedItemsScrolled = -2,
+        )
+    }
+
+    @Test
+    fun scroll_forward_to_repeated_items_with_animation() {
+        animateScrollTo(
+            initialOption = 8,
+            targetOption = 2,
+            totalOptions = 10,
+            expectedItemsScrolled = 4,
+        )
+    }
+
+    @Test
+    fun scroll_backward_to_repeated_items_with_animation() {
+        animateScrollTo(
+            initialOption = 2,
+            targetOption = 8,
+            totalOptions = 10,
+            expectedItemsScrolled = -4,
+        )
+    }
+
+    @Test
+    fun scroll_to_the_closest_item_with_animation() {
+        animateScrollTo(
+            initialOption = 2,
+            targetOption = 0,
+            totalOptions = 4,
+            expectedItemsScrolled = -2,
+        )
+    }
+
+    @Test
+    fun animate_scroll_cancels_previous_animation() {
+        val initialOption = 5
+        val totalOptions = 10
+        val firstTarget = 7
+        val secondTarget = 9
+
+        val targetDelta = 4
+
+        lateinit var state: PickerState
+        lateinit var scope: CoroutineScope
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            state = rememberPickerState(
+                initialNumberOfOptions = totalOptions,
+                initiallySelectedOption = initialOption
+            )
+            SimplePicker(state)
+        }
+        val initialItemIndex = state.scalingLazyListState.centerItemIndex
+
+        // The first animation starts, but before it's finished - a second animation starts,
+        // which cancels the first animation. In the end it doesn't matter how far picker was
+        // scrolled during first animation, because the second animation should bring
+        // picker to its final target.
+        rule.runOnIdle {
+            scope.launch {
+                async {
+                    state.animateScrollToOption(firstTarget)
+                }
+                delay(100) // a short delay so that the first async will be triggered first
+                async {
+                    state.animateScrollToOption(secondTarget)
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertThat(state.selectedOption).isEqualTo(secondTarget)
+        assertThat(state.scalingLazyListState.centerItemIndex)
+            .isEqualTo(initialItemIndex + targetDelta)
     }
 
     @Test
@@ -264,6 +403,7 @@ class PickerTest {
             }
         }
 
+        val initialItemIndex = state.scalingLazyListState.centerItemIndex
         rule.runOnIdle {
             runBlocking {
                 state.numberOfOptions = 31
@@ -273,6 +413,7 @@ class PickerTest {
         rule.waitForIdle()
 
         assertThat(state.selectedOption).isEqualTo(initialOption)
+        assertThat(state.scalingLazyListState.centerItemIndex).isEqualTo(initialItemIndex)
     }
 
     @Test
@@ -500,6 +641,7 @@ class PickerTest {
         assertThat(state.selectedOption).isNotEqualTo(initialOption)
     }
 
+    @Test
     fun scrolls_from_non_canonical_option_works() {
         lateinit var scope: CoroutineScope
         val pickerDriver = PickerDriver(separationSign = 1)
@@ -532,6 +674,70 @@ class PickerTest {
         rule.waitForIdle()
 
         pickerDriver.verifyCenterItemIsCentered()
+    }
+
+    @Test
+    fun rememberPickerState_updates_after_new_inputs() {
+        val numberOfOptions = 10
+        lateinit var selectedOption: MutableState<Int>
+        rule.setContent {
+            selectedOption = remember { mutableStateOf(1) }
+            val pickerState = rememberPickerState(
+                initialNumberOfOptions = numberOfOptions,
+                initiallySelectedOption = selectedOption.value
+            )
+            Text(text = "${pickerState.selectedOption}")
+        }
+
+        // Update selected option to a new value - should also update the PickerState instance,
+        // and then recompose with the new value in the Text element.
+        selectedOption.value = 2
+        rule.waitForIdle()
+
+        rule.onNodeWithText("2").assertExists()
+    }
+
+    private fun animateScrollTo(
+        initialOption: Int,
+        targetOption: Int,
+        totalOptions: Int,
+        expectedItemsScrolled: Int,
+    ) {
+        lateinit var state: PickerState
+        lateinit var scope: CoroutineScope
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            state = rememberPickerState(
+                initialNumberOfOptions = totalOptions,
+                initiallySelectedOption = initialOption
+            )
+            SimplePicker(state)
+        }
+
+        val initialItemIndex = state.scalingLazyListState.centerItemIndex
+        rule.runOnIdle {
+            scope.launch {
+                async {
+                    state.animateScrollToOption(targetOption)
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertThat(state.selectedOption).isEqualTo(targetOption)
+        assertThat(state.scalingLazyListState.centerItemIndex)
+            .isEqualTo(initialItemIndex + expectedItemsScrolled)
+    }
+
+    @Composable
+    private fun SimplePicker(state: PickerState) {
+        WithTouchSlop(0f) {
+            Picker(
+                state = state,
+                contentDescription = CONTENT_DESCRIPTION,
+            ) {
+                Box(Modifier.requiredSize(itemSizeDp))
+            }
+        }
     }
 
     private fun scroll_snaps(

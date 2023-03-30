@@ -30,6 +30,7 @@ import org.junit.runners.Parameterized
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertSame
+import org.junit.Before
 
 internal fun <T : Any> adjacentInsertEvent(
     isPrepend: Boolean,
@@ -278,26 +279,36 @@ class PageEventTest {
 
     @RunWith(Parameterized::class)
     class StaticPagingData(
-        private val original: PagingData<String>
+        private val data: List<String>
     ) {
         companion object {
             @JvmStatic
-            @Parameterized.Parameters(name = "original = {0}")
+            @Parameterized.Parameters(name = "data = {0}")
             fun initParameters() = listOf(
-                PagingData.from(listOf("a", "b", "c")),
-                PagingData.empty(),
+                listOf("a", "b", "c"),
+                emptyList(),
             )
         }
 
         private val differ = TestPagingDataDiffer<String>(DirectDispatcher)
+        private lateinit var pagingData: PagingData<String>
+
+        @Before
+        fun init() {
+            pagingData = if (data.isNotEmpty()) {
+                PagingData.from(data)
+            } else {
+                PagingData.empty()
+            }
+        }
 
         @Test
         fun map() = runTest(UnconfinedTestDispatcher()) {
             val transform = { it: String -> it + it }
-            differ.collectFrom(original)
+            differ.collectFrom(pagingData)
             val originalItems = differ.snapshot().items
             val expectedItems = originalItems.map(transform)
-            val transformedPagingData = original.map { transform(it) }
+            val transformedPagingData = pagingData.map { transform(it) }
             differ.collectFrom(transformedPagingData)
             assertEquals(expectedItems, differ.snapshot().items)
         }
@@ -305,10 +316,10 @@ class PageEventTest {
         @Test
         fun flatMap() = runTest(UnconfinedTestDispatcher()) {
             val transform = { it: String -> listOf(it, it) }
-            differ.collectFrom(original)
+            differ.collectFrom(pagingData)
             val originalItems = differ.snapshot().items
             val expectedItems = originalItems.flatMap(transform)
-            val transformedPagingData = original.flatMap { transform(it) }
+            val transformedPagingData = pagingData.flatMap { transform(it) }
             differ.collectFrom(transformedPagingData)
             assertEquals(expectedItems, differ.snapshot().items)
         }
@@ -316,10 +327,10 @@ class PageEventTest {
         @Test
         fun filter() = runTest(UnconfinedTestDispatcher()) {
             val predicate = { it: String -> it != "b" }
-            differ.collectFrom(original)
+            differ.collectFrom(pagingData)
             val originalItems = differ.snapshot().items
             val expectedItems = originalItems.filter(predicate)
-            val transformedPagingData = original.filter { predicate(it) }
+            val transformedPagingData = pagingData.filter { predicate(it) }
             differ.collectFrom(transformedPagingData)
             assertEquals(expectedItems, differ.snapshot().items)
         }
@@ -329,7 +340,7 @@ class PageEventTest {
             val transform = { left: String?, right: String? ->
                 if (left == null || right == null) null else "|"
             }
-            differ.collectFrom(original)
+            differ.collectFrom(pagingData)
             val originalItems = differ.snapshot().items
             val expectedItems = originalItems.flatMapIndexed { index, s ->
                 val result = mutableListOf<String>()
@@ -343,7 +354,7 @@ class PageEventTest {
                 }
                 result
             }
-            val transformedPagingData = original.insertSeparators { left, right ->
+            val transformedPagingData = pagingData.insertSeparators { left, right ->
                 transform(left, right)
             }
             differ.collectFrom(transformedPagingData)

@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2022 The Android Open Source Project
  *
@@ -16,11 +17,11 @@
 
 package androidx.graphics.lowlatency
 
+import android.graphics.Color
 import android.opengl.GLES20
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
-import org.junit.Assert.assertEquals
 
 /**
  * OpenGL Renderer class responsible for drawing lines
@@ -34,6 +35,9 @@ class LineRenderer {
     private var mPositionHandle: Int = -1
     private var mMvpMatrixHandle: Int = -1
 
+    private var mColorHandle: Int = -1
+    private val mColorArray = FloatArray(4)
+
     private var mVertexBuffer: FloatBuffer? = null
     private val mLineCoords = FloatArray(6)
 
@@ -43,15 +47,11 @@ class LineRenderer {
         mFragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, FragmentShaderCode)
 
         mGlProgram = GLES20.glCreateProgram()
-        assertEquals(GLES20.GL_NO_ERROR, GLES20.glGetError())
 
         GLES20.glAttachShader(mGlProgram, mVertexShader)
-        assertEquals(GLES20.GL_NO_ERROR, GLES20.glGetError())
         GLES20.glAttachShader(mGlProgram, mFragmentShader)
-        assertEquals(GLES20.GL_NO_ERROR, GLES20.glGetError())
 
         GLES20.glLinkProgram(mGlProgram)
-        assertEquals(GLES20.GL_NO_ERROR, GLES20.glGetError())
 
         val bb: ByteBuffer =
             ByteBuffer.allocateDirect( // (number of coordinate values * 4 bytes per float)
@@ -67,10 +67,8 @@ class LineRenderer {
         }
 
         mPositionHandle = GLES20.glGetAttribLocation(mGlProgram, vPosition)
-        assertEquals(GLES20.GL_NO_ERROR, GLES20.glGetError())
-
         mMvpMatrixHandle = GLES20.glGetUniformLocation(mGlProgram, uMVPMatrix)
-        assertEquals(GLES20.GL_NO_ERROR, GLES20.glGetError())
+        mColorHandle = GLES20.glGetUniformLocation(mGlProgram, vColor)
     }
 
     fun release() {
@@ -90,16 +88,21 @@ class LineRenderer {
         }
     }
 
-    fun drawLines(mvpMatrix: FloatArray, lines: FloatArray) {
-        assertEquals(GLES20.GL_NO_ERROR, GLES20.glGetError())
+    fun drawLines(
+        mvpMatrix: FloatArray,
+        lines: FloatArray,
+        color: Int = Color.RED,
+        lineWidth: Float = 10f
+    ) {
         GLES20.glUseProgram(mGlProgram)
-
-        val buff = FloatBuffer.allocate(2)
-        GLES20.glGetFloatv(GLES20.GL_ALIASED_LINE_WIDTH_RANGE, buff)
-        GLES20.glLineWidth(100.0f)
-
+        GLES20.glLineWidth(lineWidth)
         GLES20.glEnableVertexAttribArray(mPositionHandle)
-
+        mColorArray[0] = Color.red(color).toFloat()
+        mColorArray[1] = Color.green(color).toFloat()
+        mColorArray[2] = Color.blue(color).toFloat()
+        mColorArray[3] = Color.alpha(color).toFloat()
+        // Set color for drawing the triangle
+        GLES20.glUniform4fv(mColorHandle, 1, mColorArray, 0)
         GLES20.glUniformMatrix4fv(mMvpMatrixHandle, 1, false, mvpMatrix, 0)
 
         mVertexBuffer?.let { buffer ->
@@ -121,10 +124,8 @@ class LineRenderer {
                 VertexStride, buffer
             )
             GLES20.glDrawArrays(GLES20.GL_LINES, 0, VertexCount)
-
-            GLES20.glDisableVertexAttribArray(mPositionHandle)
-            assertEquals(GLES20.GL_NO_ERROR, GLES20.glGetError())
         }
+        GLES20.glDisableVertexAttribArray(mPositionHandle)
     }
 
     companion object {
@@ -144,23 +145,16 @@ class LineRenderer {
                   gl_Position = $uMVPMatrix * $vPosition;
                 }
             """
-
+        private const val vColor = "vColor"
         private const val FragmentShaderCode =
             """
                 precision highp float;
 
+                uniform vec4 $vColor;
                 void main() {
                     gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                    gl_FragColor = $vColor;
                 }
             """
-
-        fun loadShader(type: Int, shaderCode: String?): Int {
-            val shader = GLES20.glCreateShader(type)
-
-            GLES20.glShaderSource(shader, shaderCode)
-            GLES20.glCompileShader(shader)
-
-            return shader
-        }
     }
 }

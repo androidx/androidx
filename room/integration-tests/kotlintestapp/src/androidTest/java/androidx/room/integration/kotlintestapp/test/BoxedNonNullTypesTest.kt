@@ -212,6 +212,7 @@ class BoxedNonNullTypesTest {
         @Query("SELECT value FROM MyEntity")
         fun getAsList(): List<Long>
 
+        @Suppress("ROOM_UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE")
         @Query("SELECT value FROM MyNullableEntity")
         fun getAsNullableList(): List<Long?>
 

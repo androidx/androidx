@@ -20,12 +20,12 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -37,28 +37,22 @@ import java.util.Objects;
  */
 @CarProtocol
 @RequiresCarApi(5)
+@KeepFields
 public final class Alert {
 
     /* Maximum number of actions allowed on the alert. */
     private static final int MAX_ACTION_COUNT = 2;
 
-    @Keep
     private final int mId;
-    @Keep
     @Nullable
     private final CarIcon mIcon;
-    @Keep
     @NonNull
     private final CarText mTitle;
-    @Keep
     @Nullable
     private final CarText mSubtitle;
-    @Keep
     @NonNull
     private final List<Action> mActions;
-    @Keep
     private final long mDuration;
-    @Keep
     @Nullable
     private final AlertCallbackDelegate mCallbackDelegate;
 
@@ -186,11 +180,11 @@ public final class Alert {
          *
          * <p>Text spans are supported.
          *
-         * @param alertId The unique identifier used for the alert. Alerts with the same id are
-         *                considered equal.
-         * @param title The title of the alert.
+         * @param alertId        The unique identifier used for the alert. Alerts with the same
+         *                       id are considered equal.
+         * @param title          The title of the alert.
          * @param durationMillis The maximum duration the alert can be shown in milli seconds.
-         * @throws NullPointerException if {@code title} is {@code null}
+         * @throws NullPointerException     if {@code title} is {@code null}
          * @throws IllegalArgumentException if {@code duration} is not positive
          * @see CarText
          */

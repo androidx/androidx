@@ -17,14 +17,22 @@
 package androidx.camera.camera2.pipe.config
 
 import androidx.annotation.RequiresApi
-import androidx.camera.camera2.pipe.CameraGraph
-import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraController
+import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraStatusMonitor
+import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.compat.Camera2Backend
+import androidx.camera.camera2.pipe.compat.Camera2CameraAvailabilityMonitor
 import androidx.camera.camera2.pipe.compat.Camera2CameraController
-import androidx.camera.camera2.pipe.compat.Camera2CaptureSessionsModule
+import androidx.camera.camera2.pipe.compat.Camera2CameraOpener
+import androidx.camera.camera2.pipe.compat.Camera2CameraStatusMonitor
 import androidx.camera.camera2.pipe.compat.Camera2CaptureSequenceProcessorFactory
+import androidx.camera.camera2.pipe.compat.Camera2CaptureSessionsModule
+import androidx.camera.camera2.pipe.compat.Camera2MetadataCache
+import androidx.camera.camera2.pipe.compat.Camera2MetadataProvider
+import androidx.camera.camera2.pipe.compat.CameraAvailabilityMonitor
+import androidx.camera.camera2.pipe.compat.CameraOpener
 import androidx.camera.camera2.pipe.compat.StandardCamera2CaptureSequenceProcessorFactory
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.graph.GraphListener
@@ -38,15 +46,29 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-@Module(
-    subcomponents = [
-        Camera2ControllerComponent::class
-    ]
-)
+@Module(subcomponents = [Camera2ControllerComponent::class])
 internal abstract class Camera2Module {
     @Binds
-    @CameraPipeCameraBackend
+    @DefaultCameraBackend
     abstract fun bindCameraPipeCameraBackend(camera2Backend: Camera2Backend): CameraBackend
+
+    @Binds
+    abstract fun bindCameraOpener(camera2CameraOpener: Camera2CameraOpener): CameraOpener
+
+    @Binds
+    abstract fun bindCameraMetadataProvider(
+        camera2MetadataCache: Camera2MetadataCache
+    ): Camera2MetadataProvider
+
+    @Binds
+    abstract fun bindCameraAvailabilityMonitor(
+        camera2CameraAvailabilityMonitor: Camera2CameraAvailabilityMonitor
+    ): CameraAvailabilityMonitor
+
+    @Binds
+    abstract fun bindCameraStatusMonitor(
+        camera2CameraStatusMonitor: Camera2CameraStatusMonitor
+    ): CameraStatusMonitor
 }
 
 @Scope
@@ -55,11 +77,11 @@ internal annotation class Camera2ControllerScope
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Camera2ControllerScope
 @Subcomponent(
-    modules = [
+    modules =
+    [
         Camera2ControllerConfig::class,
         Camera2ControllerModule::class,
-        Camera2CaptureSessionsModule::class
-    ]
+        Camera2CaptureSessionsModule::class]
 )
 internal interface Camera2ControllerComponent {
     fun cameraController(): CameraController

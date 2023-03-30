@@ -69,13 +69,8 @@ abstract class GraphView(
         )
     }
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-
-        if (canvas == null) {
-            postInvalidate()
-            return
-        }
 
         /** Draws line at the top of the graph view separating it from the top row of the graph */
         canvas.drawLine(0f, 0f, layoutState.widthFloat, 0f, paints.dividerLinePaint)

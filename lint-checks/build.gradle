@@ -52,7 +52,7 @@ def exportTaskProvider = tasks.register(
         "exportAtomicLibraryGroupsToText",
         ExportAtomicLibraryGroupsToTextTask
 ) { task ->
-    task.libraryGroups = androidx.LibraryGroups
+    task.libraryGroups = androidx.AllLibraryGroups
 
     def generatedDirectory = new File(project.buildDir, "generated/resources")
     task.outputDir.set(generatedDirectory)

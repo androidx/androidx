@@ -100,7 +100,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
     private ProcessorState mProcessorState;
     private static List<DeferrableSurface> sHeldProcessorSurfaces = new ArrayList<>();
     @Nullable
-    private volatile CaptureConfig mPendingCaptureConfig = null;
+    private volatile List<CaptureConfig> mPendingCaptureConfigs = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     volatile boolean mIsExecutingStillCaptureRequest = false;
     private final SessionProcessorCaptureCallback mSessionProcessorCaptureCallback;
@@ -115,7 +115,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         SESSION_INITIALIZED,
         ON_CAPTURE_SESSION_STARTED,
         ON_CAPTURE_SESSION_ENDED,
-        CLOSED
+        DE_INITIALIZED
     }
 
     // For debugging only
@@ -155,7 +155,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
                         .transformAsync(surfaceList -> {
                             Logger.d(TAG,
                                     "-- getSurfaces done, start init (id=" + mInstanceId + ")");
-                            if (mProcessorState == ProcessorState.CLOSED) {
+                            if (mProcessorState == ProcessorState.DE_INITIALIZED) {
                                 return Futures.immediateFailedFuture(new IllegalStateException(
                                         "SessionProcessorCaptureSession is closed."));
                             }
@@ -251,11 +251,13 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
                                 }
 
                                 @Override
+                                @SuppressWarnings("FutureReturnValueIgnored")
                                 public void onFailure(@NonNull Throwable t) {
                                     // Close() will invoke appropriate SessionProcessor methods
                                     // to clear up and mark this session as CLOSED.
                                     Logger.e(TAG, "open session failed ", t);
                                     close();
+                                    release(false);
                                 }
                             }, mExecutor);
                             return openSessionFuture;
@@ -280,33 +282,69 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         }
     }
 
-    private boolean isStillCapture(@NonNull List<CaptureConfig> captureConfigs) {
-        if (captureConfigs.isEmpty()) {
-            return false;
-        }
-        for (CaptureConfig captureConfig : captureConfigs) {
-            // Don't need to consider TEMPLATE_VIDEO_SNAPSHOT case since extensions does not
-            // support Video Capture yet
-            if (captureConfig.getTemplateType() != CameraDevice.TEMPLATE_STILL_CAPTURE) {
-                return false;
+    /**
+     * Send a trigger request. Currently only CONTROL_AF_TRIGGER and CONTROL_AE_PRECAPTURE_TRIGGER
+     * are supported.
+     */
+    void issueTriggerRequest(@NonNull CaptureConfig captureConfig) {
+        Logger.d(TAG, "issueTriggerRequest");
+        CaptureRequestOptions options =
+                CaptureRequestOptions.Builder.from(
+                        captureConfig.getImplementationOptions()).build();
+
+        boolean hasTriggerParameters = false;
+        for (Config.Option<?> option : options.listOptions()) {
+            @SuppressWarnings("unchecked")
+            CaptureRequest.Key<Object> key = (CaptureRequest.Key<Object>) option.getToken();
+            if (key.equals(CaptureRequest.CONTROL_AF_TRIGGER)
+                    || key.equals(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER)) {
+                hasTriggerParameters = true;
+                break;
             }
         }
-        return true;
+
+        if (!hasTriggerParameters) {
+            cancelRequests(Arrays.asList(captureConfig));
+            return;
+        }
+        mSessionProcessor.startTrigger(options, new SessionProcessor.CaptureCallback() {
+            @Override
+            public void onCaptureFailed(int captureSequenceId) {
+                mExecutor.execute(() -> {
+                    for (CameraCaptureCallback cameraCaptureCallback :
+                            captureConfig.getCameraCaptureCallbacks()) {
+                        cameraCaptureCallback.onCaptureFailed(new CameraCaptureFailure(
+                                CameraCaptureFailure.Reason.ERROR));
+                    }
+                });
+            }
+
+            @Override
+            public void onCaptureSequenceCompleted(int captureSequenceId) {
+                mExecutor.execute(() -> {
+                    for (CameraCaptureCallback cameraCaptureCallback :
+                            captureConfig.getCameraCaptureCallbacks()) {
+                        cameraCaptureCallback.onCaptureCompleted(
+                                new CameraCaptureResult.EmptyCameraCaptureResult());
+                    }
+                });
+            }
+        });
     }
 
     /**
-     * Submit a still capture request via
-     * {@link SessionProcessor#startCapture(SessionProcessor.CaptureCallback)}.
+     * Submit a list of capture requests.
      *
-     * <p>The method is more restrictive than {@link CaptureSession#issueCaptureRequests(List)}.
-     * Only one @link CaptureConfig} with {@link CameraDevice#TEMPLATE_STILL_CAPTURE} template is
-     * allowed. If the captureConfigs contain multiple {@link CaptureConfig}s or the contained
-     * {@link CaptureConfig} does not use {@link CameraDevice#TEMPLATE_STILL_CAPTURE}, all
-     * captureConfigs will be cancelled immediately.
+     * <p>Capture requests using {@link CameraDevice#TEMPLATE_STILL_CAPTURE} are executed by.
+     * {@link SessionProcessor#startCapture(SessionProcessor.CaptureCallback)}. Other
+     * capture requests that trigger {@link CaptureRequest#CONTROL_AF_TRIGGER} or
+     * {@link CaptureRequest#CONTROL_AE_PRECAPTURE_TRIGGER} are executed by
+     * {@link SessionProcessor#startTrigger(Config, SessionProcessor.CaptureCallback)}.
      *
-     * <p>Camera2 capture options in {@link CaptureConfig#getImplementationOptions()} will be
+     * <p>For still capture requests, Camera2 capture options in
+     * {@link CaptureConfig#getImplementationOptions()} will be
      * merged with the options in {@link SessionConfig#getImplementationOptions()} set by
-     * {@link #setSessionConfig(SessionConfig)}. The merged parameters set will be passed to
+     * {@link #setSessionConfig(SessionConfig)}. The merged parameters set is passed to
      * {@link SessionProcessor#setParameters(Config)} but it is up to the implementation of the
      * {@link SessionProcessor} to determine which options to apply.
      *
@@ -314,111 +352,84 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
      * to invoke callbacks of {@link CaptureCallbackContainer} type due to lack of the access to
      * the camera2 {@link android.hardware.camera2.CameraCaptureSession.CaptureCallback}.
      *
-     * <p>Still capture requests are expected to arrive one at a time sequentially by upper layer.
-     * Capture requests will be cancelled if previous request have not finished.
+     * <p>Although it allows concurrent capture requests to be submitted, the session processor
+     * might not support more than one capture request to execute at the same time. The session
+     * processor could fail the request immediately if it can't run multiple requests.
      */
     @Override
     public void issueCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
         if (captureConfigs.isEmpty()) {
             return;
         }
-        if (captureConfigs.size() > 1 || !isStillCapture(captureConfigs)) {
-            cancelRequests(captureConfigs);
-            return;
-        }
-        // Only allows one capture config at a time.
-        if (mPendingCaptureConfig != null || mIsExecutingStillCaptureRequest) {
-            cancelRequests(captureConfigs);
-            return;
-        }
-
-        // captureConfigs should contain exactly one CaptureConfig.
-        CaptureConfig captureConfig = captureConfigs.get(0);
 
         Logger.d(TAG, "issueCaptureRequests (id=" + mInstanceId + ") + state =" + mProcessorState);
-
         switch (mProcessorState) {
             case UNINITIALIZED:
             case SESSION_INITIALIZED:
-                mPendingCaptureConfig = captureConfig;
-
+                mPendingCaptureConfigs = captureConfigs;
                 break;
             case ON_CAPTURE_SESSION_STARTED:
-                mIsExecutingStillCaptureRequest = true;
-                CaptureRequestOptions.Builder builder =
-                        CaptureRequestOptions.Builder.from(
-                                captureConfig.getImplementationOptions());
-
-                if (captureConfig.getImplementationOptions().containsOption(
-                        CaptureConfig.OPTION_ROTATION)) {
-                    builder.setCaptureRequestOption(CaptureRequest.JPEG_ORIENTATION,
-                            captureConfig.getImplementationOptions().retrieveOption(
-                                    CaptureConfig.OPTION_ROTATION));
+                for (CaptureConfig captureConfig : captureConfigs) {
+                    if (captureConfig.getTemplateType() == CameraDevice.TEMPLATE_STILL_CAPTURE) {
+                        issueStillCaptureRequest(captureConfig);
+                    } else {
+                        issueTriggerRequest(captureConfig);
+                    }
                 }
-
-                if (captureConfig.getImplementationOptions().containsOption(
-                        CaptureConfig.OPTION_JPEG_QUALITY)) {
-                    builder.setCaptureRequestOption(CaptureRequest.JPEG_QUALITY,
-                            captureConfig.getImplementationOptions().retrieveOption(
-                                    CaptureConfig.OPTION_JPEG_QUALITY).byteValue());
-                }
-
-                mStillCaptureOptions = builder.build();
-                updateParameters(mSessionOptions, mStillCaptureOptions);
-                mSessionProcessor.startCapture(new SessionProcessor.CaptureCallback() {
-                    @Override
-                    public void onCaptureStarted(
-                            int captureSequenceId, long timestamp) {
-                    }
-
-                    @Override
-                    public void onCaptureProcessStarted(
-                            int captureSequenceId) {
-                    }
-
-                    @Override
-                    public void onCaptureFailed(
-                            int captureSequenceId) {
-                        mExecutor.execute(() -> {
-                            for (CameraCaptureCallback cameraCaptureCallback :
-                                    captureConfig.getCameraCaptureCallbacks()) {
-                                cameraCaptureCallback.onCaptureFailed(new CameraCaptureFailure(
-                                        CameraCaptureFailure.Reason.ERROR));
-                            }
-                            mIsExecutingStillCaptureRequest = false;
-                        });
-                    }
-
-                    @Override
-                    public void onCaptureSequenceCompleted(int captureSequenceId) {
-                        mExecutor.execute(() -> {
-                            for (CameraCaptureCallback cameraCaptureCallback :
-                                    captureConfig.getCameraCaptureCallbacks()) {
-                                cameraCaptureCallback.onCaptureCompleted(
-                                        new CameraCaptureResult.EmptyCameraCaptureResult());
-                            }
-                            mIsExecutingStillCaptureRequest = false;
-                        });
-                    }
-
-                    @Override
-                    public void onCaptureSequenceAborted(int captureSequenceId) {
-                    }
-
-                    @Override
-                    public void onCaptureCompleted(long timestamp, int captureSequenceId,
-                            @NonNull Map<CaptureResult.Key, Object> result) {
-
-                    }
-                });
                 break;
             case ON_CAPTURE_SESSION_ENDED:
-            case CLOSED:
+            case DE_INITIALIZED:
                 Logger.d(TAG, "Run issueCaptureRequests in wrong state, state = "
                         + mProcessorState);
                 cancelRequests(captureConfigs);
                 break;
         }
+    }
+    void issueStillCaptureRequest(@NonNull CaptureConfig captureConfig) {
+        CaptureRequestOptions.Builder builder =
+                CaptureRequestOptions.Builder.from(
+                        captureConfig.getImplementationOptions());
+
+        if (captureConfig.getImplementationOptions().containsOption(
+                CaptureConfig.OPTION_ROTATION)) {
+            builder.setCaptureRequestOption(CaptureRequest.JPEG_ORIENTATION,
+                    captureConfig.getImplementationOptions().retrieveOption(
+                            CaptureConfig.OPTION_ROTATION));
+        }
+
+        if (captureConfig.getImplementationOptions().containsOption(
+                CaptureConfig.OPTION_JPEG_QUALITY)) {
+            builder.setCaptureRequestOption(CaptureRequest.JPEG_QUALITY,
+                    captureConfig.getImplementationOptions().retrieveOption(
+                            CaptureConfig.OPTION_JPEG_QUALITY).byteValue());
+        }
+
+        mStillCaptureOptions = builder.build();
+        updateParameters(mSessionOptions, mStillCaptureOptions);
+        mSessionProcessor.startCapture(new SessionProcessor.CaptureCallback() {
+            @Override
+            public void onCaptureFailed(
+                    int captureSequenceId) {
+                mExecutor.execute(() -> {
+                    for (CameraCaptureCallback cameraCaptureCallback :
+                            captureConfig.getCameraCaptureCallbacks()) {
+                        cameraCaptureCallback.onCaptureFailed(new CameraCaptureFailure(
+                                CameraCaptureFailure.Reason.ERROR));
+                    }
+                });
+            }
+
+            @Override
+            public void onCaptureSequenceCompleted(int captureSequenceId) {
+                mExecutor.execute(() -> {
+                    for (CameraCaptureCallback cameraCaptureCallback :
+                            captureConfig.getCameraCaptureCallbacks()) {
+                        cameraCaptureCallback.onCaptureCompleted(
+                                new CameraCaptureResult.EmptyCameraCaptureResult());
+                    }
+                });
+            }
+        });
     }
 
     /**
@@ -427,10 +438,20 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
     @Override
     @NonNull
     public ListenableFuture<Void> release(boolean abortInFlightCaptures) {
-        Preconditions.checkState(mProcessorState == ProcessorState.CLOSED,
-                "release() can only be called in CLOSED state");
-        Logger.d(TAG, "release (id=" + mInstanceId + ")");
-        return mCaptureSession.release(abortInFlightCaptures);
+        Logger.d(TAG, "release (id=" + mInstanceId + ") mProcessorState=" + mProcessorState);
+
+        ListenableFuture<Void> future = mCaptureSession.release(abortInFlightCaptures);
+
+        switch (mProcessorState) {
+            case ON_CAPTURE_SESSION_ENDED:
+            case SESSION_INITIALIZED:
+                future.addListener(() -> mSessionProcessor.deInitSession(), mExecutor);
+                break;
+            default:
+                break;
+        }
+        mProcessorState = ProcessorState.DE_INITIALIZED;
+        return future;
     }
 
     private static List<SessionProcessorSurface> getSessionProcessorSurfaceList(
@@ -457,10 +478,9 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
             setSessionConfig(mSessionConfig);
         }
 
-        if (mPendingCaptureConfig != null) {
-            List<CaptureConfig> pendingCaptureConfigList = Arrays.asList(mPendingCaptureConfig);
-            mPendingCaptureConfig = null;
-            issueCaptureRequests(pendingCaptureConfigList);
+        if (mPendingCaptureConfigs != null) {
+            issueCaptureRequests(mPendingCaptureConfigs);
+            mPendingCaptureConfigs = null;
         }
     }
 
@@ -479,8 +499,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
     @NonNull
     @Override
     public List<CaptureConfig> getCaptureConfigs() {
-        return mPendingCaptureConfig != null ? Arrays.asList(mPendingCaptureConfig)
-                : Collections.emptyList();
+        return mPendingCaptureConfigs != null ? mPendingCaptureConfigs : Collections.emptyList();
     }
 
     /**
@@ -489,12 +508,14 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
     @Override
     public void cancelIssuedCaptureRequests() {
         Logger.d(TAG, "cancelIssuedCaptureRequests (id=" + mInstanceId + ")");
-        if (mPendingCaptureConfig != null) {
-            for (CameraCaptureCallback cameraCaptureCallback :
-                    mPendingCaptureConfig.getCameraCaptureCallbacks()) {
-                cameraCaptureCallback.onCaptureCancelled();
+        if (mPendingCaptureConfigs != null) {
+            for (CaptureConfig captureConfig : mPendingCaptureConfigs) {
+                for (CameraCaptureCallback cameraCaptureCallback :
+                        captureConfig.getCameraCaptureCallbacks()) {
+                    cameraCaptureCallback.onCaptureCancelled();
+                }
             }
-            mPendingCaptureConfig = null;
+            mPendingCaptureConfigs = null;
         }
     }
 
@@ -505,26 +526,14 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
     public void close() {
         Logger.d(TAG, "close (id=" + mInstanceId + ") state=" + mProcessorState);
 
-        switch (mProcessorState) {
-            case ON_CAPTURE_SESSION_STARTED:
-                mSessionProcessor.onCaptureSessionEnd();
-                if (mRequestProcessor != null) {
-                    mRequestProcessor.close();
-                }
-                mProcessorState = ProcessorState.ON_CAPTURE_SESSION_ENDED;
-                // fall through
-            case ON_CAPTURE_SESSION_ENDED:
-            case SESSION_INITIALIZED:
-                mSessionProcessor.deInitSession();
-                break;
-            case UNINITIALIZED:
-                // do nothing
-                break;
-            case CLOSED:
-                return; // already closed, no need to close again.
+        if (mProcessorState == ProcessorState.ON_CAPTURE_SESSION_STARTED) {
+            mSessionProcessor.onCaptureSessionEnd();
+            if (mRequestProcessor != null) {
+                mRequestProcessor.close();
+            }
+            mProcessorState = ProcessorState.ON_CAPTURE_SESSION_ENDED;
         }
 
-        mProcessorState = ProcessorState.CLOSED;
         mCaptureSession.close();
     }
 
@@ -562,6 +571,11 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
             updateParameters(mSessionOptions, mStillCaptureOptions);
             mSessionProcessor.startRepeating(mSessionProcessorCaptureCallback);
         }
+    }
+
+    @Override
+    public void setStreamUseCaseMap(@NonNull Map<DeferrableSurface, Long> streamUseCaseMap) {
+        // No-op
     }
 
     private void updateParameters(@NonNull CaptureRequestOptions sessionOptions,

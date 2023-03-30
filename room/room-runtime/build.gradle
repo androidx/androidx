@@ -30,9 +30,6 @@ android {
         consumerProguardFiles "proguard-rules.pro"
     }
     namespace "androidx.room"
-    kotlinOptions {
-        freeCompilerArgs += ["-Xjvm-default=all"]
-    }
 }
 
 dependencies {
@@ -40,6 +37,7 @@ dependencies {
     api(project(":sqlite:sqlite-framework"))
     api(project(":sqlite:sqlite"))
     implementation("androidx.arch.core:core-runtime:2.0.1")
+    compileOnly("androidx.collection:collection:1.2.0")
     compileOnly("androidx.paging:paging-common:2.0.0")
     compileOnly("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
     implementation("androidx.annotation:annotation-experimental:1.1.0-rc01")
@@ -48,7 +46,7 @@ dependencies {
 
     testImplementation("androidx.arch.core:core-testing:2.0.1")
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)
     testImplementation("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
     testImplementation(libs.kotlinStdlib)
@@ -72,7 +70,6 @@ dependencies {
 androidx {
     name = "Android Room-Runtime"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2017"
     description = "Android Room-Runtime"
 }

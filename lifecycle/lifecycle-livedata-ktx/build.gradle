@@ -41,16 +41,11 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
-
-    constraints {
-        implementation(project(":lifecycle:lifecycle-livedata"))
-    }
 }
 
 androidx {
     name = "LiveData Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'livedata' artifact"
 }

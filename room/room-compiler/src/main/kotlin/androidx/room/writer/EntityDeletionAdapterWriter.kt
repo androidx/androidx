@@ -16,26 +16,22 @@
 
 package androidx.room.writer
 
-import androidx.room.compiler.codegen.toJavaPoet
-import androidx.room.ext.L
+import androidx.room.compiler.codegen.VisibilityModifier
+import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.XTypeSpec
+import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.RoomTypeNames
-import androidx.room.ext.S
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.FieldWithIndex
 import androidx.room.vo.Fields
 import androidx.room.vo.ShortcutEntity
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.ParameterSpec
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeSpec
-import javax.lang.model.element.Modifier.PUBLIC
 
 class EntityDeletionAdapterWriter private constructor(
     val tableName: String,
-    val pojoTypeName: TypeName,
+    val pojoTypeName: XTypeName,
     val fields: Fields
 ) {
     companion object {
@@ -49,54 +45,50 @@ class EntityDeletionAdapterWriter private constructor(
             }
             return EntityDeletionAdapterWriter(
                 tableName = entity.tableName,
-                pojoTypeName = entity.pojo.typeName.toJavaPoet(),
+                pojoTypeName = entity.pojo.typeName,
                 fields = fieldsToUse
             )
         }
     }
 
-    fun createAnonymous(typeWriter: TypeWriter, dbParam: String): TypeSpec {
-        @Suppress("RemoveSingleExpressionStringTemplate")
-        return TypeSpec.anonymousClassBuilder("$L", dbParam).apply {
-            superclass(
-                ParameterizedTypeName.get(
-                    RoomTypeNames.DELETE_OR_UPDATE_ADAPTER,
-                    pojoTypeName
-                )
-            )
-            addMethod(
-                MethodSpec.methodBuilder("createQuery").apply {
-                    addAnnotation(Override::class.java)
-                    returns(ClassName.get("java.lang", "String"))
-                    addModifiers(PUBLIC)
+    fun createAnonymous(typeWriter: TypeWriter, dbParam: String): XTypeSpec {
+        return XTypeSpec.anonymousClassBuilder(
+            typeWriter.codeLanguage, "%L", dbParam
+        ).apply {
+            superclass(RoomTypeNames.DELETE_OR_UPDATE_ADAPTER.parametrizedBy(pojoTypeName))
+            addFunction(
+                XFunSpec.builder(
+                    language = language,
+                    name = "createQuery",
+                    visibility = VisibilityModifier.PUBLIC,
+                    isOverride = true
+                ).apply {
+                    returns(CommonTypeNames.STRING)
                     val query = "DELETE FROM `$tableName` WHERE " +
                         fields.columnNames.joinToString(" AND ") { "`$it` = ?" }
-                    addStatement("return $S", query)
+                    addStatement("return %S", query)
                 }.build()
             )
-            addMethod(
-                MethodSpec.methodBuilder("bind").apply {
-                    val bindScope = CodeGenScope(typeWriter)
-                    addAnnotation(Override::class.java)
-                    val stmtParam = "stmt"
-                    addParameter(
-                        ParameterSpec.builder(
-                            SupportDbTypeNames.SQLITE_STMT,
-                            stmtParam
-                        ).build()
-                    )
-                    val valueParam = "value"
-                    addParameter(ParameterSpec.builder(pojoTypeName, valueParam).build())
-                    returns(TypeName.VOID)
-                    addModifiers(PUBLIC)
+            addFunction(
+                XFunSpec.builder(
+                    language = language,
+                    name = "bind",
+                    visibility = VisibilityModifier.PUBLIC,
+                    isOverride = true
+                ).apply {
+                    val stmtParam = "statement"
+                    addParameter(SupportDbTypeNames.SQLITE_STMT, stmtParam)
+                    val entityParam = "entity"
+                    addParameter(pojoTypeName, entityParam)
                     val mapped = FieldWithIndex.byOrder(fields)
+                    val bindScope = CodeGenScope(typeWriter)
                     FieldReadWriteWriter.bindToStatement(
-                        ownerVar = valueParam,
+                        ownerVar = entityParam,
                         stmtParamVar = stmtParam,
                         fieldsWithIndices = mapped,
                         scope = bindScope
                     )
-                    addCode(bindScope.builder().build())
+                    addCode(bindScope.generate())
                 }.build()
             )
         }.build()

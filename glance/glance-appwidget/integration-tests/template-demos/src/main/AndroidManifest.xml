@@ -45,7 +45,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/default_app_widget_info" />
+                android:resource="@xml/gallery_app_widget_info" />
         </receiver>
 
         <receiver
@@ -59,7 +59,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/default_app_widget_info" />
+                android:resource="@xml/gallery_app_widget_info" />
         </receiver>
 
         <receiver
@@ -73,7 +73,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/default_app_widget_info" />
+                android:resource="@xml/gallery_app_widget_info" />
         </receiver>
 
         <receiver
@@ -87,11 +87,11 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/default_app_widget_info" />
+                android:resource="@xml/list_app_widget_info" />
         </receiver>
 
         <receiver
-            android:name="androidx.glance.appwidget.template.demos.FullHeaderListReceiver"
+            android:name="androidx.glance.appwidget.template.demos.FullHeaderThemedListReceiver"
             android:enabled="@bool/glance_appwidget_available"
             android:exported="false"
             android:label="@string/list_style_with_header">
@@ -101,7 +101,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/default_app_widget_info" />
+                android:resource="@xml/list_app_widget_info" />
         </receiver>
 
         <receiver
@@ -115,7 +115,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/default_app_widget_info" />
+                android:resource="@xml/list_app_widget_info" />
         </receiver>
 
         <receiver
@@ -129,7 +129,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/default_app_widget_info" />
+                android:resource="@xml/list_app_widget_info" />
         </receiver>
 
         <receiver

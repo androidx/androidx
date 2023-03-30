@@ -16,12 +16,13 @@
 
 package androidx.room.solver.query.result
 
-import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.processing.XType
-import androidx.room.ext.L
-import androidx.room.ext.W
+import androidx.room.ext.CollectionTypeNames
+import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.implementsEqualsAndHashcode
-import androidx.room.log.RLog
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
@@ -32,8 +33,6 @@ import androidx.room.solver.types.CursorValueReader
 import androidx.room.vo.ColumnIndexVar
 import androidx.room.vo.MapInfo
 import androidx.room.vo.Warning
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.CodeBlock
 
 /**
  * Abstract class for Map and Multimap result adapters.
@@ -78,62 +77,77 @@ abstract class MultimapQueryResultAdapter(
                     is SingleNamedColumnRowAdapter.SingleNamedColumnRowMapping ->
                         MAP_INFO to null
                     is PojoRowAdapter.PojoMapping ->
-                        POJO to it.pojo.typeName.toJavaPoet()
+                        POJO to it.pojo.typeName
                     is EntityRowAdapter.EntityMapping ->
-                        ENTITY to it.entity.typeName.toJavaPoet()
+                        ENTITY to it.entity.typeName
                     else -> error("Unknown mapping type: $it")
                 }
                 context.logger.w(
                     Warning.AMBIGUOUS_COLUMN_IN_RESULT,
-                    ProcessorErrors.ambiguousColumn(ambiguousColumnName, location, objectTypeName)
+                    ProcessorErrors.ambiguousColumn(
+                        columnName = ambiguousColumnName,
+                        location = location,
+                        typeName = objectTypeName?.toString(context.codeLanguage)
+                    )
                 )
             }
         }
     }
 
-    companion object {
+    enum class MapType(val className: XClassName) {
+        DEFAULT(CommonTypeNames.MUTABLE_MAP),
+        ARRAY_MAP(CollectionTypeNames.ARRAY_MAP),
+        LONG_SPARSE(CollectionTypeNames.LONG_SPARSE_ARRAY),
+        INT_SPARSE(CollectionTypeNames.INT_SPARSE_ARRAY);
 
-        val declaredToImplCollection = mapOf<ClassName, ClassName>(
-            ClassName.get(List::class.java) to ClassName.get(ArrayList::class.java),
-            ClassName.get(Set::class.java) to ClassName.get(HashSet::class.java)
-        )
+        companion object {
+            fun MapType.isSparseArray() = this == LONG_SPARSE || this == INT_SPARSE
+        }
+    }
+
+    enum class CollectionValueType(val className: XClassName) {
+        LIST(CommonTypeNames.MUTABLE_LIST),
+        SET(CommonTypeNames.MUTABLE_SET)
+    }
+
+    companion object {
 
         /**
          * Checks if the @MapInfo annotation is needed for clarification regarding the return type
          * of a Dao method.
          */
         fun validateMapTypeArgs(
+            context: Context,
             keyTypeArg: XType,
             valueTypeArg: XType,
             keyReader: CursorValueReader?,
             valueReader: CursorValueReader?,
             mapInfo: MapInfo?,
-            logger: RLog
         ) {
 
             if (!keyTypeArg.implementsEqualsAndHashcode()) {
-                logger.w(
+                context.logger.w(
                     Warning.DOES_NOT_IMPLEMENT_EQUALS_HASHCODE,
                     ProcessorErrors.classMustImplementEqualsAndHashCode(
-                        keyTypeArg.typeName.toString()
+                        keyTypeArg.asTypeName().toString(context.codeLanguage)
                     )
                 )
             }
 
             val hasKeyColumnName = mapInfo?.keyColumnName?.isNotEmpty() ?: false
             if (!hasKeyColumnName && keyReader != null) {
-                logger.e(
+                context.logger.e(
                     ProcessorErrors.keyMayNeedMapInfo(
-                        keyTypeArg.typeName
+                        keyTypeArg.asTypeName().toString(context.codeLanguage)
                     )
                 )
             }
 
             val hasValueColumnName = mapInfo?.valueColumnName?.isNotEmpty() ?: false
             if (!hasValueColumnName && valueReader != null) {
-                logger.e(
+                context.logger.e(
                     ProcessorErrors.valueMayNeedMapInfo(
-                        valueTypeArg.typeName
+                        valueTypeArg.asTypeName().toString(context.codeLanguage)
                     )
                 )
             }
@@ -144,16 +158,23 @@ abstract class MultimapQueryResultAdapter(
      * Generates a code expression that verifies if all matched fields are null.
      */
     fun getColumnNullCheckCode(
+        language: CodeLanguage,
         cursorVarName: String,
         indexVars: List<ColumnIndexVar>
-    ): CodeBlock {
+    ) = XCodeBlock.builder(language).apply {
+        val space = when (language) {
+            CodeLanguage.JAVA -> "%W"
+            CodeLanguage.KOTLIN -> " "
+        }
         val conditions = indexVars.map {
-            CodeBlock.of(
-                "$L.isNull($L)",
+            XCodeBlock.of(
+                language,
+                "%L.isNull(%L)",
                 cursorVarName,
                 it.indexVar
             )
         }
-        return CodeBlock.join(conditions, "$W&&$W")
-    }
+        val placeholders = conditions.joinToString(separator = "$space&&$space") { "%L" }
+        add(placeholders, *conditions.toTypedArray())
+    }.build()
 }

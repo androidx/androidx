@@ -22,21 +22,15 @@ import androidx.wear.watchface.control.IInteractiveWatchFace
 import java.time.Instant
 
 /** @hide */
-@IntDef(
-    value = [
-        TapType.DOWN,
-        TapType.UP,
-        TapType.CANCEL
-    ]
-)
+@IntDef(value = [TapType.DOWN, TapType.UP, TapType.CANCEL])
 public annotation class TapType {
     public companion object {
         /**
          * Used to indicate a "down" touch event on the watch face.
          *
-         * The watch face will receive an [UP] or a [CANCEL] event to follow this event, to
-         * indicate whether this down event corresponds to a tap gesture to be handled by the watch
-         * face, or a different type of gesture that is handled by the system, respectively.
+         * The watch face will receive an [UP] or a [CANCEL] event to follow this event, to indicate
+         * whether this down event corresponds to a tap gesture to be handled by the watch face, or
+         * a different type of gesture that is handled by the system, respectively.
          */
         public const val DOWN: Int = IInteractiveWatchFace.TAP_TYPE_DOWN
 
@@ -51,11 +45,11 @@ public annotation class TapType {
 
         /**
          * Used to indicate that an "up" event on the watch face has occurred that has not been
-         * consumed by the system. A [TapType.DOWN] will always occur first. This event will not
-         * be sent if a [TapType.CANCEL] is sent.
+         * consumed by the system. A [TapType.DOWN] will always occur first. This event will not be
+         * sent if a [TapType.CANCEL] is sent.
          *
-         * Therefore, a [TapType.DOWN] event and the successive [TapType.UP] event are guaranteed
-         * to be close enough to be considered a tap according to the value returned by
+         * Therefore, a [TapType.DOWN] event and the successive [TapType.UP] event are guaranteed to
+         * be close enough to be considered a tap according to the value returned by
          * [android.view.ViewConfiguration.getScaledTouchSlop].
          */
         public const val UP: Int = IInteractiveWatchFace.TAP_TYPE_UP

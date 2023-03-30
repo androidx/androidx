@@ -35,7 +35,7 @@ import org.gradle.api.attributes.Usage
 import org.gradle.api.attributes.java.TargetJvmEnvironment
 import org.gradle.api.attributes.java.TargetJvmVersion
 import org.gradle.api.attributes.plugin.GradlePluginApiVersion
-import org.gradle.api.internal.artifacts.verification.DependencyVerificationException
+import org.gradle.api.internal.artifacts.verification.exceptions.DependencyVerificationException
 import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
@@ -55,6 +55,8 @@ internal object ArtifactResolver {
         "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev",
         "https://maven.pkg.jetbrains.space/public/p/compose/dev"
     )
+
+    internal val gradlePluginPortalRepo = "https://plugins.gradle.org/m2/"
 
     internal fun createAndroidXRepo(
         buildId: Int
@@ -170,7 +172,7 @@ ${
                     "Resolved files: ${result.size}"
                 }
                 check(result.isNotEmpty()) {
-                    "Didn't resolve any artifacts from $artifacts"
+                    "Didn't resolve any artifacts from $artifacts . Try --verbose for more information"
                 }
                 result.forEach { artifact ->
                     logger.trace {
@@ -245,6 +247,7 @@ ${verificationException.message?.prependIndent("    ")}
             val repoUrls = additionalPriorityRepositories + listOf(
                 RepositoryHandler.GOOGLE_URL,
                 RepositoryHandler.MAVEN_CENTRAL_URL,
+                gradlePluginPortalRepo
             )
             return MavenRepositoryProxy.startAll(
                 repositoryUrls = repoUrls,

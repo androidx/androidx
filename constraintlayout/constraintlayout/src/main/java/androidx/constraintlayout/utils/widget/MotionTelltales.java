@@ -24,6 +24,7 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.ViewParent;
 
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.motion.widget.MotionLayout;
 import androidx.constraintlayout.widget.R;
 
@@ -105,7 +106,7 @@ public class MotionTelltales extends MockView {
     }
 
     @Override
-    public void onDraw(Canvas canvas) {
+    public void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
         Matrix matrix = getMatrix();
         matrix.invert(mInvertMatrix);

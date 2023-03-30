@@ -31,6 +31,7 @@ import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSType
@@ -115,6 +116,7 @@ internal class KspProcessingEnv(
     override fun getTypeElementsFromPackage(packageName: String): List<XTypeElement> {
         return resolver.getDeclarationsFromPackage(packageName)
             .filterIsInstance<KSClassDeclaration>()
+            .filterNot { it.classKind == ClassKind.ENUM_ENTRY }
             .map { KspTypeElement.create(this, it) }
             .toList()
     }
@@ -144,12 +146,41 @@ internal class KspProcessingEnv(
             }
             resolver.getTypeArgument(
                 argType.ksType.createTypeReference(),
-                variance = Variance.INVARIANT
+                variance = if (argType is KspTypeArgumentType) {
+                    argType.typeArg.variance
+                } else {
+                    Variance.INVARIANT
+                }
             )
         }
         return wrap(
             ksType = type.declaration.asType(typeArguments),
             allowPrimitives = false
+        )
+    }
+
+    override fun getWildcardType(consumerSuper: XType?, producerExtends: XType?): XType {
+        check(consumerSuper == null || producerExtends == null) {
+            "Cannot supply both super and extends bounds."
+        }
+        return wrap(
+            ksTypeArgument = if (consumerSuper != null) {
+                resolver.getTypeArgument(
+                    typeRef = (consumerSuper as KspType).ksType.createTypeReference(),
+                    variance = Variance.CONTRAVARIANT
+                )
+            } else if (producerExtends != null) {
+                resolver.getTypeArgument(
+                    typeRef = (producerExtends as KspType).ksType.createTypeReference(),
+                    variance = Variance.COVARIANT
+                )
+            } else {
+                // This returns the type "out Any?", which should be equivalent to "*"
+                resolver.getTypeArgument(
+                    typeRef = resolver.builtIns.anyType.makeNullable().createTypeReference(),
+                    variance = Variance.COVARIANT
+                )
+            }
         )
     }
 
@@ -184,7 +215,7 @@ internal class KspProcessingEnv(
         ksType = typeReference.resolve()
     )
 
-    fun wrap(ksTypeParam: KSTypeParameter, ksTypeArgument: KSTypeArgument): KspType {
+    fun wrap(ksTypeArgument: KSTypeArgument): KspType {
         val typeRef = ksTypeArgument.type
         if (typeRef != null && ksTypeArgument.variance == Variance.INVARIANT) {
             // fully resolved type argument, return regular type.
@@ -196,7 +227,6 @@ internal class KspProcessingEnv(
         return KspTypeArgumentType(
             env = this,
             typeArg = ksTypeArgument,
-            typeParam = ksTypeParam,
             jvmTypeResolver = null
         )
     }
@@ -213,7 +243,7 @@ internal class KspProcessingEnv(
         val declaration = ksType.declaration
         if (declaration is KSTypeAlias) {
             val actual = wrap(
-                ksType = declaration.type.resolve(),
+                ksType = declaration.type.resolve().replace(ksType.arguments),
                 allowPrimitives = allowPrimitives && ksType.nullability == Nullability.NOT_NULL
             )
             // if this type is nullable, carry it over
@@ -225,13 +255,9 @@ internal class KspProcessingEnv(
         }
         val qName = ksType.declaration.qualifiedName?.asString()
         if (declaration is KSTypeParameter) {
-            return KspTypeArgumentType(
+            return KspTypeVariableType(
                 env = this,
-                typeArg = resolver.getTypeArgument(
-                    ksType.createTypeReference(),
-                    declaration.variance
-                ),
-                typeParam = declaration,
+                ksType = ksType,
                 jvmTypeResolver = null
             )
         }

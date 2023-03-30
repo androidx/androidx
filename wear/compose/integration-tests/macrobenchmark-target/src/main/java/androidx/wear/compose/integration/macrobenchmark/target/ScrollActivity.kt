@@ -16,8 +16,8 @@
 
 package androidx.wear.compose.integration.macrobenchmark.target
 
-import androidx.activity.ComponentActivity
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -31,10 +31,10 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.rememberScalingLazyListState
 
 class ScrollActivity : ComponentActivity() {
     private var itemHeightDp: Dp = 20.dp
@@ -56,7 +56,8 @@ class ScrollActivity : ComponentActivity() {
                     modifier = Modifier.semantics { contentDescription = CONTENT_DESCRIPTION }
                 ) {
                     items(5000) { it ->
-                        Box(Modifier
+                        Box(
+                            Modifier
                                 .requiredHeight(itemHeightDp)
                                 .background(MaterialTheme.colors.surface)
                                 .fillMaxSize()

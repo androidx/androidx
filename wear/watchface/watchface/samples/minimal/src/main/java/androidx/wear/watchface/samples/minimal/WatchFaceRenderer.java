@@ -52,7 +52,11 @@ public class WatchFaceRenderer extends Renderer.CanvasRenderer {
             @NotNull SurfaceHolder surfaceHolder,
             @NotNull CurrentUserStyleRepository currentUserStyleRepository,
             @NotNull WatchState watchState) {
-        super(surfaceHolder, currentUserStyleRepository, watchState, CanvasType.HARDWARE,
+        super(
+                surfaceHolder,
+                currentUserStyleRepository,
+                watchState,
+                CanvasType.HARDWARE,
                 UPDATE_DELAY_MILLIS);
         mWatchState = watchState;
         mPaint = new Paint();
@@ -61,12 +65,15 @@ public class WatchFaceRenderer extends Renderer.CanvasRenderer {
     }
 
     @Override
-    public void render(@NotNull Canvas canvas, @NotNull Rect rect,
-            @NotNull ZonedDateTime zonedDateTime) {
+    public void render(
+            @NotNull Canvas canvas, @NotNull Rect rect, @NotNull ZonedDateTime zonedDateTime) {
         mPaint.setColor(Color.BLACK);
         canvas.drawRect(rect, mPaint);
         mPaint.setColor(Color.WHITE);
-        int hour = zonedDateTime.getHour() % 12;
+        int hour = zonedDateTime.getHour();
+        if (hour != 12) {
+            hour %= 12;
+        }
         int minute = zonedDateTime.getMinute();
         int second = zonedDateTime.getSecond();
         mTimeText[0] = DIGITS[hour / 10];
@@ -74,7 +81,8 @@ public class WatchFaceRenderer extends Renderer.CanvasRenderer {
         mTimeText[2] = second % 2 == 0 ? ':' : ' ';
         mTimeText[3] = DIGITS[minute / 10];
         mTimeText[4] = DIGITS[minute % 10];
-        canvas.drawText(mTimeText,
+        canvas.drawText(
+                mTimeText,
                 0,
                 5,
                 rect.centerX(),
@@ -83,8 +91,8 @@ public class WatchFaceRenderer extends Renderer.CanvasRenderer {
     }
 
     @Override
-    public void renderHighlightLayer(@NonNull Canvas canvas, @NonNull Rect bounds,
-            @NonNull ZonedDateTime zonedDateTime) {
+    public void renderHighlightLayer(
+            @NonNull Canvas canvas, @NonNull Rect bounds, @NonNull ZonedDateTime zonedDateTime) {
         canvas.drawColor(getRenderParameters().getHighlightLayer().getBackgroundTint());
     }
 }

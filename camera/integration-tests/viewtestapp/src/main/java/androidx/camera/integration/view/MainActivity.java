@@ -49,12 +49,23 @@ public class MainActivity extends AppCompatActivity {
     private static final String PREVIEW_VIEW_FRAGMENT = "PreviewView";
     private static final String COMPOSE_UI_FRAGMENT = "ComposeUi";
 
-    private static final String[] REQUIRED_PERMISSIONS =
-            new String[]{
+    private static final String[] REQUIRED_PERMISSIONS;
+    static {
+        // From Android T, skips the permission check of WRITE_EXTERNAL_STORAGE since it won't be
+        // granted any more.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            REQUIRED_PERMISSIONS = new String[]{
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.RECORD_AUDIO
+            };
+        } else {
+            REQUIRED_PERMISSIONS = new String[]{
                     Manifest.permission.CAMERA,
                     Manifest.permission.RECORD_AUDIO,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE
             };
+        }
+    }
     private static final int REQUEST_CODE_PERMISSIONS = 10;
 
     // Possible values for this intent key are the name values of LensFacing encoded as
@@ -65,6 +76,11 @@ public class MainActivity extends AppCompatActivity {
     // Possible values for this intent key: "preview_test_case" or "default_test_case".
     public static final String INTENT_EXTRA_E2E_TEST_CASE = "e2e_test_case";
     public static final String PREVIEW_TEST_CASE = "preview_test_case";
+
+    // Launch the activity with the specified scale type.
+    public static final String INTENT_EXTRA_SCALE_TYPE = "scale_type";
+    // The default scale type is FILL_CENTER.
+    public static final int DEFAULT_SCALE_TYPE_ID = 1;
 
     /** Intent extra representing type of camera implementation. */
     public static final String INTENT_EXTRA_CAMERA_IMPLEMENTATION = "camera_implementation";

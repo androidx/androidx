@@ -20,7 +20,7 @@ abstract class TestCase {
     /**
      * Provides an opportunity to customize initial state before a test case begins.
      */
-    abstract fun setUp()
+    open fun setUp() {}
 
     abstract fun benchmark(context: TestCaseContext)
 

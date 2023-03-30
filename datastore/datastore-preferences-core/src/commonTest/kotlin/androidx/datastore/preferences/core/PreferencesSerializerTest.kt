@@ -36,7 +36,7 @@ class PreferencesSerializerTest {
     private val testIO = OkioTestIO()
 
     private lateinit var testFile: OkioPath
-    private val preferencesSerializer: OkioSerializer<Preferences> = getPreferencesSerializer()
+    private val preferencesSerializer: OkioSerializer<Preferences> = PreferencesSerializer
     private val fileSystem: FileSystem = FileSystem.SYSTEM
 
     @BeforeTest

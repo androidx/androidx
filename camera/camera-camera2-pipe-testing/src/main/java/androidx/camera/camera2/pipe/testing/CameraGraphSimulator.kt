@@ -28,17 +28,18 @@ import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraPipe.CameraBackendConfig
 import androidx.camera.camera2.pipe.CameraTimestamp
+import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequest
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
+import androidx.camera.camera2.pipe.GraphState.GraphStateError
 import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequest
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.withTimeout
 
 /**
  * This class creates a [CameraPipe] and [CameraGraph] instance using a [FakeCameraBackend].
@@ -53,7 +54,8 @@ import kotlinx.coroutines.test.TestScope
  * the test will need start the [CameraGraph], [simulateCameraStarted], and either configure
  * surfaces for the [CameraGraph] or call [simulateFakeSurfaceConfiguration] to put the graph into a
  * state where it is able to send and simulate interactions with the camera. This mirrors the normal
- * lifecycle of a [CameraGraph].
+ * lifecycle of a [CameraGraph]. Tests using CameraGraphSimulators should also close them after
+ * they've completed their use of the simulator.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CameraGraphSimulator private constructor(
@@ -62,7 +64,7 @@ class CameraGraphSimulator private constructor(
     val graphConfig: CameraGraph.Config,
     val cameraGraph: CameraGraph,
     private val cameraController: CameraControllerSimulator
-) {
+) : AutoCloseable {
     companion object {
         /**
          * Create a CameraGraphSimulator using the current [TestScope] provided by a Kotlin
@@ -116,24 +118,48 @@ class CameraGraphSimulator private constructor(
         }
     }
 
+    private val closed = atomic(false)
+
     private val surfaceTextureNames = atomic(0)
     private val frameClockNanos = atomic(0L)
     private val frameCounter = atomic(0L)
     private val pendingFrameQueue = mutableListOf<FrameSimulator>()
+    private val surfacesCreated = mutableSetOf<Surface>()
+
+    override fun close() {
+        if (closed.compareAndSet(expect = false, update = true)) {
+            cameraGraph.close()
+            for (surface in surfacesCreated) {
+                surface.release()
+            }
+            surfacesCreated.clear()
+        }
+    }
 
     fun simulateCameraStarted() {
+        check(!closed.value) { "Cannot call simulateCameraStarted on $this after close." }
         cameraController.simulateCameraStarted()
     }
 
     fun simulateCameraStopped() {
+        check(!closed.value) { "Cannot call simulateCameraStopped on $this after close." }
         cameraController.simulateCameraStopped()
     }
 
     fun simulateCameraModified() {
+        check(!closed.value) { "Cannot call simulateCameraModified on $this after close." }
         cameraController.simulateCameraModified()
     }
 
+    fun simulateCameraError(graphStateError: GraphStateError) {
+        check(!closed.value) { "Cannot call simulateCameraError on $this after close." }
+        cameraController.simulateCameraError(graphStateError)
+    }
+
     fun simulateFakeSurfaceConfiguration() {
+        check(!closed.value) {
+            "Cannot call simulateFakeSurfaceConfiguration on $this after close."
+        }
         for (stream in cameraGraph.streams.streams) {
             // Pick an output -- most will only have one.
             val output = stream.outputs.first()
@@ -142,6 +168,7 @@ class CameraGraphSimulator private constructor(
                     it.setDefaultBufferSize(output.size.width, output.size.height)
                 }
             )
+            surfacesCreated.add(surface)
             cameraGraph.setSurface(stream.id, surface)
         }
     }

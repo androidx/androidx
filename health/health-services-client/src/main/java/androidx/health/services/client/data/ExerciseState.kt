@@ -152,7 +152,7 @@ public class ExerciseState private constructor(public val id: Int, public val na
          * Used only in the manually started exercise.
          */
         @JvmField
-        public val USER_ENDING: ExerciseState = ExerciseState(9, "USER_ENDING")
+        internal val USER_ENDING: ExerciseState = ExerciseState(9, "USER_ENDING")
 
         /**
          * The exercise has been ended by the user. No new metrics will be exported and a final
@@ -170,7 +170,7 @@ public class ExerciseState private constructor(public val id: Int, public val na
          * Used only in the manually started exercise.
          */
         @JvmField
-        public val AUTO_ENDING: ExerciseState = ExerciseState(11, "AUTO_ENDING")
+        internal val AUTO_ENDING: ExerciseState = ExerciseState(11, "AUTO_ENDING")
 
         /**
          * The exercise has been automatically ended due to a lack of exercise updates being
@@ -187,7 +187,7 @@ public class ExerciseState private constructor(public val id: Int, public val na
          * data for the exercise.
          */
         @JvmField
-        public val AUTO_ENDING_PERMISSION_LOST: ExerciseState =
+        internal val AUTO_ENDING_PERMISSION_LOST: ExerciseState =
             ExerciseState(16, "AUTO_ENDING_PERMISSION_LOST")
 
         /**
@@ -205,7 +205,7 @@ public class ExerciseState private constructor(public val id: Int, public val na
          * Used in both of the manually started exercise and the automatic exercise detection.
          */
         @JvmField
-        public val TERMINATING: ExerciseState = ExerciseState(13, "TERMINATING")
+        internal val TERMINATING: ExerciseState = ExerciseState(13, "TERMINATING")
 
         /**
          * The exercise has been ended because it was superseded by a new exercise being started by
@@ -223,12 +223,18 @@ public class ExerciseState private constructor(public val id: Int, public val na
         @JvmField
         public val ENDED: ExerciseState = ExerciseState(18, "ENDED")
 
+        /**
+         * The exercise is currently ending, with the reason specified by
+         * [ExerciseStateInfo.endReason].
+         */
+        @JvmField public val ENDING: ExerciseState = ExerciseState(19, "ENDING")
+
         private val RESUMING_STATES = setOf(USER_RESUMING, AUTO_RESUMING)
         private val PAUSED_STATES = setOf(USER_PAUSED, AUTO_PAUSED)
         private val ENDED_STATES =
             setOf(USER_ENDED, AUTO_ENDED, AUTO_ENDED_PERMISSION_LOST, TERMINATED, ENDED)
         private val ENDING_STATES =
-            setOf(USER_ENDING, AUTO_ENDING, AUTO_ENDING_PERMISSION_LOST, TERMINATING)
+            setOf(USER_ENDING, AUTO_ENDING, AUTO_ENDING_PERMISSION_LOST, TERMINATING, ENDING)
         private val OTHER_STATES =
             setOf(PREPARING, USER_STARTING, USER_PAUSING, AUTO_PAUSING, ACTIVE)
 

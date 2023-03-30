@@ -183,7 +183,7 @@ class GlanceAppWidgetManager(private val context: Context) {
      *
      * @see AppWidgetManager.requestPinAppWidget for more information and limitations
      */
-    fun <T : GlanceAppWidgetReceiver> requestPinGlanceAppWidget(
+    suspend fun <T : GlanceAppWidgetReceiver> requestPinGlanceAppWidget(
         receiver: Class<T>,
         preview: GlanceAppWidget? = null,
         previewState: Any? = null,
@@ -199,9 +199,9 @@ class GlanceAppWidgetManager(private val context: Context) {
                     val info = appWidgetManager.installedProviders.first {
                         it.provider == target
                     }
-                    val snapshot = preview.snapshot(
+                    val snapshot = preview.compose(
                         context = context,
-                        appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID,
+                        id = AppWidgetId(AppWidgetManager.INVALID_APPWIDGET_ID),
                         state = previewState,
                         options = Bundle.EMPTY,
                         size = info.getMinSize(context.resources.displayMetrics),

@@ -42,7 +42,6 @@ dependencies {
 androidx {
     name = "Activity Compose Lint"
     type = LibraryType.LINT
-    mavenGroup = LibraryGroups.ACTIVITY
     inceptionYear = "2021"
     description = "Lint checks for Activity Compose"
 }

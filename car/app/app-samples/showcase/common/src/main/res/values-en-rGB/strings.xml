@@ -230,8 +230,7 @@
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"Incompatible host"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"Message template demo"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Message goes here.\nMore text on second line."</string>
-    <!-- no translation found for short_msg_template_demo_title (6798738013668580714) -->
-    <skip />
+    <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Short message template demo"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Pane template demo"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Place list template demo"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Browse places"</string>
@@ -258,6 +257,15 @@
     <string name="sign_in_complete_text" msgid="8423984266325680606">"You are signed in!"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"Sign in completed"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"Sign in template demo"</string>
+    <string name="tab_template_layouts_demo_title" msgid="6529681462424538165">"Tab template demos"</string>
+    <string name="tab_template_demo_title" msgid="7587839101813629975">"Tab template demo"</string>
+    <string name="tab_title_message" msgid="5266710951630087246">"Message tab"</string>
+    <string name="tab_title_pane" msgid="2520606145526537263">"Pane tab"</string>
+    <string name="tab_title_list" msgid="5104962518489668123">"List tab"</string>
+    <string name="tab_title_grid" msgid="5268168907976325154">"Grid tab with long tab title"</string>
+    <string name="tab_title_search" msgid="1892925693146631173">"Search tab"</string>
+    <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Tab template loading demo"</string>
+    <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Tab template no tabs demo"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Images cannot be displayed for an unknown host"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"Icon"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Content provider icons demo"</string>
@@ -267,8 +275,7 @@
     <string name="vector_with_tint_title" msgid="1022346419829696827">"A vector drawable, with a tint"</string>
     <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"A vector drawable, with an app\'s theme attribute for its colour"</string>
     <string name="png_res_title" msgid="7437083018336747544">"A PNG, sent as a resource"</string>
-    <!-- no translation found for png_bitmap_title (3385912074130977032) -->
-    <skip />
+    <string name="png_bitmap_title" msgid="3385912074130977032">"A PNG, sent as a bitmap"</string>
     <string name="just_row_title" msgid="965700021568970725">"Just a title"</string>
     <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"Title with app icon"</string>
     <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"Title with resource ID image"</string>
@@ -280,8 +287,7 @@
     <string name="rows_demo_title" msgid="3198566660454251007">"Rows demo"</string>
     <string name="text_icons_demo_title" msgid="8732943920672143201">"Text and icons demos"</string>
     <string name="row_text_icons_demo_title" msgid="135167694047524905">"Rows with text and icons demo"</string>
-    <!-- no translation found for radio_button_list_demo_title (9082264324855338774) -->
-    <skip />
+    <string name="radio_button_list_demo_title" msgid="9082264324855338774">"Radio button lists demo"</string>
     <string name="selectable_lists_demo_title" msgid="5492658731113129386">"Selectable lists demo"</string>
     <string name="option_1_title" msgid="7221252541651471199">"Option 1"</string>
     <string name="option_2_title" msgid="1905146448697963818">"Option 2"</string>
@@ -295,8 +301,8 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"Task limit reached\nGoing forward will force stop the app"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Task step %1$d of %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Click to go forward"</string>
-    <!-- no translation found for toggle_button_demo_title (3179103600967398928) -->
-    <skip />
+    <string name="task_content_allowed" msgid="545061986612431190">"Please visit the different templates and ensure that the car is in driving mode"</string>
+    <string name="toggle_button_demo_title" msgid="3179103600967398928">"Toggle button demo"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Toggle test"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Stateful changes are allowed"</string>
     <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"Enable toggle test"</string>
@@ -309,15 +315,24 @@
     <string name="additional_data_text" msgid="2846223398214158872">"Updates allowed on back operations."</string>
     <string name="toggle_test_enabled" msgid="982370904182034076">"Toggle test enabled"</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"Toggle test disabled"</string>
+    <string name="secondary_actions_decoration_button_demo_title" msgid="3710817648501132309">"Secondary action and decoration demo"</string>
+    <string name="secondary_actions_test_title" msgid="3664453747553733613">"Secondary action test"</string>
+    <string name="secondary_actions_test_subtitle" msgid="6985282813402073703">"Only the secondary action can be selected"</string>
+    <string name="decoration_test_title" msgid="8450127046762442244">"Decoration test"</string>
+    <string name="secondary_actions_decoration_test_title" msgid="6282873404859209490">"Secondary actions and decoration"</string>
+    <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"The row can also be selected"</string>
+    <string name="secondary_action_toast" msgid="5076434693504006565">"Secondary action is selected"</string>
+    <string name="row_primary_action_toast" msgid="756516694751965204">"Row primary action is selected"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Misc templates demos"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Showcase demos"</string>
-    <!-- no translation found for template_layouts_demo_title (788249269446087847) -->
-    <skip />
-    <!-- no translation found for grid_template_menu_demo_title (7096285873490705119) -->
-    <skip />
+    <string name="template_layouts_demo_title" msgid="788249269446087847">"Template layout demos"</string>
+    <string name="grid_template_menu_demo_title" msgid="7096285873490705119">"Grid template demos"</string>
     <string name="voice_access_demo_title" msgid="3825223890895361496">"Voice Access demo screen"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"User interactions"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"Request permissions demos"</string>
+    <string name="application_overflow_title" msgid="396427940886169325">"Application overflow validator"</string>
+    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"Please test the following templates while changing"</string>
+    <string name="application_overflow_subtitle2" msgid="4385123036846369714">"the vehicle from parked to driving state"</string>
     <string name="perm_group" msgid="3834918337351876270">"Permission group"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"Permission group for Showcase app"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"Access to fine location"</string>
@@ -337,6 +352,10 @@
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"Loading enabled"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"Loading disabled"</string>
     <string name="loading_screen" msgid="4771507490730308794">"Loading screen"</string>
-    <!-- no translation found for vector_toggle_details (1301305340033556819) -->
-    <skip />
+    <string name="vector_toggle_details" msgid="1301305340033556819">"Toggle to add/remove colour"</string>
+    <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Map template with toggles"</string>
+    <string name="avoid_tolls_row_title" msgid="5194057244144831024">"Avoid tolls"</string>
+    <string name="route_options_demo_title" msgid="4599699012716426514">"Route options"</string>
+    <string name="avoid_highways_row_title" msgid="4711913426200490304">"Avoid motorways"</string>
+    <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Avoid ferry"</string>
 </resources>

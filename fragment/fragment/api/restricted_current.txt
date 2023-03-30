@@ -149,11 +149,11 @@ package androidx.fragment.app {
     method @Deprecated public void setTargetFragment(androidx.fragment.app.Fragment?, int);
     method @Deprecated public void setUserVisibleHint(boolean);
     method public boolean shouldShowRequestPermissionRationale(String);
-    method public void startActivity(android.content.Intent!);
-    method public void startActivity(android.content.Intent!, android.os.Bundle?);
-    method @Deprecated public void startActivityForResult(android.content.Intent!, int);
-    method @Deprecated public void startActivityForResult(android.content.Intent!, int, android.os.Bundle?);
-    method @Deprecated public void startIntentSenderForResult(android.content.IntentSender!, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
+    method public void startActivity(android.content.Intent);
+    method public void startActivity(android.content.Intent, android.os.Bundle?);
+    method @Deprecated public void startActivityForResult(android.content.Intent, int);
+    method @Deprecated public void startActivityForResult(android.content.Intent, int, android.os.Bundle?);
+    method @Deprecated public void startIntentSenderForResult(android.content.IntentSender, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
     method public void startPostponedEnterTransition();
     method public void unregisterForContextMenu(android.view.View);
   }
@@ -178,9 +178,9 @@ package androidx.fragment.app {
     method public void onStateNotSaved();
     method public void setEnterSharedElementCallback(androidx.core.app.SharedElementCallback?);
     method public void setExitSharedElementCallback(androidx.core.app.SharedElementCallback?);
-    method public void startActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent!, int);
-    method public void startActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent!, int, android.os.Bundle?);
-    method @Deprecated public void startIntentSenderFromFragment(androidx.fragment.app.Fragment, android.content.IntentSender!, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
+    method public void startActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent, int);
+    method public void startActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent, int, android.os.Bundle?);
+    method @Deprecated public void startIntentSenderFromFragment(androidx.fragment.app.Fragment, android.content.IntentSender, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
     method public void supportFinishAfterTransition();
     method @Deprecated public void supportInvalidateOptionsMenu();
     method public void supportPostponeEnterTransition();
@@ -265,9 +265,9 @@ package androidx.fragment.app {
     method @Deprecated public void onRequestPermissionsFromFragment(androidx.fragment.app.Fragment, String![], int);
     method public boolean onShouldSaveFragmentState(androidx.fragment.app.Fragment);
     method public boolean onShouldShowRequestPermissionRationale(String);
-    method public void onStartActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent!, int);
-    method public void onStartActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent!, int, android.os.Bundle?);
-    method @Deprecated public void onStartIntentSenderFromFragment(androidx.fragment.app.Fragment, android.content.IntentSender!, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
+    method public void onStartActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent, int);
+    method public void onStartActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent, int, android.os.Bundle?);
+    method @Deprecated public void onStartIntentSenderFromFragment(androidx.fragment.app.Fragment, android.content.IntentSender, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
     method public void onSupportInvalidateOptionsMenu();
   }
 
@@ -344,6 +344,8 @@ package androidx.fragment.app {
   }
 
   public static interface FragmentManager.OnBackStackChangedListener {
+    method @MainThread public default void onBackStackChangeCommitted(androidx.fragment.app.Fragment, boolean);
+    method @MainThread public default void onBackStackChangeStarted(androidx.fragment.app.Fragment, boolean);
     method @MainThread public void onBackStackChanged();
   }
 
@@ -454,12 +456,12 @@ package androidx.fragment.app {
     method protected void getBoundsOnScreen(android.view.View!, android.graphics.Rect!);
     method protected static boolean isNullOrEmpty(java.util.List!);
     method public abstract Object! mergeTransitionsInSequence(Object?, Object?, Object?);
-    method public abstract Object! mergeTransitionsTogether(Object, Object, Object?);
+    method public abstract Object! mergeTransitionsTogether(Object?, Object?, Object?);
     method public abstract void removeTarget(Object, android.view.View);
     method public abstract void replaceTargets(Object, java.util.ArrayList<android.view.View!>!, java.util.ArrayList<android.view.View!>!);
     method public abstract void scheduleHideFragmentView(Object, android.view.View, java.util.ArrayList<android.view.View!>);
     method public abstract void scheduleRemoveTargets(Object, Object?, java.util.ArrayList<android.view.View!>?, Object?, java.util.ArrayList<android.view.View!>?, Object?, java.util.ArrayList<android.view.View!>?);
-    method public abstract void setEpicenter(Object, android.view.View);
+    method public abstract void setEpicenter(Object, android.view.View?);
     method public abstract void setEpicenter(Object, android.graphics.Rect);
     method public void setListenerForTransitionEnd(androidx.fragment.app.Fragment, Object, androidx.core.os.CancellationSignal, Runnable);
     method public abstract void setSharedElementTargets(Object, android.view.View, java.util.ArrayList<android.view.View!>);
@@ -518,6 +520,7 @@ package androidx.fragment.app.strictmode {
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectSetUserVisibleHint();
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectTargetFragmentUsage();
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectWrongFragmentContainer();
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectWrongNestedHierarchy();
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder penaltyDeath();
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder penaltyListener(androidx.fragment.app.strictmode.FragmentStrictMode.OnViolationListener listener);
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder penaltyLog();
@@ -566,6 +569,13 @@ package androidx.fragment.app.strictmode {
   public final class WrongFragmentContainerViolation extends androidx.fragment.app.strictmode.Violation {
     method public android.view.ViewGroup getContainer();
     property public final android.view.ViewGroup container;
+  }
+
+  public final class WrongNestedHierarchyViolation extends androidx.fragment.app.strictmode.Violation {
+    method public int getContainerId();
+    method public androidx.fragment.app.Fragment getExpectedParentFragment();
+    property public final int containerId;
+    property public final androidx.fragment.app.Fragment expectedParentFragment;
   }
 
 }

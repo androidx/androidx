@@ -87,17 +87,12 @@
     </service>
 
     <service
-        android:name=".common.navigation.NavigationNotificationService"
-        android:exported="true">
-    </service>
-
-    <service
         android:name=".common.screens.navigationdemos.NavigationNotificationService"
         android:exported="true">
     </service>
 
     <provider
-        android:name="androidx.car.app.sample.showcase.common.textandicons.DelayedFileProvider"
+        android:name=".common.screens.templatelayouts.listtemplates.DelayedFileProvider"
         android:authorities="com.showcase.fileprovider"
         android:exported="false"
         android:grantUriPermissions="true">

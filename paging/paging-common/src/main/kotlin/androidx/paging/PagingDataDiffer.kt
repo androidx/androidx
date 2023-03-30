@@ -17,6 +17,7 @@
 package androidx.paging
 
 import androidx.annotation.IntRange
+import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
@@ -33,6 +34,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
@@ -95,23 +97,13 @@ public abstract class PagingDataDiffer<T : Any>(
             fromMediator: Boolean,
             loadState: LoadState
         ) {
-            val currentLoadState = combinedLoadStatesCollection.get(loadType, fromMediator)
-
-            // No change, skip update + dispatch.
-            if (currentLoadState == loadState) return
-
+            // CombinedLoadStates is de-duplicated within set()
             combinedLoadStatesCollection.set(loadType, fromMediator, loadState)
         }
     }
 
     internal fun dispatchLoadStates(source: LoadStates, mediator: LoadStates?) {
-        // No change, skip update + dispatch.
-        if (combinedLoadStatesCollection.source == source &&
-            combinedLoadStatesCollection.mediator == mediator
-        ) {
-            return
-        }
-
+        // CombinedLoadStates is de-duplicated within set()
         combinedLoadStatesCollection.set(
             sourceLoadStates = source,
             remoteLoadStates = mediator
@@ -203,12 +195,15 @@ public abstract class PagingDataDiffer<T : Any>(
                         // If index points to a placeholder after transformations, resend it unless
                         // there are no more items to load.
                         if (event is Insert) {
-                            val prependDone = combinedLoadStatesCollection.source.prepend
-                                .endOfPaginationReached
-                            val appendDone = combinedLoadStatesCollection.source.append
-                                .endOfPaginationReached
+                            val source = combinedLoadStatesCollection.stateFlow.value?.source
+                            checkNotNull(source) {
+                                "PagingDataDiffer.combinedLoadStatesCollection.stateFlow should" +
+                                    "not hold null CombinedLoadStates after Insert event."
+                            }
+                            val prependDone = source.prepend.endOfPaginationReached
+                            val appendDone = source.append.endOfPaginationReached
                             val canContinueLoading = !(event.loadType == PREPEND && prependDone) &&
-                                !(event.loadType == APPEND && appendDone)
+                                    !(event.loadType == APPEND && appendDone)
 
                             /**
                              *  If the insert is empty due to aggressive filtering, another hint
@@ -262,6 +257,7 @@ public abstract class PagingDataDiffer<T : Any>(
      * @param index Index of the presented item to return, including placeholders.
      * @return The presented item at position [index], `null` if it is a placeholder.
      */
+    @MainThread
     public operator fun get(@IntRange(from = 0) index: Int): T? {
         lastAccessedIndexUnfulfilled = true
         lastAccessedIndex = index
@@ -278,6 +274,7 @@ public abstract class PagingDataDiffer<T : Any>(
      * @param index Index of the presented item to return, including placeholders.
      * @return The presented item at position [index], `null` if it is a placeholder
      */
+    @MainThread
     public fun peek(@IntRange(from = 0) index: Int): T? {
         return presenter.get(index)
     }
@@ -341,7 +338,8 @@ public abstract class PagingDataDiffer<T : Any>(
      *
      * @sample androidx.paging.samples.loadStateFlowSample
      */
-    public val loadStateFlow: Flow<CombinedLoadStates> = combinedLoadStatesCollection.flow
+    public val loadStateFlow: StateFlow<CombinedLoadStates?> =
+        combinedLoadStatesCollection.stateFlow
 
     private val _onPagesUpdatedFlow: MutableSharedFlow<Unit> = MutableSharedFlow(
         replay = 0,

@@ -20,7 +20,6 @@ import static androidx.testutils.AssertionsKt.assertThrows;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -62,7 +61,6 @@ public class RxDataStoreTest {
         assertThat(firstByte).isEqualTo(1);
     }
 
-    @Ignore // b/214040264
     @Test
     public void testTake3() throws Exception {
         File newFile = tempFolder.newFile();
@@ -72,7 +70,8 @@ public class RxDataStoreTest {
                         .build();
 
         TestSubscriber<Byte> testSubscriber = byteStore.data().test();
-
+        // wait for the initial value
+        testSubscriber.awaitCount(1);
         byteStore.updateDataAsync(RxDataStoreTest::incrementByte);
         // Wait for our subscriber to see the second write, otherwise we may skip from 0 - 2
         testSubscriber.awaitCount(2);

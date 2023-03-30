@@ -16,8 +16,6 @@
 
 package androidx.wear.watchface.complications.data
 
-@RequiresOptIn(
-    "This is an experimental API that may change or be removed without warning."
-)
+@RequiresOptIn("This is an experimental API that may change or be removed without warning.")
 @Retention(AnnotationRetention.BINARY)
 annotation class ComplicationExperimental

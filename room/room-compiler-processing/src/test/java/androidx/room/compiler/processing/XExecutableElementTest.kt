@@ -135,7 +135,11 @@ class XExecutableElementTest {
         ) {
             val element = it.processingEnv.requireTypeElement("Subject")
             assertThat(element.getMethodByJvmName("method").isVarArgs()).isTrue()
-            assertThat(element.getMethodByJvmName("suspendMethod").isVarArgs()).isFalse()
+            if (it.isKsp) {
+                assertThat(element.getMethodByJvmName("suspendMethod").isVarArgs()).isTrue()
+            } else {
+                assertThat(element.getMethodByJvmName("suspendMethod").isVarArgs()).isFalse()
+            }
         }
     }
 
@@ -1238,6 +1242,47 @@ class XExecutableElementTest {
                         expected
                     )
             }
+        }
+    }
+
+    @Test
+    public fun genericTypeAliases() {
+        val source = Source.kotlin(
+            "Foo.kt",
+            """
+            abstract class Foo {
+                abstract fun hashSet(param: HashSet<Char>): HashSet<String>
+                abstract fun myType(param: MyType<Float>): MyType<Double>
+                abstract fun myTypeAlias(param: MyTypeAlias<Integer>): MyTypeAlias<Long>
+            }
+            typealias MyTypeAlias<T> = MyType<T>
+            class MyType<T>
+            """.trimIndent()
+        )
+        runProcessorTest(sources = listOf(source)) { invocation ->
+            fun XTypeElement.jMethodSignatures(): String {
+                return getDeclaredMethods()
+                    .sortedBy { it.jvmName }
+                    .joinToString("\n") { methodElement ->
+                        String.format(
+                            "%s(%s):%s",
+                            methodElement.jvmName,
+                            methodElement.parameters.joinToString(",") {
+                                it.type.asTypeName().java.toString()
+                            },
+                            methodElement.executableType.returnType.asTypeName().java.toString()
+                        )
+                    }
+            }
+
+            val foo = invocation.processingEnv.requireTypeElement("Foo")
+            assertThat(foo.jMethodSignatures()).isEqualTo(
+                """
+                hashSet(java.util.HashSet<java.lang.Character>):java.util.HashSet<java.lang.String>
+                myType(MyType<java.lang.Float>):MyType<java.lang.Double>
+                myTypeAlias(MyType<java.lang.Integer>):MyType<java.lang.Long>
+                """.trimIndent()
+            )
         }
     }
 }

@@ -16,42 +16,52 @@
 
 package androidx.room.writer
 
-import androidx.room.ext.L
-import androidx.room.ext.N
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
+import androidx.room.ext.RoomMemberNames
 import androidx.room.ext.RoomTypeNames
-import androidx.room.ext.S
-import androidx.room.ext.T
 import androidx.room.ext.capitalize
 import androidx.room.ext.stripNonJava
 import androidx.room.vo.DatabaseView
-import com.squareup.javapoet.ParameterSpec
 import java.util.Locale
 
 class ViewInfoValidationWriter(val view: DatabaseView) : ValidationWriter() {
 
-    override fun write(dbParam: ParameterSpec, scope: CountingCodeGenScope) {
+    override fun write(dbParamName: String, scope: CountingCodeGenScope) {
         val suffix = view.viewName.stripNonJava().capitalize(Locale.US)
-        scope.builder().apply {
+        scope.builder.apply {
             val expectedInfoVar = scope.getTmpVar("_info$suffix")
-            addStatement(
-                "final $T $L = new $T($S, $S)",
-                RoomTypeNames.VIEW_INFO, expectedInfoVar, RoomTypeNames.VIEW_INFO,
-                view.viewName, view.createViewQuery
+            addLocalVariable(
+                name = expectedInfoVar,
+                typeName = RoomTypeNames.VIEW_INFO,
+                assignExpr = XCodeBlock.ofNewInstance(
+                    language,
+                    RoomTypeNames.VIEW_INFO,
+                    "%S, %S",
+                    view.viewName, view.createViewQuery
+                )
             )
 
             val existingVar = scope.getTmpVar("_existing$suffix")
-            addStatement(
-                "final $T $L = $T.read($N, $S)",
-                RoomTypeNames.VIEW_INFO, existingVar, RoomTypeNames.VIEW_INFO,
-                dbParam, view.viewName
+            addLocalVal(
+                existingVar,
+                RoomTypeNames.VIEW_INFO,
+                "%M(%L, %S)",
+                RoomMemberNames.VIEW_INFO_READ, dbParamName, view.viewName
             )
 
-            beginControlFlow("if (! $L.equals($L))", expectedInfoVar, existingVar).apply {
+            beginControlFlow("if (!%L.equals(%L))", expectedInfoVar, existingVar).apply {
                 addStatement(
-                    "return new $T(false, $S + $L + $S + $L)",
-                    RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT,
-                    "${view.viewName}(${view.element.qualifiedName}).\n Expected:\n",
-                    expectedInfoVar, "\n Found:\n", existingVar
+                    "return %L",
+                    XCodeBlock.ofNewInstance(
+                        language,
+                        RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT,
+                        "false, %S + %L + %S + %L",
+                        "${view.viewName}(${view.element.qualifiedName}).\n Expected:\n",
+                        expectedInfoVar,
+                        "\n Found:\n",
+                        existingVar
+                    )
                 )
             }
             endControlFlow()

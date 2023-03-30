@@ -40,6 +40,7 @@ import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.view.ViewCompat;
@@ -413,7 +414,7 @@ public class PagingIndicator extends View {
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         for (int i = 0; i < mPageCount; ++i) {
             mDots[i].draw(canvas);
         }

@@ -90,6 +90,15 @@ public final class ParkedVsDrivingDemoScreen extends Screen implements DefaultLi
                         .addText(getCarContext().getString(R.string.parked_only_text))
                         .build());
 
+        // Add a few rows with long subtext
+        for (int rowIndex = 1; rowIndex < 5; rowIndex++) {
+            listBuilder.addItem(
+                    buildRowForTemplate(
+                            R.string.other_row_title_prefix,
+                            rowIndex,
+                            R.string.long_line_text));
+        }
+
         return new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
                 .setTitle(getCarContext().getString(R.string.parking_vs_driving_demo_title))
@@ -99,5 +108,13 @@ public final class ParkedVsDrivingDemoScreen extends Screen implements DefaultLi
 
     private void onClick(String text) {
         CarToast.makeText(getCarContext(), text, LENGTH_LONG).show();
+    }
+
+    private Row buildRowForTemplate(int title, int index, int subText) {
+        String rowTitle = getCarContext().getString(title) + " " + (index + 1);
+        return new Row.Builder()
+                .setTitle(rowTitle)
+                .addText(getCarContext().getString(subText))
+                .build();
     }
 }

@@ -18,6 +18,7 @@ package androidx.health.connect.client.records
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Length
+import androidx.health.connect.client.units.meters
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -31,17 +32,19 @@ import java.time.ZoneOffset
  * previous record.
  */
 public class DistanceRecord(
-    /** Distance in [Length] unit. Required field. Valid range: 0-1000000 meters. */
-    public val distance: Length,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
+    /** Distance in [Length] unit. Required field. Valid range: 0-1000000 meters. */
+    public val distance: Length,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
 
     init {
         distance.requireNotLess(other = distance.zero(), name = "distance")
+        distance.requireNotMore(other = MAX_DISTANCE, name = "distance")
+        require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
     }
 
     /*
@@ -77,6 +80,8 @@ public class DistanceRecord(
     }
 
     companion object {
+        private val MAX_DISTANCE = 1000_000.meters
+
         /**
          * Metric identifier to retrieve the total distance from
          * [androidx.health.connect.client.aggregate.AggregationResult].

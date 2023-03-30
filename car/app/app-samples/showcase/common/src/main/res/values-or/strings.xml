@@ -30,7 +30,7 @@
     <string name="call_action_title" msgid="6218977436905001611">"କଲ କରନ୍ତୁ"</string>
     <string name="primary_action_title" msgid="7042003552215710683">"ପ୍ରାଥମିକ"</string>
     <string name="options_action_title" msgid="1168121856107932984">"ବିକଳ୍ପଗୁଡ଼ିକ"</string>
-    <string name="search_action_title" msgid="3483459674263446335">"ସନ୍ଧାନ କରନ୍ତୁ"</string>
+    <string name="search_action_title" msgid="3483459674263446335">"ସର୍ଚ୍ଚ କରନ୍ତୁ"</string>
     <string name="checked_action_title" msgid="906023941445896399">"ଚେକ କରାଯାଇଛି"</string>
     <string name="unchecked_action_title" msgid="802503415474307811">"ଅନଚେକ କରାଯାଇଛି"</string>
     <string name="on_action_title" msgid="4129601573763429611">"ଚାଲୁ ଅଛି"</string>
@@ -52,7 +52,7 @@
     <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"ଜୁମ ଆଉଟ କରାଯାଇଛି"</string>
     <string name="triggered_toast_msg" msgid="3396166539208366382">"ଟ୍ରିଗର କରାଯାଇଛି"</string>
     <string name="primary_toast_msg" msgid="7153771322662005447">"ପ୍ରାଥମିକ ବଟନ ଦବାଯାଇଛି"</string>
-    <string name="search_toast_msg" msgid="7826530065407699347">"ସନ୍ଧାନ ବଟନ ଦବାଯାଇଛି"</string>
+    <string name="search_toast_msg" msgid="7826530065407699347">"ସର୍ଚ୍ଚ ବଟନ ଦବାଯାଇଛି"</string>
     <string name="options_toast_msg" msgid="2146223786877557730">"ବିକଳ୍ପ ବଟନକୁ ଦବାଯାଇଛି"</string>
     <string name="favorite_toast_msg" msgid="522064494016370117">"ପସନ୍ଦ!"</string>
     <string name="not_favorite_toast_msg" msgid="6831181108681007428">"ପସନ୍ଦର ନୁହେଁ!"</string>
@@ -100,8 +100,7 @@
     <string name="example_2_text" msgid="718820705318661440">"ଏହି ଟେକ୍ସଟରେ ସବୁଜ ରଙ୍ଗ ଅଛି"</string>
     <string name="example_3_text" msgid="977269832109695627">"ଏହି ଟେକ୍ସଟରେ ନୀଳ ରଙ୍ଗ ଅଛି"</string>
     <string name="example_4_text" msgid="2043547015979437373">"ଏହି ଟେକ୍ସଟରେ ହଳଦିଆ ରଙ୍ଗ ଅଛି"</string>
-    <!-- no translation found for example_5_text (8828804968749423500) -->
-    <skip />
+    <string name="example_5_text" msgid="8828804968749423500">"ଏହି ଟେକ୍ସଟ ପ୍ରାଥମିକ ରଙ୍ଗ ବ୍ୟବହାର କରେ"</string>
     <string name="example_6_text" msgid="7991523168517599600">"ଏହି ଟେକ୍ସଟ ଦ୍ୱିତୀୟ ରଙ୍ଗ ବ୍ୟବହାର କରେ"</string>
     <string name="color_demo" msgid="1822427636476178993">"ରଙ୍ଗର ଡେମୋ"</string>
     <string name="list_limit" msgid="3023536401535417286">"ତାଲିକାର ସୀମା"</string>
@@ -231,13 +230,12 @@
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"ଇନକମ୍ପାଟିବଲ ହୋଷ୍ଟ"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"ମେସେଜ ଟେମ୍ପଲେଟର ଡେମୋ"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"ମେସେଜ ଏଠାକୁ ଯାଏ।\nଦ୍ୱିତୀୟ ଲାଇନରେ ଅଧିକ ଟେକ୍ସଟ।"</string>
-    <!-- no translation found for short_msg_template_demo_title (6798738013668580714) -->
-    <skip />
+    <string name="short_msg_template_demo_title" msgid="6798738013668580714">"ଛୋଟ ମେସେଜ ଟେମ୍ପଲେଟର ଡେମୋ"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"ପେନ ଟେମ୍ପଲେଟର ଡେମୋ"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ସ୍ଥାନର ତାଲିକାର ଟେମ୍ପଲେଟର ଡେମୋ"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ସ୍ଥାନଗୁଡ଼ିକୁ ବ୍ରାଉଜ କରନ୍ତୁ"</string>
-    <string name="search_template_demo_title" msgid="1770474418958318114">"ସନ୍ଧାନ ଟେମ୍ପଲେଟ ଡେମୋ"</string>
-    <string name="search_hint" msgid="978495498991026792">"ଏଠାରେ ସନ୍ଧାନ କରନ୍ତୁ"</string>
+    <string name="search_template_demo_title" msgid="1770474418958318114">"ସର୍ଚ୍ଚ ଟେମ୍ପଲେଟ ଡେମୋ"</string>
+    <string name="search_hint" msgid="978495498991026792">"ଏଠାରେ ସର୍ଚ୍ଚ କରନ୍ତୁ"</string>
     <string name="additional_text" msgid="8410289578276941586">"ଦୟାକରି ଆମର ସେବାର ସର୍ତ୍ତାବଳୀର ସମୀକ୍ଷା କରନ୍ତୁ"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"Google ସାଇନ-ଇନ"</string>
     <string name="use_pin" msgid="7850893299484337431">"PIN ବ୍ୟବହାର କରନ୍ତୁ"</string>
@@ -259,6 +257,15 @@
     <string name="sign_in_complete_text" msgid="8423984266325680606">"ଆପଣ ସାଇନ-ଇନ କରିଛନ୍ତି!"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"ସାଇନ-ଇନ ସମ୍ପୂର୍ଣ୍ଣ ହୋଇଛି"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"ସାଇନ ଇନ ଟେମ୍ପଲେଟ ଡେମୋ"</string>
+    <string name="tab_template_layouts_demo_title" msgid="6529681462424538165">"ଟାବ ଟେମ୍ପଲେଟର ଡେମୋଗୁଡ଼ିକ"</string>
+    <string name="tab_template_demo_title" msgid="7587839101813629975">"ଟାବ ଟେମ୍ପଲେଟର ଡେମୋ"</string>
+    <string name="tab_title_message" msgid="5266710951630087246">"ମେସେଜ ଟାବ"</string>
+    <string name="tab_title_pane" msgid="2520606145526537263">"ପେନ ଟାବ"</string>
+    <string name="tab_title_list" msgid="5104962518489668123">"ଲିଷ୍ଟ ଟାବ"</string>
+    <string name="tab_title_grid" msgid="5268168907976325154">"ଲମ୍ବା ଟାବ ଟାଇଟେଲ ସହ ଗ୍ରୀଡ ଟାବ"</string>
+    <string name="tab_title_search" msgid="1892925693146631173">"ସର୍ଚ୍ଚ ଟାବ"</string>
+    <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"ଟାବ ଟେମ୍ପଲେଟର ଲୋଡିଂ ଡେମୋ"</string>
+    <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"ଟାବ ଟେମ୍ପଲେଟ କୌଣସି ଟାବ ବିନା ଡେମୋ"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"ଏକ ଅଜଣା ହୋଷ୍ଟ ପାଇଁ ଇମେଜଗୁଡ଼ିକୁ ଡିସପ୍ଲେ କରାଯାଇପାରିବ ନାହିଁ"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"ଆଇକନ"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"ବିଷୟବସ୍ତୁ ପ୍ରଦାତାଙ୍କ ଆଇକନର ଡେମୋ"</string>
@@ -268,8 +275,7 @@
     <string name="vector_with_tint_title" msgid="1022346419829696827">"କୌଣସି ଟିଣ୍ଟ ଥିବା ଡ୍ର କରାଯାଇପାରୁଥିବା ଏକ ଭେକ୍ଟର"</string>
     <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"ଆପର ରଙ୍ଗ ପାଇଁ ଏହାର ଥିମର ଆଟ୍ରିବ୍ୟୁଟ ସହ ଡ୍ର କରାଯାଇପାରୁଥିବା ଏକ ଭେକ୍ଟର"</string>
     <string name="png_res_title" msgid="7437083018336747544">"ଏକ ରିସୋର୍ସ ଭାବରେ ପଠାଯାଇଥିବା PNG"</string>
-    <!-- no translation found for png_bitmap_title (3385912074130977032) -->
-    <skip />
+    <string name="png_bitmap_title" msgid="3385912074130977032">"ଏକ ବିଟମେପ ଭାବେ ପଠାଯାଇଥିବା ଗୋଟିଏ PNG"</string>
     <string name="just_row_title" msgid="965700021568970725">"କେବଳ ଏକ ଟାଇଟେଲ ଅଟେ"</string>
     <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"ଆପର ଆଇକନ ସହିତ ଟାଇଟେଲ"</string>
     <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"ରିସୋର୍ସ IDର ଇମେଜ ସହିତ ଟାଇଟେଲ"</string>
@@ -281,8 +287,7 @@
     <string name="rows_demo_title" msgid="3198566660454251007">"ଧାଡ଼ିଗୁଡ଼ିକର ଡେମୋ"</string>
     <string name="text_icons_demo_title" msgid="8732943920672143201">"ଟେକ୍ସଟ ଏବଂ ଆଇକନର ଡେମୋ"</string>
     <string name="row_text_icons_demo_title" msgid="135167694047524905">"ଟେକ୍ସଟ ଏବଂ ଆଇକନ ଥିବା ଧାଡ଼ିଗୁଡ଼ିକର ଡେମୋ"</string>
-    <!-- no translation found for radio_button_list_demo_title (9082264324855338774) -->
-    <skip />
+    <string name="radio_button_list_demo_title" msgid="9082264324855338774">"ରେଡିଓ ବଟନ ତାଲିକାଗୁଡ଼ିକର ଡେମୋ"</string>
     <string name="selectable_lists_demo_title" msgid="5492658731113129386">"ଚୟନ କରାଯାଇପାରୁଥିବା ତାଲିକାଗୁଡ଼ିକର ଡେମୋ"</string>
     <string name="option_1_title" msgid="7221252541651471199">"ବିକଳ୍ପ 1"</string>
     <string name="option_2_title" msgid="1905146448697963818">"ବିକଳ୍ପ 2"</string>
@@ -296,8 +301,8 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"ଟାସ୍କର ସୀମାରେ ପହଞ୍ଚିଯାଇଛି\nଆଗକୁ ଗଲେ ଆପଟି ବାଧ୍ୟତାର ସହ ବନ୍ଦ ହୋଇଯିବ"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"%2$dଟିରୁ %1$d ନମ୍ବର ଟାସ୍କର ଷ୍ଟେପ"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"ଆଗକୁ ଯିବା ପାଇଁ କ୍ଲିକ କରନ୍ତୁ"</string>
-    <!-- no translation found for toggle_button_demo_title (3179103600967398928) -->
-    <skip />
+    <string name="task_content_allowed" msgid="545061986612431190">"ଦୟାକରି ବିଭିନ୍ନ ଟେମ୍ପଲେଟକୁ ଭିଜିଟ କରନ୍ତୁ ଏବଂ କାରଟି ଡ୍ରାଇଭିଂ ମୋଡରେ ଥିବା ସୁନିଶ୍ଚିତ କରନ୍ତୁ"</string>
+    <string name="toggle_button_demo_title" msgid="3179103600967398928">"ଟୋଗଲ ବଟନର ଡେମୋ"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"ପରୀକ୍ଷା ଟୋଗଲ କରନ୍ତୁ"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"ଷ୍ଟେଟଫୁଲ ପରିବର୍ତ୍ତନଗୁଡ଼ିକୁ ଅନୁମତି ଦିଆଯାଇଛି"</string>
     <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"\"ପରୀକ୍ଷା ଟୋଗଲ କରିବା\"କୁ ସକ୍ଷମ କରନ୍ତୁ"</string>
@@ -310,15 +315,24 @@
     <string name="additional_data_text" msgid="2846223398214158872">"ପୃଷ୍ଠପଟର ଅପରେସନଗୁଡ଼ିକରେ ଅପଡେଟଗୁଡ଼ିକୁ ଅନୁମତି ଦିଆଯାଇଛି।"</string>
     <string name="toggle_test_enabled" msgid="982370904182034076">"\"ପରୀକ୍ଷା ଟୋଗଲ କରିବା\" ସକ୍ଷମ କରାଯାଇଛି"</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"\"ପରୀକ୍ଷା ଟୋଗଲ କରିବା\" ଅକ୍ଷମ କରାଯାଇଛି"</string>
+    <string name="secondary_actions_decoration_button_demo_title" msgid="3710817648501132309">"ଦ୍ୱିତୀୟ କାର୍ଯ୍ୟ ଏବଂ ଡେକୋରେସନ ଡେମୋ"</string>
+    <string name="secondary_actions_test_title" msgid="3664453747553733613">"ଦ୍ୱିତୀୟ କାର୍ଯ୍ୟ ଟେଷ୍ଟ"</string>
+    <string name="secondary_actions_test_subtitle" msgid="6985282813402073703">"କେବଳ ଦ୍ୱିତୀୟ କାର୍ଯ୍ୟକୁ ଚୟନ କରାଯାଇପାରିବ"</string>
+    <string name="decoration_test_title" msgid="8450127046762442244">"ଡେକୋରେସନ ଟେଷ୍ଟ"</string>
+    <string name="secondary_actions_decoration_test_title" msgid="6282873404859209490">"ଦ୍ୱିତୀୟ କାର୍ଯ୍ୟ ଏବଂ ଡେକୋରେସନ"</string>
+    <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"ଏହି ଧାଡ଼ିଟିକୁ ମଧ୍ୟ ଚୟନ କରାଯାଇପାରିବ"</string>
+    <string name="secondary_action_toast" msgid="5076434693504006565">"ଦ୍ୱିତୀୟ କାର୍ଯ୍ୟ ଚୟନ କରାଯାଇଛି"</string>
+    <string name="row_primary_action_toast" msgid="756516694751965204">"ଧାଡ଼ିର ପ୍ରାଥମିକ କାର୍ଯ୍ୟ ଚୟନ କରାଯାଇଛି"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"ବିବିଧ ଟେମ୍ପଲେଟର ଡେମୋ"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Showcase ଡେମୋ"</string>
-    <!-- no translation found for template_layouts_demo_title (788249269446087847) -->
-    <skip />
-    <!-- no translation found for grid_template_menu_demo_title (7096285873490705119) -->
-    <skip />
+    <string name="template_layouts_demo_title" msgid="788249269446087847">"ଟେମ୍ପଲେଟ ଲେଆଉଟର ଡେମୋଗୁଡ଼ିକ"</string>
+    <string name="grid_template_menu_demo_title" msgid="7096285873490705119">"ଗ୍ରିଡ ଟେମ୍ପଲେଟର ଡେମୋଗୁଡ଼ିକ"</string>
     <string name="voice_access_demo_title" msgid="3825223890895361496">"ଡେମୋ ସ୍କ୍ରିନକୁ ଭଏସ ଆକ୍ସେସ"</string>
-    <string name="user_interactions_demo_title" msgid="1356952319161314986">"ଉପଯୋଗକର୍ତ୍ତାଙ୍କ ଇଣ୍ଟରାକ୍ସନ"</string>
+    <string name="user_interactions_demo_title" msgid="1356952319161314986">"ୟୁଜର ଇଣ୍ଟରାକ୍ସନ"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"ଅନୁମତିର ଡେମୋ ପାଇଁ ଅନୁରୋଧ"</string>
+    <string name="application_overflow_title" msgid="396427940886169325">"ଆପ୍ଲିକେସନ ଓଭରଫ୍ଲୋ ଭାଲିଡେଟର"</string>
+    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"ପରିବର୍ତ୍ତନ କରିବା ବେଳେ ଦୟାକରି ନିମ୍ନୋକ୍ତ ଟେମ୍ପଲେଟଗୁଡ଼ିକୁ ପରୀକ୍ଷା କରନ୍ତୁ"</string>
+    <string name="application_overflow_subtitle2" msgid="4385123036846369714">"ପାର୍କ କରାଯାଇଥିବାରୁ ଡ୍ରାଇଭିଂ ସ୍ଥିତି ପର୍ଯ୍ୟନ୍ତ ଗାଡ଼ି"</string>
     <string name="perm_group" msgid="3834918337351876270">"ଅନୁମତି ଗୋଷ୍ଠୀ"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"Showcase ଆପ ପାଇଁ ଅନୁମତି ଗୋଷ୍ଠୀ"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"ସଠିକ୍ ଲୋକେସନକୁ ଆକ୍ସେସ"</string>
@@ -332,18 +346,16 @@
     <string name="location_3_description" msgid="3982142774088944850">"ରଙ୍ଗୀନ ଟେକ୍ସଟ ମାର୍କର"</string>
     <string name="location_4_description" msgid="6560365445044381911">"ଇମେଜର ବିଟମ୍ୟାପ"</string>
     <string name="location_description_text_label" msgid="2779911545316756419">"ଟେକ୍ସଟର ଲେବଲ"</string>
-    <!-- no translation found for parking_vs_driving_demo_title (3367862800135053111) -->
-    <skip />
-    <!-- no translation found for latest_feature_details (6843008350392721502) -->
-    <skip />
-    <!-- no translation found for latest_feature_title (7929405790070777460) -->
-    <skip />
-    <!-- no translation found for loading_toggle_enabled (8828072732804454994) -->
-    <skip />
-    <!-- no translation found for loading_toggle_disabled (7689738885077382673) -->
-    <skip />
-    <!-- no translation found for loading_screen (4771507490730308794) -->
-    <skip />
-    <!-- no translation found for vector_toggle_details (1301305340033556819) -->
-    <skip />
+    <string name="parking_vs_driving_demo_title" msgid="3367862800135053111">"ପାର୍କିଂ ବନାମ ଡ୍ରାଇଭିଂ ଡେମୋ"</string>
+    <string name="latest_feature_details" msgid="6843008350392721502">"କାରଗୁଡ଼ିକରେ କ୍ଲଷ୍ଟର ଡିସପ୍ଲେ!"</string>
+    <string name="latest_feature_title" msgid="7929405790070777460">"ନବୀନତମ ଫିଚରଗୁଡ଼ିକ"</string>
+    <string name="loading_toggle_enabled" msgid="8828072732804454994">"ଲୋଡିଂ ସକ୍ଷମ କରାଯାଇଛି"</string>
+    <string name="loading_toggle_disabled" msgid="7689738885077382673">"ଲୋଡିଂ ଅକ୍ଷମ କରାଯାଇଛି"</string>
+    <string name="loading_screen" msgid="4771507490730308794">"ସ୍କ୍ରିନ ଲୋଡ ହେଉଛି"</string>
+    <string name="vector_toggle_details" msgid="1301305340033556819">"ରଙ୍ଗ ଯୋଗ କରିବାକୁ/କାଢ଼ି ଦେବା ପାଇଁ ଟୋଗଲ କରନ୍ତୁ"</string>
+    <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"ଟୋଗଲ ଥିବା ମେପ ଟେମ୍ପଲେଟ"</string>
+    <string name="avoid_tolls_row_title" msgid="5194057244144831024">"ଟୋଲଗୁଡ଼ିକୁ ଏଡ଼ାଇ ଯାଆନ୍ତୁ"</string>
+    <string name="route_options_demo_title" msgid="4599699012716426514">"ମାର୍ଗର ବିକଳ୍ପଗୁଡ଼ିକ"</string>
+    <string name="avoid_highways_row_title" msgid="4711913426200490304">"ରାଜପଥଗୁଡ଼ିକୁ ଏଡ଼ାଇ ଯାଆନ୍ତୁ"</string>
+    <string name="avoid_ferries_row_title" msgid="8232883866013711974">"ଫେରୀକୁ ଏଡ଼ାଇ ଯାଆନ୍ତୁ"</string>
 </resources>

@@ -39,14 +39,10 @@ dependencies {
 androidx {
     name = "Android Support SQLite - Framework Implementation"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.SQLITE
     inceptionYear = "2017"
     description = "The implementation of Support SQLite library using the framework code."
 }
 
 android {
     namespace "androidx.sqlite.db.framework"
-    kotlinOptions {
-        freeCompilerArgs += ["-Xjvm-default=all"]
-    }
 }

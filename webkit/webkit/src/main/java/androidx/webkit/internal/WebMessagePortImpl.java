@@ -72,9 +72,11 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
     @Override
     public void postMessage(@NonNull WebMessageCompat message) {
         final ApiFeature.M feature = WebViewFeatureInternal.WEB_MESSAGE_PORT_POST_MESSAGE;
-        if (feature.isSupportedByFramework()) {
+        // Only String type is supported by framework.
+        if (feature.isSupportedByFramework() && message.getType() == WebMessageCompat.TYPE_STRING) {
             ApiHelperForM.postMessage(getFrameworksImpl(), compatToFrameworkMessage(message));
-        } else if (feature.isSupportedByWebView()) {
+        } else if (feature.isSupportedByWebView()
+                && WebMessageAdapter.isMessagePayloadTypeSupportedByWebView(message.getType())) {
             getBoundaryInterface().postMessage(
                     BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
                             new WebMessageAdapter(message)));
@@ -98,12 +100,14 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
     @Override
     public void setWebMessageCallback(@NonNull final WebMessageCallbackCompat callback) {
         final ApiFeature.M feature = WebViewFeatureInternal.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK;
-        if (feature.isSupportedByFramework()) {
-            ApiHelperForM.setWebMessageCallback(getFrameworksImpl(), callback);
-        } else if (feature.isSupportedByWebView()) {
+        if (feature.isSupportedByWebView()) {
+            // We prefer use WebView impl, since the impl in framework does not support
+            // WebMessageCompat types other than String.
             getBoundaryInterface().setWebMessageCallback(
                     BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
                             new WebMessageCallbackAdapter(callback)));
+        } else if (feature.isSupportedByFramework()) {
+            ApiHelperForM.setWebMessageCallback(getFrameworksImpl(), callback);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
@@ -113,12 +117,14 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
     public void setWebMessageCallback(@Nullable Handler handler,
             @NonNull final WebMessageCallbackCompat callback) {
         final ApiFeature.M feature = WebViewFeatureInternal.CREATE_WEB_MESSAGE_CHANNEL;
-        if (feature.isSupportedByFramework()) {
-            ApiHelperForM.setWebMessageCallback(getFrameworksImpl(), callback, handler);
-        } else if (feature.isSupportedByWebView()) {
+        if (feature.isSupportedByWebView()) {
+            // We prefer use WebView impl, since the impl in framework does not support
+            // WebMessageCompat types other than String.
             getBoundaryInterface().setWebMessageCallback(
                     BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
                             new WebMessageCallbackAdapter(callback)), handler);
+        } else if (feature.isSupportedByFramework()) {
+            ApiHelperForM.setWebMessageCallback(getFrameworksImpl(), callback, handler);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }

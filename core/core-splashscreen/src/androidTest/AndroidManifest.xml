@@ -29,12 +29,14 @@
         <activity
             android:name=".SplashScreenAppCompatTestActivity"
             android:exported="true"
+            android:screenOrientation="behind"
             android:theme="@style/Theme.Test.AppCompat.Starting">
         </activity>
 
         <activity
             android:name=".SplashScreenWithIconBgTestActivity"
             android:exported="true"
+            android:screenOrientation="behind"
             android:theme="@style/Theme.Test.Starting.IconBackground">
         </activity>
 

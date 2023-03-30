@@ -21,10 +21,14 @@ package androidx.room.compiler.processing
  */
 interface XHasModifiers {
     /**
-     * Returns `true` if this element is public (has public modifier in Java or not marked as
-     * private / internal in Kotlin).
+     * Returns `true` if this element has public modifier.
      */
     fun isPublic(): Boolean
+
+    /**
+     * Returns `true` if this element has internal (source) modifier.
+     */
+    fun isInternal(): Boolean
 
     /**
      * Returns `true` if this element has protected modifier.
@@ -32,7 +36,7 @@ interface XHasModifiers {
     fun isProtected(): Boolean
 
     /**
-     * Returns `true` if this element is declared as abstract.
+     * Returns `true` if this element has abstract modifier.
      */
     fun isAbstract(): Boolean
 

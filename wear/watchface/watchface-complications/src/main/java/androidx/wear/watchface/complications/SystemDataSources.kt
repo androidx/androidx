@@ -27,16 +27,15 @@ public class SystemDataSources private constructor() {
     public companion object {
         // NEXT AVAILABLE DATA SOURCE ID: 17
 
-        /** Specifies that no complication data source should be used.  */
+        /** Specifies that no complication data source should be used. */
         public const val NO_DATA_SOURCE: Int = -1
 
         /**
          * Id for the 'watch battery' complication complication data source.
          *
          * This is a safe complication data source, so if a watch face uses this as a default it
-         * will be able to receive data from it even before the RECEIVE_COMPLICATION_DATA
-         * permission has been
-         * granted.
+         * will be able to receive data from it even before the RECEIVE_COMPLICATION_DATA permission
+         * has been granted.
          *
          * This complication data source supports the following types:
          * [ComplicationType.MONOCHROMATIC_IMAGE], [ComplicationType.SHORT_TEXT],
@@ -48,8 +47,8 @@ public class SystemDataSources private constructor() {
          * Id for the 'date' complication complication data source.
          *
          * This is a safe complication data source, so if a watch face uses this as a default it
-         * will be able to receive data from it even before the RECEIVE_COMPLICATION_DATA
-         * permission has been granted.
+         * will be able to receive data from it even before the RECEIVE_COMPLICATION_DATA permission
+         * has been granted.
          *
          * This complication data source supports only [ComplicationType.SHORT_TEXT].
          */
@@ -59,8 +58,8 @@ public class SystemDataSources private constructor() {
          * Id for the 'time and date' complication complication data source.
          *
          * This is a safe complication data source, so if a watch face uses this as a default it
-         * will be able to receive data from it even before the RECEIVE_COMPLICATION_DATA
-         * permission has been granted.
+         * will be able to receive data from it even before the RECEIVE_COMPLICATION_DATA permission
+         * has been granted.
          *
          * This complication data source supports only [ComplicationType.SHORT_TEXT].
          */
@@ -81,8 +80,8 @@ public class SystemDataSources private constructor() {
          * Id for the 'world clock' complication complication data source.
          *
          * This is a safe complication data source, so if a watch face uses this as a default it
-         * will be able to receive data from it even before the RECEIVE_COMPLICATION_DATA
-         * permission has been granted.
+         * will be able to receive data from it even before the RECEIVE_COMPLICATION_DATA permission
+         * has been granted.
          *
          * This complication data source supports only [ComplicationType.SHORT_TEXT].
          */
@@ -92,8 +91,8 @@ public class SystemDataSources private constructor() {
          * Id for the 'app shortcut' complication complication data source.
          *
          * This is a safe complication data source, so if a watch face uses this as a default it
-         * will be able to receive data from it even before the RECEIVE_COMPLICATION_DATA
-         * permission has been granted.
+         * will be able to receive data from it even before the RECEIVE_COMPLICATION_DATA permission
+         * has been granted.
          *
          * This complication data source supports the following types:
          * [ComplicationType.SMALL_IMAGE], [ComplicationType.LONG_TEXT].
@@ -104,8 +103,8 @@ public class SystemDataSources private constructor() {
          * Id for the 'unread notification count' complication complication data source.
          *
          * This is a safe complication data source, so if a watch face uses this as a default it
-         * will be able to receive data from it even before the RECEIVE_COMPLICATION_DATA
-         * permission has been granted.
+         * will be able to receive data from it even before the RECEIVE_COMPLICATION_DATA permission
+         * has been granted.
          *
          * This complication data source supports the following types:
          * [ComplicationType.MONOCHROMATIC_IMAGE], [ComplicationType.SHORT_TEXT].
@@ -147,8 +146,8 @@ public class SystemDataSources private constructor() {
          * Id for the 'day of week' complication complication data source.
          *
          * This is a safe complication data source, so if a watch face uses this as a default it
-         * will be able to receive data from it even before the RECEIVE_COMPLICATION_DATA
-         * permission has been granted.
+         * will be able to receive data from it even before the RECEIVE_COMPLICATION_DATA permission
+         * has been granted.
          *
          * This complication data source supports only [ComplicationType.SHORT_TEXT].
          */
@@ -172,8 +171,8 @@ public class SystemDataSources private constructor() {
          * Id for the 'day and date' complication complication data source.
          *
          * This is a safe complication data source, so if a watch face uses this as a default it
-         * will be able to receive data from it even before the RECEIVE_COMPLICATION_DATA
-         * permission has been granted.
+         * will be able to receive data from it even before the RECEIVE_COMPLICATION_DATA permission
+         * has been granted.
          *
          * This complication data source supports only [ComplicationType.SHORT_TEXT].
          */
@@ -200,9 +199,7 @@ public class SystemDataSources private constructor() {
         DATA_SOURCE_FAVORITE_CONTACT,
         DATA_SOURCE_DAY_AND_DATE
     )
-    @RestrictTo(
-        RestrictTo.Scope.LIBRARY_GROUP
-    )
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Retention(AnnotationRetention.SOURCE)
     public annotation class DataSourceId
 }

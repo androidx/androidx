@@ -20,6 +20,8 @@ import android.content.Context
 import android.content.Intent
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
+import androidx.camera.camera2.interop.Camera2CameraInfo
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
@@ -37,13 +39,22 @@ import androidx.camera.extensions.impl.ImageCaptureExtenderImpl
 import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl
 import androidx.camera.extensions.impl.NightPreviewExtenderImpl
 import androidx.camera.extensions.impl.PreviewExtenderImpl
+import androidx.camera.extensions.impl.advanced.AdvancedExtenderImpl
+import androidx.camera.extensions.impl.advanced.AutoAdvancedExtenderImpl
+import androidx.camera.extensions.impl.advanced.BeautyAdvancedExtenderImpl
+import androidx.camera.extensions.impl.advanced.BokehAdvancedExtenderImpl
+import androidx.camera.extensions.impl.advanced.HdrAdvancedExtenderImpl
+import androidx.camera.extensions.impl.advanced.NightAdvancedExtenderImpl
 import androidx.camera.extensions.internal.ExtensionVersion
+import androidx.camera.extensions.internal.Version
 import androidx.camera.integration.extensions.CameraExtensionsActivity
 import androidx.camera.integration.extensions.IntentExtraKey
+import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil.createCameraSelectorById
 import androidx.camera.integration.extensions.utils.ExtensionModeUtil
 import androidx.camera.integration.extensions.utils.ExtensionModeUtil.AVAILABLE_EXTENSION_MODES
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.LabTestRule
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -56,12 +67,10 @@ object CameraXExtensionsTestUtil {
      * Gets a list of all camera id and extension mode combinations.
      */
     @JvmStatic
-    fun getAllCameraIdExtensionModeCombinations(): List<Array<Any>> =
-        arrayListOf<Array<Any>>().apply {
-            CameraUtil.getBackwardCompatibleCameraIdListOrThrow().forEach { cameraId ->
-                ExtensionModeUtil.AVAILABLE_EXTENSION_MODES.forEach { mode ->
-                    add(arrayOf(cameraId, mode))
-                }
+    fun getAllCameraIdExtensionModeCombinations(): List<CameraIdExtensionModePair> =
+        CameraUtil.getBackwardCompatibleCameraIdListOrThrow().flatMap { cameraId ->
+            ExtensionModeUtil.AVAILABLE_EXTENSION_MODES.map { extensionMode ->
+                CameraIdExtensionModePair(cameraId, extensionMode)
             }
         }
 
@@ -131,6 +140,32 @@ object CameraXExtensionsTestUtil {
     }
 
     /**
+     * Creates a [AdvancedExtenderImpl] object for specific [ExtensionMode] and
+     * camera id.
+     *
+     * @param extensionMode The extension mode for the created object.
+     * @param cameraId The target camera id.
+     * @param cameraCharacteristics The camera characteristics of the target camera.
+     * @return A [AdvancedExtenderImpl] object.
+     */
+    @JvmStatic
+    fun createAdvancedExtenderImpl(
+        @ExtensionMode.Mode extensionMode: Int,
+        cameraId: String,
+        cameraInfo: CameraInfo
+    ): AdvancedExtenderImpl = when (extensionMode) {
+        ExtensionMode.HDR -> HdrAdvancedExtenderImpl()
+        ExtensionMode.BOKEH -> BokehAdvancedExtenderImpl()
+        ExtensionMode.FACE_RETOUCH -> BeautyAdvancedExtenderImpl()
+        ExtensionMode.NIGHT -> NightAdvancedExtenderImpl()
+        ExtensionMode.AUTO -> AutoAdvancedExtenderImpl()
+        else -> throw AssertionFailedError("No such Preview extender implementation")
+    }.apply {
+        val cameraCharacteristicsMap = Camera2CameraInfo.from(cameraInfo).cameraCharacteristicsMap
+        init(cameraId, cameraCharacteristicsMap)
+    }
+
+    /**
      * Returns whether the target camera device can support the test for a specific extension mode.
      */
     @JvmStatic
@@ -152,8 +187,10 @@ object CameraXExtensionsTestUtil {
         extensionMode: Int
     ) {
         val cameraIdCameraSelector = createCameraSelectorById(cameraId)
-        assumeTrue("Extensions mode($extensionMode) not supported",
-            extensionsManager.isExtensionAvailable(cameraIdCameraSelector, extensionMode))
+        assumeTrue(
+            "Extensions mode($extensionMode) not supported",
+            extensionsManager.isExtensionAvailable(cameraIdCameraSelector, extensionMode)
+        )
     }
 
     @JvmStatic
@@ -191,6 +228,18 @@ object CameraXExtensionsTestUtil {
     }
 
     @JvmStatic
+    fun isAdvancedExtenderImplemented(): Boolean {
+        if (!isTargetDeviceAvailableForExtensions()) {
+            return false
+        }
+        if (ExtensionVersion.getRuntimeVersion()!! < Version.VERSION_1_2) {
+            return false
+        }
+
+        return ExtensionVersion.isAdvancedExtenderSupported()
+    }
+
+    @JvmStatic
     fun launchCameraExtensionsActivity(
         cameraId: String,
         extensionMode: Int,
@@ -222,15 +271,13 @@ object CameraXExtensionsTestUtil {
         return activityScenario
     }
 
-    /**
-     * Large stress test repeat count to run the test
-     */
-    const val LARGE_STRESS_TEST_REPEAT_COUNT = 1
-
-    /**
-     * Stress test repeat count to run the test
-     */
-    const val STRESS_TEST_REPEAT_COUNT = 2
+    @JvmStatic
+    fun getStressTestRepeatingCount() =
+        if (LabTestRule.isInLabTest()) {
+            LAB_STRESS_TEST_OPERATION_REPEAT_COUNT
+        } else {
+            STRESS_TEST_OPERATION_REPEAT_COUNT
+        }
 
     /**
      * Stress test target testing operation count.
@@ -246,7 +293,8 @@ object CameraXExtensionsTestUtil {
      * </ul>
      *
      */
-    const val STRESS_TEST_OPERATION_REPEAT_COUNT = 10
+    private const val LAB_STRESS_TEST_OPERATION_REPEAT_COUNT = 10
+    private const val STRESS_TEST_OPERATION_REPEAT_COUNT = 3
 
     /**
      * Constant to specify that the verification target is [Preview].

@@ -26,13 +26,13 @@ import androidx.camera.core.impl.Quirk;
  *     Bug Id: b/239369953
  *     Description: When taking image with VideoCapture is bound, the capture result is returned
  *                  but the resulting image can not be obtained.
- *     Device(s): BLU Studio X10, Itel w6004, and Vivo 1805.
+ *     Device(s): BLU Studio X10, Itel w6004, Twist 2 Pro, and Vivo 1805.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ImageCaptureFailedWhenVideoCaptureIsBoundQuirk implements Quirk {
 
     static boolean load() {
-        return isBluStudioX10() || isItelW6004() || isVivo1805();
+        return isBluStudioX10() || isItelW6004() || isVivo1805() || isPositivoTwist2Pro();
     }
 
     public static boolean isBluStudioX10() {
@@ -45,5 +45,10 @@ public class ImageCaptureFailedWhenVideoCaptureIsBoundQuirk implements Quirk {
 
     public static boolean isVivo1805() {
         return "vivo".equalsIgnoreCase(Build.BRAND) && "vivo 1805".equalsIgnoreCase(Build.MODEL);
+    }
+
+    public static boolean isPositivoTwist2Pro() {
+        return "positivo".equalsIgnoreCase(Build.BRAND) && "twist 2 pro".equalsIgnoreCase(
+                Build.MODEL);
     }
 }

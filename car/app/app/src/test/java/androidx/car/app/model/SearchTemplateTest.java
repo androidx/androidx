@@ -92,19 +92,18 @@ public class SearchTemplateTest {
     }
 
     @Test
-    public void addList_hasToggle_throws() {
+    public void addList_hasToggle() {
         Row rowWithToggle =
                 new Row.Builder().setTitle("Title").setToggle(new Toggle.Builder(isChecked -> {
                 }).build()).build();
         Row rowMeetingRestrictions =
                 new Row.Builder().setTitle("Title").addText("text1").addText("text2").build();
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new SearchTemplate.Builder(mMockSearchCallback)
-                        .setItemList(new ItemList.Builder().addItem(rowWithToggle).build())
-                        .build());
 
         // Positive cases.
+        new SearchTemplate.Builder(mMockSearchCallback)
+                        .setItemList(new ItemList.Builder().addItem(rowWithToggle).build())
+                        .build();
+
         new SearchTemplate.Builder(mMockSearchCallback)
                 .setItemList(new ItemList.Builder().addItem(rowMeetingRestrictions).build())
                 .build();

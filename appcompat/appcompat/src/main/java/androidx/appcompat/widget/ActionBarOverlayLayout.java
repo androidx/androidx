@@ -539,7 +539,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
     }
 
     @Override
-    public void draw(Canvas c) {
+    public void draw(@NonNull Canvas c) {
         super.draw(c);
         if (mWindowContentOverlay != null && !mIgnoreWindowContentOverlay) {
             final int top = mActionBarTop.getVisibility() == VISIBLE ?

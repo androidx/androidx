@@ -38,7 +38,6 @@ dependencies {
 androidx {
     name = "androidx.customview:poolingcontainer"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.CUSTOMVIEW
     mavenVersion = LibraryVersions.CUSTOMVIEW_POOLINGCONTAINER
     inceptionYear = "2021"
     description = "Utilities for listening to the lifecycle of containers that manage their child Views' lifecycle, such as RecyclerView"

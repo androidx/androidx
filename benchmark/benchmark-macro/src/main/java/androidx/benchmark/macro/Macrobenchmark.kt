@@ -28,6 +28,7 @@ import androidx.benchmark.ConfigurationError
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.ResultWriter
+import androidx.benchmark.Shell
 import androidx.benchmark.UserspaceTracing
 import androidx.benchmark.checkAndGetSuppressionState
 import androidx.benchmark.conditionalError
@@ -57,6 +58,8 @@ internal fun getInstalledPackageInfo(packageName: String): ApplicationInfo {
 }
 
 internal fun checkErrors(packageName: String): ConfigurationError.SuppressionState? {
+    Arguments.throwIfError()
+
     val applicationInfo = getInstalledPackageInfo(packageName)
 
     val errorNotProfileable = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -65,6 +68,7 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
         false
     }
 
+    val instrumentation = InstrumentationRegistry.getInstrumentation()
     val errors = DeviceInfo.errors +
         // TODO: Merge this debuggable check / definition with Errors.kt in benchmark-common
         listOfNotNull(
@@ -96,6 +100,38 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
 
                     <!--suppress AndroidElementNotAllowed -->
                     <profileable android:shell="true"/>
+                """.trimIndent()
+            ),
+            conditionalError(
+                hasError = instrumentation.targetContext.packageName !=
+                    instrumentation.context.packageName,
+                id = "NOT-SELF-INSTRUMENTING",
+                summary = "Benchmark manifest is instrumenting separate process",
+                message = """
+                    Macrobenchmark instrumentation target in manifest
+                    ${instrumentation.targetContext.packageName} does not match macrobenchmark
+                    package ${instrumentation.context.packageName}. While macrobenchmarks 'target' a
+                    separate app they measure, they can not declare it as their instrumentation
+                    targetPackage in their manifest. Doing so would cause the macrobenchmark test
+                    app to be loaded into the target application process, which would prevent
+                    macrobenchmark from killing, compiling, or launching the target process.
+
+                    Ensure your macrobenchmark test apk's manifest matches the manifest package, and
+                    instrumentation target package, also called 'self-instrumenting':
+
+                    <manifest
+                        package="com.mymacrobenchpackage" ...>
+                        <instrumentation
+                            android:name="androidx.benchmark.junit4.AndroidBenchmarkRunner"
+                            android:targetPackage="mymacrobenchpackage"/>
+
+                    In gradle library modules, this is the default behavior. In gradle test modules,
+                    specify the experimental self-instrumenting property:
+                    android {
+                        targetProjectPath = ":app"
+                        // Enable the benchmark to run separately from the app process
+                        experimentalProperties["android.experimental.self-instrumenting"] = true
+                    }
                 """.trimIndent()
             )
         ).sortedBy { it.id }
@@ -129,11 +165,11 @@ private fun macrobenchmark(
         "Empty list of metrics passed to metrics param, must pass at least one Metric"
     }
 
-    // skip benchmark if not supported by vm settings
-    compilationMode.assumeSupportedWithVmSettings()
-
     val suppressionState = checkErrors(packageName)
     var warningMessage = suppressionState?.warningMessage ?: ""
+
+    // skip benchmark if not supported by vm settings
+    compilationMode.assumeSupportedWithVmSettings()
 
     val startTime = System.nanoTime()
     val scope = MacrobenchmarkScope(packageName, launchWithClearTask)
@@ -174,9 +210,9 @@ private fun macrobenchmark(
                     setupBlock(scope)
                 }
 
+                val iterString = iteration.toString().padStart(3, '0')
                 val tracePath = perfettoCollector.record(
-                    benchmarkName = uniqueName,
-                    iteration = iteration,
+                    fileLabel = "${uniqueName}_iter$iterString",
 
                     /**
                      * Prior to API 24, every package name was joined into a single setprop which
@@ -340,31 +376,38 @@ fun macrobenchmarkWithStartupMode(
         userspaceTracingPackage = userspaceTracingPackage,
         setupBlock = {
             if (startupMode == StartupMode.COLD) {
-                killProcess()
+                // Run setup before killing process
+                setupBlock(this)
+
                 // Shader caches are stored in the code cache directory. Make sure that
-                // they are cleared every iteration.
+                // they are cleared every iteration. Must be done before kill, since on user builds
+                // this broadcasts to the target app
                 dropShaderCache()
-                // drop app pages from page cache to ensure it is loaded from disk, from scratch
 
-                // resetAndCompile uses ProfileInstallReceiver to write a skip file.
-                // This is done to reduce the interference from ProfileInstaller,
-                // so long-running benchmarks don't get optimized due to a background dexopt.
+                // Kill - code below must not wake process!
+                killProcess()
 
-                // To restore the state of the process we need to drop app pages so its
-                // loaded from disk, from scratch.
+                // Ensure app's pages are not cached in memory for a true _cold_ start.
                 dropKernelPageCache()
-            } else if (iteration == 0 && startupMode != null) {
-                try {
-                    iteration = null // override to null for warmup, before starting measurements
 
-                    // warmup process by running the measure block once unmeasured
-                    setupBlock(this)
-                    measureBlock()
-                } finally {
-                    iteration = 0
+                // validate process is not running just before returning
+                check(!Shell.isPackageAlive(packageName)) {
+                    "Package $packageName must not be running prior to cold start!"
                 }
+            } else {
+                if (iteration == 0 && startupMode != null) {
+                    try {
+                        iteration = null // override to null for warmup
+
+                        // warmup process by running the measure block once unmeasured
+                        setupBlock(this)
+                        measureBlock()
+                    } finally {
+                        iteration = 0 // resume counting
+                    }
+                }
+                setupBlock(this)
             }
-            setupBlock(this)
         },
         // Don't reuse activities by default in COLD / WARM
         launchWithClearTask = startupMode == StartupMode.COLD || startupMode == StartupMode.WARM,

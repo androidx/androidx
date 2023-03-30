@@ -56,7 +56,7 @@ internal class MultiInstanceInvalidationClient(
 
     val callback: IMultiInstanceInvalidationCallback =
         object : IMultiInstanceInvalidationCallback.Stub() {
-            override fun onInvalidation(tables: Array<String>) {
+            override fun onInvalidation(tables: Array<out String>) {
                 executor.execute { invalidationTracker.notifyObserversByTableNames(*tables) }
             }
         }

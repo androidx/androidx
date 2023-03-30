@@ -27,6 +27,7 @@ import static androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA
 import static androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_DELETE_CAPTURED_IMAGE;
 import static androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_EXTENSION_MODE;
 
+import android.Manifest;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -92,8 +93,10 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.io.File;
 import java.text.Format;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -616,8 +619,31 @@ public class CameraExtensionsActivity extends AppCompatActivity
             Log.e(TAG, "Failed to obtain all required permissions.", exception);
             return new String[0];
         }
-        String[] permissions = info.requestedPermissions;
-        if (permissions != null && permissions.length > 0) {
+
+        if (info.requestedPermissions == null || info.requestedPermissions.length == 0) {
+            return new String[0];
+        }
+
+        List<String> requiredPermissions = new ArrayList<>();
+
+        // From Android T, skips the permission check of WRITE_EXTERNAL_STORAGE since it won't be
+        // granted any more. When querying the requested permissions from PackageManager,
+        // READ_EXTERNAL_STORAGE will also be included if we specify WRITE_EXTERNAL_STORAGE
+        // requirement in AndroidManifest.xml. Therefore, also need to skip the permission check
+        // of READ_EXTERNAL_STORAGE.
+        for (String permission : info.requestedPermissions) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && (
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(permission)
+                            || Manifest.permission.READ_EXTERNAL_STORAGE.equals(permission))) {
+                continue;
+            }
+
+            requiredPermissions.add(permission);
+        }
+
+        String[] permissions = requiredPermissions.toArray(new String[0]);
+
+        if (permissions.length > 0) {
             return permissions;
         } else {
             return new String[0];

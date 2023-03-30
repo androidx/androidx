@@ -22,6 +22,7 @@
     <string name="complication_screen_reader_name_two"
         translatable="false">Complication two.</string>
     <string name="complication_name_three" translatable="false">Three</string>
+    <string name="complication_name_five" translatable="false">Five</string>
     <string name="flavor_id_0" translatable="false">flavor1</string>
     <string name="setting_time_style" translatable="false">TimeStyle</string>
     <string name="option_time_style_minimal" translatable="false">minimal</string>

@@ -30,7 +30,9 @@ import androidx.work.WorkInfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -60,14 +62,14 @@ public class ParcelableWorkInfo implements Parcelable {
         Data output = parcelableOutputData.getData();
         // tags
         String[] tagsArray = parcel.createStringArray();
-        List<String> tags = Arrays.asList(tagsArray);
+        Set<String> tags = new HashSet<>(Arrays.asList(tagsArray));
         // progress
         ParcelableData parcelableProgressData = new ParcelableData(parcel);
         Data progress = parcelableProgressData.getData();
         // runAttemptCount
         int runAttemptCount = parcel.readInt();
         int generation = parcel.readInt();
-        mWorkInfo = new WorkInfo(id, state, output, tags, progress, runAttemptCount, generation);
+        mWorkInfo = new WorkInfo(id, state, tags, output, progress, runAttemptCount, generation);
     }
 
     @NonNull

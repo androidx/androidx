@@ -82,5 +82,10 @@ public annotation class ChecksSdkIntAtLeast(
      * The parameter number for a lambda that will be executed if the API level is at least
      * the value supplied via [api], [codename] or [parameter]
      */
-    val lambda: Int = -1
+    val lambda: Int = -1,
+
+    /**
+     * The associated Extension SDK id, or 0 if the Android platform
+     */
+    val extension: Int = 0
 )

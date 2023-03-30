@@ -82,9 +82,6 @@ class PreviewViewBitmapTest(
     @After
     fun tearDown() {
         if (cameraProvider != null) {
-            runOnMainThread {
-                cameraProvider!!.unbindAll()
-            }
             cameraProvider!!.shutdown()[10000, TimeUnit.MILLISECONDS]
             cameraProvider = null
         }

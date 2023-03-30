@@ -19,6 +19,7 @@ package androidx.camera.core;
 import android.graphics.ImageFormat;
 import android.view.Surface;
 
+import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -39,6 +40,15 @@ import java.lang.annotation.RetentionPolicy;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraInfo {
+
+    /**
+     * An unknown intrinsic zoom ratio. Usually to indicate the camera is unable to provide
+     * necessary information to resolve its intrinsic zoom ratio.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    float INTRINSIC_ZOOM_RATIO_UNKNOWN = 1.0F;
 
     /**
      * An unknown camera implementation type.
@@ -87,10 +97,10 @@ public interface CameraInfo {
      * Returns the sensor rotation in degrees, relative to the device's "natural" (default)
      * orientation.
      *
-     * @return The sensor rotation in degrees, relative to device's "natural" (default) orientation.
-     * @see
-     * <a href="https://developer.android.com/guide/topics/sensors/sensors_overview#sensors-coords">
-     * Sensor Coordinate System</a>
+     * <p>See <a href="https://developer.android.com/guide/topics/sensors/sensors_overview#sensors-coords">Sensor Coordinate System</a>
+     * for more information.
+     *
+     * @return the sensor rotation in degrees, relative to device's "natural" (default) orientation.
      */
     int getSensorRotationDegrees();
 
@@ -100,8 +110,8 @@ public interface CameraInfo {
      * <p>Valid values for the relative rotation are {@link Surface#ROTATION_0} (natural), {@link
      * Surface#ROTATION_90}, {@link Surface#ROTATION_180}, {@link Surface#ROTATION_270}.
      *
-     * @param relativeRotation The rotation relative to which the output will be calculated.
-     * @return The sensor rotation in degrees.
+     * @param relativeRotation the rotation relative to which the output will be calculated.
+     * @return the sensor rotation in degrees.
      */
     int getSensorRotationDegrees(@ImageOutputConfig.RotationValue int relativeRotation);
 
@@ -158,7 +168,7 @@ public interface CameraInfo {
      * followed by the {@link CameraState.Type#OPEN} and {@link CameraState.Type#CLOSED} states
      * respectively.
      *
-     * @return A {@link LiveData} of the camera's state.
+     * @return a {@link LiveData} of the camera's state.
      */
     @NonNull
     LiveData<CameraState> getCameraState();
@@ -167,7 +177,7 @@ public interface CameraInfo {
      * Returns the implementation type of the camera, this depends on the {@link CameraXConfig}
      * used in the initialization of CameraX.
      *
-     * @return The implementation type of the camera, which can be one of the following:
+     * @return the implementation type of the camera, which can be one of the following:
      * {@link #IMPLEMENTATION_TYPE_UNKNOWN}, {@link #IMPLEMENTATION_TYPE_CAMERA2_LEGACY},
      * {@link #IMPLEMENTATION_TYPE_CAMERA2}, {@link #IMPLEMENTATION_TYPE_FAKE}.
      * @hide
@@ -185,6 +195,48 @@ public interface CameraInfo {
     @NonNull
     CameraSelector getCameraSelector();
 
+    /**
+     * Returns the lens facing of this camera.
+     *
+     * @return one of {@link CameraSelector#LENS_FACING_FRONT} and
+     * {@link CameraSelector#LENS_FACING_BACK}, or {@link CameraSelector#LENS_FACING_EXTERNAL}.
+     * If the lens facing of the camera can not be resolved, return
+     * {@link CameraSelector#LENS_FACING_UNKNOWN}.
+     */
+    @CameraSelector.LensFacing
+    default int getLensFacing() {
+        return CameraSelector.LENS_FACING_UNKNOWN;
+    }
+
+    /**
+     * Returns the intrinsic zoom ratio of this camera.
+     *
+     * <p>The intrinsic zoom ratio is defined as the ratio between the angle of view of
+     * the default camera and this camera. The default camera is the camera selected by
+     * {@link CameraSelector#DEFAULT_FRONT_CAMERA} or {@link CameraSelector#DEFAULT_BACK_CAMERA}
+     * depending on the lens facing of this camera. For example, if the default camera has angle of
+     * view 60 degrees and this camera has 30 degrees, this camera will have intrinsic zoom ratio
+     * {@code 2.0}.
+     *
+     * <p>The intrinsic zoom ratio is calculated approximately based on the focal length and the
+     * sensor size. It's considered an inexact attribute of the camera and might not be hundred
+     * percent accurate when compared with the output image. Especially for the case that the
+     * camera doesn't read the whole sensor area due to cropping being applied.
+     *
+     * <p>The default camera is guaranteed to have intrinsic zoom ratio {@code 1.0}. Other cameras
+     * that have intrinsic zoom ratio greater than {@code 1.0} are considered telephoto cameras and
+     * cameras that have intrinsic zoom ratio less than {@code 1.0} are considered ultra
+     * wide-angle cameras.
+     *
+     * <p>If the camera is unable to provide necessary information to resolve its intrinsic zoom
+     * ratio, it will be considered as a standard camera which has intrinsic zoom ratio {@code 1.0}.
+     *
+     * @return the intrinsic zoom ratio of this camera.
+     */
+    @FloatRange(from = 0, fromInclusive = false)
+    default float getIntrinsicZoomRatio() {
+        return INTRINSIC_ZOOM_RATIO_UNKNOWN;
+    }
 
     /**
      * Returns if the given {@link FocusMeteringAction} is supported on the devices.
@@ -208,13 +260,13 @@ public interface CameraInfo {
      * Returns if {@link ImageCapture#CAPTURE_MODE_ZERO_SHUTTER_LAG} is supported on the current
      * device.
      *
-     * <p> ZERO_SHUTTER_LAG will be supported when all of the following conditions are met
+     * <p>ZERO_SHUTTER_LAG will be supported when all of the following conditions are met
      * <ul>
      *     <li> API Level >= 23
      *     <li> {@link ImageFormat#PRIVATE} reprocessing is supported
      * </ul>
      *
-     * @return True if supported, otherwise false.
+     * @return true if supported, otherwise false.
      */
     @ExperimentalZeroShutterLag
     default boolean isZslSupported() {
@@ -224,10 +276,9 @@ public interface CameraInfo {
     /**
      * Returns if {@link ImageFormat#PRIVATE} reprocessing is supported on the device.
      *
-     * @return True if supported, otherwise false.
-     *
-     * @See CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING
-     *
+     * @return true if supported, otherwise false.
+     * @see android.hardware.camera2.CameraMetadata
+     * #REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)

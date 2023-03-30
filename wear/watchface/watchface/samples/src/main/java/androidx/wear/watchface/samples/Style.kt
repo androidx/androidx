@@ -25,22 +25,12 @@ private fun Context.getStyleResourceId(
     attributeId: Int,
     defaultResourceId: Int
 ): Int {
-    val styleArray = obtainStyledAttributes(
-        styleResourceId,
-        intArrayOf(attributeId)
-    )
+    val styleArray = obtainStyledAttributes(styleResourceId, intArrayOf(attributeId))
     return styleArray.getResourceId(0, defaultResourceId).also { styleArray.recycle() }
 }
 
-private fun Context.getStyleColor(
-    styleResourceId: Int,
-    attributeId: Int,
-    defaultColor: Int
-): Int {
-    val colorArray = obtainStyledAttributes(
-        styleResourceId,
-        intArrayOf(attributeId)
-    )
+private fun Context.getStyleColor(styleResourceId: Int, attributeId: Int, defaultColor: Int): Int {
+    val colorArray = obtainStyledAttributes(styleResourceId, intArrayOf(attributeId))
     return colorArray.getColor(0, defaultColor).also { colorArray.recycle() }
 }
 
@@ -81,7 +71,9 @@ class WatchFaceColorStyle(
             val styleResourceId =
                 context.resources.getIdentifier(styleName, "style", context.packageName)
             return context.getStyleResourceId(
-                styleResourceId, R.attr.complication, R.drawable.complication_green_style
+                styleResourceId,
+                R.attr.complication,
+                R.drawable.complication_green_style
             )
         }
     }

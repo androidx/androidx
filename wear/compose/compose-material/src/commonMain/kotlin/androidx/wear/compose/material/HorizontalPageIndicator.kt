@@ -272,9 +272,7 @@ private fun CurvedPageIndicator(
         modifier = modifier,
         // 90 degrees equals to 6 o'clock position, at the bottom of the screen
         anchor = 90f,
-        // Since Swipe to dismiss is always LtR, we want to follow the same direction when
-        // navigating amongst pages, so the first page is always on the left.
-        angularDirection = CurvedDirection.Angular.CounterClockwise
+        angularDirection = CurvedDirection.Angular.Reversed
     ) {
         // drawing 1 extra spacer for transition
         curvedComposable {

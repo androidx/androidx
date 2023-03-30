@@ -100,8 +100,7 @@
     <string name="example_2_text" msgid="718820705318661440">"May kulay berde sa text na ito"</string>
     <string name="example_3_text" msgid="977269832109695627">"May kulay asul sa text na ito"</string>
     <string name="example_4_text" msgid="2043547015979437373">"May kulay dilaw sa text na ito"</string>
-    <!-- no translation found for example_5_text (8828804968749423500) -->
-    <skip />
+    <string name="example_5_text" msgid="8828804968749423500">"Ginagamit ng text na ito ang pangunahing kulay"</string>
     <string name="example_6_text" msgid="7991523168517599600">"Gumagamit ang text na ito ng pangalawang kulay"</string>
     <string name="color_demo" msgid="1822427636476178993">"Demo ng Kulay"</string>
     <string name="list_limit" msgid="3023536401535417286">"Limitasyon ng Listahan"</string>
@@ -231,8 +230,7 @@
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"Hindi compatible na host"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"Demo ng Template ng Mensahe"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Dito lalabas ang mensahe.\nHigit pang text sa ikalawang linya."</string>
-    <!-- no translation found for short_msg_template_demo_title (6798738013668580714) -->
-    <skip />
+    <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demo ng Template ng Maikling Mensahe"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demo ng Template ng Pane"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demo ng Template ng Listahan ng Lugar"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Mag-browse ng Mga Lugar"</string>
@@ -259,6 +257,15 @@
     <string name="sign_in_complete_text" msgid="8423984266325680606">"Naka-sign in ka na!"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"Nakapag-sign in na"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"Demo ng Template sa Pag-sign In"</string>
+    <string name="tab_template_layouts_demo_title" msgid="6529681462424538165">"Mga Demo ng Template ng Tab"</string>
+    <string name="tab_template_demo_title" msgid="7587839101813629975">"Demo ng Template ng Tab"</string>
+    <string name="tab_title_message" msgid="5266710951630087246">"Tab ng Mensahe"</string>
+    <string name="tab_title_pane" msgid="2520606145526537263">"Tab ng Pane"</string>
+    <string name="tab_title_list" msgid="5104962518489668123">"Tab ng Listahan"</string>
+    <string name="tab_title_grid" msgid="5268168907976325154">"Grid na Tab na may Mahabang Pamagat ng Tab"</string>
+    <string name="tab_title_search" msgid="1892925693146631173">"Tab ng Paghahanap"</string>
+    <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Demo ng Pag-load ng Template ng Tab"</string>
+    <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Demo ng Walang Tab na Template ng Tab"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Hindi maipapakita ang mga larawan para sa hindi tukoy na host"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"Icon"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Demo ng Mga Icon ng Provider ng Content"</string>
@@ -268,8 +275,7 @@
     <string name="vector_with_tint_title" msgid="1022346419829696827">"Vector na drawable na may tint"</string>
     <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"Vector na drawable na may attribute ng tema ng app para sa kulay nito"</string>
     <string name="png_res_title" msgid="7437083018336747544">"PNG na ipinadala bilang resource"</string>
-    <!-- no translation found for png_bitmap_title (3385912074130977032) -->
-    <skip />
+    <string name="png_bitmap_title" msgid="3385912074130977032">"Isang PNG, na ipinadala bilang bitmap"</string>
     <string name="just_row_title" msgid="965700021568970725">"Pamagat lang"</string>
     <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"Pamagat na may icon ng app"</string>
     <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"Pamagat na may larawan ng resource ID"</string>
@@ -281,8 +287,7 @@
     <string name="rows_demo_title" msgid="3198566660454251007">"Demo ng Mga Row"</string>
     <string name="text_icons_demo_title" msgid="8732943920672143201">"Mga Demo ng Text at Mga Icon"</string>
     <string name="row_text_icons_demo_title" msgid="135167694047524905">"Demo ng Mga Row na may Text at Mga Icon"</string>
-    <!-- no translation found for radio_button_list_demo_title (9082264324855338774) -->
-    <skip />
+    <string name="radio_button_list_demo_title" msgid="9082264324855338774">"Demo ng Mga Listahan ng Radio Button"</string>
     <string name="selectable_lists_demo_title" msgid="5492658731113129386">"Demo ng Mga Mapipiling Listahan"</string>
     <string name="option_1_title" msgid="7221252541651471199">"Opsyon 1"</string>
     <string name="option_2_title" msgid="1905146448697963818">"Opsyon 2"</string>
@@ -296,8 +301,8 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"Naabot na ang limitasyon ng gawain\nSapilitang ihihinto ang app kapag nagpatuloy"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Gawin ang hakbang %1$d sa %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Mag-click para magpatuloy"</string>
-    <!-- no translation found for toggle_button_demo_title (3179103600967398928) -->
-    <skip />
+    <string name="task_content_allowed" msgid="545061986612431190">"Pakibisita ang iba\'t ibang template at tiyaking nasa driving mode ang kotse"</string>
+    <string name="toggle_button_demo_title" msgid="3179103600967398928">"Demo ng Toggle Button"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"I-toggle ang test"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Pinapayagan ang mga pagbabago sa status"</string>
     <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"I-enable ang Pagsusuri sa Toggle"</string>
@@ -310,15 +315,24 @@
     <string name="additional_data_text" msgid="2846223398214158872">"Pinapayagan ang mga update sa mga pagbabalik."</string>
     <string name="toggle_test_enabled" msgid="982370904182034076">"Na-enable ang Pagsusuri sa Toggle"</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"Na-disable ang Pagsusuri sa Toggle"</string>
+    <string name="secondary_actions_decoration_button_demo_title" msgid="3710817648501132309">"Demo ng Pangalawahang Pagkilos at Dekorasyon"</string>
+    <string name="secondary_actions_test_title" msgid="3664453747553733613">"Pagsubok sa Pangalawahang Pagkilos"</string>
+    <string name="secondary_actions_test_subtitle" msgid="6985282813402073703">"Ang pangalawahang pagkilos lang ang puwedeng piliin"</string>
+    <string name="decoration_test_title" msgid="8450127046762442244">"Pagsubok sa Dekorasyon"</string>
+    <string name="secondary_actions_decoration_test_title" msgid="6282873404859209490">"Mga Pangalawahang Pagkilos at Dekorasyon"</string>
+    <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Puwede ring piliin ang row"</string>
+    <string name="secondary_action_toast" msgid="5076434693504006565">"Napili ang Pangalawahang Pagkilos"</string>
+    <string name="row_primary_action_toast" msgid="756516694751965204">"Napili ang pangunahing pagkilos ng row"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Iba Pang Demo ng Mga Template"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Itampok ang Mga Demo"</string>
-    <!-- no translation found for template_layouts_demo_title (788249269446087847) -->
-    <skip />
-    <!-- no translation found for grid_template_menu_demo_title (7096285873490705119) -->
-    <skip />
+    <string name="template_layouts_demo_title" msgid="788249269446087847">"Mga Demo ng Layout ng Template"</string>
+    <string name="grid_template_menu_demo_title" msgid="7096285873490705119">"Mga Demo ng Template ng Grid"</string>
     <string name="voice_access_demo_title" msgid="3825223890895361496">"Screen ng Demo ng Pag-access gamit ang Boses"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"Mga Pakikipag-ugnayan ng User"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"Humiling ng Mga Demo ng Pahintulot"</string>
+    <string name="application_overflow_title" msgid="396427940886169325">"Validator ng Overflow ng Application"</string>
+    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"Pakisubukan ang mga sumusunod na template habang binabago"</string>
+    <string name="application_overflow_subtitle2" msgid="4385123036846369714">"ang status ng sasakyan mula naka-park patungong nagmamaneho"</string>
     <string name="perm_group" msgid="3834918337351876270">"Grupo ng Pahintulot"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"Grupo ng Pahintulot para sa Showcase App"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"Access sa Eksaktong Lokasyon"</string>
@@ -332,18 +346,16 @@
     <string name="location_3_description" msgid="3982142774088944850">"May kulay na text marker"</string>
     <string name="location_4_description" msgid="6560365445044381911">"Bitmap ng larawan"</string>
     <string name="location_description_text_label" msgid="2779911545316756419">"Label ng text"</string>
-    <!-- no translation found for parking_vs_driving_demo_title (3367862800135053111) -->
-    <skip />
-    <!-- no translation found for latest_feature_details (6843008350392721502) -->
-    <skip />
-    <!-- no translation found for latest_feature_title (7929405790070777460) -->
-    <skip />
-    <!-- no translation found for loading_toggle_enabled (8828072732804454994) -->
-    <skip />
-    <!-- no translation found for loading_toggle_disabled (7689738885077382673) -->
-    <skip />
-    <!-- no translation found for loading_screen (4771507490730308794) -->
-    <skip />
-    <!-- no translation found for vector_toggle_details (1301305340033556819) -->
-    <skip />
+    <string name="parking_vs_driving_demo_title" msgid="3367862800135053111">"Demo ng Pagparada Vs Pagmamaneho"</string>
+    <string name="latest_feature_details" msgid="6843008350392721502">"Cluster Displays sa mga kotse!"</string>
+    <string name="latest_feature_title" msgid="7929405790070777460">"Mga Pinakabagong Feature"</string>
+    <string name="loading_toggle_enabled" msgid="8828072732804454994">"Na-enable ang pag-load"</string>
+    <string name="loading_toggle_disabled" msgid="7689738885077382673">"Na-disable ang pag-load"</string>
+    <string name="loading_screen" msgid="4771507490730308794">"Nilo-load ang screen"</string>
+    <string name="vector_toggle_details" msgid="1301305340033556819">"I-toggle para magdagdag/mag-alis ng kulay"</string>
+    <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Template ng Mapa na May Mga Toggle"</string>
+    <string name="avoid_tolls_row_title" msgid="5194057244144831024">"Iwasan ang mga toll"</string>
+    <string name="route_options_demo_title" msgid="4599699012716426514">"Mga opsyon sa ruta"</string>
+    <string name="avoid_highways_row_title" msgid="4711913426200490304">"Iwasan ang mga highway"</string>
+    <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Iwasan ang ferry"</string>
 </resources>

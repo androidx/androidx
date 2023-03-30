@@ -20,10 +20,8 @@ import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.Variant
 import com.android.build.gradle.LibraryExtension
 import com.google.protobuf.gradle.GenerateProtoTask
-import com.google.protobuf.gradle.ProtobufConvention
+import com.google.protobuf.gradle.ProtobufExtension
 import com.google.protobuf.gradle.ProtobufPlugin
-import com.google.protobuf.gradle.generateProtoTasks
-import com.google.protobuf.gradle.protoc
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -32,7 +30,6 @@ import org.gradle.api.tasks.StopExecutionException
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.dependencies
-import org.gradle.kotlin.dsl.getPlugin
 import java.io.File
 import org.gradle.api.GradleException
 import org.gradle.api.artifacts.MinimalExternalModuleDependency
@@ -98,15 +95,13 @@ class InspectionPlugin : Plugin<Project> {
         project.apply(plugin = "com.google.protobuf")
         project.plugins.all {
             if (it is ProtobufPlugin) {
-                // https://github.com/google/protobuf-gradle-plugin/issues/505
-                @Suppress("DEPRECATION")
-                val protobufConvention = project.convention.getPlugin<ProtobufConvention>()
-                protobufConvention.protobuf.apply {
+                val protobufExtension = project.extensions.getByType(ProtobufExtension::class.java)
+                protobufExtension.apply {
                     protoc {
-                        this.artifact = project.getLibraryByName("protobufCompiler").toString()
+                        it.artifact = project.getLibraryByName("protobufCompiler").toString()
                     }
                     generateProtoTasks {
-                        all().forEach { task: GenerateProtoTask ->
+                        it.all().forEach { task: GenerateProtoTask ->
                             task.builtins.create("java") { options ->
                                 options.option("lite")
                             }

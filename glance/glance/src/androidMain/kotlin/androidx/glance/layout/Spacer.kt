@@ -26,6 +26,12 @@ import androidx.glance.GlanceNode
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class EmittableSpacer : Emittable {
     override var modifier: GlanceModifier = GlanceModifier
+
+    override fun copy(): Emittable = EmittableSpacer().also {
+        it.modifier = modifier
+    }
+
+    override fun toString(): String = "EmittableSpacer(modifier=$modifier)"
 }
 
 /**

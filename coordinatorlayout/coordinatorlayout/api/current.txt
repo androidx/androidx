@@ -16,7 +16,7 @@ package androidx.coordinatorlayout.widget {
     method public boolean isPointInChildBounds(android.view.View, int, int);
     method public void onAttachedToWindow();
     method public void onDetachedFromWindow();
-    method public void onDraw(android.graphics.Canvas!);
+    method public void onDraw(android.graphics.Canvas);
     method public void onLayoutChild(android.view.View, int);
     method public void onMeasureChild(android.view.View, int, int, int, int);
     method public void onNestedPreScroll(android.view.View, int, int, int[], int);

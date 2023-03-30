@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Outputs
 import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
@@ -37,7 +38,9 @@ import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -64,17 +67,15 @@ class StartupTimingMetricTest {
     fun startup() {
         assumeTrue(isAbiSupported())
         val packageName = "androidx.benchmark.integration.macrobenchmark.target"
+        val intent =
+            Intent("androidx.benchmark.integration.macrobenchmark.target.TRIVIAL_STARTUP_ACTIVITY")
         val scope = MacrobenchmarkScope(packageName = packageName, launchWithClearTask = true)
         val iterationResult = measureStartup(packageName, StartupMode.COLD) {
             // Simulate a cold start
             scope.killProcess()
             scope.dropKernelPageCache()
             scope.pressHome()
-            scope.startActivityAndWait {
-                it.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                it.action =
-                    "androidx.benchmark.integration.macrobenchmark.target.TRIVIAL_STARTUP_ACTIVITY"
-            }
+            scope.startActivityAndWait(intent)
         }
 
         assertEquals(
@@ -129,10 +130,18 @@ class StartupTimingMetricTest {
                 scope.startActivityAndWait(launchIntent)
             }
 
-            if (delayMs > 0) {
+            if (useInAppNav) {
+                // in app nav destinations always have different strings to differentiate
+                // vs the first activity's strings to prevent races
+                awaitActivityText(
+                    if (delayMs > 0) {
+                        ConfigurableActivity.INNER_ACTIVITY_FULLY_DRAWN_TEXT
+                    } else {
+                        ConfigurableActivity.INNER_ACTIVITY_TEXT
+                    }
+                )
+            } else if (delayMs > 0) {
                 awaitActivityText(ConfigurableActivity.FULLY_DRAWN_TEXT)
-            } else if (useInAppNav) {
-                awaitActivityText(ConfigurableActivity.INNER_ACTIVITY_TEXT)
             }
         }
 
@@ -173,15 +182,19 @@ class StartupTimingMetricTest {
         validateStartup_fullyDrawn(delayMs = 100)
     }
 
+    @Ignore // b/258335082
     @LargeTest
     @Test
     fun startupInAppNav_immediate() {
+        assumeFalse(DeviceInfo.isEmulator) // TODO(b/255754739): address failures on Cuttlefish
         validateStartup_fullyDrawn(delayMs = 0, useInAppNav = true)
     }
 
+    @Ignore // b/258335082
     @LargeTest
     @Test
     fun startupInAppNav_fullyDrawn() {
+        assumeFalse(DeviceInfo.isEmulator) // TODO(b/255754739): address failures on Cuttlefish
         validateStartup_fullyDrawn(delayMs = 100, useInAppNav = true)
     }
 
@@ -275,7 +288,7 @@ internal fun measureStartup(
     val metric = StartupTimingMetric()
     metric.configure(packageName)
     val tracePath = PerfettoCaptureWrapper().record(
-        benchmarkName = packageName,
+        fileLabel = packageName,
         // note - packageName may be this package, so we convert to set then list to make unique
         // and on API 23 and below, we use reflection to trace instead within this process
         appTagPackages = if (Build.VERSION.SDK_INT >= 24 && packageName != Packages.TEST) {

@@ -20,7 +20,6 @@ import android.app.Activity
 import android.os.Build
 import android.view.Gravity
 import android.view.View
-import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ListView
 import android.widget.TextView
@@ -32,16 +31,24 @@ import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.ReservedItemIdRangeEnd
+import androidx.glance.appwidget.lazy.items
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.padding
 import androidx.glance.text.Text
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertIs
+import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
-import kotlin.test.assertIs
 
 @SdkSuppress(minSdkVersion = 29)
 @MediumTest
@@ -60,7 +67,7 @@ class LazyColumnTest {
 
         mHostRule.startHost()
 
-        waitForListViewChildren { list ->
+        mHostRule.waitForListViewChildren { list ->
             fun Dp.toPx() = toPixels(list.context.resources.displayMetrics)
             assertThat(list.paddingStart).isEqualTo(5.dp.toPx())
             assertThat(list.paddingTop).isEqualTo(6.dp.toPx())
@@ -69,7 +76,6 @@ class LazyColumnTest {
         }
     }
 
-    @FlakyTest(bugId = 206481702)
     @Test
     fun item_withoutItemIds_createsNonStableList() {
         TestGlanceAppWidget.uiDefinition = {
@@ -81,7 +87,7 @@ class LazyColumnTest {
 
         mHostRule.startHost()
 
-        waitForListViewChildren { list ->
+        mHostRule.waitForListViewChildren { list ->
             val adapter = list.adapter!!
             assertThat(adapter.hasStableIds()).isFalse()
             assertThat(adapter.count).isEqualTo(2)
@@ -101,7 +107,7 @@ class LazyColumnTest {
 
         mHostRule.startHost()
 
-        waitForListViewChildren { list ->
+        mHostRule.waitForListViewChildren { list ->
             val adapter = list.adapter!!
             assertThat(adapter.hasStableIds()).isTrue()
             assertThat(adapter.count).isEqualTo(2)
@@ -120,7 +126,7 @@ class LazyColumnTest {
 
         mHostRule.startHost()
 
-        waitForListViewChildren { list ->
+        mHostRule.waitForListViewChildren { list ->
             val adapter = list.adapter!!
             assertThat(adapter.count).isEqualTo(3)
             assertThat(adapter.hasStableIds()).isFalse()
@@ -141,14 +147,14 @@ class LazyColumnTest {
 
         mHostRule.startHost()
 
-        waitForListViewChildren { list ->
+        mHostRule.waitForListViewChildren { list ->
             val adapter = list.adapter!!
             assertThat(adapter.count).isEqualTo(4)
             assertThat(adapter.hasStableIds()).isTrue()
             assertThat(adapter.getItemId(0)).isEqualTo(0L)
             assertThat(adapter.getItemId(1)).isEqualTo(2L)
             assertThat(adapter.getItemId(2)).isEqualTo(4L)
-            assertThat(adapter.getItemId(3)).isEqualTo(ReservedItemIdRangeEnd)
+            assertThat(adapter.getItemId(3)).isEqualTo(ReservedItemIdRangeEnd - 3)
         }
     }
 
@@ -164,7 +170,7 @@ class LazyColumnTest {
 
         mHostRule.startHost()
 
-        waitForListViewChildren { list ->
+        mHostRule.waitForListViewChildren { list ->
             val textView0 = list.getUnboxedListItem<TextView>(0)
             val textView1 = list.getUnboxedListItem<TextView>(1)
             val textView2 = list.getUnboxedListItem<TextView>(2)
@@ -188,7 +194,7 @@ class LazyColumnTest {
 
         mHostRule.startHost()
 
-        waitForListViewChildren { list ->
+        mHostRule.waitForListViewChildren { list ->
             val textView0 = list.getUnboxedListItem<TextView>(0)
             val textView1 = list.getUnboxedListItem<TextView>(1)
             val textView2 = list.getUnboxedListItem<TextView>(2)
@@ -200,6 +206,7 @@ class LazyColumnTest {
         }
     }
 
+    @Ignore // b/270621933
     @Test
     fun itemContent_defaultAlignment_doesNotWrapItem() {
         TestGlanceAppWidget.uiDefinition = {
@@ -212,7 +219,7 @@ class LazyColumnTest {
 
         mHostRule.startHost()
 
-        waitForListViewChildren { list ->
+        mHostRule.waitForListViewChildren { list ->
             list.getUnboxedListItem<TextView>(0)
         }
     }
@@ -229,7 +236,7 @@ class LazyColumnTest {
 
         mHostRule.startHost()
 
-        waitForListViewChildren { list ->
+        mHostRule.waitForListViewChildren { list ->
             list.getUnboxedListItem<TextView>(0)
         }
     }
@@ -246,7 +253,7 @@ class LazyColumnTest {
 
         mHostRule.startHost()
 
-        waitForListViewChildren { list ->
+        mHostRule.waitForListViewChildren { list ->
             val listItem = list.getUnboxedListItem<FrameLayout>(0)
             val layoutParams =
                 assertIs<FrameLayout.LayoutParams>(listItem.notGoneChildren.first().layoutParams)
@@ -266,7 +273,7 @@ class LazyColumnTest {
 
         mHostRule.startHost()
 
-        waitForListViewChildren { list ->
+        mHostRule.waitForListViewChildren { list ->
             val listItem = list.getUnboxedListItem<FrameLayout>(0)
             val layoutParams =
                 assertIs<FrameLayout.LayoutParams>(listItem.notGoneChildren.first().layoutParams)
@@ -287,7 +294,7 @@ class LazyColumnTest {
 
         mHostRule.startHost()
 
-        waitForListViewChildren { list ->
+        mHostRule.waitForListViewChildren { list ->
             val row = list.getUnboxedListItem<FrameLayout>(0)
             val (rowItem0, rowItem1) = row.notGoneChildren.toList()
             assertIs<TextView>(rowItem0)
@@ -307,7 +314,7 @@ class LazyColumnTest {
 
         mHostRule.startHost()
 
-        waitForListViewChildren { list ->
+        mHostRule.waitForListViewChildren { list ->
             // The adapter may report more layout types than the provider declared, e.g. adding a
             // loading layout
             assertThat(list.adapter.viewTypeCount).isAtLeast(TopLevelLayoutsCount)
@@ -333,7 +340,7 @@ class LazyColumnTest {
 
         mHostRule.startHost()
 
-        waitForListViewChildren { list ->
+        mHostRule.waitForListViewChildren { list ->
             val row = list.getUnboxedListItem<FrameLayout>(0)
             val (rowItem0, rowItem1) = row.notGoneChildren.toList()
             // All items with actions are wrapped in FrameLayout
@@ -344,27 +351,66 @@ class LazyColumnTest {
         }
     }
 
-    private fun waitForListViewChildren(action: (list: ListView) -> Unit = {}) {
-        mHostRule.onHostView { }
-
-        mHostRule.runAndObserveUntilDraw(condition = "ListView did not load in time") {
-            mHostRule.mHostView.let { host ->
-                val list = host.findChildByType<ListView>()
-                host.childCount > 0 &&
-                    list?.let { it.childCount > 0 && it.adapter != null } ?: false
+    @OptIn(FlowPreview::class)
+    @Test
+    fun clickTriggersOnlyOneLambda() = runBlocking {
+        val received = MutableStateFlow(-1)
+        TestGlanceAppWidget.uiDefinition = {
+            LazyColumn {
+                items((0..4).toList()) {
+                    Button(
+                        "$it",
+                        onClick = {
+                            launch { received.emit(it) }
+                        }
+                    )
+                }
             }
         }
 
-        mHostRule.onUnboxedHostView(action)
+        mHostRule.startHost()
+
+        val buttons = arrayOfNulls<FrameLayout>(5)
+        mHostRule.waitForListViewChildren { list ->
+            for (it in 0..4) {
+                val button = list.getUnboxedListItem<FrameLayout>(it)
+                buttons[it] = assertIs<FrameLayout>(button)
+            }
+        }
+        (0..4).shuffled().forEach { index ->
+            mHostRule.onHostActivity {
+                buttons[index]!!.performClick()
+            }
+            val lastClicked = received.debounce(500.milliseconds).first()
+            assertThat(lastClicked).isEqualTo(index)
+        }
+    }
+}
+
+internal fun AppWidgetHostRule.waitForListViewChildren(action: (list: ListView) -> Unit = {}) {
+    onHostView { }
+
+    runAndObserveUntilDraw(condition = "ListView did not load in time") {
+        mHostView.let { host ->
+            val list = host.findChildByType<ListView>()
+            host.childCount > 0 &&
+                list?.let { it.childCount > 0 && it.adapter != null } ?: false
+        }
     }
 
-    private inline fun <reified T : View> ListView.getUnboxedListItem(position: Int): T {
-        val remoteViewFrame = assertIs<FrameLayout>(getChildAt(position))
-        // Android S- have a RemoteViewsAdapter$RemoteViewsFrameLayout first, Android T+ do not.
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.S) {
-            return remoteViewFrame.getChildAt(0).getTargetView()
-        }
-        val frame = assertIs<FrameLayout>(remoteViewFrame.getChildAt(0))
-        return frame.getChildAt(0).getTargetView()
+    onUnboxedHostView(action)
+}
+
+internal inline fun <reified T : View> ListView.getUnboxedListItem(position: Int): T {
+    val remoteViewFrame = assertIs<FrameLayout>(getChildAt(position))
+    // Each list item frame has an explicit focusable = true, see
+    // "Glance.AppWidget.Theme.ListChildren" style.
+    assertThat(remoteViewFrame.isFocusable).isTrue()
+
+    // Android S- have a RemoteViewsAdapter$RemoteViewsFrameLayout first, Android T+ do not.
+    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.S) {
+        return remoteViewFrame.getChildAt(0).getTargetView()
     }
+    val frame = assertIs<FrameLayout>(remoteViewFrame.getChildAt(0))
+    return frame.getChildAt(0).getTargetView()
 }

@@ -24,13 +24,13 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.versioning.CarAppApiLevel;
 import androidx.car.app.versioning.CarAppApiLevels;
 
@@ -57,6 +57,7 @@ import androidx.car.app.versioning.CarAppApiLevels;
  * @see CarContext#getCarAppApiLevel()
  */
 @CarProtocol
+@KeepFields
 public final class AppInfo {
     /**
      * Application meta-data tag used to define the minimum Car App API level this application is
@@ -69,13 +70,10 @@ public final class AppInfo {
      */
     public static final String MIN_API_LEVEL_METADATA_KEY = "androidx.car.app.minCarApiLevel";
 
-    @Keep
     @Nullable
     private final String mLibraryVersion;
-    @Keep
     @CarAppApiLevel
     private final int mMinCarAppApiLevel;
-    @Keep
     @CarAppApiLevel
     private final int mLatestCarAppApiLevel;
 
@@ -136,12 +134,12 @@ public final class AppInfo {
                     context.getPackageName(),
                     PackageManager.GET_META_DATA);
             int apiLevel = applicationInfo.metaData != null
-                                   ? applicationInfo.metaData.getInt(
+                    ? applicationInfo.metaData.getInt(
                     MIN_API_LEVEL_METADATA_KEY, CarAppApiLevels.UNKNOWN)
-                                   : CarAppApiLevels.UNKNOWN;
+                    : CarAppApiLevels.UNKNOWN;
             if (apiLevel == CarAppApiLevels.UNKNOWN) {
                 throw new IllegalArgumentException("Min API level not declared in manifest ("
-                    + MIN_API_LEVEL_METADATA_KEY + ")");
+                        + MIN_API_LEVEL_METADATA_KEY + ")");
             }
             return apiLevel;
         } catch (PackageManager.NameNotFoundException e) {

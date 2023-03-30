@@ -18,9 +18,13 @@ package androidx.profileinstaller;
 
 import android.os.Build;
 
+import androidx.annotation.RestrictTo;
+
 import java.util.Arrays;
 
-class ProfileVersion {
+/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public class ProfileVersion {
     private ProfileVersion() {}
     static final byte[] V015_S = new byte[]{'0', '1', '5', '\0'};
     static final byte[] V010_P = new byte[]{'0', '1', '0', '\0'};
@@ -29,7 +33,8 @@ class ProfileVersion {
     static final byte[] V001_N = new byte[]{'0', '0', '1', '\0'};
     static final byte[] METADATA_V001_N = new byte[]{'0', '0', '1', '\0'};
     static final byte[] METADATA_V002 = new byte[]{'0', '0', '2', '\0'};
-    static final int MIN_SUPPORTED_SDK = Build.VERSION_CODES.N;
+    public static final int MIN_SUPPORTED_SDK = Build.VERSION_CODES.N;
+    public static final int MAX_SUPPORTED_SDK = Build.VERSION_CODES.TIRAMISU;
 
     static String dexKeySeparator(byte[] version) {
         if (Arrays.equals(version, V001_N)) {

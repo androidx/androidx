@@ -63,6 +63,11 @@ class SearchResultsImpl implements SearchResults {
     @NonNull
     @BuildCompat.PrereleaseSdkCheck
     public ListenableFuture<List<SearchResult>> getNextPageAsync() {
+        // TODO(b/256022027): add isAtLeastU check after Android U.
+        if (mSearchSpec.getJoinSpec() != null) {
+            throw new UnsupportedOperationException("Searching with a SearchSpec containing a "
+                    + "JoinSpec is not supported on this AppSearch implementation.");
+        }
         ResolvableFuture<List<SearchResult>> future = ResolvableFuture.create();
         mPlatformResults.getNextPage(mExecutor, result -> {
             if (result.isSuccess()) {

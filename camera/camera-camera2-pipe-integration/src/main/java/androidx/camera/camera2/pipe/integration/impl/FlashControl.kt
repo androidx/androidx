@@ -16,8 +16,8 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
-import android.hardware.camera2.CaptureRequest
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.integration.adapter.propagateTo
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.core.CameraControl
 import androidx.camera.core.ImageCapture
@@ -25,12 +25,12 @@ import androidx.camera.core.impl.CameraControlInternal
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoSet
+import javax.inject.Inject
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-private const val DEFAULT_FLASH_MODE = ImageCapture.FLASH_MODE_OFF
+internal const val DEFAULT_FLASH_MODE = ImageCapture.FLASH_MODE_OFF
 
 /**
  * Implementation of Flash control exposed by [CameraControlInternal].
@@ -38,6 +38,7 @@ private const val DEFAULT_FLASH_MODE = ImageCapture.FLASH_MODE_OFF
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @CameraScope
 class FlashControl @Inject constructor(
+    private val state3AControl: State3AControl,
     private val threads: UseCaseThreads,
 ) : UseCaseCameraControl {
     private var _useCaseCamera: UseCaseCamera? = null
@@ -45,7 +46,7 @@ class FlashControl @Inject constructor(
         get() = _useCaseCamera
         set(value) {
             _useCaseCamera = value
-            setFlashAsync(_flashMode)
+            setFlashAsync(_flashMode, false)
         }
 
     override fun reset() {
@@ -71,39 +72,28 @@ class FlashControl @Inject constructor(
         }
         private set
 
-    fun setFlashAsync(flashMode: Int): Deferred<Unit> {
+    fun setFlashAsync(flashMode: Int, cancelPreviousTask: Boolean = true): Deferred<Unit> {
         val signal = CompletableDeferred<Unit>()
 
-        useCaseCamera?.let { useCaseCamera ->
+        useCaseCamera?.let {
 
             // Update _flashMode immediately so that CameraControlInternal#getFlashMode()
             // returns correct value.
             _flashMode = flashMode
 
             threads.sequentialScope.launch {
-                stopRunningTask()
+                if (cancelPreviousTask) {
+                    stopRunningTask()
+                } else {
+                    // Propagate the result to the previous updateSignal
+                    _updateSignal?.let { previousUpdateSignal ->
+                        signal.propagateTo(previousUpdateSignal)
+                    }
+                }
 
                 _updateSignal = signal
-                when (flashMode) {
-                    ImageCapture.FLASH_MODE_OFF -> CaptureRequest.CONTROL_AE_MODE_ON
-                    ImageCapture.FLASH_MODE_ON -> CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH
-                    ImageCapture.FLASH_MODE_AUTO -> CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
-                    // TODO(b/209383160): porting the Quirk for AEModeDisabler
-                    //      mAutoFlashAEModeDisabler.getCorrectedAeMode(
-                    //      CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
-                    //    )
-                    else -> CaptureRequest.CONTROL_AE_MODE_ON
-                }.let { aeMode ->
-                    // TODO: check the AE mode is supported before set it.
-                    useCaseCamera.requestControl.addParametersAsync(
-                        type = UseCaseCameraRequestControl.Type.FLASH,
-                        values = mapOf(
-                            CaptureRequest.CONTROL_AE_MODE to aeMode,
-                        )
-                    )
-                }.join()
-
-                signal.complete(Unit)
+                state3AControl.flashMode = flashMode
+                state3AControl.updateSignal?.propagateTo(signal) ?: run { signal.complete(Unit) }
             }
         } ?: run {
             signal.completeExceptionally(

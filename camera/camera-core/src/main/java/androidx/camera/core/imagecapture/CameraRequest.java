@@ -16,14 +16,10 @@
 
 package androidx.camera.core.imagecapture;
 
-import static androidx.camera.core.impl.utils.Threads.checkMainThread;
-
 import android.os.Build;
 
-import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.impl.CaptureConfig;
 
 import java.util.List;
@@ -48,9 +44,10 @@ public final class CameraRequest {
         return mCaptureConfigs;
     }
 
-    @MainThread
-    void onCaptureFailure(@NonNull ImageCaptureException imageCaptureException) {
-        checkMainThread();
-        mCallback.onCaptureFailure(imageCaptureException);
+    /**
+     * Returns true if the request has been aborted by the app/lifecycle.
+     */
+    boolean isAborted() {
+        return mCallback.isAborted();
     }
 }

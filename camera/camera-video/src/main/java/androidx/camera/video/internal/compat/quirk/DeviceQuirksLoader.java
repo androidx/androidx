@@ -89,6 +89,9 @@ public class DeviceQuirksLoader {
         if (ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.load()) {
             quirks.add(new ImageCaptureFailedWhenVideoCaptureIsBoundQuirk());
         }
+        if (ExtraSupportedResolutionQuirk.load()) {
+            quirks.add(new ExtraSupportedResolutionQuirk());
+        }
 
         return quirks;
     }

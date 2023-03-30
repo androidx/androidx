@@ -16,13 +16,11 @@
 package androidx.navigation.fragment
 
 import android.content.Context
-import android.content.ContextWrapper
 import android.os.Bundle
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.annotation.CallSuper
 import androidx.annotation.NavigationRes
 import androidx.annotation.RestrictTo
@@ -113,20 +111,9 @@ public open class NavHostFragment : Fragment(), NavHost {
 
     @CallSuper
     public override fun onCreate(savedInstanceState: Bundle?) {
-        var context = requireContext()
+        val context = requireContext()
         navHostController = NavHostController(context)
         navHostController!!.setLifecycleOwner(this)
-        while (context is ContextWrapper) {
-            if (context is OnBackPressedDispatcherOwner) {
-                navHostController!!.setOnBackPressedDispatcher(
-                    (context as OnBackPressedDispatcherOwner).onBackPressedDispatcher
-                )
-                // Otherwise, caller must register a dispatcher on the controller explicitly
-                // by overriding onCreateNavHostController()
-                break
-            }
-            context = context.baseContext
-        }
         // Set the default state - this will be updated whenever
         // onPrimaryNavigationFragmentChanged() is called
         navHostController!!.enableOnBackPressed(

@@ -16,8 +16,6 @@
 
 package androidx.room.vo
 
-import androidx.room.compiler.codegen.toJavaPoet
-
 /**
  * Represents a shortcut method parameter entity.
  */
@@ -26,7 +24,8 @@ data class ShortcutEntity(
     private val partialEntity: Pojo? // the partial entity
 ) {
     val tableName = entity.tableName
-    val entityTypeName = entity.typeName.toJavaPoet()
+    val entityClassName = entity.className
+    val entityTypeName = entity.typeName
     val primaryKey by lazy {
         if (partialEntity == null) {
             entity.primaryKey

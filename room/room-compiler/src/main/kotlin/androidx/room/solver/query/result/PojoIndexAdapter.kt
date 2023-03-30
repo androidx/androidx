@@ -16,10 +16,11 @@
 
 package androidx.room.solver.query.result
 
-import androidx.room.ext.L
-import androidx.room.ext.RoomTypeNames
-import androidx.room.ext.S
-import androidx.room.ext.T
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
+import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.ext.RoomTypeNames.CURSOR_UTIL
 import androidx.room.ext.capitalize
 import androidx.room.ext.stripNonJava
 import androidx.room.parser.ParsedQuery
@@ -27,7 +28,6 @@ import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.CodeGenScope
 import androidx.room.verifier.QueryResultInfo
 import androidx.room.vo.ColumnIndexVar
-import com.squareup.javapoet.TypeName
 import java.util.Locale
 
 /**
@@ -58,9 +58,11 @@ class PojoIndexAdapter(
                         "'${it.columnName}'. Query: ${query.original}. Please file a bug at " +
                         ProcessorErrors.ISSUE_TRACKER_LINK
                 }
-                scope.builder().addStatement(
-                    "final $T $L = $L",
-                    TypeName.INT, indexVar, infoIndex
+                scope.builder.addLocalVal(
+                    indexVar,
+                    XTypeName.PRIMITIVE_INT,
+                    "%L",
+                    infoIndex
                 )
             } else {
                 val indexMethod = if (info == null) {
@@ -68,10 +70,17 @@ class PojoIndexAdapter(
                 } else {
                     "getColumnIndexOrThrow"
                 }
-                scope.builder().addStatement(
-                    "final $T $L = $T.$L($L, $S)",
-                    TypeName.INT, indexVar, RoomTypeNames.CURSOR_UTIL, indexMethod, cursorVarName,
-                    it.columnName
+                scope.builder.addLocalVariable(
+                    name = indexVar,
+                    typeName = XTypeName.PRIMITIVE_INT,
+                    assignExpr = XCodeBlock.of(
+                        scope.language,
+                        "%M(%L, %S)",
+                        CURSOR_UTIL.packageMember(indexMethod),
+                        cursorVarName,
+                        it.columnName
+
+                    )
                 )
             }
             ColumnIndexVar(it.columnName, indexVar)

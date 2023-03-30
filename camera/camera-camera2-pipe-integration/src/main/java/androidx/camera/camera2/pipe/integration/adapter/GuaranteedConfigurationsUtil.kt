@@ -414,6 +414,84 @@ object GuaranteedConfigurationsUtil {
     }
 
     @JvmStatic
+    fun getConcurrentSupportedCombinationList(): List<SurfaceCombination> {
+        val combinationList: MutableList<SurfaceCombination> = ArrayList()
+        // (YUV, s1440p)
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.s1440p)
+            )
+        }.also { combinationList.add(it) }
+        // (PRIV, s1440p)
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.s1440p)
+            )
+        }.also { combinationList.add(it) }
+        // (JPEG, s1440p)
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.s1440p)
+            )
+        }.also { combinationList.add(it) }
+        // (YUV, s720p) + (JPEG, s1440p)
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.s720p)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.s1440p)
+            )
+        }.also { combinationList.add(it) }
+        // (PRIV, s720p) + (JPEG, s1440p)
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.s720p)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.s1440p)
+            )
+        }.also { combinationList.add(it) }
+        // (YUV, s720p) + (YUV, s1440p)
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.s720p)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.s1440p)
+            )
+        }.also { combinationList.add(it) }
+        // (YUV, s720p) + (PRIV, s1440p)
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.s720p)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.s1440p)
+            )
+        }.also { combinationList.add(it) }
+        // (PRIV, s720p) + (YUV, s1440p)
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.s720p)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.s1440p)
+            )
+        }.also { combinationList.add(it) }
+        // (PRIV, s720p) + (PRIV, s1440p)
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.s720p)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.s1440p)
+            )
+        }.also { combinationList.add(it) }
+        return combinationList
+    }
+
+    @JvmStatic
     fun generateSupportedCombinationList(
         hardwareLevel: Int,
         isRawSupported: Boolean,
@@ -444,6 +522,13 @@ object GuaranteedConfigurationsUtil {
         if (hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3) {
             surfaceCombinations.addAll(getLevel3SupportedCombinationList())
         }
+        return surfaceCombinations
+    }
+
+    @JvmStatic
+    fun generateConcurrentSupportedCombinationList(): List<SurfaceCombination> {
+        val surfaceCombinations: MutableList<SurfaceCombination> = arrayListOf()
+        surfaceCombinations.addAll(getConcurrentSupportedCombinationList())
         return surfaceCombinations
     }
 }

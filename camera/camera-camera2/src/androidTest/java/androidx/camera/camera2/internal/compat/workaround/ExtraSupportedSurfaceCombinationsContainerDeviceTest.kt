@@ -18,12 +18,9 @@ package androidx.camera.camera2.internal.compat.workaround
 
 import android.content.Context
 import android.graphics.ImageFormat
-import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Handler
 import android.os.Looper
-import android.util.Size
-import android.view.Surface
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.internal.Camera2CameraFactory
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks
@@ -36,10 +33,13 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
+import androidx.camera.core.impl.CameraConfig
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraThreadConfig
-import androidx.camera.core.impl.CaptureProcessor
-import androidx.camera.core.impl.ImageProxyBundle
+import androidx.camera.core.impl.Config
+import androidx.camera.core.impl.Identifier
+import androidx.camera.core.impl.MutableOptionsBundle
+import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.SurfaceCombination
 import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
@@ -48,6 +48,7 @@ import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.SurfaceTextureProvider
+import androidx.camera.testing.fakes.FakeSessionProcessor
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -120,6 +121,7 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
         CameraXUtil.shutdown().get(10000, TimeUnit.MILLISECONDS)
     }
 
+    @SdkSuppress(minSdkVersion = 28)
     @Test
     fun successCaptureImage_whenExtraYuvPrivYuvConfigurationSupported() = runBlocking {
         var cameraSelector = createCameraSelectorById(cameraId)
@@ -152,14 +154,15 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
 
         // Image analysis use a YUV stream by default
         var imageAnalysis = ImageAnalysis.Builder().build()
-
         // Preview use a PRIV stream by default
         var preview = Preview.Builder().build()
-
-        // Forces the image capture to use a YUV stream
-        var imageCapture =
-            ImageCapture.Builder().setBufferFormat(ImageFormat.YUV_420_888).build()
-
+        var imageCapture = ImageCapture.Builder().build()
+        // This will force ImageCapture to use YUV_420_888 to configure capture session.
+        val fakeSessionProcessor = FakeSessionProcessor(
+            inputFormatPreview = null,
+            inputFormatCapture = ImageFormat.YUV_420_888
+        )
+        enableSessionProcessor(cameraUseCaseAdapter, fakeSessionProcessor)
         withContext(Dispatchers.Main) {
             preview.setSurfaceProvider(getSurfaceProvider())
             cameraUseCaseAdapter.addUseCases(Arrays.asList(imageAnalysis, preview, imageCapture))
@@ -173,6 +176,7 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
         callback.awaitCapturesAndAssert()
     }
 
+    @SdkSuppress(minSdkVersion = 28)
     @Test
     fun successCaptureImage_whenExtraYuvYuvYuvConfigurationSupported() = runBlocking {
         var cameraSelector = createCameraSelectorById(cameraId)
@@ -205,15 +209,15 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
 
         // Image analysis use a YUV stream by default
         var imageAnalysis = ImageAnalysis.Builder().build()
+        var preview = Preview.Builder().build()
+        var imageCapture = ImageCapture.Builder().build()
 
-        // Sets a CaptureProcessor to make the preview use a YUV stream
-        var preview = Preview.Builder()
-            .setCaptureProcessor(FakePreviewCaptureProcessor()).build()
-
-        // Forces the image capture to use a YUV stream
-        var imageCapture =
-            ImageCapture.Builder().setBufferFormat(ImageFormat.YUV_420_888).build()
-
+        // This will force ImageCapture / Preview to use YUV_420_888 to configure capture session.
+        val fakeSessionProcessor = FakeSessionProcessor(
+            inputFormatPreview = ImageFormat.YUV_420_888,
+            inputFormatCapture = ImageFormat.YUV_420_888
+        )
+        enableSessionProcessor(cameraUseCaseAdapter, fakeSessionProcessor)
         withContext(Dispatchers.Main) {
             preview.setSurfaceProvider(getSurfaceProvider())
             cameraUseCaseAdapter.addUseCases(Arrays.asList(imageAnalysis, preview, imageCapture))
@@ -225,6 +229,31 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
         val callback = FakeImageCaptureCallback()
         imageCapture.takePicture(CameraXExecutors.directExecutor(), callback)
         callback.awaitCapturesAndAssert()
+    }
+
+    private fun enableSessionProcessor(
+        cameraUseCaseAdapter: CameraUseCaseAdapter,
+        sessionProcessor: SessionProcessor
+    ) {
+        cameraUseCaseAdapter.setExtendedConfig(object : CameraConfig {
+            override fun getConfig(): Config {
+                return MutableOptionsBundle.create()
+            }
+
+            override fun getCompatibilityId(): Identifier {
+                return Identifier.create(0)
+            }
+
+            override fun getSessionProcessor(
+                valueIfMissing: SessionProcessor?
+            ): SessionProcessor? {
+                return sessionProcessor
+            }
+
+            override fun getSessionProcessor(): SessionProcessor {
+                return sessionProcessor
+            }
+        })
     }
 
     private fun createCameraSelectorById(id: String): CameraSelector {
@@ -247,19 +276,9 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
     }
 
     private fun getSurfaceProvider(): Preview.SurfaceProvider {
-        return SurfaceTextureProvider.createSurfaceTextureProvider(object :
-                SurfaceTextureProvider.SurfaceTextureCallback {
-                override fun onSurfaceTextureReady(
-                    surfaceTexture: SurfaceTexture,
-                    resolution: Size
-                ) {
-                    // No-op
-                }
-
-                override fun onSafeToRelease(surfaceTexture: SurfaceTexture) {
-                    surfaceTexture.release()
-                }
-            })
+        // Must use auto draining SurfaceTexture which will close the Image. Otherwise it could
+        // block the imageWriter to cause problems.
+        return SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider()
     }
 
     /**
@@ -347,23 +366,6 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
 
         fun awaitCapturesAndAssert(timeout: Long = CAPTURE_TIMEOUT) {
             assertThat(latch.await(timeout, TimeUnit.MILLISECONDS)).isTrue()
-        }
-    }
-
-    private class FakePreviewCaptureProcessor : CaptureProcessor {
-        override fun onOutputSurface(surface: Surface, imageFormat: Int) {
-            // No-op
-        }
-
-        override fun process(bundle: ImageProxyBundle) {
-            bundle.captureIds.forEach {
-                val image = bundle.getImageProxy(it).get()
-                image.close()
-            }
-        }
-
-        override fun onResolutionUpdate(size: Size) {
-            // No-op
         }
     }
 }

@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.Placeable
 
+@JvmDefaultWithCompatibility
 /**
  * An ordered, immutable, collection of modifier elements that work with curved components, in a
  * polar coordinate space.
@@ -84,10 +85,9 @@ internal open class BaseCurvedChildWrapper(val wrapped: CurvedChild) : CurvedChi
     override fun SubComposition() { wrapped.SubComposition() }
 
     override fun CurvedMeasureScope.initializeMeasure(
-        measurables: List<Measurable>,
-        index: Int
-    ): Int = with(wrapped) {
-        initializeMeasure(measurables, index)
+        measurables: Iterator<Measurable>
+    ) = with(wrapped) {
+        initializeMeasure(measurables)
     }
 
     override fun computeParentData(): Any? = wrapped.computeParentData()

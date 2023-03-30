@@ -35,27 +35,26 @@ import android.util.Xml
 import androidx.annotation.IntRange
 import androidx.annotation.Px
 import androidx.annotation.VisibleForTesting
+import androidx.wear.watchface.ComplicationHelperActivity
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationType.NO_DATA
 import androidx.wear.watchface.complications.data.ComplicationType.NO_PERMISSION
 import androidx.wear.watchface.complications.data.ComplicationType.RANGED_VALUE
 import androidx.wear.watchface.complications.data.NoDataComplicationData
-import androidx.wear.watchface.ComplicationHelperActivity
 import androidx.wear.watchface.complications.rendering.ComplicationRenderer.OnInvalidateListener
-import org.xmlpull.v1.XmlPullParser
-import org.xmlpull.v1.XmlPullParserException
 import java.io.IOException
 import java.time.Instant
+import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParserException
 
 /**
- * A styleable drawable object that draws complicationSlots. You can create a ComplicationDrawable from
- * XML inflation or by using one of the constructor methods.
+ * A styleable drawable object that draws complicationSlots. You can create a ComplicationDrawable
+ * from XML inflation or by using one of the constructor methods.
  *
  * <h3>Constructing a ComplicationDrawable</h3>
  *
- * To construct a ComplicationDrawable programmatically, use the [ComplicationDrawable]
- * constructor. Afterwards, styling attributes you want to modify
- * can be set via set methods.
+ * To construct a ComplicationDrawable programmatically, use the [ComplicationDrawable] constructor.
+ * Afterwards, styling attributes you want to modify can be set via set methods.
  *
  * ```
  * val complicationDrawable = ComplicationDrawable(context)
@@ -65,15 +64,13 @@ import java.time.Instant
  *
  * <h3>Constructing a ComplicationDrawable from XML</h3>
  *
- * Constructing a ComplicationDrawable from an XML file makes it easier to modify multiple
- * styling attributes at once without calling any set methods. You may also use different XML files
- * to switch between different styles your watch face supports.
+ * Constructing a ComplicationDrawable from an XML file makes it easier to modify multiple styling
+ * attributes at once without calling any set methods. You may also use different XML files to
+ * switch between different styles your watch face supports.
  *
- *
- * To construct a ComplicationDrawable from a drawable XML file, you may create an XML file in
- * your project's `res/drawable` folder. A ComplicationDrawable with red text and white title
- * in active mode, and white text and white title in ambient mode would look like this:
- *
+ * To construct a ComplicationDrawable from a drawable XML file, you may create an XML file in your
+ * project's `res/drawable` folder. A ComplicationDrawable with red text and white title in active
+ * mode, and white text and white title in ambient mode would look like this:
  * ```
  * <?xml version="1.0" encoding="utf-8"?>
  * <android.support.wearable.complication.rendering.ComplicationDrawable
@@ -85,10 +82,8 @@ import java.time.Instant
  * </android.support.wearable.complication.rendering.ComplicationDrawable>
  * ```
  *
- *
- * A top-level `drawable` tag with the `class` attribute may also be used to
- * construct a ComplicationDrawable from an XML file:
- *
+ * A top-level `drawable` tag with the `class` attribute may also be used to construct a
+ * ComplicationDrawable from an XML file:
  * ```
  * <?xml version="1.0" encoding="utf-8"?>
  * <drawable
@@ -101,9 +96,9 @@ import java.time.Instant
  * </drawable>
  * ```
  *
- * To inflate a ComplicationDrawable from XML file, use the [.getDrawable]
- * method. ComplicationDrawable needs access to the current context in order to style and draw
- * the complication.
+ * To inflate a ComplicationDrawable from XML file, use the [.getDrawable] method.
+ * ComplicationDrawable needs access to the current context in order to style and draw the
+ * complication.
  *
  * ```
  * public void onCreate(SurfaceHolder holder) {
@@ -116,6 +111,7 @@ import java.time.Instant
  * ```
  *
  * <h4>Syntax:</h4>
+ *
  * ```
  * <?xml version="1.0" encoding="utf-8"?>
  * <android.support.wearable.complication.rendering.ComplicationDrawable
@@ -178,13 +174,11 @@ import java.time.Instant
  * rectangular bounds might draw the icon to the left of the short text instead.
  */
 public class ComplicationDrawable : Drawable {
-    /**
-     * Returns the [Context] used to render the complication.
-     */
+    /** Returns the [Context] used to render the complication. */
     public var context: Context? = null
         private set
 
-    /** Returns complication renderer.  */
+    /** Returns complication renderer. */
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     @get:JvmName("getComplicationRenderer")
     internal var complicationRenderer: ComplicationRenderer? = null
@@ -225,8 +219,8 @@ public class ComplicationDrawable : Drawable {
     public var isBurnInProtectionOn: Boolean = false
 
     /**
-     * Whether the complication is currently highlighted. This may be called by a watch face when
-     * a complication is tapped.
+     * Whether the complication is currently highlighted. This may be called by a watch face when a
+     * complication is tapped.
      *
      * If watch face is in ambient mode, highlight will not be visible even if this is set to
      * `true`, because it may cause burn-in or power inefficiency.
@@ -278,8 +272,8 @@ public class ComplicationDrawable : Drawable {
      * permission dialogs by the [onTap] method, in case current watch face doesn't have the
      * permission to receive complication data.
      *
-     * If this ComplicationDrawable is retrieved using [Resources.getDrawable], this method must
-     * be called before calling any of the methods mentioned above.
+     * If this ComplicationDrawable is retrieved using [Resources.getDrawable], this method must be
+     * called before calling any of the methods mentioned above.
      *
      * If this ComplicationDrawable is not inflated from an XML file, this method will reset the
      * style to match the default values, so if ComplicationDrawable(drawable: ComplicationDrawable)
@@ -297,8 +291,10 @@ public class ComplicationDrawable : Drawable {
             setStyleToDefaultValues(ambientStyle, context.resources)
         }
         if (!alreadyStyled) {
-            highlightDuration = context.resources
-                .getInteger(R.integer.complicationDrawable_highlightDurationMs).toLong()
+            highlightDuration =
+                context.resources
+                    .getInteger(R.integer.complicationDrawable_highlightDurationMs)
+                    .toLong()
         }
         complicationRenderer = ComplicationRenderer(this.context, activeStyle, ambientStyle)
         val nonNullComplicationRenderer = complicationRenderer!!
@@ -322,26 +318,29 @@ public class ComplicationDrawable : Drawable {
         val a = r.obtainAttributes(Xml.asAttributeSet(parser), R.styleable.ComplicationDrawable)
         val complicationStyle = if (isAmbient) ambientStyle else activeStyle
         if (a.hasValue(R.styleable.ComplicationDrawable_backgroundColor)) {
-            complicationStyle.backgroundColor = a.getColor(
-                R.styleable.ComplicationDrawable_backgroundColor,
-                r.getColor(R.color.complicationDrawable_backgroundColor, null)
-            )
+            complicationStyle.backgroundColor =
+                a.getColor(
+                    R.styleable.ComplicationDrawable_backgroundColor,
+                    r.getColor(R.color.complicationDrawable_backgroundColor, null)
+                )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_backgroundDrawable)) {
             complicationStyle.backgroundDrawable =
                 a.getDrawable(R.styleable.ComplicationDrawable_backgroundDrawable)
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_textColor)) {
-            complicationStyle.textColor = a.getColor(
-                R.styleable.ComplicationDrawable_textColor,
-                r.getColor(R.color.complicationDrawable_textColor, null)
-            )
+            complicationStyle.textColor =
+                a.getColor(
+                    R.styleable.ComplicationDrawable_textColor,
+                    r.getColor(R.color.complicationDrawable_textColor, null)
+                )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_titleColor)) {
-            complicationStyle.titleColor = a.getColor(
-                R.styleable.ComplicationDrawable_titleColor,
-                r.getColor(R.color.complicationDrawable_titleColor, null)
-            )
+            complicationStyle.titleColor =
+                a.getColor(
+                    R.styleable.ComplicationDrawable_titleColor,
+                    r.getColor(R.color.complicationDrawable_titleColor, null)
+                )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_textTypeface)) {
             complicationStyle.setTextTypeface(
@@ -360,88 +359,95 @@ public class ComplicationDrawable : Drawable {
             )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_textSize)) {
-            complicationStyle.textSize = a.getDimensionPixelSize(
-                R.styleable.ComplicationDrawable_textSize,
-                r.getDimensionPixelSize(R.dimen.complicationDrawable_textSize)
-            )
+            complicationStyle.textSize =
+                a.getDimensionPixelSize(
+                    R.styleable.ComplicationDrawable_textSize,
+                    r.getDimensionPixelSize(R.dimen.complicationDrawable_textSize)
+                )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_titleSize)) {
-            complicationStyle.titleSize = a.getDimensionPixelSize(
-                R.styleable.ComplicationDrawable_titleSize,
-                r.getDimensionPixelSize(R.dimen.complicationDrawable_titleSize)
-            )
+            complicationStyle.titleSize =
+                a.getDimensionPixelSize(
+                    R.styleable.ComplicationDrawable_titleSize,
+                    r.getDimensionPixelSize(R.dimen.complicationDrawable_titleSize)
+                )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_iconColor)) {
-            complicationStyle.iconColor = a.getColor(
-                R.styleable.ComplicationDrawable_iconColor,
-                r.getColor(R.color.complicationDrawable_iconColor, null)
-            )
+            complicationStyle.iconColor =
+                a.getColor(
+                    R.styleable.ComplicationDrawable_iconColor,
+                    r.getColor(R.color.complicationDrawable_iconColor, null)
+                )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_borderColor)) {
-            complicationStyle.borderColor = a.getColor(
-                R.styleable.ComplicationDrawable_borderColor,
-                r.getColor(R.color.complicationDrawable_borderColor, null)
-            )
+            complicationStyle.borderColor =
+                a.getColor(
+                    R.styleable.ComplicationDrawable_borderColor,
+                    r.getColor(R.color.complicationDrawable_borderColor, null)
+                )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_borderRadius)) {
-            complicationStyle.borderRadius = a.getDimensionPixelSize(
-                R.styleable.ComplicationDrawable_borderRadius,
-                r.getDimensionPixelSize(R.dimen.complicationDrawable_borderRadius)
-            )
+            complicationStyle.borderRadius =
+                a.getDimensionPixelSize(
+                    R.styleable.ComplicationDrawable_borderRadius,
+                    r.getDimensionPixelSize(R.dimen.complicationDrawable_borderRadius)
+                )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_borderStyle)) {
-            complicationStyle.borderStyle = a.getInt(
-                R.styleable.ComplicationDrawable_borderStyle,
-                r.getInteger(R.integer.complicationDrawable_borderStyle)
-            )
+            complicationStyle.borderStyle =
+                a.getInt(
+                    R.styleable.ComplicationDrawable_borderStyle,
+                    r.getInteger(R.integer.complicationDrawable_borderStyle)
+                )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_borderDashWidth)) {
-            complicationStyle.borderDashWidth = a.getDimensionPixelSize(
-                R.styleable.ComplicationDrawable_borderDashWidth,
-                r.getDimensionPixelSize(R.dimen.complicationDrawable_borderDashWidth)
-            )
+            complicationStyle.borderDashWidth =
+                a.getDimensionPixelSize(
+                    R.styleable.ComplicationDrawable_borderDashWidth,
+                    r.getDimensionPixelSize(R.dimen.complicationDrawable_borderDashWidth)
+                )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_borderDashGap)) {
-            complicationStyle.borderDashGap = a.getDimensionPixelSize(
-                R.styleable.ComplicationDrawable_borderDashGap,
-                r.getDimensionPixelSize(R.dimen.complicationDrawable_borderDashGap)
-            )
+            complicationStyle.borderDashGap =
+                a.getDimensionPixelSize(
+                    R.styleable.ComplicationDrawable_borderDashGap,
+                    r.getDimensionPixelSize(R.dimen.complicationDrawable_borderDashGap)
+                )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_borderWidth)) {
-            complicationStyle.borderWidth = a.getDimensionPixelSize(
-                R.styleable.ComplicationDrawable_borderWidth,
-                r.getDimensionPixelSize(R.dimen.complicationDrawable_borderWidth)
-            )
+            complicationStyle.borderWidth =
+                a.getDimensionPixelSize(
+                    R.styleable.ComplicationDrawable_borderWidth,
+                    r.getDimensionPixelSize(R.dimen.complicationDrawable_borderWidth)
+                )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_rangedValueRingWidth)) {
-            complicationStyle.rangedValueRingWidth = a.getDimensionPixelSize(
-                R.styleable.ComplicationDrawable_rangedValueRingWidth,
-                r.getDimensionPixelSize(
-                    R.dimen.complicationDrawable_rangedValueRingWidth
+            complicationStyle.rangedValueRingWidth =
+                a.getDimensionPixelSize(
+                    R.styleable.ComplicationDrawable_rangedValueRingWidth,
+                    r.getDimensionPixelSize(R.dimen.complicationDrawable_rangedValueRingWidth)
                 )
-            )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_rangedValuePrimaryColor)) {
-            complicationStyle.rangedValuePrimaryColor = a.getColor(
-                R.styleable.ComplicationDrawable_rangedValuePrimaryColor,
-                r.getColor(
-                    R.color.complicationDrawable_rangedValuePrimaryColor, null
+            complicationStyle.rangedValuePrimaryColor =
+                a.getColor(
+                    R.styleable.ComplicationDrawable_rangedValuePrimaryColor,
+                    r.getColor(R.color.complicationDrawable_rangedValuePrimaryColor, null)
                 )
-            )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_rangedValueSecondaryColor)) {
-            complicationStyle.rangedValueSecondaryColor = a.getColor(
-                R.styleable.ComplicationDrawable_rangedValueSecondaryColor,
-                r.getColor(
-                    R.color.complicationDrawable_rangedValueSecondaryColor, null
+            complicationStyle.rangedValueSecondaryColor =
+                a.getColor(
+                    R.styleable.ComplicationDrawable_rangedValueSecondaryColor,
+                    r.getColor(R.color.complicationDrawable_rangedValueSecondaryColor, null)
                 )
-            )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_highlightColor)) {
-            complicationStyle.highlightColor = a.getColor(
-                R.styleable.ComplicationDrawable_highlightColor,
-                r.getColor(R.color.complicationDrawable_highlightColor, null)
-            )
+            complicationStyle.highlightColor =
+                a.getColor(
+                    R.styleable.ComplicationDrawable_highlightColor,
+                    r.getColor(R.color.complicationDrawable_highlightColor, null)
+                )
         }
         a.recycle()
     }
@@ -451,10 +457,10 @@ public class ComplicationDrawable : Drawable {
      * for each ComplicationDrawable. Note that framework may have called this once to create the
      * ComplicationDrawable instance from an XML resource.
      *
-     * @param r      Resources used to resolve attribute values
+     * @param r Resources used to resolve attribute values
      * @param parser XML parser from which to inflate this ComplicationDrawable
-     * @param attrs  Base set of attribute values
-     * @param theme  Ignored by ComplicationDrawable
+     * @param attrs Base set of attribute values
+     * @param theme Ignored by ComplicationDrawable
      */
     @Throws(XmlPullParserException::class, IOException::class)
     public override fun inflate(
@@ -477,7 +483,7 @@ public class ComplicationDrawable : Drawable {
         inflateStyle(true, r, parser)
         while (
             parser.next().also { type = it } != XmlPullParser.END_DOCUMENT &&
-            (type != XmlPullParser.END_TAG || parser.depth > outerDepth)
+                (type != XmlPullParser.END_TAG || parser.depth > outerDepth)
         ) {
             if (type != XmlPullParser.START_TAG) {
                 continue
@@ -540,16 +546,15 @@ public class ComplicationDrawable : Drawable {
     override fun getOpacity(): Int = PixelFormat.OPAQUE
 
     protected override fun onBoundsChange(bounds: Rect) {
-        complicationRenderer?.let {
-            it.bounds = bounds
-        }
+        complicationRenderer?.let { it.bounds = bounds }
     }
 
-    /** If the ranged value progress should be hidden when [ComplicationData] is of type
+    /**
+     * If the ranged value progress should be hidden when [ComplicationData] is of type
      * [RANGED_VALUE].
      *
      * @attr ref androidx.wear.watchface.complicationSlots.rendering.R
-     * .styleable#ComplicationDrawable_rangedValueProgressHidden
+     *   .styleable#ComplicationDrawable_rangedValueProgressHidden
      */
     public var isRangedValueProgressHidden: Boolean = false
         set(rangedValueProgressHidden) {
@@ -561,8 +566,8 @@ public class ComplicationDrawable : Drawable {
      * Sets the complication data to be drawn.
      *
      * @param complicationData The [ComplicationData] to set
-     * @param loadDrawablesAsync If true any drawables should be loaded asynchronously,
-     * otherwise they will be loaded synchronously.
+     * @param loadDrawablesAsync If true any drawables should be loaded asynchronously, otherwise
+     *   they will be loaded synchronously.
      */
     public fun setComplicationData(
         complicationData: ComplicationData,
@@ -601,45 +606,43 @@ public class ComplicationDrawable : Drawable {
         private set
 
     init {
-        complicationRenderer?.setComplicationData(
-            complicationData.asWireComplicationData(),
-            false
-        )
+        complicationRenderer?.setComplicationData(complicationData.asWireComplicationData(), false)
     }
 
     /**
      * Sends the tap action for the complication if tap coordinates are inside the complication
      * bounds.
      *
-     * This method will also highlight the complication. The highlight duration is 300
-     * milliseconds by default but can be modified using the [.setHighlightDuration]
-     * method.
+     * This method will also highlight the complication. The highlight duration is 300 milliseconds
+     * by default but can be modified using the [.setHighlightDuration] method.
      *
      * If [ComplicationData] has the type [NO_PERMISSION], this method will launch an intent to
-     * request complication permission for the watch face. This will only work if the context set
-     * by [getDrawable] or the constructor is an instance of WatchFaceService.
+     * request complication permission for the watch face. This will only work if the context set by
+     * [getDrawable] or the constructor is an instance of WatchFaceService.
      *
      * @param x X coordinate of the tap relative to screen origin
      * @param y Y coordinate of the tap relative to screen origin
      * @return `true` if the action was successful, `false` if complication data is not set, the
-     * complication has no tap action, the tap action (i.e. [android.app.PendingIntent]) is
-     * cancelled, or the given x and y are not inside the complication bounds.
+     *   complication has no tap action, the tap action (i.e. [android.app.PendingIntent]) is
+     *   cancelled, or the given x and y are not inside the complication bounds.
      */
     public fun onTap(@Px x: Int, @Px y: Int): Boolean {
         if (complicationRenderer == null) {
             return false
         }
         val data = complicationRenderer!!.complicationData ?: return false
-        if (!data.hasTapAction() && data.type
-            != android.support.wearable.complications.ComplicationData.TYPE_NO_PERMISSION
+        if (
+            !data.hasTapAction() &&
+                data.type !=
+                    android.support.wearable.complications.ComplicationData.TYPE_NO_PERMISSION
         ) {
             return false
         }
         if (!bounds.contains(x, y)) {
             return false
         }
-        if (data.type
-            == android.support.wearable.complications.ComplicationData.TYPE_NO_PERMISSION
+        if (
+            data.type == android.support.wearable.complications.ComplicationData.TYPE_NO_PERMISSION
         ) {
             // Check if context is an instance of WatchFaceService. We can't use the standard
             // instanceof operator because WatchFaceService is defined in library which depends on
@@ -648,11 +651,12 @@ public class ComplicationDrawable : Drawable {
                 if (context!!::class.java.name == "androidx.wear.watchface.WatchFaceService") {
                     context!!.startActivity(
                         ComplicationHelperActivity.createPermissionRequestHelperIntent(
-                            context!!,
-                            ComponentName(context!!, context!!.javaClass),
-                            /* complicationDenied */ null,
-                            /* complicationRationale */null
-                        ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                context!!,
+                                ComponentName(context!!, context!!.javaClass),
+                                /* complicationDenied */ null,
+                                /* complicationRationale */ null
+                            )
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     )
                 } else {
                     return false
@@ -678,7 +682,8 @@ public class ComplicationDrawable : Drawable {
         return true
     }
 
-    /** The duration for the complication to stay highlighted after calling the [onTap] method.
+    /**
+     * The duration for the complication to stay highlighted after calling the [onTap] method.
      * Default value is 300 milliseconds. Setting highlight duration to 0 disables highlighting.
      */
     public var highlightDuration: Long = 0
@@ -687,7 +692,7 @@ public class ComplicationDrawable : Drawable {
             field = highlightDurationMillis
         }
 
-    /** Builds styles and syncs them with the complication renderer.  */
+    /** Builds styles and syncs them with the complication renderer. */
     @JvmName(name = "updateStyleIfRequired")
     internal fun updateStyleIfRequired() {
         if (activeStyle.isDirty || ambientStyle.isDirty) {
@@ -724,9 +729,9 @@ public class ComplicationDrawable : Drawable {
          * Creates a ComplicationDrawable from a resource.
          *
          * @param context The [Context] to load the resource from
-         * @param id      The id of the resource to load
+         * @param id The id of the resource to load
          * @return The [ComplicationDrawable] loaded from the specified resource id or null if it
-         * doesn't exist.
+         *   doesn't exist.
          */
         @JvmStatic
         public fun getDrawable(context: Context, id: Int): ComplicationDrawable? {
@@ -743,12 +748,14 @@ public class ComplicationDrawable : Drawable {
             style.titleColor = r.getColor(R.color.complicationDrawable_titleColor, null)
             style.setTextTypeface(
                 Typeface.create(
-                    r.getString(R.string.complicationDrawable_textTypeface), Typeface.NORMAL
+                    r.getString(R.string.complicationDrawable_textTypeface),
+                    Typeface.NORMAL
                 )
             )
             style.setTitleTypeface(
                 Typeface.create(
-                    r.getString(R.string.complicationDrawable_titleTypeface), Typeface.NORMAL
+                    r.getString(R.string.complicationDrawable_titleTypeface),
+                    Typeface.NORMAL
                 )
             )
             style.textSize = r.getDimensionPixelSize(R.dimen.complicationDrawable_textSize)

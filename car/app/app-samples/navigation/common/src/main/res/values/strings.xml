@@ -38,4 +38,13 @@
   <string name="settings_five_pref" translatable="false">setting_five</string>
   <string name="settings_six_label" translatable="false">Setting Six</string>
   <string name="settings_six_pref" translatable="false">setting_six</string>
+
+  <!-- Alert card -->
+  <string name="navigation_alert_title">Is police still there?</string>
+  <string name="yes_action_title">Yes</string>
+  <string name="no_action_title">No</string>
+  <string name="yes_action_toast_msg">Yes button pressed!</string>
+  <string name="no_action_toast_msg">No button pressed!</string>
+  <string name="alert_timeout_toast_msg">Alert is timed out!</string>
+  <string name="alert_not_supported">Alert is not supported, use HUN instead</string>
 </resources>

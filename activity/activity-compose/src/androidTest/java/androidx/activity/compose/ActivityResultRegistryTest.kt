@@ -59,8 +59,8 @@ class ActivityResultRegistryTest {
     val composeTestRule = createComposeRule()
 
     var launchCount = 0
-    val registryOwner = ActivityResultRegistryOwner {
-        object : ActivityResultRegistry() {
+    val registryOwner = object : ActivityResultRegistryOwner {
+        override val activityResultRegistry = object : ActivityResultRegistry() {
             override fun <I : Any?, O : Any?> onLaunch(
                 requestCode: Int,
                 contract: ActivityResultContract<I, O>,
@@ -161,8 +161,8 @@ class ActivityResultRegistryTest {
 
         activityScenario.recreate()
 
-        val restoredOwner = ActivityResultRegistryOwner {
-            object : ActivityResultRegistry() {
+        val restoredOwner = object : ActivityResultRegistryOwner {
+            override val activityResultRegistry = object : ActivityResultRegistry() {
                 override fun <I : Any?, O : Any?> onLaunch(
                     requestCode: Int,
                     contract: ActivityResultContract<I, O>,
@@ -210,7 +210,9 @@ class ActivityResultRegistryTest {
                 code = requestCode
             }
         }
-        val owner = ActivityResultRegistryOwner { registry }
+        val owner = object : ActivityResultRegistryOwner {
+            override val activityResultRegistry = registry
+        }
         var recompose by mutableStateOf(false)
         val launchChannel = Channel<Boolean>()
         val launchFlow = launchChannel.receiveAsFlow()
@@ -261,7 +263,9 @@ class ActivityResultRegistryTest {
                 launchCount++
             }
         }
-        val owner = ActivityResultRegistryOwner { registry }
+        val owner = object : ActivityResultRegistryOwner {
+            override val activityResultRegistry = registry
+        }
         composeTestRule.setContent {
             var recompose by remember { mutableStateOf(false) }
             CompositionLocalProvider(
@@ -307,7 +311,9 @@ class ActivityResultRegistryTest {
                 launchCount++
             }
         }
-        val owner = ActivityResultRegistryOwner { registry }
+        val owner = object : ActivityResultRegistryOwner {
+            override val activityResultRegistry = registry
+        }
         val contract = ActivityResultContracts.StartActivityForResult()
         composeTestRule.setContent {
             var recompose by remember { mutableStateOf(false) }

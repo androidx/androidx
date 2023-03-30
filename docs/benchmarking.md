@@ -9,12 +9,12 @@ AndroidX repo, and our continuous testing / triage process.
 
 This page is for MICRO benchmarks measuring CPU performance of small sections of
 code. If you're looking for measuring startup or jank, see the guide for
-MACRObenchmarks [here](macrobenchmarking).
+MACRObenchmarks [here](/company/teams/androidx/macrobenchmarking.md).
 
 ### Writing the benchmark
 
 Benchmarks are just regular instrumentation tests! Just use the
-[`BenchmarkRule`](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/benchmark/junit4/src/main/java/androidx/benchmark/junit4/BenchmarkRule.kt)
+[`BenchmarkRule`](https://developer.android.com/reference/kotlin/androidx/benchmark/junit4/BenchmarkRule)
 provided by the library:
 
 <section class="tabs">
@@ -78,8 +78,8 @@ library modules. Differences for AndroidX repo:
 
 Start by copying one of the following non-Compose projects:
 
-*   [navigation-benchmark](https://android.googlesource.com/platform/frameworks/support/+/refs/heads/androidx-main/navigation/benchmark/)
-*   [recyclerview-benchmark](https://android.googlesource.com/platform/frameworks/support/+/refs/heads/androidx-main/recyclerview/recyclerview-benchmark/)
+*   [navigation-benchmark](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:navigation/navigation-benchmark/)
+*   [recyclerview-benchmark](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:recyclerview/recyclerview-benchmark/)
 
 Many Compose libraries already have benchmark modules:
 
@@ -138,14 +138,12 @@ directory with Android Studio, using `File > Open`.
 
 NOTE For stack sampling, it's recommended to profile on Android Q(API 29) or
 higher, as this enables the benchmark library to use
-[Simpleperf](https://android.googlesource.com/platform/system/extras/+/master/simpleperf/doc/).
-Simpleperf previously required a
-[more complex setup process](https://issuetracker.google.com/issues/158303822) -
-this has been fixed!
+[Simpleperf](https://android.googlesource.com/platform/system/extras/+/master/simpleperf/doc/)
+when capturing samples.
 
 For more information on the `StackSampling` and `MethodTracing` profiling modes,
 see the
-[Studio Profiler configuration docs](https://developer.android.com/studio/profile/cpu-profiler#configurations),
+[Studio Profiler recording configuration docs](https://developer.android.com/studio/profile/record-traces#configurations),
 specifically "Sample C/C++ Functions" (a confusing name for Simpleperf), and
 Java Method Tracing.
 

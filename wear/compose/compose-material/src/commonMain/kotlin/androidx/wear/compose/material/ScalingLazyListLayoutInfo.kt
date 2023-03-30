@@ -24,10 +24,13 @@ import androidx.compose.ui.unit.IntSize
  *
  * Use [ScalingLazyListState.layoutInfo] to retrieve this
  */
+@Deprecated("Was moved to androidx.wear.compose.foundation.lazy package. " +
+    "Please use it instead")
 public sealed interface ScalingLazyListLayoutInfo {
     /**
      * The list of [ScalingLazyListItemInfo] representing all the currently visible items.
      */
+    @Suppress("DEPRECATION")
     val visibleItemsInfo: List<ScalingLazyListItemInfo>
 
     /**

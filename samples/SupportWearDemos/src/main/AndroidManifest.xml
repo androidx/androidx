@@ -24,6 +24,9 @@
             android:name=".app.SimpleWearableRecyclerViewDemo"
             android:exported="true" />
         <activity
+            android:name=".app.SimpleRecyclerViewDemo"
+            android:exported="true" />
+        <activity
             android:name=".app.WearableSwitchDemo"
             android:exported="true" />
         <activity

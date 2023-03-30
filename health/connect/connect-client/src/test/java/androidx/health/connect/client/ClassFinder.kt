@@ -16,16 +16,19 @@
 
 package androidx.health.connect.client
 
+import androidx.health.connect.client.records.Record
 import java.io.File
 import java.net.URL
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import kotlin.reflect.KClass
 
-val RECORD_CLASSES: List<KClass<*>> by lazy {
+@Suppress("UNCHECKED_CAST")
+val RECORD_CLASSES: List<KClass<out Record>> by lazy {
     findClasses("androidx.health.connect.client.records")
         .filterNot { it.java.isInterface }
         .filter { it.simpleName.orEmpty().endsWith("Record") }
+        .map { it as KClass<out Record> }
 }
 
 fun findClasses(packageName: String): Set<KClass<*>> {
@@ -43,20 +46,19 @@ fun findClasses(packageName: String): Set<KClass<*>> {
     }
 }
 
-private fun findClasses(directory: String, packageName: String): Set<String> =
-    buildSet {
-        if (directory.startsWith("file:") && ('!' in directory)) {
-            addAll(unzipClasses(path = directory, packageName = packageName))
-        }
+private fun findClasses(directory: String, packageName: String): Set<String> = buildSet {
+    if (directory.startsWith("file:") && ('!' in directory)) {
+        addAll(unzipClasses(path = directory, packageName = packageName))
+    }
 
-        for (file in File(directory).takeIf(File::exists)?.listFiles() ?: emptyArray()) {
-            if (file.isDirectory) {
-                addAll(findClasses(file.absolutePath, "$packageName.${file.name}"))
-            } else if (file.name.endsWith(".class")) {
-                add("$packageName.${file.name.dropLast(6)}")
-            }
+    for (file in File(directory).takeIf(File::exists)?.listFiles() ?: emptyArray()) {
+        if (file.isDirectory) {
+            addAll(findClasses(file.absolutePath, "$packageName.${file.name}"))
+        } else if (file.name.endsWith(".class")) {
+            add("$packageName.${file.name.dropLast(6)}")
         }
     }
+}
 
 private fun unzipClasses(path: String, packageName: String): Set<String> =
     ZipInputStream(URL(path.substringBefore('!')).openStream()).use { zip ->

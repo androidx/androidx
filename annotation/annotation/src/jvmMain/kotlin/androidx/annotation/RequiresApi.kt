@@ -26,6 +26,8 @@ import java.lang.annotation.ElementType.TYPE
  * This is similar in purpose to the older `@TargetApi` annotation, but more clearly
  * expresses that this is a requirement on the caller, rather than being used to "suppress" warnings
  * within the method that exceed the `minSdkVersion`.
+ *
+ * For API requirements on SDK extensions, see the [RequiresExtension] annotation.
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.BINARY)
@@ -41,7 +43,7 @@ import java.lang.annotation.ElementType.TYPE
 )
 // Needed due to Kotlin's lack of PACKAGE annotation target
 // https://youtrack.jetbrains.com/issue/KT-45921
-@Suppress("DEPRECATED_JAVA_ANNOTATION")
+@Suppress("DEPRECATED_JAVA_ANNOTATION", "SupportAnnotationUsage")
 @java.lang.annotation.Target(TYPE, METHOD, CONSTRUCTOR, FIELD, PACKAGE)
 public annotation class RequiresApi(
     /**

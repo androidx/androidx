@@ -24,9 +24,7 @@ import androidx.wear.watchface.client.WatchFaceMetadataClient.ServiceStartFailur
 import androidx.wear.watchface.control.WatchFaceControlService
 import com.google.common.util.concurrent.ListenableFuture
 
-/**
- * [ListenableFuture]-based compatibility wrapper around [WatchFaceMetadataClient.create].
- */
+/** [ListenableFuture]-based compatibility wrapper around [WatchFaceMetadataClient.create]. */
 public class ListenableWatchFaceMetadataClient private constructor() {
     public companion object {
         /**
@@ -36,38 +34,35 @@ public class ListenableWatchFaceMetadataClient private constructor() {
          * @param context Calling application's [Context].
          * @param watchFaceName The [ComponentName] of the watch face to fetch meta data from.
          * @return A [ListenableFuture] which resolves with [WatchFaceMetadataClient] if there is
-         * one, otherwise it throws a [ServiceNotBoundException] if the underlying watch face
-         * control service can not be bound or a [ServiceStartFailureException] if the watch face
-         * dies during startup.
+         *   one, otherwise it throws a [ServiceNotBoundException] if the underlying watch face
+         *   control service can not be bound or a [ServiceStartFailureException] if the watch face
+         *   dies during startup.
          */
         @Suppress("AsyncSuffixFuture")
         @JvmStatic
         public fun create(
             context: Context,
             watchFaceName: ComponentName
-        ): ListenableFuture<WatchFaceMetadataClient> = createImpl(
-            context,
-            Intent(WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE).apply {
-                setPackage(watchFaceName.packageName)
-            },
-            watchFaceName,
-            WatchFaceMetadataClient.Companion.ParserProvider()
-        )
+        ): ListenableFuture<WatchFaceMetadataClient> =
+            createImpl(
+                context,
+                Intent(WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE).apply {
+                    setPackage(watchFaceName.packageName)
+                },
+                watchFaceName,
+                WatchFaceMetadataClient.Companion.ParserProvider()
+            )
 
         internal fun createImpl(
             context: Context,
             intent: Intent,
             watchFaceName: ComponentName,
             parserProvider: WatchFaceMetadataClient.Companion.ParserProvider
-        ) = ListenableWatchFaceControlClient.launchFutureCoroutine(
-            "ListenableWatchFaceMetadataClient.listenableCreateWatchFaceMetadataClient"
-        ) {
-            WatchFaceMetadataClient.createImpl(
-                context,
-                intent,
-                watchFaceName,
-                parserProvider
-            )
-        }
+        ) =
+            ListenableWatchFaceControlClient.launchFutureCoroutine(
+                "ListenableWatchFaceMetadataClient.listenableCreateWatchFaceMetadataClient"
+            ) {
+                WatchFaceMetadataClient.createImpl(context, intent, watchFaceName, parserProvider)
+            }
     }
 }

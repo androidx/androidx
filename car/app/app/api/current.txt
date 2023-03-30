@@ -482,6 +482,15 @@ package androidx.car.app.media {
 
 }
 
+package androidx.car.app.mediaextensions {
+
+  public final class MetadataExtras {
+    field public static final String KEY_DESCRIPTION_LINK_MEDIA_ID = "androidx.car.app.mediaextensions.KEY_DESCRIPTION_LINK_MEDIA_ID";
+    field public static final String KEY_SUBTITLE_LINK_MEDIA_ID = "androidx.car.app.mediaextensions.KEY_SUBTITLE_LINK_MEDIA_ID";
+  }
+
+}
+
 package androidx.car.app.model {
 
   @androidx.car.app.annotations.CarProtocol public final class Action {
@@ -625,7 +634,7 @@ package androidx.car.app.model {
     method public double getLongitude();
   }
 
-  @Keep @androidx.car.app.annotations.CarProtocol public class CarSpan extends android.text.style.CharacterStyle {
+  @androidx.car.app.annotations.CarProtocol public class CarSpan extends android.text.style.CharacterStyle {
     ctor public CarSpan();
     method public void updateDrawState(android.text.TextPaint);
   }
@@ -1639,6 +1648,7 @@ package androidx.car.app.versioning {
     field public static final int LEVEL_4 = 4; // 0x4
     field public static final int LEVEL_5 = 5; // 0x5
     field public static final int LEVEL_6 = 6; // 0x6
+    field public static final int LEVEL_7 = 7; // 0x7
   }
 
 }

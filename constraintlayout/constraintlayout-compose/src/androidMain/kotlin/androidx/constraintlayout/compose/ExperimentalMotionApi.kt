@@ -17,4 +17,5 @@
 package androidx.constraintlayout.compose
 
 @RequiresOptIn("MotionLayout API is experimental and it is likely to change.")
+@Retention(AnnotationRetention.BINARY)
 annotation class ExperimentalMotionApi

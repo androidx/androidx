@@ -14,31 +14,16 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/FwkFragment">
+    app:startDestination="@id/navigation_home">
 
     <fragment
-        android:id="@+id/FwkFragment"
-        android:name="androidx.bluetooth.integration.testapp.ui.framework.FwkFragment"
-        android:label="@string/fwk_fragment_label"
-        tools:layout="@layout/fragment_fwk">
-        <action
-            android:id="@+id/action_FwkFragment_to_BtxFragment"
-            app:destination="@id/BtxFragment" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/BtxFragment"
-        android:name="androidx.bluetooth.integration.testapp.ui.bluetoothx.BtxFragment"
-        android:label="@string/btx_fragment_label"
-        tools:layout="@layout/fragment_btx">
-        <action
-            android:id="@+id/action_BtxFragment_to_FwkFragment"
-            app:destination="@id/FwkFragment" />
-    </fragment>
+        android:id="@+id/navigation_home"
+        android:name="androidx.bluetooth.integration.testapp.ui.home.HomeFragment"
+        android:label="@string/title_home"
+        tools:layout="@layout/fragment_home" />
 
 </navigation>

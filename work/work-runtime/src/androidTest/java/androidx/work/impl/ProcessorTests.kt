@@ -26,13 +26,11 @@ import androidx.test.filters.MediumTest
 import androidx.work.Configuration
 import androidx.work.DatabaseTest
 import androidx.work.ForegroundInfo
-import androidx.work.ListenableWorker
 import androidx.work.OneTimeWorkRequest
 import androidx.work.PeriodicWorkRequest
-import androidx.work.WorkerFactory
-import androidx.work.WorkerParameters
 import androidx.work.impl.model.WorkGenerationalId
 import androidx.work.impl.model.generationalId
+import androidx.work.impl.testutils.TrackingWorkerFactory
 import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.worker.LatchWorker
@@ -42,11 +40,6 @@ import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -54,13 +47,10 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.mock
 
 @RunWith(AndroidJUnit4::class)
 class ProcessorTests : DatabaseTest() {
-    lateinit var scheduler: Scheduler
-    lateinit var factory: WorkerFactory
-    val lastCreatedWorker = MutableStateFlow<ListenableWorker?>(null)
+    val factory = TrackingWorkerFactory()
     lateinit var processor: Processor
     lateinit var defaultExecutor: ExecutorService
     lateinit var backgroundExecutor: ExecutorService
@@ -87,28 +77,11 @@ class ProcessorTests : DatabaseTest() {
                 return serialExecutor
             }
         }
-        factory = object : WorkerFactory() {
-            override fun createWorker(
-                appContext: Context,
-                workerClassName: String,
-                workerParameters: WorkerParameters
-            ): ListenableWorker {
-                val worker = getDefaultWorkerFactory()
-                    .createWorkerWithDefaultFallback(
-                        appContext,
-                        workerClassName,
-                        workerParameters
-                    )!!
-                lastCreatedWorker.value = worker
-                return worker
-            }
-        }
         val configuration = Configuration.Builder()
             .setWorkerFactory(factory)
             .setExecutor(defaultExecutor)
             .build()
-        scheduler = mock(Scheduler::class.java)
-        processor = Processor(context, configuration, taskExecutor, mDatabase, listOf(scheduler))
+        processor = Processor(context, configuration, taskExecutor, mDatabase)
     }
 
     @Test
@@ -129,7 +102,7 @@ class ProcessorTests : DatabaseTest() {
         val startStopToken = StartStopToken(WorkGenerationalId(request1.workSpec.id, 0))
         processor.startWork(startStopToken)
 
-        val firstWorker = runBlocking { lastCreatedWorker.filterNotNull().first() }
+        val firstWorker = factory.awaitWorker(request1.id)
         val blockedThread = Executors.newSingleThreadExecutor()
         blockedThread.execute {
             // gonna stall for 10 seconds
@@ -145,8 +118,7 @@ class ProcessorTests : DatabaseTest() {
         processor.addExecutionListener { _, _ -> executionFinished.countDown() }
         // This would have previously failed trying to acquire a lock
         processor.startWork(StartStopToken(WorkGenerationalId(request2.workSpec.id, 0)))
-        val secondWorker =
-            runBlocking { lastCreatedWorker.filterNotNull().filter { it != firstWorker }.first() }
+        val secondWorker = factory.awaitWorker(request2.id)
         (secondWorker as StopLatchWorker).countDown()
         assertTrue(executionFinished.await(3, TimeUnit.SECONDS))
         firstWorker.countDown()
@@ -181,7 +153,7 @@ class ProcessorTests : DatabaseTest() {
         processor.stopWork(startStopToken)
         processor.startWork(StartStopToken(request.workSpec.generationalId()))
         assertTrue(processor.isEnqueued(startStopToken.id.workSpecId))
-        val firstWorker = runBlocking { lastCreatedWorker.filterNotNull().first() }
+        val firstWorker = factory.awaitWorker(request.id)
         (firstWorker as LatchWorker).mLatch.countDown()
         assertTrue(executionFinished.await(3, TimeUnit.SECONDS))
     }
@@ -194,7 +166,7 @@ class ProcessorTests : DatabaseTest() {
         mDatabase.workSpecDao().incrementGeneration(request.stringId)
         val token = StartStopToken(WorkGenerationalId(request.workSpec.id, 1))
         processor.startWork(token)
-        val firstWorker = runBlocking { lastCreatedWorker.filterNotNull().first() }
+        val firstWorker = factory.awaitWorker(request.id)
         var called = false
         val oldGenerationListener = ExecutionListener { id, needsReschedule ->
             called = true
@@ -220,7 +192,7 @@ class ProcessorTests : DatabaseTest() {
         insertWork(request)
         val token = StartStopToken(WorkGenerationalId(request.workSpec.id, 0))
         processor.startWork(token)
-        val firstWorker = runBlocking { lastCreatedWorker.filterNotNull().first() }
+        val firstWorker = factory.awaitWorker(request.id)
         var called = false
         val oldGenerationListener = ExecutionListener { id, needsReschedule ->
             called = true
@@ -249,7 +221,7 @@ class ProcessorTests : DatabaseTest() {
         val oldGenerationListener = ExecutionListener { id, needsReschedule ->
             called = true
             // worker shouldn't have been created
-            assertEquals(null, lastCreatedWorker.value)
+            assertEquals(0, factory.createdWorkers.value.size)
             assertEquals(WorkGenerationalId(request.workSpec.id, 0), id)
             assertFalse(needsReschedule)
         }

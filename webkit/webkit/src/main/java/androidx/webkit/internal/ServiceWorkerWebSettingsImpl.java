@@ -27,6 +27,7 @@ import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
+import java.util.Set;
 
 /**
  * Implementation of {@link ServiceWorkerWebSettingsCompat}.
@@ -177,6 +178,29 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
             return ApiHelperForN.getBlockNetworkLoads(getFrameworksImpl());
         } else if (feature.isSupportedByWebView()) {
             return getBoundaryInterface().getBlockNetworkLoads();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    @NonNull
+    @Override
+    public Set<String> getRequestedWithHeaderOriginAllowList() {
+        final ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.REQUESTED_WITH_HEADER_ALLOW_LIST;
+        if (feature.isSupportedByWebView()) {
+            return getBoundaryInterface().getRequestedWithHeaderOriginAllowList();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    @Override
+    public void setRequestedWithHeaderOriginAllowList(@NonNull Set<String> allowList) {
+        final ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.REQUESTED_WITH_HEADER_ALLOW_LIST;
+        if (feature.isSupportedByWebView()) {
+            getBoundaryInterface().setRequestedWithHeaderOriginAllowList(allowList);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }

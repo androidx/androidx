@@ -21,6 +21,11 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -28,6 +33,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ContextAwareHelperTest {
     private val contextAware = TestContextAware()
+
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
 
     @Test
     fun addOnContextAvailableListener() {
@@ -104,6 +112,35 @@ class ContextAwareHelperTest {
         contextAware.addOnContextAvailableListener(listener)
 
         assertThat(callbackCount).isEqualTo(0)
+    }
+
+    @Test
+    fun alreadyAvailable() = runBlocking(Dispatchers.Main) {
+        val contextAware = TestContextAware()
+        contextAware.dispatchOnContextAvailable()
+        var result = "initial"
+        val receivedResult = contextAware.withContextAvailable {
+            result
+        }
+        result = "after"
+        assertThat(receivedResult).isEqualTo("initial")
+    }
+
+    @Test
+    fun suspending() = runBlocking(Dispatchers.Main) {
+        val contextAware = TestContextAware()
+        var result = "initial"
+        launch {
+            contextAware.dispatchOnContextAvailable()
+            result = "post dispatch"
+        }
+        val receivedResult = contextAware.withContextAvailable {
+            result
+        }
+        contextAware.addOnContextAvailableListener {
+            result = "after"
+        }
+        assertThat(receivedResult).isEqualTo("initial")
     }
 }
 

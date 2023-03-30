@@ -100,8 +100,7 @@
     <string name="example_2_text" msgid="718820705318661440">"Este texto usa a cor verde"</string>
     <string name="example_3_text" msgid="977269832109695627">"Este texto usa a cor azul"</string>
     <string name="example_4_text" msgid="2043547015979437373">"Este texto usa a cor amarela"</string>
-    <!-- no translation found for example_5_text (8828804968749423500) -->
-    <skip />
+    <string name="example_5_text" msgid="8828804968749423500">"Este texto usa a cor primária"</string>
     <string name="example_6_text" msgid="7991523168517599600">"Este texto usa a cor secundária"</string>
     <string name="color_demo" msgid="1822427636476178993">"Demonstração de cor"</string>
     <string name="list_limit" msgid="3023536401535417286">"Limite de lista"</string>
@@ -231,8 +230,7 @@
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"Host incompatível"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"Demonstração do modelo de mensagem"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"A mensagem fica aqui.\nMais texto na segunda linha."</string>
-    <!-- no translation found for short_msg_template_demo_title (6798738013668580714) -->
-    <skip />
+    <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demonstração do modelo de mensagem curta"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demonstração do modelo de painel"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demonstração do modelo de lista de lugares"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Procurar lugares"</string>
@@ -259,6 +257,15 @@
     <string name="sign_in_complete_text" msgid="8423984266325680606">"Você fez login."</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"Login concluído"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"Demonstração do modelo de login"</string>
+    <string name="tab_template_layouts_demo_title" msgid="6529681462424538165">"Demonstrações dos modelos de guia"</string>
+    <string name="tab_template_demo_title" msgid="7587839101813629975">"Demonstração do modelo de guia"</string>
+    <string name="tab_title_message" msgid="5266710951630087246">"Guia de mensagem"</string>
+    <string name="tab_title_pane" msgid="2520606145526537263">"Guia de painel"</string>
+    <string name="tab_title_list" msgid="5104962518489668123">"Guia em lista"</string>
+    <string name="tab_title_grid" msgid="5268168907976325154">"Guia em grade com título longo"</string>
+    <string name="tab_title_search" msgid="1892925693146631173">"Guia de pesquisa"</string>
+    <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Demonstração de carregamento do modelo de guia"</string>
+    <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Demonstração do modelo de guia sem guias"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Não é possível exibir imagens para um host desconhecido"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"Ícone"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Demonstração de ícones de provedor de conteúdo"</string>
@@ -268,8 +275,7 @@
     <string name="vector_with_tint_title" msgid="1022346419829696827">"Um drawable vetorial, com uma tonalidade"</string>
     <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"Um drawable vetorial, com um atributo de tema para cor do app"</string>
     <string name="png_res_title" msgid="7437083018336747544">"Um PNG, enviado como recurso"</string>
-    <!-- no translation found for png_bitmap_title (3385912074130977032) -->
-    <skip />
+    <string name="png_bitmap_title" msgid="3385912074130977032">"Um PNG, enviado como bitmap"</string>
     <string name="just_row_title" msgid="965700021568970725">"Apenas um título"</string>
     <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"Título com ícone do app"</string>
     <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"Título com imagem do ID de recurso"</string>
@@ -281,8 +287,7 @@
     <string name="rows_demo_title" msgid="3198566660454251007">"Demonstração de linhas"</string>
     <string name="text_icons_demo_title" msgid="8732943920672143201">"Demonstrações de texto e ícones"</string>
     <string name="row_text_icons_demo_title" msgid="135167694047524905">"Demonstrações de linhas com texto e ícones"</string>
-    <!-- no translation found for radio_button_list_demo_title (9082264324855338774) -->
-    <skip />
+    <string name="radio_button_list_demo_title" msgid="9082264324855338774">"Demonstração de listas de botões de opção"</string>
     <string name="selectable_lists_demo_title" msgid="5492658731113129386">"Demonstração de listas selecionáveis"</string>
     <string name="option_1_title" msgid="7221252541651471199">"1ª opção"</string>
     <string name="option_2_title" msgid="1905146448697963818">"2ª opção"</string>
@@ -296,8 +301,8 @@
     <string name="task_limit_reached_msg" msgid="6038763366777119364">"Limite da tarefa atingido\nContinuar vai forçar a parada do app"</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Etapa da tarefa: %1$d de %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Clique para continuar"</string>
-    <!-- no translation found for toggle_button_demo_title (3179103600967398928) -->
-    <skip />
+    <string name="task_content_allowed" msgid="545061986612431190">"Visite os diferentes modelos e confira se o veículo está no modo carro"</string>
+    <string name="toggle_button_demo_title" msgid="3179103600967398928">"Demonstração de botão de ativação"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Alternar teste"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Mudanças com estado são permitidas"</string>
     <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"Ativar alternância do teste"</string>
@@ -310,15 +315,24 @@
     <string name="additional_data_text" msgid="2846223398214158872">"Atualizações permitidas em operações de retorno."</string>
     <string name="toggle_test_enabled" msgid="982370904182034076">"Alternância de teste ativada"</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"Alternância de teste desativada"</string>
+    <string name="secondary_actions_decoration_button_demo_title" msgid="3710817648501132309">"Demonstração de ação secundária e de decoração"</string>
+    <string name="secondary_actions_test_title" msgid="3664453747553733613">"Teste de ação secundária"</string>
+    <string name="secondary_actions_test_subtitle" msgid="6985282813402073703">"Apenas a ação secundária pode ser selecionada"</string>
+    <string name="decoration_test_title" msgid="8450127046762442244">"Teste de decoração"</string>
+    <string name="secondary_actions_decoration_test_title" msgid="6282873404859209490">"Ações secundárias e decoração"</string>
+    <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"A linha também pode ser selecionada"</string>
+    <string name="secondary_action_toast" msgid="5076434693504006565">"A ação secundária está selecionada"</string>
+    <string name="row_primary_action_toast" msgid="756516694751965204">"A ação principal da linha está selecionada"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demonstração de modelos diversos"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Demonstrações em destaque"</string>
-    <!-- no translation found for template_layouts_demo_title (788249269446087847) -->
-    <skip />
-    <!-- no translation found for grid_template_menu_demo_title (7096285873490705119) -->
-    <skip />
-    <string name="voice_access_demo_title" msgid="3825223890895361496">"Tela de demonstração do Acesso por voz"</string>
+    <string name="template_layouts_demo_title" msgid="788249269446087847">"Demonstrações de modelos de layout"</string>
+    <string name="grid_template_menu_demo_title" msgid="7096285873490705119">"Demonstrações de modelo de grade"</string>
+    <string name="voice_access_demo_title" msgid="3825223890895361496">"Tela de demonstração do Voice Access"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"Interações do usuário"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"Solicitar demonstração de permissões"</string>
+    <string name="application_overflow_title" msgid="396427940886169325">"Validador do menu flutuante do aplicativo"</string>
+    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"Teste os seguintes modelos durante a mudança"</string>
+    <string name="application_overflow_subtitle2" msgid="4385123036846369714">"o veículo do estado de estacionamento para o de condução"</string>
     <string name="perm_group" msgid="3834918337351876270">"Grupo de permissões"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"Grupo de permissões do app Showcase"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"Acesso à localização precisa"</string>
@@ -332,18 +346,16 @@
     <string name="location_3_description" msgid="3982142774088944850">"Marcador de texto colorido"</string>
     <string name="location_4_description" msgid="6560365445044381911">"Bitmap de imagem"</string>
     <string name="location_description_text_label" msgid="2779911545316756419">"Etiqueta de texto"</string>
-    <!-- no translation found for parking_vs_driving_demo_title (3367862800135053111) -->
-    <skip />
-    <!-- no translation found for latest_feature_details (6843008350392721502) -->
-    <skip />
-    <!-- no translation found for latest_feature_title (7929405790070777460) -->
-    <skip />
-    <!-- no translation found for loading_toggle_enabled (8828072732804454994) -->
-    <skip />
-    <!-- no translation found for loading_toggle_disabled (7689738885077382673) -->
-    <skip />
-    <!-- no translation found for loading_screen (4771507490730308794) -->
-    <skip />
-    <!-- no translation found for vector_toggle_details (1301305340033556819) -->
-    <skip />
+    <string name="parking_vs_driving_demo_title" msgid="3367862800135053111">"Demonstração de estacionamento e condução"</string>
+    <string name="latest_feature_details" msgid="6843008350392721502">"Exibições do cluster em carros"</string>
+    <string name="latest_feature_title" msgid="7929405790070777460">"Recursos mais recentes"</string>
+    <string name="loading_toggle_enabled" msgid="8828072732804454994">"Carregamento ativado"</string>
+    <string name="loading_toggle_disabled" msgid="7689738885077382673">"Carregamento desativado"</string>
+    <string name="loading_screen" msgid="4771507490730308794">"Tela de carregamento"</string>
+    <string name="vector_toggle_details" msgid="1301305340033556819">"Alternar para adicionar/remover cor"</string>
+    <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Modelo de mapa com botões"</string>
+    <string name="avoid_tolls_row_title" msgid="5194057244144831024">"Evitar pedágios"</string>
+    <string name="route_options_demo_title" msgid="4599699012716426514">"Opções de trajeto"</string>
+    <string name="avoid_highways_row_title" msgid="4711913426200490304">"Evitar rodovias"</string>
+    <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Evitar balsas"</string>
 </resources>

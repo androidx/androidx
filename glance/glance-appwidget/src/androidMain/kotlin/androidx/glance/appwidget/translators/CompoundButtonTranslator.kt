@@ -26,8 +26,10 @@ import androidx.glance.appwidget.unit.CheckableColorProvider
 import androidx.glance.appwidget.unit.CheckedStateSet
 import androidx.glance.appwidget.unit.CheckedUncheckedColorProvider
 import androidx.glance.appwidget.unit.ResourceCheckableColorProvider
-import androidx.glance.appwidget.unit.isNightMode
 import androidx.glance.appwidget.unit.resolveCheckedColor
+import androidx.glance.color.isNightMode
+
+internal val checkableColorProviderFallbackColor = Color.Black
 
 private fun CheckedUncheckedColorProvider.toColorStateList(
     context: Context,
@@ -59,14 +61,13 @@ private fun createCheckedColorStateList(checked: Color, unchecked: Color): Color
     )
 }
 
-internal fun CheckableColorProvider.getColor(context: Context, isChecked: Boolean) = when (this) {
-    is CheckedUncheckedColorProvider -> getColor(context, context.isNightMode, isChecked)
-    is ResourceCheckableColorProvider -> {
-        // If the user provided res id does not resolve, then resolve using the fallback
-        // (which cannot fail).
-        resolveCheckedColor(context, resId, isChecked)
-            ?: resolveCheckedColor(context, fallback, isChecked)!!
-    }
+internal fun CheckableColorProvider.getColor(context: Context, isChecked: Boolean): Color {
+    return when (this) {
+        is CheckedUncheckedColorProvider -> getColor(context, context.isNightMode, isChecked)
+        is ResourceCheckableColorProvider -> {
+            resolveCheckedColor(context, resId, isChecked)
+        }
+    } ?: checkableColorProviderFallbackColor
 }
 
 /**

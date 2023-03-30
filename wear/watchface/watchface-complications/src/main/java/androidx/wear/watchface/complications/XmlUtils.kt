@@ -24,9 +24,7 @@ import android.content.res.XmlResourceParser
 import androidx.annotation.RestrictTo
 import org.xmlpull.v1.XmlPullParser
 
-/**
- * Exception to be thrown if an incorrect node is reached during parsing.
- */
+/** Exception to be thrown if an incorrect node is reached during parsing. */
 /** @hide */
 class IllegalNodeException(parser: XmlResourceParser) :
     IllegalArgumentException("Unexpected node ${parser.name} at line ${parser.lineNumber}")
@@ -61,9 +59,7 @@ fun XmlPullParser.moveToStart(expectedNode: String) {
         type = next()
     } while (type != XmlPullParser.END_DOCUMENT && type != XmlPullParser.START_TAG)
 
-    require(name == expectedNode) {
-        "Expected a $expectedNode node but is $name"
-    }
+    require(name == expectedNode) { "Expected a $expectedNode node but is $name" }
 }
 
 /**
@@ -75,11 +71,7 @@ fun XmlPullParser.moveToStart(expectedNode: String) {
  * @param name the name of the attribute.
  * @hide
  */
-fun getStringRefAttribute(
-    resources: Resources,
-    parser: XmlResourceParser,
-    name: String
-): String? {
+fun getStringRefAttribute(resources: Resources, parser: XmlResourceParser, name: String): String? {
     return if (parser.hasValue(name)) {
         val resId = parser.getAttributeResourceValue(NAMESPACE_APP, name, 0)
         if (resId == 0) {
@@ -99,11 +91,7 @@ fun getStringRefAttribute(
  * @param name the name of the attribute.
  * @hide
  */
-fun getIntRefAttribute(
-    resources: Resources,
-    parser: XmlResourceParser,
-    name: String
-): Int? {
+fun getIntRefAttribute(resources: Resources, parser: XmlResourceParser, name: String): Int? {
     return if (parser.hasValue(name)) {
         val resId = parser.getAttributeResourceValue(NAMESPACE_APP, name, 0)
         if (resId == 0) {

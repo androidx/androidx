@@ -152,7 +152,7 @@ public class LayoutHelper {
     }
 
     /**
-     * @param outRect {@link Rect}  that receives the computed bounds for the long text
+     * @param outRect {@link Rect} that receives the computed bounds for the long text
      */
     public void getLongTextBounds(@NonNull Rect outRect) {
         outRect.setEmpty();
@@ -174,7 +174,7 @@ public class LayoutHelper {
     }
 
     /**
-     * @param outRect {@link Rect}  that receives the computed bounds for the long title text
+     * @param outRect {@link Rect} that receives the computed bounds for the long title text
      */
     public void getLongTitleBounds(@NonNull Rect outRect) {
         outRect.setEmpty();

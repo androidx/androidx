@@ -48,14 +48,17 @@ public class EditorService : IEditorService.Stub() {
         synchronized(lock) {
             val id = nextId++
             observers[id] = observer
-            val deathObserver = IBinder.DeathRecipient {
-                Log.w(TAG, "observer died, closing editor")
-                // If SysUI dies we should close the editor too, otherwise the watchface could get
-                // left in an inconsistent state where it has local edits that were not persisted by
-                // the system.
-                closeEditor()
-                unregisterObserver(id)
-            }
+            val deathObserver =
+                IBinder.DeathRecipient {
+                    Log.w(TAG, "observer died, closing editor")
+                    // If SysUI dies we should close the editor too, otherwise the watchface could
+                    // get
+                    // left in an inconsistent state where it has local edits that were not
+                    // persisted by
+                    // the system.
+                    closeEditor()
+                    unregisterObserver(id)
+                }
             observer.asBinder().linkToDeath(deathObserver, 0)
             deathObservers[id] = deathObserver
             return id
@@ -83,9 +86,7 @@ public class EditorService : IEditorService.Stub() {
     }
 
     override fun closeEditor() {
-        val callbackCopy = synchronized(lock) {
-            HashSet<CloseCallback>(closeEditorCallbacks)
-        }
+        val callbackCopy = synchronized(lock) { HashSet<CloseCallback>(closeEditorCallbacks) }
         // We iterate on a copy of closeEditorCallbacks to avoid calls to removeCloseCallback
         // mutating a set we're iterating.
         for (observer in callbackCopy) {
@@ -97,27 +98,19 @@ public class EditorService : IEditorService.Stub() {
      * Adds [closeCallback] to the set of observers to be called if the client calls [closeEditor].
      */
     public fun addCloseCallback(closeCallback: CloseCallback) {
-        synchronized(lock) {
-            closeEditorCallbacks.add(closeCallback)
-        }
+        synchronized(lock) { closeEditorCallbacks.add(closeCallback) }
     }
 
     /**
      * Removes [closeCallback] from set of observers to be called if the client calls [closeEditor].
      */
     public fun removeCloseCallback(closeCallback: CloseCallback) {
-        synchronized(lock) {
-            closeEditorCallbacks.remove(closeCallback)
-        }
+        synchronized(lock) { closeEditorCallbacks.remove(closeCallback) }
     }
 
-    /**
-     * Removes all [closeEditorCallbacks].
-     */
+    /** Removes all [closeEditorCallbacks]. */
     public fun clearCloseCallbacks() {
-        synchronized(lock) {
-            closeEditorCallbacks.clear()
-        }
+        synchronized(lock) { closeEditorCallbacks.clear() }
     }
 
     /**

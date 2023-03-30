@@ -1141,7 +1141,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     }
 
     @Override
-    protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
+    protected boolean drawChild(@NonNull Canvas canvas, View child, long drawingTime) {
         final boolean isLayoutRtl = isLayoutRtlSupport();
         final boolean enableEdgeLeftTracking = isLayoutRtl ^ isOpen();
         if (enableEdgeLeftTracking) {
@@ -1358,7 +1358,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
     }
 
     @Override
-    public void draw(Canvas c) {
+    public void draw(@NonNull Canvas c) {
         super.draw(c);
         final boolean isLayoutRtl = isLayoutRtlSupport();
         Drawable shadowDrawable;

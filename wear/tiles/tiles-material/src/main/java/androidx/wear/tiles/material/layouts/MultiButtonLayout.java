@@ -42,7 +42,7 @@ import androidx.wear.tiles.LayoutElementBuilders.Spacer;
 import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.material.Button;
-import androidx.wear.tiles.proto.LayoutElementProto;
+import androidx.wear.protolayout.proto.LayoutElementProto;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

@@ -49,11 +49,9 @@ public class MasterKeyTest {
     @Before
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public void setup() throws Exception {
-
         final Context context = ApplicationProvider.getApplicationContext();
 
         // Delete all previous keys and shared preferences.
-
         String filePath = context.getFilesDir().getParent() + "/shared_prefs/"
                 + "__androidx_security__crypto_encrypted_prefs__";
         File deletePrefFile = new File(filePath);
@@ -145,14 +143,12 @@ public class MasterKeyTest {
                 .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
                 .setKeySize(KEY_SIZE)
                 .build();
-        try {
-            MasterKey masterKey = new MasterKey.Builder(ApplicationProvider.getApplicationContext())
+
+        Assert.assertThrows(IllegalArgumentException.class, () -> {
+            new MasterKey.Builder(ApplicationProvider.getApplicationContext())
                     .setKeyGenParameterSpec(spec)
                     .build();
-            Assert.fail("Could create key with inconsistent key alias");
-        } catch (IllegalArgumentException iae) {
-            // Pass
-        }
+        });
     }
 
     @Test
@@ -183,7 +179,7 @@ public class MasterKeyTest {
                 .build();
 
         try {
-            MasterKey masterKey = new MasterKey.Builder(ApplicationProvider.getApplicationContext())
+            MasterKey ignored = new MasterKey.Builder(ApplicationProvider.getApplicationContext())
                     .setKeyScheme(KeyScheme.AES256_GCM)
                     .setKeyGenParameterSpec(spec)
                     .build();

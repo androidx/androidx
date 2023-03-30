@@ -21,6 +21,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.graphics.PointF
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
 import android.view.Surface
@@ -36,9 +37,12 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.futures.FutureCallback
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.AndroidUtil.isEmulator
+import androidx.camera.testing.AndroidUtil.skipVideoRecordingTestIfNotSupportedByEmulator
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
+import androidx.camera.video.VideoRecordEvent
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_FAILED
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_FOCUSED
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_NOT_FOCUSED
@@ -65,6 +69,7 @@ import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assert
 import org.junit.Assume
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Ignore
@@ -131,7 +136,7 @@ class CameraControllerFragmentTest(
     }
 
     @Test
-    fun enableEffect_effectIsEnabled() {
+    fun enableEffect_previewEffectIsEnabled() {
         // Arrange: launch app and verify effect is inactive.
         fragment.assertPreviewIsStreaming()
         val processor =
@@ -148,6 +153,23 @@ class CameraControllerFragmentTest(
     }
 
     @Test
+    fun enableEffect_imageCaptureEffectIsEnabled() {
+        // Arrange: launch app and verify effect is inactive.
+        fragment.assertPreviewIsStreaming()
+        val effect = fragment.mToneMappingImageEffect as ToneMappingImageEffect
+        assertThat(effect.isInvoked()).isFalse()
+
+        // Act: turn on effect.
+        val effectToggleId = "androidx.camera.integration.view:id/effect_toggle"
+        uiDevice.findObject(UiSelector().resourceId(effectToggleId)).click()
+        instrumentation.waitForIdleSync()
+        fragment.assertCanTakePicture()
+
+        // Assert: verify that effect is active.
+        assertThat(effect.isInvoked()).isTrue()
+    }
+
+    @Test
     fun controllerBound_canGetCameraControl() {
         fragment.assertPreviewIsStreaming()
         instrumentation.runOnMainSync {
@@ -157,10 +179,7 @@ class CameraControllerFragmentTest(
 
     @Test
     fun onPreviewViewTapped_previewIsFocused() {
-        Assume.assumeFalse(
-            "Ignore Cuttlefish",
-            Build.MODEL.contains("Cuttlefish")
-        )
+        assumeFalse("Ignore emulators", isEmulator())
         // Arrange: listens to LiveData updates.
         fragment.assertPreviewIsStreaming()
         val focused = Semaphore(0)
@@ -443,6 +462,90 @@ class CameraControllerFragmentTest(
         fragment.assertCanTakePicture()
     }
 
+    @Test
+    fun fragmentLaunched_cannotRecordVideo() {
+        skipVideoRecordingTestIfNotSupportedByEmulator()
+        skipTestWithSurfaceProcessingOnCuttlefishApi30()
+
+        // Arrange.
+        fragment.assertPreviewIsStreaming()
+
+        // Assert.
+        val exception = Assert.assertThrows(IllegalStateException::class.java) {
+            fragment.assertCanRecordVideo()
+        }
+        assertThat(exception).hasMessageThat().isEqualTo("VideoCapture disabled.")
+    }
+
+    @Test
+    fun recordEnabled_canRecordVideo() {
+        skipVideoRecordingTestIfNotSupportedByEmulator()
+        skipTestWithSurfaceProcessingOnCuttlefishApi30()
+
+        // Arrange.
+        fragment.assertPreviewIsStreaming()
+
+        // Act.
+        invertAllUseCaseEnableStatusExceptPreview()
+        fragment.assertPreviewIsStreaming()
+
+        // Assert.
+        fragment.assertCanRecordVideo()
+    }
+
+    @Test
+    fun cameraToggled_canRecordVideo() {
+        skipVideoRecordingTestIfNotSupportedByEmulator()
+        skipTestWithSurfaceProcessingOnCuttlefishApi30()
+
+        // Arrange.
+        fragment.assertPreviewIsStreaming()
+
+        // Act.
+        invertAllUseCaseEnableStatusExceptPreview()
+        fragment.assertPreviewIsStreaming()
+        onView(withId(R.id.camera_toggle)).perform(click())
+        fragment.assertPreviewIsStreaming()
+
+        // Assert.
+        fragment.assertCanRecordVideo()
+    }
+
+    @Test
+    fun recordDisabledAndEnabledMultipleTimes_canRecordVideo() {
+        skipVideoRecordingTestIfNotSupportedByEmulator()
+        skipTestWithSurfaceProcessingOnCuttlefishApi30()
+
+        // Arrange.
+        val times = 10
+        fragment.assertPreviewIsStreaming()
+
+        // Act.
+        invertAllUseCaseEnableStatusExceptPreview()
+        repeat(times) {
+            onView(withId(R.id.video_enabled)).perform(click())
+            onView(withId(R.id.video_enabled)).perform(click())
+        }
+        fragment.assertPreviewIsStreaming()
+
+        // Assert.
+        fragment.assertCanRecordVideo()
+    }
+
+    private fun invertAllUseCaseEnableStatusExceptPreview() {
+        onView(withId(R.id.capture_enabled)).perform(click())
+        onView(withId(R.id.analysis_enabled)).perform(click())
+        onView(withId(R.id.video_enabled)).perform(click())
+    }
+
+    private fun skipTestWithSurfaceProcessingOnCuttlefishApi30() {
+        // Skip test for b/253211491
+        Assume.assumeFalse(
+            "Skip tests for Cuttlefish API 30 eglCreateWindowSurface issue",
+            Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 30
+        )
+    }
+
     /**
      * Calculates the 1st order moment (center of mass) of the R, G and B of the bitmap.
      */
@@ -565,6 +668,76 @@ class CameraControllerFragmentTest(
         )
     }
 
+    /**
+     * Records a video and assert the URI exists.
+     *
+     * <p> Also cleans up the saved video afterwards.
+     */
+    private fun CameraControllerFragment.assertCanRecordVideo() {
+        // Arrange.
+        val videoSavedSemaphore = Semaphore(0)
+        val videoRecordingSemaphore = Semaphore(0)
+        var finalize: VideoRecordEvent.Finalize? = null
+
+        // Act.
+        instrumentation.runOnMainSync {
+            this.startRecording {
+                when (it) {
+                    is VideoRecordEvent.Finalize -> {
+                        finalize = it
+                        videoSavedSemaphore.release()
+                    }
+
+                    is VideoRecordEvent.Status -> {
+                        videoRecordingSemaphore.release()
+                    }
+
+                    is VideoRecordEvent.Start,
+                    is VideoRecordEvent.Pause,
+                    is VideoRecordEvent.Resume -> {
+                        // no op for this test, skip these event now.
+                    }
+
+                    else -> {
+                        throw IllegalStateException()
+                    }
+                }
+            }
+        }
+
+        // Wait for status event to proceed recording for a while.
+        assertThat(
+            videoRecordingSemaphore.tryAcquire(RECORDING_COUNT, TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        ).isTrue()
+
+        instrumentation.runOnMainSync {
+            this.stopRecording()
+        }
+
+        // Wait for finalize event to saved file.
+        assertThat(videoSavedSemaphore.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
+        assertThat(finalize).isNotEqualTo(null)
+        assertThat(finalize!!.hasError()).isFalse()
+
+        // Verify.
+        val uri = finalize!!.outputResults.outputUri
+        assertThat(uri).isNotEqualTo(Uri.EMPTY)
+        checkFileVideo(uri)
+
+        // Cleanup.
+        val contentResolver: ContentResolver = this.activity!!.contentResolver
+        contentResolver.delete(uri, null, null)
+    }
+
+    private fun checkFileVideo(uri: Uri) {
+        val mediaRetriever = MediaMetadataRetriever()
+        mediaRetriever.apply {
+            setDataSource(ApplicationProvider.getApplicationContext(), uri)
+            val hasVideo = extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO)
+            assertThat(hasVideo).isEqualTo("yes")
+        }
+    }
+
     private fun createFragmentScenario(): FragmentScenario<CameraControllerFragment> {
         return FragmentScenario.launchInContainer(
             CameraControllerFragment::class.java, null, R.style.AppTheme,
@@ -639,6 +812,7 @@ class CameraControllerFragmentTest(
         val testCameraRule = CameraUtil.PreTestCamera()
 
         const val TIMEOUT_SECONDS = 10L
+        const val RECORDING_COUNT = 5
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")

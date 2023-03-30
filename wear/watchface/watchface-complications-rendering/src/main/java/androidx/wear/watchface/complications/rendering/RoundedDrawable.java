@@ -90,7 +90,9 @@ class RoundedDrawable extends Drawable {
         canvas.restore();
     }
 
-    /** @deprecated This method is no longer used in graphics optimizations */
+    /**
+     * @deprecated This method is no longer used in graphics optimizations
+     */
     @Override
     @Deprecated
     public int getOpacity() {

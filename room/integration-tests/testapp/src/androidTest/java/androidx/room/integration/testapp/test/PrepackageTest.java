@@ -236,8 +236,8 @@ public class PrepackageTest {
                 .createFromAsset("databases/products_v1.db")
                 .addMigrations(new Migration(1, 2) {
                     @Override
-                    public void migrate(@NonNull SupportSQLiteDatabase database) {
-                        database.execSQL(
+                    public void migrate(@NonNull SupportSQLiteDatabase db) {
+                        db.execSQL(
                                 "INSERT INTO Products (id, name) VALUES (null, 'Mofongo')");
                     }
                 })
@@ -338,8 +338,8 @@ public class PrepackageTest {
                 .createFromAsset("databases/products_v1.db")
                 .addMigrations(new Migration(1, 2) {
                     @Override
-                    public void migrate(@NonNull SupportSQLiteDatabase database) {
-                        database.execSQL(
+                    public void migrate(@NonNull SupportSQLiteDatabase db) {
+                        db.execSQL(
                                 "INSERT INTO Products (id, name) VALUES (null, 'Mofongo')");
                     }
                 })

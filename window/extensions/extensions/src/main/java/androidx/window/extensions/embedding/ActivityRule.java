@@ -22,9 +22,12 @@ import android.content.Intent;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.window.extensions.WindowExtensions;
+import androidx.window.extensions.core.util.function.Predicate;
 
-import java.util.function.Predicate;
+import java.util.Objects;
 
 /**
  * Split configuration rule for individual activities.
@@ -37,7 +40,9 @@ public class ActivityRule extends EmbeddingRule {
     private final boolean mShouldAlwaysExpand;
 
     ActivityRule(@NonNull Predicate<Activity> activityPredicate,
-            @NonNull Predicate<Intent> intentPredicate, boolean shouldAlwaysExpand) {
+            @NonNull Predicate<Intent> intentPredicate, boolean shouldAlwaysExpand,
+            @Nullable String tag) {
+        super(tag);
         mActivityPredicate = activityPredicate;
         mIntentPredicate = intentPredicate;
         mShouldAlwaysExpand = shouldAlwaysExpand;
@@ -78,7 +83,32 @@ public class ActivityRule extends EmbeddingRule {
         @NonNull
         private final Predicate<Intent> mIntentPredicate;
         private boolean mAlwaysExpand;
+        @Nullable
+        private String mTag;
 
+        /**
+         * @deprecated Use {@link #Builder(Predicate, Predicate)} starting with
+         * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
+         * {@link #Builder(Predicate, Predicate)} can't be called on
+         * {@link WindowExtensions#VENDOR_API_LEVEL_1}.
+         */
+        @Deprecated
+        @RequiresApi(Build.VERSION_CODES.N)
+        public Builder(@NonNull java.util.function.Predicate<Activity> activityPredicate,
+                @NonNull java.util.function.Predicate<Intent> intentPredicate) {
+            mActivityPredicate = activityPredicate::test;
+            mIntentPredicate = intentPredicate::test;
+        }
+
+        /**
+         * The {@link ActivityRule} Builder constructor
+         *
+         * @param activityPredicate the {@link Predicate} to verify if a given {@link Activity}
+         *                         matches the rule
+         * @param intentPredicate the {@link Predicate} to verify if a given {@link Intent}
+         *                         matches the rule
+         * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+         */
         public Builder(@NonNull Predicate<Activity> activityPredicate,
                 @NonNull Predicate<Intent> intentPredicate) {
             mActivityPredicate = activityPredicate;
@@ -92,10 +122,20 @@ public class ActivityRule extends EmbeddingRule {
             return this;
         }
 
+        /**
+         * @see ActivityRule#getTag()
+         * Since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
+         */
+        @NonNull
+        public Builder setTag(@NonNull String tag) {
+            mTag = Objects.requireNonNull(tag);
+            return this;
+        }
+
         /** Builds a new instance of {@link ActivityRule}. */
         @NonNull
         public ActivityRule build() {
-            return new ActivityRule(mActivityPredicate, mIntentPredicate, mAlwaysExpand);
+            return new ActivityRule(mActivityPredicate, mIntentPredicate, mAlwaysExpand, mTag);
         }
     }
 
@@ -104,14 +144,16 @@ public class ActivityRule extends EmbeddingRule {
         if (this == o) return true;
         if (!(o instanceof ActivityRule)) return false;
         ActivityRule that = (ActivityRule) o;
-        return mShouldAlwaysExpand == that.mShouldAlwaysExpand
+        return super.equals(o)
+                && mShouldAlwaysExpand == that.mShouldAlwaysExpand
                 && mActivityPredicate.equals(that.mActivityPredicate)
                 && mIntentPredicate.equals(that.mIntentPredicate);
     }
 
     @Override
     public int hashCode() {
-        int result = mActivityPredicate.hashCode();
+        int result = super.hashCode();
+        result = 31 * result + mActivityPredicate.hashCode();
         result = 31 * result + mIntentPredicate.hashCode();
         result = 31 * result + (mShouldAlwaysExpand ? 1 : 0);
         return result;
@@ -120,6 +162,7 @@ public class ActivityRule extends EmbeddingRule {
     @NonNull
     @Override
     public String toString() {
-        return "ActivityRule{" + "mShouldAlwaysExpand=" + mShouldAlwaysExpand + '}';
+        return "ActivityRule{mTag=" + getTag()
+                + "mShouldAlwaysExpand=" + mShouldAlwaysExpand + '}';
     }
 }

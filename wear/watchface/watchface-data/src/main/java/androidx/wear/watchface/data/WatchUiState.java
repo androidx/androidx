@@ -45,9 +45,7 @@ public final class WatchUiState implements VersionedParcelable, Parcelable {
     /** Used by VersionedParcelable. */
     WatchUiState() {}
 
-    public WatchUiState(
-            boolean inAmbientMode,
-            int interruptionFilter) {
+    public WatchUiState(boolean inAmbientMode, int interruptionFilter) {
         mInAmbientMode = inAmbientMode;
         mInterruptionFilter = interruptionFilter;
     }

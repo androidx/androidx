@@ -18,13 +18,14 @@ package androidx.wear.watchface.client
 
 import android.os.IBinder
 import androidx.wear.watchface.control.IInteractiveWatchFace
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
+import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.`when`
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
 
 @RunWith(ClientTestRunner::class)
 class InteractiveWatchFaceClientTest {
@@ -37,11 +38,12 @@ class InteractiveWatchFaceClientTest {
 
     @Test
     public fun sendDisconnectNotification() {
-        val client = InteractiveWatchFaceClientImpl(
-            iInteractiveWatchFace,
-            previewImageUpdateRequestedExecutor = null,
-            previewImageUpdateRequestedListener = null
-        )
+        val client =
+            InteractiveWatchFaceClientImpl(
+                iInteractiveWatchFace,
+                previewImageUpdateRequestedExecutor = null,
+                previewImageUpdateRequestedListener = null
+            )
 
         val listener = mock<InteractiveWatchFaceClient.ClientDisconnectListener>()
         client.addClientDisconnectListener(listener, { it.run() })
@@ -52,5 +54,31 @@ class InteractiveWatchFaceClientTest {
 
         // But only one should be sent to the listener.
         verify(listener, times(1)).onClientDisconnected(any())
+    }
+
+    @Test
+    fun renderWatchFaceToSurfaceSupported_oldApi() {
+        `when`(iInteractiveWatchFace.apiVersion).thenReturn(8)
+        val client =
+            InteractiveWatchFaceClientImpl(
+                iInteractiveWatchFace,
+                previewImageUpdateRequestedExecutor = null,
+                previewImageUpdateRequestedListener = null
+            )
+
+        Assert.assertFalse(client.isRemoteWatchFaceViewHostSupported)
+    }
+
+    @Test
+    fun renderWatchFaceToSurfaceSupported_currentApi() {
+        `when`(iInteractiveWatchFace.apiVersion).thenReturn(IInteractiveWatchFace.API_VERSION)
+        val client =
+            InteractiveWatchFaceClientImpl(
+                iInteractiveWatchFace,
+                previewImageUpdateRequestedExecutor = null,
+                previewImageUpdateRequestedListener = null
+            )
+
+        Assert.assertTrue(client.isRemoteWatchFaceViewHostSupported)
     }
 }

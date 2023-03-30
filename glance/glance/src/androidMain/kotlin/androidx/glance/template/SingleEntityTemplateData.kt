@@ -20,7 +20,6 @@ package androidx.glance.template
  * The semantic data required to build Single Entity Template layouts. The template allows for
  * a header, text section with up to three text items, main image, and single action button.
  *
- * @param displayHeader True if the glanceable header should be displayed
  * @param headerBlock The header block of the entity by [HeaderBlock].
  * @param textBlock The text block for up to three types of texts for the entity.
  * @param imageBlock The image block for the entity main image by [ImageBlock].
@@ -28,16 +27,13 @@ package androidx.glance.template
  */
 
 class SingleEntityTemplateData(
-    val displayHeader: Boolean = true,
     val headerBlock: HeaderBlock? = null,
     val textBlock: TextBlock? = null,
     val imageBlock: ImageBlock? = null,
     val actionBlock: ActionBlock? = null,
 ) {
-
     override fun hashCode(): Int {
-        var result = displayHeader.hashCode()
-        result = 31 * result + (headerBlock?.hashCode() ?: 0)
+        var result = headerBlock?.hashCode() ?: 0
         result = 31 * result + (textBlock?.hashCode() ?: 0)
         result = 31 * result + (imageBlock?.hashCode() ?: 0)
         result = 31 * result + (actionBlock?.hashCode() ?: 0)
@@ -50,7 +46,6 @@ class SingleEntityTemplateData(
 
         other as SingleEntityTemplateData
 
-        if (displayHeader != other.displayHeader) return false
         if (headerBlock != other.headerBlock) return false
         if (textBlock != other.textBlock) return false
         if (imageBlock != other.imageBlock) return false

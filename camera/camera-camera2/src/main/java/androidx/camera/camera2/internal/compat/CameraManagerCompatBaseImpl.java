@@ -30,8 +30,10 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.core.util.Preconditions;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 @RequiresApi(21)
@@ -59,6 +61,12 @@ class CameraManagerCompatBaseImpl implements CameraManagerCompat.CameraManagerCo
         } catch (CameraAccessException e) {
             throw CameraAccessExceptionCompat.toCameraAccessExceptionCompat(e);
         }
+    }
+
+    @NonNull
+    @Override
+    public Set<Set<String>> getConcurrentCameraIds() throws CameraAccessExceptionCompat {
+        return Collections.emptySet();
     }
 
     @Override

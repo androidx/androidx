@@ -44,7 +44,6 @@ androidXMultiplatform {
 
 androidx {
     name = "AndroidX Benchmarks - Darwin"
-    mavenGroup = LibraryGroups.BENCHMARK
     inceptionYear = "2022"
     description = "AndroidX Benchmarks - Darwin"
 }

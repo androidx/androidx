@@ -110,6 +110,8 @@ internal sealed class KspMethodElement(
         return env.resolver.overrides(this, other)
     }
 
+    override fun isKotlinPropertyMethod() = false
+
     private class KspNormalMethodElement(
         env: KspProcessingEnv,
         declaration: KSFunctionDeclaration

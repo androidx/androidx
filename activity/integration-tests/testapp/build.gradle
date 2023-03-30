@@ -22,8 +22,6 @@ plugins {
 
 android {
     defaultConfig {
-        testInstrumentationRunnerArgument "listener", "com.squareup.leakcanary.FailTestOnLeakRunListener"
-
         applicationId "androidx.activity.integration.testapp"
     }
     namespace "androidx.activity.integration.testapp"
@@ -32,6 +30,7 @@ android {
 dependencies {
     implementation(project(":activity:activity-ktx"))
     implementation(projectOrArtifact(":lifecycle:lifecycle-runtime-ktx"))
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-common"))
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)

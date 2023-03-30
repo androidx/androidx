@@ -27,6 +27,7 @@ import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.utils.taskexecutor.SerialExecutor;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
+import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
 
 import java.util.Collections;
 import java.util.List;
@@ -43,6 +44,14 @@ import java.util.concurrent.Executor;
 class TestWorkManagerImpl extends WorkManagerImpl implements TestDriver {
 
     private TestScheduler mScheduler;
+
+    TestWorkManagerImpl(
+            @NonNull final Context context,
+            @NonNull final Configuration configuration
+    ) {
+        super(context, configuration,
+                new WorkManagerTaskExecutor(configuration.getTaskExecutor()), true);
+    }
 
     TestWorkManagerImpl(
             @NonNull final Context context,
@@ -65,6 +74,7 @@ class TestWorkManagerImpl extends WorkManagerImpl implements TestDriver {
                 configuration,
                 new TaskExecutor() {
                     Executor mSynchronousExecutor = new SynchronousExecutor();
+
                     @NonNull
                     @Override
                     public Executor getMainThreadExecutor() {
@@ -78,16 +88,13 @@ class TestWorkManagerImpl extends WorkManagerImpl implements TestDriver {
                     }
                 },
                 true);
-
-        // mScheduler is initialized in createSchedulers() called by super()
-        getProcessor().addExecutionListener(mScheduler);
     }
 
     @Override
     @NonNull
     public List<Scheduler> createSchedulers(@NonNull Context context,
             @NonNull Configuration configuration, @NonNull Trackers trackers) {
-        mScheduler = new TestScheduler(context);
+        mScheduler = new TestScheduler(this);
         return Collections.singletonList((Scheduler) mScheduler);
     }
 

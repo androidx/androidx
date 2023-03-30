@@ -43,4 +43,12 @@
         <deepLink app:uri="android-app://androidx.navigation.test/test/{arg1}/{arg2}"
             app:action="" />
     </test>
+
+    <test android:id="@+id/nullArg_test">
+        <!-- Deeplink must have path param {arg} for the test setup in order for
+        DeepLinkMatch.matchingArgs to be null instead of empty Bundle -->
+        <deepLink app:uri="android-app://androidx.navigation.test/nullArgTest/{arg}"
+            app:action="android.intent.action.VIEW" />
+    </test>
+
 </navigation>

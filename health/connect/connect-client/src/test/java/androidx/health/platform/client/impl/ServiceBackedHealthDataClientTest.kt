@@ -28,6 +28,7 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.os.Looper.getMainLooper
+import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.platform.client.impl.ipc.ClientConfiguration
 import androidx.health.platform.client.impl.ipc.internal.ConnectionManager
 import androidx.health.platform.client.impl.testing.FakeHealthDataService
@@ -112,6 +113,25 @@ class ServiceBackedHealthDataClientTest {
             PermissionProto.Permission.newBuilder()
                 .setDataType(DataProto.DataType.newBuilder().setName("BLOOD_PRESSURE").build())
                 .setAccessType(PermissionProto.AccessType.ACCESS_TYPE_WRITE)
+                .build()
+
+        fakeAhpServiceStub.addGrantedPermission(Permission(readPermission))
+        val resultFuture = ahpClient.getGrantedPermissions(setOf(readPermission, writePermission))
+        shadowOf(getMainLooper()).idle()
+
+        val expected = setOf(readPermission)
+        assertSuccess(resultFuture, expected)
+    }
+
+    @Test
+    fun filterGrantedPermissions_somePermissionsGranted_expectCorrectGrantedList() {
+        val readPermission =
+            PermissionProto.Permission.newBuilder()
+                .setPermission(HealthPermission.READ_HEART_RATE)
+                .build()
+        val writePermission =
+            PermissionProto.Permission.newBuilder()
+                .setPermission(HealthPermission.WRITE_BLOOD_PRESSURE)
                 .build()
 
         fakeAhpServiceStub.addGrantedPermission(Permission(readPermission))

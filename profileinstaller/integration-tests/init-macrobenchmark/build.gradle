@@ -37,10 +37,12 @@ dependencies {
     androidTestImplementation(libs.testRunner)
 }
 
-def installReleaseTarget = tasks.getByPath(
-        ":profileinstaller:integration-tests:init-macrobenchmark-target:installRelease"
-)
-
 // Define a task dependency so the app is installed before we run macro benchmarks.
-tasks.getByPath(":profileinstaller:integration-tests:init-macrobenchmark:connectedCheck")
-    .dependsOn(installReleaseTarget)
+afterEvaluate {
+    tasks.getByPath(":profileinstaller:integration-tests:init-macrobenchmark:connectedDebugAndroidTest")
+            .dependsOn(
+                    tasks.getByPath(
+                            ":profileinstaller:integration-tests:init-macrobenchmark-target:installRelease"
+                    )
+            )
+}

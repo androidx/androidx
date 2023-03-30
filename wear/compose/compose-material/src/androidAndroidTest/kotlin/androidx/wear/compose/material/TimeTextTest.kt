@@ -34,6 +34,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.sp
 import androidx.wear.compose.foundation.curvedComposable
 import java.util.Calendar
+import java.util.TimeZone
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -540,6 +541,22 @@ class TimeSourceTest {
             actualTime = currentTime({ currentTimeInMillis }, format).value
         }
         assertEquals(convertedTime, actualTime)
+    }
+
+    @Test
+    fun formats_current_time_12H() {
+        val currentTimeInMillis = 1631544258000L // 2021-09-13 14:44:18
+        val expectedTime = "2:44"
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+
+        var actualTime: String? = null
+        rule.setContentWithTheme {
+            actualTime = currentTime(
+                { currentTimeInMillis },
+                TimeTextDefaults.TimeFormat12Hours
+            ).value
+        }
+        assertEquals(expectedTime, actualTime)
     }
 }
 

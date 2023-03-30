@@ -119,6 +119,6 @@ class EmojiProcessBenchmark(
             .process(text, 0, text.length, size, EmojiCompat.REPLACE_STRATEGY_ALL)
             as Spanned
         allEmojiMetadata.getSpans(0, text.length, EmojiSpan::class.java)
-            .forEach { it.metadata.resetHasGlyphCache() }
+            .forEach { it.typefaceRasterizer.resetHasGlyphCache() }
     }
 }

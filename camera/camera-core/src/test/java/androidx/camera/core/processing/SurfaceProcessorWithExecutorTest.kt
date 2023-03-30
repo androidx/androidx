@@ -93,7 +93,7 @@ class SurfaceProcessorWithExecutorTest {
                 }
             }, executor)
         // Act: invoke methods.
-        processorWithExecutor.onInputSurface(SurfaceRequest(SIZE, FakeCamera(), false))
+        processorWithExecutor.onInputSurface(SurfaceRequest(SIZE, FakeCamera()) {})
         processorWithExecutor.onOutputSurface(mock(SurfaceOutput::class.java))
         shadowOf(getMainLooper()).idle()
         shadowOf(executorThread.looper).idle()

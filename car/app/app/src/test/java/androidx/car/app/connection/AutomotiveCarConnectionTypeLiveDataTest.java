@@ -20,11 +20,12 @@ import static org.mockito.Mockito.verify;
 
 import androidx.lifecycle.Observer;
 
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
@@ -32,12 +33,10 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class AutomotiveCarConnectionTypeLiveDataTest {
-    @Mock private Observer<Integer> mMockObserver;
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
 
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
+    @Mock private Observer<Integer> mMockObserver;
 
     @Test
     public void observe_returnsNative() {

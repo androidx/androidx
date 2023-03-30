@@ -16,11 +16,11 @@
 
 package androidx.room.processor
 
+import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.testing.context
-import com.squareup.javapoet.ClassName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -29,8 +29,8 @@ import org.junit.runners.JUnit4
 class PojoProcessorTargetMethodTest {
 
     companion object {
-        val MY_POJO: ClassName = ClassName.get("foo.bar", "MyPojo")
-        val AUTOVALUE_MY_POJO: ClassName = ClassName.get("foo.bar", "AutoValue_MyPojo")
+        val MY_POJO = XClassName.get("foo.bar", "MyPojo")
+        val AUTOVALUE_MY_POJO = XClassName.get("foo.bar", "AutoValue_MyPojo")
         const val HEADER = """
             package foo.bar;
 
@@ -56,7 +56,7 @@ class PojoProcessorTargetMethodTest {
     @Test
     fun invalidAnnotationInMethod() {
         val source = Source.java(
-            MY_POJO.toString(),
+            MY_POJO.canonicalName,
             """
             package foo.bar;
 
@@ -83,7 +83,7 @@ class PojoProcessorTargetMethodTest {
     @Test
     fun invalidAnnotationInStaticMethod() {
         val source = Source.java(
-            MY_POJO.toString(),
+            MY_POJO.canonicalName,
             """
             package foo.bar;
 
@@ -110,7 +110,7 @@ class PojoProcessorTargetMethodTest {
     @Test
     fun invalidAnnotationInAbstractMethod() {
         val source = Source.java(
-            MY_POJO.toString(),
+            MY_POJO.canonicalName,
             """
             package foo.bar;
 
@@ -222,7 +222,7 @@ class PojoProcessorTargetMethodTest {
     @Test
     fun validAnnotationInField() {
         val source = Source.java(
-            MY_POJO.toString(),
+            MY_POJO.canonicalName,
             """
             package foo.bar;
 
@@ -240,7 +240,7 @@ class PojoProcessorTargetMethodTest {
     @Test
     fun validAnnotationInStaticField() {
         val source = Source.java(
-            MY_POJO.toString(),
+            MY_POJO.canonicalName,
             """
             package foo.bar;
 
@@ -493,8 +493,8 @@ class PojoProcessorTargetMethodTest {
         vararg sources: Source,
         handler: ((XTestInvocation) -> Unit)? = null
     ) {
-        val pojoSource = Source.java(MY_POJO.toString(), pojoCode)
-        val autoValuePojoSource = Source.java(AUTOVALUE_MY_POJO.toString(), autoValuePojoCode)
+        val pojoSource = Source.java(MY_POJO.canonicalName, pojoCode)
+        val autoValuePojoSource = Source.java(AUTOVALUE_MY_POJO.canonicalName, autoValuePojoCode)
         val all = sources.toList() + pojoSource + autoValuePojoSource
         return runProcessorTest(
             sources = all

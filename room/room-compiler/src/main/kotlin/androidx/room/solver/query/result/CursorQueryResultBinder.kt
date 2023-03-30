@@ -16,37 +16,38 @@
 
 package androidx.room.solver.query.result
 
-import androidx.room.compiler.codegen.toJavaPoet
-import androidx.room.ext.AndroidTypeNames.CURSOR
-import androidx.room.ext.L
-import androidx.room.ext.N
-import androidx.room.ext.T
+import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
+import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.ext.AndroidTypeNames
 import androidx.room.solver.CodeGenScope
-import com.squareup.javapoet.FieldSpec
 
 class CursorQueryResultBinder : QueryResultBinder(NO_OP_RESULT_ADAPTER) {
     override fun convertAndReturn(
         roomSQLiteQueryVar: String,
         canReleaseQuery: Boolean,
-        dbField: FieldSpec,
+        dbProperty: XPropertySpec,
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
-        val builder = scope.builder()
         val transactionWrapper = if (inTransaction) {
-            builder.transactionWrapper(dbField)
+            scope.builder.transactionWrapper(dbProperty.name)
         } else {
             null
         }
         transactionWrapper?.beginTransactionWithControlFlow()
-        val resultName = scope.getTmpVar("_tmpResult")
-        builder.addStatement(
-            "final $T $L = $N.query($L)", CURSOR.toJavaPoet(), resultName,
-            dbField, roomSQLiteQueryVar
-        )
-        transactionWrapper?.commitTransaction()
-        builder.addStatement("return $L", resultName)
-        transactionWrapper?.endTransactionWithControlFlow()
+        scope.builder.apply {
+            val resultName = scope.getTmpVar("_tmpResult")
+            addLocalVal(
+                resultName,
+                AndroidTypeNames.CURSOR,
+                "%N.query(%L)",
+                dbProperty,
+                roomSQLiteQueryVar
+            )
+            transactionWrapper?.commitTransaction()
+            addStatement("return %L", resultName)
+            transactionWrapper?.endTransactionWithControlFlow()
+        }
     }
 
     companion object {

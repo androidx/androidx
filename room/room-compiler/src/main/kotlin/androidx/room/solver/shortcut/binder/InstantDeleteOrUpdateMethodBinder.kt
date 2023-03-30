@@ -16,13 +16,11 @@
 
 package androidx.room.solver.shortcut.binder
 
-import androidx.room.ext.N
+import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.shortcut.result.DeleteOrUpdateMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter
-import androidx.room.writer.DaoWriter
-import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.TypeSpec
 
 /**
  * Binder that knows how to write instant (blocking) delete and update methods.
@@ -33,17 +31,17 @@ class InstantDeleteOrUpdateMethodBinder(
 
     override fun convertAndReturn(
         parameters: List<ShortcutQueryParameter>,
-        adapters: Map<String, Pair<FieldSpec, TypeSpec>>,
-        dbField: FieldSpec,
+        adapters: Map<String, Pair<XPropertySpec, XTypeSpec>>,
+        dbProperty: XPropertySpec,
         scope: CodeGenScope
     ) {
-        scope.builder().apply {
-            addStatement("$N.assertNotSuspendingTransaction()", DaoWriter.dbField)
+        scope.builder.apply {
+            addStatement("%N.assertNotSuspendingTransaction()", dbProperty)
         }
         adapter?.createDeleteOrUpdateMethodBody(
             parameters = parameters,
             adapters = adapters,
-            dbField = dbField,
+            dbProperty = dbProperty,
             scope = scope
         )
     }

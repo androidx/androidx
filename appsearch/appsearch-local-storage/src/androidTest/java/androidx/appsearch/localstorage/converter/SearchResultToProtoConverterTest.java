@@ -20,8 +20,11 @@ import static androidx.appsearch.localstorage.util.PrefixUtil.removePrefixesFrom
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
+
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResultPage;
+import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.util.PrefixUtil;
 
 import com.google.android.icing.proto.DocumentProto;
@@ -48,10 +51,24 @@ public class SearchResultToProtoConverterTest {
                 .setUri(id)
                 .setNamespace(namespace)
                 .setSchema(schemaType);
-        SearchResultProto searchResultProto = SearchResultProto.newBuilder()
-                .addResults(SearchResultProto.ResultProto.newBuilder()
-                        .setDocument(documentProtoBuilder))
+
+        // A joined document
+        DocumentProto.Builder joinedDocProtoBuilder = DocumentProto.newBuilder()
+                .setUri("id2")
+                .setNamespace(namespace)
+                .setSchema(schemaType);
+
+        SearchResultProto.ResultProto joinedResultProto = SearchResultProto.ResultProto.newBuilder()
+                .setDocument(joinedDocProtoBuilder).build();
+
+        SearchResultProto.ResultProto resultProto = SearchResultProto.ResultProto.newBuilder()
+                .setDocument(documentProtoBuilder)
+                .addJoinedResults(joinedResultProto)
                 .build();
+
+        SearchResultProto searchResultProto = SearchResultProto.newBuilder()
+                .addResults(resultProto).build();
+
         SchemaTypeConfigProto schemaTypeConfigProto =
                 SchemaTypeConfigProto.newBuilder()
                         .setSchemaType(schemaType)
@@ -60,6 +77,7 @@ public class SearchResultToProtoConverterTest {
                 ImmutableMap.of(schemaType, schemaTypeConfigProto));
 
         removePrefixesFromDocument(documentProtoBuilder);
+        removePrefixesFromDocument(joinedDocProtoBuilder);
         SearchResultPage searchResultPage =
                 SearchResultToProtoConverter.toSearchResultPage(searchResultProto, schemaMap);
         assertThat(searchResultPage.getResults()).hasSize(1);
@@ -69,5 +87,62 @@ public class SearchResultToProtoConverterTest {
         assertThat(result.getGenericDocument()).isEqualTo(
                 GenericDocumentToProtoConverter.toGenericDocument(
                         documentProtoBuilder.build(), prefix, schemaMap.get(prefix)));
+
+        assertThat(result.getJoinedResults()).hasSize(1);
+        assertThat(result.getJoinedResults().get(0).getGenericDocument()).isEqualTo(
+                GenericDocumentToProtoConverter.toGenericDocument(
+                        joinedDocProtoBuilder.build(), prefix, schemaMap.get(prefix)));
+    }
+
+    @Test
+    public void testToSearchResultProtoWithDoublyNested() throws Exception {
+        final String prefix =
+                "com.package.foo" + PrefixUtil.PACKAGE_DELIMITER + "databaseName"
+                        + PrefixUtil.DATABASE_DELIMITER;
+        final String id = "id";
+        final String namespace = prefix + "namespace";
+        final String schemaType = prefix + "schema";
+
+        // Building the SearchResult received from query.
+        DocumentProto.Builder documentProtoBuilder = DocumentProto.newBuilder()
+                .setUri(id)
+                .setNamespace(namespace)
+                .setSchema(schemaType);
+
+        // A joined document
+        DocumentProto.Builder joinedDocProtoBuilder = DocumentProto.newBuilder()
+                .setUri("id2")
+                .setNamespace(namespace)
+                .setSchema(schemaType);
+
+        SearchResultProto.ResultProto joinedResultProto = SearchResultProto.ResultProto.newBuilder()
+                .setDocument(joinedDocProtoBuilder).build();
+
+        SearchResultProto.ResultProto nestedJoinedResultProto = SearchResultProto.ResultProto
+                .newBuilder()
+                .setDocument(joinedDocProtoBuilder)
+                .addJoinedResults(joinedResultProto)
+                .build();
+
+        SearchResultProto.ResultProto resultProto = SearchResultProto.ResultProto.newBuilder()
+                .setDocument(documentProtoBuilder)
+                .addJoinedResults(nestedJoinedResultProto)
+                .build();
+
+        SearchResultProto searchResultProto = SearchResultProto.newBuilder()
+                .addResults(resultProto).build();
+
+        SchemaTypeConfigProto schemaTypeConfigProto =
+                SchemaTypeConfigProto.newBuilder()
+                        .setSchemaType(schemaType)
+                        .build();
+        Map<String, Map<String, SchemaTypeConfigProto>> schemaMap = ImmutableMap.of(prefix,
+                ImmutableMap.of(schemaType, schemaTypeConfigProto));
+
+        removePrefixesFromDocument(documentProtoBuilder);
+        Exception e = assertThrows(AppSearchException.class, () ->
+                SearchResultToProtoConverter.toSearchResultPage(searchResultProto, schemaMap));
+        assertThat(e.getMessage())
+                .isEqualTo("Nesting joined results within joined results not allowed.");
     }
 }

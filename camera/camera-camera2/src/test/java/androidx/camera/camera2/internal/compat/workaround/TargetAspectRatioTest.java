@@ -28,6 +28,7 @@ import static androidx.camera.core.AspectRatio.RATIO_4_3;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.params.StreamConfigurationMap;
 import android.os.Build;
 import android.util.Range;
 
@@ -41,6 +42,7 @@ import androidx.camera.core.UseCase;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.robolectric.ParameterizedRobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
@@ -140,7 +142,10 @@ public class TargetAspectRatioTest {
         ShadowCameraCharacteristics shadowCharacteristics = Shadow.extract(characteristics);
         shadowCharacteristics.set(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL,
                 supportedHardwareLevel);
-        return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics);
+        shadowCharacteristics.set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP,
+                Mockito.mock(StreamConfigurationMap.class));
+        return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics,
+                BACK_CAMERA_ID);
     }
 
     @TargetAspectRatio.Ratio

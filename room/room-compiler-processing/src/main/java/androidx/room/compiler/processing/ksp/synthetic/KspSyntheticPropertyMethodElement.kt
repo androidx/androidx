@@ -37,6 +37,7 @@ import androidx.room.compiler.processing.ksp.KspJvmTypeResolutionScope
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.KspType
 import androidx.room.compiler.processing.ksp.findEnclosingMemberContainer
+import androidx.room.compiler.processing.ksp.jvmDescriptor
 import androidx.room.compiler.processing.ksp.overrides
 import androidx.room.compiler.processing.util.sanitizeAsJavaParameterName
 import com.google.devtools.ksp.KspExperimental
@@ -141,6 +142,8 @@ internal sealed class KspSyntheticPropertyMethodElement(
         return env.resolver.overrides(this, other)
     }
 
+    override fun isKotlinPropertyMethod() = true
+
     private class Getter(
         env: KspProcessingEnv,
         field: KspFieldElement,
@@ -159,6 +162,10 @@ internal sealed class KspSyntheticPropertyMethodElement(
         override val name: String by lazy {
             JvmAbi.computeGetterName(field.declaration.simpleName.asString())
         }
+
+        override val jvmDescriptor: String
+            get() = this.jvmDescriptor()
+
         override val returnType: XType by lazy {
             field.type
         }
@@ -192,6 +199,10 @@ internal sealed class KspSyntheticPropertyMethodElement(
         override val name by lazy {
             JvmAbi.computeSetterName(field.declaration.simpleName.asString())
         }
+
+        override val jvmDescriptor: String
+            get() = this.jvmDescriptor()
+
         override val returnType: XType by lazy {
             env.voidType
         }

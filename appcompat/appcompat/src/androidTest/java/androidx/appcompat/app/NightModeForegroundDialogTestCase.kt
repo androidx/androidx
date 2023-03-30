@@ -27,6 +27,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.LifecycleOwnerUtils.waitUntilState
 import junit.framework.TestCase.assertNotSame
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,6 +38,7 @@ class NightModeForegroundDialogTestCase {
     @get:Rule
     val rule = NightModeActivityTestRule(NightModeActivity::class.java)
 
+    @Ignore // b/266748645
     @Test
     fun testNightModeChangeWithForegroundDialog() {
         val firstActivity = rule.activity

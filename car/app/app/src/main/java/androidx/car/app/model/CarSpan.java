@@ -19,9 +19,9 @@ package androidx.car.app.model;
 import android.text.TextPaint;
 import android.text.style.CharacterStyle;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 
 /**
  * Base class for all span types allowed for a car app.
@@ -29,7 +29,7 @@ import androidx.car.app.annotations.CarProtocol;
  * @see CarText
  */
 @CarProtocol
-@Keep
+@KeepFields
 public class CarSpan extends CharacterStyle {
     @Override
     public void updateDrawState(@NonNull TextPaint tp) {

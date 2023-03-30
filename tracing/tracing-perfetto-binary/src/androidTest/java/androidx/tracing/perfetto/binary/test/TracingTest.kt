@@ -18,14 +18,41 @@ package androidx.tracing.perfetto.binary.test
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import androidx.test.platform.app.InstrumentationRegistry
+import dalvik.system.BaseDexClassLoader
+import java.io.File
+import java.util.zip.ZipFile
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class TracingTest {
+    /**
+     * The test verifies that the library was assembled and can be found by the system.
+     * We cannot load the library since it contains explicit JNI method registration tied to
+     * the [androidx.tracing.perfetto.jni.PerfettoNative] class.
+     *
+     * Methods of the library are further tested in e.g.:
+     * - [androidx.tracing.perfetto.jni.test.PerfettoNativeTest]
+     * - [androidx.compose.integration.macrobenchmark.TrivialTracingBenchmark]
+     */
     @Test
-    fun test_loadLibrary() {
-        System.loadLibrary("tracing_perfetto")
+    fun test_library_was_created() {
+        // check that the system can resolve the library
+        val nativeLibraryName = System.mapLibraryName("tracing_perfetto")
+
+        // check that the class loader can find the library
+        val classLoader = javaClass.classLoader as BaseDexClassLoader
+        val libraryPath = classLoader.findLibrary("tracing_perfetto")
+        assertTrue(libraryPath.endsWith("/$nativeLibraryName"))
+
+        // check that the APK contains the library file
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val baseApk = File(context.applicationInfo.publicSourceDir!!)
+        assertTrue(ZipFile(baseApk).entries().asSequence().any {
+            it.name.endsWith("/$nativeLibraryName")
+        })
     }
 }

@@ -40,7 +40,6 @@ androidx {
     name = "Dynamic animation Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.DYNAMICANIMATION_KTX
-    mavenGroup = LibraryGroups.DYNAMICANIMATION
     inceptionYear = "2018"
     description = "Kotlin extensions for 'dynamicanimation' artifact"
 }

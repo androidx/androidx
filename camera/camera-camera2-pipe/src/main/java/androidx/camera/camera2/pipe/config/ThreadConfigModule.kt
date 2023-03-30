@@ -38,9 +38,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.asExecutor
 
-/**
- * Configure and provide a single [Threads] object to other parts of the library.
- */
+/** Configure and provide a single [Threads] object to other parts of the library. */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Module
 internal class ThreadConfigModule(private val threadConfig: CameraPipe.ThreadConfig) {
@@ -76,46 +74,45 @@ internal class ThreadConfigModule(private val threadConfig: CameraPipe.ThreadCon
         }
 
         val blockingExecutor =
-            threadConfig.defaultBlockingExecutor ?: AndroidThreads.factory
-                .withPrefix("CXCP-IO-")
-                .withAndroidPriority(defaultThreadPriority)
-                .asCachedThreadPool()
+            threadConfig.defaultBlockingExecutor
+                ?: AndroidThreads.factory
+                    .withPrefix("CXCP-IO-")
+                    .withAndroidPriority(defaultThreadPriority)
+                    .asCachedThreadPool()
         val blockingDispatcher = blockingExecutor.asCoroutineDispatcher()
 
         val backgroundExecutor =
-            threadConfig.defaultBackgroundExecutor ?: AndroidThreads.factory
-                .withPrefix("CXCP-BG-")
-                .withAndroidPriority(defaultThreadPriority)
-                .asScheduledThreadPool(backgroundThreadCount)
+            threadConfig.defaultBackgroundExecutor
+                ?: AndroidThreads.factory
+                    .withPrefix("CXCP-BG-")
+                    .withAndroidPriority(defaultThreadPriority)
+                    .asScheduledThreadPool(backgroundThreadCount)
         val backgroundDispatcher = backgroundExecutor.asCoroutineDispatcher()
 
         val lightweightExecutor =
-            threadConfig.defaultLightweightExecutor ?: AndroidThreads.factory
-                .withPrefix("CXCP-")
-                .withAndroidPriority(cameraThreadPriority)
-                .asScheduledThreadPool(lightweightThreadCount)
+            threadConfig.defaultLightweightExecutor
+                ?: AndroidThreads.factory
+                    .withPrefix("CXCP-")
+                    .withAndroidPriority(cameraThreadPriority)
+                    .asScheduledThreadPool(lightweightThreadCount)
         val lightweightDispatcher = lightweightExecutor.asCoroutineDispatcher()
 
-        val cameraHandlerFn =
-            {
-                val handlerThread = threadConfig.defaultCameraHandler ?: HandlerThread(
-                    "CXCP-Camera-H",
-                    cameraThreadPriority
-                ).also {
-                    it.start()
-                }
-                Handler(handlerThread.looper)
-            }
+        val cameraHandlerFn = {
+            val handlerThread =
+                threadConfig.defaultCameraHandler
+                    ?: HandlerThread("CXCP-Camera-H", cameraThreadPriority).also { it.start() }
+            Handler(handlerThread.looper)
+        }
         val cameraExecutorFn = {
-            threadConfig.defaultCameraExecutor ?: AndroidThreads.factory
-                .withPrefix("CXCP-Camera-E")
-                .withAndroidPriority(cameraThreadPriority)
-                .asFixedSizeThreadPool(1)
+            threadConfig.defaultCameraExecutor
+                ?: AndroidThreads.factory
+                    .withPrefix("CXCP-Camera-E")
+                    .withAndroidPriority(cameraThreadPriority)
+                    .asFixedSizeThreadPool(1)
         }
 
-        val globalScope = CoroutineScope(
-            SupervisorJob() + lightweightDispatcher + CoroutineName("CXCP")
-        )
+        val globalScope =
+            CoroutineScope(SupervisorJob() + lightweightDispatcher + CoroutineName("CXCP"))
 
         return Threads(
             globalScope = globalScope,
@@ -138,12 +135,8 @@ internal class ThreadConfigModule(private val threadConfig: CameraPipe.ThreadCon
 
         // TODO: This should delegate to the testDispatcher instead of using a HandlerThread.
         val cameraHandlerFn = {
-            val handlerThread = HandlerThread(
-                "CXCP-Camera-H",
-                cameraThreadPriority
-            ).also {
-                it.start()
-            }
+            val handlerThread =
+                HandlerThread("CXCP-Camera-H", cameraThreadPriority).also { it.start() }
             Handler(handlerThread.looper)
         }
 
@@ -156,7 +149,6 @@ internal class ThreadConfigModule(private val threadConfig: CameraPipe.ThreadCon
             lightweightExecutor = testExecutor,
             lightweightDispatcher = testDispatcher,
             camera2Handler = cameraHandlerFn,
-            camera2Executor = { testExecutor }
-        )
+            camera2Executor = { testExecutor })
     }
 }

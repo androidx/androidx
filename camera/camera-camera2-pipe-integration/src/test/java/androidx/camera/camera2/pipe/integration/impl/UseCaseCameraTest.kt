@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraDevice
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
@@ -68,6 +69,7 @@ class UseCaseCameraTest {
     private val fakeUseCaseGraphConfig = UseCaseGraphConfig(
         graph = fakeCameraGraph,
         surfaceToStreamMap = surfaceToStreamMap,
+        cameraStateAdapter = CameraStateAdapter(),
     )
     private val fakeConfigAdapter = CaptureConfigAdapter(
         useCaseGraphConfig = fakeUseCaseGraphConfig,
@@ -98,13 +100,16 @@ class UseCaseCameraTest {
                 }
             )
         }
+        @Suppress("UNCHECKED_CAST", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
         val useCaseCamera = UseCaseCameraImpl(
+            controls = emptySet<UseCaseCameraControl>() as java.util.Set<UseCaseCameraControl>,
             useCaseGraphConfig = fakeUseCaseGraphConfig,
             useCases = arrayListOf(fakeUseCase),
             useCaseSurfaceManager = UseCaseSurfaceManager(
                 useCaseThreads,
                 CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext()))
             ),
+            threads = useCaseThreads,
             requestControl = requestControl
         ).also {
             it.runningUseCases = setOf(fakeUseCase)
@@ -121,6 +126,7 @@ class UseCaseCameraTest {
                 addSurface(surface)
             }
         )
+
         useCaseCamera.runningUseCases = setOf(fakeUseCase)
 
         // Assert. The stopRepeating() should be called.

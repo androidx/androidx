@@ -57,6 +57,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
 import kotlinx.coroutines.runBlocking
 
+@Suppress("DEPRECATION")
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 // These tests are in addition to ScalingLazyListLayoutInfoTest which handles scroll events at an
@@ -215,9 +216,10 @@ public class ScalingLazyColumnTest {
             // Make sure that the edge items have been scaled
             assertThat(state.layoutInfo.visibleItemsInfo.first().scale).isLessThan(1.0f)
             // But that size of the Spacer is as expected - it should be half the viewport size
-            // minus half the size of the center item minus the full size of the 0th item
+            // rounded down minus half the size of the center item rounded down minus the full size
+            // of the 0th item
             assertThat(state.lazyListState.layoutInfo.visibleItemsInfo.first().size)
-                .isEqualTo(((listSizePx / 2f) - (itemSizePx * 1.5f)).roundToInt())
+                .isEqualTo((listSizePx / 2) - (itemSizePx + itemSizePx / 2))
         }
         rule.onNodeWithTag(TEST_TAG).performTouchInput {
             swipeUp()
@@ -268,9 +270,9 @@ public class ScalingLazyColumnTest {
             // Make sure that the edge items have been scaled
             assertThat(state.layoutInfo.visibleItemsInfo.first().scale).isLessThan(1.0f)
             // But that size of the Spacer is as expected, it should be half the viewport size
-            // minus the size of zeroth item in the list
+            // rounded down minus the size of zeroth item in the list
             assertThat(state.lazyListState.layoutInfo.visibleItemsInfo.first().size)
-                .isEqualTo((listSizePx / 2f).roundToInt() - itemSizePx)
+                .isEqualTo((listSizePx / 2) - itemSizePx)
         }
         rule.onNodeWithTag(TEST_TAG).performTouchInput {
             swipeUp(endY = top)
@@ -961,6 +963,42 @@ public class ScalingLazyColumnTest {
         state.layoutInfo.assertVisibleItems(count = 3, startIndex = 22)
         assertThat(state.centerItemIndex).isEqualTo(24)
         assertThat(state.centerItemScrollOffset).isEqualTo(0)
+    }
+
+    @Test
+    fun centerItemIndexPublishesUpdatesOnChangeOnly() {
+        lateinit var state: ScalingLazyListState
+        var recompositionCount = 0
+
+        rule.setContent {
+            state = rememberScalingLazyListState(initialCenterItemIndex = 0)
+
+            WithTouchSlop(0f) {
+                state.centerItemIndex
+                recompositionCount++
+
+                ScalingLazyColumn(
+                    state = state,
+                    modifier = Modifier.testTag(TEST_TAG).requiredSize(
+                        itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+                    ),
+                    autoCentering = AutoCenteringParams(itemIndex = 0)
+                ) {
+                    items(5) {
+                        Box(Modifier.requiredSize(itemSizeDp))
+                    }
+                }
+            }
+        }
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            swipeUp(endY = bottom - (itemSizePx.toFloat() + defaultItemSpacingPx.toFloat()))
+        }
+
+        rule.waitForIdle()
+        assertThat(recompositionCount).isEqualTo(2)
     }
 }
 

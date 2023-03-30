@@ -72,7 +72,14 @@ public final class SearchStats {
     private final int mRewriteSearchSpecLatencyMillis;
     /** Time used to rewrite the search results. */
     private final int mRewriteSearchResultLatencyMillis;
-    /** Defines the scope the query is searching over */
+    /** Time passed while waiting to acquire the lock during Java function calls. */
+    private final int mJavaLockAcquisitionLatencyMillis;
+    /**
+     * Time spent on ACL checking. This is the time spent filtering namespaces based on package
+     * permissions and Android permission access.
+     */
+    private final int mAclCheckLatencyMillis;
+    /** Defines the scope the query is searching over. */
     @VisibilityScope
     private final int mVisibilityScope;
     /** Overall time used for the native function call. */
@@ -116,6 +123,13 @@ public final class SearchStats {
     private final int mNativeDocumentRetrievingLatencyMillis;
     /** How many snippets are calculated. */
     private final int mNativeNumResultsWithSnippets;
+    /** Time passed while waiting to acquire the lock during native function calls. */
+    private final int mNativeLockAcquisitionLatencyMillis;
+    /** Time used to send data across the JNI boundary from java to native side. */
+    private final int mJavaToNativeJniLatencyMillis;
+    /** Time used to send data across the JNI boundary from native to java side. */
+    private final int mNativeToJavaJniLatencyMillis;
+
 
     SearchStats(@NonNull Builder builder) {
         Preconditions.checkNotNull(builder);
@@ -125,6 +139,8 @@ public final class SearchStats {
         mTotalLatencyMillis = builder.mTotalLatencyMillis;
         mRewriteSearchSpecLatencyMillis = builder.mRewriteSearchSpecLatencyMillis;
         mRewriteSearchResultLatencyMillis = builder.mRewriteSearchResultLatencyMillis;
+        mJavaLockAcquisitionLatencyMillis = builder.mJavaLockAcquisitionLatencyMillis;
+        mAclCheckLatencyMillis = builder.mAclCheckLatencyMillis;
         mVisibilityScope = builder.mVisibilityScope;
         mNativeLatencyMillis = builder.mNativeLatencyMillis;
         mNativeNumTerms = builder.mNativeNumTerms;
@@ -141,6 +157,9 @@ public final class SearchStats {
         mNativeRankingLatencyMillis = builder.mNativeRankingLatencyMillis;
         mNativeNumResultsWithSnippets = builder.mNativeNumResultsWithSnippets;
         mNativeDocumentRetrievingLatencyMillis = builder.mNativeDocumentRetrievingLatencyMillis;
+        mNativeLockAcquisitionLatencyMillis = builder.mNativeLockAcquisitionLatencyMillis;
+        mJavaToNativeJniLatencyMillis = builder.mJavaToNativeJniLatencyMillis;
+        mNativeToJavaJniLatencyMillis = builder.mNativeToJavaJniLatencyMillis;
     }
 
     /** Returns the package name of the session. */
@@ -179,6 +198,19 @@ public final class SearchStats {
     /** Returns how much time spent on rewriting the {@link androidx.appsearch.app.SearchResult}. */
     public int getRewriteSearchResultLatencyMillis() {
         return mRewriteSearchResultLatencyMillis;
+    }
+
+    /** Returns time passed while waiting to acquire the lock during Java function calls */
+    public int getJavaLockAcquisitionLatencyMillis() {
+        return mJavaLockAcquisitionLatencyMillis;
+    }
+
+    /**
+     * Returns time spent on ACL checking, which is the time spent filtering namespaces based on
+     * package permissions and Android permission access.
+     */
+    public int getAclCheckLatencyMillis() {
+        return mAclCheckLatencyMillis;
     }
 
     /** Returns the visibility scope of the search. */
@@ -270,6 +302,21 @@ public final class SearchStats {
         return mNativeNumResultsWithSnippets;
     }
 
+    /** Returns time passed while waiting to acquire the lock during native function calls. */
+    public int getNativeLockAcquisitionLatencyMillis() {
+        return mNativeLockAcquisitionLatencyMillis;
+    }
+
+    /** Returns time used to send data across the JNI boundary from java to native side. */
+    public int getJavaToNativeJniLatencyMillis() {
+        return mJavaToNativeJniLatencyMillis;
+    }
+
+    /** Returns time used to send data across the JNI boundary from native to java side. */
+    public int getNativeToJavaJniLatencyMillis() {
+        return mNativeToJavaJniLatencyMillis;
+    }
+
     /** Builder for {@link SearchStats} */
     public static class Builder {
         @NonNull
@@ -281,6 +328,8 @@ public final class SearchStats {
         int mTotalLatencyMillis;
         int mRewriteSearchSpecLatencyMillis;
         int mRewriteSearchResultLatencyMillis;
+        int mJavaLockAcquisitionLatencyMillis;
+        int mAclCheckLatencyMillis;
         int mVisibilityScope;
         int mNativeLatencyMillis;
         int mNativeNumTerms;
@@ -297,6 +346,10 @@ public final class SearchStats {
         int mNativeRankingLatencyMillis;
         int mNativeNumResultsWithSnippets;
         int mNativeDocumentRetrievingLatencyMillis;
+        int mNativeLockAcquisitionLatencyMillis;
+        int mJavaToNativeJniLatencyMillis;
+        int mNativeToJavaJniLatencyMillis;
+
 
         /**
          * Constructor
@@ -341,6 +394,23 @@ public final class SearchStats {
         @NonNull
         public Builder setRewriteSearchResultLatencyMillis(int rewriteSearchResultLatencyMillis) {
             mRewriteSearchResultLatencyMillis = rewriteSearchResultLatencyMillis;
+            return this;
+        }
+
+        /** Sets time passed while waiting to acquire the lock during Java function calls. */
+        @NonNull
+        public Builder setJavaLockAcquisitionLatencyMillis(int javaLockAcquisitionLatencyMillis) {
+            mJavaLockAcquisitionLatencyMillis = javaLockAcquisitionLatencyMillis;
+            return this;
+        }
+
+        /**
+         * Sets time spent on ACL checking, which is the time spent filtering namespaces based on
+         * package permissions and Android permission access.
+         */
+        @NonNull
+        public Builder setAclCheckLatencyMillis(int aclCheckLatencyMillis) {
+            mAclCheckLatencyMillis = aclCheckLatencyMillis;
             return this;
         }
 
@@ -456,6 +526,28 @@ public final class SearchStats {
         @NonNull
         public Builder setResultWithSnippetsCount(int resultWithSnippetsCount) {
             mNativeNumResultsWithSnippets = resultWithSnippetsCount;
+            return this;
+        }
+
+        /** Sets time passed while waiting to acquire the lock during native function calls. */
+        @NonNull
+        public Builder setNativeLockAcquisitionLatencyMillis(
+                int nativeLockAcquisitionLatencyMillis) {
+            mNativeLockAcquisitionLatencyMillis = nativeLockAcquisitionLatencyMillis;
+            return this;
+        }
+
+        /** Sets time used to send data across the JNI boundary from java to native side. */
+        @NonNull
+        public Builder setJavaToNativeJniLatencyMillis(int javaToNativeJniLatencyMillis) {
+            mJavaToNativeJniLatencyMillis = javaToNativeJniLatencyMillis;
+            return this;
+        }
+
+        /** Sets time used to send data across the JNI boundary from native to java side. */
+        @NonNull
+        public Builder setNativeToJavaJniLatencyMillis(int nativeToJavaJniLatencyMillis) {
+            mNativeToJavaJniLatencyMillis = nativeToJavaJniLatencyMillis;
             return this;
         }
 

@@ -179,6 +179,7 @@ class CameraUseCaseAdapterTest {
     @OptIn(ExperimentalCamera2Interop::class)
     fun unpackerSessionConfig_ExtractsInteropOptions() {
         // Arrange
+        val physicalCameraId = "0"
         val imageCaptureConfigBuilder = ImageCapture.Builder()
 
         // Add 2 options to ensure that multiple options can be unpacked.
@@ -188,7 +189,7 @@ class CameraUseCaseAdapterTest {
             CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO
         ).setCaptureRequestOption<Int>(
             CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_TORCH
-        )
+        ).setPhysicalCameraId(physicalCameraId)
         val useCaseConfig = imageCaptureConfigBuilder.useCaseConfig
         val priorityAfMode = useCaseConfig.getCaptureRequestOptionPriority(
             CaptureRequest.CONTROL_AF_MODE
@@ -215,6 +216,9 @@ class CameraUseCaseAdapterTest {
                 CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_OFF
             )
         ).isEqualTo(CaptureRequest.FLASH_MODE_TORCH)
+        assertThat(
+            config.getPhysicalCameraId(null)
+        ).isEqualTo(physicalCameraId)
 
         // Make sures the priority of Camera2Interop is preserved after unpacking.
         assertThat(config.getCaptureRequestOptionPriority(CaptureRequest.CONTROL_AF_MODE))

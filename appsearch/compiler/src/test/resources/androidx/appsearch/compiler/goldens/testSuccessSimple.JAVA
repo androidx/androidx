@@ -22,6 +22,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     return new AppSearchSchema.Builder(SCHEMA_NAME)
           .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("price")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setIndexingType(AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.BooleanPropertyConfig.Builder("cat")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)

@@ -24,6 +24,8 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 
 public class KeycodeTestActivity extends Activity {
+
+    int mLastPressedKeyCode;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,11 +73,23 @@ public class KeycodeTestActivity extends Activity {
             case KeyEvent.KEYCODE_0:
                 textView.setText("keycode 0 pressed");
                 break;
+            case KeyEvent.KEYCODE_A:
+                if (mLastPressedKeyCode == KeyEvent.KEYCODE_B) {
+                    textView.setText("keycode A and keycode B are pressed");
+                }
+                break;
+            case KeyEvent.KEYCODE_B:
+                if (mLastPressedKeyCode == KeyEvent.KEYCODE_A) {
+                    textView.setText("keycode A and keycode B are pressed");
+                }
+                break;
         }
 
         if ((event.getMetaState() & (KeyEvent.META_SHIFT_LEFT_ON | KeyEvent.META_SHIFT_ON)) != 0) {
             textView.append(" with meta shift left on");
         }
+
+        mLastPressedKeyCode = keyCode;
 
         return true;
     }

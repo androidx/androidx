@@ -18,6 +18,7 @@ package androidx.appsearch.cts.app;
 
 import static androidx.appsearch.testutil.AppSearchTestUtils.checkIsBatchResultSuccess;
 import static androidx.appsearch.testutil.AppSearchTestUtils.convertSearchResultsToDocuments;
+import static androidx.appsearch.testutil.AppSearchTestUtils.retrieveAllSearchResults;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -55,6 +56,7 @@ import androidx.appsearch.testutil.TestObserverCallback;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -1829,5 +1831,73 @@ public abstract class GlobalSearchSessionCtsTestBase {
                 new SchemaChangeInfo(
                         mContext.getPackageName(), DB_NAME_1, ImmutableSet.of("Type1")));
         assertThat(observer.getDocumentChanges()).isEmpty();
+    }
+
+    @Test
+    public void testGlobalQuery_propertyWeights() throws Exception {
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SEARCH_SPEC_PROPERTY_WEIGHTS));
+
+        // Schema registration
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
+        mDb2.setSchemaAsync(
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
+
+        // Put two documents in separate databases.
+        AppSearchEmail emailDb1 =
+                new AppSearchEmail.Builder("namespace", "id1")
+                        .setCreationTimestampMillis(1000)
+                        .setSubject("foo")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder()
+                        .addGenericDocuments(emailDb1).build()));
+        AppSearchEmail emailDb2 =
+                new AppSearchEmail.Builder("namespace", "id2")
+                        .setCreationTimestampMillis(1000)
+                        .setBody("foo")
+                        .build();
+        checkIsBatchResultSuccess(mDb2.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(emailDb2).build()));
+
+        // Issue global query for "foo".
+        SearchResults searchResults = mGlobalSearchSession.search("foo", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE)
+                .setOrder(SearchSpec.ORDER_DESCENDING)
+                .setPropertyWeights(AppSearchEmail.SCHEMA_TYPE,
+                        ImmutableMap.of("subject",
+                                2.0, "body", 0.5))
+                .build());
+        List<SearchResult> globalResults = retrieveAllSearchResults(searchResults);
+
+        // We expect to two emails, one from each of the databases.
+        assertThat(globalResults).hasSize(2);
+        assertThat(globalResults.get(0).getGenericDocument()).isEqualTo(emailDb1);
+        assertThat(globalResults.get(1).getGenericDocument()).isEqualTo(emailDb2);
+
+        // We expect that the email added to db1 will have a higher score than the email added to
+        // db2 as the query term "foo" is contained in the "subject" property which has a higher
+        // weight than the "body" property.
+        assertThat(globalResults.get(0).getRankingSignal()).isGreaterThan(0);
+        assertThat(globalResults.get(0).getRankingSignal()).isGreaterThan(
+                globalResults.get(1).getRankingSignal());
+
+        // Query for "foo" without property weights.
+        SearchResults searchResultsWithoutWeights = mGlobalSearchSession.search("foo",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .setRankingStrategy(SearchSpec.RANKING_STRATEGY_RELEVANCE_SCORE)
+                        .setOrder(SearchSpec.ORDER_DESCENDING)
+                        .build());
+        List<SearchResult> resultsWithoutWeights =
+                retrieveAllSearchResults(searchResultsWithoutWeights);
+
+        // email1 should have the same ranking signal as email2 as each contains the term "foo"
+        // once.
+        assertThat(resultsWithoutWeights).hasSize(2);
+        assertThat(resultsWithoutWeights.get(0).getRankingSignal()).isGreaterThan(0);
+        assertThat(resultsWithoutWeights.get(0).getRankingSignal()).isEqualTo(
+                resultsWithoutWeights.get(1).getRankingSignal());
     }
 }

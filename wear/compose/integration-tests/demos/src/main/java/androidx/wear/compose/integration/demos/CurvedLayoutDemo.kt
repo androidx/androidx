@@ -21,8 +21,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -31,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextOverflow
@@ -46,6 +50,7 @@ import androidx.wear.compose.foundation.CurvedScope
 import androidx.wear.compose.foundation.CurvedTextStyle
 import androidx.wear.compose.foundation.background
 import androidx.wear.compose.foundation.basicCurvedText
+import androidx.wear.compose.foundation.curvedBox
 import androidx.wear.compose.foundation.curvedColumn
 import androidx.wear.compose.foundation.curvedComposable
 import androidx.wear.compose.foundation.curvedRow
@@ -307,4 +312,79 @@ fun CurvedLayoutDirection() {
             }
         }
     }
+}
+
+@Composable
+fun CurvedBoxDemo() {
+    CurvedLayout(
+        modifier = Modifier.fillMaxSize(),
+        anchor = 90f,
+    ) {
+        curvedBox(
+            modifier = CurvedModifier.background(Color.Red),
+            radialAlignment = CurvedAlignment.Radial.Inner,
+            angularAlignment = CurvedAlignment.Angular.End
+        ) {
+            curvedComposable {
+                Box(
+                    modifier = Modifier
+                        .width(60.dp)
+                        .height(40.dp)
+                        .background(Color.Green)
+                )
+            }
+            curvedComposable {
+                WhiteCircle()
+            }
+        }
+    }
+    CurvedLayout(
+        modifier = Modifier.fillMaxSize(),
+        anchor = 180f,
+    ) {
+        curvedBox(
+            modifier = CurvedModifier
+                .background(Color.Red)
+        ) {
+            curvedComposable {
+                Box(
+                    modifier = Modifier
+                        .size(60.dp)
+                        .background(Color.Green)
+                )
+            }
+            curvedComposable {
+                WhiteCircle()
+            }
+        }
+    }
+    CurvedLayout(modifier = Modifier.fillMaxSize()) {
+        curvedBox(
+            modifier = CurvedModifier.background(Color.Red),
+            radialAlignment = CurvedAlignment.Radial.Outer,
+            angularAlignment = CurvedAlignment.Angular.Start
+        ) {
+            curvedComposable {
+                Box(
+                    modifier = Modifier
+                        .width(40.dp)
+                        .height(60.dp)
+                        .background(Color.Green)
+                )
+            }
+            curvedComposable {
+                WhiteCircle()
+            }
+        }
+    }
+}
+
+@Composable
+private fun WhiteCircle() {
+    Box(
+        modifier = Modifier
+            .size(30.dp)
+            .clip(CircleShape)
+            .background(Color.White)
+    )
 }

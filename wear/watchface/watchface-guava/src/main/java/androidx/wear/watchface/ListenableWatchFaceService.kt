@@ -21,8 +21,8 @@ import androidx.wear.watchface.WatchFaceService.Companion.MAX_CREATE_WATCHFACE_T
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import com.google.common.util.concurrent.ListenableFuture
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * [ListenableFuture]-based compatibility wrapper around [WatchFaceService]'s suspending
@@ -44,11 +44,11 @@ public abstract class ListenableWatchFaceService : WatchFaceService() {
      * @param surfaceHolder The [SurfaceHolder] to pass to the [Renderer]'s constructor.
      * @param watchState The [WatchState] for the watch face.
      * @param complicationSlotsManager The [ComplicationSlotsManager] returned by
-     * [createComplicationSlotsManager].
+     *   [createComplicationSlotsManager].
      * @param currentUserStyleRepository The [CurrentUserStyleRepository] constructed using the
-     * [UserStyleSchema] returned by [createUserStyleSchema].
+     *   [UserStyleSchema] returned by [createUserStyleSchema].
      * @return A [ListenableFuture] for a [WatchFace] whose [Renderer] uses the provided
-     * [surfaceHolder].
+     *   [surfaceHolder].
      */
     protected abstract fun createWatchFaceFuture(
         surfaceHolder: SurfaceHolder,
@@ -63,15 +63,13 @@ public abstract class ListenableWatchFaceService : WatchFaceService() {
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
     ): WatchFace = suspendCancellableCoroutine {
-        val future = createWatchFaceFuture(
-            surfaceHolder,
-            watchState,
-            complicationSlotsManager,
-            currentUserStyleRepository
-        )
-        future.addListener(
-            { it.resume(future.get()) },
-            { runnable -> runnable.run() }
-        )
+        val future =
+            createWatchFaceFuture(
+                surfaceHolder,
+                watchState,
+                complicationSlotsManager,
+                currentUserStyleRepository
+            )
+        future.addListener({ it.resume(future.get()) }, { runnable -> runnable.run() })
     }
 }

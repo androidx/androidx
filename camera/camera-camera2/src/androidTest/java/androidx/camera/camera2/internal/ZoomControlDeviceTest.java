@@ -100,16 +100,17 @@ public final class ZoomControlDeviceTest {
         mCameraCharacteristics =
                 CameraUtil.getCameraCharacteristics(CameraSelector.LENS_FACING_BACK);
 
-        assumeTrue(getMaxDigitalZoom() >= 2.0);
-
         mControlUpdateCallback = mock(ControlUpdateCallback.class);
         mHandlerThread = new HandlerThread("ControlThread");
         mHandlerThread.start();
         mHandler = HandlerCompat.createAsync(mHandlerThread.getLooper());
 
         ScheduledExecutorService executorService = CameraXExecutors.newHandlerExecutor(mHandler);
+        String cameraId = CameraUtil.getCameraIdWithLensFacing(CameraSelector.LENS_FACING_BACK);
         mCameraCharacteristicsCompat = CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
-                mCameraCharacteristics);
+                mCameraCharacteristics, cameraId);
+        assumeTrue(getMaxDigitalZoom() >= 2.0);
+
         mCamera2CameraControlImpl = new Camera2CameraControlImpl(mCameraCharacteristicsCompat,
                 executorService, executorService, mControlUpdateCallback);
 
@@ -563,6 +564,10 @@ public final class ZoomControlDeviceTest {
     }
 
     private float getMaxDigitalZoom() {
+        if (isAndroidRZoomEnabled()) {
+            return mCameraCharacteristics.get(
+                    CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE).getUpper();
+        }
         return mCameraCharacteristics.get(
                 CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM);
     }

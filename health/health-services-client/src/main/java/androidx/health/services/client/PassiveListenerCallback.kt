@@ -22,6 +22,7 @@ import androidx.health.services.client.data.HealthEvent
 import androidx.health.services.client.data.PassiveGoal
 import androidx.health.services.client.data.UserActivityInfo
 
+@JvmDefaultWithCompatibility
 /** A callback for receiving passive monitoring updates. */
 public interface PassiveListenerCallback {
 

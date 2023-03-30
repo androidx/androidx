@@ -17,16 +17,15 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.content.Context
-import android.graphics.Point
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback
 import android.hardware.camera2.CameraDevice
-import android.hardware.display.DisplayManager
-import android.util.Size
-import android.view.Display
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.core.Log.info
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
+import androidx.camera.camera2.pipe.integration.impl.DisplayInfoManager
+import androidx.camera.camera2.pipe.integration.impl.SESSION_PHYSICAL_CAMERA_ID_OPTION
+import androidx.camera.camera2.pipe.integration.impl.STREAM_USE_CASE_OPTION
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CaptureConfig
@@ -47,17 +46,7 @@ import androidx.camera.core.impl.UseCaseConfigFactory
 @Suppress("DEPRECATION")
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
-    private val MAX_PREVIEW_SIZE = Size(1920, 1080)
-
-    private val displayManager: DisplayManager by lazy {
-        context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-    }
-    private val defaultDisplay: Display by lazy {
-        getMaxSizeDisplay()
-    }
-    private val previewSize: Size by lazy {
-        calculatePreviewSize()
-    }
+    private val displayInfoManager by lazy { DisplayInfoManager(context) }
 
     init {
         if (context === context.applicationContext) {
@@ -92,6 +81,7 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
             UseCaseConfigFactory.CaptureType.IMAGE_ANALYSIS -> sessionBuilder.setTemplateType(
                 CameraDevice.TEMPLATE_PREVIEW
             )
+
             UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE -> sessionBuilder.setTemplateType(
                 CameraDevice.TEMPLATE_RECORD
             )
@@ -104,6 +94,7 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
         when (captureType) {
             UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE ->
                 captureBuilder.templateType = CameraDevice.TEMPLATE_STILL_CAPTURE
+
             UseCaseConfigFactory.CaptureType.PREVIEW,
             UseCaseConfigFactory.CaptureType.IMAGE_ANALYSIS,
             UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE ->
@@ -131,54 +122,15 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
         if (captureType == UseCaseConfigFactory.CaptureType.PREVIEW) {
             mutableConfig.insertOption(
                 ImageOutputConfig.OPTION_MAX_RESOLUTION,
-                previewSize
+                displayInfoManager.previewSize
             )
         }
 
         mutableConfig.insertOption(
             ImageOutputConfig.OPTION_TARGET_ROTATION,
-            defaultDisplay.rotation
+            displayInfoManager.defaultDisplay.rotation
         )
         return OptionsBundle.from(mutableConfig)
-    }
-
-    private fun getMaxSizeDisplay(): Display {
-        val displays = displayManager.displays
-        var maxDisplay: Display? = null
-        var maxDisplaySize = -1
-        for (display: Display in displays) {
-            val displaySize = Point()
-            // TODO(b/230400472): Use WindowManager#getCurrentWindowMetrics(). Display#getRealSize()
-            //  is deprecated since API level 31.
-            display.getRealSize(displaySize)
-            if (displaySize.x * displaySize.y > maxDisplaySize) {
-                maxDisplaySize = displaySize.x * displaySize.y
-                maxDisplay = display
-            }
-        }
-        return checkNotNull(maxDisplay) { "No displays found from ${displayManager.displays}!" }
-    }
-
-    /**
-     * Calculates the device's screen resolution, or MAX_PREVIEW_SIZE, whichever is smaller.
-     */
-    private fun calculatePreviewSize(): Size {
-        val displaySize = Point()
-        val display: Display = defaultDisplay
-        display.getRealSize(displaySize)
-        var displayViewSize: Size
-        displayViewSize = if (displaySize.x > displaySize.y) {
-            Size(displaySize.x, displaySize.y)
-        } else {
-            Size(displaySize.y, displaySize.x)
-        }
-        if (displayViewSize.width * displayViewSize.height
-            > MAX_PREVIEW_SIZE.width * MAX_PREVIEW_SIZE.height
-        ) {
-            displayViewSize = MAX_PREVIEW_SIZE
-        }
-        // TODO(b/230402463): Migrate extra cropping quirk from CameraX.
-        return displayViewSize
     }
 
     object DefaultCaptureOptionsUnpacker : CaptureConfig.OptionUnpacker {
@@ -260,6 +212,24 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
             }
 
             // TODO: Copy CameraEventCallback (used for extension)
+
+            // Copy extended Camera2 configurations
+            val extendedConfig = MutableOptionsBundle.create().apply {
+                camera2Config.getPhysicalCameraId()?.let { physicalCameraId ->
+                    insertOption(
+                        SESSION_PHYSICAL_CAMERA_ID_OPTION,
+                        physicalCameraId
+                    )
+                }
+
+                camera2Config.getStreamUseCase()?.let { streamUseCase ->
+                    insertOption(
+                        STREAM_USE_CASE_OPTION,
+                        streamUseCase
+                    )
+                }
+            }
+            builder.addImplementationOptions(extendedConfig)
 
             // Copy extension keys
             builder.addImplementationOptions(camera2Config.captureRequestOptions)

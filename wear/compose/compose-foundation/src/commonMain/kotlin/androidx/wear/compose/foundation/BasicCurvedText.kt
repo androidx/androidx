@@ -16,17 +16,25 @@
 
 package androidx.wear.compose.foundation
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
+import kotlin.math.roundToInt
+import kotlin.math.sqrt
 
 /**
  * [basicCurvedText] is a component allowing developers to easily write curved text following
@@ -93,6 +101,9 @@ internal class CurvedTextChild(
     private lateinit var delegate: CurvedTextDelegate
     private lateinit var actualStyle: CurvedTextStyle
 
+    // We create a compose-ui node so that we can attach a11y info.
+    private lateinit var placeable: Placeable
+
     @Composable
     override fun SubComposition() {
         actualStyle = DefaultCurvedTextStyles + style()
@@ -104,18 +115,31 @@ internal class CurvedTextChild(
             actualStyle.fontStyle,
             actualStyle.fontSynthesis
         )
+
+        // Empty compose-ui node to attach a11y info.
+        Box(Modifier.semantics { contentDescription = text })
     }
 
     override fun CurvedMeasureScope.initializeMeasure(
-        measurables: List<Measurable>,
-        index: Int
-    ): Int {
+        measurables: Iterator<Measurable>
+    ) {
         delegate.updateIfNeeded(
             text,
             clockwise,
             actualStyle.fontSize.toPx()
         )
-        return index // No measurables where mapped.
+
+        // Size the compose-ui node reasonably.
+        // We make the bounding rectangle sizes as the text, but cut the width (if needed) to the
+        // point at which the circle crosses the middle of the side
+        val height = delegate.textHeight.roundToInt()
+        val maxWidth = sqrt(height * (radius - height / 4))
+        val width = delegate.textWidth.coerceAtMost(maxWidth).roundToInt()
+
+        // Measure the corresponding measurable.
+        placeable = measurables.next().measure(Constraints(
+            minWidth = width, maxWidth = width, minHeight = height, maxHeight = height
+        ))
     }
 
     override fun doEstimateThickness(maxRadius: Float): Float = delegate.textHeight
@@ -155,6 +179,10 @@ internal class CurvedTextChild(
             )
         }
     }
+
+    override fun (Placeable.PlacementScope).placeIfNeeded() =
+        // clockwise doesn't matter, we have no content in placeable.
+        place(placeable, layoutInfo!!, parentSweepRadians, clockwise = false)
 }
 
 internal expect class CurvedTextDelegate() {

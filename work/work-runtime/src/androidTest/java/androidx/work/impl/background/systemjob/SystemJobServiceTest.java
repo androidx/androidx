@@ -113,8 +113,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
                 context,
                 configuration,
                 taskExecutor,
-                mDatabase,
-                schedulers);
+                mDatabase);
 
         mWorkManagerImpl = new WorkManagerImpl(
                 context, configuration, taskExecutor, mDatabase, schedulers, mProcessor);

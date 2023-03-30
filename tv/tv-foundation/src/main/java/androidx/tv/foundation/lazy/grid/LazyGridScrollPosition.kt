@@ -92,7 +92,10 @@ internal class LazyGridScrollPosition(
      */
     fun updateScrollPositionIfTheFirstItemWasMoved(itemProvider: LazyGridItemProvider) {
         Snapshot.withoutReadObservation {
-            update(findLazyGridIndexByKey(lastKnownFirstItemKey, index, itemProvider), scrollOffset)
+            update(
+                ItemIndex(itemProvider.findIndexByKey(lastKnownFirstItemKey, index.value)),
+                scrollOffset
+            )
         }
     }
 
@@ -105,33 +108,31 @@ internal class LazyGridScrollPosition(
             this.scrollOffset = scrollOffset
         }
     }
+}
 
-    private companion object {
-        /**
-         * Finds a position of the item with the given key in the grid. This logic allows us to
-         * detect when there were items added or removed before our current first item.
-         */
-        private fun findLazyGridIndexByKey(
-            key: Any?,
-            lastKnownIndex: ItemIndex,
-            itemProvider: LazyGridItemProvider
-        ): ItemIndex {
-            if (key == null) {
-                // there were no real item during the previous measure
-                return lastKnownIndex
-            }
-            if (lastKnownIndex.value < itemProvider.itemCount &&
-                key == itemProvider.getKey(lastKnownIndex.value)
-            ) {
-                // this item is still at the same index
-                return lastKnownIndex
-            }
-            val newIndex = itemProvider.keyToIndexMap[key]
-            if (newIndex != null) {
-                return ItemIndex(newIndex)
-            }
-            // fallback to the previous index if we don't know the new index of the item
-            return lastKnownIndex
-        }
+/**
+ * Finds a position of the item with the given key in the lists. This logic allows us to
+ * detect when there were items added or removed before our current first item.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+internal fun LazyGridItemProvider.findIndexByKey(
+    key: Any?,
+    lastKnownIndex: Int,
+): Int {
+    if (key == null) {
+        // there were no real item during the previous measure
+        return lastKnownIndex
     }
+    if (lastKnownIndex < itemCount &&
+        key == getKey(lastKnownIndex)
+    ) {
+        // this item is still at the same index
+        return lastKnownIndex
+    }
+    val newIndex = keyToIndexMap[key]
+    if (newIndex != null) {
+        return newIndex
+    }
+    // fallback to the previous index if we don't know the new index of the item
+    return lastKnownIndex
 }

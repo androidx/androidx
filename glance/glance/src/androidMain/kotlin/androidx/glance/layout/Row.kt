@@ -18,6 +18,7 @@ package androidx.glance.layout
 
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
+import androidx.glance.Emittable
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
@@ -29,6 +30,20 @@ class EmittableRow : EmittableWithChildren() {
     override var modifier: GlanceModifier = GlanceModifier
     var horizontalAlignment: Alignment.Horizontal = Alignment.Start
     var verticalAlignment: Alignment.Vertical = Alignment.Top
+
+    override fun copy(): Emittable = EmittableRow().also {
+        it.modifier = modifier
+        it.horizontalAlignment = horizontalAlignment
+        it.verticalAlignment = verticalAlignment
+        it.children.addAll(children.map { it.copy() })
+    }
+
+    override fun toString(): String = "EmittableRow(" +
+        "modifier=$modifier, " +
+        "horizontalAlignment=$horizontalAlignment, " +
+        "verticalAlignment=$verticalAlignment, " +
+        "children=[\n${childrenToString()}\n]" +
+        ")"
 }
 
 /** Scope defining modifiers only available on rows. */
@@ -54,6 +69,9 @@ private object RowScopeImplInstance : RowScope {
  * By default, the [Row] will size itself to fit the content, unless a [Dimension] constraint has
  * been provided. When children are smaller than the size of the [Row], they will be placed
  * within the available space subject to [verticalAlignment] and [horizontalAlignment].
+ *
+ * Note for App Widgets: [Row] supports up to 10 child elements. Any additional elements will be
+ * truncated from the output.
  *
  * @param modifier The modifier to be applied to the layout.
  * @param horizontalAlignment The horizontal alignment to apply to the set of children, when they do

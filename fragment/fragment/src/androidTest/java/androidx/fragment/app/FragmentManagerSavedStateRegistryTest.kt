@@ -21,7 +21,10 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -29,10 +32,13 @@ import org.junit.runner.RunWith
 @MediumTest
 class FragmentManagerSavedStateRegistryTest {
 
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
+
     @Test
     @Throws(Throwable::class)
     fun savedState() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val fragmentManager = withActivity { supportFragmentManager }
             fragmentManager.beginTransaction()
                 .add(StateSaveFragment(TEST_FRAGMENT_STRING), FRAGMENT_TAG)

@@ -78,7 +78,7 @@ class AccessibilityNodeInfoDumper {
         serializer.attribute("", "selected", Boolean.toString(node.isSelected()));
         serializer.attribute("", "visible-to-user", Boolean.toString(node.isVisibleToUser()));
         serializer.attribute("", "bounds", AccessibilityNodeInfoHelper.getVisibleBoundsInScreen(
-                node, width, height).toShortString());
+                node, width, height, false).toShortString());
         int count = node.getChildCount();
         for (int i = 0; i < count; i++) {
             AccessibilityNodeInfo child = node.getChild(i);
@@ -87,11 +87,11 @@ class AccessibilityNodeInfoDumper {
                     dumpNodeRec(child, serializer, i, width, height);
                     child.recycle();
                 } else {
-                    Log.i(LOGTAG, String.format("Skipping invisible child: %s", child.toString()));
+                    Log.i(LOGTAG, String.format("Skipping invisible child: %s", child));
                 }
             } else {
                 Log.i(LOGTAG, String.format("Null child %d/%d, parent: %s",
-                        i, count, node.toString()));
+                        i, count, node));
             }
         }
         serializer.endTag("", "node");
@@ -166,42 +166,25 @@ class AccessibilityNodeInfoDumper {
     }
 
     private static String safeCharSeqToString(CharSequence cs) {
-        if (cs == null)
-            return "";
-        else {
-            return stripInvalidXMLChars(cs);
-        }
+        return cs == null ? "" : stripInvalidXMLChars(cs);
     }
 
     private static String stripInvalidXMLChars(CharSequence cs) {
-        StringBuffer ret = new StringBuffer();
+        StringBuilder ret = new StringBuilder();
         char ch;
-        /* http://www.w3.org/TR/xml11/#charsets
-        [#x1-#x8], [#xB-#xC], [#xE-#x1F], [#x7F-#x84], [#x86-#x9F], [#xFDD0-#xFDDF],
-        [#x1FFFE-#x1FFFF], [#x2FFFE-#x2FFFF], [#x3FFFE-#x3FFFF],
-        [#x4FFFE-#x4FFFF], [#x5FFFE-#x5FFFF], [#x6FFFE-#x6FFFF],
-        [#x7FFFE-#x7FFFF], [#x8FFFE-#x8FFFF], [#x9FFFE-#x9FFFF],
-        [#xAFFFE-#xAFFFF], [#xBFFFE-#xBFFFF], [#xCFFFE-#xCFFFF],
-        [#xDFFFE-#xDFFFF], [#xEFFFE-#xEFFFF], [#xFFFFE-#xFFFFF],
-        [#x10FFFE-#x10FFFF].
-         */
         for (int i = 0; i < cs.length(); i++) {
             ch = cs.charAt(i);
-
-            if((ch >= 0x1 && ch <= 0x8) || (ch >= 0xB && ch <= 0xC) || (ch >= 0xE && ch <= 0x1F) ||
-                    (ch >= 0x7F && ch <= 0x84) || (ch >= 0x86 && ch <= 0x9f) ||
-                    (ch >= 0xFDD0 && ch <= 0xFDDF) || (ch >= 0x1FFFE && ch <= 0x1FFFF) ||
-                    (ch >= 0x2FFFE && ch <= 0x2FFFF) || (ch >= 0x3FFFE && ch <= 0x3FFFF) ||
-                    (ch >= 0x4FFFE && ch <= 0x4FFFF) || (ch >= 0x5FFFE && ch <= 0x5FFFF) ||
-                    (ch >= 0x6FFFE && ch <= 0x6FFFF) || (ch >= 0x7FFFE && ch <= 0x7FFFF) ||
-                    (ch >= 0x8FFFE && ch <= 0x8FFFF) || (ch >= 0x9FFFE && ch <= 0x9FFFF) ||
-                    (ch >= 0xAFFFE && ch <= 0xAFFFF) || (ch >= 0xBFFFE && ch <= 0xBFFFF) ||
-                    (ch >= 0xCFFFE && ch <= 0xCFFFF) || (ch >= 0xDFFFE && ch <= 0xDFFFF) ||
-                    (ch >= 0xEFFFE && ch <= 0xEFFFF) || (ch >= 0xFFFFE && ch <= 0xFFFFF) ||
-                    (ch >= 0x10FFFE && ch <= 0x10FFFF))
+            // http://www.w3.org/TR/xml11/#charsets
+            if ((ch >= 0x1 && ch <= 0x8)
+                    || (ch >= 0xB && ch <= 0xC)
+                    || (ch >= 0xE && ch <= 0x1F)
+                    || (ch >= 0x7F && ch <= 0x84)
+                    || (ch >= 0x86 && ch <= 0x9F)
+                    || (ch >= 0xFDD0 && ch <= 0xFDDF)) {
                 ret.append(".");
-            else
+            } else {
                 ret.append(ch);
+            }
         }
         return ret.toString();
     }

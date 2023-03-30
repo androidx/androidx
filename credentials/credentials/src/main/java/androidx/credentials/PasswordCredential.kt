@@ -16,6 +16,10 @@
 
 package androidx.credentials
 
+import android.os.Bundle
+import androidx.annotation.VisibleForTesting
+import androidx.credentials.internal.FrameworkClassParsingException
+
 /**
  * Represents the user's password credential granted by the user for app sign-in.
  *
@@ -28,9 +32,41 @@ package androidx.credentials
 class PasswordCredential constructor(
     val id: String,
     val password: String,
-) : Credential() {
+) : Credential(TYPE_PASSWORD_CREDENTIAL, toBundle(id, password)) {
 
     init {
         require(password.isNotEmpty()) { "password should not be empty" }
+    }
+
+    /** @hide */
+    companion object {
+        // TODO: this type is officially defined in the framework. This definition should be
+        // removed when the framework type is available in jetpack.
+        /** @hide */
+        const val TYPE_PASSWORD_CREDENTIAL: String = "android.credentials.TYPE_PASSWORD_CREDENTIAL"
+
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        const val BUNDLE_KEY_ID = "androidx.credentials.BUNDLE_KEY_ID"
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        const val BUNDLE_KEY_PASSWORD = "androidx.credentials.BUNDLE_KEY_PASSWORD"
+
+        @JvmStatic
+        internal fun toBundle(id: String, password: String): Bundle {
+            val bundle = Bundle()
+            bundle.putString(BUNDLE_KEY_ID, id)
+            bundle.putString(BUNDLE_KEY_PASSWORD, password)
+            return bundle
+        }
+
+        @JvmStatic
+        internal fun createFrom(data: Bundle): PasswordCredential {
+            try {
+                val id = data.getString(BUNDLE_KEY_ID)
+                val password = data.getString(BUNDLE_KEY_PASSWORD)
+                return PasswordCredential(id!!, password!!)
+            } catch (e: Exception) {
+                throw FrameworkClassParsingException()
+            }
+        }
     }
 }

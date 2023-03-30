@@ -36,10 +36,12 @@ import androidx.car.app.HostInfo;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
@@ -50,6 +52,9 @@ import org.robolectric.shadows.ShadowLog;
 @DoNotInstrument
 @Config(sdk = 28)
 public class HostValidatorTestApi28 {
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
+
     private static final String VALID_PACKAGE_NAME = "com.foo";
     private static final Signature[] VALID_SIGNATURES = new Signature[]{
             new Signature("0123"),
@@ -69,8 +74,6 @@ public class HostValidatorTestApi28 {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-
         ShadowLog.stream = System.out;
         Context context = spy(ApplicationProvider.getApplicationContext());
         when(context.getPackageManager()).thenReturn(mPackageManager);

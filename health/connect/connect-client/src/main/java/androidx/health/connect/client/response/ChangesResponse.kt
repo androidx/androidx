@@ -28,7 +28,7 @@ import androidx.health.connect.client.changes.Change
  * @property hasMore Whether there are more changes available to be fetched again.
  * @property changesTokenExpired Whether requested Changes-Token has expired.
  *
- * @see [androidx.health.data.client.HealthDataClient.getChanges]
+ * @see [androidx.health.connect.client.HealthConnectClient.getChanges]
  */
 class ChangesResponse
 internal constructor(

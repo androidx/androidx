@@ -179,6 +179,8 @@ package androidx.core.graphics {
     method public static inline operator float component1(android.graphics.PointF);
     method public static inline operator int component2(android.graphics.Point);
     method public static inline operator float component2(android.graphics.PointF);
+    method public static inline operator android.graphics.Point div(android.graphics.Point, float scalar);
+    method public static inline operator android.graphics.PointF div(android.graphics.PointF, float scalar);
     method public static inline operator android.graphics.Point minus(android.graphics.Point, android.graphics.Point p);
     method public static inline operator android.graphics.PointF minus(android.graphics.PointF, android.graphics.PointF p);
     method public static inline operator android.graphics.Point minus(android.graphics.Point, int xy);
@@ -187,6 +189,8 @@ package androidx.core.graphics {
     method public static inline operator android.graphics.PointF plus(android.graphics.PointF, android.graphics.PointF p);
     method public static inline operator android.graphics.Point plus(android.graphics.Point, int xy);
     method public static inline operator android.graphics.PointF plus(android.graphics.PointF, float xy);
+    method public static inline operator android.graphics.Point times(android.graphics.Point, float scalar);
+    method public static inline operator android.graphics.PointF times(android.graphics.PointF, float scalar);
     method public static inline android.graphics.Point toPoint(android.graphics.PointF);
     method public static inline android.graphics.PointF toPointF(android.graphics.Point);
     method public static inline operator android.graphics.Point unaryMinus(android.graphics.Point);
@@ -373,7 +377,7 @@ package androidx.core.text {
   }
 
   public final class SpannedStringKt {
-    method public static inline <reified T> T![]! getSpans(android.text.Spanned, optional int start, optional int end);
+    method public static inline <reified T> T![] getSpans(android.text.Spanned, optional int start, optional int end);
     method public static inline android.text.Spanned toSpanned(CharSequence);
   }
 

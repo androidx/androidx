@@ -1068,7 +1068,7 @@ class Camera2CapturePipelineTest {
         val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         val characteristics = cameraManager.getCameraCharacteristics(cameraId)
         val characteristicsCompat = CameraCharacteristicsCompat
-            .toCameraCharacteristicsCompat(characteristics)
+            .toCameraCharacteristicsCompat(characteristics, cameraId)
         val cameraQuirk = quirks ?: CameraQuirks.get(cameraId, characteristicsCompat)
 
         return Camera2CameraControlImpl(
@@ -1224,7 +1224,10 @@ class Camera2CapturePipelineTest {
             )
         }
 
-        return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics)
+        return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
+            characteristics,
+            CAMERA_ID_0
+        )
     }
 
     private fun initCameraControlWithZsl(

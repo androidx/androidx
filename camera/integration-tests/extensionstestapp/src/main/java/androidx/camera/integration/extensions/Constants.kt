@@ -69,22 +69,6 @@ object IntentExtraKey {
     const val INTENT_EXTRA_KEY_TEST_TYPE = "TestType"
 
     /**
-     * Used to pass the test results across activities.
-     *
-     * The test results are passed via a extension mode to test result map. The extension mode
-     * might be CameraX or Camera2 extension modes. The test result might be one of the test result
-     * value listed in [TestResultType]
-     */
-    const val INTENT_EXTRA_KEY_RESULT_MAP = "ResultMap"
-
-    /**
-     * Used to pass the test result to the caller activity.
-     *
-     * The test result might be one of the test result value listed in [TestResultType].
-     */
-    const val INTENT_EXTRA_KEY_TEST_RESULT = "TestResult"
-
-    /**
      * Used to pass the captured image Uri to the caller activity.
      */
     const val INTENT_EXTRA_KEY_IMAGE_URI = "ImageUri"

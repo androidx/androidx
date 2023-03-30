@@ -1,9 +1,0 @@
-import androidx.build.layoutlib.AndroidXLayoutlibImplPlugin
-
-buildscript {
-    dependencies {
-        classpath(project.files("${project.rootProject.ext["buildSrcOut"]}/private/build/libs/private.jar"))
-    }
-}
-
-apply plugin: AndroidXLayoutlibImplPlugin

@@ -104,10 +104,14 @@ class ToneMappingSurfaceProcessor : SurfaceProcessor, OnFrameAvailableListener {
             surfaceOutput.close()
             return
         }
-        outputSurfaces[surfaceOutput] = surfaceOutput.getSurface(mainThreadExecutor()) {
+        val surface = surfaceOutput.getSurface(mainThreadExecutor()) {
             surfaceOutput.close()
-            outputSurfaces.remove(surfaceOutput)
+            outputSurfaces.remove(surfaceOutput)?.let { removedSurface ->
+                glRenderer.unregisterOutputSurface(removedSurface)
+            }
         }
+        glRenderer.registerOutputSurface(surface)
+        outputSurfaces[surfaceOutput] = surface
     }
 
     @VisibleForTesting
@@ -120,6 +124,12 @@ class ToneMappingSurfaceProcessor : SurfaceProcessor, OnFrameAvailableListener {
         if (isReleased) {
             return
         }
+
+        // Once release is called, we can stop sending frame to output surfaces.
+        for (surfaceOutput in outputSurfaces.keys) {
+            surfaceOutput.close()
+        }
+        outputSurfaces.clear()
         glRenderer.release()
         isReleased = true
     }
@@ -134,9 +144,9 @@ class ToneMappingSurfaceProcessor : SurfaceProcessor, OnFrameAvailableListener {
         for (entry in outputSurfaces.entries.iterator()) {
             val surface = entry.value
             val surfaceOutput = entry.key
-            glRenderer.setOutputSurface(surface)
+
             surfaceOutput.updateTransformMatrix(surfaceTransform, textureTransform)
-            glRenderer.render(surfaceTexture.timestamp, surfaceTransform)
+            glRenderer.render(surfaceTexture.timestamp, surfaceTransform, surface)
         }
     }
 }

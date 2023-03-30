@@ -21,7 +21,7 @@ import androidx.compose.ui.geometry.Offset
 
 /**
  * A curved layout composable that places its children stacked as part of an arc (the first child
- * will be the outermost). This is similar to a [Column] layout, that it's curved into a segment of
+ * will be the outermost). This is similar to a [Column] layout, but curved into a segment of
  * an annulus.
  *
  * The thickness of the layout (the difference between the outer and inner radius) will be the
@@ -35,7 +35,8 @@ import androidx.compose.ui.geometry.Offset
  * @param radialDirection Order to lay out components, outside in or inside out. The default is to
  * inherit from the containing [curvedColumn] or [CurvedLayout]
  * @param angularAlignment Angular alignment specifies where to lay down children that are thinner
- * than the curved column, either at the (START) of the layout, at the (END), or (CENTER).
+ * than the curved column, either at the [CurvedAlignment.Angular.Start] of the layout,
+ * at the [CurvedAlignment.Angular.End], or [CurvedAlignment.Angular.Center].
  * If unspecified or null, they can choose for themselves.
  */
 public fun CurvedScope.curvedColumn(

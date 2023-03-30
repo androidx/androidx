@@ -45,12 +45,8 @@ internal class Controller3ASetTorchTest {
     private val graphState3A = graphTestContext.graphProcessor.graphState3A
     private val graphProcessor = graphTestContext.graphProcessor
     private val listener3A = Listener3A()
-    private val controller3A = Controller3A(
-        graphProcessor,
-        FakeCameraMetadata(),
-        graphState3A,
-        listener3A
-    )
+    private val controller3A =
+        Controller3A(graphProcessor, FakeCameraMetadata(), graphState3A, listener3A)
 
     @After
     fun teardown() {
@@ -66,16 +62,15 @@ internal class Controller3ASetTorchTest {
 
         launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(
-                    requestNumber = RequestNumber(1)
-                )
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
             )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
-                    resultMetadata = mapOf(
+                    resultMetadata =
+                    mapOf(
                         CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_ON,
                         CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_TORCH
                     )
@@ -96,16 +91,15 @@ internal class Controller3ASetTorchTest {
 
         launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(
-                    requestNumber = RequestNumber(1)
-                )
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
             )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
-                    resultMetadata = mapOf(
+                    resultMetadata =
+                    mapOf(
                         CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_ON,
                         CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_OFF
                     )
@@ -123,23 +117,20 @@ internal class Controller3ASetTorchTest {
 
         val result = controller3A.setTorch(TorchState.ON)
         assertThat(graphState3A.aeMode!!.value).isEqualTo(CaptureRequest.CONTROL_AE_MODE_OFF)
-        assertThat(graphState3A.flashMode!!.value).isEqualTo(
-            CaptureRequest.FLASH_MODE_TORCH
-        )
+        assertThat(graphState3A.flashMode!!.value).isEqualTo(CaptureRequest.FLASH_MODE_TORCH)
         assertThat(result.isCompleted).isFalse()
 
         launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(
-                    requestNumber = RequestNumber(1)
-                )
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
             )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
-                    resultMetadata = mapOf(
+                    resultMetadata =
+                    mapOf(
                         CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_OFF,
                         CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_TORCH
                     )

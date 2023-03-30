@@ -26,10 +26,12 @@ import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.Serializer
+import androidx.lifecycle.Lifecycle
 import androidx.preference.Preference
 import androidx.preference.SwitchPreference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.preference.TwoStatePreference
 import com.google.protobuf.InvalidProtocolBufferException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -86,38 +88,40 @@ class SettingsFragment() : PreferenceFragmentCompat() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            // Read the initial value from disk
-            val settings: Settings = try {
-                settingsStore.data.first()
-            } catch (ex: IOException) {
-                Log.e(TAG, "Could not read settings.", ex)
-                // Show error to user here, or try re-reading.
-                return@launchWhenStarted
-            }
-
-            // Set the toggle to the value read from disk and enable the toggle.
-            fooToggle.isChecked = settings.foo
-            fooToggle.isEnabled = true
-
-            fooToggle.changeFlow.flatMapLatest { (_: Preference?, newValue: Any?) ->
-                val isChecked = newValue as Boolean
-
-                fooToggle.isEnabled = false // Disable the toggle until the write is completed
-                fooToggle.isChecked = isChecked // Set the disabled toggle to the pending value
-
-                try {
-                    settingsStore.setFoo(isChecked)
-                } catch (ex: IOException) { // setFoo can only throw IOExceptions
-                    Log.e(TAG, "Could not write settings", ex)
-                    // Show error to user here
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // Read the initial value from disk
+                val settings: Settings = try {
+                    settingsStore.data.first()
+                } catch (ex: IOException) {
+                    Log.e(TAG, "Could not read settings.", ex)
+                    // Show error to user here, or try re-reading.
+                    return@repeatOnLifecycle
                 }
-                settingsStore.data // Switch to data flow since it is the source of truth.
-            }.collect {
-                // We update the toggle to the latest persisted value - whether or not the
-                // update succeeded. If the write failed, this will reset to original state.
-                fooToggle.isChecked = it.foo
+
+                // Set the toggle to the value read from disk and enable the toggle.
+                fooToggle.isChecked = settings.foo
                 fooToggle.isEnabled = true
+
+                fooToggle.changeFlow.flatMapLatest { (_: Preference?, newValue: Any?) ->
+                    val isChecked = newValue as Boolean
+
+                    fooToggle.isEnabled = false // Disable the toggle until the write is completed
+                    fooToggle.isChecked = isChecked // Set the disabled toggle to the pending value
+
+                    try {
+                        settingsStore.setFoo(isChecked)
+                    } catch (ex: IOException) { // setFoo can only throw IOExceptions
+                        Log.e(TAG, "Could not write settings", ex)
+                        // Show error to user here
+                    }
+                    settingsStore.data // Switch to data flow since it is the source of truth.
+                }.collect {
+                    // We update the toggle to the latest persisted value - whether or not the
+                    // update succeeded. If the write failed, this will reset to original state.
+                    fooToggle.isChecked = it.foo
+                    fooToggle.isEnabled = true
+                }
             }
         }
     }

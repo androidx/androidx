@@ -55,34 +55,35 @@ internal class Result3AStateListenerImplTest {
 
     @Test
     fun testWithNoUpdate() {
-        val listenerForKeys = Result3AStateListenerImpl(
-            mapOf(
-                CaptureResult.CONTROL_AF_STATE to
-                    listOf(
-                        CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
-                    )
+        val listenerForKeys =
+            Result3AStateListenerImpl(
+                mapOf(
+                    CaptureResult.CONTROL_AF_STATE to
+                        listOf(CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED)
+                )
             )
-        )
         assertThat(listenerForKeys.result.isCompleted).isFalse()
     }
 
     @Test
     fun testKeyWithUndesirableValueInFrameMetadata() {
-        val listenerForKeys = Result3AStateListenerImpl(
-            mapOf(
-                CaptureResult.CONTROL_AF_STATE to
-                    listOf(
-                        CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
-                    )
+        val listenerForKeys =
+            Result3AStateListenerImpl(
+                mapOf(
+                    CaptureResult.CONTROL_AF_STATE to
+                        listOf(CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED)
+                )
             )
-        )
         listenerForKeys.onRequestSequenceCreated(RequestNumber(1))
 
-        val frameMetadata = FakeFrameMetadata(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN
+        val frameMetadata =
+            FakeFrameMetadata(
+                resultMetadata =
+                mapOf(
+                    CaptureResult.CONTROL_AF_STATE to
+                        CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN
+                )
             )
-        )
 
         listenerForKeys.update(RequestNumber(1), frameMetadata)
         assertThat(listenerForKeys.result.isCompleted).isFalse()
@@ -90,160 +91,192 @@ internal class Result3AStateListenerImplTest {
 
     @Test
     fun testKeyWithDesirableValueInFrameMetadata() {
-        val listenerForKeys = Result3AStateListenerImpl(
-            mapOf(
-                CaptureResult.CONTROL_AF_STATE to
-                    listOf(
-                        CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
-                    )
+        val listenerForKeys =
+            Result3AStateListenerImpl(
+                mapOf(
+                    CaptureResult.CONTROL_AF_STATE to
+                        listOf(CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED)
+                )
             )
-        )
         listenerForKeys.onRequestSequenceCreated(RequestNumber(1))
 
-        val frameMetadata = FakeFrameMetadata(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
+        val frameMetadata =
+            FakeFrameMetadata(
+                resultMetadata =
+                mapOf(
+                    CaptureResult.CONTROL_AF_STATE to
+                        CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
+                )
             )
-        )
         listenerForKeys.update(RequestNumber(1), frameMetadata)
         assertThat(listenerForKeys.result.isCompleted).isTrue()
     }
 
     @Test
     fun testKeyNotPresentInFrameMetadata() {
-        val listenerForKeys = Result3AStateListenerImpl(
-            mapOf(
-                CaptureResult.CONTROL_AF_STATE to
-                    listOf(
-                        CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
-                    )
+        val listenerForKeys =
+            Result3AStateListenerImpl(
+                mapOf(
+                    CaptureResult.CONTROL_AF_STATE to
+                        listOf(CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED)
+                )
             )
-        )
         listenerForKeys.onRequestSequenceCreated(RequestNumber(1))
 
-        val frameMetadata = FakeFrameMetadata(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_CONVERGED
+        val frameMetadata =
+            FakeFrameMetadata(
+                resultMetadata =
+                mapOf(
+                    CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_CONVERGED
+                )
             )
-        )
         listenerForKeys.update(RequestNumber(1), frameMetadata)
         assertThat(listenerForKeys.result.isCompleted).isFalse()
     }
 
     @Test
     fun testMultipleKeysWithDesiredValuesInFrameMetadata() {
-        val listenerForKeys = Result3AStateListenerImpl(
-            mapOf(
-                CaptureResult.CONTROL_AF_STATE to
-                    listOf(
-                        CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
-                        CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED
-                    ),
-                CaptureResult.CONTROL_AE_STATE to listOf(CaptureResult.CONTROL_AE_STATE_LOCKED)
+        val listenerForKeys =
+            Result3AStateListenerImpl(
+                mapOf(
+                    CaptureResult.CONTROL_AF_STATE to
+                        listOf(
+                            CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
+                            CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED
+                        ),
+                    CaptureResult.CONTROL_AE_STATE to
+                        listOf(CaptureResult.CONTROL_AE_STATE_LOCKED)
+                )
             )
-        )
         listenerForKeys.onRequestSequenceCreated(RequestNumber(1))
 
-        val frameMetadata = FakeFrameMetadata(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
-                CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED
+        val frameMetadata =
+            FakeFrameMetadata(
+                resultMetadata =
+                mapOf(
+                    CaptureResult.CONTROL_AF_STATE to
+                        CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
+                    CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED
+                )
             )
-        )
         listenerForKeys.update(RequestNumber(1), frameMetadata)
         assertThat(listenerForKeys.result.isCompleted).isTrue()
     }
 
     @Test
     fun testMultipleKeysWithDesiredValuesInFrameMetadataForASubset() {
-        val listenerForKeys = Result3AStateListenerImpl(
-            mapOf(
-                CaptureResult.CONTROL_AF_STATE to
-                    listOf(
-                        CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
-                        CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED
-                    ),
-                CaptureResult.CONTROL_AE_STATE to listOf(CaptureResult.CONTROL_AE_STATE_LOCKED)
+        val listenerForKeys =
+            Result3AStateListenerImpl(
+                mapOf(
+                    CaptureResult.CONTROL_AF_STATE to
+                        listOf(
+                            CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
+                            CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED
+                        ),
+                    CaptureResult.CONTROL_AE_STATE to
+                        listOf(CaptureResult.CONTROL_AE_STATE_LOCKED)
+                )
             )
-        )
         listenerForKeys.onRequestSequenceCreated(RequestNumber(1))
 
-        val frameMetadata = FakeFrameMetadata(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
+        val frameMetadata =
+            FakeFrameMetadata(
+                resultMetadata =
+                mapOf(
+                    CaptureResult.CONTROL_AF_STATE to
+                        CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
+                )
             )
-        )
         listenerForKeys.update(RequestNumber(1), frameMetadata)
         assertThat(listenerForKeys.result.isCompleted).isFalse()
     }
 
     @Test
     fun testMultipleUpdates() {
-        val listenerForKeys = Result3AStateListenerImpl(
-            mapOf(
-                CaptureResult.CONTROL_AF_STATE to
-                    listOf(
-                        CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
-                        CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED
-                    ),
-                CaptureResult.CONTROL_AE_STATE to listOf(CaptureResult.CONTROL_AE_STATE_LOCKED)
+        val listenerForKeys =
+            Result3AStateListenerImpl(
+                mapOf(
+                    CaptureResult.CONTROL_AF_STATE to
+                        listOf(
+                            CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
+                            CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED
+                        ),
+                    CaptureResult.CONTROL_AE_STATE to
+                        listOf(CaptureResult.CONTROL_AE_STATE_LOCKED)
+                )
             )
-        )
         listenerForKeys.onRequestSequenceCreated(RequestNumber(1))
 
-        val frameMetadata = FakeFrameMetadata(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
+        val frameMetadata =
+            FakeFrameMetadata(
+                resultMetadata =
+                mapOf(
+                    CaptureResult.CONTROL_AF_STATE to
+                        CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
+                )
             )
-        )
         listenerForKeys.update(RequestNumber(1), frameMetadata)
         assertThat(listenerForKeys.result.isCompleted).isFalse()
 
-        val frameMetadata1 = FakeFrameMetadata(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
-                CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED
+        val frameMetadata1 =
+            FakeFrameMetadata(
+                resultMetadata =
+                mapOf(
+                    CaptureResult.CONTROL_AF_STATE to
+                        CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
+                    CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED
+                )
             )
-        )
         listenerForKeys.update(RequestNumber(1), frameMetadata1)
         assertThat(listenerForKeys.result.isCompleted).isTrue()
     }
 
     @Test
     fun testTimeLimit() {
-        val listenerForKeys = Result3AStateListenerImpl(
-            exitConditionForKeys = mapOf(
-                CaptureResult.CONTROL_AF_STATE to
-                    listOf(CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED)
-            ),
-            timeLimitNs = 1000000000L
-        )
+        val listenerForKeys =
+            Result3AStateListenerImpl(
+                exitConditionForKeys =
+                mapOf(
+                    CaptureResult.CONTROL_AF_STATE to
+                        listOf(CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED)
+                ),
+                timeLimitNs = 1000000000L
+            )
         listenerForKeys.onRequestSequenceCreated(RequestNumber(1))
 
-        val frameMetadata1 = FakeFrameMetadata(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
-                CaptureResult.SENSOR_TIMESTAMP to 400000000L
+        val frameMetadata1 =
+            FakeFrameMetadata(
+                resultMetadata =
+                mapOf(
+                    CaptureResult.CONTROL_AF_STATE to
+                        CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
+                    CaptureResult.SENSOR_TIMESTAMP to 400000000L
+                )
             )
-        )
         listenerForKeys.update(RequestNumber(1), frameMetadata1)
         assertThat(listenerForKeys.result.isCompleted).isFalse()
 
-        val frameMetadata2 = FakeFrameMetadata(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
-                CaptureResult.SENSOR_TIMESTAMP to 900000000L
+        val frameMetadata2 =
+            FakeFrameMetadata(
+                resultMetadata =
+                mapOf(
+                    CaptureResult.CONTROL_AF_STATE to
+                        CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
+                    CaptureResult.SENSOR_TIMESTAMP to 900000000L
+                )
             )
-        )
         listenerForKeys.update(RequestNumber(1), frameMetadata2)
         assertThat(listenerForKeys.result.isCompleted).isFalse()
 
-        val frameMetadata3 = FakeFrameMetadata(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
-                CaptureResult.SENSOR_TIMESTAMP to 1500000000L
+        val frameMetadata3 =
+            FakeFrameMetadata(
+                resultMetadata =
+                mapOf(
+                    CaptureResult.CONTROL_AF_STATE to
+                        CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
+                    CaptureResult.SENSOR_TIMESTAMP to 1500000000L
+                )
             )
-        )
         listenerForKeys.update(RequestNumber(1), frameMetadata3)
         val completedDeferred = listenerForKeys.result
         assertThat(completedDeferred.isCompleted).isTrue()
@@ -253,54 +286,68 @@ internal class Result3AStateListenerImplTest {
 
     @Test
     fun testFrameLimit() {
-        val listenerForKeys = Result3AStateListenerImpl(
-            exitConditionForKeys = mapOf(
-                CaptureResult.CONTROL_AF_STATE to
-                    listOf(CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED)
-            ),
-            frameLimit = 10
-        )
+        val listenerForKeys =
+            Result3AStateListenerImpl(
+                exitConditionForKeys =
+                mapOf(
+                    CaptureResult.CONTROL_AF_STATE to
+                        listOf(CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED)
+                ),
+                frameLimit = 10
+            )
         listenerForKeys.onRequestSequenceCreated(RequestNumber(1))
 
         listenerForKeys.onRequestSequenceCreated(RequestNumber(1))
 
-        val frameMetadata1 = FakeFrameMetadata(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
-                CaptureResult.SENSOR_TIMESTAMP to 400000000L
-            ),
-            frameNumber = FrameNumber(1)
-        )
+        val frameMetadata1 =
+            FakeFrameMetadata(
+                resultMetadata =
+                mapOf(
+                    CaptureResult.CONTROL_AF_STATE to
+                        CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
+                    CaptureResult.SENSOR_TIMESTAMP to 400000000L
+                ),
+                frameNumber = FrameNumber(1)
+            )
         listenerForKeys.update(RequestNumber(1), frameMetadata1)
         assertThat(listenerForKeys.result.isCompleted).isFalse()
 
-        val frameMetadata2 = FakeFrameMetadata(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
-                CaptureResult.SENSOR_TIMESTAMP to 900000000L
-            ),
-            frameNumber = FrameNumber(3)
-        )
+        val frameMetadata2 =
+            FakeFrameMetadata(
+                resultMetadata =
+                mapOf(
+                    CaptureResult.CONTROL_AF_STATE to
+                        CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
+                    CaptureResult.SENSOR_TIMESTAMP to 900000000L
+                ),
+                frameNumber = FrameNumber(3)
+            )
         listenerForKeys.update(RequestNumber(1), frameMetadata2)
         assertThat(listenerForKeys.result.isCompleted).isFalse()
 
-        val frameMetadata3 = FakeFrameMetadata(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
-                CaptureResult.SENSOR_TIMESTAMP to 1500000000L
-            ),
-            frameNumber = FrameNumber(10)
-        )
+        val frameMetadata3 =
+            FakeFrameMetadata(
+                resultMetadata =
+                mapOf(
+                    CaptureResult.CONTROL_AF_STATE to
+                        CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
+                    CaptureResult.SENSOR_TIMESTAMP to 1500000000L
+                ),
+                frameNumber = FrameNumber(10)
+            )
         listenerForKeys.update(RequestNumber(1), frameMetadata3)
         assertThat(listenerForKeys.result.isCompleted).isFalse()
 
-        val frameMetadata4 = FakeFrameMetadata(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
-                CaptureResult.SENSOR_TIMESTAMP to 1700000000L
-            ),
-            frameNumber = FrameNumber(12)
-        )
+        val frameMetadata4 =
+            FakeFrameMetadata(
+                resultMetadata =
+                mapOf(
+                    CaptureResult.CONTROL_AF_STATE to
+                        CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
+                    CaptureResult.SENSOR_TIMESTAMP to 1700000000L
+                ),
+                frameNumber = FrameNumber(12)
+            )
         listenerForKeys.update(RequestNumber(1), frameMetadata4)
         val completedDeferred = listenerForKeys.result
 
@@ -311,20 +358,22 @@ internal class Result3AStateListenerImplTest {
 
     @Test
     fun testIgnoreUpdatesFromEarlierRequests() {
-        val listenerForKeys = Result3AStateListenerImpl(
-            mapOf(
-                CaptureResult.CONTROL_AF_STATE to
-                    listOf(
-                        CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
-                    )
+        val listenerForKeys =
+            Result3AStateListenerImpl(
+                mapOf(
+                    CaptureResult.CONTROL_AF_STATE to
+                        listOf(CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED)
+                )
             )
-        )
 
-        val frameMetadata = FakeFrameMetadata(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
+        val frameMetadata =
+            FakeFrameMetadata(
+                resultMetadata =
+                mapOf(
+                    CaptureResult.CONTROL_AF_STATE to
+                        CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
+                )
             )
-        )
         // The reference request number of not yet set on the listener, so the update will be
         // ignored.
         listenerForKeys.update(RequestNumber(1), frameMetadata)

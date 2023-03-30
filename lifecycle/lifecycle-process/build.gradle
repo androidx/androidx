@@ -20,6 +20,7 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -30,18 +31,18 @@ android {
 }
 
 dependencies {
+    api(libs.kotlinStdlib)
     api(project(":lifecycle:lifecycle-runtime"))
     api("androidx.startup:startup-runtime:1.1.1")
     api("androidx.annotation:annotation:1.2.0")
 
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
 }
 
 androidx {
     name = "Android Lifecycle Process"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2018"
     description = "Android Lifecycle Process"
 }

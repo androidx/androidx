@@ -16,11 +16,16 @@
 
 package androidx.room.compiler.processing.javac
 
+import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XFiler
 import androidx.room.compiler.processing.XProcessingEnv
 import com.squareup.javapoet.JavaFile
 import com.squareup.kotlinpoet.FileSpec
+import java.io.OutputStream
+import java.nio.file.Path
 import javax.annotation.processing.Filer
+import javax.tools.StandardLocation
+import kotlin.io.path.extension
 
 internal class JavacFiler(
     private val processingEnv: XProcessingEnv,
@@ -39,5 +44,25 @@ internal class JavacFiler(
                 "annotation processing environment is not set to generate Kotlin files."
         }
         fileSpec.writeTo(delegate)
+    }
+
+    override fun writeResource(
+        filePath: Path,
+        originatingElements: List<XElement>,
+        mode: XFiler.Mode
+    ): OutputStream {
+        require(filePath.extension != "java" && filePath.extension != "kt") {
+            "Could not create resource file with a source type extension. File must not be " +
+                "neither '.java' nor '.kt', but was: $filePath"
+        }
+        val javaOriginatingElements =
+            originatingElements.filterIsInstance<JavacElement>().map { it.element }.toTypedArray()
+        val fileObject = delegate.createResource(
+            StandardLocation.CLASS_OUTPUT,
+            "",
+            filePath.toString(),
+            *javaOriginatingElements
+        )
+        return fileObject.openOutputStream()
     }
 }

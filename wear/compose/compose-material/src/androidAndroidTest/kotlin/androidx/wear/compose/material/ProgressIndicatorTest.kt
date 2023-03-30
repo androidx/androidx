@@ -123,9 +123,9 @@ class CircularDeterminateProgressIndicatorTest {
             )
         }
         rule.waitForIdle()
-        // by default fully filled progress approximately takes 23-26% of the control
+        // by default fully filled progress approximately takes 23-27% of the control
         rule.onNodeWithTag(TEST_TAG).captureToImage()
-            .assertColorInPercentageRange(Color.Yellow, 23f..26f)
+            .assertColorInPercentageRange(Color.Yellow, 23f..27f)
         rule.onNodeWithTag(TEST_TAG).captureToImage().assertDoesNotContainColor(Color.Red)
     }
 
@@ -142,9 +142,9 @@ class CircularDeterminateProgressIndicatorTest {
         }
         rule.waitForIdle()
         rule.onNodeWithTag(TEST_TAG).captureToImage().assertDoesNotContainColor(Color.Yellow)
-        // by default progress track approximately takes 23-26% of the control
+        // by default progress track approximately takes 23-27% of the control
         rule.onNodeWithTag(TEST_TAG).captureToImage()
-            .assertColorInPercentageRange(Color.Red, 23f..26f)
+            .assertColorInPercentageRange(Color.Red, 23f..27f)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -241,7 +241,7 @@ class CircularDeterminateProgressIndicatorTest {
         rule.waitForIdle()
         // Because of the stroke cap, progress color takes a little bit more space than track color
         rule.onNodeWithTag(TEST_TAG).captureToImage()
-            .assertColorInPercentageRange(Color.Yellow, 24f..27f)
+            .assertColorInPercentageRange(Color.Yellow, 24f..28f)
         rule.onNodeWithTag(TEST_TAG).captureToImage()
             .assertColorInPercentageRange(Color.Red, 18f..23f)
     }

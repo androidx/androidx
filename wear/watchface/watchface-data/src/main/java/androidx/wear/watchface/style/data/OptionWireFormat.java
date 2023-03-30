@@ -43,8 +43,7 @@ public class OptionWireFormat implements VersionedParcelable, Parcelable {
 
     // WARNING: This class is held in a list and can't change due to flaws in VersionedParcelable.
 
-    OptionWireFormat() {
-    }
+    OptionWireFormat() {}
 
     public OptionWireFormat(@NonNull byte[] id) {
         mId = id;

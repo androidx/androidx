@@ -18,7 +18,6 @@ package androidx.car.app.navigation.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
@@ -26,6 +25,7 @@ import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.Distance;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.navigation.model.NavigationTemplate.NavigationInfo;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Objects;
 
@@ -34,20 +34,16 @@ import java.util.Objects;
  * navigation
  */
 @CarProtocol
+@KeepFields
 public final class RoutingInfo implements NavigationInfo {
-    @Keep
     @Nullable
     private final Step mCurrentStep;
-    @Keep
     @Nullable
     private final Distance mCurrentDistance;
-    @Keep
     @Nullable
     private final Step mNextStep;
-    @Keep
     @Nullable
     private final CarIcon mJunctionImage;
-    @Keep
     private final boolean mIsLoading;
 
     /**

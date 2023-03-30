@@ -24,7 +24,6 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
@@ -36,6 +35,7 @@ import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.Template;
 import androidx.car.app.model.Toggle;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Objects;
 
@@ -111,6 +111,7 @@ import java.util.Objects;
  * androidx.car.app.NAVIGATION_TEMPLATES} permission in the manifest.
  */
 @CarProtocol
+@KeepFields
 public final class NavigationTemplate implements Template {
 
     /**
@@ -120,25 +121,18 @@ public final class NavigationTemplate implements Template {
     public interface NavigationInfo {
     }
 
-    @Keep
     @Nullable
     private final NavigationInfo mNavigationInfo;
-    @Keep
     @Nullable
     private final CarColor mBackgroundColor;
-    @Keep
     @Nullable
     private final TravelEstimate mDestinationTravelEstimate;
-    @Keep
     @Nullable
     private final ActionStrip mActionStrip;
-    @Keep
     @Nullable
     private final ActionStrip mMapActionStrip;
-    @Keep
     @Nullable
     private final Toggle mPanModeToggle;
-    @Keep
     @Nullable
     private final PanModeDelegate mPanModeDelegate;
 

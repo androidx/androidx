@@ -22,6 +22,8 @@ import androidx.room.compiler.codegen.java.JavaTypeSpec
 import androidx.room.compiler.codegen.kotlin.KotlinTypeSpec
 import com.squareup.javapoet.JavaFile
 import com.squareup.kotlinpoet.FileSpec
+import java.io.OutputStream
+import java.nio.file.Path
 
 /**
  * Code generation interface for XProcessing.
@@ -31,6 +33,20 @@ interface XFiler {
     fun write(javaFile: JavaFile, mode: Mode = Mode.Isolating)
 
     fun write(fileSpec: FileSpec, mode: Mode = Mode.Isolating)
+
+    /**
+     * Writes a resource file that will be part of the output artifact (e.g. jar).
+     *
+     * Only non-source files should be written via this function, if the file path corresponds to a
+     * source file, `.java` or `.kt` this function will throw an exception.
+     *
+     * @return the output stream to write the resource file.
+     */
+    fun writeResource(
+        filePath: Path,
+        originatingElements: List<XElement>,
+        mode: Mode = Mode.Isolating
+    ): OutputStream
 
     /**
      * Specifies whether a file represents aggregating or isolating inputs for incremental

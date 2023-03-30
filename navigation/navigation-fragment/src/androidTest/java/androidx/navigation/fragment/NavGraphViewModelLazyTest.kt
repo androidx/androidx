@@ -30,7 +30,6 @@ import androidx.lifecycle.DEFAULT_ARGS_KEY
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
@@ -279,15 +278,14 @@ class TestRouteVMFragment : Fragment() {
         return View(activity)
     }
 
-    override fun getDefaultViewModelProviderFactory(): ViewModelProvider.Factory {
-        return SavedStateViewModelFactory()
-    }
+    override val defaultViewModelProviderFactory = SavedStateViewModelFactory()
 
-    override fun getDefaultViewModelCreationExtras(): CreationExtras {
-        val extras = MutableCreationExtras(super.getDefaultViewModelCreationExtras())
-        extras[DEFAULT_ARGS_KEY] = bundleOf("test" to "value")
-        return extras
-    }
+    override val defaultViewModelCreationExtras: CreationExtras
+        get() {
+            val extras = MutableCreationExtras(super.defaultViewModelCreationExtras)
+            extras[DEFAULT_ARGS_KEY] = bundleOf("test" to "value")
+            return extras
+        }
 }
 
 class TestViewModel : ViewModel()

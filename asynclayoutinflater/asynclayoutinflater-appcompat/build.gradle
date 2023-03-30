@@ -15,7 +15,6 @@ dependencies {
 androidx {
     name = "AsyncLayoutInflater integration for AppCompat"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.ASYNCLAYOUTINFLATER
     inceptionYear = "2022"
     description = "A thread-safe LayoutInflater Factory that provides compatibility between AsyncLayoutInflater and AppCompat."
 }

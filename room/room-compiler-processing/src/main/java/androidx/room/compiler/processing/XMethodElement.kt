@@ -27,7 +27,8 @@ import androidx.room.compiler.processing.util.isValidJavaSourceName
 interface XMethodElement : XExecutableElement {
     /**
      * The name of the method in JVM.
-     * Use this properly when you need to generate code accessing this method.
+     *
+     * Use this property when you need to generate Java code accessing this method.
      *
      * For Kotlin sources, this might be different from name in source if:
      * * Function is annotated with @JvmName
@@ -125,6 +126,14 @@ interface XMethodElement : XExecutableElement {
      * expensive operation that includes type resolution (in KSP).
      */
     fun hasValidJvmSourceName() = jvmName.isValidJavaSourceName()
+
+    /**
+     * Returns true if this method is a Kotlin property getter or setter.
+     *
+     * Note that if the origin is a Java source this function will always return `false` even if
+     * the method name matches the property naming convention.
+     */
+    fun isKotlinPropertyMethod(): Boolean
 }
 
 internal fun <T : XMethodElement> List<T>.filterMethodsByConfig(

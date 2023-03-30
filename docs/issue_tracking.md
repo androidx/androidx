@@ -2,16 +2,24 @@
 
 [TOC]
 
+This document provides an external-facing explanation of how to file a bug
+against a Jetpack library or infrastructure component and how to interpret the
+various statuses and priorities displayed in the issue tracker.
+
 ## Issue tracker {#tracker}
 
 The public-facing issue tracker URL is
-[issuetracker.google.com](https://issuetracker.google.com). If you visit this
-URL from a Google-internal account, it will immediately redirect you to the
-internal-facing issue tracker URL. Make sure that any links you paste publicly
-have the correct public-facing URL.
+[issuetracker.google.com](https://issuetracker.google.com).
 
 The top-level Jetpack component is
 [`Android Public Tracker > App Development > Jetpack (androidx)`](https://issuetracker.google.com/components/192731/manage#basic).
+**Do not** file bugs against the top-level component. Individual library
+components are organized by group and can be searched by entering the Maven
+group in the issue tracker's component field, e.g. `androidx.core`.
+
+Issues with tools, processes, or infrastructure should be reported under the
+[`Jetpack (androidx) > Infrastructure`](https://issuetracker.google.com/components/705292/manage#basic)
+component.
 
 ## Reporting guidelines {#reporting}
 
@@ -47,8 +55,17 @@ information provided on Google Play.
 | Status   | Description                                                       |
 | -------- | ----------------------------------------------------------------- |
 | New      | The default for public bugs. Waiting for someone to validate,     |
-:          : reproduce, or otherwise confirm that this is actionable.          :
-| Assigned | Pending action from the assignee. May be reassigned.              |
+:          : reproduce, or otherwise confirm that this is actionable. Bugs in  :
+:          : this state can be either Untriaged or Triaged. Untriaged state    :
+:          : refers to a status where an issue has been filed against our      :
+:          : team, but the team/person responsible for fixing the issue has    :
+:          : not looked at it yet. Triaged state refers to a status where an   :
+:          : issue filed against the team has been reviewed by the             :
+:          : team/person, and they have accurately updated the priority of the :
+:          : issue.                                                            :
+| Assigned | In this state, the issue is ready to be added to an iteration     |
+:          : with a level of certainty that it will be completed within the    :
+:          : upcoming team iteration. Issues here should be >=P3               :
 | Accepted | Actively being worked on by the assignee. Do not reassign.        |
 | Fixed    | Fixed in the development branch. Do not re-open unless the fix is |
 :          : reverted.                                                         :
@@ -91,13 +108,13 @@ information provided on Google Play.
 ## Issue lifecycle
 
 1.  When an issue is reported, it is set to `Assigned` status for default
-    assignee (typically the [library owner](owners.md)) with a priority of
-    **P4**.
+    assignee (typically the [library owner](/company/teams/androidx/owners.md))
+    with a priority of **P4**.
 1.  Once an issue has been triaged by the assignee, its priority will be raised
     from **P4** according to severity.
 1.  The issue may still be reassigned at this point.
-    [Bug bounty](onboarding.md#bug-bounty) issues are likely to change
-    assignees.
+    [Bug bounty](/company/teams/androidx/onboarding.md#bug-bounty) issues are
+    likely to change assignees.
 1.  A status of **Accepted** means the assignee is actively working on the
     issue.
 1.  A status of **Fixed** means that the issue has been resolved in the
@@ -107,3 +124,8 @@ information provided on Google Play.
     propagated into a specific release channel. **Do not** re-open an issue that
     has been fixed unless the fix was reverted or the exact reported issue is
     still occurring.
+1.  A status of **WontFix** means that the issue cannot be resolved within a
+    year due to prioritization, staffing, etc. **Do not** re-open an issue that
+    has been marked as WontFix or file identical issues. Issues that are open to
+    reconsideration will be added to an internal hotlist and revisited when the
+    circumstances surrounding their closure have changed.

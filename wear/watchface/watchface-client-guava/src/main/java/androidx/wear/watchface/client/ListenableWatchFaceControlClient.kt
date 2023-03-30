@@ -19,20 +19,20 @@ package androidx.wear.watchface.client
 import android.content.ComponentName
 import android.content.Context
 import androidx.concurrent.futures.ResolvableFuture
+import androidx.core.util.Consumer
 import androidx.wear.watchface.Renderer
-import androidx.wear.watchface.complications.data.ComplicationData
-import androidx.wear.watchface.utility.AsyncTraceEvent
 import androidx.wear.watchface.client.WatchFaceControlClient.ServiceNotBoundException
+import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.style.UserStyleData
+import androidx.wear.watchface.utility.AsyncTraceEvent
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.Executor
-import java.util.function.Consumer
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 
 /**
  * [ListenableFuture]-based compatibility wrapper around [WatchFaceControlClient]'s suspending
@@ -47,13 +47,14 @@ public open class ListenableWatchFaceControlClient(
         watchFaceControlClient.getInteractiveWatchFaceClientInstance(instanceId)
 
     public companion object {
-        internal fun createImmediateCoroutineScope() = CoroutineScope(
-            object : CoroutineDispatcher() {
-                override fun dispatch(context: CoroutineContext, block: Runnable) {
-                    block.run()
+        internal fun createImmediateCoroutineScope() =
+            CoroutineScope(
+                object : CoroutineDispatcher() {
+                    override fun dispatch(context: CoroutineContext, block: Runnable) {
+                        block.run()
+                    }
                 }
-            }
-        )
+            )
 
         /**
          * Launches a coroutine with a new scope and returns a future that correctly handles
@@ -97,11 +98,11 @@ public open class ListenableWatchFaceControlClient(
          * asynchronously when the service is connected on a background thread.
          *
          * @param context Calling application's [Context].
-         * @param watchFacePackageName Name of the package containing the watch face control
-         * service to bind to.
+         * @param watchFacePackageName Name of the package containing the watch face control service
+         *   to bind to.
          * @return [ListenableFuture]<[ListenableWatchFaceControlClient]> which on success resolves
-         * to a [ListenableWatchFaceControlClient] or throws a [ServiceNotBoundException] if the
-         * watch face control service can not be bound.
+         *   to a [ListenableWatchFaceControlClient] or throws a [ServiceNotBoundException] if the
+         *   watch face control service can not be bound.
          */
         @JvmStatic
         public fun createWatchFaceControlClient(
@@ -152,17 +153,17 @@ public open class ListenableWatchFaceControlClient(
 
     /**
      * [ListenableFuture] wrapper around
-     * [WatchFaceControlClient.getOrCreateInteractiveWatchFaceClient].
-     * This is open to allow mocking.
+     * [WatchFaceControlClient.getOrCreateInteractiveWatchFaceClient]. This is open to allow
+     * mocking.
      *
      * @param id The Id of the interactive instance to get or create.
      * @param deviceConfig The [DeviceConfig] of the interactive instance (only used when creating)
      * @param watchUiState The initial [WatchUiState] for the wearable.
      * @param userStyle Optional [UserStyleData] to apply to the instance (whether or not it's
-     * created). If `null` then the pre-existing user style is preserved (if the instance is created
-     * this will be the [androidx.wear.watchface.style.UserStyleSchema]'s default).
+     *   created). If `null` then the pre-existing user style is preserved (if the instance is
+     *   created this will be the [androidx.wear.watchface.style.UserStyleSchema]'s default).
      * @param slotIdToComplicationData The initial [androidx.wear.watchface.ComplicationSlot] data,
-     * or `null` if unavailable.
+     *   or `null` if unavailable.
      * @return a [ListenableFuture] for the [InteractiveWatchFaceClient].
      */
     @Suppress("AsyncSuffixFuture")
@@ -196,29 +197,29 @@ public open class ListenableWatchFaceControlClient(
 
     /**
      * [ListenableFuture] wrapper around
-     * [WatchFaceControlClient.getOrCreateInteractiveWatchFaceClient].
-     * This is open to allow mocking.
+     * [WatchFaceControlClient.getOrCreateInteractiveWatchFaceClient]. This is open to allow
+     * mocking.
      *
      * @param id The Id of the interactive instance to get or create.
      * @param deviceConfig The [DeviceConfig] of the interactive instance (only used when creating)
      * @param watchUiState The initial [WatchUiState] for the wearable.
      * @param userStyle Optional [UserStyleData] to apply to the instance (whether or not it's
-     * created). If `null` then the pre-existing user style is preserved (if the instance is created
-     * this will be the [androidx.wear.watchface.style.UserStyleSchema]'s default).
+     *   created). If `null` then the pre-existing user style is preserved (if the instance is
+     *   created this will be the [androidx.wear.watchface.style.UserStyleSchema]'s default).
      * @param slotIdToComplicationData The initial [androidx.wear.watchface.ComplicationSlot] data,
-     * or `null` if unavailable.
+     *   or `null` if unavailable.
      * @param previewImageUpdateRequestedExecutor The [Executor] on which to run
-     * [previewImageUpdateRequestedListener] if the watch face calls
-     * [Renderer.sendPreviewImageNeedsUpdateRequest].
+     *   [previewImageUpdateRequestedListener] if the watch face calls
+     *   [Renderer.sendPreviewImageNeedsUpdateRequest].
      * @param previewImageUpdateRequestedListener The [Consumer] fires when the watch face calls
-     * [Renderer.sendPreviewImageNeedsUpdateRequest], indicating that it now looks visually
-     * different. The string passed to the [Consumer] is the ID of the watch face (see [id] passed
-     * into [getOrCreateInteractiveWatchFaceClient]) requesting the update. This will usually
-     * match the current watch face but it could also be from a previous watch face if
-     * [InteractiveWatchFaceClient.updateWatchFaceInstance] is called shortly after
-     * [Renderer.sendPreviewImageNeedsUpdateRequest].
-     * The [Consumer] should Schedule creation of a headless instance to render a new preview image
-     * for the instanceId. This is likely an expensive operation and should be rate limited.
+     *   [Renderer.sendPreviewImageNeedsUpdateRequest], indicating that it now looks visually
+     *   different. The string passed to the [Consumer] is the ID of the watch face (see [id] passed
+     *   into [getOrCreateInteractiveWatchFaceClient]) requesting the update. This will usually
+     *   match the current watch face but it could also be from a previous watch face if
+     *   [InteractiveWatchFaceClient.updateWatchFaceInstance] is called shortly after
+     *   [Renderer.sendPreviewImageNeedsUpdateRequest]. The [Consumer] should Schedule creation of a
+     *   headless instance to render a new preview image for the instanceId. This is likely an
+     *   expensive operation and should be rate limited.
      * @return a [ListenableFuture] for the [InteractiveWatchFaceClient].
      */
     @Suppress("AsyncSuffixFuture")
@@ -247,10 +248,12 @@ public open class ListenableWatchFaceControlClient(
 
     @Deprecated(
         "Use an overload that specifies a Consumer<String>",
-        replaceWith = ReplaceWith(
-            "getOrCreateInteractiveWatchFaceClient(String, DeviceConfig, WatchUiState," +
-                " UserStyleData?, Map<Int, ComplicationData>?, Executor, " +
-                "Consumer<String>)")
+        replaceWith =
+            ReplaceWith(
+                "getOrCreateInteractiveWatchFaceClient(String, DeviceConfig, WatchUiState," +
+                    " UserStyleData?, Map<Int, ComplicationData>?, Executor, " +
+                    "Consumer<String>)"
+            )
     )
     @Suppress("deprecation")
     override suspend fun getOrCreateInteractiveWatchFaceClient(

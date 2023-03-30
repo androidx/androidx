@@ -35,10 +35,6 @@ class OneTimeWorkRequest internal constructor(builder: Builder) :
     class Builder(workerClass: Class<out ListenableWorker>) :
         WorkRequest.Builder<Builder, OneTimeWorkRequest>(workerClass) {
 
-        init {
-            workSpec.inputMergerClassName = OverwritingInputMerger::class.java.name
-        }
-
         /**
          * Specifies the [InputMerger] class name for this [OneTimeWorkRequest].
          *

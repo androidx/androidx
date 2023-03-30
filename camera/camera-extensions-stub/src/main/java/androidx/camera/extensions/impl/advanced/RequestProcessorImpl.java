@@ -27,6 +27,8 @@ import java.util.Map;
 
 /**
  * An Interface to execute Camera2 capture requests.
+ *
+ * @since 1.2
  */
 @SuppressLint("UnknownNullness")
 public interface RequestProcessorImpl {

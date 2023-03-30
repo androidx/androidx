@@ -31,6 +31,7 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
+@Suppress("DEPRECATION")
 internal class ScalingLazyColumnSnapFlingBehavior(
     val state: ScalingLazyListState,
     val snapOffset: Int = 0,

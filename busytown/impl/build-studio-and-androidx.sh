@@ -52,7 +52,7 @@ export ANDROID_HOME="$ANDROIDX_DIR/prebuilts/fullsdk-$plat"
 
 function buildStudio() {
   STUDIO_BUILD_LOG="$OUT_DIR/studio.log"
-  if JAVA_HOME="$STUDIO_DIR/prebuilts/studio/jdk/jdk11/$STUDIO_JDK" $gw -p $TOOLS_DIR publishLocal --stacktrace --no-daemon > "$STUDIO_BUILD_LOG" 2>&1; then
+  if JAVA_HOME="$STUDIO_DIR/prebuilts/studio/jdk/jdk17/$STUDIO_JDK" $gw -p $TOOLS_DIR publishLocal --stacktrace --no-daemon > "$STUDIO_BUILD_LOG" 2>&1; then
     echo built studio successfully
   else
     cat "$STUDIO_BUILD_LOG" >&2
@@ -61,7 +61,7 @@ function buildStudio() {
   fi
 
   # stop any remaining Gradle daemons, b/205883835
-  JAVA_HOME="$STUDIO_DIR/prebuilts/studio/jdk/jdk11/$STUDIO_JDK" $gw -p $TOOLS_DIR --stop
+  JAVA_HOME="$STUDIO_DIR/prebuilts/studio/jdk/jdk17/$STUDIO_JDK" $gw -p $TOOLS_DIR --stop
 }
 
 function zipStudio() {
@@ -88,11 +88,15 @@ killKotlinDaemons
 
 listJavaProcesses
 
+# Depend on the generated version.properties file, as the version depends on
+# the release flag
+versionProperties="$STUDIO_DIR/out/build/base/builder-model/build/resources/main/com/android/builder/model/version.properties"
 # Mac grep doesn't support -P, so use perl version of `grep -oP "(?<=buildVersion = ).*"`
-export LINT_VERSION=`perl -nle'print $& while m{(?<=baseVersion = ).*}g' $TOOLS_DIR/buildSrc/base/version.properties`
-export GRADLE_PLUGIN_VERSION=`perl -nle'print $& while m{(?<=buildVersion = ).*}g' $TOOLS_DIR/buildSrc/base/version.properties`
+export LINT_VERSION=`perl -nle'print $& while m{(?<=baseVersion=).*}g' $versionProperties`
+export GRADLE_PLUGIN_VERSION=`perl -nle'print $& while m{(?<=buildVersion=).*}g' $versionProperties`
+echo "GRADLE_PLUGIN_VERSION=$GRADLE_PLUGIN_VERSION"
 export GRADLE_PLUGIN_REPO="$STUDIO_DIR/out/repo:$STUDIO_DIR/prebuilts/tools/common/m2/repository"
-export JAVA_HOME="$(pwd)/prebuilts/jdk/jdk11/$PREBUILT_JDK/"
+export JAVA_HOME="$(pwd)/prebuilts/jdk/jdk17/$PREBUILT_JDK/"
 export JAVA_TOOLS_JAR="$(pwd)/prebuilts/jdk/jdk8/$PREBUILT_JDK/lib/tools.jar"
 export LINT_PRINT_STACKTRACE=true
 if [ "$USE_ANDROIDX_REMOTE_BUILD_CACHE" == "" ]; then
@@ -108,7 +112,7 @@ function buildAndroidx() {
   else
     RETURN_CODE=1
   fi
-  $SCRIPTS_DIR/impl/parse_profile_htmls.sh
+  $SCRIPTS_DIR/impl/parse_profile_data.sh
 
   # zip build scan
   scanZip="$DIST_DIR/scan.zip"

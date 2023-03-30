@@ -41,6 +41,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.UiThread;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.viewfinder.internal.quirk.DeviceQuirks;
 import androidx.camera.viewfinder.internal.quirk.SurfaceViewNotCroppedByParentQuirk;
 import androidx.camera.viewfinder.internal.quirk.SurfaceViewStretchedQuirk;
@@ -79,7 +80,7 @@ public final class CameraViewfinder extends FrameLayout {
     @NonNull
     private final Looper mRequiredLooper = Looper.myLooper();
 
-    @NonNull ImplementationMode mImplementationMode = DEFAULT_IMPL_MODE;
+    @NonNull ImplementationMode mImplementationMode;
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
@@ -116,8 +117,11 @@ public final class CameraViewfinder extends FrameLayout {
             }
             Logger.d(TAG, "Surface requested by Viewfinder.");
 
-            mImplementation = shouldUseTextureView(
-                    surfaceRequest.isLegacyDevice(), mImplementationMode)
+            if (surfaceRequest.getImplementationMode() != null) {
+                mImplementationMode = surfaceRequest.getImplementationMode();
+            }
+
+            mImplementation = shouldUseTextureView(mImplementationMode)
                     ? new TextureViewImplementation(
                             CameraViewfinder.this, mViewfinderTransformation)
                     : new SurfaceViewImplementation(
@@ -130,10 +134,12 @@ public final class CameraViewfinder extends FrameLayout {
                 mViewfinderTransformation.setTransformationInfo(
                         createTransformInfo(surfaceRequest.getResolution(),
                                 display,
-                                surfaceRequest.isFrontCamera(),
+                                surfaceRequest.getLensFacing()
+                                        == CameraCharacteristics.LENS_FACING_FRONT,
                                 surfaceRequest.getSensorOrientation()),
                         surfaceRequest.getResolution(),
-                        surfaceRequest.isFrontCamera());
+                        surfaceRequest.getLensFacing()
+                                == CameraCharacteristics.LENS_FACING_FRONT);
                 redrawViewfinder();
             }
         }
@@ -176,7 +182,7 @@ public final class CameraViewfinder extends FrameLayout {
             int implementationModeId =
                     attributes.getInteger(R.styleable.Viewfinder_implementationMode,
                             DEFAULT_IMPL_MODE.getId());
-            setImplementationMode(ImplementationMode.fromId(implementationModeId));
+            mImplementationMode = ImplementationMode.fromId(implementationModeId);
         } finally {
             attributes.recycle();
         }
@@ -189,36 +195,15 @@ public final class CameraViewfinder extends FrameLayout {
     }
 
     /**
-     * Sets the {@link ImplementationMode} for the {@link CameraViewfinder}.
-     *
-     * <p> This value can also be set in the layout XML file via the {@code app:implementationMode}
-     * attribute.
-     *
-     * <p> {@link CameraViewfinder} displays the viewfinder with a {@link TextureView} when the
-     * mode is {@link ImplementationMode#COMPATIBLE}, and tries to use a {@link SurfaceView} if
-     * it is {@link ImplementationMode#PERFORMANCE} when possible, which depends on the device's
-     * attributes (e.g. API level). If not set, the default mode is
-     * {@link ImplementationMode#PERFORMANCE}.
-     *
-     * <p> This method should be called after {@link CameraViewfinder} is inflated and before
-     * {@link CameraViewfinder#requestSurfaceAsync(ViewfinderSurfaceRequest)}. If a new
-     * {@link ImplementationMode} is set, the capture session needs to be recreated and new
-     * surface request needs to be sent to make it effective.
-     *
-     * @param implementationMode The {@link ImplementationMode} to apply to the viewfinder.
-     * @attr name app:implementationMode
-     */
-    @UiThread
-    public void setImplementationMode(@NonNull final ImplementationMode implementationMode) {
-        checkUiThread();
-        mImplementationMode = implementationMode;
-    }
-
-    /**
      * Returns the {@link ImplementationMode}.
      *
-     * <p> If nothing is set via {@link #setImplementationMode}, the default
-     * value is {@link ImplementationMode#PERFORMANCE}.
+     * <p> For each {@link ViewfinderSurfaceRequest} sent to {@link CameraViewfinder}, the
+     * {@link ImplementationMode} set in the {@link ViewfinderSurfaceRequest} will be used first.
+     * If it's not set, the {@code app:implementationMode} in the layout xml will be used. If
+     * it's not set in the layout xml, the default value {@link ImplementationMode#PERFORMANCE}
+     * will be used. Each {@link ViewfinderSurfaceRequest sent to {@link CameraViewfinder} can
+     * override the {@link ImplementationMode} once it has set the
+     * {@link ImplementationMode}.
      *
      * @return The {@link ImplementationMode} for {@link CameraViewfinder}.
      */
@@ -376,16 +361,15 @@ public final class CameraViewfinder extends FrameLayout {
         stopListeningToDisplayChange();
     }
 
-    // Synthetic access
-    @SuppressWarnings("WeakerAccess")
-    static boolean shouldUseTextureView(
-            boolean isLegacyDevice,
-            @NonNull final ImplementationMode implementationMode) {
+    @VisibleForTesting
+    static boolean shouldUseTextureView(@NonNull final ImplementationMode implementationMode) {
         boolean hasSurfaceViewQuirk = DeviceQuirks.get(SurfaceViewStretchedQuirk.class) != null
                 ||  DeviceQuirks.get(SurfaceViewNotCroppedByParentQuirk.class) != null;
-        if (Build.VERSION.SDK_INT <= 24 || isLegacyDevice || hasSurfaceViewQuirk) {
+        if (Build.VERSION.SDK_INT <= 24 || hasSurfaceViewQuirk) {
             // Force to use TextureView when the device is running android 7.0 and below, legacy
             // level or SurfaceView has quirks.
+            Logger.d(TAG, "Implementation mode to set is not supported, forcing to use "
+                    + "TextureView, because transform APIs are not supported on these devices.");
             return true;
         }
         switch (implementationMode) {
@@ -624,7 +608,8 @@ public final class CameraViewfinder extends FrameLayout {
                     mViewfinderTransformation.updateTransformInfo(
                             createTransformInfo(surfaceRequest.getResolution(),
                                     display,
-                                    surfaceRequest.isFrontCamera(),
+                                    surfaceRequest.getLensFacing()
+                                            == CameraCharacteristics.LENS_FACING_FRONT,
                                     surfaceRequest.getSensorOrientation()));
                     redrawViewfinder();
                 }

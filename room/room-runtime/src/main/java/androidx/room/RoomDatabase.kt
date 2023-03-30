@@ -394,13 +394,22 @@ abstract class RoomDatabase {
     /**
      * True if database connection is open and initialized.
      *
+     * When Room is configured with [RoomDatabase.Builder.setAutoCloseTimeout] the database
+     * is considered open even if internally the connection has been closed, unless manually closed.
+     *
      * @return true if the database connection is open, false otherwise.
      */
-    @Suppress("Deprecation")
+    @Suppress("Deprecation") // Due to usage of `mDatabase`
     open val isOpen: Boolean
-        get() {
-            return (autoCloser?.isActive ?: mDatabase?.isOpen) == true
-        }
+        get() = (autoCloser?.isActive ?: mDatabase?.isOpen) == true
+
+    /**
+     * True if the actual database connection is open, regardless of auto-close.
+     */
+    @Suppress("Deprecation") // Due to usage of `mDatabase`
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    val isOpenInternal: Boolean
+        get() = mDatabase?.isOpen == true
 
     /**
      * Closes the database if it is already open.
@@ -460,7 +469,7 @@ abstract class RoomDatabase {
      * @param args  The bind arguments for the placeholders in the query
      * @return A Cursor obtained by running the given query in the Room database.
      */
-    open fun query(query: String, args: Array<Any?>?): Cursor {
+    open fun query(query: String, args: Array<out Any?>?): Cursor {
         return openHelper.writableDatabase.query(SimpleSQLiteQuery(query, args))
     }
 
@@ -1193,7 +1202,7 @@ abstract class RoomDatabase {
 
         /**
          * Enables auto-closing for the database to free up unused resources. The underlying
-         * database will be closed after it's last use after the specified `autoCloseTimeout` has
+         * database will be closed after it's last use after the specified [autoCloseTimeout] has
          * elapsed since its last usage. The database will be automatically
          * re-opened the next time it is accessed.
          *
@@ -1210,7 +1219,7 @@ abstract class RoomDatabase {
          *
          * The auto-closing database operation runs on the query executor.
          *
-         * The database will not be reopened if the RoomDatabase or the
+         * The database will not be re-opened if the RoomDatabase or the
          * SupportSqliteOpenHelper is closed manually (by calling
          * [RoomDatabase.close] or [SupportSQLiteOpenHelper.close]. If the
          * database is closed manually, you must create a new database using

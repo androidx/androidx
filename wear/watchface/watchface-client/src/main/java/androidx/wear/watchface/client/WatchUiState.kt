@@ -21,16 +21,18 @@ import androidx.annotation.IntDef
 
 /**
  * The InterruptionFilter.
+ *
  * @hide
  */
 @IntDef(
-    value = [
-        NotificationManager.INTERRUPTION_FILTER_ALARMS,
-        NotificationManager.INTERRUPTION_FILTER_ALL,
-        NotificationManager.INTERRUPTION_FILTER_NONE,
-        NotificationManager.INTERRUPTION_FILTER_PRIORITY,
-        NotificationManager.INTERRUPTION_FILTER_UNKNOWN
-    ]
+    value =
+        [
+            NotificationManager.INTERRUPTION_FILTER_ALARMS,
+            NotificationManager.INTERRUPTION_FILTER_ALL,
+            NotificationManager.INTERRUPTION_FILTER_NONE,
+            NotificationManager.INTERRUPTION_FILTER_PRIORITY,
+            NotificationManager.INTERRUPTION_FILTER_UNKNOWN
+        ]
 )
 public annotation class InterruptionFilter
 
@@ -39,19 +41,15 @@ public annotation class InterruptionFilter
  *
  * @param inAmbientMode Whether the device is is ambient mode or not.
  * @param interruptionFilter The interruption filter defines which notifications are allowed to
- * interrupt the user. For watch faces this value is one of:
- * [NotificationManager.INTERRUPTION_FILTER_ALARMS],
- * [NotificationManager.INTERRUPTION_FILTER_ALL],
- * [NotificationManager.INTERRUPTION_FILTER_NONE],
- * [NotificationManager.INTERRUPTION_FILTER_PRIORITY],
- * [NotificationManager.INTERRUPTION_FILTER_UNKNOWN]. @see [NotificationManager] for more details.
+ *   interrupt the user. For watch faces this value is one of:
+ *   [NotificationManager.INTERRUPTION_FILTER_ALARMS],
+ *   [NotificationManager.INTERRUPTION_FILTER_ALL], [NotificationManager.INTERRUPTION_FILTER_NONE],
+ *   [NotificationManager.INTERRUPTION_FILTER_PRIORITY],
+ *   [NotificationManager.INTERRUPTION_FILTER_UNKNOWN]. @see [NotificationManager] for more details.
  */
 public class WatchUiState(
-    @get:JvmName("inAmbientMode")
-    public val inAmbientMode: Boolean,
-
-    @InterruptionFilter
-    public val interruptionFilter: Int
+    @get:JvmName("inAmbientMode") public val inAmbientMode: Boolean,
+    @InterruptionFilter public val interruptionFilter: Int
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

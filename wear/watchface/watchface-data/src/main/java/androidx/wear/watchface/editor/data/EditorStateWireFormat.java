@@ -62,8 +62,7 @@ public final class EditorStateWireFormat implements VersionedParcelable, Parcela
     Bundle mPreviewImageBundle;
 
     /** Used by VersionedParcelable. */
-    EditorStateWireFormat() {
-    }
+    EditorStateWireFormat() {}
 
     public EditorStateWireFormat(
             @Nullable String watchFaceInstanceId,

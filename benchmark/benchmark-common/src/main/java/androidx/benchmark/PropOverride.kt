@@ -43,11 +43,11 @@ public class PropOverride(
             return
         }
 
-        val currentPropVal = Shell.executeCommand("getprop $propName").trim()
+        val currentPropVal = Shell.getprop(propName)
         if (currentPropVal != overrideValue) {
             resetValue = currentPropVal
             Log.d(BenchmarkState.TAG, "setting $propName to $overrideValue (was $currentPropVal)")
-            Shell.executeCommand("setprop $propName $overrideValue")
+            Shell.executeScriptCaptureStdout("setprop $propName $overrideValue")
         }
     }
 

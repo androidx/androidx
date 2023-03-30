@@ -37,6 +37,13 @@ dependencies {
     implementation(project(":fragment:fragment-ktx"))
     implementation("androidx.transition:transition:1.3.0")
     implementation("androidx.recyclerview:recyclerview:1.1.0")
+    debugImplementation(project(":fragment:fragment-testing-manifest"))
+
+    androidTestImplementation(project(":fragment:fragment-testing"))
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.espressoCore)
 }
 
 tasks["check"].dependsOn(tasks["connectedCheck"])

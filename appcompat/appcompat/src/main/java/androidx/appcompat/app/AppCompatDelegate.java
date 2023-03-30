@@ -30,6 +30,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.LocaleList;
 import android.util.AttributeSet;
@@ -48,7 +49,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
@@ -57,7 +57,6 @@ import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.widget.VectorEnabledTintResources;
 import androidx.collection.ArraySet;
-import androidx.core.os.BuildCompat;
 import androidx.core.os.LocaleListCompat;
 import androidx.core.view.WindowCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -189,8 +188,6 @@ public abstract class AppCompatDelegate {
     private static LocaleListCompat sStoredAppLocales = null;
     private static Boolean sIsAutoStoreLocalesOptedIn = null;
     private static boolean sIsFrameworkSyncChecked = false;
-    private static Object sLocaleManager = null;
-    private static Context sAppContext = null;
 
     /**
      * All AppCompatDelegate instances associated with a "live" Activity, e.g. lifecycle state is
@@ -720,10 +717,9 @@ public abstract class AppCompatDelegate {
      *
      * @param locales a list of locales.
      */
-    @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
     public static void setApplicationLocales(@NonNull LocaleListCompat locales) {
         requireNonNull(locales);
-        if (BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT >= 33) {
             // If the API version is 33 (version for T) or above we want to redirect the call to
             // the framework API.
             Object localeManager = getLocaleManagerForApplication();
@@ -758,9 +754,8 @@ public abstract class AppCompatDelegate {
      */
     @AnyThread
     @NonNull
-    @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
     public static LocaleListCompat getApplicationLocales() {
-        if (BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT >= 33) {
             // If the API version is 33 or above we want to redirect the call to the framework API.
             Object localeManager = getLocaleManagerForApplication();
             if (localeManager != null) {
@@ -835,30 +830,16 @@ public abstract class AppCompatDelegate {
      */
     @RequiresApi(33)
     static Object getLocaleManagerForApplication() {
-        if (sLocaleManager != null) {
-            return sLocaleManager;
-        }
-        // Traversing through the active delegates to retrieve context for any one non null
-        // delegate.
-        // This context is used to create a localeManager which is saved as a static variable to
-        // reduce multiple object creation for different activities.
-        if (sAppContext == null) {
-            for (WeakReference<AppCompatDelegate> activeDelegate : sActivityDelegates) {
-                final AppCompatDelegate delegate = activeDelegate.get();
-                if (delegate != null) {
-                    Context context = delegate.getContextForDelegate();
-                    if (context != null) {
-                        sAppContext = context;
-                        break;
-                    }
+        for (WeakReference<AppCompatDelegate> activeDelegate : sActivityDelegates) {
+            final AppCompatDelegate delegate = activeDelegate.get();
+            if (delegate != null) {
+                Context context = delegate.getContextForDelegate();
+                if (context != null) {
+                    return context.getSystemService(Context.LOCALE_SERVICE);
                 }
             }
         }
-
-        if (sAppContext != null) {
-            sLocaleManager = sAppContext.getSystemService(Context.LOCALE_SERVICE);
-        }
-        return sLocaleManager;
+        return null;
     }
 
     /**
@@ -916,16 +897,13 @@ public abstract class AppCompatDelegate {
      * storedAppLocales is updated accordingly.</li>
      * </ul>
      */
-    @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
     static void syncRequestedAndStoredLocales(Context context) {
         if (!isAutoStorageOptedIn(context)) {
             return;
-        } else if (BuildCompat.isAtLeastT()) {
-            // TODO: After BuildCompat.isAtLeast() is deprecated, the above condition needs to be
-            //  replaced by (Build.VERSION.SDK_INT >= 33).
+        } else if (Build.VERSION.SDK_INT >= 33) {
             if (!sIsFrameworkSyncChecked) {
                 // syncs locales from androidX to framework, it only happens once after the
-                // device is updated to T (API version 33).
+                // device is updated to API version 33(Tiramisu) or above.
                 sSerialExecutorForLocalesStorage.execute(() -> {
                     syncLocalesToFramework(context);
                     sIsFrameworkSyncChecked = true;
@@ -953,15 +931,6 @@ public abstract class AppCompatDelegate {
                 }
             }
         }
-    }
-
-
-    /**
-     * Sets the value for {@link AppCompatDelegate#sAppContext} which is the context for the
-     * current application.
-     */
-    static void setAppContext(Context context) {
-        sAppContext = context;
     }
 
     /**

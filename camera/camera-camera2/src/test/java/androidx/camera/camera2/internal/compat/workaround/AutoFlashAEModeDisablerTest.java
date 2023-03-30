@@ -135,7 +135,8 @@ public class AutoFlashAEModeDisablerTest {
         ShadowCameraCharacteristics shadowCharacteristics = Shadow.extract(characteristics);
         shadowCharacteristics.set(CameraCharacteristics.LENS_FACING, lensFacing);
         CameraCharacteristicsCompat characteristicsCompat =
-                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics);
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics,
+                        ANY_CAMERA_ID);
 
         return new AutoFlashAEModeDisabler(CameraQuirks.get(ANY_CAMERA_ID, characteristicsCompat));
     }

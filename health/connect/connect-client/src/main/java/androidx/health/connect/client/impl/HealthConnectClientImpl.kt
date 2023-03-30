@@ -26,8 +26,6 @@ import androidx.health.connect.client.impl.converters.aggregate.toAggregateDataR
 import androidx.health.connect.client.impl.converters.aggregate.toAggregateDataRowGroupByPeriod
 import androidx.health.connect.client.impl.converters.datatype.toDataType
 import androidx.health.connect.client.impl.converters.datatype.toDataTypeIdPairProtoList
-import androidx.health.connect.client.impl.converters.permission.toJetpackPermission
-import androidx.health.connect.client.impl.converters.permission.toProtoPermission
 import androidx.health.connect.client.impl.converters.records.toProto
 import androidx.health.connect.client.impl.converters.records.toRecord
 import androidx.health.connect.client.impl.converters.request.toDeleteDataRangeRequestProto
@@ -51,6 +49,7 @@ import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.platform.client.HealthDataAsyncClient
 import androidx.health.platform.client.impl.logger.Logger
 import androidx.health.platform.client.proto.DataProto
+import androidx.health.platform.client.proto.PermissionProto
 import androidx.health.platform.client.proto.RequestProto
 import kotlin.reflect.KClass
 import kotlinx.coroutines.guava.await
@@ -63,22 +62,30 @@ import kotlinx.coroutines.guava.await
  */
 class HealthConnectClientImpl
 internal constructor(
-    private val providerPackageName: String,
     private val delegate: HealthDataAsyncClient,
+    private val allPermissions: List<String> =
+        HealthPermission.RECORD_TYPE_TO_PERMISSION.flatMap {
+            listOf<String>(
+                HealthPermission.WRITE_PERMISSION_PREFIX + it.value,
+                HealthPermission.READ_PERMISSION_PREFIX + it.value
+            )
+        },
 ) : HealthConnectClient, PermissionController {
 
-    override suspend fun getGrantedPermissions(
-        permissions: Set<HealthPermission>
-    ): Set<HealthPermission> {
+    override suspend fun getGrantedPermissions(): Set<String> {
         val grantedPermissions =
             delegate
-                .getGrantedPermissions(permissions.map { it.toProtoPermission() }.toSet())
+                .filterGrantedPermissions(
+                    allPermissions
+                        .map { PermissionProto.Permission.newBuilder().setPermission(it).build() }
+                        .toSet()
+                )
                 .await()
-                .map { it.toJetpackPermission() }
+                .map { it.permission }
                 .toSet()
         Logger.debug(
             HEALTH_CONNECT_CLIENT_TAG,
-            "Granted ${grantedPermissions.size} out of ${permissions.size} permissions."
+            "Granted ${grantedPermissions.size} out of ${allPermissions.size} permissions."
         )
         return grantedPermissions
     }

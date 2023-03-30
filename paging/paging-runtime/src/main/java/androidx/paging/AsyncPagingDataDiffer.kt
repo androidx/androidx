@@ -18,6 +18,7 @@ package androidx.paging
 
 import android.util.Log
 import androidx.annotation.IntRange
+import androidx.annotation.MainThread
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.coroutineScope
 import androidx.paging.LoadType.REFRESH
@@ -28,6 +29,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -293,6 +295,7 @@ constructor(
      * @param index Index of item to get, must be >= 0, and < [itemCount]
      * @return The item, or `null`, if a `null` placeholder is at the specified position.
      */
+    @MainThread
     fun getItem(@IntRange(from = 0) index: Int): T? {
         try {
             inGetItem = true
@@ -309,6 +312,7 @@ constructor(
      * @param index Index of the presented item to return, including placeholders.
      * @return The presented item at position [index], `null` if it is a placeholder
      */
+    @MainThread
     fun peek(@IntRange(from = 0) index: Int): T? {
         return differBase.peek(index)
     }
@@ -337,7 +341,7 @@ constructor(
      *
      * @sample androidx.paging.samples.loadStateFlowSample
      */
-    val loadStateFlow: Flow<CombinedLoadStates> = differBase.loadStateFlow
+    val loadStateFlow: Flow<CombinedLoadStates> = differBase.loadStateFlow.filterNotNull()
 
     /**
      * A hot [Flow] that emits after the pages presented to the UI are updated, even if the
@@ -430,11 +434,9 @@ constructor(
                 }
 
                 override fun log(level: Int, message: String, tr: Throwable?) {
-                    when {
-                        tr != null && level == Log.DEBUG -> Log.d(LOG_TAG, message, tr)
-                        tr != null && level == Log.VERBOSE -> Log.v(LOG_TAG, message, tr)
-                        level == Log.DEBUG -> Log.d(LOG_TAG, message)
-                        level == Log.VERBOSE -> Log.v(LOG_TAG, message)
+                    when (level) {
+                        Log.DEBUG -> Log.d(LOG_TAG, message, tr)
+                        Log.VERBOSE -> Log.v(LOG_TAG, message, tr)
                         else -> {
                             throw IllegalArgumentException(
                                 "debug level $level is requested but Paging only supports " +

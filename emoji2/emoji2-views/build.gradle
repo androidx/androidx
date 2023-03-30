@@ -30,17 +30,11 @@ android {
         }
     }
     namespace "androidx.emoji2.widget"
-
-    // Workaround for b/230466571 where targetSdkVersion gets merged incorrectly.
-    defaultConfig {
-        targetSdk null
-    }
 }
 
 androidx {
     name = "Android Emoji2 Compat Views"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.EMOJI2
     inceptionYear = "2017"
     description = "Support for using emoji2 directly with Android Views, for use in apps without " +
             "appcompat"

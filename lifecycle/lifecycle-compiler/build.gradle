@@ -47,10 +47,14 @@ tasks.register("jarTestLibrarySource", Jar).configure {
     destinationDirectory.set(file("src/test/test-data/lib/"))
 }
 
+tasks.withType(Test).configureEach {
+    // https://github.com/google/compile-testing/issues/222
+    it.jvmArgs "--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED"
+}
+
 androidx {
     name = "Android Lifecycles Compiler"
     type = LibraryType.ANNOTATION_PROCESSOR
-    mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycles annotation processor"
 }

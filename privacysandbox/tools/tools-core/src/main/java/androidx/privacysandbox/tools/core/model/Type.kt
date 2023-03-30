@@ -17,5 +17,10 @@
 package androidx.privacysandbox.tools.core.model
 
 data class Type(
-  val name: String,
-)
+  val packageName: String,
+  val simpleName: String,
+  val typeParameters: List<Type> = emptyList(),
+  val isNullable: Boolean = false
+) {
+  val qualifiedName = "$packageName.$simpleName"
+}

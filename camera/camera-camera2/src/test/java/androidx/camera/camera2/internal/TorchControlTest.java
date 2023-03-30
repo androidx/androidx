@@ -90,7 +90,8 @@ public class TorchControlTest {
                 cameraManager.getCameraCharacteristics(CAMERA0_ID);
 
         CameraCharacteristicsCompat characteristicsCompat0 =
-                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(cameraCharacteristics0);
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(cameraCharacteristics0,
+                        CAMERA0_ID);
         Camera2CameraControlImpl camera2CameraControl0 =
                 spy(new Camera2CameraControlImpl(characteristicsCompat0,
                         CameraXExecutors.mainThreadExecutor(),
@@ -104,7 +105,8 @@ public class TorchControlTest {
         CameraCharacteristics cameraCharacteristics1 =
                 cameraManager.getCameraCharacteristics(CAMERA1_ID);
         CameraCharacteristicsCompat characteristicsCompat1 =
-                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(cameraCharacteristics1);
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(cameraCharacteristics1,
+                        CAMERA1_ID);
 
         Camera2CameraControlImpl camera2CameraControlImpl1 =
                 spy(new Camera2CameraControlImpl(characteristicsCompat1,

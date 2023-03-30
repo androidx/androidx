@@ -221,6 +221,25 @@ public abstract class FragmentManager implements FragmentResultOwner {
          */
         @MainThread
         void onBackStackChanged();
+
+        /**
+         * Called whenever the contents of the back stack are starting to be changed, before
+         * fragments being to move to their target states.
+         *
+         * @param fragment that is affected by the starting back stack change
+         * @param pop whether this back stack change is a pop
+         */
+        @MainThread
+        default void onBackStackChangeStarted(@NonNull Fragment fragment, boolean pop) { }
+
+        /**
+         * Called whenever the contents of a back stack change is committed.
+         *
+         * @param fragment that is affected by the committed back stack change
+         * @param pop whether this back stack change is a pop
+         */
+        @MainThread
+        default void onBackStackChangeCommitted(@NonNull Fragment fragment, boolean pop) { }
     }
 
     /**
@@ -1065,7 +1084,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * @return the locally scoped {@link Fragment} to the given view, if found
      */
     @Nullable
-    private static Fragment findViewFragment(@NonNull View view) {
+    static Fragment findViewFragment(@NonNull View view) {
         while (view != null) {
             Fragment fragment = getViewFragment(view);
             if (fragment != null) {
@@ -1875,6 +1894,18 @@ public abstract class FragmentManager implements FragmentResultOwner {
         // The last operation determines the overall direction, this ensures that operations
         // such as push, push, pop, push are correctly considered a push
         boolean isPop = isRecordPop.get(endIndex - 1);
+
+        if (mBackStackChangeListeners != null) {
+            // we dispatch callbacks based on each record
+            for (BackStackRecord record : records) {
+                for (Fragment fragment : fragmentsFromRecord(record)) {
+                    // We give all fragment the back stack changed started signal first
+                    for (OnBackStackChangedListener listener : mBackStackChangeListeners) {
+                        listener.onBackStackChangeStarted(fragment, isPop);
+                    }
+                }
+            }
+        }
         // Ensure that Fragments directly affected by operations
         // are moved to their expected state in operation order
         for (int index = startIndex; index < endIndex; index++) {
@@ -1922,6 +1953,17 @@ public abstract class FragmentManager implements FragmentResultOwner {
         }
         if (addToBackStack) {
             reportBackStackChanged();
+            if (mBackStackChangeListeners != null) {
+                // we dispatch callbacks based on each record
+                for (BackStackRecord record : records) {
+                    for (Fragment fragment : fragmentsFromRecord(record)) {
+                        // Then we give them all the committed signal
+                        for (OnBackStackChangedListener listener : mBackStackChangeListeners) {
+                            listener.onBackStackChangeCommitted(fragment, isPop);
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -2089,6 +2131,17 @@ public abstract class FragmentManager implements FragmentResultOwner {
                 mBackStackChangeListeners.get(i).onBackStackChanged();
             }
         }
+    }
+
+    private Set<Fragment> fragmentsFromRecord(@NonNull BackStackRecord record) {
+        Set<Fragment> fragments = new HashSet<>();
+        for (int i = 0; i < record.mOps.size(); i++) {
+            Fragment f = record.mOps.get(i).mFragment;
+            if (f != null) {
+                fragments.add(f);
+            }
+        }
+        return fragments;
     }
 
     void addBackStackState(BackStackRecord state) {
@@ -2815,12 +2868,12 @@ public abstract class FragmentManager implements FragmentResultOwner {
     }
 
     void launchStartActivityForResult(@NonNull Fragment f,
-            @SuppressLint("UnknownNullness") Intent intent,
+            @NonNull Intent intent,
             int requestCode, @Nullable Bundle options) {
         if (mStartActivityForResult != null) {
             LaunchedFragmentInfo info = new LaunchedFragmentInfo(f.mWho, requestCode);
             mLaunchedFragments.addLast(info);
-            if (intent != null && options != null) {
+            if (options != null) {
                 intent.putExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE, options);
             }
             mStartActivityForResult.launch(intent);
@@ -2831,7 +2884,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
     @SuppressWarnings("deprecation")
     void launchStartIntentSenderForResult(@NonNull Fragment f,
-            @SuppressLint("UnknownNullness") IntentSender intent,
+            @NonNull IntentSender intent,
             int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
             int extraFlags, @Nullable Bundle options) throws IntentSender.SendIntentException {
         if (mStartIntentSenderForResult != null) {

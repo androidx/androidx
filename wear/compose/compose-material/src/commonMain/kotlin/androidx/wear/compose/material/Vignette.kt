@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 
 /**
  * Possible combinations for vignette state.
@@ -103,7 +104,9 @@ public fun Vignette(
                 ),
                 contentScale = ContentScale.FillWidth,
                 contentDescription = null,
-                modifier = Modifier.align(Alignment.TopCenter).fillMaxWidth(),
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .fillMaxWidth(),
             )
         }
         if (vignettePosition.drawBottom()) {
@@ -114,7 +117,9 @@ public fun Vignette(
                 ),
                 contentScale = ContentScale.FillWidth,
                 contentDescription = null,
-                modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth(),
             )
         }
     }

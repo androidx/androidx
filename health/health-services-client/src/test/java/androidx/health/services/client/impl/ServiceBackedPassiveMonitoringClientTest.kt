@@ -20,6 +20,7 @@ import android.app.Application
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Looper
+import androidx.health.services.client.HealthServicesException
 import androidx.health.services.client.PassiveListenerCallback
 import androidx.health.services.client.PassiveListenerService
 import androidx.health.services.client.data.ComparisonType.Companion.GREATER_THAN
@@ -92,10 +93,10 @@ class ServiceBackedPassiveMonitoringClientTest {
     }
 
     @Test
-    fun registersPassiveListenerService() {
+    fun registersPassiveListenerService_success() {
         val config = PassiveListenerConfig(
             dataTypes = setOf(STEPS_DAILY, CALORIES_DAILY),
-            shouldRequestUserActivityState = true,
+            shouldUserActivityInfoBeRequested = true,
             dailyGoals = setOf(),
             healthEventTypes = setOf()
         )
@@ -110,15 +111,43 @@ class ServiceBackedPassiveMonitoringClientTest {
         assertThat(request.passiveListenerConfig.dataTypes).containsExactly(
             STEPS_DAILY, CALORIES_DAILY
         )
-        assertThat(request.passiveListenerConfig.shouldRequestUserActivityState).isTrue()
+        assertThat(request.passiveListenerConfig.shouldUserActivityInfoBeRequested).isTrue()
         assertThat(request.packageName).isEqualTo("androidx.health.services.client.test")
+    }
+
+    @Test
+    fun registersPassiveListenerService_fail() {
+        val config = PassiveListenerConfig(
+            dataTypes = setOf(CALORIES_DAILY),
+            shouldUserActivityInfoBeRequested = true,
+            dailyGoals = setOf(
+                PassiveGoal(DataTypeCondition(STEPS_DAILY, 87, GREATER_THAN))
+            ),
+            healthEventTypes = setOf()
+        )
+
+        val future = client.setPassiveListenerServiceAsync(FakeListenerService::class.java, config)
+        shadowOf(Looper.getMainLooper()).idle()
+
+        // Return value of future.get() is not used, but verifying no exceptions are thrown.
+        var exception: Exception? = null
+        try {
+            future.get()
+        } catch (e: Exception) {
+            exception = e
+        }
+
+        assertThat(exception).isNotNull()
+        assertThat(exception?.cause).isInstanceOf(HealthServicesException::class.java)
+        assertThat(exception).hasMessageThat()
+            .contains("DataType for the requested passive goal is not tracked")
     }
 
     @Test
     fun registersPassiveListenerCallback() {
         val config = PassiveListenerConfig(
             dataTypes = setOf(STEPS_DAILY),
-            shouldRequestUserActivityState = true,
+            shouldUserActivityInfoBeRequested = true,
             dailyGoals = setOf(),
             healthEventTypes = setOf()
         )
@@ -131,8 +160,29 @@ class ServiceBackedPassiveMonitoringClientTest {
         assertThat(callback.onRegisteredCalls).isEqualTo(1)
         val request = fakeService.registerCallbackRequests[0]
         assertThat(request.passiveListenerConfig.dataTypes).containsExactly(STEPS_DAILY)
-        assertThat(request.passiveListenerConfig.shouldRequestUserActivityState).isTrue()
+        assertThat(request.passiveListenerConfig.shouldUserActivityInfoBeRequested).isTrue()
         assertThat(request.packageName).isEqualTo("androidx.health.services.client.test")
+    }
+
+    @Test
+    fun registersPassiveListenerCallback_fail() {
+        val config = PassiveListenerConfig(
+            dataTypes = setOf(CALORIES_DAILY),
+            shouldUserActivityInfoBeRequested = true,
+            dailyGoals = setOf(
+                PassiveGoal(DataTypeCondition(STEPS_DAILY, 87, GREATER_THAN))
+            ),
+            healthEventTypes = setOf()
+        )
+        val callback = FakeCallback()
+
+        client.setPassiveListenerCallback(config, callback)
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertThat(fakeService.registerCallbackRequests).hasSize(0)
+        assertThat(callback.onRegistrationFailedThrowables).hasSize(1)
+        assertThat(callback.onRegistrationFailedThrowables[0]).hasMessageThat()
+            .contains("DataType for the requested passive goal is not tracked")
     }
 
     @Test
@@ -140,7 +190,7 @@ class ServiceBackedPassiveMonitoringClientTest {
         shadowOf(Looper.getMainLooper()).idle() // ?????
         val config = PassiveListenerConfig(
             dataTypes = setOf(STEPS_DAILY),
-            shouldRequestUserActivityState = true,
+            shouldUserActivityInfoBeRequested = true,
             dailyGoals = setOf(),
             healthEventTypes = setOf()
         )
@@ -185,9 +235,9 @@ class ServiceBackedPassiveMonitoringClientTest {
     fun callbackReceivesCompletedGoals() {
         val config = PassiveListenerConfig(
             dataTypes = setOf(STEPS_DAILY),
-            shouldRequestUserActivityState = false,
+            shouldUserActivityInfoBeRequested = false,
             dailyGoals = setOf(
-                PassiveGoal(DataTypeCondition(STEPS_DAILY, 87, GREATER_THAN), ONCE)
+                PassiveGoal(DataTypeCondition(STEPS_DAILY, 87, GREATER_THAN))
             ),
             healthEventTypes = setOf()
         )
@@ -226,7 +276,7 @@ class ServiceBackedPassiveMonitoringClientTest {
     fun callbackReceivesHealthEvents() {
         val config = PassiveListenerConfig(
             dataTypes = setOf(),
-            shouldRequestUserActivityState = false,
+            shouldUserActivityInfoBeRequested = false,
             dailyGoals = setOf(),
             healthEventTypes = setOf(FALL_DETECTED)
         )
@@ -257,9 +307,9 @@ class ServiceBackedPassiveMonitoringClientTest {
     fun callbackReceivesPermissionsLost() {
         val config = PassiveListenerConfig(
             dataTypes = setOf(STEPS_DAILY),
-            shouldRequestUserActivityState = false,
+            shouldUserActivityInfoBeRequested = false,
             dailyGoals = setOf(
-                PassiveGoal(DataTypeCondition(STEPS_DAILY, 87, GREATER_THAN), ONCE)
+                PassiveGoal(DataTypeCondition(STEPS_DAILY, 87, GREATER_THAN))
             ),
             healthEventTypes = setOf()
         )

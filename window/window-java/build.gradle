@@ -33,8 +33,8 @@ dependencies {
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
-    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.mockitoKotlin4)
     testImplementation(libs.kotlinCoroutinesTest)
 
     androidTestImplementation(libs.testExtJunit)
@@ -48,7 +48,6 @@ dependencies {
 androidx {
     name = "WindowManager Java Support"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.WINDOW
     inceptionYear = "2021"
     description = "WindowManager Java Support"
 }

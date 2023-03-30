@@ -45,6 +45,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.withContext
 
 /**
@@ -179,17 +180,18 @@ public class LazyPagingItems<T : Any> internal constructor(
      * A [CombinedLoadStates] object which represents the current loading state.
      */
     public var loadState: CombinedLoadStates by mutableStateOf(
-        CombinedLoadStates(
-            refresh = InitialLoadStates.refresh,
-            prepend = InitialLoadStates.prepend,
-            append = InitialLoadStates.append,
-            source = InitialLoadStates
+        pagingDataDiffer.loadStateFlow.value
+            ?: CombinedLoadStates(
+                refresh = InitialLoadStates.refresh,
+                prepend = InitialLoadStates.prepend,
+                append = InitialLoadStates.append,
+                source = InitialLoadStates
+            )
         )
-    )
         private set
 
     internal suspend fun collectLoadState() {
-        pagingDataDiffer.loadStateFlow.collect {
+        pagingDataDiffer.loadStateFlow.filterNotNull().collect {
             loadState = it
         }
     }

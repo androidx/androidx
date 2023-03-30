@@ -55,6 +55,7 @@ public class BiometricManagerTest {
 
     private Context mContext;
 
+    @SuppressWarnings("deprecation") // b/251211046
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);

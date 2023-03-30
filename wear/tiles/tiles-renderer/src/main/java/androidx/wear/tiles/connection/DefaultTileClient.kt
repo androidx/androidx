@@ -37,9 +37,9 @@ import androidx.wear.tiles.TileProvider
 import androidx.wear.tiles.TileService
 import androidx.wear.tiles.TileRemoveEventData
 import androidx.wear.tiles.client.TileClient
-import androidx.wear.tiles.proto.ResourceProto
+import androidx.wear.protolayout.proto.ResourceProto
 import androidx.wear.tiles.proto.TileProto
-import androidx.wear.tiles.protobuf.InvalidProtocolBufferException
+import androidx.wear.protolayout.protobuf.InvalidProtocolBufferException
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope

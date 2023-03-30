@@ -34,8 +34,9 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadow.api.Shadow
-import org.robolectric.shadows.ShadowDisplayManager
 import org.robolectric.shadows.ShadowDisplay
+import org.robolectric.shadows.ShadowDisplayManager
+import org.robolectric.shadows.ShadowDisplayManager.removeDisplay
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
@@ -107,6 +108,36 @@ class DisplayInfoManagerTest {
 
         // Assert
         assertThat(size).isEqualTo(Point(480, 640))
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun canReturnMaxSizeDisplay_noDisplay() {
+        // Arrange
+        removeDisplay(0)
+
+        // Act
+        val displayInfoManager = DisplayInfoManager
+            .getInstance(ApplicationProvider.getApplicationContext())
+        val size = Point()
+        displayInfoManager.maxSizeDisplay.getRealSize(size)
+    }
+
+    @Test
+    fun canReturnMaxSizeDisplay_allOffState() {
+        // Arrange
+        addDisplay(480, 640, Display.STATE_OFF)
+        addDisplay(200, 300, Display.STATE_OFF)
+        addDisplay(2000, 3000, Display.STATE_OFF)
+        removeDisplay(0)
+
+        // Act
+        val displayInfoManager = DisplayInfoManager
+            .getInstance(ApplicationProvider.getApplicationContext())
+        val size = Point()
+        displayInfoManager.maxSizeDisplay.getRealSize(size)
+
+        // Assert
+        assertThat(size).isEqualTo(Point(2000, 3000))
     }
 
     @Test

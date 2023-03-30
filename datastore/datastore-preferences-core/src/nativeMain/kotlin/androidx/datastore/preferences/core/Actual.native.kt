@@ -16,7 +16,6 @@
 
 package androidx.datastore.preferences.core
 
-import androidx.datastore.core.okio.OkioSerializer
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -42,7 +41,3 @@ internal actual class AtomicBoolean actual constructor(initialValue: Boolean) {
 
 // TODO(b/234049307): Pick a better dispatcher for IO
 internal actual fun ioDispatcher(): CoroutineDispatcher = Dispatchers.Default
-
-internal actual fun getPreferencesSerializer(): OkioSerializer<Preferences> {
-    return PreferencesSerializationSerializer
-}

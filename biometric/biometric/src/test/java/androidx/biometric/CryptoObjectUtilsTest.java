@@ -43,6 +43,7 @@ public class CryptoObjectUtilsTest {
     @Mock private Mac mMac;
     @Mock private Signature mSignature;
 
+    @SuppressWarnings("deprecation") // b/251211046
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);

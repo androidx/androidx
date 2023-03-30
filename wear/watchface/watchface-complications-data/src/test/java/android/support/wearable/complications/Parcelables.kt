@@ -19,7 +19,7 @@ package android.support.wearable.complications
 import android.os.Parcel
 import android.os.Parcelable
 
-/** Writes a [Parcelable] to a [Parcel] and reads it back, returning the result.  */
+/** Writes a [Parcelable] to a [Parcel] and reads it back, returning the result. */
 @Suppress("UNCHECKED_CAST")
 internal fun <T : Parcelable> T.roundTripParcelable(): T? {
     val parcel = Parcel.obtain()
@@ -29,5 +29,6 @@ internal fun <T : Parcelable> T.roundTripParcelable(): T? {
         parcel.readValue(this.javaClass.classLoader)
     } finally {
         parcel.recycle()
-    } as T
+    }
+        as T
 }

@@ -19,9 +19,12 @@ package androidx.glance.color
 import android.content.Context
 import android.os.Build
 import androidx.annotation.ColorRes
+import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat
+import androidx.glance.unit.ColorProvider
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertWithMessage
+import kotlin.test.assertIs
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -293,5 +296,40 @@ class ColorProvidersTest {
         val message = "$sourceName is $sourceHex but $targetName is $targetHex"
 
         assertWithMessage(message).that(sourceColor).isEqualTo(targetColor)
+    }
+
+    @Test
+    fun ensureCustomColorSchemesArePossible() {
+        val testColor = ColorProvider(Color.Magenta)
+        assertIs<CustomColorProviders>(
+            colorProviders(
+                primary = testColor,
+                onPrimary = testColor,
+                primaryContainer = testColor,
+                onPrimaryContainer = testColor,
+                secondary = testColor,
+                onSecondary = testColor,
+                secondaryContainer = testColor,
+                onSecondaryContainer = testColor,
+                tertiary = testColor,
+                onTertiary = testColor,
+                tertiaryContainer = testColor,
+                onTertiaryContainer = testColor,
+                error = testColor,
+                errorContainer = testColor,
+                onError = testColor,
+                onErrorContainer = testColor,
+                background = testColor,
+                onBackground = testColor,
+                surface = testColor,
+                onSurface = testColor,
+                surfaceVariant = testColor,
+                onSurfaceVariant = testColor,
+                outline = testColor,
+                inverseOnSurface = testColor,
+                inverseSurface = testColor,
+                inversePrimary = testColor
+            )
+        )
     }
 }

@@ -20,6 +20,7 @@ import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.leanback.R;
 
@@ -50,7 +51,7 @@ class MediaRowFocusView extends View {
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
         mRoundRectRadius = getHeight() / 2;
         int drawHeight = 2 * mRoundRectRadius;

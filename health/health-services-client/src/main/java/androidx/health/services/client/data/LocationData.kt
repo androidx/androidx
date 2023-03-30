@@ -16,40 +16,32 @@
 
 package androidx.health.services.client.data
 
+import android.util.Log
 import androidx.annotation.FloatRange
 import androidx.health.services.client.proto.DataProto
 
 /** Data representing one location point with direction. */
 public class LocationData(
-    /** Latitude of location. Range from -90.0 to = 90.0.
-     *
-     *  @throws IllegalArgumentException if [latitude] is out of range.
-     */
+    /** Latitude of location. Range from -90.0 to = 90.0. */
     @FloatRange(from = -90.0, to = 90.0) public val latitude: Double,
-    /** Longitude of location. Range from -180.0 to = 180.0.
-     *
-     *  @throws IllegalArgumentException if [longitude] is out of range.
-     */
+    /** Longitude of location. Range from -180.0 to = 180.0. */
     @FloatRange(from = -180.0, to = 180.0) public val longitude: Double,
     /** Altitude of location in meters or [ALTITUDE_UNAVAILABLE] if not available. */
-    @FloatRange public val altitude: Double = ALTITUDE_UNAVAILABLE,
+    public val altitude: Double = ALTITUDE_UNAVAILABLE,
     /** Bearing in degrees within the range of [0.0 (inclusive), 360.0(exclusive)] or
      * [BEARING_UNAVAILABLE] if not available.
-     *
-     * @throws IllegalArgumentException if [bearing] is out of range.
      */
-    @FloatRange(from = -1.0, to = 360.0, toInclusive = false) public val bearing: Double =
-        BEARING_UNAVAILABLE,
+    public val bearing: Double = BEARING_UNAVAILABLE,
 ) {
     init {
         if (latitude !in -90.0..90.0) {
-            throw IllegalArgumentException("latitude value $latitude is out of range")
+            Log.w(TAG, "latitude value $latitude is out of range")
         }
         if (longitude !in -180.0..180.0) {
-            throw IllegalArgumentException("longitude value $longitude is out of range")
+            Log.w(TAG, "longitude value $longitude is out of range")
         }
         if (bearing < -1.0 || bearing >= 360.0) {
-            throw IllegalArgumentException("bearing value $bearing is out of range")
+            Log.w(TAG, "bearing value $bearing is out of range")
         }
     }
 
@@ -93,6 +85,7 @@ public class LocationData(
     }
 
     internal companion object {
+        private const val TAG = "LocationData"
         /**
          * When using [DataType.LOCATION], the value is represented as [DoubleArray]. The [Double]
          * value at this index represents the latitude.
@@ -120,10 +113,10 @@ public class LocationData(
         private const val BEARING_INDEX: Int = 3
 
         /** When using [DataType.LOCATION], the default value if altitude value is not available. */
-        public const val ALTITUDE_UNAVAILABLE: Double = Double.MAX_VALUE
+        public const val ALTITUDE_UNAVAILABLE: Double = Double.NaN
 
         /** When using [DataType.LOCATION], the default value if bearing value is not available. */
-        public const val BEARING_UNAVAILABLE: Double = -1.0
+        public const val BEARING_UNAVAILABLE: Double = Double.NaN
 
         internal fun fromDataProtoValue(proto: DataProto.Value): LocationData {
             require(proto.hasDoubleArrayVal())

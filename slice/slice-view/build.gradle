@@ -35,7 +35,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.espressoCore, excludes.espresso)
-    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
+    androidTestImplementation(libs.mockitoCore4, excludes.bytebuddy)
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
 }
 
@@ -43,7 +43,6 @@ androidx {
     name = "Slice views"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.SLICE
-    mavenGroup = LibraryGroups.SLICE
     inceptionYear = "2017"
     description = "A library that handles rendering of slice content into supported templates"
     failOnDeprecationWarnings = false

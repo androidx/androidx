@@ -33,6 +33,7 @@ import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.utils.MainThreadAsyncHandler;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 /**
@@ -96,6 +97,24 @@ public final class CameraManagerCompat {
     @NonNull
     public String[] getCameraIdList() throws CameraAccessExceptionCompat {
         return mImpl.getCameraIdList();
+    }
+
+    /**
+     * Return set of set of camera ids, each set includes one combination of the camera ids that
+     * could operate concurrently.
+     *
+     * <p>This API is added in API Level 30, any lower API version will return empty set instead.
+     *
+     * <p>The behavior of this method matches that of {@link CameraManager#getConcurrentCameraIds()}
+     * except that {@link CameraAccessExceptionCompat} is thrown in place of
+     * {@link CameraAccessException} for convenience.
+     *
+     * @return Set of set of camera ids.
+     * @throws CameraAccessExceptionCompat
+     */
+    @NonNull
+    public Set<Set<String>> getConcurrentCameraIds() throws CameraAccessExceptionCompat {
+        return mImpl.getConcurrentCameraIds();
     }
 
     /**
@@ -167,9 +186,8 @@ public final class CameraManagerCompat {
             characteristics = mCameraCharacteristicsMap.get(cameraId);
             if (characteristics == null) {
                 try {
-                    characteristics =
-                            CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
-                                    mImpl.getCameraCharacteristics(cameraId));
+                    characteristics = CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
+                            mImpl.getCameraCharacteristics(cameraId), cameraId);
                     mCameraCharacteristicsMap.put(cameraId, characteristics);
                 } catch (AssertionError e) {
                     // Some devices may throw AssertionError when creating CameraCharacteristics
@@ -236,6 +254,12 @@ public final class CameraManagerCompat {
         @NonNull
         String[] getCameraIdList() throws CameraAccessExceptionCompat;
 
+        /**
+         * Return the set of concurrent camera id set which could operate concurrently.
+         */
+        @NonNull
+        Set<Set<String>> getConcurrentCameraIds() throws CameraAccessExceptionCompat;
+
         void registerAvailabilityCallback(
                 @NonNull /* @CallbackExecutor */ Executor executor,
                 @NonNull CameraManager.AvailabilityCallback callback);
@@ -267,7 +291,9 @@ public final class CameraManagerCompat {
         @NonNull
         static CameraManagerCompatImpl from(@NonNull Context context,
                 @NonNull Handler compatHandler) {
-            if (Build.VERSION.SDK_INT >= 29) {
+            if (Build.VERSION.SDK_INT >= 30) {
+                return new CameraManagerCompatApi30Impl(context);
+            } else if (Build.VERSION.SDK_INT >= 29) {
                 return new CameraManagerCompatApi29Impl(context);
             } else if (Build.VERSION.SDK_INT >= 28) {
                 // Can use Executor directly on API 28+

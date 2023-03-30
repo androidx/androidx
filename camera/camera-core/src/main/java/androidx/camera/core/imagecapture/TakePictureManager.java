@@ -44,7 +44,9 @@ import androidx.core.util.Pair;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
+import java.util.List;
 
 /**
  * Manages {@link ImageCapture#takePicture} calls.
@@ -61,34 +63,43 @@ import java.util.Deque;
  * <p>The thread safety is guaranteed by using the main thread.
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-public class TakePictureManager implements OnImageCloseListener {
+public class TakePictureManager implements OnImageCloseListener, TakePictureRequest.RetryControl {
 
     private static final String TAG = "TakePictureManager";
 
     // Queue of new requests that have not been sent to the pipeline/camera.
     @VisibleForTesting
     final Deque<TakePictureRequest> mNewRequests = new ArrayDeque<>();
-    final ImagePipeline mImagePipeline;
     final ImageCaptureControl mImageCaptureControl;
+    ImagePipeline mImagePipeline;
 
-    // The current request being processed by camera. Null if the camera is idle.
-    @VisibleForTesting
+    // The current request being processed by the camera. Only one request can be processed by
+    // the camera at the same time. Null if the camera is idle.
     @Nullable
-    RequestWithCallback mInFlightRequest;
+    private RequestWithCallback mCapturingRequest;
+    // The current requests that have not received a result or an error.
+    private final List<RequestWithCallback> mIncompleteRequests;
 
     // Once paused, the class waits until the class is resumed to handle new requests.
     boolean mPaused = false;
 
     /**
      * @param imageCaptureControl for controlling {@link ImageCapture}
-     * @param imagePipeline       for building capture requests and post-processing camera output.
      */
     @MainThread
-    public TakePictureManager(
-            @NonNull ImageCaptureControl imageCaptureControl,
-            @NonNull ImagePipeline imagePipeline) {
+    public TakePictureManager(@NonNull ImageCaptureControl imageCaptureControl) {
         checkMainThread();
         mImageCaptureControl = imageCaptureControl;
+        mIncompleteRequests = new ArrayList<>();
+    }
+
+    /**
+     * Sets the {@link ImagePipeline} for building capture requests and post-processing camera
+     * output.
+     */
+    @MainThread
+    public void setImagePipeline(@NonNull ImagePipeline imagePipeline) {
+        checkMainThread();
         mImagePipeline = imagePipeline;
         mImagePipeline.setOnImageCloseListener(this);
     }
@@ -105,6 +116,14 @@ public class TakePictureManager implements OnImageCloseListener {
         issueNextRequest();
     }
 
+    @MainThread
+    @Override
+    public void retryRequest(@NonNull TakePictureRequest request) {
+        checkMainThread();
+        // Insert the request to the front of the queue.
+        mNewRequests.addFirst(request);
+    }
+
     /**
      * Pauses sending request to camera.
      */
@@ -112,8 +131,11 @@ public class TakePictureManager implements OnImageCloseListener {
     public void pause() {
         checkMainThread();
         mPaused = true;
-        // TODO(b/242683221): increment the retry counter on the in-flight request. The
-        //  mInFlightRequest may fail due to the pausing and need one more retry.
+
+        // Always retry because the camera may not send an error callback during the reset.
+        if (mCapturingRequest != null) {
+            mCapturingRequest.abortSilentlyAndRetry();
+        }
     }
 
     /**
@@ -142,9 +164,11 @@ public class TakePictureManager implements OnImageCloseListener {
         mNewRequests.clear();
 
         // Abort the in-flight request after clearing the pending requests.
-        if (mInFlightRequest != null) {
-            // TODO: optimize the performance by aborting early in CaptureNode and BundlingNode
-            mInFlightRequest.abort(exception);
+        // Snapshot to avoid concurrent modification with the removal in getCompleteFuture().
+        List<RequestWithCallback> requestsSnapshot = new ArrayList<>(mIncompleteRequests);
+        for (RequestWithCallback request : requestsSnapshot) {
+            // TODO: optimize the performance by not processing aborted requests.
+            request.abortAndSendErrorToApp(exception);
         }
     }
 
@@ -155,7 +179,7 @@ public class TakePictureManager implements OnImageCloseListener {
     void issueNextRequest() {
         checkMainThread();
         Log.d(TAG, "Issue the next TakePictureRequest.");
-        if (hasInFlightRequest()) {
+        if (hasCapturingRequest()) {
             Log.d(TAG, "There is already a request in-flight.");
             return;
         }
@@ -173,26 +197,37 @@ public class TakePictureManager implements OnImageCloseListener {
             return;
         }
 
-        RequestWithCallback requestWithCallback = new RequestWithCallback(request);
-        trackCurrentRequest(requestWithCallback);
+        RequestWithCallback requestWithCallback = new RequestWithCallback(request, this);
+        trackCurrentRequests(requestWithCallback);
 
         // Send requests.
         Pair<CameraRequest, ProcessingRequest> requests =
-                mImagePipeline.createRequests(request, requestWithCallback);
+                mImagePipeline.createRequests(request, requestWithCallback,
+                        requestWithCallback.getCaptureFuture());
         CameraRequest cameraRequest = requireNonNull(requests.first);
         ProcessingRequest processingRequest = requireNonNull(requests.second);
-        submitCameraRequest(cameraRequest, () -> mImagePipeline.postProcess(processingRequest));
+        mImagePipeline.submitProcessingRequest(processingRequest);
+        ListenableFuture<Void> captureRequestFuture = submitCameraRequest(cameraRequest);
+        requestWithCallback.setCaptureRequestFuture(captureRequestFuture);
     }
 
     /**
      * Waits for the request to finish before issuing the next.
      */
-    private void trackCurrentRequest(@NonNull RequestWithCallback requestWithCallback) {
-        checkState(!hasInFlightRequest());
-        mInFlightRequest = requestWithCallback;
-        mInFlightRequest.getCaptureFuture().addListener(() -> {
-            mInFlightRequest = null;
+    private void trackCurrentRequests(@NonNull RequestWithCallback requestWithCallback) {
+        checkState(!hasCapturingRequest());
+        mCapturingRequest = requestWithCallback;
+
+        // Waits for the capture to finish before issuing the next.
+        mCapturingRequest.getCaptureFuture().addListener(() -> {
+            mCapturingRequest = null;
             issueNextRequest();
+        }, directExecutor());
+
+        // Track all incomplete requests so we can abort them when UseCase is detached.
+        mIncompleteRequests.add(requestWithCallback);
+        requestWithCallback.getCompleteFuture().addListener(() -> {
+            mIncompleteRequests.remove(requestWithCallback);
         }, directExecutor());
     }
 
@@ -202,38 +237,56 @@ public class TakePictureManager implements OnImageCloseListener {
      * <p>Flash is locked/unlocked during the flight of a {@link CameraRequest}.
      */
     @MainThread
-    private void submitCameraRequest(
-            @NonNull CameraRequest cameraRequest,
-            @NonNull Runnable successRunnable) {
+    private ListenableFuture<Void> submitCameraRequest(
+            @NonNull CameraRequest cameraRequest) {
         checkMainThread();
         mImageCaptureControl.lockFlashMode();
-        ListenableFuture<Void> submitRequestFuture =
+        ListenableFuture<Void> captureRequestFuture =
                 mImageCaptureControl.submitStillCaptureRequests(cameraRequest.getCaptureConfigs());
-        Futures.addCallback(submitRequestFuture, new FutureCallback<Void>() {
+        Futures.addCallback(captureRequestFuture, new FutureCallback<Void>() {
             @Override
             public void onSuccess(@Nullable Void result) {
-                successRunnable.run();
                 mImageCaptureControl.unlockFlashMode();
             }
 
             @Override
             public void onFailure(@NonNull Throwable throwable) {
-                if (throwable instanceof ImageCaptureException) {
-                    cameraRequest.onCaptureFailure((ImageCaptureException) throwable);
+                if (cameraRequest.isAborted()) {
+                    // When the pipeline is recreated, the in-flight request is aborted and
+                    // retried. On legacy devices, the camera may return CancellationException
+                    // for the aborted request which causes the retried request to fail. Return
+                    // early if the request has been aborted.
+                    return;
                 } else {
-                    cameraRequest.onCaptureFailure(new ImageCaptureException(
-                            ERROR_CAPTURE_FAILED,
-                            "Failed to submit capture request",
-                            throwable));
+                    if (throwable instanceof ImageCaptureException) {
+                        mImagePipeline.notifyCaptureError((ImageCaptureException) throwable);
+                    } else {
+                        mImagePipeline.notifyCaptureError(new ImageCaptureException(
+                                ERROR_CAPTURE_FAILED,
+                                "Failed to submit capture request",
+                                throwable));
+                    }
                 }
                 mImageCaptureControl.unlockFlashMode();
             }
         }, mainThreadExecutor());
+        return captureRequestFuture;
     }
 
     @VisibleForTesting
-    boolean hasInFlightRequest() {
-        return mInFlightRequest != null;
+    boolean hasCapturingRequest() {
+        return mCapturingRequest != null;
+    }
+
+    @VisibleForTesting
+    List<RequestWithCallback> getIncompleteRequests() {
+        return mIncompleteRequests;
+    }
+
+    @VisibleForTesting
+    @NonNull
+    public ImagePipeline getImagePipeline() {
+        return mImagePipeline;
     }
 
     @Override

@@ -18,7 +18,6 @@ package androidx.health.connect.client
 
 import android.content.Context
 import androidx.health.connect.client.permission.HealthPermission
-import androidx.health.connect.client.records.StepsRecord
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth
@@ -39,13 +38,13 @@ class PermissionControllerTest {
     }
 
     @Test
-    fun createIntentTest() {
+    fun createIntentTest_permissionStrings() {
         val requestPermissionContract =
             PermissionController.createRequestPermissionResultContract(PROVIDER_PACKAGE_NAME)
         val intent =
             requestPermissionContract.createIntent(
                 context,
-                setOf(HealthPermission.createReadPermission(StepsRecord::class))
+                setOf(HealthPermission.READ_ACTIVE_CALORIES_BURNED)
             )
 
         Truth.assertThat(intent.action).isEqualTo("androidx.health.ACTION_REQUEST_PERMISSIONS")

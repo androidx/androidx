@@ -396,6 +396,19 @@ public class CustomTabsClient {
                     }
                 });
             }
+
+            @Override
+            public void onActivityResized(final int height, final int width,
+                    final @Nullable Bundle extras)
+                    throws RemoteException {
+                if (callback == null) return;
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onActivityResized(height, width, extras);
+                    }
+                });
+            }
         };
     }
 

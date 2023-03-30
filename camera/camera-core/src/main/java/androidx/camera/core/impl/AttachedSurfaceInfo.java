@@ -61,7 +61,6 @@ public abstract class AttachedSurfaceInfo {
     /** Returns the configuration target frame rate. */
     @Nullable
     public abstract Range<Integer> getTargetFrameRate();
-
 }
 
 

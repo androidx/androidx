@@ -16,8 +16,6 @@
 
 package androidx.room.solver.shortcut.binderprovider
 
-import androidx.room.ext.L
-import androidx.room.ext.T
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
 import androidx.room.processor.Context
@@ -44,7 +42,7 @@ open class RxCallableInsertMethodBinderProvider internal constructor(
         declared.typeArguments.size == 1 && matchesRxType(declared)
 
     private fun matchesRxType(declared: XType): Boolean {
-        return declared.rawType.typeName == rxType.className
+        return declared.rawType.asTypeName() == rxType.className
     }
 
     override fun provide(
@@ -54,7 +52,7 @@ open class RxCallableInsertMethodBinderProvider internal constructor(
         val typeArg = extractTypeArg(declared)
         val adapter = context.typeAdapterStore.findInsertAdapter(typeArg, params)
         return createInsertBinder(typeArg, adapter) { callableImpl, _ ->
-            addStatement("return $T.fromCallable($L)", rxType.className, callableImpl)
+            addStatement("return %T.fromCallable(%L)", rxType.className, callableImpl)
         }
     }
 
@@ -76,15 +74,15 @@ private class RxCompletableInsertMethodBinderProvider(
 ) : RxCallableInsertMethodBinderProvider(context, rxType) {
 
     private val completableType: XRawType? by lazy {
-        context.processingEnv.findType(rxType.className)?.rawType
+        context.processingEnv.findType(rxType.className.canonicalName)?.rawType
     }
 
     /**
-     * Since Completable is not a generic, the supported return type should be Void.
+     * Since Completable is not a generic, the supported return type should be Void (nullable).
      * Like this, the generated Callable.call method will return Void.
      */
     override fun extractTypeArg(declared: XType): XType =
-        context.COMMON_TYPES.VOID
+        context.COMMON_TYPES.VOID.makeNullable()
 
     override fun matches(declared: XType): Boolean = isCompletable(declared)
 

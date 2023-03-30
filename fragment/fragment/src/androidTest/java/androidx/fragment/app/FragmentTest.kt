@@ -32,30 +32,35 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.waitForExecution
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
+import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * Miscellaneous tests for fragments that aren't big enough to belong to their own classes.
  */
 @RunWith(AndroidJUnit4::class)
 class FragmentTest {
+
     @Suppress("DEPRECATION")
-    @get:Rule
     var activityRule = androidx.test.rule.ActivityTestRule(FragmentTestActivity::class.java)
 
-    private lateinit var activity: FragmentTestActivity
+    // Detect leaks BEFORE and AFTER activity is destroyed
+    @get:Rule
+    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
+        .around(activityRule)
+
     private lateinit var instrumentation: Instrumentation
 
     @Before
     fun setup() {
-        activity = activityRule.activity
         instrumentation = InstrumentationRegistry.getInstrumentation()
     }
 
@@ -63,6 +68,7 @@ class FragmentTest {
     @UiThreadTest
     @Test
     fun testRequireView() {
+        val activity = activityRule.activity
         val fragment1 = StrictViewFragment()
         activity.supportFragmentManager.beginTransaction().add(R.id.content, fragment1).commitNow()
         assertThat(fragment1.requireView()).isNotNull()
@@ -72,6 +78,7 @@ class FragmentTest {
     @UiThreadTest
     @Test(expected = IllegalStateException::class)
     fun testRequireViewWithoutView() {
+        val activity = activityRule.activity
         val fragment1 = StrictFragment()
         activity.supportFragmentManager.beginTransaction().add(fragment1, "fragment").commitNow()
         fragment1.requireView()
@@ -81,6 +88,7 @@ class FragmentTest {
     @UiThreadTest
     @Test
     fun testOnCreateOrder() {
+        val activity = activityRule.activity
         val fragment1 = OrderFragment()
         val fragment2 = OrderFragment()
         activity.supportFragmentManager.beginTransaction()
@@ -95,6 +103,7 @@ class FragmentTest {
     @Test
     @SdkSuppress(minSdkVersion = 16) // waitForHalfFadeIn requires API 16
     fun testChildFragmentManagerGone() {
+        val activity = activityRule.activity
         val fragmentA = FragmentA()
         val fragmentB = FragmentB()
         activityRule.runOnUiThread {
@@ -139,6 +148,7 @@ class FragmentTest {
     @Test
     @SdkSuppress(minSdkVersion = 16) // waitForHalfFadeIn requires API 16
     fun testRemoveUnrelatedDuringAnimation() {
+        val activity = activityRule.activity
         val unrelatedFragment = StrictFragment()
         val fragmentA = FragmentA()
         val fragmentB = FragmentB()
@@ -225,6 +235,7 @@ class FragmentTest {
     @UiThreadTest
     @Test
     fun testViewOrder() {
+        val activity = activityRule.activity
         val fragmentA = FragmentA()
         val fragmentB = FragmentB()
         val fragmentC = FragmentC()
@@ -242,6 +253,7 @@ class FragmentTest {
     @UiThreadTest
     @Test
     fun testRequireParentFragment() {
+        val activity = activityRule.activity
         val parentFragment = StrictFragment()
         activity.supportFragmentManager.beginTransaction().add(parentFragment, "parent").commitNow()
 

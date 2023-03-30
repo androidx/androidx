@@ -56,10 +56,10 @@ class KspSyntheticFileMemberContainerTest {
             val className = elements.map {
                 val owner = invocation.kspResolver.getOwnerJvmClassName(it as KSPropertyDeclaration)
                 assertWithMessage(it.toString()).that(owner).isNotNull()
-                KspSyntheticFileMemberContainer(owner!!).className
+                KspSyntheticFileMemberContainer(owner!!).asClassName()
             }.first()
-            assertThat(className.packageName()).isEmpty()
-            assertThat(className.simpleNames()).containsExactly("AppKt")
+            assertThat(className.packageName).isEmpty()
+            assertThat(className.simpleNames).containsExactly("AppKt")
         }
     }
 

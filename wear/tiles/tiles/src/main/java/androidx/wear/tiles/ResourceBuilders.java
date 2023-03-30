@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2021-2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,6 @@ package androidx.wear.tiles;
 
 import static androidx.annotation.Dimension.PX;
 
-import static java.util.stream.Collectors.toMap;
-
 import android.annotation.SuppressLint;
 
 import androidx.annotation.Dimension;
@@ -29,14 +27,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.wear.tiles.proto.ResourceProto;
-import androidx.wear.tiles.protobuf.ByteString;
-import androidx.wear.tiles.protobuf.InvalidProtocolBufferException;
+import androidx.wear.protolayout.proto.ResourceProto;
+import androidx.wear.protolayout.protobuf.ByteString;
+import androidx.wear.protolayout.protobuf.InvalidProtocolBufferException;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /** Builders for the resources for a layout. */
 public final class ResourceBuilders {
@@ -347,12 +347,31 @@ public final class ResourceBuilders {
          */
         @NonNull
         public Map<String, ImageResource> getIdToImageMapping() {
-            return Collections.unmodifiableMap(
-                    mImpl.getIdToImageMap().entrySet().stream()
-                            .collect(
-                                    toMap(
-                                            Map.Entry::getKey,
-                                            f -> ImageResource.fromProto(f.getValue()))));
+            Map<String, ImageResource> map = new HashMap<>();
+            for (Entry<String, ResourceProto.ImageResource> entry :
+                    mImpl.getIdToImageMap().entrySet()) {
+                map.put(entry.getKey(), ImageResource.fromProto(entry.getValue()));
+            }
+            return Collections.unmodifiableMap(map);
+        }
+
+        /** Converts to byte array representation. */
+        @NonNull
+        @TilesExperimental
+        public byte[] toByteArray() {
+            return mImpl.toByteArray();
+        }
+
+        /** Converts from byte array representation. */
+        @SuppressWarnings("ProtoParseWithRegistry")
+        @Nullable
+        @TilesExperimental
+        public static Resources fromByteArray(@NonNull byte[] byteArray) {
+            try {
+                return fromProto(ResourceProto.Resources.parseFrom(byteArray));
+            } catch (InvalidProtocolBufferException e) {
+                return null;
+            }
         }
 
         /** @hide */
@@ -367,24 +386,6 @@ public final class ResourceBuilders {
         @NonNull
         public ResourceProto.Resources toProto() {
             return mImpl;
-        }
-
-        /** Converts to byte array representation. */
-        @TilesExperimental
-        @NonNull
-        public byte[] toByteArray() {
-            return mImpl.toByteArray();
-        }
-
-        /** Converts from byte array representation. */
-        @TilesExperimental
-        @Nullable
-        public static Resources fromByteArray(@NonNull byte[] byteArray) {
-            try {
-                return fromProto(ResourceProto.Resources.parseFrom(byteArray));
-            } catch (InvalidProtocolBufferException e) {
-                return null;
-            }
         }
 
         /** Builder for {@link Resources} */

@@ -26,22 +26,18 @@ dependencies {
     api("androidx.annotation:annotation:1.0.0")
     implementation(libs.kotlinStdlib)
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.kotlinTest)
     testImplementation(libs.truth)
 }
 
 android {
     namespace "androidx.sqlite.db"
-    kotlinOptions {
-        freeCompilerArgs += ["-Xjvm-default=all"]
-    }
 }
 
 androidx {
     name = "Android DB"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.SQLITE
     inceptionYear = "2017"
     description = "Android DB"
 }

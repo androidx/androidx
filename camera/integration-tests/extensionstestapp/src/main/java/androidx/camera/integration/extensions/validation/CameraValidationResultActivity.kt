@@ -35,7 +35,6 @@ import androidx.camera.integration.extensions.CameraExtensionsActivity
 import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_ID
 import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_LENS_FACING
 import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_REQUEST_CODE
-import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_RESULT_MAP
 import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_TEST_TYPE
 import androidx.camera.integration.extensions.R
 import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_NOT_SUPPORTED
@@ -79,7 +78,7 @@ class CameraValidationResultActivity : AppCompatActivity() {
                 cameraProvider
             ).await()
 
-            testResults = TestResults(this@CameraValidationResultActivity)
+            testResults = TestResults.getInstance(this@CameraValidationResultActivity)
             testResults.loadTestResults(cameraProvider, extensionsManager)
 
             cameraLensFacingMap = testResults.getCameraLensFacingMap()
@@ -128,10 +127,6 @@ class CameraValidationResultActivity : AppCompatActivity() {
                         cameraLensFacingMap[cameraId]
                     )
                     intent.putExtra(
-                        INTENT_EXTRA_KEY_RESULT_MAP,
-                        cameraExtensionResultMap.values.elementAt(position)
-                    )
-                    intent.putExtra(
                         INTENT_EXTRA_KEY_REQUEST_CODE,
                         extensionValidationActivityRequestCode
                     )
@@ -171,18 +166,7 @@ class CameraValidationResultActivity : AppCompatActivity() {
             return
         }
 
-        val testType = data?.getStringExtra(INTENT_EXTRA_KEY_TEST_TYPE)!!
-        val cameraId = data.getStringExtra(INTENT_EXTRA_KEY_CAMERA_ID)!!
-        val extensionTestResultMap = cameraExtensionResultMap[Pair(testType, cameraId)]
-
-        @Suppress("UNCHECKED_CAST")
-        val map = data.getSerializableExtra(INTENT_EXTRA_KEY_RESULT_MAP) as HashMap<Int, Int>
-        map.forEach {
-            extensionTestResultMap?.put(it.key, it.value)
-        }
-
         adapter.notifyDataSetChanged()
-        testResults.saveTestResults(cameraExtensionResultMap)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

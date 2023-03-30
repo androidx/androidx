@@ -16,6 +16,7 @@
 
 package androidx.camera.video
 
+import androidx.camera.testing.mocks.helpers.ArgumentCaptor as ArgumentCaptorCameraX
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AppOpsManager
@@ -41,8 +42,9 @@ import androidx.camera.core.CameraXConfig
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.ImageFormatConstants
-import androidx.camera.core.impl.Observable
-import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.core.impl.Observable.Observer
+import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
+import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.AudioUtil
 import androidx.camera.testing.CameraPipeConfigTestRule
@@ -52,15 +54,30 @@ import androidx.camera.testing.GarbageCollectionUtil
 import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.asFlow
+import androidx.camera.testing.mocks.MockConsumer
+import androidx.camera.testing.mocks.helpers.CallTimes
+import androidx.camera.testing.mocks.helpers.CallTimesAtLeast
+import androidx.camera.video.VideoOutput.SourceState.ACTIVE_NON_STREAMING
+import androidx.camera.video.VideoOutput.SourceState.ACTIVE_STREAMING
+import androidx.camera.video.VideoOutput.SourceState.INACTIVE
+import androidx.camera.video.VideoRecordEvent.Finalize
+import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REACHED
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INVALID_OUTPUT_OPTIONS
+import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE
+import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NO_VALID_DATA
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_RECORDER_ERROR
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE
+import androidx.camera.video.VideoRecordEvent.Pause
+import androidx.camera.video.VideoRecordEvent.Resume
+import androidx.camera.video.VideoRecordEvent.Start
+import androidx.camera.video.VideoRecordEvent.Status
 import androidx.camera.video.internal.compat.quirk.DeactivateEncoderSurfaceBeforeStopEncoderQuirk
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
+import androidx.camera.video.internal.compat.quirk.ExtraSupportedResolutionQuirk
 import androidx.camera.video.internal.compat.quirk.MediaStoreVideoCannotWrite
+import androidx.camera.video.internal.encoder.EncoderFactory
 import androidx.camera.video.internal.encoder.InvalidConfigException
-import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -72,7 +89,6 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.io.File
 import java.util.concurrent.Executor
-import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
@@ -88,23 +104,23 @@ import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import org.junit.rules.TestName
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.argThat
-import org.mockito.Mockito.atLeastOnce
-import org.mockito.Mockito.clearInvocations
 import org.mockito.Mockito.inOrder
 import org.mockito.Mockito.mock
-import org.mockito.Mockito.never
 import org.mockito.Mockito.timeout
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyNoMoreInteractions
 
-private const val FINALIZE_TIMEOUT = 5000L
+private const val DEFAULT_STATUS_COUNT = 5
+private const val GENERAL_TIMEOUT = 5000L
+private const val STATUS_TIMEOUT = 15000L
 private const val TEST_ATTRIBUTION_TAG = "testAttribution"
+// For the file size is small, the final file length possibly exceeds the file size limit
+// after adding the file header. We still add the buffer for the tolerance of comparing the
+// file length and file size limit.
+private const val FILE_SIZE_LIMIT_BUFFER = 50 * 1024 // 50k threshold buffer
 
 @LargeTest
 @RunWith(Parameterized::class)
@@ -123,6 +139,10 @@ class RecorderTest(
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
         CameraUtil.PreTestCameraIdList(cameraConfig)
     )
+
+    @get:Rule
+    val temporaryFolder =
+        TemporaryFolder(ApplicationProvider.getApplicationContext<Context>().cacheDir)
 
     @get:Rule
     var testName: TestName = TestName()
@@ -149,12 +169,9 @@ class RecorderTest(
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
-    @Suppress("UNCHECKED_CAST")
-    private val videoRecordEventListener = mock(Consumer::class.java) as Consumer<VideoRecordEvent>
+    private val recordingsToStop = mutableListOf<RecordingProcess>()
 
     private lateinit var cameraUseCaseAdapter: CameraUseCaseAdapter
-    private lateinit var recorder: Recorder
     private lateinit var preview: Preview
     private lateinit var surfaceTexturePreview: Preview
 
@@ -167,6 +184,12 @@ class RecorderTest(
             Build.MODEL.contains("Cuttlefish") &&
                 (Build.VERSION.SDK_INT == 29 || Build.VERSION.SDK_INT == 33)
         )
+        // Skip for b/241876294
+        assumeFalse(
+            "Skip test for devices with ExtraSupportedResolutionQuirk, since the extra" +
+                " resolutions cannot be used when the provided surface is an encoder surface.",
+            DeviceQuirks.get(ExtraSupportedResolutionQuirk::class.java) != null
+        )
         assumeTrue(AudioUtil.canStartAudioRecord(MediaRecorder.AudioSource.CAMCORDER))
 
         CameraXUtil.initialize(
@@ -174,8 +197,6 @@ class RecorderTest(
             cameraConfig
         ).get()
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
-
-        recorder = Recorder.Builder().build()
 
         // Using Preview so that the surface provider could be set to control when to issue the
         // surface request.
@@ -240,16 +261,18 @@ class RecorderTest(
             surfaceTexturePreview,
             preview
         )
-        recorder.onSourceStateChanged(VideoOutput.SourceState.ACTIVE_NON_STREAMING)
     }
 
     @After
     fun tearDown() {
+        for (recording in recordingsToStop) {
+            recording.stop()
+        }
+
         if (this::cameraUseCaseAdapter.isInitialized) {
             instrumentation.runOnMainSync {
                 cameraUseCaseAdapter.removeUseCases(cameraUseCaseAdapter.useCases)
             }
-            recorder.onSourceStateChanged(VideoOutput.SourceState.INACTIVE)
         }
 
         CameraXUtil.shutdown().get(10, TimeUnit.SECONDS)
@@ -257,36 +280,35 @@ class RecorderTest(
 
     @Test
     fun canRecordToFile() {
-        clearInvocations(videoRecordEventListener)
-        invokeSurfaceRequest()
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        // Arrange.
+        val outputOptions = createFileOutputOptions()
+        val recording = createRecordingProcess(outputOptions = outputOptions)
 
-        val recording =
-            recorder.prepareRecording(context, FileOutputOptions.Builder(file).build())
-                .withAudioEnabled()
-                .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
+        // Act.
+        recording.startAndVerify()
+        recording.stopAndVerify { finalize ->
+            // Assert.
+            val uri = finalize.outputResults.outputUri
+            assertThat(uri).isEqualTo(Uri.fromFile(outputOptions.file))
+            checkFileHasAudioAndVideo(uri)
+        }
+    }
 
-        val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(5000L))
-            .accept(any(VideoRecordEvent.Start::class.java))
-        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
-            .accept(any(VideoRecordEvent.Status::class.java))
+    @Test
+    fun recordingWithSetTargetVideoEncodingBitRate() {
+        testRecorderIsConfiguredBasedOnTargetVideoEncodingBitrate(6_000_000)
+    }
 
-        recording.stopSafely()
+    @Test
+    fun recordingWithSetTargetVideoEncodingBitRateOutOfRange() {
+        testRecorderIsConfiguredBasedOnTargetVideoEncodingBitrate(1000_000_000)
+    }
 
-        inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
-            .accept(any(VideoRecordEvent.Finalize::class.java))
-
-        val uri = Uri.fromFile(file)
-        checkFileHasAudioAndVideo(uri)
-
-        // Check the output Uri from the finalize event match the Uri from the given file.
-        val captor = ArgumentCaptor.forClass(VideoRecordEvent::class.java)
-        verify(videoRecordEventListener, atLeastOnce()).accept(captor.capture())
-        val finalize = captor.value as VideoRecordEvent.Finalize
-        assertThat(finalize.outputResults.outputUri).isEqualTo(uri)
-
-        file.delete()
+    @Test
+    fun recordingWithNegativeBitRate() {
+        assertThrows(IllegalArgumentException::class.java) {
+            createRecorder(targetBitrate = -5)
+        }
     }
 
     @Test
@@ -295,266 +317,170 @@ class RecorderTest(
             "Ignore the test since the MediaStore.Video has compatibility issues.",
             DeviceQuirks.get(MediaStoreVideoCannotWrite::class.java) == null
         )
-        invokeSurfaceRequest()
-        val statusSemaphore = Semaphore(0)
-        val finalizeSemaphore = Semaphore(0)
-        val context: Context = ApplicationProvider.getApplicationContext()
+
+        // Arrange.
         val contentResolver: ContentResolver = context.contentResolver
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
         }
-
         val outputOptions = MediaStoreOutputOptions.Builder(
             contentResolver,
             MediaStore.Video.Media.EXTERNAL_CONTENT_URI
         ).setContentValues(contentValues).build()
+        val recording = createRecordingProcess(outputOptions = outputOptions)
 
-        var uri: Uri = Uri.EMPTY
-        val recording = recorder.prepareRecording(context, outputOptions)
-            .withAudioEnabled()
-            .start(CameraXExecutors.directExecutor()) {
-                if (it is VideoRecordEvent.Status) {
-                    statusSemaphore.release()
-                }
-                if (it is VideoRecordEvent.Finalize) {
-                    uri = it.outputResults.outputUri
-                    finalizeSemaphore.release()
-                }
-            }
+        // Act.
+        recording.startAndVerify()
+        recording.stopAndVerify { finalize ->
+            // Assert.
+            val uri = finalize.outputResults.outputUri
+            checkFileHasAudioAndVideo(uri)
 
-        assertThat(statusSemaphore.tryAcquire(5, 15000L, TimeUnit.MILLISECONDS)).isTrue()
-
-        recording.stopSafely()
-
-        // Wait for the recording to complete.
-        assertThat(finalizeSemaphore.tryAcquire(FINALIZE_TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
-
-        assertThat(uri).isNotEqualTo(Uri.EMPTY)
-
-        checkFileHasAudioAndVideo(uri)
-
-        contentResolver.delete(uri, null, null)
+            // Clean-up.
+            contentResolver.delete(uri, null, null)
+        }
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 26)
     fun canRecordToFileDescriptor() {
-        clearInvocations(videoRecordEventListener)
-        invokeSurfaceRequest()
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val pfd = ParcelFileDescriptor.open(
-            file,
-            ParcelFileDescriptor.MODE_READ_WRITE
-        )
-        val recording = recorder
-            .prepareRecording(context, FileDescriptorOutputOptions.Builder(pfd).build())
-            .withAudioEnabled()
-            .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
+        // Arrange.
+        val file = createTempFile()
+        val pfd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_WRITE)
+        val outputOptions = FileDescriptorOutputOptions.Builder(pfd).build()
+        val recording = createRecordingProcess(outputOptions = outputOptions)
 
+        // Act.
+        recording.startAndVerify()
         // ParcelFileDescriptor should be safe to close after PendingRecording#start.
         pfd.close()
+        recording.stopAndVerify()
 
-        val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(5000L))
-            .accept(any(VideoRecordEvent.Start::class.java))
-        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
-            .accept(any(VideoRecordEvent.Status::class.java))
-
-        recording.stopSafely()
-
-        inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
-            .accept(any(VideoRecordEvent.Finalize::class.java))
-
+        // Assert.
         checkFileHasAudioAndVideo(Uri.fromFile(file))
-
-        file.delete()
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 26)
     fun recordToFileDescriptor_withClosedFileDescriptor_receiveError() {
-        clearInvocations(videoRecordEventListener)
-        invokeSurfaceRequest()
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        // Arrange.
+        val file = createTempFile()
         val pfd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_WRITE)
-
         pfd.close()
+        val outputOptions = FileDescriptorOutputOptions.Builder(pfd).build()
+        val recording = createRecordingProcess(outputOptions = outputOptions)
 
-        recorder.prepareRecording(
-            context, FileDescriptorOutputOptions
-                .Builder(pfd).build()
-        )
-            .withAudioEnabled()
-            .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
-
-        val captor = ArgumentCaptor.forClass(VideoRecordEvent::class.java)
-        verify(videoRecordEventListener).accept(captor.capture())
-        val finalize = captor.value as VideoRecordEvent.Finalize
-        assertThat(finalize.error).isEqualTo(ERROR_INVALID_OUTPUT_OPTIONS)
-
-        file.delete()
+        // Act.
+        recording.start()
+        recording.stopAndVerify { finalize ->
+            // Assert.
+            assertThat(finalize.error).isEqualTo(ERROR_INVALID_OUTPUT_OPTIONS)
+        }
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 25)
     @SuppressLint("NewApi") // Intentionally testing behavior of calling from invalid API level
     fun prepareRecordingWithFileDescriptor_throwsExceptionBeforeApi26() {
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        // Arrange.
+        val recorder = createRecorder()
+        val file = createTempFile()
         ParcelFileDescriptor.open(
             file,
             ParcelFileDescriptor.MODE_READ_WRITE
         ).use { pfd ->
+            // Assert.
             assertThrows(UnsupportedOperationException::class.java) {
+                // Act.
                 recorder.prepareRecording(context, FileDescriptorOutputOptions.Builder(pfd).build())
             }
         }
-
-        file.delete()
     }
 
     @Test
     fun canPauseResume() {
-        clearInvocations(videoRecordEventListener)
-        invokeSurfaceRequest()
+        // Arrange.
+        val recording = createRecordingProcess()
 
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-
-        val recording =
-            recorder.prepareRecording(context, FileOutputOptions.Builder(file).build())
-                .withAudioEnabled()
-                .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
-
-        recording.pause()
-
-        val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(5000L))
-            .accept(any(VideoRecordEvent.Pause::class.java))
-
-        recording.resume()
-
-        inOrder.verify(videoRecordEventListener, timeout(5000L))
-            .accept(any(VideoRecordEvent.Resume::class.java))
-        // Check there are data being encoded after resuming.
-        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
-            .accept(any(VideoRecordEvent.Status::class.java))
-
-        recording.stopSafely()
-
-        // Wait for the recording to be finalized.
-        inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
-            .accept(any(VideoRecordEvent.Finalize::class.java))
-
-        checkFileHasAudioAndVideo(Uri.fromFile(file))
-
-        file.delete()
+        // Act.
+        recording.startAndVerify()
+        recording.pauseAndVerify()
+        recording.resumeAndVerify()
+        recording.stopAndVerify { finalize ->
+            // Assert.
+            assertThat(finalize.error).isEqualTo(ERROR_NONE)
+        }
     }
 
     @Test
     fun canStartRecordingPaused_whenRecorderInitializing() {
-        clearInvocations(videoRecordEventListener)
+        // Arrange.
+        val recorder = createRecorder(sendSurfaceRequest = false)
+        val recording = createRecordingProcess(recorder = recorder)
 
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-
-        val recording =
-            recorder.prepareRecording(context, FileOutputOptions.Builder(file).build())
-                .withAudioEnabled()
-                .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
-
+        // Act.
+        recording.start()
         recording.pause()
-
         // Only invoke surface request after pause() has been called
-        invokeSurfaceRequest()
+        recorder.sendSurfaceRequest()
 
-        val inOrder = inOrder(videoRecordEventListener)
-
-        inOrder.verify(videoRecordEventListener, timeout(5000L))
-            .accept(any(VideoRecordEvent.Start::class.java))
-
-        inOrder.verify(videoRecordEventListener, timeout(5000L))
-            .accept(any(VideoRecordEvent.Pause::class.java))
-
-        recording.stopSafely()
-
-        file.delete()
+        // Assert.
+        recording.verifyStart()
+        recording.verifyPause()
     }
 
     @Test
     fun canReceiveRecordingStats() {
-        clearInvocations(videoRecordEventListener)
-        invokeSurfaceRequest()
+        // Arrange.
+        val recording = createRecordingProcess()
 
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        // Act.
+        recording.startAndVerify()
+        recording.pauseAndVerify()
+        recording.resumeAndVerify()
+        recording.stopAndVerify()
 
-        val inOrder = inOrder(videoRecordEventListener)
-        // Start
-        val recording =
-            recorder.prepareRecording(context, FileOutputOptions.Builder(file).build())
-                .withAudioEnabled()
-                .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
+        // Assert.
+        val events = recording.getAllEvents()
+        assertThat(events.size).isAtLeast(
+            1 /* Start */ +
+                5 /* Status */ +
+                1 /* Pause */ +
+                1 /* Resume */ +
+                5 /* Status */ +
+                1 /* Stop */
+        )
 
-        inOrder.verify(videoRecordEventListener, timeout(5000L))
-            .accept(any(VideoRecordEvent.Start::class.java))
-
-        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
-            .accept(any(VideoRecordEvent.Status::class.java))
-
-        // Pause
-        recording.pause()
-
-        verify(videoRecordEventListener, timeout(5000L))
-            .accept(any(VideoRecordEvent.Pause::class.java))
-
-        // Resume
-        recording.resume()
-
-        inOrder.verify(videoRecordEventListener, timeout(5000L))
-            .accept(any(VideoRecordEvent.Resume::class.java))
-
-        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
-            .accept(any(VideoRecordEvent.Status::class.java))
-
-        // Stop
-        recording.stopSafely()
-
-        inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
-            .accept(any(VideoRecordEvent.Finalize::class.java))
-
-        val captor = ArgumentCaptor.forClass(VideoRecordEvent::class.java)
-        verify(videoRecordEventListener, atLeastOnce()).accept(captor.capture())
-        captor.allValues.run {
-            assertThat(size).isAtLeast(
-                (
-                    1 /* Start */ +
-                        5 /* Status */ +
-                        1 /* Pause */ +
-                        1 /* Resume */ +
-                        5 /* Status */ +
-                        1 /* Stop */
-                    )
-            )
-
-            // Ensure duration and bytes are increasing
-            take(size - 1).mapIndexed { index, _ ->
-                Pair(get(index).recordingStats, get(index + 1).recordingStats)
-            }.forEach { (former: RecordingStats, latter: RecordingStats) ->
-                assertThat(former.numBytesRecorded).isAtMost(latter.numBytesRecorded)
-                assertThat(former.recordedDurationNanos).isAtMost((latter.recordedDurationNanos))
-            }
-
-            // Ensure they are not all zero by checking last stats
-            last().recordingStats.also {
-                assertThat(it.numBytesRecorded).isGreaterThan(0L)
-                assertThat(it.recordedDurationNanos).isGreaterThan(0L)
-            }
+        // Assert: Ensure duration and bytes are increasing.
+        List(events.size - 1) { index ->
+            Pair(events[index].recordingStats, events[index + 1].recordingStats)
+        }.forEach { (former: RecordingStats, latter: RecordingStats) ->
+            assertThat(former.numBytesRecorded).isAtMost(latter.numBytesRecorded)
+            assertThat(former.recordedDurationNanos).isAtMost((latter.recordedDurationNanos))
         }
 
-        file.delete()
+        // Assert: Ensure they are not all zero by checking the last stats.
+        events.last().recordingStats.also {
+            assertThat(it.numBytesRecorded).isGreaterThan(0L)
+            assertThat(it.recordedDurationNanos).isGreaterThan(0L)
+        }
     }
 
     @Test
     fun setFileSizeLimit() {
+        // Arrange.
         val fileSizeLimit = 500L * 1024L // 500 KB
-        runFileSizeLimitTest(fileSizeLimit)
+        val outputOptions = createFileOutputOptions(fileSizeLimit = fileSizeLimit)
+        val recording = createRecordingProcess(outputOptions = outputOptions)
+
+        // Act.
+        recording.startAndVerify()
+        recording.verifyFinalize(timeoutMs = 60_000L) { finalize ->
+            // Assert.
+            assertThat(finalize.error).isEqualTo(ERROR_FILE_SIZE_LIMIT_REACHED)
+            assertThat(outputOptions.file.length())
+                .isLessThan(fileSizeLimit + FILE_SIZE_LIMIT_BUFFER)
+        }
     }
 
     // Sets the file size limit to 1 byte, which will be lower than the initial data sent from
@@ -562,8 +488,17 @@ class RecorderTest(
     // written to it.
     @Test
     fun setFileSizeLimitLowerThanInitialDataSize() {
+        // Arrange.
         val fileSizeLimit = 1L // 1 byte
-        runFileSizeLimitTest(fileSizeLimit)
+        val outputOptions = createFileOutputOptions(fileSizeLimit = fileSizeLimit)
+        val recording = createRecordingProcess(outputOptions = outputOptions)
+
+        // Act.
+        recording.start()
+        recording.verifyFinalize { finalize ->
+            // Assert.
+            assertThat(finalize.error).isEqualTo(ERROR_FILE_SIZE_LIMIT_REACHED)
+        }
     }
 
     @Test
@@ -577,409 +512,274 @@ class RecorderTest(
     }
 
     @Test
+    fun stop_withErrorWhenDurationLimitReached() {
+        // Arrange.
+        val durationLimitMs = 3000L
+        val durationToleranceMs = 50L
+        val outputOptions = createFileOutputOptions(durationLimitMillis = durationLimitMs)
+        val recording = createRecordingProcess(outputOptions = outputOptions)
+
+        // Act.
+        recording.start()
+
+        // Assert.
+        recording.verifyFinalize(timeoutMs = durationLimitMs + 2000L) { finalize ->
+            // Assert.
+            assertThat(finalize.error).isEqualTo(ERROR_DURATION_LIMIT_REACHED)
+            assertThat(finalize.recordingStats.recordedDurationNanos)
+                .isAtMost(TimeUnit.MILLISECONDS.toNanos(durationLimitMs + durationToleranceMs))
+            checkDurationAtMost(
+                Uri.fromFile(outputOptions.file),
+                durationLimitMs + durationToleranceMs
+            )
+        }
+    }
+
+    @Test
     fun checkStreamState() {
-        clearInvocations(videoRecordEventListener)
-        invokeSurfaceRequest()
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-
+        // Arrange.
+        val recorder = createRecorder()
         @Suppress("UNCHECKED_CAST")
-        val streamInfoObserver =
-            mock(Observable.Observer::class.java) as Observable.Observer<StreamInfo>
+        val streamInfoObserver = mock(Observer::class.java) as Observer<StreamInfo>
         val inOrder = inOrder(streamInfoObserver)
-        recorder.streamInfo.addObserver(CameraXExecutors.directExecutor(), streamInfoObserver)
+        recorder.streamInfo.addObserver(directExecutor(), streamInfoObserver)
 
-        // Recorder should start in INACTIVE stream state before any recordings
-        inOrder.verify(streamInfoObserver, timeout(5000L)).onNewData(
+        // Assert: Recorder should start in INACTIVE stream state before any recordings
+        inOrder.verify(streamInfoObserver, timeout(GENERAL_TIMEOUT)).onNewData(
             argThat {
                 it!!.streamState == StreamInfo.StreamState.INACTIVE
             }
         )
+        val recording = createRecordingProcess(recorder = recorder)
 
-        // Start
-        val recording =
-            recorder.prepareRecording(context, FileOutputOptions.Builder(file).build())
-                .withAudioEnabled()
-                .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
-        // Starting recording should move Recorder to ACTIVE stream state
+        // Act.
+        recording.start()
+
+        // Assert: Starting recording should move Recorder to ACTIVE stream state
         inOrder.verify(streamInfoObserver, timeout(5000L)).onNewData(
-            argThat {
-                it!!.streamState == StreamInfo.StreamState.ACTIVE
-            }
+            argThat { it!!.streamState == StreamInfo.StreamState.ACTIVE }
         )
 
-        recording.stopSafely()
+        // Act.
+        recording.stop()
 
-        // Stopping recording should eventually move to INACTIVE stream state
-        inOrder.verify(streamInfoObserver, timeout(FINALIZE_TIMEOUT)).onNewData(
+        // Assert: Stopping recording should eventually move to INACTIVE stream state
+        inOrder.verify(streamInfoObserver, timeout(GENERAL_TIMEOUT)).onNewData(
             argThat {
                 it!!.streamState == StreamInfo.StreamState.INACTIVE
             }
         )
-
-        file.delete()
     }
 
     @Test
     fun start_throwsExceptionWhenActive() {
-        invokeSurfaceRequest()
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val outputOptions = FileOutputOptions.Builder(file).build()
+        // Arrange.
+        val recorder = createRecorder()
+        val recording = createRecordingProcess(recorder = recorder)
 
-        val recording = recorder.prepareRecording(context, outputOptions).start(
-            CameraXExecutors.directExecutor()
-        ) {}
+        // Act: 1st start.
+        recording.start()
 
-        val pendingRecording = recorder.prepareRecording(context, outputOptions)
+        // Assert.
         assertThrows(java.lang.IllegalStateException::class.java) {
-            pendingRecording.start(CameraXExecutors.directExecutor()) {}
+            // Act: 2nd start.
+            val recording2 = createRecordingProcess(recorder = recorder)
+            recording2.start()
         }
-
-        recording.close()
-        file.delete()
     }
 
     @Test
     fun start_whenSourceActiveNonStreaming() {
-        clearInvocations(videoRecordEventListener)
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        // Arrange.
+        val recorder = createRecorder(initSourceState = ACTIVE_NON_STREAMING)
+        val recording = createRecordingProcess(recorder = recorder)
 
-        recorder.onSourceStateChanged(VideoOutput.SourceState.ACTIVE_NON_STREAMING)
-
-        val recording =
-            recorder.prepareRecording(context, FileOutputOptions.Builder(file).build())
-                .withAudioEnabled()
-                .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
-
-        invokeSurfaceRequest()
-
-        val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(5000L))
-            .accept(any(VideoRecordEvent.Start::class.java))
-        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
-            .accept(any(VideoRecordEvent.Status::class.java))
-
-        recording.stopSafely()
-        // Wait for the recording to be finalized.
-        inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
-            .accept(any(VideoRecordEvent.Finalize::class.java))
-        file.delete()
+        // Act.
+        recording.start()
+        recorder.onSourceStateChanged(ACTIVE_STREAMING)
+        recording.verifyStart()
+        recording.verifyStatus()
+        recording.stopAndVerify { finalize ->
+            // Assert.
+            assertThat(finalize.error).isEqualTo(ERROR_NONE)
+        }
     }
 
     @Test
     fun start_finalizeImmediatelyWhenSourceInactive() {
-        clearInvocations(videoRecordEventListener)
-        invokeSurfaceRequest()
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        // Arrange.
+        val recorder = createRecorder(initSourceState = INACTIVE)
+        val recording = createRecordingProcess(recorder = recorder)
 
-        recorder.onSourceStateChanged(VideoOutput.SourceState.INACTIVE)
+        // Act.
+        recording.start()
 
-        val recording =
-            recorder.prepareRecording(context, FileOutputOptions.Builder(file).build())
-                .withAudioEnabled()
-                .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
-
-        verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
-            .accept(any(VideoRecordEvent.Finalize::class.java))
-        verifyNoMoreInteractions(videoRecordEventListener)
-        val captor = ArgumentCaptor.forClass(VideoRecordEvent::class.java)
-        verify(videoRecordEventListener, atLeastOnce()).accept(captor.capture())
-        val finalize = captor.value as VideoRecordEvent.Finalize
-        assertThat(finalize.error).isEqualTo(ERROR_SOURCE_INACTIVE)
-
-        recording.close()
-        file.delete()
+        // Assert.
+        recording.verifyFinalize { finalize ->
+            // Assert.
+            assertThat(finalize.error).isEqualTo(ERROR_SOURCE_INACTIVE)
+        }
     }
 
     @Test
     fun pause_whenSourceActiveNonStreaming() {
-        clearInvocations(videoRecordEventListener)
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        // Arrange.
+        val recorder = createRecorder(
+            sendSurfaceRequest = false,
+            initSourceState = ACTIVE_NON_STREAMING
+        )
+        val recording = createRecordingProcess(recorder = recorder)
 
-        recorder.onSourceStateChanged(VideoOutput.SourceState.ACTIVE_NON_STREAMING)
-
-        val recording =
-            recorder.prepareRecording(context, FileOutputOptions.Builder(file).build())
-                .withAudioEnabled()
-                .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
-
+        // Act.
+        recording.start()
         recording.pause()
+        recorder.sendSurfaceRequest()
 
-        invokeSurfaceRequest()
-
-        val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(5000L))
-            .accept(any(VideoRecordEvent.Start::class.java))
-        inOrder.verify(videoRecordEventListener, timeout(5000L))
-            .accept(any(VideoRecordEvent.Pause::class.java))
-
-        recording.stopSafely()
-        // Wait for the recording to be finalized.
-        inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
-            .accept(any(VideoRecordEvent.Finalize::class.java))
-        file.delete()
+        // Assert.
+        recording.verifyStart()
+        recording.verifyPause()
+        recording.stopAndVerify { finalize ->
+            // Assert.
+            assertThat(finalize.error).isEqualTo(ERROR_NO_VALID_DATA)
+        }
     }
 
     @Test
     fun pause_noOpWhenAlreadyPaused() {
-        clearInvocations(videoRecordEventListener)
-        invokeSurfaceRequest()
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        // Arrange.
+        val recording = createRecordingProcess()
 
-        val recording =
-            recorder.prepareRecording(context, FileOutputOptions.Builder(file).build())
-                .withAudioEnabled()
-                .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
-
-        val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(5000L))
-            .accept(any(VideoRecordEvent.Start::class.java))
-        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
-            .accept(any(VideoRecordEvent.Status::class.java))
-
-        recording.pause()
-        inOrder.verify(videoRecordEventListener, timeout(5000L))
-            .accept(any(VideoRecordEvent.Pause::class.java))
-
+        // Act.
+        recording.startAndVerify()
+        recording.pauseAndVerify()
         recording.pause()
 
-        recording.stopSafely()
-
-        inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
-            .accept(any(VideoRecordEvent.Finalize::class.java))
-
-        // As described in b/197416199, there might be encoded data in flight which will trigger
-        // Status event after pausing. So here it checks there's only one Pause event.
-        val captor = ArgumentCaptor.forClass(VideoRecordEvent::class.java)
-        verify(videoRecordEventListener, atLeastOnce()).accept(captor.capture())
-        assertThat(captor.allValues.count { it is VideoRecordEvent.Pause }).isAtMost(1)
-
-        file.delete()
+        // Assert: One Pause event.
+        val events = recording.getAllEvents()
+        val pauseEvents = events.filterIsInstance<Pause>()
+        assertThat(pauseEvents.size).isAtMost(1)
     }
 
     @Test
     fun pause_throwsExceptionWhenStopping() {
-        clearInvocations(videoRecordEventListener)
-        invokeSurfaceRequest()
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        // Arrange.
+        val recording = createRecordingProcess()
 
-        val recording =
-            recorder.prepareRecording(context, FileOutputOptions.Builder(file).build())
-                .withAudioEnabled()
-                .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
+        // Act.
+        recording.startAndVerify()
+        recording.stopAndVerify()
 
-        val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(5000L))
-            .accept(any(VideoRecordEvent.Start::class.java))
-        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
-            .accept(any(VideoRecordEvent.Status::class.java))
-
-        recording.stopSafely()
+        // Assert.
         assertThrows(IllegalStateException::class.java) {
             recording.pause()
         }
-
-        file.delete()
     }
 
     @Test
     fun resume_noOpWhenNotPaused() {
-        clearInvocations(videoRecordEventListener)
-        invokeSurfaceRequest()
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        // Arrange.
+        val recording = createRecordingProcess()
 
-        val recording =
-            recorder.prepareRecording(context, FileOutputOptions.Builder(file).build())
-                .withAudioEnabled()
-                .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
-
-        val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(5000L))
-            .accept(any(VideoRecordEvent.Start::class.java))
-        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
-            .accept(any(VideoRecordEvent.Status::class.java))
-
-        // Calling resume shouldn't affect the stream of status events finally followed
-        // by a finalize event. There shouldn't be another resume event generated.
+        // Act.
+        recording.startAndVerify()
         recording.resume()
+        recording.stopAndVerify()
 
-        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
-            .accept(any(VideoRecordEvent.Status::class.java))
-
-        recording.stopSafely()
-
-        inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
-            .accept(any(VideoRecordEvent.Finalize::class.java))
-
-        // Ensure no resume events were ever sent.
-        verify(videoRecordEventListener, never()).accept(any(VideoRecordEvent.Resume::class.java))
-
-        file.delete()
+        // Assert: No Resume event.
+        val events = recording.getAllEvents()
+        val resumeEvents = events.filterIsInstance<Resume>()
+        assertThat(resumeEvents).isEmpty()
     }
 
     @Test
     fun resume_throwsExceptionWhenStopping() {
-        clearInvocations(videoRecordEventListener)
-        invokeSurfaceRequest()
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        // Arrange.
+        val recording = createRecordingProcess()
 
-        val recording =
-            recorder.prepareRecording(context, FileOutputOptions.Builder(file).build())
-                .withAudioEnabled()
-                .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
+        // Act.
+        recording.startAndVerify()
+        recording.stop()
 
-        val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(5000L))
-            .accept(any(VideoRecordEvent.Start::class.java))
-        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
-            .accept(any(VideoRecordEvent.Status::class.java))
-
-        recording.stopSafely()
+        // Assert.
         assertThrows(IllegalStateException::class.java) {
-            recording.resume()
+            recording.resumeAndVerify()
         }
-
-        file.delete()
     }
 
     @Test
     fun stop_beforeSurfaceRequested() {
-        clearInvocations(videoRecordEventListener)
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        // Arrange.
+        val recorder = createRecorder(sendSurfaceRequest = false)
+        val recording = createRecordingProcess(recorder = recorder)
 
-        val recording =
-            recorder.prepareRecording(context, FileOutputOptions.Builder(file).build())
-                .withAudioEnabled()
-                .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
+        // Act.
+        recording.start()
+        recording.stop()
+        recorder.sendSurfaceRequest()
 
-        recording.pause()
-        recording.stopSafely()
-
-        invokeSurfaceRequest()
-
-        verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
-            .accept(any(VideoRecordEvent.Finalize::class.java))
-
-        file.delete()
-    }
-
-    @Test
-    fun stop_fromAutoCloseable() {
-        clearInvocations(videoRecordEventListener)
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-
-        val inOrder = inOrder(videoRecordEventListener)
-        // Recording will be stopped by AutoCloseable.close() upon exiting use{} block
-        val pendingRecording =
-            recorder.prepareRecording(context, FileOutputOptions.Builder(file).build())
-        pendingRecording.start(CameraXExecutors.directExecutor(), videoRecordEventListener).use {
-            invokeSurfaceRequest()
-            inOrder.verify(videoRecordEventListener, timeout(5000L))
-                .accept(any(VideoRecordEvent.Start::class.java))
-            inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
-                .accept(any(VideoRecordEvent.Status::class.java))
+        // Assert.
+        recording.verifyFinalize { finalize ->
+            assertThat(finalize.error).isEqualTo(ERROR_NO_VALID_DATA)
         }
-
-        inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
-            .accept(any(VideoRecordEvent.Finalize::class.java))
-
-        file.delete()
     }
 
     @Test
     fun stop_WhenUseCaseDetached() {
-        clearInvocations(videoRecordEventListener)
-        invokeSurfaceRequest()
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        // Arrange.
+        val recording = createRecordingProcess()
 
-        val recording =
-            recorder.prepareRecording(context, FileOutputOptions.Builder(file).build())
-                .withAudioEnabled()
-                .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
-
-        val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(5000L))
-            .accept(any(VideoRecordEvent.Start::class.java))
-        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
-            .accept(any(VideoRecordEvent.Status::class.java))
-
+        // Act.
+        recording.startAndVerify()
         instrumentation.runOnMainSync {
             cameraUseCaseAdapter.removeUseCases(listOf(preview))
         }
 
-        inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
-            .accept(any(VideoRecordEvent.Finalize::class.java))
-
-        recording.stopSafely()
-        file.delete()
+        // Assert.
+        recording.verifyFinalize { finalize ->
+            assertThat(finalize.error).isEqualTo(ERROR_SOURCE_INACTIVE)
+        }
     }
 
-    @Suppress("UNUSED_VALUE", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     @Test
     fun stop_whenRecordingIsGarbageCollected() {
-        clearInvocations(videoRecordEventListener)
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        // Arrange.
+        var recording: RecordingProcess? = createRecordingProcess()
+        val listener = recording!!.listener
 
-        val inOrder = inOrder(videoRecordEventListener)
-        var recording: Recording? = recorder
-            .prepareRecording(context, FileOutputOptions.Builder(file).build())
-            .withAudioEnabled()
-            .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
-
-        // First ensure the recording gets some status events
-        invokeSurfaceRequest()
-        inOrder.verify(videoRecordEventListener, timeout(5000L))
-            .accept(any(VideoRecordEvent.Start::class.java))
-        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
-            .accept(any(VideoRecordEvent.Status::class.java))
-
+        // Act.
+        recording.startAndVerify()
         // Remove reference to recording and run GC. The recording should be stopped once
         // the Recording's finalizer runs.
+        recordingsToStop.remove(recording)
+        @Suppress("UNUSED_VALUE")
         recording = null
         GarbageCollectionUtil.runFinalization()
 
-        // Ensure the event listener gets a finalize event. Note: the word "finalize" is very
-        // overloaded here. This event means the recording has finished, but does not relate to the
-        // finalizer that runs during garbage collection. However, that is what causes the
+        // Assert: Ensure the event listener gets a finalize event. Note: the word "finalize" is
+        // very overloaded here. This event means the recording has finished, but does not relate
+        // to the finalizer that runs during garbage collection. However, that is what causes the
         // recording to finish.
-        inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
-            .accept(any(VideoRecordEvent.Finalize::class.java))
-
-        file.delete()
+        listener.verifyFinalize()
     }
 
     @Test
     fun stop_noOpWhenStopping() {
-        clearInvocations(videoRecordEventListener)
-        invokeSurfaceRequest()
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        // Arrange.
+        val recording = createRecordingProcess()
 
-        val recording =
-            recorder.prepareRecording(context, FileOutputOptions.Builder(file).build())
-                .withAudioEnabled()
-                .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
+        // Act.
+        recording.startAndVerify()
+        recording.stopAndVerify()
+        recording.stop()
 
-        val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(5000L))
-            .accept(any(VideoRecordEvent.Start::class.java))
-        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
-            .accept(any(VideoRecordEvent.Status::class.java))
-
-        recording.stopSafely()
-        recording.stopSafely()
-
-        inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
-            .accept(any(VideoRecordEvent.Finalize::class.java))
-        inOrder.verifyNoMoreInteractions()
-
-        file.delete()
+        // Assert.
+        recording.verifyNoMoreEvent()
     }
 
     @Test
     fun optionsOverridesDefaults() {
         val qualitySelector = QualitySelector.from(Quality.HIGHEST)
-        val recorder = Recorder.Builder()
-            .setQualitySelector(qualitySelector)
-            .build()
+        val recorder = createRecorder(qualitySelector = qualitySelector)
 
         assertThat(recorder.qualitySelector).isEqualTo(qualitySelector)
     }
@@ -987,134 +787,83 @@ class RecorderTest(
     @Test
     fun canRetrieveProvidedExecutorFromRecorder() {
         val myExecutor = Executor { command -> command?.run() }
-        val recorder = Recorder.Builder()
-            .setExecutor(myExecutor)
-            .build()
+        val recorder = createRecorder(executor = myExecutor)
 
         assertThat(recorder.executor).isSameInstanceAs(myExecutor)
     }
 
     @Test
     fun cannotRetrieveExecutorWhenExecutorNotProvided() {
-        val recorder = Recorder.Builder().build()
+        val recorder = createRecorder()
 
         assertThat(recorder.executor).isNull()
     }
 
     @Test
     fun canRecordWithoutAudio() {
-        clearInvocations(videoRecordEventListener)
-        invokeSurfaceRequest()
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        // Arrange.
+        val recording = createRecordingProcess(withAudio = false)
 
-        val recording =
-            recorder.prepareRecording(context, FileOutputOptions.Builder(file).build())
-                .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
-
-        val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(5000L))
-            .accept(any(VideoRecordEvent.Start::class.java))
-        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
-            .accept(any(VideoRecordEvent.Status::class.java))
-
-        // Check the audio information reports state as disabled.
-        val captor = ArgumentCaptor.forClass(VideoRecordEvent::class.java)
-        verify(videoRecordEventListener, atLeastOnce()).accept(captor.capture())
-        assertThat(captor.value).isInstanceOf(VideoRecordEvent.Status::class.java)
-        val status = captor.value as VideoRecordEvent.Status
-        assertThat(status.recordingStats.audioStats.audioState)
-            .isEqualTo(AudioStats.AUDIO_STATE_DISABLED)
-
-        recording.stopSafely()
-
-        verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
-            .accept(any(VideoRecordEvent.Finalize::class.java))
-
-        checkFileAudio(Uri.fromFile(file), false)
-        checkFileVideo(Uri.fromFile(file), true)
-
-        file.delete()
+        // Act.
+        recording.startAndVerify()
+        recording.stopAndVerify { finalize ->
+            // Assert.
+            val uri = finalize.outputResults.outputUri
+            checkFileHasAudioAndVideo(uri, hasAudio = false)
+        }
     }
 
     @Test
     fun cannotStartMultiplePendingRecordingsWhileInitializing() {
-        val file1 = File.createTempFile("CameraX1", ".tmp").apply { deleteOnExit() }
-        val file2 = File.createTempFile("CameraX2", ".tmp").apply { deleteOnExit() }
-        try {
-            // We explicitly do not invoke the surface request so the recorder is initializing.
-            recorder.prepareRecording(context, FileOutputOptions.Builder(file1).build())
-                .start(CameraXExecutors.directExecutor()) {}
-                .use {
-                    assertThrows<IllegalStateException> {
-                        recorder.prepareRecording(context, FileOutputOptions.Builder(file2).build())
-                            .start(CameraXExecutors.directExecutor()) {}
-                    }
-                }
-        } finally {
-            file1.delete()
-            file2.delete()
+        // Arrange: Prepare 1st recording and start.
+        val recorder = createRecorder(sendSurfaceRequest = false)
+        val recording = createRecordingProcess(recorder = recorder)
+        recording.start()
+
+        // Assert.
+        assertThrows<IllegalStateException> {
+            // Act: Prepare 2nd recording and start.
+            createRecordingProcess(recorder = recorder).start()
         }
     }
 
     @Test
     fun canRecoverFromErrorState(): Unit = runBlocking {
+        // Arrange.
         // Create a video encoder factory that will fail on first 2 create encoder requests.
-        // Recorder initialization should fail by 1st encoder creation fail.
-        // 1st recording request should fail by 2nd encoder creation fail.
-        // 2nd recording request should be successful.
         var createEncoderRequestCount = 0
-        val recorder = Recorder.Builder()
-            .setVideoEncoderFactory { executor, config ->
-                if (createEncoderRequestCount < 2) {
-                    createEncoderRequestCount++
-                    throw InvalidConfigException("Create video encoder fail on purpose.")
-                } else {
-                    Recorder.DEFAULT_ENCODER_FACTORY.createEncoder(executor, config)
-                }
-            }.build().apply { onSourceStateChanged(VideoOutput.SourceState.INACTIVE) }
-
-        invokeSurfaceRequest(recorder)
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-
+        val recorder = createRecorder(
+            videoEncoderFactory = { executor, config ->
+            if (createEncoderRequestCount < 2) {
+                createEncoderRequestCount++
+                throw InvalidConfigException("Create video encoder fail on purpose.")
+            } else {
+                Recorder.DEFAULT_ENCODER_FACTORY.createEncoder(executor, config)
+            }
+        })
+        // Recorder initialization should fail by 1st encoder creation fail.
         // Wait STREAM_ID_ERROR which indicates Recorder enter the error state.
         withTimeoutOrNull(3000) {
             recorder.streamInfo.asFlow().dropWhile { it!!.id != StreamInfo.STREAM_ID_ERROR }.first()
         } ?: fail("Do not observe STREAM_ID_ERROR from StreamInfo observer.")
 
-        // 1st recording request
-        clearInvocations(videoRecordEventListener)
-        recorder.prepareRecording(context, FileOutputOptions.Builder(file).build())
-            .withAudioEnabled()
-            .start(CameraXExecutors.directExecutor(), videoRecordEventListener).let {
-                val captor = ArgumentCaptor.forClass(VideoRecordEvent::class.java)
-                verify(videoRecordEventListener, timeout(3000)).accept(captor.capture())
-                val finalize = captor.value as VideoRecordEvent.Finalize
-                assertThat(finalize.error).isEqualTo(ERROR_RECORDER_ERROR)
-            }
+        // Act: 1st recording request should fail by 2nd encoder creation fail.
+        var recording = createRecordingProcess(recorder = recorder)
+        recording.start()
+        recording.verifyFinalize { finalize ->
+            assertThat(finalize.error).isEqualTo(ERROR_RECORDER_ERROR)
+        }
 
-        // 2nd recording request
-        clearInvocations(videoRecordEventListener)
-        recorder.prepareRecording(context, FileOutputOptions.Builder(file).build())
-            .withAudioEnabled()
-            .start(CameraXExecutors.directExecutor(), videoRecordEventListener).let {
-                val inOrder = inOrder(videoRecordEventListener)
-                inOrder.verify(videoRecordEventListener, timeout(3000L))
-                    .accept(any(VideoRecordEvent.Start::class.java))
-                inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
-                    .accept(any(VideoRecordEvent.Status::class.java))
-
-                it.stopSafely()
-
-                inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
-                    .accept(any(VideoRecordEvent.Finalize::class.java))
-            }
-
-        file.delete()
+        // Act: 2nd recording request should be successful.
+        recording = createRecordingProcess(recorder = recorder)
+        recording.startAndVerify()
+        recording.stopAndVerify()
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 31)
     fun audioRecordIsAttributed() = runBlocking {
+        // Arrange.
         val notedTag = CompletableDeferred<String>()
         val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
         appOps.setOnOpNotedCallback(Dispatchers.Main.asExecutor(), object : OnOpNotedCallback() {
@@ -1134,120 +883,260 @@ class RecorderTest(
                 }
             }
         })
+        val attributionContext = context.createAttributionContext(TEST_ATTRIBUTION_TAG)
+        val recording = createRecordingProcess(context = attributionContext)
 
-        var recording: Recording? = null
+        // Act.
+        recording.start()
         try {
-            val attributionContext = context.createAttributionContext(TEST_ATTRIBUTION_TAG)
-            clearInvocations(videoRecordEventListener)
-            invokeSurfaceRequest()
-            val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-
-            recording =
-                recorder.prepareRecording(
-                    attributionContext, FileOutputOptions.Builder(file).build()
-                )
-                    .withAudioEnabled()
-                    .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
-
             val timeoutDuration = 5.seconds
             withTimeoutOrNull(timeoutDuration) {
+                // Assert.
                 assertThat(notedTag.await()).isEqualTo(TEST_ATTRIBUTION_TAG)
             } ?: fail("Timed out waiting for attribution tag. Waited $timeoutDuration.")
         } finally {
             appOps.setOnOpNotedCallback(null, null)
-            recording?.stopSafely()
         }
     }
 
-    private fun invokeSurfaceRequest() {
-        invokeSurfaceRequest(recorder)
+    private fun testRecorderIsConfiguredBasedOnTargetVideoEncodingBitrate(targetBitrate: Int) {
+        // Arrange.
+        val recorder = createRecorder(targetBitrate = targetBitrate)
+        val recording = createRecordingProcess(recorder = recorder, withAudio = false)
+
+        // Act.
+        recording.startAndVerify()
+        recording.stopAndVerify { finalize ->
+            assertThat(finalize.error).isEqualTo(ERROR_NONE)
+        }
+
+        // Assert.
+        assertThat(recorder.mFirstRecordingVideoBitrate).isIn(
+            com.google.common.collect.Range.closed(
+                recorder.mVideoEncoderBitrateRange.lower,
+                recorder.mVideoEncoderBitrateRange.upper
+            )
+        )
     }
 
-    private fun invokeSurfaceRequest(recorder: Recorder) {
+    private fun Recorder.sendSurfaceRequest() {
         instrumentation.runOnMainSync {
             preview.setSurfaceProvider { request: SurfaceRequest ->
-                recorder.onSurfaceRequested(request)
-            }
-            recorder.onSourceStateChanged(VideoOutput.SourceState.ACTIVE_STREAMING)
-        }
-    }
-
-    private fun checkFileHasAudioAndVideo(uri: Uri) {
-        checkFileAudio(uri, true)
-        checkFileVideo(uri, true)
-    }
-
-    private fun checkFileAudio(uri: Uri, hasAudio: Boolean) {
-        MediaMetadataRetriever().apply {
-            try {
-                setDataSource(context, uri)
-                val value = extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO)
-
-                assertThat(value).isEqualTo(
-                    if (hasAudio) {
-                        "yes"
-                    } else {
-                        null
-                    }
-                )
-            } finally {
-                release()
+                onSurfaceRequested(request)
             }
         }
     }
 
-    private fun checkFileVideo(uri: Uri, hasVideo: Boolean) {
-        MediaMetadataRetriever().apply {
-            try {
-                setDataSource(context, uri)
-                val value = extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO)
+    private fun createTempFile() = temporaryFolder.newFile()
 
-                assertThat(value).isEqualTo(
-                    if (hasVideo) {
-                        "yes"
-                    } else {
-                        null
-                    }
-                )
-            } finally {
-                release()
+    private fun createRecorder(
+        sendSurfaceRequest: Boolean = true,
+        initSourceState: VideoOutput.SourceState = ACTIVE_STREAMING,
+        qualitySelector: QualitySelector? = null,
+        executor: Executor? = null,
+        videoEncoderFactory: EncoderFactory? = null,
+        audioEncoderFactory: EncoderFactory? = null,
+        targetBitrate: Int? = null,
+    ): Recorder {
+        val recorder = Recorder.Builder().apply {
+            qualitySelector?.let { setQualitySelector(it) }
+            executor?.let { setExecutor(it) }
+            videoEncoderFactory?.let { setVideoEncoderFactory(it) }
+            audioEncoderFactory?.let { setAudioEncoderFactory(it) }
+            targetBitrate?.let { setTargetVideoEncodingBitRate(targetBitrate) }
+        }.build()
+        if (sendSurfaceRequest) {
+            recorder.sendSurfaceRequest()
+        }
+        recorder.onSourceStateChanged(initSourceState)
+        return recorder
+    }
+
+    private fun createFileOutputOptions(
+        file: File = createTempFile(),
+        fileSizeLimit: Long? = null,
+        durationLimitMillis: Long? = null,
+        location: Location? = null,
+    ): FileOutputOptions = FileOutputOptions.Builder(file).apply {
+        fileSizeLimit?.let { setFileSizeLimit(it) }
+        durationLimitMillis?.let { setDurationLimitMillis(it) }
+        location?.let { setLocation(it) }
+    }.build()
+
+    private fun createRecordingProcess(
+        recorder: Recorder = createRecorder(),
+        context: Context = ApplicationProvider.getApplicationContext(),
+        outputOptions: OutputOptions = createFileOutputOptions(),
+        withAudio: Boolean = true
+    ) = RecordingProcess(
+        recorder,
+        context,
+        outputOptions,
+        withAudio
+    )
+
+    inner class RecordingProcess(
+        private val recorder: Recorder,
+        context: Context,
+        outputOptions: OutputOptions,
+        withAudio: Boolean
+    ) {
+        private val pendingRecording: PendingRecording =
+            PendingRecording(context, recorder, outputOptions).apply {
+                if (withAudio) {
+                    withAudioEnabled()
+                }
             }
+        val listener = MockConsumer<VideoRecordEvent>()
+        private lateinit var recording: Recording
+
+        fun startAndVerify(
+            statusCount: Int = DEFAULT_STATUS_COUNT,
+            onStatus: ((List<Status>) -> Unit)? = null,
+        ) = startInternal(verify = true, statusCount = statusCount, onStatus = onStatus)
+
+        fun start() = startInternal(verify = false)
+
+        private fun startInternal(
+            verify: Boolean = false,
+            statusCount: Int = DEFAULT_STATUS_COUNT,
+            onStatus: ((List<Status>) -> Unit)? = null
+        ) {
+            recording = pendingRecording.start(mainThreadExecutor(), listener)
+            recordingsToStop.add(this)
+            if (verify) {
+                verifyStart()
+                verifyStatus(statusCount = statusCount, onStatus = onStatus)
+            }
+        }
+
+        fun verifyStart() {
+            listener.verifyStart()
+        }
+
+        fun verifyStatus(
+            statusCount: Int = DEFAULT_STATUS_COUNT,
+            onStatus: ((List<Status>) -> Unit)? = null,
+        ) {
+            listener.verifyStatus(eventCount = statusCount, onEvent = onStatus)
+        }
+
+        fun stopAndVerify(onFinalize: ((Finalize) -> Unit)? = null) =
+            stopInternal(verify = true, onFinalize)
+
+        fun stop() = stopInternal(verify = false)
+
+        private fun stopInternal(
+            verify: Boolean = false,
+            onFinalize: ((Finalize) -> Unit)? = null
+        ) {
+            recording.stopSafely(recorder)
+            if (verify) {
+                verifyFinalize(onFinalize = onFinalize)
+            }
+        }
+
+        fun verifyFinalize(
+            timeoutMs: Long = GENERAL_TIMEOUT,
+            onFinalize: ((Finalize) -> Unit)? = null
+        ) = listener.verifyFinalize(timeoutMs = timeoutMs, onFinalize = onFinalize)
+
+        fun pauseAndVerify() = pauseInternal(verify = true)
+
+        fun pause() = pauseInternal(verify = false)
+
+        private fun pauseInternal(verify: Boolean = false) {
+            recording.pause()
+            if (verify) {
+                verifyPause()
+            }
+        }
+
+        fun verifyPause() = listener.verifyPause()
+
+        fun resumeAndVerify() = resumeInternal(verify = true)
+
+        fun resume() = resumeInternal(verify = false)
+
+        private fun resumeInternal(verify: Boolean = false) {
+            recording.resume()
+            if (verify) {
+                verifyResume()
+            }
+        }
+
+        private fun verifyResume() {
+            listener.verifyResume()
+            listener.verifyStatus()
+        }
+
+        fun getAllEvents(): List<VideoRecordEvent> {
+            lateinit var events: List<VideoRecordEvent>
+            listener.verifyEvent(
+                VideoRecordEvent::class.java,
+                CallTimesAtLeast(1),
+                onEvent = {
+                    events = it
+                }
+            )
+            return events
+        }
+
+        fun verifyNoMoreEvent() = listener.verifyNoMoreAcceptCalls(/*inOrder=*/true)
+    }
+
+    private fun checkFileHasAudioAndVideo(
+        uri: Uri,
+        hasAudio: Boolean = true,
+    ) {
+        MediaMetadataRetriever().useAndRelease {
+            it.setDataSource(context, uri)
+            assertThat(it.hasVideo()).isEqualTo(true)
+            assertThat(it.hasAudio()).isEqualTo(hasAudio)
         }
     }
 
+    @Suppress("SameParameterValue")
     private fun checkLocation(uri: Uri, location: Location) {
-        MediaMetadataRetriever().apply {
-            try {
-                setDataSource(context, uri)
-                // Only test on mp4 output format, others will be ignored.
-                val mime = extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE)
-                assumeTrue("Unsupported mime = $mime",
-                    "video/mp4".equals(mime, ignoreCase = true))
-                val value = extractMetadata(MediaMetadataRetriever.METADATA_KEY_LOCATION)
-                assertThat(value).isNotNull()
-                // ex: (90, 180) => "+90.0000+180.0000/" (ISO-6709 standard)
-                val matchGroup =
-                    "([\\+-]?[0-9]+(\\.[0-9]+)?)([\\+-]?[0-9]+(\\.[0-9]+)?)".toRegex()
-                        .find(value!!) ?: fail("Fail on checking location metadata: $value")
-                val lat = matchGroup.groupValues[1].toDouble()
-                val lon = matchGroup.groupValues[3].toDouble()
+        MediaMetadataRetriever().useAndRelease {
+            it.setDataSource(context, uri)
+            // Only test on mp4 output format, others will be ignored.
+            val mime = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE)
+            assumeTrue("Unsupported mime = $mime",
+                "video/mp4".equals(mime, ignoreCase = true))
+            val value = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_LOCATION)
+            assertThat(value).isNotNull()
+            // ex: (90, 180) => "+90.0000+180.0000/" (ISO-6709 standard)
+            val matchGroup =
+                "([+-]?[0-9]+(\\.[0-9]+)?)([+-]?[0-9]+(\\.[0-9]+)?)".toRegex()
+                    .find(value!!) ?: fail("Fail on checking location metadata: $value")
+            val lat = matchGroup.groupValues[1].toDouble()
+            val lon = matchGroup.groupValues[3].toDouble()
 
-                // MediaMuxer.setLocation rounds the value to 4 decimal places
-                val tolerance = 0.0001
-                assertWithMessage("Fail on latitude. $lat($value) vs ${location.latitude}")
-                    .that(lat).isWithin(tolerance).of(location.latitude)
-                assertWithMessage("Fail on longitude. $lon($value) vs ${location.longitude}")
-                    .that(lon).isWithin(tolerance).of(location.longitude)
-            } finally {
-                release()
-            }
+            // MediaMuxer.setLocation rounds the value to 4 decimal places
+            val tolerance = 0.0001
+            assertWithMessage("Fail on latitude. $lat($value) vs ${location.latitude}")
+                .that(lat).isWithin(tolerance).of(location.latitude)
+            assertWithMessage("Fail on longitude. $lon($value) vs ${location.longitude}")
+                .that(lon).isWithin(tolerance).of(location.longitude)
+        }
+    }
+
+    @Suppress("SameParameterValue")
+    private fun checkDurationAtMost(uri: Uri, duration: Long) {
+        MediaMetadataRetriever().useAndRelease {
+            it.setDataSource(context, uri)
+            val durationFromFile = it.getDuration()
+
+            assertThat(durationFromFile).isNotNull()
+            assertThat(durationFromFile!!).isAtMost(duration)
         }
     }
 
     // It fails on devices with certain chipset if the codec is stopped when the camera is still
     // producing frames to the provided surface. This method first stop the camera from
     // producing frames then stops the recording safely on the problematic devices.
-    private fun Recording.stopSafely() {
+    private fun Recording.stopSafely(recorder: Recorder) {
         val deactivateSurfaceBeforeStop =
             DeviceQuirks.get(DeactivateEncoderSurfaceBeforeStopEncoderQuirk::class.java) != null
         if (deactivateSurfaceBeforeStop) {
@@ -1257,70 +1146,21 @@ class RecorderTest(
         }
         stop()
         if (deactivateSurfaceBeforeStop && Build.VERSION.SDK_INT >= 23) {
-            invokeSurfaceRequest()
+            recorder.sendSurfaceRequest()
         }
     }
 
-    private fun runFileSizeLimitTest(fileSizeLimit: Long) {
-        // For the file size is small, the final file length possibly exceeds the file size limit
-        // after adding the file header. We still add the buffer for the tolerance of comparing the
-        // file length and file size limit.
-        val sizeLimitBuffer = 50 * 1024 // 50k threshold buffer
-        invokeSurfaceRequest()
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val outputOptions = FileOutputOptions.Builder(file)
-            .setFileSizeLimit(fileSizeLimit)
-            .build()
-
-        val recording = recorder
-            .prepareRecording(context, outputOptions)
-            .withAudioEnabled()
-            .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
-
-        verify(
-            videoRecordEventListener,
-            timeout(60000L)
-        ).accept(any(VideoRecordEvent.Finalize::class.java))
-
-        val captor = ArgumentCaptor.forClass(VideoRecordEvent::class.java)
-        verify(videoRecordEventListener, atLeastOnce()).accept(captor.capture())
-
-        assertThat(captor.value).isInstanceOf(VideoRecordEvent.Finalize::class.java)
-        val finalize = captor.value as VideoRecordEvent.Finalize
-        assertThat(finalize.error).isEqualTo(ERROR_FILE_SIZE_LIMIT_REACHED)
-        assertThat(file.length()).isLessThan(fileSizeLimit + sizeLimitBuffer)
-
-        recording.close()
-        file.delete()
-    }
-
     private fun runLocationTest(location: Location) {
-        val recorder = Recorder.Builder().build()
-        invokeSurfaceRequest(recorder)
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val outputOptions = FileOutputOptions.Builder(file)
-            .setLocation(location)
-            .build()
+        // Arrange.
+        val outputOptions = createFileOutputOptions(location = location)
+        val recording = createRecordingProcess(outputOptions = outputOptions)
 
-        val recording = recorder
-            .prepareRecording(context, outputOptions)
-            .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
-
-        val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(5000L))
-            .accept(any(VideoRecordEvent.Start::class.java))
-        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
-            .accept(any(VideoRecordEvent.Status::class.java))
-
-        recording.stopSafely()
-
-        inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
-            .accept(any(VideoRecordEvent.Finalize::class.java))
-
-        val uri = Uri.fromFile(file)
-        checkLocation(uri, location)
-
-        file.delete()
+        // Act.
+        recording.startAndVerify()
+        recording.stopAndVerify { finalize ->
+            // Assert.
+            checkLocation(finalize.outputResults.outputUri, location)
+        }
     }
 
     private fun createLocation(
@@ -1332,4 +1172,86 @@ class RecorderTest(
             this.latitude = latitude
             this.longitude = longitude
         }
+
+    private fun MockConsumer<VideoRecordEvent>.verifyStart(
+        inOrder: Boolean = true,
+        onEvent: ((Start) -> Unit)? = null
+    ) {
+        verifyEvent(Start::class.java, inOrder = inOrder, onEvent = onEvent)
+    }
+
+    private fun MockConsumer<VideoRecordEvent>.verifyFinalize(
+        inOrder: Boolean = true,
+        timeoutMs: Long = GENERAL_TIMEOUT,
+        onFinalize: ((Finalize) -> Unit)? = null
+    ) {
+        verifyEvent(
+            Finalize::class.java,
+            inOrder = inOrder,
+            timeoutMs = timeoutMs,
+            onEvent = onFinalize
+        )
+    }
+
+    private fun MockConsumer<VideoRecordEvent>.verifyStatus(
+        eventCount: Int = DEFAULT_STATUS_COUNT,
+        inOrder: Boolean = true,
+        onEvent: ((List<Status>) -> Unit)? = null,
+    ) {
+        verifyEvent(
+            Status::class.java,
+            CallTimesAtLeast(eventCount),
+            inOrder = inOrder,
+            timeoutMs = STATUS_TIMEOUT,
+            onEvent = onEvent
+        )
+    }
+
+    private fun MockConsumer<VideoRecordEvent>.verifyPause(
+        inOrder: Boolean = true,
+        onEvent: ((Pause) -> Unit)? = null
+    ) {
+        verifyEvent(Pause::class.java, inOrder = inOrder, onEvent = onEvent)
+    }
+
+    private fun MockConsumer<VideoRecordEvent>.verifyResume(
+        inOrder: Boolean = true,
+        onEvent: ((Resume) -> Unit)? = null,
+    ) {
+        verifyEvent(Resume::class.java, inOrder = inOrder, onEvent = onEvent)
+    }
+
+    private fun <T : VideoRecordEvent> MockConsumer<VideoRecordEvent>.verifyEvent(
+        eventType: Class<T>,
+        inOrder: Boolean = false,
+        timeoutMs: Long = GENERAL_TIMEOUT,
+        onEvent: ((T) -> Unit)? = null,
+    ) {
+        verifyEvent(
+            eventType,
+            callTimes = CallTimes(1),
+            inOrder = inOrder,
+            timeoutMs = timeoutMs
+        ) { events ->
+            onEvent?.invoke(events.last())
+        }
+    }
+
+    private fun <T : VideoRecordEvent> MockConsumer<VideoRecordEvent>.verifyEvent(
+        eventType: Class<T>,
+        callTimes: CallTimes,
+        inOrder: Boolean = false,
+        timeoutMs: Long = GENERAL_TIMEOUT,
+        onEvent: ((List<T>) -> Unit)? = null,
+    ) {
+        verifyAcceptCall(eventType, inOrder, timeoutMs, callTimes)
+        if (onEvent != null) {
+            val captor = ArgumentCaptorCameraX<VideoRecordEvent> { argument ->
+                eventType.isInstance(argument)
+            }
+            verifyAcceptCall(eventType, false, callTimes, captor)
+            @Suppress("UNCHECKED_CAST")
+            onEvent.invoke(captor.allValues as List<T>)
+        }
+    }
 }

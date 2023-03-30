@@ -83,6 +83,14 @@ internal class EmittableLinearProgressIndicator : Emittable {
     var color: ColorProvider = ProgressIndicatorDefaults.IndicatorColorProvider
     var backgroundColor: ColorProvider = ProgressIndicatorDefaults.BackgroundColorProvider
 
+    override fun copy(): Emittable = EmittableLinearProgressIndicator().also {
+        it.modifier = modifier
+        it.progress = progress
+        it.indeterminate = indeterminate
+        it.color = color
+        it.backgroundColor = backgroundColor
+    }
+
     override fun toString(): String = "EmittableLinearProgressIndicator(" +
         "modifier=$modifier, " +
         "progress=$progress, " +

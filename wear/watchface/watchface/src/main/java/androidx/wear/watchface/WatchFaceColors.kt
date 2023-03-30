@@ -21,9 +21,8 @@ import androidx.annotation.RestrictTo
 import androidx.wear.watchface.data.WatchFaceColorsWireFormat
 
 /**
- * Provides information about the colors of a watch face, exposing the three most
- * representative colors. This may be used by the system to influence the colors used for the
- * system ui.
+ * Provides information about the colors of a watch face, exposing the three most representative
+ * colors. This may be used by the system to influence the colors used for the system ui.
  */
 @WatchFaceExperimental
 public class WatchFaceColors(
@@ -56,18 +55,20 @@ public class WatchFaceColors(
             "tertiaryColor=$tertiaryColor)"
     }
 
-    internal fun toWireFormat() = WatchFaceColorsWireFormat(
-        primaryColor.toArgb(),
-        secondaryColor.toArgb(),
-        tertiaryColor.toArgb()
-    )
+    internal fun toWireFormat() =
+        WatchFaceColorsWireFormat(
+            primaryColor.toArgb(),
+            secondaryColor.toArgb(),
+            tertiaryColor.toArgb()
+        )
 }
 
 /** @hide */
 @OptIn(WatchFaceExperimental::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun WatchFaceColorsWireFormat.toApiFormat() = WatchFaceColors(
-    Color.valueOf(primaryColor),
-    Color.valueOf(secondaryColor),
-    Color.valueOf(tertiaryColor)
-)
+fun WatchFaceColorsWireFormat.toApiFormat() =
+    WatchFaceColors(
+        Color.valueOf(primaryColor),
+        Color.valueOf(secondaryColor),
+        Color.valueOf(tertiaryColor)
+    )

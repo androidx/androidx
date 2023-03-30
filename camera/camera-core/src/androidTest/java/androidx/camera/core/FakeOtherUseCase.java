@@ -16,13 +16,12 @@
 
 package androidx.camera.core;
 
-import android.util.Size;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.testing.fakes.FakeUseCase;
@@ -48,8 +47,8 @@ public class FakeOtherUseCase extends UseCase {
     }
 
     @Override
-    public void onDetached() {
-        super.onDetached();
+    public void onUnbind() {
+        super.onUnbind();
         mIsDetached = true;
     }
 
@@ -80,11 +79,11 @@ public class FakeOtherUseCase extends UseCase {
 
     @Override
     @NonNull
-    protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
-        return suggestedResolution;
+    protected StreamSpec onSuggestedStreamSpecUpdated(@NonNull StreamSpec suggestedStreamSpec) {
+        return suggestedStreamSpec;
     }
 
-    /** Returns true if {@link #onDetached()} has been called previously. */
+    /** Returns true if {@link #onUnbind()} has been called previously. */
     public boolean isDetached() {
         return mIsDetached;
     }

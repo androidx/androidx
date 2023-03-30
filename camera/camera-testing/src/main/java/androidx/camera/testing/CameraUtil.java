@@ -31,6 +31,7 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.CamcorderProfile;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
@@ -39,6 +40,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
+import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.DoNotInline;
@@ -54,9 +56,12 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
+import androidx.camera.core.concurrent.CameraCoordinator;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.utils.CompareSizesByArea;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
+import androidx.camera.testing.fakes.FakeCameraCoordinator;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
 import androidx.core.util.Preconditions;
@@ -544,16 +549,19 @@ public final class CameraUtil {
      *
      * <p>A new CameraUseCaseAdapter instance will be created every time this method is called.
      * UseCases previously attached to CameraUseCasesAdapters returned by this method or
-     * {@link #createCameraAndAttachUseCase(Context, CameraSelector, UseCase...)} will not be
-     * attached to the new CameraUseCaseAdapter returned by this method.
+     * {@link #createCameraAndAttachUseCase(Context, CameraSelector, UseCase...)}
+     * will not be attached to the new CameraUseCaseAdapter returned by this method.
      *
      * @param context        The context used to initialize CameraX
+     * @param cameraCoordinator The camera coordinator for concurrent cameras.
      * @param cameraSelector The selector to select cameras with.
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
     @NonNull
-    public static CameraUseCaseAdapter createCameraUseCaseAdapter(@NonNull Context context,
+    public static CameraUseCaseAdapter createCameraUseCaseAdapter(
+            @NonNull Context context,
+            @NonNull CameraCoordinator cameraCoordinator,
             @NonNull CameraSelector cameraSelector) {
         try {
             CameraX cameraX = CameraXUtil.getOrCreateInstance(context, null).get(5000,
@@ -561,10 +569,36 @@ public final class CameraUtil {
             LinkedHashSet<CameraInternal> cameras =
                     cameraSelector.filter(cameraX.getCameraRepository().getCameras());
             return new CameraUseCaseAdapter(cameras,
-                    cameraX.getCameraDeviceSurfaceManager(), cameraX.getDefaultConfigFactory());
+                    cameraCoordinator,
+                    cameraX.getCameraDeviceSurfaceManager(),
+                    cameraX.getDefaultConfigFactory());
         } catch (ExecutionException | InterruptedException | TimeoutException e) {
             throw new RuntimeException("Unable to retrieve CameraX instance");
         }
+    }
+
+    /**
+     * Creates the CameraUseCaseAdapter that would be created with the given CameraSelector.
+     *
+     * <p>This requires that {@link CameraXUtil#initialize(Context, CameraXConfig)} has been called
+     * to properly initialize the cameras. {@link CameraXUtil#shutdown()} also needs to be
+     * properly called by the caller class to release the created {@link CameraX} instance.
+     *
+     * <p>A new CameraUseCaseAdapter instance will be created every time this method is called.
+     * UseCases previously attached to CameraUseCasesAdapters returned by this method or
+     * {@link #createCameraAndAttachUseCase(Context, CameraSelector, UseCase...)}
+     * will not be attached to the new CameraUseCaseAdapter returned by this method.
+     *
+     * @param context        The context used to initialize CameraX
+     * @param cameraSelector The selector to select cameras with.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    @NonNull
+    public static CameraUseCaseAdapter createCameraUseCaseAdapter(
+            @NonNull Context context,
+            @NonNull CameraSelector cameraSelector) {
+        return createCameraUseCaseAdapter(context, new FakeCameraCoordinator(), cameraSelector);
     }
 
     /**
@@ -587,8 +621,10 @@ public final class CameraUtil {
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
     @NonNull
-    public static CameraUseCaseAdapter createCameraAndAttachUseCase(@NonNull Context context,
-            @NonNull CameraSelector cameraSelector, @NonNull UseCase... useCases) {
+    public static CameraUseCaseAdapter createCameraAndAttachUseCase(
+            @NonNull Context context,
+            @NonNull CameraSelector cameraSelector,
+            @NonNull UseCase... useCases) {
         CameraUseCaseAdapter cameraUseCaseAdapter = createCameraUseCaseAdapter(context,
                 cameraSelector);
 
@@ -921,6 +957,46 @@ public final class CameraUtil {
         }
 
         return checkResult;
+    }
+
+    /**
+     * Retrieves the max high resolution output size if the camera has high resolution output sizes
+     * with the specified lensFacing.
+     *
+     * @param lensFacing The desired camera lensFacing.
+     * @return the max high resolution output size if the camera has high resolution output sizes
+     * with the specified LensFacing. Returns null otherwise.
+     * @throws IllegalStateException if the CAMERA permission is not currently granted.
+     */
+    @Nullable
+    public static Size getMaxHighResolutionOutputSizeWithLensFacing(
+            @CameraSelector.LensFacing int lensFacing, int imageFormat) {
+        @SupportedLensFacingInt
+        int lensFacingInteger = getLensFacingIntFromEnum(lensFacing);
+        for (String cameraId : getBackwardCompatibleCameraIdListOrThrow()) {
+            CameraCharacteristics characteristics = getCameraCharacteristicsOrThrow(cameraId);
+            Integer cameraLensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
+            if (cameraLensFacing == null || cameraLensFacing != lensFacingInteger) {
+                continue;
+            }
+
+            StreamConfigurationMap map = characteristics.get(
+                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                @SuppressLint("ClassVerificationFailure")
+                Size[] highResolutionOutputSizes = map.getHighResolutionOutputSizes(imageFormat);
+
+                if (highResolutionOutputSizes == null || Arrays.asList(
+                        highResolutionOutputSizes).isEmpty()) {
+                    return null;
+                }
+
+                Arrays.sort(highResolutionOutputSizes, new CompareSizesByArea(true));
+                return highResolutionOutputSizes[0];
+            }
+        }
+        return null;
     }
 
     /**

@@ -18,6 +18,7 @@ package androidx.health.connect.client.records
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Energy
+import androidx.health.connect.client.units.kilocalories
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -26,17 +27,19 @@ import java.time.ZoneOffset
  * Each record represents the total kilocalories burned over a time interval.
  */
 public class TotalCaloriesBurnedRecord(
-    /** Energy in [Energy] unit. Required field. Valid range: 0-1000000 kcal. */
-    public val energy: Energy,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
+    /** Energy in [Energy] unit. Required field. Valid range: 0-1000000 kcal. */
+    public val energy: Energy,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
 
     init {
         energy.requireNotLess(other = energy.zero(), "energy")
+        energy.requireNotMore(other = MAX_ENERGY, name = "energy")
+        require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
     }
 
     /*
@@ -70,6 +73,8 @@ public class TotalCaloriesBurnedRecord(
     }
 
     companion object {
+        private val MAX_ENERGY = 1000_000.kilocalories
+
         /**
          * Metric identifier to retrieve total energy from
          * [androidx.health.connect.client.aggregate.AggregationResult].

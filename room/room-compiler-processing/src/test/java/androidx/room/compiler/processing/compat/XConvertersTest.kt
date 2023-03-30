@@ -35,7 +35,7 @@ import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth.assertThat
 import com.google.devtools.ksp.getDeclaredFunctions
-import com.google.devtools.ksp.symbol.impl.kotlin.KSNameImpl
+import com.google.devtools.ksp.processing.impl.KSNameImpl
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeSpec
@@ -659,6 +659,52 @@ class XConvertersTest {
 
             val fooMethodType = foo.getDeclaredMethodByJvmName("method").executableType
             assertThat(fooMethodType.getProcessingEnv()).isEqualTo(invocation.processingEnv)
+        }
+    }
+
+    @Test
+    fun xTypeName() {
+        runProcessorTest(
+            sources = listOf(kotlinSrc, javaSrc)
+        ) { invocation ->
+            val kotlinClass = invocation.processingEnv.requireTypeElement("KotlinClass")
+            val javaClass = invocation.processingEnv.requireTypeElement("JavaClass")
+
+            if (invocation.isKsp) {
+                val kotlinElement = invocation.getKspTypeElement("KotlinClass")
+                val javaElement = invocation.getKspTypeElement("JavaClass")
+                assertThat(
+                    kotlinElement.toXProcessing(invocation.processingEnv).asClassName()
+                ).isEqualTo(kotlinClass.asClassName())
+                assertThat(
+                    javaElement.toXProcessing(invocation.processingEnv).asClassName()
+                ).isEqualTo(javaClass.asClassName())
+                assertThat(
+                    kotlinElement.asType(emptyList())
+                        .toXProcessing(invocation.processingEnv)
+                        .asTypeName()
+                ).isEqualTo(kotlinClass.asClassName())
+                assertThat(
+                    javaElement.asType(emptyList())
+                        .toXProcessing(invocation.processingEnv)
+                        .asTypeName()
+                ).isEqualTo(javaClass.asClassName())
+            } else {
+                val kotlinElement = invocation.getJavacTypeElement("KotlinClass")
+                val javaElement = invocation.getJavacTypeElement("JavaClass")
+                assertThat(
+                    kotlinElement.toXProcessing(invocation.processingEnv).asClassName()
+                ).isEqualTo(kotlinClass.asClassName())
+                assertThat(
+                    javaElement.toXProcessing(invocation.processingEnv).asClassName()
+                ).isEqualTo(javaClass.asClassName())
+                assertThat(
+                    kotlinElement.asType().toXProcessing(invocation.processingEnv).asTypeName()
+                ).isEqualTo(kotlinClass.asClassName())
+                assertThat(
+                    javaElement.asType().toXProcessing(invocation.processingEnv).asTypeName()
+                ).isEqualTo(javaClass.asClassName())
+            }
         }
     }
 

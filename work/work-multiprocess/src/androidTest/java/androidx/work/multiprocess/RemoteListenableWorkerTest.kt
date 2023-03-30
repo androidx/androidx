@@ -86,7 +86,7 @@ public class RemoteListenableWorkerTest {
         mDatabase = WorkDatabase.create(mContext, mExecutor, true)
         val schedulers = listOf(mScheduler)
         // Processor
-        mProcessor = Processor(mContext, mConfiguration, mTaskExecutor, mDatabase, schedulers)
+        mProcessor = Processor(mContext, mConfiguration, mTaskExecutor, mDatabase)
         // WorkManagerImpl
         `when`(mWorkManager.configuration).thenReturn(mConfiguration)
         `when`(mWorkManager.workTaskExecutor).thenReturn(mTaskExecutor)

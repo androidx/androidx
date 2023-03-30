@@ -140,7 +140,7 @@ public class PlaceListNavigationTemplateTest {
     }
 
     @Test
-    public void addList_hasToggle_throws() {
+    public void addList_hasToggle() {
         SpannableString title = new SpannableString("Title");
         title.setSpan(mDistanceSpan, /* start= */ 0, /* end= */ 1, /* flags= */ 0);
         Row rowWithToggle =
@@ -148,15 +148,13 @@ public class PlaceListNavigationTemplateTest {
                 }).build()).build();
         Row rowMeetingRestrictions =
                 new Row.Builder().setTitle(title).addText("text1").addText("text2").build();
-        assertThrows(
-                IllegalArgumentException.class,
-                () ->
-                        new PlaceListNavigationTemplate.Builder()
-                                .setHeader(DEFAULT_HEADER)
-                                .setItemList(new ItemList.Builder().addItem(rowWithToggle).build())
-                                .build());
 
         // Positive cases.
+        new PlaceListNavigationTemplate.Builder()
+                .setHeader(DEFAULT_HEADER)
+                .setItemList(new ItemList.Builder().addItem(rowWithToggle).build())
+                .build();
+
         new PlaceListNavigationTemplate.Builder()
                 .setHeader(DEFAULT_HEADER)
                 .setItemList(new ItemList.Builder().addItem(rowMeetingRestrictions).build())
