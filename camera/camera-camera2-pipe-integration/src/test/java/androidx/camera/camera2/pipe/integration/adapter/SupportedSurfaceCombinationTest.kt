@@ -1630,7 +1630,8 @@ class SupportedSurfaceCombinationTest {
             mockEncoderProfilesAdapter
         )
         val imageFormat = ImageFormat.JPEG
-        val surfaceSizeDefinition = supportedSurfaceCombination.surfaceSizeDefinition
+        val surfaceSizeDefinition =
+            supportedSurfaceCombination.getUpdatedSurfaceSizeDefinitionByFormat(imageFormat)
         assertThat(surfaceSizeDefinition.s720pSizeMap[imageFormat]).isEqualTo(RESOLUTION_720P)
         assertThat(surfaceSizeDefinition.previewSize).isEqualTo(previewSize)
         assertThat(surfaceSizeDefinition.s1440pSizeMap[imageFormat]).isEqualTo(RESOLUTION_1440P)
@@ -1650,7 +1651,8 @@ class SupportedSurfaceCombinationTest {
             mockEncoderProfilesAdapter
         )
         val imageFormat = ImageFormat.JPEG
-        val surfaceSizeDefinition = supportedSurfaceCombination.surfaceSizeDefinition
+        val surfaceSizeDefinition =
+            supportedSurfaceCombination.getUpdatedSurfaceSizeDefinitionByFormat(imageFormat)
         assertThat(surfaceSizeDefinition.s720pSizeMap[imageFormat])
             .isEqualTo(RESOLUTION_VGA)
     }
@@ -1666,7 +1668,8 @@ class SupportedSurfaceCombinationTest {
             mockEncoderProfilesAdapter
         )
         val imageFormat = ImageFormat.JPEG
-        val surfaceSizeDefinition = supportedSurfaceCombination.surfaceSizeDefinition
+        val surfaceSizeDefinition =
+            supportedSurfaceCombination.getUpdatedSurfaceSizeDefinitionByFormat(imageFormat)
         assertThat(surfaceSizeDefinition.s1440pSizeMap[imageFormat]).isEqualTo(RESOLUTION_VGA)
     }
 
@@ -1679,7 +1682,8 @@ class SupportedSurfaceCombinationTest {
             mockEncoderProfilesAdapter
         )
         val imageFormat = ImageFormat.JPEG
-        val surfaceSizeDefinition = supportedSurfaceCombination.surfaceSizeDefinition
+        val surfaceSizeDefinition =
+            supportedSurfaceCombination.getUpdatedSurfaceSizeDefinitionByFormat(imageFormat)
         assertThat(surfaceSizeDefinition.maximumSizeMap[imageFormat]).isEqualTo(
             highResolutionMaximumSize
         )
@@ -1701,7 +1705,8 @@ class SupportedSurfaceCombinationTest {
             mockEncoderProfilesAdapter
         )
         val imageFormat = ImageFormat.JPEG
-        val surfaceSizeDefinition = supportedSurfaceCombination.surfaceSizeDefinition
+        val surfaceSizeDefinition =
+            supportedSurfaceCombination.getUpdatedSurfaceSizeDefinitionByFormat(imageFormat)
         assertThat(surfaceSizeDefinition.ultraMaximumSizeMap[imageFormat]).isEqualTo(
             ultraHighMaximumSize
         )

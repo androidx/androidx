@@ -19,7 +19,6 @@ package androidx.camera.camera2.pipe.integration.adapter
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager.FEATURE_CAMERA_CONCURRENT
-import android.graphics.ImageFormat
 import android.graphics.Point
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
@@ -31,6 +30,7 @@ import android.os.Build
 import android.util.Size
 import android.view.Display
 import androidx.annotation.RequiresApi
+import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.workaround.ExtraSupportedSurfaceCombinationsContainer
@@ -86,11 +86,8 @@ class SupportedSurfaceCombination(
     private var isBurstCaptureSupported = false
     private var isConcurrentCameraModeSupported = false
     private var isUltraHighResolutionSensorSupported = false
-    private val sizeDefinitionFormats = mutableListOf(
-        ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE, ImageFormat.JPEG,
-        ImageFormat.YUV_420_888
-    )
     internal lateinit var surfaceSizeDefinition: SurfaceSizeDefinition
+    private val surfaceSizeDefinitionFormats = mutableListOf<Int>()
     private val displayManager: DisplayManager =
         (context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
     private val streamConfigurationMapCompat = getStreamConfigurationMapCompat()
@@ -109,13 +106,6 @@ class SupportedSurfaceCombination(
             context.packageManager.hasSystemFeature(FEATURE_CAMERA_CONCURRENT)
         if (isConcurrentCameraModeSupported) {
             generateConcurrentSupportedCombinationList()
-        }
-        if (isRawSupported) {
-            // In CameraDevice's javadoc, RAW refers to the ImageFormat.RAW_SENSOR format. But
-            // a test in ImageCaptureTest using RAW10 to do the test. Adding the RAW10 format to
-            // make sure this is compatible with the original users.
-            sizeDefinitionFormats.add(ImageFormat.RAW_SENSOR)
-            sizeDefinitionFormats.add(ImageFormat.RAW10)
         }
         generateSurfaceSizeDefinition()
     }
@@ -181,7 +171,7 @@ class SupportedSurfaceCombination(
         size: Size
     ): SurfaceConfig {
         return SurfaceConfig.transformSurfaceConfig(cameraMode,
-            imageFormat, size, surfaceSizeDefinition)
+            imageFormat, size, getUpdatedSurfaceSizeDefinitionByFormat(imageFormat))
     }
 
     /**
@@ -215,7 +205,7 @@ class SupportedSurfaceCombination(
                     cameraMode,
                     useCaseConfig.inputFormat,
                     RESOLUTION_VGA,
-                    surfaceSizeDefinition
+                    getUpdatedSurfaceSizeDefinitionByFormat(useCaseConfig.inputFormat)
                 )
             )
         }
@@ -266,7 +256,7 @@ class SupportedSurfaceCombination(
                         cameraMode,
                         newUseCase.inputFormat,
                         size,
-                        surfaceSizeDefinition
+                        getUpdatedSurfaceSizeDefinitionByFormat(newUseCase.inputFormat)
                     )
                 )
             }
@@ -377,17 +367,38 @@ class SupportedSurfaceCombination(
         val recordSize: Size = getRecordSize()
         surfaceSizeDefinition = SurfaceSizeDefinition.create(
             RESOLUTION_VGA,
-            createS720pOrS1440pSizeMap(RESOLUTION_720P),
+            mutableMapOf(), // s720pSizeMap
             previewSize,
-            createS720pOrS1440pSizeMap(RESOLUTION_1440P),
+            mutableMapOf(), // s1440pSizeMap
             recordSize,
-            createMaximumSizeMap(),
-            createUltraMaximumSizeMap()
+            mutableMapOf(), // maximumSizeMap
+            mutableMapOf() // ultraMaximumSizeMap
         )
     }
 
     /**
-     * Creates the format to s720p or s720p size map.
+     * Updates the surface size definition for the specified format then return it.
+     */
+    @VisibleForTesting
+    fun getUpdatedSurfaceSizeDefinitionByFormat(format: Int): SurfaceSizeDefinition {
+        if (!surfaceSizeDefinitionFormats.contains(format)) {
+            updateS720pOrS1440pSizeByFormat(
+                surfaceSizeDefinition.s720pSizeMap,
+                RESOLUTION_720P, format
+            )
+            updateS720pOrS1440pSizeByFormat(
+                surfaceSizeDefinition.s1440pSizeMap,
+                RESOLUTION_1440P, format
+            )
+            updateMaximumSizeByFormat(surfaceSizeDefinition.maximumSizeMap, format)
+            updateUltraMaximumSizeByFormat(surfaceSizeDefinition.ultraMaximumSizeMap, format)
+            surfaceSizeDefinitionFormats.add(format)
+        }
+        return surfaceSizeDefinition
+    }
+
+    /**
+     * Updates the s720p or s720p size to the map for the specified format.
      *
      * <p>s720p refers to the 720p (1280 x 720) or the maximum supported resolution for the
      * particular format returned by {@link StreamConfigurationMap#getOutputSizes(int)},
@@ -400,58 +411,61 @@ class SupportedSurfaceCombination(
      * @param targetSize the target size to create the map.
      * @return the format to s720p or s720p size map.
      */
-    private fun createS720pOrS1440pSizeMap(targetSize: Size): Map<Int, Size> {
-        val resultMap: MutableMap<Int, Size> = mutableMapOf()
+    private fun updateS720pOrS1440pSizeByFormat(
+        sizeMap: MutableMap<Int, Size>,
+        targetSize: Size,
+        format: Int
+    ) {
         if (!isConcurrentCameraModeSupported) {
-            return resultMap
+            return
         }
 
-        val compareSizesByArea = CompareSizesByArea()
         val originalMap = streamConfigurationMapCompat.toStreamConfigurationMap()
-        for (format in sizeDefinitionFormats) {
-            val maxOutputSize = getMaxOutputSizeByFormat(originalMap, format, false)
-            resultMap[format] = if (maxOutputSize == null) {
-                targetSize
-            } else {
-                Collections.min(
-                    listOf(
-                        targetSize,
-                        maxOutputSize
-                    ), compareSizesByArea
-                )
-            }
+        val maxOutputSize = getMaxOutputSizeByFormat(originalMap, format, false)
+        sizeMap[format] = if (maxOutputSize == null) {
+            targetSize
+        } else {
+            Collections.min(
+                listOf(
+                    targetSize,
+                    maxOutputSize
+                ), CompareSizesByArea()
+            )
         }
-        return resultMap
     }
 
-    private fun createMaximumSizeMap(): Map<Int, Size> {
-        val resultMap: MutableMap<Int, Size> = mutableMapOf()
+    /**
+     * Updates the maximum size to the map for the specified format.
+     */
+    private fun updateMaximumSizeByFormat(
+        sizeMap: MutableMap<Int, Size>,
+        format: Int
+    ) {
         val originalMap = streamConfigurationMapCompat.toStreamConfigurationMap()
-        for (format in sizeDefinitionFormats) {
-            getMaxOutputSizeByFormat(originalMap, format, true)?.let {
-                resultMap[format] = it
-            }
+        getMaxOutputSizeByFormat(originalMap, format, true)?.let {
+            sizeMap[format] = it
         }
-        return resultMap
     }
 
-    private fun createUltraMaximumSizeMap(): Map<Int, Size> {
-        val resultMap: MutableMap<Int, Size> = mutableMapOf()
+    /**
+     * Updates the ultra maximum size to the map for the specified format.
+     */
+    private fun updateUltraMaximumSizeByFormat(
+        sizeMap: MutableMap<Int, Size>,
+        format: Int
+    ) {
         // Maximum resolution mode is supported since API level 31
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
             !isUltraHighResolutionSensorSupported
         ) {
-            return resultMap
+            return
         }
         val maximumResolutionMap =
             cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP_MAXIMUM_RESOLUTION]
-                ?: return resultMap
-        for (format in sizeDefinitionFormats) {
-            getMaxOutputSizeByFormat(maximumResolutionMap, format, true)?.let {
-                resultMap[format] = it
-            }
+                ?: return
+        getMaxOutputSizeByFormat(maximumResolutionMap, format, true)?.let {
+            sizeMap[format] = it
         }
-        return resultMap
     }
 
     /**

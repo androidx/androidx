@@ -1857,33 +1857,35 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val imageFormat = ImageFormat.JPEG
+        val surfaceSizeDefinition =
+            supportedSurfaceCombination.getUpdatedSurfaceSizeDefinitionByFormat(imageFormat)
         assertThat(
-            supportedSurfaceCombination.mSurfaceSizeDefinition.s720pSizeMap[imageFormat]
+            surfaceSizeDefinition.s720pSizeMap[imageFormat]
         ).isEqualTo(
             RESOLUTION_720P
         )
         assertThat(
-            supportedSurfaceCombination.mSurfaceSizeDefinition.previewSize
+            surfaceSizeDefinition.previewSize
         ).isEqualTo(
             PREVIEW_SIZE
         )
         assertThat(
-            supportedSurfaceCombination.mSurfaceSizeDefinition.s1440pSizeMap[imageFormat]
+            surfaceSizeDefinition.s1440pSizeMap[imageFormat]
         ).isEqualTo(
             RESOLUTION_1440P
         )
         assertThat(
-            supportedSurfaceCombination.mSurfaceSizeDefinition.recordSize
+            surfaceSizeDefinition.recordSize
         ).isEqualTo(
             RECORD_SIZE
         )
         assertThat(
-            supportedSurfaceCombination.mSurfaceSizeDefinition.maximumSizeMap[imageFormat]
+            surfaceSizeDefinition.maximumSizeMap[imageFormat]
         ).isEqualTo(
             MAXIMUM_SIZE
         )
         assertThat(
-            supportedSurfaceCombination.mSurfaceSizeDefinition.ultraMaximumSizeMap
+            surfaceSizeDefinition.ultraMaximumSizeMap
         ).isEmpty()
     }
 
@@ -1898,8 +1900,10 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val imageFormat = ImageFormat.JPEG
+        val surfaceSizeDefinition =
+            supportedSurfaceCombination.getUpdatedSurfaceSizeDefinitionByFormat(imageFormat)
         assertThat(
-            supportedSurfaceCombination.mSurfaceSizeDefinition.s720pSizeMap[imageFormat]
+            surfaceSizeDefinition.s720pSizeMap[imageFormat]
         ).isEqualTo(
             RESOLUTION_VGA
         )
@@ -1916,8 +1920,10 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val imageFormat = ImageFormat.JPEG
+        val surfaceSizeDefinition =
+            supportedSurfaceCombination.getUpdatedSurfaceSizeDefinitionByFormat(imageFormat)
         assertThat(
-            supportedSurfaceCombination.mSurfaceSizeDefinition.s1440pSizeMap[imageFormat]
+            surfaceSizeDefinition.s1440pSizeMap[imageFormat]
         ).isEqualTo(
             RESOLUTION_VGA
         )
@@ -1933,8 +1939,10 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val imageFormat = ImageFormat.JPEG
+        val surfaceSizeDefinition =
+            supportedSurfaceCombination.getUpdatedSurfaceSizeDefinitionByFormat(imageFormat)
         assertThat(
-            supportedSurfaceCombination.mSurfaceSizeDefinition.maximumSizeMap[imageFormat]
+            surfaceSizeDefinition.maximumSizeMap[imageFormat]
         ).isEqualTo(
             HIGH_RESOLUTION_MAXIMUM_SIZE
         )
@@ -1955,8 +1963,10 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val imageFormat = ImageFormat.JPEG
+        val surfaceSizeDefinition =
+            supportedSurfaceCombination.getUpdatedSurfaceSizeDefinitionByFormat(imageFormat)
         assertThat(
-            supportedSurfaceCombination.mSurfaceSizeDefinition.ultraMaximumSizeMap[imageFormat]
+            surfaceSizeDefinition.ultraMaximumSizeMap[imageFormat]
         ).isEqualTo(
             ULTRA_HIGH_MAXIMUM_SIZE
         )
@@ -2002,6 +2012,20 @@ class SupportedSurfaceCombinationTest {
     }
 
     /**
+     * Many test apps might have robolectric tests but doesn't setup the supported output sizes for
+     * the formats that will be used by CameraX. This test is to make sure that the
+     * SupportedSurfaceCombination related changes won't cause robolectric tests failures in that
+     * case.
+     */
+    @Test(timeout = 1000)
+    fun canCreateSupportedSurfaceCombination_whenNoOutputSizeIsSetup() {
+        setupCameraAndInitCameraX(supportedSizes = null)
+        SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+    }
+
+    /**
      * Sets up camera according to the specified settings and initialize [CameraX].
      *
      * @param cameraId the camera id to be set up. Default value is [DEFAULT_CAMERA_ID].
@@ -2026,7 +2050,7 @@ class SupportedSurfaceCombinationTest {
         hardwareLevel: Int = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
         sensorOrientation: Int = SENSOR_ORIENTATION_90,
         pixelArraySize: Size = LANDSCAPE_PIXEL_ARRAY_SIZE,
-        supportedSizes: Array<Size> = DEFAULT_SUPPORTED_SIZES,
+        supportedSizes: Array<Size>? = DEFAULT_SUPPORTED_SIZES,
         supportedHighResolutionSizes: Array<Size>? = null,
         maximumResolutionSupportedSizes: Array<Size>? = null,
         maximumResolutionHighResolutionSupportedSizes: Array<Size>? = null,
@@ -2095,75 +2119,77 @@ class SupportedSurfaceCombinationTest {
         hardwareLevel: Int = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
         sensorOrientation: Int = SENSOR_ORIENTATION_90,
         pixelArraySize: Size = LANDSCAPE_PIXEL_ARRAY_SIZE,
-        supportedSizes: Array<Size> = DEFAULT_SUPPORTED_SIZES,
+        supportedSizes: Array<Size>? = DEFAULT_SUPPORTED_SIZES,
         supportedHighResolutionSizes: Array<Size>? = null,
         maximumResolutionSupportedSizes: Array<Size>? = null,
         maximumResolutionHighResolutionSupportedSizes: Array<Size>? = null,
         capabilities: IntArray? = null
     ) {
-        val mockMap = Mockito.mock(StreamConfigurationMap::class.java).also {
-            // Sets up the supported sizes
-            Mockito.`when`(it.getOutputSizes(ArgumentMatchers.anyInt()))
-                .thenReturn(supportedSizes)
-            // ImageFormat.PRIVATE was supported since API level 23. Before that, the supported
-            // output sizes need to be retrieved via SurfaceTexture.class.
-            Mockito.`when`(it.getOutputSizes(SurfaceTexture::class.java))
-                .thenReturn(supportedSizes)
-            // This is setup for the test to determine RECORD size from StreamConfigurationMap
-            Mockito.`when`(it.getOutputSizes(MediaRecorder::class.java))
-                .thenReturn(supportedSizes)
+        val mockMap = Mockito.mock(StreamConfigurationMap::class.java).also { map ->
+            supportedSizes?.let {
+                // Sets up the supported sizes
+                Mockito.`when`(map.getOutputSizes(ArgumentMatchers.anyInt()))
+                    .thenReturn(it)
+                // ImageFormat.PRIVATE was supported since API level 23. Before that, the supported
+                // output sizes need to be retrieved via SurfaceTexture.class.
+                Mockito.`when`(map.getOutputSizes(SurfaceTexture::class.java))
+                    .thenReturn(it)
+                // This is setup for the test to determine RECORD size from StreamConfigurationMap
+                Mockito.`when`(map.getOutputSizes(MediaRecorder::class.java))
+                    .thenReturn(it)
+            }
 
             // setup to return different minimum frame durations depending on resolution
             // minimum frame durations were designated only for the purpose of testing
-            Mockito.`when`(it.getOutputMinFrameDuration(
+            Mockito.`when`(map.getOutputMinFrameDuration(
                 ArgumentMatchers.anyInt(),
                 ArgumentMatchers.eq(Size(4032, 3024))
             ))
                 .thenReturn(50000000L) // 20 fps, size maximum
 
-            Mockito.`when`(it.getOutputMinFrameDuration(
+            Mockito.`when`(map.getOutputMinFrameDuration(
                 ArgumentMatchers.anyInt(),
                 ArgumentMatchers.eq(Size(3840, 2160))
             ))
                 .thenReturn(40000000L) // 25, size record
 
-            Mockito.`when`(it.getOutputMinFrameDuration(
+            Mockito.`when`(map.getOutputMinFrameDuration(
                 ArgumentMatchers.anyInt(),
                 ArgumentMatchers.eq(Size(1920, 1440))
             ))
                 .thenReturn(33333333L) // 30
 
-            Mockito.`when`(it.getOutputMinFrameDuration(
+            Mockito.`when`(map.getOutputMinFrameDuration(
                 ArgumentMatchers.anyInt(),
                 ArgumentMatchers.eq(Size(1920, 1080))
             ))
                 .thenReturn(28571428L) // 35
 
-            Mockito.`when`(it.getOutputMinFrameDuration(
+            Mockito.`when`(map.getOutputMinFrameDuration(
                 ArgumentMatchers.anyInt(),
                 ArgumentMatchers.eq(Size(1280, 960))
             ))
                 .thenReturn(25000000L) // 40
 
-            Mockito.`when`(it.getOutputMinFrameDuration(
+            Mockito.`when`(map.getOutputMinFrameDuration(
                 ArgumentMatchers.anyInt(),
                 ArgumentMatchers.eq(Size(1280, 720))
             ))
                 .thenReturn(22222222L) // 45, size preview/display
 
-            Mockito.`when`(it.getOutputMinFrameDuration(
+            Mockito.`when`(map.getOutputMinFrameDuration(
                 ArgumentMatchers.anyInt(),
                 ArgumentMatchers.eq(Size(960, 544))
             ))
                 .thenReturn(20000000L) // 50
 
-            Mockito.`when`(it.getOutputMinFrameDuration(
+            Mockito.`when`(map.getOutputMinFrameDuration(
                 ArgumentMatchers.anyInt(),
                 ArgumentMatchers.eq(Size(800, 450))
             ))
                 .thenReturn(16666666L) // 60fps
 
-            Mockito.`when`(it.getOutputMinFrameDuration(
+            Mockito.`when`(map.getOutputMinFrameDuration(
                 ArgumentMatchers.anyInt(),
                 ArgumentMatchers.eq(Size(640, 480))
             ))
@@ -2171,7 +2197,7 @@ class SupportedSurfaceCombinationTest {
 
             // Sets up the supported high resolution sizes
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                Mockito.`when`(it.getHighResolutionOutputSizes(ArgumentMatchers.anyInt()))
+                Mockito.`when`(map.getHighResolutionOutputSizes(ArgumentMatchers.anyInt()))
                     .thenReturn(supportedHighResolutionSizes)
             }
         }
@@ -2207,7 +2233,10 @@ class SupportedSurfaceCombinationTest {
             set(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL, hardwareLevel)
             set(CameraCharacteristics.SENSOR_ORIENTATION, sensorOrientation)
             set(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE, pixelArraySize)
-            set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP, mockMap)
+            // Only setup stream configuration map when the supported output sizes are specified.
+            supportedSizes?.let {
+                set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP, mockMap)
+            }
             set(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES, deviceFPSRanges)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
