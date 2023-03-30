@@ -322,8 +322,8 @@ internal class SkiaBasedOwner(
         measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
     }
 
-    override fun forceMeasureTheSubtree(layoutNode: LayoutNode) {
-        measureAndLayoutDelegate.forceMeasureTheSubtree(layoutNode)
+    override fun forceMeasureTheSubtree(layoutNode: LayoutNode, affectsLookahead: Boolean) {
+        measureAndLayoutDelegate.forceMeasureTheSubtree(layoutNode, affectsLookahead)
     }
 
     override fun onRequestMeasure(
