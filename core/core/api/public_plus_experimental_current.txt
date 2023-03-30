@@ -3594,7 +3594,7 @@ package androidx.core.view.accessibility {
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_SCROLL_BACKWARD;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_SCROLL_DOWN;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_SCROLL_FORWARD;
-    field @RequiresApi(34) public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SCROLL_IN_DIRECTION;
+    field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_SCROLL_IN_DIRECTION;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_SCROLL_LEFT;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_SCROLL_RIGHT;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_SCROLL_TO_POSITION;
