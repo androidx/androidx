@@ -18,8 +18,10 @@ package androidx.compose.runtime.snapshots
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.referentialEqualityPolicy
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.structuralEqualityPolicy
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -712,6 +714,30 @@ class SnapshotStateObserverTestsCommon {
                 // read state
                 state.value
             }
+        }
+        assertEquals(1, changes)
+    }
+
+    @Test
+    fun readingDerivedState_invalidatesWhenValueNotChanged() {
+        var changes = 0
+        val changeBlock: (Any) -> Unit = { changes++ }
+
+        runSimpleTest { stateObserver, state ->
+            var condition by mutableStateOf(false)
+            val derivedState = derivedStateOf {
+                // the same initial value for both branches
+                if (condition) state.value else 0
+            }
+
+            // record observation
+            stateObserver.observeReads("scope", changeBlock) {
+                // read state
+                derivedState.value
+            }
+
+            condition = true
+            Snapshot.sendApplyNotifications()
         }
         assertEquals(1, changes)
     }
