@@ -268,12 +268,13 @@ public final class AppSearchImpl implements Closeable {
     public static AppSearchImpl create(
             @NonNull File icingDir,
             @NonNull LimitConfig limitConfig,
+            @NonNull IcingOptionsConfig icingOptionsConfig,
             @Nullable InitializeStats.Builder initStatsBuilder,
             @NonNull OptimizeStrategy optimizeStrategy,
             @Nullable VisibilityChecker visibilityChecker)
             throws AppSearchException {
-        return new AppSearchImpl(icingDir, limitConfig, initStatsBuilder, optimizeStrategy,
-                visibilityChecker);
+        return new AppSearchImpl(icingDir, limitConfig, icingOptionsConfig, initStatsBuilder,
+                optimizeStrategy, visibilityChecker);
     }
 
     /**
@@ -282,11 +283,13 @@ public final class AppSearchImpl implements Closeable {
     private AppSearchImpl(
             @NonNull File icingDir,
             @NonNull LimitConfig limitConfig,
+            @NonNull IcingOptionsConfig icingOptionsConfig,
             @Nullable InitializeStats.Builder initStatsBuilder,
             @NonNull OptimizeStrategy optimizeStrategy,
             @Nullable VisibilityChecker visibilityChecker)
             throws AppSearchException {
         Preconditions.checkNotNull(icingDir);
+        Preconditions.checkNotNull(icingOptionsConfig);
         mLimitConfig = Preconditions.checkNotNull(limitConfig);
         mOptimizeStrategy = Preconditions.checkNotNull(optimizeStrategy);
         mVisibilityCheckerLocked = visibilityChecker;
@@ -297,12 +300,12 @@ public final class AppSearchImpl implements Closeable {
             // than once. It's unnecessary and can be a costly operation.
             IcingSearchEngineOptions options = IcingSearchEngineOptions.newBuilder()
                     .setBaseDir(icingDir.getAbsolutePath())
+                    .setMaxTokenLength(icingOptionsConfig.getMaxTokenLength())
+                    .setIndexMergeSize(icingOptionsConfig.getIndexMergeSize())
                     .setDocumentStoreNamespaceIdFingerprint(
-                            mLimitConfig.getDocumentStoreNamespaceIdFingerprint()
-                    )
+                            icingOptionsConfig.getDocumentStoreNamespaceIdFingerprint())
                     .setOptimizeRebuildIndexThreshold(
-                            mLimitConfig.getOptimizeRebuildIndexThreshold()
-                    )
+                            icingOptionsConfig.getOptimizeRebuildIndexThreshold())
                     .build();
             LogUtil.piiTrace(TAG, "Constructing IcingSearchEngine, request", options);
             mIcingSearchEngineLocked = new IcingSearchEngine(options);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,25 +19,27 @@ package androidx.appsearch.localstorage;
 import androidx.annotation.RestrictTo;
 
 /**
- * In Jetpack, AppSearch doesn't enforce artificial limits on number of documents or size of
- * documents, since the app is the only user of the Icing instance. Icing still enforces a docid
- * limit of 1M docs.
- * @hide
+ * Icing options for AppSearch local-storage.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class UnlimitedLimitConfig implements LimitConfig {
+public class JetpackIcingOptionsConfig implements IcingOptionsConfig {
     @Override
-    public int getMaxDocumentSizeBytes() {
-        return Integer.MAX_VALUE;
+    public int getMaxTokenLength() {
+        return DEFAULT_MAX_TOKEN_LENGTH;
     }
 
     @Override
-    public int getMaxDocumentCount() {
-        return Integer.MAX_VALUE;
+    public int getIndexMergeSize() {
+        return DEFAULT_INDEX_MERGE_SIZE;
     }
 
     @Override
-    public int getMaxSuggestionCount() {
-        return Integer.MAX_VALUE;
+    public boolean getDocumentStoreNamespaceIdFingerprint() {
+        return true;
+    }
+
+    @Override
+    public float getOptimizeRebuildIndexThreshold() {
+        return 0.9f;
     }
 }

@@ -63,24 +63,4 @@ public interface LimitConfig {
      * from being overwhelmed by a single app.
      */
     int getMaxSuggestionCount();
-
-    /**
-     * Whether to use namespace id or namespace name to build up fingerprint for
-     * document_key_mapper_ and corpus_mapper_ in document store.
-     */
-    // TODO(b/273774358): Move this configuration out of LimitConfig
-    boolean getDocumentStoreNamespaceIdFingerprint();
-
-    /**
-     * The threshold of the percentage of invalid documents at which to rebuild index
-     * during optimize.
-     *
-     * <p>We rebuild index if and only if |invalid_documents| / |all_documents| >= threshold.
-     *
-     * <p>Rebuilding the index could be faster than optimizing the index if we have
-     * removed most of the documents. Based on benchmarks, 85%~95% seems to be a good threshold
-     * for most cases.
-     */
-    // TODO(b/273774358): Move this configuration out of LimitConfig
-    float getOptimizeRebuildIndexThreshold();
 }

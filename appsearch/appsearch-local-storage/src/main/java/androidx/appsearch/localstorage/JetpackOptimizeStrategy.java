@@ -29,7 +29,7 @@ import com.google.android.icing.proto.GetOptimizeInfoResultProto;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class JetpackOptimizeStrategy implements OptimizeStrategy{
+public class JetpackOptimizeStrategy implements OptimizeStrategy {
 
     @VisibleForTesting
     static final int DOC_COUNT_OPTIMIZE_THRESHOLD = 1000;
