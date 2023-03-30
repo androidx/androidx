@@ -22,8 +22,9 @@ import androidx.appactions.interaction.capabilities.core.values.Order
 /**  Internal testing object for entity provider */
 class OrderProvider internal constructor(
     private var id: String,
-    private var response: EntityLookupResponse<Order>
+    private var response: EntityLookupResponse<Order>,
 ) : EntityProvider<Order>(TypeConverters.ORDER_TYPE_SPEC) {
     override fun getId(): String = id
-    override fun lookup(request: EntityLookupRequest<Order>): EntityLookupResponse<Order> = response
+    override suspend fun lookup(request: EntityLookupRequest<Order>):
+        EntityLookupResponse<Order> = response
 }
