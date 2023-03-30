@@ -699,11 +699,11 @@ internal class LayoutNodeLayoutDelegate(
         }
 
         fun updateParentData(): Boolean {
+            if (parentData == null && outerCoordinator.parentData == null) return false
             if (!parentDataDirty) return false
             parentDataDirty = false
-            val changed = parentData != outerCoordinator.parentData
             parentData = outerCoordinator.parentData
-            return changed
+            return true
         }
 
         override fun calculateAlignmentLines(): Map<AlignmentLine, Int> {
@@ -1231,11 +1231,13 @@ internal class LayoutNodeLayoutDelegate(
         }
 
         fun updateParentData(): Boolean {
+            if (parentData == null && outerCoordinator.lookaheadDelegate!!.parentData == null) {
+                return false
+            }
             if (!parentDataDirty) return false
             parentDataDirty = false
-            val changed = parentData != outerCoordinator.lookaheadDelegate!!.parentData
             parentData = outerCoordinator.lookaheadDelegate!!.parentData
-            return changed
+            return true
         }
 
         internal fun onNodePlaced() {
