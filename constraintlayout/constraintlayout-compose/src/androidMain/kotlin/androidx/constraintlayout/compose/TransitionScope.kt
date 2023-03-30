@@ -16,6 +16,7 @@
 
 package androidx.constraintlayout.compose
 
+import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -78,6 +79,29 @@ class TransitionScope internal constructor(
 
     var onSwipe: OnSwipe? = null
 
+    /**
+     * Defines the maximum delay (in progress percent) between a group of staggered widgets.
+     *
+     * &nbsp;
+     *
+     * The amount of delay for each widget is on proportion to their final position on the layout,
+     * weighted against each other.
+     *
+     * Where the weight is calculated as the Manhattan Distance from the top-left corner of the
+     * layout.
+     *
+     * So the widget with the lowest weight will receive the most delay. A negative [staggered]
+     * value inverts this logic, in which case, the widget with the lowest weight will receive no
+     * delay.
+     *
+     * &nbsp;
+     *
+     * You may set [MotionSceneScope.staggeredWeight] on a per-widget basis to get a custom
+     * staggered order.
+     */
+    @FloatRange(-1.0, 1.0, fromInclusive = false, toInclusive = false)
+    var staggered: Float = 0.0f
+
     fun keyAttributes(
         vararg targets: ConstrainedLayoutReference,
         keyAttributesContent: KeyAttributesScope.() -> Unit
@@ -122,6 +146,7 @@ class TransitionScope internal constructor(
         //  `progress` value. Eg: `animateFloat(tween(duration, LinearEasing))`
 //        containerObject.putString("interpolator", easing.name)
 //        containerObject.putNumber("duration", durationMs.toFloat())
+        containerObject.putNumber("staggered", staggered)
         onSwipe?.let {
             containerObject.put("onSwipe", onSwipeObject)
             onSwipeObject.putString("direction", it.direction.name)
