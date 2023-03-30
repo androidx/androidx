@@ -234,7 +234,7 @@ fun Text(
         overflow,
         softWrap,
         maxLines,
-        inlineContent
+        inlineContent = inlineContent
     )
 }
 

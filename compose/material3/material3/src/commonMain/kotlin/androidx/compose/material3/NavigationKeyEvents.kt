@@ -16,10 +16,14 @@
 
 package androidx.compose.material3
 
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.ui.unit.dp
-import androidx.compose.runtime.Composable
+import androidx.compose.ui.input.key.KeyEvent
 
-internal actual val WindowInsets.Companion.systemBarsForVisualComponents: WindowInsets
-    @Composable
-    get() = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp)
+internal expect val KeyEvent.isDirectionUp: Boolean
+internal expect val KeyEvent.isDirectionDown: Boolean
+internal expect val KeyEvent.isDirectionRight: Boolean
+internal expect val KeyEvent.isDirectionLeft: Boolean
+internal expect val KeyEvent.isHome: Boolean
+internal expect val KeyEvent.isMoveEnd: Boolean
+internal expect val KeyEvent.isPgUp: Boolean
+internal expect val KeyEvent.isPgDn: Boolean
+internal expect val KeyEvent.isEsc: Boolean
