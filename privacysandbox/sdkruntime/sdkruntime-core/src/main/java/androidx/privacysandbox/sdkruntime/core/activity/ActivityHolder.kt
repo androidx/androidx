@@ -17,6 +17,7 @@
 package androidx.privacysandbox.sdkruntime.core.activity
 
 import android.app.Activity
+import androidx.activity.OnBackPressedDispatcher
 
 /**
  * A holder for the [Activity] created for SDK.
@@ -29,4 +30,9 @@ interface ActivityHolder {
      * The [Activity] created for SDK.
      */
     fun getActivity(): Activity
+
+    /**
+     * The [OnBackPressedDispatcher] for the created [Activity].
+     */
+    fun getOnBackPressedDispatcher(): OnBackPressedDispatcher
 }

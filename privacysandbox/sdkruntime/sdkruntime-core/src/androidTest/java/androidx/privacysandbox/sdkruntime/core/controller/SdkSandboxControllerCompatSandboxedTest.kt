@@ -24,6 +24,7 @@ import android.content.Context
 import android.os.Binder
 import android.os.Build
 import android.os.ext.SdkExtensions
+import android.window.OnBackInvokedDispatcher
 import androidx.annotation.RequiresExtension
 import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
 import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
@@ -142,6 +143,10 @@ class SdkSandboxControllerCompatSandboxedTest {
             ArgumentCaptor.forClass(ActivityHolder::class.java)
         verify(handlerCompat).onActivityCreated(capture(activityHolderCaptor))
         assertThat(activityHolderCaptor.value.getActivity()).isEqualTo(activityMock)
+
+        val onBackInvokedDispatcherr = mock(OnBackInvokedDispatcher::class.java)
+        doReturn(onBackInvokedDispatcherr).`when`(activityMock).onBackInvokedDispatcher
+        assertThat(activityHolderCaptor.value.getOnBackPressedDispatcher()).isNotNull()
     }
 
     @Test
