@@ -1,6 +1,35 @@
 // Signature format: 4.0
 package androidx.bluetooth {
 
+  public final class AdvertiseParams {
+    ctor public AdvertiseParams(optional boolean includeDeviceAddress, optional boolean includeDeviceName, optional boolean connectable, optional boolean discoverable, optional int timeoutMillis, optional java.util.Map<java.lang.Integer,byte[]>? manufacturerData, optional java.util.Map<java.util.UUID,byte[]>? serviceData, optional java.util.List<java.util.UUID>? serviceUuids);
+    method public boolean component1();
+    method public boolean component2();
+    method public boolean component3();
+    method public boolean component4();
+    method public int component5();
+    method public java.util.Map<java.lang.Integer,byte[]>? component6();
+    method public java.util.Map<java.util.UUID,byte[]>? component7();
+    method public java.util.List<java.util.UUID>? component8();
+    method public androidx.bluetooth.AdvertiseParams copy(boolean includeDeviceAddress, boolean includeDeviceName, boolean connectable, boolean discoverable, int timeoutMillis, java.util.Map<java.lang.Integer,byte[]>? manufacturerData, java.util.Map<java.util.UUID,byte[]>? serviceData, java.util.List<java.util.UUID>? serviceUuids);
+    method public boolean getConnectable();
+    method public boolean getDiscoverable();
+    method public boolean getIncludeDeviceAddress();
+    method public boolean getIncludeDeviceName();
+    method public java.util.Map<java.lang.Integer,byte[]>? getManufacturerData();
+    method public java.util.Map<java.util.UUID,byte[]>? getServiceData();
+    method public java.util.List<java.util.UUID>? getServiceUuids();
+    method public int getTimeoutMillis();
+    property public final boolean connectable;
+    property public final boolean discoverable;
+    property public final boolean includeDeviceAddress;
+    property public final boolean includeDeviceName;
+    property public final java.util.Map<java.lang.Integer,byte[]>? manufacturerData;
+    property public final java.util.Map<java.util.UUID,byte[]>? serviceData;
+    property public final java.util.List<java.util.UUID>? serviceUuids;
+    property public final int timeoutMillis;
+  }
+
   public final class BluetoothDevice {
     method @RequiresPermission(anyOf={"android.permission.BLUETOOTH", "android.permission.BLUETOOTH_CONNECT"}) public int getBondState();
     method public java.util.UUID getId();
@@ -8,6 +37,11 @@ package androidx.bluetooth {
     property @RequiresPermission(anyOf={"android.permission.BLUETOOTH", "android.permission.BLUETOOTH_CONNECT"}) public final int bondState;
     property public final java.util.UUID id;
     property @RequiresPermission(anyOf={"android.permission.BLUETOOTH", "android.permission.BLUETOOTH_CONNECT"}) public final String? name;
+  }
+
+  public final class BluetoothLe {
+    ctor public BluetoothLe(android.content.Context context);
+    method @RequiresPermission("android.permission.BLUETOOTH_ADVERTISE") public kotlinx.coroutines.flow.Flow<java.lang.Integer> advertise(androidx.bluetooth.AdvertiseParams advertiseParams);
   }
 
 }
