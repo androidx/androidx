@@ -32,13 +32,10 @@ import androidx.appactions.interaction.proto.ParamValue
 data class TaskHandler<ConfirmationT>
 internal constructor(
     internal val taskParamMap: Map<String, TaskParamBinding<*>>,
-    internal val confirmationType: ConfirmationType,
     internal val confirmationDataBindings: Map<String, (ConfirmationT) -> List<ParamValue>>,
     internal val onReadyToConfirmListener: OnReadyToConfirmListenerInternal<ConfirmationT>?,
 ) {
-    class Builder<ConfirmationT>(
-        private val confirmationType: ConfirmationType = ConfirmationType.NOT_SUPPORTED,
-    ) {
+    class Builder<ConfirmationT>() {
         private val mutableTaskParamMap = mutableMapOf<String, TaskParamBinding<*>>()
         private val confirmationDataBindings =
             mutableMapOf<String, (ConfirmationT) -> List<ParamValue>>()
@@ -173,7 +170,6 @@ internal constructor(
         fun build(): TaskHandler<ConfirmationT> {
             return TaskHandler(
                 mutableTaskParamMap.toMap(),
-                confirmationType,
                 confirmationDataBindings,
                 onReadyToConfirmListener,
             )
@@ -183,15 +179,4 @@ internal constructor(
             val GROUND_NEVER = { _: ParamValue -> false }
         }
     }
-}
-
-enum class ConfirmationType {
-    // Confirmation is not supported for this Capability.
-    NOT_SUPPORTED,
-
-    // This Capability requires confirmation.
-    REQUIRED,
-
-    // Confirmation is optional for this Capability.
-    OPTIONAL,
 }
