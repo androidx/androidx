@@ -16,9 +16,6 @@
 
 package androidx.paging.compose
 
-import android.annotation.SuppressLint
-import android.os.Parcel
-import android.os.Parcelable
 import android.util.Log
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
@@ -43,7 +40,6 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.withContext
@@ -311,14 +307,7 @@ public fun <T : Any> LazyListScope.items(
 ) {
     items(
         count = items.itemCount,
-        key = if (key == null) null else { index ->
-            val item = items.peek(index)
-            if (item == null) {
-                PagingPlaceholderKey(index)
-            } else {
-                key(item)
-            }
-        },
+        key = items.itemKey(key),
         contentType = { index ->
             if (contentType == null) null else {
                 val item = items.peek(index)
@@ -376,28 +365,5 @@ public fun <T : Any> LazyListScope.itemsIndexed(
         }
     ) { index ->
         itemContent(index, items[index])
-    }
-}
-
-@SuppressLint("BanParcelableUsage")
-private data class PagingPlaceholderKey(private val index: Int) : Parcelable {
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(index)
-    }
-
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    companion object {
-        @Suppress("unused")
-        @JvmField
-        val CREATOR: Parcelable.Creator<PagingPlaceholderKey> =
-            object : Parcelable.Creator<PagingPlaceholderKey> {
-                override fun createFromParcel(parcel: Parcel) =
-                    PagingPlaceholderKey(parcel.readInt())
-
-                override fun newArray(size: Int) = arrayOfNulls<PagingPlaceholderKey?>(size)
-            }
     }
 }
