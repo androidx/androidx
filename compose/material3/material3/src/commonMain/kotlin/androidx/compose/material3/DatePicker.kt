@@ -375,7 +375,9 @@ object DatePickerDefaults {
      * @param headlineContentColor the color used for the date picker's headline
      * @param weekdayContentColor the color used for the weekday letters
      * @param subheadContentColor the color used for the month and year subhead labels that appear
-     * when the date picker is scrolling calendar months vertically
+     * when months are displayed at a `DateRangePicker`.
+     * @param navigationContentColor the content color used for the year selection menu button and
+     * the months arrow navigation when displayed at a `DatePicker`.
      * @param yearContentColor the color used for a year item content
      * @param disabledYearContentColor the color used for a disabled year item content
      * @param currentYearContentColor the color used for the current year content when selecting a
@@ -399,6 +401,9 @@ object DatePickerDefaults {
      * range selection
      * @param dayInSelectionRangeContainerColor the container color used for days that are within a
      * date range selection
+     * @param dividerColor the color used for the dividers used at the date pickers
+     * @param dateTextFieldColors the [TextFieldColors] defaults for the date text field when in
+     * [DisplayMode.Input]. See [OutlinedTextFieldDefaults.colors].
      */
     @Composable
     fun colors(
@@ -408,6 +413,8 @@ object DatePickerDefaults {
         weekdayContentColor: Color = DatePickerModalTokens.WeekdaysLabelTextColor.toColor(),
         subheadContentColor: Color =
             DatePickerModalTokens.RangeSelectionMonthSubheadColor.toColor(),
+        // TODO(b/234060211): Apply this from the MenuButton tokens or defaults.
+        navigationContentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
         yearContentColor: Color =
             DatePickerModalTokens.SelectionYearUnselectedLabelTextColor.toColor(),
         // TODO: Using DisabledAlpha as there are no token values for the disabled states.
@@ -436,7 +443,9 @@ object DatePickerDefaults {
         dayInSelectionRangeContentColor: Color =
             DatePickerModalTokens.SelectionDateInRangeLabelTextColor.toColor(),
         dayInSelectionRangeContainerColor: Color =
-            DatePickerModalTokens.RangeSelectionActiveIndicatorContainerColor.toColor()
+            DatePickerModalTokens.RangeSelectionActiveIndicatorContainerColor.toColor(),
+        dividerColor: Color = DividerDefaults.color,
+        dateTextFieldColors: TextFieldColors = OutlinedTextFieldDefaults.colors()
     ): DatePickerColors =
         DatePickerColors(
             containerColor = containerColor,
@@ -444,6 +453,7 @@ object DatePickerDefaults {
             headlineContentColor = headlineContentColor,
             weekdayContentColor = weekdayContentColor,
             subheadContentColor = subheadContentColor,
+            navigationContentColor = navigationContentColor,
             yearContentColor = yearContentColor,
             disabledYearContentColor = disabledYearContentColor,
             currentYearContentColor = currentYearContentColor,
@@ -460,7 +470,9 @@ object DatePickerDefaults {
             todayContentColor = todayContentColor,
             todayDateBorderColor = todayDateBorderColor,
             dayInSelectionRangeContentColor = dayInSelectionRangeContentColor,
-            dayInSelectionRangeContainerColor = dayInSelectionRangeContainerColor
+            dayInSelectionRangeContainerColor = dayInSelectionRangeContainerColor,
+            dividerColor = dividerColor,
+            dateTextFieldColors = dateTextFieldColors
         )
 
     /**
@@ -629,6 +641,7 @@ class DatePickerColors internal constructor(
     internal val headlineContentColor: Color,
     internal val weekdayContentColor: Color,
     internal val subheadContentColor: Color,
+    internal val navigationContentColor: Color,
     private val yearContentColor: Color,
     private val disabledYearContentColor: Color,
     private val currentYearContentColor: Color,
@@ -646,6 +659,8 @@ class DatePickerColors internal constructor(
     internal val todayDateBorderColor: Color,
     internal val dayInSelectionRangeContainerColor: Color,
     private val dayInSelectionRangeContentColor: Color,
+    internal val dividerColor: Color,
+    internal val dateTextFieldColors: TextFieldColors
 ) {
     /**
      * Represents the content color for a calendar day.
@@ -1095,7 +1110,7 @@ internal fun DateEntryContainer(
                 }
                 // Display a divider only when there is a title, headline, or a mode toggle.
                 if (title != null || headline != null || modeToggleButton != null) {
-                    Divider()
+                    Divider(color = colors.dividerColor)
                 }
             }
         }
@@ -1170,7 +1185,8 @@ private fun SwitchableDateEntryContent(
                 calendarModel = calendarModel,
                 yearRange = yearRange,
                 dateFormatter = dateFormatter,
-                selectableDates = selectableDates
+                selectableDates = selectableDates,
+                colors = colors
             )
         }
     }
@@ -1219,7 +1235,8 @@ private fun DatePickerContent(
                     )
                 }
             },
-            onYearPickerButtonClicked = { yearPickerVisible = !yearPickerVisible }
+            onYearPickerButtonClicked = { yearPickerVisible = !yearPickerVisible },
+            colors = colors
         )
 
         Box {
@@ -1277,7 +1294,7 @@ private fun DatePickerContent(
                         yearRange = yearRange,
                         colors = colors
                     )
-                    Divider()
+                    Divider(color = colors.dividerColor)
                 }
             }
         }
@@ -1825,6 +1842,7 @@ private fun Year(
  * A composable that shows a year menu button and a couple of buttons that enable navigation between
  * displayed months.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MonthsNavigation(
     modifier: Modifier,
@@ -1835,6 +1853,7 @@ private fun MonthsNavigation(
     onNextClicked: () -> Unit,
     onPreviousClicked: () -> Unit,
     onYearPickerButtonClicked: () -> Unit,
+    colors: DatePickerColors
 ) {
     Row(
         modifier = modifier
@@ -1847,42 +1866,44 @@ private fun MonthsNavigation(
         },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // A menu button for selecting a year.
-        YearPickerMenuButton(
-            onClick = onYearPickerButtonClicked,
-            expanded = yearPickerVisible
-        ) {
-            Text(text = yearPickerText,
-                modifier = Modifier.semantics {
-                    // Make the screen reader read out updates to the menu button text as the user
-                    // navigates the arrows or scrolls to change the displayed month.
-                    liveRegion = LiveRegionMode.Polite
-                    contentDescription = yearPickerText
-                })
-        }
-        // Show arrows for traversing months (only visible when the year selection is off)
-        if (!yearPickerVisible) {
-            Row {
-                val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-                IconButton(onClick = onPreviousClicked, enabled = previousAvailable) {
-                    Icon(
-                        if (rtl) {
-                            Icons.Filled.KeyboardArrowRight
-                        } else {
-                            Icons.Filled.KeyboardArrowLeft
-                        },
-                        contentDescription = getString(Strings.DatePickerSwitchToPreviousMonth)
-                    )
-                }
-                IconButton(onClick = onNextClicked, enabled = nextAvailable) {
-                    Icon(
-                        if (rtl) {
-                            Icons.Filled.KeyboardArrowLeft
-                        } else {
-                            Icons.Filled.KeyboardArrowRight
-                        },
-                        contentDescription = getString(Strings.DatePickerSwitchToNextMonth)
-                    )
+        CompositionLocalProvider(LocalContentColor provides colors.navigationContentColor) {
+            // A menu button for selecting a year.
+            YearPickerMenuButton(
+                onClick = onYearPickerButtonClicked,
+                expanded = yearPickerVisible
+            ) {
+                Text(text = yearPickerText,
+                    modifier = Modifier.semantics {
+                        // Make the screen reader read out updates to the menu button text as the
+                        // user navigates the arrows or scrolls to change the displayed month.
+                        liveRegion = LiveRegionMode.Polite
+                        contentDescription = yearPickerText
+                    })
+            }
+            // Show arrows for traversing months (only visible when the year selection is off)
+            if (!yearPickerVisible) {
+                Row {
+                    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+                    IconButton(onClick = onPreviousClicked, enabled = previousAvailable) {
+                        Icon(
+                            if (rtl) {
+                                Icons.Filled.KeyboardArrowRight
+                            } else {
+                                Icons.Filled.KeyboardArrowLeft
+                            },
+                            contentDescription = getString(Strings.DatePickerSwitchToPreviousMonth)
+                        )
+                    }
+                    IconButton(onClick = onNextClicked, enabled = nextAvailable) {
+                        Icon(
+                            if (rtl) {
+                                Icons.Filled.KeyboardArrowLeft
+                            } else {
+                                Icons.Filled.KeyboardArrowRight
+                            },
+                            contentDescription = getString(Strings.DatePickerSwitchToNextMonth)
+                        )
+                    }
                 }
             }
         }
@@ -1901,8 +1922,7 @@ private fun YearPickerMenuButton(
         onClick = onClick,
         modifier = modifier,
         shape = CircleShape,
-        colors =
-        ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurfaceVariant),
+        colors = ButtonDefaults.textButtonColors(contentColor = LocalContentColor.current),
         elevation = null,
         border = null,
     ) {

@@ -67,6 +67,8 @@ import kotlinx.coroutines.launch
  *
  * Date range pickers let people select a range of dates and can be embedded into Dialogs.
  *
+ * ![Date range picker image](https://developer.android.com/images/reference/androidx/compose/material3/range-picker.png)
+ *
  * A simple DateRangePicker looks like:
  * @sample androidx.compose.material3.samples.DateRangePickerSample
  *
@@ -644,7 +646,8 @@ private fun SwitchableDateEntryContent(
                 calendarModel = calendarModel,
                 yearRange = yearRange,
                 dateFormatter = dateFormatter,
-                selectableDates = selectableDates
+                selectableDates = selectableDates,
+                colors = colors
             )
         }
     }

@@ -36,7 +36,8 @@ internal fun DateRangeInputContent(
     calendarModel: CalendarModel,
     yearRange: IntRange,
     dateFormatter: DatePickerFormatter,
-    selectableDates: SelectableDates
+    selectableDates: SelectableDates,
+    colors: DatePickerColors
 ) {
     // Obtain the DateInputFormat for the default Locale.
     val defaultLocale = defaultLocale()
@@ -88,7 +89,8 @@ internal fun DateRangeInputContent(
             inputIdentifier = InputIdentifier.StartDateInput,
             dateInputValidator = dateInputValidator,
             dateInputFormat = dateInputFormat,
-            locale = defaultLocale
+            locale = defaultLocale,
+            colors = colors
         )
         val endRangeText = getString(string = Strings.DateRangePickerEndHeadline)
         DateInputTextField(
@@ -109,7 +111,8 @@ internal fun DateRangeInputContent(
             inputIdentifier = InputIdentifier.EndDateInput,
             dateInputValidator = dateInputValidator,
             dateInputFormat = dateInputFormat,
-            locale = defaultLocale
+            locale = defaultLocale,
+            colors = colors
         )
     }
 }

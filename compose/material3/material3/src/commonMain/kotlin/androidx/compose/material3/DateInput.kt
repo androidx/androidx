@@ -52,7 +52,8 @@ internal fun DateInputContent(
     calendarModel: CalendarModel,
     yearRange: IntRange,
     dateFormatter: DatePickerFormatter,
-    selectableDates: SelectableDates
+    selectableDates: SelectableDates,
+    colors: DatePickerColors
 ) {
     // Obtain the DateInputFormat for the default Locale.
     val defaultLocale = defaultLocale()
@@ -95,7 +96,8 @@ internal fun DateInputContent(
             currentStartDateMillis = selectedDateMillis
         },
         dateInputFormat = dateInputFormat,
-        locale = defaultLocale
+        locale = defaultLocale,
+        colors = colors
     )
 }
 
@@ -111,7 +113,8 @@ internal fun DateInputTextField(
     inputIdentifier: InputIdentifier,
     dateInputValidator: DateInputValidator,
     dateInputFormat: DateInputFormat,
-    locale: Locale
+    locale: Locale,
+    colors: DatePickerColors
 ) {
     val errorText = rememberSaveable { mutableStateOf("") }
     var text by rememberSaveable(stateSaver = TextFieldValue.Saver) {
@@ -187,7 +190,8 @@ internal fun DateInputTextField(
             keyboardType = KeyboardType.Number,
             imeAction = ImeAction.Done
         ),
-        singleLine = true
+        singleLine = true,
+        colors = colors.dateTextFieldColors
     )
 }
 
