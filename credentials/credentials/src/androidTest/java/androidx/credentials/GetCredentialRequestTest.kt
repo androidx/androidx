@@ -56,6 +56,7 @@ class GetCredentialRequestTest {
             )
         }
         assertThat(request.origin).isEqualTo(origin)
+        assertThat(request.preferIdentityDocUi).isFalse()
     }
 
     @Test
@@ -68,6 +69,7 @@ class GetCredentialRequestTest {
 
         assertThat(request.credentialOptions[0].isAutoSelectAllowed).isFalse()
         assertThat(request.origin).isEqualTo(origin)
+        assertThat(request.preferIdentityDocUi).isFalse()
     }
 
     @Test
@@ -105,6 +107,26 @@ class GetCredentialRequestTest {
                 expectedCredentialOptions[i]
             )
         }
+    }
+
+    @Test
+    fun builder_setPreferIdentityDocUis() {
+        val expectedCredentialOptions = ArrayList<CredentialOption>()
+        expectedCredentialOptions.add(GetPasswordOption())
+        expectedCredentialOptions.add(GetPublicKeyCredentialOption("json"))
+
+        val request = GetCredentialRequest.Builder()
+            .setCredentialOptions(expectedCredentialOptions)
+            .setPreferIdentityDocUi(true)
+            .build()
+
+        assertThat(request.credentialOptions).hasSize(expectedCredentialOptions.size)
+        for (i in expectedCredentialOptions.indices) {
+            assertThat(request.credentialOptions[i]).isEqualTo(
+                expectedCredentialOptions[i]
+            )
+        }
+        assertThat(request.preferIdentityDocUi).isTrue()
     }
 
     @Test

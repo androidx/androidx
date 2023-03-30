@@ -51,6 +51,7 @@ public class GetCredentialRequestJavaTest {
             assertThat(request.getCredentialOptions().get(i)).isEqualTo(
                     expectedCredentialOptions.get(i));
         }
+        assertThat(request.getPreferIdentityDocUi()).isFalse();
     }
 
     @Test
@@ -61,6 +62,7 @@ public class GetCredentialRequestJavaTest {
         GetCredentialRequest request = new GetCredentialRequest(options);
 
         assertThat(request.getCredentialOptions().get(0).isAutoSelectAllowed()).isFalse();
+        assertThat(request.getPreferIdentityDocUi()).isFalse();
     }
 
     @Test
@@ -96,6 +98,25 @@ public class GetCredentialRequestJavaTest {
             assertThat(request.getCredentialOptions().get(i)).isEqualTo(
                     expectedCredentialOptions.get(i));
         }
+    }
+
+    @Test
+    public void builder_setPreferIdentityDocUi() {
+        ArrayList<CredentialOption> expectedCredentialOptions = new ArrayList<>();
+        expectedCredentialOptions.add(new GetPasswordOption());
+        expectedCredentialOptions.add(new GetPublicKeyCredentialOption("json"));
+
+        GetCredentialRequest request = new GetCredentialRequest.Builder()
+                .setCredentialOptions(expectedCredentialOptions)
+                .setPreferIdentityDocUi(true)
+                .build();
+
+        assertThat(request.getCredentialOptions()).hasSize(expectedCredentialOptions.size());
+        for (int i = 0; i < expectedCredentialOptions.size(); i++) {
+            assertThat(request.getCredentialOptions().get(i)).isEqualTo(
+                    expectedCredentialOptions.get(i));
+        }
+        assertThat(request.getPreferIdentityDocUi()).isTrue();
     }
 
     @Test
