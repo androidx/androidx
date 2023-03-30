@@ -1110,6 +1110,58 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         assertEquals(((TextView) mGlm.getChildAt(0)).getText(), "Item (6)");
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    public void onInitializeAccessibilityNodeInfo_addActionScrollInDirection_notAddedWithEmptyList()
+            throws Throwable {
+        mRecyclerView = setupBasic(new Config(2, 0));
+        final AccessibilityNodeInfoCompat nodeInfo = AccessibilityNodeInfoCompat.obtain();
+
+        assertThat(nodeInfo.getActionList()).doesNotContain(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_IN_DIRECTION);
+
+        mActivityRule.runOnUiThread(
+                () -> mRecyclerView.getLayoutManager().onInitializeAccessibilityNodeInfo(nodeInfo));
+
+        assertThat(nodeInfo.getActionList()).doesNotContain(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_IN_DIRECTION);
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    public void onInitializeAccessibilityNodeInfo_addActionScrollInDirection_withOneItemList()
+            throws Throwable {
+        mRecyclerView = setupBasic(new Config(2, 1));
+        final AccessibilityNodeInfoCompat node = AccessibilityNodeInfoCompat.obtain();
+
+        assertThat(node.getActionList()).doesNotContain(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_IN_DIRECTION);
+
+        mActivityRule.runOnUiThread(
+                () -> mRecyclerView.getLayoutManager().onInitializeAccessibilityNodeInfo(node));
+
+        assertThat(node.getActionList()).doesNotContain(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_IN_DIRECTION);
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    public void onInitializeAccessibilityNodeInfo_addActionScrollInDirection_withMoreThanOneItem()
+            throws Throwable {
+
+        mRecyclerView = setupBasic(new Config(2, 2));
+        final AccessibilityNodeInfoCompat node = AccessibilityNodeInfoCompat.obtain();
+
+        assertThat(node.getActionList()).doesNotContain(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_IN_DIRECTION);
+
+        mActivityRule.runOnUiThread(
+                () -> mRecyclerView.getLayoutManager().onInitializeAccessibilityNodeInfo(node));
+
+        assertThat(node.getActionList()).contains(
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_IN_DIRECTION);
+    }
+
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void performActionScrollInDirection_withoutSpecifyingDirection()
