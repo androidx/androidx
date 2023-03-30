@@ -19,6 +19,7 @@ package com.example.androidx.mediarouting.activities;
 import static androidx.mediarouter.media.RouteListingPreference.Item.FLAG_ONGOING_SESSION;
 import static androidx.mediarouter.media.RouteListingPreference.Item.FLAG_ONGOING_SESSION_MANAGED;
 import static androidx.mediarouter.media.RouteListingPreference.Item.FLAG_SUGGESTED;
+import static androidx.mediarouter.media.RouteListingPreference.Item.SUBTEXT_CUSTOM;
 
 import android.os.Build;
 import android.os.Bundle;
@@ -235,12 +236,15 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
         ArrayList<RouteListingPreferenceItemHolder> newRouteListingPreference =
                 new ArrayList<>(mRoutesManager.getRouteListingPreferenceItems());
         RecyclerView.Adapter<?> adapter = mRouteListingPreferenceRecyclerView.getAdapter();
-        RouteListingPreference.Item newItem =
+        RouteListingPreference.Item.Builder newItemBuilder =
                 new RouteListingPreference.Item.Builder(routeId)
                         .setFlags(flags)
                         .setSelectionBehavior(selectionBehavior)
-                        .setSubText(subtext)
-                        .build();
+                        .setSubText(subtext);
+        if (subtext == SUBTEXT_CUSTOM) {
+            newItemBuilder.setCustomSubtextMessage("A custom subtext");
+        }
+        RouteListingPreference.Item newItem = newItemBuilder.build();
         RouteListingPreferenceItemHolder newItemAndNamePair =
                 new RouteListingPreferenceItemHolder(newItem, routeName);
         if (itemPositionInList < newRouteListingPreference.size()) {
@@ -428,7 +432,9 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
                 RouteListingPreference.Item.SUBTEXT_DEVICE_LOW_POWER, "Device in low power mode"),
         SUBTEXT_UNAUTHORIZED(RouteListingPreference.Item.SUBTEXT_UNAUTHORIZED, "Unauthorized"),
         SUBTEXT_TRACK_UNSUPPORTED(
-                RouteListingPreference.Item.SUBTEXT_TRACK_UNSUPPORTED, "Track unsupported");
+                RouteListingPreference.Item.SUBTEXT_TRACK_UNSUPPORTED, "Track unsupported"),
+        SUBTEXT_CUSTOM(
+                RouteListingPreference.Item.SUBTEXT_CUSTOM, "Custom text (placeholder value)");
 
         public final int mConstant;
         @NonNull public final String mHumanReadableString;
@@ -462,6 +468,8 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
                     return SUBTEXT_UNAUTHORIZED;
                 case RouteListingPreference.Item.SUBTEXT_TRACK_UNSUPPORTED:
                     return SUBTEXT_TRACK_UNSUPPORTED;
+                case RouteListingPreference.Item.SUBTEXT_CUSTOM:
+                    return SUBTEXT_CUSTOM;
                 default:
                     throw new IllegalArgumentException("Illegal subtext constant: " + constant);
             }
