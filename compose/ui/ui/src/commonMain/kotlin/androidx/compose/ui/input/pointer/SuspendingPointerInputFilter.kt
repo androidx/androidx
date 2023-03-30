@@ -167,8 +167,8 @@ interface PointerInputScope : Density {
      * them immediately. A call to [awaitPointerEventScope] will resume with [block]'s result after
      * it completes.
      *
-     * More than one [awaitPointerEventScope] can run concurrently in the same [PointerInputScope] by
-     * using [kotlinx.coroutines.launch]. [block]s are dispatched to in the order in which they
+     * More than one [awaitPointerEventScope] can run concurrently in the same [PointerInputScope]
+     * by using [kotlinx.coroutines.launch]. [block]s are dispatched to in the order in which they
      * were installed.
      */
     suspend fun <R> awaitPointerEventScope(
@@ -229,7 +229,7 @@ fun Modifier.pointerInput(
     block: suspend PointerInputScope.() -> Unit
 ): Modifier = this then SuspendPointerInputModifierNodeElement(
     key1 = key1,
-    block = block
+    pointerInputHandler = block
 )
 
 /**
@@ -265,7 +265,7 @@ fun Modifier.pointerInput(
 ): Modifier = this then SuspendPointerInputModifierNodeElement(
     key1 = key1,
     key2 = key2,
-    block = block
+    pointerInputHandler = block
 )
 
 /**
@@ -298,30 +298,30 @@ fun Modifier.pointerInput(
     block: suspend PointerInputScope.() -> Unit
 ): Modifier = this then SuspendPointerInputModifierNodeElement(
     keys = keys,
-    block = block
+    pointerInputHandler = block
 )
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal class SuspendPointerInputModifierNodeElement(
     val key1: Any? = null,
     val key2: Any? = null,
     val keys: Array<out Any?>? = null,
-    val block: suspend PointerInputScope.() -> Unit
-) : ModifierNodeElement<SuspendPointerInputModifierNode>() {
+    val pointerInputHandler: suspend PointerInputScope.() -> Unit
+) : ModifierNodeElement<SuspendingPointerInputModifierNodeImpl>() {
     override fun InspectorInfo.inspectableProperties() {
         name = "pointerInput"
         properties["key1"] = key1
         properties["key2"] = key2
         properties["keys"] = keys
-        properties["block"] = block
+        properties["pointerInputHandler"] = pointerInputHandler
     }
 
-    override fun create(): SuspendPointerInputModifierNode {
-        return SuspendPointerInputModifierNode(block)
+    override fun create(): SuspendingPointerInputModifierNodeImpl {
+        return SuspendingPointerInputModifierNodeImpl(pointerInputHandler)
     }
 
-    override fun update(node: SuspendPointerInputModifierNode): SuspendPointerInputModifierNode {
-        node.block = block
+    override fun update(node: SuspendingPointerInputModifierNodeImpl):
+        SuspendingPointerInputModifierNodeImpl {
+        node.pointerInputHandler = pointerInputHandler
         return node
     }
 
@@ -350,27 +350,66 @@ internal class SuspendPointerInputModifierNodeElement(
 private val EmptyPointerEvent = PointerEvent(emptyList())
 
 /**
+ * Supports suspending pointer event handling. This is used by [pointerInput], so in most cases you
+ * should just use [pointerInput] for suspending pointer input. Creating a
+ * [SuspendingPointerInputModifierNode] should only be needed when you want to delegate to
+ * suspending pointer input as part of the implementation of a complex [Modifier.Node].
+ */
+fun SuspendingPointerInputModifierNode(
+    pointerInputHandler: suspend PointerInputScope.() -> Unit
+): SuspendingPointerInputModifierNode {
+    return SuspendingPointerInputModifierNodeImpl(pointerInputHandler)
+}
+
+/**
+ * Extends [PointerInputModifierNode] with a handler to execute asynchronously when an event occurs
+ * and a function to reset that handler (cancels the existing coroutine and essentially resets the
+ * handler's execution).
+ * Note: The handler still executes lazily, meaning nothing will be done until a new event comes in.
+ */
+sealed interface SuspendingPointerInputModifierNode : PointerInputModifierNode {
+    /**
+     * Handler for pointer input events. When changed, any previously executing pointerInputHandler
+     * will be canceled.
+     */
+    var pointerInputHandler: suspend PointerInputScope.() -> Unit
+
+    /**
+     * Resets the underlying coroutine used to run the handler for input pointer events. This
+     * should be called whenever a large change has been made that forces the gesture detection to
+     * be completely invalid.
+     *
+     * For example, if [pointerInputHandler] has different modes for detecting a gesture
+     * (long press, double click, etc.), and by switching the modes, any currently-running gestures
+     * are no longer valid.
+     */
+    fun resetPointerInputHandler()
+}
+
+/**
  * Implementation notes:
  * This class does a lot of lifting. [PointerInputModifierNode] receives, interprets, and, consumes
- * [PointerInputChange]s while the state (and the coroutineScope used to execute [block]) is
- * retained in [Modifier.Node].
+ * [PointerInputChange]s while the state (and the coroutineScope used to execute
+ * [pointerInputHandler]) is retained in [Modifier.Node].
  *
- * [SuspendPointerInputModifierNode] implements the [PointerInputScope] used to offer the
+ * [SuspendingPointerInputModifierNodeImpl] implements the [PointerInputScope] used to offer the
  * [Modifier.pointerInput] DSL and provides the [Density] from [LocalDensity] lazily from the
  * layout node when it is needed.
  *
- * Note: The coroutine that executes the passed block for listening to events is launched lazily
- * when the first event is fired (making it more efficient) and is cancelled via resetHandling()
- * when
+ * Note: The coroutine that executes the passed pointer event handler is launched lazily when the
+ * first event is fired (making it more efficient) and is cancelled via resetPointerInputHandler().
  */
 @OptIn(ExperimentalComposeUiApi::class)
-internal class SuspendPointerInputModifierNode(
-    block: suspend PointerInputScope.() -> Unit
-) : Modifier.Node(), PointerInputModifierNode, PointerInputScope, Density {
+internal class SuspendingPointerInputModifierNodeImpl(
+    pointerInputHandler: suspend PointerInputScope.() -> Unit
+) : Modifier.Node(),
+    SuspendingPointerInputModifierNode,
+    PointerInputScope,
+    Density {
 
-    var block = block
+    override var pointerInputHandler = pointerInputHandler
         set(value) {
-            resetBlock()
+            resetPointerInputHandler()
             field = value
         }
 
@@ -386,8 +425,8 @@ internal class SuspendPointerInputModifierNode(
     override val size: IntSize
         get() = boundsSize
 
-    // The code block passed in as a parameter to handle pointer input events is now executed lazily
-    // when the first event fires. This job indicates that pointer input handler job is running.
+    // The handler for pointer input events is now executed lazily when the first event fires.
+    // This job indicates that pointer input handler job is running.
     private var pointerInputJob: Job? = null
 
     private var currentEvent: PointerEvent = EmptyPointerEvent
@@ -397,7 +436,7 @@ internal class SuspendPointerInputModifierNode(
      * Must use `synchronized(pointerHandlers)` to access.
      */
     private val pointerHandlers =
-        mutableVectorOf<SuspendPointerInputModifierNode.PointerEventHandlerCoroutine<*>>()
+        mutableVectorOf<SuspendingPointerInputModifierNodeImpl.PointerEventHandlerCoroutine<*>>()
 
     /**
      * Scratch list for dispatching to handlers for a particular phase.
@@ -406,7 +445,7 @@ internal class SuspendPointerInputModifierNode(
      * Must only access on the UI thread.
      */
     private val dispatchingPointerHandlers =
-        mutableVectorOf<SuspendPointerInputModifierNode.PointerEventHandlerCoroutine<*>>()
+        mutableVectorOf<SuspendingPointerInputModifierNodeImpl.PointerEventHandlerCoroutine<*>>()
 
     /**
      * The last pointer event we saw where at least one pointer was currently down; null otherwise.
@@ -435,19 +474,31 @@ internal class SuspendPointerInputModifierNode(
     override var interceptOutOfBoundsChildEvents: Boolean = false
 
     override fun onDetach() {
-        resetBlock()
+        resetPointerInputHandler()
         super.onDetach()
     }
 
+    // The handler for incoming pointer input events needs to be reset if the density changes.
+    override fun onDensityChange() {
+        resetPointerInputHandler()
+    }
+
+    // The handler for incoming pointer input events needs to be reset if the view configuration
+    // changes.
+    override fun onViewConfigurationChange() {
+        resetPointerInputHandler()
+    }
+
     /**
-     * This cancels the existing coroutine and essentially resets the block's execution. Note, the
-     * block still executes lazily, meaning nothing will be done until a new event comes in.
+     * This cancels the existing coroutine and essentially resets pointerInputHandler's execution.
+     * Note, the pointerInputHandler still executes lazily, meaning nothing will be done again
+     * until a new event comes in.
      * More details: This is triggered from a LayoutNode if the Density or ViewConfiguration change
      * (in an older implementation using composed, these values were used as keys so it would reset
      * everything when either change, we do that manually now through this function). It is also
      * used for testing.
      */
-    fun resetBlock() {
+    override fun resetPointerInputHandler() {
         val localJob = pointerInputJob
         if (localJob != null) {
             localJob.cancel(CancellationException())
@@ -466,7 +517,7 @@ internal class SuspendPointerInputModifierNode(
      */
     private inline fun forEachCurrentPointerHandler(
         pass: PointerEventPass,
-        block: (SuspendPointerInputModifierNode.PointerEventHandlerCoroutine<*>) -> Unit
+        block: (SuspendingPointerInputModifierNodeImpl.PointerEventHandlerCoroutine<*>) -> Unit
     ) {
         // Copy handlers to avoid mutating the collection during dispatch
         synchronized(pointerHandlers) {
@@ -511,7 +562,9 @@ internal class SuspendPointerInputModifierNode(
         // Coroutine lazily launches when first event comes in.
         if (pointerInputJob == null) {
             // 'start = CoroutineStart.UNDISPATCHED' required so handler doesn't miss first event.
-            pointerInputJob = coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) { block() }
+            pointerInputJob = coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
+                pointerInputHandler()
+            }
         }
 
         dispatchPointerEvent(pointerEvent, pass)
@@ -555,7 +608,7 @@ internal class SuspendPointerInputModifierNode(
         lastPointerEvent = null
 
         // Cancels existing coroutine (Job) handling events.
-        resetBlock()
+        resetPointerInputHandler()
     }
 
     override suspend fun <R> awaitPointerEventScope(
@@ -596,18 +649,21 @@ internal class SuspendPointerInputModifierNode(
      */
     private inner class PointerEventHandlerCoroutine<R>(
         private val completion: Continuation<R>,
-    ) : AwaitPointerEventScope, Density by this@SuspendPointerInputModifierNode, Continuation<R> {
+    ) : AwaitPointerEventScope,
+        Density by this@SuspendingPointerInputModifierNodeImpl,
+        Continuation<R> {
+
         private var pointerAwaiter: CancellableContinuation<PointerEvent>? = null
         private var awaitPass: PointerEventPass = PointerEventPass.Main
 
         override val currentEvent: PointerEvent
-            get() = this@SuspendPointerInputModifierNode.currentEvent
+            get() = this@SuspendingPointerInputModifierNodeImpl.currentEvent
         override val size: IntSize
-            get() = this@SuspendPointerInputModifierNode.boundsSize
+            get() = this@SuspendingPointerInputModifierNodeImpl.boundsSize
         override val viewConfiguration: ViewConfiguration
-            get() = this@SuspendPointerInputModifierNode.viewConfiguration
+            get() = this@SuspendingPointerInputModifierNodeImpl.viewConfiguration
         override val extendedTouchPadding: Size
-            get() = this@SuspendPointerInputModifierNode.extendedTouchPadding
+            get() = this@SuspendingPointerInputModifierNodeImpl.extendedTouchPadding
 
         fun offerPointerEvent(event: PointerEvent, pass: PointerEventPass) {
             if (pass == awaitPass) {
