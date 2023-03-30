@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package androidx.compose.foundation.text2.input.internal
 
 import android.text.InputType
@@ -43,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFalse
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -310,6 +309,16 @@ class AndroidTextInputAdapterTest {
         session?.hideSoftwareKeyboard()
         keyboardHelper.waitForKeyboardVisibility(false)
         assertThat(keyboardHelper.isSoftwareKeyboardShown()).isFalse()
+    }
+
+    @Test
+    fun debugMode_isDisabled() {
+        // run this in presubmit to check that we are not accidentally enabling logs on prod
+        assertFalse(
+            TIA_DEBUG,
+            "Oops, looks like you accidentally enabled logging. Don't worry, we've all " +
+                "been there. Just remember to turn it off before you deploy your code."
+        )
     }
 
     private fun AndroidTextInputAdapter.startInputSessionWithDefaultsForTest(

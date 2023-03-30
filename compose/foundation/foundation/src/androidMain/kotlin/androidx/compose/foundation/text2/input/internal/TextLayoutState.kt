@@ -82,7 +82,10 @@ internal class TextLayoutState(initialTextDelegate: TextDelegate) {
                 onTextLayout(it)
             }
             layoutResult = it
-            proxy = TextLayoutResultProxy(it)
+            proxy = TextLayoutResultProxy(it).apply {
+                decorationBoxCoordinates = proxy?.decorationBoxCoordinates
+                innerTextFieldCoordinates = proxy?.innerTextFieldCoordinates
+            }
         }
     }
 }
