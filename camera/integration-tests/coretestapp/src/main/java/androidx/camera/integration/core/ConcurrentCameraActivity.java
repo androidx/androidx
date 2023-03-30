@@ -33,10 +33,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ConcurrentCamera.SingleCameraConfig;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCaseGroup;
-import androidx.camera.core.concurrent.ConcurrentCameraConfig;
-import androidx.camera.core.concurrent.SingleCameraConfig;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
@@ -254,28 +253,22 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
             return;
         }
         previewFront.setSurfaceProvider(frontPreviewView.getSurfaceProvider());
-        SingleCameraConfig primary = new SingleCameraConfig.Builder()
-                .setLifecycleOwner(lifecycleOwner)
-                .setUseCaseGroup(new UseCaseGroup.Builder()
+        SingleCameraConfig primary = new SingleCameraConfig(
+                cameraSelectorPrimary,
+                new UseCaseGroup.Builder()
                         .addUseCase(previewFront)
-                        .build())
-                .setCameraSelector(cameraSelectorPrimary)
-                .build();
+                        .build(),
+                lifecycleOwner);
         Preview previewBack = new Preview.Builder()
                 .build();
         previewBack.setSurfaceProvider(backPreviewView.getSurfaceProvider());
-        SingleCameraConfig secondary = new SingleCameraConfig.Builder()
-                .setLifecycleOwner(lifecycleOwner)
-                .setUseCaseGroup(new UseCaseGroup.Builder()
+        SingleCameraConfig secondary = new SingleCameraConfig(
+                cameraSelectorSecondary,
+                new UseCaseGroup.Builder()
                         .addUseCase(previewBack)
-                        .build())
-                .setCameraSelector(cameraSelectorSecondary)
-                .build();
-        ConcurrentCameraConfig concurrentCameraConfig =
-                new ConcurrentCameraConfig.Builder()
-                        .setCameraConfigs(ImmutableList.of(primary, secondary))
-                        .build();
-        cameraProvider.bindToLifecycle(concurrentCameraConfig);
+                        .build(),
+                lifecycleOwner);
+        cameraProvider.bindToLifecycle(ImmutableList.of(primary, secondary));
     }
     private static void updateFrontAndBackView(
             boolean isFrontPrimary,
