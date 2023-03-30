@@ -127,9 +127,10 @@ public final class ObserverSpec {
          *
          * <p>If unset, the observer will match documents of all types.
          *
+         * <p>Merged list available from {@link #getFilterSchemas()}.
+         *
          * @param documentClasses classes annotated with {@link Document}.
          */
-        // Merged list available from getFilterSchemas()
         @SuppressLint("MissingGetterMatchingBuilder")
         @CanIgnoreReturnValue
         @NonNull
@@ -146,9 +147,10 @@ public final class ObserverSpec {
          *
          * <p>If unset, the observer will match documents of all types.
          *
+         * <p>Merged list available from {@link #getFilterSchemas()}.
+         *
          * @param documentClasses classes annotated with {@link Document}.
          */
-        // Merged list available from getFilterSchemas
         @SuppressLint("MissingGetterMatchingBuilder")
         @CanIgnoreReturnValue
         @NonNull

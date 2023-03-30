@@ -573,9 +573,10 @@ public final class SearchSpec {
          *
          * <p>If unset, the query will search over all schema types.
          *
+         * <p>Merged list available from {@link #getFilterSchemas()}.
+         *
          * @param documentClasses classes annotated with {@link Document}.
          */
-        // Merged list available from getFilterSchemas
         @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
@@ -602,9 +603,10 @@ public final class SearchSpec {
          *
          * <p>If unset, the query will search over all schema types.
          *
+         * <p>Merged list available from {@link #getFilterSchemas()}.
+         *
          * @param documentClasses classes annotated with {@link Document}.
          */
-        // Merged list available from getFilterSchemas()
         @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
