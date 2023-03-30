@@ -81,6 +81,38 @@ class DataPointContainerTest {
     }
 
     @Test
+    fun customDataType() {
+        val customDataType1: DeltaDataType<ByteArray, IntervalDataPoint<ByteArray>> =
+            DeltaDataType(
+                "health_services.device_private.65537",
+                DataType.TimeType.INTERVAL,
+                ByteArray::class.java
+            )
+        val customDataType2: DeltaDataType<ByteArray, IntervalDataPoint<ByteArray>> =
+            DeltaDataType(
+                "health_services.device_private.65537",
+                DataType.TimeType.INTERVAL,
+                ByteArray::class.java
+            )
+        val byteArray = ByteArray(1)
+        byteArray[0] = 0x42
+
+        val container = DataPointContainer(
+            listOf(
+                DataPoints.steps(5, 1.duration(), 2.duration()),
+                IntervalDataPoint<ByteArray>(
+                    dataType = customDataType1,
+                    value = byteArray,
+                    startDurationFromBoot = 2.duration(),
+                    endDurationFromBoot = 10.duration(),
+                )
+            )
+        )
+
+        assertThat(container.getData(customDataType2).first().value[0]).isEqualTo(0x42)
+    }
+
+    @Test
     fun getSampleDataPointsReturnsTheCorrectNumber() {
         val container = DataPointContainer(
             listOf(
