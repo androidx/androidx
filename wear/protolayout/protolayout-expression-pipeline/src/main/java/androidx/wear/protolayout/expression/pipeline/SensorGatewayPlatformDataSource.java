@@ -65,8 +65,18 @@ class SensorGatewayPlatformDataSource {
         SensorGateway.Consumer sensorConsumer =
                 new SensorGateway.Consumer() {
                     @Override
+                    public void onPreUpdate() {
+                        mUiExecutor.execute(callback::onPreUpdate);
+                    }
+
+                    @Override
                     public void onData(double value) {
                         mUiExecutor.execute(() -> callback.onData((int) value));
+                    }
+
+                    @Override
+                    public void onInvalidated() {
+                        mUiExecutor.execute(callback::onInvalidated);
                     }
                 };
         mCallbackToRegisteredSensorConsumer.put(callback, sensorConsumer);
