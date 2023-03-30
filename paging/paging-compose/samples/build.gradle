@@ -27,9 +27,10 @@ dependencies {
     implementation(libs.kotlinStdlib)
 
     compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
-    implementation("androidx.compose.foundation:foundation:1.0.1")
-    implementation("androidx.compose.material:material:1.0.1")
+    implementation(project(":compose:foundation:foundation"))
+    implementation(project(":compose:material:material"))
     implementation(projectOrArtifact(":paging:paging-compose"))
+    implementation(project(":internal-testutils-paging"))
 }
 
 androidx {
