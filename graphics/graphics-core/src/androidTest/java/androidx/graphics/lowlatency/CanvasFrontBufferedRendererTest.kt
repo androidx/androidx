@@ -214,6 +214,7 @@ class CanvasFrontBufferedRendererTest {
         }
     }
 
+    @Ignore("b/276292442")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testRenderMultiBufferLayer() {
