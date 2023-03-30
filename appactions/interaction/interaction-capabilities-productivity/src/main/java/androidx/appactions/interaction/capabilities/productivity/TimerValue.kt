@@ -70,7 +70,7 @@ private constructor(
 
         internal val TO_ENTITY_VALUE =
             EntityConverter<TimerValue> { it ->
-                val builder = Entity.newBuilder().setValue(TYPE_SPEC.toStruct(it))
+                val builder = Entity.newBuilder().setStructValue(TYPE_SPEC.toStruct(it))
                 it.asTimer?.id?.ifPresent { builder.identifier = it }
                 builder.build()
             }

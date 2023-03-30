@@ -93,7 +93,7 @@ class EntityProviderTest {
         return GroundingResponse.Candidate.newBuilder()
             .setGroundedEntity(
                 Entity.newBuilder()
-                    .setValue(
+                    .setStructValue(
                         Struct.newBuilder()
                             .putFields("@type", Value.newBuilder().setStringValue("Order").build())
                             .putFields("identifier", Value.newBuilder().setStringValue(id).build())
