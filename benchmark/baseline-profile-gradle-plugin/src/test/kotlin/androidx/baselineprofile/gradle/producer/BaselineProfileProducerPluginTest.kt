@@ -21,8 +21,10 @@ import androidx.baselineprofile.gradle.utils.TEST_AGP_VERSION_8_0_0
 import androidx.baselineprofile.gradle.utils.TEST_AGP_VERSION_8_1_0
 import androidx.baselineprofile.gradle.utils.TEST_AGP_VERSION_ALL
 import androidx.baselineprofile.gradle.utils.VariantProfile
-import androidx.baselineprofile.gradle.utils.buildAndAssertThatOutput
+import androidx.baselineprofile.gradle.utils.build
 import androidx.baselineprofile.gradle.utils.buildAndFailAndAssertThatOutput
+import androidx.baselineprofile.gradle.utils.require
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,9 +53,12 @@ class BaselineProfileProducerPluginTestWithAgp80 {
             targetProject = projectSetup.appTarget
         )
 
-        projectSetup.producer.gradleRunner.buildAndAssertThatOutput("tasks") {
-            contains("connectedNonMinifiedReleaseAndroidTest - ")
-            contains("collectNonMinifiedReleaseBaselineProfile - ")
+        projectSetup.producer.gradleRunner.build("tasks") {
+            val notFound = it.lines().require(
+                "connectedNonMinifiedReleaseAndroidTest - ",
+                "collectNonMinifiedReleaseBaselineProfile - "
+            )
+            assertThat(notFound).isEmpty()
         }
     }
 }
@@ -80,10 +85,13 @@ class BaselineProfileProducerPluginTestWithAgp81 {
             targetProject = projectSetup.appTarget
         )
 
-        projectSetup.producer.gradleRunner.buildAndAssertThatOutput("tasks") {
-            contains("connectedNonMinifiedReleaseAndroidTest - ")
-            contains("connectedBenchmarkReleaseAndroidTest - ")
-            contains("collectNonMinifiedReleaseBaselineProfile - ")
+        projectSetup.producer.gradleRunner.build("tasks") {
+            val notFound = it.lines().require(
+                "connectedNonMinifiedReleaseAndroidTest - ",
+                "connectedBenchmarkReleaseAndroidTest - ",
+                "collectNonMinifiedReleaseBaselineProfile - "
+            )
+            assertThat(notFound).isEmpty()
         }
     }
 }
@@ -138,22 +146,19 @@ class BaselineProfileProducerPluginTest(agpVersion: String?) {
         projectSetup
             .producer
             .gradleRunner
-            .buildAndAssertThatOutput(
+            .build(
                 "collectNonMinifiedReleaseBaselineProfile",
                 "--dry-run"
             ) {
-                contains(
-                    ":${projectSetup.appTarget.name}:packageNonMinifiedRelease"
+                val appTargetName = projectSetup.appTarget.name
+                val producerName = projectSetup.producer.name
+                val notFound = it.lines().require(
+                    ":$appTargetName:packageNonMinifiedRelease",
+                    ":$producerName:somePixelDeviceNonMinifiedReleaseAndroidTest",
+                    ":$producerName:connectedNonMinifiedReleaseAndroidTest",
+                    ":$producerName:collectNonMinifiedReleaseBaselineProfile"
                 )
-                contains(
-                    ":${projectSetup.producer.name}:somePixelDeviceNonMinifiedReleaseAndroidTest"
-                )
-                contains(
-                    ":${projectSetup.producer.name}:connectedNonMinifiedReleaseAndroidTest"
-                )
-                contains(
-                    ":${projectSetup.producer.name}:collectNonMinifiedReleaseBaselineProfile"
-                )
+                assertThat(notFound).isEmpty()
             }
     }
 }

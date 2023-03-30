@@ -21,13 +21,15 @@ import androidx.baselineprofile.gradle.utils.ANDROID_LIBRARY_PLUGIN
 import androidx.baselineprofile.gradle.utils.ANDROID_TEST_PLUGIN
 import androidx.baselineprofile.gradle.utils.BaselineProfileProjectSetupRule
 import androidx.baselineprofile.gradle.utils.Fixtures
+import androidx.baselineprofile.gradle.utils.TEST_AGP_VERSION_8_0_0
 import androidx.baselineprofile.gradle.utils.TEST_AGP_VERSION_8_1_0
 import androidx.baselineprofile.gradle.utils.TEST_AGP_VERSION_ALL
 import androidx.baselineprofile.gradle.utils.VariantProfile
 import androidx.baselineprofile.gradle.utils.build
 import androidx.baselineprofile.gradle.utils.buildAndAssertThatOutput
+import androidx.baselineprofile.gradle.utils.require
+import androidx.baselineprofile.gradle.utils.requireInOrder
 import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import java.io.File
 import org.junit.Rule
 import org.junit.Test
@@ -406,14 +408,15 @@ class BaselineProfileConsumerPluginTest(agpVersion: String?) {
         )
 
         // Asserts that assembling release triggers generation of profile
-        gradleRunner.buildAndAssertThatOutput("assembleFreeRelease", "--dry-run") {
-            arrayOf(
-                "mergeFreeReleaseBaselineProfile",
-                "copyFreeReleaseBaselineProfileIntoSrc",
-                "mergeFreeReleaseArtProfile",
-                "compileFreeReleaseArtProfile",
-                "assembleFreeRelease"
-            ).forEach { contains(":${projectSetup.consumer.name}:$it") }
+        gradleRunner.build("assembleFreeRelease", "--dry-run") {
+            val notFound = it.lines().requireInOrder(
+                ":${projectSetup.consumer.name}:mergeFreeReleaseBaselineProfile",
+                ":${projectSetup.consumer.name}:copyFreeReleaseBaselineProfileIntoSrc",
+                ":${projectSetup.consumer.name}:mergeFreeReleaseArtProfile",
+                ":${projectSetup.consumer.name}:compileFreeReleaseArtProfile",
+                ":${projectSetup.consumer.name}:assembleFreeRelease"
+            )
+            assertThat(notFound).isEmpty()
         }
 
         // Asserts that the profile is generated in the src folder
@@ -894,12 +897,168 @@ class BaselineProfileConsumerPluginTest(agpVersion: String?) {
 }
 
 @RunWith(JUnit4::class)
+class BaselineProfileConsumerPluginTestWithAgp80 {
+
+    @get:Rule
+    val projectSetup = BaselineProfileProjectSetupRule(
+        forceAgpVersion = TEST_AGP_VERSION_8_0_0
+    )
+
+    @Test
+    fun verifyGenerateTasks() {
+        projectSetup.producer.setupWithFreeAndPaidFlavors(
+            freeReleaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
+            paidReleaseProfileLines = listOf(Fixtures.CLASS_2_METHOD_1, Fixtures.CLASS_2),
+            freeAnotherReleaseProfileLines = listOf(Fixtures.CLASS_3_METHOD_1, Fixtures.CLASS_3),
+            paidAnotherReleaseProfileLines = listOf(Fixtures.CLASS_4_METHOD_1, Fixtures.CLASS_4),
+        )
+        projectSetup.consumer.setup(
+            androidPlugin = ANDROID_APPLICATION_PLUGIN,
+            dependencyOnProducerProject = true,
+            flavors = true,
+            buildTypeAnotherRelease = true
+        )
+        projectSetup.consumer.gradleRunner.build("tasks") {
+
+            val notFound = it.lines().require(
+                "generateBaselineProfile - ",
+                "generateReleaseBaselineProfile - ",
+                "generateAnotherReleaseBaselineProfile - ",
+                "generateFreeReleaseBaselineProfile - ",
+                "generatePaidReleaseBaselineProfile - ",
+                "generateFreeAnotherReleaseBaselineProfile - ",
+                "generatePaidAnotherReleaseBaselineProfile - ",
+            )
+            assertThat(notFound).isEmpty()
+
+            // Note that there are no flavor tasks with AGP 8.0 because it would build across
+            // multiple build types.
+            assertThat(it).apply {
+                doesNotContain("generateFreeBaselineProfile")
+                doesNotContain("generatePaidBaselineProfile")
+            }
+        }
+
+        val name = projectSetup.consumer.name
+
+        // 'generateBaselineProfile` does the same of `generateReleaseBaselineProfile`.
+        arrayOf(
+            "generateBaselineProfile",
+            "generateReleaseBaselineProfile"
+        ).forEach { cmd ->
+            projectSetup.consumer.gradleRunner.build(cmd, "--dry-run") {
+                val notFound = it.lines().require(
+                    ":$name:copyFreeReleaseBaselineProfileIntoSrc",
+                    ":$name:copyPaidReleaseBaselineProfileIntoSrc",
+                )
+                assertThat(notFound).isEmpty()
+            }
+        }
+
+        projectSetup.consumer.gradleRunner.build(
+            "generateAnotherReleaseBaselineProfile", "--dry-run"
+        ) {
+            val notFound = it.lines().require(
+                ":$name:copyFreeAnotherReleaseBaselineProfileIntoSrc",
+                ":$name:copyPaidAnotherReleaseBaselineProfileIntoSrc",
+            )
+            assertThat(notFound).isEmpty()
+        }
+    }
+}
+
+@RunWith(JUnit4::class)
 class BaselineProfileConsumerPluginTestWithAgp81 {
 
     @get:Rule
     val projectSetup = BaselineProfileProjectSetupRule(
         forceAgpVersion = TEST_AGP_VERSION_8_1_0
     )
+
+    @Test
+    fun verifyGenerateTasks() {
+        projectSetup.producer.setupWithFreeAndPaidFlavors(
+            freeReleaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
+            paidReleaseProfileLines = listOf(Fixtures.CLASS_2_METHOD_1, Fixtures.CLASS_2),
+            freeAnotherReleaseProfileLines = listOf(Fixtures.CLASS_3_METHOD_1, Fixtures.CLASS_3),
+            paidAnotherReleaseProfileLines = listOf(Fixtures.CLASS_4_METHOD_1, Fixtures.CLASS_4),
+        )
+        projectSetup.consumer.setup(
+            androidPlugin = ANDROID_APPLICATION_PLUGIN,
+            dependencyOnProducerProject = true,
+            flavors = true,
+            buildTypeAnotherRelease = true
+        )
+        projectSetup.consumer.gradleRunner.build("tasks") {
+            val notFound = it.lines().require(
+                "generateBaselineProfile - ",
+                "generateReleaseBaselineProfile - ",
+                "generateAnotherReleaseBaselineProfile - ",
+                "generateFreeBaselineProfile - ",
+                "generatePaidBaselineProfile - ",
+                "generateFreeReleaseBaselineProfile - ",
+                "generatePaidReleaseBaselineProfile - ",
+                "generateFreeAnotherReleaseBaselineProfile - ",
+                "generatePaidAnotherReleaseBaselineProfile - ",
+            )
+            assertThat(notFound).isEmpty()
+        }
+
+        val name = projectSetup.consumer.name
+
+        projectSetup.consumer.gradleRunner.build(
+            "generateBaselineProfile", "--dry-run"
+        ) {
+            val notFound = it.lines().require(
+                ":$name:copyFreeReleaseBaselineProfileIntoSrc",
+                ":$name:copyPaidReleaseBaselineProfileIntoSrc",
+                ":$name:copyFreeAnotherReleaseBaselineProfileIntoSrc",
+                ":$name:copyPaidAnotherReleaseBaselineProfileIntoSrc",
+            )
+            assertThat(notFound).isEmpty()
+        }
+
+        projectSetup.consumer.gradleRunner.build(
+            "generateReleaseBaselineProfile", "--dry-run"
+        ) {
+            val notFound = it.lines().require(
+                ":$name:copyFreeReleaseBaselineProfileIntoSrc",
+                ":$name:copyPaidReleaseBaselineProfileIntoSrc",
+            )
+            assertThat(notFound).isEmpty()
+        }
+
+        projectSetup.consumer.gradleRunner.build(
+            "generateAnotherReleaseBaselineProfile",
+            "--dry-run"
+        ) {
+            val notFound = it.lines().require(
+                ":$name:copyFreeAnotherReleaseBaselineProfileIntoSrc",
+                ":$name:copyPaidAnotherReleaseBaselineProfileIntoSrc",
+            )
+            assertThat(notFound).isEmpty()
+        }
+
+        projectSetup.consumer.gradleRunner.build(
+            "generateFreeBaselineProfile", "--dry-run"
+        ) {
+            val notFound = it.lines().require(
+                ":$name:copyFreeReleaseBaselineProfileIntoSrc",
+                ":$name:copyFreeAnotherReleaseBaselineProfileIntoSrc",
+            )
+            assertThat(notFound).isEmpty()
+        }
+
+        projectSetup.consumer.gradleRunner.build(
+            "generatePaidBaselineProfile", "--dry-run"
+        ) {
+            val notFound = it.lines().require(
+                ":$name:copyPaidReleaseBaselineProfileIntoSrc",
+                ":$name:copyPaidAnotherReleaseBaselineProfileIntoSrc",
+            )
+            assertThat(notFound).isEmpty()
+        }
+    }
 
     @Test
     fun verifyTasksWithAndroidTestPlugin() {
@@ -935,7 +1094,7 @@ class BaselineProfileConsumerPluginTestWithAgp81 {
                 val consumerName = projectSetup.consumer.name
                 val producerName = projectSetup.producer.name
 
-                val tasksToFindInOrder = mutableSetOf(
+                val notFound = text.lines().requireInOrder(
                     ":$consumerName:packageFreeNonMinifiedRelease",
                     ":$producerName:connectedFreeNonMinifiedReleaseAndroidTest",
                     ":$producerName:collectFreeNonMinifiedReleaseBaselineProfile",
@@ -948,19 +1107,7 @@ class BaselineProfileConsumerPluginTestWithAgp81 {
                     ":$producerName:connectedFreeBenchmarkReleaseAndroidTest"
                 )
 
-                text.lines().forEach {
-                    val next = tasksToFindInOrder.firstOrNull() ?: return@forEach
-                    if (it.startsWith(next)) tasksToFindInOrder.remove(next)
-                }
-
-                assertWithMessage(
-                    """
-                `connectedFreeBenchmarkReleaseAndroidTest` did not trigger all the expected tasks.
-                Missing tasks:
-                ${tasksToFindInOrder.joinToString("\n") { "\t\t\t\t$it" }}
-
-                """.trimIndent()
-                ).that(tasksToFindInOrder).isEmpty()
+                assertThat(notFound).isEmpty()
             }
     }
 }

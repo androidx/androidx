@@ -65,3 +65,33 @@ internal fun GradleRunner.buildAndFailAndAssertThatOutput(
 ) {
     this.buildAndFail(*arguments) { assertBlock(assertThat(it)) }
 }
+
+internal fun List<String>.requireInOrder(
+    vararg strings: String,
+    evaluate: (String, String) -> (Boolean) = { line, nextToFind -> line.startsWith(nextToFind) },
+): List<String> {
+    val remaining = mutableListOf(*strings)
+    for (string in strings) {
+        val next = remaining.firstOrNull() ?: break
+        if (evaluate(string, next)) remaining.remove(next)
+    }
+    return remaining
+}
+
+internal fun List<String>.require(
+    vararg strings: String,
+    evaluate: (String, String) -> (Boolean) = { line, nextToFind -> line.startsWith(nextToFind) },
+): Set<String> {
+    val remaining = mutableSetOf(*strings)
+    for (string in strings) {
+        if (remaining.isEmpty()) break
+        val iter = remaining.iterator()
+        while (iter.hasNext()) iter.next().run {
+            if (evaluate(string, this)) {
+                iter.remove()
+                return@run
+            }
+        }
+    }
+    return remaining
+}
