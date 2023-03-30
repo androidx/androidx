@@ -100,8 +100,6 @@ abstract class PointerInputFilter {
      * then the Layout will share with siblings.
      */
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @ExperimentalComposeUiApi
-    @get:ExperimentalComposeUiApi
     open val shareWithSiblings: Boolean
         get() = false
 }
@@ -400,6 +398,7 @@ value class PointerEventType private constructor(internal val value: Int) {
  * element (values can be negative or larger than the element bounds).
  * @param pressed `true` if the pointer event is considered "pressed." For example, finger
  * touching the screen or a mouse button is pressed [pressed] would be `true`.
+ * @param pressure The pressure of the of the pointer event
  * @param previousUptimeMillis The [uptimeMillis] of the previous pointer event
  * @param previousPosition The [Offset] of the previous pointer event, offset to the
  * [position] and relative to the containing element.
@@ -414,12 +413,12 @@ value class PointerEventType private constructor(internal val value: Int) {
  * @param scrollDelta The amount of scroll wheel movement in the horizontal and vertical directions.
  */
 @Immutable
-@OptIn(ExperimentalComposeUiApi::class)
 class PointerInputChange(
     val id: PointerId,
     val uptimeMillis: Long,
     val position: Offset,
     val pressed: Boolean,
+    val pressure: Float,
     val previousUptimeMillis: Long,
     val previousPosition: Offset,
     val previousPressed: Boolean,
@@ -427,6 +426,30 @@ class PointerInputChange(
     val type: PointerType = PointerType.Touch,
     val scrollDelta: Offset = Offset.Zero
 ) {
+    constructor(
+        id: PointerId,
+        uptimeMillis: Long,
+        position: Offset,
+        pressed: Boolean,
+        previousUptimeMillis: Long,
+        previousPosition: Offset,
+        previousPressed: Boolean,
+        isInitiallyConsumed: Boolean,
+        type: PointerType = PointerType.Touch,
+        scrollDelta: Offset = Offset.Zero
+    ) : this(
+        id,
+        uptimeMillis,
+        position,
+        pressed,
+        pressure = 1.0f,
+        previousUptimeMillis,
+        previousPosition,
+        previousPressed,
+        isInitiallyConsumed,
+        type,
+        scrollDelta
+    )
 
     @Deprecated(
         level = DeprecationLevel.HIDDEN,
@@ -462,36 +485,7 @@ class PointerInputChange(
         Offset.Zero
     )
 
-    internal constructor(
-        id: PointerId,
-        uptimeMillis: Long,
-        position: Offset,
-        pressed: Boolean,
-        previousUptimeMillis: Long,
-        previousPosition: Offset,
-        previousPressed: Boolean,
-        isInitiallyConsumed: Boolean,
-        type: PointerType,
-        historical: List<HistoricalChange>,
-        scrollDelta: Offset,
-    ) : this(
-        id,
-        uptimeMillis,
-        position,
-        pressed,
-        pressure = 1.0f,
-        previousUptimeMillis,
-        previousPosition,
-        previousPressed,
-        isInitiallyConsumed,
-        type,
-        historical,
-        scrollDelta
-    ) {
-        _historical = historical
-    }
-
-    @ExperimentalComposeUiApi
+    @OptIn(ExperimentalComposeUiApi::class)
     internal constructor(
         id: PointerId,
         uptimeMillis: Long,
@@ -521,44 +515,6 @@ class PointerInputChange(
         _historical = historical
     }
 
-    @ExperimentalComposeUiApi
-    constructor(
-        id: PointerId,
-        uptimeMillis: Long,
-        position: Offset,
-        pressed: Boolean,
-        pressure: Float,
-        previousUptimeMillis: Long,
-        previousPosition: Offset,
-        previousPressed: Boolean,
-        isInitiallyConsumed: Boolean,
-        type: PointerType = PointerType.Touch,
-        scrollDelta: Offset = Offset.Zero
-    ) : this (
-        id,
-        uptimeMillis,
-        position,
-        pressed,
-        previousUptimeMillis,
-        previousPosition,
-        previousPressed,
-        isInitiallyConsumed,
-        type,
-        scrollDelta
-    ) {
-        _pressure = pressure
-    }
-
-    /**
-     * Pressure for pointer event
-     */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @ExperimentalComposeUiApi
-    @get:ExperimentalComposeUiApi
-    val pressure: Float
-        get() = _pressure ?: 0.0f
-    private var _pressure: Float? = null
-
     /**
      * Optional high-frequency pointer moves in between the last two dispatched events.
      * Can be used for extra accuracy when touchscreen rate exceeds framerate.
@@ -571,6 +527,7 @@ class PointerInputChange(
     @get:ExperimentalComposeUiApi
     val historical: List<HistoricalChange>
         get() = _historical ?: listOf()
+    @OptIn(ExperimentalComposeUiApi::class)
     private var _historical: List<HistoricalChange>? = null
 
     /**
@@ -601,6 +558,7 @@ class PointerInputChange(
         ConsumedData(downChange = isInitiallyConsumed, positionChange = isInitiallyConsumed)
         private set
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Deprecated(
         level = DeprecationLevel.HIDDEN,
         replaceWith = ReplaceWith(
@@ -645,6 +603,7 @@ class PointerInputChange(
      * copies will consume any other copy automatically. Therefore, copy with the new [isConsumed]
      * is not possible. Consider creating a new [PointerInputChange]
      */
+    @OptIn(ExperimentalComposeUiApi::class)
     @Suppress("DEPRECATION")
     fun copy(
         id: PointerId = this.id,
@@ -656,23 +615,21 @@ class PointerInputChange(
         previousPressed: Boolean = this.previousPressed,
         type: PointerType = this.type,
         scrollDelta: Offset = this.scrollDelta
-    ): PointerInputChange = PointerInputChange(
-        id,
-        currentTime,
-        currentPosition,
-        currentPressed,
-        this.pressure,
-        previousTime,
-        previousPosition,
-        previousPressed,
-        isInitiallyConsumed = false, // doesn't matter, we will pass a holder anyway
-        type,
-        this.historical,
-        scrollDelta
-    ).also {
-        it.consumed = this.consumed
-    }
+    ): PointerInputChange = copy(
+        id = id,
+        currentTime = currentTime,
+        currentPosition = currentPosition,
+        currentPressed = currentPressed,
+        pressure = this.pressure,
+        previousTime = previousTime,
+        previousPosition = previousPosition,
+        previousPressed = previousPressed,
+        type = type,
+        historical = this.historical,
+        scrollDelta = scrollDelta
+    )
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Suppress("DEPRECATION")
     @Deprecated(
         "Partial consumption has been deprecated. Use copy() instead without `consumed` " +
@@ -719,6 +676,44 @@ class PointerInputChange(
      * copies will consume any other copy automatically. Therefore, copy with the new [isConsumed]
      * is not possible. Consider creating a new [PointerInputChange].
      */
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Suppress("DEPRECATION")
+    fun copy(
+        id: PointerId = this.id,
+        currentTime: Long = this.uptimeMillis,
+        currentPosition: Offset = this.position,
+        currentPressed: Boolean = this.pressed,
+        pressure: Float = this.pressure,
+        previousTime: Long = this.previousUptimeMillis,
+        previousPosition: Offset = this.previousPosition,
+        previousPressed: Boolean = this.previousPressed,
+        type: PointerType = this.type,
+        scrollDelta: Offset = this.scrollDelta
+    ): PointerInputChange = PointerInputChange(
+        id,
+        currentTime,
+        currentPosition,
+        currentPressed,
+        pressure,
+        previousTime,
+        previousPosition,
+        previousPressed,
+        isInitiallyConsumed = false, // doesn't matter, we will pass a holder anyway
+        type,
+        historical = this.historical,
+        scrollDelta
+    ).also {
+        it.consumed = this.consumed
+    }
+
+    /**
+     * Make a shallow copy of the [PointerInputChange]
+     *
+     * **NOTE:** Due to the need of the inner contract of the [PointerInputChange], this method
+     * performs a shallow copy of the [PointerInputChange]. Any [consume] call between any of the
+     * copies will consume any other copy automatically. Therefore, copy with the new [isConsumed]
+     * is not possible. Consider creating a new [PointerInputChange].
+     */
     @ExperimentalComposeUiApi
     @Suppress("DEPRECATION")
     fun copy(
@@ -732,22 +727,19 @@ class PointerInputChange(
         type: PointerType = this.type,
         historical: List<HistoricalChange>,
         scrollDelta: Offset = this.scrollDelta
-    ): PointerInputChange = PointerInputChange(
-        id,
-        currentTime,
-        currentPosition,
-        currentPressed,
-        this.pressure,
-        previousTime,
-        previousPosition,
-        previousPressed,
-        isInitiallyConsumed = false, // doesn't matter, we will pass a holder anyway
-        type,
-        historical,
-        scrollDelta
-    ).also {
-        it.consumed = this.consumed
-    }
+    ): PointerInputChange = copy(
+        id = id,
+        currentTime = currentTime,
+        currentPosition = currentPosition,
+        currentPressed = currentPressed,
+        pressure = this.pressure,
+        previousTime = previousTime,
+        previousPosition = previousPosition,
+        previousPressed = previousPressed,
+        type = type,
+        historical = historical,
+        scrollDelta = scrollDelta
+    )
 
     /**
      * Make a shallow copy of the [PointerInputChange]
@@ -769,9 +761,9 @@ class PointerInputChange(
         previousPosition: Offset = this.previousPosition,
         previousPressed: Boolean = this.previousPressed,
         type: PointerType = this.type,
-        historical: List<HistoricalChange>,
+        historical: List<HistoricalChange> = this.historical,
         scrollDelta: Offset = this.scrollDelta
-    ): PointerInputChange = PointerInputChange(
+        ): PointerInputChange = PointerInputChange(
         id,
         currentTime,
         currentPosition,
@@ -788,6 +780,7 @@ class PointerInputChange(
         it.consumed = this.consumed
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     override fun toString(): String {
         return "PointerInputChange(id=$id, " +
             "uptimeMillis=$uptimeMillis, " +

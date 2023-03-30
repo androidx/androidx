@@ -18,7 +18,6 @@ package androidx.compose.ui.test.inputdispatcher.multimodal
 
 import android.view.KeyEvent
 import android.view.MotionEvent
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.nativeKeyCode
@@ -45,7 +44,7 @@ import org.robolectric.annotation.Config
  */
 @RunWith(AndroidJUnit4::class)
 @Config(minSdk = RobolectricMinSdk)
-@OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalTestApi::class)
 class KeyAndMouseEventsTest : InputDispatcherTest() {
 
     companion object {
