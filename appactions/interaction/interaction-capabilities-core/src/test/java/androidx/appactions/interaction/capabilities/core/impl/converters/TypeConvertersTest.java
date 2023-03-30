@@ -17,9 +17,11 @@
 package androidx.appactions.interaction.capabilities.core.impl.converters;
 
 import static androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.BOOLEAN_PARAM_VALUE_CONVERTER;
+import static androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.CALL_TYPE_SPEC;
 import static androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.INTEGER_PARAM_VALUE_CONVERTER;
 import static androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.ITEM_LIST_TYPE_SPEC;
 import static androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.LIST_ITEM_TYPE_SPEC;
+import static androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.MESSAGE_TYPE_SPEC;
 import static androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.ORDER_TYPE_SPEC;
 import static androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.PARTICIPANT_TYPE_SPEC;
 import static androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.RECIPIENT_TYPE_SPEC;
@@ -239,6 +241,7 @@ public final class TypeConvertersTest {
     private static final Struct CALL_STRUCT =
             Struct.newBuilder()
                     .putFields("@type", Value.newBuilder().setStringValue("Call").build())
+                    .putFields("identifier", Value.newBuilder().setStringValue("id").build())
                     .putFields("callFormat", Value.newBuilder().setStringValue("Audio").build())
                     .putFields(
                             "participant",
@@ -253,6 +256,7 @@ public final class TypeConvertersTest {
     private static final Struct MESSAGE_STRUCT =
             Struct.newBuilder()
                     .putFields("@type", Value.newBuilder().setStringValue("Message").build())
+                    .putFields("identifier", Value.newBuilder().setStringValue("id").build())
                     .putFields(
                             "recipient",
                             Value.newBuilder()
@@ -918,7 +922,7 @@ public final class TypeConvertersTest {
 
     @Test
     public void toParamValues_call_success() {
-        assertThat(TypeConverters.toParamValue(CALL_JAVA_THING))
+        assertThat(ParamValueConverter.Companion.of(CALL_TYPE_SPEC).toParamValue(CALL_JAVA_THING))
                 .isEqualTo(
                         ParamValue.newBuilder()
                                 .setStructValue(CALL_STRUCT)
@@ -928,7 +932,9 @@ public final class TypeConvertersTest {
 
     @Test
     public void toParamValues_message_success() {
-        assertThat(TypeConverters.toParamValue(MESSAGE_JAVA_THING))
+        assertThat(
+                ParamValueConverter.Companion.of(MESSAGE_TYPE_SPEC)
+                        .toParamValue(MESSAGE_JAVA_THING))
                 .isEqualTo(
                         ParamValue.newBuilder()
                                 .setStructValue(MESSAGE_STRUCT)

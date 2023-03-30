@@ -45,14 +45,14 @@ private val ACTION_SPEC =
             { property -> Optional.ofNullable(property.startTime) },
             GetHealthObservation.Argument.Builder::setStartTime,
             TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER,
-            TypeConverters::toEntity
+            TypeConverters.LOCAL_TIME_ENTITY_CONVERTER
         )
         .bindOptionalParameter(
             "exerciseObservation.endTime",
             { property -> Optional.ofNullable(property.endTime) },
             GetHealthObservation.Argument.Builder::setEndTime,
             TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER,
-            TypeConverters::toEntity
+            TypeConverters.LOCAL_TIME_ENTITY_CONVERTER
         )
         .build()
 

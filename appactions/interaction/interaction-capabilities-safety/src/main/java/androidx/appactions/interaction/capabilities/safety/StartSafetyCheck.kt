@@ -54,14 +54,14 @@ private val ACTION_SPEC =
             { property -> Optional.ofNullable(property.duration) },
             StartSafetyCheck.Argument.Builder::setDuration,
             TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
-            TypeConverters::toEntity
+            TypeConverters.DURATION_ENTITY_CONVERTER
         )
         .bindOptionalParameter(
             "safetyCheck.checkInTime",
             { property -> Optional.ofNullable(property.checkInTime) },
             StartSafetyCheck.Argument.Builder::setCheckInTime,
             TypeConverters.ZONED_DATETIME_PARAM_VALUE_CONVERTER,
-            TypeConverters::toEntity
+            TypeConverters.ZONED_DATETIME_ENTITY_CONVERTER
         )
         .bindOptionalOutput(
             "safetyCheck",

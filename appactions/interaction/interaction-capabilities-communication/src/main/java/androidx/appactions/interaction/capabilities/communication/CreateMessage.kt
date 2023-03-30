@@ -22,8 +22,10 @@ import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
+import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.PropertyConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
+import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.MESSAGE_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.RECIPIENT_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
@@ -62,7 +64,7 @@ private val ACTION_SPEC =
         .bindOptionalOutput(
             "message",
             { output -> Optional.ofNullable(output.message) },
-            TypeConverters::toParamValue
+            ParamValueConverter.of(MESSAGE_TYPE_SPEC)::toParamValue
         )
         .bindOptionalOutput(
             "executionStatus",

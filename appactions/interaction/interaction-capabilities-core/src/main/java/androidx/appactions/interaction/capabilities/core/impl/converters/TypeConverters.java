@@ -38,9 +38,6 @@ import androidx.appactions.interaction.capabilities.core.values.properties.Parti
 import androidx.appactions.interaction.capabilities.core.values.properties.Recipient;
 import androidx.appactions.interaction.proto.Entity;
 import androidx.appactions.interaction.proto.ParamValue;
-import androidx.appactions.interaction.protobuf.ListValue;
-import androidx.appactions.interaction.protobuf.Struct;
-import androidx.appactions.interaction.protobuf.Value;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -48,8 +45,6 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
-import java.util.HashMap;
-import java.util.Map;
 
 /** Converters for capability argument values. Convert from internal proto types to public types. */
 public final class TypeConverters {
@@ -175,12 +170,31 @@ public final class TypeConverters {
                             (person) -> new Participant(person),
                             PERSON_TYPE_SPEC)
                     .build();
-    private static final String FIELD_NAME_CALL_FORMAT = "callFormat";
-    private static final String FIELD_NAME_PARTICIPANT = "participant";
-    private static final String FIELD_NAME_TYPE_CALL = "Call";
-    private static final String FIELD_NAME_TYPE_MESSAGE = "Message";
-    private static final String FIELD_NAME_RECIPIENT = "recipient";
-    private static final String FIELD_NAME_TEXT = "text";
+    public static final TypeSpec<Message> MESSAGE_TYPE_SPEC =
+            TypeSpecBuilder.newBuilderForThing("Message", Message::newBuilder)
+                    .bindIdentifier(Message::getId)
+                    .bindRepeatedSpecField(
+                            "recipient",
+                            Message::getRecipientList,
+                            Message.Builder::addAllRecipient,
+                            RECIPIENT_TYPE_SPEC)
+                    .bindStringField(
+                            "text", Message::getMessageText, Message.Builder::setMessageText)
+                    .build();
+    public static final TypeSpec<Call> CALL_TYPE_SPEC =
+            TypeSpecBuilder.newBuilderForThing("Call", Call::newBuilder)
+                    .bindIdentifier(Call::getId)
+                    .bindEnumField(
+                            "callFormat",
+                            Call::getCallFormat,
+                            Call.Builder::setCallFormat,
+                            Call.CallFormat.class)
+                    .bindRepeatedSpecField(
+                            "participant",
+                            Call::getParticipantList,
+                            Call.Builder::addAllParticipant,
+                            PARTICIPANT_TYPE_SPEC)
+                    .build();
 
     public static final ParamValueConverter<Integer> INTEGER_PARAM_VALUE_CONVERTER =
             new ParamValueConverter<Integer>() {
@@ -398,59 +412,19 @@ public final class TypeConverters {
                             String.format("Unknown enum format '%s'.", identifier));
                 }
             };
+    public static final EntityConverter<ZonedDateTime> ZONED_DATETIME_ENTITY_CONVERTER =
+            (zonedDateTime) ->
+                    Entity.newBuilder()
+                            .setStringValue(zonedDateTime.toOffsetDateTime().toString())
+                            .build();
+    public static final EntityConverter<LocalTime> LOCAL_TIME_ENTITY_CONVERTER =
+            (localTime) -> Entity.newBuilder().setStringValue(localTime.toString()).build();
+    public static final EntityConverter<Duration> DURATION_ENTITY_CONVERTER =
+            (duration) -> Entity.newBuilder().setStringValue(duration.toString()).build();
+    public static final EntityConverter<Call.CallFormat> CALL_FORMAT_ENTITY_CONVERTER =
+            (callFormat) -> Entity.newBuilder().setIdentifier(callFormat.toString()).build();
 
     private TypeConverters() {}
-
-    /**
-     * @param entityValue
-     * @return
-     */
-    @NonNull
-    public static Entity toEntity(@NonNull EntityValue entityValue) {
-        return Entity.newBuilder()
-                .setIdentifier(entityValue.getId().get())
-                .setName(entityValue.getValue())
-                .build();
-    }
-
-    /**
-     * @param zonedDateTime
-     * @return
-     */
-    @NonNull
-    public static Entity toEntity(@NonNull ZonedDateTime zonedDateTime) {
-        // TODO(b/274838299): Do not set "name" field after protos are checked in.
-        return Entity.newBuilder().setName(zonedDateTime.toOffsetDateTime().toString()).build();
-    }
-
-    /**
-     * @param localTime
-     * @return
-     */
-    @NonNull
-    public static Entity toEntity(@NonNull LocalTime localTime) {
-        // TODO(b/274838299): Do not set "name" field after protos are checked in.
-        return Entity.newBuilder().setName(localTime.toString()).build();
-    }
-
-    /**
-     * @param duration
-     * @return
-     */
-    @NonNull
-    public static Entity toEntity(@NonNull Duration duration) {
-        // TODO(b/274838299): Do not set "name" field after protos are checked in.
-        return Entity.newBuilder().setName(duration.toString()).build();
-    }
-
-    /**
-     * @param callFormat
-     * @return
-     */
-    @NonNull
-    public static Entity toEntity(@NonNull Call.CallFormat callFormat) {
-        return Entity.newBuilder().setIdentifier(callFormat.toString()).build();
-    }
 
     /**
      * @param nestedTypeSpec
@@ -478,64 +452,5 @@ public final class TypeConverters {
             @NonNull TypeSpec<T> nestedTypeSpec) {
         final TypeSpec<SearchAction<T>> typeSpec = createSearchActionTypeSpec(nestedTypeSpec);
         return ParamValueConverter.Companion.of(typeSpec)::fromParamValue;
-    }
-
-    /** Converts a Call to a ParamValue. */
-    @NonNull
-    public static ParamValue toParamValue(@NonNull Call value) {
-        ParamValue.Builder builder = ParamValue.newBuilder();
-        Map<String, Value> fieldsMap = new HashMap<>();
-        fieldsMap.put(
-                FIELD_NAME_TYPE, Value.newBuilder().setStringValue(FIELD_NAME_TYPE_CALL).build());
-        if (value.getCallFormat().isPresent()) {
-            fieldsMap.put(
-                    FIELD_NAME_CALL_FORMAT,
-                    Value.newBuilder()
-                            .setStringValue(value.getCallFormat().get().toString())
-                            .build());
-        }
-        ListValue.Builder participantListBuilder = ListValue.newBuilder();
-        for (Participant participant : value.getParticipantList()) {
-            if (participant.asPerson().isPresent()) {
-                participantListBuilder.addValues(
-                        PERSON_TYPE_SPEC.toValue(participant.asPerson().get()));
-            }
-        }
-        if (!participantListBuilder.getValuesList().isEmpty()) {
-            fieldsMap.put(
-                    FIELD_NAME_PARTICIPANT,
-                    Value.newBuilder().setListValue(participantListBuilder.build()).build());
-        }
-        value.getId().ifPresent(builder::setIdentifier);
-        return builder.setStructValue(Struct.newBuilder().putAllFields(fieldsMap).build()).build();
-    }
-
-    /** Converts a Message to a ParamValue. */
-    @NonNull
-    public static ParamValue toParamValue(@NonNull Message value) {
-        ParamValue.Builder builder = ParamValue.newBuilder();
-        Map<String, Value> fieldsMap = new HashMap<>();
-        fieldsMap.put(
-                FIELD_NAME_TYPE,
-                Value.newBuilder().setStringValue(FIELD_NAME_TYPE_MESSAGE).build());
-        if (value.getMessageText().isPresent()) {
-            fieldsMap.put(
-                    FIELD_NAME_TEXT,
-                    Value.newBuilder().setStringValue(value.getMessageText().get()).build());
-        }
-        ListValue.Builder recipientListBuilder = ListValue.newBuilder();
-        for (Recipient recipient : value.getRecipientList()) {
-            if (recipient.asPerson().isPresent()) {
-                recipientListBuilder.addValues(
-                        PERSON_TYPE_SPEC.toValue(recipient.asPerson().get()));
-            }
-        }
-        if (!recipientListBuilder.getValuesList().isEmpty()) {
-            fieldsMap.put(
-                    FIELD_NAME_RECIPIENT,
-                    Value.newBuilder().setListValue(recipientListBuilder.build()).build());
-        }
-        value.getId().ifPresent(builder::setIdentifier);
-        return builder.setStructValue(Struct.newBuilder().putAllFields(fieldsMap).build()).build();
     }
 }
