@@ -91,19 +91,34 @@ public open class FragmentNavigator(
         }
     }
 
+    private val fragmentViewObserver = { entry: NavBackStackEntry ->
+        object : LifecycleEventObserver {
+            override fun onStateChanged(
+                source: LifecycleOwner,
+                event: Lifecycle.Event
+            ) {
+                // Once the lifecycle reaches RESUMED, we can mark the transition complete
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    state.markTransitionComplete(entry)
+                }
+                // Once the lifecycle reaches DESTROYED, we can mark the transition complete and
+                // remove the observer.
+                if (event == Lifecycle.Event.ON_DESTROY) {
+                    entriesToPop.remove(entry.id)
+                    state.markTransitionComplete(entry)
+                    source.lifecycle.removeObserver(this)
+                }
+            }
+        }
+    }
+
     override fun onAttach(state: NavigatorState) {
         super.onAttach(state)
 
         fragmentManager.addFragmentOnAttachListener { _, fragment ->
             val entry = state.backStack.value.lastOrNull { it.id == fragment.tag }
             if (entry != null) {
-                fragment.viewLifecycleOwnerLiveData.observe(fragment) { owner ->
-                    // attach observer unless it was already popped at this point
-                    if (owner != null && !entriesToPop.contains(fragment.tag)) {
-                        attachObserver(entry, fragment)
-                    }
-                }
-                fragment.lifecycle.addObserver(fragmentObserver)
+                attachObservers(entry, fragment)
                 // We need to ensure that if the fragment has its state saved and then that state
                 // later cleared without the restoring the fragment that we also clear the state
                 // of the associated entry.
@@ -151,32 +166,19 @@ public open class FragmentNavigator(
         })
     }
 
-    private fun attachObserver(entry: NavBackStackEntry, fragment: Fragment) {
-        val viewLifecycle = fragment.viewLifecycleOwner.lifecycle
-        val currentState = viewLifecycle.currentState
-        // We only need to add observers while the viewLifecycle has not reached a final
-        // state
-        if (currentState.isAtLeast(Lifecycle.State.CREATED)) {
-            viewLifecycle.addObserver(object : LifecycleEventObserver {
-                override fun onStateChanged(
-                    source: LifecycleOwner,
-                    event: Lifecycle.Event
-                ) {
-                    // Once the lifecycle reaches RESUMED, we can mark the transition
-                    // complete
-                    if (event == Lifecycle.Event.ON_RESUME) {
-                        state.markTransitionComplete(entry)
-                    }
-                    // Once the lifecycle reaches DESTROYED, we can mark the transition
-                    // complete and remove the observer.
-                    if (event == Lifecycle.Event.ON_DESTROY) {
-                        entriesToPop.remove(entry.id)
-                        state.markTransitionComplete(entry)
-                        viewLifecycle.removeObserver(this)
-                    }
+    private fun attachObservers(entry: NavBackStackEntry, fragment: Fragment) {
+        fragment.viewLifecycleOwnerLiveData.observe(fragment) { owner ->
+            // attach observer unless it was already popped at this point
+            if (owner != null && !entriesToPop.contains(fragment.tag)) {
+                val viewLifecycle = fragment.viewLifecycleOwner.lifecycle
+                // We only need to add observers while the viewLifecycle has not reached a final
+                // state
+                if (viewLifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
+                    viewLifecycle.addObserver(fragmentViewObserver(entry))
                 }
-            })
+            }
         }
+        fragment.lifecycle.addObserver(fragmentObserver)
     }
 
     internal fun attachClearViewModel(
