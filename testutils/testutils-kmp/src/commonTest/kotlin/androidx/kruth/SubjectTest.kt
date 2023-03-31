@@ -210,6 +210,125 @@ class SubjectTest {
     }
 
     @Test
+    fun isEqualToByteArray() {
+        assertThat(byteArrayOf(0, 1, 2)).isEqualTo(byteArrayOf(0, 1, 2))
+    }
+
+    @Test
+    fun isEqualToByteArrayEmpty() {
+        assertThat(byteArrayOf()).isEqualTo(byteArrayOf())
+    }
+
+    @Test
+    fun isEqualToByteArrayFailsNotEqual() {
+        assertFailsWith<AssertionError> {
+            assertThat(byteArrayOf(0, 1, 2)).isEqualTo(byteArrayOf(0, 1, 3))
+        }
+    }
+
+    @Test
+    fun isEqualToIntArray() {
+        assertThat(intArrayOf(0, 1, 2)).isEqualTo(intArrayOf(0, 1, 2))
+    }
+
+    @Test
+    fun isEqualToIntArrayEmpty() {
+        assertThat(intArrayOf()).isEqualTo(intArrayOf())
+    }
+
+    @Test
+    fun isEqualToIntArrayFailsNotEqual() {
+        assertFailsWith<AssertionError> {
+            assertThat(intArrayOf(0, 1, 2)).isEqualTo(intArrayOf(0, 1, 3))
+        }
+    }
+
+    @Test
+    fun isEqualToLongArray() {
+        assertThat(longArrayOf(0, 1, 2)).isEqualTo(longArrayOf(0, 1, 2))
+    }
+
+    @Test
+    fun isEqualToLongArrayEmpty() {
+        assertThat(longArrayOf()).isEqualTo(longArrayOf())
+    }
+
+    @Test
+    fun isEqualToLongArrayFailsNotEqual() {
+        assertFailsWith<AssertionError> {
+            assertThat(longArrayOf(0, 1, 2)).isEqualTo(longArrayOf(0, 1, 3))
+        }
+    }
+
+    @Test
+    fun isEqualToFloatArray() {
+        assertThat(floatArrayOf(0F, 1F, 2F)).isEqualTo(floatArrayOf(0F, 1F, 2F))
+    }
+
+    @Test
+    fun isEqualToFloatArrayEmpty() {
+        assertThat(floatArrayOf()).isEqualTo(floatArrayOf())
+    }
+
+    @Test
+    fun isEqualToFloatArrayEmptyNotEqual() {
+        assertFailsWith<AssertionError> {
+            assertThat(floatArrayOf(0F, 1F, 2F)).isEqualTo(floatArrayOf(0F, 1F, 3F))
+        }
+    }
+
+    @Test
+    fun isEqualToDoubleArray() {
+        assertThat(doubleArrayOf(0.0, 1.0, 2.0)).isEqualTo(doubleArrayOf(0.0, 1.0, 2.0))
+    }
+
+    @Test
+    fun isEqualToDoubleArrayEmpty() {
+        assertThat(doubleArrayOf()).isEqualTo(doubleArrayOf())
+    }
+
+    @Test
+    fun isEqualToDoubleArrayFailsNotEqual() {
+        assertFailsWith<AssertionError> {
+            assertThat(doubleArrayOf(0.0, 1.0, 2.0)).isEqualTo(doubleArrayOf(0.0, 1.0, 3.0))
+        }
+    }
+
+    @Test
+    fun isEqualToShortArray() {
+        assertThat(shortArrayOf(0, 1, 2)).isEqualTo(shortArrayOf(0, 1, 2))
+    }
+
+    @Test
+    fun isEqualToShortArrayEmpty() {
+        assertThat(shortArrayOf()).isEqualTo(shortArrayOf())
+    }
+
+    @Test
+    fun isEqualToShortArrayFailsNotEqual() {
+        assertFailsWith<AssertionError> {
+            assertThat(shortArrayOf(0, 1, 2)).isEqualTo(shortArrayOf(0, 1, 3))
+        }
+    }
+
+    @Test
+    fun isEqualToCharArray() {
+        assertThat(charArrayOf('a', 'b', 'c')).isEqualTo(charArrayOf('a', 'b', 'c'))
+    }
+
+    @Test
+    fun isEqualToCharArrayEmpty() {
+        assertThat(charArrayOf()).isEqualTo(charArrayOf())
+    }
+
+    @Test
+    fun isEqualToCharArrayFailsNotEqual() {
+        assertFailsWith<AssertionError> {
+            assertThat(charArrayOf('a', 'b', 'c')).isEqualTo(charArrayOf('a', 'b', 'd'))
+        }
+    }
+
+    @Test
     fun isNotEqualToWithNulls() {
         val o: Any? = null
         assertThat(o).isNotEqualTo("a")
