@@ -319,6 +319,7 @@ public final class ComplicationHelperActivity extends ComponentActivity
     }
 
     @Override
+    @SuppressWarnings("deprecation") //TODO: Use ActivityResultContract
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
