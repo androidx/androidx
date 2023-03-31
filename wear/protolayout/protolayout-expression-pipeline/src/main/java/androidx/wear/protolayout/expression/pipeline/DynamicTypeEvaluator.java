@@ -122,8 +122,7 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                 }
             };
 
-    @NonNull
-    private static final StateStore EMPTY_STATE_STORE = new StateStore(emptyMap());
+    @NonNull private static final StateStore EMPTY_STATE_STORE = new StateStore(emptyMap());
 
     @NonNull private final Config mConfig;
     @NonNull private final StateStore mStateStore;
@@ -361,7 +360,11 @@ public class DynamicTypeEvaluator implements AutoCloseable {
             @NonNull ULocale locale,
             @NonNull DynamicTypeValueReceiver<String> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(stringSource, consumer, locale, resultBuilder);
+        bindRecursively(
+                stringSource,
+                new DynamicTypeValueReceiverOnExecutor<>(consumer),
+                locale,
+                resultBuilder);
         return new BoundDynamicTypeImpl(resultBuilder);
     }
 
@@ -405,7 +408,11 @@ public class DynamicTypeEvaluator implements AutoCloseable {
             @NonNull DynamicInt32 int32Source,
             @NonNull DynamicTypeValueReceiver<Integer> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(int32Source, consumer, resultBuilder, Optional.empty());
+        bindRecursively(
+                int32Source,
+                new DynamicTypeValueReceiverOnExecutor<>(consumer),
+                resultBuilder,
+                Optional.empty());
         return new BoundDynamicTypeImpl(resultBuilder);
     }
 
@@ -432,7 +439,11 @@ public class DynamicTypeEvaluator implements AutoCloseable {
             @NonNull DynamicTypeValueReceiver<Integer> consumer,
             int animationFallbackValue) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(int32Source, consumer, resultBuilder, Optional.of(animationFallbackValue));
+        bindRecursively(
+                int32Source,
+                new DynamicTypeValueReceiverOnExecutor<>(consumer),
+                resultBuilder,
+                Optional.of(animationFallbackValue));
         return new BoundDynamicTypeImpl(resultBuilder);
     }
 
@@ -479,7 +490,11 @@ public class DynamicTypeEvaluator implements AutoCloseable {
             @NonNull DynamicTypeValueReceiver<Float> consumer,
             float animationFallbackValue) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(floatSource, consumer, resultBuilder, Optional.of(animationFallbackValue));
+        bindRecursively(
+                floatSource,
+                new DynamicTypeValueReceiverOnExecutor<>(consumer),
+                resultBuilder,
+                Optional.of(animationFallbackValue));
         return new BoundDynamicTypeImpl(resultBuilder);
     }
 
@@ -498,7 +513,11 @@ public class DynamicTypeEvaluator implements AutoCloseable {
     public BoundDynamicType bind(
             @NonNull DynamicFloat floatSource, @NonNull DynamicTypeValueReceiver<Float> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(floatSource, consumer, resultBuilder, Optional.empty());
+        bindRecursively(
+                floatSource,
+                new DynamicTypeValueReceiverOnExecutor<>(consumer),
+                resultBuilder,
+                Optional.empty());
         return new BoundDynamicTypeImpl(resultBuilder);
     }
 
@@ -542,7 +561,11 @@ public class DynamicTypeEvaluator implements AutoCloseable {
             @NonNull DynamicColor colorSource,
             @NonNull DynamicTypeValueReceiver<Integer> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(colorSource, consumer, resultBuilder, Optional.empty());
+        bindRecursively(
+                colorSource,
+                new DynamicTypeValueReceiverOnExecutor<>(consumer),
+                resultBuilder,
+                Optional.empty());
         return new BoundDynamicTypeImpl(resultBuilder);
     }
 
@@ -565,7 +588,11 @@ public class DynamicTypeEvaluator implements AutoCloseable {
             @NonNull DynamicTypeValueReceiver<Integer> consumer,
             int animationFallbackValue) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(colorSource, consumer, resultBuilder, Optional.of(animationFallbackValue));
+        bindRecursively(
+                colorSource,
+                new DynamicTypeValueReceiverOnExecutor<>(consumer),
+                resultBuilder,
+                Optional.of(animationFallbackValue));
         return new BoundDynamicTypeImpl(resultBuilder);
     }
 
@@ -609,7 +636,8 @@ public class DynamicTypeEvaluator implements AutoCloseable {
             @NonNull DynamicDuration durationSource,
             @NonNull DynamicTypeValueReceiver<Duration> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(durationSource, consumer, resultBuilder);
+        bindRecursively(
+                durationSource, new DynamicTypeValueReceiverOnExecutor<>(consumer), resultBuilder);
         return new BoundDynamicTypeImpl(resultBuilder);
     }
 
@@ -653,7 +681,8 @@ public class DynamicTypeEvaluator implements AutoCloseable {
             @NonNull DynamicInstant instantSource,
             @NonNull DynamicTypeValueReceiver<Instant> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(instantSource, consumer, resultBuilder);
+        bindRecursively(
+                instantSource, new DynamicTypeValueReceiverOnExecutor<>(consumer), resultBuilder);
         return new BoundDynamicTypeImpl(resultBuilder);
     }
 
@@ -694,7 +723,8 @@ public class DynamicTypeEvaluator implements AutoCloseable {
     public BoundDynamicType bind(
             @NonNull DynamicBool boolSource, @NonNull DynamicTypeValueReceiver<Boolean> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(boolSource, consumer, resultBuilder);
+        bindRecursively(
+                boolSource, new DynamicTypeValueReceiverOnExecutor<>(consumer), resultBuilder);
         return new BoundDynamicTypeImpl(resultBuilder);
     }
 
@@ -704,7 +734,7 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      */
     private void bindRecursively(
             @NonNull DynamicString stringSource,
-            @NonNull DynamicTypeValueReceiver<String> consumer,
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<String> consumer,
             @NonNull ULocale locale,
             @NonNull List<DynamicDataNode<?>> resultBuilder) {
         DynamicDataNode<?> node;
@@ -800,7 +830,7 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      */
     private void bindRecursively(
             @NonNull DynamicInt32 int32Source,
-            @NonNull DynamicTypeValueReceiver<Integer> consumer,
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<Integer> consumer,
             @NonNull List<DynamicDataNode<?>> resultBuilder,
             @NonNull Optional<Integer> animationFallbackValue) {
         DynamicDataNode<Integer> node;
@@ -959,7 +989,7 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      */
     private void bindRecursively(
             @NonNull DynamicDuration durationSource,
-            @NonNull DynamicTypeValueReceiver<Duration> consumer,
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<Duration> consumer,
             @NonNull List<DynamicDataNode<?>> resultBuilder) {
         DynamicDataNode<?> node;
 
@@ -991,7 +1021,7 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      */
     private void bindRecursively(
             @NonNull DynamicInstant instantSource,
-            @NonNull DynamicTypeValueReceiver<Instant> consumer,
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<Instant> consumer,
             @NonNull List<DynamicDataNode<?>> resultBuilder) {
         DynamicDataNode<?> node;
 
@@ -1018,7 +1048,7 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      */
     private void bindRecursively(
             @NonNull DynamicFloat floatSource,
-            @NonNull DynamicTypeValueReceiver<Float> consumer,
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<Float> consumer,
             @NonNull List<DynamicDataNode<?>> resultBuilder,
             @NonNull Optional<Float> animationFallbackValue) {
         DynamicDataNode<?> node;
@@ -1155,7 +1185,7 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      */
     private void bindRecursively(
             @NonNull DynamicColor colorSource,
-            @NonNull DynamicTypeValueReceiver<Integer> consumer,
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<Integer> consumer,
             @NonNull List<DynamicDataNode<?>> resultBuilder,
             @NonNull Optional<Integer> animationFallbackValue) {
         DynamicDataNode<?> node;
@@ -1238,7 +1268,7 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      */
     private void bindRecursively(
             @NonNull DynamicBool boolSource,
-            @NonNull DynamicTypeValueReceiver<Boolean> consumer,
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<Boolean> consumer,
             @NonNull List<DynamicDataNode<?>> resultBuilder) {
         DynamicDataNode<?> node;
 
@@ -1368,10 +1398,14 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      * Executor}.
      */
     private static class DynamicTypeValueReceiverOnExecutor<T>
-            implements DynamicTypeValueReceiver<T> {
+            implements DynamicTypeValueReceiverWithPreUpdate<T> {
 
         @NonNull private final Executor mExecutor;
         @NonNull private final DynamicTypeValueReceiver<T> mConsumer;
+
+        DynamicTypeValueReceiverOnExecutor(@NonNull DynamicTypeValueReceiver<T> consumer) {
+            this(Runnable::run, consumer);
+        }
 
         DynamicTypeValueReceiverOnExecutor(
                 @NonNull Executor executor, @NonNull DynamicTypeValueReceiver<T> consumer) {
@@ -1379,11 +1413,10 @@ public class DynamicTypeEvaluator implements AutoCloseable {
             this.mExecutor = executor;
         }
 
+        /** This method is noop in this class. */
         @Override
         @SuppressWarnings("ExecutorTaskName")
-        public void onPreUpdate() {
-            mExecutor.execute(mConsumer::onPreUpdate);
-        }
+        public void onPreUpdate() {}
 
         @Override
         @SuppressWarnings("ExecutorTaskName")

@@ -49,10 +49,7 @@ import java.util.concurrent.Executor;
  */
 public interface SensorGateway extends Closeable {
 
-    /**
-     * Sensor data types that can be subscribed to from {@link SensorGateway}.
-     *
-     */
+    /** Sensor data types that can be subscribed to from {@link SensorGateway}. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
     @RequiresApi(VERSION_CODES.Q)
@@ -142,7 +139,6 @@ public interface SensorGateway extends Closeable {
     /**
      * Enables/unpauses sending updates to the consumers. All cached updates (while updates were
      * paused) for data types will be delivered by sending the latest data.
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
     void enableUpdates();
@@ -150,7 +146,6 @@ public interface SensorGateway extends Closeable {
     /**
      * Disables/pauses sending updates to the consumers. While paused, updates will be cached to be
      * delivered after unpausing.
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
     void disableUpdates();
@@ -164,8 +159,8 @@ public interface SensorGateway extends Closeable {
      * type.
      *
      * <p>Note that the callback will be executed on the single background thread (implementation
-     * dependent). To specify the execution thread, use {@link
-     * #registerSensorGatewayConsumer(int, Executor, Consumer)}.
+     * dependent). To specify the execution thread, use {@link #registerSensorGatewayConsumer(int,
+     * Executor, Consumer)}.
      *
      * @throws SecurityException if the provider does not have permission to provide requested data
      *     type.
@@ -175,9 +170,9 @@ public interface SensorGateway extends Closeable {
             @SensorDataType int requestedDataType, @NonNull Consumer consumer);
 
     /**
-     * Register for updates for the given data type. This may cause {@link Consumer} to
-     * immediately fire if there is suitable cached data, otherwise {@link Consumer} will fire
-     * when there is appropriate updates to the requested sensor data.
+     * Register for updates for the given data type. This may cause {@link Consumer} to immediately
+     * fire if there is suitable cached data, otherwise {@link Consumer} will fire when there is
+     * appropriate updates to the requested sensor data.
      *
      * <p>Implementations should check if the provider has permission to provide the requested data
      * type.

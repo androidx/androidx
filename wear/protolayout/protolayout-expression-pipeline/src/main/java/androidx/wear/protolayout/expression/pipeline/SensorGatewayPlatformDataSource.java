@@ -34,7 +34,8 @@ class SensorGatewayPlatformDataSource {
     private static final String TAG = "SensorGtwPltDataSource";
     final Executor mUiExecutor;
     private final SensorGateway mSensorGateway;
-    private final Map<DynamicTypeValueReceiver<Integer>, SensorGateway.Consumer>
+    private final Map<
+            DynamicTypeValueReceiverWithPreUpdate<Integer>, SensorGateway.Consumer>
             mCallbackToRegisteredSensorConsumer = new ArrayMap<>();
 
     SensorGatewayPlatformDataSource(Executor uiExecutor, SensorGateway sensorGateway) {
@@ -60,7 +61,8 @@ class SensorGatewayPlatformDataSource {
 
     @SuppressWarnings("ExecutorTaskName")
     public void registerForData(
-            PlatformInt32SourceType sourceType, DynamicTypeValueReceiver<Integer> callback) {
+            PlatformInt32SourceType sourceType,
+            DynamicTypeValueReceiverWithPreUpdate<Integer> callback) {
         @SensorDataType int sensorDataType = mapSensorPlatformSource(sourceType);
         SensorGateway.Consumer sensorConsumer =
                 new SensorGateway.Consumer() {
@@ -84,7 +86,8 @@ class SensorGatewayPlatformDataSource {
     }
 
     public void unregisterForData(
-            PlatformInt32SourceType sourceType, DynamicTypeValueReceiver<Integer> consumer) {
+            PlatformInt32SourceType sourceType,
+            DynamicTypeValueReceiverWithPreUpdate<Integer> consumer) {
         @SensorDataType int sensorDataType = mapSensorPlatformSource(sourceType);
         SensorGateway.Consumer sensorConsumer = mCallbackToRegisteredSensorConsumer.get(consumer);
         if (sensorConsumer != null) {
