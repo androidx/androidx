@@ -55,7 +55,7 @@ class AnimationHandler {
      */
     void onAnimationFrame(long frameTime) {
         AnimationHandler.this.doAnimationFrame(frameTime);
-        if (getAnimationCallbacks().size() > 0) {
+        if (mAnimationCallbacks.size() > 0) {
             mProvider.postFrameCallback();
         }
     }
@@ -64,18 +64,13 @@ class AnimationHandler {
      * while being processed.
      */
 
-    static class AnimationCallbackData {
-        final SimpleArrayMap<AnimationFrameCallback, Long> mDelayedCallbackStartTime =
-                new SimpleArrayMap<>();
-        final ArrayList<AnimationFrameCallback> mAnimationCallbacks = new ArrayList<>();
-        boolean mListDirty = false;
-    }
-
-    public static AnimationHandler sAnimationHandler = null;
+    public static final ThreadLocal<AnimationHandler> sAnimationHandler = new ThreadLocal<>();
     private static AnimationHandler sTestHandler = null;
-    private static final ThreadLocal<AnimationCallbackData> sAnimationCallbackData =
-            new ThreadLocal<>();
     private final AnimationFrameCallbackProvider mProvider;
+    private final SimpleArrayMap<AnimationFrameCallback, Long> mDelayedCallbackStartTime =
+            new SimpleArrayMap<>();
+    private final ArrayList<AnimationFrameCallback> mAnimationCallbacks = new ArrayList<>();
+    boolean mListDirty = false;
 
     AnimationHandler(AnimationFrameCallbackProvider provider) {
         if (provider == null) {
@@ -93,10 +88,10 @@ class AnimationHandler {
         if (sTestHandler != null) {
             return sTestHandler;
         }
-        if (sAnimationHandler == null) {
-            sAnimationHandler = new AnimationHandler(null);
+        if (sAnimationHandler.get() == null) {
+            sAnimationHandler.set(new AnimationHandler(null));
         }
-        return sAnimationHandler;
+        return sAnimationHandler.get();
     }
 
     static void setTestHandler(AnimationHandler handler) {
@@ -111,55 +106,15 @@ class AnimationHandler {
         return mProvider.getFrameDelay();
     }
 
-    private SimpleArrayMap<AnimationFrameCallback, Long> getDelayedCallbackStartTime() {
-        AnimationCallbackData data = sAnimationCallbackData.get();
-        if (data == null) {
-            data = new AnimationCallbackData();
-            sAnimationCallbackData.set(data);
-        }
-
-        return data.mDelayedCallbackStartTime;
-    }
-
-    private ArrayList<AnimationFrameCallback> getAnimationCallbacks() {
-        AnimationCallbackData data = sAnimationCallbackData.get();
-        if (data == null) {
-            data = new AnimationCallbackData();
-            sAnimationCallbackData.set(data);
-        }
-
-        return data.mAnimationCallbacks;
-    }
-
-    private boolean isListDirty() {
-        AnimationCallbackData data = sAnimationCallbackData.get();
-        if (data == null) {
-            data = new AnimationCallbackData();
-            sAnimationCallbackData.set(data);
-        }
-
-        return data.mListDirty;
-    }
-
-    private void setListDirty(boolean dirty) {
-        AnimationCallbackData data = sAnimationCallbackData.get();
-        if (data == null) {
-            data = new AnimationCallbackData();
-            sAnimationCallbackData.set(data);
-        }
-
-        data.mListDirty = dirty;
-    }
-
     /**
      * Register to get a callback on the next frame after the delay.
      */
     void addAnimationFrameCallback(final AnimationFrameCallback callback) {
-        if (getAnimationCallbacks().size() == 0) {
+        if (mAnimationCallbacks.size() == 0) {
             mProvider.postFrameCallback();
         }
-        if (!getAnimationCallbacks().contains(callback)) {
-            getAnimationCallbacks().add(callback);
+        if (!mAnimationCallbacks.contains(callback)) {
+            mAnimationCallbacks.add(callback);
         }
         mProvider.onNewCallbackAdded(callback);
     }
@@ -169,30 +124,30 @@ class AnimationHandler {
      * timing.
      */
     public void removeCallback(AnimationFrameCallback callback) {
-        getDelayedCallbackStartTime().remove(callback);
-        int id = getAnimationCallbacks().indexOf(callback);
+        mDelayedCallbackStartTime.remove(callback);
+        int id = mAnimationCallbacks.indexOf(callback);
         if (id >= 0) {
-            getAnimationCallbacks().set(id, null);
-            setListDirty(true);
+            mAnimationCallbacks.set(id, null);
+            mListDirty = true;
         }
     }
 
     void autoCancelBasedOn(ObjectAnimator objectAnimator) {
-        for (int i = getAnimationCallbacks().size() - 1; i >= 0; i--) {
-            AnimationFrameCallback cb = getAnimationCallbacks().get(i);
+        for (int i = mAnimationCallbacks.size() - 1; i >= 0; i--) {
+            AnimationFrameCallback cb = mAnimationCallbacks.get(i);
             if (cb == null) {
                 continue;
             }
             if (objectAnimator.shouldAutoCancel(cb)) {
-                ((Animator) getAnimationCallbacks().get(i)).cancel();
+                ((Animator) mAnimationCallbacks.get(i)).cancel();
             }
         }
     }
 
     private void doAnimationFrame(long frameTime) {
         long currentTime = SystemClock.uptimeMillis();
-        for (int i = 0; i < getAnimationCallbacks().size(); i++) {
-            final AnimationFrameCallback callback = getAnimationCallbacks().get(i);
+        for (int i = 0; i < mAnimationCallbacks.size(); i++) {
+            final AnimationFrameCallback callback = mAnimationCallbacks.get(i);
             if (callback == null) {
                 continue;
             }
@@ -210,33 +165,33 @@ class AnimationHandler {
      * @return true if they have passed the initial delay or have no delay, false otherwise.
      */
     private boolean isCallbackDue(AnimationFrameCallback callback, long currentTime) {
-        Long startTime = getDelayedCallbackStartTime().get(callback);
+        Long startTime = mDelayedCallbackStartTime.get(callback);
         if (startTime == null) {
             return true;
         }
         if (startTime < currentTime) {
-            getDelayedCallbackStartTime().remove(callback);
+            mDelayedCallbackStartTime.remove(callback);
             return true;
         }
         return false;
     }
 
     private void cleanUpList() {
-        if (isListDirty()) {
-            for (int i = getAnimationCallbacks().size() - 1; i >= 0; i--) {
-                if (getAnimationCallbacks().get(i) == null) {
-                    getAnimationCallbacks().remove(i);
+        if (mListDirty) {
+            for (int i = mAnimationCallbacks.size() - 1; i >= 0; i--) {
+                if (mAnimationCallbacks.get(i) == null) {
+                    mAnimationCallbacks.remove(i);
                 }
             }
-            setListDirty(false);
+            mListDirty = false;
         }
     }
 
     private int getCallbackSize() {
         int count = 0;
-        int size = getAnimationCallbacks().size();
+        int size = mAnimationCallbacks.size();
         for (int i = size - 1; i >= 0; i--) {
-            if (getAnimationCallbacks().get(i) != null) {
+            if (mAnimationCallbacks.get(i) != null) {
                 count++;
             }
         }
