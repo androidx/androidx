@@ -17,6 +17,7 @@
 package androidx.room.integration.kotlintestapp
 
 import android.database.Cursor
+import androidx.kruth.assertThat
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
@@ -32,7 +33,6 @@ import androidx.room.util.useCursor
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test

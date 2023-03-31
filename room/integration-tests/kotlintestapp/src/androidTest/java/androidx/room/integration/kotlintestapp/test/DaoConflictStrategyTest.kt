@@ -16,6 +16,7 @@
 package androidx.room.integration.kotlintestapp.test
 
 import android.content.Context
+import androidx.kruth.assertThat
 import androidx.room.Room
 import androidx.room.integration.kotlintestapp.TestDatabase
 import androidx.room.integration.kotlintestapp.dao.PetDao
@@ -25,7 +26,6 @@ import androidx.room.integration.kotlintestapp.vo.Toy
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
