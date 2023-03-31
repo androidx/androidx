@@ -23,7 +23,6 @@ import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
-import androidx.appactions.interaction.capabilities.core.impl.converters.PropertyConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.MESSAGE_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.RECIPIENT_TYPE_SPEC
@@ -59,7 +58,7 @@ private val ACTION_SPEC =
             { property -> Optional.ofNullable(property.messageText) },
             CreateMessage.Argument.Builder::setMessageText,
             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-            PropertyConverter::stringValueToProto
+            TypeConverters.STRING_VALUE_ENTITY_CONVERTER
         )
         .bindOptionalOutput(
             "message",

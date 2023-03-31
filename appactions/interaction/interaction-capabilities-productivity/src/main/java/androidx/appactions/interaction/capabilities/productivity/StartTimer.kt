@@ -21,7 +21,6 @@ import androidx.appactions.interaction.capabilities.core.BaseSession
 import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
 import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
-import androidx.appactions.interaction.capabilities.core.impl.converters.PropertyConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
@@ -49,14 +48,14 @@ private val ACTION_SPEC =
             { property -> Optional.ofNullable(property.identifier) },
             StartTimer.Argument.Builder::setIdentifier,
             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-            PropertyConverter::stringValueToProto
+            TypeConverters.STRING_VALUE_ENTITY_CONVERTER
         )
         .bindOptionalParameter(
             "timer.name",
             { property -> Optional.ofNullable(property.name) },
             StartTimer.Argument.Builder::setName,
             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-            PropertyConverter::stringValueToProto
+            TypeConverters.STRING_VALUE_ENTITY_CONVERTER
         )
         .bindOptionalParameter(
             "timer.duration",

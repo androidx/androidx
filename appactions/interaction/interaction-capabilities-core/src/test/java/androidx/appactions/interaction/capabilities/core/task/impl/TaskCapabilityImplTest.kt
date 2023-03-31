@@ -27,7 +27,6 @@ import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInterna
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
-import androidx.appactions.interaction.capabilities.core.impl.converters.PropertyConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.SearchActionConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.LIST_ITEM_TYPE_SPEC
@@ -976,14 +975,14 @@ class TaskCapabilityImplTest {
                     Property::requiredEntityField,
                     Argument.Builder::setRequiredEntityField,
                     TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
-                    PropertyConverter::entityToProto
+                    TypeConverters.ENTITY_ENTITY_CONVERTER
                 )
                 .bindOptionalParameter(
                     "optional",
                     Property::optionalStringField,
                     Argument.Builder::setOptionalStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                    PropertyConverter::stringValueToProto
+                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
                 )
                 .bindOptionalParameter(
                     "optionalEnum",
@@ -997,7 +996,7 @@ class TaskCapabilityImplTest {
                     Property::repeatedStringField,
                     Argument.Builder::setRepeatedStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                    PropertyConverter::stringValueToProto
+                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
                 )
                 .bindOptionalOutput(
                     "optionalStringOutput",
