@@ -22,6 +22,7 @@ import android.app.sdksandbox.sdkprovider.SdkSandboxController
 import android.content.Context
 import android.os.IBinder
 import android.os.ext.SdkExtensions
+import androidx.activity.OnBackPressedDispatcher
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
@@ -46,12 +47,7 @@ internal class PlatformUDCImpl(
             val platformHandler: SdkSandboxActivityHandler =
             compatToPlatformMap[handlerCompat]
                 ?: SdkSandboxActivityHandler { platformActivity: Activity ->
-                    val activityHolder = object : ActivityHolder {
-                        override fun getActivity(): Activity {
-                            return platformActivity
-                        }
-                    }
-                    handlerCompat.onActivityCreated(activityHolder)
+                    handlerCompat.onActivityCreated(ActivityHolderImpl(platformActivity))
                 }
             val token = controller.registerSdkSandboxActivityHandler(platformHandler)
             compatToPlatformMap[handlerCompat] = platformHandler
@@ -67,6 +63,26 @@ internal class PlatformUDCImpl(
                 compatToPlatformMap[handlerCompat] ?: return
             controller.unregisterSdkSandboxActivityHandler(platformHandler)
             compatToPlatformMap.remove(handlerCompat)
+        }
+    }
+
+    internal class ActivityHolderImpl(
+        private val platformActivity: Activity
+    ) : ActivityHolder {
+        private val dispatcher = OnBackPressedDispatcher {}
+
+        init {
+            // TODO(b/276315438) Set android:enableOnBackInvokedCallback="true" when
+            //  creating the manifest file
+            dispatcher.setOnBackInvokedDispatcher(platformActivity.onBackInvokedDispatcher)
+        }
+
+        override fun getActivity(): Activity {
+            return platformActivity
+        }
+
+        override fun getOnBackPressedDispatcher(): OnBackPressedDispatcher {
+            return dispatcher
         }
     }
 

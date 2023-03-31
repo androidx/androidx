@@ -55,6 +55,7 @@ package androidx.privacysandbox.sdkruntime.core.activity {
 
   public interface ActivityHolder {
     method public android.app.Activity getActivity();
+    method public androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
   }
 
   public interface SdkSandboxActivityHandlerCompat {
