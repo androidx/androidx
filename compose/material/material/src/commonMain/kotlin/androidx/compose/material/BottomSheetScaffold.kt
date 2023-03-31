@@ -333,9 +333,8 @@ fun BottomSheetScaffold(
             topBar = topBar,
             body = content,
             bottomSheet = { layoutHeight ->
-                BottomSheet(
-                    state = scaffoldState.bottomSheetState,
-                    modifier = Modifier
+                val nestedScroll = if (sheetGesturesEnabled) {
+                    Modifier
                         .nestedScroll(
                             remember(scaffoldState.bottomSheetState.swipeableState) {
                                 ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
@@ -344,6 +343,10 @@ fun BottomSheetScaffold(
                                 )
                             }
                         )
+                } else Modifier
+                BottomSheet(
+                    state = scaffoldState.bottomSheetState,
+                    modifier = nestedScroll
                         .fillMaxWidth()
                         .requiredHeightIn(min = sheetPeekHeight),
                     anchors = { state, sheetSize ->
