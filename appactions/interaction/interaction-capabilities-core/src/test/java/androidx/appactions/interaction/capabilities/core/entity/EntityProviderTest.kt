@@ -25,6 +25,7 @@ import androidx.appactions.interaction.protobuf.ByteString
 import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -105,7 +106,7 @@ class EntityProviderTest {
     }
 
     @Test
-    fun invalidEntity_returnError() {
+    fun invalidEntity_returnError() = runBlocking<Unit> {
         val entityProvider = OrderProvider(
             "id",
             createExternalResponse(
@@ -114,7 +115,7 @@ class EntityProviderTest {
             ),
         )
 
-        val response: GroundingResponse? =
+        val response =
             entityProvider.lookupInternal(GroundingRequest.getDefaultInstance())
 
         assertThat(response)
@@ -127,7 +128,7 @@ class EntityProviderTest {
     }
 
     @Test
-    fun errorInExternalResponse_returnError() {
+    fun errorInExternalResponse_returnError() = runBlocking<Unit> {
         val entityProvider = OrderProvider(
             "id",
             createExternalResponse(
@@ -136,14 +137,15 @@ class EntityProviderTest {
             ),
         )
 
-        val response: GroundingResponse? = entityProvider.lookupInternal(VALID_GROUNDING_REQUEST)
+        val response =
+            entityProvider.lookupInternal(VALID_GROUNDING_REQUEST)
 
         assertThat(response)
             .isEqualTo(createInternalResponse(listOf(), GroundingResponse.Status.CANCELED))
     }
 
     @Test
-    fun success() {
+    fun success() = runBlocking<Unit> {
         val candidateBuilder: EntityLookupCandidate.Builder<Order> =
             EntityLookupCandidate.Builder()
         candidateBuilder.setCandidate(Order.newBuilder().setName("testing-order").build())
@@ -158,7 +160,9 @@ class EntityProviderTest {
             ),
         )
 
-        val response: GroundingResponse? = entityProvider.lookupInternal(VALID_GROUNDING_REQUEST)
+        val response =
+            entityProvider.lookupInternal(VALID_GROUNDING_REQUEST)
+
         assertThat(response)
             .isEqualTo(
                 createInternalResponse(
