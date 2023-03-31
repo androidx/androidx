@@ -23,7 +23,6 @@ import android.os.SystemClock;
 import android.view.Choreographer;
 
 import androidx.annotation.RequiresApi;
-import androidx.collection.SimpleArrayMap;
 
 import java.util.ArrayList;
 
@@ -67,8 +66,6 @@ class AnimationHandler {
     public static final ThreadLocal<AnimationHandler> sAnimationHandler = new ThreadLocal<>();
     private static AnimationHandler sTestHandler = null;
     private final AnimationFrameCallbackProvider mProvider;
-    private final SimpleArrayMap<AnimationFrameCallback, Long> mDelayedCallbackStartTime =
-            new SimpleArrayMap<>();
     private final ArrayList<AnimationFrameCallback> mAnimationCallbacks = new ArrayList<>();
     boolean mListDirty = false;
 
@@ -124,7 +121,6 @@ class AnimationHandler {
      * timing.
      */
     public void removeCallback(AnimationFrameCallback callback) {
-        mDelayedCallbackStartTime.remove(callback);
         int id = mAnimationCallbacks.indexOf(callback);
         if (id >= 0) {
             mAnimationCallbacks.set(id, null);
@@ -145,35 +141,14 @@ class AnimationHandler {
     }
 
     private void doAnimationFrame(long frameTime) {
-        long currentTime = SystemClock.uptimeMillis();
         for (int i = 0; i < mAnimationCallbacks.size(); i++) {
             final AnimationFrameCallback callback = mAnimationCallbacks.get(i);
             if (callback == null) {
                 continue;
             }
-            if (isCallbackDue(callback, currentTime)) {
-                callback.doAnimationFrame(frameTime);
-            }
+            callback.doAnimationFrame(frameTime);
         }
         cleanUpList();
-    }
-
-    /**
-     * Remove the callbacks from mDelayedCallbackStartTime once they have passed the initial delay
-     * so that they can start getting frame callbacks.
-     *
-     * @return true if they have passed the initial delay or have no delay, false otherwise.
-     */
-    private boolean isCallbackDue(AnimationFrameCallback callback, long currentTime) {
-        Long startTime = mDelayedCallbackStartTime.get(callback);
-        if (startTime == null) {
-            return true;
-        }
-        if (startTime < currentTime) {
-            mDelayedCallbackStartTime.remove(callback);
-            return true;
-        }
-        return false;
     }
 
     private void cleanUpList() {
