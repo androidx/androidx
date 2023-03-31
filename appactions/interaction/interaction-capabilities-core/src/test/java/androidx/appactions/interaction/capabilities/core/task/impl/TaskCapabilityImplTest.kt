@@ -16,13 +16,13 @@
 package androidx.appactions.interaction.capabilities.core.task.impl
 
 import android.util.SizeF
-import androidx.appactions.interaction.capabilities.core.ActionCapability
+import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.InitArg
 import androidx.appactions.interaction.capabilities.core.SessionFactory
-import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySession
+import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
@@ -85,7 +85,7 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class TaskCapabilityImplTest {
-    val capability: ActionCapability =
+    val capability: Capability =
         createCapability<EmptyTaskUpdater>(
             SINGLE_REQUIRED_FIELD_PROPERTY,
             sessionFactory =
@@ -123,7 +123,7 @@ class TaskCapabilityImplTest {
     }
 
     @Test
-    fun actionCapabilitySession_getUiHandle() {
+    fun capabilitySession_getUiHandle() {
         val externalSession = object : Session {}
         val capability =
             createCapability(
@@ -140,7 +140,7 @@ class TaskCapabilityImplTest {
     @kotlin.Throws(Exception::class)
     fun onInitInvoked_invokedOnce() {
         val onSuccessInvocationCount = AtomicInteger(0)
-        val capability: ActionCapability =
+        val capability: Capability =
             createCapability(
                 SINGLE_REQUIRED_FIELD_PROPERTY,
                 sessionFactory =
@@ -224,7 +224,7 @@ class TaskCapabilityImplTest {
     @Test
     @kotlin.Throws(Exception::class)
     fun fulfillmentType_unknown_errorReported() {
-        val capability: ActionCapability =
+        val capability: Capability =
             createCapability(
                 SINGLE_REQUIRED_FIELD_PROPERTY,
                 sessionFactory =
@@ -304,7 +304,7 @@ class TaskCapabilityImplTest {
                     )
                     .build()
             }
-        val capability: ActionCapability =
+        val capability: Capability =
             TaskCapabilityImpl(
                 "fakeId",
                 CapabilityTwoEntityValues.ACTION_SPEC,
@@ -315,7 +315,7 @@ class TaskCapabilityImplTest {
             )
 
         val session = capability.createSession(hostProperties)
-        assertThat(session.status).isEqualTo(ActionCapabilitySession.Status.UNINITIATED)
+        assertThat(session.status).isEqualTo(CapabilitySession.Status.UNINITIATED)
 
         // turn 1
         val turn1Success: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
@@ -328,7 +328,7 @@ class TaskCapabilityImplTest {
             buildActionCallback(turn1Success),
         )
         assertThat(turn1Success.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
-        assertThat(session.status).isEqualTo(ActionCapabilitySession.Status.IN_PROGRESS)
+        assertThat(session.status).isEqualTo(CapabilitySession.Status.IN_PROGRESS)
 
         // turn 2
         val turn2Success: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
@@ -343,7 +343,7 @@ class TaskCapabilityImplTest {
             buildActionCallback(turn2Success),
         )
         assertThat(turn2Success.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
-        assertThat(session.status).isEqualTo(ActionCapabilitySession.Status.COMPLETED)
+        assertThat(session.status).isEqualTo(CapabilitySession.Status.COMPLETED)
 
         // turn 3
         val turn3Success: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
@@ -352,7 +352,7 @@ class TaskCapabilityImplTest {
             buildActionCallback(turn3Success),
         )
         assertThat(turn3Success.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
-        assertThat(session.status).isEqualTo(ActionCapabilitySession.Status.DESTROYED)
+        assertThat(session.status).isEqualTo(CapabilitySession.Status.DESTROYED)
     }
 
     @Test
@@ -402,7 +402,7 @@ class TaskCapabilityImplTest {
                     )
                     .build()
             }
-        val capability: ActionCapability =
+        val capability: Capability =
             TaskCapabilityImpl(
                 "fakeId",
                 CapabilityTwoEntityValues.ACTION_SPEC,
@@ -466,7 +466,7 @@ class TaskCapabilityImplTest {
                         .build(),
                 )
                 .build()
-        val capability: ActionCapability =
+        val capability: Capability =
             createCapability(
                 property,
                 sessionFactory = SessionFactory { Session.DEFAULT },
@@ -524,7 +524,7 @@ class TaskCapabilityImplTest {
                 .setName(entityValue.value)
                 .build()
         }
-        val capability: ActionCapability =
+        val capability: Capability =
             createCapability(
                 SINGLE_REQUIRED_FIELD_PROPERTY,
                 sessionFactory = {
@@ -724,7 +724,7 @@ class TaskCapabilityImplTest {
                     .build()
             }
 
-        val capability: ActionCapability =
+        val capability: Capability =
             TaskCapabilityImpl(
                 "selectListItem",
                 CapabilityStructFill.ACTION_SPEC,

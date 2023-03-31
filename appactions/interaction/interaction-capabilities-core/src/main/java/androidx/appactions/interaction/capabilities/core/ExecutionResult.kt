@@ -18,7 +18,7 @@ package androidx.appactions.interaction.capabilities.core
 
 import java.util.Objects
 /**
- * Class that represents the response after an ActionCapability fulfills an action.
+ * Class that represents the response after a Capability fulfills an action.
  */
 class ExecutionResult<OutputT> internal constructor(
     val startDictation: Boolean,

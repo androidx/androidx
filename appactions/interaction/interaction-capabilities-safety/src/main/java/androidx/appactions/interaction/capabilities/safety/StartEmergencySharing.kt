@@ -17,7 +17,7 @@
 package androidx.appactions.interaction.capabilities.safety
 
 import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
-import androidx.appactions.interaction.capabilities.core.ActionCapability
+import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.BaseSession
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
@@ -59,7 +59,7 @@ class StartEmergencySharing private constructor() {
         CapabilityBuilderBase<
             CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session,
             >(ACTION_SPEC) {
-        override fun build(): ActionCapability {
+        override fun build(): Capability {
             super.setProperty(Property())
             return super.build()
         }

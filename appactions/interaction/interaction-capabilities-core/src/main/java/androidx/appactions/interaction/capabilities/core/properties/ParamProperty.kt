@@ -17,7 +17,7 @@
 package androidx.appactions.interaction.capabilities.core.properties
 
 /**
- * Base class for the property which describes a parameter for {@code ActionCapability}. This class
+ * Base class for the property which describes a parameter for {@code Capability}. This class
  * should not be used directly. Instead, use the typed property classes such as {@link
  * StringProperty}, etc.
  *
@@ -39,7 +39,7 @@ sealed interface ParamProperty<V> {
     val isValueMatchRequired: Boolean
 
     /**
-     * If true, the {@code ActionCapability} will be rejected by assistant if corresponding param is
+     * If true, the {@code Capability} will be rejected by assistant if corresponding param is
      * set in argument. And the value of |isRequired| and |entityMatchRequired| will also be ignored
      * by assistant.
      */

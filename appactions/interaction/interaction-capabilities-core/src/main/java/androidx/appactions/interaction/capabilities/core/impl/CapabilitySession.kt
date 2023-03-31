@@ -22,10 +22,10 @@ import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
 /**
  * Internal interface for a session, contains developer's Session instance
  *
- * @hide
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface ActionCapabilitySession {
+interface CapabilitySession {
     /**
      * Executes the action and returns the result of execution.
      *
@@ -54,7 +54,7 @@ interface ActionCapabilitySession {
      */
     val state: AppDialogState
 
-    /** The current status of the ActionCapabilitySession. */
+    /** The current status of the CapabilitySession. */
     val status: Status
 
     /**
@@ -62,7 +62,7 @@ interface ActionCapabilitySession {
      */
     val uiHandle: Any
 
-    /** This enum describes the current status of the ActionCapabilitySession. */
+    /** This enum describes the current status of the CapabilitySession. */
     enum class Status {
         UNINITIATED,
         IN_PROGRESS,

@@ -16,7 +16,7 @@
 
 package androidx.appactions.interaction.service
 
-import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySession
+import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.ArgumentsWrapper
 import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal
 import androidx.appactions.interaction.capabilities.core.impl.TouchEventCallback
@@ -31,7 +31,7 @@ class SessionManagerTest {
 
     private val fakeSessionId = "12345"
     private val session1 =
-        object : ActionCapabilitySession {
+        object : CapabilitySession {
             override val uiHandle: Any
                 get() = this
 
@@ -42,14 +42,14 @@ class SessionManagerTest {
             override val state: AppActionsContext.AppDialogState
                 get() = AppActionsContext.AppDialogState.getDefaultInstance()
 
-            override val status: ActionCapabilitySession.Status
-                get() = ActionCapabilitySession.Status.IN_PROGRESS
+            override val status: CapabilitySession.Status
+                get() = CapabilitySession.Status.IN_PROGRESS
 
             override fun destroy() {}
         }
 
     private val session2 =
-        object : ActionCapabilitySession {
+        object : CapabilitySession {
             override val uiHandle: Any
                 get() = this
 
@@ -60,8 +60,8 @@ class SessionManagerTest {
             override val state: AppActionsContext.AppDialogState
                 get() = AppActionsContext.AppDialogState.getDefaultInstance()
 
-            override val status: ActionCapabilitySession.Status
-                get() = ActionCapabilitySession.Status.IN_PROGRESS
+            override val status: CapabilitySession.Status
+                get() = CapabilitySession.Status.IN_PROGRESS
 
             override fun destroy() {}
         }

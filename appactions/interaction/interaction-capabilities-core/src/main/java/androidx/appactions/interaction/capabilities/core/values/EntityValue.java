@@ -23,7 +23,7 @@ import com.google.auto.value.AutoValue;
 import java.util.Optional;
 
 /**
- * Represents an entity value for {@code ActionCapability} which includes a value and optionally an
+ * Represents an entity value for {@code Capability} which includes a value and optionally an
  * id.
  */
 @AutoValue

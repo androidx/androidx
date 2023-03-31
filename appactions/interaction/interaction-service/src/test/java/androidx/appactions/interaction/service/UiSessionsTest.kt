@@ -22,7 +22,7 @@ import android.widget.RemoteViews
 import androidx.appactions.interaction.capabilities.core.ActionExecutor
 import androidx.appactions.interaction.capabilities.core.BaseSession
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
-import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySession
+import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import androidx.appactions.interaction.service.test.R
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -40,7 +40,7 @@ import org.junit.runner.RunWith
 class UiSessionsTest {
 
     private val externalSession = object : BaseSession<String, String> {}
-    private val actionCapabilitySession = mock<ActionCapabilitySession>() {
+    private val capabilitySession = mock<CapabilitySession>() {
         on { this.uiHandle } doReturn(externalSession)
     }
     private val sessionId = "fakeSessionId"
@@ -75,7 +75,7 @@ class UiSessionsTest {
 
     @Before
     fun setup() {
-        SessionManager.putSession(sessionId, actionCapabilitySession)
+        SessionManager.putSession(sessionId, capabilitySession)
     }
     @After
     fun cleanup() {
@@ -126,12 +126,12 @@ class UiSessionsTest {
     @Test
     fun multipleSession_haveTheirOwnCache() {
         val externalSession1 = object : BaseSession<String, String> {}
-        val capabilitySession1 = mock<ActionCapabilitySession> {
+        val capabilitySession1 = mock<CapabilitySession> {
             on { this.uiHandle } doReturn(externalSession1)
         }
         val sessionId1 = "fakeSessionId1"
         val externalSession2 = object : BaseSession<String, String> {}
-        val capabilitySession2 = mock<ActionCapabilitySession> {
+        val capabilitySession2 = mock<CapabilitySession> {
             on { this.uiHandle } doReturn(externalSession2)
         }
         val sessionId2 = "fakeSessionId2"
@@ -168,7 +168,7 @@ class UiSessionsTest {
         val actionExecutor = ActionExecutor<String, String> {
             ExecutionResult.getDefaultInstance()
         }
-        val session = mock<ActionCapabilitySession> {
+        val session = mock<CapabilitySession> {
             on { this.uiHandle } doReturn(actionExecutor)
         }
         val sessionId = "actionExecutorSessionId"

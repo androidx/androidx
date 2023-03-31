@@ -21,7 +21,7 @@ import android.content.Intent
 import android.os.IBinder
 import android.util.Log
 import androidx.annotation.CallSuper
-import androidx.appactions.interaction.capabilities.core.ActionCapability
+import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.service.proto.AppInteractionServiceGrpc
 import io.grpc.Server
 import io.grpc.binder.AndroidComponentAddress
@@ -44,7 +44,7 @@ abstract class AppInteractionService : Service() {
      *
      * @return the list of capabilities that this service supports.
      */
-    abstract val registeredCapabilities: List<ActionCapability>
+    abstract val registeredCapabilities: List<Capability>
 
     /**
      * A list of [AppVerificationInfo] which define who is allowed to interact with the app's bound

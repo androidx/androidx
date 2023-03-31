@@ -17,7 +17,7 @@
 package androidx.appactions.interaction.capabilities.fitness.fitness
 
 import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
-import androidx.appactions.interaction.capabilities.core.ActionCapability
+import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.BaseSession
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
@@ -70,7 +70,7 @@ class StartExercise private constructor() {
                 Property.Builder().setName(name).build()
             }
 
-        override fun build(): ActionCapability {
+        override fun build(): Capability {
             // TODO(b/268369632): No-op remove empty property builder after Property od removed
             super.setProperty(Property.Builder().build())
             return super.build()
