@@ -120,7 +120,6 @@ fun Modifier.mouseClickable(
         }
         Modifier
             .genericClickableWithoutGesture(
-                gestureModifiers = gesture,
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
                 indicationScope = rememberCoroutineScope(),
@@ -133,6 +132,7 @@ fun Modifier.mouseClickable(
                 onLongClick = null,
                 onClick = { onClick(EmptyClickContext) }
             )
+            .then(gesture)
     },
     inspectorInfo = debugInspectorInfo {
         name = "clickable"
