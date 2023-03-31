@@ -24,7 +24,7 @@ import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.AndroidTextInputAdapter
 import androidx.compose.foundation.text2.input.internal.ComposeInputMethodManager
 import androidx.compose.foundation.text2.input.placeCursorAtEnd
-import androidx.compose.foundation.text2.input.placeCursorBeforeChar
+import androidx.compose.foundation.text2.input.placeCursorBeforeCharAt
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -247,7 +247,7 @@ internal class BasicTextField2ImmIntegrationTest {
 
             state.edit {
                 append("hello")
-                placeCursorBeforeChar(0)
+                placeCursorBeforeCharAt(0)
             }
 
             imm.expectCall("restartInput")
