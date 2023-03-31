@@ -20,7 +20,7 @@ import androidx.appactions.interaction.capabilities.core.BaseSession
 import androidx.appactions.interaction.capabilities.core.ConfirmationOutput
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.InitArg
-import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySession
+import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.ArgumentsWrapper
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal
 import androidx.appactions.interaction.capabilities.core.impl.FulfillmentResult
@@ -78,7 +78,7 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
     private var mTouchEventCallback: TouchEventCallback? = null
 
     /** Current status of the overall task (i.e. status of the task). */
-    internal var status: ActionCapabilitySession.Status = ActionCapabilitySession.Status.UNINITIATED
+    internal var status: CapabilitySession.Status = CapabilitySession.Status.UNINITIATED
         private set
 
     // Set a TouchEventCallback instance. This callback is invoked when state changes from manual
@@ -184,7 +184,7 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
         if (
             mTouchEventCallback == null ||
             paramValuesMap.isEmpty() ||
-            status !== ActionCapabilitySession.Status.IN_PROGRESS
+            status !== CapabilitySession.Status.IN_PROGRESS
         ) {
             return
         }
@@ -236,7 +236,7 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
     // TODO: add cleanup logic if any
     internal fun terminate() {
         externalSession.onDestroy()
-        status = ActionCapabilitySession.Status.DESTROYED
+        status = CapabilitySession.Status.DESTROYED
     }
 
     /**
@@ -261,10 +261,10 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
     }
 
     private fun maybeInitializeTask() {
-        if (status === ActionCapabilitySession.Status.UNINITIATED) {
+        if (status === CapabilitySession.Status.UNINITIATED) {
             externalSession.onInit(InitArg())
         }
-        status = ActionCapabilitySession.Status.IN_PROGRESS
+        status = CapabilitySession.Status.IN_PROGRESS
     }
 
     /**
@@ -439,7 +439,7 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
         finalArguments: Map<String, List<ParamValue>>,
     ): FulfillmentResponse {
         val result = externalSession.onFinish(actionSpec.buildArgument(finalArguments))
-        status = ActionCapabilitySession.Status.COMPLETED
+        status = CapabilitySession.Status.COMPLETED
         val fulfillmentResponse = FulfillmentResponse.newBuilder()
         convertToExecutionOutput(result)?.let { fulfillmentResponse.executionOutput = it }
         return fulfillmentResponse.build()

@@ -22,11 +22,11 @@ import android.widget.RemoteViews;
 import android.widget.RemoteViewsService.RemoteViewsFactory;
 
 import androidx.annotation.NonNull;
-import androidx.appactions.interaction.capabilities.core.ActionCapability;
+import androidx.appactions.interaction.capabilities.core.Capability;
 import androidx.appactions.interaction.capabilities.core.HostProperties;
 import androidx.appactions.interaction.capabilities.core.LibInfo;
-import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySession;
 import androidx.appactions.interaction.capabilities.core.impl.ArgumentsWrapper;
+import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession;
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal;
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.FutureCallback;
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures;
@@ -72,7 +72,7 @@ final class AppInteractionServiceGrpcImpl extends AppInteractionServiceImplBase 
 
     static final String ERROR_NO_SESSION = "Session not available";
     static final String ERROR_NO_FULFILLMENT_REQUEST = "Fulfillment request missing";
-    static final String ERROR_NO_ACTION_CAPABILITY = "ActionCapability was not found";
+    static final String ERROR_NO_ACTION_CAPABILITY = "Capability was not found";
     static final String ERROR_SESSION_ENDED = "Session already ended";
     private static final String ERROR_NO_COLLECTION_SUPPORT =
             "Session doesn't support collection view";
@@ -81,7 +81,7 @@ final class AppInteractionServiceGrpcImpl extends AppInteractionServiceImplBase 
             "Multiple UI types used in current session";
 
     final AppInteractionService mAppInteractionService;
-    List<ActionCapability> mRegisteredCapabilities = new ArrayList<>();
+    List<Capability> mRegisteredCapabilities = new ArrayList<>();
 
     static {
         LoggerInternal.setLogger(
@@ -154,7 +154,7 @@ final class AppInteractionServiceGrpcImpl extends AppInteractionServiceImplBase 
             if (mRegisteredCapabilities.isEmpty()) {
                 mRegisteredCapabilities = mAppInteractionService.getRegisteredCapabilities();
             }
-            Optional<ActionCapability> targetCapability =
+            Optional<Capability> targetCapability =
                     mRegisteredCapabilities.stream()
                             .filter(cap -> request.getIdentifier().equals(cap.getId()))
                             .findFirst();
@@ -171,7 +171,7 @@ final class AppInteractionServiceGrpcImpl extends AppInteractionServiceImplBase 
                                     request.getHostProperties().getHostViewHeightDp(),
                                     request.getHostProperties().getHostViewWidthDp()))
                             .build();
-            ActionCapabilitySession session = targetCapability.get().createSession(hostProperties);
+            CapabilitySession session = targetCapability.get().createSession(hostProperties);
             SessionManager.INSTANCE.putSession(mCurrentSessionId, session);
             mStartSessionResponseObserver.onNext(StartSessionResponse.getDefaultInstance());
         }
@@ -210,7 +210,7 @@ final class AppInteractionServiceGrpcImpl extends AppInteractionServiceImplBase 
         }
         FulfillmentRequest.Fulfillment selectedFulfillment =
                 request.getFulfillmentRequest().getFulfillments(0);
-        Optional<ActionCapability> capability =
+        Optional<Capability> capability =
                 mRegisteredCapabilities.stream()
                         .filter(cap -> selectedFulfillment.getIdentifier().equals(cap.getId()))
                         .findFirst();
@@ -222,15 +222,15 @@ final class AppInteractionServiceGrpcImpl extends AppInteractionServiceImplBase 
             return;
         }
         String sessionId = request.getSessionIdentifier();
-        ActionCapabilitySession currentSession = SessionManager.INSTANCE.getSession(sessionId);
+        CapabilitySession currentSession = SessionManager.INSTANCE.getSession(sessionId);
         if (currentSession == null) {
             responseObserver.onError(
                     new StatusRuntimeException(
                             Status.FAILED_PRECONDITION.withDescription(ERROR_NO_SESSION)));
             return;
         }
-        if (currentSession.getStatus() == ActionCapabilitySession.Status.COMPLETED
-                || currentSession.getStatus() == ActionCapabilitySession.Status.DESTROYED) {
+        if (currentSession.getStatus() == CapabilitySession.Status.COMPLETED
+                || currentSession.getStatus() == CapabilitySession.Status.DESTROYED) {
             responseObserver.onError(
                     new StatusRuntimeException(
                             Status.FAILED_PRECONDITION.withDescription(ERROR_SESSION_ENDED)));
@@ -285,7 +285,7 @@ final class AppInteractionServiceGrpcImpl extends AppInteractionServiceImplBase 
             AppInteractionServiceProto.UiRequest req,
             StreamObserver<AppInteractionServiceProto.UiResponse> responseObserver) {
         String sessionId = req.getSessionIdentifier();
-        ActionCapabilitySession currentSession = SessionManager.INSTANCE
+        CapabilitySession currentSession = SessionManager.INSTANCE
                 .getSession(sessionId);
         if (currentSession == null) {
             responseObserver.onError(
@@ -293,7 +293,7 @@ final class AppInteractionServiceGrpcImpl extends AppInteractionServiceImplBase 
                             Status.FAILED_PRECONDITION.withDescription(ERROR_NO_SESSION)));
             return;
         }
-        if (currentSession.getStatus() == ActionCapabilitySession.Status.COMPLETED) {
+        if (currentSession.getStatus() == CapabilitySession.Status.COMPLETED) {
             destroySession(req.getSessionIdentifier());
             responseObserver.onError(
                     new StatusRuntimeException(
@@ -349,7 +349,7 @@ final class AppInteractionServiceGrpcImpl extends AppInteractionServiceImplBase 
     public void requestCollection(
             CollectionRequest req, StreamObserver<CollectionResponse> responseObserver) {
         String sessionId = req.getSessionIdentifier();
-        ActionCapabilitySession currentSession = SessionManager.INSTANCE
+        CapabilitySession currentSession = SessionManager.INSTANCE
                 .getSession(sessionId);
         if (currentSession == null) {
             responseObserver.onError(
@@ -357,7 +357,7 @@ final class AppInteractionServiceGrpcImpl extends AppInteractionServiceImplBase 
                             Status.FAILED_PRECONDITION.withDescription(ERROR_NO_SESSION)));
             return;
         }
-        if (currentSession.getStatus() == ActionCapabilitySession.Status.COMPLETED) {
+        if (currentSession.getStatus() == CapabilitySession.Status.COMPLETED) {
             destroySession(req.getSessionIdentifier());
             responseObserver.onError(
                     new StatusRuntimeException(
@@ -506,7 +506,7 @@ final class AppInteractionServiceGrpcImpl extends AppInteractionServiceImplBase 
     }
 
     void destroySession(@NonNull String sessionId) {
-        ActionCapabilitySession session = SessionManager.INSTANCE.getSession(sessionId);
+        CapabilitySession session = SessionManager.INSTANCE.getSession(sessionId);
         if (session != null) {
             session.destroy();
         }
@@ -526,7 +526,7 @@ final class AppInteractionServiceGrpcImpl extends AppInteractionServiceImplBase 
     @NonNull
     Response convertFulfillmentResponse(
             @NonNull FulfillmentResponse fulfillmentResponse,
-            @NonNull ActionCapability capability) {
+            @NonNull Capability capability) {
         AppActionsContext.AppAction appAction = capability.getAppAction();
         boolean isDialogSession = appAction.getTaskInfo().getSupportsPartialFulfillment();
         Version version = convertToAppActionsContextVersion(
@@ -551,13 +551,13 @@ final class AppInteractionServiceGrpcImpl extends AppInteractionServiceImplBase 
 
     @NonNull
     ListenableFuture<FulfillmentResponse> executeFulfillmentRequest(
-            @NonNull ActionCapabilitySession session,
+            @NonNull CapabilitySession session,
             @NonNull FulfillmentRequest.Fulfillment fulfillmentRequest) {
         return CallbackToFutureAdapter.getFuture(
                 completer -> {
                     session.execute(
                             ArgumentsWrapper.create(fulfillmentRequest),
-                            new ActionCapabilityCallback(completer));
+                            new CapabilityCallback(completer));
                     return "executing action capability";
                 });
     }

@@ -16,7 +16,7 @@
 
 package androidx.appactions.interaction.capabilities.productivity
 
-import androidx.appactions.interaction.capabilities.core.ActionCapability
+import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.BaseSession
 import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
 import androidx.appactions.interaction.capabilities.core.SessionFactory
@@ -111,7 +111,7 @@ class StartTimer private constructor() {
             sessionFactory: SessionFactory<Session>,
         ): CapabilityBuilder = super.setSessionFactory(sessionFactory)
 
-        override fun build(): ActionCapability {
+        override fun build(): Capability {
             super.setProperty(Property.Builder().build())
             return super.build()
         }

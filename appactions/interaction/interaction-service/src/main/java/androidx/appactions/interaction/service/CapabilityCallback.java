@@ -23,11 +23,11 @@ import androidx.appactions.interaction.proto.FulfillmentResponse;
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
 
 /** Service implementation of the capability library execution callback. */
-final class ActionCapabilityCallback implements CallbackInternal {
+final class CapabilityCallback implements CallbackInternal {
 
     private final Completer<FulfillmentResponse> mCompleter;
 
-    ActionCapabilityCallback(@NonNull Completer<FulfillmentResponse> mCompleter) {
+    CapabilityCallback(@NonNull Completer<FulfillmentResponse> mCompleter) {
         this.mCompleter = mCompleter;
     }
 

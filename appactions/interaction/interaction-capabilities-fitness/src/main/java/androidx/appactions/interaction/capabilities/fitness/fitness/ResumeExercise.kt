@@ -17,7 +17,7 @@
 package androidx.appactions.interaction.capabilities.fitness.fitness
 
 import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
-import androidx.appactions.interaction.capabilities.core.ActionCapability
+import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.BaseSession
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
@@ -58,7 +58,7 @@ class ResumeExercise private constructor() {
                 propertyBuilder.setName(name)
             }
 
-        override fun build(): ActionCapability {
+        override fun build(): Capability {
             // TODO(b/268369632): Clean this up after Property is removed
             super.setProperty(propertyBuilder.build())
             return super.build()

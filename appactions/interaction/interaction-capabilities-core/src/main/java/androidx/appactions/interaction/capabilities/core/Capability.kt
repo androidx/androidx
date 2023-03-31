@@ -17,17 +17,17 @@
 package androidx.appactions.interaction.capabilities.core
 
 import androidx.annotation.RestrictTo
-import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySession
+import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 
 /**
  * <b>Do not implement this interface yourself.</b>
  *
- * <p>An ActionCapability represents some supported App Action that can be given to App Control.
+ * <p>A Capability represents some supported App Action that can be given to App Control.
  *
  * <p>Use helper classes provided by the capability library to get instances of this interface.
  */
-interface ActionCapability {
+interface Capability {
 
     /** Returns the unique Id of this capability declaration. */
     val id: String
@@ -40,7 +40,7 @@ interface ActionCapability {
     /**
      * Returns an app action proto describing how to fulfill this capability.
      *
-     * @hide
+     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun getAppAction(): AppAction
@@ -49,8 +49,8 @@ interface ActionCapability {
      * Create a new capability session. The capability library doesn't maintain registry of
      * capabilities, so it's not going to assign any session id.
      *
-     * @hide
+     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun createSession(hostProperties: HostProperties): ActionCapabilitySession
+    fun createSession(hostProperties: HostProperties): CapabilitySession
 }

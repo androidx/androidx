@@ -17,8 +17,8 @@
 package androidx.appactions.interaction.service
 
 import android.content.Context
-import androidx.appactions.interaction.capabilities.core.ActionCapability
-import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySession
+import androidx.appactions.interaction.capabilities.core.Capability
+import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
@@ -102,15 +102,15 @@ class AppInteractionServiceGrpcImplTest {
                     .addOutputValues(OutputValue.newBuilder().setName("bio_arg1")),
             )
             .build()
-    private var capability1 = mock<ActionCapability>()
+    private var capability1 = mock<Capability>()
 
     @Before
     fun before() {
         capability1 = mock()
         whenever(capability1.id).thenReturn(capabilityId)
         whenever(capability1.getAppAction()).thenReturn(AppAction.getDefaultInstance())
-        val mockActionCapabilitySession = createMockSession()
-        whenever(capability1.createSession(any())).thenReturn(mockActionCapabilitySession)
+        val mockCapabilitySession = createMockSession()
+        whenever(capability1.createSession(any())).thenReturn(mockCapabilitySession)
     }
 
     @Test
@@ -320,7 +320,7 @@ class AppInteractionServiceGrpcImplTest {
 
         // Verify capability session is created
         val mockSession = createMockSession()
-        whenever(mockSession.status).thenReturn(ActionCapabilitySession.Status.COMPLETED)
+        whenever(mockSession.status).thenReturn(CapabilitySession.Status.COMPLETED)
         whenever(capability1.createSession(any())).thenReturn(mockSession)
         assertStartupSession(stub)
         verify(capability1, times(1)).createSession(any())
@@ -384,20 +384,20 @@ class AppInteractionServiceGrpcImplTest {
         )
     }
 
-    private fun createMockSession(): ActionCapabilitySession {
-        val mockSession = mock<ActionCapabilitySession>()
+    private fun createMockSession(): CapabilitySession {
+        val mockSession = mock<CapabilitySession>()
         whenever(mockSession.execute(any(), any())).thenAnswer { invocation ->
             (invocation.arguments[1] as CallbackInternal).onSuccess(testFulfillmentResponse)
         }
         whenever(mockSession.state).thenReturn(AppDialogState.getDefaultInstance())
-        whenever(mockSession.status).thenReturn(ActionCapabilitySession.Status.UNINITIATED)
+        whenever(mockSession.status).thenReturn(CapabilitySession.Status.UNINITIATED)
         whenever(mockSession.uiHandle).thenReturn(Any())
         return mockSession
     }
 
-    private inner class FakeAppInteractionService(capabilities: List<ActionCapability>) :
+    private inner class FakeAppInteractionService(capabilities: List<Capability>) :
         AppInteractionService() {
-        override val registeredCapabilities: MutableList<ActionCapability> =
+        override val registeredCapabilities: MutableList<Capability> =
             capabilities.toMutableList()
 
         override val securityPolicy: SecurityPolicy = SecurityPolicies.internalOnly()

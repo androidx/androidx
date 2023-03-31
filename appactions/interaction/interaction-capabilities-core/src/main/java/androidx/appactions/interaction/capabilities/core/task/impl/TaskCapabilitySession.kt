@@ -18,7 +18,7 @@ package androidx.appactions.interaction.capabilities.core.task.impl
 
 import androidx.annotation.GuardedBy
 import androidx.appactions.interaction.capabilities.core.BaseSession
-import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySession
+import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.ArgumentsWrapper
 import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal
@@ -41,12 +41,12 @@ internal class TaskCapabilitySession<
     taskHandler: TaskHandler<ConfirmationT>,
     externalSession: BaseSession<ArgumentT, OutputT>,
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
-) : ActionCapabilitySession, TaskUpdateHandler {
+) : CapabilitySession, TaskUpdateHandler {
     override val state: AppDialogState
         get() = sessionOrchestrator.appDialogState
 
     // single-turn capability does not have status
-    override val status: ActionCapabilitySession.Status
+    override val status: CapabilitySession.Status
         get() = sessionOrchestrator.status
 
     override fun destroy() {
