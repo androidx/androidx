@@ -29,7 +29,7 @@ import kotlin.math.min
  *
  * Morphing between arbitrary objects can be problematic because it can be difficult to
  * determine how the points of a given shape map to the points of some other shape.
- * [Morph] simplifies the problem by only operating on [Polygon] objects, which
+ * [Morph] simplifies the problem by only operating on [RoundedPolygon] objects, which
  * are known to have similar, contiguous structures. For one thing, the shape of a polygon
  * is contiguous from start to end (compared to an arbitrary [Path] object, which could have
  * one or more `moveTo` operations in the shape). Also, all edges of a polygon shape are
@@ -41,8 +41,8 @@ import kotlin.math.min
  * curve placement within the shapes is very different.
  */
 class Morph(
-    start: Polygon,
-    end: Polygon
+    start: RoundedPolygon,
+    end: RoundedPolygon
 ) {
     // morphMatch is the structure which holds the actual shape being morphed. It contains
     // all cubics necessary to represent the start and end shapes (the original cubics in the
@@ -220,8 +220,8 @@ class Morph(
          */
         @JvmStatic
         internal fun match(
-            p1: Polygon,
-            p2: Polygon
+            p1: RoundedPolygon,
+            p2: RoundedPolygon
         ): List<Pair<Cubic, Cubic>> {
             if (DEBUG) {
                 repeat(2) { polyIndex ->
@@ -229,7 +229,7 @@ class Morph(
                         listOf("Initial start:\n", "Initial end:\n")[polyIndex] +
                             listOf(p1, p2)[polyIndex].features.joinToString("\n") { feature ->
                                 "${feature.javaClass.name.split("$").last()} - " +
-                                    ((feature as? Polygon.Corner)?.convex?.let {
+                                    ((feature as? RoundedPolygon.Corner)?.convex?.let {
                                         if (it) "Convex - " else "Concave - " } ?: "") +
                                     feature.cubics.joinToString("|")
                             }

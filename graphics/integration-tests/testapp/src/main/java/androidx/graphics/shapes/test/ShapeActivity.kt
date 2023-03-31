@@ -27,13 +27,12 @@ import android.widget.LinearLayout
 import androidx.graphics.shapes.Circle
 import androidx.graphics.shapes.CornerRounding
 import androidx.graphics.shapes.CornerRounding.Companion.Unrounded
-import androidx.graphics.shapes.Polygon
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.Star
 
 class ShapeActivity : Activity() {
 
-    val shapes = mutableListOf<Polygon>()
+    val shapes = mutableListOf<RoundedPolygon>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,7 +48,7 @@ class ShapeActivity : Activity() {
         addShapeViews(container)
     }
 
-    private fun getShapeView(shape: Polygon, width: Int, height: Int): View {
+    private fun getShapeView(shape: RoundedPolygon, width: Int, height: Int): View {
         val view = ShapeView(this, shape)
         val layoutParams = LinearLayout.LayoutParams(width, height)
         layoutParams.setMargins(5, 5, 5, 5)
@@ -59,7 +58,7 @@ class ShapeActivity : Activity() {
     }
 
     private fun setupShapes() {
-        // Note: all Polygon(4) shapes are placeholders for shapes not yet handled
+        // Note: all RoundedPolygon(4) shapes are placeholders for shapes not yet handled
         val matrix1 = Matrix().apply { setRotate(-45f) }
         val matrix2 = Matrix().apply { setRotate(45f) }
         val blobR1 = MaterialShapes.blobR(.19f, .86f)
@@ -72,7 +71,7 @@ class ShapeActivity : Activity() {
         //        "Squirrel" to DefaultShapes.fgSquircle(0.9f),
         shapes.add(RoundedPolygon(4))
         //        "Squircle" to DefaultShapes.fgSquircle(0.7f),
-        shapes.add(Polygon(4))
+        shapes.add(RoundedPolygon(4))
         //        "Scallop" to DefaultShapes.Scallop,
         shapes.add(MaterialShapes.scallop())
         //        "Clover" to DefaultShapes.Clover,
@@ -81,7 +80,7 @@ class ShapeActivity : Activity() {
         //        "Alice" to DefaultShapes.Alice,
         shapes.add(MaterialShapes.alice())
         //        "Veronica" to DefaultShapes.Alice.rotate(TwoPI / 2),
-        shapes.add(Polygon(4))
+        shapes.add(RoundedPolygon(4))
         //        "Wiggle-Star" to DefaultShapes.WiggleStar,
         shapes.add(MaterialShapes.wiggleStar())
         //        "Wovel" to DefaultShapes.Wovel,
@@ -94,14 +93,14 @@ class ShapeActivity : Activity() {
         //        "More" to DefaultShapes.More,
         shapes.add(MaterialShapes.more())
         //        "Less" to DefaultShapes.More.rotate(TwoPI / 2),
-        shapes.add(Polygon(4))
+        shapes.add(RoundedPolygon(4))
         //        "CornerNE" to DefaultShapes.CornerSE.rotate(-TwoPI / 4),
-        shapes.add(Polygon(4))
+        shapes.add(RoundedPolygon(4))
         //        "CornerNW" to DefaultShapes.CornerSE.rotate(TwoPI / 2),
-        shapes.add(Polygon(4))
+        shapes.add(RoundedPolygon(4))
 
         //        "CornerSW" to DefaultShapes.CornerSE.rotate(TwoPI / 4),
-        shapes.add(Polygon(4))
+        shapes.add(RoundedPolygon(4))
         //        "CornerSE" to DefaultShapes.CornerSE,
         shapes.add(MaterialShapes.cornerSouthEast(.4f))
         //        "Quarty" to DefaultShapes.Quarty,
@@ -122,7 +121,7 @@ class ShapeActivity : Activity() {
         shapes.add(
             MaterialShapes.clover(rounding = .352f, innerRadiusRatio = .1f,
             innerRounding = Unrounded))
-        shapes.add(Polygon(3))
+        shapes.add(RoundedPolygon(3))
     }
 
     private fun addShapeViews(container: ViewGroup) {

@@ -47,7 +47,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.plus
 import androidx.graphics.shapes.CornerRounding
-import androidx.graphics.shapes.Polygon
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.Star
 import kotlin.math.cos
@@ -64,7 +63,7 @@ internal fun debugLog(message: String) {
 
 data class ShapeItem(
     val name: String,
-    val shapegen: () -> Polygon,
+    val shapegen: () -> RoundedPolygon,
     val debugDump: () -> Unit,
     val usesSides: Boolean = true,
     val usesInnerRatio: Boolean = true,

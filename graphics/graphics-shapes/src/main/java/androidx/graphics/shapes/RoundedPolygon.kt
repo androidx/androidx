@@ -31,26 +31,26 @@ import kotlin.math.min
 import kotlin.math.sqrt
 
 /**
- * The Polygon class allows simple construction of polygonal shapes with optional rounding
- * on the vertices. Polygons can be constructed with either the number of vertices
+ * The RoundedPolygon class allows simple construction of polygonal shapes with optional rounding
+ * at the vertices. Polygons can be constructed with either the number of vertices
  * desired or an ordered list of vertices.
  */
-open class Polygon {
+class RoundedPolygon {
 
     /**
-     * A Polygon is essentially a CubicShape, which handles all of the functionality around
+     * A RoundedPolygon is essentially a CubicShape, which handles all of the functionality around
      * cubic Beziers that are used to create and render the geometry. But subclassing from
-     * CubicShape causes a bit of naming confusion, since an actual Polygon, in geometry,
+     * CubicShape causes a bit of naming confusion, since an actual polygon, in geometry,
      * is a shape with straight edges and hard corners, whereas CubicShape obviously allows for
      * more general, curved shapes. Therefore, we delegate to CubicShape as an internal
-     * implementation detail, and Polygon has no superclass.
+     * implementation detail, and RoundedPolygon has no superclass.
      */
     private val cubicShape = CubicShape()
 
     /**
      * Features are the corners (rounded or not) and edges of a polygon. Retaining the list of
-     * per-vertex corner (and the edges between them) allows manipulation of a Polygon with more
-     * context for the structure of that polygon, rather than just the list of cubic beziers
+     * per-vertex corner (and the edges between them) allows manipulation of a RoundedPolygon with
+     * more context for the structure of that polygon, rather than just the list of cubic beziers
      * which are calculated for rendering purposes.
      */
     internal lateinit var features: List<Feature>
@@ -75,7 +75,7 @@ open class Polygon {
     var bounds: RectF by cubicShape::bounds
 
     /**
-     * Constructs a Polygon object from a given list of vertices, with optional
+     * Constructs a RoundedPolygon object from a given list of vertices, with optional
      * corner-rounding parameters for all corners or per-corner.
      *
      * @param vertices The list of vertices in this polygon. This should be an ordered list
@@ -100,15 +100,14 @@ open class Polygon {
      * default center is at (0,0).
      */
     constructor(numVertices: Int, radius: Float = 1f, center: PointF = PointF(0f, 0f)) :
-        this(numVertices, radius = radius, rounding = CornerRounding.Unrounded, center = center)
+        this(numVertices, radius = radius, center = center, rounding = CornerRounding.Unrounded)
 
     /**
-     * Constructs a Polygon object from a given list of vertices, with optional
+     * Constructs a RoundedPolygon object from a given list of vertices, with optional
      * corner-rounding parameters for all corners or per-corner.
      *
-     * This constructor is internal, only for use by the RoundedPolygon subclass. All of the
-     * rounding functionality is handled in Polygon, but it is hidden from the public
-     * API to avoid naming confusion, since geometric Polygons have no rounding.
+     * A RoundedPolygon without any rounding parameters is equivalent to a [RoundedPolygon] constructed
+     * with the same [vertices] and [center].
      *
      * @param vertices The list of vertices in this polygon. This should be an ordered list
      * (with the outline of the shape going from each vertex to the next in order of this
@@ -123,8 +122,11 @@ open class Polygon {
      * default value is null.
      * @param center An optionally declared center of the polygon. If null or not supplied, this
      * will be calculated based on the supplied vertices.
+     *
+     * @throws IllegalArgumentException If [perVertexRounding] is not null, it must be
+     * the same size as the [vertices] list.
      */
-    internal constructor(
+    constructor(
         vertices: List<PointF>,
         rounding: CornerRounding = CornerRounding.Unrounded,
         perVertexRounding: List<CornerRounding>? = null,
@@ -139,14 +141,15 @@ open class Polygon {
      * positioned on a virtual circle around a given center with each vertex positioned [radius]
      * distance from that center, equally spaced (with equal angles between them).
      *
-     * This constructor is internal, only for use by the RoundedPolygon subclass. All of the
-     * rounding functionality is handled in Polygon, but it is hidden from the public
-     * API to avoid naming confusion, since geometric Polygons have no rounding.
+     * The [rounding] and [perVertexRounding] parameters are optional. If not supplied, the result
+     * will be a regular polygon with straight edges and unrounded corners.
      *
      * @param numVertices The number of vertices in this polygon.
      * @param radius The radius of the polygon, in pixels. This radius determines the
      * initial size of the object, but it can be transformed later by setting
      * a matrix on it.
+     * @param center The center of the polygon, around which all vertices will be placed. The
+     * default center is at (0,0).
      * @param rounding The [CornerRounding] properties of every vertex. If some vertices should
      * have different rounding properties, then use [perVertexRounding] instead. The default
      * rounding value is [CornerRounding.Unrounded], meaning that the polygon will use the vertices
@@ -155,25 +158,23 @@ open class Polygon {
      * parameter is not null, then it must have [numVertices] elements. If this parameter
      * is null, then the polygon will use the [rounding] parameter for every vertex instead. The
      * default value is null.
-     * @param center The center of the polygon, around which all vertices will be placed. The
-     * default center is at (0,0).
      *
      * @throws IllegalArgumentException If [perVertexRounding] is not null, it must have
      * [numVertices] elements.
      */
-    internal constructor(
+    constructor(
         numVertices: Int,
         radius: Float = 1f,
+        center: PointF = PointF(0f, 0f),
         rounding: CornerRounding = CornerRounding.Unrounded,
-        perVertexRounding: List<CornerRounding>? = null,
-        center: PointF = PointF(0f, 0f)
+        perVertexRounding: List<CornerRounding>? = null
     ) : this(
         vertices = (0 until numVertices).map {
             radialToCartesian(radius, (FloatPi / numVertices * 2 * it)) + center
         },
         rounding = rounding, perVertexRounding = perVertexRounding, center = center)
 
-    constructor(source: Polygon) {
+    constructor(source: RoundedPolygon) {
         val newCubics = mutableListOf<Cubic>()
         for (cubic in source.cubicShape.cubics) {
             newCubics.add(Cubic(cubic))
@@ -194,7 +195,7 @@ open class Polygon {
     /**
      * This function takes the vertices (either supplied or calculated, depending on the
      * constructor called), plus [CornerRounding] parameters, and creates the actual
-     * [Polygon] shape, rounding around the vertices (or not) as specified. The result
+     * [RoundedPolygon] shape, rounding around the vertices (or not) as specified. The result
      * is a list of [Cubic] curves which represent the geometry of the final shape.
      *
      * @param vertices The list of vertices in this polygon. This should be an ordered list
@@ -392,7 +393,7 @@ open class Polygon {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is Polygon) return false
+        if (other !is RoundedPolygon) return false
 
         if (!cubicShape.equals(other.cubicShape)) return false
 
@@ -402,78 +403,6 @@ open class Polygon {
     override fun hashCode(): Int {
         return cubicShape.hashCode()
     }
-}
-
-/**
- * The RoundedPolygon is a Polygon which has optional rounding for each vertex. Like [Polygon],
- * a RoundedPolygon can be constructed with either the number of vertices desired or an ordered
- * list of vertices, along with optional rounding parameters.
- */
-class RoundedPolygon : Polygon {
-    /**
-     * Constructs a RoundedPolygon object from a given list of vertices, with optional
-     * corner-rounding parameters for all corners or per-corner.
-     *
-     * A RoundedPolygon without any rounding parameters is equivalent to a [Polygon] constructed
-     * with the same [vertices] and [center].
-     *
-     * @param vertices The list of vertices in this polygon. This should be an ordered list
-     * (with the outline of the shape going from each vertex to the next in order of this
-     * list), otherwise the results will be undefined.
-     * @param rounding The [CornerRounding] properties of every vertex. If some vertices should
-     * have different rounding properties, then use [perVertexRounding] instead. The default
-     * rounding value is [CornerRounding.Unrounded], meaning that the polygon will use the vertices
-     * themselves in the final shape and not curves rounded around the vertices.
-     * @param perVertexRounding The [CornerRounding] properties of every vertex. If this
-     * parameter is not null, then it must have the same size as [vertices]. If this parameter
-     * is null, then the polygon will use the [rounding] parameter for every vertex instead. The
-     * default value is null.
-     * @param center An optionally declared center of the polygon. If null or not supplied, this
-     * will be calculated based on the supplied vertices.
-     *
-     * @throws IllegalArgumentException If [perVertexRounding] is not null, it must be
-     * the same size as the [vertices] list.
-     */
-    constructor(
-        vertices: List<PointF>,
-        rounding: CornerRounding = CornerRounding.Unrounded,
-        perVertexRounding: List<CornerRounding>? = null,
-        center: PointF? = null
-    ) : super(vertices, rounding, perVertexRounding, center) {}
-
-    /**
-     * This constructor takes the number of vertices in the resulting polygon. These vertices are
-     * positioned around a given center with the specified radius, equally spaced (with equal
-     * angles between them).
-     *
-     * A RoundedPolygon without any rounding parameters is equivalent to a [Polygon] constructed
-     * with the same [numVertices], [radius], and [center].
-     *
-     * @param numVertices The number of vertices in this polygon.
-     * @param radius The radius of the polygon, in pixels. This radius determines the
-     * initial size of the object, but it can be transformed later by setting
-     * a matrix on it.
-     * @param rounding The [CornerRounding] properties of every vertex. If some vertices should
-     * have different rounding properties, then use [perVertexRounding] instead. The default
-     * rounding value is [CornerRounding.Unrounded], meaning that the polygon will use the vertices
-     * themselves in the final shape and not curves rounded around the vertices.
-     * @param perVertexRounding The [CornerRounding] properties of every vertex. If this
-     * parameter is not null, then it must have [numVertices] elements. If this parameter
-     * is null, then the polygon will use the [rounding] parameter for every vertex instead. The
-     * default value is null.
-     * @param center The center of the polygon, around which all vertices will be placed. The
-     * default center is at (0,0).
-     *
-     * @throws IllegalArgumentException If [perVertexRounding] is not null, it must have
-     * [numVertices] elements.
-     */
-    constructor(
-        numVertices: Int,
-        radius: Float = 1f,
-        rounding: CornerRounding = CornerRounding.Unrounded,
-        perVertexRounding: List<CornerRounding>? = null,
-        center: PointF = PointF(0f, 0f)
-    ) : super(numVertices, radius, rounding, perVertexRounding, center)
 }
 
 /**
@@ -652,15 +581,15 @@ private class RoundedCorner(
 }
 
 /**
- * Extension function which draws the given [Polygon] object into this [Canvas]. Rendering
+ * Extension function which draws the given [RoundedPolygon] object into this [Canvas]. Rendering
  * occurs by drawing the underlying path for the object; callers can optionally retrieve the
- * path and draw it directly via [Polygon.toPath] (though that function copies the underlying
+ * path and draw it directly via [RoundedPolygon.toPath] (though that function copies the underlying
  * path. This extension function avoids that overhead when rendering).
  *
  * @param polygon The object to be drawn
  * @param paint The attributes
  */
-fun Canvas.drawPolygon(polygon: Polygon, paint: Paint) {
+fun Canvas.drawPolygon(polygon: RoundedPolygon, paint: Paint) {
     polygon.draw(this, paint)
 }
 

@@ -23,7 +23,7 @@ import androidx.test.filters.SmallTest
 import org.junit.Test
 
 @SmallTest
-class RoundedPolygonTest {
+class RoundedRoundedPolygonTest {
 
     val rounding = CornerRounding(.1f)
     val perVtxRounded = listOf<CornerRounding>(rounding, rounding, rounding, rounding)

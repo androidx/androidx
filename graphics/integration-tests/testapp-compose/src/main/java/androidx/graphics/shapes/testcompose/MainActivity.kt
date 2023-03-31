@@ -57,13 +57,13 @@ import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import androidx.graphics.shapes.Morph
-import androidx.graphics.shapes.Polygon
+import androidx.graphics.shapes.RoundedPolygon
 import kotlin.math.abs
 import kotlin.math.min
 import kotlinx.coroutines.launch
 
 @Composable
-fun PolygonComposable(polygon: Polygon, modifier: Modifier = Modifier) =
+fun PolygonComposable(polygon: RoundedPolygon, modifier: Modifier = Modifier) =
     PolygonComposableImpl(polygon, modifier)
 
 @Composable
@@ -142,12 +142,12 @@ private fun MorphComposableImpl(
 
 @Composable
 internal fun PolygonComposableImpl(
-    shape: Polygon,
+    shape: RoundedPolygon,
     modifier: Modifier = Modifier,
     debug: Boolean = false
 ) {
     val sizedPolygonCache = remember(shape) {
-        mutableMapOf<Size, Polygon>()
+        mutableMapOf<Size, RoundedPolygon>()
     }
     Box(
         modifier
@@ -156,7 +156,7 @@ internal fun PolygonComposableImpl(
                 drawContent()
                 val sizedPolygon = sizedPolygonCache.getOrPut(size) {
                     val matrix = calculateMatrix(TheBounds, size.width, size.height)
-                    Polygon(shape).apply { transform(matrix) }
+                    RoundedPolygon(shape).apply { transform(matrix) }
                 }
                 if (debug) {
                     debugDraw(sizedPolygon.toCubicShape())
