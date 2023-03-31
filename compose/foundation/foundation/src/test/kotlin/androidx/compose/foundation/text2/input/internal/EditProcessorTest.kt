@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text2.input.internal
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.google.common.truth.Truth.assertThat
@@ -23,6 +24,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@OptIn(ExperimentalFoundationApi::class)
 @RunWith(JUnit4::class)
 class EditProcessorTest {
 
