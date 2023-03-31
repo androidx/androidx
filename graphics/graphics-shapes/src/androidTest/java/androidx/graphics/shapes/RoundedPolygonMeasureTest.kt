@@ -23,7 +23,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 @SmallTest
-class PolygonMeasureTest {
+class RoundedPolygonMeasureTest {
     @Test
     fun triangleAngleMeasure() = polygonAngleMeasure(3)
 
@@ -70,7 +70,7 @@ class PolygonMeasureTest {
     )
 
     private fun polygonAngleMeasure(sides: Int) {
-        val polygon = Polygon(sides)
+        val polygon = RoundedPolygon(sides)
         val measurer = AngleMeasurer(polygon.center)
 
         val measuredPolygon = MeasuredPolygon.measurePolygon(measurer, polygon)
@@ -84,7 +84,7 @@ class PolygonMeasureTest {
         }
     }
 
-    private fun irregularPolygonAngleMeasure(polygon: Polygon) {
+    private fun irregularPolygonAngleMeasure(polygon: RoundedPolygon) {
         val measurer = AngleMeasurer(polygon.center)
 
         val measuredPolygon = MeasuredPolygon.measurePolygon(measurer, polygon)
