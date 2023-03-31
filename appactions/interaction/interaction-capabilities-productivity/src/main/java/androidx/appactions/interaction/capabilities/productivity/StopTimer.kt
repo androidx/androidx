@@ -16,7 +16,7 @@
 
 package androidx.appactions.interaction.capabilities.productivity
 
-import androidx.appactions.interaction.capabilities.core.ActionCapability
+import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.BaseSession
 import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
@@ -60,7 +60,7 @@ class StopTimer private constructor() {
         CapabilityBuilderBase<
             CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session
         >(ACTION_SPEC) {
-        override fun build(): ActionCapability {
+        override fun build(): Capability {
             super.setProperty(Property.Builder().build())
             return super.build()
         }

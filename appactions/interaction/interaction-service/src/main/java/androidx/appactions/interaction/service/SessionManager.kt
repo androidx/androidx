@@ -17,7 +17,7 @@
 package androidx.appactions.interaction.service
 
 import androidx.annotation.GuardedBy
-import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySession
+import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import java.util.IdentityHashMap
 import javax.annotation.concurrent.ThreadSafe
 
@@ -28,7 +28,7 @@ internal object SessionManager {
     private val lock = Any()
 
     @GuardedBy("lock")
-    private val sessions = mutableMapOf<String, ActionCapabilitySession>()
+    private val sessions = mutableMapOf<String, CapabilitySession>()
 
     /**
      * stores a map of uiHandle reference to sessionId, in order to get/set UiCache entries with
@@ -39,14 +39,14 @@ internal object SessionManager {
     @GuardedBy("lock")
     private val uiHandleToSessionId = IdentityHashMap<Any, String>()
 
-    fun putSession(sessionId: String, session: ActionCapabilitySession) {
+    fun putSession(sessionId: String, session: CapabilitySession) {
         synchronized(lock) {
             sessions[sessionId] = session
             uiHandleToSessionId[session.uiHandle] = sessionId
         }
     }
 
-    fun getSession(sessionId: String): ActionCapabilitySession? {
+    fun getSession(sessionId: String): CapabilitySession? {
         synchronized(lock) {
             return sessions[sessionId]
         }

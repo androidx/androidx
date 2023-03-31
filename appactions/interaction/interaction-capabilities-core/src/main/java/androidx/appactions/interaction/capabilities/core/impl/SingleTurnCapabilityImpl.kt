@@ -17,7 +17,7 @@
 package androidx.appactions.interaction.capabilities.core.impl
 
 import androidx.annotation.RestrictTo
-import androidx.appactions.interaction.capabilities.core.ActionCapability
+import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.ActionExecutorAsync
 import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
@@ -35,7 +35,7 @@ internal class SingleTurnCapabilityImpl<
     val actionSpec: ActionSpec<PropertyT, ArgumentT, OutputT>,
     val property: PropertyT,
     val actionExecutorAsync: ActionExecutorAsync<ArgumentT, OutputT>,
-) : ActionCapability {
+) : Capability {
     override val supportsMultiTurnTask = false
 
     override fun getAppAction(): AppAction {
@@ -45,7 +45,7 @@ internal class SingleTurnCapabilityImpl<
             .build()
     }
 
-    override fun createSession(hostProperties: HostProperties): ActionCapabilitySession {
+    override fun createSession(hostProperties: HostProperties): CapabilitySession {
         return SingleTurnCapabilitySession(
             actionSpec,
             actionExecutorAsync,

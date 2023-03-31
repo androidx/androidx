@@ -29,7 +29,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
- * ActionCapabilitySession implementation for executing single-turn fulfillment requests.
+ * CapabilitySession implementation for executing single-turn fulfillment requests.
  *
  * @hide
  */
@@ -41,12 +41,12 @@ internal class SingleTurnCapabilitySession<
     private val actionSpec: ActionSpec<*, ArgumentT, OutputT>,
     private val actionExecutorAsync: ActionExecutorAsync<ArgumentT, OutputT>,
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
-) : ActionCapabilitySession {
+) : CapabilitySession {
     override val state: AppDialogState
         get() {
             throw UnsupportedOperationException()
         }
-    override val status: ActionCapabilitySession.Status
+    override val status: CapabilitySession.Status
         get() {
             throw UnsupportedOperationException()
         }

@@ -37,7 +37,7 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.ExecutionException;
 
 @RunWith(AndroidJUnit4.class)
-public class ActionCapabilityCallbackTest {
+public class CapabilityCallbackTest {
 
     private static final long CB_TIMEOUT = 1000L;
     private static final FulfillmentResponse RESPONSE =
@@ -56,7 +56,7 @@ public class ActionCapabilityCallbackTest {
         ListenableFuture<FulfillmentResponse> future =
                 CallbackToFutureAdapter.getFuture(
                         completer -> {
-                            ActionCapabilityCallback cb = new ActionCapabilityCallback(completer);
+                            CapabilityCallback cb = new CapabilityCallback(completer);
                             cb.onSuccess(RESPONSE);
                             return "test future";
                         });
@@ -69,7 +69,7 @@ public class ActionCapabilityCallbackTest {
         ListenableFuture<FulfillmentResponse> future =
                 CallbackToFutureAdapter.getFuture(
                         completer -> {
-                            ActionCapabilityCallback cb = new ActionCapabilityCallback(completer);
+                            CapabilityCallback cb = new CapabilityCallback(completer);
                             cb.onError(ErrorStatusInternal.CANCELLED);
                             return "test future";
                         });

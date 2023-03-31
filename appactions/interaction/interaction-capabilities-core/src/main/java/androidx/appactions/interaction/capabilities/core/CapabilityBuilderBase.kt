@@ -26,7 +26,7 @@ import androidx.appactions.interaction.capabilities.core.task.impl.TaskCapabilit
 import java.util.function.Supplier
 
 /**
- * An abstract Builder class for ActionCapability.
+ * An abstract Builder class for Capability.
  */
 abstract class CapabilityBuilderBase<
     BuilderT :
@@ -71,7 +71,7 @@ abstract class CapabilityBuilderBase<
 
     /**
      * Sets the Id of the capability being built. The Id should be a non-null string that is unique
-     * among all ActionCapability, and should not change during/across activity lifecycles.
+     * among all Capability, and should not change during/across activity lifecycles.
      */
     fun setId(id: String): BuilderT = asBuilder().apply {
         this.id = id
@@ -124,8 +124,8 @@ abstract class CapabilityBuilderBase<
         this.sessionFactory = sessionFactory
     }
 
-    /** Builds and returns this ActionCapability. */
-    open fun build(): ActionCapability {
+    /** Builds and returns this Capability. */
+    open fun build(): Capability {
         val checkedId = requireNotNull(id, { "setId must be called before build" })
         val checkedProperty = requireNotNull(property, { "property must not be null." })
         if (actionExecutorAsync != null) {

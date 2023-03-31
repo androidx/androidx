@@ -15,11 +15,11 @@
  */
 
 package androidx.appactions.interaction.capabilities.core.task.impl
-import androidx.appactions.interaction.capabilities.core.ActionCapability
+import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.BaseSession
 import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.SessionFactory
-import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySession
+import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 import androidx.appactions.interaction.proto.TaskInfo
@@ -47,7 +47,7 @@ internal class TaskCapabilityImpl<
     val sessionFactory: SessionFactory<SessionT>,
     val sessionBridge: SessionBridge<SessionT, ConfirmationT>,
     val sessionUpdaterSupplier: Supplier<SessionUpdaterT>,
-) : ActionCapability {
+) : Capability {
 
     override val supportsMultiTurnTask = true
 
@@ -58,7 +58,7 @@ internal class TaskCapabilityImpl<
             .build()
     }
 
-    override fun createSession(hostProperties: HostProperties): ActionCapabilitySession {
+    override fun createSession(hostProperties: HostProperties): CapabilitySession {
         val externalSession = sessionFactory.createSession(
             hostProperties,
         )
