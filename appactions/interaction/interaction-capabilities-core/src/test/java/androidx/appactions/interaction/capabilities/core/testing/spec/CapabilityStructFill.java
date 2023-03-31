@@ -23,7 +23,6 @@ import androidx.appactions.interaction.capabilities.core.BaseSession;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter;
-import androidx.appactions.interaction.capabilities.core.impl.converters.PropertyConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder;
@@ -55,7 +54,7 @@ public final class CapabilityStructFill {
                             Property::anyString,
                             Argument.Builder::setAnyString,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                            PropertyConverter::stringValueToProto)
+                            TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
                     .build();
 
     private CapabilityStructFill() {}

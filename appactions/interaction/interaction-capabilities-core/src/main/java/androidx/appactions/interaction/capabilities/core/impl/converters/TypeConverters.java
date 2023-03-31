@@ -18,6 +18,7 @@ package androidx.appactions.interaction.capabilities.core.impl.converters;
 
 import androidx.annotation.NonNull;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
+import androidx.appactions.interaction.capabilities.core.properties.StringValue;
 import androidx.appactions.interaction.capabilities.core.values.Alarm;
 import androidx.appactions.interaction.capabilities.core.values.CalendarEvent;
 import androidx.appactions.interaction.capabilities.core.values.Call;
@@ -412,6 +413,26 @@ public final class TypeConverters {
                             String.format("Unknown enum format '%s'.", identifier));
                 }
             };
+    public static final EntityConverter<
+                    androidx.appactions.interaction.capabilities.core.properties.Entity>
+            ENTITY_ENTITY_CONVERTER =
+                    (entity) -> {
+                        Entity.Builder builder =
+                                Entity.newBuilder()
+                                        .setName(entity.getName())
+                                        .addAllAlternateNames(entity.getAlternateNames());
+                        if (entity.getId() != null) {
+                            builder.setIdentifier(entity.getId());
+                        }
+                        return builder.build();
+                    };
+    public static final EntityConverter<StringValue> STRING_VALUE_ENTITY_CONVERTER =
+            (stringValue) ->
+                    Entity.newBuilder()
+                            .setIdentifier(stringValue.getName())
+                            .setName(stringValue.getName())
+                            .addAllAlternateNames(stringValue.getAlternateNames())
+                            .build();
     public static final EntityConverter<ZonedDateTime> ZONED_DATETIME_ENTITY_CONVERTER =
             (zonedDateTime) ->
                     Entity.newBuilder()

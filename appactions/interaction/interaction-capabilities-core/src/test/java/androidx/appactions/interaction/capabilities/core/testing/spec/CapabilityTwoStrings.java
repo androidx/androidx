@@ -18,7 +18,6 @@ package androidx.appactions.interaction.capabilities.core.testing.spec;
 
 import androidx.annotation.NonNull;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
-import androidx.appactions.interaction.capabilities.core.impl.converters.PropertyConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder;
@@ -41,13 +40,13 @@ public final class CapabilityTwoStrings {
                             Property::stringSlotA,
                             Argument.Builder::setStringSlotA,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                            PropertyConverter::stringValueToProto)
+                            TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
                     .bindOptionalParameter(
                             "stringSlotB",
                             Property::stringSlotB,
                             Argument.Builder::setStringSlotB,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                            PropertyConverter::stringValueToProto)
+                            TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
                     .build();
 
     private CapabilityTwoStrings() {
