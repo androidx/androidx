@@ -15,10 +15,7 @@
  */
 package androidx.appactions.interaction.capabilities.core.task.impl
 
-import androidx.appactions.interaction.capabilities.core.impl.converters.PropertyConverter
-import androidx.appactions.interaction.capabilities.core.properties.StringValue
-import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
-import androidx.appactions.interaction.proto.AppActionsContext
+import androidx.appactions.interaction.proto.AppActionsContext.IntentParameter
 import androidx.appactions.interaction.proto.CurrentValue
 import androidx.appactions.interaction.proto.FulfillmentRequest
 import androidx.appactions.interaction.proto.ParamValue
@@ -33,26 +30,18 @@ class TaskCapabilityUtilsTest {
     fun isSlotFillingComplete_allRequiredParamsFilled_returnsTrue() {
         val args: MutableMap<String, List<ParamValue>> = HashMap()
         args["required"] = listOf(ParamValue.newBuilder().setStringValue("Donald").build())
-        val intentParameters: MutableList<AppActionsContext.IntentParameter> = ArrayList()
+        val intentParameters: MutableList<IntentParameter> = ArrayList()
         intentParameters.add(
-            PropertyConverter.getIntentParameter(
-                "required",
-                TypeProperty.Builder<StringValue>().setRequired(true).build(),
-                PropertyConverter::stringValueToProto
-            )
+            IntentParameter.newBuilder().setName("required").setIsRequired(true).build()
         )
         assertThat(TaskCapabilityUtils.isSlotFillingComplete(args, intentParameters)).isTrue()
     }
 
     @Test
     fun isSlotFillingComplete_notAllRequiredParamsFilled_returnsFalse() {
-        val intentParameters: MutableList<AppActionsContext.IntentParameter> = ArrayList()
+        val intentParameters: MutableList<IntentParameter> = ArrayList()
         intentParameters.add(
-            PropertyConverter.getIntentParameter(
-                "required",
-                TypeProperty.Builder<StringValue>().setRequired(true).build(),
-                PropertyConverter::stringValueToProto
-            )
+            IntentParameter.newBuilder().setName("required").setIsRequired(true).build()
         )
         assertThat(TaskCapabilityUtils.isSlotFillingComplete(emptyMap(), intentParameters))
             .isFalse()

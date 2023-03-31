@@ -22,7 +22,6 @@ import androidx.annotation.NonNull;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter;
-import androidx.appactions.interaction.capabilities.core.impl.converters.PropertyConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.SlotTypeConverter;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ParamBinding.ArgumentSetter;
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty;
@@ -180,10 +179,7 @@ public final class ActionSpecBuilder<
                 property ->
                         optionalPropertyGetter
                                 .apply(property)
-                                .map(
-                                        p ->
-                                                PropertyConverter.getIntentParameter(
-                                                        paramName, p, entityConverter)),
+                                .map(p -> buildIntentParameter(paramName, p, entityConverter)),
                 (argBuilder, paramList) -> {
                     if (!paramList.isEmpty()) {
                         paramConsumer.accept(
@@ -220,10 +216,7 @@ public final class ActionSpecBuilder<
                 property ->
                         optionalPropertyGetter
                                 .apply(property)
-                                .map(
-                                        p ->
-                                                PropertyConverter.getIntentParameter(
-                                                        paramName, p, entityConverter)),
+                                .map(p -> buildIntentParameter(paramName, p, entityConverter)),
                 (argBuilder, paramList) ->
                         paramConsumer.accept(
                                 argBuilder,
@@ -289,5 +282,22 @@ public final class ActionSpecBuilder<
                 mArgumentBuilderSupplier,
                 Collections.unmodifiableList(mParamBindingList),
                 mOutputBindings);
+    }
+
+    /** Create IntentParameter proto from a TypeProperty. */
+    @NonNull
+    private static <T> IntentParameter buildIntentParameter(
+            @NonNull String paramName,
+            @NonNull TypeProperty<T> property,
+            @NonNull EntityConverter<T> entityConverter) {
+        IntentParameter.Builder builder = IntentParameter.newBuilder()
+                .setName(paramName)
+                .setIsRequired(property.isRequired())
+                .setEntityMatchRequired(property.isValueMatchRequired())
+                .setIsProhibited(property.isProhibited());
+        property.getPossibleValues().stream()
+                .map(entityConverter::convert)
+                .forEach(builder::addPossibleEntities);
+        return builder.build();
     }
 }

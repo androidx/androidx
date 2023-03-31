@@ -22,7 +22,6 @@ import androidx.annotation.NonNull;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter;
-import androidx.appactions.interaction.capabilities.core.impl.converters.PropertyConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters;
 import androidx.appactions.interaction.capabilities.core.properties.Entity;
 import androidx.appactions.interaction.capabilities.core.properties.StringValue;
@@ -57,37 +56,37 @@ public final class ActionSpecTest {
                             Property::requiredEntityField,
                             Argument.Builder::setRequiredEntityField,
                             TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
-                            PropertyConverter::entityToProto)
+                            TypeConverters.ENTITY_ENTITY_CONVERTER)
                     .bindOptionalParameter(
                             "optionalEntity",
                             Property::optionalEntityField,
                             Argument.Builder::setOptionalEntityField,
                             TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
-                            PropertyConverter::entityToProto)
+                            TypeConverters.ENTITY_ENTITY_CONVERTER)
                     .bindRepeatedParameter(
                             "repeatedEntity",
                             Property::repeatedEntityField,
                             Argument.Builder::setRepeatedEntityField,
                             TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
-                            PropertyConverter::entityToProto)
+                            TypeConverters.ENTITY_ENTITY_CONVERTER)
                     .bindParameter(
                             "requiredString",
                             Property::requiredStringField,
                             Argument.Builder::setRequiredStringField,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                            PropertyConverter::stringValueToProto)
+                            TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
                     .bindOptionalParameter(
                             "optionalString",
                             Property::optionalStringField,
                             Argument.Builder::setOptionalStringField,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                            PropertyConverter::stringValueToProto)
+                            TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
                     .bindRepeatedParameter(
                             "repeatedString",
                             Property::repeatedStringField,
                             Argument.Builder::setRepeatedStringField,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                            PropertyConverter::stringValueToProto)
+                            TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
                     .bindOptionalOutput(
                             "optionalStringOutput",
                             Output::optionalStringField,
