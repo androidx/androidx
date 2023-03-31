@@ -292,6 +292,52 @@ class OnBackStackChangedListenerTest {
     }
 
     @Test
+    fun testOnBackChangeCommittedReplacePop() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fragmentManager = withActivity { supportFragmentManager }
+
+            val fragment1 = StrictFragment()
+
+            fragmentManager.beginTransaction()
+                .setReorderingAllowed(true)
+                .add(R.id.content, fragment1)
+                .addToBackStack(null)
+                .commit()
+            executePendingTransactions()
+
+            var innerPop = false
+            var count = 0
+
+            val incomingFragments = mutableListOf<Fragment>()
+
+            fragmentManager.addOnBackStackChangedListener(object : OnBackStackChangedListener {
+                override fun onBackStackChanged() { /* nothing */
+                }
+
+                override fun onBackStackChangeCommitted(fragment: Fragment, pop: Boolean) {
+                    incomingFragments.add(fragment)
+                    innerPop = pop
+                    count++
+                }
+            })
+
+            val fragment2 = StrictFragment()
+
+            fragmentManager.beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.content, fragment2)
+                .addToBackStack(null)
+                .commit()
+            fragmentManager.popBackStack()
+            executePendingTransactions()
+
+            assertThat(incomingFragments).containsExactlyElementsIn(listOf(fragment1, fragment2))
+            assertThat(innerPop).isTrue()
+            assertThat(count).isEqualTo(2)
+        }
+    }
+
+    @Test
     fun testOnBackChangeRemoveListenerAfterStarted() {
         with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragmentManager = withActivity { supportFragmentManager }
