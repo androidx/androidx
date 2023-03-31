@@ -1299,20 +1299,47 @@ package androidx.compose.foundation.text2 {
 
 package androidx.compose.foundation.text2.input {
 
-  @androidx.compose.foundation.ExperimentalFoundationApi public fun interface TextEditFilter {
-    method public androidx.compose.ui.text.input.TextFieldValue filter(androidx.compose.ui.text.input.TextFieldValue oldValue, androidx.compose.ui.text.input.TextFieldValue newValue);
-    field public static final androidx.compose.foundation.text2.input.TextEditFilter.Companion Companion;
+  @androidx.compose.foundation.ExperimentalFoundationApi public final class MutableTextFieldValue implements java.lang.Appendable {
+    method public Appendable append(char char);
+    method public Appendable append(CharSequence? text);
+    method public Appendable append(CharSequence? text, int start, int end);
+    method public int getLength();
+    method public void replace(int start, int end, String text);
+    property public final int length;
   }
 
-  public static final class TextEditFilter.Companion {
-    method public androidx.compose.foundation.text2.input.TextEditFilter getDefault();
-    property public final androidx.compose.foundation.text2.input.TextEditFilter Default;
+  @androidx.compose.foundation.ExperimentalFoundationApi public abstract sealed class TextFieldEditResult {
+  }
+
+  public final class TextFieldEditResultKt {
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldEditResult placeCursorAtEnd(androidx.compose.foundation.text2.input.MutableTextFieldValue);
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldEditResult placeCursorBeforeChar(androidx.compose.foundation.text2.input.MutableTextFieldValue, int index);
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldEditResult placeCursorBeforeCodepoint(androidx.compose.foundation.text2.input.MutableTextFieldValue, int index);
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldEditResult selectAll(androidx.compose.foundation.text2.input.MutableTextFieldValue);
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldEditResult selectChars(androidx.compose.foundation.text2.input.MutableTextFieldValue, long range);
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldEditResult selectCodepoints(androidx.compose.foundation.text2.input.MutableTextFieldValue, long range);
   }
 
   @androidx.compose.foundation.ExperimentalFoundationApi public final class TextFieldState {
-    ctor public TextFieldState(optional androidx.compose.ui.text.input.TextFieldValue initialValue, optional androidx.compose.foundation.text2.input.TextEditFilter filter);
+    ctor public TextFieldState(optional androidx.compose.ui.text.input.TextFieldValue initialValue, optional androidx.compose.foundation.text2.input.TextFieldState.TextEditFilter filter);
+    method public inline void edit(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.text2.input.MutableTextFieldValue,? extends androidx.compose.foundation.text2.input.TextFieldEditResult> block);
     method public androidx.compose.ui.text.input.TextFieldValue getValue();
     property public final androidx.compose.ui.text.input.TextFieldValue value;
+  }
+
+  @androidx.compose.foundation.ExperimentalFoundationApi public static fun interface TextFieldState.TextEditFilter {
+    method public androidx.compose.ui.text.input.TextFieldValue filter(androidx.compose.ui.text.input.TextFieldValue oldValue, androidx.compose.ui.text.input.TextFieldValue newValue);
+    field public static final androidx.compose.foundation.text2.input.TextFieldState.TextEditFilter.Companion Companion;
+  }
+
+  public static final class TextFieldState.TextEditFilter.Companion {
+    method public androidx.compose.foundation.text2.input.TextFieldState.TextEditFilter getDefault();
+    property public final androidx.compose.foundation.text2.input.TextFieldState.TextEditFilter Default;
+  }
+
+  public final class TextFieldStateKt {
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static void setTextAndPlaceCursorAtEnd(androidx.compose.foundation.text2.input.TextFieldState, String text);
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static void setTextAndSelectAll(androidx.compose.foundation.text2.input.TextFieldState, String text);
   }
 
 }
