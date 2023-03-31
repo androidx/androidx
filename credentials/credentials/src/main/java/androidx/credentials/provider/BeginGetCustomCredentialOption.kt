@@ -17,19 +17,23 @@
 package androidx.credentials.provider
 
 import android.os.Bundle
-import android.service.credentials.BeginGetCredentialResponse
 
 /**
- * A request to a password provider to begin the flow of retrieving the user's saved passwords.
+ * Allows extending custom versions of BeginGetCredentialOptions for unique use cases.
  *
- * Providers must use the parameters in this option to retrieve the corresponding credentials'
- * metadata, and then return them in the form of a list of [PasswordCredentialEntry]
- * set on the [BeginGetCredentialResponse].
+ * If you get a [BeginGetCustomCredentialOption] instead of a type-safe option class such as
+ * [BeginGetPasswordOption], [BeginGetPublicKeyCredentialOption], etc., then you should check if
+ * you have any other library at interest that supports this custom [type] of credential option,
+ * and if so use its parsing utilities to resolve to a type-safe class within that library.
  *
- * Note : Credential providers are not expected to utilize the constructor in this class for any
- * production flow. This constructor must only be used for testing purposes.
+ * @property type the credential type determined by the credential-type-specific subclass
+ * generated for custom use cases
+ * @property candidateQueryData the partial request data in the [Bundle] format that will be sent to
+ * the provider during the initial candidate query stage, which should not contain sensitive user
+ * information
+ * @throws IllegalArgumentException If [type] is null or, empty
  */
-class BeginGetCustomCredentialOption constructor(
+open class BeginGetCustomCredentialOption constructor(
     override val id: String,
     override val type: String,
     override val candidateQueryData: Bundle,
@@ -38,6 +42,10 @@ class BeginGetCustomCredentialOption constructor(
     type,
     candidateQueryData
 ) {
+    init {
+        require(id.isNotEmpty()) { "id should not be empty" }
+        require(type.isNotEmpty()) { "type should not be empty" }
+    }
 
     /** @hide **/
     @Suppress("AcronymName")
