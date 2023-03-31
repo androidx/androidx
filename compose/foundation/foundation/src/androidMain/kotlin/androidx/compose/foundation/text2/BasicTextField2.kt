@@ -33,6 +33,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.TextDelegate
 import androidx.compose.foundation.text.heightInLines
 import androidx.compose.foundation.text.textFieldMinSize
+import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.AndroidTextInputPlugin
 import androidx.compose.foundation.text2.input.internal.TextFieldCoreModifier
@@ -64,13 +65,19 @@ import kotlin.math.roundToInt
  * using it in production since it has a very unstable API and implementation for the time being.
  * Many core features like selection, cursor, gestures, etc. may fail or simply not exist.
  *
- * @param state State object that holds the internal state of a [BasicTextField2]
+ * @param state [TextFieldState] object that holds the internal state of a [BasicTextField2].
  * @param modifier optional [Modifier] for this text field.
  * @param enabled controls the enabled state of the [BasicTextField2]. When `false`, the text
  * field will be neither editable nor focusable, the input of the text field will not be selectable.
  * @param readOnly controls the editable state of the [BasicTextField2]. When `true`, the text
  * field can not be modified, however, a user can focus it and copy text from it. Read-only text
- * fields are usually used to display pre-filled forms that user can not edit
+ * fields are usually used to display pre-filled forms that user can not edit.
+ * @param filter Optional [TextEditFilter] that will be used to filter changes to the
+ * [TextFieldState] made by the user. The filter will be applied to changes made by hardware and
+ * software keyboard events, pasting or dropping text, accessibility services, and tests. The filter
+ * will _not_ be applied when changing the [state] programmatically, or when the filter is changed.
+ * If the filter is changed on an existing text field, it will be applied to the next user edit.
+ * the filter will not immediately affect the current [state].
  * @param textStyle Style configuration for text content that's displayed in the editor.
  * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
  * for this TextField. You can create and pass in your own remembered [MutableInteractionSource]
@@ -107,6 +114,7 @@ fun BasicTextField2(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     readOnly: Boolean = false,
+    filter: TextEditFilter? = null,
     textStyle: TextStyle = TextStyle.Default,
     interactionSource: MutableInteractionSource? = null,
     cursorBrush: Brush = SolidColor(Color.Black),
@@ -152,10 +160,11 @@ fun BasicTextField2(
                 textFieldState = state,
                 textLayoutState = textLayoutState,
                 textInputAdapter = textInputAdapter,
+                filter = filter,
                 enabled = enabled,
                 readOnly = readOnly,
                 keyboardOptions = keyboardOptions,
-                singleLine = singleLine
+                singleLine = singleLine,
             )
         )
         .focusable(interactionSource = interactionSource, enabled = enabled)
@@ -183,14 +192,14 @@ fun BasicTextField2(
                 .clipToBounds()
                 .then(
                     TextFieldCoreModifier(
-                    isFocused = interactionSource.collectIsFocusedAsState().value,
-                    textLayoutState = textLayoutState,
-                    textFieldState = state,
-                    cursorBrush = cursorBrush,
-                    writeable = enabled && !readOnly,
-                    scrollState = scrollState,
-                    orientation = orientation
-                )
+                        isFocused = interactionSource.collectIsFocusedAsState().value,
+                        textLayoutState = textLayoutState,
+                        textFieldState = state,
+                        cursorBrush = cursorBrush,
+                        writeable = enabled && !readOnly,
+                        scrollState = scrollState,
+                        orientation = orientation
+                    )
                 )
 
             Layout(modifier = coreModifiers) { _, constraints ->

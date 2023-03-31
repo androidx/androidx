@@ -25,6 +25,14 @@ import androidx.compose.ui.text.input.TextFieldValue
 /**
  * A value to be returned from [TextFieldState.edit] that specifies where the place the cursor or
  * selection.
+ *
+ * Predefined results include:
+ *  - [MutableTextFieldValue.placeCursorAtEnd]
+ *  - [MutableTextFieldValue.placeCursorBeforeCharAt]
+ *  - [MutableTextFieldValue.placeCursorBeforeCodepointAt]
+ *  - [MutableTextFieldValue.selectAll]
+ *  - [MutableTextFieldValue.selectCharsIn]
+ *  - [MutableTextFieldValue.selectCodepointsIn]
  */
 @ExperimentalFoundationApi
 sealed class TextFieldEditResult {
@@ -40,26 +48,44 @@ sealed class TextFieldEditResult {
 
 /**
  * Returns a [TextFieldEditResult] that places the cursor before the codepoint at the given index.
+ *
  * If [index] is inside an invalid run, the cursor will be placed at the nearest earlier index.
  *
- * @see placeCursorBeforeChar
+ * To place the cursor at the beginning of the field, pass index 0. To place the cursor at the end
+ * of the field, after the last character, pass index [MutableTextFieldValue.codepointLength].
+ *
+ * @param index Codepoint index to place cursor before, should be in range 0 to
+ * [MutableTextFieldValue.codepointLength], inclusive.
+ *
+ * @see placeCursorBeforeCharAt
  * @see TextFieldState.edit
  */
 @ExperimentalFoundationApi
-fun MutableTextFieldValue.placeCursorBeforeCodepoint(index: Int): TextFieldEditResult =
-    selectCodepoints(TextRange(index))
+fun MutableTextFieldValue.placeCursorBeforeCodepointAt(index: Int): TextFieldEditResult =
+    object : SelectRangeResult(this, TextRange(index), inCodepoints = true) {
+        override fun toString(): String = "placeCursorBeforeCodepoint(index=$index)"
+    }
 
 /**
  * Returns a [TextFieldEditResult] that places the cursor before the character at the given index.
+ *
  * If [index] is inside a surrogate pair or other invalid run, the cursor will be placed at the
  * nearest earlier index.
  *
- * @see placeCursorBeforeCodepoint
+ * To place the cursor at the beginning of the field, pass index 0. To place the cursor at the end
+ * of the field, after the last character, pass index [MutableTextFieldValue.length].
+ *
+ * @param index Codepoint index to place cursor before, should be in range 0 to
+ * [MutableTextFieldValue.length], inclusive.
+ *
+ * @see placeCursorBeforeCodepointAt
  * @see TextFieldState.edit
  */
 @ExperimentalFoundationApi
-fun MutableTextFieldValue.placeCursorBeforeChar(index: Int): TextFieldEditResult =
-    selectChars(TextRange(index))
+fun MutableTextFieldValue.placeCursorBeforeCharAt(index: Int): TextFieldEditResult =
+    object : SelectRangeResult(this, TextRange(index), inCodepoints = false) {
+        override fun toString(): String = "placeCursorBeforeChar(index=$index)"
+    }
 
 /**
  * Returns a [TextFieldEditResult] that places the cursor at the end of the text.
@@ -72,27 +98,49 @@ fun MutableTextFieldValue.placeCursorAtEnd(): TextFieldEditResult = PlaceCursorA
 
 /**
  * Returns a [TextFieldEditResult] that places the selection around the given [range] in codepoints.
+ *
  * If the start or end of [range] fall inside invalid runs, the values will be adjusted to the
  * nearest earlier and later codepoints, respectively.
  *
- * @see selectChars
+ * To place the start of the selection at the beginning of the field, pass index 0. To place the end
+ * of the selection at the end of the field, after the last codepoint, pass index
+ * [MutableTextFieldValue.codepointLength]. Passing a zero-length range is the same as calling
+ * [placeCursorBeforeCodepointAt].
+ *
+ * @param range Codepoint range of the selection, should be in range 0 to
+ * [MutableTextFieldValue.codepointLength], inclusive.
+ *
+ * @see selectCharsIn
  * @see TextFieldState.edit
  */
 @ExperimentalFoundationApi
-fun MutableTextFieldValue.selectCodepoints(range: TextRange): TextFieldEditResult =
-    SelectRangeResult(this, range, inCodepoints = true)
+fun MutableTextFieldValue.selectCodepointsIn(range: TextRange): TextFieldEditResult =
+    object : SelectRangeResult(this, range, inCodepoints = true) {
+        override fun toString(): String = "selectCodepoints(range=$range)"
+    }
 
 /**
  * Returns a [TextFieldEditResult] that places the selection around the given [range] in characters.
+ *
  * If the start or end of [range] fall inside surrogate pairs or other invalid runs, the values will
  * be adjusted to the nearest earlier and later characters, respectively.
  *
- * @see selectChars
+ * To place the start of the selection at the beginning of the field, pass index 0. To place the end
+ * of the selection at the end of the field, after the last character, pass index
+ * [MutableTextFieldValue.length]. Passing a zero-length range is the same as calling
+ * [placeCursorBeforeCharAt].
+ *
+ * @param range Codepoint range of the selection, should be in range 0 to
+ * [MutableTextFieldValue.length], inclusive.
+ *
+ * @see selectCharsIn
  * @see TextFieldState.edit
  */
 @ExperimentalFoundationApi
-fun MutableTextFieldValue.selectChars(range: TextRange): TextFieldEditResult =
-    SelectRangeResult(this, range, inCodepoints = false)
+fun MutableTextFieldValue.selectCharsIn(range: TextRange): TextFieldEditResult =
+    object : SelectRangeResult(this, range, inCodepoints = false) {
+        override fun toString(): String = "selectChars(range=$range)"
+    }
 
 /**
  * Returns a [TextFieldEditResult] that places the selection around all the text.
@@ -108,6 +156,8 @@ private object PlaceCursorAtEndResult : TextFieldEditResult() {
         oldValue: TextFieldValue,
         newValue: MutableTextFieldValue
     ): TextRange = TextRange(newValue.length)
+
+    override fun toString(): String = "placeCursorAtEnd()"
 }
 
 private object SelectAllResult : TextFieldEditResult() {
@@ -115,40 +165,32 @@ private object SelectAllResult : TextFieldEditResult() {
         oldValue: TextFieldValue,
         newValue: MutableTextFieldValue
     ): TextRange = TextRange(0, newValue.length)
+
+    override fun toString(): String = "selectAll()"
 }
 
-private class SelectRangeResult(
+/** Open for [toString] overrides. */
+private open class SelectRangeResult(
     value: MutableTextFieldValue,
     private val rawRange: TextRange,
     private val inCodepoints: Boolean
 ) : TextFieldEditResult() {
 
-    val charRange: TextRange = if (inCodepoints) codepointsToChars(rawRange) else rawRange
+    val charRange: TextRange = if (inCodepoints) value.codepointsToChars(rawRange) else rawRange
 
     init {
-        val validRange = TextRange(0, value.length)
-        require(charRange in validRange) {
-            val expectedRange = if (inCodepoints) charsToCodepoints(validRange) else validRange
+        val validCharRange = TextRange(0, value.length)
+        require(charRange in validCharRange) {
+            // The "units" of the range in the error message should match the units passed in.
+            // If the input was in codepoint indices, the output should be in codepoint indices.
+            val expectedRange =
+                if (inCodepoints) value.charsToCodepoints(validCharRange) else validCharRange
             "Expected $rawRange to be in $expectedRange"
         }
     }
 
-    override fun calculateSelection(
+    final override fun calculateSelection(
         oldValue: TextFieldValue,
         newValue: MutableTextFieldValue
     ): TextRange = charRange
-
-    private fun codepointsToChars(range: TextRange): TextRange = TextRange(
-        codepointIndexToCharIndex(range.start),
-        codepointIndexToCharIndex(range.end)
-    )
-
-    private fun charsToCodepoints(range: TextRange): TextRange = TextRange(
-        charIndexToCodepointIndex(range.start),
-        charIndexToCodepointIndex(range.end),
-    )
-
-    // TODO Support actual codepoints.
-    private fun codepointIndexToCharIndex(index: Int): Int = index
-    private fun charIndexToCodepointIndex(index: Int): Int = index
 }

@@ -17,7 +17,7 @@
 package androidx.compose.foundation.text2.input.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text2.input.TextFieldState.TextEditFilter
+import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,7 +43,6 @@ internal class EditProcessor(
         TextRange.Zero,
         null
     ),
-    private val filter: TextEditFilter = TextEditFilter.Default
 ) {
 
     /**
@@ -144,7 +143,7 @@ internal class EditProcessor(
      *
      * @return the [TextFieldValue] representation of the final buffer state.
      */
-    fun update(editCommands: List<EditCommand>) {
+    fun update(editCommands: List<EditCommand>, filter: TextEditFilter?) {
         var lastCommand: EditCommand? = null
         try {
             editCommands.fastForEach {
@@ -163,12 +162,16 @@ internal class EditProcessor(
 
         val oldValue = value
 
-        val filteredValue = filter.filter(oldValue, newValue)
-        if (filteredValue == newValue) {
-            value = filteredValue
+        if (filter == null) {
+            value = newValue
         } else {
-            // reset the buffer to new given state.
-            reset(filteredValue)
+            val filteredValue = filter.filter(oldValue, newValue)
+            if (filteredValue == newValue) {
+                value = filteredValue
+            } else {
+                // reset the buffer to new given state.
+                reset(filteredValue)
+            }
         }
     }
 

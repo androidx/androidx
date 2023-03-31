@@ -19,7 +19,6 @@
 package androidx.compose.foundation.text2.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text2.input.TextFieldState.TextEditFilter
 import androidx.compose.foundation.text2.input.internal.EditProcessor
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
@@ -28,37 +27,29 @@ import androidx.compose.ui.text.input.TextFieldValue
  * The editable text state of a text field, including both the text itself and position of the
  * cursor or selection.
  *
- * To change the state, call the [edit] method, edit the text by calling [MutableTextFieldValue]
- * methods, then return an edit result to specify the new location of the cursor or selection by
- * calling one of the methods on [MutableTextFieldValue].
+ * To change the state, call [edit].
  */
 @ExperimentalFoundationApi
-class TextFieldState(
-    initialValue: TextFieldValue = TextFieldValue(),
-    filter: TextEditFilter = TextEditFilter.Default
-) {
-    internal var editProcessor = EditProcessor(initialValue, filter)
+class TextFieldState(initialValue: TextFieldValue = TextFieldValue()) {
+
+    internal var editProcessor = EditProcessor(initialValue)
 
     val value: TextFieldValue
         get() = editProcessor.value
 
     /**
      * Runs [block] with a mutable version of the current state. The block can make changes to the
-     * text, and must specify the new location of the cursor or selection by return a
-     * [TextFieldEditResult].
+     * text, and must specify the new location of the cursor or selection by returning a
+     * [TextFieldEditResult] such as [placeCursorAtEnd] or [selectAll] (see the documentation on
+     * [TextFieldEditResult] for the full list of prebuilt results).
      *
+     * @sample androidx.compose.foundation.samples.BasicTextField2StateEditSample
      * @see setTextAndPlaceCursorAtEnd
      * @see setTextAndSelectAll
-     * @see MutableTextFieldValue.placeCursorAtEnd
-     * @see MutableTextFieldValue.placeCursorBeforeChar
-     * @see MutableTextFieldValue.placeCursorBeforeCodepoint
-     * @see MutableTextFieldValue.selectChars
-     * @see MutableTextFieldValue.selectCodepoints
      */
     inline fun edit(block: MutableTextFieldValue.() -> TextFieldEditResult) {
         val mutableValue = startEdit(value)
         val result = mutableValue.block()
-        // Don't run the filter for programmatic edits.
         commitEdit(mutableValue, result)
     }
 
@@ -73,16 +64,6 @@ class TextFieldState(
         val newSelection = result.calculateSelection(value, newValue)
         val finalValue = newValue.toTextFieldValue(newSelection)
         editProcessor.reset(finalValue)
-    }
-
-    @ExperimentalFoundationApi
-    fun interface TextEditFilter {
-
-        fun filter(oldValue: TextFieldValue, newValue: TextFieldValue): TextFieldValue
-
-        companion object {
-            val Default = TextEditFilter { _, new -> new }
-        }
     }
 }
 

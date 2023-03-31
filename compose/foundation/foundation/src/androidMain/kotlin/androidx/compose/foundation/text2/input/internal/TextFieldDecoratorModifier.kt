@@ -18,6 +18,7 @@ package androidx.compose.foundation.text2.input.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.deselect
 import androidx.compose.ui.Modifier
@@ -64,6 +65,7 @@ internal data class TextFieldDecoratorModifier(
     private val textFieldState: TextFieldState,
     private val textLayoutState: TextLayoutState,
     private val textInputAdapter: AndroidTextInputAdapter?,
+    private val filter: TextEditFilter?,
     private val enabled: Boolean,
     private val readOnly: Boolean,
     private val keyboardOptions: KeyboardOptions,
@@ -73,6 +75,7 @@ internal data class TextFieldDecoratorModifier(
         textFieldState = textFieldState,
         textLayoutState = textLayoutState,
         textInputAdapter = textInputAdapter,
+        filter = filter,
         enabled = enabled,
         readOnly = readOnly,
         keyboardOptions = keyboardOptions,
@@ -84,6 +87,7 @@ internal data class TextFieldDecoratorModifier(
             textFieldState = textFieldState,
             textLayoutState = textLayoutState,
             textInputAdapter = textInputAdapter,
+            filter = filter,
             enabled = enabled,
             readOnly = readOnly,
             keyboardOptions = keyboardOptions,
@@ -103,6 +107,7 @@ internal class TextFieldDecoratorModifierNode(
     var textFieldState: TextFieldState,
     var textLayoutState: TextLayoutState,
     var textInputAdapter: AndroidTextInputAdapter?,
+    var filter: TextEditFilter?,
     var enabled: Boolean,
     var readOnly: Boolean,
     var keyboardOptions: KeyboardOptions,
@@ -128,7 +133,9 @@ internal class TextFieldDecoratorModifierNode(
      * Manages key events. These events often are sourced by a hardware keyboard but it's also
      * possible that IME or some other platform system simulates a KeyEvent.
      */
-    private val textFieldKeyEventHandler = TextFieldKeyEventHandler()
+    private val textFieldKeyEventHandler = TextFieldKeyEventHandler().also {
+        it.setFilter(filter)
+    }
 
     /**
      * Updates all the related properties and invalidates internal state based on the changes.
@@ -137,6 +144,7 @@ internal class TextFieldDecoratorModifierNode(
         textFieldState: TextFieldState,
         textLayoutState: TextLayoutState,
         textInputAdapter: AndroidTextInputAdapter?,
+        filter: TextEditFilter?,
         enabled: Boolean,
         readOnly: Boolean,
         keyboardOptions: KeyboardOptions,
@@ -151,6 +159,7 @@ internal class TextFieldDecoratorModifierNode(
         this.textFieldState = textFieldState
         this.textLayoutState = textLayoutState
         this.textInputAdapter = textInputAdapter
+        this.filter = filter
         this.enabled = enabled
         this.readOnly = readOnly
         this.keyboardOptions = keyboardOptions
@@ -164,13 +173,16 @@ internal class TextFieldDecoratorModifierNode(
                 // The old session will be implicitly disposed.
                 textInputSession = textInputAdapter?.startInputSession(
                     textFieldState,
-                    keyboardOptions.toImeOptions(singleLine)
+                    keyboardOptions.toImeOptions(singleLine),
+                    filter,
                 )
             } else if (!writeable) {
                 // We were made read-only or disabled, hide the keyboard.
                 disposeInputSession()
             }
         }
+        textInputSession?.setFilter(filter)
+        textFieldKeyEventHandler.setFilter(filter)
     }
 
     /**
@@ -202,7 +214,8 @@ internal class TextFieldDecoratorModifierNode(
         if (focusState.isFocused) {
             textInputSession = textInputAdapter?.startInputSession(
                 textFieldState,
-                keyboardOptions.toImeOptions(singleLine)
+                keyboardOptions.toImeOptions(singleLine),
+                filter,
             )
             // TODO(halilibo): bringIntoView
         } else {
@@ -274,7 +287,8 @@ internal class TextFieldDecoratorModifierNode(
                     listOf(
                         DeleteAllCommand,
                         CommitTextCommand(text, 1)
-                    )
+                    ),
+                    filter
                 )
                 true
             }
@@ -309,7 +323,8 @@ internal class TextFieldDecoratorModifierNode(
                         // might set composition.
                         FinishComposingTextCommand,
                         CommitTextCommand(text, 1)
-                    )
+                    ),
+                    filter
                 )
                 true
             }

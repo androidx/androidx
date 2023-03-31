@@ -17,6 +17,8 @@
 package androidx.compose.foundation.text2.input.internal
 
 import android.view.KeyEvent
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeOptions
@@ -30,6 +32,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@OptIn(ExperimentalFoundationApi::class)
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class StatelessInputConnectionTest {
@@ -60,6 +63,10 @@ class StatelessInputConnectionTest {
 
             override val imeOptions: ImeOptions
                 get() = this@StatelessInputConnectionTest.imeOptions
+
+            override fun setFilter(filter: TextEditFilter?) {
+                // Noop.
+            }
 
             override fun requestEdits(editCommands: List<EditCommand>) {
                 onRequestEdits?.invoke(editCommands)

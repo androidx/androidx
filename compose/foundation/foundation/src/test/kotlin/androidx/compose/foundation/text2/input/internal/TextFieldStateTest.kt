@@ -19,11 +19,11 @@ package androidx.compose.foundation.text2.input.internal
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.placeCursorAtEnd
-import androidx.compose.foundation.text2.input.placeCursorBeforeChar
-import androidx.compose.foundation.text2.input.placeCursorBeforeCodepoint
+import androidx.compose.foundation.text2.input.placeCursorBeforeCharAt
+import androidx.compose.foundation.text2.input.placeCursorBeforeCodepointAt
 import androidx.compose.foundation.text2.input.selectAll
-import androidx.compose.foundation.text2.input.selectChars
-import androidx.compose.foundation.text2.input.selectCodepoints
+import androidx.compose.foundation.text2.input.selectCharsIn
+import androidx.compose.foundation.text2.input.selectCodepointsIn
 import androidx.compose.foundation.text2.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.text2.input.setTextAndSelectAll
 import androidx.compose.ui.text.TextRange
@@ -113,7 +113,7 @@ class TextFieldStateTest {
     fun edit_placeCursorBeforeChar_simpleCase() {
         state.edit {
             replace(0, 0, "hello")
-            placeCursorBeforeChar(2)
+            placeCursorBeforeCharAt(2)
         }
         assertThat(state.value.selection).isEqualTo(TextRange(2))
     }
@@ -122,10 +122,10 @@ class TextFieldStateTest {
     fun edit_placeCursorBeforeChar_throws_whenInvalid() {
         state.edit {
             assertFailsWith<IllegalArgumentException> {
-                placeCursorBeforeChar(500)
+                placeCursorBeforeCharAt(500)
             }
             assertFailsWith<IllegalArgumentException> {
-                placeCursorBeforeChar(-1)
+                placeCursorBeforeCharAt(-1)
             }
             placeCursorAtEnd()
         }
@@ -135,7 +135,7 @@ class TextFieldStateTest {
     fun edit_placeCursorBeforeCodepoint_simpleCase() {
         state.edit {
             replace(0, 0, "hello")
-            placeCursorBeforeCodepoint(2)
+            placeCursorBeforeCodepointAt(2)
         }
         assertThat(state.value.selection).isEqualTo(TextRange(2))
     }
@@ -144,10 +144,10 @@ class TextFieldStateTest {
     fun edit_placeCursorBeforeCodepoint_throws_whenInvalid() {
         state.edit {
             assertFailsWith<IllegalArgumentException> {
-                placeCursorBeforeCodepoint(500)
+                placeCursorBeforeCodepointAt(500)
             }
             assertFailsWith<IllegalArgumentException> {
-                placeCursorBeforeCodepoint(-1)
+                placeCursorBeforeCodepointAt(-1)
             }
             placeCursorAtEnd()
         }
@@ -166,7 +166,7 @@ class TextFieldStateTest {
     fun edit_selectChars_simpleCase() {
         state.edit {
             replace(0, 0, "hello")
-            selectChars(TextRange(1, 4))
+            selectCharsIn(TextRange(1, 4))
         }
         assertThat(state.value.selection).isEqualTo(TextRange(1, 4))
     }
@@ -175,16 +175,16 @@ class TextFieldStateTest {
     fun edit_selectChars_throws_whenInvalid() {
         state.edit {
             assertFailsWith<IllegalArgumentException> {
-                selectChars(TextRange(500, 501))
+                selectCharsIn(TextRange(500, 501))
             }
             assertFailsWith<IllegalArgumentException> {
-                selectChars(TextRange(-1, 500))
+                selectCharsIn(TextRange(-1, 500))
             }
             assertFailsWith<IllegalArgumentException> {
-                selectChars(TextRange(500, -1))
+                selectCharsIn(TextRange(500, -1))
             }
             assertFailsWith<IllegalArgumentException> {
-                selectChars(TextRange(-500, -1))
+                selectCharsIn(TextRange(-500, -1))
             }
             placeCursorAtEnd()
         }
@@ -194,7 +194,7 @@ class TextFieldStateTest {
     fun edit_selectCodepoints_simpleCase() {
         state.edit {
             replace(0, 0, "hello")
-            selectCodepoints(TextRange(1, 4))
+            selectCodepointsIn(TextRange(1, 4))
         }
         assertThat(state.value.selection).isEqualTo(TextRange(1, 4))
     }
@@ -203,16 +203,16 @@ class TextFieldStateTest {
     fun edit_selectCodepoints_throws_whenInvalid() {
         state.edit {
             assertFailsWith<IllegalArgumentException> {
-                selectCodepoints(TextRange(500, 501))
+                selectCodepointsIn(TextRange(500, 501))
             }
             assertFailsWith<IllegalArgumentException> {
-                selectCodepoints(TextRange(-1, 500))
+                selectCodepointsIn(TextRange(-1, 500))
             }
             assertFailsWith<IllegalArgumentException> {
-                selectCodepoints(TextRange(500, -1))
+                selectCodepointsIn(TextRange(500, -1))
             }
             assertFailsWith<IllegalArgumentException> {
-                selectCodepoints(TextRange(-500, -1))
+                selectCodepointsIn(TextRange(-500, -1))
             }
             placeCursorAtEnd()
         }
