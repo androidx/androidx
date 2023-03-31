@@ -202,6 +202,10 @@ public annotation class IsForSafeWatchFace
  * android:value="RANGED_VALUE,SHORT_TEXT,ICON"/>
  * ```
  *
+ * From android T onwards, it is recommended for Complication DataSourceServices to be direct boot
+ * aware because the system is able to fetch complications before the lock screen has been removed.
+ * To do this add android:directBootAware="true" to your service tag.
+ *
  * - A provider can choose to trust one or more watch faces by including the following in its
  * manifest entry:
  * ```
