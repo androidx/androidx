@@ -22,10 +22,12 @@ import android.graphics.Rect
 import android.os.Build
 import android.os.Looper.getMainLooper
 import android.util.Size
+import android.view.Surface
 import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
 import androidx.camera.core.ImageCapture.FLASH_MODE_AUTO
 import androidx.camera.core.MirrorMode.MIRROR_MODE_ON
+import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CaptureConfig
@@ -37,7 +39,6 @@ import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.processing.SurfaceEdge
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeDeferrableSurface
-import androidx.camera.testing.fakes.FakeUseCase
 import androidx.camera.testing.fakes.FakeUseCaseConfig
 import androidx.camera.testing.fakes.FakeUseCaseConfigFactory
 import com.google.common.truth.Truth.assertThat
@@ -70,7 +71,7 @@ class VirtualCameraTest {
 
     private val surfaceEdgesToClose = mutableListOf<SurfaceEdge>()
     private val parentCamera = FakeCamera()
-    private val child1 = FakeUseCase()
+    private val child1 = FakeUseCaseConfig.Builder().setTargetRotation(Surface.ROTATION_0).build()
     private val child2 = FakeUseCaseConfig.Builder()
         .setMirrorMode(MIRROR_MODE_ON)
         .build()
@@ -188,6 +189,12 @@ class VirtualCameraTest {
     fun getChildrenOutConfigs() {
         // Arrange.
         val cropRect = Rect(10, 10, 410, 310)
+        val preview = Preview.Builder().setTargetRotation(Surface.ROTATION_90).build()
+        virtualCamera = VirtualCamera(
+            parentCamera, setOf(preview, child2), useCaseConfigFactory
+        ) {
+            Futures.immediateFuture(null)
+        }
 
         // Act.
         val outConfigs = virtualCamera.getChildrenOutConfigs(
@@ -195,10 +202,11 @@ class VirtualCameraTest {
         )
 
         // Assert: child1
-        val outConfig1 = outConfigs[child1]!!
-        assertThat(outConfig1.cropRect).isEqualTo(cropRect)
-        assertThat(outConfig1.size).isEqualTo(Size(400, 300))
-        assertThat(outConfig1.mirroring).isFalse()
+        val previewOutConfig = outConfigs[preview]!!
+        assertThat(previewOutConfig.cropRect).isEqualTo(cropRect)
+        assertThat(previewOutConfig.size).isEqualTo(Size(300, 400))
+        assertThat(previewOutConfig.rotationDegrees).isEqualTo(270)
+        assertThat(previewOutConfig.mirroring).isFalse()
         // Assert: child2
         val outConfig2 = outConfigs[child2]!!
         assertThat(outConfig2.cropRect).isEqualTo(cropRect)

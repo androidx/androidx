@@ -366,7 +366,7 @@ public class SurfaceProcessorNode implements
         /**
          * How the input should be rotated clockwise.
          */
-        abstract int getRotationDegrees();
+        public abstract int getRotationDegrees();
 
         /**
          * The whether the stream should be mirrored.
