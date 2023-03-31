@@ -22,7 +22,9 @@ import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
+import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
+import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.CALL_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.PARTICIPANT_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
@@ -49,7 +51,7 @@ private val ACTION_SPEC =
             { property -> Optional.ofNullable(property.callFormat) },
             CreateCall.Argument.Builder::setCallFormat,
             TypeConverters.CALL_FORMAT_PARAM_VALUE_CONVERTER,
-            TypeConverters::toEntity
+            TypeConverters.CALL_FORMAT_ENTITY_CONVERTER
         )
         .bindRepeatedParameter(
             "call.participant",
@@ -61,7 +63,7 @@ private val ACTION_SPEC =
         .bindOptionalOutput(
             "call",
             { output -> Optional.ofNullable(output.call) },
-            TypeConverters::toParamValue
+            ParamValueConverter.of(CALL_TYPE_SPEC)::toParamValue
         )
         .bindOptionalOutput(
             "executionStatus",

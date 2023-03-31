@@ -519,6 +519,12 @@ class TaskCapabilityImplTest {
     @kotlin.Throws(Exception::class)
     @Suppress("DEPRECATION") // TODO(b/269638788) migrate session state to AppDialogState message
     fun disambig_singleParam_disambigEntitiesInContext() {
+        val entityConverter: EntityConverter<EntityValue> = EntityConverter { entityValue ->
+            Entity.newBuilder()
+                .setIdentifier(entityValue.id.get())
+                .setName(entityValue.value)
+                .build()
+        }
         val capability: ActionCapability =
             createCapability(
                 SINGLE_REQUIRED_FIELD_PROPERTY,
@@ -557,7 +563,7 @@ class TaskCapabilityImplTest {
                                 "required",
                                 listener,
                                 TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
-                                TypeConverters::toEntity,
+                                entityConverter,
                                 getTrivialSearchActionConverter(),
                             )
                         }

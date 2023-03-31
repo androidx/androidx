@@ -63,7 +63,7 @@ private val ACTION_SPEC =
             { property -> Optional.ofNullable(property.duration) },
             StartTimer.Argument.Builder::setDuration,
             TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
-            TypeConverters::toEntity
+            TypeConverters.DURATION_ENTITY_CONVERTER
         )
         .bindOptionalOutput(
             "executionStatus",
