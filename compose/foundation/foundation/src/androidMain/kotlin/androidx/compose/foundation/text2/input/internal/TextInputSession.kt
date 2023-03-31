@@ -49,6 +49,16 @@ internal interface TextInputSession {
     fun setFilter(filter: TextEditFilter?)
 
     /**
+     * Request this session to show the software keyboard.
+     */
+    fun showSoftwareKeyboard()
+
+    /**
+     * Request this session to hide the software keyboard.
+     */
+    fun hideSoftwareKeyboard()
+
+    /**
      * Destroy this session and clear resources.
      */
     fun dispose()
@@ -57,7 +67,7 @@ internal interface TextInputSession {
 /**
  * Extended [TextInputSession] that handles [EditCommand]s and keeps track of current
  * [TextFieldValue]. This interface meant to be completely internal to [AndroidTextInputAdapter].
- * Please use [TextInputSession] to manage focus from the editor.
+ * Please use [TextInputSession] to manage focus and other details from the editor.
  */
 internal interface EditableTextInputSession : TextInputSession {
 

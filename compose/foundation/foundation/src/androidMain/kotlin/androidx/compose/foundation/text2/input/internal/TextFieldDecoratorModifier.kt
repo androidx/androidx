@@ -165,8 +165,7 @@ internal class TextFieldDecoratorModifierNode(
                     focusManager.moveFocus(FocusDirection.Previous)
                 }
                 ImeAction.Done -> {
-                    // TODO(halilibo): hide keyboard
-                    // textInputSession?.hideSoftwareKeyboard()
+                    textInputSession?.hideSoftwareKeyboard()
                 }
                 ImeAction.Go, ImeAction.Search, ImeAction.Send,
                 ImeAction.Default, ImeAction.None -> Unit

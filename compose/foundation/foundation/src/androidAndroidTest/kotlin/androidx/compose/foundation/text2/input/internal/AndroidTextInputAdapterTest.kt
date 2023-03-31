@@ -22,7 +22,15 @@ import android.text.InputType
 import android.view.inputmethod.EditorInfo
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.TextEditFilter
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardHelper
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalPlatformTextInputPluginRegistry
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.text.TextRange
@@ -31,6 +39,7 @@ import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -49,28 +58,41 @@ class AndroidTextInputAdapterTest {
 
     private lateinit var adapter: AndroidTextInputAdapter
 
+    private val keyboardHelper = KeyboardHelper(rule)
+
+    private val focusRequester = FocusRequester()
+
     @Before
     fun setup() {
         rule.setContent {
-            val adapterProvider = LocalPlatformTextInputPluginRegistry.current
-            adapter = adapterProvider.rememberAdapter(AndroidTextInputPlugin)
+            keyboardHelper.initialize()
+            LaunchedEffect(Unit) {
+                focusRequester.requestFocus()
+            }
+            Box(modifier = Modifier
+                .size(1.dp)
+                .focusRequester(focusRequester)
+                .focusable()
+            ) {
+                val adapterProvider = LocalPlatformTextInputPluginRegistry.current
+                adapter = adapterProvider.rememberAdapter(AndroidTextInputPlugin)
+            }
         }
+        rule.waitForIdle()
     }
 
     @Test
     fun startInputSession_returnsOpenSession() {
-        val state = TextFieldState()
         rule.runOnUiThread {
-            val session = adapter.startInputSessionWithDefaultsForTest(state)
+            val session = adapter.startInputSessionWithDefaultsForTest()
             assertThat(session.isOpen).isTrue()
         }
     }
 
     @Test
     fun disposedSession_returnsClosed() {
-        val state = TextFieldState()
         rule.runOnUiThread {
-            val session = adapter.startInputSessionWithDefaultsForTest(state)
+            val session = adapter.startInputSessionWithDefaultsForTest()
             session.dispose()
             assertThat(session.isOpen).isFalse()
         }
@@ -78,15 +100,14 @@ class AndroidTextInputAdapterTest {
 
     @Test(expected = IllegalStateException::class)
     fun startingInputSessionOnNonMainThread_throwsIllegalStateException() {
-        adapter.startInputSessionWithDefaultsForTest(TextFieldState(), ImeOptions.Default)
+        adapter.startInputSessionWithDefaultsForTest()
     }
 
     @Test
     fun creatingSecondInputSession_closesFirstOne() {
-        val state = TextFieldState()
         rule.runOnUiThread {
-            val session1 = adapter.startInputSessionWithDefaultsForTest(state)
-            val session2 = adapter.startInputSessionWithDefaultsForTest(state)
+            val session1 = adapter.startInputSessionWithDefaultsForTest()
+            val session2 = adapter.startInputSessionWithDefaultsForTest()
 
             assertThat(session1.isOpen).isFalse()
             assertThat(session2.isOpen).isTrue()
@@ -165,11 +186,13 @@ class AndroidTextInputAdapterTest {
 
     @Test
     fun createInputConnection_updatesEditorInfo() {
-        val editorInfo = EditorInfo()
+        var editorInfo: EditorInfo? = null
+        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { ei, _ ->
+            editorInfo = ei
+        }
         rule.runOnUiThread {
             adapter.startInputSessionWithDefaultsForTest(
-                TextFieldState(),
-                ImeOptions(
+                imeOptions = ImeOptions(
                     singleLine = true,
                     keyboardType = KeyboardType.Email,
                     autoCorrect = false,
@@ -177,15 +200,19 @@ class AndroidTextInputAdapterTest {
                     capitalization = KeyboardCapitalization.Words
                 )
             )
+        }
 
-            adapter.createInputConnection(editorInfo)
+        // wait until input gets started to make sure we are not running assertions before
+        // the listener triggers.
+        keyboardHelper.waitForKeyboardVisibility(true)
 
-            assertThat(editorInfo.inputType).isEqualTo(
+        rule.runOnIdle {
+            assertThat(editorInfo?.inputType).isEqualTo(
                 InputType.TYPE_CLASS_TEXT or
                     InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS or
                     InputType.TYPE_TEXT_FLAG_CAP_WORDS
             )
-            assertThat(editorInfo.imeOptions).isEqualTo(
+            assertThat(editorInfo?.imeOptions).isEqualTo(
                 EditorInfo.IME_ACTION_SEARCH or EditorInfo.IME_FLAG_NO_FULLSCREEN
             )
         }
@@ -193,17 +220,18 @@ class AndroidTextInputAdapterTest {
 
     @Test
     fun createInputConnection_updatesEditorInfo_withTheLatestSession() {
-        val editorInfo = EditorInfo()
+        var editorInfo: EditorInfo? = null
+        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { ei, _ ->
+            editorInfo = ei
+        }
         rule.runOnUiThread {
             adapter.startInputSessionWithDefaultsForTest(
-                TextFieldState(),
-                ImeOptions(
+                imeOptions = ImeOptions(
                     keyboardType = KeyboardType.Number
                 )
             )
             adapter.startInputSessionWithDefaultsForTest(
-                TextFieldState(),
-                ImeOptions(
+                imeOptions = ImeOptions(
                     singleLine = true,
                     keyboardType = KeyboardType.Email,
                     autoCorrect = false,
@@ -211,15 +239,19 @@ class AndroidTextInputAdapterTest {
                     capitalization = KeyboardCapitalization.Words
                 )
             )
+        }
 
-            adapter.createInputConnection(editorInfo)
+        // wait until input gets started to make sure we are not running assertions before
+        // the listener triggers.
+        keyboardHelper.waitForKeyboardVisibility(true)
 
-            assertThat(editorInfo.inputType).isEqualTo(
+        rule.runOnIdle {
+            assertThat(editorInfo?.inputType).isEqualTo(
                 InputType.TYPE_CLASS_TEXT or
                     InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS or
                     InputType.TYPE_TEXT_FLAG_CAP_WORDS
             )
-            assertThat(editorInfo.imeOptions).isEqualTo(
+            assertThat(editorInfo?.imeOptions).isEqualTo(
                 EditorInfo.IME_ACTION_SEARCH or EditorInfo.IME_FLAG_NO_FULLSCREEN
             )
         }
@@ -233,8 +265,7 @@ class AndroidTextInputAdapterTest {
         rule.runOnUiThread {
             adapter.createInputConnection(noActiveSessionEI)
             val session = adapter.startInputSessionWithDefaultsForTest(
-                TextFieldState(),
-                ImeOptions(
+                imeOptions = ImeOptions(
                     keyboardType = KeyboardType.Number
                 )
             )
@@ -248,6 +279,37 @@ class AndroidTextInputAdapterTest {
             assertThat(noActiveSessionEI.inputType).isEqualTo(disposedSessionEI.inputType)
             assertThat(noActiveSessionEI.imeOptions).isEqualTo(disposedSessionEI.imeOptions)
         }
+    }
+
+    @Test
+    fun showSoftwareKeyboard_fromActiveInputSession_showsTheKeyboard() {
+        var session: TextInputSession? = null
+
+        rule.runOnUiThread {
+            session = adapter.startInputSessionWithDefaultsForTest()
+        }
+
+        keyboardHelper.hideKeyboardIfShown()
+        keyboardHelper.waitForKeyboardVisibility(false)
+
+        session?.showSoftwareKeyboard()
+        keyboardHelper.waitForKeyboardVisibility(true)
+        assertThat(keyboardHelper.isSoftwareKeyboardShown()).isTrue()
+    }
+
+    @Test
+    fun hideSoftwareKeyboard_fromActiveInputSession_hidesTheKeyboard() {
+        var session: TextInputSession? = null
+
+        rule.runOnUiThread {
+            session = adapter.startInputSessionWithDefaultsForTest()
+        }
+
+        keyboardHelper.waitForKeyboardVisibility(true)
+
+        session?.hideSoftwareKeyboard()
+        keyboardHelper.waitForKeyboardVisibility(false)
+        assertThat(keyboardHelper.isSoftwareKeyboardShown()).isFalse()
     }
 
     private fun AndroidTextInputAdapter.startInputSessionWithDefaultsForTest(

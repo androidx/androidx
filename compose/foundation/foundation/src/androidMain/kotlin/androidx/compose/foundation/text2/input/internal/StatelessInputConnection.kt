@@ -143,8 +143,6 @@ internal class StatelessInputConnection(
         editCommands.clear()
         batchDepth = 0
         isICActive = false
-        // TODO(halilibo): Implement connection close callback
-        // eventCallback.onConnectionClosed(this)
     }
 
     //endregion

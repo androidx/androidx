@@ -71,6 +71,14 @@ class StatelessInputConnectionTest {
                 // Noop.
             }
 
+            override fun showSoftwareKeyboard() {
+                // noop
+            }
+
+            override fun hideSoftwareKeyboard() {
+                // noop
+            }
+
             override fun onImeAction(imeAction: ImeAction) {
                 this@StatelessInputConnectionTest.onImeAction?.invoke(imeAction)
             }
