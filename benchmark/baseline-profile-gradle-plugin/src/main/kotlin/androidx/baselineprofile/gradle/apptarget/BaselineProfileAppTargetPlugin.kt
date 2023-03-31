@@ -16,13 +16,18 @@
 
 package androidx.baselineprofile.gradle.apptarget
 
+import androidx.baselineprofile.gradle.apptarget.task.GenerateKeepRulesForBaselineProfilesTask
+import androidx.baselineprofile.gradle.utils.AgpFeature
 import androidx.baselineprofile.gradle.utils.AgpPlugin
 import androidx.baselineprofile.gradle.utils.AgpPluginId
 import androidx.baselineprofile.gradle.utils.BUILD_TYPE_BASELINE_PROFILE_PREFIX
+import androidx.baselineprofile.gradle.utils.BUILD_TYPE_BENCHMARK_PREFIX
 import androidx.baselineprofile.gradle.utils.MAX_AGP_VERSION_REQUIRED
 import androidx.baselineprofile.gradle.utils.MIN_AGP_VERSION_REQUIRED
 import androidx.baselineprofile.gradle.utils.createExtendedBuildTypes
+import com.android.build.api.AndroidPluginVersion
 import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.variant.ApplicationVariant
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -46,6 +51,9 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
     minAgpVersion = MIN_AGP_VERSION_REQUIRED,
     maxAgpVersion = MAX_AGP_VERSION_REQUIRED
 ) {
+
+    private val extendedBuildTypesMapping = mutableMapOf<String, String>()
+
     override fun onAgpPluginNotFound(pluginIds: Set<AgpPluginId>) {
 
         // If no supported plugin was found throw an exception.
@@ -85,10 +93,67 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
     }
 
     override fun onApplicationFinalizeDsl(extension: ApplicationExtension) {
+
+        // Different build types are created according to the AGP version
+        if (supportsFeature(AgpFeature.TEST_MODULE_SUPPORTS_MULTIPLE_BUILD_TYPES)) {
+            createBuildTypesWithAgp81AndAbove(extension)
+        } else {
+            createBuildTypesWithAgp80(extension)
+        }
+    }
+
+    private fun createBuildTypesWithAgp80(extension: ApplicationExtension) {
+
         // Creates baseline profile build types extending the currently existing ones.
         // They're named `<BUILD_TYPE_BASELINE_PROFILE_PREFIX><originalBuildTypeName>`.
         createExtendedBuildTypes(
             project = project,
+            extensionBuildTypes = extension.buildTypes,
+            extendedBuildTypeToOriginalBuildTypeMapping = extendedBuildTypesMapping,
+            newBuildTypePrefix = BUILD_TYPE_BASELINE_PROFILE_PREFIX,
+            filterBlock = {
+                // Create baseline profile build types only for non debuggable builds.
+                !it.isDebuggable
+            },
+            configureBlock = {
+                isJniDebuggable = false
+                isDebuggable = false
+                isMinifyEnabled = true
+                isShrinkResources = false
+                isProfileable = true
+                signingConfig = extension.debugSigningConfig
+                enableAndroidTestCoverage = false
+                enableUnitTestCoverage = false
+            }
+        )
+    }
+
+    override fun onApplicationVariants(variant: ApplicationVariant) {
+
+        // This behavior is only for AGP 8.0.
+        if (agpVersion() >= AndroidPluginVersion(8, 1, 0)) {
+            return
+        }
+
+        // We can skip the build types that were NOT created by this plugin.
+        if (variant.buildType !in extendedBuildTypesMapping.keys) {
+            return
+        }
+
+        // Add a keep rule file to make sure the build is non obfuscated
+        val keepRuleFileProvider = GenerateKeepRulesForBaselineProfilesTask
+            .maybeRegister(project)
+            .flatMap { it.keepRuleFile }
+        variant.proguardFiles.add(keepRuleFileProvider)
+    }
+
+    private fun createBuildTypesWithAgp81AndAbove(extension: ApplicationExtension) {
+
+        // Creates baseline profile build types extending the currently existing ones.
+        // They're named `<BUILD_TYPE_BASELINE_PROFILE_PREFIX><originalBuildTypeName>`.
+        createExtendedBuildTypes(
+            project = project,
+            extendedBuildTypeToOriginalBuildTypeMapping = extendedBuildTypesMapping,
             extensionBuildTypes = extension.buildTypes,
             newBuildTypePrefix = BUILD_TYPE_BASELINE_PROFILE_PREFIX,
             filterBlock = {
@@ -101,10 +166,36 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
                 isMinifyEnabled = false
                 isShrinkResources = false
                 isProfileable = true
-                signingConfig = extension.buildTypes.getByName("debug").signingConfig
+                signingConfig = extension.debugSigningConfig
+                enableAndroidTestCoverage = false
+                enableUnitTestCoverage = false
+            }
+        )
+
+        // Creates benchmark build types extending the currently existing ones.
+        // They're named `<BUILD_TYPE_BENCHMARK_PREFIX><originalBuildTypeName>`.
+        createExtendedBuildTypes(
+            project = project,
+            extensionBuildTypes = extension.buildTypes,
+            newBuildTypePrefix = BUILD_TYPE_BENCHMARK_PREFIX,
+            filterBlock = {
+                // Create benchmark type for non debuggable types, and without considering
+                // baseline profiles build types.
+                !it.isDebuggable && it.name !in extendedBuildTypesMapping
+            },
+            configureBlock = {
+                isJniDebuggable = false
+                isDebuggable = false
+                isMinifyEnabled = true
+                isShrinkResources = true
+                isProfileable = true
+                signingConfig = extension.debugSigningConfig
                 enableAndroidTestCoverage = false
                 enableUnitTestCoverage = false
             }
         )
     }
+
+    private val ApplicationExtension.debugSigningConfig
+        get() = buildTypes.getByName("debug").signingConfig
 }

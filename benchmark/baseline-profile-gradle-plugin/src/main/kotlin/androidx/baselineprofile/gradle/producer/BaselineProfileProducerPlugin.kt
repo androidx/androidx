@@ -19,10 +19,12 @@ package androidx.baselineprofile.gradle.producer
 import androidx.baselineprofile.gradle.configuration.ConfigurationManager
 import androidx.baselineprofile.gradle.producer.tasks.CollectBaselineProfileTask
 import androidx.baselineprofile.gradle.producer.tasks.InstrumentationTestTaskWrapper
+import androidx.baselineprofile.gradle.utils.AgpFeature
 import androidx.baselineprofile.gradle.utils.AgpPlugin
 import androidx.baselineprofile.gradle.utils.AgpPluginId
 import androidx.baselineprofile.gradle.utils.AndroidTestModuleWrapper
 import androidx.baselineprofile.gradle.utils.BUILD_TYPE_BASELINE_PROFILE_PREFIX
+import androidx.baselineprofile.gradle.utils.BUILD_TYPE_BENCHMARK_PREFIX
 import androidx.baselineprofile.gradle.utils.CONFIGURATION_ARTIFACT_TYPE
 import androidx.baselineprofile.gradle.utils.CONFIGURATION_NAME_BASELINE_PROFILES
 import androidx.baselineprofile.gradle.utils.MAX_AGP_VERSION_REQUIRED
@@ -65,8 +67,13 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
     // exist by default so we need to create nonMinifiedRelease and map it manually to `release`.
     private val nonObfuscatedReleaseName =
         camelCase(BUILD_TYPE_BASELINE_PROFILE_PREFIX, RELEASE)
-    private val extendedTypeToOriginalTypeMapping =
+    private val baselineProfileExtendedToOriginalTypeMap =
         mutableMapOf(nonObfuscatedReleaseName to RELEASE)
+
+    private val benchmarkReleaseName =
+        camelCase(BUILD_TYPE_BENCHMARK_PREFIX, RELEASE)
+    private val benchmarkExtendedToOriginalTypeMap =
+        mutableMapOf(benchmarkReleaseName to RELEASE)
 
     override fun onAgpPluginFound(pluginIds: Set<AgpPluginId>) {
         project
@@ -138,7 +145,7 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
             project = project,
             extensionBuildTypes = extension.buildTypes,
             newBuildTypePrefix = BUILD_TYPE_BASELINE_PROFILE_PREFIX,
-            extendedBuildTypeToOriginalBuildTypeMapping = extendedTypeToOriginalTypeMapping,
+            extendedBuildTypeToOriginalBuildTypeMapping = baselineProfileExtendedToOriginalTypeMap,
             configureBlock = configureBlock,
             filterBlock = {
                 // All the build types that have been added to the test module should be
@@ -153,12 +160,38 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
             buildTypeName = nonObfuscatedReleaseName,
             configureBlock = configureBlock
         )
+
+        // Similarly to baseline profile build types we also create benchmark build types if this
+        // version of AGP has the support for it.
+        if (supportsFeature(AgpFeature.TEST_MODULE_SUPPORTS_MULTIPLE_BUILD_TYPES)) {
+            createExtendedBuildTypes(
+                project = project,
+                extensionBuildTypes = extension.buildTypes,
+                newBuildTypePrefix = BUILD_TYPE_BENCHMARK_PREFIX,
+                extendedBuildTypeToOriginalBuildTypeMapping = benchmarkExtendedToOriginalTypeMap,
+                configureBlock = configureBlock,
+                filterBlock = {
+                    // Note that at this point we already have created the baseline profile build
+                    // types that we don't want to extend again.
+                    it.name != "debug" && it.name !in baselineProfileExtendedToOriginalTypeMap
+                }
+            )
+            createBuildTypeIfNotExists(
+                project = project,
+                extensionBuildTypes = extension.buildTypes,
+                buildTypeName = benchmarkReleaseName,
+                configureBlock = configureBlock
+            )
+        }
     }
 
     override fun onTestBeforeVariants(variantBuilder: TestVariantBuilder) {
 
         // Makes sure that only the non obfuscated build type variant selected is enabled
-        variantBuilder.enable = variantBuilder.buildType in extendedTypeToOriginalTypeMapping.keys
+        val buildType = variantBuilder.buildType
+        variantBuilder.enable =
+            buildType in baselineProfileExtendedToOriginalTypeMap.keys ||
+                buildType in benchmarkExtendedToOriginalTypeMap.keys
     }
 
     override fun onTestVariants(variant: TestVariant) {
@@ -169,7 +202,7 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
         // agp tasks have been created, using the old api.
 
         // Creating configurations only for the extended build types.
-        if (variant.buildType !in extendedTypeToOriginalTypeMapping.keys) {
+        if (variant.buildType !in baselineProfileExtendedToOriginalTypeMap.keys) {
             return
         }
 
@@ -177,7 +210,8 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
         // to match the configuration we use the original build type without `nonObfuscated`.
         val configuration = createConfigurationForVariant(
             variant = variant,
-            originalBuildTypeName = extendedTypeToOriginalTypeMapping[variant.buildType] ?: "",
+            originalBuildTypeName = baselineProfileExtendedToOriginalTypeMap[variant.buildType]
+                ?: "",
         )
 
         // Prepares a block to execute later that creates the tasks for this variant
