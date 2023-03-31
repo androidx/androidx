@@ -32,6 +32,9 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
@@ -104,9 +107,7 @@ public open class FragmentNavigator(
                 // We need to ensure that if the fragment has its state saved and then that state
                 // later cleared without the restoring the fragment that we also clear the state
                 // of the associated entry.
-                val viewModel = ViewModelProvider(fragment)[ClearEntryStateViewModel::class.java]
-                viewModel.completeTransition =
-                    WeakReference { entry.let { state.markTransitionComplete(it) } }
+                attachClearViewModel(fragment, entry, state)
             }
         }
 
@@ -127,18 +128,23 @@ public open class FragmentNavigator(
                 val entry = (state.backStack.value + state.transitionsInProgress.value).lastOrNull {
                     it.id == fragment.tag
                 }
-                if (pop && entry != null) {
-                    // The entry has already been removed from the back stack so just remove it
-                    // from the list
-                    if (!state.backStack.value.contains(entry)) {
-                        // remove it so we don't falsely identify a direct call to popBackStack
-                        entriesToPop.remove(entry.id)
-                    }
-                    // This is the case of system back where we will need to make the call to
-                    // popBackStack. Otherwise, popBackStack was called directly and this should
-                    // end up being a no-op.
-                    else if (entriesToPop.isEmpty() && fragment.isRemoving) {
-                        state.popWithTransition(entry, false)
+                if (entry != null) {
+                    // In case we get a fragment that was never attached to the fragment manager,
+                    // we need to make sure we still return the entries to their proper final state.
+                    attachClearViewModel(fragment, entry, state)
+                    if (pop) {
+                        // The entry has already been removed from the back stack so just remove it
+                        // from the list
+                        if (!state.backStack.value.contains(entry)) {
+                            // remove it so we don't falsely identify a direct call to popBackStack
+                            entriesToPop.remove(entry.id)
+                        }
+                        // This is the case of system back where we will need to make the call to
+                        // popBackStack. Otherwise, popBackStack was called directly and this should
+                        // end up being a no-op.
+                        else if (entriesToPop.isEmpty() && fragment.isRemoving) {
+                            state.popWithTransition(entry, false)
+                        }
                     }
                 }
             }
@@ -171,6 +177,26 @@ public open class FragmentNavigator(
                 }
             })
         }
+    }
+
+    internal fun attachClearViewModel(
+        fragment: Fragment,
+        entry: NavBackStackEntry,
+        state: NavigatorState
+    ) {
+        val viewModel = ViewModelProvider(
+            fragment.viewModelStore,
+            viewModelFactory { initializer { ClearEntryStateViewModel() } },
+            CreationExtras.Empty
+        )[ClearEntryStateViewModel::class.java]
+        viewModel.completeTransition =
+            WeakReference {
+                entry.let {
+                    state.transitionsInProgress.value.forEach { entry ->
+                        state.markTransitionComplete(entry)
+                    }
+                }
+            }
     }
 
     /**
