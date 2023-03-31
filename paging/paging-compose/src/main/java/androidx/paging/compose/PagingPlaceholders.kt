@@ -42,3 +42,5 @@ internal data class PagingPlaceholderKey(private val index: Int) : Parcelable {
             }
     }
 }
+
+internal object PagingPlaceholderContentType
