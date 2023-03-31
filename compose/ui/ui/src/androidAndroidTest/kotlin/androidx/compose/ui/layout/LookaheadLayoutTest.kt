@@ -1744,6 +1744,72 @@ class LookaheadLayoutTest {
     }
 
     @Test
+    fun forceMeasureSubtreeWithoutAffectingLookahead() {
+        var iterations by mutableStateOf(0)
+        var lookaheadPosition: Offset? = null
+        rule.setContent {
+            Box(Modifier.fillMaxSize()) {
+                LookaheadScope {
+                    // Fill max size will cause the remeasure requests to go down the
+                    // forceMeasureSubtree code path.
+                    CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                        Column(Modifier.fillMaxSize()) {
+                            // This box will get a remeasure request when `iterations` changes.
+                            // Subsequently this Box's size change will trigger a measurement pass
+                            // from Column.
+                            Box(Modifier.intermediateLayout { measurable, _ ->
+                                // Force a state-read (similar to animation but more reliable)
+                                measurable.measure(Constraints.fixed(200 + 100 * iterations, 200))
+                                    .run {
+                                        layout(width, height) {
+                                            place(0, 0)
+                                        }
+                                    }
+                            }) {
+                                Box(Modifier.size(100.dp))
+                            }
+                            Box { // forceMeasureSubtree starts here
+                                Box {
+                                    // Lookahead measure will be marked dirty in the containing box.
+                                    // This test ensures it doesn't get ignored when there's a
+                                    // forceMeasureSubtree (without lookahead) triggered from
+                                    // ancestor while it's lookaheadMeasurePending.
+                                    if (iterations % 2 == 0) {
+                                        Box(Modifier.size(100.dp))
+                                    } else {
+                                        Box(Modifier.size(200.dp))
+                                    }
+                                }
+                            }
+                            Box(
+                                Modifier
+                                    .size(100.dp)
+                                    .intermediateLayout { measurable, constraints ->
+                                        measurable
+                                            .measure(constraints)
+                                            .run {
+                                                layout(width, height) {
+                                                    lookaheadPosition = lookaheadScopeCoordinates
+                                                        .localLookaheadPositionOf(coordinates!!)
+                                                    place(0, 0)
+                                                }
+                                            }
+                                    })
+                        }
+                    }
+                }
+            }
+        }
+
+        repeat(4) {
+            rule.runOnIdle {
+                assertEquals(Offset(0f, 200f + 100 * (iterations % 2)), lookaheadPosition)
+                iterations++
+            }
+        }
+    }
+
+    @Test
     fun multiMeasureLayoutInLookahead() {
         var horizontal by mutableStateOf(true)
         rule.setContent {
