@@ -27,7 +27,6 @@ import android.util.SparseArray;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 
 import java.lang.reflect.InvocationTargetException;
@@ -68,11 +67,10 @@ public final class BundleCompat {
      * @return a Parcelable value, or {@code null}
      */
     @Nullable
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @SuppressWarnings({"deprecation", "unchecked"})
     public static <T> T getParcelable(@NonNull Bundle in, @Nullable String key,
             @NonNull Class<T> clazz) {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 33) {
             return Api33Impl.getParcelable(in, key, clazz);
         } else {
             T parcelable = in.getParcelable(key);
@@ -105,12 +103,11 @@ public final class BundleCompat {
      * @return a Parcelable[] value, or {@code null}
      */
     @Nullable
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @SuppressWarnings({"deprecation"})
     @SuppressLint({"ArrayReturn", "NullableCollection"})
     public static Parcelable[] getParcelableArray(@NonNull Bundle in, @Nullable String key,
             @NonNull Class<? extends Parcelable> clazz) {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 33) {
             return Api33Impl.getParcelableArray(in, key, clazz);
         } else {
             return in.getParcelableArray(key);
@@ -143,12 +140,11 @@ public final class BundleCompat {
      * @return an ArrayList<T> value, or {@code null}
      */
     @Nullable
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @SuppressWarnings({"deprecation", "unchecked"})
     @SuppressLint({"ConcreteCollection", "NullableCollection"})
     public static  <T> ArrayList<T> getParcelableArrayList(@NonNull Bundle in, @Nullable String key,
             @NonNull Class<? extends T> clazz) {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 33) {
             return Api33Impl.getParcelableArrayList(in, key, clazz);
         } else {
             return (ArrayList<T>) in.getParcelableArrayList(key);
@@ -176,12 +172,11 @@ public final class BundleCompat {
      *     unparceling.
      * @return a SparseArray of T values, or null
      */
-    @Nullable
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @SuppressWarnings({"deprecation", "unchecked"})
+    @Nullable
     public static <T> SparseArray<T> getSparseParcelableArray(@NonNull Bundle in,
             @Nullable String key, @NonNull Class<? extends T> clazz) {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 33) {
             return Api33Impl.getSparseParcelableArray(in, key, clazz);
         } else {
             return (SparseArray<T>) in.getSparseParcelableArray(key);
@@ -198,7 +193,7 @@ public final class BundleCompat {
      */
     @Nullable
     public static IBinder getBinder(@NonNull Bundle bundle, @Nullable String key) {
-        if (Build.VERSION.SDK_INT >= 33) {
+        if (Build.VERSION.SDK_INT >= 18) {
             return Api18Impl.getBinder(bundle, key);
         } else {
             return BeforeApi18Impl.getBinder(bundle, key);
