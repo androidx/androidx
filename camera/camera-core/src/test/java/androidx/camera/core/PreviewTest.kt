@@ -416,7 +416,7 @@ class PreviewTest {
     }
 
     @Test
-    fun noCameraTransform_rotationDegreesFlipped() {
+    fun noCameraTransform_rotationDegreesIsZero() {
         // Act: create preview with hasCameraTransform == false
         frontCamera.hasTransform = false
         val preview = createPreview(
@@ -424,8 +424,8 @@ class PreviewTest {
             frontCamera,
             targetRotation = Surface.ROTATION_90
         )
-        // Assert: rotationDegrees is flipped
-        assertThat(preview.cameraEdge.rotationDegrees).isEqualTo(270)
+        // Assert: rotationDegrees is 0.
+        assertThat(preview.cameraEdge.rotationDegrees).isEqualTo(0)
     }
 
     @Test
