@@ -16,7 +16,7 @@
 
 package androidx.compose.ui
 
-import androidx.compose.ui.platform.InspectableValue
+import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
@@ -36,9 +36,12 @@ class ZIndexModifierTest {
 
     @Test
     fun testInspectable() {
-        val modifier = Modifier.zIndex(3f) as InspectableValue
+        val modifier = Modifier.zIndex(3f) as ZIndexElement
+
         assertThat(modifier.nameFallback).isEqualTo("zIndex")
-        assertThat(modifier.valueOverride).isEqualTo(3.0f)
-        assertThat(modifier.inspectableElements.asIterable()).isEmpty()
+        assertThat(modifier.valueOverride).isNull()
+        assertThat(modifier.inspectableElements.asIterable()).containsExactly(
+            ValueElement("zIndex", 3.0f)
+        )
     }
 }
