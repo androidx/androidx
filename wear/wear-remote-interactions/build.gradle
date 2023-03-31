@@ -27,6 +27,7 @@ dependencies {
     api(libs.kotlinStdlib)
     api(libs.guavaListenableFuture)
     api("androidx.concurrent:concurrent-futures-ktx:1.1.0")
+    api(libs.kotlinCoroutinesCore)
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
