@@ -222,7 +222,9 @@ class HealthConnectClientImplTest {
                         startTime = Instant.ofEpochMilli(1234L),
                         startZoneOffset = null,
                         endTime = Instant.ofEpochMilli(5678L),
-                        endZoneOffset = null
+                        endZoneOffset = null,
+                        metadata =
+                            Metadata(recordingMethod = Metadata.RECORDING_METHOD_ACTIVELY_RECORDED)
                     )
                 )
             )
@@ -236,6 +238,7 @@ class HealthConnectClientImplTest {
                     .setEndTimeMillis(5678L)
                     .putValues("count", DataProto.Value.newBuilder().setLongVal(100).build())
                     .setDataType(DataProto.DataType.newBuilder().setName("Steps"))
+                    .setRecordingMethod(Metadata.RECORDING_METHOD_ACTIVELY_RECORDED)
                     .build()
             )
     }
@@ -362,6 +365,7 @@ class HealthConnectClientImplTest {
                             .setUid("testUid")
                             .setStartTimeMillis(1234L)
                             .setEndTimeMillis(5678L)
+                            .setRecordingMethod(Metadata.RECORDING_METHOD_ACTIVELY_RECORDED)
                             .putValues(
                                 "count",
                                 DataProto.Value.newBuilder().setLongVal(100).build()
@@ -404,6 +408,7 @@ class HealthConnectClientImplTest {
                         Metadata(
                             id = "testUid",
                             device = Device(),
+                            recordingMethod = Metadata.RECORDING_METHOD_ACTIVELY_RECORDED,
                         )
                 )
             )

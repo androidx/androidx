@@ -1195,19 +1195,25 @@ package androidx.health.connect.client.records.metadata {
   }
 
   public final class Metadata {
-    ctor public Metadata(optional String id, optional androidx.health.connect.client.records.metadata.DataOrigin dataOrigin, optional java.time.Instant lastModifiedTime, optional String? clientRecordId, optional long clientRecordVersion, optional androidx.health.connect.client.records.metadata.Device? device);
+    ctor public Metadata(optional String id, optional androidx.health.connect.client.records.metadata.DataOrigin dataOrigin, optional java.time.Instant lastModifiedTime, optional String? clientRecordId, optional long clientRecordVersion, optional androidx.health.connect.client.records.metadata.Device? device, optional int recordingMethod);
     method public String? getClientRecordId();
     method public long getClientRecordVersion();
     method public androidx.health.connect.client.records.metadata.DataOrigin getDataOrigin();
     method public androidx.health.connect.client.records.metadata.Device? getDevice();
     method public String getId();
     method public java.time.Instant getLastModifiedTime();
+    method public int getRecordingMethod();
     property public final String? clientRecordId;
     property public final long clientRecordVersion;
     property public final androidx.health.connect.client.records.metadata.DataOrigin dataOrigin;
     property public final androidx.health.connect.client.records.metadata.Device? device;
     property public final String id;
     property public final java.time.Instant lastModifiedTime;
+    property public final int recordingMethod;
+    field public static final int RECORDING_METHOD_ACTIVELY_RECORDED = 1; // 0x1
+    field public static final int RECORDING_METHOD_AUTOMATICALLY_RECORDED = 2; // 0x2
+    field public static final int RECORDING_METHOD_MANUAL_ENTRY = 3; // 0x3
+    field public static final int RECORDING_METHOD_UNKNOWN = 0; // 0x0
   }
 
 }
