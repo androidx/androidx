@@ -23,6 +23,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.AndroidTextInputAdapter
 import androidx.compose.foundation.text2.input.internal.ComposeInputMethodManager
+import androidx.compose.foundation.text2.input.placeCursorAtEnd
+import androidx.compose.foundation.text2.input.placeCursorBeforeChar
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -39,6 +41,7 @@ import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -218,6 +221,66 @@ internal class BasicTextField2ImmIntegrationTest {
             imm.resetCalls()
             inputConnection!!.setComposingText("hello", 1)
             imm.expectCall("updateSelection(0, 5, 0, 5)")
+            imm.expectNoMoreCalls()
+        }
+    }
+
+    @Test
+    fun immUpdated_whenEditChangesText() {
+        val state = TextFieldState()
+        rule.setContent {
+            BasicTextField2(state, Modifier.testTag(Tag))
+        }
+        requestFocus(Tag)
+        rule.runOnIdle {
+            imm.resetCalls()
+
+            state.edit {
+                append("hello")
+                placeCursorBeforeChar(0)
+            }
+
+            imm.expectCall("restartInput")
+            imm.expectNoMoreCalls()
+        }
+    }
+
+    @Test
+    fun immUpdated_whenEditChangesSelection() {
+        val state = TextFieldState(TextFieldValue("hello", selection = TextRange(0)))
+        rule.setContent {
+            BasicTextField2(state, Modifier.testTag(Tag))
+        }
+        requestFocus(Tag)
+        rule.runOnIdle {
+            imm.resetCalls()
+
+            state.edit {
+                placeCursorAtEnd()
+            }
+
+            imm.expectCall("updateSelection(5, 5, -1, -1)")
+            imm.expectNoMoreCalls()
+        }
+    }
+
+    @Test
+    fun immUpdated_whenEditChangesTextAndSelection() {
+        val state = TextFieldState()
+        rule.setContent {
+            BasicTextField2(state, Modifier.testTag(Tag))
+        }
+        requestFocus(Tag)
+        rule.runOnIdle {
+            imm.resetCalls()
+
+            state.edit {
+                append("hello")
+                placeCursorAtEnd()
+            }
+
+            imm.expectCall("updateSelection(5, 5, -1, -1)")
+            imm.expectCall("restartInput")
             imm.expectNoMoreCalls()
         }
     }

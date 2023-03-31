@@ -23,8 +23,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.KeyboardHelper
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.text2.input.TextFieldState.TextEditFilter
 import androidx.compose.foundation.text2.input.internal.AndroidTextInputAdapter
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
