@@ -34,17 +34,14 @@ android {
     namespace "androidx.window.demo"
     signingConfigs {
         config {
-            keyAlias 'alias'
+            keyAlias 'key'
             keyPassword 'password'
             storeFile file('keystore.jks')
             storePassword 'password'
         }
     }
     buildTypes {
-        release {
-            signingConfig signingConfigs.config
-        }
-        debug {
+        all {
             signingConfig signingConfigs.config
         }
     }
