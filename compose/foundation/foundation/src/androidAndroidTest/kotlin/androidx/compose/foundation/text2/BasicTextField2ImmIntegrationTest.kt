@@ -24,7 +24,7 @@ import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.AndroidTextInputAdapter
 import androidx.compose.foundation.text2.input.internal.ComposeInputMethodManager
 import androidx.compose.foundation.text2.input.placeCursorAtEnd
-import androidx.compose.foundation.text2.input.placeCursorBeforeChar
+import androidx.compose.foundation.text2.input.placeCursorBeforeCharAt
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -169,13 +169,17 @@ internal class BasicTextField2ImmIntegrationTest {
 
     @Test
     fun immUpdated_whenFilterChangesText_fromInputConnection() {
-        val state = TextFieldState(filter = { _, new -> new.copy(text = new.text + "world") })
+        val state = TextFieldState()
         var inputConnection: InputConnection? = null
         AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { _, ic ->
             inputConnection = ic
         }
         rule.setContent {
-            BasicTextField2(state, Modifier.testTag(Tag))
+            BasicTextField2(
+                state = state,
+                modifier = Modifier.testTag(Tag),
+                filter = { _, new -> new.copy(text = new.text + "world") }
+            )
         }
         requestFocus(Tag)
         rule.runOnIdle {
@@ -189,9 +193,13 @@ internal class BasicTextField2ImmIntegrationTest {
 
     @Test
     fun immUpdated_whenFilterChangesText_fromKeyEvent() {
-        val state = TextFieldState(filter = { _, new -> new.copy(text = new.text + "world") })
+        val state = TextFieldState()
         rule.setContent {
-            BasicTextField2(state, Modifier.testTag(Tag))
+            BasicTextField2(
+                state = state,
+                modifier = Modifier.testTag(Tag),
+                filter = { _, new -> new.copy(text = new.text + "world") }
+            )
         }
         requestFocus(Tag)
         rule.runOnIdle { imm.resetCalls() }
@@ -206,15 +214,17 @@ internal class BasicTextField2ImmIntegrationTest {
 
     @Test
     fun immUpdated_whenFilterChangesSelection_fromInputConnection() {
-        val state = TextFieldState(filter = { _, new ->
-            new.copy(selection = TextRange(0, new.text.length))
-        })
+        val state = TextFieldState()
         var inputConnection: InputConnection? = null
         AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { _, ic ->
             inputConnection = ic
         }
         rule.setContent {
-            BasicTextField2(state, Modifier.testTag(Tag))
+            BasicTextField2(
+                state = state,
+                modifier = Modifier.testTag(Tag),
+                filter = { _, new -> new.copy(selection = TextRange(0, new.text.length)) }
+            )
         }
         requestFocus(Tag)
         rule.runOnIdle {
@@ -237,7 +247,7 @@ internal class BasicTextField2ImmIntegrationTest {
 
             state.edit {
                 append("hello")
-                placeCursorBeforeChar(0)
+                placeCursorBeforeCharAt(0)
             }
 
             imm.expectCall("restartInput")

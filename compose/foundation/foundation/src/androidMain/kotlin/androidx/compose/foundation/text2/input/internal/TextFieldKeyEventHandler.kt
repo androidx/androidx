@@ -23,6 +23,7 @@ import androidx.compose.foundation.text.appendCodePointX
 import androidx.compose.foundation.text.isTypedEvent
 import androidx.compose.foundation.text.platformDefaultKeyMapping
 import androidx.compose.foundation.text.showCharacterPalette
+import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.TextFieldPreparedSelection.Companion.NoCharacterFound
 import androidx.compose.ui.input.key.KeyEvent
@@ -38,6 +39,11 @@ internal class TextFieldKeyEventHandler {
     private val preparedSelectionState = TextFieldPreparedSelectionState()
     private val deadKeyCombiner = DeadKeyCombiner()
     private val keyMapping = platformDefaultKeyMapping
+    private var filter: TextEditFilter? = null
+
+    fun setFilter(filter: TextEditFilter?) {
+        this.filter = filter
+    }
 
     fun onKeyEvent(
         event: KeyEvent,
@@ -226,11 +232,12 @@ internal class TextFieldKeyEventHandler {
         state.editProcessor.update(
             this.toMutableList().apply {
                 add(0, FinishComposingTextCommand)
-            }
+            },
+            filter
         )
     }
 
     private fun EditCommand.applyOnto(state: TextFieldState) {
-        state.editProcessor.update(listOf(FinishComposingTextCommand, this))
+        state.editProcessor.update(listOf(FinishComposingTextCommand, this), filter)
     }
 }

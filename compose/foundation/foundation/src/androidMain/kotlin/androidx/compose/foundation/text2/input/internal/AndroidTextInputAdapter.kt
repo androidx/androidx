@@ -26,6 +26,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.annotation.RestrictTo
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.text.input.ImeAction
@@ -87,9 +88,14 @@ internal class AndroidTextInputAdapter constructor(
         }
     }
 
+    /**
+     *  @param initialFilter The initial [TextEditFilter]. The filter can be changed after the
+     *  session is started by calling [TextInputSession.setFilter].
+     */
     fun startInputSession(
         state: TextFieldState,
-        imeOptions: ImeOptions
+        imeOptions: ImeOptions,
+        initialFilter: TextEditFilter?
     ): TextInputSession {
         if (!isMainThread()) {
             throw IllegalStateException("Input sessions can only be started from the main thread.")
@@ -106,10 +112,16 @@ internal class AndroidTextInputAdapter constructor(
             override val value: TextFieldValue
                 get() = state.value
 
+            private var filter: TextEditFilter? = initialFilter
+
             override val imeOptions: ImeOptions = imeOptions
 
+            override fun setFilter(filter: TextEditFilter?) {
+                this.filter = filter
+            }
+
             override fun requestEdits(editCommands: List<EditCommand>) {
-                state.editProcessor.update(editCommands)
+                state.editProcessor.update(editCommands, filter)
             }
 
             override fun sendKeyEvent(keyEvent: KeyEvent) {

@@ -21,6 +21,7 @@ package androidx.compose.foundation.text2.input.internal
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.ui.platform.LocalPlatformTextInputPluginRegistry
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -60,7 +61,7 @@ class AndroidTextInputAdapterTest {
     fun startInputSession_returnsOpenSession() {
         val state = TextFieldState()
         rule.runOnUiThread {
-            val session = adapter.startInputSession(state, ImeOptions.Default)
+            val session = adapter.startInputSessionWithDefaultsForTest(state)
             assertThat(session.isOpen).isTrue()
         }
     }
@@ -69,7 +70,7 @@ class AndroidTextInputAdapterTest {
     fun disposedSession_returnsClosed() {
         val state = TextFieldState()
         rule.runOnUiThread {
-            val session = adapter.startInputSession(state, ImeOptions.Default)
+            val session = adapter.startInputSessionWithDefaultsForTest(state)
             session.dispose()
             assertThat(session.isOpen).isFalse()
         }
@@ -77,15 +78,15 @@ class AndroidTextInputAdapterTest {
 
     @Test(expected = IllegalStateException::class)
     fun startingInputSessionOnNonMainThread_throwsIllegalStateException() {
-        adapter.startInputSession(TextFieldState(), ImeOptions.Default)
+        adapter.startInputSessionWithDefaultsForTest(TextFieldState(), ImeOptions.Default)
     }
 
     @Test
     fun creatingSecondInputSession_closesFirstOne() {
         val state = TextFieldState()
         rule.runOnUiThread {
-            val session1 = adapter.startInputSession(state, ImeOptions.Default)
-            val session2 = adapter.startInputSession(state, ImeOptions.Default)
+            val session1 = adapter.startInputSessionWithDefaultsForTest(state)
+            val session2 = adapter.startInputSessionWithDefaultsForTest(state)
 
             assertThat(session1.isOpen).isFalse()
             assertThat(session2.isOpen).isTrue()
@@ -96,7 +97,7 @@ class AndroidTextInputAdapterTest {
     fun createInputConnection_modifiesEditorInfo() {
         val state = TextFieldState(TextFieldValue("hello", selection = TextRange(0, 5)))
         rule.runOnUiThread {
-            adapter.startInputSession(state, ImeOptions.Default)
+            adapter.startInputSessionWithDefaultsForTest(state)
             val editorInfo = EditorInfo()
             adapter.createInputConnection(editorInfo)
 
@@ -119,8 +120,8 @@ class AndroidTextInputAdapterTest {
         val state1 = TextFieldState()
         val state2 = TextFieldState()
         rule.runOnUiThread {
-            adapter.startInputSession(state1, ImeOptions.Default)
-            adapter.startInputSession(state2, ImeOptions.Default)
+            adapter.startInputSessionWithDefaultsForTest(state1)
+            adapter.startInputSessionWithDefaultsForTest(state2)
 
             val connection = adapter.createInputConnection(EditorInfo())
 
@@ -135,7 +136,7 @@ class AndroidTextInputAdapterTest {
     fun createInputConnection_updatesEditorInfo() {
         val editorInfo = EditorInfo()
         rule.runOnUiThread {
-            adapter.startInputSession(
+            adapter.startInputSessionWithDefaultsForTest(
                 TextFieldState(),
                 ImeOptions(
                     singleLine = true,
@@ -163,13 +164,13 @@ class AndroidTextInputAdapterTest {
     fun createInputConnection_updatesEditorInfo_withTheLatestSession() {
         val editorInfo = EditorInfo()
         rule.runOnUiThread {
-            adapter.startInputSession(
+            adapter.startInputSessionWithDefaultsForTest(
                 TextFieldState(),
                 ImeOptions(
                     keyboardType = KeyboardType.Number
                 )
             )
-            adapter.startInputSession(
+            adapter.startInputSessionWithDefaultsForTest(
                 TextFieldState(),
                 ImeOptions(
                     singleLine = true,
@@ -200,7 +201,7 @@ class AndroidTextInputAdapterTest {
         val disposedSessionEI = EditorInfo()
         rule.runOnUiThread {
             adapter.createInputConnection(noActiveSessionEI)
-            val session = adapter.startInputSession(
+            val session = adapter.startInputSessionWithDefaultsForTest(
                 TextFieldState(),
                 ImeOptions(
                     keyboardType = KeyboardType.Number
@@ -217,4 +218,11 @@ class AndroidTextInputAdapterTest {
             assertThat(noActiveSessionEI.imeOptions).isEqualTo(disposedSessionEI.imeOptions)
         }
     }
+
+    @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+    private fun AndroidTextInputAdapter.startInputSessionWithDefaultsForTest(
+        state: TextFieldState,
+        imeOptions: ImeOptions = ImeOptions.Default,
+        initialFilter: TextEditFilter? = null
+    ) = startInputSession(state, imeOptions, initialFilter)
 }

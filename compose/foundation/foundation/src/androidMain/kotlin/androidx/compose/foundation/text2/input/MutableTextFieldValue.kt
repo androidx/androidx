@@ -21,15 +21,27 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 
 /**
- * A mutable version of [TextFieldValue]. The text in the buffer can be changed by calling
- * [replace].
+ * A mutable version of [TextFieldValue], similar to [StringBuilder].
+ *
+ * This class provides methods for changing the text, such as [replace] and [append].
+ *
+ * To get one of these, and for usage samples, see [TextFieldState.edit].
  */
 @ExperimentalFoundationApi
 class MutableTextFieldValue internal constructor(internal val value: TextFieldValue) : Appendable {
 
     private val buffer = StringBuffer(value.text)
 
+    /**
+     * The number of characters in the text field. This will be equal to or greater than
+     * [codepointLength].
+     */
     val length: Int get() = buffer.length
+
+    /**
+     * The number of codepoints in the text field. This will be equal to or less than [length].
+     */
+    val codepointLength: Int get() = charIndexToCodepointIndex(length)
 
     /**
      * Replaces the text between [start] (inclusive) and [end] (exclusive) in this value with
@@ -55,4 +67,18 @@ class MutableTextFieldValue internal constructor(internal val value: TextFieldVa
 
     internal fun toTextFieldValue(selection: TextRange): TextFieldValue =
         TextFieldValue(buffer.toString(), selection = selection)
+
+    internal fun codepointsToChars(range: TextRange): TextRange = TextRange(
+        codepointIndexToCharIndex(range.start),
+        codepointIndexToCharIndex(range.end)
+    )
+
+    internal fun charsToCodepoints(range: TextRange): TextRange = TextRange(
+        charIndexToCodepointIndex(range.start),
+        charIndexToCodepointIndex(range.end),
+    )
+
+    // TODO Support actual codepoints.
+    private fun codepointIndexToCharIndex(index: Int): Int = index
+    private fun charIndexToCodepointIndex(index: Int): Int = index
 }
