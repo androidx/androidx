@@ -19,7 +19,7 @@ package androidx.appactions.interaction.capabilities.productivity
 import androidx.appactions.interaction.capabilities.core.ActionCapability
 import androidx.appactions.interaction.capabilities.core.BaseSession
 import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
-import androidx.appactions.interaction.capabilities.core.HostProperties
+import androidx.appactions.interaction.capabilities.core.SessionFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
@@ -27,6 +27,8 @@ import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
 import androidx.appactions.interaction.capabilities.core.task.ValueListener
 import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
+import androidx.appactions.interaction.capabilities.core.task.impl.SessionBridge
+import androidx.appactions.interaction.capabilities.core.task.impl.TaskHandler
 import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
 import androidx.appactions.interaction.capabilities.core.values.SuccessStatus
 import androidx.appactions.interaction.proto.ParamValue
@@ -34,6 +36,7 @@ import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
 import java.time.Duration
 import java.util.Optional
+import java.util.function.Supplier
 
 /** StartTimer.kt in interaction-capabilities-productivity */
 private const val CAPABILITY_NAME = "actions.intent.START_TIMER"
@@ -71,6 +74,26 @@ private val ACTION_SPEC =
         )
         .build()
 
+private val SESSION_BRIDGE = SessionBridge<StartTimer.Session, StartTimer.Confirmation> {
+        session ->
+    val taskHandlerBuilder = TaskHandler.Builder<StartTimer.Confirmation>()
+    session.nameListener?.let {
+        taskHandlerBuilder.registerValueTaskParam(
+            "timer.name",
+            it,
+            TypeConverters.STRING_PARAM_VALUE_CONVERTER,
+        )
+    }
+    session.durationListener?.let {
+        taskHandlerBuilder.registerValueTaskParam(
+            "timer.duration",
+            it,
+            TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
+        )
+    }
+    taskHandlerBuilder.build()
+}
+
 // TODO(b/267806701): Add capability factory annotation once the testing library is fully migrated.
 class StartTimer private constructor() {
 
@@ -79,18 +102,19 @@ class StartTimer private constructor() {
             CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session
         >(ACTION_SPEC) {
 
-        fun setSessionFactory(): CapabilityBuilder {
-            return this
+        override val sessionBridge: SessionBridge<Session, Confirmation> = SESSION_BRIDGE
+        override val sessionUpdaterSupplier: Supplier<TaskUpdater> = Supplier {
+            TaskUpdater()
         }
+
+        public override fun setSessionFactory(
+            sessionFactory: SessionFactory<Session>,
+        ): CapabilityBuilder = super.setSessionFactory(sessionFactory)
 
         override fun build(): ActionCapability {
             super.setProperty(Property.Builder().build())
             return super.build()
         }
-    }
-
-    fun interface SessionFactory {
-        fun createSession(hostProperties: HostProperties): Session
     }
 
     interface Session : BaseSession<Argument, Output> {
@@ -150,8 +174,11 @@ class StartTimer private constructor() {
         }
     }
 
-    class Argument
-    internal constructor(val identifier: String?, val name: String?, val duration: Duration?) {
+    class Argument internal constructor(
+        val identifier: String?,
+        val name: String?,
+        val duration: Duration?,
+    ) {
         override fun toString(): String {
             return "Argument(identifier=$identifier,name=$name,duration=$duration)"
         }
