@@ -130,7 +130,10 @@ public final class AppSearchLoggerHelper {
                 .setJavaToNativeJniLatencyMillis(
                         fromNativeStats.getJavaToNativeJniLatencyMs())
                 .setNativeToJavaJniLatencyMillis(
-                        fromNativeStats.getNativeToJavaJniLatencyMs());
+                        fromNativeStats.getNativeToJavaJniLatencyMs())
+                .setNativeNumJoinedResultsCurrentPage(
+                        fromNativeStats.getNumJoinedResultsReturnedCurrentPage())
+                .setNativeJoinLatencyMillis(fromNativeStats.getJoinLatencyMs());
     }
 
     /**
