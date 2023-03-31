@@ -15,8 +15,10 @@
  */
 package androidx.privacysandbox.sdkruntime.client
 
+import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.os.Binder
 import android.os.Build
 import android.os.Bundle
 import androidx.privacysandbox.sdkruntime.client.loader.asTestSdk
@@ -278,6 +280,20 @@ class SdkSandboxManagerCompatTest {
         val managerCompat = SdkSandboxManagerCompat.from(context)
 
         managerCompat.getSandboxedSdks()
+
+        verify(context, Mockito.never()).getSystemService(any())
+    }
+
+    @Test
+    fun startSdkSandboxActivity_whenSandboxNotAvailable_dontDelegateToSandbox() {
+        // TODO(b/262577044) Replace with @SdkSuppress after supporting maxExtensionVersion
+        assumeTrue("Requires Sandbox API not available", isSandboxApiNotAvailable())
+
+        val context = spy(ApplicationProvider.getApplicationContext<Context>())
+        val managerCompat = SdkSandboxManagerCompat.from(context)
+
+        val fromActivitySpy = Mockito.mock(Activity::class.java)
+        managerCompat.startSdkSandboxActivity(fromActivitySpy, Binder())
 
         verify(context, Mockito.never()).getSystemService(any())
     }

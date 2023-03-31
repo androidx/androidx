@@ -16,15 +16,19 @@
 package androidx.privacysandbox.sdkruntime.client
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.sdksandbox.LoadSdkException
 import android.app.sdksandbox.SandboxedSdk
 import android.app.sdksandbox.SdkSandboxManager
 import android.content.Context
 import android.os.Bundle
+import android.os.IBinder
 import android.os.ext.SdkExtensions.AD_SERVICES
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
+import androidx.annotation.OptIn
+import androidx.core.os.BuildCompat
 import androidx.core.os.asOutcomeReceiver
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfigsHolder
 import androidx.privacysandbox.sdkruntime.client.controller.LocalController
@@ -203,6 +207,23 @@ class SdkSandboxManagerCompat private constructor(
         return platformResult + localResult
     }
 
+    /**
+     * Starts an [Activity] in the SDK sandbox.
+     *
+     * This function will start a new [Activity] in the same task of the passed `fromActivity` and
+     * pass it to the SDK that shared the passed `sdkActivityToken` that identifies a request from
+     * that SDK to stat this [Activity].
+     *
+     * @param fromActivity the [Activity] will be used to start the new sandbox [Activity] by
+     * calling [Activity#startActivity] against it.
+     * @param sdkActivityToken the identifier that is shared by the SDK which requests the
+     * [Activity].
+     * @see SdkSandboxManager.startSdkSandboxActivity
+     */
+    fun startSdkSandboxActivity(fromActivity: Activity, sdkActivityToken: IBinder) {
+        platformApi.startSdkSandboxActivity(fromActivity, sdkActivityToken)
+    }
+
     @TestOnly
     internal fun getLocallyLoadedSdk(sdkName: String): LocallyLoadedSdks.Entry? =
         localLocallyLoadedSdks.get(sdkName)
@@ -227,6 +248,8 @@ class SdkSandboxManagerCompat private constructor(
 
         @DoNotInline
         fun getSandboxedSdks(): List<SandboxedSdkCompat> = emptyList()
+
+        fun startSdkSandboxActivity(fromActivity: Activity, sdkActivityToken: IBinder)
     }
 
     @RequiresApi(33)
@@ -283,6 +306,11 @@ class SdkSandboxManagerCompat private constructor(
             }
         }
 
+        override fun startSdkSandboxActivity(fromActivity: Activity, sdkActivityToken: IBinder) {
+            throw UnsupportedOperationException("This API is only supported for devices run on " +
+                "Android U+")
+        }
+
         private suspend fun loadSdkInternal(
             sdkName: String,
             params: Bundle
@@ -309,7 +337,7 @@ class SdkSandboxManagerCompat private constructor(
 
     @RequiresApi(33)
     @RequiresExtension(extension = AD_SERVICES, version = 5)
-    private class ApiAdServicesV5Impl(
+    private open class ApiAdServicesV5Impl(
         context: Context
     ) : ApiAdServicesV4Impl(context) {
         @DoNotInline
@@ -317,6 +345,16 @@ class SdkSandboxManagerCompat private constructor(
             return sdkSandboxManager
                 .sandboxedSdks
                 .map { platformSdk -> SandboxedSdkCompat(platformSdk) }
+        }
+    }
+
+    @RequiresExtension(extension = AD_SERVICES, version = 5)
+    @RequiresApi(34)
+    private class ApiAdServicesUDCImpl(
+        context: Context
+    ) : ApiAdServicesV5Impl(context) {
+        override fun startSdkSandboxActivity(fromActivity: Activity, sdkActivityToken: IBinder) {
+            sdkSandboxManager.startSdkSandboxActivity(fromActivity, sdkActivityToken)
         }
     }
 
@@ -341,6 +379,9 @@ class SdkSandboxManagerCompat private constructor(
         override fun removeSdkSandboxProcessDeathCallback(
             callback: SdkSandboxProcessDeathCallbackCompat
         ) {
+        }
+
+        override fun startSdkSandboxActivity(fromActivity: Activity, sdkActivityToken: IBinder) {
         }
     }
 
@@ -387,8 +428,11 @@ class SdkSandboxManagerCompat private constructor(
 
     private object PlatformApiFactory {
         @SuppressLint("NewApi", "ClassVerificationFailure")
+        @OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
         fun create(context: Context): PlatformApi {
-            return if (AdServicesInfo.isAtLeastV5()) {
+            return if (BuildCompat.isAtLeastU()) {
+                ApiAdServicesUDCImpl(context)
+            } else if (AdServicesInfo.isAtLeastV5()) {
                 ApiAdServicesV5Impl(context)
             } else if (AdServicesInfo.isAtLeastV4()) {
                 ApiAdServicesV4Impl(context)
