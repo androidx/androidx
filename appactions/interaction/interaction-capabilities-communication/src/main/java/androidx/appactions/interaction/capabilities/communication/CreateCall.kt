@@ -55,7 +55,7 @@ private val ACTION_SPEC =
             "call.participant",
             { property -> Optional.ofNullable(property.participant) },
             CreateCall.Argument.Builder::setParticipantList,
-            ParticipantValue.FROM_PARAM_VALUE,
+            ParticipantValue.PARAM_VALUE_CONVERTER,
             EntityConverter.of(PARTICIPANT_TYPE_SPEC)
         )
         .bindOptionalOutput(

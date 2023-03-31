@@ -46,6 +46,6 @@ class ParticipantValue private constructor(
             )
             .build()
 
-        internal val FROM_PARAM_VALUE = ParamValueConverter.of(TYPE_SPEC)
+        internal val PARAM_VALUE_CONVERTER = ParamValueConverter.of(TYPE_SPEC)
     }
 }

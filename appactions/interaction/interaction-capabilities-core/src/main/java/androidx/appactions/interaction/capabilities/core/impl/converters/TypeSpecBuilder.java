@@ -52,10 +52,6 @@ final class TypeSpecBuilder<T, BuilderT extends BuilderOf<T>> {
         return Value.newBuilder().setStringValue(string).build();
     }
 
-    private static Value getStructValue(Struct struct) {
-        return Value.newBuilder().setStructValue(struct).build();
-    }
-
     private static Value getListValue(List<Value> values) {
         return Value.newBuilder()
                 .setListValue(ListValue.newBuilder().addAllValues(values).build())
@@ -285,11 +281,10 @@ final class TypeSpecBuilder<T, BuilderT extends BuilderOf<T>> {
                                 // throws error stating that the
                                 // input to toStruct is nullable. This is a workaround to avoid
                                 // the error from the analyzer.
-                                .map(spec::toStruct)
-                                .map(TypeSpecBuilder::getStructValue),
+                                .map(spec::toValue),
                 (builder, value) -> {
                     if (value.isPresent()) {
-                        valueSetter.accept(builder, spec.fromStruct(value.get().getStructValue()));
+                        valueSetter.accept(builder, spec.fromValue(value.get()));
                     }
                 });
     }
@@ -304,14 +299,12 @@ final class TypeSpecBuilder<T, BuilderT extends BuilderOf<T>> {
                 name,
                 valueGetter,
                 valueSetter,
-                (element) ->
-                        Optional.ofNullable(element)
-                                .map(value -> getStructValue(spec.toStruct(value))),
-                (value) -> spec.fromStruct(value.getStructValue()));
+                (element) -> Optional.ofNullable(element).map(spec::toValue),
+                (value) -> spec.fromValue(value));
     }
 
     TypeSpec<T> build() {
-        return new TypeSpecImpl<>(
+        return new TypeSpecImpl<T, BuilderT>(
                 mIdentifierGetter,
                 mBindings,
                 mBuilderSupplier,

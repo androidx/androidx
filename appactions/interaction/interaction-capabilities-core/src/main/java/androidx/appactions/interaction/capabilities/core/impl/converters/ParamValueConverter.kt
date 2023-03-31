@@ -17,6 +17,7 @@ package androidx.appactions.interaction.capabilities.core.impl.converters
 
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
 import androidx.appactions.interaction.proto.ParamValue
+import androidx.appactions.interaction.protobuf.Value
 
 /**
  * Converts to and from ParamValue (Assistant protocol for a slot).
@@ -30,21 +31,47 @@ interface ParamValueConverter<T> {
     fun fromParamValue(paramValue: ParamValue): T
 
     /** Convert to ParamValue to send to Assistant (e.g. BIO). */
-    fun toParamValue(value: T): ParamValue
+    fun toParamValue(obj: T): ParamValue
 
     companion object {
+        /**
+         * @param typeSpec the TypeSpec of the structured type, which can
+         * read/write objects to/from Struct.
+         */
         fun <T> of(typeSpec: TypeSpec<T>) = object : ParamValueConverter<T> {
-
             override fun fromParamValue(paramValue: ParamValue): T {
-                return typeSpec.fromStruct(paramValue.structValue)
+                return typeSpec.fromValue(paramValueToValue(paramValue))
             }
 
-            override fun toParamValue(value: T): ParamValue {
-                val builder = ParamValue.newBuilder()
-                    .setStructValue(typeSpec.toStruct(value))
-                typeSpec.getIdentifier(value)?.let { builder.setIdentifier(it) }
+            override fun toParamValue(obj: T): ParamValue {
+                val builder = valueToParamValue(typeSpec.toValue(obj)).toBuilder()
+                typeSpec.getIdentifier(obj)?.let { builder.setIdentifier(it) }
                 return builder.build()
             }
+        }
+
+        internal fun paramValueToValue(paramValue: ParamValue): Value {
+            val builder = Value.newBuilder()
+            when {
+                paramValue.hasStringValue() -> builder.setStringValue(paramValue.getStringValue())
+                paramValue.hasBoolValue() -> builder.setBoolValue(paramValue.getBoolValue())
+                paramValue.hasNumberValue() -> builder.setNumberValue(paramValue.getNumberValue())
+                paramValue.hasStructValue() -> builder.setStructValue(paramValue.getStructValue())
+                else -> throw StructConversionException("cannot convert $paramValue into Value.")
+            }
+            return builder.build()
+        }
+
+        internal fun valueToParamValue(value: Value): ParamValue {
+            val builder = ParamValue.newBuilder()
+            when {
+                value.hasStringValue() -> builder.setStringValue(value.getStringValue())
+                value.hasBoolValue() -> builder.setBoolValue(value.getBoolValue())
+                value.hasNumberValue() -> builder.setNumberValue(value.getNumberValue())
+                value.hasStructValue() -> builder.setStructValue(value.getStructValue())
+                else -> throw IllegalStateException("cannot convert $value to ParamValue.")
+            }
+            return builder.build()
         }
     }
 }

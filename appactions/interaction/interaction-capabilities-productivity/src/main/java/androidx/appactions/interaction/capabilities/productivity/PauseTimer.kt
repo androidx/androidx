@@ -43,8 +43,8 @@ private val ACTION_SPEC =
             "timer",
             { property -> Optional.ofNullable(property.timerList) },
             PauseTimer.Argument.Builder::setTimerList,
-            TimerValue.FROM_PARAM_VALUE,
-            TimerValue.TO_ENTITY_VALUE
+            TimerValue.PARAM_VALUE_CONVERTER,
+            TimerValue.ENTITY_CONVERTER
         )
         .bindOptionalOutput(
             "executionStatus",

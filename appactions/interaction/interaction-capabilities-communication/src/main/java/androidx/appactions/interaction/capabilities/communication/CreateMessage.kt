@@ -49,7 +49,7 @@ private val ACTION_SPEC =
             "message.recipient",
             { property -> Optional.ofNullable(property.recipient) },
             CreateMessage.Argument.Builder::setRecipientList,
-            RecipientValue.FROM_PARAM_VALUE,
+            RecipientValue.PARAM_VALUE_CONVERTER,
             EntityConverter.of(RECIPIENT_TYPE_SPEC)
         )
         .bindOptionalParameter(
