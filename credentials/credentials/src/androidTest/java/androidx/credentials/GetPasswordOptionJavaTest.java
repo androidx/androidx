@@ -30,6 +30,22 @@ import org.junit.runner.RunWith;
 @SmallTest
 public class GetPasswordOptionJavaTest {
     @Test
+    public void emptyConstructor_success() {
+        GetPasswordOption option = new GetPasswordOption();
+
+        assertThat(option.isAutoSelectAllowed()).isFalse();
+    }
+
+    @Test
+    public void construction_setOptionalValues_success() {
+        boolean expectedIsAutoSelectAllowed = true;
+
+        GetPasswordOption option = new GetPasswordOption(expectedIsAutoSelectAllowed);
+
+        assertThat(option.isAutoSelectAllowed()).isEqualTo(expectedIsAutoSelectAllowed);
+    }
+
+    @Test
     public void getter_frameworkProperties() {
         GetPasswordOption option = new GetPasswordOption();
         Bundle expectedRequestDataBundle = new Bundle();
@@ -45,12 +61,15 @@ public class GetPasswordOptionJavaTest {
 
     @Test
     public void frameworkConversion_success() {
-        GetPasswordOption option = new GetPasswordOption();
+        boolean expectedIsAutoSelectAllowed = true;
+        GetPasswordOption option = new GetPasswordOption(expectedIsAutoSelectAllowed);
 
         CredentialOption convertedOption = CredentialOption.createFrom(
                 option.getType(), option.getRequestData(), option.getCandidateQueryData(),
                 option.isSystemProviderRequired());
 
         assertThat(convertedOption).isInstanceOf(GetPasswordOption.class);
+        GetPasswordOption getPasswordOption = (GetPasswordOption) convertedOption;
+        assertThat(getPasswordOption.isAutoSelectAllowed()).isEqualTo(expectedIsAutoSelectAllowed);
     }
 }

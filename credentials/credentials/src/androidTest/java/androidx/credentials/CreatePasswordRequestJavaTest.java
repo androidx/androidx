@@ -89,6 +89,9 @@ public class CreatePasswordRequestJavaTest {
         expectedData.putString(CreatePasswordRequest.BUNDLE_KEY_PASSWORD, passwordExpected);
         expectedData.putBoolean(CreatePasswordRequest.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
                 expectedAutoSelect);
+        Bundle expectedCandidateData = new Bundle();
+        expectedCandidateData.putBoolean(CreatePasswordRequest.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
+                expectedAutoSelect);
 
         CreatePasswordRequest request = new CreatePasswordRequest(idExpected, passwordExpected);
 
@@ -97,7 +100,8 @@ public class CreatePasswordRequestJavaTest {
                 request.getDisplayInfo();
         assertThat(displayInfo.getUserDisplayName()).isNull();
         assertThat(displayInfo.getUserId()).isEqualTo(idExpected);
-        assertThat(TestUtilsKt.equals(request.getCandidateQueryData(), Bundle.EMPTY)).isTrue();
+        assertThat(TestUtilsKt.equals(request.getCandidateQueryData(), expectedCandidateData))
+                .isTrue();
         assertThat(request.isSystemProviderRequired()).isFalse();
         Bundle credentialData =
                 getFinalCreateCredentialData(

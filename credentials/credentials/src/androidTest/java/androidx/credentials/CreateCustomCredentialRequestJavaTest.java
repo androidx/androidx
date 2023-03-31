@@ -22,6 +22,8 @@ import static org.junit.Assert.assertThrows;
 
 import android.os.Bundle;
 
+import androidx.test.filters.SdkSuppress;
+
 import org.junit.Test;
 
 public class CreateCustomCredentialRequestJavaTest {
@@ -81,23 +83,31 @@ public class CreateCustomCredentialRequestJavaTest {
         CreateCredentialRequest.DisplayInfo expectedDisplayInfo =
                 new CreateCredentialRequest.DisplayInfo("userId");
         boolean expectedSystemProvider = true;
-        boolean expectedAutoSelectAllowed = false;
+        boolean expectedAutoSelectAllowed = true;
+        String expectedOrigin = "Origin";
 
         CreateCustomCredentialRequest request = new CreateCustomCredentialRequest(expectedType,
                 expectedCredentialDataBundle,
                 expectedCandidateQueryDataBundle,
                 expectedSystemProvider,
                 expectedDisplayInfo,
-                expectedAutoSelectAllowed);
+                expectedAutoSelectAllowed,
+                expectedOrigin);
 
         assertThat(request.getType()).isEqualTo(expectedType);
         assertThat(TestUtilsKt.equals(request.getCredentialData(), expectedCredentialDataBundle))
                 .isTrue();
+        assertThat(TestUtilsKt.equals(request.getCustomRequestData(), expectedCredentialDataBundle))
+                .isTrue();
         assertThat(TestUtilsKt.equals(request.getCandidateQueryData(),
+                expectedCandidateQueryDataBundle)).isTrue();
+        assertThat(TestUtilsKt.equals(request.getCustomRequestCandidateQueryData(),
                 expectedCandidateQueryDataBundle)).isTrue();
         assertThat(request.isSystemProviderRequired()).isEqualTo(expectedSystemProvider);
         assertThat(request.isAutoSelectAllowed()).isEqualTo(expectedAutoSelectAllowed);
         assertThat(request.getDisplayInfo()).isEqualTo(expectedDisplayInfo);
+        assertThat(request.getOrigin()).isEqualTo(expectedOrigin);
+        assertThat(request.getCustomRequestOrigin()).isEqualTo(expectedOrigin);
     }
 
     @Test
@@ -106,5 +116,61 @@ public class CreateCustomCredentialRequestJavaTest {
                 NullPointerException.class, () -> new CreateCustomCredentialRequest("type",
                         new Bundle(), new Bundle(), false,
                         /* requestDisplayInfo= */null, false));
+    }
+
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    public void frameworkConversion_success() {
+        String expectedType = "TYPE";
+        Bundle expectedCredentialDataBundle = new Bundle();
+        expectedCredentialDataBundle.putString("Test", "Test");
+        Bundle expectedCandidateQueryDataBundle = new Bundle();
+        expectedCandidateQueryDataBundle.putBoolean("key", true);
+        CreateCredentialRequest.DisplayInfo expectedDisplayInfo =
+                new CreateCredentialRequest.DisplayInfo("userId");
+        boolean expectedSystemProvider = true;
+        boolean expectedAutoSelectAllowed = true;
+        String expectedOrigin = "Origin";
+        CreateCustomCredentialRequest request = new CreateCustomCredentialRequest(expectedType,
+                expectedCredentialDataBundle,
+                expectedCandidateQueryDataBundle,
+                expectedSystemProvider,
+                expectedDisplayInfo,
+                expectedAutoSelectAllowed,
+                expectedOrigin);
+        Bundle finalCredentialData = request.getCredentialData();
+        finalCredentialData.putBundle(
+                CreateCredentialRequest.DisplayInfo.BUNDLE_KEY_REQUEST_DISPLAY_INFO,
+                expectedDisplayInfo.toBundle()
+        );
+
+        CreateCredentialRequest convertedRequest = CreateCredentialRequest.createFrom(
+                request.getType(), request.getCredentialData(), request.getCandidateQueryData(),
+                request.isSystemProviderRequired(), request.getOrigin());
+
+        assertThat(convertedRequest).isInstanceOf(CreateCustomCredentialRequest.class);
+        CreateCustomCredentialRequest actualRequest =
+                (CreateCustomCredentialRequest) convertedRequest;
+        assertThat(actualRequest.getType()).isEqualTo(expectedType);
+        assertThat(actualRequest.getCustomRequestType()).isEqualTo(expectedType);
+        assertThat(TestUtilsKt.equals(actualRequest.getCredentialData(),
+                expectedCredentialDataBundle))
+                .isTrue();
+        assertThat(TestUtilsKt.equals(actualRequest.getCustomRequestData(),
+                expectedCredentialDataBundle))
+                .isTrue();
+        assertThat(TestUtilsKt.equals(actualRequest.getCandidateQueryData(),
+                expectedCandidateQueryDataBundle)).isTrue();
+        assertThat(TestUtilsKt.equals(actualRequest.getCustomRequestCandidateQueryData(),
+                expectedCandidateQueryDataBundle)).isTrue();
+        assertThat(actualRequest.isSystemProviderRequired()).isEqualTo(expectedSystemProvider);
+        assertThat(actualRequest.isAutoSelectAllowed()).isEqualTo(expectedAutoSelectAllowed);
+        assertThat(actualRequest.getDisplayInfo().getUserId())
+                .isEqualTo(expectedDisplayInfo.getUserId());
+        assertThat(actualRequest.getDisplayInfo().getUserDisplayName())
+                .isEqualTo(expectedDisplayInfo.getUserDisplayName());
+        assertThat(actualRequest.getOrigin()).isEqualTo(expectedOrigin);
+        assertThat(actualRequest.getCustomRequestOrigin()).isEqualTo(expectedOrigin);
     }
 }

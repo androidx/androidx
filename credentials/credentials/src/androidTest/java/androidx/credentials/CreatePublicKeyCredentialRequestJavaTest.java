@@ -121,6 +121,7 @@ public class CreatePublicKeyCredentialRequestJavaTest {
         String requestJsonExpected = TEST_REQUEST_JSON;
         String clientDataHash = "hash";
         boolean preferImmediatelyAvailableCredentialsExpected = false;
+        boolean autoSelectExpected = false;
         Bundle expectedData = new Bundle();
         expectedData.putString(
                 PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
@@ -135,15 +136,13 @@ public class CreatePublicKeyCredentialRequestJavaTest {
                 preferImmediatelyAvailableCredentialsExpected);
         expectedData.putBoolean(
                 BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
-                preferImmediatelyAvailableCredentialsExpected);
-        Bundle expectedQuery = TestUtilsKt.deepCopyBundle(expectedData);
-        expectedQuery.remove(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED);
+                autoSelectExpected);
 
         CreatePublicKeyCredentialRequest request = new CreatePublicKeyCredentialRequest(
                 requestJsonExpected, clientDataHash, preferImmediatelyAvailableCredentialsExpected);
 
         assertThat(request.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
-        assertThat(TestUtilsKt.equals(request.getCandidateQueryData(), expectedQuery)).isTrue();
+        assertThat(TestUtilsKt.equals(request.getCandidateQueryData(), expectedData)).isTrue();
         assertThat(request.isSystemProviderRequired()).isFalse();
         Bundle credentialData = getFinalCreateCredentialData(
                 request, mContext);
