@@ -1936,6 +1936,10 @@ public abstract class CameraController {
     @MainThread
     public void clearEffects() {
         checkMainThread();
+        if (mCameraProvider != null) {
+            // Unbind to make sure the pipelines will be recreated.
+            mCameraProvider.unbindAll();
+        }
         mEffects.clear();
         startCameraAndTrackStates();
     }
