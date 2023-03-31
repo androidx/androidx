@@ -24,11 +24,11 @@ import kotlin.math.abs
 internal class MeasuredPolygon : AbstractList<MeasuredPolygon.MeasuredCubic> {
     private val measurer: Measurer
     private val cubics: List<MeasuredCubic>
-    val features: List<Pair<Float, Polygon.Feature>>
+    val features: List<Pair<Float, RoundedPolygon.Feature>>
 
     private constructor(
         measurer: Measurer,
-        features: List<Pair<Float, Polygon.Feature>>,
+        features: List<Pair<Float, RoundedPolygon.Feature>>,
         cubics: List<Cubic>,
         outlineProgress: List<Float>
     ) {
@@ -233,15 +233,15 @@ internal class MeasuredPolygon : AbstractList<MeasuredPolygon.MeasuredCubic> {
     override fun get(index: Int) = cubics[index]
 
     companion object {
-        internal fun measurePolygon(measurer: Measurer, polygon: Polygon): MeasuredPolygon {
+        internal fun measurePolygon(measurer: Measurer, polygon: RoundedPolygon): MeasuredPolygon {
             val cubics = mutableListOf<Cubic>()
-            val featureToCubic = mutableListOf<Pair<Polygon.Feature, Int>>()
+            val featureToCubic = mutableListOf<Pair<RoundedPolygon.Feature, Int>>()
 
             // Get the cubics from the polygon, at the same time, extract the features and keep a
             // reference to the representative cubic we will use.
             polygon.features.forEach { feature ->
                 feature.cubics.forEachIndexed { index, cubic ->
-                    if (feature is Polygon.Corner &&
+                    if (feature is RoundedPolygon.Corner &&
                         index == feature.cubics.size / 2) {
                         featureToCubic.add(feature to cubics.size)
                     }
