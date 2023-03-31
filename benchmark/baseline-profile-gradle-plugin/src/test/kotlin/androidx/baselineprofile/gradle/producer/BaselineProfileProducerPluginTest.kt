@@ -17,6 +17,9 @@
 package androidx.baselineprofile.gradle.producer
 
 import androidx.baselineprofile.gradle.utils.BaselineProfileProjectSetupRule
+import androidx.baselineprofile.gradle.utils.TEST_AGP_VERSION_8_0_0
+import androidx.baselineprofile.gradle.utils.TEST_AGP_VERSION_8_1_0
+import androidx.baselineprofile.gradle.utils.TEST_AGP_VERSION_ALL
 import androidx.baselineprofile.gradle.utils.VariantProfile
 import androidx.baselineprofile.gradle.utils.buildAndAssertThatOutput
 import androidx.baselineprofile.gradle.utils.buildAndFailAndAssertThatOutput
@@ -24,12 +27,15 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.junit.runners.Parameterized
 
 @RunWith(JUnit4::class)
-class BaselineProfileProducerPluginTest {
+class BaselineProfileProducerPluginTestWithAgp80 {
 
     @get:Rule
-    val projectSetup = BaselineProfileProjectSetupRule()
+    val projectSetup = BaselineProfileProjectSetupRule(
+        forceAgpVersion = TEST_AGP_VERSION_8_0_0
+    )
 
     private val emptyReleaseVariantProfile = VariantProfile(
         flavor = null,
@@ -50,6 +56,55 @@ class BaselineProfileProducerPluginTest {
             contains("collectNonMinifiedReleaseBaselineProfile - ")
         }
     }
+}
+
+@RunWith(JUnit4::class)
+class BaselineProfileProducerPluginTestWithAgp81 {
+
+    @get:Rule
+    val projectSetup = BaselineProfileProjectSetupRule(
+        forceAgpVersion = TEST_AGP_VERSION_8_1_0
+    )
+
+    private val emptyReleaseVariantProfile = VariantProfile(
+        flavor = null,
+        buildType = "release",
+        profileFileLines = mapOf()
+    )
+
+    @Test
+    fun verifyTasksWithAndroidTestPlugin() {
+        projectSetup.appTarget.setup()
+        projectSetup.producer.setup(
+            variantProfiles = listOf(emptyReleaseVariantProfile),
+            targetProject = projectSetup.appTarget
+        )
+
+        projectSetup.producer.gradleRunner.buildAndAssertThatOutput("tasks") {
+            contains("connectedNonMinifiedReleaseAndroidTest - ")
+            contains("connectedBenchmarkReleaseAndroidTest - ")
+            contains("collectNonMinifiedReleaseBaselineProfile - ")
+        }
+    }
+}
+
+@RunWith(Parameterized::class)
+class BaselineProfileProducerPluginTest(agpVersion: String?) {
+
+    companion object {
+        @Parameterized.Parameters(name = "agpVersion={0}")
+        @JvmStatic
+        fun parameters() = TEST_AGP_VERSION_ALL
+    }
+
+    @get:Rule
+    val projectSetup = BaselineProfileProjectSetupRule(forceAgpVersion = agpVersion)
+
+    private val emptyReleaseVariantProfile = VariantProfile(
+        flavor = null,
+        buildType = "release",
+        profileFileLines = mapOf()
+    )
 
     @Test
     fun nonExistingManagedDeviceShouldThrowError() {
@@ -88,13 +143,17 @@ class BaselineProfileProducerPluginTest {
                 "--dry-run"
             ) {
                 contains(
-                    ":${projectSetup.appTarget.name}:packageNonMinifiedRelease")
+                    ":${projectSetup.appTarget.name}:packageNonMinifiedRelease"
+                )
                 contains(
-                    ":${projectSetup.producer.name}:somePixelDeviceNonMinifiedReleaseAndroidTest")
+                    ":${projectSetup.producer.name}:somePixelDeviceNonMinifiedReleaseAndroidTest"
+                )
                 contains(
-                    ":${projectSetup.producer.name}:connectedNonMinifiedReleaseAndroidTest")
+                    ":${projectSetup.producer.name}:connectedNonMinifiedReleaseAndroidTest"
+                )
                 contains(
-                    ":${projectSetup.producer.name}:collectNonMinifiedReleaseBaselineProfile")
+                    ":${projectSetup.producer.name}:collectNonMinifiedReleaseBaselineProfile"
+                )
             }
     }
 }

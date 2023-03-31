@@ -21,29 +21,33 @@ import androidx.baselineprofile.gradle.utils.ANDROID_LIBRARY_PLUGIN
 import androidx.baselineprofile.gradle.utils.ANDROID_TEST_PLUGIN
 import androidx.baselineprofile.gradle.utils.BaselineProfileProjectSetupRule
 import androidx.baselineprofile.gradle.utils.Fixtures
+import androidx.baselineprofile.gradle.utils.TEST_AGP_VERSION_8_1_0
+import androidx.baselineprofile.gradle.utils.TEST_AGP_VERSION_ALL
 import androidx.baselineprofile.gradle.utils.VariantProfile
 import androidx.baselineprofile.gradle.utils.build
 import androidx.baselineprofile.gradle.utils.buildAndAssertThatOutput
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.io.File
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.junit.runners.Parameterized
 
-@RunWith(JUnit4::class)
-class BaselineProfileConsumerPluginTest {
-
-    // To test the consumer plugin we need a module that exposes a baselineprofile configuration
-    // to be consumed. This is why we'll be using 2 projects. The producer project build gradle
-    // is generated ad hoc in the tests that require it in order to supply mock profiles.
+@RunWith(Parameterized::class)
+class BaselineProfileConsumerPluginTest(agpVersion: String?) {
 
     companion object {
         private const val EXPECTED_PROFILE_FOLDER = "generated/baselineProfiles"
+
+        @Parameterized.Parameters(name = "agpVersion={0}")
+        @JvmStatic
+        fun parameters() = TEST_AGP_VERSION_ALL
     }
 
     @get:Rule
-    val projectSetup = BaselineProfileProjectSetupRule()
+    val projectSetup = BaselineProfileProjectSetupRule(forceAgpVersion = agpVersion)
 
     private val gradleRunner by lazy { projectSetup.consumer.gradleRunner }
 
@@ -886,5 +890,77 @@ class BaselineProfileConsumerPluginTest {
                 Fixtures.CLASS_2_METHOD_1
             )
         )
+    }
+}
+
+@RunWith(JUnit4::class)
+class BaselineProfileConsumerPluginTestWithAgp81 {
+
+    @get:Rule
+    val projectSetup = BaselineProfileProjectSetupRule(
+        forceAgpVersion = TEST_AGP_VERSION_8_1_0
+    )
+
+    @Test
+    fun verifyTasksWithAndroidTestPlugin() {
+        projectSetup.consumer.setup(
+            androidPlugin = ANDROID_APPLICATION_PLUGIN,
+            flavors = true,
+            baselineProfileBlock = """
+                saveInSrc = true
+                automaticGenerationDuringBuild = true
+            """.trimIndent(),
+            additionalGradleCodeBlock = """
+                androidComponents {
+                    onVariants(selector()) { variant ->
+                        tasks.register(variant.name + "BaselineProfileSrcSet", PrintTask) { t ->
+                            t.text.set(variant.sources.baselineProfiles.directories.toString())
+                        }
+                    }
+                }
+            """.trimIndent()
+        )
+        projectSetup.producer.setupWithFreeAndPaidFlavors(
+            freeReleaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
+            paidReleaseProfileLines = listOf(Fixtures.CLASS_2_METHOD_1, Fixtures.CLASS_2),
+        )
+
+        // Asserts that running connected checks on a benchmark variants also triggers
+        // baseline profile generation (due to `automaticGenerationDuringBuild` true`).
+        projectSetup
+            .producer
+            .gradleRunner
+            .build("connectedFreeBenchmarkReleaseAndroidTest", "--dry-run") { text ->
+
+                val consumerName = projectSetup.consumer.name
+                val producerName = projectSetup.producer.name
+
+                val tasksToFindInOrder = mutableSetOf(
+                    ":$consumerName:packageFreeNonMinifiedRelease",
+                    ":$producerName:connectedFreeNonMinifiedReleaseAndroidTest",
+                    ":$producerName:collectFreeNonMinifiedReleaseBaselineProfile",
+                    ":$consumerName:mergeFreeReleaseBaselineProfile",
+                    ":$consumerName:copyFreeReleaseBaselineProfileIntoSrc",
+                    ":$consumerName:mergeFreeBenchmarkReleaseArtProfile",
+                    ":$consumerName:compileFreeBenchmarkReleaseArtProfile",
+                    ":$consumerName:packageFreeBenchmarkRelease",
+                    ":$consumerName:createFreeBenchmarkReleaseApkListingFileRedirect",
+                    ":$producerName:connectedFreeBenchmarkReleaseAndroidTest"
+                )
+
+                text.lines().forEach {
+                    val next = tasksToFindInOrder.firstOrNull() ?: return@forEach
+                    if (it.startsWith(next)) tasksToFindInOrder.remove(next)
+                }
+
+                assertWithMessage(
+                    """
+                `connectedFreeBenchmarkReleaseAndroidTest` did not trigger all the expected tasks.
+                Missing tasks:
+                ${tasksToFindInOrder.joinToString("\n") { "\t\t\t\t$it" }}
+
+                """.trimIndent()
+                ).that(tasksToFindInOrder).isEmpty()
+            }
     }
 }

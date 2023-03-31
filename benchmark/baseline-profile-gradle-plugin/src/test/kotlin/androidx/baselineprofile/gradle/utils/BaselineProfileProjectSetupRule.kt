@@ -17,6 +17,7 @@
 package androidx.baselineprofile.gradle.utils
 
 import androidx.testutils.gradle.ProjectSetupRule
+import com.android.build.api.AndroidPluginVersion
 import com.google.testing.platform.proto.api.core.LabelProto
 import com.google.testing.platform.proto.api.core.PathProto
 import com.google.testing.platform.proto.api.core.TestArtifactProto
@@ -24,6 +25,7 @@ import com.google.testing.platform.proto.api.core.TestResultProto
 import com.google.testing.platform.proto.api.core.TestStatusProto
 import com.google.testing.platform.proto.api.core.TestSuiteResultProto
 import java.io.File
+import java.util.Properties
 import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.rules.ExternalResource
@@ -109,6 +111,16 @@ class BaselineProfileProjectSetupRule(
     private fun applyInternal(base: Statement) = object : Statement() {
         override fun evaluate() {
 
+            // Creates the main gradle.properties
+            rootFolder.newFile("gradle.properties").writer().use {
+                val props = Properties()
+                props.setProperty(
+                    "org.gradle.jvmargs", "-Xmx2g -XX:+UseParallelGC -XX:MaxMetaspaceSize=512m"
+                )
+                props.setProperty("android.useAndroidX", "true")
+                props.store(it, null)
+            }
+
             // Creates the main settings.gradle
             rootFolder.newFile("settings.gradle").writeText(
                 """
@@ -127,7 +139,9 @@ class BaselineProfileProjectSetupRule(
             val agpDependency = if (forceAgpVersion == null) {
                 """"${appTargetSetupRule.props.agpDependency}""""
             } else {
-                """("com.android.tools.build:gradle") { version { strictly "$forceAgpVersion" } }"""
+                """
+                    ("com.android.tools.build:gradle") { version { strictly "$forceAgpVersion" } }
+                    """.trimIndent()
             }
             rootFolder.newFile("build.gradle").writeText(
                 """
@@ -165,6 +179,15 @@ class BaselineProfileProjectSetupRule(
 
             base.evaluate()
         }
+    }
+
+    private fun AndroidPluginVersion.versionString(): String {
+        val preview = if (!previewType.isNullOrBlank()) {
+            "-$previewType${"%02d".format(preview)}"
+        } else {
+            ""
+        }
+        return "$major.$minor.$micro$preview"
     }
 }
 

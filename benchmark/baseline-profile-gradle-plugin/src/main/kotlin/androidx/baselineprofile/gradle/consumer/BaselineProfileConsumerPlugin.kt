@@ -21,9 +21,11 @@ import androidx.baselineprofile.gradle.consumer.task.MainGenerateBaselineProfile
 import androidx.baselineprofile.gradle.consumer.task.MergeBaselineProfileTask
 import androidx.baselineprofile.gradle.consumer.task.PrintConfigurationForVariantTask
 import androidx.baselineprofile.gradle.consumer.task.maybeCreateGenerateTask
+import androidx.baselineprofile.gradle.utils.AgpFeature
 import androidx.baselineprofile.gradle.utils.AgpPlugin
 import androidx.baselineprofile.gradle.utils.AgpPluginId
 import androidx.baselineprofile.gradle.utils.BUILD_TYPE_BASELINE_PROFILE_PREFIX
+import androidx.baselineprofile.gradle.utils.BUILD_TYPE_BENCHMARK_PREFIX
 import androidx.baselineprofile.gradle.utils.CONFIGURATION_NAME_BASELINE_PROFILES
 import androidx.baselineprofile.gradle.utils.INTERMEDIATES_BASE_FOLDER
 import androidx.baselineprofile.gradle.utils.MAX_AGP_VERSION_REQUIRED
@@ -74,6 +76,9 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
     // Manages r8 properties
     private val r8Utils = R8Utils(project)
 
+    // Keeps track of the benchmark variants to add src sets to
+    private val variantToBlockMap: MutableMap<String, (Variant) -> (Unit)> = mutableMapOf()
+
     // Global baseline profile configuration. Note that created here it can be directly consumed
     // in the dependencies block.
     private val mainBaselineProfileConfiguration = configurationManager.maybeCreate(
@@ -111,7 +116,11 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
         // target plugin is also applied.
 
         nonDebuggableBuildTypes.addAll(extension.buildTypes
-            .filter { !it.isDebuggable && !it.name.startsWith(BUILD_TYPE_BASELINE_PROFILE_PREFIX) }
+            .filter {
+                !it.isDebuggable &&
+                    !it.name.startsWith(BUILD_TYPE_BASELINE_PROFILE_PREFIX) &&
+                    !it.name.startsWith(BUILD_TYPE_BENCHMARK_PREFIX)
+            }
             .map { it.name }
         )
     }
@@ -131,6 +140,14 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
 
     @Suppress("UnstableApiUsage")
     override fun onVariants(variant: Variant) {
+
+        // Check if some work was already scheduled for this variant. This is only for benchmark
+        // variants that needs src sets to be set but this information is known only after the
+        // baseline profile variant has been processed.
+        variantToBlockMap[variant.name]?.let { block ->
+            block(variant)
+            return
+        }
 
         // Process only the non debuggable build types we previously selected.
         if (variant.buildType !in nonDebuggableBuildTypes) return
@@ -272,25 +289,38 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
             // the profile in order to build the aar for the sample app and generate
             // the profile.
             if (isApplicationModule()) {
-                afterVariants {
+
+                // Sets the task dependency according to the configuration flag.
+                val automaticGeneration = perVariantBaselineProfileExtensionManager
+                    .variant(variant)
+                    .automaticGenerationDuringBuild
+
+                // Defines a function to apply the baseline profile source sets to a variant.
+                val applySourceSetsFunc: (String) -> (Unit) = { variantName ->
                     project
                         .tasks
-                        .named(camelCase("merge", variant.name, "artProfile"))
-                        .configure {
-                            // Sets the task dependency according to the configuration
-                            // flag.
-                            val automaticGeneration = perVariantBaselineProfileExtensionManager
-                                .variant(variant)
-                                .automaticGenerationDuringBuild
+                        .named(camelCase("merge", variantName, "artProfile"))
+                        .configure { t ->
 
                             // TODO: this causes a circular task dependency when the producer points
                             //  to a consumer that does not have the appTarget plugin. (b/272851616)
                             if (automaticGeneration) {
-                                it.dependsOn(copyTaskProvider)
+                                t.dependsOn(copyTaskProvider)
                             } else {
-                                it.mustRunAfter(copyTaskProvider)
+                                t.mustRunAfter(copyTaskProvider)
                             }
                         }
+                }
+
+                afterVariants {
+
+                    // Apply the source sets to the variant.
+                    applySourceSetsFunc(variant.name)
+
+                    // Apply the source sets to the benchmark variant if supported.
+                    if (supportsFeature(AgpFeature.TEST_MODULE_SUPPORTS_MULTIPLE_BUILD_TYPES)) {
+                        applySourceSetsFunc(variant.benchmarkVariantName)
+                    }
                 }
             }
 
@@ -299,16 +329,44 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
         } else {
 
             if (variantConfiguration.automaticGenerationDuringBuild) {
+
                 // If the flag `automaticGenerationDuringBuild` is true, we can set the
                 // merge task to provide generated sources for the variant, using the
                 // src set variant api. This means that we don't need to manually depend
                 // on the merge or prepare art profile task.
-                variant
-                    .sources
-                    .baselineProfiles?.addGeneratedSourceDirectory(
+
+                // Defines a function to apply the baseline profile source sets to a variant.
+                val applySourceSetsFunc: (Variant) -> (Unit) = { v ->
+                    v.sources.baselineProfiles?.addGeneratedSourceDirectory(
                         taskProvider = mergeTaskProvider,
                         wiredWith = MergeBaselineProfileTask::baselineProfileDir
                     )
+                }
+
+                // Apply the source sets to the variant.
+                applySourceSetsFunc(variant)
+
+                // Apply the source sets to the benchmark variant if supported.
+                if (supportsFeature(AgpFeature.TEST_MODULE_SUPPORTS_MULTIPLE_BUILD_TYPES)) {
+
+                    // Note that there is no way to access directly a specific variant and, at this
+                    // point, we're too late in the configuration flow schedule another onVariants
+                    // callback. So we store the variants name to modify and we expect to receive
+                    // it later in this method.
+                    if (variant.benchmarkVariantName in variantToBlockMap) {
+
+                        // Note that this cannot happen but checking anyway to avoid possible weird
+                        // bugs in future.
+                        throw IllegalStateException(
+                            """
+                        Another block was already scheduled for `${variant.benchmarkVariantName}`.
+                            """.trimIndent()
+                        )
+                    }
+                    variantToBlockMap[variant.benchmarkVariantName] = { v ->
+                        applySourceSetsFunc(v)
+                    }
+                }
             } else {
 
                 // This is the case of `saveInSrc` and `automaticGenerationDuringBuild`
@@ -366,6 +424,13 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
             )
         }
     }
+
+    private val Variant.benchmarkVariantName: String
+        get() {
+            val parts = listOfNotNull(flavorName, BUILD_TYPE_BENCHMARK_PREFIX, buildType)
+                .filter { it.isNotBlank() }
+            return camelCase(*parts.toTypedArray())
+        }
 
     private fun createConfigurationForVariant(
         variant: Variant,
