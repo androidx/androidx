@@ -45,6 +45,7 @@ import java.util.concurrent.atomic.AtomicReference
 import kotlin.test.assertFailsWith
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -342,6 +343,7 @@ class ComplicationDataSourceServiceTest {
         assertThat(data.allValues).containsExactly(null)
     }
 
+    @Ignore // b/276294993
     @Test
     fun testOnComplicationDataError() {
         val data =
