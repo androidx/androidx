@@ -16,10 +16,16 @@
 
 package androidx.compose.foundation.text2
 
+import android.text.InputType
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputConnection
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.KeyboardHelper
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.text2.input.internal.AndroidTextInputAdapter
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,9 +33,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties.TextSelectionRange
 import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotFocused
@@ -37,30 +46,42 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.After
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalTestApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-class BasicTextField2Test {
+internal class BasicTextField2Test {
     @get:Rule
     val rule = createComposeRule()
 
     private val Tag = "BasicTextField2"
+
+    @After
+    fun tearDown() {
+        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests(null)
+    }
 
     @Test
     fun textField_rendersEmptyContent() {
@@ -306,5 +327,112 @@ class BasicTextField2Test {
         }
         assertThat(state1.value.text).isEqualTo("Compose")
         assertThat(state2.value.text).isEqualTo("Compose2")
+    }
+
+    @Test
+    fun textField_passesKeyboardOptionsThrough() {
+        var editorInfo: EditorInfo? = null
+        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { info, _ ->
+            editorInfo = info
+        }
+        val state = TextFieldState()
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                modifier = Modifier.testTag(Tag),
+                // We don't need to test all combinations here, that is tested in EditorInfoTest.
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Characters,
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Previous
+                )
+            )
+        }
+        requestFocus(Tag)
+
+        rule.runOnIdle {
+            assertThat(editorInfo).isNotNull()
+            assertThat(editorInfo!!.imeOptions and EditorInfo.IME_ACTION_PREVIOUS).isNotEqualTo(0)
+            assertThat(editorInfo!!.inputType and EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS)
+                .isNotEqualTo(0)
+            assertThat(editorInfo!!.inputType and InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS)
+                .isNotEqualTo(0)
+        }
+    }
+
+    @Test
+    fun textField_appliesFilter_toInputConnection() {
+        var inputConnection: InputConnection? = null
+        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { _, ic ->
+            inputConnection = ic
+        }
+        val state = TextFieldState(filter = RejectAllTextFilter)
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                modifier = Modifier.testTag(Tag)
+            )
+        }
+        requestFocus(Tag)
+
+        rule.runOnIdle {
+            with(inputConnection!!) {
+                beginBatchEdit()
+                finishComposingText()
+                commitText("hello", 1)
+                endBatchEdit()
+            }
+        }
+        rule.onNodeWithTag(Tag).assertTextEquals("")
+    }
+
+    @Test
+    fun textField_appliesFilter_toSetTextSemanticsAction() {
+        val state = TextFieldState(filter = RejectAllTextFilter)
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                modifier = Modifier.testTag(Tag)
+            )
+        }
+
+        rule.onNodeWithTag(Tag).performTextReplacement("hello")
+        rule.onNodeWithTag(Tag).assertTextEquals("")
+    }
+
+    @Test
+    fun textField_appliesFilter_toInsertTextSemanticsAction() {
+        val state = TextFieldState(filter = RejectAllTextFilter)
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                modifier = Modifier.testTag(Tag)
+            )
+        }
+
+        rule.onNodeWithTag(Tag).performTextInput("hello")
+        rule.onNodeWithTag(Tag).assertTextEquals("")
+    }
+
+    @Test
+    fun textField_appliesFilter_toKeyEvents() {
+        val state = TextFieldState(filter = RejectAllTextFilter)
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                modifier = Modifier.testTag(Tag)
+            )
+        }
+
+        rule.onNodeWithTag(Tag).performKeyInput { pressKey(Key.A) }
+        rule.onNodeWithTag(Tag).assertTextEquals("")
+    }
+
+    private fun requestFocus(tag: String) =
+        rule.onNodeWithTag(tag).performSemanticsAction(SemanticsActions.RequestFocus)
+
+    private object RejectAllTextFilter : TextEditFilter {
+        override fun filter(oldValue: TextFieldValue, newValue: TextFieldValue): TextFieldValue =
+            oldValue
     }
 }
