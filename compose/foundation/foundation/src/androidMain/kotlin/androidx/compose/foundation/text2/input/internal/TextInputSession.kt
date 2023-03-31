@@ -23,6 +23,7 @@ import android.view.inputmethod.InputConnection
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.TextFieldValue
 
@@ -80,4 +81,9 @@ internal interface EditableTextInputSession : TextInputSession {
      * IME configuration to use when creating new [InputConnection]s while this session is active.
      */
     val imeOptions: ImeOptions
+
+    /**
+     * Callback to run when IME sends an action via [InputConnection.performEditorAction]
+     */
+    fun onImeAction(imeAction: ImeAction)
 }

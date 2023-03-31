@@ -109,7 +109,7 @@ class AndroidTextInputAdapterTest {
                     InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
             )
             assertThat(editorInfo.imeOptions).isEqualTo(
-                    EditorInfo.IME_FLAG_NO_FULLSCREEN or
+                EditorInfo.IME_FLAG_NO_FULLSCREEN or
                     EditorInfo.IME_FLAG_NO_ENTER_ACTION
             )
         }
@@ -129,6 +129,37 @@ class AndroidTextInputAdapterTest {
 
             assertThat(state1.value.text).isEqualTo("")
             assertThat(state2.value.text).isEqualTo("Hello")
+        }
+    }
+
+    @Test
+    fun inputConnection_sendsEditorAction_toActiveSession() {
+        var imeActionFromOne: ImeAction? = null
+        var imeActionFromTwo: ImeAction? = null
+        rule.runOnUiThread {
+            adapter.startInputSessionWithDefaultsForTest(
+                imeOptions = ImeOptions(imeAction = ImeAction.Done),
+                onImeAction = {
+                    imeActionFromOne = it
+                }
+            )
+
+            val connection = adapter.createInputConnection(EditorInfo())
+            connection.performEditorAction(EditorInfo.IME_ACTION_DONE)
+
+            assertThat(imeActionFromOne).isEqualTo(ImeAction.Done)
+            assertThat(imeActionFromTwo).isNull()
+
+            adapter.startInputSessionWithDefaultsForTest(
+                imeOptions = ImeOptions(imeAction = ImeAction.Go),
+                onImeAction = {
+                    imeActionFromTwo = it
+                }
+            )
+            connection.performEditorAction(EditorInfo.IME_ACTION_GO)
+
+            assertThat(imeActionFromOne).isEqualTo(ImeAction.Done)
+            assertThat(imeActionFromTwo).isEqualTo(ImeAction.Go)
         }
     }
 
@@ -219,10 +250,10 @@ class AndroidTextInputAdapterTest {
         }
     }
 
-    @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
     private fun AndroidTextInputAdapter.startInputSessionWithDefaultsForTest(
-        state: TextFieldState,
+        state: TextFieldState = TextFieldState(),
         imeOptions: ImeOptions = ImeOptions.Default,
-        initialFilter: TextEditFilter? = null
-    ) = startInputSession(state, imeOptions, initialFilter)
+        initialFilter: TextEditFilter? = null,
+        onImeAction: (ImeAction) -> Unit = {}
+    ) = startInputSession(state, imeOptions, initialFilter, onImeAction)
 }

@@ -95,7 +95,8 @@ internal class AndroidTextInputAdapter constructor(
     fun startInputSession(
         state: TextFieldState,
         imeOptions: ImeOptions,
-        initialFilter: TextEditFilter?
+        initialFilter: TextEditFilter?,
+        onImeActionPerformed: (ImeAction) -> Unit
     ): TextInputSession {
         if (!isMainThread()) {
             throw IllegalStateException("Input sessions can only be started from the main thread.")
@@ -109,12 +110,18 @@ internal class AndroidTextInputAdapter constructor(
                 state.editProcessor.addResetListener(resetListener)
             }
 
+            override val isOpen: Boolean
+                get() = currentTextInputSession == this
+
+            override fun dispose() {
+                state.editProcessor.removeResetListener(resetListener)
+                stopInputSession(this)
+            }
+
             override val value: TextFieldValue
                 get() = state.value
 
             private var filter: TextEditFilter? = initialFilter
-
-            override val imeOptions: ImeOptions = imeOptions
 
             override fun setFilter(filter: TextEditFilter?) {
                 this.filter = filter
@@ -128,13 +135,9 @@ internal class AndroidTextInputAdapter constructor(
                 inputMethodManager.sendKeyEvent(keyEvent)
             }
 
-            override val isOpen: Boolean
-                get() = currentTextInputSession == this
+            override val imeOptions: ImeOptions = imeOptions
 
-            override fun dispose() {
-                state.editProcessor.removeResetListener(resetListener)
-                stopInputSession(this)
-            }
+            override fun onImeAction(imeAction: ImeAction) = onImeActionPerformed(imeAction)
         }
         currentTextInputSession = nextSession
         return nextSession
