@@ -167,6 +167,8 @@ class BottomSheetState(
 
     internal suspend fun snapTo(target: BottomSheetValue) = swipeableState.snapTo(target)
 
+    internal fun trySnapTo(target: BottomSheetValue) = swipeableState.trySnapTo(target)
+
     internal val isAnimationRunning: Boolean get() = swipeableState.isAnimationRunning
 
     companion object {
@@ -415,7 +417,12 @@ private fun BottomSheet(
         BottomSheetScaffoldAnchorChangeHandler(
             state = state,
             animateTo = { target -> scope.launch { state.animateTo(target) } },
-            snapTo = { target -> scope.launch { state.snapTo(target) } }
+            snapTo = { target ->
+                val didSnapImmediately = state.trySnapTo(target)
+                if (!didSnapImmediately) {
+                    scope.launch { state.snapTo(target) }
+                }
+            }
         )
     }
     Surface(
