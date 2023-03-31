@@ -954,7 +954,7 @@ class TaskCapabilityImplTest {
                     return TestEnum.VALUE_1
                 }
 
-                override fun toParamValue(value: TestEnum): ParamValue {
+                override fun toParamValue(obj: TestEnum): ParamValue {
                     return ParamValue.newBuilder().build()
                 }
             }

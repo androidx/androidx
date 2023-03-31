@@ -69,6 +69,9 @@ import java.util.List;
 
 @RunWith(JUnit4.class)
 public final class TypeConvertersTest {
+    private static Value structToValue(Struct struct) {
+        return Value.newBuilder().setStructValue(struct).build();
+    }
 
     private static final Order ORDER_JAVA_THING =
             Order.newBuilder()
@@ -204,30 +207,35 @@ public final class TypeConvertersTest {
                     .putFields("@type", Value.newBuilder().setStringValue("Person").build())
                     .putFields("identifier", Value.newBuilder().setStringValue("id2").build())
                     .build();
-    private static final Struct CALENDAR_EVENT_STRUCT =
-            Struct.newBuilder()
-                    .putFields("@type", Value.newBuilder().setStringValue("CalendarEvent").build())
-                    .putFields(
-                            "startDate",
-                            Value.newBuilder().setStringValue("2022-01-01T08:00Z").build())
-                    .putFields(
-                            "endDate",
-                            Value.newBuilder().setStringValue("2023-01-01T08:00Z").build())
-                    .putFields(
-                            "attendee",
-                            Value.newBuilder()
-                                    .setListValue(
-                                            ListValue.newBuilder()
-                                                    .addValues(
-                                                            Value.newBuilder()
-                                                                    .setStructValue(PERSON_STRUCT)
-                                                                    .build())
-                                                    .addValues(
-                                                            Value.newBuilder()
-                                                                    .setStructValue(PERSON_STRUCT_2)
-                                                                    .build()))
-                                    .build())
-                    .build();
+    private static final Value CALENDAR_EVENT_VALUE =
+            structToValue(
+                    Struct.newBuilder()
+                            .putFields(
+                                    "@type",
+                                    Value.newBuilder().setStringValue("CalendarEvent").build())
+                            .putFields(
+                                    "startDate",
+                                    Value.newBuilder().setStringValue("2022-01-01T08:00Z").build())
+                            .putFields(
+                                    "endDate",
+                                    Value.newBuilder().setStringValue("2023-01-01T08:00Z").build())
+                            .putFields(
+                                    "attendee",
+                                    Value.newBuilder()
+                                            .setListValue(
+                                                    ListValue.newBuilder()
+                                                            .addValues(
+                                                                    Value.newBuilder()
+                                                                            .setStructValue(
+                                                                                    PERSON_STRUCT)
+                                                                            .build())
+                                                            .addValues(
+                                                                    Value.newBuilder()
+                                                                            .setStructValue(
+                                                                                    PERSON_STRUCT_2)
+                                                                            .build()))
+                                            .build())
+                            .build());
     private static final Struct CALL_STRUCT =
             Struct.newBuilder()
                     .putFields("@type", Value.newBuilder().setStringValue("Call").build())
@@ -294,8 +302,7 @@ public final class TypeConvertersTest {
     @Test
     public void toIntegerValue() throws Exception {
         ParamValue paramValue = ParamValue.newBuilder().setNumberValue(5).build();
-        List<ParamValue> input =
-                Collections.singletonList(paramValue);
+        List<ParamValue> input = Collections.singletonList(paramValue);
 
         assertThat(SlotTypeConverter.ofSingular(INTEGER_PARAM_VALUE_CONVERTER).convert(input))
                 .isEqualTo(5);
@@ -482,9 +489,9 @@ public final class TypeConvertersTest {
 
     @Test
     public void calendarEvent_conversions_matchesExpected() throws Exception {
-        assertThat(TypeConverters.CALENDAR_EVENT_TYPE_SPEC.toStruct(CALENDAR_EVENT_JAVA_THING))
-                .isEqualTo(CALENDAR_EVENT_STRUCT);
-        assertThat(TypeConverters.CALENDAR_EVENT_TYPE_SPEC.fromStruct(CALENDAR_EVENT_STRUCT))
+        assertThat(TypeConverters.CALENDAR_EVENT_TYPE_SPEC.toValue(CALENDAR_EVENT_JAVA_THING))
+                .isEqualTo(CALENDAR_EVENT_VALUE);
+        assertThat(TypeConverters.CALENDAR_EVENT_TYPE_SPEC.fromValue(CALENDAR_EVENT_VALUE))
                 .isEqualTo(CALENDAR_EVENT_JAVA_THING);
     }
 
@@ -601,7 +608,6 @@ public final class TypeConvertersTest {
                 .hasMessageThat()
                 .isEqualTo("Cannot parse integer because number_value is missing from ParamValue.");
     }
-
 
     @Test
     public void toLocalDate_success() throws Exception {
@@ -853,7 +859,7 @@ public final class TypeConvertersTest {
                 ItemList.newBuilder()
                         .addListItem(ListItem.newBuilder().setName("sugar").build())
                         .build();
-        Struct nestedObject = TypeConverters.ITEM_LIST_TYPE_SPEC.toStruct(itemList);
+        Struct nestedObject = TypeConverters.ITEM_LIST_TYPE_SPEC.toValue(itemList).getStructValue();
         ParamValue input =
                 ParamValue.newBuilder()
                         .setStructValue(

@@ -17,13 +17,13 @@
 package androidx.appactions.interaction.capabilities.core.entity
 
 import androidx.annotation.RestrictTo
+import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.SearchActionConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeSpec
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
 import androidx.appactions.interaction.capabilities.core.values.SearchAction
 import androidx.appactions.interaction.capabilities.core.values.Thing
-import androidx.appactions.interaction.proto.Entity
 import androidx.appactions.interaction.proto.GroundingRequest
 import androidx.appactions.interaction.proto.GroundingResponse
 
@@ -33,6 +33,7 @@ import androidx.appactions.interaction.proto.GroundingResponse
  * <p>Use abstract classes within the library to create instances of the {@link EntityProvider}.
  */
 abstract class EntityProvider<T : Thing> internal constructor(private val typeSpec: TypeSpec<T>) {
+    private val entityConverter = EntityConverter.of(typeSpec)
     /**
      * Unique identifier for this EntityFilter. Must match the shortcuts.xml declaration, which
      * allows different filters to be assigned to types on a per-BII basis.
@@ -88,7 +89,7 @@ abstract class EntityProvider<T : Thing> internal constructor(private val typeSp
             builder.addCandidates(
                 GroundingResponse.Candidate.newBuilder()
                     .setGroundedEntity(
-                        Entity.newBuilder().setStructValue(typeSpec.toStruct(candidate.candidate))
+                        entityConverter.convert(candidate.candidate)
                     )
                     .build()
             )

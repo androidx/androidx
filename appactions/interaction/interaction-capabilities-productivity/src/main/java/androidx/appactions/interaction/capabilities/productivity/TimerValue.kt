@@ -22,7 +22,6 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.converters.UnionTypeSpec
 import androidx.appactions.interaction.capabilities.core.values.SearchAction
 import androidx.appactions.interaction.capabilities.core.values.Timer
-import androidx.appactions.interaction.proto.Entity
 import java.util.Objects
 
 class TimerValue
@@ -66,13 +65,8 @@ private constructor(
                 )
                 .build()
 
-        internal val FROM_PARAM_VALUE = ParamValueConverter.of(TYPE_SPEC)
+        internal val PARAM_VALUE_CONVERTER = ParamValueConverter.of(TYPE_SPEC)
 
-        internal val TO_ENTITY_VALUE =
-            EntityConverter<TimerValue> { it ->
-                val builder = Entity.newBuilder().setStructValue(TYPE_SPEC.toStruct(it))
-                it.asTimer?.id?.ifPresent { builder.identifier = it }
-                builder.build()
-            }
+        internal val ENTITY_CONVERTER = EntityConverter.of(TYPE_SPEC)
     }
 }

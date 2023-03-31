@@ -17,23 +17,64 @@
 package androidx.appactions.interaction.capabilities.core.impl.converters
 
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
-import androidx.appactions.interaction.protobuf.Struct
+import androidx.appactions.interaction.protobuf.Value
 
 /**
- * TypeSpec is used to convert between native objects in capabilities/values and Struct proto.
+ * TypeSpec is used to convert between native objects in capabilities/values and Value proto.
  */
 interface TypeSpec<T> {
     /* Given the object, returns its identifier, which can be null. */
     fun getIdentifier(obj: T): String?
 
-    /** Converts a object into a Struct proto. */
-    fun toStruct(obj: T): Struct
+    /** Converts a object into a Value proto. */
+    fun toValue(obj: T): Value
 
     /**
-     * Converts a Struct into object.
+     * Converts a Value into an object.
      *
      * @throws StructConversionException if the Struct is malformed.
      */
     @Throws(StructConversionException::class)
-    fun fromStruct(struct: Struct): T
+    fun fromValue(value: Value): T
+
+    companion object {
+        val STRING_TYPE_SPEC = object : TypeSpec<String> {
+            override fun getIdentifier(obj: String): String? = null
+
+            override fun toValue(
+                obj: String,
+            ): Value = Value.newBuilder().setStringValue(obj).build()
+
+            override fun fromValue(value: Value): String = when {
+                value.hasStringValue() -> value.getStringValue()
+                else -> throw StructConversionException("STRING_TYPE_SPEC cannot convert $value")
+            }
+        }
+
+        val BOOL_TYPE_SPEC = object : TypeSpec<Boolean> {
+            override fun getIdentifier(obj: Boolean): String? = null
+
+            override fun toValue(
+                obj: Boolean,
+            ): Value = Value.newBuilder().setBoolValue(obj).build()
+
+            override fun fromValue(value: Value): Boolean = when {
+                value.hasBoolValue() -> value.getBoolValue()
+                else -> throw StructConversionException("BOOL_TYPE_SPEC cannot convert $value")
+            }
+        }
+
+        val NUMBER_TYPE_SPEC = object : TypeSpec<Double> {
+            override fun getIdentifier(obj: Double): String? = null
+
+            override fun toValue(
+                obj: Double,
+            ): Value = Value.newBuilder().setNumberValue(obj).build()
+
+            override fun fromValue(value: Value): Double = when {
+                value.hasNumberValue() -> value.getNumberValue()
+                else -> throw StructConversionException("NUMBER_TYPE_SPEC cannot convert $value")
+            }
+        }
+    }
 }
