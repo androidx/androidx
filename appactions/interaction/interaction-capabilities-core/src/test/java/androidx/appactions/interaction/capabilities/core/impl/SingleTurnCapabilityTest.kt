@@ -29,9 +29,9 @@ import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBui
 import androidx.appactions.interaction.capabilities.core.properties.Entity
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
-import androidx.appactions.interaction.capabilities.core.testing.ArgumentUtils
-import androidx.appactions.interaction.capabilities.core.testing.FakeCallbackInternal
-import androidx.appactions.interaction.capabilities.core.testing.TestingUtils.CB_TIMEOUT
+import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils
+import androidx.appactions.interaction.capabilities.testing.internal.FakeCallbackInternal
+import androidx.appactions.interaction.capabilities.testing.internal.TestingUtils.CB_TIMEOUT
 import androidx.appactions.interaction.capabilities.core.testing.spec.Argument
 import androidx.appactions.interaction.capabilities.core.testing.spec.Output
 import androidx.appactions.interaction.capabilities.core.testing.spec.Property

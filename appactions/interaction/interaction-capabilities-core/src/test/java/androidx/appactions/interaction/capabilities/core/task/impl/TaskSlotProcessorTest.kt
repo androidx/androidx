@@ -25,8 +25,8 @@ import androidx.appactions.interaction.capabilities.core.task.ValidationResult
 import androidx.appactions.interaction.capabilities.core.task.ValidationResult.Companion.newAccepted
 import androidx.appactions.interaction.capabilities.core.task.ValidationResult.Companion.newRejected
 import androidx.appactions.interaction.capabilities.core.task.ValueListener
-import androidx.appactions.interaction.capabilities.core.testing.ArgumentUtils
-import androidx.appactions.interaction.capabilities.core.testing.spec.SettableFutureWrapper
+import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils
+import androidx.appactions.interaction.capabilities.testing.internal.SettableFutureWrapper
 import androidx.appactions.interaction.capabilities.core.values.SearchAction
 import androidx.appactions.interaction.proto.CurrentValue
 import androidx.appactions.interaction.proto.DisambiguationData
@@ -78,7 +78,7 @@ class TaskSlotProcessorTest {
     }
 
     private fun <T> createValueResolver(
-        validationResult: ValidationResult
+        validationResult: ValidationResult,
     ): GenericResolverInternal<T> {
         return createValueResolver(validationResult) { _: T -> }
     }
@@ -111,7 +111,7 @@ class TaskSlotProcessorTest {
                 }
 
                 override fun lookupAndRenderAsync(
-                    searchAction: SearchAction<T>
+                    searchAction: SearchAction<T>,
                 ): ListenableFuture<EntitySearchResult<T>> {
                     appSearchConsumer.invoke(searchAction)
                     return Futures.immediateFuture(appSearchResult)
@@ -220,7 +220,12 @@ class TaskSlotProcessorTest {
                     .setStatus(CurrentValue.Status.ACCEPTED)
                     .build()
             )
-        assertThat(lastReceivedArgs.future.get()).containsExactly("testValue1", "testValue2")
+        assertThat(lastReceivedArgs.getFuture().get()).isEqualTo(
+            listOf(
+                "testValue1",
+                "testValue2"
+            )
+        )
     }
 
     @Test
@@ -261,7 +266,12 @@ class TaskSlotProcessorTest {
                     .setStatus(CurrentValue.Status.REJECTED)
                     .build()
             )
-        assertThat(lastReceivedArgs.future.get()).containsExactly("testValue1", "testValue2")
+        assertThat(lastReceivedArgs.getFuture().get()).isEqualTo(
+            listOf(
+                "testValue1",
+                "testValue2"
+            )
+        )
     }
 
     @Test
@@ -313,8 +323,8 @@ class TaskSlotProcessorTest {
             val (isSuccessful, processedValues) =
                 TaskSlotProcessor.processSlot("assistantDrivenSlot", values, taskParamMap)
             assertThat(isSuccessful).isFalse()
-            assertThat(onReceivedCb.future.get()).isEqualTo("id")
-            assertThat(renderCb.future.get()).containsExactly("entity-1", "entity-2")
+            assertThat(onReceivedCb.getFuture().get()).isEqualTo("id")
+            assertThat(renderCb.getFuture().get()).isEqualTo(listOf("entity-1", "entity-2"))
             assertThat(processedValues)
                 .containsExactly(
                     previouslyAccepted,
@@ -365,9 +375,10 @@ class TaskSlotProcessorTest {
         val (isSuccessful, processedValues) =
             TaskSlotProcessor.processSlot("appDrivenSlot", values, taskParamMap)
         assertThat(isSuccessful).isFalse()
-        assertThat(onReceivedCb.future.isDone).isFalse()
-        assertThat(appSearchCb.future.isDone).isTrue()
-        assertThat(appSearchCb.future.get())
+
+        assertThat(onReceivedCb.getFuture().isDone).isFalse()
+        assertThat(appSearchCb.getFuture().isDone).isTrue()
+        assertThat(appSearchCb.getFuture().get())
             .isEqualTo(SearchAction.newBuilder<String>().setQuery("A").setObject("nested").build())
         assertThat(processedValues)
             .containsExactly(

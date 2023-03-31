@@ -21,7 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.annotation.NonNull;
-import androidx.appactions.interaction.capabilities.core.testing.spec.SettableFutureWrapper;
+import androidx.appactions.interaction.capabilities.testing.internal.SettableFutureWrapper;
 import androidx.test.filters.SdkSuppress;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -93,7 +93,9 @@ public final class FuturesTest {
     public void transform_success() throws Exception {
         SettableFutureWrapper<Integer> integerFutureWrapper = new SettableFutureWrapper<>();
         ListenableFuture<Integer> transformedFuture =
-                Futures.transform(integerFutureWrapper.getFuture(), (x) -> x + 10, Runnable::run,
+                Futures.transform(
+                        integerFutureWrapper.getFuture(), (x) -> x + 10,
+                        Runnable::run,
                         "add 10");
 
         assertThat(transformedFuture.isDone()).isFalse();
@@ -182,7 +184,8 @@ public final class FuturesTest {
                     }
                 },
                 Runnable::run);
-        assertThat(errorContainer.getFuture().get()).isInstanceOf(IllegalStateException.class);
+        assertThat(errorContainer.getFuture().get()).isInstanceOf(
+                IllegalStateException.class);
         ExecutionException e = assertThrows(ExecutionException.class, transformedFuture::get);
         assertThat(e).hasCauseThat().isInstanceOf(IllegalStateException.class);
     }
@@ -214,7 +217,8 @@ public final class FuturesTest {
                     }
                 },
                 Runnable::run);
-        assertThat(errorContainer.getFuture().get()).isInstanceOf(IllegalStateException.class);
+        assertThat(errorContainer.getFuture().get()).isInstanceOf(
+                IllegalStateException.class);
         ExecutionException e = assertThrows(ExecutionException.class, transformedFuture::get);
         assertThat(e).hasCauseThat().isInstanceOf(IllegalStateException.class);
     }

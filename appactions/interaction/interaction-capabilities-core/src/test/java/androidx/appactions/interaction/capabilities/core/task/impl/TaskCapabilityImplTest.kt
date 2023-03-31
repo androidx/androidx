@@ -38,12 +38,13 @@ import androidx.appactions.interaction.capabilities.core.task.AppEntityListener
 import androidx.appactions.interaction.capabilities.core.task.EntitySearchResult
 import androidx.appactions.interaction.capabilities.core.task.ValidationResult
 import androidx.appactions.interaction.capabilities.core.task.ValueListener
-import androidx.appactions.interaction.capabilities.core.testing.ArgumentUtils.buildRequestArgs
-import androidx.appactions.interaction.capabilities.core.testing.ArgumentUtils.buildSearchActionParamValue
-import androidx.appactions.interaction.capabilities.core.testing.TestingUtils.CB_TIMEOUT
-import androidx.appactions.interaction.capabilities.core.testing.TestingUtils.buildActionCallback
-import androidx.appactions.interaction.capabilities.core.testing.TestingUtils.buildActionCallbackWithFulfillmentResponse
-import androidx.appactions.interaction.capabilities.core.testing.TestingUtils.buildErrorActionCallback
+import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils.buildRequestArgs
+import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils.buildSearchActionParamValue
+import androidx.appactions.interaction.capabilities.testing.internal.SettableFutureWrapper
+import androidx.appactions.interaction.capabilities.testing.internal.TestingUtils.CB_TIMEOUT
+import androidx.appactions.interaction.capabilities.testing.internal.TestingUtils.buildActionCallbackWithFulfillmentResponse
+import androidx.appactions.interaction.capabilities.testing.internal.TestingUtils.buildErrorActionCallback
+import androidx.appactions.interaction.capabilities.testing.internal.TestingUtils.buildActionCallback
 import androidx.appactions.interaction.capabilities.core.testing.spec.Argument
 import androidx.appactions.interaction.capabilities.core.testing.spec.CapabilityStructFill
 import androidx.appactions.interaction.capabilities.core.testing.spec.CapabilityTwoEntityValues
@@ -51,7 +52,6 @@ import androidx.appactions.interaction.capabilities.core.testing.spec.Confirmati
 import androidx.appactions.interaction.capabilities.core.testing.spec.Output
 import androidx.appactions.interaction.capabilities.core.testing.spec.Property
 import androidx.appactions.interaction.capabilities.core.testing.spec.Session
-import androidx.appactions.interaction.capabilities.core.testing.spec.SettableFutureWrapper
 import androidx.appactions.interaction.capabilities.core.testing.spec.TestEnum
 import androidx.appactions.interaction.capabilities.core.values.EntityValue
 import androidx.appactions.interaction.capabilities.core.values.ListItem
@@ -89,13 +89,13 @@ class TaskCapabilityImplTest {
         createCapability<EmptyTaskUpdater>(
             SINGLE_REQUIRED_FIELD_PROPERTY,
             sessionFactory =
-                SessionFactory {
-                    object : Session {
-                        override fun onFinishAsync(argument: Argument) =
-                            Futures.immediateFuture(ExecutionResult.getDefaultInstance<Output>())
-                    }
-                },
-            sessionBridge = SessionBridge { TaskHandler.Builder<Confirmation>().build() },
+            {
+                object : Session {
+                    override fun onFinishAsync(argument: Argument) =
+                        Futures.immediateFuture(ExecutionResult.getDefaultInstance<Output>())
+                }
+            },
+            sessionBridge = { TaskHandler.Builder<Confirmation>().build() },
             sessionUpdaterSupplier = ::EmptyTaskUpdater,
         )
     val hostProperties: HostProperties =
@@ -128,8 +128,8 @@ class TaskCapabilityImplTest {
         val capability =
             createCapability(
                 SINGLE_REQUIRED_FIELD_PROPERTY,
-                SessionFactory { externalSession },
-                SessionBridge { TaskHandler.Builder<Confirmation>().build() },
+                { externalSession },
+                { TaskHandler.Builder<Confirmation>().build() },
                 ::EmptyTaskUpdater,
             )
         val session = capability.createSession(hostProperties)
@@ -144,17 +144,18 @@ class TaskCapabilityImplTest {
             createCapability(
                 SINGLE_REQUIRED_FIELD_PROPERTY,
                 sessionFactory =
-                    SessionFactory {
-                        object : Session {
-                            override fun onInit(initArg: InitArg) {
-                                onSuccessInvocationCount.incrementAndGet()
-                            }
-                            override fun onFinishAsync(argument: Argument) =
-                                Futures.immediateFuture(
-                                    ExecutionResult.getDefaultInstance<Output>(),
-                                )
+                SessionFactory {
+                    object : Session {
+                        override fun onInit(initArg: InitArg) {
+                            onSuccessInvocationCount.incrementAndGet()
                         }
-                    },
+
+                        override fun onFinishAsync(argument: Argument) =
+                            Futures.immediateFuture(
+                                ExecutionResult.getDefaultInstance<Output>(),
+                            )
+                    }
+                },
                 sessionBridge = SessionBridge { TaskHandler.Builder<Confirmation>().build() },
                 sessionUpdaterSupplier = ::EmptyTaskUpdater,
             )
@@ -228,14 +229,14 @@ class TaskCapabilityImplTest {
             createCapability(
                 SINGLE_REQUIRED_FIELD_PROPERTY,
                 sessionFactory =
-                    SessionFactory {
-                        object : Session {
-                            override fun onFinishAsync(argument: Argument) =
-                                Futures.immediateFuture(
-                                    ExecutionResult.getDefaultInstance<Output>(),
-                                )
-                        }
-                    },
+                SessionFactory {
+                    object : Session {
+                        override fun onFinishAsync(argument: Argument) =
+                            Futures.immediateFuture(
+                                ExecutionResult.getDefaultInstance<Output>(),
+                            )
+                    }
+                },
                 sessionBridge = SessionBridge { TaskHandler.Builder<Confirmation>().build() },
                 sessionUpdaterSupplier = ::RequiredTaskUpdater,
             )
@@ -268,14 +269,14 @@ class TaskCapabilityImplTest {
             CapabilityTwoEntityValues.Property.newBuilder()
                 .setSlotA(
                     TypeProperty.Builder<
-                            androidx.appactions.interaction.capabilities.core.properties.Entity
+                        androidx.appactions.interaction.capabilities.core.properties.Entity
                         >()
                         .setRequired(true)
                         .build()
                 )
                 .setSlotB(
                     TypeProperty.Builder<
-                            androidx.appactions.interaction.capabilities.core.properties.Entity
+                        androidx.appactions.interaction.capabilities.core.properties.Entity
                         >()
                         .setRequired(true)
                         .build()
@@ -363,14 +364,14 @@ class TaskCapabilityImplTest {
             CapabilityTwoEntityValues.Property.newBuilder()
                 .setSlotA(
                     TypeProperty.Builder<
-                            androidx.appactions.interaction.capabilities.core.properties.Entity
+                        androidx.appactions.interaction.capabilities.core.properties.Entity
                         >()
                         .setRequired(true)
                         .build()
                 )
                 .setSlotB(
                     TypeProperty.Builder<
-                            androidx.appactions.interaction.capabilities.core.properties.Entity
+                        androidx.appactions.interaction.capabilities.core.properties.Entity
                         >()
                         .setRequired(false)
                         .build()
@@ -454,7 +455,7 @@ class TaskCapabilityImplTest {
             Property.newBuilder()
                 .setRequiredEntityField(
                     TypeProperty.Builder<
-                            androidx.appactions.interaction.capabilities.core.properties.Entity
+                        androidx.appactions.interaction.capabilities.core.properties.Entity
                         >()
                         .setRequired(true)
                         .build(),
@@ -531,6 +532,7 @@ class TaskCapabilityImplTest {
                     object : Session {
                         override suspend fun onFinish(argument: Argument) =
                             ExecutionResult.getDefaultInstance<Output>()
+
                         override fun getRequiredEntityListener() =
                             object : AppEntityListener<EntityValue> {
                                 override fun lookupAndRenderAsync(
@@ -554,10 +556,10 @@ class TaskCapabilityImplTest {
                     }
                 },
                 sessionBridge =
-                    SessionBridge<Session, Confirmation> { session ->
-                        val builder = TaskHandler.Builder<Confirmation>()
-                        session.getRequiredEntityListener()?.let {
-                            listener: AppEntityListener<EntityValue> ->
+                SessionBridge<Session, Confirmation> { session ->
+                    val builder = TaskHandler.Builder<Confirmation>()
+                    session.getRequiredEntityListener()
+                        ?.let { listener: AppEntityListener<EntityValue> ->
                             builder.registerAppEntityTaskParam(
                                 "required",
                                 listener,
@@ -566,8 +568,8 @@ class TaskCapabilityImplTest {
                                 getTrivialSearchActionConverter(),
                             )
                         }
-                        builder.build()
-                    },
+                    builder.build()
+                },
                 sessionUpdaterSupplier = ::EmptyTaskUpdater,
             )
         val session = capability.createSession(hostProperties)
@@ -811,8 +813,8 @@ class TaskCapabilityImplTest {
                 item2,
             )
         assertThat(
-                onFinishStringCb.getFuture().get(CB_TIMEOUT, MILLISECONDS),
-            )
+            onFinishStringCb.getFuture().get(CB_TIMEOUT, MILLISECONDS),
+        )
             .isEqualTo("unused")
     }
 
@@ -870,12 +872,12 @@ class TaskCapabilityImplTest {
             buildActionCallbackWithFulfillmentResponse(onSuccessInvoked),
         )
         assertThat(
-                onSuccessInvoked
-                    .getFuture()
-                    .get(CB_TIMEOUT, MILLISECONDS)
-                    .getExecutionOutput()
-                    .getOutputValuesList(),
-            )
+            onSuccessInvoked
+                .getFuture()
+                .get(CB_TIMEOUT, MILLISECONDS)
+                .getExecutionOutput()
+                .getOutputValuesList(),
+        )
             .containsExactlyElementsIn(expectedOutput.getOutputValuesList())
     }
 
@@ -892,11 +894,12 @@ class TaskCapabilityImplTest {
             Confirmation,
             RequiredTaskUpdater,
             Session,
-        >(ACTION_SPEC) {
+            >(ACTION_SPEC) {
 
         init {
             setProperty(SINGLE_REQUIRED_FIELD_PROPERTY)
         }
+
         override val sessionBridge: SessionBridge<Session, Confirmation> = SessionBridge {
             TaskHandler.Builder<Confirmation>().build()
         }
@@ -965,8 +968,8 @@ class TaskCapabilityImplTest {
             }
         private val ACTION_SPEC: ActionSpec<Property, Argument, Output> =
             ActionSpecBuilder.ofCapabilityNamed(
-                    CAPABILITY_NAME,
-                )
+                CAPABILITY_NAME,
+            )
                 .setDescriptor(Property::class.java)
                 .setArgument(Argument::class.java, Argument::newBuilder)
                 .setOutput(Output::class.java)
@@ -1014,7 +1017,7 @@ class TaskCapabilityImplTest {
             Property.newBuilder()
                 .setRequiredEntityField(
                     TypeProperty.Builder<
-                            androidx.appactions.interaction.capabilities.core.properties.Entity
+                        androidx.appactions.interaction.capabilities.core.properties.Entity
                         >()
                         .setRequired(true)
                         .build()
@@ -1023,7 +1026,7 @@ class TaskCapabilityImplTest {
 
         private fun getCurrentValues(
             argName: String,
-            appDialogState: AppDialogState
+            appDialogState: AppDialogState,
         ): List<CurrentValue> {
             return appDialogState
                 .getParamsList()
@@ -1050,7 +1053,7 @@ class TaskCapabilityImplTest {
             Session,
             Confirmation,
             SessionUpdaterT,
-        > {
+            > {
             return TaskCapabilityImpl(
                 "id",
                 ACTION_SPEC,
