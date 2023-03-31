@@ -27,6 +27,7 @@
             android:label="@string/asynchronous_data_source_name"
             android:exported="true"
             android:icon="@drawable/circle"
+            android:directBootAware="true"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
             <meta-data
                 android:name="android.support.wearable.complications.SUPPORTED_TYPES"
@@ -46,6 +47,7 @@
             android:label="@string/synchronous_data_source_name"
             android:exported="true"
             android:icon="@drawable/circle"
+            android:directBootAware="true"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
             <meta-data
                 android:name="android.support.wearable.complications.SUPPORTED_TYPES"
@@ -68,6 +70,7 @@
             android:label="@string/background_data_source_name"
             android:exported="true"
             android:icon="@drawable/circle"
+            android:directBootAware="true"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
             <meta-data
                 android:name="android.support.wearable.complications.SUPPORTED_TYPES"
@@ -87,6 +90,7 @@
             android:label="@string/immediate_data_source_name"
             android:exported="true"
             android:icon="@drawable/circle"
+            android:directBootAware="true"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
             <meta-data
                 android:name="android.support.wearable.complications.SUPPORTED_TYPES"
@@ -112,6 +116,7 @@
             android:label="@string/color_ramp_data_source_name"
             android:exported="true"
             android:icon="@drawable/circle"
+            android:directBootAware="true"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
             <meta-data
                 android:name="android.support.wearable.complications.SUPPORTED_TYPES"
@@ -131,6 +136,7 @@
             android:label="@string/color_ramp2_data_source_name"
             android:exported="true"
             android:icon="@drawable/circle"
+            android:directBootAware="true"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
             <meta-data
                 android:name="android.support.wearable.complications.SUPPORTED_TYPES"
@@ -150,6 +156,7 @@
             android:label="@string/goal_progress_data_source_name"
             android:exported="true"
             android:icon="@drawable/circle"
+            android:directBootAware="true"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
             <meta-data
                 android:name="android.support.wearable.complications.SUPPORTED_TYPES"
@@ -169,6 +176,7 @@
             android:label="@string/weighted_elements_data_source_name"
             android:exported="true"
             android:icon="@drawable/circle"
+            android:directBootAware="true"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
             <meta-data
                 android:name="android.support.wearable.complications.SUPPORTED_TYPES"
@@ -186,6 +194,7 @@
             android:label="@string/configurable_data_source_name"
             android:exported="true"
             android:icon="@drawable/circle"
+            android:directBootAware="true"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
             <meta-data
                 android:name="android.support.wearable.complications.SUPPORTED_TYPES"
