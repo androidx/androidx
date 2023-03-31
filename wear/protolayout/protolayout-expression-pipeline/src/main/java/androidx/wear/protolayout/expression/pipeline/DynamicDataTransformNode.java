@@ -28,17 +28,19 @@ import java.util.function.Function;
  * @param <O> The data type that this node emits.
  */
 class DynamicDataTransformNode<I, O> implements DynamicDataNode<O> {
-    private final DynamicTypeValueReceiver<I> mCallback;
+    private final DynamicTypeValueReceiverWithPreUpdate<I> mCallback;
 
-    final DynamicTypeValueReceiver<O> mDownstream;
+    final DynamicTypeValueReceiverWithPreUpdate<O> mDownstream;
     final Function<I, O> mTransformer;
 
-    DynamicDataTransformNode(DynamicTypeValueReceiver<O> downstream, Function<I, O> transformer) {
+    DynamicDataTransformNode(
+            DynamicTypeValueReceiverWithPreUpdate<O> downstream,
+            Function<I, O> transformer) {
         this.mDownstream = downstream;
         this.mTransformer = transformer;
 
         mCallback =
-                new DynamicTypeValueReceiver<I>() {
+                new DynamicTypeValueReceiverWithPreUpdate<I>() {
                     @Override
                     public void onPreUpdate() {
                         // Don't need to do anything here; just relay.
@@ -58,7 +60,7 @@ class DynamicDataTransformNode<I, O> implements DynamicDataNode<O> {
                 };
     }
 
-    public DynamicTypeValueReceiver<I> getIncomingCallback() {
+    public DynamicTypeValueReceiverWithPreUpdate<I> getIncomingCallback() {
         return mCallback;
     }
 }

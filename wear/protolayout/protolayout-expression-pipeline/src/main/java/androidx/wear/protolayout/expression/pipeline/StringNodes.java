@@ -27,9 +27,11 @@ class StringNodes {
     /** Dynamic string node that has a fixed value. */
     static class FixedStringNode implements DynamicDataSourceNode<String> {
         private final String mValue;
-        private final DynamicTypeValueReceiver<String> mDownstream;
+        private final DynamicTypeValueReceiverWithPreUpdate<String> mDownstream;
 
-        FixedStringNode(FixedString protoNode, DynamicTypeValueReceiver<String> downstream) {
+        FixedStringNode(
+                FixedString protoNode,
+                DynamicTypeValueReceiverWithPreUpdate<String> downstream) {
             this.mValue = protoNode.getValue();
             this.mDownstream = downstream;
         }
@@ -53,14 +55,16 @@ class StringNodes {
 
     /** Dynamic string node that gets a value from integer. */
     static class Int32FormatNode extends DynamicDataTransformNode<Integer, String> {
-        Int32FormatNode(NumberFormatter formatter, DynamicTypeValueReceiver<String> downstream) {
+        Int32FormatNode(
+                NumberFormatter formatter,
+                DynamicTypeValueReceiverWithPreUpdate<String> downstream) {
             super(downstream, formatter::format);
         }
     }
 
     /** Dynamic string node that gets a value from the other strings. */
     static class StringConcatOpNode extends DynamicDataBiTransformNode<String, String, String> {
-        StringConcatOpNode(DynamicTypeValueReceiver<String> downstream) {
+        StringConcatOpNode(DynamicTypeValueReceiverWithPreUpdate<String> downstream) {
             super(downstream, String::concat);
         }
     }
@@ -68,7 +72,9 @@ class StringNodes {
     /** Dynamic string node that gets a value from float. */
     static class FloatFormatNode extends DynamicDataTransformNode<Float, String> {
 
-        FloatFormatNode(NumberFormatter formatter, DynamicTypeValueReceiver<String> downstream) {
+        FloatFormatNode(
+                NumberFormatter formatter,
+                DynamicTypeValueReceiverWithPreUpdate<String> downstream) {
             super(downstream, formatter::format);
         }
     }
@@ -78,7 +84,7 @@ class StringNodes {
         StateStringNode(
                 StateStore stateStore,
                 StateStringSource protoNode,
-                DynamicTypeValueReceiver<String> downstream) {
+                DynamicTypeValueReceiverWithPreUpdate<String> downstream) {
             super(
                     stateStore,
                     protoNode.getSourceKey(),

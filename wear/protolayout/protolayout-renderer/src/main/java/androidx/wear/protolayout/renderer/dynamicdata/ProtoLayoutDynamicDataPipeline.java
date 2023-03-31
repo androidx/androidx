@@ -884,10 +884,6 @@ public class ProtoLayoutDynamicDataPipeline {
                 private boolean mCurrent;
 
                 @Override
-                @SuppressWarnings("RestrictTo")
-                public void onPreUpdate() {}
-
-                @Override
                 public void onData(@NonNull Boolean newData) {
 
                     if (newData && !mCurrent && quotaManager.tryAcquireQuota(1)) {
@@ -905,10 +901,6 @@ public class ProtoLayoutDynamicDataPipeline {
         private <T> DynamicTypeValueReceiver<T> buildStateUpdateCallback(
                 @NonNull T invalidData, @NonNull Consumer<T> consumer) {
             return new DynamicTypeValueReceiver<T>() {
-                @Override
-                @SuppressWarnings("RestrictTo")
-                public void onPreUpdate() {}
-
                 @Override
                 public void onData(@NonNull T newData) {
                     consumer.accept(newData);
