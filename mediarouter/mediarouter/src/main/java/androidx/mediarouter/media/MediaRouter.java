@@ -901,19 +901,19 @@ public final class MediaRouter {
     }
 
     /**
-     * Adds a remote control client to enable remote control of the volume
-     * of the selected route.
-     * <p>
-     * The remote control client must have previously been registered with
-     * the audio manager using the {@link android.media.AudioManager#registerRemoteControlClient
+     * Adds a remote control client to enable remote control of the volume of the selected route.
+     *
+     * <p>The remote control client must have previously been registered with the audio manager
+     * using the {@link android.media.AudioManager#registerRemoteControlClient
      * AudioManager.registerRemoteControlClient} method.
-     * </p>
      *
      * <p>Must be called on the main thread.
      *
      * @param remoteControlClient The {@link android.media.RemoteControlClient} to register.
+     * @deprecated Use {@link #setMediaSessionCompat} instead.
      */
     @MainThread
+    @Deprecated
     public void addRemoteControlClient(@NonNull Object remoteControlClient) {
         if (remoteControlClient == null) {
             throw new IllegalArgumentException("remoteControlClient must not be null");
@@ -948,14 +948,8 @@ public final class MediaRouter {
     }
 
     /**
-     * Sets the media session to enable remote control of the volume of the
-     * selected route. This should be used instead of
-     * {@link #addRemoteControlClient} when using media sessions. Set the
-     * session to null to clear it.
-     *
-     * <p>Must be called on the main thread.
-     *
-     * @param mediaSession The {@link android.media.session.MediaSession} to use.
+     * Equivalent to {@link #setMediaSessionCompat}, except it takes an {@link
+     * android.media.session.MediaSession}.
      */
     @MainThread
     public void setMediaSession(@Nullable Object mediaSession) {
@@ -967,14 +961,16 @@ public final class MediaRouter {
     }
 
     /**
-     * Sets a compat media session to enable remote control of the volume of the
-     * selected route. This should be used instead of
-     * {@link #addRemoteControlClient} when using {@link MediaSessionCompat}.
-     * Set the session to null to clear it.
+     * Associates the provided {@link MediaSessionCompat} to this router.
+     *
+     * <p>Maintains the internal state of the provided session to signal it's linked to the
+     * currently selected route at any given time. This guarantees that the system UI shows the
+     * correct route name when applicable.
      *
      * <p>Must be called on the main thread.
      *
-     * @param mediaSession The {@link MediaSessionCompat} to use.
+     * @param mediaSession The {@link MediaSessionCompat} to associate to this media router, or null
+     *     to clear the existing association.
      */
     @MainThread
     public void setMediaSessionCompat(@Nullable MediaSessionCompat mediaSession) {
