@@ -76,5 +76,18 @@ interface TypeSpec<T> {
                 else -> throw StructConversionException("NUMBER_TYPE_SPEC cannot convert $value")
             }
         }
+
+        val INTEGER_TYPE_SPEC = object : TypeSpec<Int> {
+            override fun getIdentifier(obj: Int): String? = null
+
+            override fun toValue(
+                obj: Int,
+            ): Value = Value.newBuilder().setNumberValue(obj.toDouble()).build()
+
+            override fun fromValue(value: Value): Int = when {
+                value.hasNumberValue() -> value.getNumberValue().toInt()
+                else -> throw StructConversionException("INTEGER_TYPE_SPEC cannot convert $value")
+            }
+        }
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.appactions.interaction.capabilities.core.task
+package androidx.appactions.interaction.capabilities.core
 
 import java.util.Objects
 
@@ -60,13 +60,5 @@ class EntitySearchResult<V> internal constructor(
         }
 
         fun build() = EntitySearchResult(possibleValues.toList())
-    }
-
-    companion object {
-        /**
-         * Returns an EntitySearchResult with no possible values.
-         */
-        @JvmStatic
-        fun <V> empty() = EntitySearchResult.Builder<V>().build()
     }
 }

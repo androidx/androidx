@@ -15,16 +15,16 @@
  */
 package androidx.appactions.interaction.capabilities.core.task.impl
 
+import androidx.appactions.interaction.capabilities.core.AppEntityListListener
+import androidx.appactions.interaction.capabilities.core.AppEntityListener
+import androidx.appactions.interaction.capabilities.core.EntitySearchResult
+import androidx.appactions.interaction.capabilities.core.InventoryListListener
+import androidx.appactions.interaction.capabilities.core.InventoryListener
+import androidx.appactions.interaction.capabilities.core.ValidationResult
+import androidx.appactions.interaction.capabilities.core.ValueListener
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.SlotTypeConverter
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
-import androidx.appactions.interaction.capabilities.core.task.AppEntityListListener
-import androidx.appactions.interaction.capabilities.core.task.AppEntityListener
-import androidx.appactions.interaction.capabilities.core.task.EntitySearchResult
-import androidx.appactions.interaction.capabilities.core.task.InventoryListListener
-import androidx.appactions.interaction.capabilities.core.task.InventoryListener
-import androidx.appactions.interaction.capabilities.core.task.ValidationResult
-import androidx.appactions.interaction.capabilities.core.task.ValueListener
 import androidx.appactions.interaction.capabilities.core.task.impl.exceptions.InvalidResolverException
 import androidx.appactions.interaction.capabilities.core.values.SearchAction
 import androidx.appactions.interaction.proto.ParamValue
@@ -50,7 +50,7 @@ private constructor(
     /** Wrapper which should invoke the `lookupAndRender` provided by the developer. */
     @Throws(InvalidResolverException::class)
     suspend fun invokeLookup(
-        searchAction: SearchAction<ValueTypeT>
+        searchAction: SearchAction<ValueTypeT>,
     ): EntitySearchResult<ValueTypeT> {
         return if (appEntity != null) {
             appEntity.lookupAndRender(searchAction)
@@ -69,8 +69,9 @@ private constructor(
     suspend fun invokeEntityRender(entityIds: List<String>) {
         if (inventory != null) {
             inventory.renderChoices(entityIds)
-        } else if (inventoryList != null) inventoryList.renderChoices(entityIds)
-        else {
+        } else if (inventoryList != null) {
+            inventoryList.renderChoices(entityIds)
+        } else {
             throw InvalidResolverException("invokeEntityRender is not supported on this resolver")
         }
     }
@@ -82,7 +83,7 @@ private constructor(
     @Throws(StructConversionException::class)
     suspend fun notifyValueChange(
         paramValues: List<ParamValue>,
-        converter: ParamValueConverter<ValueTypeT>
+        converter: ParamValueConverter<ValueTypeT>,
     ): ValidationResult {
         val singularConverter = SlotTypeConverter.ofSingular(converter)
         val repeatedConverter = SlotTypeConverter.ofRepeated(converter)
@@ -112,14 +113,14 @@ private constructor(
             GenericResolverInternal(appEntity = appEntity)
 
         fun <ValueTypeT> fromAppEntityListListener(
-            appEntityList: AppEntityListListener<ValueTypeT>
+            appEntityList: AppEntityListListener<ValueTypeT>,
         ) = GenericResolverInternal(appEntityList = appEntityList)
 
         fun <ValueTypeT> fromInventoryListener(inventory: InventoryListener<ValueTypeT>) =
             GenericResolverInternal(inventory = inventory)
 
         fun <ValueTypeT> fromInventoryListListener(
-            inventoryList: InventoryListListener<ValueTypeT>
+            inventoryList: InventoryListListener<ValueTypeT>,
         ) = GenericResolverInternal(inventoryList = inventoryList)
     }
 }

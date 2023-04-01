@@ -15,19 +15,16 @@
  */
 package androidx.appactions.interaction.capabilities.core.task.impl
 
+import androidx.appactions.interaction.capabilities.core.AppEntityListener
+import androidx.appactions.interaction.capabilities.core.EntitySearchResult
+import androidx.appactions.interaction.capabilities.core.InventoryListener
+import androidx.appactions.interaction.capabilities.core.ValidationResult
+import androidx.appactions.interaction.capabilities.core.ValueListener
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
-import androidx.appactions.interaction.capabilities.core.task.AppEntityListener
-import androidx.appactions.interaction.capabilities.core.task.EntitySearchResult
-import androidx.appactions.interaction.capabilities.core.task.EntitySearchResult.Companion.empty
-import androidx.appactions.interaction.capabilities.core.task.InventoryListener
-import androidx.appactions.interaction.capabilities.core.task.ValidationResult
-import androidx.appactions.interaction.capabilities.core.task.ValidationResult.Companion.newAccepted
-import androidx.appactions.interaction.capabilities.core.task.ValidationResult.Companion.newRejected
-import androidx.appactions.interaction.capabilities.core.task.ValueListener
+import androidx.appactions.interaction.capabilities.core.values.SearchAction
 import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils
 import androidx.appactions.interaction.capabilities.testing.internal.SettableFutureWrapper
-import androidx.appactions.interaction.capabilities.core.values.SearchAction
 import androidx.appactions.interaction.proto.CurrentValue
 import androidx.appactions.interaction.proto.DisambiguationData
 import androidx.appactions.interaction.proto.Entity
@@ -59,7 +56,7 @@ class TaskSlotProcessorTest {
                     renderConsumer.invoke(entityIDs)
                     return Futures.immediateVoidFuture()
                 }
-            }
+            },
         )
     }
 
@@ -73,7 +70,7 @@ class TaskSlotProcessorTest {
                     valueConsumer.invoke(value)
                     return Futures.immediateFuture(validationResult)
                 }
-            }
+            },
         )
     }
 
@@ -93,7 +90,7 @@ class TaskSlotProcessorTest {
                     valueConsumer.invoke(value)
                     return Futures.immediateFuture(validationResult)
                 }
-            }
+            },
         )
     }
 
@@ -116,7 +113,7 @@ class TaskSlotProcessorTest {
                     appSearchConsumer.invoke(searchAction)
                     return Futures.immediateFuture(appSearchResult)
                 }
-            }
+            },
         )
     }
 
@@ -127,10 +124,10 @@ class TaskSlotProcessorTest {
             TaskParamBinding(
                 "singularValue",
                 { false },
-                createValueResolver(newAccepted()),
+                createValueResolver(ValidationResult.newAccepted()),
                 TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                 null,
-                null
+                null,
             )
         val taskParamMap: MutableMap<String, TaskParamBinding<*>> = HashMap()
         taskParamMap["singularValue"] = binding
@@ -139,7 +136,7 @@ class TaskSlotProcessorTest {
             TaskSlotProcessor.processSlot(
                 "singularValue",
                 TaskCapabilityUtils.paramValuesToCurrentValue(args, CurrentValue.Status.PENDING),
-                taskParamMap
+                taskParamMap,
             )
         assertThat(isSuccessful).isTrue()
         assertThat(processedValues)
@@ -147,7 +144,7 @@ class TaskSlotProcessorTest {
                 CurrentValue.newBuilder()
                     .setValue(args[0])
                     .setStatus(CurrentValue.Status.ACCEPTED)
-                    .build()
+                    .build(),
             )
     }
 
@@ -158,10 +155,10 @@ class TaskSlotProcessorTest {
             TaskParamBinding(
                 "singularValue",
                 { false },
-                createValueResolver(newRejected()),
+                createValueResolver(ValidationResult.newRejected()),
                 TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                 null,
-                null
+                null,
             )
         val taskParamMap: MutableMap<String, TaskParamBinding<*>> = HashMap()
         taskParamMap["singularValue"] = binding
@@ -170,7 +167,7 @@ class TaskSlotProcessorTest {
             TaskSlotProcessor.processSlot(
                 "singularValue",
                 TaskCapabilityUtils.paramValuesToCurrentValue(args, CurrentValue.Status.PENDING),
-                taskParamMap
+                taskParamMap,
             )
         assertThat(isSuccessful).isFalse()
         assertThat(processedValues)
@@ -178,7 +175,7 @@ class TaskSlotProcessorTest {
                 CurrentValue.newBuilder()
                     .setValue(args[0])
                     .setStatus(CurrentValue.Status.REJECTED)
-                    .build()
+                    .build(),
             )
     }
 
@@ -190,23 +187,25 @@ class TaskSlotProcessorTest {
             TaskParamBinding(
                 "repeatedValue",
                 { false },
-                createValueListResolver(newAccepted()) { lastReceivedArgs.set(it) },
+                createValueListResolver(
+                    ValidationResult.newAccepted(),
+                ) { lastReceivedArgs.set(it) },
                 TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                 null,
-                null
+                null,
             )
         val taskParamMap: MutableMap<String, TaskParamBinding<*>> = HashMap()
         taskParamMap["repeatedValue"] = binding
         val args =
             listOf(
                 ParamValue.newBuilder().setIdentifier("testValue1").build(),
-                ParamValue.newBuilder().setIdentifier("testValue2").build()
+                ParamValue.newBuilder().setIdentifier("testValue2").build(),
             )
         val (isSuccessful, processedValues) =
             TaskSlotProcessor.processSlot(
                 "repeatedValue",
                 TaskCapabilityUtils.paramValuesToCurrentValue(args, CurrentValue.Status.PENDING),
-                taskParamMap
+                taskParamMap,
             )
         assertThat(isSuccessful).isTrue()
         assertThat(processedValues)
@@ -218,13 +217,13 @@ class TaskSlotProcessorTest {
                 CurrentValue.newBuilder()
                     .setValue(args[1])
                     .setStatus(CurrentValue.Status.ACCEPTED)
-                    .build()
+                    .build(),
             )
         assertThat(lastReceivedArgs.getFuture().get()).isEqualTo(
             listOf(
                 "testValue1",
-                "testValue2"
-            )
+                "testValue2",
+            ),
         )
     }
 
@@ -236,23 +235,25 @@ class TaskSlotProcessorTest {
             TaskParamBinding(
                 "repeatedValue",
                 { false },
-                createValueListResolver(newRejected()) { lastReceivedArgs.set(it) },
+                createValueListResolver(
+                    ValidationResult.newRejected(),
+                ) { lastReceivedArgs.set(it) },
                 TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                 null,
-                null
+                null,
             )
         val taskParamMap: MutableMap<String, TaskParamBinding<*>> = HashMap()
         taskParamMap["repeatedValue"] = binding
         val args =
             listOf(
                 ParamValue.newBuilder().setIdentifier("testValue1").build(),
-                ParamValue.newBuilder().setIdentifier("testValue2").build()
+                ParamValue.newBuilder().setIdentifier("testValue2").build(),
             )
         val (isSuccessful, processedValues) =
             TaskSlotProcessor.processSlot(
                 "repeatedValue",
                 TaskCapabilityUtils.paramValuesToCurrentValue(args, CurrentValue.Status.PENDING),
-                taskParamMap
+                taskParamMap,
             )
         assertThat(isSuccessful).isFalse()
         assertThat(processedValues)
@@ -264,13 +265,13 @@ class TaskSlotProcessorTest {
                 CurrentValue.newBuilder()
                     .setValue(args[1])
                     .setStatus(CurrentValue.Status.REJECTED)
-                    .build()
+                    .build(),
             )
         assertThat(lastReceivedArgs.getFuture().get()).isEqualTo(
             listOf(
                 "testValue1",
-                "testValue2"
-            )
+                "testValue2",
+            ),
         )
     }
 
@@ -284,12 +285,15 @@ class TaskSlotProcessorTest {
                 TaskParamBinding(
                     "assistantDrivenSlot",
                     { !it.hasIdentifier() },
-                    createAssistantDisambigResolver(newAccepted(), { onReceivedCb.set(it) }) {
+                    createAssistantDisambigResolver(
+                        ValidationResult.newAccepted(),
+                        { onReceivedCb.set(it) },
+                    ) {
                         renderCb.set(it)
                     },
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                     null,
-                    null
+                    null,
                 )
             val taskParamMap: MutableMap<String, TaskParamBinding<*>> = HashMap()
             taskParamMap["assistantDrivenSlot"] = binding
@@ -303,9 +307,9 @@ class TaskSlotProcessorTest {
                                 Struct.newBuilder()
                                     .putFields(
                                         "id",
-                                        Value.newBuilder().setStringValue("1234").build()
-                                    )
-                            )
+                                        Value.newBuilder().setStringValue("1234").build(),
+                                    ),
+                            ),
                     )
                     .build()
             val values =
@@ -316,9 +320,9 @@ class TaskSlotProcessorTest {
                         .setDisambiguationData(
                             DisambiguationData.newBuilder()
                                 .addEntities(Entity.newBuilder().setIdentifier("entity-1"))
-                                .addEntities(Entity.newBuilder().setIdentifier("entity-2"))
+                                .addEntities(Entity.newBuilder().setIdentifier("entity-2")),
                         )
-                        .build()
+                        .build(),
                 )
             val (isSuccessful, processedValues) =
                 TaskSlotProcessor.processSlot("assistantDrivenSlot", values, taskParamMap)
@@ -333,9 +337,9 @@ class TaskSlotProcessorTest {
                         .setDisambiguationData(
                             DisambiguationData.newBuilder()
                                 .addEntities(Entity.newBuilder().setIdentifier("entity-1"))
-                                .addEntities(Entity.newBuilder().setIdentifier("entity-2"))
+                                .addEntities(Entity.newBuilder().setIdentifier("entity-2")),
                         )
-                        .build()
+                        .build(),
                 )
         }
 
@@ -344,12 +348,12 @@ class TaskSlotProcessorTest {
     fun singularValue_appDisambigRejected_onReceivedNotCalled(): Unit = runBlocking {
         val onReceivedCb = SettableFutureWrapper<String>()
         val appSearchCb = SettableFutureWrapper<SearchAction<String>>()
-        val entitySearchResult = empty<String>()
+        val entitySearchResult = EntitySearchResult.Builder<String>().build()
         val resolver =
             createAppEntityListener(
-                newAccepted(),
+                ValidationResult.newAccepted(),
                 { result: String -> onReceivedCb.set(result) },
-                entitySearchResult
+                entitySearchResult,
             ) { result: SearchAction<String> ->
                 appSearchCb.set(result)
             }
@@ -359,7 +363,7 @@ class TaskSlotProcessorTest {
                 { true }, // always invoke app-grounding in all cases
                 resolver,
                 TypeConverters.STRING_PARAM_VALUE_CONVERTER, // Not invoked
-                { Entity.getDefaultInstance() }
+                { Entity.getDefaultInstance() },
             ) {
                 SearchAction.newBuilder<String>().setQuery("A").setObject("nested").build()
             }
@@ -370,7 +374,7 @@ class TaskSlotProcessorTest {
                 CurrentValue.newBuilder()
                     .setStatus(CurrentValue.Status.PENDING)
                     .setValue(ArgumentUtils.buildSearchActionParamValue("A"))
-                    .build()
+                    .build(),
             )
         val (isSuccessful, processedValues) =
             TaskSlotProcessor.processSlot("appDrivenSlot", values, taskParamMap)
@@ -385,7 +389,7 @@ class TaskSlotProcessorTest {
                 CurrentValue.newBuilder()
                     .setStatus(CurrentValue.Status.REJECTED)
                     .setValue(ArgumentUtils.buildSearchActionParamValue("A"))
-                    .build()
+                    .build(),
             )
     }
 }
