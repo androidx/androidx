@@ -123,7 +123,9 @@ class SupportedOutputSizesSorterLegacy {
         if (filteredSizeList.isEmpty()) {
             throw new IllegalArgumentException(
                     "All supported output sizes are filtered out according to current resolution "
-                            + "selection settings.");
+                            + "selection settings. \nminSize = "
+                            + minSize + "\nmaxSize = " + maxSize + "\ninitial size list: "
+                            + descendingSizeList);
         }
 
         Rational aspectRatio = getTargetAspectRatioByLegacyApi(imageOutputConfig, filteredSizeList);

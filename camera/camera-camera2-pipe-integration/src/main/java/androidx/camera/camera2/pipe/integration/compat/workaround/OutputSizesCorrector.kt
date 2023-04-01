@@ -26,6 +26,7 @@ import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.ExcludedSupportedSizesQuirk
 import androidx.camera.camera2.pipe.integration.compat.quirk.ExtraSupportedOutputSizeQuirk
 import androidx.camera.camera2.pipe.integration.config.CameraScope
+import androidx.camera.core.Logger
 import androidx.camera.core.impl.utils.AspectRatioUtil
 import androidx.camera.core.impl.utils.CompareSizesByArea
 import java.util.Collections
@@ -45,110 +46,149 @@ class OutputSizesCorrector @Inject constructor(
     private val cameraMetadata: CameraMetadata?,
     private val streamConfigurationMap: StreamConfigurationMap?
 ) {
+    private val tag = "OutputSizesCorrector"
     private val excludedSupportedSizesQuirk: ExcludedSupportedSizesQuirk? =
         DeviceQuirks[ExcludedSupportedSizesQuirk::class.java]
     private val extraSupportedOutputSizeQuirk: ExtraSupportedOutputSizeQuirk? =
         DeviceQuirks[ExtraSupportedOutputSizeQuirk::class.java]
     private val targetAspectRatio: TargetAspectRatio = TargetAspectRatio()
+    private val streamConfigurationMapCompat =
+        StreamConfigurationMapCompat(streamConfigurationMap, this)
 
     /**
      * Applies the output sizes related quirks onto the input sizes array.
      */
-    fun applyQuirks(sizes: Array<Size>?, format: Int): Array<Size>? {
-        var result = addExtraSupportedOutputSizesByFormat(sizes, format)
-        result = excludeProblematicOutputSizesByFormat(result, format)
-        return excludeOutputSizesByTargetAspectRatioWorkaround(result)
+    fun applyQuirks(sizes: Array<Size>, format: Int): Array<Size> {
+        val sizeList = sizes.toMutableList()
+        addExtraSupportedOutputSizesByFormat(sizeList, format)
+        excludeProblematicOutputSizesByFormat(sizeList, format)
+        if (sizeList.isEmpty()) {
+            Logger.w(tag, "Sizes array becomes empty after excluding problematic output sizes.")
+        }
+        val resultSizeArray = excludeOutputSizesByTargetAspectRatioWorkaround(sizeList)
+        if (resultSizeArray.isEmpty()) {
+            Logger.w(tag, "Sizes array becomes empty after excluding output sizes by target" +
+                " aspect ratio workaround.")
+        }
+        return resultSizeArray
     }
 
     /**
      * Applies the output sizes related quirks onto the input sizes array.
      */
-    fun <T> applyQuirks(sizes: Array<Size>?, klass: Class<T>): Array<Size>? {
-        var result = addExtraSupportedOutputSizesByClass(sizes, klass)
-        result = excludeProblematicOutputSizesByClass(result, klass)
-        return excludeOutputSizesByTargetAspectRatioWorkaround(result)
+    fun <T> applyQuirks(sizes: Array<Size>, klass: Class<T>): Array<Size> {
+        val sizeList = sizes.toMutableList()
+        addExtraSupportedOutputSizesByClass(sizeList, klass)
+        excludeProblematicOutputSizesByClass(sizeList, klass)
+        if (sizeList.isEmpty()) {
+            Logger.w(tag, "Sizes array becomes empty after excluding problematic output sizes.")
+        }
+        val resultSizeArray = excludeOutputSizesByTargetAspectRatioWorkaround(sizeList)
+        if (resultSizeArray.isEmpty()) {
+            Logger.w(tag, "Sizes array becomes empty after excluding output sizes by target" +
+                " aspect ratio workaround.")
+        }
+        return resultSizeArray
     }
 
     /**
      * Adds extra supported output sizes for the specified format by ExtraSupportedOutputSizeQuirk.
+     *
+     * @param sizeList the original sizes list which must be a mutable list
+     * @param format the image format to apply the workaround
      */
     private fun addExtraSupportedOutputSizesByFormat(
-        sizes: Array<Size>?,
+        sizeList: MutableList<Size>,
         format: Int
-    ): Array<Size>? {
-        if (sizes == null || extraSupportedOutputSizeQuirk == null) {
-            return sizes
+    ) {
+        if (extraSupportedOutputSizeQuirk == null) {
+            return
         }
-        val extraSizes: Array<Size> =
-            extraSupportedOutputSizeQuirk.getExtraSupportedResolutions(format)
-        return concatNullableSizeLists(sizes.toList(), extraSizes.toList()).toTypedArray()
+        extraSupportedOutputSizeQuirk.getExtraSupportedResolutions(format).let {
+            if (it.isNotEmpty()) {
+                sizeList.addAll(it)
+            }
+        }
     }
 
     /**
      * Adds extra supported output sizes for the specified class by ExtraSupportedOutputSizeQuirk.
+     *
+     * @param sizeList the original sizes list which must be a mutable list
+     * @param klass the class to apply the workaround
      */
     private fun <T> addExtraSupportedOutputSizesByClass(
-        sizes: Array<Size>?,
+        sizeList: MutableList<Size>,
         klass: Class<T>
-    ): Array<Size>? {
-        if (sizes == null || extraSupportedOutputSizeQuirk == null) {
-            return sizes
+    ) {
+        if (extraSupportedOutputSizeQuirk == null) {
+            return
         }
-        val extraSizes: Array<Size> =
-            extraSupportedOutputSizeQuirk.getExtraSupportedResolutions(klass)
-        return concatNullableSizeLists(sizes.toList(), extraSizes.toList()).toTypedArray()
+        extraSupportedOutputSizeQuirk.getExtraSupportedResolutions(klass).let {
+            if (it.isNotEmpty()) {
+                sizeList.addAll(it)
+            }
+        }
     }
 
     /**
      * Excludes problematic output sizes for the specified format by
      * ExcludedSupportedSizesContainer.
+     *
+     * @param sizeList the original sizes list which must be a mutable list
+     * @param format the image format to apply the workaround
      */
     private fun excludeProblematicOutputSizesByFormat(
-        sizes: Array<Size>?,
+        sizeList: MutableList<Size>,
         format: Int
-    ): Array<Size>? {
-        if (sizes == null || cameraMetadata == null || excludedSupportedSizesQuirk == null) {
-            return sizes
+    ) {
+        if (cameraMetadata == null || excludedSupportedSizesQuirk == null) {
+            return
         }
-        val excludedSizes: List<Size> =
-            excludedSupportedSizesQuirk.getExcludedSizes(cameraMetadata.camera.value, format)
-
-        val resultList: MutableList<Size> = sizes.toMutableList()
-        resultList.removeAll(excludedSizes)
-        return resultList.toTypedArray()
+        excludedSupportedSizesQuirk.getExcludedSizes(cameraMetadata.camera.value, format).let {
+            if (it.isNotEmpty()) {
+                sizeList.removeAll(it)
+            }
+        }
     }
 
     /**
      * Excludes problematic output sizes for the specified class type by
      * ExcludedSupportedSizesContainer.
+     *
+     * @param sizeList the original sizes list which must be a mutable list
+     * @param klass the class to apply the workaround
      */
     private fun <T> excludeProblematicOutputSizesByClass(
-        sizes: Array<Size>?,
+        sizeList: MutableList<Size>,
         klass: Class<T>
-    ): Array<Size>? {
-        if (sizes == null || cameraMetadata == null || excludedSupportedSizesQuirk == null) {
-            return sizes
+    ) {
+        if (cameraMetadata == null || excludedSupportedSizesQuirk == null) {
+            return
         }
-        val excludedSizes: List<Size> =
-            excludedSupportedSizesQuirk.getExcludedSizes(cameraMetadata.camera.value, klass)
-
-        val resultList: MutableList<Size> = sizes.toMutableList()
-        resultList.removeAll(excludedSizes)
-        return resultList.toTypedArray()
+        excludedSupportedSizesQuirk.getExcludedSizes(cameraMetadata.camera.value, klass).let {
+            if (it.isNotEmpty()) {
+                sizeList.removeAll(it)
+            }
+        }
     }
 
     /**
      * Excludes output sizes by TargetAspectRatio.
+     *
+     * @param sizeList the original sizes list
      */
-    private fun excludeOutputSizesByTargetAspectRatioWorkaround(sizes: Array<Size>?): Array<Size>? {
-        if (sizes == null || cameraMetadata == null) {
-            return null
+    private fun excludeOutputSizesByTargetAspectRatioWorkaround(
+        sizeList: List<Size>
+    ): Array<Size> {
+        if (cameraMetadata == null) {
+            return sizeList.toTypedArray()
         }
 
         val targetAspectRatio: Int =
             targetAspectRatio[
                 cameraMetadata,
-                StreamConfigurationMapCompat(streamConfigurationMap, this)
+                streamConfigurationMapCompat
             ]
 
         var ratio: Rational? = null
@@ -161,7 +201,7 @@ class OutputSizesCorrector @Inject constructor(
                 AspectRatioUtil.ASPECT_RATIO_16_9
 
             TargetAspectRatio.RATIO_MAX_JPEG -> {
-                val maxJpegSize = Collections.max(sizes.asList(), CompareSizesByArea())
+                val maxJpegSize = Collections.max(sizeList, CompareSizesByArea())
                 ratio = Rational(maxJpegSize.width, maxJpegSize.height)
             }
 
@@ -170,30 +210,17 @@ class OutputSizesCorrector @Inject constructor(
         }
 
         if (ratio == null) {
-            return sizes
+            return sizeList.toTypedArray()
         }
 
-        val resultList: MutableList<Size> = java.util.ArrayList()
+        val resultList = mutableListOf<Size>()
 
-        for (size in sizes) {
+        for (size in sizeList) {
             if (AspectRatioUtil.hasMatchingAspectRatio(size, ratio)) {
                 resultList.add(size)
             }
         }
 
-        return if (resultList.isEmpty()) {
-            null
-        } else {
-            resultList.toTypedArray()
-        }
-    }
-
-    private fun concatNullableSizeLists(
-        sizeList1: List<Size>,
-        sizeList2: List<Size>
-    ): List<Size> {
-        val resultList: MutableList<Size> = ArrayList(sizeList1)
-        resultList.addAll(sizeList2)
-        return resultList
+        return resultList.toTypedArray()
     }
 }

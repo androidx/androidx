@@ -45,6 +45,9 @@ public class CameraCharacteristicsCompat {
     @NonNull
     private final String mCameraId;
 
+    @Nullable
+    private StreamConfigurationMapCompat mStreamConfigurationMapCompat = null;
+
     private CameraCharacteristicsCompat(@NonNull CameraCharacteristics cameraCharacteristics,
             @NonNull String cameraId) {
         if (Build.VERSION.SDK_INT >= 28) {
@@ -125,13 +128,18 @@ public class CameraCharacteristicsCompat {
      */
     @NonNull
     public StreamConfigurationMapCompat getStreamConfigurationMapCompat() {
-        StreamConfigurationMap map = get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-        if (map == null) {
-            throw new IllegalArgumentException("StreamConfigurationMap is null!");
+        if (mStreamConfigurationMapCompat == null) {
+            StreamConfigurationMap map = get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+            if (map == null) {
+                throw new IllegalArgumentException("StreamConfigurationMap is null!");
+            }
+            OutputSizesCorrector outputSizesCorrector = new OutputSizesCorrector(mCameraId, this);
+            mStreamConfigurationMapCompat =
+                    StreamConfigurationMapCompat.toStreamConfigurationMapCompat(map,
+                            outputSizesCorrector);
         }
-        OutputSizesCorrector outputSizesCorrector = new OutputSizesCorrector(mCameraId, this);
-        return StreamConfigurationMapCompat.toStreamConfigurationMapCompat(map,
-                outputSizesCorrector);
+
+        return mStreamConfigurationMapCompat;
     }
 
     /**
