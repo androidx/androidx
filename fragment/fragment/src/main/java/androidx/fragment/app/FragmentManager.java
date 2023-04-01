@@ -86,6 +86,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1899,7 +1900,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
         if (addToBackStack && mBackStackChangeListeners != null
                 && !mBackStackChangeListeners.isEmpty()) {
-            ArrayList<Fragment> fragments = new ArrayList<>();
+            Set<Fragment> fragments = new LinkedHashSet<>();
             // Build a list of fragments based on the records
             for (BackStackRecord record : records) {
                 fragments.addAll(fragmentsFromRecord(record));
