@@ -293,6 +293,7 @@ public final class ComplicationHelperActivity extends ComponentActivity
     }
 
     @Override
+    @SuppressWarnings("deprecation") //TODO: Use ActivityResultContract
     public void onRequestPermissionsResult(
             int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
