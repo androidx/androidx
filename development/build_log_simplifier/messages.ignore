@@ -1025,6 +1025,8 @@ w: file://\$SUPPORT/compose/foundation/foundation/src/androidAndroidTest/kotlin/
 # > Task :compose:ui:ui:compileDebugAndroidTestKotlin
 w: file://\$SUPPORT/compose/ui/ui/src/androidAndroidTest/kotlin/androidx/compose/ui/window/PopupTestUtils\.kt:[0-9]+:[0-9]+ 'getter for windowLayoutParams: EspressoOptional<WindowManager\.LayoutParams!>!' is deprecated\. Deprecated in Java
 # > Task :compose:ui:ui-inspection:dexInspectorRelease
+Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.JvmFunctionSignature\$FakeJavaAnnotationConstructor\$asString\$[0-9]+'s kotlin\.Metadata: null
+Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$Method\$Instance's kotlin\.Metadata: null
 Info: Unexpected error while reading androidx\.compose\.ui\.inspection\.framework\.ViewExtensionsKt\$ancestors\$[0-9]+'s kotlin\.Metadata: null
 Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.full\.Java[0-9]+RepeatableContainerLoader\$Cache's kotlin\.Metadata: null
 Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.JvmPropertySignature's kotlin\.Metadata: null
@@ -1053,6 +1055,7 @@ Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\
 Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.AnnotationConstructorCaller\$CallMode's kotlin\.Metadata: null
 Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.KFunctionImpl\$caller\$[0-9]+'s kotlin\.Metadata: null
 Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$FieldSetter\$BoundInstance's kotlin\.Metadata: null
+Info:
 Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.jvm\.internal\.calls\.CallerImpl\$Method\$Instance's kotlin\.Metadata: null
 Info: Unexpected error while reading deps\.ui\.inspection\.androidx\.compose\.ui\.tooling\.data\.ParameterInformation's kotlin\.Metadata: null
 Info: Unexpected error while reading deps\.ui\.inspection\.kotlin\.reflect\.full\.IllegalPropertyDelegateAccessException's kotlin\.Metadata: null
