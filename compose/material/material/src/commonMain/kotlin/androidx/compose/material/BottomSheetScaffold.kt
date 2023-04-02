@@ -138,7 +138,7 @@ class BottomSheetState @Deprecated(
     )
 ) constructor(
     initialValue: BottomSheetValue,
-    animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
+    animationSpec: AnimationSpec<Float> = AnchoredDraggableDefaults.AnimationSpec,
     confirmValueChange: (BottomSheetValue) -> Boolean = { true }
 ) {
 
@@ -292,7 +292,7 @@ class BottomSheetState @Deprecated(
 @ExperimentalMaterialApi
 fun rememberBottomSheetState(
     initialValue: BottomSheetValue,
-    animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
+    animationSpec: AnimationSpec<Float> = AnchoredDraggableDefaults.AnimationSpec,
     confirmStateChange: (BottomSheetValue) -> Boolean = { true }
 ): BottomSheetState {
     val density = LocalDensity.current
