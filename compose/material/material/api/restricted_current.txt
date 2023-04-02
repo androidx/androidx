@@ -51,24 +51,32 @@ package androidx.compose.material {
 
   public final class BackdropScaffoldKt {
     method @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static void BackdropScaffold(kotlin.jvm.functions.Function0<kotlin.Unit> appBar, kotlin.jvm.functions.Function0<kotlin.Unit> backLayerContent, kotlin.jvm.functions.Function0<kotlin.Unit> frontLayerContent, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material.BackdropScaffoldState scaffoldState, optional boolean gesturesEnabled, optional float peekHeight, optional float headerHeight, optional boolean persistentAppBar, optional boolean stickyFrontLayer, optional long backLayerBackgroundColor, optional long backLayerContentColor, optional androidx.compose.ui.graphics.Shape frontLayerShape, optional float frontLayerElevation, optional long frontLayerBackgroundColor, optional long frontLayerContentColor, optional long frontLayerScrimColor, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.SnackbarHostState,kotlin.Unit> snackbarHost);
+    method @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Stable public static androidx.compose.material.BackdropScaffoldState BackdropScaffoldState(androidx.compose.material.BackdropValue initialValue, androidx.compose.ui.unit.Density density, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.BackdropValue,java.lang.Boolean> confirmValueChange, optional androidx.compose.material.SnackbarHostState snackbarHostState);
     method @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static androidx.compose.material.BackdropScaffoldState rememberBackdropScaffoldState(androidx.compose.material.BackdropValue initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.BackdropValue,java.lang.Boolean> confirmStateChange, optional androidx.compose.material.SnackbarHostState snackbarHostState);
   }
 
-  @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Stable public final class BackdropScaffoldState extends androidx.compose.material.SwipeableState<androidx.compose.material.BackdropValue> {
-    ctor public BackdropScaffoldState(androidx.compose.material.BackdropValue initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.BackdropValue,java.lang.Boolean> confirmStateChange, optional androidx.compose.material.SnackbarHostState snackbarHostState);
+  @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Stable public final class BackdropScaffoldState {
+    ctor @Deprecated public BackdropScaffoldState(androidx.compose.material.BackdropValue initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.material.BackdropValue,java.lang.Boolean> confirmValueChange, optional androidx.compose.material.SnackbarHostState snackbarHostState);
     method public suspend Object? conceal(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public kotlin.jvm.functions.Function1<androidx.compose.material.BackdropValue,java.lang.Boolean> getConfirmValueChange();
+    method public androidx.compose.material.BackdropValue getCurrentValue();
     method public androidx.compose.material.SnackbarHostState getSnackbarHostState();
+    method public androidx.compose.material.BackdropValue getTargetValue();
     method public boolean isConcealed();
     method public boolean isRevealed();
+    method public float requireOffset();
     method public suspend Object? reveal(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public final kotlin.jvm.functions.Function1<androidx.compose.material.BackdropValue,java.lang.Boolean> confirmValueChange;
+    property public final androidx.compose.material.BackdropValue currentValue;
     property public final boolean isConcealed;
     property public final boolean isRevealed;
     property public final androidx.compose.material.SnackbarHostState snackbarHostState;
+    property public final androidx.compose.material.BackdropValue targetValue;
     field public static final androidx.compose.material.BackdropScaffoldState.Companion Companion;
   }
 
   public static final class BackdropScaffoldState.Companion {
-    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material.BackdropScaffoldState,?> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material.BackdropValue,java.lang.Boolean> confirmStateChange, androidx.compose.material.SnackbarHostState snackbarHostState);
+    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material.BackdropScaffoldState,?> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material.BackdropValue,java.lang.Boolean> confirmStateChange, androidx.compose.material.SnackbarHostState snackbarHostState, androidx.compose.ui.unit.Density density);
   }
 
   @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi public enum BackdropValue {
