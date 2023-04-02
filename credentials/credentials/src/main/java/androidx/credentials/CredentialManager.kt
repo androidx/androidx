@@ -16,7 +16,6 @@
 
 package androidx.credentials
 
-import android.app.Activity
 import android.content.Context
 import android.os.CancellationSignal
 import androidx.annotation.RequiresApi
@@ -99,13 +98,14 @@ class CredentialManager private constructor(private val context: Context) {
      * The execution potentially launches framework UI flows for a user to view available
      * credentials, consent to using one of them, etc.
      *
+     * @param context the context used to launch any UI needed; use an activity context to make
+     * sure the UI will be launched within the same task stack
      * @param request the request for getting the credential
-     * @param activity the activity used to potentially launch any UI needed
      * @throws GetCredentialException If the request fails
      */
     suspend fun getCredential(
+        context: Context,
         request: GetCredentialRequest,
-        activity: Activity,
     ): GetCredentialResponse = suspendCancellableCoroutine { continuation ->
         // Any Android API that supports cancellation should be configured to propagate
         // coroutine cancellation as follows:
@@ -124,8 +124,8 @@ class CredentialManager private constructor(private val context: Context) {
         }
 
         getCredentialAsync(
+            context,
             request,
-            activity,
             canceller,
             // Use a direct executor to avoid extra dispatch. Resuming the continuation will
             // handle getting to the right thread or pool via the ContinuationInterceptor.
@@ -145,14 +145,15 @@ class CredentialManager private constructor(private val context: Context) {
      * The execution can potentially launch UI flows to collect user consent to using a
      * credential, display a picker when multiple credentials exist, etc.
      *
+     * @param context the context used to launch any UI needed; use an activity context to make
+     * sure the UI will be launched within the same task stack
      * @param pendingGetCredentialHandle the handle representing the pending operation to resume
-     * @param activity the activity used to potentially launch any UI needed
      * @throws GetCredentialException If the request fails
      */
     @RequiresApi(34)
     suspend fun getCredential(
+        context: Context,
         pendingGetCredentialHandle: PrepareGetCredentialResponse.PendingGetCredentialHandle,
-        activity: Activity,
     ): GetCredentialResponse = suspendCancellableCoroutine { continuation ->
         // Any Android API that supports cancellation should be configured to propagate
         // coroutine cancellation as follows:
@@ -171,8 +172,8 @@ class CredentialManager private constructor(private val context: Context) {
         }
 
         getCredentialAsync(
+            context,
             pendingGetCredentialHandle,
-            activity,
             canceller,
             // Use a direct executor to avoid extra dispatch. Resuming the continuation will
             // handle getting to the right thread or pool via the ContinuationInterceptor.
@@ -228,13 +229,14 @@ class CredentialManager private constructor(private val context: Context) {
      * The execution potentially launches framework UI flows for a user to view their registration
      * options, grant consent, etc.
      *
+     * @param context the context used to launch any UI needed; use an activity context to make
+     * sure the UI will be launched within the same task stack
      * @param request the request for creating the credential
-     * @param activity the activity used to potentially launch any UI needed
      * @throws CreateCredentialException If the request fails
      */
     suspend fun createCredential(
+        context: Context,
         request: CreateCredentialRequest,
-        activity: Activity,
     ): CreateCredentialResponse = suspendCancellableCoroutine { continuation ->
         // Any Android API that supports cancellation should be configured to propagate
         // coroutine cancellation as follows:
@@ -253,8 +255,8 @@ class CredentialManager private constructor(private val context: Context) {
         }
 
         createCredentialAsync(
+            context,
             request,
-            activity,
             canceller,
             // Use a direct executor to avoid extra dispatch. Resuming the continuation will
             // handle getting to the right thread or pool via the ContinuationInterceptor.
@@ -312,21 +314,22 @@ class CredentialManager private constructor(private val context: Context) {
      * The execution potentially launches framework UI flows for a user to view available
      * credentials, consent to using one of them, etc.
      *
+     * @param context the context used to launch any UI needed; use an activity context to make
+     * sure the UI will be launched within the same task stack
      * @param request the request for getting the credential
-     * @param activity an optional activity used to potentially launch any UI needed
      * @param cancellationSignal an optional signal that allows for cancelling this call
      * @param executor the callback will take place on this executor
      * @param callback the callback invoked when the request succeeds or fails
      */
     fun getCredentialAsync(
+        context: Context,
         request: GetCredentialRequest,
-        activity: Activity,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>,
     ) {
         val provider: CredentialProvider? = CredentialProviderFactory
-            .getBestAvailableProvider(context)
+            .getBestAvailableProvider(this.context)
         if (provider == null) {
             // TODO (Update with the right error code when ready)
             callback.onError(
@@ -336,7 +339,7 @@ class CredentialManager private constructor(private val context: Context) {
             )
             return
         }
-        provider.onGetCredential(request, activity, cancellationSignal, executor, callback)
+        provider.onGetCredential(context, request, cancellationSignal, executor, callback)
     }
 
     /**
@@ -353,16 +356,17 @@ class CredentialManager private constructor(private val context: Context) {
      * The execution can potentially launch UI flows to collect user consent to using a
      * credential, display a picker when multiple credentials exist, etc.
      *
+     * @param context the context used to launch any UI needed; use an activity context to make
+     * sure the UI will be launched within the same task stack
      * @param pendingGetCredentialHandle the handle representing the pending operation to resume
-     * @param activity the activity used to potentially launch any UI needed
      * @param cancellationSignal an optional signal that allows for cancelling this call
      * @param executor the callback will take place on this executor
      * @param callback the callback invoked when the request succeeds or fails
      */
     @RequiresApi(34)
     fun getCredentialAsync(
+        context: Context,
         pendingGetCredentialHandle: PrepareGetCredentialResponse.PendingGetCredentialHandle,
-        activity: Activity,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>,
@@ -406,21 +410,22 @@ class CredentialManager private constructor(private val context: Context) {
      * The execution potentially launches framework UI flows for a user to view their registration
      * options, grant consent, etc.
      *
+     * @param context the context used to launch any UI needed; use an activity context to make
+     * sure the UI will be launched within the same task stack
      * @param request the request for creating the credential
-     * @param activity an optional activity used to potentially launch any UI needed
      * @param cancellationSignal an optional signal that allows for cancelling this call
      * @param executor the callback will take place on this executor
      * @param callback the callback invoked when the request succeeds or fails
      */
     fun createCredentialAsync(
+        context: Context,
         request: CreateCredentialRequest,
-        activity: Activity,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>,
     ) {
         val provider: CredentialProvider? = CredentialProviderFactory
-            .getBestAvailableProvider(context)
+            .getBestAvailableProvider(this.context)
         if (provider == null) {
             // TODO (Update with the right error code when ready)
             callback.onError(CreateCredentialProviderConfigurationException(
@@ -428,7 +433,7 @@ class CredentialManager private constructor(private val context: Context) {
                     "desired provider dependencies are added"))
             return
         }
-        provider.onCreateCredential(request, activity, cancellationSignal, executor, callback)
+        provider.onCreateCredential(context, request, cancellationSignal, executor, callback)
     }
 
     /**
