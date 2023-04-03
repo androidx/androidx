@@ -23,6 +23,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.KeyboardHelper
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text2.input.MutableTextFieldValueWithSelection
 import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.AndroidTextInputAdapter
@@ -546,7 +547,11 @@ internal class BasicTextField2Test {
     }
 
     private object RejectAllTextFilter : TextEditFilter {
-        override fun filter(oldValue: TextFieldValue, newValue: TextFieldValue): TextFieldValue =
-            oldValue
+        override fun filter(
+            oldState: TextFieldValue,
+            newState: MutableTextFieldValueWithSelection
+        ) {
+            newState.resetTo(oldState)
+        }
     }
 }

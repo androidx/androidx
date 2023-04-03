@@ -178,7 +178,12 @@ internal class BasicTextField2ImmIntegrationTest {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                filter = { _, new -> new.copy(text = new.text + "world") }
+                filter = { _, new ->
+                    // Force the selection not to change.
+                    val initialSelection = new.selectionInChars
+                    new.append("world")
+                    new.selectCharsIn(initialSelection)
+                }
             )
         }
         requestFocus(Tag)
@@ -198,7 +203,11 @@ internal class BasicTextField2ImmIntegrationTest {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                filter = { _, new -> new.copy(text = new.text + "world") }
+                filter = { _, new ->
+                    val initialSelection = new.selectionInChars
+                    new.append("world")
+                    new.selectCharsIn(initialSelection)
+                }
             )
         }
         requestFocus(Tag)
@@ -223,7 +232,7 @@ internal class BasicTextField2ImmIntegrationTest {
             BasicTextField2(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                filter = { _, new -> new.copy(selection = TextRange(0, new.text.length)) }
+                filter = { _, new -> new.selectAll() }
             )
         }
         requestFocus(Tag)
