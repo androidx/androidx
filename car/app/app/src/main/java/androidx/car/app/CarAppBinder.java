@@ -127,7 +127,7 @@ final class CarAppBinder extends ICarApp.Stub {
             LifecycleRegistry registry = (LifecycleRegistry) session.getLifecycle();
             Lifecycle.State state = registry.getCurrentState();
             int screenStackSize = session.getCarContext().getCarService(
-                    ScreenManager.class).getScreenStack().size();
+                    ScreenManager.class).getScreenStackInternal().size();
             if (!state.isAtLeast(Lifecycle.State.CREATED) || screenStackSize < 1) {
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "onAppCreate the app was not yet created or the "
