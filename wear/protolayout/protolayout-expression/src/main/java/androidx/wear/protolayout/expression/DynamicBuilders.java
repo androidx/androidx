@@ -3051,6 +3051,8 @@ public final class DynamicBuilders {
     /**
      * Interface defining a dynamic string type.
      *
+     * <p> {@link DynamicString} string value is subject to being truncated if it's too long.
+     *
      * @since 1.2
      */
     public interface DynamicString extends DynamicType {
