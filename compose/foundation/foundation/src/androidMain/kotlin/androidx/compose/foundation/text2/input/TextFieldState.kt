@@ -20,6 +20,9 @@ package androidx.compose.foundation.text2.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.internal.EditProcessor
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.saveable.SaverScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 
@@ -65,7 +68,49 @@ class TextFieldState(initialValue: TextFieldValue = TextFieldValue()) {
         val finalValue = newValue.toTextFieldValue(newSelection)
         editProcessor.reset(finalValue)
     }
+
+    /**
+     * Saves and restores a [TextFieldState] for [rememberSaveable].
+     *
+     * @see rememberTextFieldState
+     */
+    // Preserve nullability since this is public API.
+    @Suppress("RedundantNullableReturnType")
+    object Saver : androidx.compose.runtime.saveable.Saver<TextFieldState, Any> {
+        override fun SaverScope.save(value: TextFieldState): Any? = listOf(
+            value.value.text,
+            value.value.selection.start,
+            value.value.selection.end
+        )
+
+        override fun restore(value: Any): TextFieldState? {
+            val (text, selectionStart, selectionEnd) = value as List<*>
+            return TextFieldState(
+                TextFieldValue(
+                    text = text as String,
+                    selection = TextRange(
+                        start = selectionStart as Int,
+                        end = selectionEnd as Int
+                    )
+                )
+            )
+        }
+    }
 }
+
+/**
+ * Create and remember a [TextFieldState]. The state is remembered using [rememberSaveable] and so
+ * will be saved and restored with the composition.
+ *
+ * If you need to store a [TextFieldState] in another object, use the [TextFieldState.Saver] object
+ * to manually save and restore the state.
+ */
+@ExperimentalFoundationApi
+@Composable
+fun rememberTextFieldState(): TextFieldState =
+    rememberSaveable(saver = TextFieldState.Saver) {
+        TextFieldState()
+    }
 
 /**
  * Sets the text in this [TextFieldState] to [text], replacing any text that was previously there,

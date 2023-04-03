@@ -14,18 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text2.input.internal
+package androidx.compose.foundation.text2.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text2.input.TextFieldState
-import androidx.compose.foundation.text2.input.placeCursorAtEnd
-import androidx.compose.foundation.text2.input.placeCursorBeforeCharAt
-import androidx.compose.foundation.text2.input.placeCursorBeforeCodepointAt
-import androidx.compose.foundation.text2.input.selectAll
-import androidx.compose.foundation.text2.input.selectCharsIn
-import androidx.compose.foundation.text2.input.selectCodepointsIn
-import androidx.compose.foundation.text2.input.setTextAndPlaceCursorAtEnd
-import androidx.compose.foundation.text2.input.setTextAndSelectAll
 import androidx.compose.ui.text.TextRange
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
