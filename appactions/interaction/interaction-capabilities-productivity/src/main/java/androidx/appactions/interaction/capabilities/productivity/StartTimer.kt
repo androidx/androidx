@@ -20,12 +20,12 @@ import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.BaseSession
 import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
 import androidx.appactions.interaction.capabilities.core.SessionFactory
+import androidx.appactions.interaction.capabilities.core.ValueListener
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
-import androidx.appactions.interaction.capabilities.core.task.ValueListener
 import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
 import androidx.appactions.interaction.capabilities.core.task.impl.SessionBridge
 import androidx.appactions.interaction.capabilities.core.task.impl.TaskHandler
@@ -51,26 +51,26 @@ private val ACTION_SPEC =
             { property -> Optional.ofNullable(property.identifier) },
             StartTimer.Argument.Builder::setIdentifier,
             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-            TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+            TypeConverters.STRING_VALUE_ENTITY_CONVERTER,
         )
         .bindOptionalParameter(
             "timer.name",
             { property -> Optional.ofNullable(property.name) },
             StartTimer.Argument.Builder::setName,
             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-            TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+            TypeConverters.STRING_VALUE_ENTITY_CONVERTER,
         )
         .bindOptionalParameter(
             "timer.duration",
             { property -> Optional.ofNullable(property.duration) },
             StartTimer.Argument.Builder::setDuration,
             TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
-            TypeConverters.DURATION_ENTITY_CONVERTER
+            TypeConverters.DURATION_ENTITY_CONVERTER,
         )
         .bindOptionalOutput(
             "executionStatus",
             { output -> Optional.ofNullable(output.executionStatus) },
-            StartTimer.ExecutionStatus::toParamValue
+            StartTimer.ExecutionStatus::toParamValue,
         )
         .build()
 
@@ -99,8 +99,8 @@ class StartTimer private constructor() {
 
     class CapabilityBuilder :
         CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session
-        >(ACTION_SPEC) {
+            CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session,
+            >(ACTION_SPEC) {
 
         override val sessionBridge: SessionBridge<Session, Confirmation> = SESSION_BRIDGE
         override val sessionUpdaterSupplier: Supplier<TaskUpdater> = Supplier {
@@ -129,7 +129,7 @@ class StartTimer private constructor() {
     internal constructor(
         val identifier: TypeProperty<StringValue>?,
         val name: TypeProperty<StringValue>?,
-        val duration: TypeProperty<Duration>?
+        val duration: TypeProperty<Duration>?,
     ) {
         override fun toString(): String {
             return "Property(identifier=$identifier,name=$name,duration=$duration}"

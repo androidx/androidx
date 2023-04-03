@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.appactions.interaction.capabilities.core.task
+package androidx.appactions.interaction.capabilities.core
 
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.concurrent.futures.await

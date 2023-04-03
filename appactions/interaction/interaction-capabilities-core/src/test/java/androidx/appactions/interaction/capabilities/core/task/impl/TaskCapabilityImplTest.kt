@@ -16,12 +16,16 @@
 package androidx.appactions.interaction.capabilities.core.task.impl
 
 import android.util.SizeF
+import androidx.appactions.interaction.capabilities.core.AppEntityListener
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
+import androidx.appactions.interaction.capabilities.core.EntitySearchResult
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.InitArg
 import androidx.appactions.interaction.capabilities.core.SessionFactory
+import androidx.appactions.interaction.capabilities.core.ValidationResult
+import androidx.appactions.interaction.capabilities.core.ValueListener
 import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
@@ -34,10 +38,6 @@ import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
-import androidx.appactions.interaction.capabilities.core.task.AppEntityListener
-import androidx.appactions.interaction.capabilities.core.task.EntitySearchResult
-import androidx.appactions.interaction.capabilities.core.task.ValidationResult
-import androidx.appactions.interaction.capabilities.core.task.ValueListener
 import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils.buildRequestArgs
 import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils.buildSearchActionParamValue
 import androidx.appactions.interaction.capabilities.testing.internal.SettableFutureWrapper
@@ -75,13 +75,13 @@ import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 import java.util.concurrent.TimeUnit.MILLISECONDS
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import java.util.function.Supplier
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class TaskCapabilityImplTest {
@@ -149,7 +149,6 @@ class TaskCapabilityImplTest {
                         override fun onInit(initArg: InitArg) {
                             onSuccessInvocationCount.incrementAndGet()
                         }
-
                         override fun onFinishAsync(argument: Argument) =
                             Futures.immediateFuture(
                                 ExecutionResult.getDefaultInstance<Output>(),
@@ -190,7 +189,7 @@ class TaskCapabilityImplTest {
                 mapOf(
                     "required" to
                         listOf(
-                            TypeConverters.ENTITY_PARAM_VALUE_CONVERTER.toParamValue(entityValue)
+                            TypeConverters.ENTITY_PARAM_VALUE_CONVERTER.toParamValue(entityValue),
                         ),
                 ),
             )
@@ -272,14 +271,14 @@ class TaskCapabilityImplTest {
                         androidx.appactions.interaction.capabilities.core.properties.Entity
                         >()
                         .setRequired(true)
-                        .build()
+                        .build(),
                 )
                 .setSlotB(
                     TypeProperty.Builder<
                         androidx.appactions.interaction.capabilities.core.properties.Entity
                         >()
                         .setRequired(true)
-                        .build()
+                        .build(),
                 )
                 .build()
         val sessionFactory =
@@ -367,14 +366,14 @@ class TaskCapabilityImplTest {
                         androidx.appactions.interaction.capabilities.core.properties.Entity
                         >()
                         .setRequired(true)
-                        .build()
+                        .build(),
                 )
                 .setSlotB(
                     TypeProperty.Builder<
                         androidx.appactions.interaction.capabilities.core.properties.Entity
                         >()
                         .setRequired(false)
-                        .build()
+                        .build(),
                 )
                 .build()
         val sessionFactory =
@@ -605,7 +604,7 @@ class TaskCapabilityImplTest {
                                                     )
                                                     .setName(
                                                         "valid1",
-                                                    )
+                                                    ),
                                             )
                                             .addEntities(
                                                 Entity.newBuilder()
@@ -619,7 +618,7 @@ class TaskCapabilityImplTest {
                                     ),
                             ),
                     )
-                    .build()
+                    .build(),
             )
 
         // TURN 2.
@@ -656,7 +655,7 @@ class TaskCapabilityImplTest {
                                     ),
                             ),
                     )
-                    .build()
+                    .build(),
             )
     }
 
@@ -778,7 +777,7 @@ class TaskCapabilityImplTest {
                             .build(),
                     )
                     .addParams(DialogParameter.newBuilder().setName("string").build())
-                    .build()
+                    .build(),
             )
 
         // second sync request, sending grounded ParamValue with identifier only
@@ -978,28 +977,28 @@ class TaskCapabilityImplTest {
                     Property::requiredEntityField,
                     Argument.Builder::setRequiredEntityField,
                     TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
-                    TypeConverters.ENTITY_ENTITY_CONVERTER
+                    TypeConverters.ENTITY_ENTITY_CONVERTER,
                 )
                 .bindOptionalParameter(
                     "optional",
                     Property::optionalStringField,
                     Argument.Builder::setOptionalStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER,
                 )
                 .bindOptionalParameter(
                     "optionalEnum",
                     Property::enumField,
                     Argument.Builder::setEnumField,
                     ENUM_CONVERTER,
-                    { Entity.newBuilder().setIdentifier(it.toString()).build() }
+                    { Entity.newBuilder().setIdentifier(it.toString()).build() },
                 )
                 .bindRepeatedParameter(
                     "repeated",
                     Property::repeatedStringField,
                     Argument.Builder::setRepeatedStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER,
                 )
                 .bindOptionalOutput(
                     "optionalStringOutput",
@@ -1020,7 +1019,7 @@ class TaskCapabilityImplTest {
                         androidx.appactions.interaction.capabilities.core.properties.Entity
                         >()
                         .setRequired(true)
-                        .build()
+                        .build(),
                 )
                 .build()
 

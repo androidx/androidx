@@ -15,10 +15,10 @@
  */
 package androidx.appactions.interaction.capabilities.core.task.impl
 
+import androidx.appactions.interaction.capabilities.core.EntitySearchResult
+import androidx.appactions.interaction.capabilities.core.ValidationResult
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
-import androidx.appactions.interaction.capabilities.core.task.EntitySearchResult
-import androidx.appactions.interaction.capabilities.core.task.ValidationResult
 import androidx.appactions.interaction.capabilities.core.task.impl.exceptions.InvalidResolverException
 import androidx.appactions.interaction.capabilities.core.task.impl.exceptions.MissingEntityConverterException
 import androidx.appactions.interaction.capabilities.core.task.impl.exceptions.MissingSearchActionConverterException
@@ -57,7 +57,7 @@ internal object TaskSlotProcessor {
                     true,
                     pendingArgs.map {
                         TaskCapabilityUtils.toCurrentValue(it.value, CurrentValue.Status.ACCEPTED)
-                    }
+                    },
                 )
         val groundedValues = mutableListOf<ParamValue>()
         val ungroundedValues = mutableListOf<CurrentValue>()
@@ -69,7 +69,7 @@ internal object TaskSlotProcessor {
                     consumeGroundingResult(
                         chainAssistantGrounding(groundingResult, pendingValue, taskParamBinding),
                         groundedValues,
-                        ungroundedValues
+                        ungroundedValues,
                     )
             } else if (taskParamBinding.groundingPredicate.invoke(pendingValue.value)) {
                 // app-driven disambiguation
@@ -77,7 +77,7 @@ internal object TaskSlotProcessor {
                     consumeGroundingResult(
                         chainAppGrounding(groundingResult, pendingValue, taskParamBinding),
                         groundedValues,
-                        ungroundedValues
+                        ungroundedValues,
                     )
             } else {
                 groundedValues.add(pendingValue.value)
@@ -92,7 +92,7 @@ internal object TaskSlotProcessor {
             processValidationResult(
                 invokeValueChange(groundedValues, taskParamBinding),
                 groundedValues,
-                ungroundedValues
+                ungroundedValues,
             )
         }
     }
@@ -102,7 +102,7 @@ internal object TaskSlotProcessor {
     private suspend fun chainAssistantGrounding(
         groundingResult: AppGroundingResult,
         pendingValue: CurrentValue,
-        taskParamBinding: TaskParamBinding<*>
+        taskParamBinding: TaskParamBinding<*>,
     ) =
         when (groundingResult.kind) {
             AppGroundingResult.Kind.SUCCESS -> {
@@ -110,7 +110,7 @@ internal object TaskSlotProcessor {
                 AppGroundingResult.ofFailure(
                     CurrentValue.newBuilder(pendingValue)
                         .setStatus(CurrentValue.Status.DISAMBIG)
-                        .build()
+                        .build(),
                 )
             }
             AppGroundingResult.Kind.FAILURE -> AppGroundingResult.ofFailure(pendingValue)
@@ -163,7 +163,7 @@ internal object TaskSlotProcessor {
     @Throws(StructConversionException::class)
     private suspend fun <T> invokeValueChange(
         updatedValue: List<ParamValue>,
-        binding: TaskParamBinding<T>
+        binding: TaskParamBinding<T>,
     ): ValidationResult {
         return binding.resolver.notifyValueChange(updatedValue, binding.converter)
     }
@@ -171,7 +171,7 @@ internal object TaskSlotProcessor {
     @Throws(InvalidResolverException::class)
     private suspend fun renderAssistantDisambigData(
         disambiguationData: DisambiguationData,
-        binding: TaskParamBinding<*>
+        binding: TaskParamBinding<*>,
     ) {
         val entityIds = disambiguationData.entitiesList.map { it.identifier }
         binding.resolver.invokeEntityRender(entityIds)
@@ -187,7 +187,7 @@ internal object TaskSlotProcessor {
     private fun processValidationResult(
         validationResult: ValidationResult,
         groundedValues: List<ParamValue>,
-        ungroundedValues: List<CurrentValue>
+        ungroundedValues: List<CurrentValue>,
     ): SlotProcessingResult {
         val combinedValues = mutableListOf<CurrentValue>()
         when (validationResult.kind) {
@@ -195,22 +195,22 @@ internal object TaskSlotProcessor {
                 combinedValues.addAll(
                     TaskCapabilityUtils.paramValuesToCurrentValue(
                         groundedValues,
-                        CurrentValue.Status.ACCEPTED
-                    )
+                        CurrentValue.Status.ACCEPTED,
+                    ),
                 )
             ValidationResult.Kind.REJECTED ->
                 combinedValues.addAll(
                     TaskCapabilityUtils.paramValuesToCurrentValue(
                         groundedValues,
-                        CurrentValue.Status.REJECTED
-                    )
+                        CurrentValue.Status.REJECTED,
+                    ),
                 )
         }
         combinedValues.addAll(ungroundedValues)
         return SlotProcessingResult(
             /* isSuccessful= */ ungroundedValues.isEmpty() &&
                 validationResult.kind === ValidationResult.Kind.ACCEPTED,
-            combinedValues.toList()
+            combinedValues.toList(),
         )
     }
 
@@ -230,7 +230,7 @@ internal object TaskSlotProcessor {
         }
         if (binding.searchActionConverter == null) {
             throw MissingSearchActionConverterException(
-                "No search action converter found in the binding."
+                "No search action converter found in the binding.",
             )
         }
         val entityConverter = binding.entityConverter
@@ -250,20 +250,20 @@ internal object TaskSlotProcessor {
     private fun <T> processEntitySearchResult(
         entitySearchResult: EntitySearchResult<T>,
         entityConverter: EntityConverter<T>,
-        ungroundedValue: ParamValue
+        ungroundedValue: ParamValue,
     ): AppGroundingResult {
         return when (entitySearchResult.possibleValues.size) {
             0 ->
                 AppGroundingResult.ofFailure(
                     TaskCapabilityUtils.toCurrentValue(
                         ungroundedValue,
-                        CurrentValue.Status.REJECTED
-                    )
+                        CurrentValue.Status.REJECTED,
+                    ),
                 )
             1 -> {
                 val groundedEntity = entityConverter.convert(entitySearchResult.possibleValues[0]!!)
                 AppGroundingResult.ofSuccess(
-                    TaskCapabilityUtils.groundedValueToParamValue(groundedEntity)
+                    TaskCapabilityUtils.groundedValueToParamValue(groundedEntity),
                 )
             }
             else -> {
@@ -272,8 +272,8 @@ internal object TaskSlotProcessor {
                 AppGroundingResult.ofFailure(
                     TaskCapabilityUtils.getCurrentValueForDisambiguation(
                         ungroundedValue,
-                        disambigEntities
-                    )
+                        disambigEntities,
+                    ),
                 )
             }
         }
