@@ -42,11 +42,11 @@ public fun <T : Any> LazyPagingItems<T>.itemKey(
     key: ((item: @JvmSuppressWildcards T) -> Any)? = null
 ): (index: Int) -> Any {
     return { index ->
-        val item = peek(index)
-        if (key == null || item == null) {
+        if (key == null) {
             PagingPlaceholderKey(index)
         } else {
-            key(item)
+            val item = peek(index)
+            if (item == null) PagingPlaceholderKey(index) else key(item)
         }
     }
 }
