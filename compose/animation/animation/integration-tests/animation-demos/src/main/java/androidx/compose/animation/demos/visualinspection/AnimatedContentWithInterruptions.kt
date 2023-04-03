@@ -22,7 +22,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.with
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -50,10 +50,10 @@ fun AnimatedContentWithInterruptions() {
     var count by remember { mutableStateOf(0) }
     AnimatedContent(targetState = count, transitionSpec = {
         if (targetState == 0) {
-            (slideInVertically { it } with fadeOut(targetAlpha = 0.88f))
+            (slideInVertically { it } togetherWith fadeOut(targetAlpha = 0.88f))
                 .apply { targetContentZIndex = 1f }
         } else {
-            (fadeIn(initialAlpha = 0.88f) with slideOutVertically { it } +
+            (fadeIn(initialAlpha = 0.88f) togetherWith slideOutVertically { it } +
                 fadeOut(targetAlpha = 0.88f))
                 .apply { targetContentZIndex = -1f }
         }

@@ -19,7 +19,7 @@ package androidx.compose.animation.demos.layoutanimation
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.with
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -73,7 +73,7 @@ fun NestedMenuDemo() {
             transitionSpec = {
                 if (initialState < targetState) {
                     // Going from parent menu to child menu, slide towards left
-                    slideIntoContainer(towards = SlideDirection.Left) with
+                    slideIntoContainer(towards = SlideDirection.Left) togetherWith
                         slideOutOfContainer(
                             towards = SlideDirection.Left,
                             targetOffset = { offsetForFullSlide -> offsetForFullSlide / 2 }
@@ -83,7 +83,7 @@ fun NestedMenuDemo() {
                     slideIntoContainer(
                         towards = SlideDirection.Right,
                         initialOffset = { offsetForFullSlide -> offsetForFullSlide / 2 }
-                    ) with
+                    ) togetherWith
                         slideOutOfContainer(towards = SlideDirection.Right)
                 }.apply {
                     targetContentZIndex = when (targetState) {
