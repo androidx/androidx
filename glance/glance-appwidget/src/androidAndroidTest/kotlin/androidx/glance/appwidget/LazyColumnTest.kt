@@ -20,6 +20,7 @@ import android.app.Activity
 import android.os.Build
 import android.view.Gravity
 import android.view.View
+import android.view.View.FIND_VIEWS_WITH_TEXT
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ListView
@@ -47,9 +48,10 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
+
+private const val LOADING_TEXT = "Loading…"
 
 @SdkSuppress(minSdkVersion = 29)
 @MediumTest
@@ -207,7 +209,6 @@ class LazyColumnTest {
         }
     }
 
-    @Ignore // b/270621933
     @Test
     fun itemContent_defaultAlignment_doesNotWrapItem() {
         TestGlanceAppWidget.uiDefinition = {
@@ -282,7 +283,6 @@ class LazyColumnTest {
         }
     }
 
-    @Ignore("b/273482357")
     @Test
     fun itemContent_multipleViews() {
         TestGlanceAppWidget.uiDefinition = {
@@ -465,8 +465,7 @@ internal fun AppWidgetHostRule.waitForListViewChildren(action: (list: ListView) 
     runAndObserveUntilDraw(condition = "ListView did not load in time") {
         mHostView.let { host ->
             val list = host.findChildByType<ListView>()
-            host.childCount > 0 &&
-                list?.let { it.childCount > 0 && it.adapter != null } ?: false
+            host.childCount > 0 && list?.isFullyLoaded() ?: false
         }
     }
 
@@ -485,4 +484,15 @@ internal inline fun <reified T : View> ListView.getUnboxedListItem(position: Int
     }
     val frame = assertIs<FrameLayout>(remoteViewFrame.getChildAt(0))
     return frame.getChildAt(0).getTargetView()
+}
+
+internal fun ListView.isFullyLoaded(): Boolean {
+    val matchingViews = ArrayList<View>()
+    if (childCount > 0 && adapter != null) {
+        for (i in 0 until childCount) {
+            getChildAt(i).findViewsWithText(matchingViews, LOADING_TEXT, FIND_VIEWS_WITH_TEXT)
+        }
+        return matchingViews.isEmpty()
+    }
+    return false
 }
