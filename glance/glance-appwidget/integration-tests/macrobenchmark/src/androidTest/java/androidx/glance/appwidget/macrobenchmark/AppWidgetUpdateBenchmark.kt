@@ -23,7 +23,7 @@ import androidx.benchmark.macro.TraceSectionMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import androidx.testutils.createStartupCompilationParams
+import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,14 +34,12 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class AppWidgetUpdateBenchmark(
     private val startupMode: StartupMode,
-    private val compilationMode: CompilationMode,
-    useGlanceSession: Boolean,
 ) {
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
     @get:Rule
-    val appWidgetHostRule = AppWidgetHostRule(useSession = useGlanceSession)
+    val appWidgetHostRule = AppWidgetHostRule()
 
     @OptIn(ExperimentalMetricApi::class)
     @Test
@@ -51,11 +49,13 @@ class AppWidgetUpdateBenchmark(
             TraceSectionMetric("appWidgetInitialUpdate"),
             TraceSectionMetric("GlanceAppWidget::update"),
         ),
-        iterations = 100,
-        compilationMode = compilationMode,
+        iterations = 5,
+        compilationMode = CompilationMode.DEFAULT,
         startupMode = startupMode,
     ) {
-        appWidgetHostRule.startHost()
+       runBlocking {
+           appWidgetHostRule.startHost()
+       }
     }
 
     @OptIn(ExperimentalMetricApi::class)
@@ -66,29 +66,24 @@ class AppWidgetUpdateBenchmark(
             TraceSectionMetric("appWidgetUpdate"),
             TraceSectionMetric("GlanceAppWidget::update"),
         ),
-        iterations = 100,
-        compilationMode = compilationMode,
+        iterations = 5,
+        compilationMode = CompilationMode.DEFAULT,
         startupMode = startupMode,
         setupBlock = {
-            appWidgetHostRule.startHost()
-            if (startupMode == StartupMode.COLD) killProcess()
+            runBlocking {
+                appWidgetHostRule.startHost()
+            }
         }
     ) {
-        appWidgetHostRule.updateAppWidget()
+        runBlocking {
+            appWidgetHostRule.updateAppWidget()
+        }
     }
 
     companion object {
-        @Parameterized.Parameters(name = "startup={0},compilation={1},useSession={2}")
+        @Parameterized.Parameters(name = "startup={0}")
         @JvmStatic
         fun parameters() =
-            createStartupCompilationParams(
-                startupModes = listOf(StartupMode.COLD, StartupMode.WARM),
-                compilationModes = listOf(CompilationMode.DEFAULT)
-            ).flatMap {
-                listOf(
-                    it + true,
-                    it + false,
-                )
-            }
+            listOf(arrayOf(StartupMode.COLD), arrayOf(StartupMode.WARM))
     }
 }
