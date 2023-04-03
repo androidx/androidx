@@ -61,6 +61,7 @@ import androidx.wear.protolayout.ModifiersBuilders.ElementMetadata;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
 import androidx.wear.protolayout.ModifiersBuilders.Padding;
 import androidx.wear.protolayout.ModifiersBuilders.Semantics;
+import androidx.wear.protolayout.TypeBuilders.StringProp;
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.material.Typography.TypographyName;
 import androidx.wear.protolayout.proto.LayoutElementProto;
@@ -555,7 +556,11 @@ public class Chip implements LayoutElement {
         if (semantics == null) {
             return null;
         }
-        return semantics.getContentDescription();
+        StringProp contentDescriptionProp = semantics.getContentDescription();
+        if (contentDescriptionProp == null) {
+            return null;
+        }
+        return contentDescriptionProp.getValue();
     }
 
     /** Returns custom content from this Chip if it has been added. Otherwise, it returns null. */

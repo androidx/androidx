@@ -42,11 +42,11 @@ import androidx.wear.protolayout.LayoutElementBuilders.Arc;
 import androidx.wear.protolayout.LayoutElementBuilders.ArcLine;
 import androidx.wear.protolayout.LayoutElementBuilders.ArcSpacer;
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
-import androidx.wear.protolayout.ModifiersBuilders;
 import androidx.wear.protolayout.ModifiersBuilders.ElementMetadata;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
 import androidx.wear.protolayout.ModifiersBuilders.Padding;
 import androidx.wear.protolayout.ModifiersBuilders.Semantics;
+import androidx.wear.protolayout.TypeBuilders.StringProp;
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 
@@ -214,7 +214,7 @@ public class CircularProgressIndicator implements LayoutElement {
 
             if (mContentDescription.length() > 0) {
                 modifiers.setSemantics(
-                        new ModifiersBuilders.Semantics.Builder()
+                        new Semantics.Builder()
                                 .setContentDescription(mContentDescription.toString())
                                 .build());
             }
@@ -305,7 +305,11 @@ public class CircularProgressIndicator implements LayoutElement {
         if (semantics == null) {
             return null;
         }
-        return semantics.getContentDescription();
+        StringProp contentDescriptionProp = semantics.getContentDescription();
+        if (contentDescriptionProp == null) {
+            return null;
+        }
+        return contentDescriptionProp.getValue();
     }
 
     /**

@@ -774,6 +774,12 @@ package androidx.wear.protolayout {
   }
 
   public final class ModifiersBuilders {
+    field public static final int SEMANTICS_ROLE_BUTTON = 2; // 0x2
+    field public static final int SEMANTICS_ROLE_CHECKBOX = 3; // 0x3
+    field public static final int SEMANTICS_ROLE_IMAGE = 1; // 0x1
+    field public static final int SEMANTICS_ROLE_NONE = 0; // 0x0
+    field public static final int SEMANTICS_ROLE_RADIOBUTTON = 5; // 0x5
+    field public static final int SEMANTICS_ROLE_SWITCH = 4; // 0x4
   }
 
   public static final class ModifiersBuilders.ArcModifiers {
@@ -885,13 +891,18 @@ package androidx.wear.protolayout {
   }
 
   public static final class ModifiersBuilders.Semantics {
-    method public String getContentDescription();
+    method public androidx.wear.protolayout.TypeBuilders.StringProp? getContentDescription();
+    method public int getRole();
+    method public androidx.wear.protolayout.TypeBuilders.StringProp? getStateDescription();
   }
 
   public static final class ModifiersBuilders.Semantics.Builder {
     ctor public ModifiersBuilders.Semantics.Builder();
     method public androidx.wear.protolayout.ModifiersBuilders.Semantics build();
     method public androidx.wear.protolayout.ModifiersBuilders.Semantics.Builder setContentDescription(String);
+    method public androidx.wear.protolayout.ModifiersBuilders.Semantics.Builder setContentDescription(androidx.wear.protolayout.TypeBuilders.StringProp);
+    method public androidx.wear.protolayout.ModifiersBuilders.Semantics.Builder setRole(int);
+    method public androidx.wear.protolayout.ModifiersBuilders.Semantics.Builder setStateDescription(androidx.wear.protolayout.TypeBuilders.StringProp);
   }
 
   public static final class ModifiersBuilders.SpanModifiers {
