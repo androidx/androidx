@@ -153,7 +153,7 @@ class NumberFormatter {
         Log.w(
                 TAG,
                 String.format(
-                        "%s (%d) is so large. Using the maximum allowed value instead: %d",
+                        "%s (%d) is too large. Using the maximum allowed value instead: %d",
                         paramName, oldValue, newValue));
     }
 
