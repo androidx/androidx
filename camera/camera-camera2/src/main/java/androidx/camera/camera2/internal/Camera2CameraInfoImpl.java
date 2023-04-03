@@ -493,7 +493,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     @NonNull
     @Override
-    public List<Range<Integer>> getSupportedFpsRanges() {
+    public List<Range<Integer>> getSupportedFrameRateRanges() {
         Range<Integer>[] availableTargetFpsRanges =
                 mCameraCharacteristicsCompat.get(
                         CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES);

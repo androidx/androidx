@@ -239,7 +239,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
     @NonNull
     @Override
-    public List<Range<Integer>> getSupportedFpsRanges() {
+    public List<Range<Integer>> getSupportedFrameRateRanges() {
         return FAKE_FPS_RANGES;
     }
 

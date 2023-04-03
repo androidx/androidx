@@ -69,15 +69,15 @@ public interface CameraInfoInternal extends CameraInfo {
     Quirks getCameraQuirks();
 
     /**
-     * Returns a list of the FPS ranges supported by this device's AE algorithm.
+     * Returns a list of the frame rate ranges supported by this device's AE algorithm.
      *
-     * <p>These are the FPS ranges that the AE algorithm on the device can support. There is no
-     * guarantee that these ranges will work for every size surface or combination of use cases.
+     * <p>These are the frame rate ranges that the AE algorithm on the device can support. There is
+     * no guarantee that these ranges will work for every size surface or combination of use cases.
      *
-     * @return The list of FPS ranges supported by the device's AE algorithm
+     * @return The list of frame rate ranges supported by the device's AE algorithm
      */
     @NonNull
-    List<Range<Integer>> getSupportedFpsRanges();
+    List<Range<Integer>> getSupportedFrameRateRanges();
 
     /** Returns the {@link EncoderProfilesProvider} associated with this camera. */
     @NonNull

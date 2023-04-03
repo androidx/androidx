@@ -534,7 +534,7 @@ final class SupportedSurfaceCombination {
         for (Integer index : useCasesPriorityOrder) {
             targetFramerateForConfig =
                     getUpdatedTargetFramerate(
-                            newUseCaseConfigs.get(index).getTargetFramerate(null),
+                            newUseCaseConfigs.get(index).getTargetFrameRate(null),
                             targetFramerateForConfig);
         }
 
