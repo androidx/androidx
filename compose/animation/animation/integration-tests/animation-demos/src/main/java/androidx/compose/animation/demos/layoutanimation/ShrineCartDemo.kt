@@ -25,7 +25,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.with
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -88,7 +88,7 @@ fun ShrineCartDemo() {
             cartOpenTransition.AnimatedContent(
                 transitionSpec = {
                     fadeIn(animationSpec = tween(150, delayMillis = 150))
-                        .with(fadeOut(animationSpec = tween(150)))
+                        .togetherWith(fadeOut(animationSpec = tween(150)))
                         .using(
                             SizeTransform { initialSize, targetSize ->
                                 if (CartState.Collapsed isTransitioningTo CartState.Expanded) {
