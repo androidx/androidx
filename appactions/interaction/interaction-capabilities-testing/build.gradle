@@ -28,17 +28,13 @@ dependencies {
     implementation(libs.kotlinStdlib)
     implementation("androidx.annotation:annotation:1.1.0")
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
-    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation(project(":appactions:interaction:interaction-capabilities-core"))
 }
 
 android {
     defaultConfig {
-        // TODO(b/266649259): Temporary bump to 33 to support capabilities-core.
+        // TODO(b/266649259): lower minSdk version to 19.
         minSdkVersion 26
-    }
-    lint {
-        disable("UnknownNullness")
     }
     namespace "androidx.appactions.interaction.capabilities.testing.internal"
 }
