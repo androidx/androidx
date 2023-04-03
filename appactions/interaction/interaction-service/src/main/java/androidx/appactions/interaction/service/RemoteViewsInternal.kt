@@ -24,7 +24,7 @@ import androidx.annotation.RestrictTo
 /**
  * Holder for RemoteViews UI response.
  *
- * @hide
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 data class RemoteViewsInternal(

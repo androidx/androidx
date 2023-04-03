@@ -22,7 +22,7 @@ import com.google.common.util.concurrent.ListenableFuture
 /**
  * Repeated version of [InventoryListener].
  *
- * @hide
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 interface InventoryListListener<T> : ValueListener<List<T>> {

@@ -8,7 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 // TODO(b/269525385): merge this into Futures utility class once it's migrated to Kotlin.
-/** @hide */
+/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun <T> convertToListenableFuture(
     tag: String,

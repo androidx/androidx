@@ -21,7 +21,7 @@ import androidx.annotation.RestrictTo
 /**
  * converts an external Session into TaskHandler instance.
  *
- * @hide
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun interface SessionBridge<
