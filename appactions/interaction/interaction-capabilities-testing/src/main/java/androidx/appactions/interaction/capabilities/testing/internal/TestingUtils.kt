@@ -19,6 +19,9 @@ package androidx.appactions.interaction.capabilities.testing.internal
 import androidx.appactions.interaction.capabilities.core.ActionExecutorAsync
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 
 object TestingUtils {
     // use this timeout for things that should take negligible time.
@@ -33,4 +36,12 @@ object TestingUtils {
             )
         }
     }
+
+    /** Blocks the current thread until the Deferred is completed, or times out. */
+    fun <T> Deferred<T>.awaitSync(timeoutMs: Long = CB_TIMEOUT): T =
+        runBlocking {
+            withTimeout(timeoutMs) {
+                this@awaitSync.await()
+            }
+        }
 }

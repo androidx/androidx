@@ -24,7 +24,7 @@ import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.values.SearchAction
 import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils
-import androidx.appactions.interaction.capabilities.testing.internal.SettableFutureWrapper
+import androidx.appactions.interaction.capabilities.testing.internal.TestingUtils.awaitSync
 import androidx.appactions.interaction.proto.CurrentValue
 import androidx.appactions.interaction.proto.DisambiguationData
 import androidx.appactions.interaction.proto.Entity
@@ -33,6 +33,7 @@ import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -182,14 +183,14 @@ class TaskSlotProcessorTest {
     @Test
     @Throws(Exception::class)
     fun processSlot_repeatedValue_accepted(): Unit = runBlocking {
-        val lastReceivedArgs = SettableFutureWrapper<List<String?>>()
+        val lastReceivedArgs = CompletableDeferred<List<String>>()
         val binding =
             TaskParamBinding(
                 "repeatedValue",
                 { false },
                 createValueListResolver(
                     ValidationResult.newAccepted(),
-                ) { lastReceivedArgs.set(it) },
+                ) { lastReceivedArgs.complete(it) },
                 TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                 null,
                 null,
@@ -219,7 +220,7 @@ class TaskSlotProcessorTest {
                     .setStatus(CurrentValue.Status.ACCEPTED)
                     .build(),
             )
-        assertThat(lastReceivedArgs.getFuture().get()).isEqualTo(
+        assertThat(lastReceivedArgs.awaitSync()).isEqualTo(
             listOf(
                 "testValue1",
                 "testValue2",
@@ -230,14 +231,14 @@ class TaskSlotProcessorTest {
     @Test
     @Throws(Exception::class)
     fun processSlot_repeatedValue_rejected(): Unit = runBlocking {
-        val lastReceivedArgs = SettableFutureWrapper<List<String>>()
+        val lastReceivedArgs = CompletableDeferred<List<String>>()
         val binding =
             TaskParamBinding(
                 "repeatedValue",
                 { false },
                 createValueListResolver(
                     ValidationResult.newRejected(),
-                ) { lastReceivedArgs.set(it) },
+                ) { lastReceivedArgs.complete(it) },
                 TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                 null,
                 null,
@@ -267,7 +268,7 @@ class TaskSlotProcessorTest {
                     .setStatus(CurrentValue.Status.REJECTED)
                     .build(),
             )
-        assertThat(lastReceivedArgs.getFuture().get()).isEqualTo(
+        assertThat(lastReceivedArgs.awaitSync()).isEqualTo(
             listOf(
                 "testValue1",
                 "testValue2",
@@ -279,17 +280,17 @@ class TaskSlotProcessorTest {
     @Throws(Exception::class)
     fun listValues_oneAccepted_oneAssistantDisambig_invokesRendererAndOnReceived(): Unit =
         runBlocking {
-            val onReceivedCb = SettableFutureWrapper<String>()
-            val renderCb = SettableFutureWrapper<List<String?>>()
+            val onReceivedDeferred = CompletableDeferred<String>()
+            val renderDeferred = CompletableDeferred<List<String>>()
             val binding =
                 TaskParamBinding(
                     "assistantDrivenSlot",
                     { !it.hasIdentifier() },
                     createAssistantDisambigResolver(
                         ValidationResult.newAccepted(),
-                        { onReceivedCb.set(it) },
+                        { onReceivedDeferred.complete(it) },
                     ) {
-                        renderCb.set(it)
+                        renderDeferred.complete(it)
                     },
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                     null,
@@ -327,8 +328,8 @@ class TaskSlotProcessorTest {
             val (isSuccessful, processedValues) =
                 TaskSlotProcessor.processSlot("assistantDrivenSlot", values, taskParamMap)
             assertThat(isSuccessful).isFalse()
-            assertThat(onReceivedCb.getFuture().get()).isEqualTo("id")
-            assertThat(renderCb.getFuture().get()).isEqualTo(listOf("entity-1", "entity-2"))
+            assertThat(onReceivedDeferred.awaitSync()).isEqualTo("id")
+            assertThat(renderDeferred.awaitSync()).isEqualTo(listOf("entity-1", "entity-2"))
             assertThat(processedValues)
                 .containsExactly(
                     previouslyAccepted,
@@ -346,16 +347,16 @@ class TaskSlotProcessorTest {
     @Test
     @Throws(Exception::class)
     fun singularValue_appDisambigRejected_onReceivedNotCalled(): Unit = runBlocking {
-        val onReceivedCb = SettableFutureWrapper<String>()
-        val appSearchCb = SettableFutureWrapper<SearchAction<String>>()
+        val onReceivedDeferred = CompletableDeferred<String>()
+        val appSearchDeferred = CompletableDeferred<SearchAction<String>>()
         val entitySearchResult = EntitySearchResult.Builder<String>().build()
         val resolver =
             createAppEntityListener(
                 ValidationResult.newAccepted(),
-                { result: String -> onReceivedCb.set(result) },
+                { result: String -> onReceivedDeferred.complete(result) },
                 entitySearchResult,
             ) { result: SearchAction<String> ->
-                appSearchCb.set(result)
+                appSearchDeferred.complete(result)
             }
         val binding =
             TaskParamBinding(
@@ -380,9 +381,9 @@ class TaskSlotProcessorTest {
             TaskSlotProcessor.processSlot("appDrivenSlot", values, taskParamMap)
         assertThat(isSuccessful).isFalse()
 
-        assertThat(onReceivedCb.getFuture().isDone).isFalse()
-        assertThat(appSearchCb.getFuture().isDone).isTrue()
-        assertThat(appSearchCb.getFuture().get())
+        assertThat(onReceivedDeferred.isCompleted).isFalse()
+        assertThat(appSearchDeferred.isCompleted).isTrue()
+        assertThat(appSearchDeferred.awaitSync())
             .isEqualTo(SearchAction.newBuilder<String>().setQuery("A").setObject("nested").build())
         assertThat(processedValues)
             .containsExactly(
