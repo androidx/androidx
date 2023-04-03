@@ -22,6 +22,7 @@ else
       -Pandroidx.enableComposeCompilerMetrics=true \
       -Pandroidx.enableComposeCompilerReports=true \
       -Pandroidx.constraints=true \
+      -Pandroidx.enabled.kmp.target.platforms=-desktop \
       --no-daemon \
       --profile "$@"; then
     EXIT_VALUE=1

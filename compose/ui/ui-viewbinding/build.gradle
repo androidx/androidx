@@ -39,8 +39,6 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
-
-    samples(project(":compose:ui:ui-viewbinding:ui-viewbinding-samples"))
 }
 
 androidx {

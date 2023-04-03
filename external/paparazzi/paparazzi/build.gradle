@@ -1,6 +1,7 @@
 import androidx.build.LibraryType
 import org.gradle.api.artifacts.transform.TransformParameters.None
 import java.util.zip.ZipInputStream
+import org.gradle.api.attributes.java.TargetJvmEnvironment
 
 plugins {
     id("AndroidXPlugin")
