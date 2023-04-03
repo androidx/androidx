@@ -21,6 +21,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import androidx.annotation.OptIn
+import androidx.annotation.RequiresApi
 import androidx.core.os.BuildCompat
 
 /**
@@ -52,6 +53,11 @@ class CredentialProviderFactory {
             } else {
                 return null
             }
+        }
+
+        @RequiresApi(34)
+        fun getUAndAboveProvider(context: Context): CredentialProvider {
+            return CredentialProviderFrameworkImpl(context)
         }
 
         private fun tryCreatePreUOemProvider(context: Context): CredentialProvider? {

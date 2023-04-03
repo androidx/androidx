@@ -371,7 +371,9 @@ class CredentialManager private constructor(private val context: Context) {
         executor: Executor,
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>,
     ) {
-        TODO("b/274976698 : Implement")
+        val provider = CredentialProviderFactory.getUAndAboveProvider(context)
+        provider.onGetCredential(
+            context, pendingGetCredentialHandle, cancellationSignal, executor, callback)
     }
 
     /**
@@ -398,7 +400,8 @@ class CredentialManager private constructor(private val context: Context) {
         executor: Executor,
         callback: CredentialManagerCallback<PrepareGetCredentialResponse, GetCredentialException>,
     ) {
-        TODO("b/274976698: Implement")
+        val provider = CredentialProviderFactory.getUAndAboveProvider(context)
+        provider.onPrepareCredential(request, cancellationSignal, executor, callback)
     }
 
     /**
