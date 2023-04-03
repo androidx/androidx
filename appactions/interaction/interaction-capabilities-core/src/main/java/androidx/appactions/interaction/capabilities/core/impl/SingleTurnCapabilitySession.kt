@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 /**
  * CapabilitySession implementation for executing single-turn fulfillment requests.
  *
- * @hide
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class SingleTurnCapabilitySession<

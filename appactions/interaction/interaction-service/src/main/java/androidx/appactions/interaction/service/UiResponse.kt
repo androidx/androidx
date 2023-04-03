@@ -30,11 +30,11 @@ import androidx.wear.tiles.ResourceBuilders
  * directly, it must be built from a [UiResponse] Builder.
  */
 class UiResponse {
-    /** @hide */
+    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     val remoteViewsInternal: RemoteViewsInternal?
 
-    /** @hide */
+    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     val tileLayoutInternal: TileLayoutInternal?
 
