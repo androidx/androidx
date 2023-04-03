@@ -23,6 +23,7 @@ import android.view.View
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.compose.runtime.CompositionContext
+import androidx.compose.runtime.CompositionLocalMap
 import androidx.compose.runtime.ReusableComposeNode
 import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.Updater
@@ -35,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.materialize
+import androidx.compose.ui.node.ComposeUiNode
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.UiApplier
 import androidx.compose.ui.platform.LocalContext
@@ -205,6 +207,7 @@ fun <T : View> AndroidView(
     val materializedModifier = currentComposer.materialize(modifier)
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
+    val compositionLocalMap = currentComposer.currentCompositionLocalMap
 
     // These locals are initialized from the view tree at the AndroidComposeView hosting this
     // composition, but they need to be passed to this Android View so that the ViewTree*Owner
@@ -222,7 +225,8 @@ fun <T : View> AndroidView(
                     density = density,
                     lifecycleOwner = lifecycleOwner,
                     savedStateRegistryOwner = savedStateRegistryOwner,
-                    layoutDirection = layoutDirection
+                    layoutDirection = layoutDirection,
+                    compositionLocalMap = compositionLocalMap
                 )
                 set(onReset) { requireViewFactoryHolder<T>().resetBlock = it }
                 set(update) { requireViewFactoryHolder<T>().updateBlock = it }
@@ -238,7 +242,8 @@ fun <T : View> AndroidView(
                     density = density,
                     lifecycleOwner = lifecycleOwner,
                     savedStateRegistryOwner = savedStateRegistryOwner,
-                    layoutDirection = layoutDirection
+                    layoutDirection = layoutDirection,
+                    compositionLocalMap = compositionLocalMap
                 )
                 set(update) { requireViewFactoryHolder<T>().updateBlock = it }
                 set(onRelease) { requireViewFactoryHolder<T>().releaseBlock = it }
@@ -273,7 +278,9 @@ private fun <T : View> Updater<LayoutNode>.updateViewHolderParams(
     lifecycleOwner: LifecycleOwner,
     savedStateRegistryOwner: SavedStateRegistryOwner,
     layoutDirection: LayoutDirection,
+    compositionLocalMap: CompositionLocalMap
 ) {
+    set(compositionLocalMap, ComposeUiNode.SetResolvedCompositionLocals)
     set(modifier) { requireViewFactoryHolder<T>().modifier = it }
     set(density) { requireViewFactoryHolder<T>().density = it }
     set(lifecycleOwner) { requireViewFactoryHolder<T>().lifecycleOwner = it }

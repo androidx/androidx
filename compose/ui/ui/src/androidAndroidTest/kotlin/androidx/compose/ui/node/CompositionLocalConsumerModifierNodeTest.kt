@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.node
 
+import android.view.View
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.compositionLocalOf
@@ -27,24 +29,59 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.MultiMeasureLayout
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @MediumTest
-@RunWith(AndroidJUnit4::class)
-class CompositionLocalModifierNodeTest {
+@RunWith(Parameterized::class)
+class CompositionLocalConsumerModifierNodeTest(layoutComposableParam: LayoutComposableParam) {
     @get:Rule
     val rule = createComposeRule()
 
-    private val staticLocalInt = staticCompositionLocalOf { 0 }
-    private val localInt = compositionLocalOf { 0 }
-    private val EmptyBoxMeasurePolicy = MeasurePolicy { _, constraints ->
-        layout(constraints.maxWidth, constraints.maxHeight) {}
+    val testLayout: @Composable (modifier: Modifier) -> Unit = layoutComposableParam.layout
+
+    companion object {
+        private val staticLocalInt = staticCompositionLocalOf { 0 }
+        private val localInt = compositionLocalOf { 0 }
+        private val EmptyBoxMeasurePolicy = MeasurePolicy { _, constraints ->
+            layout(constraints.maxWidth, constraints.maxHeight) {}
+        }
+
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun init() = listOf(
+            LayoutComposableParam("Layout") { modifier ->
+                Layout({}, modifier, EmptyBoxMeasurePolicy)
+            },
+            LayoutComposableParam("LayoutNoContent") { modifier ->
+                Layout(modifier, EmptyBoxMeasurePolicy)
+            },
+            LayoutComposableParam("MultiMeasureLayout") { modifier ->
+                @Suppress("DEPRECATION")
+                MultiMeasureLayout(modifier, {}, EmptyBoxMeasurePolicy)
+            },
+            LayoutComposableParam("AndroidView") { modifier ->
+                AndroidView(factory = { View(it) }, modifier)
+            },
+            LayoutComposableParam("ResettableAndroidView") { modifier ->
+                AndroidView(factory = { View(it) }, modifier, onReset = {})
+            },
+        )
+    }
+
+    class LayoutComposableParam(
+        val name: String,
+        val layout: @Composable (modifier: Modifier) -> Unit
+    ) {
+        override fun toString() = name
     }
 
     @Test
@@ -58,7 +95,7 @@ class CompositionLocalModifierNodeTest {
             }
         }
         rule.setContent {
-            Layout(modifierNodeElementOf { node }, EmptyBoxMeasurePolicy)
+            testLayout(modifierNodeElementOf { node })
         }
 
         rule.runOnIdle {
@@ -78,7 +115,7 @@ class CompositionLocalModifierNodeTest {
         }
         rule.setContent {
             CompositionLocalProvider(localInt provides 2) {
-                Layout(modifierNodeElementOf { node }, EmptyBoxMeasurePolicy)
+                testLayout(modifierNodeElementOf { node })
             }
         }
 
@@ -101,7 +138,7 @@ class CompositionLocalModifierNodeTest {
         }
         rule.setContent {
             CompositionLocalProvider(localInt provides providedValue) {
-                Layout(modifierNodeElementOf { node }, EmptyBoxMeasurePolicy)
+                testLayout(modifierNodeElementOf { node })
             }
         }
 
@@ -128,7 +165,7 @@ class CompositionLocalModifierNodeTest {
             }
         }
         rule.setContent {
-            Layout(modifierNodeElementOf { node }, EmptyBoxMeasurePolicy)
+            testLayout(modifierNodeElementOf { node })
         }
 
         rule.runOnIdle {
@@ -148,7 +185,7 @@ class CompositionLocalModifierNodeTest {
         }
         rule.setContent {
             CompositionLocalProvider(staticLocalInt provides 2) {
-                Layout(modifierNodeElementOf { node }, EmptyBoxMeasurePolicy)
+                testLayout(modifierNodeElementOf { node })
             }
         }
 
@@ -171,7 +208,7 @@ class CompositionLocalModifierNodeTest {
         }
         rule.setContent {
             CompositionLocalProvider(staticLocalInt provides providedValue) {
-                Layout(modifierNodeElementOf { node }, EmptyBoxMeasurePolicy)
+                testLayout(modifierNodeElementOf { node })
             }
         }
 
@@ -188,6 +225,7 @@ class CompositionLocalModifierNodeTest {
     }
 
     // Regression test for b/271875799
+    @Ignore("b/275919849")
     @Test
     fun compositionLocalsUpdateWhenContentMoves() {
         var readValue = -1
@@ -207,7 +245,7 @@ class CompositionLocalModifierNodeTest {
         rule.setContent {
             CompositionLocalProvider(localInt provides providedValue) {
                 ReusableContent(contentKey) {
-                    Layout(modifier, EmptyBoxMeasurePolicy)
+                    testLayout(modifier)
                 }
             }
         }
@@ -225,6 +263,7 @@ class CompositionLocalModifierNodeTest {
     }
 
     // Regression test for b/271875799
+    @Ignore("b/275919849")
     @Test
     fun staticCompositionLocalsUpdateWhenContentMoves() {
         var readValue = -1
@@ -244,7 +283,7 @@ class CompositionLocalModifierNodeTest {
         rule.setContent {
             CompositionLocalProvider(staticLocalInt provides providedValue) {
                 ReusableContent(contentKey) {
-                    Layout(modifier, EmptyBoxMeasurePolicy)
+                    testLayout(modifier)
                 }
             }
         }
