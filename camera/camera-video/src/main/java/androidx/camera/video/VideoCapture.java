@@ -255,18 +255,19 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     }
 
     /**
-     * Returns the target frame rate range for the associated VideoCapture use case.
+     * Returns the target frame rate range, in frames per second, for the associated VideoCapture
+     * use case.
      *
-     * <p>The rotation can be set prior to constructing a VideoCapture using
-     * {@link VideoCapture.Builder#setTargetFramerate(Range)}
+     * <p>The target frame rate can be set prior to constructing a VideoCapture using
+     * {@link VideoCapture.Builder#setTargetFrameRate(Range)}
      * If not set, the target frame rate defaults to the value of
      * {@link StreamSpec#FRAME_RATE_RANGE_UNSPECIFIED}
      *
-     * @return The rotation of the intended target.
+     * @return The target frame rate of the intended target.
      */
     @NonNull
-    public Range<Integer> getTargetFramerate() {
-        return getTargetFramerateInternal();
+    public Range<Integer> getTargetFrameRate() {
+        return getTargetFrameRateInternal();
     }
 
     /**
@@ -572,7 +573,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         //  than what is requested in the config. For now we use the default range of (30, 30)
         //  for behavioral consistency.
         Range<Integer> targetFpsRange = requireNonNull(
-                config.getTargetFramerate(Defaults.DEFAULT_FPS_RANGE));
+                config.getTargetFrameRate(Defaults.DEFAULT_FPS_RANGE));
         MediaSpec mediaSpec = requireNonNull(getMediaSpec());
         LegacyVideoCapabilities videoCapabilities = LegacyVideoCapabilities.from(
                 camera.getCameraInfo());
@@ -1637,7 +1638,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         }
 
         /**
-         * Sets the target frame rate range for the associated VideoCapture use case.
+         * Sets the target frame rate range in frames per second for the associated VideoCapture
+         * use case.
          *
          * <p>This target will be used as a part of the heuristics for the algorithm that determines
          * the final frame rate range and resolution of all concurrently bound use cases.
@@ -1648,7 +1650,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
          * @param targetFrameRate the target frame rate range.
          */
         @NonNull
-        public Builder<T> setTargetFramerate(@NonNull Range<Integer> targetFrameRate) {
+        public Builder<T> setTargetFrameRate(@NonNull Range<Integer> targetFrameRate) {
             getMutableConfig().insertOption(OPTION_TARGET_FRAME_RATE, targetFrameRate);
             return this;
         }

@@ -69,7 +69,7 @@ class CameraInfoAdapterTest {
     @Test
     fun getSupportedFpsRanges() {
         // Act.
-        val ranges: List<Range<Int>> = cameraInfoAdapter.supportedFpsRanges
+        val ranges: List<Range<Int>> = cameraInfoAdapter.supportedFrameRateRanges
 
         // Assert.
         assertThat(ranges).containsExactly(

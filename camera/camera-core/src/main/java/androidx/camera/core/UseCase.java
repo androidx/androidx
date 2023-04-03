@@ -361,8 +361,8 @@ public abstract class UseCase {
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected Range<Integer> getTargetFramerateInternal() {
-        return mCurrentConfig.getTargetFramerate(FRAME_RATE_RANGE_UNSPECIFIED);
+    protected Range<Integer> getTargetFrameRateInternal() {
+        return mCurrentConfig.getTargetFrameRate(FRAME_RATE_RANGE_UNSPECIFIED);
     }
 
     /**
