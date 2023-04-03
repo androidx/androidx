@@ -28,7 +28,8 @@ import kotlinx.coroutines.launch
  *
  * The [Flow] of list represents the data source, with each static list representing a generation
  * of data from which a [PagingSource] will load from. With every emission, the current
- * [PagingSource] will be invalidated, thereby triggering a new generation of Paged data.
+ * [PagingSource] will be invalidated, thereby triggering a new generation of Paged data. The
+ * same factory should be reused within the lifetime of a ViewModel.
  *
  * Supports multiple factories and thus multiple collection on the same flow.
  *
