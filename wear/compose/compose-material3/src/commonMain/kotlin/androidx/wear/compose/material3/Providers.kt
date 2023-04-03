@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.material
+package androidx.wear.compose.material3
 
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable

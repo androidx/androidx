@@ -28,14 +28,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ProvidedValue
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.painter.ColorPainter
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -60,12 +63,12 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
-public class ButtonTest {
+class ButtonTest {
     @get:Rule
-    public val rule = createComposeRule()
+    val rule = createComposeRule()
 
     @Test
-    public fun supports_testtag_on_button() {
+    fun supports_testtag_on_button() {
         rule.setContent {
             ButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
@@ -77,7 +80,7 @@ public class ButtonTest {
     }
 
     @Test
-    public fun has_clickaction_when_enabled() {
+    fun has_clickaction_when_enabled() {
         rule.setContent {
             ButtonWithDefaults(
                 enabled = true,
@@ -90,7 +93,7 @@ public class ButtonTest {
     }
 
     @Test
-    public fun has_clickaction_when_disabled() {
+    fun has_clickaction_when_disabled() {
         rule.setContent {
             ButtonWithDefaults(
                 enabled = false,
@@ -103,7 +106,7 @@ public class ButtonTest {
     }
 
     @Test
-    public fun is_correctly_enabled() {
+    fun is_correctly_enabled() {
         rule.setContent {
             ButtonWithDefaults(
                 enabled = true,
@@ -116,7 +119,7 @@ public class ButtonTest {
     }
 
     @Test
-    public fun is_correctly_disabled() {
+    fun is_correctly_disabled() {
         rule.setContent {
             ButtonWithDefaults(
                 enabled = false,
@@ -129,7 +132,7 @@ public class ButtonTest {
     }
 
     @Test
-    public fun button_responds_to_click_when_enabled() {
+    fun button_responds_to_click_when_enabled() {
         var clicked = false
 
         rule.setContent {
@@ -149,7 +152,7 @@ public class ButtonTest {
     }
 
     @Test
-    public fun button_does_not_respond_to_click_when_disabled() {
+    fun button_does_not_respond_to_click_when_disabled() {
         var clicked = false
 
         rule.setContent {
@@ -169,7 +172,7 @@ public class ButtonTest {
     }
 
     @Test
-    public fun has_role_button_for_button() {
+    fun has_role_button_for_button() {
         rule.setContent {
             ButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG)
@@ -187,7 +190,7 @@ public class ButtonTest {
     }
 
     @Test
-    public fun supports_circleshape_under_ltr_for_button() =
+    fun supports_circleshape_under_ltr_for_button() =
         rule.isShape(CircleShape, LayoutDirection.Ltr) {
             ButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
@@ -196,7 +199,7 @@ public class ButtonTest {
         }
 
     @Test
-    public fun supports_circleshape_under_rtl_for_button() =
+    fun supports_circleshape_under_rtl_for_button() =
         rule.isShape(CircleShape, LayoutDirection.Rtl) {
             ButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
@@ -205,17 +208,19 @@ public class ButtonTest {
         }
 
     @Test
-    public fun extra_small_button_meets_accessibility_tapsize() {
+    fun extra_small_button_meets_accessibility_tapsize() {
         verifyTapSize(48.dp) {
             ButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG).size(32.dp)
+                modifier = Modifier
+                    .testTag(TEST_TAG)
+                    .size(32.dp)
             ) {
             }
         }
     }
 
     @Test
-    public fun extra_small_button_has_correct_visible_size() {
+    fun extra_small_button_has_correct_visible_size() {
         verifyVisibleSize(32.dp) {
             ButtonWithDefaults(
                 modifier = Modifier
@@ -227,29 +232,32 @@ public class ButtonTest {
     }
 
     @Test
-    public fun default_button_has_correct_tapsize() {
+    fun default_button_has_correct_tapsize() {
         // Tap size for Button should be the min button size.
         verifyTapSize(52.dp) {
             ButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG).size(52.dp)
+                modifier = Modifier
+                    .testTag(TEST_TAG)
             ) {
             }
         }
     }
 
     @Test
-    public fun default_button_has_correct_visible_size() {
+    fun default_button_has_correct_visible_size() {
         // Tap size for Button should be the min button size.
         verifyVisibleSize(52.dp) {
             ButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG).size(52.dp)
+                modifier = Modifier
+                    .testTag(TEST_TAG)
+                    .size(52.dp)
             ) {
             }
         }
     }
 
     @Test
-    public fun allows_custom_button_shape_override() {
+    fun allows_custom_button_shape_override() {
         val shape = CutCornerShape(4.dp)
 
         rule.isShape(shape, LayoutDirection.Ltr) {
@@ -263,24 +271,28 @@ public class ButtonTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    public fun gives_enabled_button_correct_colors() =
+    fun gives_enabled_button_correct_colors() =
         verifyButtonColors(
-            Status.Enabled,
-            { enabled -> remember { mutableStateOf(if (enabled) Color.Green else Color.Red) } },
-            { enabled -> remember { mutableStateOf(if (enabled) Color.Blue else Color.Yellow) } },
-            Color.Green,
-            Color.Blue
+            status = Status.Enabled,
+            enabledBackgroundColor = Color.Green,
+            disabledBackgroundColor = Color.Red,
+            enabledBorderColor = Color.Blue,
+            disabledBorderColor = Color.Yellow,
+            expectedBackgroundColor = Color.Green,
+            expectedBorderColor = Color.Blue
         )
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    public fun gives_disabled_button_correct_colors() =
+    fun gives_disabled_button_correct_colors() =
         verifyButtonColors(
-            Status.Disabled,
-            { enabled -> remember { mutableStateOf(if (enabled) Color.Green else Color.Red) } },
-            { enabled -> remember { mutableStateOf(if (enabled) Color.Blue else Color.Yellow) } },
-            Color.Red,
-            Color.Yellow,
+            status = Status.Disabled,
+            enabledBackgroundColor = Color.Green,
+            disabledBackgroundColor = Color.Red,
+            enabledBorderColor = Color.Blue,
+            disabledBorderColor = Color.Yellow,
+            expectedBackgroundColor = Color.Red,
+            expectedBorderColor = Color.Yellow,
         )
 
     @Test
@@ -291,11 +303,12 @@ public class ButtonTest {
             Box(modifier = Modifier.fillMaxSize()) {
                 ButtonWithDefaults(
                     content = {
-                        data = LocalContentTestData.current
-                    },
-                    contentProviderValues = arrayOf(
-                        LocalContentTestData provides EXPECTED_LOCAL_TEST_DATA
-                    )
+                        CompositionLocalProvider(
+                            LocalContentTestData provides EXPECTED_LOCAL_TEST_DATA
+                        ) {
+                            data = LocalContentTestData.current
+                        }
+                    }
                 )
             }
         }
@@ -306,8 +319,10 @@ public class ButtonTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     internal fun verifyButtonColors(
         status: Status,
-        backgroundColor: @Composable (Boolean) -> State<Color>,
-        borderColor: @Composable (Boolean) -> State<Color>,
+        enabledBackgroundColor: Color,
+        disabledBackgroundColor: Color,
+        enabledBorderColor: Color,
+        disabledBorderColor: Color,
         expectedBackgroundColor: Color,
         expectedBorderColor: Color,
         backgroundThreshold: Float = 50.0f,
@@ -327,11 +342,22 @@ public class ButtonTest {
                     .fillMaxSize()
                     .background(testBackground)
             ) {
-                val actualBorderColor = borderColor(status.enabled()).value
-                val border = remember { mutableStateOf(BorderStroke(2.dp, actualBorderColor)) }
                 ButtonWithDefaults(
-                    backgroundColor = backgroundColor,
-                    border = { return@ButtonWithDefaults border },
+                    background = { enabled ->
+                        rememberUpdatedState(
+                            ColorPainter(
+                                if (enabled) enabledBackgroundColor else disabledBackgroundColor
+                            )
+                        )
+                    },
+                    border = { enabled ->
+                        return@ButtonWithDefaults rememberUpdatedState(
+                            BorderStroke(
+                                2.dp,
+                                if (enabled) enabledBorderColor else disabledBorderColor
+                            )
+                        )
+                    },
                     enabled = status.enabled(),
                     modifier = Modifier.testTag(TEST_TAG)
                 ) {
@@ -378,24 +404,22 @@ public class ButtonTest {
         modifier: Modifier = Modifier,
         onClick: () -> Unit = {},
         enabled: Boolean = true,
-        backgroundColor: @Composable (enabled: Boolean) -> State<Color> = {
-            remember { mutableStateOf(DEFAULT_SHAPE_COLOR) }
+        background: @Composable (enabled: Boolean) -> State<Painter> = {
+            remember { mutableStateOf(ColorPainter(DEFAULT_SHAPE_COLOR)) }
         },
         interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
         shape: Shape = CircleShape,
         border: @Composable (enabled: Boolean) -> State<BorderStroke?>? = { null },
-        contentProviderValues: Array<ProvidedValue<*>> = arrayOf(),
         content: @Composable BoxScope.() -> Unit
     ) = Button(
         onClick = onClick,
         modifier = modifier,
         enabled = enabled,
-        backgroundColor = backgroundColor,
+        background = background,
         interactionSource = interactionSource,
         shape = shape,
         border = border,
-        minButtonSize = 52.dp,
-        contentProviderValues = contentProviderValues,
+        buttonSize = 52.dp,
         content = content
     )
 }
