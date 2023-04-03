@@ -33,8 +33,8 @@ import androidx.window.extensions.area.ExtensionWindowAreaStatus
 import androidx.window.extensions.area.WindowAreaComponent
 import androidx.window.extensions.area.WindowAreaComponent.SESSION_STATE_ACTIVE
 import androidx.window.extensions.area.WindowAreaComponent.SESSION_STATE_INACTIVE
-import androidx.window.extensions.area.WindowAreaComponent.SESSION_STATE_INVISIBLE
-import androidx.window.extensions.area.WindowAreaComponent.SESSION_STATE_VISIBLE
+import androidx.window.extensions.area.WindowAreaComponent.SESSION_STATE_CONTENT_INVISIBLE
+import androidx.window.extensions.area.WindowAreaComponent.SESSION_STATE_CONTENT_VISIBLE
 import androidx.window.extensions.area.WindowAreaComponent.WindowAreaSessionState
 import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.layout.WindowMetrics
@@ -331,10 +331,10 @@ internal class WindowAreaControllerImpl(
                         )
                     )
 
-                    SESSION_STATE_VISIBLE ->
+                    SESSION_STATE_CONTENT_VISIBLE ->
                         windowAreaPresentationSessionCallback.onContainerVisibilityChanged(true)
 
-                    SESSION_STATE_INVISIBLE ->
+                    SESSION_STATE_CONTENT_INVISIBLE ->
                         windowAreaPresentationSessionCallback.onContainerVisibilityChanged(false)
 
                     SESSION_STATE_INACTIVE ->

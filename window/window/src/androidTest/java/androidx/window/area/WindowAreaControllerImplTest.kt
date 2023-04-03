@@ -420,7 +420,7 @@ class WindowAreaControllerImplTest {
 
         override fun endRearDisplayPresentationSession() {
             rearDisplayPresentationSessionConsumer?.accept(
-                WindowAreaComponent.SESSION_STATE_INVISIBLE)
+                WindowAreaComponent.SESSION_STATE_CONTENT_INVISIBLE)
             rearDisplayPresentationSessionConsumer?.accept(
                 WindowAreaComponent.SESSION_STATE_INACTIVE)
         }
@@ -505,7 +505,7 @@ class WindowAreaControllerImplTest {
         }
 
         override fun setPresentationView(view: View) {
-            sessionConsumer.accept(WindowAreaComponent.SESSION_STATE_VISIBLE)
+            sessionConsumer.accept(WindowAreaComponent.SESSION_STATE_CONTENT_VISIBLE)
         }
     }
 
