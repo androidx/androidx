@@ -211,11 +211,10 @@ private class AlignmentLineOffsetDpElement(
         )
     }
 
-    override fun update(node: AlignmentLineOffsetDpNode): AlignmentLineOffsetDpNode {
+    override fun update(node: AlignmentLineOffsetDpNode) {
         node.alignmentLine = alignmentLine
         node.before = before
         node.after = after
-        return node
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -287,11 +286,10 @@ private class AlignmentLineOffsetTextUnitElement(
         return inspectorInfo()
     }
 
-    override fun update(node: AlignmentLineOffsetTextUnitNode): AlignmentLineOffsetTextUnitNode {
+    override fun update(node: AlignmentLineOffsetTextUnitNode) {
         node.alignmentLine = alignmentLine
         node.before = before
         node.after = after
-        return node
     }
 }
 

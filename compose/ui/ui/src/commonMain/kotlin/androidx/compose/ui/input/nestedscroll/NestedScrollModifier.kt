@@ -342,10 +342,9 @@ private class NestedScrollElement(
         return NestedScrollNode(connection, dispatcher)
     }
 
-    override fun update(node: NestedScrollNode): NestedScrollNode {
+    override fun update(node: NestedScrollNode) {
         node.connection = connection
         node.updateDispatcher(dispatcher)
-        return node
     }
 
     override fun hashCode(): Int {

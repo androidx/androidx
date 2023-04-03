@@ -219,8 +219,8 @@ internal class DraggableElement(
         reverseDirection
     )
 
-    override fun update(node: DraggableNode): DraggableNode = node.also {
-        it.update(
+    override fun update(node: DraggableNode) {
+        node.update(
             state,
             canDrag,
             orientation,

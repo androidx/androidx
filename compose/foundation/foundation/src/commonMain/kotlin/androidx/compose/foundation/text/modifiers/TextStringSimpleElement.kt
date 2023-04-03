@@ -49,7 +49,7 @@ internal class TextStringSimpleElement(
         minLines
     )
 
-    override fun update(node: TextStringSimpleNode): TextStringSimpleNode {
+    override fun update(node: TextStringSimpleNode) {
         node.doInvalidations(
             textChanged = node.updateText(
                 text = text
@@ -63,7 +63,6 @@ internal class TextStringSimpleElement(
                 overflow = overflow
             )
         )
-        return node
     }
 
     override fun equals(other: Any?): Boolean {

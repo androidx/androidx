@@ -200,8 +200,8 @@ class CombinedFocusModifierNodeTest(private val delegatedFocusTarget: Boolean) {
         val combinedFocusNode: CombinedFocusNode
     ) : ModifierNodeElement<CombinedFocusNode>() {
         override fun create(): CombinedFocusNode = combinedFocusNode
-        override fun update(node: CombinedFocusNode) = node.apply {
-            focusState = combinedFocusNode.focusState
+        override fun update(node: CombinedFocusNode) {
+            node.focusState = combinedFocusNode.focusState
         }
     }
 
