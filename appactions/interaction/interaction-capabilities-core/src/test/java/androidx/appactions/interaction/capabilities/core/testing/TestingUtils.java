@@ -23,7 +23,7 @@ import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal;
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal;
 import androidx.appactions.interaction.capabilities.core.impl.TouchEventCallback;
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures;
-import androidx.appactions.interaction.capabilities.core.testing.spec.SettableFutureWrapper;
+import androidx.appactions.interaction.capabilities.testing.internal.SettableFutureWrapper;
 import androidx.appactions.interaction.proto.FulfillmentResponse;
 import androidx.appactions.interaction.proto.TouchEventMetadata;
 
@@ -34,59 +34,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public final class TestingUtils {
 
-    public static final long CB_TIMEOUT = 1000L;
-
-    private TestingUtils() {}
-
-    public static CallbackInternal buildActionCallback(SettableFutureWrapper<Boolean> future) {
-        return new CallbackInternal() {
-            @Override
-            public void onSuccess(FulfillmentResponse response) {
-                future.set(true);
-            }
-
-            @Override
-            public void onError(ErrorStatusInternal error) {
-                future.set(false);
-            }
-        };
-    }
-
-    public static CallbackInternal buildActionCallbackWithFulfillmentResponse(
-            SettableFutureWrapper<FulfillmentResponse> future) {
-        return new CallbackInternal() {
-            @Override
-            public void onSuccess(FulfillmentResponse response) {
-                future.set(response);
-            }
-
-            @Override
-            public void onError(ErrorStatusInternal error) {
-                future.setException(
-                        new IllegalStateException(
-                                String.format(
-                                        "expected FulfillmentResponse, but got ErrorStatus=%s "
-                                                + "instead",
-                                        error)));
-            }
-        };
-    }
-
-    public static CallbackInternal buildErrorActionCallback(
-            SettableFutureWrapper<ErrorStatusInternal> future) {
-        return new CallbackInternal() {
-            @Override
-            public void onSuccess(FulfillmentResponse response) {
-                future.setException(
-                        new IllegalStateException(
-                                "expected ErrorStatus, but got FulfillmentResponse instead"));
-            }
-
-            @Override
-            public void onError(ErrorStatusInternal error) {
-                future.set(error);
-            }
-        };
+    private TestingUtils() {
     }
 
     public static TouchEventCallback buildTouchEventCallback(
@@ -100,7 +48,8 @@ public final class TestingUtils {
             }
 
             @Override
-            public void onError(@NonNull ErrorStatusInternal errorStatus) {}
+            public void onError(@NonNull ErrorStatusInternal errorStatus) {
+            }
         };
     }
 
@@ -161,10 +110,5 @@ public final class TestingUtils {
         public TouchEventResult getLastResult() {
             return mResultRef.get();
         }
-    }
-
-    public static <ArgumentT, OutputT>
-            ActionExecutorAsync<ArgumentT, OutputT> createFakeActionExecutor() {
-        return args -> Futures.immediateFuture(ExecutionResult.<OutputT>getDefaultInstance());
     }
 }
