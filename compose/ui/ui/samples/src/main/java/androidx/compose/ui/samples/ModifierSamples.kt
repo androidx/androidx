@@ -19,6 +19,7 @@
 package androidx.compose.ui.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -54,6 +55,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 
 @Sampled
 @Composable
@@ -382,5 +384,19 @@ fun ModifierNodeResetSample() {
         }
 
         // some logic which sets `selected` to true when it is selected
+    }
+}
+
+@Sampled
+@Composable
+fun ModifierNodeCoroutineScopeSample() {
+    class AnimatedNode : Modifier.Node() {
+        val animatable = Animatable(0f)
+
+        override fun onAttach() {
+            coroutineScope.launch {
+                animatable.animateTo(1f)
+            }
+        }
     }
 }
