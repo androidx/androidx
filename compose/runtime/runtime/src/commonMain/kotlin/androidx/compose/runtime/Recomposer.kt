@@ -212,6 +212,7 @@ class Recomposer(
     private var concurrentCompositionsOutstanding = 0
     private var isClosed: Boolean = false
     private var errorState: RecomposerErrorState? = null
+    private var frameClockPaused: Boolean = false
     // End properties guarded by stateLock
 
     private val _state = MutableStateFlow(State.Inactive)
@@ -273,6 +274,11 @@ class Recomposer(
     internal override val recomposeCoroutineContext: CoroutineContext
         get() = EmptyCoroutineContext
 
+    private val hasBroadcastFrameClockAwaitersLocked: Boolean get() =
+        !frameClockPaused && broadcastFrameClock.hasAwaiters
+
+    private val hasBroadcastFrameClockAwaiters: Boolean get() =
+        synchronized(stateLock) { hasBroadcastFrameClockAwaitersLocked }
     /**
      * Determine the new value of [_state]. Call only while locked on [stateLock].
      * If it returns a continuation, that continuation should be resumed after releasing the lock.
@@ -298,14 +304,15 @@ class Recomposer(
             runnerJob == null -> {
                 snapshotInvalidations = IdentityArraySet()
                 compositionInvalidations.clear()
-                if (broadcastFrameClock.hasAwaiters) State.InactivePendingWork else State.Inactive
+                if (hasBroadcastFrameClockAwaitersLocked) State.InactivePendingWork
+                else State.Inactive
             }
             compositionInvalidations.isNotEmpty() ||
                 snapshotInvalidations.isNotEmpty() ||
                 compositionsAwaitingApply.isNotEmpty() ||
                 compositionValuesAwaitingInsert.isNotEmpty() ||
                 concurrentCompositionsOutstanding > 0 ||
-                broadcastFrameClock.hasAwaiters -> State.PendingWork
+                hasBroadcastFrameClockAwaitersLocked -> State.PendingWork
             else -> State.Idle
         }
 
@@ -529,7 +536,7 @@ class Recomposer(
             parentFrameClock.withFrameNanos { frameTime ->
                 // Dispatch MonotonicFrameClock frames first; this may produce new
                 // composer invalidations that we must handle during the same frame.
-                if (broadcastFrameClock.hasAwaiters) {
+                if (hasBroadcastFrameClockAwaiters) {
                     trace("Recomposer:animation") {
                         // Propagate the frame time to anyone who is awaiting from the
                         // recomposer clock.
@@ -813,7 +820,7 @@ class Recomposer(
             parentFrameClock.withFrameNanos { frameTime ->
                 // Dispatch MonotonicFrameClock frames first; this may produce new
                 // composer invalidations that we must handle during the same frame.
-                if (broadcastFrameClock.hasAwaiters) {
+                if (hasBroadcastFrameClockAwaiters) {
                     trace("Recomposer:animation") {
                         // Propagate the frame time to anyone who is awaiting from the
                         // recomposer clock.
@@ -874,7 +881,7 @@ class Recomposer(
         get() = synchronized(stateLock) {
             snapshotInvalidations.isNotEmpty() ||
                 compositionInvalidations.isNotEmpty() ||
-                broadcastFrameClock.hasAwaiters
+                hasBroadcastFrameClockAwaitersLocked
         }
 
     private suspend fun awaitWorkAvailable() {
@@ -1175,14 +1182,14 @@ class Recomposer(
                 compositionInvalidations.isNotEmpty() ||
                 concurrentCompositionsOutstanding > 0 ||
                 compositionsAwaitingApply.isNotEmpty() ||
-                broadcastFrameClock.hasAwaiters
+                hasBroadcastFrameClockAwaitersLocked
         }
 
     private val hasFrameWorkLocked: Boolean
-        get() = compositionInvalidations.isNotEmpty() || broadcastFrameClock.hasAwaiters
+        get() = compositionInvalidations.isNotEmpty() || hasBroadcastFrameClockAwaitersLocked
 
     private val hasConcurrentFrameWorkLocked: Boolean
-        get() = compositionsAwaitingApply.isNotEmpty() || broadcastFrameClock.hasAwaiters
+        get() = compositionsAwaitingApply.isNotEmpty() || hasBroadcastFrameClockAwaitersLocked
 
     /**
      * Suspends until the currently pending recomposition frame is complete.
@@ -1194,6 +1201,40 @@ class Recomposer(
      */
     suspend fun awaitIdle() {
         currentState.takeWhile { it > State.Idle }.collect()
+    }
+
+    /**
+     * Pause broadcasting the frame clock while recomposing. This effectively pauses animations,
+     * or any other use of the [withFrameNanos], while the frame clock is paused.
+     *
+     * [pauseCompositionFrameClock] should be called when the recomposer is not being displayed for
+     * some reason such as not being the current activity in Android, for example.
+     *
+     * Calls to [pauseCompositionFrameClock] are thread-safe and idempotent (calling it when the
+     * frame clock is already paused is a no-op).
+     */
+    fun pauseCompositionFrameClock() {
+        synchronized(stateLock) {
+            frameClockPaused = true
+        }
+    }
+
+    /**
+     * Resume broadcasting the frame clock after is has been paused. Pending calls to
+     * [withFrameNanos] will start receiving frame clock broadcasts at the beginning of the frame
+     * and a frame will be requested if there are pending calls to [withFrameNaons] if a frame
+     * has not already been scheduled.
+     *
+     * Calls to [resumeCompositionFrameClock] are thread-safe and idempotent (calling it when the
+     * frame clock is running is a no-op).
+     */
+    fun resumeCompositionFrameClock() {
+        synchronized(stateLock) {
+            if (frameClockPaused) {
+                frameClockPaused = false
+                deriveStateLocked()
+            } else null
+        }?.resume(Unit)
     }
 
     // Recomposer always starts with a constant compound hash
