@@ -133,7 +133,7 @@ import kotlin.math.roundToInt
  * [Interaction]s and customize the appearance / behavior of this text field in different states.
  * @param shape defines the shape of this text field's border
  * @param colors [TextFieldColors] that will be used to resolve the colors used for this text field
- * in different states. See [TextFieldDefaults.outlinedTextFieldColors].
+ * in different states. See [OutlinedTextFieldDefaults.colors].
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -159,8 +159,8 @@ fun OutlinedTextField(
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     minLines: Int = 1,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    shape: Shape = TextFieldDefaults.outlinedShape,
-    colors: TextFieldColors = TextFieldDefaults.outlinedTextFieldColors()
+    shape: Shape = OutlinedTextFieldDefaults.shape,
+    colors: TextFieldColors = OutlinedTextFieldDefaults.colors()
 ) {
     // If color is not provided via the text style, use content color as a default
     val textColor = textStyle.color.takeOrElse {
@@ -181,8 +181,8 @@ fun OutlinedTextField(
                 modifier
             }
                 .defaultMinSize(
-                    minWidth = TextFieldDefaults.MinWidth,
-                    minHeight = TextFieldDefaults.MinHeight
+                    minWidth = OutlinedTextFieldDefaults.MinWidth,
+                    minHeight = OutlinedTextFieldDefaults.MinHeight
                 ),
             onValueChange = onValueChange,
             enabled = enabled,
@@ -197,7 +197,7 @@ fun OutlinedTextField(
             maxLines = maxLines,
             minLines = minLines,
             decorationBox = @Composable { innerTextField ->
-                TextFieldDefaults.OutlinedTextFieldDecorationBox(
+                OutlinedTextFieldDefaults.DecorationBox(
                     value = value,
                     visualTransformation = visualTransformation,
                     innerTextField = innerTextField,
@@ -214,7 +214,7 @@ fun OutlinedTextField(
                     interactionSource = interactionSource,
                     colors = colors,
                     container = {
-                        TextFieldDefaults.OutlinedBorderContainerBox(
+                        OutlinedTextFieldDefaults.ContainerBox(
                             enabled,
                             isError,
                             interactionSource,
@@ -292,7 +292,7 @@ fun OutlinedTextField(
  * [Interaction]s and customize the appearance / behavior of this text field in different states.
  * @param shape defines the shape of this text field's border
  * @param colors [TextFieldColors] that will be used to resolve the colors used for this text field
- * in different states. See [TextFieldDefaults.outlinedTextFieldColors].
+ * in different states. See [OutlinedTextFieldDefaults.colors].
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -318,8 +318,8 @@ fun OutlinedTextField(
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     minLines: Int = 1,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    shape: Shape = TextFieldDefaults.outlinedShape,
-    colors: TextFieldColors = TextFieldDefaults.outlinedTextFieldColors()
+    shape: Shape = OutlinedTextFieldDefaults.shape,
+    colors: TextFieldColors = OutlinedTextFieldDefaults.colors()
 ) {
     // If color is not provided via the text style, use content color as a default
     val textColor = textStyle.color.takeOrElse {
@@ -340,8 +340,8 @@ fun OutlinedTextField(
                 modifier
             }
                 .defaultMinSize(
-                    minWidth = TextFieldDefaults.MinWidth,
-                    minHeight = TextFieldDefaults.MinHeight
+                    minWidth = OutlinedTextFieldDefaults.MinWidth,
+                    minHeight = OutlinedTextFieldDefaults.MinHeight
                 ),
             onValueChange = onValueChange,
             enabled = enabled,
@@ -356,7 +356,7 @@ fun OutlinedTextField(
             maxLines = maxLines,
             minLines = minLines,
             decorationBox = @Composable { innerTextField ->
-                TextFieldDefaults.OutlinedTextFieldDecorationBox(
+                OutlinedTextFieldDefaults.DecorationBox(
                     value = value.text,
                     visualTransformation = visualTransformation,
                     innerTextField = innerTextField,
@@ -373,7 +373,7 @@ fun OutlinedTextField(
                     interactionSource = interactionSource,
                     colors = colors,
                     container = {
-                        TextFieldDefaults.OutlinedBorderContainerBox(
+                        OutlinedTextFieldDefaults.ContainerBox(
                             enabled,
                             isError,
                             interactionSource,
@@ -410,8 +410,8 @@ fun OutlinedTextField(
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     minLines: Int = 1,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    shape: Shape = TextFieldDefaults.outlinedShape,
-    colors: TextFieldColors = TextFieldDefaults.outlinedTextFieldColors()
+    shape: Shape = OutlinedTextFieldDefaults.shape,
+    colors: TextFieldColors = OutlinedTextFieldDefaults.colors()
 ) {
     OutlinedTextField(
         value = value,
@@ -463,8 +463,8 @@ fun OutlinedTextField(
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     minLines: Int = 1,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    shape: Shape = TextFieldDefaults.outlinedShape,
-    colors: TextFieldColors = TextFieldDefaults.outlinedTextFieldColors()
+    shape: Shape = OutlinedTextFieldDefaults.shape,
+    colors: TextFieldColors = OutlinedTextFieldDefaults.colors()
 ) {
     OutlinedTextField(
         value = value,

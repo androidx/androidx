@@ -205,7 +205,7 @@ class OutlinedTextFieldTest {
                     OutlinedTextField(
                         value = "",
                         onValueChange = {},
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                        colors = OutlinedTextFieldDefaults.colors(
                             unfocusedTextColor = Color.White,
                             unfocusedBorderColor = Color.White
                         ),
@@ -1347,8 +1347,8 @@ class OutlinedTextFieldTest {
                 value = "",
                 onValueChange = {},
                 modifier = Modifier.testTag(TextFieldTag),
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    containerColor = Color.Red,
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedContainerColor = Color.Red,
                     unfocusedBorderColor = Color.Red
                 ),
                 shape = RectangleShape
@@ -1409,7 +1409,7 @@ class OutlinedTextFieldTest {
                     contentColor = LocalContentColor.current
                 },
                 modifier = Modifier.focusRequester(focusRequester),
-                colors = TextFieldDefaults.textFieldColors(
+                colors = OutlinedTextFieldDefaults.colors(
                     unfocusedLabelColor = unfocusedLabelColor,
                     focusedLabelColor = focusedLabelColor
                 )
@@ -1452,7 +1452,7 @@ class OutlinedTextFieldTest {
                         contentColor = LocalContentColor.current
                     },
                     modifier = Modifier.focusRequester(focusRequester),
-                    colors = TextFieldDefaults.textFieldColors(
+                    colors = OutlinedTextFieldDefaults.colors(
                         unfocusedLabelColor = unfocusedLabelColor,
                         focusedLabelColor = focusedLabelColor
                     )
@@ -1495,7 +1495,7 @@ class OutlinedTextFieldTest {
                         contentColor = LocalContentColor.current
                     },
                     modifier = Modifier.focusRequester(focusRequester),
-                    colors = TextFieldDefaults.textFieldColors(
+                    colors = OutlinedTextFieldDefaults.colors(
                         unfocusedLabelColor = expectedLabelColor,
                         focusedLabelColor = focusedLabelColor
                     )
@@ -1541,7 +1541,7 @@ class OutlinedTextFieldTest {
                         contentColor = LocalContentColor.current
                     },
                     modifier = Modifier.focusRequester(focusRequester),
-                    colors = TextFieldDefaults.textFieldColors(
+                    colors = OutlinedTextFieldDefaults.colors(
                         unfocusedLabelColor = unfocusedLabelColor,
                         focusedLabelColor = focusedLabelColor
                     )
