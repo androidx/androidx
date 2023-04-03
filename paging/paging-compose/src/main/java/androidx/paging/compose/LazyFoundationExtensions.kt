@@ -23,9 +23,9 @@ import androidx.compose.foundation.lazy.grid.LazyGridScope
  * Returns a factory of stable and unique keys representing the item.
  *
  * Keys are generated with the key lambda that is passed in. If null is passed in, keys will
- * default to index-based [PagingPlaceholderKey]. If [PagingConfig.enablePlaceholders] is true,
+ * default to a placeholder key. If [PagingConfig.enablePlaceholders] is true,
  * LazyPagingItems may return null items. Null items will also automatically default to
- * [PagingPlaceholderKey].
+ * a placeholder key.
  *
  * This factory can be applied to Lazy foundations such as [LazyGridScope.items] or Pagers.
  * Examples:
