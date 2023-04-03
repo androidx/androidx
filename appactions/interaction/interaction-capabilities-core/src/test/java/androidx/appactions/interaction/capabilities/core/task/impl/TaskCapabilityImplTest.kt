@@ -38,13 +38,6 @@ import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
-import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils.buildRequestArgs
-import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils.buildSearchActionParamValue
-import androidx.appactions.interaction.capabilities.testing.internal.SettableFutureWrapper
-import androidx.appactions.interaction.capabilities.testing.internal.TestingUtils.CB_TIMEOUT
-import androidx.appactions.interaction.capabilities.testing.internal.TestingUtils.buildActionCallbackWithFulfillmentResponse
-import androidx.appactions.interaction.capabilities.testing.internal.TestingUtils.buildErrorActionCallback
-import androidx.appactions.interaction.capabilities.testing.internal.TestingUtils.buildActionCallback
 import androidx.appactions.interaction.capabilities.core.testing.spec.Argument
 import androidx.appactions.interaction.capabilities.core.testing.spec.CapabilityStructFill
 import androidx.appactions.interaction.capabilities.core.testing.spec.CapabilityTwoEntityValues
@@ -56,6 +49,11 @@ import androidx.appactions.interaction.capabilities.core.testing.spec.TestEnum
 import androidx.appactions.interaction.capabilities.core.values.EntityValue
 import androidx.appactions.interaction.capabilities.core.values.ListItem
 import androidx.appactions.interaction.capabilities.core.values.SearchAction
+import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils.buildRequestArgs
+import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils.buildSearchActionParamValue
+import androidx.appactions.interaction.capabilities.testing.internal.FakeCallbackInternal
+import androidx.appactions.interaction.capabilities.testing.internal.SettableFutureWrapper
+import androidx.appactions.interaction.capabilities.testing.internal.TestingUtils.CB_TIMEOUT
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
 import androidx.appactions.interaction.proto.AppActionsContext.DialogParameter
@@ -66,7 +64,6 @@ import androidx.appactions.interaction.proto.Entity
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.Type.SYNC
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.Type.TERMINATE
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.Type.UNKNOWN_TYPE
-import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput.OutputValue
 import androidx.appactions.interaction.proto.ParamValue
@@ -139,7 +136,7 @@ class TaskCapabilityImplTest {
     @Test
     @kotlin.Throws(Exception::class)
     fun onInitInvoked_invokedOnce() {
-        val onSuccessInvocationCount = AtomicInteger(0)
+        val onInitInvocationCount = AtomicInteger(0)
         val capability: Capability =
             createCapability(
                 SINGLE_REQUIRED_FIELD_PROPERTY,
@@ -147,7 +144,7 @@ class TaskCapabilityImplTest {
                 SessionFactory {
                     object : Session {
                         override fun onInit(initArg: InitArg) {
-                            onSuccessInvocationCount.incrementAndGet()
+                            onInitInvocationCount.incrementAndGet()
                         }
                         override fun onFinishAsync(argument: Argument) =
                             Futures.immediateFuture(
@@ -161,26 +158,26 @@ class TaskCapabilityImplTest {
         val session = capability.createSession(hostProperties)
 
         // TURN 1.
-        val onSuccessInvoked: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        val callback = FakeCallbackInternal()
         session.execute(
             buildRequestArgs(SYNC, "unknownArgName", "foo"),
-            buildActionCallback(onSuccessInvoked),
+            callback,
         )
-        assertThat(onSuccessInvoked.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
-        assertThat(onSuccessInvocationCount.get()).isEqualTo(1)
+        assertThat(callback.receiveResponse().fulfillmentResponse).isNotNull()
+        assertThat(onInitInvocationCount.get()).isEqualTo(1)
 
         // TURN 2.
-        val onSuccessInvoked2: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        val callback2 = FakeCallbackInternal()
         session.execute(
             buildRequestArgs(
                 SYNC,
                 "required",
                 ParamValue.newBuilder().setIdentifier("foo").setStringValue("foo").build(),
             ),
-            buildActionCallback(onSuccessInvoked2),
+            callback2,
         )
-        assertThat(onSuccessInvoked2.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
-        assertThat(onSuccessInvocationCount.get()).isEqualTo(1)
+        assertThat(callback2.receiveResponse().fulfillmentResponse).isNotNull()
+        assertThat(onInitInvocationCount.get()).isEqualTo(1)
     }
 
     class RequiredTaskUpdater : AbstractTaskUpdater() {
@@ -256,9 +253,9 @@ class TaskCapabilityImplTest {
             )
 
         // TURN 1 (UNKNOWN).
-        val errorCb: SettableFutureWrapper<ErrorStatusInternal> = SettableFutureWrapper()
-        session.execute(buildRequestArgs(UNKNOWN_TYPE), buildErrorActionCallback(errorCb))
-        assertThat(errorCb.getFuture().get(CB_TIMEOUT, MILLISECONDS))
+        val callback = FakeCallbackInternal()
+        session.execute(buildRequestArgs(UNKNOWN_TYPE), callback)
+        assertThat(callback.receiveResponse().errorStatus)
             .isEqualTo(ErrorStatusInternal.INVALID_REQUEST_TYPE)
     }
 
@@ -268,14 +265,14 @@ class TaskCapabilityImplTest {
             CapabilityTwoEntityValues.Property.newBuilder()
                 .setSlotA(
                     TypeProperty.Builder<
-                        androidx.appactions.interaction.capabilities.core.properties.Entity
+                        androidx.appactions.interaction.capabilities.core.properties.Entity,
                         >()
                         .setRequired(true)
                         .build(),
                 )
                 .setSlotB(
                     TypeProperty.Builder<
-                        androidx.appactions.interaction.capabilities.core.properties.Entity
+                        androidx.appactions.interaction.capabilities.core.properties.Entity,
                         >()
                         .setRequired(true)
                         .build(),
@@ -318,20 +315,20 @@ class TaskCapabilityImplTest {
         assertThat(session.status).isEqualTo(CapabilitySession.Status.UNINITIATED)
 
         // turn 1
-        val turn1Success: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        val callback = FakeCallbackInternal()
         session.execute(
             buildRequestArgs(
                 SYNC,
                 "slotA",
                 ParamValue.newBuilder().setIdentifier("foo").setStringValue("foo").build(),
             ),
-            buildActionCallback(turn1Success),
+            callback,
         )
-        assertThat(turn1Success.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
+        assertThat(callback.receiveResponse().fulfillmentResponse).isNotNull()
         assertThat(session.status).isEqualTo(CapabilitySession.Status.IN_PROGRESS)
 
         // turn 2
-        val turn2Success: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        val callback2 = FakeCallbackInternal()
         session.execute(
             buildRequestArgs(
                 SYNC,
@@ -340,18 +337,18 @@ class TaskCapabilityImplTest {
                 "slotB",
                 ParamValue.newBuilder().setIdentifier("bar").setStringValue("bar").build(),
             ),
-            buildActionCallback(turn2Success),
+            callback2,
         )
-        assertThat(turn2Success.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
+        assertThat(callback2.receiveResponse().fulfillmentResponse).isNotNull()
         assertThat(session.status).isEqualTo(CapabilitySession.Status.COMPLETED)
 
         // turn 3
-        val turn3Success: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        val callback3 = FakeCallbackInternal()
         session.execute(
             buildRequestArgs(TERMINATE),
-            buildActionCallback(turn3Success),
+            callback3,
         )
-        assertThat(turn3Success.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
+        assertThat(callback3.receiveResponse().fulfillmentResponse).isNotNull()
         assertThat(session.status).isEqualTo(CapabilitySession.Status.DESTROYED)
     }
 
@@ -363,14 +360,14 @@ class TaskCapabilityImplTest {
             CapabilityTwoEntityValues.Property.newBuilder()
                 .setSlotA(
                     TypeProperty.Builder<
-                        androidx.appactions.interaction.capabilities.core.properties.Entity
+                        androidx.appactions.interaction.capabilities.core.properties.Entity,
                         >()
                         .setRequired(true)
                         .build(),
                 )
                 .setSlotB(
                     TypeProperty.Builder<
-                        androidx.appactions.interaction.capabilities.core.properties.Entity
+                        androidx.appactions.interaction.capabilities.core.properties.Entity,
                         >()
                         .setRequired(false)
                         .build(),
@@ -414,7 +411,7 @@ class TaskCapabilityImplTest {
         val session = capability.createSession(hostProperties)
 
         // TURN 1.
-        val onSuccessInvoked: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        val callback = FakeCallbackInternal()
         session.execute(
             buildRequestArgs(
                 SYNC,
@@ -423,9 +420,9 @@ class TaskCapabilityImplTest {
                 "slotB",
                 ParamValue.newBuilder().setIdentifier("bar").setStringValue("bar").build(),
             ),
-            buildActionCallback(onSuccessInvoked),
+            callback,
         )
-        assertThat(onSuccessInvoked.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
+        assertThat(callback.receiveResponse().fulfillmentResponse).isNotNull()
         assertThat(onFinishInvocationCount.get()).isEqualTo(0)
         assertThat(getCurrentValues("slotA", session.state))
             .containsExactly(
@@ -454,7 +451,7 @@ class TaskCapabilityImplTest {
             Property.newBuilder()
                 .setRequiredEntityField(
                     TypeProperty.Builder<
-                        androidx.appactions.interaction.capabilities.core.properties.Entity
+                        androidx.appactions.interaction.capabilities.core.properties.Entity,
                         >()
                         .setRequired(true)
                         .build(),
@@ -476,16 +473,16 @@ class TaskCapabilityImplTest {
         val session = capability.createSession(hostProperties)
 
         // TURN 1.
-        val onSuccessInvoked: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        val callback = FakeCallbackInternal()
         session.execute(
             buildRequestArgs(
                 SYNC,
                 "required",
                 ParamValue.newBuilder().setIdentifier("foo").setStringValue("foo").build(),
             ),
-            buildActionCallback(onSuccessInvoked),
+            callback,
         )
-        assertThat(onSuccessInvoked.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
+        assertThat(callback.receiveResponse()).isNotNull()
         assertThat(getCurrentValues("required", session.state))
             .containsExactly(
                 CurrentValue.newBuilder()
@@ -498,12 +495,12 @@ class TaskCapabilityImplTest {
         assertThat(getCurrentValues("optionalEnum", session.state)).isEmpty()
 
         // TURN 2.
-        val onSuccessInvoked2: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        val callback2 = FakeCallbackInternal()
         session.execute(
             buildRequestArgs(SYNC, "optionalEnum", TestEnum.VALUE_2),
-            buildActionCallback(onSuccessInvoked2),
+            callback2,
         )
-        assertThat(onSuccessInvoked2.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
+        assertThat(callback2.receiveResponse().fulfillmentResponse).isNotNull()
         assertThat(getCurrentValues("required", session.state)).isEmpty()
         assertThat(getCurrentValues("optionalEnum", session.state))
             .containsExactly(
@@ -574,12 +571,12 @@ class TaskCapabilityImplTest {
         val session = capability.createSession(hostProperties)
 
         // TURN 1.
-        val onSuccessInvoked: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        val callback = FakeCallbackInternal()
         session.execute(
             buildRequestArgs(SYNC, "required", buildSearchActionParamValue("invalid")),
-            buildActionCallback(onSuccessInvoked),
+            callback,
         )
-        assertThat(onSuccessInvoked.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
+        assertThat(callback.receiveResponse().fulfillmentResponse).isNotNull()
         assertThat(session.state)
             .isEqualTo(
                 AppDialogState.newBuilder()
@@ -622,16 +619,16 @@ class TaskCapabilityImplTest {
             )
 
         // TURN 2.
-        val turn2SuccessInvoked: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        val callback2 = FakeCallbackInternal()
         session.execute(
             buildRequestArgs(
                 SYNC,
                 "required",
                 ParamValue.newBuilder().setIdentifier("valid2").setStringValue("valid2").build(),
             ),
-            buildActionCallback(turn2SuccessInvoked),
+            callback2,
         )
-        assertThat(turn2SuccessInvoked.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
+        assertThat(callback2.receiveResponse().fulfillmentResponse).isNotNull()
         assertThat(session.state)
             .isEqualTo(
                 AppDialogState.newBuilder()
@@ -737,12 +734,12 @@ class TaskCapabilityImplTest {
         val session = capability.createSession(hostProperties)
 
         // first sync request
-        val firstTurnSuccess: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        val callback = FakeCallbackInternal()
         session.execute(
             buildRequestArgs(SYNC, "listItem", buildSearchActionParamValue("apple")),
-            buildActionCallback(firstTurnSuccess),
+            callback,
         )
-        assertThat(firstTurnSuccess.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
+        assertThat(callback.receiveResponse().fulfillmentResponse).isNotNull()
         assertThat(onReceivedCb.getFuture().isDone()).isFalse()
         assertThat(onFinishListItemCb.getFuture().isDone()).isFalse()
         assertThat(session.state)
@@ -781,21 +778,21 @@ class TaskCapabilityImplTest {
             )
 
         // second sync request, sending grounded ParamValue with identifier only
-        val secondTurnSuccess: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        val callback2 = FakeCallbackInternal()
         session.execute(
             buildRequestArgs(
                 SYNC,
                 "listItem",
                 ParamValue.newBuilder().setIdentifier("item2").build(),
             ),
-            buildActionCallback(secondTurnSuccess),
+            callback2,
         )
-        assertThat(secondTurnSuccess.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
+        assertThat(callback2.receiveResponse().fulfillmentResponse).isNotNull()
         assertThat(onReceivedCb.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isEqualTo(item2)
         assertThat(onFinishListItemCb.getFuture().isDone()).isFalse()
 
         // third sync request, sending grounded ParamValue with identifier only, completes task
-        val thirdTurnSuccess: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        val callback3 = FakeCallbackInternal()
         session.execute(
             buildRequestArgs(
                 SYNC,
@@ -804,9 +801,9 @@ class TaskCapabilityImplTest {
                 "string",
                 "unused",
             ),
-            buildActionCallback(thirdTurnSuccess),
+            callback3,
         )
-        assertThat(thirdTurnSuccess.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
+        assertThat(callback3.receiveResponse().fulfillmentResponse).isNotNull()
         assertThat(onFinishListItemCb.getFuture().get(CB_TIMEOUT, MILLISECONDS))
             .isEqualTo(
                 item2,
@@ -839,7 +836,7 @@ class TaskCapabilityImplTest {
         val capability =
             CapabilityBuilder().setId("fakeId").setSessionFactory(sessionFactory).build()
         val session = capability.createSession(hostProperties)
-        val onSuccessInvoked: SettableFutureWrapper<FulfillmentResponse> = SettableFutureWrapper()
+        val callback = FakeCallbackInternal()
         val expectedOutput: StructuredOutput =
             StructuredOutput.newBuilder()
                 .addOutputValues(
@@ -868,12 +865,11 @@ class TaskCapabilityImplTest {
                 "required",
                 ParamValue.newBuilder().setIdentifier("foo").setStringValue("foo").build(),
             ),
-            buildActionCallbackWithFulfillmentResponse(onSuccessInvoked),
+            callback,
         )
         assertThat(
-            onSuccessInvoked
-                .getFuture()
-                .get(CB_TIMEOUT, MILLISECONDS)
+            callback.receiveResponse()
+                .fulfillmentResponse!!
                 .getExecutionOutput()
                 .getOutputValuesList(),
         )
@@ -1016,7 +1012,7 @@ class TaskCapabilityImplTest {
             Property.newBuilder()
                 .setRequiredEntityField(
                     TypeProperty.Builder<
-                        androidx.appactions.interaction.capabilities.core.properties.Entity
+                        androidx.appactions.interaction.capabilities.core.properties.Entity,
                         >()
                         .setRequired(true)
                         .build(),
