@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2023 The Android Open Source Project
  *
@@ -16,20 +17,49 @@
 
 package androidx.wear.compose.material3
 
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.runtime.Composable
+import androidx.compose.testutils.assertContainsColor
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import org.junit.Assert
 
 val BigTestMaxWidth = 5000.dp
 val BigTestMaxHeight = 5000.dp
+
+internal const val TEST_TAG = "test-item"
+
+@Composable
+fun TestImage(iconLabel: String = "TestIcon") {
+    val testImage = Icons.Outlined.Add
+    Image(
+        testImage, iconLabel,
+        modifier = Modifier
+            .fillMaxSize()
+            .testTag(iconLabel),
+        contentScale = ContentScale.Fit,
+        alignment = Alignment.Center
+    )
+}
 
 fun ComposeContentTestRule.setContentWithThemeForSizeAssertions(
     parentMaxWidth: Dp = BigTestMaxWidth,
@@ -53,7 +83,6 @@ fun ComposeContentTestRule.setContentWithThemeForSizeAssertions(
             }
         }
     }
-
     return onNodeWithTag("containerForSizeAssertion", useUnmergedTree)
 }
 
@@ -66,4 +95,49 @@ fun ComposeContentTestRule.setContentWithTheme(
             Box(modifier = modifier, content = composable)
         }
     }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+internal fun ComposeContentTestRule.verifyColors(
+    status: Status,
+    expectedContainerColor: @Composable () -> Color,
+    expectedContentColor: @Composable () -> Color,
+    applyAlphaForDisabled: Boolean = true,
+    content: @Composable () -> Color
+) {
+    val testBackgroundColor = Color.White
+    var finalExpectedContainerColor = Color.Transparent
+    var finalExpectedContent = Color.Transparent
+    var actualContentColor = Color.Transparent
+    setContentWithTheme {
+        finalExpectedContainerColor =
+            if (status.enabled() || !applyAlphaForDisabled) {
+                expectedContainerColor()
+            } else {
+                expectedContainerColor().copy(ContentAlpha.disabled)
+            }.compositeOver(testBackgroundColor)
+        finalExpectedContent =
+            if (status.enabled() || !applyAlphaForDisabled) {
+                expectedContentColor()
+            } else {
+                expectedContentColor().copy(ContentAlpha.disabled)
+            }
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(testBackgroundColor)
+        ) {
+            actualContentColor = content()
+        }
+    }
+    Assert.assertEquals(finalExpectedContent, actualContentColor)
+    onNodeWithTag(TEST_TAG)
+        .captureToImage()
+        .assertContainsColor(finalExpectedContainerColor)
+}
+
+internal enum class Status {
+    Enabled,
+    Disabled;
+    fun enabled() = this == Enabled
 }
