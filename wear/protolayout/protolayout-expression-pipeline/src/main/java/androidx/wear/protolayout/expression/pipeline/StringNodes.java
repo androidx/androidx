@@ -16,12 +16,17 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
+import static java.lang.Math.min;
+
 import androidx.annotation.UiThread;
 import androidx.wear.protolayout.expression.proto.DynamicProto.StateStringSource;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedString;
 
 /** Dynamic data nodes which yield Strings. */
 class StringNodes {
+
+    static final int MAXIMUM_STRING_LENGTH = 200;
+
     private StringNodes() {}
 
     /** Dynamic string node that has a fixed value. */
@@ -30,9 +35,8 @@ class StringNodes {
         private final DynamicTypeValueReceiverWithPreUpdate<String> mDownstream;
 
         FixedStringNode(
-                FixedString protoNode,
-                DynamicTypeValueReceiverWithPreUpdate<String> downstream) {
-            this.mValue = protoNode.getValue();
+                FixedString protoNode, DynamicTypeValueReceiverWithPreUpdate<String> downstream) {
+            this.mValue = truncate(protoNode.getValue());
             this.mDownstream = downstream;
         }
 
@@ -58,14 +62,27 @@ class StringNodes {
         Int32FormatNode(
                 NumberFormatter formatter,
                 DynamicTypeValueReceiverWithPreUpdate<String> downstream) {
-            super(downstream, formatter::format);
+            super(downstream, (value) -> truncate(formatter.format(value)));
         }
     }
 
     /** Dynamic string node that gets a value from the other strings. */
     static class StringConcatOpNode extends DynamicDataBiTransformNode<String, String, String> {
         StringConcatOpNode(DynamicTypeValueReceiverWithPreUpdate<String> downstream) {
-            super(downstream, String::concat);
+            super(
+                    downstream,
+                    (lhs, rhs) -> {
+                        int lhsLength = lhs.length();
+                        int rhsLength = rhs.length();
+
+                        if (lhsLength >= MAXIMUM_STRING_LENGTH) {
+                            return truncate(lhs);
+                        }
+
+                        return lhs.concat(
+                                rhs.substring(
+                                        0, min(rhsLength, MAXIMUM_STRING_LENGTH - lhsLength)));
+                    });
         }
     }
 
@@ -75,7 +92,7 @@ class StringNodes {
         FloatFormatNode(
                 NumberFormatter formatter,
                 DynamicTypeValueReceiverWithPreUpdate<String> downstream) {
-            super(downstream, formatter::format);
+            super(downstream, (value) -> truncate(formatter.format(value)));
         }
     }
 
@@ -88,8 +105,12 @@ class StringNodes {
             super(
                     stateStore,
                     protoNode.getSourceKey(),
-                    se -> se.getStringVal().getValue(),
+                    se -> truncate(se.getStringVal().getValue()),
                     downstream);
         }
+    }
+
+    static String truncate(String input) {
+        return input.substring(0, min(input.length(), MAXIMUM_STRING_LENGTH));
     }
 }
