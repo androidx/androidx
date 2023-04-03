@@ -397,4 +397,22 @@
             file="src/test/java/androidx/room/TransactionExecutorTest.kt"/>
     </issue>
 
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IMultiInstanceInvalidationCallback {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/room/IMultiInstanceInvalidationCallback.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IMultiInstanceInvalidationService {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/room/IMultiInstanceInvalidationService.aidl"/>
+    </issue>
+
 </issues>

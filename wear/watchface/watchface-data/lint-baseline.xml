@@ -19,4 +19,94 @@
             file="src/main/java/androidx/wear/watchface/data/WatchFaceColorsWireFormat.java"/>
     </issue>
 
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IEditorObserver {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/editor/IEditorObserver.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IEditorService {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/editor/IEditorService.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IHeadlessWatchFace {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/control/IHeadlessWatchFace.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IInteractiveWatchFace {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/control/IInteractiveWatchFace.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IPendingInteractiveWatchFace {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/control/IPendingInteractiveWatchFace.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IRemoteWatchFaceView {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/control/IRemoteWatchFaceView.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IWatchFaceControlService {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/control/IWatchFaceControlService.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IWatchFaceService {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/android/support/wearable/watchface/IWatchFaceService.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IWatchfaceListener {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/control/IWatchfaceListener.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
+        errorLine1="interface IWatchfaceReadyListener {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/wear/watchface/control/IWatchfaceReadyListener.aidl"/>
+    </issue>
+
 </issues>

@@ -263,6 +263,33 @@
     </issue>
 
     <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with @RequiresOptIn marker"
+        errorLine1="oneway interface IListenableWorkerImpl {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/work/multiprocess/IListenableWorkerImpl.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with @RequiresOptIn marker"
+        errorLine1="oneway interface IWorkManagerImpl {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/work/multiprocess/IWorkManagerImpl.aidl"/>
+    </issue>
+
+    <issue
+        id="RequireUnstableAidlAnnotation"
+        message="Unstable AIDL files must be annotated with @RequiresOptIn marker"
+        errorLine1="oneway interface IWorkManagerImplCallback {"
+        errorLine2="^">
+        <location
+            file="src/main/aidl/androidx/work/multiprocess/IWorkManagerImplCallback.aidl"/>
+    </issue>
+
+    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public final void addListener(Runnable listener, Executor executor) {"
