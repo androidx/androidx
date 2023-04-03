@@ -2225,6 +2225,8 @@ public final class DynamicBuilders {
          * <pre>
          *   DynamicInt32.constant(12).format()
          * </pre>
+         *
+         * The resulted {@link DynamicString} is subject to being truncated if it's too long.
          */
         @NonNull
         default DynamicString format() {
@@ -2241,6 +2243,8 @@ public final class DynamicBuilders {
          *            .format(
          *                IntFormatter.with().minIntegerDigits(4).groupingUsed(true));
          * </pre>
+         *
+         * The resulted {@link DynamicString} is subject to being truncated if it's too long.
          *
          * @param formatter The formatting parameter.
          */
@@ -3077,14 +3081,18 @@ public final class DynamicBuilders {
             return toDynamicStringProto().toByteArray();
         }
 
-        /** Creates a constant-valued {@link DynamicString}. */
+        /**
+         * Creates a constant-valued {@link DynamicString}. The resulted {@link DynamicString} is
+         * subject to being truncated if it's too long.
+         */
         @NonNull
         static DynamicString constant(@NonNull String constant) {
             return new FixedString.Builder().setValue(constant).build();
         }
 
         /**
-         * Creates a {@link DynamicString} that is bound to the value of an item of the State.
+         * Creates a {@link DynamicString} that is bound to the value of an item of the State. The
+         * resulted {@link DynamicString} is subject to being truncated if it's too long.
          *
          * @param stateKey The key to a {@link StateEntryValue} with a string value from the
          *     provider's state.
@@ -3116,7 +3124,8 @@ public final class DynamicBuilders {
 
         /**
          * Returns a new {@link DynamicString} that has the result of concatenating this {@link
-         * DynamicString} with {@code other}. i.e. {@code result = this + other}
+         * DynamicString} with {@code other}. i.e. {@code result = this + other} The resulted {@link
+         * DynamicString} is subject to being truncated if it's too long.
          *
          * @param other The right hand side operand of the concatenation.
          */
@@ -4462,6 +4471,8 @@ public final class DynamicBuilders {
          * <pre>
          *   DynamicFloat.constant(12.34567f).format();
          * </pre>
+         *
+         * The resulted {@link DynamicString} is subject to being truncated if it's too long.
          */
         @NonNull
         default DynamicString format() {
@@ -4479,6 +4490,8 @@ public final class DynamicBuilders {
          *           FloatFormatter.with().maxFractionDigits(2).minIntegerDigits(4)
          *                         .groupingUsed(true));
          * </pre>
+         *
+         * The resulted {@link DynamicString} is subject to being truncated if it's too long.
          *
          * @param formatter The formatting parameter.
          */
