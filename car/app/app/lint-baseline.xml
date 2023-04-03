@@ -985,6 +985,15 @@
     <issue
         id="BanHideAnnotation"
         message="@hide is not allowed in Javadoc"
+        errorLine1="    public @interface ItemSize {"
+        errorLine2="                      ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/model/GridTemplate.java"/>
+    </issue>
+
+    <issue
+        id="BanHideAnnotation"
+        message="@hide is not allowed in Javadoc"
         errorLine1="public interface HostCall&lt;ServiceT, ReturnT> {"
         errorLine2="                 ~~~~~~~~">
         <location
