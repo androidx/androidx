@@ -23,7 +23,7 @@ import com.google.common.util.concurrent.ListenableFuture
 /**
  * Similar to ValueListener, but also need to handle grounding of ungrounded values.
  *
- * @hide
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 interface AppEntityListListener<T> : ValueListener<List<T>> {

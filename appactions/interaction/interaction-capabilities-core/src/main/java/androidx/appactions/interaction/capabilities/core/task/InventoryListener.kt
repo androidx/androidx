@@ -22,7 +22,7 @@ import com.google.common.util.concurrent.ListenableFuture
 /**
  * Similar to ValueListener, but also need to handle entity rendering.
  *
- * @hide
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 interface InventoryListener<T> : ValueListener<T> {

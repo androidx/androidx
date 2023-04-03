@@ -24,7 +24,7 @@ import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 import androidx.appactions.interaction.proto.TaskInfo
 
-/** @hide */
+/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class SingleTurnCapabilityImpl<
     PropertyT,
