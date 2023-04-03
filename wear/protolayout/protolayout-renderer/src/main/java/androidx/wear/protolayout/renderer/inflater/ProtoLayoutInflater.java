@@ -3162,6 +3162,9 @@ public final class ProtoLayoutInflater {
                                 nodePosId,
                                 pipelineMaker);
                 break;
+            case VENDOR_EXTENSION:
+                // TODO(b/276703002): Add support for vendor extension.
+                break;
             case INNER_NOT_SET:
                 Log.w(TAG, "Unknown child type: " + element.getInnerCase().name());
                 break;

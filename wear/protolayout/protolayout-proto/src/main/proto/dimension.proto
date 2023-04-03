@@ -149,3 +149,10 @@ message SpacerDimension {
     DpProp linear_dimension = 1;
   }
 }
+
+// A dimension that can be applied to a VendorExtension element.
+message VendorExtensionDimension {
+  oneof inner {
+    DpProp linear_dimension = 1;
+  }
+}

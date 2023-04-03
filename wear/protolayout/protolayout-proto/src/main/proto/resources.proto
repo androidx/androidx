@@ -17,6 +17,10 @@ enum ImageFormat {
   // An image format where each pixel is stored on 2 bytes, with red using 5
   // bits, green using 6 bits and blue using 5 bits of precision.
   IMAGE_FORMAT_RGB_565 = 1;
+
+  // An image format where each pixel is stored on 4 bytes.
+  // RGB and alpha (for translucency) is stored with 8 bits of precision.
+  IMAGE_FORMAT_ARGB_8888 = 2;
 }
 
 // An image resource which maps to an Android drawable by resource ID.
@@ -24,6 +28,14 @@ message AndroidImageResourceByResId {
   // The Android resource ID of this image. This must refer to a drawable under
   // R.drawable.
   int32 resource_id = 1;
+}
+
+// An image resource which maps to an Android drawable by name.
+message AndroidImageResourceByName {
+  // The name of the drawable. An Android drawable by this name (i.e.
+  // R.drawable.<name>) must exist in the app which provides this layout to the
+  // system.
+  string name = 1;
 }
 
 // An image resource whose data is fully inlined, with no dependency on a
@@ -45,6 +57,37 @@ message InlineImageResource {
   // will attempt to extract this from the raw image data. If the platform does
   // not support the format, the image will not be decoded or displayed.
   ImageFormat format = 4;
+}
+
+// An image to be loaded from an HTTP source. May not be supported on all
+// platforms.
+message HttpImageResource {
+  // The URL from which the image will be fetched.
+  string url = 1;
+
+  // The native width of the image, in pixels. Only required for formats
+  // (e.g. IMAGE_FORMAT_RGB_565) where the image data does not include size.
+  int32 width_px = 2;
+
+  // The native height of the image, in pixels. Only required for formats
+  // (e.g. IMAGE_FORMAT_RGB_565) where the image data does not include size.
+  int32 height_px = 3;
+
+  // The format of the image to be fetched. May be left unspecified or set to
+  // IMAGE_FORMAT_UNDEFINED in which case the platform will attempt to extract
+  // this from the raw image data. If the platform does not support the format,
+  // the image will not be decoded or displayed.
+  ImageFormat format = 4;
+
+  // Resource ID to look up in Resources#id_to_image to provide a placeholder
+  // image. The placeholder image will be drawn in the Image or SpanImage
+  // element which references this resource while the HTTP image is loading.
+  // Note that this must not point to another HttpImageResource; it should point
+  // to an image resource which can be immediately loaded.
+  //
+  // If this is empty, no placeholder image will be used (i.e. the Image or
+  // SpanImage will remain transparent until the image has loaded).
+  string placeholder_image_resource_id = 5;
 }
 
 // An image to be loaded from a ContentProvider, by content URI.
@@ -103,6 +146,12 @@ message ImageResource {
 
   // An image resource that contains the image data inline.
   InlineImageResource inline_resource = 2;
+
+  // An image resource that maps to an Android drawable by name.
+  AndroidImageResourceByName android_resource_by_name = 3;
+
+  // An image resource that contains a URL to a http image.
+  HttpImageResource http_resource = 4;
 
   // An image which loads its drawable via an Android Content URI.
   AndroidImageResourceByContentUri android_content_uri = 5;
