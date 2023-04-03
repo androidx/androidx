@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.appactions.interaction.capabilities.core.task
+package androidx.appactions.interaction.capabilities.core
 
 import java.util.Objects
 /** Result from validating a single argument value. */
 class ValidationResult internal constructor(
-    val kind: Kind
+    val kind: Kind,
 ) {
     override fun toString() =
         "ValidationResult(kind=$kind)"

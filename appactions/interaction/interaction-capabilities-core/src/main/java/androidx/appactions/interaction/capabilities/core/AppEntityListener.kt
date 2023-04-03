@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.appactions.interaction.capabilities.core.task
+package androidx.appactions.interaction.capabilities.core
 
 import androidx.annotation.RestrictTo
 import androidx.appactions.interaction.capabilities.core.values.SearchAction
@@ -21,12 +21,12 @@ import androidx.concurrent.futures.await
 import com.google.common.util.concurrent.ListenableFuture
 
 /**
- * Similar to ValueListener, but also need to handle grounding of ungrounded values.
+ * Handle grounding of ungrounded values.
  *
  * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-interface AppEntityListListener<T> : ValueListener<List<T>> {
+interface AppEntityListenerBase<T> {
     /**
      * Given a search criteria, looks up the inventory during runtime, renders the search result
      * within the app's own UI and then returns it to the Assistant so that the task can be kept in
@@ -47,8 +47,24 @@ interface AppEntityListListener<T> : ValueListener<List<T>> {
      *   [EntitySearchResult] for the given [searchAction]
      */
     fun lookupAndRenderAsync(
-        searchAction: SearchAction<T>
+        searchAction: SearchAction<T>,
     ): ListenableFuture<EntitySearchResult<T>> {
         throw NotImplementedError()
     }
 }
+
+/**
+ * Similar to ValueListener, but also need to handle grounding of ungrounded values.
+ *
+ * @suppress
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+interface AppEntityListener<T> : ValueListener<T>, AppEntityListenerBase<T>
+
+/**
+ * Similar to ValueListener, but also need to handle grounding of ungrounded values.
+ *
+ * @suppress
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+interface AppEntityListListener<T> : ValueListener<List<T>>, AppEntityListenerBase<T>

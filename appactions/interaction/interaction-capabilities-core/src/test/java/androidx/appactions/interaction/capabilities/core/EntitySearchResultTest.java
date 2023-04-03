@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.appactions.interaction.capabilities.core.task;
+package androidx.appactions.interaction.capabilities.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -27,7 +27,7 @@ public final class EntitySearchResultTest {
 
     @Test
     public void emptyList() {
-        assertThat(EntitySearchResult.empty().getPossibleValues()).isEmpty();
+        assertThat(new EntitySearchResult.Builder<Object>().build().getPossibleValues()).isEmpty();
     }
 
     @Test

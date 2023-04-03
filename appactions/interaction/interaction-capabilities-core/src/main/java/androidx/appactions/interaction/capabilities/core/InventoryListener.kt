@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.appactions.interaction.capabilities.core.task
+package androidx.appactions.interaction.capabilities.core
 
 import androidx.annotation.RestrictTo
 import androidx.concurrent.futures.await
 import com.google.common.util.concurrent.ListenableFuture
 
 /**
- * Repeated version of [InventoryListener].
+ * Handles entity rendering.
  *
  * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-interface InventoryListListener<T> : ValueListener<List<T>> {
+interface InventoryListenerBase {
     /**
      * Renders the provided entities in the app UI for disambiguation.
      *
@@ -35,6 +35,7 @@ interface InventoryListListener<T> : ValueListener<List<T>> {
     suspend fun renderChoices(entityIDs: List<String>) {
         renderChoicesAsync(entityIDs).await()
     }
+
     /**
      * Renders the provided entities in the app UI for disambiguation.
      *
@@ -43,7 +44,23 @@ interface InventoryListListener<T> : ValueListener<List<T>> {
      *
      * @return a [ListenableFuture] of nothing, which only indicates when the rendering finishes.
      */
-    fun renderChoicesAsync(entityIDs: List<String>): ListenableFuture<Unit> {
+    fun renderChoicesAsync(entityIDs: List<String>): ListenableFuture<Void> {
         throw NotImplementedError()
     }
 }
+
+/**
+ * Similar to ValueListener, but also need to handle entity rendering.
+ *
+ * @suppress
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+interface InventoryListener<T> : ValueListener<T>, InventoryListenerBase
+
+/**
+ * Similar to ValueListener, but also need to handle entity rendering.
+ *
+ * @suppress
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+interface InventoryListListener<T> : ValueListener<List<T>>, InventoryListenerBase
