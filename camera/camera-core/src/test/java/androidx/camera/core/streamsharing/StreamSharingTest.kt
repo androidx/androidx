@@ -23,12 +23,15 @@ import androidx.camera.core.CameraEffect
 import androidx.camera.core.CameraEffect.IMAGE_CAPTURE
 import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageProxy
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory
+import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.TargetConfig.OPTION_TARGET_CLASS
 import androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME
@@ -93,6 +96,24 @@ class StreamSharingTest {
         }
         effectProcessor.release()
         shadowOf(getMainLooper()).idle()
+    }
+
+    @Test
+    fun childTakingPicture_triggersSnapshot() {
+        // Arrange: set up StreamSharing with ImageCapture as child
+        val imageCapture = ImageCapture.Builder().build()
+        streamSharing = StreamSharing(camera, setOf(child1, imageCapture), useCaseConfigFactory)
+        streamSharing.bindToCamera(camera, null, defaultConfig)
+        streamSharing.onSuggestedStreamSpecUpdated(StreamSpec.builder(size).build())
+
+        // Act: the child takes a picture.
+        imageCapture.takePicture(directExecutor(), object : ImageCapture.OnImageCapturedCallback() {
+            override fun onCaptureSuccess(image: ImageProxy) {}
+        })
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: the snapshot is triggered.
+        assertThat(sharingProcessor.isSnapshotTriggered).isTrue()
     }
 
     @Test

@@ -34,7 +34,6 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.Logger;
 import androidx.camera.core.ProcessingException;
@@ -269,7 +268,9 @@ public class SurfaceProcessorNode implements
         });
     }
 
-    @VisibleForTesting
+    /**
+     * Gets the {@link SurfaceProcessorInternal} used by this node.
+     */
     @NonNull
     public SurfaceProcessorInternal getSurfaceProcessor() {
         return mSurfaceProcessor;
