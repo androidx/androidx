@@ -28,7 +28,9 @@ import kotlinx.coroutines.withTimeout
  * A fake CallbackInternal instance being used for testing to receive the [FulfillmentResult]
  * containing either [FulfillmentResponse] or [ErrorStatusInternal]
  */
-class FakeCallbackInternal constructor(private val timeoutMs: Long) : CallbackInternal {
+class FakeCallbackInternal constructor(
+    private val timeoutMs: Long = TestingUtils.CB_TIMEOUT
+) : CallbackInternal {
 
     private val completer = CompletableDeferred<FulfillmentResult>()
 
