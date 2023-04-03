@@ -48,6 +48,7 @@ import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
+import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.processing.DefaultSurfaceProcessor;
 import androidx.camera.core.processing.SurfaceEdge;
 import androidx.camera.core.processing.SurfaceProcessorNode;
@@ -102,8 +103,13 @@ public class StreamSharing extends UseCase {
         super(DEFAULT_CONFIG);
         mVirtualCamera = new VirtualCamera(parentCamera, children, useCaseConfigFactory,
                 () -> {
-                    // TODO: Ask the DefaultSurfaceProcessor to take a snapshot.
-                    throw new UnsupportedOperationException();
+                    SurfaceProcessorNode sharingNode = mSharingNode;
+                    if (sharingNode != null) {
+                        return sharingNode.getSurfaceProcessor().snapshot();
+                    } else {
+                        return Futures.immediateFailedFuture(new Exception(
+                                "Failed to take picture: pipeline is not ready."));
+                    }
                 });
     }
 
