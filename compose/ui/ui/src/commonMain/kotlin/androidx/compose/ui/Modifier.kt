@@ -169,6 +169,18 @@ interface Modifier {
             private set
 
         private var scope: CoroutineScope? = null
+
+        /**
+         * A [CoroutineScope] that can be used to launch tasks that should run while the node is
+         * attached.
+         *
+         * The scope is accessible between [onAttach] and [onDetach] calls, and will be cancelled
+         * after the node is detached (after [onDetach] returns).
+         *
+         * @sample androidx.compose.ui.samples.ModifierNodeCoroutineScopeSample
+         *
+         * @throws IllegalStateException If called while the node is not attached.
+         */
         val coroutineScope: CoroutineScope
             get() = scope ?: CoroutineScope(
                 requireOwner().coroutineContext +
@@ -178,6 +190,7 @@ interface Modifier {
             }
 
         internal var kindSet: Int = 0
+
         // NOTE: We use an aggregate mask that or's all of the type masks of the children of the
         // chain so that we can quickly prune a subtree. This INCLUDES the kindSet of this node
         // as well
