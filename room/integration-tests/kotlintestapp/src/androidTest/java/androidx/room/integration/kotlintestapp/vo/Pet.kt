@@ -18,20 +18,18 @@ package androidx.room.integration.kotlintestapp.vo
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
-import androidx.room.integration.kotlintestapp.TestDatabase
 import java.util.Date
 
 @Entity
-@TypeConverters(TestDatabase.Converters::class)
-class Pet {
+class Pet(
     @PrimaryKey
-    var mPetId = 0
-    var mUserId = 0
+    var mPetId: Int,
+    var mUserId: Int,
 
     @ColumnInfo(name = "mPetName")
-    var mName: String? = null
-    var mAdoptionDate: Date? = null
+    var mName: String?,
+    var mAdoptionDate: Date?,
+) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || javaClass != other.javaClass) return false
