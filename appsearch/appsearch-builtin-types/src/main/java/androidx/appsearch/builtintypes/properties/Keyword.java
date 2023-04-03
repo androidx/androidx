@@ -38,7 +38,7 @@ import java.util.Objects;
  * <p>Note: More types may be added over time.
  */
 @Document
-public final class Keywords {
+public final class Keyword {
     @NonNull
     @Document.Namespace
     String mNamespace = "";
@@ -51,7 +51,7 @@ public final class Keywords {
     @Document.StringProperty(indexingType = INDEXING_TYPE_PREFIXES)
     final String mAsText;
 
-    public Keywords(@NonNull String asText) {
+    public Keyword(@NonNull String asText) {
         mAsText = checkNotNull(asText);
     }
 
@@ -67,8 +67,8 @@ public final class Keywords {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Keywords keywords = (Keywords) o;
-        return Objects.equals(mAsText, keywords.mAsText);
+        Keyword keyword = (Keyword) o;
+        return Objects.equals(mAsText, keyword.mAsText);
     }
 
     @Override
