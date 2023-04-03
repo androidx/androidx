@@ -14,73 +14,68 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package androidx.compose.foundation.demos.text2
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.demos.text.TagLine
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.samples.BasicTextField2CustomFilterSample
 import androidx.compose.foundation.text2.BasicTextField2
+import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.text2.input.allCaps
+import androidx.compose.foundation.text2.input.maxLengthInChars
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.LocalTextStyle
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.intl.Locale
+import androidx.core.text.isDigitsOnly
 
 @Composable
-fun BasicTextField2Demos() {
+fun BasicTextField2FilterDemos() {
     Column(
         Modifier
             .imePadding()
             .verticalScroll(rememberScrollState())
     ) {
-        TagLine(tag = "Plain BasicTextField2")
-        PlainBasicTextField2()
+        TagLine(tag = "allCaps")
+        FilterDemo(filter = TextEditFilter.allCaps(Locale.current))
 
-        TagLine(tag = "Single Line BasicTextField2")
-        SingleLineBasicTextField2()
+        TagLine(tag = "maxLength(5)")
+        FilterDemo(filter = TextEditFilter.maxLengthInChars(5))
 
-        TagLine(tag = "State toggling BasicTextField2")
-        StateTogglingBasicTextField2()
+        TagLine(tag = "Digits Only BasicTextField2")
+        DigitsOnlyBasicTextField2()
+
+        TagLine(tag = "Custom")
+        Box(demoTextFieldModifiers, propagateMinConstraints = true) {
+            BasicTextField2CustomFilterSample()
+        }
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PlainBasicTextField2() {
-    val state = remember { TextFieldState() }
-    BasicTextField2(state, demoTextFieldModifiers, textStyle = LocalTextStyle.current)
+fun DigitsOnlyBasicTextField2() {
+    FilterDemo(filter = { old, new ->
+        if (!new.isDigitsOnly()) {
+            new.resetTo(old)
+        }
+    })
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun SingleLineBasicTextField2() {
+private fun FilterDemo(filter: TextEditFilter) {
     val state = remember { TextFieldState() }
     BasicTextField2(
         state = state,
-        modifier = demoTextFieldModifiers,
-        textStyle = LocalTextStyle.current,
-        maxLines = 1
+        filter = filter,
+        modifier = demoTextFieldModifiers
     )
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun StateTogglingBasicTextField2() {
-    var counter by remember { mutableStateOf(0) }
-    val states = remember { listOf(TextFieldState(), TextFieldState()) }
-    val state = states[counter]
-    Text("Click to toggle state: $counter", modifier = Modifier.clickable {
-        counter++
-        counter %= 2
-    })
-
-    BasicTextField2(state, demoTextFieldModifiers, textStyle = LocalTextStyle.current)
 }

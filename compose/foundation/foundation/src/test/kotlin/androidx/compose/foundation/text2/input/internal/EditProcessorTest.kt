@@ -273,7 +273,7 @@ class EditProcessorTest {
     }
 
     @Test
-    fun returningTheNewValueFromFilter_doesNotResetBuffer() {
+    fun filterThatDoesNothing_doesNotResetBuffer() {
         val processor = EditProcessor(
             TextFieldValue(
                 "abc",
@@ -284,7 +284,7 @@ class EditProcessorTest {
 
         val initialBuffer = processor.mBuffer
 
-        processor.update(CommitTextCommand("d", 4)) { _, new -> new }
+        processor.update(CommitTextCommand("d", 4)) { _, _ -> }
 
         val value = processor.value
 
@@ -304,7 +304,7 @@ class EditProcessorTest {
 
         val initialBuffer = processor.mBuffer
 
-        processor.update(CommitTextCommand("d", 4)) { _, new -> new.copy() }
+        processor.update(CommitTextCommand("d", 4)) { _, _ -> /* Noop */ }
 
         val value = processor.value
 
@@ -331,7 +331,7 @@ class EditProcessorTest {
 
         val initialBuffer = processor.mBuffer
 
-        processor.update(CommitTextCommand("d", 4)) { old, _ -> old }
+        processor.update(CommitTextCommand("d", 4)) { old, new -> new.resetTo(old) }
 
         val value = processor.value
 

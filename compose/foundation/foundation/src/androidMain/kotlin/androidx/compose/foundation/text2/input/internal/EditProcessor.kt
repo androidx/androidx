@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text2.input.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text2.input.MutableTextFieldValueWithSelection
 import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.getValue
@@ -154,23 +155,27 @@ internal class EditProcessor(
             throw RuntimeException(generateBatchErrorMessage(editCommands, lastCommand), e)
         }
 
-        val newValue = TextFieldValue(
+        val proposedValue = TextFieldValue(
             annotatedString = mBuffer.toAnnotatedString(),
             selection = mBuffer.selection,
             composition = mBuffer.composition
         )
 
-        val oldValue = value
-
+        @Suppress("NAME_SHADOWING")
+        val filter = filter
         if (filter == null) {
-            value = newValue
+            value = proposedValue
         } else {
-            val filteredValue = filter.filter(oldValue, newValue)
-            if (filteredValue == newValue) {
-                value = filteredValue
+            val oldValue = value
+            val mutableValue = MutableTextFieldValueWithSelection(proposedValue)
+            filter.filter(oldState = oldValue, newState = mutableValue)
+            // If neither the text nor the selection changed, we want to preserve the composition.
+            // Otherwise, the IME will reset it anyway.
+            val newValue = mutableValue.toTextFieldValue(proposedValue.composition)
+            if (newValue == proposedValue) {
+                value = newValue
             } else {
-                // reset the buffer to new given state.
-                reset(filteredValue)
+                reset(newValue)
             }
         }
     }
