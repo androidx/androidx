@@ -421,9 +421,19 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
      * Does actual remeasure and relayout on the node if it is required.
      * The [layoutNode] should be already removed from [relayoutNodes] before running it.
      *
+     * When [affectsLookahead] is false, we'll skip lookahead measure & layout, and only measure
+     * and layout as needed. This is needed because we don't want [forceMeasureTheSubtree] that
+     * doesn't affect lookahead to leak into lookahead and start doing lookahead measure/layout.
+     * That would prevent some of the lookahead remeasure/relayout requests from being properly
+     * handled as the starting node of [forceMeasureTheSubtree] would be in
+     * [LayoutNode.LayoutState.Measuring] until it returns.
+     *
      * @return true if the [LayoutNode] size has been changed.
      */
-    private fun remeasureAndRelayoutIfNeeded(layoutNode: LayoutNode): Boolean {
+    private fun remeasureAndRelayoutIfNeeded(
+        layoutNode: LayoutNode,
+        affectsLookahead: Boolean = true
+    ): Boolean {
         var sizeChanged = false
         if (layoutNode.isPlaced ||
             layoutNode.canAffectParent ||
@@ -434,13 +444,13 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
             var lookaheadSizeChanged = false
             if (layoutNode.lookaheadMeasurePending || layoutNode.measurePending) {
                 val constraints = if (layoutNode === root) rootConstraints!! else null
-                if (layoutNode.lookaheadMeasurePending) {
+                if (layoutNode.lookaheadMeasurePending && affectsLookahead) {
                     lookaheadSizeChanged = doLookaheadRemeasure(layoutNode, constraints)
                 }
                 sizeChanged = doRemeasure(layoutNode, constraints)
             }
             if ((lookaheadSizeChanged || layoutNode.lookaheadLayoutPending) &&
-                layoutNode.isPlacedInLookahead == true
+                layoutNode.isPlacedInLookahead == true && affectsLookahead
             ) {
                 layoutNode.lookaheadReplace()
             }
@@ -511,8 +521,14 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
         require(!pending(layoutNode))
 
         layoutNode.forEachChild { child ->
-            if (pending(child) && relayoutNodes.remove(child)) {
-                remeasureAndRelayoutIfNeeded(child)
+            if (pending(child) && relayoutNodes.contains(child)) {
+                // If lookaheadMeasurePending && this forceMeasureSubtree call doesn't affect
+                // lookahead, we'll leave the node in the [relayoutNodes] for further lookahead
+                // remeasurement.
+                if (!(child.lookaheadMeasurePending && !affectsLookahead)) {
+                    relayoutNodes.remove(child)
+                }
+                remeasureAndRelayoutIfNeeded(child, affectsLookahead)
             }
 
             // if the child is still in NeedsRemeasure state then this child remeasure wasn't
