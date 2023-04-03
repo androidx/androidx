@@ -792,15 +792,15 @@ package androidx.core.app {
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected androidx.core.app.NotificationCompat.Builder! mBuilder;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final class NotificationCompat.TvExtender implements androidx.core.app.NotificationCompat.Extender {
+  public static final class NotificationCompat.TvExtender implements androidx.core.app.NotificationCompat.Extender {
     ctor public NotificationCompat.TvExtender();
     ctor public NotificationCompat.TvExtender(android.app.Notification);
     method public androidx.core.app.NotificationCompat.Builder extend(androidx.core.app.NotificationCompat.Builder);
     method public String? getChannelId();
     method public android.app.PendingIntent? getContentIntent();
     method public android.app.PendingIntent? getDeleteIntent();
-    method public boolean getSuppressShowOverApps();
     method public boolean isAvailableOnTv();
+    method public boolean isSuppressShowOverApps();
     method public androidx.core.app.NotificationCompat.TvExtender setChannelId(String?);
     method public androidx.core.app.NotificationCompat.TvExtender setContentIntent(android.app.PendingIntent?);
     method public androidx.core.app.NotificationCompat.TvExtender setDeleteIntent(android.app.PendingIntent?);
