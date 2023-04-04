@@ -455,7 +455,7 @@ fun CustomOutlinedTextFieldBasedOnDecorationBox() {
                 interactionSource = interactionSource,
                 supportingText = { Text("Supporting text") },
                 // keep horizontal paddings but change the vertical
-                contentPadding = TextFieldDefaults.contentPaddingWithoutLabel(
+                contentPadding = OutlinedTextFieldDefaults.contentPadding(
                     top = 8.dp, bottom = 8.dp
                 ),
                 // update border colors
