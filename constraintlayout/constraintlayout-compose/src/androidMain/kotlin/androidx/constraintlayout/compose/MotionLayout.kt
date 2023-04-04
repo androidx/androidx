@@ -50,15 +50,17 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.core.widgets.Optimizer
-import java.util.EnumSet
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
 /**
  * Measure flags for MotionLayout
  */
+@Deprecated("Unnecessary, MotionLayout remeasures when its content changes.")
 enum class MotionLayoutFlag(@Suppress("UNUSED_PARAMETER") value: Long) {
     Default(0),
+
+    @Suppress("unused")
     FullMeasure(1)
 }
 
@@ -72,7 +74,6 @@ enum class MotionLayoutDebugFlags {
  * Layout that interpolate its children layout given two sets of constraint and
  * a progress (from 0 to 1)
  */
-@Suppress("UNUSED_PARAMETER")
 @ExperimentalMotionApi
 @Composable
 inline fun MotionLayout(
@@ -81,13 +82,11 @@ inline fun MotionLayout(
     modifier: Modifier = Modifier,
     transition: Transition? = null,
     progress: Float,
-    debug: EnumSet<MotionLayoutDebugFlags> = EnumSet.of(MotionLayoutDebugFlags.NONE),
+    debugFlags: DebugFlags = DebugFlags.None,
     optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
-    motionLayoutFlags: Set<MotionLayoutFlag> = setOf<MotionLayoutFlag>(),
     crossinline content: @Composable MotionLayoutScope.() -> Unit
 ) {
     val motionProgress = createAndUpdateMotionProgress(progress = progress)
-    val showDebug = debug.firstOrNull() == MotionLayoutDebugFlags.SHOW_ALL
     MotionLayoutCore(
         start = start,
         end = end,
@@ -95,9 +94,9 @@ inline fun MotionLayout(
         motionProgress = motionProgress,
         informationReceiver = null,
         optimizationLevel = optimizationLevel,
-        showBounds = showDebug,
-        showPaths = showDebug,
-        showKeyPositions = showDebug,
+        showBounds = debugFlags.showBounds,
+        showPaths = debugFlags.showPaths,
+        showKeyPositions = debugFlags.showKeyPositions,
         modifier = modifier,
         content = content
     )
@@ -114,19 +113,17 @@ inline fun MotionLayout(
     progress: Float,
     modifier: Modifier = Modifier,
     transitionName: String = "default",
-    debug: EnumSet<MotionLayoutDebugFlags> = EnumSet.of(MotionLayoutDebugFlags.NONE),
+    debugFlags: DebugFlags = DebugFlags.None,
     optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
-    motionLayoutFlags: Set<MotionLayoutFlag> = setOf<MotionLayoutFlag>(),
     crossinline content: @Composable (MotionLayoutScope.() -> Unit),
 ) {
     MotionLayoutCore(
         motionScene = motionScene,
         progress = progress,
-        debug = debug,
+        debugFlags = debugFlags,
         modifier = modifier,
         optimizationLevel = optimizationLevel,
         transitionName = transitionName,
-        motionLayoutFlags = motionLayoutFlags,
         content = content
     )
 }
@@ -150,9 +147,8 @@ inline fun MotionLayout(
     modifier: Modifier = Modifier,
     constraintSetName: String? = null,
     animationSpec: AnimationSpec<Float> = tween(),
-    debug: EnumSet<MotionLayoutDebugFlags> = EnumSet.of(MotionLayoutDebugFlags.NONE),
+    debugFlags: DebugFlags = DebugFlags.None,
     optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
-    motionLayoutFlags: Set<MotionLayoutFlag> = setOf<MotionLayoutFlag>(),
     noinline finishedAnimationListener: (() -> Unit)? = null,
     crossinline content: @Composable (MotionLayoutScope.() -> Unit)
 ) {
@@ -160,16 +156,14 @@ inline fun MotionLayout(
         motionScene = motionScene,
         constraintSetName = constraintSetName,
         animationSpec = animationSpec,
-        debugFlag = debug.firstOrNull() ?: MotionLayoutDebugFlags.NONE,
+        debugFlags = debugFlags,
         modifier = modifier,
         optimizationLevel = optimizationLevel,
         finishedAnimationListener = finishedAnimationListener,
-        motionLayoutFlags = motionLayoutFlags,
         content = content
     )
 }
 
-@Suppress("UNUSED_PARAMETER")
 @ExperimentalMotionApi
 @Composable
 inline fun MotionLayout(
@@ -178,14 +172,12 @@ inline fun MotionLayout(
     modifier: Modifier = Modifier,
     transition: Transition? = null,
     progress: Float,
-    debug: EnumSet<MotionLayoutDebugFlags> = EnumSet.of(MotionLayoutDebugFlags.NONE),
+    debugFlags: DebugFlags = DebugFlags.None,
     informationReceiver: LayoutInformationReceiver? = null,
     optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
-    motionLayoutFlags: Set<MotionLayoutFlag> = setOf<MotionLayoutFlag>(),
     crossinline content: @Composable (MotionLayoutScope.() -> Unit)
 ) {
     val motionProgress = createAndUpdateMotionProgress(progress = progress)
-    val showDebug = debug.firstOrNull() == MotionLayoutDebugFlags.SHOW_ALL
     MotionLayoutCore(
         start = start,
         end = end,
@@ -193,9 +185,9 @@ inline fun MotionLayout(
         motionProgress = motionProgress,
         informationReceiver = informationReceiver,
         optimizationLevel = optimizationLevel,
-        showBounds = showDebug,
-        showPaths = showDebug,
-        showKeyPositions = showDebug,
+        showBounds = debugFlags.showBounds,
+        showPaths = debugFlags.showPaths,
+        showKeyPositions = debugFlags.showKeyPositions,
         modifier = modifier,
         content = content
     )
@@ -204,16 +196,15 @@ inline fun MotionLayout(
 @ExperimentalMotionApi
 @PublishedApi
 @Composable
-@Suppress("UnavailableSymbol", "UNUSED_PARAMETER")
+@Suppress("UnavailableSymbol")
 internal inline fun MotionLayoutCore(
     @Suppress("HiddenTypeParameter")
     motionScene: MotionScene,
     modifier: Modifier = Modifier,
     constraintSetName: String? = null,
     animationSpec: AnimationSpec<Float> = tween(),
-    debugFlag: MotionLayoutDebugFlags = MotionLayoutDebugFlags.NONE,
+    debugFlags: DebugFlags = DebugFlags.None,
     optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
-    motionLayoutFlags: Set<MotionLayoutFlag> = setOf<MotionLayoutFlag>(),
     noinline finishedAnimationListener: (() -> Unit)? = null,
     @Suppress("HiddenTypeParameter")
     crossinline content: @Composable (MotionLayoutScope.() -> Unit)
@@ -293,9 +284,9 @@ internal inline fun MotionLayoutCore(
         motionProgress = motionProgress,
         informationReceiver = motionScene as? LayoutInformationReceiver,
         optimizationLevel = optimizationLevel,
-        showBounds = debugFlag == MotionLayoutDebugFlags.SHOW_ALL,
-        showPaths = debugFlag == MotionLayoutDebugFlags.SHOW_ALL,
-        showKeyPositions = debugFlag == MotionLayoutDebugFlags.SHOW_ALL,
+        showBounds = debugFlags.showBounds,
+        showPaths = debugFlags.showPaths,
+        showKeyPositions = debugFlags.showKeyPositions,
         modifier = modifier,
         content = content
     )
@@ -311,8 +302,7 @@ internal inline fun MotionLayoutCore(
     progress: Float,
     transitionName: String,
     optimizationLevel: Int,
-    motionLayoutFlags: Set<MotionLayoutFlag>,
-    debug: EnumSet<MotionLayoutDebugFlags>,
+    debugFlags: DebugFlags,
     modifier: Modifier,
     @Suppress("HiddenTypeParameter")
     crossinline content: @Composable MotionLayoutScope.() -> Unit,
@@ -338,11 +328,10 @@ internal inline fun MotionLayoutCore(
         end = end,
         transition = transition,
         progress = progress,
-        debug = debug,
+        debugFlags = debugFlags,
         informationReceiver = motionScene as? LayoutInformationReceiver,
         modifier = modifier,
         optimizationLevel = optimizationLevel,
-        motionLayoutFlags = motionLayoutFlags,
         content = content
     )
 }
@@ -958,4 +947,78 @@ internal enum class CompositionSource {
      * states.
      */
     Content
+}
+
+/**
+ * Flags to use with MotionLayout to enable visual debugging.
+ *
+ * @property showBounds
+ * @property showPaths
+ * @property showKeyPositions
+ *
+ * @see None
+ * @see All
+ */
+@ExperimentalMotionApi
+@JvmInline
+value class DebugFlags internal constructor(private val flags: Int) {
+    /**
+     * @param showBounds Whether to show the bounds of widgets at the start and end of the current transition.
+     * @param showPaths Whether to show the paths each widget will take through the current transition.
+     * @param showKeyPositions Whether to show a diamond icon representing KeyPositions defined for each widget along the path.
+     */
+    constructor(
+        showBounds: Boolean = false,
+        showPaths: Boolean = false,
+        showKeyPositions: Boolean = false
+    ) : this(
+        (if (showBounds) BOUNDS_FLAG else 0) or
+            (if (showPaths) PATHS_FLAG else 0) or
+            (if (showKeyPositions) KEY_POSITIONS_FLAG else 0)
+    )
+
+    /**
+     * When enabled, shows the bounds of widgets at the start and end of the current transition.
+     */
+    val showBounds: Boolean
+        get() = flags and BOUNDS_FLAG > 0
+
+    /**
+     * When enabled, shows the paths each widget will take through the current transition.
+     */
+    val showPaths: Boolean
+        get() = flags and PATHS_FLAG > 0
+
+    /**
+     *
+     * When enabled, shows a diamond icon representing KeyPositions defined for each widget along
+     * the path.
+     */
+    val showKeyPositions: Boolean
+        get() = flags and KEY_POSITIONS_FLAG > 0
+
+    override fun toString(): String =
+        "DebugFlags(" +
+            "showBounds = $showBounds, " +
+            "showPaths = $showPaths, " +
+            "showKeyPositions = $showKeyPositions" +
+            ")"
+
+    companion object {
+        private const val BOUNDS_FLAG = 1
+        private const val PATHS_FLAG = 1 shl 1
+        private const val KEY_POSITIONS_FLAG = 1 shl 2
+
+        /**
+         * [DebugFlags] instance with all flags disabled.
+         */
+        val None = DebugFlags(0)
+
+        /**
+         * [DebugFlags] instance with all flags enabled.
+         *
+         * Note that this includes any flags added in the future.
+         */
+        val All = DebugFlags(-1)
+    }
 }

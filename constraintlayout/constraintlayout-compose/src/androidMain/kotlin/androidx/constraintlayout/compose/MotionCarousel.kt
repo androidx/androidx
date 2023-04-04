@@ -238,7 +238,6 @@ fun MotionCarousel(
     MotionLayout(motionScene = motionScene,
         transitionName = transitionName.value,
         progress = mprogress,
-        motionLayoutFlags = setOf(MotionLayoutFlag.FullMeasure), // TODO: only apply as needed
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
