@@ -159,58 +159,56 @@ public class ProtoLayoutDynamicDataPipelineTest {
     }
 
     @Test
-    public void buildPipeline_dpProp_animatable_animationsDisabled_assignsStaticValue() {
+    public void buildPipeline_dpProp_animatable_animationsDisabled_hasStaticValue_assignsEndVal() {
         List<Float> results = new ArrayList<>();
-        float staticValue = -5f;
-        DynamicFloat dynamicFloat = animatableFixedFloat(5.0f, 10.0f);
-        DpProp dpProp =
-                DpProp.newBuilder().setDynamicValue(dynamicFloat).setValue(staticValue).build();
+        float endValue = 10.0f;
+        DynamicFloat dynamicFloat = animatableFixedFloat(5.0f, endValue);
+        DpProp dpProp = DpProp.newBuilder().setDynamicValue(dynamicFloat).setValue(-5f).build();
 
         ProtoLayoutDynamicDataPipeline pipeline = initPipelineAnimationsDisabled(results, dpProp);
 
         expect.that(pipeline.getRunningAnimationsCount()).isEqualTo(0);
         expect.that(results).hasSize(1);
-        expect.that(results).containsExactly(staticValue);
+        expect.that(results).containsExactly(endValue);
     }
 
     @Test
-    public void buildPipeline_degreesProp_animatable_animationsDisabled_assignsStaticValue() {
+    public void
+            buildPipeline_degreesProp_animatable_animationsDisabled_hasStaticValue_assignsEndVal() {
         List<Float> results = new ArrayList<>();
-        float staticValue = -5f;
-        DynamicFloat dynamicFloat = animatableFixedFloat(5.0f, 10.0f);
+        float endValue = 10.0f;
+        DynamicFloat dynamicFloat = animatableFixedFloat(5.0f, endValue);
         DegreesProp degreesProp =
-                DegreesProp.newBuilder()
-                        .setDynamicValue(dynamicFloat)
-                        .setValue(staticValue)
-                        .build();
+                DegreesProp.newBuilder().setDynamicValue(dynamicFloat).setValue(-5f).build();
 
         ProtoLayoutDynamicDataPipeline pipeline =
                 initPipelineAnimationsDisabled(results, degreesProp);
 
         expect.that(pipeline.getRunningAnimationsCount()).isEqualTo(0);
         expect.that(results).hasSize(1);
-        expect.that(results).containsExactly(staticValue);
+        expect.that(results).containsExactly(endValue);
     }
 
     @Test
-    public void buildPipeline_colorProp_animatable_animationsDisabled_assignsStaticValue() {
+    public void
+            buildPipeline_colorProp_animatable_animationsDisabled_hasStaticValue_assignsEndValue() {
         List<Integer> results = new ArrayList<>();
-        int staticValue = 0x12345678;
-        DynamicColor dynamicColor = animatableFixedColor(0, 1);
+        int endValue = 1;
+        DynamicColor dynamicColor = animatableFixedColor(0, endValue);
         ColorProp colorProp =
-                ColorProp.newBuilder().setDynamicValue(dynamicColor).setArgb(staticValue).build();
+                ColorProp.newBuilder().setDynamicValue(dynamicColor).setArgb(0x12345678).build();
 
         ProtoLayoutDynamicDataPipeline pipeline =
                 initPipelineAnimationsDisabled(results, colorProp);
 
         expect.that(pipeline.getRunningAnimationsCount()).isEqualTo(0);
         expect.that(results).hasSize(1);
-        expect.that(results).containsExactly(staticValue);
+        expect.that(results).containsExactly(endValue);
     }
 
     @Test
     public void
-            buildPipeline_colorProp_animatable_animationsDisabled_noStaticValueSet_assignsEndValue() {
+            buildPipeline_colorProp_animatable_animationsDisabled_noStaticValueSet_assignsEndVal() {
         List<Integer> results = new ArrayList<>();
         DynamicColor dynamicColor = animatableFixedColor(0, 1);
         ColorProp colorProp = ColorProp.newBuilder().setDynamicValue(dynamicColor).build();

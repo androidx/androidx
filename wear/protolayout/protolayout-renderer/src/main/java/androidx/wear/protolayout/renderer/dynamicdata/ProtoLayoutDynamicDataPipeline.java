@@ -658,12 +658,7 @@ public class ProtoLayoutDynamicDataPipeline {
                 @NonNull DpProp dpProp,
                 @NonNull String posId,
                 @NonNull DynamicTypeValueReceiver<Float> consumer) {
-            BoundDynamicType node;
-            if (dpProp.hasValue()) {
-                node = mEvaluator.bind(dpProp.getDynamicValue(), consumer, dpProp.getValue());
-            } else {
-                node = mEvaluator.bind(dpProp.getDynamicValue(), consumer);
-            }
+            BoundDynamicType node = mEvaluator.bind(dpProp.getDynamicValue(), consumer);
             getNodeInfo(posId).addBoundType(node);
             return this;
         }
@@ -680,14 +675,7 @@ public class ProtoLayoutDynamicDataPipeline {
                 @NonNull DegreesProp degreesProp,
                 @NonNull String posId,
                 @NonNull DynamicTypeValueReceiver<Float> consumer) {
-            BoundDynamicType node;
-            if (degreesProp.hasValue()) {
-                node =
-                        mEvaluator.bind(
-                                degreesProp.getDynamicValue(), consumer, degreesProp.getValue());
-            } else {
-                node = mEvaluator.bind(degreesProp.getDynamicValue(), consumer);
-            }
+            BoundDynamicType node = mEvaluator.bind(degreesProp.getDynamicValue(), consumer);
             getNodeInfo(posId).addBoundType(node);
             return this;
         }
@@ -704,12 +692,7 @@ public class ProtoLayoutDynamicDataPipeline {
                 @NonNull ColorProp colorProp,
                 @NonNull String posId,
                 @NonNull DynamicTypeValueReceiver<Integer> consumer) {
-            BoundDynamicType node;
-            if (colorProp.hasArgb()) {
-                node = mEvaluator.bind(colorProp.getDynamicValue(), consumer, colorProp.getArgb());
-            } else {
-                node = mEvaluator.bind(colorProp.getDynamicValue(), consumer);
-            }
+            BoundDynamicType node = mEvaluator.bind(colorProp.getDynamicValue(), consumer);
             getNodeInfo(posId).addBoundType(node);
             return this;
         }
