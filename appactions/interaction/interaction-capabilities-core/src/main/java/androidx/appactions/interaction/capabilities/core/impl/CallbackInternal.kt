@@ -13,24 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.appactions.interaction.capabilities.core.impl
 
-package androidx.appactions.interaction.capabilities.core.impl;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.appactions.interaction.proto.FulfillmentResponse;
+import androidx.annotation.RestrictTo
+import androidx.appactions.interaction.proto.FulfillmentResponse
 
 /** An interface for receiving the result of action. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface CallbackInternal {
-
+interface CallbackInternal {
     /** Invoke to set an action result upon success. */
-    void onSuccess(@NonNull FulfillmentResponse fulfillmentResponse);
-
-    default void onSuccess() {
-        onSuccess(FulfillmentResponse.getDefaultInstance());
-    }
+    fun onSuccess(fulfillmentResponse: FulfillmentResponse)
 
     /** Invokes to set an error status for the action. */
-    void onError(@NonNull ErrorStatusInternal errorStatus);
+    fun onError(errorStatus: ErrorStatusInternal)
 }

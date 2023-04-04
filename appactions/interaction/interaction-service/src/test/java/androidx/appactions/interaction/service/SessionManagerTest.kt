@@ -32,6 +32,8 @@ class SessionManagerTest {
     private val fakeSessionId = "12345"
     private val session1 =
         object : CapabilitySession {
+            override val sessionId: String = fakeSessionId
+
             override val uiHandle: Any
                 get() = this
 
@@ -50,6 +52,8 @@ class SessionManagerTest {
 
     private val session2 =
         object : CapabilitySession {
+            override val sessionId: String = fakeSessionId
+
             override val uiHandle: Any
                 get() = this
 

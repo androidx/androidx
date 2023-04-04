@@ -23,6 +23,7 @@ import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 import androidx.appactions.interaction.proto.TaskInfo
+import kotlinx.coroutines.sync.Mutex
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -37,6 +38,7 @@ internal class SingleTurnCapabilityImpl<
     val actionExecutorAsync: ActionExecutorAsync<ArgumentT, OutputT>,
 ) : Capability {
     override val supportsMultiTurnTask = false
+    val mutex = Mutex()
 
     override fun getAppAction(): AppAction {
         return actionSpec.convertPropertyToProto(property).toBuilder()
@@ -45,10 +47,15 @@ internal class SingleTurnCapabilityImpl<
             .build()
     }
 
-    override fun createSession(hostProperties: HostProperties): CapabilitySession {
+    override fun createSession(
+        sessionId: String,
+        hostProperties: HostProperties,
+    ): CapabilitySession {
         return SingleTurnCapabilitySession(
+            sessionId,
             actionSpec,
             actionExecutorAsync,
+            mutex,
         )
     }
 }

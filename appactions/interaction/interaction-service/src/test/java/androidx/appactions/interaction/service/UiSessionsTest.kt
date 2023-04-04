@@ -20,30 +20,55 @@ import android.content.Context
 import android.util.SizeF
 import android.widget.RemoteViews
 import androidx.appactions.interaction.capabilities.core.ActionExecutor
-import androidx.appactions.interaction.capabilities.core.BaseSession
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
-import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
+import androidx.appactions.interaction.capabilities.core.HostProperties
+import androidx.appactions.interaction.capabilities.core.SessionFactory
+import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.Type.SYNC
+import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.service.test.R
+import androidx.appactions.interaction.capabilities.testing.internal.FakeCallbackInternal
+import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils.buildRequestArgs
+import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils.buildArgs
+import androidx.appactions.interaction.capabilities.testing.internal.TestingUtils.CB_TIMEOUT
+import androidx.appactions.interaction.service.testing.internal.FakeCapability
+import androidx.appactions.interaction.service.testing.internal.FakeCapability.Argument
+import androidx.appactions.interaction.service.testing.internal.FakeCapability.Output
+import androidx.appactions.interaction.service.testing.internal.FakeCapability.Session
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.wear.tiles.LayoutElementBuilders
 import androidx.wear.tiles.ResourceBuilders
 import com.google.common.truth.Truth.assertThat
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
 import org.junit.After
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class UiSessionsTest {
+    private val sessionFactory = object : SessionFactory<Session> {
+        private val sessions = mutableListOf<Session>()
+        private var index = 0
+        override fun createSession(
+            hostProperties: HostProperties?,
+        ): Session {
+            return sessions[index++]
+        }
 
-    private val externalSession = object : BaseSession<String, String> {}
-    private val capabilitySession = mock<CapabilitySession>() {
-        on { this.uiHandle } doReturn(externalSession)
+        fun addSessions(vararg session: Session) {
+            sessions.addAll(session)
+        }
+
+        fun reset() {
+            sessions.clear()
+            index = 0
+        }
     }
     private val sessionId = "fakeSessionId"
+    private val hostProperties =
+        HostProperties.Builder().setMaxHostSizeDp(SizeF(300f, 500f)).build()
+    private val multiTurnCapability = FakeCapability.CapabilityBuilder()
+        .setId("multiTurnCapability")
+        .setSessionFactory(sessionFactory).build()
 
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val remoteViewsFactoryId = 123
@@ -73,40 +98,49 @@ class UiSessionsTest {
     private val tileLayoutUiResponse: UiResponse =
         UiResponse.TileLayoutBuilder().setTileLayout(layout, resources).build()
 
-    @Before
-    fun setup() {
-        SessionManager.putSession(sessionId, capabilitySession)
-    }
     @After
     fun cleanup() {
+        sessionFactory.reset()
         UiSessions.removeUiCache(sessionId)
-        SessionManager.removeSession(sessionId)
+    }
+
+    fun createFakeSessionWithUiResponses(vararg uiResponses: UiResponse): Session {
+        return object : Session {
+            override suspend fun onFinish(
+                argument: Argument,
+            ): ExecutionResult<Output> {
+                for (uiResponse in uiResponses) {
+                    this.updateUi(uiResponse)
+                }
+                return ExecutionResult.getDefaultInstance()
+            }
+        }
     }
 
     @Test
-    fun sessionExtensionMethod_createsCache() {
+    fun sessionExtensionMethod_createCache_removeCache() {
         assertThat(UiSessions.getUiCacheOrNull(sessionId)).isNull()
 
-        externalSession.updateUi(remoteViewsUiResponse)
-
+        sessionFactory.addSessions(
+            createFakeSessionWithUiResponses(remoteViewsUiResponse),
+        )
+        val session = multiTurnCapability.createSession(sessionId, hostProperties)
+        val callback = FakeCallbackInternal(CB_TIMEOUT)
+        session.execute(
+            buildRequestArgs(
+                SYNC,
+                "fieldOne",
+                "hello",
+            ),
+            callback,
+        )
+        callback.receiveResponse()
         val uiCache = UiSessions.getUiCacheOrNull(sessionId)
         assertThat(uiCache).isNotNull()
         assertThat(uiCache?.hasUnreadUiResponse()).isTrue()
         assertThat(uiCache?.cachedChangedViewIds).containsExactly(changeViewId)
         assertThat(uiCache?.cachedRemoteViewsSize).isEqualTo(SizeF(10f, 15f))
         assertThat(uiCache?.cachedRemoteViews).isEqualTo(remoteViews)
-    }
-
-    @Test
-    fun removeUiCache_removesWhatWasPreviouslyCreated() {
-        assertThat(UiSessions.getUiCacheOrNull(sessionId)).isNull()
-
-        // Invoke extension method.
-        externalSession.updateUi(remoteViewsUiResponse)
-
-        val uiCache = UiSessions.getUiCacheOrNull(sessionId)
-        assertThat(uiCache).isNotNull()
-        assertThat(uiCache?.hasUnreadUiResponse()).isTrue()
 
         // Test removing.
         assertThat(UiSessions.removeUiCache(sessionId)).isTrue()
@@ -114,39 +148,90 @@ class UiSessionsTest {
     }
 
     @Test
-    fun getOrCreateUiCache_explicitTest() {
-        val uiCache = UiSessions.getOrCreateUiCache(sessionId)
-        assertThat(uiCache).isNotNull()
+    fun multipleUpdate_sharesCache() {
+        assertThat(UiSessions.getUiCacheOrNull(sessionId)).isNull()
+        sessionFactory.addSessions(object : Session {
+            override suspend fun onFinish(
+                argument: Argument,
+            ): ExecutionResult<Output> {
+                this.updateUi(remoteViewsUiResponse)
+                this.updateUi(tileLayoutUiResponse)
 
-        // Calling a second time does not create a new cache instance.
-        val uiCache2 = UiSessions.getOrCreateUiCache(sessionId)
-        assertThat(uiCache).isEqualTo(uiCache2)
+                return ExecutionResult.getDefaultInstance()
+            }
+        })
+        val session = multiTurnCapability.createSession(sessionId, hostProperties)
+        val callback = FakeCallbackInternal(CB_TIMEOUT)
+        session.execute(
+            buildRequestArgs(
+                SYNC,
+                "fieldOne",
+                "hello",
+            ),
+            callback,
+        )
+        callback.receiveResponse()
+        val uiCache = UiSessions.getUiCacheOrNull(sessionId)
+        assertThat(uiCache).isNotNull()
+        assertThat(uiCache?.hasUnreadUiResponse()).isTrue()
+        assertThat(uiCache?.cachedChangedViewIds).containsExactly(changeViewId)
+        assertThat(uiCache?.cachedRemoteViewsSize).isEqualTo(SizeF(10f, 15f))
+        assertThat(uiCache?.cachedRemoteViews).isEqualTo(remoteViews)
+        assertThat(uiCache?.cachedTileLayout).isNotNull()
     }
 
     @Test
     fun multipleSession_haveTheirOwnCache() {
-        val externalSession1 = object : BaseSession<String, String> {}
-        val capabilitySession1 = mock<CapabilitySession> {
-            on { this.uiHandle } doReturn(externalSession1)
-        }
         val sessionId1 = "fakeSessionId1"
-        val externalSession2 = object : BaseSession<String, String> {}
-        val capabilitySession2 = mock<CapabilitySession> {
-            on { this.uiHandle } doReturn(externalSession2)
-        }
         val sessionId2 = "fakeSessionId2"
-        SessionManager.putSession(sessionId1, capabilitySession1)
-        SessionManager.putSession(sessionId2, capabilitySession2)
+        sessionFactory.addSessions(
+            object : Session {
+                override suspend fun onFinish(
+                    argument: Argument,
+                ): ExecutionResult<Output> {
+                    this.updateUi(remoteViewsUiResponse)
+                    return ExecutionResult.getDefaultInstance()
+                }
+            },
+            object : Session {
+                override suspend fun onFinish(
+                    argument: Argument,
+                ): ExecutionResult<Output> {
+                    this.updateUi(tileLayoutUiResponse)
+                    return ExecutionResult.getDefaultInstance()
+                }
+            },
+        )
+        val session1 = multiTurnCapability.createSession(sessionId1, hostProperties)
+        val session2 = multiTurnCapability.createSession(sessionId2, hostProperties)
 
-        externalSession1.updateUi(remoteViewsUiResponse)
+        val callback1 = FakeCallbackInternal(CB_TIMEOUT)
+        val callback2 = FakeCallbackInternal(CB_TIMEOUT)
+
+        session1.execute(
+            buildRequestArgs(
+                SYNC,
+                "fieldOne",
+                "hello",
+            ),
+            callback1,
+        )
+        session2.execute(
+            buildRequestArgs(
+                SYNC,
+                "fieldOne",
+                "hello",
+            ),
+            callback2,
+        )
+        callback1.receiveResponse()
+        callback2.receiveResponse()
 
         val uiCache1 = UiSessions.getUiCacheOrNull(sessionId1)
         assertThat(uiCache1).isNotNull()
         assertThat(uiCache1?.hasUnreadUiResponse()).isTrue()
         assertThat(uiCache1?.cachedRemoteViews).isEqualTo(remoteViews)
         assertThat(uiCache1?.cachedTileLayout).isNull()
-
-        externalSession2.updateUi(tileLayoutUiResponse)
 
         val uiCache2 = UiSessions.getUiCacheOrNull(sessionId2)
         assertThat(uiCache2).isNotNull()
@@ -159,30 +244,40 @@ class UiSessionsTest {
         assertThat(uiCache2?.hasUnreadUiResponse()).isTrue()
         assertThat(uiCache2?.cachedTileLayout).isNotNull()
 
-        SessionManager.removeSession(sessionId1)
-        SessionManager.removeSession(sessionId2)
+        UiSessions.removeUiCache(sessionId1)
+        UiSessions.removeUiCache(sessionId2)
     }
 
     @Test
     fun actionExecutor_hasUpdateUiExtension() {
-        val actionExecutor = ActionExecutor<String, String> {
-            ExecutionResult.getDefaultInstance()
-        }
-        val session = mock<CapabilitySession> {
-            on { this.uiHandle } doReturn(actionExecutor)
-        }
-        val sessionId = "actionExecutorSessionId"
-        SessionManager.putSession(sessionId, session)
-
-        actionExecutor.updateUi(remoteViewsUiResponse)
-
+        assertThat(UiSessions.getUiCacheOrNull(sessionId)).isNull()
+        val oneShotCapability = FakeCapability.CapabilityBuilder().setId(
+            "oneShotCapability",
+        ).setExecutor(object : ActionExecutor<Argument, Output> {
+            override suspend fun execute(argument: Argument): ExecutionResult<Output> {
+                this.updateUi(remoteViewsUiResponse)
+                return ExecutionResult.getDefaultInstance()
+            }
+        }).build()
+        val session = oneShotCapability.createSession(
+            sessionId,
+            hostProperties,
+        )
+        val callback = FakeCallbackInternal(CB_TIMEOUT)
+        session.execute(
+            buildArgs(
+                mapOf(
+                    "fieldOne" to ParamValue.newBuilder().setIdentifier("hello").build(),
+                ),
+            ),
+            callback,
+        )
+        callback.receiveResponse()
         val uiCache = UiSessions.getUiCacheOrNull(sessionId)
         assertThat(uiCache).isNotNull()
         assertThat(uiCache?.hasUnreadUiResponse()).isTrue()
         assertThat(uiCache?.cachedChangedViewIds).containsExactly(changeViewId)
         assertThat(uiCache?.cachedRemoteViewsSize).isEqualTo(SizeF(10f, 15f))
         assertThat(uiCache?.cachedRemoteViews).isEqualTo(remoteViews)
-
-        SessionManager.removeSession(sessionId)
     }
 }
