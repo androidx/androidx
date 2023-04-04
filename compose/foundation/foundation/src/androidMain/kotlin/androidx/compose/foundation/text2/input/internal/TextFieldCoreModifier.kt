@@ -77,7 +77,7 @@ internal data class TextFieldCoreModifier(
     private val cursorBrush: Brush,
     private val writeable: Boolean,
     private val scrollState: ScrollState,
-    private val orientation: Orientation
+    private val orientation: Orientation,
 ) : ModifierNodeElement<TextFieldCoreModifierNode>() {
 
     override fun create(): TextFieldCoreModifierNode = TextFieldCoreModifierNode(
@@ -87,7 +87,7 @@ internal data class TextFieldCoreModifier(
         cursorBrush = cursorBrush,
         writable = writeable,
         scrollState = scrollState,
-        orientation = orientation
+        orientation = orientation,
     )
 
     override fun update(node: TextFieldCoreModifierNode): TextFieldCoreModifierNode {
@@ -98,7 +98,7 @@ internal data class TextFieldCoreModifier(
             cursorBrush = cursorBrush,
             writeable = writeable,
             scrollState = scrollState,
-            orientation = orientation
+            orientation = orientation,
         )
         return node
     }
@@ -117,7 +117,7 @@ internal class TextFieldCoreModifierNode(
     private var cursorBrush: Brush,
     private var writable: Boolean,
     private var scrollState: ScrollState,
-    private var orientation: Orientation
+    private var orientation: Orientation,
 ) : Modifier.Node(),
     LayoutModifierNode,
     DrawModifierNode,
@@ -158,7 +158,7 @@ internal class TextFieldCoreModifierNode(
         cursorBrush: Brush,
         writeable: Boolean,
         scrollState: ScrollState,
-        orientation: Orientation
+        orientation: Orientation,
     ) {
         val wasFocused = this.isFocused
         val previousTextFieldState = this.textFieldState

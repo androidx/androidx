@@ -1,0 +1,99 @@
+/*
+ * Copyright 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.compose.foundation.text2.input
+
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text.appendCodePointX
+import androidx.compose.runtime.Stable
+import androidx.compose.ui.text.AnnotatedString
+
+/**
+ * Visual transformation interface for input fields.
+ *
+ * This interface is responsible for 1-to-1 mapping of every codepoint in input state to another
+ * codepoint before text is rendered. Visual transformation is useful when the underlying source
+ * of input needs to remain but rendered content should look different, e.g. password obscuring.
+ */
+@ExperimentalFoundationApi
+fun interface CodepointTransformation {
+
+    /**
+     * Transforms a single [codepoint] located at [codepointIndex] to another codepoint.
+     *
+     * A codepoint is an integer that always maps to a single character. Every codepoint in Unicode
+     * is comprised of 16 bits, 2 bytes.
+     */
+    // TODO: add more codepoint explanation or doc referral
+    fun transform(codepointIndex: Int, codepoint: Int): Int
+
+    companion object {
+
+        @Stable
+        val None = CodepointTransformation { _, codepoint -> codepoint }
+    }
+}
+
+/**
+ * Creates a masking [CodepointTransformation] that maps all codepoints to a specific [character].
+ */
+@ExperimentalFoundationApi
+fun CodepointTransformation.Companion.mask(character: Char): CodepointTransformation =
+    MaskCodepointTransformation(character)
+
+@OptIn(ExperimentalFoundationApi::class)
+private class MaskCodepointTransformation(val character: Char) : CodepointTransformation {
+    override fun transform(codepointIndex: Int, codepoint: Int): Int {
+        return character.code
+    }
+
+    override fun toString(): String {
+        return "MaskCodepointTransformation(character=$character)"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is MaskCodepointTransformation) return false
+
+        if (character != other.character) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return character.hashCode()
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+internal fun AnnotatedString.toVisualText(
+    codepointTransformation: CodepointTransformation?
+): AnnotatedString {
+    codepointTransformation ?: return this
+    val visualString = buildString {
+        (0 until text.codePointCount(0, text.length)).forEach { codepointIndex ->
+            val codepoint = codepointTransformation.transform(
+                codepointIndex, text.codePointAt(codepointIndex)
+            )
+            appendCodePointX(codepoint)
+        }
+    }
+    return AnnotatedString(
+        text = visualString,
+        spanStyles = this.spanStyles,
+        paragraphStyles = this.paragraphStyles
+    )
+}
