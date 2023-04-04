@@ -398,7 +398,15 @@ public class NotConfiguredComplicationData :
  * displayed. If the complication is drawn with a single color it's recommended to choose
  * [monochromaticImage] and apply a tint. If the complication is rendered with multiple colors it's
  * recommended to choose the [smallImage]. It's best practice for a ComplicationDataSource to
- * specify both a [monochromaticImage] and a [smallImage].
+ * specify both a [monochromaticImage] and a [smallImage]
+ *
+ * A data source that wants to serve a ShortTextComplicationData must include the following
+ * meta data in its manifest (NB the value is a comma separated list):
+ *
+ * ```
+ * <meta-data android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+ *    android:value="SHORT_TEXT"/>
+ * ```
  *
  * @property text The body [ComplicationText] of the complication. The length of the text, including
  *   any time-dependent values at any valid time, is expected to not exceed seven characters. When
@@ -579,6 +587,14 @@ internal constructor(
  * [monochromaticImage] and apply a tint. If the complication is rendered with multiple colors it's
  * recommended to choose the [smallImage]. It's best practice for a ComplicationDataSource to
  * specify both a [monochromaticImage] and a [smallImage].
+ *
+ * A data source that wants to serve a LongTextComplicationData must include the following
+ * meta data in its manifest (NB the value is a comma separated list):
+ *
+ * ```
+ * <meta-data android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+ *    android:value="LONG_TEXT"/>
+ * ```
  *
  * @property text The body [ComplicationText] of the complication. If the text is equal to
  *   [ComplicationText.PLACEHOLDER] the renderer must treat it as a placeholder rather than
@@ -799,6 +815,14 @@ public class ColorRamp(
  * [monochromaticImage] and apply a tint. If the complication is rendered with multiple colors it's
  * recommended to choose the [smallImage]. It's best practice for a ComplicationDataSource to
  * specify both a [monochromaticImage] and a [smallImage].
+ *
+ * A data source that wants to serve a RangedValueComplicationData must include the following
+ * meta data in its manifest (NB the value is a comma separated list):
+ *
+ * ```
+ * <meta-data android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+ *    android:value="GOAL_PROGRESS"/>
+ * ```
  *
  * @property value The [Float] value of this complication which is >= [min] and <= [max] or equal to
  *   [PLACEHOLDER]. If it's equal to [PLACEHOLDER] the renderer must treat it as a placeholder
@@ -1154,6 +1178,14 @@ internal constructor(
  * [RangedValueComplicationData.TYPE_RATING] into
  * [RangedValueComplicationData.Builder.setValueType].
  *
+ * A data source that wants to serve a SmallImageComplicationData must include the following
+ * meta data in its manifest (NB the value is a comma separated list):
+ *
+ * ```
+ * <meta-data android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+ *        android:value="GOAL_PROGRESS"/>
+ * ```
+ *
  * @property value The [Float] value of this complication which is >= 0f, this value may be larger
  *   than [targetValue]. If it's equal to [PLACEHOLDER] the renderer must treat it as a placeholder
  *   rather than rendering normally, its suggested to be drawn as a grey arc with a percentage value
@@ -1449,6 +1481,14 @@ internal constructor(
  * recommended to choose the [smallImage]. It's best practice for a ComplicationDataSource to
  * specify both a [monochromaticImage] and a [smallImage].
  *
+ * A data source that wants to serve a SmallImageComplicationData must include the following
+ * meta data in its manifest (NB the value is a comma separated list):
+ *
+ * ```
+ * <meta-data android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+ *    android:value="WEIGHTED_ELEMENTS"/>
+ * ```
+ *
  * @property elements The breakdown of the subject into various [Element]s (e.g. the proportion of
  *   calories consumed which were carbohydrates, fats, etc.). The colors need to be meaningful to
  *   the user (e.g. blue is cold, yellow/red is worm), and should be consistent with the experience
@@ -1739,6 +1779,14 @@ internal constructor(
  *
  * The image is expected to always be displayed.
  *
+ * A data source that wants to serve a MonochromaticImageComplicationData must include the following
+ * meta data in its manifest (NB the value is a comma separated list):
+ *
+ * ```
+ * <meta-data android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+ *    android:value="ICON"/>
+ * ```
+ *
  * @property monochromaticImage A simple [MonochromaticImage] image that can be tinted by the watch
  *   face (typically with SRC_IN). If the monochromaticImage is equal to
  *   [MonochromaticImage.PLACEHOLDER] the renderer must treat it as a placeholder rather than
@@ -1845,6 +1893,14 @@ internal constructor(
  * Type used for complications which consist only of a [SmallImage].
  *
  * The image is expected to always be displayed.
+ *
+ * A data source that wants to serve a SmallImageComplicationData must include the following
+ * meta data in its manifest (NB the value is a comma separated list):
+ *
+ * ```
+ * <meta-data android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+ *    android:value="SMALL_IMAGE"/>
+ * ```
  *
  * @property smallImage The [SmallImage] that is expected to cover a small fraction of a watch face
  *   occupied by a single complication. If the smallImage is equal to [SmallImage.PLACEHOLDER] the
@@ -1956,6 +2012,14 @@ internal constructor(
  * The image is expected to always be displayed. The image may be shown as the background, any other
  * part of the watch face or within a complication. The image is large enough to be cover the entire
  * screen. The image may be cropped to fit the watch face or complication.
+ *
+ * A data source that wants to serve a PhotoImageComplicationData must include the following
+ * meta data in its manifest (NB the value is a comma separated list):
+ *
+ * ```
+ * <meta-data android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+ *    android:value="LARGE_IMAGE"/>
+ * ```
  *
  * @property photoImage The [Icon] that is expected to fill a large part of the watch face, large
  *   enough to be shown as either a background or as part of a high resolution complication. This
