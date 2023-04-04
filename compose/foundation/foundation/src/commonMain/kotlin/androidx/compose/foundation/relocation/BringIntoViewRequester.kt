@@ -149,7 +149,8 @@ private class BringIntoViewRequesterElement(
 internal class BringIntoViewRequesterNode(
     private var requester: BringIntoViewRequester
 ) : BringIntoViewChildNode() {
-    init {
+
+    override fun onAttach() {
         updateRequester(requester)
     }
 

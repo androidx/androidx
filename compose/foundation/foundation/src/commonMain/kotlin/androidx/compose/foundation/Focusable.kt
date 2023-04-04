@@ -17,31 +17,39 @@
 package androidx.compose.foundation
 
 import androidx.compose.foundation.interaction.FocusInteraction
+import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.foundation.relocation.bringIntoViewRequester
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.relocation.BringIntoViewRequesterNode
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.FocusEventModifierNode
+import androidx.compose.ui.focus.FocusRequesterModifierNode
+import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
-import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.requestFocus
 import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LocalPinnableContainer
 import androidx.compose.ui.layout.PinnableContainer
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.GlobalPositionAwareModifierNode
+import androidx.compose.ui.node.LayoutAwareModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.ObserverNode
+import androidx.compose.ui.node.SemanticsModifierNode
+import androidx.compose.ui.node.currentValueOf
+import androidx.compose.ui.node.invalidateSemantics
+import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.platform.InspectableModifier
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.focused
 import androidx.compose.ui.semantics.requestFocus
-import androidx.compose.ui.semantics.semantics
 import kotlinx.coroutines.launch
 
 /**
@@ -59,117 +67,15 @@ import kotlinx.coroutines.launch
 fun Modifier.focusable(
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource? = null,
-) = composed(
-    inspectorInfo = debugInspectorInfo {
-        name = "focusable"
-        properties["enabled"] = enabled
-        properties["interactionSource"] = interactionSource
-    }
-) {
-    val scope = rememberCoroutineScope()
-    val focusedInteraction = remember { mutableStateOf<FocusInteraction.Focus?>(null) }
-    var isFocused by remember { mutableStateOf(false) }
-    val focusRequester = remember { FocusRequester() }
-
-    // Focusables have a few different cases where they need to make sure they stay visible:
-    //
-    // 1. Focusable node newly receives focus – always bring entire node into view. That's what this
-    //    BringIntoViewRequester does.
-    // 2. Scrollable parent resizes and the currently-focused item is now hidden – bring entire node
-    //    into view if it was also in view before the resize. This handles the case of
-    //    `softInputMode=ADJUST_RESIZE`. See b/216842427.
-    // 3. Entire window is panned due to `softInputMode=ADJUST_PAN` – report the correct focused
-    //    rect to the view system, and the view system itself will keep the focused area in view.
-    //    See aosp/1964580.
-    val bringIntoViewRequester = remember { BringIntoViewRequester() }
-    DisposableEffect(interactionSource) {
-        onDispose {
-            focusedInteraction.value?.let { oldValue ->
-                val interaction = FocusInteraction.Unfocus(oldValue)
-                interactionSource?.tryEmit(interaction)
-                focusedInteraction.value = null
-            }
-        }
-    }
-    DisposableEffect(enabled) {
-        if (!enabled) {
-            scope.launch {
-                focusedInteraction.value?.let { oldValue ->
-                    val interaction = FocusInteraction.Unfocus(oldValue)
-                    interactionSource?.emit(interaction)
-                    focusedInteraction.value = null
-                }
-            }
-        }
-        onDispose { }
-    }
-
+) = this.then(
     if (enabled) {
-        val focusedChildModifier = if (isFocused) {
-            remember { FocusedBoundsModifier() }
-        } else {
-            // Could use Modifier.onPlaced to ensure there's a LayoutCoordinates ready to go as soon
-            // as we get focus, although waiting until the next recomposition seems to be good
-            // enough for now.
-            Modifier
-        }
-
-        val pinnableContainer = LocalPinnableContainer.current
-        var pinHandle by remember { mutableStateOf<PinnableContainer.PinnedHandle?>(null) }
-        DisposableEffect(pinnableContainer) {
-            if (isFocused) {
-                pinHandle = pinnableContainer?.pin()
-            }
-            onDispose {
-                pinHandle?.release()
-                pinHandle = null
-            }
-        }
-
-        Modifier
-            .semantics {
-                this.focused = isFocused
-                requestFocus {
-                    focusRequester.requestFocus()
-                    isFocused
-                }
-            }
-            .bringIntoViewRequester(bringIntoViewRequester)
-            .focusRequester(focusRequester)
-            .then(focusedChildModifier)
-            .onFocusChanged {
-                isFocused = it.isFocused
-                if (isFocused) {
-                    pinHandle = pinnableContainer?.pin()
-                    scope.launch {
-                        focusedInteraction.value?.let { oldValue ->
-                            val interaction = FocusInteraction.Unfocus(oldValue)
-                            interactionSource?.emit(interaction)
-                            focusedInteraction.value = null
-                        }
-                        val interaction = FocusInteraction.Focus()
-                        interactionSource?.emit(interaction)
-                        focusedInteraction.value = interaction
-
-                        bringIntoViewRequester.bringIntoView()
-                    }
-                } else {
-                    pinHandle?.release()
-                    pinHandle = null
-                    scope.launch {
-                        focusedInteraction.value?.let { oldValue ->
-                            val interaction = FocusInteraction.Unfocus(oldValue)
-                            interactionSource?.emit(interaction)
-                            focusedInteraction.value = null
-                        }
-                    }
-                }
-            }
-            .focusTarget()
+        FocusableElement(
+            interactionSource
+        ).focusTarget()
     } else {
         Modifier
     }
-}
+)
 
 /**
  * Creates a focus group or marks this component as a focus group. This means that when we move
@@ -194,7 +100,8 @@ fun Modifier.focusable(
  */
 @ExperimentalFoundationApi
 fun Modifier.focusGroup(): Modifier {
-    return this.then(focusGroupInspectorInfo)
+    return this
+        .then(focusGroupInspectorInfo)
         .focusProperties { canFocus = false }
         .focusTarget()
 }
@@ -224,3 +131,215 @@ internal fun Modifier.focusableInNonTouchMode(
 private val focusGroupInspectorInfo = InspectableModifier(
     debugInspectorInfo { name = "focusGroup" }
 )
+
+private class FocusableElement(
+    private val interactionSource: MutableInteractionSource?
+) : ModifierNodeElement<FocusableNode>() {
+
+    override fun create(): FocusableNode =
+        FocusableNode(interactionSource)
+
+    override fun update(node: FocusableNode) = node.also {
+        it.update(interactionSource)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is FocusableElement) return false
+
+        if (interactionSource != other.interactionSource) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return interactionSource.hashCode()
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "focusable"
+        properties["enabled"] = true
+        properties["interactionSource"] = interactionSource
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+private class FocusableNode(
+    interactionSource: MutableInteractionSource?
+) : DelegatingNode(), FocusEventModifierNode, LayoutAwareModifierNode, SemanticsModifierNode,
+    GlobalPositionAwareModifierNode {
+
+    private var focusState: FocusState? = null
+
+    private val focusableSemanticsNode = delegated { FocusableSemanticsNode() }
+
+    // (lpf) could we remove this if interactionsource is null?
+    private val focusableInteractionNode = delegated { FocusableInteractionNode(interactionSource) }
+    private val focusablePinnableContainer = delegated { FocusablePinnableContainerNode() }
+    private val focusedBoundsNode = delegated { FocusedBoundsNode() }
+
+    // Focusables have a few different cases where they need to make sure they stay visible:
+    //
+    // 1. Focusable node newly receives focus – always bring entire node into view. That's what this
+    //    BringIntoViewRequester does.
+    // 2. Scrollable parent resizes and the currently-focused item is now hidden – bring entire node
+    //    into view if it was also in view before the resize. This handles the case of
+    //    `softInputMode=ADJUST_RESIZE`. See b/216842427.
+    // 3. Entire window is panned due to `softInputMode=ADJUST_PAN` – report the correct focused
+    //    rect to the view system, and the view system itself will keep the focused area in view.
+    //    See aosp/1964580.
+    private val bringIntoViewRequester = BringIntoViewRequester()
+
+    private val bringIntoViewRequesterNode = delegated {
+        BringIntoViewRequesterNode(bringIntoViewRequester)
+    }
+
+    // TODO(levima) Remove this once delegation can propagate this events on its own
+    override fun onPlaced(coordinates: LayoutCoordinates) =
+        bringIntoViewRequesterNode.onPlaced(coordinates)
+
+    fun update(interactionSource: MutableInteractionSource?) =
+        focusableInteractionNode.update(interactionSource)
+
+    // TODO(levima) Update this once delegation can propagate this events on its own
+    override fun onFocusEvent(focusState: FocusState) {
+        if (this.focusState != focusState) { // focus state changed
+            val isFocused = focusState.isFocused
+            if (isFocused) {
+                coroutineScope.launch {
+                    bringIntoViewRequester.bringIntoView()
+                }
+            }
+            if (isAttached) invalidateSemantics()
+            focusableInteractionNode.setFocus(isFocused)
+            focusedBoundsNode.setFocus(isFocused)
+            focusablePinnableContainer.setFocus(isFocused)
+            focusableSemanticsNode.setFocus(isFocused)
+            this.focusState = focusState
+        }
+    }
+
+    // TODO(levima) Remove this once delegation can propagate this events on its own
+    override val semanticsConfiguration: SemanticsConfiguration
+        get() = focusableSemanticsNode.semanticsConfiguration
+
+    // TODO(levima) Remove this once delegation can propagate this events on its own
+    override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
+        focusedBoundsNode.onGloballyPositioned(coordinates)
+    }
+}
+
+private class FocusableInteractionNode(
+    private var interactionSource: MutableInteractionSource?
+) : Modifier.Node() {
+    private var focusedInteraction: FocusInteraction.Focus? = null
+
+    /**
+     * Interaction source events will be controlled entirely by changes in focus events. The
+     * FocusEventNode will be the source of truth for this and will emit an event in case it
+     * is detached.
+     */
+    fun setFocus(isFocused: Boolean) {
+        interactionSource?.let { interactionSource ->
+            if (isFocused) {
+                focusedInteraction?.let { oldValue ->
+                    val interaction = FocusInteraction.Unfocus(oldValue)
+                    interactionSource.emitWithFallback(interaction)
+                    focusedInteraction = null
+                }
+                val interaction = FocusInteraction.Focus()
+                interactionSource.emitWithFallback(interaction)
+                focusedInteraction = interaction
+            } else {
+                focusedInteraction?.let { oldValue ->
+                    val interaction = FocusInteraction.Unfocus(oldValue)
+                    interactionSource.emitWithFallback(interaction)
+                    focusedInteraction = null
+                }
+            }
+        }
+    }
+
+    fun update(interactionSource: MutableInteractionSource?) {
+        if (this.interactionSource != interactionSource) {
+            disposeInteractionSource()
+            this.interactionSource = interactionSource
+        }
+    }
+
+    private fun disposeInteractionSource() {
+        interactionSource?.let { interactionSource ->
+            focusedInteraction?.let { oldValue ->
+                val interaction = FocusInteraction.Unfocus(oldValue)
+                interactionSource.tryEmit(interaction)
+            }
+        }
+        focusedInteraction = null
+    }
+
+    private fun MutableInteractionSource.emitWithFallback(interaction: Interaction) {
+        if (isAttached) {
+            coroutineScope.launch {
+                emit(interaction)
+            }
+        } else {
+            tryEmit(interaction)
+        }
+    }
+}
+
+private class FocusablePinnableContainerNode : Modifier.Node(),
+    CompositionLocalConsumerModifierNode, ObserverNode {
+    private var pinnedHandle: PinnableContainer.PinnedHandle? = null
+    private var isFocused: Boolean = false
+
+    private fun retrievePinnableContainer(): PinnableContainer? {
+        var container: PinnableContainer? = null
+        observeReads {
+            container = currentValueOf(LocalPinnableContainer)
+        }
+        return container
+    }
+
+    fun setFocus(focused: Boolean) {
+        if (focused) {
+            val pinnableContainer = retrievePinnableContainer()
+            pinnedHandle = pinnableContainer?.pin()
+        } else {
+            pinnedHandle?.release()
+            pinnedHandle = null
+        }
+        isFocused = focused
+    }
+
+    override fun onReset() {
+        pinnedHandle?.release()
+        pinnedHandle = null
+    }
+
+    override fun onObservedReadsChanged() {
+        val pinnableContainer = retrievePinnableContainer()
+        if (isFocused) {
+            pinnedHandle?.release()
+            pinnedHandle = pinnableContainer?.pin()
+        }
+    }
+}
+
+private class FocusableSemanticsNode : Modifier.Node(), SemanticsModifierNode,
+    FocusRequesterModifierNode {
+    private var semanticsConfigurationCache = SemanticsConfiguration()
+
+    private var isFocused = false
+
+    fun setFocus(focused: Boolean) {
+        this.isFocused = focused
+    }
+
+    override val semanticsConfiguration: SemanticsConfiguration
+        get() = semanticsConfigurationCache.apply {
+            focused = isFocused
+            requestFocus {
+                this@FocusableSemanticsNode.requestFocus()
+            }
+        }
+}
