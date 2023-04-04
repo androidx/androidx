@@ -17,6 +17,7 @@
 package androidx.room.integration.kotlintestapp.test
 
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule
+import androidx.kruth.assertThat
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
@@ -30,7 +31,6 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.MoreExecutors
 import org.junit.After
 import org.junit.Assert.assertEquals

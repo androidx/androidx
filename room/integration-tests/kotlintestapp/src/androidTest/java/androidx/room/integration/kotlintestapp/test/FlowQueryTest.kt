@@ -16,11 +16,11 @@
 
 package androidx.room.integration.kotlintestapp.test
 
+import androidx.kruth.assertThat
 import androidx.room.integration.kotlintestapp.vo.Book
 import androidx.room.withTransaction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview

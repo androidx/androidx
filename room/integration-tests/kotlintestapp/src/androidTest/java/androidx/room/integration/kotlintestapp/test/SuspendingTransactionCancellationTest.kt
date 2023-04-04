@@ -18,12 +18,12 @@ package androidx.room.integration.kotlintestapp.test
 
 import androidx.room.integration.kotlintestapp.vo.Book
 import androidx.room.withTransaction
+import androidx.kruth.assertThat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope

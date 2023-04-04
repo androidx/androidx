@@ -20,6 +20,7 @@ import androidx.arch.core.executor.testing.CountingTaskExecutorRule
 import androidx.collection.ArrayMap
 import androidx.collection.LongSparseArray
 import androidx.collection.SparseArrayCompat
+import androidx.kruth.assertThat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.testing.TestLifecycleOwner
@@ -44,7 +45,6 @@ import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableMultimap
 import com.google.common.collect.ImmutableSet
 import com.google.common.collect.ImmutableSetMultimap
-import com.google.common.truth.Truth.assertThat
 import io.reactivex.Flowable
 import java.nio.ByteBuffer
 import java.util.Date
