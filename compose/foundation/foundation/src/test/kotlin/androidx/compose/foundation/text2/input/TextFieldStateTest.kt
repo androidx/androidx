@@ -18,6 +18,7 @@ package androidx.compose.foundation.text2.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
 import org.junit.Test
@@ -263,5 +264,57 @@ class TextFieldStateTest {
         state.setTextAndSelectAll("Hello")
         assertThat(state.value.text).isEqualTo("Hello")
         assertThat(state.value.selection).isEqualTo(TextRange(0, 5))
+    }
+
+    @Test
+    fun replace_changesAreTracked() {
+        val state = TextFieldState(TextFieldValue("hello world"))
+        state.edit {
+            replace(6, 11, "Compose")
+            assertThat(toString()).isEqualTo("hello Compose")
+            assertThat(changes.changeCount).isEqualTo(1)
+            assertThat(changes.getRange(0)).isEqualTo(TextRange(6, 13))
+            assertThat(changes.getOriginalRange(0)).isEqualTo(TextRange(6, 11))
+            placeCursorAtEnd()
+        }
+    }
+
+    @Test
+    fun appendChar_changesAreTracked() {
+        val state = TextFieldState(TextFieldValue("hello "))
+        state.edit {
+            append('c')
+            assertThat(toString()).isEqualTo("hello c")
+            assertThat(changes.changeCount).isEqualTo(1)
+            assertThat(changes.getRange(0)).isEqualTo(TextRange(6, 7))
+            assertThat(changes.getOriginalRange(0)).isEqualTo(TextRange(6))
+            placeCursorAtEnd()
+        }
+    }
+
+    @Test
+    fun appendCharSequence_changesAreTracked() {
+        val state = TextFieldState(TextFieldValue("hello "))
+        state.edit {
+            append("world")
+            assertThat(toString()).isEqualTo("hello world")
+            assertThat(changes.changeCount).isEqualTo(1)
+            assertThat(changes.getRange(0)).isEqualTo(TextRange(6, 11))
+            assertThat(changes.getOriginalRange(0)).isEqualTo(TextRange(6))
+            placeCursorAtEnd()
+        }
+    }
+
+    @Test
+    fun appendCharSequenceRange_changesAreTracked() {
+        val state = TextFieldState(TextFieldValue("hello "))
+        state.edit {
+            append("hello world", 6, 11)
+            assertThat(toString()).isEqualTo("hello world")
+            assertThat(changes.changeCount).isEqualTo(1)
+            assertThat(changes.getRange(0)).isEqualTo(TextRange(6, 11))
+            assertThat(changes.getOriginalRange(0)).isEqualTo(TextRange(6))
+            placeCursorAtEnd()
+        }
     }
 }

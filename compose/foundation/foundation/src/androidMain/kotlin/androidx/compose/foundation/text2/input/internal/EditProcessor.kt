@@ -146,6 +146,7 @@ internal class EditProcessor(
      */
     fun update(editCommands: List<EditCommand>, filter: TextEditFilter?) {
         var lastCommand: EditCommand? = null
+        mBuffer.changeTracker.clearChanges()
         try {
             editCommands.fastForEach {
                 lastCommand = it
@@ -167,7 +168,10 @@ internal class EditProcessor(
             value = proposedValue
         } else {
             val oldValue = value
-            val mutableValue = MutableTextFieldValueWithSelection(proposedValue)
+            val mutableValue = MutableTextFieldValueWithSelection(
+                proposedValue,
+                initialChanges = mBuffer.changeTracker
+            )
             filter.filter(oldState = oldValue, newState = mutableValue)
             // If neither the text nor the selection changed, we want to preserve the composition.
             // Otherwise, the IME will reset it anyway.

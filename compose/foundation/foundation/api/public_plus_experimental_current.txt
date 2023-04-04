@@ -1313,17 +1313,28 @@ package androidx.compose.foundation.text2.input {
     method public Appendable append(CharSequence? text);
     method public Appendable append(CharSequence? text, int start, int end);
     method public operator char get(int index);
+    method public final androidx.compose.foundation.text2.input.MutableTextFieldValue.ChangeList getChanges();
     method public final int getCodepointLength();
     method public int getLength();
-    method protected void onTextWillChange(long rangeToBeReplaced, int newLength);
+    method @CallSuper protected void onTextWillChange(long rangeToBeReplaced, int newLength);
     method public final void replace(int start, int end, String text);
-    method protected final void replaceWithoutNotifying(int start, int end, String text);
     method public CharSequence subSequence(int startIndex, int endIndex);
+    property public final androidx.compose.foundation.text2.input.MutableTextFieldValue.ChangeList changes;
     property public final int codepointLength;
     property public int length;
   }
 
+  @androidx.compose.foundation.ExperimentalFoundationApi public static interface MutableTextFieldValue.ChangeList {
+    method public int getChangeCount();
+    method public long getOriginalRange(int changeIndex);
+    method public long getRange(int changeIndex);
+    property public abstract int changeCount;
+  }
+
   public final class MutableTextFieldValueKt {
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static void delete(androidx.compose.foundation.text2.input.MutableTextFieldValue, int start, int end);
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static inline void forEachChange(androidx.compose.foundation.text2.input.MutableTextFieldValue.ChangeList, kotlin.jvm.functions.Function2<? super androidx.compose.ui.text.TextRange,? super androidx.compose.ui.text.TextRange,kotlin.Unit> block);
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static inline void forEachChangeReversed(androidx.compose.foundation.text2.input.MutableTextFieldValue.ChangeList, kotlin.jvm.functions.Function2<? super androidx.compose.ui.text.TextRange,? super androidx.compose.ui.text.TextRange,kotlin.Unit> block);
     method @androidx.compose.foundation.ExperimentalFoundationApi public static void insert(androidx.compose.foundation.text2.input.MutableTextFieldValue, int index, String text);
   }
 
@@ -1331,11 +1342,14 @@ package androidx.compose.foundation.text2.input {
     method public boolean getHasSelection();
     method public long getSelectionInChars();
     method public long getSelectionInCodepoints();
+    method public void placeCursorAfterLastChange();
     method public void placeCursorAtEnd();
     method public void placeCursorBeforeCharAt(int index);
     method public void placeCursorBeforeCodepointAt(int index);
+    method public void placeCursorBeforeFirstChange();
     method public void resetTo(androidx.compose.ui.text.input.TextFieldValue value);
     method public void selectAll();
+    method public void selectAllChanges();
     method public void selectCharsIn(long range);
     method public void selectCodepointsIn(long range);
     property public final boolean hasSelection;
@@ -1359,10 +1373,13 @@ package androidx.compose.foundation.text2.input {
   }
 
   public final class TextFieldEditResultKt {
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldEditResult placeCursorAfterLastChange(androidx.compose.foundation.text2.input.MutableTextFieldValue);
     method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldEditResult placeCursorAtEnd(androidx.compose.foundation.text2.input.MutableTextFieldValue);
     method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldEditResult placeCursorBeforeCharAt(androidx.compose.foundation.text2.input.MutableTextFieldValue, int index);
     method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldEditResult placeCursorBeforeCodepointAt(androidx.compose.foundation.text2.input.MutableTextFieldValue, int index);
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldEditResult placeCursorBeforeFirstChange(androidx.compose.foundation.text2.input.MutableTextFieldValue);
     method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldEditResult selectAll(androidx.compose.foundation.text2.input.MutableTextFieldValue);
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldEditResult selectAllChanges(androidx.compose.foundation.text2.input.MutableTextFieldValue);
     method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldEditResult selectCharsIn(androidx.compose.foundation.text2.input.MutableTextFieldValue, long range);
     method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldEditResult selectCodepointsIn(androidx.compose.foundation.text2.input.MutableTextFieldValue, long range);
   }
