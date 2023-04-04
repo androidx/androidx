@@ -18,7 +18,6 @@ package androidx.tv.integration.playground
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -126,31 +125,26 @@ private fun Sidebar(
         }
     }
 
-    FocusGroup {
-        Column(
-            modifier = Modifier
-                .fillMaxHeight()
-                .background(pageColor)
-                .focusable(false),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            NavigationItem(
-                imageVector = Icons.Default.KeyboardArrowRight,
-                text = "LTR",
-                drawerValue = drawerValue,
-                selectedIndex = selectedIndex,
-                index = 0,
-                modifier = Modifier.initiallyFocused(),
-            )
-            NavigationItem(
-                imageVector = Icons.Default.KeyboardArrowLeft,
-                text = "RTL",
-                drawerValue = drawerValue,
-                selectedIndex = selectedIndex,
-                index = 1,
-                modifier = Modifier.restorableFocus(),
-            )
-        }
+    Column(
+        modifier = Modifier
+            .fillMaxHeight()
+            .background(pageColor),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        NavigationItem(
+            imageVector = Icons.Default.KeyboardArrowRight,
+            text = "LTR",
+            drawerValue = drawerValue,
+            selectedIndex = selectedIndex,
+            index = 0
+        )
+        NavigationItem(
+            imageVector = Icons.Default.KeyboardArrowLeft,
+            text = "RTL",
+            drawerValue = drawerValue,
+            selectedIndex = selectedIndex,
+            index = 1
+        )
     }
 }
 
