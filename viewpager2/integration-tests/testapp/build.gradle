@@ -35,6 +35,11 @@ dependencies {
         exclude group: "androidx.viewpager2", module: "viewpager2"
     }
 
+    // Align default and test configuration dependencies by forcing both to use
+    // tip-of-tree core, thus avoiding a TaskDependencyResolveException.
+    implementation(project(":core:core"))
+    androidTestImplementation(project(":core:core"))
+
     androidTestImplementation(project(":internal-testutils-espresso"))
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testExtJunit)
