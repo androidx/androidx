@@ -17,10 +17,12 @@
 package androidx.compose.foundation.text2.input.internal
 
 import android.view.KeyEvent
+import android.view.inputmethod.EditorInfo
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -48,6 +50,7 @@ class StatelessInputConnectionTest {
     private var imeOptions: ImeOptions = ImeOptions.Default
     private var onRequestEdits: ((List<EditCommand>) -> Unit)? = null
     private var onSendKeyEvent: ((KeyEvent) -> Unit)? = null
+    private var onImeAction: ((ImeAction) -> Unit)? = null
 
     private val activeSessionProvider: () -> EditableTextInputSession? = { activeSession }
 
@@ -66,6 +69,18 @@ class StatelessInputConnectionTest {
 
             override fun setFilter(filter: TextEditFilter?) {
                 // Noop.
+            }
+
+            override fun showSoftwareKeyboard() {
+                // noop
+            }
+
+            override fun hideSoftwareKeyboard() {
+                // noop
+            }
+
+            override fun onImeAction(imeAction: ImeAction) {
+                this@StatelessInputConnectionTest.onImeAction?.invoke(imeAction)
             }
 
             override fun requestEdits(editCommands: List<EditCommand>) {
@@ -576,5 +591,54 @@ class StatelessInputConnectionTest {
         ic.sendKeyEvent(keyEvent2)
 
         assertThat(keyEvents.size).isEqualTo(0)
+    }
+
+    @Test
+    fun performImeAction_whenIMERequests() {
+        val receivedImeActions = mutableListOf<ImeAction>()
+        onImeAction = {
+            receivedImeActions += it
+        }
+        ic.performEditorAction(EditorInfo.IME_ACTION_DONE)
+        ic.performEditorAction(EditorInfo.IME_ACTION_GO)
+        ic.performEditorAction(EditorInfo.IME_ACTION_NEXT)
+        ic.performEditorAction(EditorInfo.IME_ACTION_NONE)
+        ic.performEditorAction(EditorInfo.IME_ACTION_PREVIOUS)
+        ic.performEditorAction(EditorInfo.IME_ACTION_SEARCH)
+        ic.performEditorAction(EditorInfo.IME_ACTION_SEND)
+        ic.performEditorAction(EditorInfo.IME_ACTION_UNSPECIFIED)
+        ic.performEditorAction(-1)
+
+        assertThat(receivedImeActions).isEqualTo(listOf(
+            ImeAction.Done,
+            ImeAction.Go,
+            ImeAction.Next,
+            ImeAction.Default, // None is evaluated back to Default.
+            ImeAction.Previous,
+            ImeAction.Search,
+            ImeAction.Send,
+            ImeAction.Default, // Unspecified is evaluated back to Default.
+            ImeAction.Default // Unrecognized is evaluated back to Default.
+        ))
+    }
+
+    @Test
+    fun performImeAction_noActiveSession() {
+        val receivedImeActions = mutableListOf<ImeAction>()
+        onImeAction = {
+            receivedImeActions += it
+        }
+        activeSession = null
+        ic.performEditorAction(EditorInfo.IME_ACTION_DONE)
+        ic.performEditorAction(EditorInfo.IME_ACTION_GO)
+        ic.performEditorAction(EditorInfo.IME_ACTION_NEXT)
+        ic.performEditorAction(EditorInfo.IME_ACTION_NONE)
+        ic.performEditorAction(EditorInfo.IME_ACTION_PREVIOUS)
+        ic.performEditorAction(EditorInfo.IME_ACTION_SEARCH)
+        ic.performEditorAction(EditorInfo.IME_ACTION_SEND)
+        ic.performEditorAction(EditorInfo.IME_ACTION_UNSPECIFIED)
+        ic.performEditorAction(-1)
+
+        assertThat(receivedImeActions).isEqualTo(listOf<ImeAction>())
     }
 }
