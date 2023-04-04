@@ -1374,7 +1374,14 @@ package androidx.compose.foundation.text2.input {
     property public final androidx.compose.ui.text.input.TextFieldValue value;
   }
 
+  public static final class TextFieldState.Saver implements androidx.compose.runtime.saveable.Saver<androidx.compose.foundation.text2.input.TextFieldState,java.lang.Object> {
+    method public androidx.compose.foundation.text2.input.TextFieldState? restore(Object value);
+    method public Object? save(androidx.compose.runtime.saveable.SaverScope, androidx.compose.foundation.text2.input.TextFieldState value);
+    field public static final androidx.compose.foundation.text2.input.TextFieldState.Saver INSTANCE;
+  }
+
   public final class TextFieldStateKt {
+    method @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static androidx.compose.foundation.text2.input.TextFieldState rememberTextFieldState();
     method @androidx.compose.foundation.ExperimentalFoundationApi public static void setTextAndPlaceCursorAtEnd(androidx.compose.foundation.text2.input.TextFieldState, String text);
     method @androidx.compose.foundation.ExperimentalFoundationApi public static void setTextAndSelectAll(androidx.compose.foundation.text2.input.TextFieldState, String text);
   }
