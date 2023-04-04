@@ -171,7 +171,8 @@ final class AppInteractionServiceGrpcImpl extends AppInteractionServiceImplBase 
                                     request.getHostProperties().getHostViewHeightDp(),
                                     request.getHostProperties().getHostViewWidthDp()))
                             .build();
-            CapabilitySession session = targetCapability.get().createSession(hostProperties);
+            CapabilitySession session = targetCapability.get().createSession(
+                    mCurrentSessionId, hostProperties);
             SessionManager.INSTANCE.putSession(mCurrentSessionId, session);
             mStartSessionResponseObserver.onNext(StartSessionResponse.getDefaultInstance());
         }

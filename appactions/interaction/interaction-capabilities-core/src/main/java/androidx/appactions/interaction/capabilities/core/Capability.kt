@@ -52,5 +52,8 @@ interface Capability {
      * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun createSession(hostProperties: HostProperties): CapabilitySession
+    fun createSession(
+        sessionId: String,
+        hostProperties: HostProperties,
+    ): CapabilitySession
 }

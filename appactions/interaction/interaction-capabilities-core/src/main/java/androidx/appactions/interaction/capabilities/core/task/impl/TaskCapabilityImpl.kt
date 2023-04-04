@@ -58,11 +58,15 @@ internal class TaskCapabilityImpl<
             .build()
     }
 
-    override fun createSession(hostProperties: HostProperties): CapabilitySession {
+    override fun createSession(
+        sessionId: String,
+        hostProperties: HostProperties,
+    ): CapabilitySession {
         val externalSession = sessionFactory.createSession(
             hostProperties,
         )
         return TaskCapabilitySession(
+            sessionId,
             actionSpec,
             getAppAction(),
             sessionBridge.createTaskHandler(externalSession),

@@ -110,7 +110,7 @@ class AppInteractionServiceGrpcImplTest {
         whenever(capability1.id).thenReturn(capabilityId)
         whenever(capability1.getAppAction()).thenReturn(AppAction.getDefaultInstance())
         val mockCapabilitySession = createMockSession()
-        whenever(capability1.createSession(any())).thenReturn(mockCapabilitySession)
+        whenever(capability1.createSession(any(), any())).thenReturn(mockCapabilitySession)
     }
 
     @Test
@@ -177,7 +177,7 @@ class AppInteractionServiceGrpcImplTest {
             .isEqualTo(Status.Code.FAILED_PRECONDITION)
         assertThat(Status.fromThrowable(exceptionCaptor.firstValue).description)
             .isEqualTo(ERROR_NO_ACTION_CAPABILITY)
-        verify(capability1, never()).createSession(any())
+        verify(capability1, never()).createSession(any(), any())
 
         server.shutdownNow()
     }
@@ -193,7 +193,7 @@ class AppInteractionServiceGrpcImplTest {
         val stub = AppInteractionServiceGrpc.newStub(channel)
         val futureStub = AppInteractionServiceGrpc.newFutureStub(channel)
         assertStartupSession(stub)
-        verify(capability1, times(1)).createSession(any())
+        verify(capability1, times(1)).createSession(any(), any())
 
         // Send fulfillment request
         val request =
@@ -221,7 +221,7 @@ class AppInteractionServiceGrpcImplTest {
         val stub = AppInteractionServiceGrpc.newStub(channel)
         val futureStub = AppInteractionServiceGrpc.newFutureStub(channel)
         assertStartupSession(stub)
-        verify(capability1, times(1)).createSession(any())
+        verify(capability1, times(1)).createSession(any(), any())
 
         // Ensure a failed future is returned when missing fulfillment
         val requestWithMissingFulfillment =
@@ -251,7 +251,7 @@ class AppInteractionServiceGrpcImplTest {
         val stub = AppInteractionServiceGrpc.newStub(channel)
         val futureStub = AppInteractionServiceGrpc.newFutureStub(channel)
         assertStartupSession(stub)
-        verify(capability1, times(1)).createSession(any())
+        verify(capability1, times(1)).createSession(any(), any())
 
         val requestWithUnknownFulfillmentId =
             Request.newBuilder()
@@ -286,7 +286,7 @@ class AppInteractionServiceGrpcImplTest {
         val stub = AppInteractionServiceGrpc.newStub(channel)
         val futureStub = AppInteractionServiceGrpc.newFutureStub(channel)
         assertStartupSession(stub)
-        verify(capability1, times(1)).createSession(any())
+        verify(capability1, times(1)).createSession(any(), any())
 
         val requestWithUnknownFulfillmentId =
             Request.newBuilder()
@@ -321,9 +321,9 @@ class AppInteractionServiceGrpcImplTest {
         // Verify capability session is created
         val mockSession = createMockSession()
         whenever(mockSession.status).thenReturn(CapabilitySession.Status.COMPLETED)
-        whenever(capability1.createSession(any())).thenReturn(mockSession)
+        whenever(capability1.createSession(any(), any())).thenReturn(mockSession)
         assertStartupSession(stub)
-        verify(capability1, times(1)).createSession(any())
+        verify(capability1, times(1)).createSession(any(), any())
 
         // Send request to completed session.
         val requestToEndedSession =
@@ -389,6 +389,7 @@ class AppInteractionServiceGrpcImplTest {
         whenever(mockSession.execute(any(), any())).thenAnswer { invocation ->
             (invocation.arguments[1] as CallbackInternal).onSuccess(testFulfillmentResponse)
         }
+        whenever(mockSession.sessionId).thenReturn(sessionId)
         whenever(mockSession.state).thenReturn(AppDialogState.getDefaultInstance())
         whenever(mockSession.status).thenReturn(CapabilitySession.Status.UNINITIATED)
         whenever(mockSession.uiHandle).thenReturn(Any())

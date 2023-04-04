@@ -21,7 +21,10 @@ import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 
 object TestingUtils {
+    // use this timeout for things that should take negligible time.
     const val CB_TIMEOUT = 1000L
+    // use this timeout for waiting an arbitrary period of time.
+    const val BLOCKING_TIMEOUT = 300L
 
     fun <ArgumentT, OutputT> createFakeActionExecutor(): ActionExecutorAsync<ArgumentT, OutputT> {
         return ActionExecutorAsync { _: ArgumentT ->

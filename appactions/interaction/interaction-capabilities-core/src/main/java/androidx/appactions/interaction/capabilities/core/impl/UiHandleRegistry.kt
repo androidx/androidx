@@ -14,36 +14,34 @@
  * limitations under the License.
  */
 
-package androidx.appactions.interaction.service
+package androidx.appactions.interaction.capabilities.core.impl
 
 import androidx.annotation.GuardedBy
-import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
-import javax.annotation.concurrent.ThreadSafe
+import androidx.annotation.RestrictTo
+import java.util.IdentityHashMap
 
-/** Global object for managing capability sessions. */
-@ThreadSafe
-internal object SessionManager {
-
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+object UiHandleRegistry {
     private val lock = Any()
 
     @GuardedBy("lock")
-    private val sessions = mutableMapOf<String, CapabilitySession>()
+    private val uiHandleToSessionId = IdentityHashMap<Any, String>()
 
-    fun putSession(sessionId: String, session: CapabilitySession) {
+    internal fun registerUiHandle(uiHandle: Any, sessionId: String) {
         synchronized(lock) {
-            sessions[sessionId] = session
+            uiHandleToSessionId[uiHandle] = sessionId
         }
     }
 
-    fun getSession(sessionId: String): CapabilitySession? {
+    internal fun unregisterUiHandle(uiHandle: Any) {
         synchronized(lock) {
-            return sessions[sessionId]
+            uiHandleToSessionId.remove(uiHandle)
         }
     }
 
-    fun removeSession(sessionId: String) {
-        synchronized(lock) {
-            sessions.remove(sessionId)
-        }
+    fun getSessionIdFromUiHandle(uiHandle: Any): String? {
+      synchronized(lock) {
+        return uiHandleToSessionId[uiHandle]
+      }
     }
 }
