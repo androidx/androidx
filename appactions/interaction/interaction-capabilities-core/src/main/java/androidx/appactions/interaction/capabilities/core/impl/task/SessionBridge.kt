@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.appactions.interaction.capabilities.core.task.impl.exceptions;
+package androidx.appactions.interaction.capabilities.core.impl.task
 
-import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo
 
-/** No entity converter is present in the {@code TaskParamBinding}. */
-public final class MissingEntityConverterException extends Exception {
-
-    public MissingEntityConverterException(@NonNull String message) {
-        super(message);
-    }
+/**
+ * converts an external Session into TaskHandler instance.
+ *
+ * @suppress
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun interface SessionBridge<
+    SessionT,
+    ConfirmationT
+> {
+    fun createTaskHandler(externalSession: SessionT): TaskHandler<ConfirmationT>
 }

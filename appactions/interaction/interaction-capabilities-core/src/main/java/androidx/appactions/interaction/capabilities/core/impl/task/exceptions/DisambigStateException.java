@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.appactions.interaction.capabilities.core.task.impl.exceptions;
+package androidx.appactions.interaction.capabilities.core.impl.task.exceptions;
 
 import androidx.annotation.NonNull;
 
-/** No SearchAction converter is present in the {@code DialogParamBinding}. */
-public final class MissingSearchActionConverterException extends Exception {
+/**
+ * Represents an internal issue with the state sync between the SDK and Assistant. One example is
+ * when the SDK places an argument in dismabig state, but then Assistant sends the same argument
+ * data again without any grounding.
+ */
+public final class DisambigStateException extends Exception {
 
-    public MissingSearchActionConverterException(@NonNull String message) {
+    public DisambigStateException(@NonNull String message) {
         super(message);
     }
 }

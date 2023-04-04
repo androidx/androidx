@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.appactions.interaction.capabilities.core.task.impl;
+package androidx.appactions.interaction.capabilities.core.impl.task.exceptions;
 
-import androidx.appactions.interaction.proto.ParamValue;
+import androidx.annotation.NonNull;
 
-import java.util.List;
-import java.util.Map;
+/** No SearchAction converter is present in the {@code DialogParamBinding}. */
+public final class MissingSearchActionConverterException extends Exception {
 
-/** Implemented by TaskCapabilityImpl to handle manual input updates and BIC input. */
-interface TaskUpdateHandler {
-    void updateParamValues(Map<String, List<ParamValue>> paramValuesMap);
+    public MissingSearchActionConverterException(@NonNull String message) {
+        super(message);
+    }
 }

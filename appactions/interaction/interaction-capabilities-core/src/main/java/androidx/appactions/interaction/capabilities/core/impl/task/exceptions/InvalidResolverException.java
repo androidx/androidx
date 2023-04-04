@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.appactions.interaction.capabilities.core.task.impl
 
-import androidx.appactions.interaction.proto.CurrentValue
+package androidx.appactions.interaction.capabilities.core.impl.task.exceptions;
+
+import androidx.annotation.NonNull;
 
 /**
- * @param isSuccessful Whether or not the next slot should be processed. This is true if the
- *   following conditions were met during processing.
- * * there are no ungrounded values remaining (either rejected or disambig)
- * * listener#onReceived returned ACCEPTED for all grounded values (which could be empty list)
- *
- * @param processedValues Processed CurrentValue objects.
+ * Represents an internal issue with Resolvers, such as an "app-driven" method being invoked on a
+ * "assistant-driven" resolver.
  */
-internal data class SlotProcessingResult(
-    val isSuccessful: Boolean,
-    val processedValues: List<CurrentValue>,
-)
+public final class InvalidResolverException extends Exception {
+
+    public InvalidResolverException(@NonNull String message) {
+        super(message);
+    }
+}

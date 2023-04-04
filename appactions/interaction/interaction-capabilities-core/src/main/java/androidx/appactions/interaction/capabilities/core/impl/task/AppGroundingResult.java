@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.appactions.interaction.capabilities.core.task.impl;
+package androidx.appactions.interaction.capabilities.core.impl.task;
 
 import androidx.appactions.interaction.proto.CurrentValue;
 import androidx.appactions.interaction.proto.ParamValue;
