@@ -214,7 +214,7 @@ package androidx.browser.customtabs {
     method @androidx.browser.customtabs.CustomTabsService.Result protected abstract int postMessage(androidx.browser.customtabs.CustomTabsSessionToken, String, android.os.Bundle?);
     method protected abstract boolean receiveFile(androidx.browser.customtabs.CustomTabsSessionToken, android.net.Uri, int, android.os.Bundle?);
     method protected abstract boolean requestPostMessageChannel(androidx.browser.customtabs.CustomTabsSessionToken, android.net.Uri);
-    method protected boolean setEngagementSignalsCallback(androidx.browser.customtabs.CustomTabsSessionToken, androidx.browser.customtabs.EngagementSignalsCallbackRemote, android.os.Bundle);
+    method protected boolean setEngagementSignalsCallback(androidx.browser.customtabs.CustomTabsSessionToken, androidx.browser.customtabs.EngagementSignalsCallback, android.os.Bundle);
     method protected abstract boolean updateVisuals(androidx.browser.customtabs.CustomTabsSessionToken, android.os.Bundle?);
     method protected abstract boolean validateRelationship(androidx.browser.customtabs.CustomTabsSessionToken, @androidx.browser.customtabs.CustomTabsService.Relation int, android.net.Uri, android.os.Bundle?);
     method protected abstract boolean warmup(long);
@@ -274,12 +274,6 @@ package androidx.browser.customtabs {
     method public default void onGreatestScrollPercentageIncreased(@IntRange(from=1, to=100) int, android.os.Bundle);
     method public default void onSessionEnded(boolean, android.os.Bundle);
     method public default void onVerticalScrollEvent(boolean, android.os.Bundle);
-  }
-
-  public final class EngagementSignalsCallbackRemote {
-    method public void onGreatestScrollPercentageIncreased(@IntRange(from=1, to=100) int, android.os.Bundle) throws android.os.RemoteException;
-    method public void onSessionEnded(boolean, android.os.Bundle) throws android.os.RemoteException;
-    method public void onVerticalScrollEvent(boolean, android.os.Bundle) throws android.os.RemoteException;
   }
 
   public class PostMessageService extends android.app.Service {
