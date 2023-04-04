@@ -283,7 +283,8 @@ private fun SimpleSwipeDsl(config: SimpleSwipeConfig) {
                     onTouchUp = touchUp
                 )
             }
-        }
+        },
+        progress = 0f
     ) {
         val progress = customFloat("title", "mValue")
         val textBackColor = customColor("title", "back")

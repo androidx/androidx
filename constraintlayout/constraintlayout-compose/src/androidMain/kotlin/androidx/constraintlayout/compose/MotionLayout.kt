@@ -18,7 +18,6 @@ package androidx.constraintlayout.compose
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.LayoutScopeMarker
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -79,9 +78,9 @@ enum class MotionLayoutDebugFlags {
 inline fun MotionLayout(
     start: ConstraintSet,
     end: ConstraintSet,
+    progress: Float,
     modifier: Modifier = Modifier,
     transition: Transition? = null,
-    progress: Float,
     debugFlags: DebugFlags = DebugFlags.None,
     optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
     crossinline content: @Composable MotionLayoutScope.() -> Unit
@@ -144,68 +143,12 @@ inline fun MotionLayout(
 @Composable
 inline fun MotionLayout(
     motionScene: MotionScene,
+    constraintSetName: String?,
+    animationSpec: AnimationSpec<Float>,
     modifier: Modifier = Modifier,
-    constraintSetName: String? = null,
-    animationSpec: AnimationSpec<Float> = tween(),
-    debugFlags: DebugFlags = DebugFlags.None,
-    optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
     noinline finishedAnimationListener: (() -> Unit)? = null,
-    crossinline content: @Composable (MotionLayoutScope.() -> Unit)
-) {
-    MotionLayoutCore(
-        motionScene = motionScene,
-        constraintSetName = constraintSetName,
-        animationSpec = animationSpec,
-        debugFlags = debugFlags,
-        modifier = modifier,
-        optimizationLevel = optimizationLevel,
-        finishedAnimationListener = finishedAnimationListener,
-        content = content
-    )
-}
-
-@ExperimentalMotionApi
-@Composable
-inline fun MotionLayout(
-    start: ConstraintSet,
-    end: ConstraintSet,
-    modifier: Modifier = Modifier,
-    transition: Transition? = null,
-    progress: Float,
-    debugFlags: DebugFlags = DebugFlags.None,
-    informationReceiver: LayoutInformationReceiver? = null,
-    optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
-    crossinline content: @Composable (MotionLayoutScope.() -> Unit)
-) {
-    val motionProgress = createAndUpdateMotionProgress(progress = progress)
-    MotionLayoutCore(
-        start = start,
-        end = end,
-        transition = transition as? TransitionImpl,
-        motionProgress = motionProgress,
-        informationReceiver = informationReceiver,
-        optimizationLevel = optimizationLevel,
-        showBounds = debugFlags.showBounds,
-        showPaths = debugFlags.showPaths,
-        showKeyPositions = debugFlags.showKeyPositions,
-        modifier = modifier,
-        content = content
-    )
-}
-
-@ExperimentalMotionApi
-@PublishedApi
-@Composable
-@Suppress("UnavailableSymbol")
-internal inline fun MotionLayoutCore(
-    @Suppress("HiddenTypeParameter")
-    motionScene: MotionScene,
-    modifier: Modifier = Modifier,
-    constraintSetName: String? = null,
-    animationSpec: AnimationSpec<Float> = tween(),
     debugFlags: DebugFlags = DebugFlags.None,
     optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
-    noinline finishedAnimationListener: (() -> Unit)? = null,
     @Suppress("HiddenTypeParameter")
     crossinline content: @Composable (MotionLayoutScope.() -> Unit)
 ) {
@@ -293,6 +236,58 @@ internal inline fun MotionLayoutCore(
 }
 
 @ExperimentalMotionApi
+@Composable
+inline fun MotionLayout(
+    motionScene: MotionScene,
+    motionLayoutState: MotionLayoutState,
+    modifier: Modifier = Modifier,
+    optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
+    crossinline content: @Composable MotionLayoutScope.() -> Unit
+) {
+    // TODO(b/276981729): Consider removing for 1.1.0, MotionLayoutState is not very useful as it is
+    MotionLayoutCore(
+        modifier = modifier,
+        optimizationLevel = optimizationLevel,
+        motionLayoutState = motionLayoutState as MotionLayoutStateImpl,
+        motionScene = motionScene,
+        transitionName = "default",
+        content = content
+    )
+}
+
+@PublishedApi
+@ExperimentalMotionApi
+@Composable
+@Suppress("UnavailableSymbol")
+internal inline fun MotionLayout(
+    start: ConstraintSet,
+    end: ConstraintSet,
+    progress: Float,
+    modifier: Modifier = Modifier,
+    @Suppress("HiddenTypeParameter")
+    transition: Transition? = null,
+    debugFlags: DebugFlags = DebugFlags.None,
+    informationReceiver: LayoutInformationReceiver? = null,
+    optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
+    @Suppress("HiddenTypeParameter")
+    crossinline content: @Composable MotionLayoutScope.() -> Unit
+) {
+    MotionLayoutCore(
+        start = start,
+        end = end,
+        transition = transition as? TransitionImpl,
+        motionProgress = createAndUpdateMotionProgress(progress = progress),
+        informationReceiver = informationReceiver,
+        optimizationLevel = optimizationLevel,
+        showBounds = debugFlags.showBounds,
+        showPaths = debugFlags.showPaths,
+        showKeyPositions = debugFlags.showKeyPositions,
+        modifier = modifier,
+        content = content
+    )
+}
+
+@ExperimentalMotionApi
 @PublishedApi
 @Composable
 @Suppress("UnavailableSymbol")
@@ -332,25 +327,6 @@ internal inline fun MotionLayoutCore(
         informationReceiver = motionScene as? LayoutInformationReceiver,
         modifier = modifier,
         optimizationLevel = optimizationLevel,
-        content = content
-    )
-}
-
-@ExperimentalMotionApi
-@Composable
-inline fun MotionLayout(
-    motionScene: MotionScene,
-    motionLayoutState: MotionLayoutState,
-    modifier: Modifier = Modifier,
-    optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
-    crossinline content: @Composable MotionLayoutScope.() -> Unit
-) {
-    MotionLayoutCore(
-        modifier = modifier,
-        optimizationLevel = optimizationLevel,
-        motionLayoutState = motionLayoutState as MotionLayoutStateImpl,
-        motionScene = motionScene,
-        transitionName = "default",
         content = content
     )
 }
@@ -956,8 +932,8 @@ internal enum class CompositionSource {
  * @property showPaths
  * @property showKeyPositions
  *
- * @see None
- * @see All
+ * @see DebugFlags.None
+ * @see DebugFlags.All
  */
 @ExperimentalMotionApi
 @JvmInline
