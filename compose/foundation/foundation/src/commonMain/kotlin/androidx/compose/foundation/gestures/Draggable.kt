@@ -24,6 +24,7 @@ import androidx.compose.foundation.gestures.DragEvent.DragStarted
 import androidx.compose.foundation.gestures.DragEvent.DragStopped
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.internal.JvmDefaultWithCompatibility
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -55,7 +56,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.isActive
-import androidx.compose.foundation.internal.JvmDefaultWithCompatibility
 
 /**
  * State of [draggable]. Allows for a granular control of how deltas are consumed by the user as
@@ -258,7 +258,7 @@ internal fun Modifier.draggable(
             }
         }
     }
-    Modifier.pointerInput(orientation, enabled, reverseDirection) {
+    Modifier.pointerInput(state, orientation, enabled, reverseDirection) {
         if (!enabled) return@pointerInput
         coroutineScope {
             try {
