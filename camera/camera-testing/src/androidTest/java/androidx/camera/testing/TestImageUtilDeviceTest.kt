@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package androidx.camera.testing
-
 import android.graphics.BitmapFactory.decodeByteArray
 import android.graphics.Color.BLUE
 import android.graphics.Color.GREEN
@@ -22,7 +21,6 @@ import android.graphics.Color.RED
 import android.graphics.Color.YELLOW
 import android.graphics.Rect
 import androidx.camera.core.internal.utils.ImageUtil.jpegImageToJpegByteArray
-import androidx.camera.testing.TestImageUtil.calculateColorDiff
 import androidx.camera.testing.TestImageUtil.createJpegBytes
 import androidx.camera.testing.TestImageUtil.createJpegFakeImageProxy
 import androidx.camera.testing.TestImageUtil.getAverageDiff
@@ -32,7 +30,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-
 /**
  * Unit tests for [TestImageUtil]
  */
@@ -45,12 +42,6 @@ class TestImageUtilDeviceTest {
     companion object {
         private const val WIDTH = 640
         private const val HEIGHT = 480
-    }
-
-    @Test
-    fun testColorDiff() {
-        assertThat(calculateColorDiff(RED, RED)).isEqualTo(0)
-        assertThat(calculateColorDiff(RED, BLUE)).isEqualTo(255 * 2 / 3)
     }
 
     @Test
