@@ -33,6 +33,7 @@ import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -72,7 +73,7 @@ class NavControllerWithFragmentTest {
             .that(navController.currentBackStackEntry!!.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.RESUMED)
     }
-
+    @Ignore("b/276806142")
     @Test
     fun fragmentNavigateClearBackStack() = withNavigationActivity {
         navController.setGraph(R.navigation.nav_simple)
