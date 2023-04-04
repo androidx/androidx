@@ -20,7 +20,6 @@ import com.android.build.api.attributes.BuildTypeAttr
 import org.gradle.api.Project
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.attributes.Usage
-import org.gradle.api.attributes.java.TargetJvmEnvironment
 
 /**
  * Creates `testAarAsJar` configuration that can be used for JVM tests that need to Android library
@@ -56,12 +55,5 @@ fun configureAarAsJarForConfiguration(project: Project, configurationName: Strin
     }.files
     project.configurations.getByName(configurationName).dependencies.add(
         project.dependencies.create(aarAsJar)
-    )
-
-    // Added to allow the :external:paparazzi:paparazzi build to select the correct jar (not get
-    // confused by the mpp jars) when the mpp builds are enabled
-    project.configurations.getByName(testAarsAsJars.name).attributes.attribute(
-        TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE,
-        project.objects.named(TargetJvmEnvironment::class.java, TargetJvmEnvironment.ANDROID)
     )
 }

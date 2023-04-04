@@ -157,10 +157,15 @@ abstract class IconGenerationTask : DefaultTask() {
         @JvmStatic
         fun registerExtendedIconThemeProject(
             project: Project,
-            libraryExtension: LibraryExtension
+            libraryExtension: LibraryExtension,
+            isMpp: Boolean
         ) {
-            libraryExtension.libraryVariants.all { variant ->
-                ExtendedIconGenerationTask.register(project, variant)
+            if (isMpp) {
+                ExtendedIconGenerationTask.register(project, null)
+            } else {
+                libraryExtension.libraryVariants.all { variant ->
+                    ExtendedIconGenerationTask.register(project, variant)
+                }
             }
 
             // b/175401659 - disable lint as it takes a long time, and most errors should

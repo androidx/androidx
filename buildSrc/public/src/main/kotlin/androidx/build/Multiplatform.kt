@@ -40,7 +40,6 @@ class Multiplatform {
         @JvmStatic
         fun isKotlinNativeEnabled(project: Project): Boolean {
             return "KMP".equals(System.getenv()["ANDROIDX_PROJECTS"], ignoreCase = true) ||
-                "INFRAROGUE".equals(System.getenv()["ANDROIDX_PROJECTS"], ignoreCase = true) ||
                 ProjectLayoutType.isPlayground(project) ||
                 project.providers.gradleProperty("androidx.kmp.native.enabled")
                     .orNull?.toBoolean() == true

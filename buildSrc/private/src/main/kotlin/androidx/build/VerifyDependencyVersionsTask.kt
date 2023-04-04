@@ -206,11 +206,6 @@ private fun shouldVerifyConfiguration(configuration: Configuration): Boolean {
 
     // Don't check Hilt compile-only configurations
     if (name.startsWith("hiltCompileOnly")) return false
-
-    // Don't check Desktop configurations since we don't publish them anyway
-    if (name.startsWith("desktop")) return false
-    if (name.startsWith("skiko")) return false
-
     return true
 }
 
