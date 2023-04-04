@@ -37,6 +37,7 @@ import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.CameraCaptureResultImageInfo
 import androidx.camera.core.internal.utils.ImageUtil.jpegImageToJpegByteArray
 import androidx.camera.core.processing.InternalImageProcessor
+import androidx.camera.testing.AndroidUtil
 import androidx.camera.testing.ExifUtil
 import androidx.camera.testing.TestImageUtil.createBitmap
 import androidx.camera.testing.TestImageUtil.createJpegBytes
@@ -49,6 +50,8 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
+import org.junit.Assume.assumeFalse
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -59,6 +62,12 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
 class ProcessingNodeDeviceTest {
+
+    @Before
+    fun setUp() {
+        assumeFalse(AndroidUtil.isEmulatorAndAPI21())
+    }
+
     @Test
     fun applyBitmapEffectInMemory_effectApplied() = runBlocking {
         processJpegAndVerifyEffectApplied(null)
