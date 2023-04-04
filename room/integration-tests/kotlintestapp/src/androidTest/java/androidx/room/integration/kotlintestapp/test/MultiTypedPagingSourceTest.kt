@@ -16,6 +16,7 @@
 
 package androidx.room.integration.kotlintestapp.test
 
+import androidx.kruth.assertThat
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
@@ -33,7 +34,6 @@ import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SmallTest
 import androidx.testutils.FilteringExecutor
-import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executors
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
