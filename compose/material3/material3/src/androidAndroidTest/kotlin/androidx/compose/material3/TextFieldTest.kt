@@ -1242,7 +1242,7 @@ class TextFieldTest {
                 onValueChange = {},
                 visualTransformation = PasswordVisualTransformation('\u0020'),
                 shape = RectangleShape,
-                colors = TextFieldDefaults.textFieldColors(containerColor = Color.White)
+                colors = TextFieldDefaults.colors(unfocusedContainerColor = Color.White)
             )
         }
 
@@ -1277,8 +1277,9 @@ class TextFieldTest {
                     trailingIcon = {
                         Icon(Icons.Default.Favorite, null, tint = Color.Transparent)
                     },
-                    colors = TextFieldDefaults.textFieldColors(
-                        containerColor = Color.Blue,
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Blue,
+                        unfocusedContainerColor = Color.Blue,
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
                         focusedTextColor = Color.Transparent,
@@ -1344,7 +1345,7 @@ class TextFieldTest {
                     Text("label", color = Color.Red, modifier = Modifier.background(Color.Red))
                 },
                 textStyle = TextStyle(color = Color.Blue),
-                colors = TextFieldDefaults.textFieldColors(containerColor = Color.White)
+                colors = TextFieldDefaults.colors(unfocusedContainerColor = Color.White)
             )
         }
         rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text), true)
@@ -1385,8 +1386,8 @@ class TextFieldTest {
                     )
                 },
                 textStyle = TextStyle(color = Color.White),
-                colors = TextFieldDefaults.textFieldColors(
-                    containerColor = Color.White,
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = Color.White,
                     unfocusedIndicatorColor = Color.Transparent
                 )
             )
@@ -1511,7 +1512,7 @@ class TextFieldTest {
                     contentColor = LocalContentColor.current
                 },
                 modifier = Modifier.focusRequester(focusRequester),
-                colors = TextFieldDefaults.textFieldColors(
+                colors = TextFieldDefaults.colors(
                     unfocusedLabelColor = unfocusedLabelColor, focusedLabelColor = focusedLabelColor
                 )
             )
@@ -1553,7 +1554,7 @@ class TextFieldTest {
                         contentColor = LocalContentColor.current
                     },
                     modifier = Modifier.focusRequester(focusRequester),
-                    colors = TextFieldDefaults.textFieldColors(
+                    colors = TextFieldDefaults.colors(
                         unfocusedLabelColor = unfocusedLabelColor,
                         focusedLabelColor = focusedLabelColor
                     )
@@ -1596,7 +1597,7 @@ class TextFieldTest {
                         contentColor = LocalContentColor.current
                     },
                     modifier = Modifier.focusRequester(focusRequester),
-                    colors = TextFieldDefaults.textFieldColors(
+                    colors = TextFieldDefaults.colors(
                         unfocusedLabelColor = expectedLabelColor,
                         focusedLabelColor = focusedLabelColor
                     )
@@ -1642,7 +1643,7 @@ class TextFieldTest {
                         contentColor = LocalContentColor.current
                     },
                     modifier = Modifier.focusRequester(focusRequester),
-                    colors = TextFieldDefaults.textFieldColors(
+                    colors = TextFieldDefaults.colors(
                         unfocusedLabelColor = unfocusedLabelColor,
                         focusedLabelColor = focusedLabelColor
                     )
