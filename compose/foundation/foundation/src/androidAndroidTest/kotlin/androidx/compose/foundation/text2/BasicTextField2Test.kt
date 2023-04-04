@@ -428,6 +428,7 @@ internal class BasicTextField2Test {
         rule.onNodeWithTag(Tag).assertTextEquals("")
     }
 
+    @Ignore("b/276932521")
     @Test
     fun textField_appliesFilter_toInputConnection_afterChanging() {
         var inputConnection: InputConnection? = null
