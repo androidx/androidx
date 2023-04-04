@@ -8454,10 +8454,7 @@ public class NotificationCompat {
      * <p>TV extensions can be accessed on an existing notification by using the
      * {@code TvExtender(Notification)} constructor, and then using the {@code get} methods
      * to access values.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final class TvExtender implements Extender {
         private static final String TAG = "TvExtender";
 
@@ -8468,17 +8465,10 @@ public class NotificationCompat {
         /** @hide **/
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         private static final String EXTRA_FLAGS = "flags";
-        /** @hide **/
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
+
         static final String EXTRA_CONTENT_INTENT = "content_intent";
-        /** @hide **/
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
         static final String EXTRA_DELETE_INTENT = "delete_intent";
-        /** @hide **/
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
         static final String EXTRA_CHANNEL_ID = "channel_id";
-        /** @hide **/
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
         static final String EXTRA_SUPPRESS_SHOW_OVER_APPS = "suppressShowOverApps";
 
         // Flags bitwise-ored to mFlags
@@ -8636,7 +8626,7 @@ public class NotificationCompat {
          * Returns true if this notification should not show messages over top of apps
          * outside of the launcher.
          */
-        public boolean getSuppressShowOverApps() {
+        public boolean isSuppressShowOverApps() {
             return mSuppressShowOverApps;
         }
     }
