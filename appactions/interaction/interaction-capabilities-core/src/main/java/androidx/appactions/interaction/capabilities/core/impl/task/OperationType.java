@@ -14,18 +14,23 @@
  * limitations under the License.
  */
 
-package androidx.appactions.interaction.capabilities.core.task.impl.exceptions;
-
-import androidx.annotation.NonNull;
+package androidx.appactions.interaction.capabilities.core.impl.task;
 
 /**
- * Represents an internal issue with the state sync between the SDK and Assistant. One example is
- * when the SDK places an argument in dismabig state, but then Assistant sends the same argument
- * data again without any grounding.
+ * Represents different operations possible in the Search/Update protocol.
  */
-public final class DisambigStateException extends Exception {
+public enum OperationType {
+    /** Supports adding to a field of the target object, for example adding to a list. */
+    ADD("Add");
 
-    public DisambigStateException(@NonNull String message) {
-        super(message);
+    private final String mOperationType;
+
+    OperationType(String operationType) {
+        this.mOperationType = operationType;
+    }
+
+    @Override
+    public String toString() {
+        return mOperationType;
     }
 }

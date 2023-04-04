@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.appactions.interaction.capabilities.core.task.impl
+package androidx.appactions.interaction.capabilities.core.impl.task
 
 import androidx.annotation.GuardedBy
 import androidx.appactions.interaction.capabilities.core.BaseSession

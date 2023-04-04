@@ -26,9 +26,9 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
-import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
-import androidx.appactions.interaction.capabilities.core.task.impl.SessionBridge
-import androidx.appactions.interaction.capabilities.core.task.impl.TaskHandler
+import androidx.appactions.interaction.capabilities.core.impl.task.AbstractTaskUpdater
+import androidx.appactions.interaction.capabilities.core.impl.task.SessionBridge
+import androidx.appactions.interaction.capabilities.core.impl.task.TaskHandler
 import java.util.Optional
 import java.util.function.Supplier
 

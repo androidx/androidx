@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.appactions.interaction.capabilities.core.task.impl
+package androidx.appactions.interaction.capabilities.core.impl.task
 
 import androidx.appactions.interaction.proto.AppActionsContext
 import androidx.appactions.interaction.proto.CurrentValue

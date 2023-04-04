@@ -13,9 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.appactions.interaction.capabilities.core.impl.task
 
-package androidx.appactions.interaction.capabilities.core.task.impl;
+/** Contains either an [AssistantUpdateRequest] or a [TouchEventUpdateRequest] */
+internal class UpdateRequest
+private constructor(
+    val assistantRequest: AssistantUpdateRequest?,
+    val touchEventRequest: TouchEventUpdateRequest?,
+) {
+    constructor(assistantRequest: AssistantUpdateRequest) : this(assistantRequest, null)
 
-/** Useful for capabilities that do not support a TaskUpdater. */
-public final class EmptyTaskUpdater extends AbstractTaskUpdater {
+    constructor(touchEventRequest: TouchEventUpdateRequest) : this(null, touchEventRequest)
 }

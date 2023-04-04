@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.appactions.interaction.capabilities.core.task.impl
+package androidx.appactions.interaction.capabilities.core.impl.task
 
 import androidx.appactions.interaction.capabilities.core.AppEntityListListener
 import androidx.appactions.interaction.capabilities.core.AppEntityListener
@@ -25,7 +25,7 @@ import androidx.appactions.interaction.capabilities.core.ValueListener
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.SlotTypeConverter
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
-import androidx.appactions.interaction.capabilities.core.task.impl.exceptions.InvalidResolverException
+import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.InvalidResolverException
 import androidx.appactions.interaction.capabilities.core.values.SearchAction
 import androidx.appactions.interaction.proto.ParamValue
 

@@ -20,9 +20,9 @@ import androidx.annotation.RestrictTo
 import androidx.appactions.interaction.capabilities.core.ActionExecutorAsync.Companion.toActionExecutorAsync
 import androidx.appactions.interaction.capabilities.core.impl.SingleTurnCapabilityImpl
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
-import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
-import androidx.appactions.interaction.capabilities.core.task.impl.SessionBridge
-import androidx.appactions.interaction.capabilities.core.task.impl.TaskCapabilityImpl
+import androidx.appactions.interaction.capabilities.core.impl.task.AbstractTaskUpdater
+import androidx.appactions.interaction.capabilities.core.impl.task.SessionBridge
+import androidx.appactions.interaction.capabilities.core.impl.task.TaskCapabilityImpl
 import java.util.function.Supplier
 
 /**

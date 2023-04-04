@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.appactions.interaction.capabilities.core.task.impl
+package androidx.appactions.interaction.capabilities.core.impl.task
 
 import androidx.annotation.GuardedBy
 import androidx.appactions.interaction.capabilities.core.BaseSession
@@ -30,10 +30,10 @@ import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructC
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.impl.utils.CapabilityLogger
 import androidx.appactions.interaction.capabilities.core.impl.utils.LoggerInternal
-import androidx.appactions.interaction.capabilities.core.task.impl.exceptions.InvalidResolverException
-import androidx.appactions.interaction.capabilities.core.task.impl.exceptions.MissingEntityConverterException
-import androidx.appactions.interaction.capabilities.core.task.impl.exceptions.MissingRequiredArgException
-import androidx.appactions.interaction.capabilities.core.task.impl.exceptions.MissingSearchActionConverterException
+import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.InvalidResolverException
+import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.MissingEntityConverterException
+import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.MissingRequiredArgException
+import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.MissingSearchActionConverterException
 import androidx.appactions.interaction.proto.AppActionsContext
 import androidx.appactions.interaction.proto.CurrentValue
 import androidx.appactions.interaction.proto.FulfillmentRequest
