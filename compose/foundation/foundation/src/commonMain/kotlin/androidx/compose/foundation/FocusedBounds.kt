@@ -16,18 +16,15 @@
 
 package androidx.compose.foundation
 
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.modifier.ModifierLocalConsumer
+import androidx.compose.ui.modifier.ModifierLocalMap
 import androidx.compose.ui.modifier.ModifierLocalNode
-import androidx.compose.ui.modifier.ModifierLocalProvider
-import androidx.compose.ui.modifier.ModifierLocalReadScope
-import androidx.compose.ui.modifier.ProvidableModifierLocal
+import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.modifier.modifierLocalOf
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
-import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
 
 @OptIn(ExperimentalFoundationApi::class)
 internal val ModifierLocalFocusedBoundsObserver =
@@ -47,41 +44,44 @@ internal val ModifierLocalFocusedBoundsObserver =
  */
 @ExperimentalFoundationApi
 fun Modifier.onFocusedBoundsChanged(onPositioned: (LayoutCoordinates?) -> Unit): Modifier =
-    composed(
-        debugInspectorInfo {
-            name = "onFocusedBoundsChanged"
-            properties["onPositioned"] = onPositioned
-        }
-    ) {
-        remember(onPositioned) { FocusedBoundsObserverModifier(onPositioned) }
+    this then FocusedBoundsObserverElement(onPositioned)
+
+private class FocusedBoundsObserverElement(
+    val onPositioned: (LayoutCoordinates?) -> Unit
+) : ModifierNodeElement<FocusedBoundsObserverNode>() {
+    override fun create(): FocusedBoundsObserverNode = FocusedBoundsObserverNode(onPositioned)
+
+    override fun update(node: FocusedBoundsObserverNode): FocusedBoundsObserverNode = node.also {
+        it.onPositioned = onPositioned
     }
 
-private class FocusedBoundsObserverModifier(
-    private val handler: (LayoutCoordinates?) -> Unit
-) : ModifierLocalConsumer,
-    ModifierLocalProvider<((LayoutCoordinates?) -> Unit)?>,
-        (LayoutCoordinates?) -> Unit {
-    private var parent: ((LayoutCoordinates?) -> Unit)? = null
-    private var lastBounds: LayoutCoordinates? = null
+    override fun hashCode(): Int = onPositioned.hashCode()
 
-    override val key: ProvidableModifierLocal<((LayoutCoordinates?) -> Unit)?>
-        get() = ModifierLocalFocusedBoundsObserver
-    override val value: (LayoutCoordinates?) -> Unit
-        get() = this
-
-    override fun onModifierLocalsUpdated(scope: ModifierLocalReadScope) {
-        val newParent = with(scope) { ModifierLocalFocusedBoundsObserver.current }
-        if (newParent != parent) {
-            parent = newParent
-            // Don't need to call the new parent ourselves because the child will also get the
-            // modifier locals updated callback, and it will bubble the event up itself.
-        }
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        val otherModifier = other as? FocusedBoundsObserverElement ?: return false
+        return onPositioned == otherModifier.onPositioned
     }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "onFocusedBoundsChanged"
+        properties["onPositioned"] = onPositioned
+    }
+}
+
+private class FocusedBoundsObserverNode(
+    var onPositioned: (LayoutCoordinates?) -> Unit
+) : Modifier.Node(), ModifierLocalNode, (LayoutCoordinates?) -> Unit {
+    private val parent: ((LayoutCoordinates?) -> Unit)?
+        get() = if (isAttached) ModifierLocalFocusedBoundsObserver.current else null
+
+    override val providedValues: ModifierLocalMap
+        get() = modifierLocalMapOf(ModifierLocalFocusedBoundsObserver to this)
 
     /** Called when a child gains/loses focus or is focused and changes position. */
     override fun invoke(focusedBounds: LayoutCoordinates?) {
-        lastBounds = focusedBounds
-        handler(focusedBounds)
+        if (!isAttached) return
+        onPositioned(focusedBounds)
         parent?.invoke(focusedBounds)
     }
 }
