@@ -22,14 +22,16 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.BringIntoViewRequesterNode
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.focus.FocusEventModifierNode
+import androidx.compose.ui.focus.FocusProperties
+import androidx.compose.ui.focus.FocusPropertiesModifierNode
 import androidx.compose.ui.focus.FocusRequesterModifierNode
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.requestFocus
 import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LocalPinnableContainer
 import androidx.compose.ui.layout.PinnableContainer
@@ -47,6 +49,7 @@ import androidx.compose.ui.platform.InspectableModifier
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.platform.inspectable
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.focused
 import androidx.compose.ui.semantics.requestFocus
@@ -106,6 +109,10 @@ fun Modifier.focusGroup(): Modifier {
         .focusTarget()
 }
 
+private val focusGroupInspectorInfo = InspectableModifier(
+    debugInspectorInfo { name = "focusGroup" }
+)
+
 // TODO: b/202856230 - consider either making this / a similar API public, or add a parameter to
 //  focusable to configure this behavior.
 /**
@@ -115,22 +122,44 @@ fun Modifier.focusGroup(): Modifier {
 internal fun Modifier.focusableInNonTouchMode(
     enabled: Boolean,
     interactionSource: MutableInteractionSource?
-) = composed(
-    inspectorInfo = debugInspectorInfo {
-        name = "focusableInNonTouchMode"
-        properties["enabled"] = enabled
-        properties["interactionSource"] = interactionSource
-    }
-) {
-    val inputModeManager = LocalInputModeManager.current
-    Modifier
-        .focusProperties { canFocus = inputModeManager.inputMode != InputMode.Touch }
-        .focusable(enabled, interactionSource)
-}
+) = inspectable(inspectorInfo = {
+    name = "focusableInNonTouchMode"
+    properties["enabled"] = enabled
+    properties["interactionSource"] = interactionSource
+},
+    factory = {
+        Modifier
+            .then(FocusableInNonTouchModeElement)
+            .focusable(enabled, interactionSource)
+    })
 
-private val focusGroupInspectorInfo = InspectableModifier(
-    debugInspectorInfo { name = "focusGroup" }
-)
+private val FocusableInNonTouchModeElement =
+    object : ModifierNodeElement<FocusableInNonTouchMode>() {
+        override fun create(): FocusableInNonTouchMode = FocusableInNonTouchMode()
+
+        override fun update(node: FocusableInNonTouchMode): FocusableInNonTouchMode = node
+
+        override fun hashCode(): Int = System.identityHashCode(this)
+
+        override fun equals(other: Any?): Boolean = this === other
+
+        override fun InspectorInfo.inspectableProperties() {
+            name = "focusableInNonTouchMode"
+        }
+    }
+
+private class FocusableInNonTouchMode : Modifier.Node(), CompositionLocalConsumerModifierNode,
+    FocusPropertiesModifierNode {
+
+    private val inputModeManager: InputModeManager
+        get() = currentValueOf(LocalInputModeManager)
+
+    override fun modifyFocusProperties(focusProperties: FocusProperties) {
+        focusProperties.apply {
+            canFocus = inputModeManager.inputMode != InputMode.Touch
+        }
+    }
+}
 
 private class FocusableElement(
     private val interactionSource: MutableInteractionSource?
