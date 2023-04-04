@@ -13,18 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.appactions.interaction.capabilities.core.task.impl
+package androidx.appactions.interaction.capabilities.core.impl.task
 
-import androidx.appactions.interaction.capabilities.core.impl.ArgumentsWrapper
-import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal
+import androidx.appactions.interaction.proto.CurrentValue
 
 /**
- * Represents a fulfillment request coming from Assistant.
+ * @param isSuccessful Whether or not the next slot should be processed. This is true if the
+ *   following conditions were met during processing.
+ * * there are no ungrounded values remaining (either rejected or disambig)
+ * * listener#onReceived returned ACCEPTED for all grounded values (which could be empty list)
  *
- * @param argumentsWrapper The fulfillment request data.
- * @param callbackInternal The callback to report results from handling this request.
+ * @param processedValues Processed CurrentValue objects.
  */
-internal data class AssistantUpdateRequest(
-    val argumentsWrapper: ArgumentsWrapper,
-    val callbackInternal: CallbackInternal,
+internal data class SlotProcessingResult(
+    val isSuccessful: Boolean,
+    val processedValues: List<CurrentValue>,
 )

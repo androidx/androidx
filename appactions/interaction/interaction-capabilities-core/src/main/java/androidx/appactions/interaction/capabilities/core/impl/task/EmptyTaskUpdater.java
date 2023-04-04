@@ -14,17 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.appactions.interaction.capabilities.core.task.impl.exceptions;
+package androidx.appactions.interaction.capabilities.core.impl.task;
 
-import androidx.annotation.NonNull;
-
-/**
- * Represents an internal issue with Resolvers, such as an "app-driven" method being invoked on a
- * "assistant-driven" resolver.
- */
-public final class InvalidResolverException extends Exception {
-
-    public InvalidResolverException(@NonNull String message) {
-        super(message);
-    }
+/** Useful for capabilities that do not support a TaskUpdater. */
+public final class EmptyTaskUpdater extends AbstractTaskUpdater {
 }

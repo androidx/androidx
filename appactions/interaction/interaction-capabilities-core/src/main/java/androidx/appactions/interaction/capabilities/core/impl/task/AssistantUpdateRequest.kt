@@ -13,24 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.appactions.interaction.capabilities.core.impl.task
 
-package androidx.appactions.interaction.capabilities.core.task.impl;
+import androidx.appactions.interaction.capabilities.core.impl.ArgumentsWrapper
+import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal
 
 /**
- * Represents different operations possible in the Search/Update protocol.
+ * Represents a fulfillment request coming from Assistant.
+ *
+ * @param argumentsWrapper The fulfillment request data.
+ * @param callbackInternal The callback to report results from handling this request.
  */
-public enum OperationType {
-    /** Supports adding to a field of the target object, for example adding to a list. */
-    ADD("Add");
-
-    private final String mOperationType;
-
-    OperationType(String operationType) {
-        this.mOperationType = operationType;
-    }
-
-    @Override
-    public String toString() {
-        return mOperationType;
-    }
-}
+internal data class AssistantUpdateRequest(
+    val argumentsWrapper: ArgumentsWrapper,
+    val callbackInternal: CallbackInternal,
+)

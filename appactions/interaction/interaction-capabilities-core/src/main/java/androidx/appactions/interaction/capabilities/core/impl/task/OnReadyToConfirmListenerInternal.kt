@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.appactions.interaction.capabilities.core.task.impl
+package androidx.appactions.interaction.capabilities.core.impl.task
 
 import androidx.appactions.interaction.capabilities.core.ConfirmationOutput
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
-import androidx.appactions.interaction.capabilities.core.task.impl.exceptions.MissingRequiredArgException
+import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.MissingRequiredArgException
 import androidx.appactions.interaction.proto.ParamValue
 
 /**

@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.appactions.interaction.capabilities.core.task.impl
+package androidx.appactions.interaction.capabilities.core.impl.task
 
 import androidx.appactions.interaction.capabilities.core.EntitySearchResult
 import androidx.appactions.interaction.capabilities.core.ValidationResult
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
-import androidx.appactions.interaction.capabilities.core.task.impl.exceptions.InvalidResolverException
-import androidx.appactions.interaction.capabilities.core.task.impl.exceptions.MissingEntityConverterException
-import androidx.appactions.interaction.capabilities.core.task.impl.exceptions.MissingSearchActionConverterException
+import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.InvalidResolverException
+import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.MissingEntityConverterException
+import androidx.appactions.interaction.capabilities.core.impl.task.exceptions.MissingSearchActionConverterException
 import androidx.appactions.interaction.proto.CurrentValue
 import androidx.appactions.interaction.proto.DisambiguationData
 import androidx.appactions.interaction.proto.ParamValue

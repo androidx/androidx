@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.appactions.interaction.capabilities.core.task.impl
 
-/** Contains either an [AssistantUpdateRequest] or a [TouchEventUpdateRequest] */
-internal class UpdateRequest
-private constructor(
-    val assistantRequest: AssistantUpdateRequest?,
-    val touchEventRequest: TouchEventUpdateRequest?,
-) {
-    constructor(assistantRequest: AssistantUpdateRequest) : this(assistantRequest, null)
+package androidx.appactions.interaction.capabilities.core.impl.task;
 
-    constructor(touchEventRequest: TouchEventUpdateRequest) : this(null, touchEventRequest)
+import androidx.appactions.interaction.proto.ParamValue;
+
+import java.util.List;
+import java.util.Map;
+
+/** Implemented by TaskCapabilityImpl to handle manual input updates and BIC input. */
+interface TaskUpdateHandler {
+    void updateParamValues(Map<String, List<ParamValue>> paramValuesMap);
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.appactions.interaction.capabilities.core.task.impl.exceptions;
+package androidx.appactions.interaction.capabilities.core.impl.task.exceptions;
 
 import androidx.annotation.NonNull;
 

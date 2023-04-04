@@ -25,7 +25,7 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
-import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
+import androidx.appactions.interaction.capabilities.core.impl.task.AbstractTaskUpdater
 import java.util.Optional
 
 /** StopExercise.kt in interaction-capabilities-fitness */
