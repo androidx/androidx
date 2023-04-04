@@ -62,7 +62,7 @@ import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
-import org.gradle.api.JavaVersion.VERSION_11
+import org.gradle.api.JavaVersion.VERSION_17
 import org.gradle.api.JavaVersion.VERSION_1_8
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -285,7 +285,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
                 if (extension.type.compilationTarget == CompilationTarget.HOST &&
                     extension.type != LibraryType.ANNOTATION_PROCESSOR_UTILS
                 ) {
-                    task.kotlinOptions.jvmTarget = "11"
+                    task.kotlinOptions.jvmTarget = "17"
                 } else {
                     task.kotlinOptions.jvmTarget = "1.8"
                 }
@@ -513,8 +513,8 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
                 extension.type != LibraryType.ANNOTATION_PROCESSOR_UTILS
             ) {
                 javaExtension.apply {
-                    sourceCompatibility = VERSION_11
-                    targetCompatibility = VERSION_11
+                    sourceCompatibility = VERSION_17
+                    targetCompatibility = VERSION_17
                 }
             } else {
                 javaExtension.apply {
