@@ -19,6 +19,7 @@
 package androidx.compose.foundation.text2.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.input.TextFieldValue
 
@@ -40,6 +41,12 @@ import androidx.compose.ui.text.input.TextFieldValue
 fun interface TextEditFilter {
 
     /**
+     * Optional [KeyboardOptions] that will be used as the default keyboard options for configuring
+     * the IME. The options passed directly to the text field composable will always override this.
+     */
+    val keyboardOptions: KeyboardOptions? get() = null
+
+    /**
      * The filter operation. For more information see the documentation on [TextEditFilter].
      *
      * @sample androidx.compose.foundation.samples.BasicTextField2CustomFilterSample
@@ -58,14 +65,23 @@ fun interface TextEditFilter {
  * will see any the changes made by this filter.
  *
  * @sample androidx.compose.foundation.samples.BasicTextField2FilterChainingSample
+ *
+ * @param next The [TextEditFilter] that will be ran after this one.
+ * @param keyboardOptions The [KeyboardOptions] options to use for the chained filter. If not
+ * specified, the chained filter will not specify any [KeyboardOptions], even if one or both of
+ * this or [next] specified some.
  */
 @ExperimentalFoundationApi
 @Stable
-fun TextEditFilter.then(next: TextEditFilter): TextEditFilter = FilterChain(this, next)
+fun TextEditFilter.then(
+    next: TextEditFilter,
+    keyboardOptions: KeyboardOptions? = null
+): TextEditFilter = FilterChain(this, next, keyboardOptions)
 
 private class FilterChain(
     private val first: TextEditFilter,
-    private val second: TextEditFilter
+    private val second: TextEditFilter,
+    override val keyboardOptions: KeyboardOptions?
 ) : TextEditFilter {
 
     override fun filter(oldState: TextFieldValue, newState: MutableTextFieldValueWithSelection) {
@@ -83,6 +99,7 @@ private class FilterChain(
 
         if (first != other.first) return false
         if (second != other.second) return false
+        if (keyboardOptions != other.keyboardOptions) return false
 
         return true
     }
@@ -90,6 +107,7 @@ private class FilterChain(
     override fun hashCode(): Int {
         var result = first.hashCode()
         result = 31 * result + second.hashCode()
+        result = 32 * result + keyboardOptions.hashCode()
         return result
     }
 }

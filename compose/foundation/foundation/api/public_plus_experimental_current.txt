@@ -1359,6 +1359,8 @@ package androidx.compose.foundation.text2.input {
 
   @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public fun interface TextEditFilter {
     method public void filter(androidx.compose.ui.text.input.TextFieldValue oldState, androidx.compose.foundation.text2.input.MutableTextFieldValueWithSelection newState);
+    method public default androidx.compose.foundation.text.KeyboardOptions? getKeyboardOptions();
+    property public default androidx.compose.foundation.text.KeyboardOptions? keyboardOptions;
     field public static final androidx.compose.foundation.text2.input.TextEditFilter.Companion Companion;
   }
 
@@ -1366,7 +1368,7 @@ package androidx.compose.foundation.text2.input {
   }
 
   public final class TextEditFilterKt {
-    method @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text2.input.TextEditFilter then(androidx.compose.foundation.text2.input.TextEditFilter, androidx.compose.foundation.text2.input.TextEditFilter next);
+    method @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text2.input.TextEditFilter then(androidx.compose.foundation.text2.input.TextEditFilter, androidx.compose.foundation.text2.input.TextEditFilter next, optional androidx.compose.foundation.text.KeyboardOptions? keyboardOptions);
   }
 
   @androidx.compose.foundation.ExperimentalFoundationApi public abstract sealed class TextFieldEditResult {

@@ -28,6 +28,7 @@ import androidx.compose.foundation.text2.input.MutableTextFieldValueWithSelectio
 import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.AndroidTextInputAdapter
+import androidx.compose.foundation.text2.input.rememberTextFieldState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -746,6 +747,127 @@ internal class BasicTextField2Test {
         }
     }
 
+    @Test
+    fun textField_filterKeyboardOptions_sentToIme() {
+        lateinit var editorInfo: EditorInfo
+        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { ei, _ ->
+            editorInfo = ei
+        }
+        val filter = KeyboardOptionsFilter(
+            KeyboardOptions(
+                keyboardType = KeyboardType.Email,
+                imeAction = ImeAction.Previous
+            )
+        )
+        rule.setContent {
+            BasicTextField2(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(Tag),
+                filter = filter,
+                maxLines = Int.MAX_VALUE
+            )
+        }
+        requestFocus(Tag)
+
+        rule.runOnIdle {
+            assertThat(editorInfo.imeOptions and EditorInfo.IME_ACTION_PREVIOUS).isNotEqualTo(0)
+            assertThat(editorInfo.inputType and InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS)
+                .isNotEqualTo(0)
+        }
+    }
+
+    @Test
+    fun textField_filterKeyboardOptions_mergedWithParams() {
+        lateinit var editorInfo: EditorInfo
+        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { ei, _ ->
+            editorInfo = ei
+        }
+        val filter = KeyboardOptionsFilter(KeyboardOptions(imeAction = ImeAction.Previous))
+        rule.setContent {
+            BasicTextField2(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(Tag),
+                filter = filter,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                maxLines = Int.MAX_VALUE
+            )
+        }
+        requestFocus(Tag)
+
+        rule.runOnIdle {
+            assertThat(editorInfo.imeOptions and EditorInfo.IME_ACTION_PREVIOUS).isNotEqualTo(0)
+            assertThat(editorInfo.inputType and InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS)
+                .isNotEqualTo(0)
+        }
+    }
+
+    @Test
+    fun textField_filterKeyboardOptions_overriddenByParams() {
+        lateinit var editorInfo: EditorInfo
+        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { ei, _ ->
+            editorInfo = ei
+        }
+        val filter = KeyboardOptionsFilter(KeyboardOptions(imeAction = ImeAction.Previous))
+        rule.setContent {
+            BasicTextField2(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(Tag),
+                filter = filter,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                maxLines = Int.MAX_VALUE
+            )
+        }
+        requestFocus(Tag)
+
+        rule.runOnIdle {
+            assertThat(editorInfo.imeOptions and EditorInfo.IME_ACTION_SEARCH).isNotEqualTo(0)
+        }
+    }
+
+    @Test
+    fun textField_filterKeyboardOptions_applyWhenFilterChanged() {
+        lateinit var editorInfo: EditorInfo
+        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { ei, _ ->
+            editorInfo = ei
+        }
+        var filter by mutableStateOf(
+            KeyboardOptionsFilter(
+                KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Previous
+                )
+            )
+        )
+        rule.setContent {
+            BasicTextField2(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(Tag),
+                filter = filter,
+                maxLines = Int.MAX_VALUE
+            )
+        }
+        requestFocus(Tag)
+
+        rule.runOnIdle {
+            assertThat(editorInfo.imeOptions and EditorInfo.IME_ACTION_PREVIOUS).isNotEqualTo(0)
+            assertThat(editorInfo.inputType and InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS)
+                .isNotEqualTo(0)
+        }
+
+        filter = KeyboardOptionsFilter(
+            KeyboardOptions(
+                keyboardType = KeyboardType.Decimal,
+                imeAction = ImeAction.Search
+            )
+        )
+
+        rule.runOnIdle {
+            assertThat(editorInfo.imeOptions and EditorInfo.IME_ACTION_SEARCH).isNotEqualTo(0)
+            assertThat(editorInfo.inputType and InputType.TYPE_NUMBER_FLAG_DECIMAL)
+                .isNotEqualTo(0)
+        }
+    }
+
     private fun requestFocus(tag: String) =
         rule.onNodeWithTag(tag).performSemanticsAction(SemanticsActions.RequestFocus)
 
@@ -762,6 +884,16 @@ internal class BasicTextField2Test {
             newState: MutableTextFieldValueWithSelection
         ) {
             newState.revertAllChanges()
+        }
+    }
+
+    private class KeyboardOptionsFilter(override val keyboardOptions: KeyboardOptions) :
+        TextEditFilter {
+        override fun filter(
+            oldState: TextFieldValue,
+            newState: MutableTextFieldValueWithSelection
+        ) {
+            // Noop
         }
     }
 }

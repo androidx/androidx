@@ -17,13 +17,17 @@
 package androidx.compose.foundation.text2.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.toUpperCase
 
 /**
  * Returns a [TextEditFilter] that forces all text to be uppercase.
+ *
+ * This filter automatically configures the keyboard to capitalize all characters.
  *
  * @param locale The [Locale] in which to perform the case conversion.
  */
@@ -34,6 +38,10 @@ fun TextEditFilter.Companion.allCaps(locale: Locale): TextEditFilter = AllCapsFi
 // This is a very naive implementation for now, not intended to be production-ready.
 @OptIn(ExperimentalFoundationApi::class)
 private data class AllCapsFilter(private val locale: Locale) : TextEditFilter {
+    override val keyboardOptions = KeyboardOptions(
+        capitalization = KeyboardCapitalization.Characters
+    )
+
     override fun filter(oldState: TextFieldValue, newState: MutableTextFieldValueWithSelection) {
         val selection = newState.selectionInCodepoints
         newState.replace(0, newState.length, newState.toString().toUpperCase(locale))
