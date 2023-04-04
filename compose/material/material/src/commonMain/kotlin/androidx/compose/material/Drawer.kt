@@ -30,22 +30,25 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.material.BottomDrawerValue.Closed
+import androidx.compose.material.BottomDrawerValue.Expanded
+import androidx.compose.material.BottomDrawerValue.Open
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.isSpecified
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.contentDescription
@@ -56,10 +59,12 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /**
@@ -247,28 +252,54 @@ class DrawerState(
 class BottomDrawerState(
     initialValue: BottomDrawerValue,
     confirmStateChange: (BottomDrawerValue) -> Boolean = { true }
-) : SwipeableState<BottomDrawerValue>(
-    initialValue = initialValue,
-    animationSpec = AnimationSpec,
-    confirmStateChange = confirmStateChange
 ) {
+    internal val swipeableState = SwipeableV2State(
+        initialValue = initialValue,
+        animationSpec = AnimationSpec,
+        confirmValueChange = confirmStateChange,
+        velocityThreshold = DrawerVelocityThreshold
+    )
+
+    /**
+     * The target value. This is the closest value to the current offset (taking into account
+     * positional thresholds). If no interactions like animations or drags are in progress, this
+     * will be the current value.
+     */
+    val targetValue: BottomDrawerValue
+        get() = swipeableState.targetValue
+
+    /**
+     * The current offset, or null if it has not been initialized yet.
+     **/
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:Suppress("AutoBoxing")
+    val offset: Float?
+        get() = swipeableState.offset
+
+    internal fun requireOffset(): Float = swipeableState.requireOffset()
+
+    /**
+     * The current value of the [BottomDrawerState].
+     */
+    val currentValue: BottomDrawerValue get() = swipeableState.currentValue
+
     /**
      * Whether the drawer is open, either in opened or expanded state.
      */
     val isOpen: Boolean
-        get() = currentValue != BottomDrawerValue.Closed
+        get() = swipeableState.currentValue != Closed
 
     /**
      * Whether the drawer is closed.
      */
     val isClosed: Boolean
-        get() = currentValue == BottomDrawerValue.Closed
+        get() = swipeableState.currentValue == Closed
 
     /**
      * Whether the drawer is expanded.
      */
     val isExpanded: Boolean
-        get() = currentValue == BottomDrawerValue.Expanded
+        get() = swipeableState.currentValue == Expanded
 
     /**
      * Open the drawer with animation and suspend until it if fully opened or animation has been
@@ -280,8 +311,8 @@ class BottomDrawerState(
      */
     suspend fun open() {
         val targetValue =
-            if (isOpenEnabled) BottomDrawerValue.Open else BottomDrawerValue.Expanded
-        animateTo(targetValue)
+            if (isOpenEnabled) Open else Expanded
+        swipeableState.animateTo(targetValue)
     }
 
     /**
@@ -291,7 +322,7 @@ class BottomDrawerState(
      * @throws [CancellationException] if the animation is interrupted
      *
      */
-    suspend fun close() = animateTo(BottomDrawerValue.Closed)
+    suspend fun close() = swipeableState.animateTo(Closed)
 
     /**
      * Expand the drawer with animation and suspend until it if fully expanded or animation has
@@ -300,12 +331,16 @@ class BottomDrawerState(
      * @throws [CancellationException] if the animation is interrupted
      *
      */
-    suspend fun expand() = animateTo(BottomDrawerValue.Expanded)
+    suspend fun expand() = swipeableState.animateTo(Expanded)
+    internal fun confirmStateChange(value: BottomDrawerValue): Boolean =
+        swipeableState.confirmValueChange(value)
 
     private val isOpenEnabled: Boolean
-        get() = anchors.values.contains(BottomDrawerValue.Open)
+        get() = swipeableState.hasAnchorForValue(Open)
 
-    internal val nestedScrollConnection = this.PreUpPostDownNestedScrollConnection
+    internal val nestedScrollConnection = ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
+        swipeableState
+    )
 
     companion object {
         /**
@@ -313,7 +348,7 @@ class BottomDrawerState(
          */
         fun Saver(confirmStateChange: (BottomDrawerValue) -> Boolean) =
             Saver<BottomDrawerState, BottomDrawerValue>(
-                save = { it.currentValue },
+                save = { it.swipeableState.currentValue },
                 restore = { BottomDrawerState(it, confirmStateChange) }
             )
     }
@@ -520,7 +555,7 @@ fun ModalDrawer(
 fun BottomDrawer(
     drawerContent: @Composable ColumnScope.() -> Unit,
     modifier: Modifier = Modifier,
-    drawerState: BottomDrawerState = rememberBottomDrawerState(BottomDrawerValue.Closed),
+    drawerState: BottomDrawerState = rememberBottomDrawerState(Closed),
     gesturesEnabled: Boolean = true,
     drawerShape: Shape = MaterialTheme.shapes.large,
     drawerElevation: Dp = DrawerDefaults.Elevation,
@@ -533,25 +568,8 @@ fun BottomDrawer(
 
     BoxWithConstraints(modifier.fillMaxSize()) {
         val fullHeight = constraints.maxHeight.toFloat()
-        var drawerHeight by remember(fullHeight) { mutableStateOf(fullHeight) }
         // TODO(b/178630869) Proper landscape support
         val isLandscape = constraints.maxWidth > constraints.maxHeight
-
-        val minHeight = 0f
-        val peekHeight = fullHeight * BottomDrawerOpenFraction
-        val expandedHeight = max(minHeight, fullHeight - drawerHeight)
-        val anchors = if (drawerHeight < peekHeight || isLandscape) {
-            mapOf(
-                fullHeight to BottomDrawerValue.Closed,
-                expandedHeight to BottomDrawerValue.Expanded
-            )
-        } else {
-            mapOf(
-                fullHeight to BottomDrawerValue.Closed,
-                peekHeight to BottomDrawerValue.Open,
-                expandedHeight to BottomDrawerValue.Expanded
-            )
-        }
         val drawerConstraints = with(LocalDensity.current) {
             Modifier
                 .sizeIn(
@@ -564,14 +582,15 @@ fun BottomDrawer(
         } else {
             Modifier
         }
+        val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+
         val swipeable = Modifier
             .then(nestedScroll)
-            .swipeable(
-                state = drawerState,
-                anchors = anchors,
+            .swipeableV2(
+                state = drawerState.swipeableState,
                 orientation = Orientation.Vertical,
                 enabled = gesturesEnabled,
-                resistance = null
+                reverseDirection = isRtl
             )
 
         Box(swipeable) {
@@ -580,26 +599,49 @@ fun BottomDrawer(
                 color = scrimColor,
                 onDismiss = {
                     if (
-                        gesturesEnabled && drawerState.confirmStateChange(BottomDrawerValue.Closed)
+                        gesturesEnabled && drawerState.confirmStateChange(Closed)
                     ) {
                         scope.launch { drawerState.close() }
                     }
                 },
-                visible = drawerState.targetValue != BottomDrawerValue.Closed
+                visible = drawerState.targetValue != Closed
             )
             val navigationMenu = getString(Strings.NavigationMenu)
+
             Surface(
                 drawerConstraints
-                    .offset { IntOffset(x = 0, y = drawerState.offset.value.roundToInt()) }
-                    .onGloballyPositioned { position ->
-                        drawerHeight = position.size.height.toFloat()
+                    .swipeAnchors(
+                        drawerState.swipeableState,
+                        possibleValues = setOf(
+                            Closed,
+                            Open,
+                            Expanded
+                        ),
+                        anchorChangeHandler = remember(drawerState, scope) {
+                            BottomDrawerAnchorChangeHandler(state = drawerState, scope = scope)
+                        }
+                    ) { value, layoutSize ->
+                        val drawerHeight = layoutSize.height.toFloat()
+                        calculateAnchors(
+                            fullHeight = fullHeight,
+                            drawerHeight = drawerHeight,
+                            isLandscape = isLandscape
+                        )[value]
+                    }
+                    .offset {
+                        IntOffset(
+                            x = 0,
+                            y = drawerState
+                                .requireOffset()
+                                .roundToInt()
+                        )
                     }
                     .semantics {
                         paneTitle = navigationMenu
                         if (drawerState.isOpen) {
                             // TODO(b/180101663) The action currently doesn't return the correct results
                             dismiss {
-                                if (drawerState.confirmStateChange(BottomDrawerValue.Closed)) {
+                                if (drawerState.confirmStateChange(Closed)) {
                                     scope.launch { drawerState.close() }
                                 }; true
                             }
@@ -613,6 +655,28 @@ fun BottomDrawer(
                 Column(content = drawerContent)
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+private fun calculateAnchors(
+    fullHeight: Float,
+    drawerHeight: Float,
+    isLandscape: Boolean
+): Map<BottomDrawerValue, Float?> {
+    val peekHeight = fullHeight * BottomDrawerOpenFraction
+    val expandedHeight = max(0f, fullHeight - drawerHeight)
+    return if (drawerHeight < peekHeight || isLandscape) {
+        mapOf(
+            Closed to fullHeight,
+            Expanded to if (drawerHeight == 0f) null else expandedHeight
+        )
+    } else {
+        mapOf(
+            Closed to fullHeight,
+            Open to peekHeight,
+            Expanded to if (drawerHeight == 0f) null else expandedHeight
+        )
     }
 }
 
@@ -710,3 +774,108 @@ private val DrawerVelocityThreshold = 400.dp
 private val AnimationSpec = TweenSpec<Float>(durationMillis = 256)
 
 private const val BottomDrawerOpenFraction = 0.5f
+
+@OptIn(ExperimentalMaterialApi::class)
+private fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
+    state: SwipeableV2State<*>
+): NestedScrollConnection = object : NestedScrollConnection {
+    val orientation: Orientation = Orientation.Vertical
+
+    override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+        val delta = available.toFloat()
+        return if (delta < 0 && source == NestedScrollSource.Drag) {
+            state.dispatchRawDelta(delta).toOffset()
+        } else {
+            Offset.Zero
+        }
+    }
+
+    override fun onPostScroll(
+        consumed: Offset,
+        available: Offset,
+        source: NestedScrollSource
+    ): Offset {
+        return if (source == NestedScrollSource.Drag) {
+            state.dispatchRawDelta(available.toFloat()).toOffset()
+        } else {
+            Offset.Zero
+        }
+    }
+
+    override suspend fun onPreFling(available: Velocity): Velocity {
+        val toFling = available.toFloat()
+        val currentOffset = state.requireOffset()
+        return if (toFling < 0 && currentOffset > state.minOffset) {
+            state.settle(velocity = toFling)
+            // since we go to the anchor with tween settling, consume all for the best UX
+            available
+        } else {
+            Velocity.Zero
+        }
+    }
+
+    override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+        state.settle(velocity = available.toFloat())
+        return available
+    }
+
+    private fun Float.toOffset(): Offset = Offset(
+        x = if (orientation == Orientation.Horizontal) this else 0f,
+        y = if (orientation == Orientation.Vertical) this else 0f
+    )
+
+    @JvmName("velocityToFloat")
+    private fun Velocity.toFloat() = if (orientation == Orientation.Horizontal) x else y
+
+    @JvmName("offsetToFloat")
+    private fun Offset.toFloat(): Float = if (orientation == Orientation.Horizontal) x else y
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+private fun BottomDrawerAnchorChangeHandler(
+    state: BottomDrawerState,
+    scope: CoroutineScope
+) = AnchorChangeHandler<BottomDrawerValue> { previousTarget, previousAnchors, newAnchors ->
+    fun animateTo(target: BottomDrawerValue, velocity: Float) {
+        scope.launch {
+            state.swipeableState.animateTo(
+                target,
+                velocity = velocity
+            )
+        }
+    }
+
+    fun snapTo(target: BottomDrawerValue) {
+        val didSnapSynchronously = state.swipeableState.trySnapTo(target)
+        if (!didSnapSynchronously) scope.launch {
+            state.swipeableState.snapTo(
+                target
+            )
+        }
+    }
+
+    val previousTargetOffset = previousAnchors[previousTarget]
+    val newTarget = when (previousTarget) {
+        Closed -> Closed
+        Open, Expanded -> {
+            val hasHalfExpandedState = newAnchors.containsKey(Open)
+            val newTarget = if (hasHalfExpandedState) {
+                Open
+            } else {
+                if (newAnchors.containsKey(Expanded)) Expanded else Closed
+            }
+
+            newTarget
+        }
+    }
+    val newTargetOffset = newAnchors.getValue(newTarget)
+    if (newTargetOffset != previousTargetOffset) {
+        if (state.swipeableState.isAnimationRunning) {
+            // Re-target the animation to the new offset if it changed
+            animateTo(newTarget, state.swipeableState.lastVelocity)
+        } else {
+            // Snap to the new offset value of the target if no animation was running
+            snapTo(newTarget)
+        }
+    }
+}
