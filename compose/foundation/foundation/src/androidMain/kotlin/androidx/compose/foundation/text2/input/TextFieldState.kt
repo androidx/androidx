@@ -56,6 +56,9 @@ class TextFieldState(initialValue: TextFieldValue = TextFieldValue()) {
         commitEdit(mutableValue, result)
     }
 
+    override fun toString(): String =
+        "TextFieldState(selection=${value.selection}, text=\"${value.text}\")"
+
     @Suppress("ShowingMemberInHiddenClass")
     @PublishedApi
     internal fun startEdit(value: TextFieldValue): MutableTextFieldValue =

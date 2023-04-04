@@ -23,6 +23,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.KeyboardHelper
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text2.input.MutableTextFieldValue.ChangeList
 import androidx.compose.foundation.text2.input.MutableTextFieldValueWithSelection
 import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldState
@@ -50,6 +51,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextInputSelection
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.text.AnnotatedString
@@ -534,6 +536,214 @@ internal class BasicTextField2Test {
 
         rule.onNodeWithTag(Tag).performKeyInput { pressKey(Key.Spacebar) }
         rule.onNodeWithTag(Tag).assertTextEquals("hello ")
+    }
+
+    @Test
+    fun textField_changesAreTracked_whenInputConnectionCommits() {
+        lateinit var inputConnection: InputConnection
+        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { _, ic ->
+            inputConnection = ic
+        }
+        val state = TextFieldState()
+        lateinit var changes: ChangeList
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                filter = { _, new ->
+                    if (new.changes.changeCount > 0) {
+                        changes = new.changes
+                    }
+                },
+                modifier = Modifier.testTag(Tag),
+            )
+        }
+        requestFocus(Tag)
+
+        rule.runOnIdle { inputConnection.commitText("hello") }
+
+        rule.runOnIdle {
+            assertThat(changes.changeCount).isEqualTo(1)
+            assertThat(changes.getRange(0)).isEqualTo(TextRange(0, 5))
+            assertThat(changes.getOriginalRange(0)).isEqualTo(TextRange(0, 0))
+        }
+    }
+
+    @Test
+    fun textField_changesAreTracked_whenInputConnectionComposes() {
+        lateinit var inputConnection: InputConnection
+        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { _, ic ->
+            inputConnection = ic
+        }
+        val state = TextFieldState()
+        lateinit var changes: ChangeList
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                filter = { _, new ->
+                    if (new.changes.changeCount > 0) {
+                        changes = new.changes
+                    }
+                },
+                modifier = Modifier.testTag(Tag),
+            )
+        }
+        requestFocus(Tag)
+
+        rule.runOnIdle { inputConnection.setComposingText("hello", 1) }
+
+        rule.runOnIdle {
+            assertThat(changes.changeCount).isEqualTo(1)
+            assertThat(changes.getRange(0)).isEqualTo(TextRange(0, 5))
+            assertThat(changes.getOriginalRange(0)).isEqualTo(TextRange(0))
+        }
+    }
+
+    @Test
+    fun textField_changesAreTracked_whenInputConnectionDeletes() {
+        lateinit var inputConnection: InputConnection
+        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { _, ic ->
+            inputConnection = ic
+        }
+        val state = TextFieldState(TextFieldValue("hello"))
+        lateinit var changes: ChangeList
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                filter = { _, new ->
+                    if (new.changes.changeCount > 0) {
+                        changes = new.changes
+                    }
+                },
+                modifier = Modifier.testTag(Tag),
+            )
+        }
+        requestFocus(Tag)
+
+        rule.runOnIdle {
+            inputConnection.beginBatchEdit()
+            inputConnection.finishComposingText()
+            inputConnection.setSelection(5, 5)
+            inputConnection.deleteSurroundingText(1, 0)
+            inputConnection.endBatchEdit()
+        }
+
+        rule.runOnIdle {
+            assertThat(changes.changeCount).isEqualTo(1)
+            assertThat(changes.getRange(0)).isEqualTo(TextRange(4, 4))
+            assertThat(changes.getOriginalRange(0)).isEqualTo(TextRange(4, 5))
+        }
+    }
+
+    @Test
+    fun textField_changesAreTracked_whenInputConnectionDeletesViaComposition() {
+        lateinit var inputConnection: InputConnection
+        AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { _, ic ->
+            inputConnection = ic
+        }
+        val state = TextFieldState(TextFieldValue("hello"))
+        lateinit var changes: ChangeList
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                filter = { _, new ->
+                    if (new.changes.changeCount > 0) {
+                        changes = new.changes
+                    }
+                },
+                modifier = Modifier.testTag(Tag),
+            )
+        }
+        requestFocus(Tag)
+
+        rule.runOnIdle {
+            inputConnection.beginBatchEdit()
+            inputConnection.setComposingRegion(0, 5)
+            inputConnection.setComposingText("h", 1)
+            inputConnection.endBatchEdit()
+        }
+
+        rule.runOnIdle {
+            assertThat(changes.changeCount).isEqualTo(1)
+            assertThat(changes.getRange(0)).isEqualTo(TextRange(0, 1))
+            assertThat(changes.getOriginalRange(0)).isEqualTo(TextRange(0, 5))
+        }
+    }
+
+    @Test
+    fun textField_changesAreTracked_whenKeyEventInserts() {
+        val state = TextFieldState()
+        lateinit var changes: ChangeList
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                filter = { _, new ->
+                    if (new.changes.changeCount > 0) {
+                        changes = new.changes
+                    }
+                },
+                modifier = Modifier.testTag(Tag),
+            )
+        }
+        requestFocus(Tag)
+
+        rule.onNodeWithTag(Tag).performKeyInput { pressKey(Key.A) }
+
+        rule.runOnIdle {
+            assertThat(changes.changeCount).isEqualTo(1)
+            assertThat(changes.getRange(0)).isEqualTo(TextRange(0, 1))
+            assertThat(changes.getOriginalRange(0)).isEqualTo(TextRange(0))
+        }
+    }
+
+    @Test
+    fun textField_changesAreTracked_whenKeyEventDeletes() {
+        val state = TextFieldState(TextFieldValue("hello"))
+        lateinit var changes: ChangeList
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                filter = { _, new ->
+                    if (new.changes.changeCount > 0) {
+                        changes = new.changes
+                    }
+                },
+                modifier = Modifier.testTag(Tag),
+            )
+        }
+
+        rule.onNodeWithTag(Tag).performTextInputSelection(TextRange(5))
+        rule.onNodeWithTag(Tag).performKeyInput { pressKey(Key.Backspace) }
+
+        rule.runOnIdle {
+            assertThat(changes.changeCount).isEqualTo(1)
+            assertThat(changes.getRange(0)).isEqualTo(TextRange(4, 4))
+            assertThat(changes.getOriginalRange(0)).isEqualTo(TextRange(4, 5))
+        }
+    }
+
+    @Test
+    fun textField_changesAreTracked_whenSemanticsActionInserts() {
+        val state = TextFieldState()
+        lateinit var changes: ChangeList
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                filter = { _, new ->
+                    if (new.changes.changeCount > 0) {
+                        changes = new.changes
+                    }
+                },
+                modifier = Modifier.testTag(Tag),
+            )
+        }
+
+        rule.onNodeWithTag(Tag).performTextInput("hello")
+
+        rule.runOnIdle {
+            assertThat(changes.changeCount).isEqualTo(1)
+            assertThat(changes.getRange(0)).isEqualTo(TextRange(0, 5))
+            assertThat(changes.getOriginalRange(0)).isEqualTo(TextRange(0))
+        }
     }
 
     private fun requestFocus(tag: String) =

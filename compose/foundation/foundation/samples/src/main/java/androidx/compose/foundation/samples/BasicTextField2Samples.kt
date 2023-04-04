@@ -23,12 +23,17 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.text2.input.delete
+import androidx.compose.foundation.text2.input.forEachChange
+import androidx.compose.foundation.text2.input.forEachChangeReversed
+import androidx.compose.foundation.text2.input.rememberTextFieldState
 import androidx.compose.foundation.text2.input.selectCharsIn
 import androidx.compose.foundation.text2.input.then
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.substring
 
 @Sampled
 fun BasicTextField2StateEditSample() {
@@ -86,4 +91,34 @@ fun BasicTextField2FilterChainingSample() {
 
     // Returns a filter that prints the number of e's before the first one is removed.
     printECountFilter.then(removeFirstEFilter)
+}
+
+@Composable
+@Sampled
+fun BasicTextField2ChangeIterationSample() {
+    // Print a log message every time the text is changed.
+    BasicTextField2(state = rememberTextFieldState(), filter = { _, new ->
+        new.changes.forEachChange { sourceRange, replacedLength ->
+            val newString = new.substring(sourceRange)
+            println("""$replacedLength characters were replaced with "$newString"""")
+        }
+    })
+}
+
+@Composable
+@Sampled
+fun BasicTextField2ChangeReverseIterationSample() {
+    // Make a text field behave in "insert mode" – inserted text overwrites the text ahead of it
+    // instead of being inserted.
+    BasicTextField2(state = rememberTextFieldState(), filter = { _, new ->
+        new.changes.forEachChangeReversed { range, originalRange ->
+            if (!range.collapsed && originalRange.collapsed) {
+                // New text was inserted, delete the text ahead of it.
+                new.delete(
+                    range.end.coerceAtMost(new.length),
+                    (range.end + range.length).coerceAtMost(new.length)
+                )
+            }
+        }
+    })
 }

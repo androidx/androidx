@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text2.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text2.input.internal.ChangeTracker
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 
@@ -25,8 +26,10 @@ import androidx.compose.ui.text.input.TextFieldValue
  * used by [TextEditFilter.filter].
  */
 @ExperimentalFoundationApi
-class MutableTextFieldValueWithSelection internal constructor(value: TextFieldValue) :
-    MutableTextFieldValue(value) {
+class MutableTextFieldValueWithSelection internal constructor(
+    value: TextFieldValue,
+    initialChanges: ChangeTracker? = null
+) : MutableTextFieldValue(value, initialChanges) {
 
     /**
      * True if the selection range has non-zero length. If this is false, then the selection
@@ -98,6 +101,31 @@ class MutableTextFieldValueWithSelection internal constructor(value: TextFieldVa
     }
 
     /**
+     * Returns a [TextFieldEditResult] that places the cursor after the last change made to this
+     * [MutableTextFieldValue].
+     *
+     * @see placeCursorAtEnd
+     * @see placeCursorBeforeFirstChange
+     */
+    fun placeCursorAfterLastChange() {
+        if (changes.changeCount > 0) {
+            placeCursorBeforeCharAt(changes.getRange(changes.changeCount).max)
+        }
+    }
+
+    /**
+     * Returns a [TextFieldEditResult] that places the cursor before the first change made to this
+     * [MutableTextFieldValue].
+     *
+     * @see placeCursorAfterLastChange
+     */
+    fun placeCursorBeforeFirstChange() {
+        if (changes.changeCount > 0) {
+            placeCursorBeforeCharAt(changes.getRange(0).min)
+        }
+    }
+
+    /**
      * Places the selection around the given [range] in codepoints.
      *
      * If the start or end of [range] fall inside invalid runs, the values will be adjusted to the
@@ -147,14 +175,33 @@ class MutableTextFieldValueWithSelection internal constructor(value: TextFieldVa
     }
 
     /**
+     * Returns a [TextFieldEditResult] that places the selection before the first change and after the
+     * last change.
+     *
+     * @see selectAll
+     */
+    fun selectAllChanges() {
+        if (changes.changeCount > 0) {
+            selectCharsIn(
+                TextRange(
+                    changes.getRange(0).min,
+                    changes.getRange(changes.changeCount).max
+                )
+            )
+        }
+    }
+
+    /**
      * Resets this value to [value].
      */
     fun resetTo(value: TextFieldValue) {
-        replaceWithoutNotifying(0, length, value.text)
+        replace(0, length, value.text)
         selectionInChars = value.selection
     }
 
     override fun onTextWillChange(rangeToBeReplaced: TextRange, newLength: Int) {
+        super.onTextWillChange(rangeToBeReplaced, newLength)
+
         // Adjust selection.
         val start = rangeToBeReplaced.min
         val end = rangeToBeReplaced.max
