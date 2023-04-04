@@ -32,7 +32,6 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.internal.CameraCaptureResultImageInfo;
 import androidx.camera.testing.fakes.FakeCameraCaptureResult;
@@ -174,11 +173,10 @@ public class TestImageUtil {
      * <p>The difference is calculated as the average difference of each R, G and B color
      * components.
      */
-    @VisibleForTesting
-    static int calculateColorDiff(int color1, int color2) {
+    private static int calculateColorDiff(int color1, int color2) {
         int diff = 0;
         for (int shift = 0; shift <= 16; shift += 8) {
-            diff += Math.abs(((color1 >> shift) & 0xFF) - ((color2 >> shift) & 0xFF));
+            diff += Math.abs((color1 >> shift) & 0xFF - (color2 >> shift) & 0xFF);
         }
         return diff / 3;
     }
