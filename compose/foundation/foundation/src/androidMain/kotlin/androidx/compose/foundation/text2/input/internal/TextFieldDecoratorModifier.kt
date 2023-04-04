@@ -17,12 +17,17 @@
 package androidx.compose.foundation.text2.input.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text.KeyboardActionScope
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.deselect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusEventModifierNode
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequesterModifierNode
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.requestFocus
@@ -32,11 +37,14 @@ import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.changedToDown
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.node.SemanticsModifierNode
+import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.editableText
@@ -44,11 +52,13 @@ import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.imeAction
 import androidx.compose.ui.semantics.insertTextAtCursor
 import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.performImeAction
 import androidx.compose.ui.semantics.setSelection
 import androidx.compose.ui.semantics.setText
 import androidx.compose.ui.semantics.textSelectionRange
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastAny
@@ -69,6 +79,7 @@ internal data class TextFieldDecoratorModifier(
     private val enabled: Boolean,
     private val readOnly: Boolean,
     private val keyboardOptions: KeyboardOptions,
+    private val keyboardActions: KeyboardActions,
     private val singleLine: Boolean
 ) : ModifierNodeElement<TextFieldDecoratorModifierNode>() {
     override fun create(): TextFieldDecoratorModifierNode = TextFieldDecoratorModifierNode(
@@ -79,6 +90,7 @@ internal data class TextFieldDecoratorModifier(
         enabled = enabled,
         readOnly = readOnly,
         keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
         singleLine = singleLine
     )
 
@@ -91,6 +103,7 @@ internal data class TextFieldDecoratorModifier(
             enabled = enabled,
             readOnly = readOnly,
             keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
             singleLine = singleLine
         )
         return node
@@ -111,6 +124,7 @@ internal class TextFieldDecoratorModifierNode(
     var enabled: Boolean,
     var readOnly: Boolean,
     var keyboardOptions: KeyboardOptions,
+    var keyboardActions: KeyboardActions,
     var singleLine: Boolean
 ) : Modifier.Node(),
     SemanticsModifierNode,
@@ -118,7 +132,8 @@ internal class TextFieldDecoratorModifierNode(
     FocusEventModifierNode,
     GlobalPositionAwareModifierNode,
     PointerInputModifierNode,
-    KeyInputModifierNode {
+    KeyInputModifierNode,
+    CompositionLocalConsumerModifierNode {
 
     // semantics properties that require semantics invalidation
     private var lastText: AnnotatedString? = null
@@ -137,6 +152,42 @@ internal class TextFieldDecoratorModifierNode(
         it.setFilter(filter)
     }
 
+    private val keyboardActionScope = object : KeyboardActionScope {
+        private val focusManager: FocusManager
+            get() = currentValueOf(LocalFocusManager)
+
+        override fun defaultKeyboardAction(imeAction: ImeAction) {
+            when (imeAction) {
+                ImeAction.Next -> {
+                    focusManager.moveFocus(FocusDirection.Next)
+                }
+                ImeAction.Previous -> {
+                    focusManager.moveFocus(FocusDirection.Previous)
+                }
+                ImeAction.Done -> {
+                    textInputSession?.hideSoftwareKeyboard()
+                }
+                ImeAction.Go, ImeAction.Search, ImeAction.Send,
+                ImeAction.Default, ImeAction.None -> Unit
+            }
+        }
+    }
+
+    private val onImeActionPerformed: (ImeAction) -> Unit = { imeAction ->
+        val keyboardAction = when (imeAction) {
+            ImeAction.Done -> keyboardActions.onDone
+            ImeAction.Go -> keyboardActions.onGo
+            ImeAction.Next -> keyboardActions.onNext
+            ImeAction.Previous -> keyboardActions.onPrevious
+            ImeAction.Search -> keyboardActions.onSearch
+            ImeAction.Send -> keyboardActions.onSend
+            ImeAction.Default, ImeAction.None -> null
+            else -> error("invalid ImeAction")
+        }
+        keyboardAction?.invoke(keyboardActionScope)
+            ?: keyboardActionScope.defaultKeyboardAction(imeAction)
+    }
+
     /**
      * Updates all the related properties and invalidates internal state based on the changes.
      */
@@ -148,6 +199,7 @@ internal class TextFieldDecoratorModifierNode(
         enabled: Boolean,
         readOnly: Boolean,
         keyboardOptions: KeyboardOptions,
+        keyboardActions: KeyboardActions,
         singleLine: Boolean
     ) {
         // Find the diff: current previous and new values before updating current.
@@ -163,6 +215,7 @@ internal class TextFieldDecoratorModifierNode(
         this.enabled = enabled
         this.readOnly = readOnly
         this.keyboardOptions = keyboardOptions
+        this.keyboardActions = keyboardActions
         this.singleLine = singleLine
 
         // React to diff.
@@ -175,6 +228,7 @@ internal class TextFieldDecoratorModifierNode(
                     textFieldState,
                     keyboardOptions.toImeOptions(singleLine),
                     filter,
+                    onImeActionPerformed
                 )
             } else if (!writeable) {
                 // We were made read-only or disabled, hide the keyboard.
@@ -216,6 +270,7 @@ internal class TextFieldDecoratorModifierNode(
                 textFieldState,
                 keyboardOptions.toImeOptions(singleLine),
                 filter,
+                onImeActionPerformed
             )
             // TODO(halilibo): bringIntoView
         } else {
@@ -259,9 +314,7 @@ internal class TextFieldDecoratorModifierNode(
             textLayoutState = textLayoutState,
             editable = enabled && !readOnly,
             singleLine = singleLine,
-            onSubmit = {
-                // TODO(halilibo): finalize the wiring when KeyboardActions or equivalent is added.
-            }
+            onSubmit = { onImeActionPerformed(keyboardOptions.imeAction) }
         )
     }
 
@@ -326,6 +379,10 @@ internal class TextFieldDecoratorModifierNode(
                     ),
                     filter
                 )
+                true
+            }
+            performImeAction {
+                onImeActionPerformed(keyboardOptions.imeAction)
                 true
             }
             onClick {

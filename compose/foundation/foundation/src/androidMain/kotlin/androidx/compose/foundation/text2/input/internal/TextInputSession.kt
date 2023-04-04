@@ -23,6 +23,7 @@ import android.view.inputmethod.InputConnection
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.TextFieldValue
 
@@ -48,6 +49,16 @@ internal interface TextInputSession {
     fun setFilter(filter: TextEditFilter?)
 
     /**
+     * Request this session to show the software keyboard.
+     */
+    fun showSoftwareKeyboard()
+
+    /**
+     * Request this session to hide the software keyboard.
+     */
+    fun hideSoftwareKeyboard()
+
+    /**
      * Destroy this session and clear resources.
      */
     fun dispose()
@@ -56,7 +67,7 @@ internal interface TextInputSession {
 /**
  * Extended [TextInputSession] that handles [EditCommand]s and keeps track of current
  * [TextFieldValue]. This interface meant to be completely internal to [AndroidTextInputAdapter].
- * Please use [TextInputSession] to manage focus from the editor.
+ * Please use [TextInputSession] to manage focus and other details from the editor.
  */
 internal interface EditableTextInputSession : TextInputSession {
 
@@ -80,4 +91,9 @@ internal interface EditableTextInputSession : TextInputSession {
      * IME configuration to use when creating new [InputConnection]s while this session is active.
      */
     val imeOptions: ImeOptions
+
+    /**
+     * Callback to run when IME sends an action via [InputConnection.performEditorAction]
+     */
+    fun onImeAction(imeAction: ImeAction)
 }

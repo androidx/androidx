@@ -23,16 +23,18 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.inputmethod.CompletionInfo
 import android.view.inputmethod.CorrectionInfo
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.ExtractedText
 import android.view.inputmethod.ExtractedTextRequest
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputContentInfo
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.getSelectedText
 import androidx.compose.ui.text.input.getTextAfterSelection
 import androidx.compose.ui.text.input.getTextBeforeSelection
 
-private const val DEBUG = true
+private const val DEBUG = false
 private const val TAG = "StatelessIC"
 private const val DEBUG_CLASS = "StatelessInputConnection"
 
@@ -141,8 +143,6 @@ internal class StatelessInputConnection(
         editCommands.clear()
         batchDepth = 0
         isICActive = false
-        // TODO(halilibo): Implement connection close callback
-        // eventCallback.onConnectionClosed(this)
     }
 
     //endregion
@@ -282,8 +282,22 @@ internal class StatelessInputConnection(
 
     override fun performEditorAction(editorAction: Int): Boolean = ensureActive {
         logDebug("performEditorAction($editorAction)")
-        // TODO(halilibo): Implement ime action callback
-        // eventCallback.onImeAction(imeAction)
+
+        val imeAction = when (editorAction) {
+            EditorInfo.IME_ACTION_UNSPECIFIED -> ImeAction.Default
+            EditorInfo.IME_ACTION_DONE -> ImeAction.Done
+            EditorInfo.IME_ACTION_SEND -> ImeAction.Send
+            EditorInfo.IME_ACTION_SEARCH -> ImeAction.Search
+            EditorInfo.IME_ACTION_PREVIOUS -> ImeAction.Previous
+            EditorInfo.IME_ACTION_NEXT -> ImeAction.Next
+            EditorInfo.IME_ACTION_GO -> ImeAction.Go
+            else -> {
+                logDebug("IME sent an unrecognized editor action: $editorAction")
+                ImeAction.Default
+            }
+        }
+
+        activeSessionProvider()?.onImeAction(imeAction)
         return true
     }
 

@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.DefaultMinLines
 import androidx.compose.foundation.text.InternalFoundationTextApi
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.TextDelegate
 import androidx.compose.foundation.text.heightInLines
@@ -94,6 +95,9 @@ import kotlin.math.roundToInt
  * behavior. In other cases TextField becomes vertically scrollable.
  * @param keyboardOptions software keyboard options that contains configuration such as
  * [KeyboardType] and [ImeAction].
+ * @param keyboardActions when the input service emits an IME action, the corresponding callback
+ * is called. Note that this IME action may be different from what you specified in
+ * [KeyboardOptions.imeAction].
  * @param onTextLayout Callback that is executed when a new text layout is calculated. A
  * [TextLayoutResult] object that callback provides contains paragraph information, size of the
  * text, baselines and other details. The callback can be used to add additional decoration or
@@ -116,13 +120,14 @@ fun BasicTextField2(
     readOnly: Boolean = false,
     filter: TextEditFilter? = null,
     textStyle: TextStyle = TextStyle.Default,
-    interactionSource: MutableInteractionSource? = null,
-    cursorBrush: Brush = SolidColor(Color.Black),
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
     minLines: Int = DefaultMinLines,
     maxLines: Int = Int.MAX_VALUE,
-    scrollState: ScrollState = rememberScrollState(),
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     onTextLayout: Density.(TextLayoutResult) -> Unit = {},
+    interactionSource: MutableInteractionSource? = null,
+    cursorBrush: Brush = SolidColor(Color.Black),
+    scrollState: ScrollState = rememberScrollState(),
     decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit =
         @Composable { innerTextField -> innerTextField() }
 ) {
@@ -164,6 +169,7 @@ fun BasicTextField2(
                 enabled = enabled,
                 readOnly = readOnly,
                 keyboardOptions = keyboardOptions,
+                keyboardActions = keyboardActions,
                 singleLine = singleLine,
             )
         )
