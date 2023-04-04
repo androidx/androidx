@@ -14,12 +14,10 @@ fun <T> convertToListenableFuture(
     tag: String,
     block: suspend CoroutineScope.() -> T,
 ): ListenableFuture<T> {
-    val scope = CoroutineScope(Dispatchers.Default)
     return CallbackToFutureAdapter.getFuture { completer ->
-        val job =
-            scope.launch {
+        val job = CoroutineScope(Dispatchers.Unconfined).launch {
                 try {
-                    completer.set(scope.block())
+                    completer.set(block())
                 } catch (t: Throwable) {
                     completer.setException(t)
                 }
