@@ -47,7 +47,7 @@ internal object BoringLayoutFactory {
         paint: TextPaint,
         textDir: TextDirectionHeuristic
     ): Metrics? {
-        return if (BuildCompat.isAtLeastT()) {
+        return if (Build.VERSION.SDK_INT >= 33) {
             BoringLayoutFactory33.isBoring(text, paint, textDir)
         } else {
             BoringLayoutFactoryDefault.isBoring(text, paint, textDir)
@@ -124,7 +124,7 @@ internal object BoringLayoutFactory {
      */
     @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
     fun isFallbackLineSpacingEnabled(layout: BoringLayout): Boolean {
-        return if (BuildCompat.isAtLeastT()) {
+        return if (Build.VERSION.SDK_INT >= 33) {
             BoringLayoutFactory33.isFallbackLineSpacingEnabled(layout)
         } else {
             return false

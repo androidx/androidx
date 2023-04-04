@@ -77,7 +77,7 @@ public final class SetSchemaRequestToPlatformConverter {
             }
         }
         if (!jetpackRequest.getRequiredPermissionsForSchemaTypeVisibility().isEmpty()) {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            if (Build.VERSION.SDK_INT < 33) {
                 throw new UnsupportedOperationException(
                         "Set required permissions for schema type visibility are not supported "
                                 + "with this backend/Android API level combination.");

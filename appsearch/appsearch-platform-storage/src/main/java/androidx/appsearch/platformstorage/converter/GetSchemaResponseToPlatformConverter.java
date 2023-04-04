@@ -52,7 +52,7 @@ public final class GetSchemaResponseToPlatformConverter {
             @NonNull android.app.appsearch.GetSchemaResponse platformResponse) {
         Preconditions.checkNotNull(platformResponse);
         GetSchemaResponse.Builder jetpackBuilder;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+        if (Build.VERSION.SDK_INT < 33) {
             // Android API level in S-v2 and lower won't have any supported feature.
             jetpackBuilder = new GetSchemaResponse.Builder(/*getVisibilitySettingSupported=*/false);
         } else {
