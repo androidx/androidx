@@ -23,18 +23,26 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ListView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.min
 import androidx.core.view.children
+import androidx.glance.appwidget.test.R
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import java.io.FileInputStream
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.test.assertIs
+
+// remote_views_adapter_default_loading_view.xml is used for adapter based views.
+object DefaultLoadingViewConstants {
+    const val id = "default_loading_view"
+    const val resource_package = "android"
+}
 
 inline fun <reified T : View> View.findChild(noinline pred: (T) -> Boolean) =
     findChild(pred, T::class.java)
@@ -133,6 +141,41 @@ fun View.performCompoundButtonClick() {
             assertThat(it.tag).isEqualTo("glanceCompoundButton")
         }
     }.performClick()
+}
+
+/**
+ * Returns true if view / subviews are still showing loading views.
+ */
+fun View.isLoading(): Boolean {
+    // If this method was called on a top-level view, then it can match initial loading view set in
+    // app provider info and even if the loading layout structure changes to coincidentally match
+    // with view we are expecting, we will still be able to identify that views have not loaded.
+    val emptyLoadingViewID = R.layout.empty_layout
+    val defaultLoadingViewId =
+        context.resources.getIdentifier(
+            DefaultLoadingViewConstants.id,
+            "id",
+            DefaultLoadingViewConstants.resource_package
+        )
+    return findViewById<View>(defaultLoadingViewId) != null ||
+        findViewById<View>(emptyLoadingViewID) != null
+}
+
+/**
+ * Returns true if list items are fully loaded (i.e. not in loading... state).
+ */
+fun ListView.areItemsFullyLoaded(): Boolean {
+    val loadingViewId = context.resources.getIdentifier(
+        DefaultLoadingViewConstants.id,
+        "id",
+        DefaultLoadingViewConstants.resource_package
+    )
+    if (childCount > 0 && adapter != null) {
+        // Searching directly on listView doesn't seem to return matching items, so we search each
+        // item.
+        return children.any { it.findViewById<TextView>(loadingViewId) != null }.not()
+    }
+    return false
 }
 
 // Update the value of the AtomicReference using the given updater function. Will throw an error
