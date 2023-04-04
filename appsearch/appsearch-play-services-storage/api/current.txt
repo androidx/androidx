@@ -1,1 +1,27 @@
 // Signature format: 4.0
+package androidx.appsearch.playservicesstorage {
+
+  public final class PlayServicesStorage {
+    method public static com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.GlobalSearchSession!> createGlobalSearchSessionAsync(androidx.appsearch.playservicesstorage.PlayServicesStorage.GlobalSearchContext);
+    method public static com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchSession!> createSearchSessionAsync(androidx.appsearch.playservicesstorage.PlayServicesStorage.SearchContext);
+  }
+
+  public static final class PlayServicesStorage.GlobalSearchContext {
+  }
+
+  public static final class PlayServicesStorage.GlobalSearchContext.Builder {
+    ctor public PlayServicesStorage.GlobalSearchContext.Builder(android.content.Context);
+    method public androidx.appsearch.playservicesstorage.PlayServicesStorage.GlobalSearchContext build();
+  }
+
+  public static final class PlayServicesStorage.SearchContext {
+    method public String getDatabaseName();
+  }
+
+  public static final class PlayServicesStorage.SearchContext.Builder {
+    ctor public PlayServicesStorage.SearchContext.Builder(android.content.Context, String);
+    method public androidx.appsearch.playservicesstorage.PlayServicesStorage.SearchContext build();
+  }
+
+}
+
