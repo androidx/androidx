@@ -82,22 +82,22 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.roundToInt
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.kotlin.any
 import org.mockito.kotlin.atLeastOnce
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
-import kotlin.math.roundToInt
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
 
 @OptIn(ExperimentalMaterial3Api::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class OutlinedTextFieldTest {
-    private val ExpectedMinimumTextFieldHeight = TextFieldDefaults.MinHeight
-    private val ExpectedDefaultTextFieldWidth = TextFieldDefaults.MinWidth
+    private val ExpectedMinimumTextFieldHeight = OutlinedTextFieldDefaults.MinHeight
+    private val ExpectedDefaultTextFieldWidth = OutlinedTextFieldDefaults.MinWidth
     private val ExpectedPadding = TextFieldPadding
     private val IconPadding = HorizontalIconPadding
     private val TextFieldTag = "textField"
@@ -1606,7 +1606,7 @@ class OutlinedTextFieldTest {
         }
 
         with(rule.density) {
-            assertThat(height).isEqualTo((TextFieldDefaults.MinHeight).roundToPx())
+            assertThat(height).isEqualTo((OutlinedTextFieldDefaults.MinHeight).roundToPx())
         }
     }
 
@@ -1631,7 +1631,7 @@ class OutlinedTextFieldTest {
         }
 
         with(rule.density) {
-            assertThat(height).isEqualTo((TextFieldDefaults.MinHeight).roundToPx())
+            assertThat(height).isEqualTo((OutlinedTextFieldDefaults.MinHeight).roundToPx())
         }
     }
 
@@ -1656,7 +1656,7 @@ class OutlinedTextFieldTest {
         }
 
         with(rule.density) {
-            assertThat(height).isEqualTo((TextFieldDefaults.MinHeight).roundToPx())
+            assertThat(height).isEqualTo((OutlinedTextFieldDefaults.MinHeight).roundToPx())
         }
     }
 
