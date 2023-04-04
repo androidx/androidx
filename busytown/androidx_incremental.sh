@@ -36,11 +36,11 @@ function hashOutDir() {
   # process having to do much more work than the others.
   # We do allow each process to hash multiple files (also -n <number>) to avoid spawning too many processes
   # It would be nice to copy all files, but that takes a while
-  (cd $OUT_DIR && find -type f | grep -v "$hashFile" | xargs --no-run-if-empty -P 32 -n 64 sha1sum > $DIST_DIR/$hashFile)
+  (cd $OUT_DIR && find -type f | grep -v "$hashFile" | sed "s/'/\\\\\\'/g" | xargs --no-run-if-empty -P 32 -n 64 -d '\n' sha1sum > $DIST_DIR/$hashFile)
   echo "done hashing out dir"
 }
-# disable temporarily b/276812697
-# hashOutDir
+
+hashOutDir
 
 # If we encounter a failure in postsubmit, we try a few things to determine if the failure is
 # reproducible
