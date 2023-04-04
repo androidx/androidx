@@ -170,6 +170,7 @@ dependencies {
     docs(project(":fragment:fragment-testing"))
     docs(project(":glance:glance"))
     docs(project(":glance:glance-appwidget"))
+    samples(project(":glance:glance-appwidget:glance-appwidget-samples"))
     docs(project(":glance:glance-wear-tiles"))
     docs(project(":graphics:filters:filters"))
     docs(project(":graphics:graphics-core"))
