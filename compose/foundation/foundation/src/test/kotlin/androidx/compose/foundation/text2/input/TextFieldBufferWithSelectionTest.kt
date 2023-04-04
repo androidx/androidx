@@ -28,11 +28,11 @@ import org.junit.runners.JUnit4
 
 @OptIn(ExperimentalFoundationApi::class)
 @RunWith(JUnit4::class)
-class MutableTextFieldValueWithSelectionTest {
+class TextFieldBufferWithSelectionTest {
 
     @Test
     fun initialSelection() {
-        val state = MutableTextFieldValueWithSelection(TextFieldValue())
+        val state = TextFieldBufferWithSelection(TextFieldCharSequence())
         assertThat(state.selectionInChars).isEqualTo(TextRange(0))
         assertThat(state.hasSelection).isFalse()
     }
@@ -154,55 +154,56 @@ class MutableTextFieldValueWithSelectionTest {
 
     @Test
     fun resetTo_copiesTextAndSelection() {
-        val expectedValue = TextFieldValue("world", TextRange(5))
-        val state = MutableTextFieldValueWithSelection(
-            value = TextFieldValue("hello", TextRange(2)),
+        val expectedValue = TextFieldCharSequence("world", TextRange(5))
+        val state = TextFieldBufferWithSelection(
+            value = TextFieldCharSequence("hello", TextRange(2)),
             sourceValue = expectedValue
         )
         state.revertAllChanges()
-        assertThat(state.toTextFieldValue()).isEqualTo(expectedValue)
+        assertThat(state.toTextFieldCharSequence()).isEqualTo(expectedValue)
+        assertThat(state.changes.changeCount).isEqualTo(0)
     }
 
     @Test
     fun testConvertTextFieldValueToAndFromString() {
-        assertThat("".parseAsTextFieldValue()).isEqualTo(TextFieldValue())
-        assertThat("hello".parseAsTextFieldValue()).isEqualTo(TextFieldValue("hello"))
-        assertThat("_hello".parseAsTextFieldValue()).isEqualTo(TextFieldValue("hello"))
-        assertThat("h_ello".parseAsTextFieldValue())
-            .isEqualTo(TextFieldValue("hello", selection = TextRange(1)))
-        assertThat("hello_".parseAsTextFieldValue())
-            .isEqualTo(TextFieldValue("hello", selection = TextRange(5)))
-        assertThat("_hello_".parseAsTextFieldValue())
-            .isEqualTo(TextFieldValue("hello", selection = TextRange(0, 5)))
-        assertThat("he__llo".parseAsTextFieldValue())
-            .isEqualTo(TextFieldValue("hello", selection = TextRange(2)))
-        assertThat("he_l_lo".parseAsTextFieldValue())
-            .isEqualTo(TextFieldValue("hello", selection = TextRange(2, 3)))
+        assertThat("".parseAsTextEditState()).isEqualTo(TextFieldCharSequence())
+        assertThat("hello".parseAsTextEditState()).isEqualTo(TextFieldCharSequence("hello"))
+        assertThat("_hello".parseAsTextEditState()).isEqualTo(TextFieldCharSequence("hello"))
+        assertThat("h_ello".parseAsTextEditState())
+            .isEqualTo(TextFieldCharSequence("hello", selection = TextRange(1)))
+        assertThat("hello_".parseAsTextEditState())
+            .isEqualTo(TextFieldCharSequence("hello", selection = TextRange(5)))
+        assertThat("_hello_".parseAsTextEditState())
+            .isEqualTo(TextFieldCharSequence("hello", selection = TextRange(0, 5)))
+        assertThat("he__llo".parseAsTextEditState())
+            .isEqualTo(TextFieldCharSequence("hello", selection = TextRange(2)))
+        assertThat("he_l_lo".parseAsTextEditState())
+            .isEqualTo(TextFieldCharSequence("hello", selection = TextRange(2, 3)))
         assertFailsWith<ParseException> {
-            "_he_llo_".parseAsTextFieldValue()
+            "_he_llo_".parseAsTextEditState()
         }
 
         listOf("", "_hello", "h_ello", "hello_", "_hello_", "he_ll_o").forEach {
-            val value = it.parseAsTextFieldValue()
+            val value = it.parseAsTextEditState()
             assertThat(value.toParsableString()).isEqualTo(it)
         }
     }
 
     private fun testSelectionAdjustment(
         initial: String,
-        transform: MutableTextFieldValueWithSelection.() -> Unit,
+        transform: TextFieldBufferWithSelection.() -> Unit,
         expected: String
     ) {
-        val state = MutableTextFieldValueWithSelection(initial.parseAsTextFieldValue())
+        val state = TextFieldBufferWithSelection(initial.parseAsTextEditState())
         state.transform()
-        assertThat(state.toTextFieldValue().toParsableString()).isEqualTo(expected)
+        assertThat(state.toTextFieldCharSequence().toParsableString()).isEqualTo(expected)
     }
 
     /**
      * Parses this string into a [TextFieldValue], replacing a single underscore with the cursor, or
      * two underscores with a selection.
      */
-    private fun String.parseAsTextFieldValue(): TextFieldValue {
+    private fun String.parseAsTextEditState(): TextFieldCharSequence {
         var firstMark = -1
         var secondMark = -1
         val source = this
@@ -220,7 +221,7 @@ class MutableTextFieldValueWithSelectionTest {
             }
         }
 
-        return TextFieldValue(
+        return TextFieldCharSequence(
             text = text,
             selection = when {
                 firstMark == -1 -> TextRange.Zero
@@ -230,8 +231,8 @@ class MutableTextFieldValueWithSelectionTest {
         )
     }
 
-    private fun TextFieldValue.toParsableString(): String = buildString {
-        append(text)
+    private fun TextFieldCharSequence.toParsableString(): String = buildString {
+        append(this@toParsableString)
         if (isNotEmpty()) {
             insert(selection.min, '_')
             if (!selection.collapsed) {

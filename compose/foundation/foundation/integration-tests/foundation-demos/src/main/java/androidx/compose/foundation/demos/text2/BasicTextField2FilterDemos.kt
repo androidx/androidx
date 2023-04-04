@@ -29,8 +29,9 @@ import androidx.compose.foundation.samples.BasicTextField2ChangeReverseIteration
 import androidx.compose.foundation.samples.BasicTextField2CustomFilterSample
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text2.BasicTextField2
-import androidx.compose.foundation.text2.input.MutableTextFieldValueWithSelection
 import androidx.compose.foundation.text2.input.TextEditFilter
+import androidx.compose.foundation.text2.input.TextFieldBufferWithSelection
+import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.allCaps
 import androidx.compose.foundation.text2.input.maxLengthInChars
@@ -39,7 +40,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.intl.Locale
 import androidx.core.text.isDigitsOnly
 
@@ -85,8 +85,8 @@ fun DigitsOnlyBasicTextField2() {
         )
 
         override fun filter(
-            oldState: TextFieldValue,
-            newState: MutableTextFieldValueWithSelection
+            oldState: TextFieldCharSequence,
+            newState: TextFieldBufferWithSelection
         ) {
             if (!newState.isDigitsOnly()) {
                 newState.revertAllChanges()

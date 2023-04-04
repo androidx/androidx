@@ -88,7 +88,7 @@ internal class TextFieldPreparedSelection(
     /**
      * Initial text value.
      */
-    private val text = initialValue.text
+    private val text: String = initialValue.toString()
 
     /**
      * If there is a non-collapsed selection, delete its contents. Or execute the given [or] block.
@@ -340,8 +340,8 @@ internal class TextFieldPreparedSelection(
     private tailrec fun TextLayoutResult.getNextWordOffsetForLayout(
         currentOffset: Int = selection.end
     ): Int {
-        if (currentOffset >= initialValue.text.length) {
-            return initialValue.text.length
+        if (currentOffset >= initialValue.length) {
+            return initialValue.length
         }
         val currentWord = getWordBoundary(charOffset(currentOffset))
         return if (currentWord.end <= currentOffset) {

@@ -19,7 +19,6 @@ package androidx.compose.foundation.text2.input
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.appendCodePointX
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.text.AnnotatedString
 
 /**
  * Visual transformation interface for input fields.
@@ -79,21 +78,17 @@ private class MaskCodepointTransformation(val character: Char) : CodepointTransf
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-internal fun AnnotatedString.toVisualText(
+internal fun CharSequence.toVisualText(
     codepointTransformation: CodepointTransformation?
-): AnnotatedString {
+): CharSequence {
     codepointTransformation ?: return this
-    val visualString = buildString {
-        (0 until text.codePointCount(0, text.length)).forEach { codepointIndex ->
+    val text = this
+    return buildString {
+        (0 until Character.codePointCount(text, 0, text.length)).forEach { codepointIndex ->
             val codepoint = codepointTransformation.transform(
-                codepointIndex, text.codePointAt(codepointIndex)
+                codepointIndex, Character.codePointAt(text, codepointIndex)
             )
             appendCodePointX(codepoint)
         }
     }
-    return AnnotatedString(
-        text = visualString,
-        spanStyles = this.spanStyles,
-        paragraphStyles = this.paragraphStyles
-    )
 }

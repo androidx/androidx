@@ -41,7 +41,6 @@ import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -266,7 +265,7 @@ internal class BasicTextField2ImmIntegrationTest {
 
     @Test
     fun immUpdated_whenEditChangesSelection() {
-        val state = TextFieldState(TextFieldValue("hello", selection = TextRange(0)))
+        val state = TextFieldState("hello", initialSelectionInChars = TextRange(0))
         rule.setContent {
             BasicTextField2(state, Modifier.testTag(Tag))
         }

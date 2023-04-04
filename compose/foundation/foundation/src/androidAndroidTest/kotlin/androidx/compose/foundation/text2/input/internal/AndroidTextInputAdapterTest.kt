@@ -19,11 +19,11 @@ package androidx.compose.foundation.text2.input.internal
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardHelper
+import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -36,7 +36,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -116,7 +115,7 @@ class AndroidTextInputAdapterTest {
 
     @Test
     fun createInputConnection_modifiesEditorInfo() {
-        val state = TextFieldState(TextFieldValue("hello", selection = TextRange(0, 5)))
+        val state = TextFieldState("hello", initialSelectionInChars = TextRange(0, 5))
         rule.runOnUiThread {
             adapter.startInputSessionWithDefaultsForTest(state)
             val editorInfo = EditorInfo()
@@ -148,8 +147,8 @@ class AndroidTextInputAdapterTest {
 
             connection.commitText("Hello", 0)
 
-            assertThat(state1.value.text).isEqualTo("")
-            assertThat(state2.value.text).isEqualTo("Hello")
+            assertThat(state1.value.toString()).isEqualTo("")
+            assertThat(state2.value.toString()).isEqualTo("Hello")
         }
     }
 

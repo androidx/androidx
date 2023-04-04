@@ -18,7 +18,6 @@ package androidx.compose.foundation.text2.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.text.input.TextFieldValue
 
 /**
  * Returns [TextEditFilter] that rejects input which causes the total length of the text field to be
@@ -53,7 +52,10 @@ private data class MaxLengthFilter(
         require(maxLength >= 0) { "maxLength must be at least zero, was $maxLength" }
     }
 
-    override fun filter(oldState: TextFieldValue, newState: MutableTextFieldValueWithSelection) {
+    override fun filter(
+        oldState: TextFieldCharSequence,
+        newState: TextFieldBufferWithSelection
+    ) {
         val newLength = if (inCodepoints) newState.codepointLength else newState.length
         if (newLength > maxLength) {
             newState.revertAllChanges()

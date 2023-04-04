@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
+import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -61,7 +62,6 @@ import androidx.compose.ui.test.performTextInputSelection
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
@@ -280,7 +280,7 @@ class TextFieldCursorTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun cursorUnsetColor_noCursor() {
-        state = TextFieldState(TextFieldValue("hello", selection = TextRange(2)))
+        state = TextFieldState("hello", initialSelectionInChars = TextRange(2))
         rule.setContent {
             // The padding helps if the test is run accidentally in landscape. Landscape makes
             // the cursor to be next to the navigation bar which affects the red color to be a bit
@@ -324,7 +324,7 @@ class TextFieldCursorTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun cursorNotBlinking_whileTyping() {
-        state = TextFieldState(TextFieldValue("test", selection = TextRange(4)))
+        state = TextFieldState("test", initialSelectionInChars = TextRange(4))
         rule.setContent {
             // The padding helps if the test is run accidentally in landscape. Landscape makes
             // the cursor to be next to the navigation bar which affects the red color to be a bit
@@ -362,7 +362,7 @@ class TextFieldCursorTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun selectionChanges_cursorNotBlinking() {
-        state = TextFieldState(TextFieldValue("test", selection = TextRange(2)))
+        state = TextFieldState("test", initialSelectionInChars = TextRange(2))
         rule.setContent {
             // The padding helps if the test is run accidentally in landscape. Landscape makes
             // the cursor to be next to the navigation bar which affects the red color to be a bit
@@ -435,7 +435,7 @@ class TextFieldCursorTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun selectionNotCollapsed_cursorNotDrawn() {
-        state = TextFieldState(TextFieldValue("test", selection = TextRange(2, 3)))
+        state = TextFieldState("test", initialSelectionInChars = TextRange(2, 3))
         rule.setContent {
             // The padding helps if the test is run accidentally in landscape. Landscape makes
             // the cursor to be next to the navigation bar which affects the red color to be a bit
@@ -473,7 +473,7 @@ class TextFieldCursorTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun focusLost_cursorHidesImmediately() {
-        state = TextFieldState(TextFieldValue("test"))
+        state = TextFieldState("test")
         rule.setContent {
             // The padding helps if the test is run accidentally in landscape. Landscape makes
             // the cursor to be next to the navigation bar which affects the red color to be a bit
@@ -487,7 +487,9 @@ class TextFieldCursorTest {
                     cursorBrush = SolidColor(cursorColor),
                     onTextLayout = onTextLayout
                 )
-                Box(modifier = Modifier.focusable(true).testTag("box"))
+                Box(modifier = Modifier
+                    .focusable(true)
+                    .testTag("box"))
             }
         }
 
@@ -565,7 +567,7 @@ class TextFieldCursorTest {
 
     @Test
     fun textFieldCursor_alwaysReadLatestState_duringDraw() {
-        state = TextFieldState(TextFieldValue("hello world", TextRange(5)))
+        state = TextFieldState("hello world", TextRange(5))
         rule.setContent {
             Box(Modifier.padding(boxPadding)) {
                 BasicTextField2(
@@ -574,9 +576,10 @@ class TextFieldCursorTest {
                     modifier = textFieldModifier.layout { measurable, constraints ->
                         // change the state during layout so draw can read the new state
                         val currValue = state.value
-                        if (currValue.text.isNotEmpty()) {
-                            val newText = currValue.text.dropLast(1)
-                            val newValue = TextFieldValue(newText, TextRange(newText.length))
+                        if (currValue.isNotEmpty()) {
+                            val newText = currValue.dropLast(1)
+                            val newValue =
+                                TextFieldCharSequence(newText.toString(), TextRange(newText.length))
                             state.editProcessor.reset(newValue)
                         }
 

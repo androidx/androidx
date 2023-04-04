@@ -64,7 +64,7 @@ class TextFieldStateRestorationTest {
         restorationTester.emulateSavedInstanceStateRestore()
 
         rule.runOnIdle {
-            assertThat(restoredState.value.text).isEqualTo("hello, world")
+            assertThat(restoredState.value.toString()).isEqualTo("hello, world")
             assertThat(restoredState.value.selection).isEqualTo(TextRange(0, 12))
         }
     }

@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.TextLayoutResultProxy
+import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.SingleLine
@@ -62,7 +63,6 @@ import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -399,7 +399,10 @@ class TextFieldScrollTest {
         rule.onNodeWithTag(TextfieldTag).assertIsNotFocused()
 
         // move cursor to the end
-        state.editProcessor.reset(state.value.copy(selection = TextRange(longText.length)))
+        // TODO
+        state.editProcessor.reset(
+            TextFieldCharSequence(state.value, selection = TextRange(longText.length))
+        )
 
         rule.runOnIdle {
             assertThat(scrollState.value).isEqualTo(0)
@@ -422,7 +425,9 @@ class TextFieldScrollTest {
         rule.onNodeWithTag(TextfieldTag).performSemanticsAction(SemanticsActions.RequestFocus)
 
         // move cursor to the end
-        state.editProcessor.reset(state.value.copy(selection = TextRange(longText.length)))
+        state.editProcessor.reset(
+            TextFieldCharSequence(state.value, selection = TextRange(longText.length))
+        )
 
         rule.runOnIdle {
             assertThat(scrollState.value).isEqualTo(scrollState.maxValue)
@@ -431,7 +436,7 @@ class TextFieldScrollTest {
 
     @Test
     fun textFieldDoesNotFollowCursor_whenScrollStateChanges_butCursorRemainsTheSame() {
-        val state = TextFieldState(TextFieldValue(longText, selection = TextRange(5)))
+        val state = TextFieldState(longText, initialSelectionInChars = TextRange(5))
         val scrollState = ScrollState(0)
         rule.setContent {
             ScrollableContent(
@@ -604,6 +609,3 @@ class TextFieldScrollTest {
         }
     }
 }
-
-@OptIn(ExperimentalFoundationApi::class)
-private fun TextFieldState(text: String) = TextFieldState(TextFieldValue(text))

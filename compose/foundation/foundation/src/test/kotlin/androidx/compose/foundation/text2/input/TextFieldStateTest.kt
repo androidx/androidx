@@ -18,7 +18,6 @@ package androidx.compose.foundation.text2.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
 import org.junit.Test
@@ -33,7 +32,7 @@ class TextFieldStateTest {
 
     @Test
     fun initialValue() {
-        assertThat(state.value.text).isEqualTo("")
+        assertThat(state.value.toString()).isEqualTo("")
     }
 
     @Test
@@ -47,7 +46,7 @@ class TextFieldStateTest {
             }
         }
 
-        assertThat(state.value.text).isEmpty()
+        assertThat(state.value.toString()).isEmpty()
     }
 
     @Test
@@ -66,14 +65,14 @@ class TextFieldStateTest {
             replace(0, 0, "hello")
             placeCursorAtEnd()
         }
-        assertThat(state.value.text).isEqualTo("hello")
+        assertThat(state.value.toString()).isEqualTo("hello")
     }
 
     @Test
     fun edit_replace_doesNotChangeStateUntilReturn() {
         state.edit {
             replace(0, 0, "hello")
-            assertThat(state.value.text).isEmpty()
+            assertThat(state.value.toString()).isEmpty()
             placeCursorAtEnd()
         }
     }
@@ -86,10 +85,10 @@ class TextFieldStateTest {
             replace(5, 5, " ")
             replace(6, 11, "Compose")
             assertThat(toString()).isEqualTo("hello Compose")
-            assertThat(state.value.text).isEmpty()
+            assertThat(state.value.toString()).isEmpty()
             placeCursorAtEnd()
         }
-        assertThat(state.value.text).isEqualTo("hello Compose")
+        assertThat(state.value.toString()).isEqualTo("hello Compose")
     }
 
     @Test
@@ -222,7 +221,7 @@ class TextFieldStateTest {
             assertThat(toString()).isEqualTo("hello world")
             placeCursorAtEnd()
         }
-        assertThat(state.value.text).isEqualTo("hello world")
+        assertThat(state.value.toString()).isEqualTo("hello world")
     }
 
     @Test
@@ -231,7 +230,7 @@ class TextFieldStateTest {
             append('c')
             placeCursorAtEnd()
         }
-        assertThat(state.value.text).isEqualTo("c")
+        assertThat(state.value.toString()).isEqualTo("c")
     }
 
     @Test
@@ -240,7 +239,7 @@ class TextFieldStateTest {
             append("hello")
             placeCursorAtEnd()
         }
-        assertThat(state.value.text).isEqualTo("hello")
+        assertThat(state.value.toString()).isEqualTo("hello")
     }
 
     @Test
@@ -249,26 +248,26 @@ class TextFieldStateTest {
             append("hello world", 0, 5)
             placeCursorAtEnd()
         }
-        assertThat(state.value.text).isEqualTo("hello")
+        assertThat(state.value.toString()).isEqualTo("hello")
     }
 
     @Test
     fun setTextAndPlaceCursorAtEnd_works() {
         state.setTextAndPlaceCursorAtEnd("Hello")
-        assertThat(state.value.text).isEqualTo("Hello")
+        assertThat(state.value.toString()).isEqualTo("Hello")
         assertThat(state.value.selection).isEqualTo(TextRange(5))
     }
 
     @Test
     fun setTextAndSelectAll_works() {
         state.setTextAndSelectAll("Hello")
-        assertThat(state.value.text).isEqualTo("Hello")
+        assertThat(state.value.toString()).isEqualTo("Hello")
         assertThat(state.value.selection).isEqualTo(TextRange(0, 5))
     }
 
     @Test
     fun replace_changesAreTracked() {
-        val state = TextFieldState(TextFieldValue("hello world"))
+        val state = TextFieldState("hello world")
         state.edit {
             replace(6, 11, "Compose")
             assertThat(toString()).isEqualTo("hello Compose")
@@ -281,7 +280,7 @@ class TextFieldStateTest {
 
     @Test
     fun appendChar_changesAreTracked() {
-        val state = TextFieldState(TextFieldValue("hello "))
+        val state = TextFieldState("hello ")
         state.edit {
             append('c')
             assertThat(toString()).isEqualTo("hello c")
@@ -294,7 +293,7 @@ class TextFieldStateTest {
 
     @Test
     fun appendCharSequence_changesAreTracked() {
-        val state = TextFieldState(TextFieldValue("hello "))
+        val state = TextFieldState("hello ")
         state.edit {
             append("world")
             assertThat(toString()).isEqualTo("hello world")
@@ -307,7 +306,7 @@ class TextFieldStateTest {
 
     @Test
     fun appendCharSequenceRange_changesAreTracked() {
-        val state = TextFieldState(TextFieldValue("hello "))
+        val state = TextFieldState("hello ")
         state.edit {
             append("hello world", 6, 11)
             assertThat(toString()).isEqualTo("hello world")

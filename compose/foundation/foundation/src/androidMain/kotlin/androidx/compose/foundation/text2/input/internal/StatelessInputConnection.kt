@@ -28,12 +28,14 @@ import android.view.inputmethod.ExtractedText
 import android.view.inputmethod.ExtractedTextRequest
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputContentInfo
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text2.input.TextFieldCharSequence
+import androidx.compose.ui.text.TextRange
 import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.getSelectedText
-import androidx.compose.ui.text.input.getTextAfterSelection
-import androidx.compose.ui.text.input.getTextBeforeSelection
+import kotlin.math.max
+import kotlin.math.min
 
 @VisibleForTesting
 internal const val SIC_DEBUG = false
@@ -47,6 +49,7 @@ private val EmptyTextFieldValue = TextFieldValue()
  * [AndroidTextInputAdapter]. InputConnections are requested and used by framework to create bridge
  * from IME to an active editor.
  */
+@OptIn(ExperimentalFoundationApi::class)
 internal class StatelessInputConnection(
     private val activeSessionProvider: () -> EditableTextInputSession?
 ) : InputConnection {
@@ -64,15 +67,15 @@ internal class StatelessInputConnection(
      * The input state from the currently active [TextInputSession] in
      * [AndroidTextInputAdapter]. Returns null if there is no active session.
      */
-    private val valueOrNull: TextFieldValue?
+    private val valueOrNull: TextFieldCharSequence?
         get() = activeSessionProvider()?.value
 
     /**
      * The input state from the currently active [TextInputSession] in
      * [AndroidTextInputAdapter]. Returns empty TextFieldValue if there is no active session.
      */
-    private val value: TextFieldValue
-        get() = valueOrNull ?: EmptyTextFieldValue
+    private val value: TextFieldCharSequence
+        get() = valueOrNull ?: TextFieldCharSequence()
 
     /**
      * Recording of editing operations for batch editing
@@ -249,7 +252,7 @@ internal class StatelessInputConnection(
 
     override fun getCursorCapsMode(reqModes: Int): Int {
         logDebug("getCursorCapsMode($reqModes)")
-        return TextUtils.getCapsMode(value.text, value.selection.min, reqModes)
+        return TextUtils.getCapsMode(value, value.selection.min, reqModes)
     }
 
     // endregion
@@ -260,7 +263,7 @@ internal class StatelessInputConnection(
         logDebug("performContextMenuAction($id)")
         when (id) {
             android.R.id.selectAll -> {
-                addEditCommandWithBatch(SetSelectionCommand(0, value.text.length))
+                addEditCommandWithBatch(SetSelectionCommand(0, value.length))
             }
             // TODO(siyamed): Need proper connection to cut/copy/paste
             android.R.id.cut -> sendSynthesizedKeyEvent(KeyEvent.KEYCODE_CUT)
@@ -362,6 +365,34 @@ internal class StatelessInputConnection(
 
     // endregion
 
+    /**
+     * Returns the text before the selection.
+     *
+     * @param maxChars maximum number of characters (inclusive) before the minimum value in
+     * [TextFieldCharSequence.selection].
+     *
+     * @see TextRange.min
+     */
+    fun TextFieldCharSequence.getTextBeforeSelection(maxChars: Int): CharSequence =
+        subSequence(max(0, selection.min - maxChars), selection.min)
+
+    /**
+     * Returns the text after the selection.
+     *
+     * @param maxChars maximum number of characters (exclusive) after the maximum value in
+     * [TextFieldCharSequence.selection].
+     *
+     * @see TextRange.max
+     */
+    fun TextFieldCharSequence.getTextAfterSelection(maxChars: Int): CharSequence =
+        subSequence(selection.max, min(selection.max + maxChars, length))
+
+    /**
+     * Returns the currently selected text.
+     */
+    fun TextFieldCharSequence.getSelectedText(): CharSequence =
+        subSequence(selection.min, selection.max)
+
     private fun logDebug(message: String) {
         if (SIC_DEBUG) {
             Log.d(TAG, "$DEBUG_CLASS.$message, $isICActive, ${activeSessionProvider() != null}")
@@ -369,14 +400,15 @@ internal class StatelessInputConnection(
     }
 }
 
-private fun TextFieldValue.toExtractedText(): ExtractedText {
+@OptIn(ExperimentalFoundationApi::class)
+private fun TextFieldCharSequence.toExtractedText(): ExtractedText {
     val res = ExtractedText()
-    res.text = text
+    res.text = this
     res.startOffset = 0
-    res.partialEndOffset = text.length
+    res.partialEndOffset = length
     res.partialStartOffset = -1 // -1 means full text
     res.selectionStart = selection.min
     res.selectionEnd = selection.max
-    res.flags = if ('\n' in text) 0 else ExtractedText.FLAG_SINGLE_LINE
+    res.flags = if ('\n' in this) 0 else ExtractedText.FLAG_SINGLE_LINE
     return res
 }

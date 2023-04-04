@@ -25,8 +25,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text2.input.CodepointTransformation
-import androidx.compose.foundation.text2.input.MutableTextFieldValueWithSelection
 import androidx.compose.foundation.text2.input.TextEditFilter
+import androidx.compose.foundation.text2.input.TextFieldBufferWithSelection
+import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.TextObfuscationMode
@@ -48,7 +49,6 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Density
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
@@ -264,7 +264,7 @@ internal class PasswordRevealFilter(
     internal var revealCodepointIndex by mutableStateOf(-1)
         private set
 
-    override fun filter(oldState: TextFieldValue, newState: MutableTextFieldValueWithSelection) {
+    override fun filter(oldState: TextFieldCharSequence, newState: TextFieldBufferWithSelection) {
         // We only care about a single character insertion changes
         val singleCharacterInsertion = newState.changes.changeCount == 1 &&
             newState.changes.getRange(0).length == 1 &&

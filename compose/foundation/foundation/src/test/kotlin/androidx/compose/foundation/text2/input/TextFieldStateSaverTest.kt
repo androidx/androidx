@@ -19,7 +19,6 @@ package androidx.compose.foundation.text2.input
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
 import org.junit.Test
@@ -29,16 +28,14 @@ class TextFieldStateSaverTest {
 
     @Test
     fun savesAndRestoresTextAndSelection() {
-        val state = TextFieldState(
-            TextFieldValue("hello, world", selection = TextRange(0, 5))
-        )
+        val state = TextFieldState("hello, world", initialSelectionInChars = TextRange(0, 5))
 
         val saved = with(TextFieldState.Saver) { TestSaverScope.save(state) }
         assertNotNull(saved)
         val restoredState = TextFieldState.Saver.restore(saved)
 
         assertNotNull(restoredState)
-        assertThat(restoredState.value.text).isEqualTo("hello, world")
+        assertThat(restoredState.value.toString()).isEqualTo("hello, world")
         assertThat(restoredState.value.selection).isEqualTo(TextRange(0, 5))
     }
 

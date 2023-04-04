@@ -45,7 +45,6 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -95,7 +94,7 @@ class DecorationBoxTest {
 
     @Test
     fun semanticsAreAppliedOnDecoratedComposable() {
-        val state = TextFieldState(TextFieldValue("hello"))
+        val state = TextFieldState("hello")
         rule.setContent {
             BasicTextField2(
                 state = state,
@@ -122,7 +121,7 @@ class DecorationBoxTest {
 
     @Test
     fun clickGestureIsAppliedOnDecoratedComposable() {
-        val state = TextFieldState(TextFieldValue("hello"))
+        val state = TextFieldState("hello")
         rule.setContent {
             BasicTextField2(
                 state = state,
@@ -174,7 +173,7 @@ class DecorationBoxTest {
         }
 
         rule.runOnIdle {
-            assertThat(state.value.text).isEqualTo("hello")
+            assertThat(state.value.toString()).isEqualTo("hello")
         }
     }
 
@@ -209,7 +208,7 @@ class DecorationBoxTest {
         }
 
         rule.runOnIdle {
-            assertThat(state.value.text).isEqualTo("hello")
+            assertThat(state.value.toString()).isEqualTo("hello")
         }
     }
 
@@ -217,7 +216,7 @@ class DecorationBoxTest {
     @Test
     fun longClickGestureIsAppliedOnDecoratedComposable() {
         // create a decorated BasicTextField2
-        val state = TextFieldState(TextFieldValue("hello"))
+        val state = TextFieldState("hello")
         rule.setContent {
             BasicTextField2(
                 state = state,

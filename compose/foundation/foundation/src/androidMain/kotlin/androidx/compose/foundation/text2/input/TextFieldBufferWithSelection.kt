@@ -19,19 +19,18 @@ package androidx.compose.foundation.text2.input
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.internal.ChangeTracker
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
 
 /**
- * A [MutableTextFieldValue] that also provides both read and write access to the current selection
+ * A [TextFieldBuffer] that also provides both read and write access to the current selection
  * used by [TextEditFilter.filter].
  */
 @ExperimentalFoundationApi
-class MutableTextFieldValueWithSelection internal constructor(
-    value: TextFieldValue,
+class TextFieldBufferWithSelection internal constructor(
+    value: TextFieldCharSequence,
     /** The value reverted to when [revertAllChanges] is called. */
-    private val sourceValue: TextFieldValue = TextFieldValue(),
+    private val sourceValue: TextFieldCharSequence = TextFieldCharSequence(),
     initialChanges: ChangeTracker? = null
-) : MutableTextFieldValue(value, initialChanges) {
+) : TextFieldBuffer(value, initialChanges) {
 
     /**
      * True if the selection range has non-zero length. If this is false, then the selection
@@ -63,10 +62,10 @@ class MutableTextFieldValueWithSelection internal constructor(
      *
      * To place the cursor at the beginning of the field, pass index 0. To place the cursor at the
      * end of the field, after the last character, pass index
-     * [MutableTextFieldValue.codepointLength].
+     * [TextFieldBuffer.codepointLength].
      *
      * @param index Codepoint index to place cursor before, should be in range 0 to
-     * [MutableTextFieldValue.codepointLength], inclusive.
+     * [TextFieldBuffer.codepointLength], inclusive.
      *
      * @see placeCursorBeforeCharAt
      */
@@ -83,10 +82,10 @@ class MutableTextFieldValueWithSelection internal constructor(
      * nearest earlier index.
      *
      * To place the cursor at the beginning of the field, pass index 0. To place the cursor at the end
-     * of the field, after the last character, pass index [MutableTextFieldValue.length].
+     * of the field, after the last character, pass index [TextFieldBuffer.length].
      *
      * @param index Codepoint index to place cursor before, should be in range 0 to
-     * [MutableTextFieldValue.length], inclusive.
+     * [TextFieldBuffer.length], inclusive.
      *
      * @see placeCursorBeforeCodepointAt
      */
@@ -104,7 +103,7 @@ class MutableTextFieldValueWithSelection internal constructor(
 
     /**
      * Returns a [TextFieldEditResult] that places the cursor after the last change made to this
-     * [MutableTextFieldValue].
+     * [TextFieldBuffer].
      *
      * @see placeCursorAtEnd
      * @see placeCursorBeforeFirstChange
@@ -117,7 +116,7 @@ class MutableTextFieldValueWithSelection internal constructor(
 
     /**
      * Returns a [TextFieldEditResult] that places the cursor before the first change made to this
-     * [MutableTextFieldValue].
+     * [TextFieldBuffer].
      *
      * @see placeCursorAfterLastChange
      */
@@ -135,11 +134,11 @@ class MutableTextFieldValueWithSelection internal constructor(
      *
      * To place the start of the selection at the beginning of the field, pass index 0. To place the
      * end of the selection at the end of the field, after the last codepoint, pass index
-     * [MutableTextFieldValue.codepointLength]. Passing a zero-length range is the same as calling
+     * [TextFieldBuffer.codepointLength]. Passing a zero-length range is the same as calling
      * [placeCursorBeforeCodepointAt].
      *
      * @param range Codepoint range of the selection, should be in range 0 to
-     * [MutableTextFieldValue.codepointLength], inclusive.
+     * [TextFieldBuffer.codepointLength], inclusive.
      *
      * @see selectCharsIn
      */
@@ -156,11 +155,11 @@ class MutableTextFieldValueWithSelection internal constructor(
      *
      * To place the start of the selection at the beginning of the field, pass index 0. To place the end
      * of the selection at the end of the field, after the last character, pass index
-     * [MutableTextFieldValue.length]. Passing a zero-length range is the same as calling
+     * [TextFieldBuffer.length]. Passing a zero-length range is the same as calling
      * [placeCursorBeforeCharAt].
      *
      * @param range Codepoint range of the selection, should be in range 0 to
-     * [MutableTextFieldValue.length], inclusive.
+     * [TextFieldBuffer.length], inclusive.
      *
      * @see selectCharsIn
      */
@@ -199,7 +198,7 @@ class MutableTextFieldValueWithSelection internal constructor(
      * empty.
      */
     fun revertAllChanges() {
-        replace(0, length, sourceValue.text)
+        replace(0, length, sourceValue.toString())
         selectionInChars = sourceValue.selection
         clearChangeList()
     }
@@ -247,6 +246,6 @@ class MutableTextFieldValueWithSelection internal constructor(
         selectionInChars = TextRange(selStart, selEnd)
     }
 
-    internal fun toTextFieldValue(composition: TextRange? = null): TextFieldValue =
-        toTextFieldValue(selection = selectionInChars, composition = composition)
+    internal fun toTextFieldCharSequence(composition: TextRange? = null): TextFieldCharSequence =
+        toTextFieldCharSequence(selection = selectionInChars, composition = composition)
 }
