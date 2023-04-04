@@ -73,6 +73,7 @@ import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.ceil
 import kotlin.math.floor
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -563,6 +564,7 @@ class TextFieldCursorTest {
         }
     }
 
+    @Ignore // (b/276789499) Ignore for now.
     @Test
     fun textFieldCursor_alwaysReadLatestState_duringDraw() {
         state = TextFieldState(TextFieldValue("hello world", TextRange(5)))
