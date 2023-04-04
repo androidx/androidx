@@ -86,6 +86,7 @@ import junit.framework.TestCase.assertTrue
 import kotlin.math.roundToInt
 import kotlin.random.Random
 import kotlinx.coroutines.launch
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -1664,6 +1665,7 @@ class LookaheadLayoutTest {
             }
         }
 
+    @Ignore("b/276805422")
     @Test
     fun subcomposeLayoutInLookahead() {
         val expectedConstraints = mutableStateListOf(
