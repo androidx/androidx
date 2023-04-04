@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.pager.HorizontalPager
@@ -41,6 +42,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.TestPagingSource
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 
 val pager = Pager(
@@ -94,6 +96,39 @@ public fun PagingWithLazyGrid() {
         items(
             count = lazyPagingItems.itemCount,
             key = lazyPagingItems.itemKey { it },
+            contentType = lazyPagingItems.itemContentType { "MyPagingItems" }
+        ) { index ->
+            val item = lazyPagingItems[index]
+            PagingItem(item = item)
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Sampled
+@Composable
+public fun PagingWithLazyList() {
+    val lazyPagingItems = pager.collectAsLazyPagingItems()
+
+    LazyColumn {
+        stickyHeader(
+            key = "Header",
+            contentType = "My Header",
+        ) {
+            Box(
+                modifier = Modifier
+                    .padding(bottom = 10.dp)
+                    .background(Color.Red)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "Header", fontSize = 32.sp)
+            }
+        }
+        items(
+            count = lazyPagingItems.itemCount,
+            key = lazyPagingItems.itemKey { it },
+            contentType = lazyPagingItems.itemContentType { "MyPagingItems" }
         ) { index ->
             val item = lazyPagingItems[index]
             PagingItem(item = item)

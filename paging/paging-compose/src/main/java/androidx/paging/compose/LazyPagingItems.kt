@@ -308,12 +308,7 @@ public fun <T : Any> LazyListScope.items(
     items(
         count = items.itemCount,
         key = items.itemKey(key),
-        contentType = { index ->
-            if (contentType == null) null else {
-                val item = items.peek(index)
-                if (item == null) null else contentType(item)
-            }
-        }
+        contentType = items.itemContentType(contentType)
     ) { index ->
         itemContent(items[index])
     }
