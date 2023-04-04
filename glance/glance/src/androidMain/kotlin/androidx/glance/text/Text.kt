@@ -39,7 +39,7 @@ import androidx.glance.unit.ColorProvider
 fun Text(
     text: String,
     modifier: GlanceModifier = GlanceModifier,
-    style: TextStyle = defaultTextStyle(),
+    style: TextStyle = defaultTextStyle,
     maxLines: Int = Int.MAX_VALUE,
 ) {
     GlanceNode(
@@ -55,7 +55,7 @@ fun Text(
 
 object TextDefaults {
     val defaultTextColor = ColorProvider(Color.Black)
-    fun defaultTextStyle(): TextStyle = TextStyle(color = defaultTextColor)
+    val defaultTextStyle: TextStyle = TextStyle(color = defaultTextColor)
 }
 
 /** @suppress */

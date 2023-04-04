@@ -44,7 +44,7 @@ fun Button(
     modifier: GlanceModifier = GlanceModifier,
     enabled: Boolean = true,
     style: TextStyle? = null,
-    colors: ButtonColors = defaultButtonColors(),
+    colors: ButtonColors = ButtonDefaults.buttonColors(),
     maxLines: Int = Int.MAX_VALUE,
 ) = ButtonElement(text, onClick, modifier, enabled, style, colors, maxLines)
 
@@ -67,7 +67,7 @@ fun Button(
     modifier: GlanceModifier = GlanceModifier,
     enabled: Boolean = true,
     style: TextStyle? = null,
-    colors: ButtonColors = defaultButtonColors(),
+    colors: ButtonColors = ButtonDefaults.buttonColors(),
     maxLines: Int = Int.MAX_VALUE,
 ) = ButtonElement(text, action(block = onClick), modifier, enabled, style, colors, maxLines)
 
@@ -78,7 +78,7 @@ internal fun ButtonElement(
     modifier: GlanceModifier = GlanceModifier,
     enabled: Boolean = true,
     style: TextStyle? = null,
-    colors: ButtonColors = defaultButtonColors(),
+    colors: ButtonColors = ButtonDefaults.buttonColors(),
     maxLines: Int = Int.MAX_VALUE,
 ) {
     var finalModifier = if (enabled) modifier.clickable(onClick) else modifier
@@ -132,7 +132,10 @@ fun EmittableButton.toEmittableText() = EmittableText().also {
 }
 
 /** Represents the colors used to style a button, prefer this to using the modifier. */
-class ButtonColors(val backgroundColor: ColorProvider, val contentColor: ColorProvider) {
+class ButtonColors internal constructor(
+    val backgroundColor: ColorProvider,
+    val contentColor: ColorProvider
+) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -152,8 +155,23 @@ class ButtonColors(val backgroundColor: ColorProvider, val contentColor: ColorPr
     }
 }
 
-@Composable
-internal fun defaultButtonColors() = ButtonColors(
-    GlanceTheme.colors.primary,
-    GlanceTheme.colors.onPrimary
-)
+/**
+ * Contains the default values used by [Button].
+ */
+object ButtonDefaults {
+    @Composable
+    /**
+    * Creates a [ButtonColors] that represents the default background and content colors used in
+    * a [Button].
+    *
+    * @param backgroundColor the background color of this [Button]
+    * @param contentColor the content color of this [Button]
+    */
+    fun buttonColors(
+        backgroundColor: ColorProvider = GlanceTheme.colors.primary,
+        contentColor: ColorProvider = GlanceTheme.colors.onPrimary
+    ) = ButtonColors(
+        backgroundColor = backgroundColor,
+        contentColor = contentColor
+    )
+}

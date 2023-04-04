@@ -9,11 +9,15 @@ package androidx.glance {
   }
 
   public final class ButtonColors {
-    ctor public ButtonColors(androidx.glance.unit.ColorProvider backgroundColor, androidx.glance.unit.ColorProvider contentColor);
     method public androidx.glance.unit.ColorProvider getBackgroundColor();
     method public androidx.glance.unit.ColorProvider getContentColor();
     property public final androidx.glance.unit.ColorProvider backgroundColor;
     property public final androidx.glance.unit.ColorProvider contentColor;
+  }
+
+  public final class ButtonDefaults {
+    method @androidx.compose.runtime.Composable public androidx.glance.ButtonColors buttonColors(optional androidx.glance.unit.ColorProvider backgroundColor, optional androidx.glance.unit.ColorProvider contentColor);
+    field public static final androidx.glance.ButtonDefaults INSTANCE;
   }
 
   public final class ButtonKt {
@@ -519,9 +523,10 @@ package androidx.glance.text {
   }
 
   public final class TextDefaults {
-    method public androidx.glance.text.TextStyle defaultTextStyle();
     method public androidx.glance.unit.ColorProvider getDefaultTextColor();
+    method public androidx.glance.text.TextStyle getDefaultTextStyle();
     property public final androidx.glance.unit.ColorProvider defaultTextColor;
+    property public final androidx.glance.text.TextStyle defaultTextStyle;
     field public static final androidx.glance.text.TextDefaults INSTANCE;
   }
 

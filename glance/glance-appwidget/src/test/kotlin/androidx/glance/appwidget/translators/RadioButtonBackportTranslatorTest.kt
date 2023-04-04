@@ -25,7 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.ImageViewSubject.Companion.assertThat
 import androidx.glance.appwidget.RadioButton
-import androidx.glance.appwidget.radioButtonColors
+import androidx.glance.appwidget.RadioButtonDefaults
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.applyRemoteViews
@@ -72,7 +72,7 @@ class RadioButtonBackportTranslatorTest {
                 checked = false,
                 onClick = null,
                 text = "RadioButton",
-                colors = radioButtonColors(
+                colors = RadioButtonDefaults.colors(
                     checkedColor = ColorProvider(Color.Blue),
                     uncheckedColor = ColorProvider(Color.Red),
                 )
@@ -90,7 +90,7 @@ class RadioButtonBackportTranslatorTest {
                 checked = true,
                 onClick = null,
                 text = "RadioButton",
-                colors = radioButtonColors(
+                colors = RadioButtonDefaults.colors(
                     checkedColor = ColorProvider(Color.Blue),
                     uncheckedColor = ColorProvider(Color.Red),
                 )
@@ -108,7 +108,7 @@ class RadioButtonBackportTranslatorTest {
                 checked = false,
                 onClick = null,
                 text = "RadioButton",
-                colors = radioButtonColors(
+                colors = RadioButtonDefaults.colors(
                     checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
                     uncheckedColor = ColorProvider(day = Color.Green, night = Color.Yellow),
                 )
@@ -126,7 +126,7 @@ class RadioButtonBackportTranslatorTest {
                 checked = false,
                 onClick = null,
                 text = "RadioButton",
-                colors = radioButtonColors(
+                colors = RadioButtonDefaults.colors(
                     checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
                     uncheckedColor = ColorProvider(day = Color.Green, night = Color.Yellow),
                 )
@@ -144,7 +144,7 @@ class RadioButtonBackportTranslatorTest {
                 checked = true,
                 onClick = null,
                 text = "RadioButton",
-                colors = radioButtonColors(
+                colors = RadioButtonDefaults.colors(
                     checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
                     uncheckedColor = ColorProvider(day = Color.Green, night = Color.Yellow),
                 )
@@ -162,7 +162,7 @@ class RadioButtonBackportTranslatorTest {
                 checked = true,
                 onClick = null,
                 text = "RadioButton",
-                colors = radioButtonColors(
+                colors = RadioButtonDefaults.colors(
                     checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
                     uncheckedColor = ColorProvider(day = Color.Green, night = Color.Yellow),
                 )
@@ -180,7 +180,7 @@ class RadioButtonBackportTranslatorTest {
                 checked = false,
                 onClick = null,
                 text = "RadioButton",
-                colors = radioButtonColors(
+                colors = RadioButtonDefaults.colors(
                     checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
                     uncheckedColor = ColorProvider(day = Color.Green, night = Color.Yellow),
                 )
@@ -198,7 +198,7 @@ class RadioButtonBackportTranslatorTest {
                 checked = true,
                 onClick = null,
                 text = "RadioButton",
-                colors = radioButtonColors(
+                colors = RadioButtonDefaults.colors(
                     checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
                     uncheckedColor = ColorProvider(day = Color.Green, night = Color.Yellow),
                 )
