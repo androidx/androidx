@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import android.graphics.Color.YELLOW
 import android.graphics.ImageFormat
 import android.graphics.Matrix
 import android.graphics.Rect
-import android.os.Build
 import android.util.Size
 import androidx.camera.core.imagecapture.Utils.CAMERA_CAPTURE_RESULT
 import androidx.camera.core.imagecapture.Utils.HEIGHT
@@ -30,19 +29,19 @@ import androidx.camera.core.processing.Packet
 import androidx.camera.testing.ExifUtil.createExif
 import androidx.camera.testing.TestImageUtil.createJpegBytes
 import androidx.camera.testing.TestImageUtil.getAverageDiff
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-import org.robolectric.annotation.internal.DoNotInstrument
 
 /**
  * Unit tests for [JpegBytes2CroppedBitmap].
  */
-@RunWith(RobolectricTestRunner::class)
-@DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@SmallTest
+@RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 21)
 class JpegBytes2CroppedBitmapTest {
 
     private val operation = JpegBytes2CroppedBitmap()
@@ -69,8 +68,8 @@ class JpegBytes2CroppedBitmapTest {
         val output = operation.apply(input)
 
         // Assert: only the yellow and blue blocks exist after the cropping.
-        assertThat(getAverageDiff(output.data, Rect(0, 0, 320, 240), YELLOW)).isEqualTo(0)
-        assertThat(getAverageDiff(output.data, Rect(321, 0, WIDTH, 240), BLUE)).isEqualTo(0)
+        assertThat(getAverageDiff(output.data, Rect(0, 0, 320, 240), BLUE)).isEqualTo(0)
+        assertThat(getAverageDiff(output.data, Rect(321, 0, WIDTH, 240), YELLOW)).isEqualTo(0)
         // Assert: the packet info is correct.
         assertThat(output.cropRect).isEqualTo(Rect(0, 0, cropRect.width(), cropRect.height()))
         assertThat(output.exif).isEqualTo(input.exif)
