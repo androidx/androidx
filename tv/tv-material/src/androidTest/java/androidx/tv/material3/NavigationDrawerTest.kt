@@ -20,6 +20,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -42,6 +43,7 @@ import androidx.compose.ui.test.SemanticsNodeInteractionCollection
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEqualTo
 import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.StateRestorationTester
@@ -276,6 +278,49 @@ class NavigationDrawerTest {
             rule.onNodeWithTag(drawerContentBoxTag).getUnclippedBoundsInRoot().left
 
         assert(endPositionInClosedState.value > endPositionInOpenState.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
+    @Test
+    fun navigationDrawer_parentContainerGainsFocus_onBackPress() {
+        val drawerFocusRequester = FocusRequester()
+        rule.setContent {
+            Box(
+                modifier = Modifier
+                    .testTag("box-container")
+                    .fillMaxSize()
+                    .focusable()
+            ) {
+                NavigationDrawer(
+                    modifier = Modifier.focusRequester(drawerFocusRequester),
+                    drawerState = remember { DrawerState(DrawerValue.Closed) },
+                    drawerContent = {
+                        BasicText(
+                            text = if (it == DrawerValue.Open) "Opened" else "Closed",
+                            modifier = Modifier.focusable()
+                        )
+                    }
+                ) {
+                    BasicText("other content")
+                }
+            }
+        }
+
+        rule.onAllNodesWithText("Closed").assertAnyAreDisplayed()
+
+        rule.runOnIdle {
+            drawerFocusRequester.requestFocus()
+        }
+
+        rule.onAllNodesWithText("Opened").assertAnyAreDisplayed()
+        rule.onNodeWithTag("box-container").assertIsNotFocused()
+
+        // Trigger back press
+        rule.onRoot().performKeyInput { pressKey(Key.Back) }
+        rule.waitForIdle()
+
+        // Check if the parent container gains focus
+        rule.onNodeWithTag("box-container").assertIsFocused()
     }
 
     @Test

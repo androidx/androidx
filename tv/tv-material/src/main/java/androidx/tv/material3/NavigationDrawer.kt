@@ -16,6 +16,7 @@
 
 package androidx.tv.material3
 
+import android.view.KeyEvent.KEYCODE_BACK
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.focusable
@@ -44,6 +45,11 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.KeyEventType.Companion.KeyDown
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.nativeKeyCode
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -257,7 +263,7 @@ private fun Modifier.modalDrawerNavigation(
         .focusRequester(drawerFocusRequester)
         .focusProperties {
             exit = {
-                if (it == exitDirection || it == FocusDirection.Exit) {
+                if (it == exitDirection) {
                     drawerFocusRequester.requestFocus()
                     drawerState.setValue(DrawerValue.Closed)
                     focusManager.moveFocus(it)
@@ -316,6 +322,13 @@ private fun DrawerSheet(
                         drawerState.setValue(DrawerValue.Closed)
                     }
                 }
+            }
+            .onKeyEvent {
+                // Handle back press key event
+                if (it.key.nativeKeyCode == KEYCODE_BACK && it.type == KeyDown) {
+                    focusManager.moveFocus(FocusDirection.Exit)
+                }
+                KeyEventPropagation.ContinuePropagation
             }
             .focusable()
 
