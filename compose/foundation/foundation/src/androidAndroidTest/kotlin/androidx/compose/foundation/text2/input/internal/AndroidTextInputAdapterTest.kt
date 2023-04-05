@@ -39,6 +39,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFalse
@@ -296,6 +297,7 @@ class AndroidTextInputAdapterTest {
         assertThat(keyboardHelper.isSoftwareKeyboardShown()).isTrue()
     }
 
+    @SdkSuppress(minSdkVersion = 23)
     @Test
     fun hideSoftwareKeyboard_fromActiveInputSession_hidesTheKeyboard() {
         var session: TextInputSession? = null
