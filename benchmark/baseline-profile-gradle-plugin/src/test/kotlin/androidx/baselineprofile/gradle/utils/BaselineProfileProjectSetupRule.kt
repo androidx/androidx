@@ -17,7 +17,6 @@
 package androidx.baselineprofile.gradle.utils
 
 import androidx.testutils.gradle.ProjectSetupRule
-import com.android.build.api.AndroidPluginVersion
 import com.google.testing.platform.proto.api.core.LabelProto
 import com.google.testing.platform.proto.api.core.PathProto
 import com.google.testing.platform.proto.api.core.TestArtifactProto
@@ -115,9 +114,13 @@ class BaselineProfileProjectSetupRule(
             rootFolder.newFile("gradle.properties").writer().use {
                 val props = Properties()
                 props.setProperty(
-                    "org.gradle.jvmargs", "-Xmx2g -XX:+UseParallelGC -XX:MaxMetaspaceSize=512m"
+                    "org.gradle.jvmargs",
+                    "-Xmx4g -XX:+UseParallelGC -XX:MaxMetaspaceSize=1g"
                 )
-                props.setProperty("android.useAndroidX", "true")
+                props.setProperty(
+                    "android.useAndroidX",
+                    "true"
+                )
                 props.store(it, null)
             }
 
@@ -180,15 +183,6 @@ class BaselineProfileProjectSetupRule(
             base.evaluate()
         }
     }
-
-    private fun AndroidPluginVersion.versionString(): String {
-        val preview = if (!previewType.isNullOrBlank()) {
-            "-$previewType${"%02d".format(preview)}"
-        } else {
-            ""
-        }
-        return "$major.$minor.$micro$preview"
-    }
 }
 
 data class VariantProfile(
@@ -246,27 +240,65 @@ class ProducerModule(
 ) : Module {
 
     fun setupWithFreeAndPaidFlavors(
-        freeReleaseProfileLines: List<String>,
-        paidReleaseProfileLines: List<String>,
+        freeReleaseProfileLines: List<String>? = null,
+        paidReleaseProfileLines: List<String>? = null,
+        freeAnotherReleaseProfileLines: List<String>? = null,
+        paidAnotherReleaseProfileLines: List<String>? = null,
         freeReleaseStartupProfileLines: List<String> = listOf(),
         paidReleaseStartupProfileLines: List<String> = listOf(),
+        freeAnotherReleaseStartupProfileLines: List<String> = listOf(),
+        paidAnotherReleaseStartupProfileLines: List<String> = listOf(),
     ) {
-        setup(
-            variantProfiles = listOf(
-                VariantProfile(
-                    flavor = "free",
-                    buildType = "release",
-                    profileFileLines = mapOf("myTest" to freeReleaseProfileLines),
-                    startupFileLines = mapOf("myStartupTest" to freeReleaseStartupProfileLines)
-                ),
-                VariantProfile(
-                    flavor = "paid",
-                    buildType = "release",
-                    profileFileLines = mapOf("myTest" to paidReleaseProfileLines),
-                    startupFileLines = mapOf("myStartupTest" to paidReleaseStartupProfileLines)
-                ),
-            )
+        val variantProfiles = mutableListOf<VariantProfile>()
+
+        fun addProfile(
+            flavor: String,
+            buildType: String,
+            profile: List<String>?,
+            startupProfile: List<String>,
+        ) {
+            if (profile != null) {
+                variantProfiles.add(
+                    VariantProfile(
+                        flavor = flavor,
+                        buildType = buildType,
+                        profileFileLines = mapOf(
+                            "my-$flavor-$buildType-profile" to profile
+                        ),
+                        startupFileLines = mapOf(
+                            "my-$flavor-$buildType-startup=profile" to startupProfile
+                        )
+                    )
+                )
+            }
+        }
+
+        addProfile(
+            flavor = "free",
+            buildType = "release",
+            profile = freeReleaseProfileLines,
+            startupProfile = freeReleaseStartupProfileLines
         )
+        addProfile(
+            flavor = "free",
+            buildType = "anotherRelease",
+            profile = freeAnotherReleaseProfileLines,
+            startupProfile = freeAnotherReleaseStartupProfileLines
+        )
+        addProfile(
+            flavor = "paid",
+            buildType = "release",
+            profile = paidReleaseProfileLines,
+            startupProfile = paidReleaseStartupProfileLines
+        )
+        addProfile(
+            flavor = "paid",
+            buildType = "anotherRelease",
+            profile = paidAnotherReleaseProfileLines,
+            startupProfile = paidAnotherReleaseStartupProfileLines
+        )
+
+        setup(variantProfiles)
     }
 
     fun setupWithoutFlavors(
