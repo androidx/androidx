@@ -547,7 +547,8 @@ public class EditorSessionTest {
                     ComplicationType.LONG_TEXT,
                     ComplicationType.SHORT_TEXT,
                     ComplicationType.MONOCHROMATIC_IMAGE,
-                    ComplicationType.SMALL_IMAGE
+                    ComplicationType.SMALL_IMAGE,
+                    ComplicationType.PHOTO_IMAGE
                 ),
                 DefaultComplicationDataSourcePolicy(
                     ComponentName("com.primary.package", "com.primary.app"),
