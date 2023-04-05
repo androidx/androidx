@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.ImageProcessor;
+import androidx.core.util.Consumer;
 
 import java.util.concurrent.Executor;
 
@@ -30,9 +31,18 @@ import java.util.concurrent.Executor;
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class FakeImageEffect extends CameraEffect {
+
     public FakeImageEffect(
             @NonNull Executor processorExecutor,
             @NonNull ImageProcessor imageProcessor) {
-        super(IMAGE_CAPTURE, processorExecutor, imageProcessor);
+        this(processorExecutor, imageProcessor, throwable -> {
+        });
+    }
+
+    public FakeImageEffect(
+            @NonNull Executor processorExecutor,
+            @NonNull ImageProcessor imageProcessor,
+            @NonNull Consumer<Throwable> errorListener) {
+        super(IMAGE_CAPTURE, processorExecutor, imageProcessor, errorListener);
     }
 }
