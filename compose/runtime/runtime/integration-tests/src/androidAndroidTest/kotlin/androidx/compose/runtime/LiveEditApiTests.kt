@@ -422,6 +422,36 @@ class LiveEditApiTests : BaseComposeTest() {
             assertThat(errors).hasSize(0)
         }
     }
+
+    @Test
+    @MediumTest
+    fun throwErrorOnReload_withNode() {
+        var shouldThrow = false
+        activity.show {
+            TestTextWError(text = "abc") { shouldThrow }
+        }
+
+        activity.waitForAFrame()
+
+        activityRule.runOnUiThread {
+            shouldThrow = true
+            simulateHotReload(Unit)
+
+            val start = textInvoked
+            var errors = compositionErrors()
+            assertThat(errors).hasSize(1)
+            assertThat(errors[0].first.message).isEqualTo("Text error!")
+            assertThat(errors[0].second).isEqualTo(true)
+
+            shouldThrow = false
+            invalidateGroup(errorKey) // wrong key, but composition should be retried regardless
+
+            assertTrue("TestTextWError should be invoked!", textInvoked > start)
+
+            errors = compositionErrors()
+            assertThat(errors).hasSize(0)
+        }
+    }
 }
 
 const val someFunctionKey = -1580285603 // Extracted from .class file
@@ -532,5 +562,17 @@ fun TestEffectError(shouldThrow: () -> Boolean = { true }) {
         if (shouldThrow()) {
             error("Effect error!")
         }
+    }
+}
+
+private var textInvoked = 0
+@Composable
+fun TestTextWError(text: String, shouldThrow: () -> Boolean = { true }) {
+    textInvoked++
+
+    Text(text)
+
+    if (shouldThrow()) {
+        error("Text error!")
     }
 }
