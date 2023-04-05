@@ -8431,9 +8431,9 @@ public class NotificationCompat {
     }
 
     /**
-     * <p>Helper class to add Android TV extensions to notifications. To create a notification
-     * with a TV extension:
-     *
+     * Helper class to add Android TV extensions to notifications.
+     * <p>
+     * To create a notification with a TV extension:
      * <ol>
      *  <li>Create an {@link NotificationCompat.Builder}, setting any desired properties.
      *  <li>Create a {@link TvExtender}.
@@ -8447,13 +8447,16 @@ public class NotificationCompat {
      * Notification notification = new NotificationCompat.Builder(context)
      *         ...
      *         .extend(new TvExtender()
-     *                 .set*(...))
+     *                 .setChannelId("channel id"))
      *         .build();
+     * NotificationManagerCompat.from(mContext).notify(0, notification);
      * </pre>
      *
      * <p>TV extensions can be accessed on an existing notification by using the
      * {@code TvExtender(Notification)} constructor, and then using the {@code get} methods
      * to access values.
+     *
+     * <p>Note that prior to {@link Build.VERSION_CODES#O} this field has no effect.
      */
     public static final class TvExtender implements Extender {
         private static final String TAG = "TvExtender";
