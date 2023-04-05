@@ -45,6 +45,7 @@ import androidx.wear.protolayout.LayoutElementBuilders.FontStyle;
 import androidx.wear.protolayout.ModifiersBuilders.Background;
 import androidx.wear.protolayout.ModifiersBuilders.ElementMetadata;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
+import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -111,19 +112,20 @@ public class TextTest {
     public void testWrongTag() {
         Box box =
                 new Box.Builder()
-                    .setModifiers(
-                        new Modifiers.Builder()
-                            .setMetadata(
-                                new ElementMetadata.Builder()
-                                    .setTagData("test".getBytes(UTF_8))
-                                    .build())
-                            .build())
-                    .build();
+                        .setModifiers(
+                                new Modifiers.Builder()
+                                        .setMetadata(
+                                                new ElementMetadata.Builder()
+                                                        .setTagData("test".getBytes(UTF_8))
+                                                        .build())
+                                        .build())
+                        .build();
 
         assertThat(Text.fromLayoutElement(box)).isNull();
     }
 
     @Test
+    @ProtoLayoutExperimental
     public void testText() {
         String textContent = "Testing text.";
         Modifiers modifiers =
@@ -142,6 +144,7 @@ public class TextTest {
                         .setOverflow(TEXT_OVERFLOW_ELLIPSIZE_END)
                         .setMultilineAlignment(TEXT_ALIGN_END)
                         .setWeight(FONT_WEIGHT_BOLD)
+                        .setExcludeFontPadding(true)
                         .build();
 
         FontStyle expectedFontStyle =
@@ -162,6 +165,7 @@ public class TextTest {
         assertThat(Text.fromLayoutElement(text)).isEqualTo(text);
     }
 
+    @ProtoLayoutExperimental
     private void assertTextIsEqual(
             Text actualText,
             String expectedTextContent,
@@ -176,6 +180,7 @@ public class TextTest {
         assertThat(actualText.getMaxLines()).isEqualTo(2);
         assertThat(actualText.getLineHeight())
                 .isEqualTo(getLineHeightForTypography(TYPOGRAPHY_TITLE1).getValue());
+        assertThat(actualText.getExcludeFontPadding()).isTrue();
     }
 
     private void assertFontStyle(
