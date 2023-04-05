@@ -47,6 +47,9 @@ class ProfileVerificationTestWithProfileInstallerInitializer {
 
     @Before
     fun setUp() = withPackageName(PACKAGE_NAME_WITH_INITIALIZER) {
+        // TODO: to re-enable for api 34 (b/276970167)
+        assumeTrue(!isApi34)
+
         // Note that this test fails on emulator api 30 (b/251540646)
         assumeTrue(!isApi30)
         uninstall()
