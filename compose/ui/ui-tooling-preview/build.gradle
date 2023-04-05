@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-import androidx.build.KmpPlatformsKt
+
+import androidx.build.AndroidXComposePlugin
 import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -23,93 +25,46 @@ plugins {
     id("com.android.library")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
 
 
-androidXMultiplatform {
-    android()
-    if (desktopEnabled) desktop()
+dependencies {
+    if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
+        implementation(libs.kotlinStdlib)
+        api("androidx.annotation:annotation:1.2.0")
+        api("androidx.compose.runtime:runtime:1.2.1")
+        testImplementation(libs.junit)
+    }
+}
 
+if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
+    androidXComposeMultiplatform {
+        android()
+        desktop()
+    }
 
-    sourceSets {
-        commonMain {
-            dependencies {
+    kotlin {
+        /*
+         * When updating dependencies, make sure to make the an an analogous update in the
+         * corresponding block above
+         */
+        sourceSets {
+            commonMain.dependencies {
                 implementation(libs.kotlinStdlibCommon)
-                api("androidx.compose.runtime:runtime:1.2.1")
+                api(project(":compose:runtime:runtime"))
             }
-        }
 
-        commonTest {
-            dependencies {
-
-            }
-        }
-
-        jvmMain {
-            dependsOn(commonMain)
-            dependencies {
-            }
-        }
-
-        if (desktopEnabled) {
-            skikoMain {
-                dependsOn(commonMain)
-                dependencies {
-                    api(project(":compose:runtime:runtime"))
-                }
-            }
-        }
-
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
+            androidMain.dependencies {
                 api("androidx.annotation:annotation:1.2.0")
             }
-        }
 
-        if (desktopEnabled) {
-            desktopMain {
-                dependsOn(skikoMain)
-                dependsOn(jvmMain)
-                dependencies {
-
-                }
-            }
-        }
-
-        jvmTest {
-            dependsOn(commonTest)
-            dependsOn(jvmMain)
-            dependencies {
-            }
-        }
-
-        androidAndroidTest {
-            dependsOn(jvmTest)
-            dependsOn(androidMain)
-            dependencies {
-            }
-        }
-
-        androidTest {
-            dependsOn(jvmTest)
-            dependsOn(androidMain)
-            dependencies {
+            androidTest.dependencies {
                 implementation(libs.junit)
-            }
-        }
-
-        if (desktopEnabled) {
-            desktopTest {
-                dependsOn(jvmTest)
-                dependsOn(desktopMain)
-                dependencies {
-
-                }
             }
         }
     }
 }
+
 
 androidx {
     name = "Compose Tooling API"

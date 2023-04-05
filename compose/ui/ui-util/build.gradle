@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import androidx.build.KmpPlatformsKt
+import androidx.build.AndroidXComposePlugin
 import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -23,70 +24,57 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
 
-androidXMultiplatform {
-    android()
-    if (desktopEnabled) desktop()
+if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
+    dependencies {
+        /*
+         * When updating dependencies, make sure to make the an an analogous update in the
+         * corresponding block below
+         */
 
-    sourceSets {
-        commonMain {
-            dependencies {
+        implementation(libs.kotlinStdlib)
+
+        testImplementation(libs.junit)
+        testImplementation(libs.truth)
+        testImplementation(libs.kotlinTest)
+    }
+}
+
+if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
+    androidXComposeMultiplatform {
+        android()
+        desktop()
+    }
+
+    kotlin {
+        /*
+         * When updating dependencies, make sure to make the an an analogous update in the
+         * corresponding block above
+         */
+        sourceSets {
+            commonMain.dependencies {
                 implementation(libs.kotlinStdlibCommon)
             }
-        }
 
-        commonTest {
-            dependencies {
+            jvmMain.dependencies {
+                implementation(libs.kotlinStdlib)
+            }
+
+            androidMain.dependencies {
+                implementation(libs.kotlinStdlib)
+            }
+
+            commonTest.dependencies {
                 implementation(kotlin("test-junit"))
             }
-        }
 
-        jvmMain {
-            dependencies {
-                implementation(libs.kotlinStdlib)
-            }
-        }
-
-
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-                implementation(libs.kotlinStdlib)
-            }
-        }
-
-        if (desktopEnabled) {
-            desktopMain {
-                dependsOn(jvmMain)
-            }
-        }
-
-        jvmTest {
-            dependencies {
-            }
-        }
-
-        androidAndroidTest {
-            dependsOn(jvmTest)
-            dependencies {
-            }
-        }
-
-        // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
-        //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
-        //  level dependencies block instead:
-        //  `dependencies { testImplementation(libs.robolectric) }`
-        androidTest {
-            dependsOn(jvmTest)
-            dependencies {
+            // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
+            //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
+            //  level dependencies block instead:
+            //  `dependencies { testImplementation(libs.robolectric) }`
+            androidTest.dependencies {
                 implementation(libs.truth)
-            }
-        }
-
-        if (desktopEnabled) {
-            desktopTest {
-                dependsOn(jvmTest)
             }
         }
     }
