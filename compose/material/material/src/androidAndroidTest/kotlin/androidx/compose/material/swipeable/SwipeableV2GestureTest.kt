@@ -24,8 +24,6 @@ import androidx.compose.material.AutoTestFrameClock
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.SwipeableV2Defaults
 import androidx.compose.material.SwipeableV2State
-import androidx.compose.material.fixedPositionalThreshold
-import androidx.compose.material.fractionalPositionalThreshold
 import androidx.compose.material.swipeable.TestState.A
 import androidx.compose.material.swipeable.TestState.B
 import androidx.compose.material.swipeable.TestState.C
@@ -43,7 +41,6 @@ import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.test.swipeWithVelocity
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -236,7 +233,7 @@ class SwipeableV2GestureTest {
         val absThreshold = abs(positionalThreshold)
         val state = SwipeableTestState(
             initialState = A,
-            positionalThreshold = fractionalPositionalThreshold(positionalThreshold)
+            positionalThreshold = { totalDistance -> totalDistance * positionalThreshold }
         )
         rule.setContent { SwipeableBox(state) }
 
@@ -286,7 +283,7 @@ class SwipeableV2GestureTest {
         val absThreshold = abs(positionalThreshold)
         val state = SwipeableTestState(
             initialState = A,
-            positionalThreshold = fractionalPositionalThreshold(positionalThreshold)
+            positionalThreshold = { totalDistance -> totalDistance * positionalThreshold }
         )
         rule.setContent { SwipeableBox(state) }
 
@@ -333,10 +330,11 @@ class SwipeableV2GestureTest {
     @Test
     fun swipeable_positionalThresholds_fixed_targetState() {
         val positionalThreshold = 56.dp
-        val absThreshold = with(rule.density) { abs(positionalThreshold.toPx()) }
+        val positionalThresholdPx = with(rule.density) { positionalThreshold.toPx() }
+        val absThreshold = abs(positionalThresholdPx)
         val state = SwipeableTestState(
             initialState = A,
-            positionalThreshold = fixedPositionalThreshold(positionalThreshold)
+            positionalThreshold = { positionalThresholdPx }
         )
         rule.setContent { SwipeableBox(state) }
 
@@ -386,10 +384,11 @@ class SwipeableV2GestureTest {
     @Test
     fun swipeable_positionalThresholds_fixed_negativeThreshold_targetState() {
         val positionalThreshold = (-56).dp
-        val absThreshold = with(rule.density) { abs(positionalThreshold.toPx()) }
+        val positionalThresholdPx = with(rule.density) { positionalThreshold.toPx() }
+        val absThreshold = abs(positionalThresholdPx)
         val state = SwipeableTestState(
             initialState = A,
-            positionalThreshold = fixedPositionalThreshold(positionalThreshold)
+            positionalThreshold = { positionalThresholdPx }
         )
         rule.setContent { SwipeableBox(state) }
 
@@ -448,7 +447,7 @@ class SwipeableV2GestureTest {
                     B to 100f,
                     C to 200f
                 ),
-                velocityThreshold = velocity / 2
+                velocityThreshold = { velocityPx / 2f }
             )
             state.dispatchRawDelta(60f)
             state.settle(velocityPx)
@@ -468,7 +467,7 @@ class SwipeableV2GestureTest {
                     B to 100f,
                     C to 200f
                 ),
-                velocityThreshold = velocity,
+                velocityThreshold = { velocityPx },
                 positionalThreshold = { Float.POSITIVE_INFINITY }
             )
             state.dispatchRawDelta(60f)
@@ -481,7 +480,7 @@ class SwipeableV2GestureTest {
         val velocityThreshold = 100.dp
         val state = SwipeableTestState(
             initialState = A,
-            velocityThreshold = velocityThreshold
+            velocityThreshold = { with(rule.density) { velocityThreshold.toPx() } }
         )
         rule.setContent { SwipeableBox(state) }
 
@@ -503,7 +502,7 @@ class SwipeableV2GestureTest {
         val velocityThreshold = 100.dp
         val state = SwipeableTestState(
             initialState = A,
-            velocityThreshold = velocityThreshold,
+            velocityThreshold = { with(rule.density) { velocityThreshold.toPx() } },
             positionalThreshold = { Float.POSITIVE_INFINITY }
         )
         rule.setContent { SwipeableBox(state) }
@@ -529,7 +528,7 @@ class SwipeableV2GestureTest {
         )
         val state = SwipeableTestState(
             initialState = A,
-            velocityThreshold = 0.dp
+            velocityThreshold = { 0f }
         )
         rule.setContent {
             SwipeableBox(
@@ -573,7 +572,7 @@ class SwipeableV2GestureTest {
         val state = SwipeableTestState(
             initialState = A,
             animationSpec = tween(animationDurationMillis, easing = LinearEasing),
-            positionalThreshold = fractionalPositionalThreshold(0.5f)
+            positionalThreshold = { totalDistance -> totalDistance * 0.5f }
         )
         lateinit var scope: CoroutineScope
         rule.setContent {
@@ -609,9 +608,8 @@ class SwipeableV2GestureTest {
 
     private fun SwipeableTestState(
         initialState: TestState,
-        density: Density = rule.density,
-        positionalThreshold: Density.(distance: Float) -> Float = { 56.dp.toPx() },
-        velocityThreshold: Dp = 125.dp,
+        positionalThreshold: (distance: Float) -> Float = { with(rule.density) { 56.dp.toPx() } },
+        velocityThreshold: () -> Float = { with(rule.density) { 125.dp.toPx() } },
         anchors: Map<TestState, Float>? = null,
         animationSpec: AnimationSpec<Float> = SwipeableV2Defaults.AnimationSpec
     ) = SwipeableV2State(
@@ -621,7 +619,6 @@ class SwipeableV2GestureTest {
         animationSpec = animationSpec
     ).apply {
         if (anchors != null) updateAnchors(anchors)
-        this.density = density
     }
 }
 
