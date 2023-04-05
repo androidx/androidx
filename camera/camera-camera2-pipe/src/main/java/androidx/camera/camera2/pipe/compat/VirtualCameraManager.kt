@@ -50,7 +50,10 @@ internal data class RequestClose(val activeCamera: VirtualCameraManager.ActiveCa
 
 internal object RequestCloseAll : CameraRequest()
 
-private const val requestQueueDepth = 8
+// A queue depth of 32 was deemed necessary in b/276051078 where a flood of requests can cause the
+// queue depth to go over 8. In the long run, we can perhaps look into refactoring and
+// reimplementing the request queue in a more robust way.
+private const val requestQueueDepth = 32
 
 @Suppress("EXPERIMENTAL_API_USAGE")
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
