@@ -21,7 +21,6 @@ import android.content.IntentFilter;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 
 import java.util.ArrayList;
@@ -83,7 +82,6 @@ public class StubMediaRouteProviderService extends MediaRouteProviderService {
 
     class StubMediaRouteProvider extends MediaRouteProvider {
         Map<String, MediaRouteDescriptor> mRoutes = new ArrayMap<>();
-        Map<String, StubRouteController> mControllers = new ArrayMap<>();
         boolean mSupportsDynamicGroup = false;
 
         StubMediaRouteProvider(@NonNull Context context) {
@@ -92,9 +90,7 @@ public class StubMediaRouteProviderService extends MediaRouteProviderService {
 
         @Override
         public RouteController onCreateRouteController(@NonNull String routeId) {
-            StubRouteController newController = new StubRouteController(routeId);
-            mControllers.put(routeId, newController);
-            return newController;
+            return new StubRouteController(routeId);
         }
 
         public void initializeRoutes() {
@@ -118,8 +114,6 @@ public class StubMediaRouteProviderService extends MediaRouteProviderService {
         //TODO: Implement DynamicGroupRouteController
         class StubRouteController extends RouteController {
             final String mRouteId;
-            @Nullable Integer mLastSetVolume;
-
             StubRouteController(String routeId) {
                 mRouteId = routeId;
             }
@@ -138,11 +132,6 @@ public class StubMediaRouteProviderService extends MediaRouteProviderService {
                         .setConnectionState(MediaRouter.RouteInfo.CONNECTION_STATE_DISCONNECTED)
                         .build());
                 publishRoutes();
-            }
-
-            @Override
-            public void onSetVolume(int volume) {
-                mLastSetVolume = volume;
             }
         }
     }

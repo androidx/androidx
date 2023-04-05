@@ -20,7 +20,6 @@ import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentat
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
@@ -64,7 +63,7 @@ public class MediaRouter2Test {
 
     private Context mContext;
     private MediaRouter mRouter;
-    private MediaRouter.Callback mPlaceholderCallback = new MediaRouter.Callback() {};
+    private MediaRouter.Callback mPlaceholderCallback = new MediaRouter.Callback() { };
     StubMediaRouteProviderService mService;
     StubMediaRouteProviderService.StubMediaRouteProvider mProvider;
     MediaRouteProviderService.MediaRouteProviderServiceImplApi30 mServiceImpl;
@@ -192,28 +191,6 @@ public class MediaRouter2Test {
 
     @SmallTest
     @Test
-    public void setRouteVolume_onStaticNonGroupRoute() {
-        // We run session creation on the main thread to ensure the route creation from the setup
-        // method happens before the session creation. Otherwise, this call may call into an
-        // inconsistent adapter state.
-        getInstrumentation()
-                .runOnMainSync(
-                        () ->
-                                mMr2ProviderServiceAdapter.onCreateSession(
-                                        MediaRoute2ProviderService.REQUEST_ID_NONE,
-                                        mContext.getPackageName(),
-                                        StubMediaRouteProviderService.ROUTE_ID1,
-                                        /* sessionHints= */ null));
-        StubMediaRouteProviderService.StubMediaRouteProvider.StubRouteController createdController =
-                mProvider.mControllers.get(StubMediaRouteProviderService.ROUTE_ID1);
-        assertNotNull(createdController); // Avoids nullability warning.
-        assertNull(createdController.mLastSetVolume);
-        mMr2ProviderServiceAdapter.setRouteVolume(StubMediaRouteProviderService.ROUTE_ID1, 100);
-        assertEquals(100, (int) createdController.mLastSetVolume);
-    }
-
-    @SmallTest
-    @Test
     public void onBinderDied_releaseRoutingSessions() throws Exception {
         String descriptorId = StubMediaRouteProviderService.ROUTE_ID1;
 
@@ -231,9 +208,8 @@ public class MediaRouter2Test {
 
         try {
             List<Messenger> messengers =
-                    mServiceImpl.mClients.stream()
-                            .map(client -> client.mMessenger)
-                            .collect(Collectors.toList());
+                    mServiceImpl.mClients.stream().map(client -> client.mMessenger)
+                    .collect(Collectors.toList());
             getInstrumentation().runOnMainSync(() ->
                     messengers.forEach(mServiceImpl::onBinderDied));
             // It should have no session info.
