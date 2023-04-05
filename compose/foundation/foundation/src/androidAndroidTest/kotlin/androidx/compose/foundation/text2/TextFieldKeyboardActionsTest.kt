@@ -51,6 +51,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -186,6 +187,7 @@ class TextFieldKeyboardActionsTest {
         rule.onNodeWithTag("box1").assertIsFocused()
     }
 
+    @SdkSuppress(minSdkVersion = 23)
     @Test
     fun textField_performsDefaultBehavior_forDone() {
         rule.setContent {
