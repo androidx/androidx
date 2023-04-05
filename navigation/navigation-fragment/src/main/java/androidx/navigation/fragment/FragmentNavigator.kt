@@ -32,6 +32,9 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
@@ -88,25 +91,38 @@ public open class FragmentNavigator(
         }
     }
 
+    private val fragmentViewObserver = { entry: NavBackStackEntry ->
+        object : LifecycleEventObserver {
+            override fun onStateChanged(
+                source: LifecycleOwner,
+                event: Lifecycle.Event
+            ) {
+                // Once the lifecycle reaches RESUMED, we can mark the transition complete
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    state.markTransitionComplete(entry)
+                }
+                // Once the lifecycle reaches DESTROYED, we can mark the transition complete and
+                // remove the observer.
+                if (event == Lifecycle.Event.ON_DESTROY) {
+                    entriesToPop.remove(entry.id)
+                    state.markTransitionComplete(entry)
+                    source.lifecycle.removeObserver(this)
+                }
+            }
+        }
+    }
+
     override fun onAttach(state: NavigatorState) {
         super.onAttach(state)
 
         fragmentManager.addFragmentOnAttachListener { _, fragment ->
             val entry = state.backStack.value.lastOrNull { it.id == fragment.tag }
             if (entry != null) {
-                fragment.viewLifecycleOwnerLiveData.observe(fragment) { owner ->
-                    // attach observer unless it was already popped at this point
-                    if (owner != null && !entriesToPop.contains(fragment.tag)) {
-                        attachObserver(entry, fragment)
-                    }
-                }
-                fragment.lifecycle.addObserver(fragmentObserver)
+                attachObservers(entry, fragment)
                 // We need to ensure that if the fragment has its state saved and then that state
                 // later cleared without the restoring the fragment that we also clear the state
                 // of the associated entry.
-                val viewModel = ViewModelProvider(fragment)[ClearEntryStateViewModel::class.java]
-                viewModel.completeTransition =
-                    WeakReference { entry.let { state.markTransitionComplete(it) } }
+                attachClearViewModel(fragment, entry, state)
             }
         }
 
@@ -127,50 +143,62 @@ public open class FragmentNavigator(
                 val entry = (state.backStack.value + state.transitionsInProgress.value).lastOrNull {
                     it.id == fragment.tag
                 }
-                if (pop && entry != null) {
-                    // The entry has already been removed from the back stack so just remove it
-                    // from the list
-                    if (!state.backStack.value.contains(entry)) {
-                        // remove it so we don't falsely identify a direct call to popBackStack
-                        entriesToPop.remove(entry.id)
-                    }
-                    // This is the case of system back where we will need to make the call to
-                    // popBackStack. Otherwise, popBackStack was called directly and this should
-                    // end up being a no-op.
-                    else if (entriesToPop.isEmpty() && fragment.isRemoving) {
-                        state.popWithTransition(entry, false)
+                if (entry != null) {
+                    // In case we get a fragment that was never attached to the fragment manager,
+                    // we need to make sure we still return the entries to their proper final state.
+                    attachClearViewModel(fragment, entry, state)
+                    if (pop) {
+                        // The entry has already been removed from the back stack so just remove it
+                        // from the list
+                        if (!state.backStack.value.contains(entry)) {
+                            // remove it so we don't falsely identify a direct call to popBackStack
+                            entriesToPop.remove(entry.id)
+                        }
+                        // This is the case of system back where we will need to make the call to
+                        // popBackStack. Otherwise, popBackStack was called directly and this should
+                        // end up being a no-op.
+                        else if (entriesToPop.isEmpty() && fragment.isRemoving) {
+                            state.popWithTransition(entry, false)
+                        }
                     }
                 }
             }
         })
     }
 
-    private fun attachObserver(entry: NavBackStackEntry, fragment: Fragment) {
-        val viewLifecycle = fragment.viewLifecycleOwner.lifecycle
-        val currentState = viewLifecycle.currentState
-        // We only need to add observers while the viewLifecycle has not reached a final
-        // state
-        if (currentState.isAtLeast(Lifecycle.State.CREATED)) {
-            viewLifecycle.addObserver(object : LifecycleEventObserver {
-                override fun onStateChanged(
-                    source: LifecycleOwner,
-                    event: Lifecycle.Event
-                ) {
-                    // Once the lifecycle reaches RESUMED, we can mark the transition
-                    // complete
-                    if (event == Lifecycle.Event.ON_RESUME) {
+    private fun attachObservers(entry: NavBackStackEntry, fragment: Fragment) {
+        fragment.viewLifecycleOwnerLiveData.observe(fragment) { owner ->
+            // attach observer unless it was already popped at this point
+            if (owner != null && !entriesToPop.contains(fragment.tag)) {
+                val viewLifecycle = fragment.viewLifecycleOwner.lifecycle
+                // We only need to add observers while the viewLifecycle has not reached a final
+                // state
+                if (viewLifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
+                    viewLifecycle.addObserver(fragmentViewObserver(entry))
+                }
+            }
+        }
+        fragment.lifecycle.addObserver(fragmentObserver)
+    }
+
+    internal fun attachClearViewModel(
+        fragment: Fragment,
+        entry: NavBackStackEntry,
+        state: NavigatorState
+    ) {
+        val viewModel = ViewModelProvider(
+            fragment.viewModelStore,
+            viewModelFactory { initializer { ClearEntryStateViewModel() } },
+            CreationExtras.Empty
+        )[ClearEntryStateViewModel::class.java]
+        viewModel.completeTransition =
+            WeakReference {
+                entry.let {
+                    state.transitionsInProgress.value.forEach { entry ->
                         state.markTransitionComplete(entry)
-                    }
-                    // Once the lifecycle reaches DESTROYED, we can mark the transition
-                    // complete and remove the observer.
-                    if (event == Lifecycle.Event.ON_DESTROY) {
-                        entriesToPop.remove(entry.id)
-                        state.markTransitionComplete(entry)
-                        viewLifecycle.removeObserver(this)
                     }
                 }
-            })
-        }
+            }
     }
 
     /**
