@@ -211,7 +211,7 @@ private class StaticLayoutFactory23 : StaticLayoutFactoryImpl {
         layout: StaticLayout,
         useFallbackLineSpacing: Boolean
     ): Boolean {
-        return if (BuildCompat.isAtLeastT()) {
+        return if (Build.VERSION.SDK_INT >= 33) {
             StaticLayoutFactory33.isFallbackLineSpacingEnabled(layout)
         } else if (Build.VERSION.SDK_INT >= 28) {
             useFallbackLineSpacing
