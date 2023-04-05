@@ -631,6 +631,28 @@ class CompositionTests {
     }
 
     @Test
+    fun testSkippingNestedLambda() = compositionTest {
+        val data = mutableStateOf(0)
+
+        itemRendererCalls = 0
+        scrollingListCalls = 0
+        compose {
+            TestSkippingContent(data = data)
+        }
+
+        data.value++
+        advance()
+
+        data.value++
+        advance()
+
+        data.value++
+        advance()
+
+        assertTrue(itemRendererCalls < scrollingListCalls)
+    }
+
+    @Test
     fun testComponentWithVarConstructorParameter() = compositionTest {
         @Composable
         fun One(first: Int) {
@@ -4059,3 +4081,56 @@ private inline fun InlineSubcomposition(
 
 @Composable
 operator fun <T> CompositionLocal<T>.getValue(thisRef: Any?, property: KProperty<*>) = current
+
+// for 274185312
+
+var itemRendererCalls = 0
+var scrollingListCalls = 0
+
+@Composable
+fun TestSkippingContent(data: State<Int>) {
+    ScrollingList { viewItem ->
+        Text("${data.value}")
+        scrollingListCalls++
+        ItemRenderer(viewItem)
+    }
+}
+
+@Composable
+fun ItemRenderer(viewItem: ListViewItem) {
+    itemRendererCalls++
+    Text("${viewItem.id}")
+}
+
+@Composable
+private fun ScrollingList(
+    itemRenderer: @Composable (ListViewItem) -> Unit,
+) {
+    ListContent(
+        viewItems = remember { listOf(ListViewItem(0), ListViewItem(1)) },
+        itemRenderer = itemRenderer
+    )
+}
+
+@Composable
+fun ListContent(
+    viewItems: List<ListViewItem>,
+    itemRenderer: @Composable (ListViewItem) -> Unit
+) {
+    viewItems.forEach { viewItem ->
+        ListContentItem(
+            viewItem = viewItem,
+            itemRenderer = itemRenderer
+        )
+    }
+}
+
+@Composable
+fun ListContentItem(
+    viewItem: ListViewItem,
+    itemRenderer: @Composable (ListViewItem) -> Unit
+) {
+    itemRenderer(viewItem)
+}
+
+data class ListViewItem(val id: Int)
