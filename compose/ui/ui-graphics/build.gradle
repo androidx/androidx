@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import androidx.build.KmpPlatformsKt
+import androidx.build.AndroidXComposePlugin
 import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -23,71 +24,102 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
 
-androidXMultiplatform {
-    android()
-    if (desktopEnabled) desktop()
+if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
+    dependencies {
+        /*
+         * When updating dependencies, make sure to make the an an analogous update in the
+         * corresponding block below
+         */
 
-    sourceSets {
-        commonMain {
-            dependencies {
+        api("androidx.annotation:annotation:1.2.0")
+        api(project(":compose:ui:ui-unit"))
+
+        implementation("androidx.compose.runtime:runtime:1.2.1")
+        implementation(project(":compose:ui:ui-util"))
+        implementation(libs.kotlinStdlibCommon)
+
+        testImplementation(libs.testRules)
+        testImplementation(libs.testRunner)
+        testImplementation(libs.kotlinTestJunit)
+        testImplementation(libs.junit)
+        testImplementation(libs.truth)
+
+        androidTestImplementation(project(":compose:ui:ui-graphics:ui-graphics-samples"))
+        androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+        androidTestImplementation(project(":compose:test-utils"))
+        androidTestImplementation(libs.testRules)
+        androidTestImplementation(libs.testRunner)
+        androidTestImplementation(libs.espressoCore)
+        androidTestImplementation(libs.junit)
+        androidTestImplementation(libs.truth)
+
+        lintPublish(project(":compose:ui:ui-graphics-lint"))
+
+        samples(projectOrArtifact(":compose:ui:ui-graphics:ui-graphics-samples"))
+    }
+}
+
+if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
+    androidXComposeMultiplatform {
+        android()
+        desktop()
+    }
+
+    kotlin {
+
+        /*
+         * When updating dependencies, make sure to make the an an analogous update in the
+         * corresponding block above
+         */
+
+        sourceSets {
+            commonMain.dependencies {
                 implementation(libs.kotlinStdlibCommon)
 
                 api(project(":compose:ui:ui-unit"))
-                implementation("androidx.compose.runtime:runtime:1.2.1")
+                implementation(project(":compose:runtime:runtime"))
                 implementation(project(":compose:ui:ui-util"))
             }
-        }
 
-        commonTest {
-            dependencies {
-                implementation(kotlin("test"))
+            androidMain.dependencies {
+                api("androidx.annotation:annotation:1.2.0")
             }
-        }
 
-        if (desktopEnabled) {
             skikoMain {
                 dependsOn(commonMain)
                 dependencies {
                     api(libs.skikoCommon)
-                    implementation(project(":compose:runtime:runtime"))
                 }
             }
-        }
 
-        jvmMain {
-            dependencies {
-            }
-        }
-
-
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-                api("androidx.annotation:annotation:1.2.0")
-            }
-        }
-
-        if (desktopEnabled) {
             desktopMain {
-                dependsOn(jvmMain)
-                dependsOn(skikoMain)
+                dependsOn skikoMain
                 dependencies {
                     implementation(libs.kotlinStdlib)
                     implementation(libs.kotlinStdlibJdk8)
                 }
             }
-        }
 
-        jvmTest {
-            dependencies {
+            commonTest {
+                dependencies {
+                    implementation(kotlin("test"))
+                }
             }
-        }
 
-        androidAndroidTest {
-            dependsOn(jvmTest)
-            dependencies {
+            // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
+            //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
+            //  level dependencies block instead:
+            //  `dependencies { testImplementation(libs.robolectric) }`
+            androidTest.dependencies {
+                implementation(libs.testRules)
+                implementation(libs.testRunner)
+                implementation(libs.junit)
+                implementation(libs.truth)
+            }
+
+            androidAndroidTest.dependencies {
                 implementation(project(":compose:ui:ui-graphics:ui-graphics-samples"))
                 implementation(project(":compose:ui:ui-test-junit4"))
                 implementation(project(":compose:test-utils"))
@@ -96,26 +128,9 @@ androidXMultiplatform {
                 implementation(libs.espressoCore)
                 implementation(libs.junit)
             }
-        }
 
-        // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
-        //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
-        //  level dependencies block instead:
-        //  `dependencies { testImplementation(libs.robolectric) }`
-        androidTest {
-            dependsOn(jvmTest)
-            dependencies {
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-                implementation(libs.truth)
-            }
-        }
-
-        if (desktopEnabled) {
             desktopTest {
                 resources.srcDirs += "src/desktopTest/res"
-                dependsOn(jvmTest)
                 dependencies {
                     implementation(project(":compose:ui:ui-test-junit4"))
                     implementation(libs.junit)
@@ -125,10 +140,9 @@ androidXMultiplatform {
             }
         }
     }
-}
-
-dependencies {
-    lintPublish(project(":compose:ui:ui-graphics-lint"))
+    dependencies {
+        samples(projectOrArtifact(":compose:ui:ui-graphics:ui-graphics-samples"))
+    }
 }
 
 androidx {
@@ -147,7 +161,7 @@ android {
     namespace "androidx.compose.ui.graphics"
 }
 
-if (desktopEnabled) {
+if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
     tasks.findByName("desktopTest").configure {
         systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/../../golden"
     }

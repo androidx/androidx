@@ -19,11 +19,7 @@ import androidx.build.LibraryType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-}
-
-androidXMultiplatform {
-    android()
-    desktop()
+    id("kotlin-android")
 }
 
 dependencies {
