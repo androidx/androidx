@@ -88,13 +88,12 @@ internal class IntermediateLayoutModifierNode(
         val coordinates = coordinator!!.lookaheadDelegate?.lookaheadLayoutCoordinates
         require(coordinates != null)
 
-        val closestParentLookaheadRoot = layoutNode.parent?.lookaheadRoot
-        closestLookaheadScope = if (closestParentLookaheadRoot?.hasExplicitLookaheadScope == true) {
+        val closestLookaheadRoot = layoutNode.lookaheadRoot
+        closestLookaheadScope = if (closestLookaheadRoot?.isVirtualLookaheadRoot == true) {
             // The closest explicit scope in the tree will be the closest scope, as all
             // descendant intermediateLayoutModifiers will be using that as their LookaheadScope
             LookaheadScopeImpl {
-                closestParentLookaheadRoot
-                    .innerCoordinator
+                closestLookaheadRoot.parent!!.innerCoordinator.coordinates
             }
         } else {
             // If no explicit scope is ever defined, then fallback to implicitly created scopes

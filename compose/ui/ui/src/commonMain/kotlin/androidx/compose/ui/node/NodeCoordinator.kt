@@ -738,6 +738,10 @@ internal abstract class NodeCoordinator(
         sourceCoordinates: LayoutCoordinates,
         relativeToSource: Offset
     ): Offset {
+        if (sourceCoordinates is LookaheadLayoutCoordinatesImpl) {
+            return -sourceCoordinates.localPositionOf(this, -relativeToSource)
+        }
+
         val nodeCoordinator = sourceCoordinates.toCoordinator()
         val commonAncestor = findCommonAncestor(nodeCoordinator)
 

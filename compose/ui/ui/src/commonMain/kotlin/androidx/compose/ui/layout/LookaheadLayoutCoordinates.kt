@@ -73,6 +73,7 @@ internal class LookaheadLayoutCoordinatesImpl(val lookaheadDelegate: LookaheadDe
             localPositionOf(it.coordinates, Offset.Zero) -
                 coordinator.localPositionOf(it.coordinator, Offset.Zero)
         }
+
     override fun windowToLocal(relativeToWindow: Offset): Offset =
         coordinator.windowToLocal(relativeToWindow) + lookaheadOffset
 
@@ -108,7 +109,13 @@ internal class LookaheadLayoutCoordinatesImpl(val lookaheadDelegate: LookaheadDe
                 )
             }
         } else {
-            return coordinator.localPositionOf(sourceCoordinates, relativeToSource)
+            val rootDelegate = lookaheadDelegate.rootLookaheadDelegate
+            // This is a case of mixed coordinates where `this` is lookahead coords, and
+            // `sourceCoordinates` isn't. Therefore we'll break this into two parts:
+            // local position in lookahead coords space && local position in regular layout coords
+            // space.
+            return localPositionOf(rootDelegate.lookaheadLayoutCoordinates, relativeToSource) +
+                rootDelegate.coordinator.coordinates.localPositionOf(sourceCoordinates, Offset.Zero)
         }
     }
 
@@ -124,11 +131,16 @@ internal class LookaheadLayoutCoordinatesImpl(val lookaheadDelegate: LookaheadDe
     override fun get(alignmentLine: AlignmentLine): Int = lookaheadDelegate.get(alignmentLine)
 }
 
-private val LookaheadDelegate.rootLookaheadDelegate: LookaheadDelegate
+internal val LookaheadDelegate.rootLookaheadDelegate: LookaheadDelegate
     get() {
-        var root = layoutNode.lookaheadRoot!!
+        var root = layoutNode
         while (root.parent?.lookaheadRoot != null) {
-            root = root.parent!!.lookaheadRoot!!
+            val lookaheadRoot = root.parent?.lookaheadRoot!!
+            if (lookaheadRoot.isVirtualLookaheadRoot) {
+                root = root.parent!!
+            } else {
+                root = root.parent!!.lookaheadRoot!!
+            }
         }
         return root.outerCoordinator.lookaheadDelegate!!
     }
