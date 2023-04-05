@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,72 +28,56 @@ plugins {
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */false)
 
 dependencies {
-
     api(project(":glance:glance"))
-    api(project(":glance:glance-template"))
+    api(project(":glance:glance-appwidget"))
+    api("androidx.annotation:annotation:1.2.0")
     api("androidx.compose.runtime:runtime:1.1.1")
     api("androidx.compose.ui:ui-graphics:1.1.1")
     api("androidx.compose.ui:ui-unit:1.1.1")
-    api("androidx.wear.tiles:tiles:1.1.0")
+    api("androidx.datastore:datastore-core:1.0.0")
+    api("androidx.datastore:datastore-preferences-core:1.0.0")
+    api("androidx.datastore:datastore-preferences:1.0.0")
 
+    implementation("androidx.annotation:annotation:1.1.0")
+    implementation("androidx.work:work-runtime:2.7.1")
+    implementation("androidx.work:work-runtime-ktx:2.7.1")
     implementation(libs.kotlinStdlib)
-    implementation(libs.kotlinCoroutinesGuava)
-    implementation(projectOrArtifact(":lifecycle:lifecycle-runtime"))
-    implementation(projectOrArtifact(":lifecycle:lifecycle-runtime-ktx"))
-    implementation(projectOrArtifact(":lifecycle:lifecycle-service"))
+    implementation(project(":compose:runtime:runtime"))
 
+    // Force upgrade since 1.2.0 is not compatible with latest lint.
+    implementation("androidx.annotation:annotation-experimental:1.3.0")
+
+    testImplementation(libs.robolectric)
     testImplementation(libs.testCore)
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
     testImplementation(libs.junit)
-    testImplementation(libs.kotlinTest)
     testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(libs.robolectric)
+    testImplementation(libs.kotlinTest)
     testImplementation(libs.kotlinReflect)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)
-    testImplementation("androidx.core:core-ktx:1.7.0")
-    testImplementation("androidx.wear.tiles:tiles-testing:1.0.0")
-
-    androidTestImplementation("androidx.core:core:1.7.0")
-    androidTestImplementation("androidx.core:core-ktx:1.7.0")
-    androidTestImplementation(project(":test:screenshot:screenshot"))
-    androidTestImplementation("androidx.wear.tiles:tiles-renderer:1.0.0")
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.kotlinTest)
-    androidTestImplementation(libs.kotlinCoroutinesTest)
+    testImplementation("androidx.datastore:datastore-core:1.0.0")
+    testImplementation("androidx.datastore:datastore-preferences-core:1.0.0")
+    testImplementation("androidx.datastore:datastore-preferences:1.0.0")
+    testImplementation("androidx.room:room-runtime:2.4.3")
+    testImplementation("androidx.work:work-testing:2.7.1")
+    testImplementation("com.google.android.material:material:1.6.0")
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 26
-    }
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
-
-    lintOptions {
-        // TODO(b/191286558): Remove when lint is fixed.
-        disable "UnsafeOptInUsageError", "UnsafeOptInUsageWarning"
-        // protobuf generates unannotated methods
-        disable "UnknownNullness"
-    }
-
-    sourceSets {
-        androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/glance/glance-wear-tiles"
-    }
-    namespace "androidx.glance.wear.tiles"
-
+    resourcePrefix "glance_template_"
+    namespace "androidx.glance.template"
 }
 
 androidx {
-    name = "Glance for Wear Tiles"
+    name = "Glance Templates Library"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
-    description = "Glance allows developers to build layouts for Wear Tiles using a Jetpack " +
+    description = "Glance allows developers to build layouts for remote surfaces using a Jetpack " +
             "Compose-style API."
     targetsJavaConsumers = false
 }
