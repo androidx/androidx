@@ -23,6 +23,8 @@ import android.util.Size
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.DoNotDisturbException
+import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.config.CameraAppComponent
 import androidx.camera.core.impl.AttachedSurfaceInfo
@@ -43,7 +45,8 @@ class CameraSurfaceAdapter(
     availableCameraIds: Set<String>
 ) : CameraDeviceSurfaceManager {
     private val component = cameraComponent as CameraAppComponent
-    private val supportedSurfaceCombinationMap = mutableMapOf<String, SupportedSurfaceCombination>()
+    private val supportedSurfaceCombinationMap =
+        mutableMapOf<String, SupportedSurfaceCombination?>()
 
     init {
         debug { "AvailableCameraIds = $availableCameraIds" }
@@ -59,14 +62,20 @@ class CameraSurfaceAdapter(
         availableCameraIds: Set<String>
     ) {
         for (cameraId in availableCameraIds) {
-            val cameraMetadata =
-                component.getCameraDevices().awaitCameraMetadata(CameraId(cameraId))
-            supportedSurfaceCombinationMap[cameraId] =
-                SupportedSurfaceCombination(
+            try {
+                val cameraMetadata =
+                    component.getCameraDevices().awaitCameraMetadata(CameraId(cameraId))
+                supportedSurfaceCombinationMap[cameraId] = SupportedSurfaceCombination(
                     context,
                     checkNotNull(cameraMetadata),
                     EncoderProfilesProviderAdapter(cameraId)
                 )
+            } catch (exception: DoNotDisturbException) {
+                Log.error {
+                    "Failed to create supported surface combinations: " +
+                        "Do Not Disturb mode is on"
+                }
+            }
         }
     }
 
@@ -89,7 +98,8 @@ class CameraSurfaceAdapter(
 
         return supportedSurfaceCombinationMap[cameraId]!!.transformSurfaceConfig(
             cameraMode,
-            imageFormat, size)
+            imageFormat, size
+        )
     }
 
     /**

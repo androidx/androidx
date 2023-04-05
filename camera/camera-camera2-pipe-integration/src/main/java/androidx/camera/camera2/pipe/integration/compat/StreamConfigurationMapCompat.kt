@@ -34,7 +34,7 @@ import javax.inject.Inject
 @CameraScope
 @RequiresApi(21)
 class StreamConfigurationMapCompat @Inject constructor(
-    map: StreamConfigurationMap,
+    map: StreamConfigurationMap?,
     private val outputSizesCorrector: OutputSizesCorrector
 ) {
     private var impl: StreamConfigurationMapCompatImpl
@@ -94,7 +94,7 @@ class StreamConfigurationMapCompat @Inject constructor(
     /**
      * Returns the [StreamConfigurationMap] represented by this object.
      */
-    fun toStreamConfigurationMap(): StreamConfigurationMap {
+    fun toStreamConfigurationMap(): StreamConfigurationMap? {
         return impl.unwrap()
     }
 
@@ -102,9 +102,10 @@ class StreamConfigurationMapCompat @Inject constructor(
         fun getOutputSizes(format: Int): Array<Size>?
         fun <T> getOutputSizes(klass: Class<T>): Array<Size>?
         fun getHighResolutionOutputSizes(format: Int): Array<Size>?
+
         /**
          * Returns the underlying [StreamConfigurationMap] instance.
          */
-        fun unwrap(): StreamConfigurationMap
+        fun unwrap(): StreamConfigurationMap?
     }
 }
