@@ -325,6 +325,8 @@ public final class ModifiersBuilders {
     /**
      * A modifier for an element which can have associated Actions for click events. When an element
      * with a ClickableModifier is clicked it will fire the associated action.
+     *
+     * @since 1.0
      */
     public static final class Clickable {
         private final ModifiersProto.Clickable mImpl;
@@ -335,7 +337,11 @@ public final class ModifiersBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /** Gets the ID associated with this action. Intended for testing purposes only. */
+        /**
+         * Gets the ID associated with this action.
+         *
+         * @since 1.0
+         */
         @NonNull
         public String getId() {
             return mImpl.getId();
@@ -343,7 +349,8 @@ public final class ModifiersBuilders {
 
         /**
          * Gets the action to perform when the element this modifier is attached to is clicked.
-         * Intended for testing purposes only.
+         *
+         * @since 1.0
          */
         @Nullable
         public Action getOnClick() {
@@ -361,9 +368,17 @@ public final class ModifiersBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static Clickable fromProto(
+                @NonNull ModifiersProto.Clickable proto, @Nullable Fingerprint fingerprint) {
+            return new Clickable(proto, fingerprint);
+        }
+
         @NonNull
         static Clickable fromProto(@NonNull ModifiersProto.Clickable proto) {
-            return new Clickable(proto, null);
+            return fromProto(proto, null);
         }
 
         /** Returns the internal proto instance. */
@@ -377,11 +392,15 @@ public final class ModifiersBuilders {
         public static final class Builder {
             private final ModifiersProto.Clickable.Builder mImpl =
                     ModifiersProto.Clickable.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(595587995);
+            private final Fingerprint mFingerprint = new Fingerprint(812136104);
 
             public Builder() {}
 
-            /** Sets the ID associated with this action. */
+            /**
+             * Sets the ID associated with this action.
+             *
+             * @since 1.0
+             */
             @NonNull
             public Builder setId(@NonNull String id) {
                 mImpl.setId(id);
@@ -391,6 +410,8 @@ public final class ModifiersBuilders {
 
             /**
              * Sets the action to perform when the element this modifier is attached to is clicked.
+             *
+             * @since 1.0
              */
             @NonNull
             public Builder setOnClick(@NonNull Action onClick) {
@@ -581,7 +602,11 @@ public final class ModifiersBuilders {
         }
     }
 
-    /** A modifier to apply padding around an element. */
+    /**
+     * A modifier to apply padding around an element.
+     *
+     * @since 1.0
+     */
     public static final class Padding {
         private final ModifiersProto.Padding mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -593,7 +618,9 @@ public final class ModifiersBuilders {
 
         /**
          * Gets the padding on the end of the content, depending on the layout direction, in DP and
-         * the value of "rtl_aware". Intended for testing purposes only.
+         * the value of "rtl_aware".
+         *
+         * @since 1.0
          */
         @Nullable
         public DpProp getEnd() {
@@ -606,7 +633,9 @@ public final class ModifiersBuilders {
 
         /**
          * Gets the padding on the start of the content, depending on the layout direction, in DP
-         * and the value of "rtl_aware". Intended for testing purposes only.
+         * and the value of "rtl_aware".
+         *
+         * @since 1.0
          */
         @Nullable
         public DpProp getStart() {
@@ -617,7 +646,11 @@ public final class ModifiersBuilders {
             }
         }
 
-        /** Gets the padding at the top, in DP. Intended for testing purposes only. */
+        /**
+         * Gets the padding at the top, in DP.
+         *
+         * @since 1.0
+         */
         @Nullable
         public DpProp getTop() {
             if (mImpl.hasTop()) {
@@ -627,7 +660,11 @@ public final class ModifiersBuilders {
             }
         }
 
-        /** Gets the padding at the bottom, in DP. Intended for testing purposes only. */
+        /**
+         * Gets the padding at the bottom, in DP.
+         *
+         * @since 1.0
+         */
         @Nullable
         public DpProp getBottom() {
             if (mImpl.hasBottom()) {
@@ -641,7 +678,9 @@ public final class ModifiersBuilders {
          * Gets whether the start/end padding is aware of RTL support. If true, the values for
          * start/end will follow the layout direction (i.e. start will refer to the right hand side
          * of the container if the device is using an RTL locale). If false, start/end will always
-         * map to left/right, accordingly. Intended for testing purposes only.
+         * map to left/right, accordingly.
+         *
+         * @since 1.0
          */
         @Nullable
         public BoolProp getRtlAware() {
@@ -659,13 +698,23 @@ public final class ModifiersBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static Padding fromProto(@NonNull ModifiersProto.Padding proto) {
-            return new Padding(proto, null);
+        public static Padding fromProto(
+                @NonNull ModifiersProto.Padding proto, @Nullable Fingerprint fingerprint) {
+            return new Padding(proto, fingerprint);
         }
 
         @NonNull
-        ModifiersProto.Padding toProto() {
+        static Padding fromProto(@NonNull ModifiersProto.Padding proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public ModifiersProto.Padding toProto() {
             return mImpl;
         }
 
@@ -673,13 +722,15 @@ public final class ModifiersBuilders {
         public static final class Builder {
             private final ModifiersProto.Padding.Builder mImpl =
                     ModifiersProto.Padding.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(-1120275440);
+            private final Fingerprint mFingerprint = new Fingerprint(375605427);
 
             public Builder() {}
 
             /**
              * Sets the padding on the end of the content, depending on the layout direction, in DP
              * and the value of "rtl_aware".
+             *
+             * @since 1.0
              */
             @NonNull
             public Builder setEnd(@NonNull DpProp end) {
@@ -692,6 +743,8 @@ public final class ModifiersBuilders {
             /**
              * Sets the padding on the start of the content, depending on the layout direction, in
              * DP and the value of "rtl_aware".
+             *
+             * @since 1.0
              */
             @NonNull
             public Builder setStart(@NonNull DpProp start) {
@@ -701,7 +754,11 @@ public final class ModifiersBuilders {
                 return this;
             }
 
-            /** Sets the padding at the top, in DP. */
+            /**
+             * Sets the padding at the top, in DP.
+             *
+             * @since 1.0
+             */
             @NonNull
             public Builder setTop(@NonNull DpProp top) {
                 mImpl.setTop(top.toProto());
@@ -710,7 +767,11 @@ public final class ModifiersBuilders {
                 return this;
             }
 
-            /** Sets the padding at the bottom, in DP. */
+            /**
+             * Sets the padding at the bottom, in DP.
+             *
+             * @since 1.0
+             */
             @NonNull
             public Builder setBottom(@NonNull DpProp bottom) {
                 mImpl.setBottom(bottom.toProto());
@@ -724,6 +785,8 @@ public final class ModifiersBuilders {
              * start/end will follow the layout direction (i.e. start will refer to the right hand
              * side of the container if the device is using an RTL locale). If false, start/end will
              * always map to left/right, accordingly.
+             *
+             * @since 1.0
              */
             @NonNull
             public Builder setRtlAware(@NonNull BoolProp rtlAware) {
@@ -747,7 +810,11 @@ public final class ModifiersBuilders {
                 return this;
             }
 
-            /** Sets the padding for all sides of the content, in DP. */
+            /**
+             * Sets the padding for all sides of the content, in DP.
+             *
+             * @since 1.0
+             */
             @NonNull
             @SuppressLint("MissingGetterMatchingBuilder")
             public Builder setAll(@NonNull DpProp value) {
@@ -762,7 +829,11 @@ public final class ModifiersBuilders {
         }
     }
 
-    /** A modifier to apply a border around an element. */
+    /**
+     * A modifier to apply a border around an element.
+     *
+     * @since 1.0
+     */
     public static final class Border {
         private final ModifiersProto.Border mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -772,7 +843,11 @@ public final class ModifiersBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /** Gets the width of the border, in DP. Intended for testing purposes only. */
+        /**
+         * Gets the width of the border, in DP.
+         *
+         * @since 1.0
+         */
         @Nullable
         public DpProp getWidth() {
             if (mImpl.hasWidth()) {
@@ -782,7 +857,11 @@ public final class ModifiersBuilders {
             }
         }
 
-        /** Gets the color of the border. Intended for testing purposes only. */
+        /**
+         * Gets the color of the border.
+         *
+         * @since 1.0
+         */
         @Nullable
         public ColorProp getColor() {
             if (mImpl.hasColor()) {
@@ -799,24 +878,38 @@ public final class ModifiersBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static Border fromProto(@NonNull ModifiersProto.Border proto) {
-            return new Border(proto, null);
+        public static Border fromProto(
+                @NonNull ModifiersProto.Border proto, @Nullable Fingerprint fingerprint) {
+            return new Border(proto, fingerprint);
         }
 
         @NonNull
-        ModifiersProto.Border toProto() {
+        static Border fromProto(@NonNull ModifiersProto.Border proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public ModifiersProto.Border toProto() {
             return mImpl;
         }
 
         /** Builder for {@link Border} */
         public static final class Builder {
             private final ModifiersProto.Border.Builder mImpl = ModifiersProto.Border.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(2085330827);
+            private final Fingerprint mFingerprint = new Fingerprint(157094687);
 
             public Builder() {}
 
-            /** Sets the width of the border, in DP. */
+            /**
+             * Sets the width of the border, in DP.
+             *
+             * @since 1.0
+             */
             @NonNull
             public Builder setWidth(@NonNull DpProp width) {
                 mImpl.setWidth(width.toProto());
@@ -831,6 +924,8 @@ public final class ModifiersBuilders {
              * <p>This field is made bindable and will use the dynamic value (if set) from version
              * 1.2 Older renderers will still consider this field as non-bindable and will use the
              * static value.
+             *
+             * @since 1.0
              */
             @NonNull
             public Builder setColor(@NonNull ColorProp color) {
@@ -848,7 +943,11 @@ public final class ModifiersBuilders {
         }
     }
 
-    /** The corner of a {@link androidx.wear.protolayout.LayoutElementBuilders.Box} element. */
+    /**
+     * The corner of a {@link androidx.wear.protolayout.LayoutElementBuilders.Box} element.
+     *
+     * @since 1.0
+     */
     public static final class Corner {
         private final ModifiersProto.Corner mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -858,7 +957,11 @@ public final class ModifiersBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /** Gets the radius of the corner in DP. Intended for testing purposes only. */
+        /**
+         * Gets the radius of the corner in DP.
+         *
+         * @since 1.0
+         */
         @Nullable
         public DpProp getRadius() {
             if (mImpl.hasRadius()) {
@@ -875,24 +978,38 @@ public final class ModifiersBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static Corner fromProto(@NonNull ModifiersProto.Corner proto) {
-            return new Corner(proto, null);
+        public static Corner fromProto(
+                @NonNull ModifiersProto.Corner proto, @Nullable Fingerprint fingerprint) {
+            return new Corner(proto, fingerprint);
         }
 
         @NonNull
-        ModifiersProto.Corner toProto() {
+        static Corner fromProto(@NonNull ModifiersProto.Corner proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public ModifiersProto.Corner toProto() {
             return mImpl;
         }
 
         /** Builder for {@link Corner} */
         public static final class Builder {
             private final ModifiersProto.Corner.Builder mImpl = ModifiersProto.Corner.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(-623478338);
+            private final Fingerprint mFingerprint = new Fingerprint(-532589910);
 
             public Builder() {}
 
-            /** Sets the radius of the corner in DP. */
+            /**
+             * Sets the radius of the corner in DP.
+             *
+             * @since 1.0
+             */
             @NonNull
             public Builder setRadius(@NonNull DpProp radius) {
                 mImpl.setRadius(radius.toProto());
@@ -909,7 +1026,11 @@ public final class ModifiersBuilders {
         }
     }
 
-    /** A modifier to apply a background to an element. */
+    /**
+     * A modifier to apply a background to an element.
+     *
+     * @since 1.0
+     */
     public static final class Background {
         private final ModifiersProto.Background mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -921,7 +1042,9 @@ public final class ModifiersBuilders {
 
         /**
          * Gets the background color for this element. If not defined, defaults to being
-         * transparent. Intended for testing purposes only.
+         * transparent.
+         *
+         * @since 1.0
          */
         @Nullable
         public ColorProp getColor() {
@@ -935,7 +1058,9 @@ public final class ModifiersBuilders {
         /**
          * Gets the corner properties of this element. This only affects the drawing of this element
          * if it has a background color or border. If not defined, defaults to having a square
-         * corner. Intended for testing purposes only.
+         * corner.
+         *
+         * @since 1.0
          */
         @Nullable
         public Corner getCorner() {
@@ -953,13 +1078,23 @@ public final class ModifiersBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static Background fromProto(@NonNull ModifiersProto.Background proto) {
-            return new Background(proto, null);
+        public static Background fromProto(
+                @NonNull ModifiersProto.Background proto, @Nullable Fingerprint fingerprint) {
+            return new Background(proto, fingerprint);
         }
 
         @NonNull
-        ModifiersProto.Background toProto() {
+        static Background fromProto(@NonNull ModifiersProto.Background proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public ModifiersProto.Background toProto() {
             return mImpl;
         }
 
@@ -967,7 +1102,7 @@ public final class ModifiersBuilders {
         public static final class Builder {
             private final ModifiersProto.Background.Builder mImpl =
                     ModifiersProto.Background.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(374507572);
+            private final Fingerprint mFingerprint = new Fingerprint(-1234051555);
 
             public Builder() {}
 
@@ -978,6 +1113,8 @@ public final class ModifiersBuilders {
              * <p>This field is made bindable and supports dynamic colors from version 1.2 Older
              * renderers will still consider this field as non-bindable and will use the static
              * value.
+             *
+             * @since 1.0
              */
             @NonNull
             public Builder setColor(@NonNull ColorProp color) {
@@ -991,6 +1128,8 @@ public final class ModifiersBuilders {
              * Sets the corner properties of this element. This only affects the drawing of this
              * element if it has a background color or border. If not defined, defaults to having a
              * square corner.
+             *
+             * @since 1.0
              */
             @NonNull
             public Builder setCorner(@NonNull Corner corner) {
@@ -1011,6 +1150,8 @@ public final class ModifiersBuilders {
     /**
      * Metadata about an element. For use by libraries building higher-level components only. This
      * can be used to track component metadata.
+     *
+     * @since 1.0
      */
     public static final class ElementMetadata {
         private final ModifiersProto.ElementMetadata mImpl;
@@ -1024,6 +1165,8 @@ public final class ModifiersBuilders {
         /**
          * Gets property describing the element with which it is associated. For use by libraries
          * building higher-level components only. This can be used to track component metadata.
+         *
+         * @since 1.0
          */
         @NonNull
         public byte[] getTagData() {
@@ -1037,9 +1180,17 @@ public final class ModifiersBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ElementMetadata fromProto(
+                @NonNull ModifiersProto.ElementMetadata proto, @Nullable Fingerprint fingerprint) {
+            return new ElementMetadata(proto, fingerprint);
+        }
+
         @NonNull
         static ElementMetadata fromProto(@NonNull ModifiersProto.ElementMetadata proto) {
-            return new ElementMetadata(proto, null);
+            return fromProto(proto, null);
         }
 
         /** Returns the internal proto instance. */
@@ -1053,7 +1204,7 @@ public final class ModifiersBuilders {
         public static final class Builder {
             private final ModifiersProto.ElementMetadata.Builder mImpl =
                     ModifiersProto.ElementMetadata.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(-589294723);
+            private final Fingerprint mFingerprint = new Fingerprint(-1401175352);
 
             public Builder() {}
 
@@ -1061,6 +1212,8 @@ public final class ModifiersBuilders {
              * Sets property describing the element with which it is associated. For use by
              * libraries building higher-level components only. This can be used to track component
              * metadata.
+             *
+             * @since 1.0
              */
             @NonNull
             public Builder setTagData(@NonNull byte[] tagData) {
@@ -1081,6 +1234,8 @@ public final class ModifiersBuilders {
      * {@link Modifiers} for an element. These may change the way they are drawn (e.g. {@link
      * Padding} or {@link Background}), or change their behaviour (e.g. {@link Clickable}, or {@link
      * Semantics}).
+     *
+     * @since 1.0
      */
     public static final class Modifiers {
         private final ModifiersProto.Modifiers mImpl;
@@ -1094,7 +1249,8 @@ public final class ModifiersBuilders {
         /**
          * Gets the clickable property of the modified element. It allows its wrapped element to
          * have actions associated with it, which will be executed when the element is tapped.
-         * Intended for testing purposes only.
+         *
+         * @since 1.0
          */
         @Nullable
         public Clickable getClickable() {
@@ -1120,7 +1276,11 @@ public final class ModifiersBuilders {
             }
         }
 
-        /** Gets the padding of the modified element. Intended for testing purposes only. */
+        /**
+         * Gets the padding of the modified element.
+         *
+         * @since 1.0
+         */
         @Nullable
         public Padding getPadding() {
             if (mImpl.hasPadding()) {
@@ -1130,7 +1290,11 @@ public final class ModifiersBuilders {
             }
         }
 
-        /** Gets the border of the modified element. Intended for testing purposes only. */
+        /**
+         * Gets the border of the modified element.
+         *
+         * @since 1.0
+         */
         @Nullable
         public Border getBorder() {
             if (mImpl.hasBorder()) {
@@ -1141,8 +1305,9 @@ public final class ModifiersBuilders {
         }
 
         /**
-         * Gets the background (with optional corner radius) of the modified element. Intended for
-         * testing purposes only.
+         * Gets the background (with optional corner radius) of the modified element.
+         *
+         * @since 1.0
          */
         @Nullable
         public Background getBackground() {
@@ -1156,6 +1321,8 @@ public final class ModifiersBuilders {
         /**
          * Gets metadata about an element. For use by libraries building higher-level components
          * only. This can be used to track component metadata.
+         *
+         * @since 1.0
          */
         @Nullable
         public ElementMetadata getMetadata() {
@@ -1189,6 +1356,14 @@ public final class ModifiersBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static Modifiers fromProto(
+                @NonNull ModifiersProto.Modifiers proto, @Nullable Fingerprint fingerprint) {
+            return new Modifiers(proto, fingerprint);
+        }
+
         /**
          * Creates a new wrapper instance from the proto. Intended for testing purposes only. An
          * object created using this method can't be added to any other wrapper.
@@ -1196,7 +1371,7 @@ public final class ModifiersBuilders {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static Modifiers fromProto(@NonNull ModifiersProto.Modifiers proto) {
-            return new Modifiers(proto, null);
+            return fromProto(proto, null);
         }
 
         /** Returns the internal proto instance. */
@@ -1210,13 +1385,15 @@ public final class ModifiersBuilders {
         public static final class Builder {
             private final ModifiersProto.Modifiers.Builder mImpl =
                     ModifiersProto.Modifiers.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(-170942531);
+            private final Fingerprint mFingerprint = new Fingerprint(-1165106749);
 
             public Builder() {}
 
             /**
              * Sets the clickable property of the modified element. It allows its wrapped element to
              * have actions associated with it, which will be executed when the element is tapped.
+             *
+             * @since 1.0
              */
             @NonNull
             public Builder setClickable(@NonNull Clickable clickable) {
@@ -1240,7 +1417,11 @@ public final class ModifiersBuilders {
                 return this;
             }
 
-            /** Sets the padding of the modified element. */
+            /**
+             * Sets the padding of the modified element.
+             *
+             * @since 1.0
+             */
             @NonNull
             public Builder setPadding(@NonNull Padding padding) {
                 mImpl.setPadding(padding.toProto());
@@ -1249,7 +1430,11 @@ public final class ModifiersBuilders {
                 return this;
             }
 
-            /** Sets the border of the modified element. */
+            /**
+             * Sets the border of the modified element.
+             *
+             * @since 1.0
+             */
             @NonNull
             public Builder setBorder(@NonNull Border border) {
                 mImpl.setBorder(border.toProto());
@@ -1258,7 +1443,11 @@ public final class ModifiersBuilders {
                 return this;
             }
 
-            /** Sets the background (with optional corner radius) of the modified element. */
+            /**
+             * Sets the background (with optional corner radius) of the modified element.
+             *
+             * @since 1.0
+             */
             @NonNull
             public Builder setBackground(@NonNull Background background) {
                 mImpl.setBackground(background.toProto());
@@ -1270,6 +1459,8 @@ public final class ModifiersBuilders {
             /**
              * Sets metadata about an element. For use by libraries building higher-level components
              * only. This can be used to track component metadata.
+             *
+             * @since 1.0
              */
             @NonNull
             public Builder setMetadata(@NonNull ElementMetadata metadata) {
@@ -1357,6 +1548,7 @@ public final class ModifiersBuilders {
         public Fingerprint getFingerprint() {
             return mFingerprint;
         }
+
         /** Creates a new wrapper instance from the proto. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1483,6 +1675,7 @@ public final class ModifiersBuilders {
         public Fingerprint getFingerprint() {
             return mFingerprint;
         }
+
         /** Creates a new wrapper instance from the proto. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1600,6 +1793,7 @@ public final class ModifiersBuilders {
         public Fingerprint getFingerprint() {
             return mFingerprint;
         }
+
         /** Creates a new wrapper instance from the proto. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1738,6 +1932,7 @@ public final class ModifiersBuilders {
         public Fingerprint getFingerprint() {
             return mFingerprint;
         }
+
         /** Creates a new wrapper instance from the proto. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1882,6 +2077,7 @@ public final class ModifiersBuilders {
         public Fingerprint getFingerprint() {
             return mFingerprint;
         }
+
         /** Creates a new wrapper instance from the proto. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -2145,6 +2341,7 @@ public final class ModifiersBuilders {
         public Fingerprint getFingerprint() {
             return mFingerprint;
         }
+
         /** Creates a new wrapper instance from the proto. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -2382,6 +2579,8 @@ public final class ModifiersBuilders {
     /**
      * {@link Modifiers} that can be used with ArcLayoutElements. These may change the way they are
      * drawn, or change their behaviour.
+     *
+     * @since 1.0
      */
     public static final class ArcModifiers {
         private final ModifiersProto.ArcModifiers mImpl;
@@ -2394,7 +2593,9 @@ public final class ModifiersBuilders {
 
         /**
          * Gets allows its wrapped element to have actions associated with it, which will be
-         * executed when the element is tapped. Intended for testing purposes only.
+         * executed when the element is tapped.
+         *
+         * @since 1.0
          */
         @Nullable
         public Clickable getClickable() {
@@ -2427,9 +2628,17 @@ public final class ModifiersBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ArcModifiers fromProto(
+                @NonNull ModifiersProto.ArcModifiers proto, @Nullable Fingerprint fingerprint) {
+            return new ArcModifiers(proto, fingerprint);
+        }
+
         @NonNull
         static ArcModifiers fromProto(@NonNull ModifiersProto.ArcModifiers proto) {
-            return new ArcModifiers(proto, null);
+            return fromProto(proto, null);
         }
 
         /** Returns the internal proto instance. */
@@ -2443,13 +2652,15 @@ public final class ModifiersBuilders {
         public static final class Builder {
             private final ModifiersProto.ArcModifiers.Builder mImpl =
                     ModifiersProto.ArcModifiers.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(-1648736168);
+            private final Fingerprint mFingerprint = new Fingerprint(1342182166);
 
             public Builder() {}
 
             /**
              * Sets allows its wrapped element to have actions associated with it, which will be
              * executed when the element is tapped.
+             *
+             * @since 1.0
              */
             @NonNull
             public Builder setClickable(@NonNull Clickable clickable) {
@@ -2485,6 +2696,8 @@ public final class ModifiersBuilders {
      * {@link Modifiers} that can be used with {@link
      * androidx.wear.protolayout.LayoutElementBuilders.Span} elements. These may change the way they
      * are drawn, or change their behaviour.
+     *
+     * @since 1.0
      */
     public static final class SpanModifiers {
         private final ModifiersProto.SpanModifiers mImpl;
@@ -2497,7 +2710,9 @@ public final class ModifiersBuilders {
 
         /**
          * Gets allows its wrapped element to have actions associated with it, which will be
-         * executed when the element is tapped. Intended for testing purposes only.
+         * executed when the element is tapped.
+         *
+         * @since 1.0
          */
         @Nullable
         public Clickable getClickable() {
@@ -2515,9 +2730,17 @@ public final class ModifiersBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static SpanModifiers fromProto(
+                @NonNull ModifiersProto.SpanModifiers proto, @Nullable Fingerprint fingerprint) {
+            return new SpanModifiers(proto, fingerprint);
+        }
+
         @NonNull
         static SpanModifiers fromProto(@NonNull ModifiersProto.SpanModifiers proto) {
-            return new SpanModifiers(proto, null);
+            return fromProto(proto, null);
         }
 
         /** Returns the internal proto instance. */
@@ -2531,13 +2754,15 @@ public final class ModifiersBuilders {
         public static final class Builder {
             private final ModifiersProto.SpanModifiers.Builder mImpl =
                     ModifiersProto.SpanModifiers.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(-1318656482);
+            private final Fingerprint mFingerprint = new Fingerprint(-815102194);
 
             public Builder() {}
 
             /**
              * Sets allows its wrapped element to have actions associated with it, which will be
              * executed when the element is tapped.
+             *
+             * @since 1.0
              */
             @NonNull
             public Builder setClickable(@NonNull Clickable clickable) {
