@@ -142,6 +142,7 @@ package androidx.wear.compose.foundation {
 
   public final class CurvedSizeKt {
     method public static androidx.wear.compose.foundation.CurvedModifier angularSize(androidx.wear.compose.foundation.CurvedModifier, float sweepDegrees);
+    method public static androidx.wear.compose.foundation.CurvedModifier angularSizeDp(androidx.wear.compose.foundation.CurvedModifier, float angularWidth);
     method public static androidx.wear.compose.foundation.CurvedModifier radialSize(androidx.wear.compose.foundation.CurvedModifier, float thickness);
     method public static androidx.wear.compose.foundation.CurvedModifier size(androidx.wear.compose.foundation.CurvedModifier, float sweepDegrees, float thickness);
     method public static androidx.wear.compose.foundation.CurvedModifier sizeIn(androidx.wear.compose.foundation.CurvedModifier, optional float minSweepDegrees, optional float maxSweepDegrees, optional float minThickness, optional float maxThickness);
