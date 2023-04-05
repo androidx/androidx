@@ -63,6 +63,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.testExtTruth)
+    androidTestImplementation(project(":core:core"))
     apkAssets(project(":profileinstaller:integration-tests:profile-verification-sample"))
     apkAssets(project(":profileinstaller:integration-tests:profile-verification-sample-no-initializer"))
 }

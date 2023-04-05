@@ -31,6 +31,7 @@ class SampleActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
+
         Executors.newSingleThreadExecutor().submit {
             val result = ProfileVerifier.getCompilationStatusAsync().get()
             runOnUiThread {
