@@ -33,7 +33,9 @@ import androidx.glance.layout.size
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.Text
 import androidx.glance.wear.tiles.test.R
+import androidx.wear.tiles.LayoutElementBuilders
 import androidx.wear.tiles.RequestBuilders
+import androidx.wear.tiles.TimelineBuilders
 import androidx.wear.tiles.testing.TestTileClient
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import com.google.common.truth.Truth.assertThat
@@ -110,7 +112,6 @@ class GlanceTileServiceTest {
     }
 
     @Test
-    @Suppress("deprecation") // For backwards compatibility.
     fun tileProviderReturnsTile() = fakeCoroutineScope.runTest {
         // Request is currently un-used, provide an empty one.
         val tileRequest = RequestBuilders.TileRequest.Builder().build()
@@ -133,15 +134,14 @@ class GlanceTileServiceTest {
         assertThat(entry.validity).isNull()
 
         // It always emits a box as the root-level layout.
-        val box = assertIs<androidx.wear.tiles.LayoutElementBuilders.Box>(entry.layout!!.root!!)
+        val box = assertIs<LayoutElementBuilders.Box>(entry.layout!!.root!!)
         assertThat(box.contents).hasSize(2)
-        val text = assertIs<androidx.wear.tiles.LayoutElementBuilders.Text>(box.contents[0])
+        val text = assertIs<LayoutElementBuilders.Text>(box.contents[0])
 
         assertThat(text.text!!.value).isEqualTo("Hello World!")
     }
 
     @Ignore("resourcesVersion is not matching - b/246239580")
-    @Suppress("deprecation") // For backwards compatibility.
     @Test
     fun tileProviderReturnsTimelineTile() = fakeCoroutineScope.runTest {
         // Request is currently un-used, provide an empty one.
@@ -241,7 +241,6 @@ class GlanceTileServiceTest {
     }
 
     @Test
-    @Suppress("deprecation") // For backwards compatibility.
     fun tileProviderReturnsTileWithState() = runBlocking {
         tileServiceWithState.updateTileState<Preferences>() { prefs ->
             prefs.toMutablePreferences().apply {
@@ -258,8 +257,8 @@ class GlanceTileServiceTest {
 
         assertThat(tile.timeline!!.timelineEntries).hasSize(1)
         val entry = tile.timeline!!.timelineEntries[0]
-        val box = assertIs<androidx.wear.tiles.LayoutElementBuilders.Box>(entry.layout!!.root!!)
-        val text = assertIs<androidx.wear.tiles.LayoutElementBuilders.Text>(box.contents[0])
+        val box = assertIs<LayoutElementBuilders.Box>(entry.layout!!.root!!)
+        val text = assertIs<LayoutElementBuilders.Text>(box.contents[0])
         assertThat(text.text!!.value).isEqualTo("Hello AndroidX")
     }
 
@@ -289,17 +288,16 @@ class GlanceTileServiceTest {
         assertThat(store[tileServiceWithState.prefsNameKey]).isEqualTo("AndroidX Glance")
     }
 
-    @Suppress("deprecation") // For backwards compatibility.
     private fun checkTimelineEntry(
-        entry: androidx.wear.tiles.TimelineBuilders.TimelineEntry,
+        entry: TimelineBuilders.TimelineEntry,
         startMillis: Long,
         endMillis: Long,
         textValue: String
     ) {
         assertThat(entry.validity!!.startMillis).isEqualTo(startMillis)
         assertThat(entry.validity!!.endMillis).isEqualTo(endMillis)
-        var box = assertIs<androidx.wear.tiles.LayoutElementBuilders.Box>(entry.layout!!.root!!)
-        var text = assertIs<androidx.wear.tiles.LayoutElementBuilders.Text>(box.contents[0])
+        var box = assertIs<LayoutElementBuilders.Box>(entry.layout!!.root!!)
+        var text = assertIs<LayoutElementBuilders.Text>(box.contents[0])
         assertThat(text.text!!.value).isEqualTo(textValue)
     }
 

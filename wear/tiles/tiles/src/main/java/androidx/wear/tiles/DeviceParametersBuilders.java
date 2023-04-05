@@ -29,16 +29,14 @@ import androidx.wear.protolayout.proto.DeviceParametersProto;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/**
- * Builders for request messages used to fetch tiles and resources.
- *
- * @deprecated Use {@link androidx.wear.protolayout.DeviceParametersBuilders} instead.
- */
-@Deprecated
+/** Builders for request messages used to fetch tiles and resources. */
 public final class DeviceParametersBuilders {
     private DeviceParametersBuilders() {}
 
-    /** The platform of the device requesting a tile. */
+    /**
+     * The platform of the device requesting a tile.
+     *
+     */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({DEVICE_PLATFORM_UNDEFINED, DEVICE_PLATFORM_WEAR_OS})
     @Retention(RetentionPolicy.SOURCE)
@@ -50,7 +48,10 @@ public final class DeviceParametersBuilders {
     /** Device is a Wear OS device. */
     public static final int DEVICE_PLATFORM_WEAR_OS = 1;
 
-    /** The shape of a screen. */
+    /**
+     * The shape of a screen.
+     *
+     */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({SCREEN_SHAPE_UNDEFINED, SCREEN_SHAPE_ROUND, SCREEN_SHAPE_RECT})
     @Retention(RetentionPolicy.SOURCE)

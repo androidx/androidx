@@ -23,12 +23,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.proto.TypesProto;
 
-/**
- * Builders for extensible primitive types used by layout elements.
- *
- * @deprecated Use {@link androidx.wear.protolayout.TypeBuilders} instead.
- */
-@Deprecated
+/** Builders for extensible primitive types used by layout elements. */
 public final class TypeBuilders {
     private TypeBuilders() {}
 
