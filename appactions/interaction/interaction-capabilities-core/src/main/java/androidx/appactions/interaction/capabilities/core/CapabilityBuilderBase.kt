@@ -20,10 +20,9 @@ import androidx.annotation.RestrictTo
 import androidx.appactions.interaction.capabilities.core.ActionExecutorAsync.Companion.toActionExecutorAsync
 import androidx.appactions.interaction.capabilities.core.impl.SingleTurnCapabilityImpl
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
-import androidx.appactions.interaction.capabilities.core.impl.task.AbstractTaskUpdater
+import androidx.appactions.interaction.capabilities.core.impl.task.EmptyTaskUpdater
 import androidx.appactions.interaction.capabilities.core.impl.task.SessionBridge
 import androidx.appactions.interaction.capabilities.core.impl.task.TaskCapabilityImpl
-import java.util.function.Supplier
 
 /**
  * An abstract Builder class for Capability.
@@ -36,13 +35,11 @@ abstract class CapabilityBuilderBase<
         ArgumentT,
         OutputT,
         ConfirmationT,
-        SessionUpdaterT,
         SessionT,>,
     PropertyT,
     ArgumentT,
     OutputT,
     ConfirmationT,
-    SessionUpdaterT : AbstractTaskUpdater,
     SessionT : BaseSession<ArgumentT, OutputT>,
     > protected constructor(
     private val actionSpec: ActionSpec<PropertyT, ArgumentT, OutputT>,
@@ -60,9 +57,6 @@ abstract class CapabilityBuilderBase<
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected open val sessionBridge: SessionBridge<SessionT, ConfirmationT>? = null
-
-    /** The supplier of SessionUpdaterT instances. */
-    protected open val sessionUpdaterSupplier: Supplier<SessionUpdaterT>? = null
 
     @Suppress("UNCHECKED_CAST")
     fun asBuilder(): BuilderT {
@@ -145,7 +139,7 @@ abstract class CapabilityBuilderBase<
                     { "either setExecutor or setSessionFactory must be called before build" },
                 ),
                 sessionBridge!!,
-                sessionUpdaterSupplier!!,
+                ::EmptyTaskUpdater,
             )
         }
     }

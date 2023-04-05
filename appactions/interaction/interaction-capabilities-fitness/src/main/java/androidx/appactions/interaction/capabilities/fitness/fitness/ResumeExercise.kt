@@ -25,7 +25,6 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
-import androidx.appactions.interaction.capabilities.core.impl.task.AbstractTaskUpdater
 import java.util.Optional
 
 /** ResumeExercise.kt in interaction-capabilities-fitness */
@@ -50,7 +49,7 @@ private val ACTION_SPEC =
 class ResumeExercise private constructor() {
     class CapabilityBuilder :
         CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session
+            CapabilityBuilder, Property, Argument, Output, Confirmation, Session
             >(ACTION_SPEC) {
         private var propertyBuilder: Property.Builder = Property.Builder()
         fun setNameProperty(name: TypeProperty<StringValue>): CapabilityBuilder =
@@ -133,8 +132,6 @@ class ResumeExercise private constructor() {
     class Output internal constructor()
 
     class Confirmation internal constructor()
-
-    class TaskUpdater internal constructor() : AbstractTaskUpdater()
 
     sealed interface Session : BaseSession<Argument, Output>
 }

@@ -26,7 +26,6 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
-import androidx.appactions.interaction.capabilities.core.impl.task.AbstractTaskUpdater
 import androidx.appactions.interaction.capabilities.core.impl.task.SessionBridge
 import androidx.appactions.interaction.capabilities.core.impl.task.TaskHandler
 import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
@@ -36,7 +35,6 @@ import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
 import java.time.Duration
 import java.util.Optional
-import java.util.function.Supplier
 
 /** StartTimer.kt in interaction-capabilities-productivity */
 private const val CAPABILITY_NAME = "actions.intent.START_TIMER"
@@ -99,13 +97,10 @@ class StartTimer private constructor() {
 
     class CapabilityBuilder :
         CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session,
+            CapabilityBuilder, Property, Argument, Output, Confirmation, Session,
             >(ACTION_SPEC) {
 
         override val sessionBridge: SessionBridge<Session, Confirmation> = SESSION_BRIDGE
-        override val sessionUpdaterSupplier: Supplier<TaskUpdater> = Supplier {
-            TaskUpdater()
-        }
 
         public override fun setSessionFactory(
             sessionFactory: SessionFactory<Session>,
@@ -279,6 +274,4 @@ class StartTimer private constructor() {
     }
 
     class Confirmation internal constructor()
-
-    class TaskUpdater internal constructor() : AbstractTaskUpdater()
-}
+    }
