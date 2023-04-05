@@ -22,6 +22,7 @@ import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CaptureRequest
 import android.util.ArrayMap
 import android.view.Surface
+import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CaptureSequence
@@ -34,6 +35,7 @@ import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
@@ -41,6 +43,7 @@ import androidx.camera.camera2.pipe.writeParameters
 import javax.inject.Inject
 import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.runBlocking
 
 internal interface Camera2CaptureSequenceProcessorFactory {
     fun create(
@@ -54,7 +57,8 @@ internal class StandardCamera2CaptureSequenceProcessorFactory
 constructor(
     private val threads: Threads,
     private val graphConfig: CameraGraph.Config,
-    private val streamGraph: StreamGraphImpl
+    private val streamGraph: StreamGraphImpl,
+    private val quirks: Camera2Quirks,
 ) : Camera2CaptureSequenceProcessorFactory {
     @Suppress("UNCHECKED_CAST")
     override fun create(
@@ -63,7 +67,12 @@ constructor(
     ): CaptureSequenceProcessor<*, CaptureSequence<Any>> {
         @Suppress("SyntheticAccessor")
         return Camera2CaptureSequenceProcessor(
-            session, threads, graphConfig.defaultTemplate, surfaceMap, streamGraph
+            session,
+            threads,
+            graphConfig.defaultTemplate,
+            surfaceMap,
+            streamGraph,
+            quirks.shouldWaitForRepeatingRequest(graphConfig)
         )
             as CaptureSequenceProcessor<Any, CaptureSequence<Any>>
     }
@@ -86,9 +95,18 @@ internal class Camera2CaptureSequenceProcessor(
     private val threads: Threads,
     private val template: RequestTemplate,
     private val surfaceMap: Map<StreamId, Surface>,
-    private val streamGraph: StreamGraph
+    private val streamGraph: StreamGraph,
+    private val shouldWaitForRepeatingRequest: Boolean = false,
 ) : CaptureSequenceProcessor<CaptureRequest, Camera2CaptureSequence> {
     private val debugId = captureSequenceProcessorDebugIds.incrementAndGet()
+    private val lock = Any()
+
+    @GuardedBy("lock")
+    private var closed = false
+
+    @GuardedBy("lock")
+    private var lastSingleRepeatingRequestSequence: Camera2CaptureSequence? = null
+
     override fun build(
         isRepeating: Boolean,
         requests: List<Request>,
@@ -245,13 +263,20 @@ internal class Camera2CaptureSequenceProcessor(
         )
     }
 
-    override fun submit(captureSequence: Camera2CaptureSequence): Int? {
+    override fun submit(captureSequence: Camera2CaptureSequence): Int? = synchronized(lock) {
+        if (closed) {
+            Log.warn { "Capture sequence processor closed. $captureSequence won't be submitted" }
+            return null
+        }
         val captureCallback = captureSequence as CameraCaptureSession.CaptureCallback
         // TODO: Update these calls to use executors on newer versions of the OS
         return if (captureSequence.captureRequestList.size == 1 &&
             session !is CameraConstrainedHighSpeedCaptureSessionWrapper
         ) {
             if (captureSequence.repeating) {
+                if (shouldWaitForRepeatingRequest) {
+                    lastSingleRepeatingRequestSequence = captureSequence
+                }
                 session.setRepeatingRequest(
                     captureSequence.captureRequestList[0], captureCallback, threads.camera2Handler
                 )
@@ -273,16 +298,27 @@ internal class Camera2CaptureSequenceProcessor(
         }
     }
 
-    override fun abortCaptures() {
+    override fun abortCaptures(): Unit = synchronized(lock) {
+        if (closed) return
         session.abortCaptures()
     }
 
-    override fun stopRepeating() {
+    override fun stopRepeating(): Unit = synchronized(lock) {
+        if (closed) return
         session.stopRepeating()
     }
 
-    override fun close() {
+    override fun close() = synchronized(lock) {
         // Close should not shut down
+        Debug.trace("$this#close") {
+            if (shouldWaitForRepeatingRequest) {
+                lastSingleRepeatingRequestSequence?.let {
+                    Log.debug { "Waiting for the last repeating request sequence $it" }
+                    runBlocking { it.awaitStarted() }
+                }
+            }
+            closed = true
+        }
     }
 
     override fun toString(): String {

@@ -33,6 +33,7 @@ import androidx.camera.camera2.pipe.core.DurationNs
 import androidx.camera.camera2.pipe.core.TimestampNs
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
+import androidx.camera.camera2.pipe.testing.FakeCamera2DeviceCloser
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeTimeSource
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
@@ -76,6 +77,7 @@ class RetryingCameraStateOpenerTest {
         }
 
     private val fakeTimeSource = FakeTimeSource()
+    private val cameraDeviceCloser = FakeCamera2DeviceCloser()
 
     // TODO(lnishan): Consider mocking this object when Mockito works well with value classes.
     private val fakeCameraErrorListener =
@@ -96,6 +98,7 @@ class RetryingCameraStateOpenerTest {
             cameraOpener,
             camera2MetadataProvider,
             fakeCameraErrorListener,
+            cameraDeviceCloser,
             fakeTimeSource,
             cameraInteropConfig = null,
         )
