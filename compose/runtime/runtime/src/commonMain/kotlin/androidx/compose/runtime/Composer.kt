@@ -1477,6 +1477,7 @@ internal class ComposerImpl(
         if (!writer.closed) {
             writer.close()
         }
+        insertFixups.clear()
         createFreshInsertTable()
         compoundKeyHash = 0
         childrenComposing = 0
@@ -1485,6 +1486,7 @@ internal class ComposerImpl(
         reusing = false
         isComposing = false
         forciblyRecompose = false
+        reusingGroup = -1
     }
 
     internal fun changesApplied() {

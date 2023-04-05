@@ -81,7 +81,7 @@ internal fun Activity.waitForAFrame() {
     uiThread {
         Choreographer.getInstance().postFrameCallback { latch.countDown() }
     }
-    assertTrue(latch.await(1, TimeUnit.HOURS), "Time-out waiting for choreographer frame")
+    assertTrue(latch.await(1, TimeUnit.MINUTES), "Time-out waiting for choreographer frame")
 }
 
 abstract class BaseComposeTest {
