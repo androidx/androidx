@@ -30,6 +30,7 @@ import androidx.wear.protolayout.ActionBuilders.Action;
 import androidx.wear.protolayout.ColorBuilders.ColorProp;
 import androidx.wear.protolayout.DimensionBuilders.DpProp;
 import androidx.wear.protolayout.TypeBuilders.BoolProp;
+import androidx.wear.protolayout.TypeBuilders.StringProp;
 import androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec;
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
@@ -168,6 +169,69 @@ public final class ModifiersBuilders {
 
         private DefaultContentTransitions() {}
     }
+
+    /**
+     * The type of user interface element. Accessibility services might use this to describe the
+     * element or do customizations.
+     *
+     * @since 1.2
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({
+        SEMANTICS_ROLE_NONE,
+        SEMANTICS_ROLE_IMAGE,
+        SEMANTICS_ROLE_BUTTON,
+        SEMANTICS_ROLE_CHECKBOX,
+        SEMANTICS_ROLE_SWITCH,
+        SEMANTICS_ROLE_RADIOBUTTON
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface SemanticsRole {}
+
+    /**
+     * Role is undefined. It may be automatically populated.
+     *
+     * @since 1.2
+     */
+    public static final int SEMANTICS_ROLE_NONE = 0;
+
+    /**
+     * The element is an {@link androidx.wear.protolayout.LayoutElementBuilders.Image}.
+     *
+     * @since 1.2
+     */
+    public static final int SEMANTICS_ROLE_IMAGE = 1;
+
+    /**
+     * The element is a Button control.
+     *
+     * @since 1.2
+     */
+    public static final int SEMANTICS_ROLE_BUTTON = 2;
+
+    /**
+     * The element is a Checkbox which is a component that represents two states (checked /
+     * unchecked).
+     *
+     * @since 1.2
+     */
+    public static final int SEMANTICS_ROLE_CHECKBOX = 3;
+
+    /**
+     * The element is a Switch which is a two state toggleable component that provides on/off like
+     * options.
+     *
+     * @since 1.2
+     */
+    public static final int SEMANTICS_ROLE_SWITCH = 4;
+
+    /**
+     * This element is a RadioButton which is a component to represent two states, selected and not
+     * selected.
+     *
+     * @since 1.2
+     */
+    public static final int SEMANTICS_ROLE_RADIOBUTTON = 5;
 
     /**
      * The snap options to use when sliding using parent boundaries.
@@ -348,6 +412,8 @@ public final class ModifiersBuilders {
      * A modifier for an element which has accessibility semantics associated with it. This should
      * generally be used sparingly, and in most cases should only be applied to the top-level layout
      * element or to Clickables.
+     *
+     * @since 1.0
      */
     public static final class Semantics {
         private final ModifiersProto.Semantics mImpl;
@@ -360,14 +426,49 @@ public final class ModifiersBuilders {
 
         /**
          * Gets the content description associated with this element. This will be dictated when the
-         * element is focused by the screen reader. Intended for testing purposes only.
+         * element is focused by the screen reader.
+         *
+         * <p>This field is made bindable from version 1.2 and will use the dynamic value (if set).
+         * Older renderers will still consider this field as non-bindable and will use the static
+         * value.
+         *
+         * @since 1.0
          */
-        @NonNull
-        public String getContentDescription() {
+        @Nullable
+        public StringProp getContentDescription() {
             if (mImpl.hasContentDescription()) {
-                return mImpl.getContentDescription().getValue();
+                return StringProp.fromProto(mImpl.getContentDescription());
+            } else {
+                return null;
             }
-            return mImpl.getObsoleteContentDescription();
+        }
+
+        /**
+         * Gets the type of user interface element. Accessibility services might use this to
+         * describe the element or do customizations.
+         *
+         * @since 1.2
+         */
+        @SemanticsRole
+        public int getRole() {
+            return mImpl.getRole().getNumber();
+        }
+
+        /**
+         * Gets the localized state description of the semantics node. For example: "on" or "off".
+         * This will be dictated when the element is focused by the screen reader.
+         *
+         * <p>This field is bindable and will use the dynamic value (if set).
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public StringProp getStateDescription() {
+            if (mImpl.hasStateDescription()) {
+                return StringProp.fromProto(mImpl.getStateDescription());
+            } else {
+                return null;
+            }
         }
 
         /** Get the fingerprint for this object, or null if unknown. */
@@ -377,13 +478,23 @@ public final class ModifiersBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static Semantics fromProto(@NonNull ModifiersProto.Semantics proto) {
-            return new Semantics(proto, null);
+        public static Semantics fromProto(
+                @NonNull ModifiersProto.Semantics proto, @Nullable Fingerprint fingerprint) {
+            return new Semantics(proto, fingerprint);
         }
 
         @NonNull
-        ModifiersProto.Semantics toProto() {
+        static Semantics fromProto(@NonNull ModifiersProto.Semantics proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public ModifiersProto.Semantics toProto() {
             return mImpl;
         }
 
@@ -391,20 +502,74 @@ public final class ModifiersBuilders {
         public static final class Builder {
             private final ModifiersProto.Semantics.Builder mImpl =
                     ModifiersProto.Semantics.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(-1479823155);
+            private final Fingerprint mFingerprint = new Fingerprint(-1679805809);
 
             public Builder() {}
 
             /**
-             * Sets the content description associated with this element. This will be dictated when
-             * the element is focused by the screen reader.
+             * Sets the type of user interface element. Accessibility services might use this to
+             * describe the element or do customizations.
+             *
+             * @since 1.2
              */
             @NonNull
+            public Builder setRole(@SemanticsRole int role) {
+                mImpl.setRole(ModifiersProto.SemanticsRole.forNumber(role));
+                mFingerprint.recordPropertyUpdate(2, role);
+                return this;
+            }
+
+            /**
+             * Sets the localized state description of the semantics node. For example: "on" or
+             * "off". This will be dictated when the element is focused by the screen reader.
+             *
+             * <p>This field is bindable and will use the dynamic value (if set).
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setStateDescription(@NonNull StringProp stateDescription) {
+                mImpl.setStateDescription(stateDescription.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        3, checkNotNull(stateDescription.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the content description associated with this element. This will be dictated when
+             * the element is focused by the screen reader.
+             *
+             * @since 1.0
+             */
+            @NonNull
+            @SuppressWarnings(
+                    "deprecation") // Updating a deprecated field for backward compatibility
             public Builder setContentDescription(@NonNull String contentDescription) {
                 mImpl.setObsoleteContentDescription(contentDescription);
                 mImpl.mergeContentDescription(
                         TypesProto.StringProp.newBuilder().setValue(contentDescription).build());
                 mFingerprint.recordPropertyUpdate(4, contentDescription.hashCode());
+                return this;
+            }
+
+            /**
+             * Sets the content description associated with this element. This will be dictated when
+             * the element is focused by the screen reader.
+             *
+             * <p>This field is made bindable and will use the dynamic value (if set) from version
+             * 1.2 Older renderers will still consider this field as non-bindable and will use the
+             * static value.
+             *
+             * @since 1.0
+             */
+            @NonNull
+            @SuppressWarnings(
+                    "deprecation") // Updating a deprecated field for backward compatibility
+            public Builder setContentDescription(@NonNull StringProp contentDescription) {
+                mImpl.setObsoleteContentDescription(contentDescription.getValue());
+                mImpl.setContentDescription(contentDescription.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        4, checkNotNull(contentDescription.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
@@ -942,8 +1107,9 @@ public final class ModifiersBuilders {
 
         /**
          * Gets the semantics of the modified element. This can be used to add metadata to the
-         * modified element (eg. screen reader content descriptions). Intended for testing purposes
-         * only.
+         * modified element (eg. screen reader content descriptions).
+         *
+         * @since 1.0
          */
         @Nullable
         public Semantics getSemantics() {
@@ -1063,6 +1229,8 @@ public final class ModifiersBuilders {
             /**
              * Sets the semantics of the modified element. This can be used to add metadata to the
              * modified element (eg. screen reader content descriptions).
+             *
+             * @since 1.0
              */
             @NonNull
             public Builder setSemantics(@NonNull Semantics semantics) {
@@ -2239,7 +2407,9 @@ public final class ModifiersBuilders {
 
         /**
          * Gets adds metadata for the modified element, for example, screen reader content
-         * descriptions. Intended for testing purposes only.
+         * descriptions.
+         *
+         * @since 1.0
          */
         @Nullable
         public Semantics getSemantics() {
@@ -2292,6 +2462,8 @@ public final class ModifiersBuilders {
             /**
              * Sets adds metadata for the modified element, for example, screen reader content
              * descriptions.
+             *
+             * @since 1.0
              */
             @NonNull
             public Builder setSemantics(@NonNull Semantics semantics) {
