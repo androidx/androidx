@@ -41,7 +41,15 @@ import androidx.wear.watchface.complications.data.ComplicationDataExpressionEval
 import androidx.wear.watchface.complications.data.ComplicationDataExpressionEvaluator.Companion.hasExpression
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.ComplicationType.Companion.fromWireType
+import androidx.wear.watchface.complications.data.GoalProgressComplicationData
+import androidx.wear.watchface.complications.data.LongTextComplicationData
+import androidx.wear.watchface.complications.data.MonochromaticImageComplicationData
 import androidx.wear.watchface.complications.data.NoDataComplicationData
+import androidx.wear.watchface.complications.data.PhotoImageComplicationData
+import androidx.wear.watchface.complications.data.RangedValueComplicationData
+import androidx.wear.watchface.complications.data.ShortTextComplicationData
+import androidx.wear.watchface.complications.data.SmallImageComplicationData
+import androidx.wear.watchface.complications.data.WeightedElementsComplicationData
 import androidx.wear.watchface.complications.data.TimeRange
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService.Companion.METADATA_KEY_IMMEDIATE_UPDATE_PERIOD_MILLISECONDS
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService.ComplicationRequestListener
@@ -187,9 +195,18 @@ public annotation class IsForSafeWatchFace
  *   android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST.
  * - A ComplicationDataSourceService must include a `meta-data` tag with
  *   android.support.wearable.complications.SUPPORTED_TYPES in its manifest entry. The value of this
- *   tag should be a comma separated list of types supported by the data source. Types should be
- *   given as named as per the type fields in the [ComplicationData], but omitting the "TYPE_"
- *   prefix, e.g. `SHORT_TEXT`, `LONG_TEXT`, `RANGED_VALUE`.
+ *   tag should be a comma separated list of types supported by the data source, from this table:
+ *
+ * | Androidx class                        | Tag name          |
+ * |---------------------------------------|-------------------|
+ * | [GoalProgressComplicationData]        | GOAL_PROGRESS     |
+ * | [LongTextComplicationData]            | LONG_TEXT         |
+ * | [MonochromaticImageComplicationData]  | ICON              |
+ * | [PhotoImageComplicationData]          | LARGE_IMAGE       |
+ * | [RangedValueComplicationData]         | RANGED_TEXT       |
+ * | [ShortTextComplicationData]           | SHORT_TEXT        |
+ * | [SmallImageComplicationData]          | SMALL_IMAGE       |
+ * | [WeightedElementsComplicationData]    | WEIGHTED_ELEMENTS |
  *
  * The order in which types are listed has no significance. In the case where a watch face supports
  * multiple types in a single complication slot, the watch face will determine which types it
