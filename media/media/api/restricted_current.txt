@@ -728,6 +728,7 @@ package androidx.media.app {
     method public static android.support.v4.media.session.MediaSessionCompat.Token! getMediaSession(android.app.Notification!);
     method public androidx.media.app.NotificationCompat.MediaStyle! setCancelButtonIntent(android.app.PendingIntent!);
     method public androidx.media.app.NotificationCompat.MediaStyle! setMediaSession(android.support.v4.media.session.MediaSessionCompat.Token!);
+    method @RequiresPermission(android.Manifest.permission.MEDIA_CONTENT_CONTROL) public androidx.media.app.NotificationCompat.MediaStyle setRemotePlaybackInfo(CharSequence, @DrawableRes int, android.app.PendingIntent?);
     method public androidx.media.app.NotificationCompat.MediaStyle! setShowActionsInCompactView(int...);
     method public androidx.media.app.NotificationCompat.MediaStyle! setShowCancelButton(boolean);
   }
