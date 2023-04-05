@@ -156,8 +156,9 @@ class LazyPagingItemsTest {
         rule.setContent {
             val lazyPagingItems = pager.flow.collectAsLazyPagingItems()
             LazyColumn(Modifier.height(200.dp)) {
-                items(lazyPagingItems) {
-                    Spacer(Modifier.height(101.dp).fillParentMaxWidth().testTag("$it"))
+                items(count = lazyPagingItems.itemCount) { index ->
+                    val item = lazyPagingItems[index]
+                    Spacer(Modifier.height(101.dp).fillParentMaxWidth().testTag("$item"))
                 }
             }
         }
@@ -213,8 +214,9 @@ class LazyPagingItemsTest {
         rule.setContent {
             val lazyPagingItems = pager.flow.collectAsLazyPagingItems()
             LazyRow(Modifier.width(200.dp)) {
-                items(lazyPagingItems) {
-                    Spacer(Modifier.width(101.dp).fillParentMaxHeight().testTag("$it"))
+                items(count = lazyPagingItems.itemCount) { index ->
+                    val item = lazyPagingItems[index]
+                    Spacer(Modifier.width(101.dp).fillParentMaxHeight().testTag("$item"))
                 }
             }
         }
@@ -286,10 +288,13 @@ class LazyPagingItemsTest {
                     Content("0")
                 }
                 items(
-                    items = lazyPagingItems,
-                    contentType = { if (it == 8) "reuse" else "not-to-reuse-$it" }
-                ) {
-                    Content("$it")
+                    count = lazyPagingItems.itemCount,
+                    contentType = lazyPagingItems.itemContentType(
+                        contentType = { if (it == 8) "reuse" else "not-to-reuse-$it" }
+                    )
+                ) { index ->
+                    val item = lazyPagingItems[index]
+                    Content("$item")
                 }
             }
         }
@@ -355,11 +360,14 @@ class LazyPagingItemsTest {
                     Content("0")
                 }
                 items(
-                    items = lazyPagingItems,
+                    count = lazyPagingItems.itemCount,
                     // item 7 would be null, which should default to PagingPlaceholderContentType
-                    contentType = { "not-to-reuse-$it" }
-                ) {
-                    Content("$it")
+                    contentType = lazyPagingItems.itemContentType(
+                        contentType = { "not-to-reuse-$it" }
+                    )
+                ) { index ->
+                    val item = lazyPagingItems[index]
+                    Content("$item")
                 }
             }
         }
@@ -419,11 +427,12 @@ class LazyPagingItemsTest {
                     Content("0")
                 }
                 items(
-                    items = lazyPagingItems,
+                    count = lazyPagingItems.itemCount,
                     // should default to null
-                    contentType = null
-                ) {
-                    Content("$it")
+                    contentType = lazyPagingItems.itemContentType(null)
+                ) { index ->
+                    val item = lazyPagingItems[index]
+                    Content("$item")
                 }
             }
         }
@@ -670,8 +679,9 @@ class LazyPagingItemsTest {
         rule.setContent {
             lazyPagingItems = pager.flow.collectAsLazyPagingItems()
             LazyColumn(Modifier.height(itemSize * 3)) {
-                items(lazyPagingItems) {
-                    Spacer(Modifier.height(itemSize).fillParentMaxWidth().testTag("$it"))
+                items(count = lazyPagingItems.itemCount) { index ->
+                    val item = lazyPagingItems[index]
+                    Spacer(Modifier.height(itemSize).fillParentMaxWidth().testTag("$item"))
                 }
             }
         }
@@ -716,8 +726,9 @@ class LazyPagingItemsTest {
         rule.setContent {
             lazyPagingItems = pager.flow.collectAsLazyPagingItems()
             LazyColumn(Modifier.height(itemSize * 3)) {
-                items(lazyPagingItems) {
-                    Spacer(Modifier.height(itemSize).fillParentMaxWidth().testTag("$it"))
+                items(count = lazyPagingItems.itemCount) { index ->
+                    val item = lazyPagingItems[index]
+                    Spacer(Modifier.height(itemSize).fillParentMaxWidth().testTag("$item"))
                 }
             }
         }
@@ -760,8 +771,9 @@ class LazyPagingItemsTest {
         rule.setContent {
             lazyPagingItems = pager.flow.collectAsLazyPagingItems()
             LazyColumn(Modifier.height(itemSize * 3)) {
-                items(lazyPagingItems) {
-                    Spacer(Modifier.height(itemSize).fillParentMaxWidth().testTag("$it"))
+                items(count = lazyPagingItems.itemCount) { index ->
+                    val item = lazyPagingItems[index]
+                    Spacer(Modifier.height(itemSize).fillParentMaxWidth().testTag("$item"))
                 }
             }
         }
@@ -794,9 +806,13 @@ class LazyPagingItemsTest {
         rule.setContent {
             lazyPagingItems = pager.flow.collectAsLazyPagingItems()
             LazyColumn {
-                items(lazyPagingItems, key = { it }) {
+                items(
+                    count = lazyPagingItems.itemCount,
+                    key = lazyPagingItems.itemKey { it },
+                ) { index ->
+                    val item = lazyPagingItems[index]
                     BasicText(
-                        "Item=$it. counter=${remember { counter++ }}"
+                        "Item=$item. counter=${remember { counter++ }}"
                     )
                 }
             }

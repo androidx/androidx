@@ -34,7 +34,7 @@ import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
+import androidx.paging.compose.itemKey
 import androidx.paging.compose.itemsIndexed
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -149,8 +149,12 @@ fun PagingBackendSample() {
 fun ItemsDemo(flow: Flow<PagingData<String>>) {
     val lazyPagingItems = flow.collectAsLazyPagingItems()
     LazyColumn {
-        items(lazyPagingItems) {
-            Text("Item is $it")
+        items(
+            count = lazyPagingItems.itemCount,
+            key = lazyPagingItems.itemKey()
+        ) { index ->
+            val item = lazyPagingItems[index]
+            Text("Item is $item")
         }
     }
 }
