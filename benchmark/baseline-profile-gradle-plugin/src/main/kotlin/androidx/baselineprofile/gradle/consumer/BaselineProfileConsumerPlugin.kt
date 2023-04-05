@@ -89,6 +89,13 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
         productFlavors = null
     )
 
+    private val Variant.benchmarkVariantName: String
+        get() {
+            val parts = listOfNotNull(flavorName, BUILD_TYPE_BENCHMARK_PREFIX, buildType)
+                .filter { it.isNotBlank() }
+            return camelCase(*parts.toTypedArray())
+        }
+
     override fun onAgpPluginNotFound(pluginIds: Set<AgpPluginId>) {
         throw IllegalStateException(
             """
@@ -387,13 +394,13 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
             mergeTaskProvider
         }
 
-        // Here we create the final generate task that triggers the whole generation
-        // for this variant and all the parent tasks. For this one the child task
-        // is either copy or merge, depending on the configuration.
-        val variantGenerateTask = maybeCreateGenerateTask<Task>(
+        // Here we create the final generate task that triggers the whole generation for this
+        // variant and all the parent tasks. For this one the child task is either copy or merge,
+        // depending on the configuration.
+        maybeCreateGenerateTask<Task>(
             project = project,
             variantName = mergeAwareVariantName,
-            childGenerationTaskProvider = lastTaskProvider
+            lastTaskProvider = lastTaskProvider
         )
 
         // Create the build type task. For example `generateReleaseBaselineProfile`
@@ -401,36 +408,52 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
         // Note that if `mergeIntoMain` is `true` the build type task already exists.
         if (!mergeIntoMain &&
             !variant.buildType.isNullOrBlank() &&
-            variant.name != variant.buildType
+            variant.buildType != variant.name
         ) {
             maybeCreateGenerateTask<Task>(
                 project = project,
                 variantName = variant.buildType!!,
-                childGenerationTaskProvider = variantGenerateTask
+                lastTaskProvider = lastTaskProvider
             )
         }
 
-        // TODO: Due to b/265438201 we cannot have a global task
-        //  `generateBaselineProfile` that triggers generation for all the
-        //  variants when there are multiple build types. The temporary workaround
-        //  is to generate baseline profiles only for variants with the `release`
-        //  build type until that bug is fixed, when running the global task
-        //  `generateBaselineProfile`. This can be removed after fix.
-        if (variant.buildType == RELEASE) {
-            maybeCreateGenerateTask<MainGenerateBaselineProfileTask>(
-                project,
-                "",
-                variantGenerateTask
+        if (supportsFeature(AgpFeature.TEST_MODULE_SUPPORTS_MULTIPLE_BUILD_TYPES)) {
+
+            // Generate a flavor task, such as `generateFreeBaselineProfile`
+            if (!mergeIntoMain &&
+                !variant.flavorName.isNullOrBlank() &&
+                variant.flavorName != variant.name
+            ) {
+                maybeCreateGenerateTask<Task>(
+                    project = project,
+                    variantName = variant.flavorName!!,
+                    lastTaskProvider = lastTaskProvider
+                )
+            }
+
+            // Generate the main global tasks `generateBaselineProfile
+            maybeCreateGenerateTask<Task>(
+                project = project,
+                variantName = "",
+                lastTaskProvider = lastTaskProvider
             )
+        } else {
+            // Due to b/265438201 we cannot have a global task `generateBaselineProfile` that
+            // triggers generation for all the variants when there are multiple build types.
+            // So for version of AGP that don't support that, invoking `generateBaselineProfile`
+            // will run generation for `release` build type only, that is the same behavior of
+            // `generateReleaseBaselineProfile`. For this same reason we cannot have a flavor
+            // task, such as `generateFreeBaselineProfile` because that would run generation for
+            // all the build types with flavor free, that is not as well supported.
+            if (variant.buildType == RELEASE) {
+                maybeCreateGenerateTask<MainGenerateBaselineProfileTask>(
+                    project = project,
+                    variantName = "",
+                    lastTaskProvider = lastTaskProvider
+                )
+            }
         }
     }
-
-    private val Variant.benchmarkVariantName: String
-        get() {
-            val parts = listOfNotNull(flavorName, BUILD_TYPE_BENCHMARK_PREFIX, buildType)
-                .filter { it.isNotBlank() }
-            return camelCase(*parts.toTypedArray())
-        }
 
     private fun createConfigurationForVariant(
         variant: Variant,
