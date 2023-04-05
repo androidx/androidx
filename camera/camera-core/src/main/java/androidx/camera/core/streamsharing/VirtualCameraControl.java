@@ -18,6 +18,7 @@ package androidx.camera.core.streamsharing;
 import static androidx.core.util.Preconditions.checkArgument;
 
 import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
 
 import android.graphics.Rect;
 import android.os.Build;
@@ -42,6 +43,8 @@ import java.util.List;
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class VirtualCameraControl implements CameraControlInternal {
+
+    private static final int DEFAULT_JPEG_QUALITY = 100;
 
     private final CameraControlInternal mParent;
     private final StreamSharing.Control mStreamSharingControl;
@@ -121,7 +124,13 @@ public class VirtualCameraControl implements CameraControlInternal {
             @ImageCapture.CaptureMode int captureMode,
             @ImageCapture.FlashType int flashType) {
         checkArgument(captureConfigs.size() == 1, "Only support one capture config.");
-        return Futures.allAsList(singletonList(mStreamSharingControl.jpegSnapshot()));
+        int jpegQuality = getJpegQuality(captureConfigs.get(0));
+        return Futures.allAsList(singletonList(mStreamSharingControl.jpegSnapshot(jpegQuality)));
+    }
+
+    private int getJpegQuality(@NonNull CaptureConfig captureConfig) {
+        return requireNonNull(captureConfig.getImplementationOptions().retrieveOption(
+                CaptureConfig.OPTION_JPEG_QUALITY, DEFAULT_JPEG_QUALITY));
     }
 
     @NonNull

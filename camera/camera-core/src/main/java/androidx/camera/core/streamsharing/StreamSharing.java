@@ -102,10 +102,10 @@ public class StreamSharing extends UseCase {
             @NonNull UseCaseConfigFactory useCaseConfigFactory) {
         super(DEFAULT_CONFIG);
         mVirtualCamera = new VirtualCamera(parentCamera, children, useCaseConfigFactory,
-                () -> {
+                jpegQuality -> {
                     SurfaceProcessorNode sharingNode = mSharingNode;
                     if (sharingNode != null) {
-                        return sharingNode.getSurfaceProcessor().snapshot();
+                        return sharingNode.getSurfaceProcessor().snapshot(jpegQuality);
                     } else {
                         return Futures.immediateFailedFuture(new Exception(
                                 "Failed to take picture: pipeline is not ready."));
@@ -312,7 +312,7 @@ public class StreamSharing extends UseCase {
          * Takes a snapshot of the current stream and write it to the children with JPEG Surface.
          */
         @NonNull
-        ListenableFuture<Void> jpegSnapshot();
+        ListenableFuture<Void> jpegSnapshot(int jpegQuality);
     }
 
     @VisibleForTesting

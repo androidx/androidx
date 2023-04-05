@@ -16,6 +16,7 @@
 
 package androidx.camera.core.processing;
 
+import static androidx.camera.core.impl.utils.futures.Futures.immediateFailedFuture;
 import static androidx.core.util.Preconditions.checkState;
 
 import android.os.Build;
@@ -28,6 +29,8 @@ import androidx.camera.core.ProcessingException;
 import androidx.camera.core.SurfaceOutput;
 import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.SurfaceRequest;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.Executor;
 
@@ -89,6 +92,13 @@ public class SurfaceProcessorWithExecutor implements SurfaceProcessorInternal {
                 Logger.e(TAG, "Failed to setup SurfaceProcessor output.", e);
             }
         });
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<Void> snapshot(int jpegQuality) {
+        return immediateFailedFuture(
+                new Exception("Snapshot not supported by external SurfaceProcessor"));
     }
 
     @Override
