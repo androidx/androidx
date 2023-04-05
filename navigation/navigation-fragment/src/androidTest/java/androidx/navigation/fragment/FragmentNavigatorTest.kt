@@ -1244,7 +1244,9 @@ class FragmentNavigatorTest {
         }
 
         // navigate to first entry and verify it executed correctly
-        fragmentNavigator.navigate(listOf(entry1), options, null)
+        activityRule.runOnUiThread {
+            fragmentNavigator.navigate(listOf(entry1), options, null)
+        }
         assertThat(navigatorState.backStack.value).containsExactly(entry1)
         activityRule.runOnUiThread {
             fragmentManager.executePendingTransactions()
@@ -1255,30 +1257,122 @@ class FragmentNavigatorTest {
             .isNotNull()
 
         // navigate to the second entry and pop it back to back.
-        fragmentNavigator.navigate(listOf(entry2), options, null)
-        fragmentNavigator.popBackStack(entry2, false)
+        activityRule.runOnUiThread {
+            fragmentNavigator.navigate(listOf(entry2), options, null)
+            fragmentManager.executePendingTransactions()
+            fragmentNavigator.popBackStack(entry2, false)
+        }
         assertThat(navigatorState.backStack.value).containsExactly(entry1)
         activityRule.runOnUiThread {
             fragmentManager.executePendingTransactions()
         }
-        val fragment1 = fragmentManager.findFragmentById(R.id.container)
-        assertWithMessage("Fragment should be added")
-            .that(fragment1)
-            .isNotNull()
 
         // Add an observer to ensure that we don't attempt to verify the state until animations
         // are complete and the viewLifecycle has been RESUMED.
-        val countDownLatch = CountDownLatch(1)
+        val viewCountDownLatch = CountDownLatch(1)
+        val entryCountDownLatch = CountDownLatch(1)
         activityRule.runOnUiThread {
-            fragment1?.viewLifecycleOwner?.lifecycle?.addObserver(object : LifecycleEventObserver {
+            fragment?.viewLifecycleOwner?.lifecycle?.addObserver(object : LifecycleEventObserver {
                 override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
                     if (event == Lifecycle.Event.ON_RESUME) {
-                        countDownLatch.countDown()
+                        viewCountDownLatch.countDown()
+                    }
+                }
+            })
+            entry1.lifecycle.addObserver(object : LifecycleEventObserver {
+                override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        entryCountDownLatch.countDown()
                     }
                 }
             })
         }
-        assertThat(countDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(viewCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(entryCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        // Entry 1 should move back to RESUMED
+        assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        // Entry 2 should be DESTROYED
+        assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+
+        // verify that the first entry made it down to CREATED
+        assertWithMessage("Entry2 should have been stopped").that(entry1Stopped).isTrue()
+    }
+
+    @LargeTest
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+    fun testNavigatePopInterruptSameFrame() {
+        val entry1 = createBackStackEntry(clazz = AnimatorFragment::class)
+        var entry1Stopped = false
+
+        // Add observer to entry to verify lifecycle events.
+        activityRule.runOnUiThread {
+            entry1.lifecycle.addObserver(object : LifecycleEventObserver {
+                override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                    if (event == Lifecycle.Event.ON_STOP) {
+                        entry1Stopped = true
+                    }
+                }
+            })
+        }
+
+        val entry2 = createBackStackEntry(SECOND_FRAGMENT, clazz = AnimatorFragment::class)
+
+        val options = navOptions {
+            anim {
+                enter = R.animator.fade_enter
+                exit = R.animator.fade_exit
+                popEnter = R.animator.fade_enter
+                popExit = R.animator.fade_exit
+            }
+        }
+
+        // navigate to first entry and verify it executed correctly
+        activityRule.runOnUiThread {
+            fragmentNavigator.navigate(listOf(entry1), options, null)
+        }
+        assertThat(navigatorState.backStack.value).containsExactly(entry1)
+        activityRule.runOnUiThread {
+            fragmentManager.executePendingTransactions()
+        }
+        val fragment = fragmentManager.findFragmentById(R.id.container)
+        assertWithMessage("Fragment should be added")
+            .that(fragment)
+            .isNotNull()
+
+        // navigate to the second entry and pop it back to back.
+        activityRule.runOnUiThread {
+            fragmentNavigator.navigate(listOf(entry2), options, null)
+            fragmentNavigator.popBackStack(entry2, false)
+        }
+        assertThat(navigatorState.backStack.value).containsExactly(entry1)
+        activityRule.runOnUiThread {
+            fragmentManager.executePendingTransactions()
+        }
+
+        // Add an observer to ensure that we don't attempt to verify the state until animations
+        // are complete and the viewLifecycle has been RESUMED.
+        val viewCountDownLatch = CountDownLatch(1)
+        val entryCountDownLatch = CountDownLatch(1)
+        activityRule.runOnUiThread {
+            fragment?.viewLifecycleOwner?.lifecycle?.addObserver(object : LifecycleEventObserver {
+                override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        viewCountDownLatch.countDown()
+                    }
+                }
+            })
+            entry1.lifecycle.addObserver(object : LifecycleEventObserver {
+                override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        entryCountDownLatch.countDown()
+                    }
+                }
+            })
+        }
+
+        assertThat(viewCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(entryCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
         // Entry 1 should move back to RESUMED
         assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
         // Entry 2 should be DESTROYED
