@@ -294,7 +294,31 @@ internal class NodeChain(val layoutNode: LayoutNode) {
         var i = 0
         headToTailExclusive { node ->
             val coordinator = requireNotNull(node.coordinator)
-            infoList += ModifierInfo(current[i++], coordinator, coordinator.layer)
+            // placeWithLayer puts the layer on the _next_ coordinator
+            //
+            // - If the last node does placeWithLayer, the layer is on the innerCoordinator
+            // - the first LayoutNode in the tree gets a layer from the root
+            //
+            // This logic prefers to use this.layer, but will use innerCoordinator on the last node
+            // -- this exists for ui-inspector and must remain stable due to a non-same-version
+            // release dependency on tree structure.
+            val currentNodeLayer = coordinator.layer
+            val innerNodeLayer = innerCoordinator.layer.takeIf {
+                // emit the innerCoordinator only if it's different than current coordinator and
+                // this is the last node
+
+                // note: this logic will correctly handle the case where a Modifier.Node as the last
+                // element in the chain calls placeWithLayer. However, it does also cause an emit
+                // when .graphicsLayer is the last element in the chain as well - was previously
+                // depended upon by ui-tooling to avoid seeing the Crossfade layer.
+
+                // Going forward, as a contract, all layers will be emitted. And UI-tooling should
+                // not gain a new dependency on omitted layers.
+                val localChild = node.child
+                localChild === tail && node.coordinator !== localChild.coordinator
+            }
+            val layer = currentNodeLayer ?: innerNodeLayer
+            infoList += ModifierInfo(current[i++], coordinator, layer)
         }
         return infoList.asMutableList()
     }
