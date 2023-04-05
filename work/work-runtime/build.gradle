@@ -23,6 +23,7 @@ plugins {
     id("com.android.library")
     id("kotlin-android")
     id("com.google.devtools.ksp")
+    id("androidx.stableaidl")
 }
 
 android {
@@ -31,6 +32,10 @@ android {
     }
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
+
+        stableAidl {
+            version 1
+        }
     }
     defaultConfig {
         multiDexEnabled = true
