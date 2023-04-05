@@ -33,9 +33,11 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.FileSystemLocation
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
@@ -73,6 +75,13 @@ abstract class StableAidlCompile : DefaultTask() {
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val importDirs: ListProperty<Directory>
+
+    /**
+     * List of file system locations containing AIDL sources available as imports from dependencies.
+     */
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val dependencyImportDirs: SetProperty<FileSystemLocation>
 
     @get:InputFile
     @get:PathSensitive(PathSensitivity.NONE)
@@ -134,7 +143,8 @@ abstract class StableAidlCompile : DefaultTask() {
             parcelableDir?.asFile,
             extraArgs.get(),
             sourceDirsAsFiles,
-            fullImportList
+            fullImportList,
+            dependencyImportDirs.get().map { it.asFile }
         )
     }
 
@@ -211,13 +221,14 @@ abstract class StableAidlCompile : DefaultTask() {
             parcelableDir: File?,
             extraArgs: List<String>,
             sourceFolders: Collection<File>,
-            fullImportList: Collection<Directory>
+            projectImportList: Collection<Directory>,
+            dependencyImportList: Collection<File>
         ) {
             for (dir in sourceFolders) {
                 workerExecutor.noIsolation().submit(StableAidlCompileRunnable::class.java) {
                     it.aidlExecutable.set(aidlExecutable)
                     it.frameworkLocation.set(frameworkLocation)
-                    it.importFolders.from(fullImportList)
+                    it.importFolders.from(projectImportList, dependencyImportList)
                     it.sourceOutputDir.set(destinationDir)
                     it.packagedOutputDir.set(parcelableDir)
                     it.extraArgs.set(extraArgs)
