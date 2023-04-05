@@ -87,4 +87,39 @@ object WindowProperties {
      */
     const val PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED =
         "android.window.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED"
+
+    /**
+     * Application level
+     * [PackageManager][android.content.pm.PackageManager.Property] tag
+     * for an app to inform the system that the app can be opted-out from the compatibility
+     * treatment that avoids [android.app.Activity.setRequestedOrientation] loops. The loop
+     * can be trigerred when ignoreOrientationRequest display setting is
+     * enabled on the device (enables compatibility mode for fixed orientation,
+     * see [Enhanced letterboxing](https://developer.android.com/guide/practices/enhanced-letterboxing)
+     * for more details). or by the landscape natural orientation of the device.
+     *
+     *
+     * The system could ignore [android.app.Activity.setRequestedOrientation]
+     * call from an app if both of the following conditions are true:
+     *  * Activity has requested orientation more than 2 times within 1-second timer
+     *  * Activity is not letterboxed for fixed orientation
+     *
+     * Setting this property to `false` informs the system that the app must be
+     * opted-out from the compatibility treatment even if the device manufacturer has opted the app
+     * into the treatment.
+     *
+     * Not setting this property at all, or setting this property to `true` has no effect.
+     *
+     * **Syntax:**
+     * ```
+     * <application>
+     *   <property
+     *     android:name="android.window.PROPERTY_COMPAT_IGNORE_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED"
+     *     android:value="false" />
+     * </application>
+     * ```
+     */
+    // TODO(b/274924641): Make property public
+    const val PROPERTY_COMPAT_IGNORE_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED =
+        "android.window.PROPERTY_COMPAT_IGNORE_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED"
 }
