@@ -48,8 +48,8 @@ import kotlinx.coroutines.withContext
  * The class responsible for accessing the data from a [Flow] of [PagingData].
  * In order to obtain an instance of [LazyPagingItems] use the [collectAsLazyPagingItems] extension
  * method of [Flow] with [PagingData].
- * This instance can be used by the [items] and [itemsIndexed] methods inside [LazyListScope] to
- * display data received from the [Flow] of [PagingData].
+ * This instance can be used for Lazy foundations such as [LazyListScope.items] to display data
+ * received from the [Flow] of [PagingData].
  *
  * @param T the type of value used by [PagingData].
  */
@@ -240,8 +240,8 @@ private val InitialLoadStates = LoadStates(
 
 /**
  * Collects values from this [Flow] of [PagingData] and represents them inside a [LazyPagingItems]
- * instance. The [LazyPagingItems] instance can be used by the [items] and [itemsIndexed] methods
- * from [LazyListScope] in order to display the data obtained from a [Flow] of [PagingData].
+ * instance. The [LazyPagingItems] instance can be used for lazy foundations such as
+ * [LazyListScope.items] in order to display the data obtained from a [Flow] of [PagingData].
  *
  * @sample androidx.paging.compose.samples.PagingBackendSample
  *
@@ -298,7 +298,26 @@ public fun <T : Any> Flow<PagingData<T>>.collectAsLazyPagingItems(
  * @param itemContent the content displayed by a single item. In case the item is `null`, the
  * [itemContent] method should handle the logic of displaying a placeholder instead of the main
  * content displayed by an item which is not `null`.
+ *
+ * @deprecated Call [LazyListScope.items] directly with LazyPagingItems [itemKey] and
+ * [itemContentType] helper functions.
  */
+@Deprecated(
+    message = "Call LazyListScope.items directly with LazyPagingItems #itemKey and" +
+        "#itemContentType helper functions.",
+    replaceWith = ReplaceWith(
+        expression = """items(
+           count = items.itemCount,
+           key = items.itemKey(key),
+           contentType = items.itemContentType(
+                contentType
+           )
+        ) { index ->
+            val item = items[index]
+            itemContent(item)
+        }""",
+    )
+)
 public fun <T : Any> LazyListScope.items(
     items: LazyPagingItems<T>,
     key: ((item: T) -> Any)? = null,
