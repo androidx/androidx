@@ -243,3 +243,55 @@ class ButtonGlow internal constructor(
         return "ButtonGlow(glow=$glow, focusedGlow=$focusedGlow, pressedGlow=$pressedGlow)"
     }
 }
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+internal fun ButtonShape.toClickableSurfaceShape(): ClickableSurfaceShape = ClickableSurfaceShape(
+    shape = shape,
+    focusedShape = focusedShape,
+    pressedShape = pressedShape,
+    disabledShape = disabledShape,
+    focusedDisabledShape = focusedDisabledShape
+)
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+internal fun ButtonColors.toClickableSurfaceContainerColor(): ClickableSurfaceColor =
+    ClickableSurfaceColor(
+        color = containerColor,
+        focusedColor = focusedContainerColor,
+        pressedColor = pressedContainerColor,
+        disabledColor = disabledContainerColor,
+    )
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+internal fun ButtonColors.toClickableSurfaceContentColor(): ClickableSurfaceColor =
+    ClickableSurfaceColor(
+        color = contentColor,
+        focusedColor = focusedContentColor,
+        pressedColor = pressedContentColor,
+        disabledColor = disabledContentColor,
+    )
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+internal fun ButtonScale.toClickableSurfaceScale() = ClickableSurfaceScale(
+    scale = scale,
+    focusedScale = focusedScale,
+    pressedScale = pressedScale,
+    disabledScale = disabledScale,
+    focusedDisabledScale = focusedDisabledScale
+)
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+internal fun ButtonBorder.toClickableSurfaceBorder() = ClickableSurfaceBorder(
+    border = border,
+    focusedBorder = focusedBorder,
+    pressedBorder = pressedBorder,
+    disabledBorder = disabledBorder,
+    focusedDisabledBorder = focusedDisabledBorder
+)
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+internal fun ButtonGlow.toClickableSurfaceGlow() = ClickableSurfaceGlow(
+    glow = glow,
+    focusedGlow = focusedGlow,
+    pressedGlow = pressedGlow
+)
