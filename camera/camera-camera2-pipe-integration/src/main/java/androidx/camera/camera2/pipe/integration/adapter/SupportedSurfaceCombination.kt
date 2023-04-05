@@ -170,8 +170,10 @@ class SupportedSurfaceCombination(
         imageFormat: Int,
         size: Size
     ): SurfaceConfig {
-        return SurfaceConfig.transformSurfaceConfig(cameraMode,
-            imageFormat, size, getUpdatedSurfaceSizeDefinitionByFormat(imageFormat))
+        return SurfaceConfig.transformSurfaceConfig(
+            cameraMode,
+            imageFormat, size, getUpdatedSurfaceSizeDefinitionByFormat(imageFormat)
+        )
     }
 
     /**
@@ -505,9 +507,8 @@ class SupportedSurfaceCombination(
      * @return Maximum supported video size.
      */
     private fun getRecordSizeFromStreamConfigurationMapCompat(): Size {
-        val map: StreamConfigurationMap =
-            streamConfigurationMapCompat.toStreamConfigurationMap()
-        val videoSizeArr = map.getOutputSizes(
+        val map = streamConfigurationMapCompat.toStreamConfigurationMap()
+        val videoSizeArr = map?.getOutputSizes(
             MediaRecorder::class.java
         ) ?: return RESOLUTION_480P
         Arrays.sort(videoSizeArr, CompareSizesByArea(true))
@@ -620,7 +621,7 @@ class SupportedSurfaceCombination(
      */
     @SuppressLint("ClassVerificationFailure")
     internal fun getMaxOutputSizeByFormat(
-        map: StreamConfigurationMap,
+        map: StreamConfigurationMap?,
         imageFormat: Int,
         highResolutionIncluded: Boolean
     ): Size? {
@@ -631,9 +632,9 @@ class SupportedSurfaceCombination(
                 // after Android level 23 but not public in Android L. Use {@link SurfaceTexture}
                 // or {@link MediaCodec} will finally mapped to 0x22 in StreamConfigurationMap to
                 // retrieve the output sizes information.
-                map.getOutputSizes(SurfaceTexture::class.java)
+                map?.getOutputSizes(SurfaceTexture::class.java)
             } else {
-                map.getOutputSizes(imageFormat)
+                map?.getOutputSizes(imageFormat)
             }
         if (outputSizes.isNullOrEmpty()) {
             return null
@@ -643,7 +644,7 @@ class SupportedSurfaceCombination(
         var maxHighResolutionSize = SizeUtil.RESOLUTION_ZERO
 
         if (Build.VERSION.SDK_INT >= 23 && highResolutionIncluded) {
-            val highResolutionOutputSizes = map.getHighResolutionOutputSizes(imageFormat)
+            val highResolutionOutputSizes = map?.getHighResolutionOutputSizes(imageFormat)
             if (highResolutionOutputSizes != null && highResolutionOutputSizes.isNotEmpty()) {
                 maxHighResolutionSize =
                     Collections.max(highResolutionOutputSizes.asList(), compareSizesByArea)
