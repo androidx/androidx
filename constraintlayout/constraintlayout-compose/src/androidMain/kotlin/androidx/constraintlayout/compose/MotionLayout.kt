@@ -70,8 +70,50 @@ enum class MotionLayoutDebugFlags {
 }
 
 /**
- * Layout that interpolate its children layout given two sets of constraint and
- * a progress (from 0 to 1)
+ * Layout that can animate between two different layout states described in [ConstraintSet]s.
+ *
+ * &nbsp;
+ *
+ * The animation is driven by the [progress] value, so it will typically be a result of
+ * using an [Animatable][androidx.compose.animation.core.Animatable] or
+ * [animateFloatAsState][androidx.compose.animation.core.animateFloatAsState]:
+ * ```
+ *  var animateToEnd by remember { mutableStateOf(false) }
+ *  MotionLayout(
+ *      start = ConstraintSet {
+ *          constrain(createRefFor("button")) {
+ *              top.linkTo(parent.top)
+ *          }
+ *      },
+ *      end = ConstraintSet {
+ *          constrain(createRefFor("button")) {
+ *              bottom.linkTo(parent.bottom)
+ *          }
+ *      },
+ *      progress = animateFloatAsState(if (animateToEnd) 1f else 0f).value,
+ *      modifier = Modifier.fillMaxSize()
+ *  ) {
+ *      Button(onClick = { animateToEnd = !animateToEnd }, Modifier.layoutId("button")) {
+ *          Text("Hello, World!")
+ *      }
+ *  }
+ * ```
+ *
+ * Note that you must use [Modifier.layoutId][androidx.compose.ui.layout.layoutId] to bind the
+ * the references used in the [ConstraintSet]s to the Composable.
+ *
+ * @param start ConstraintSet that defines the layout at 0f progress.
+ * @param end ConstraintSet that defines the layout at 1f progress.
+ * @param progress Sets the interpolated position of the layout between the ConstraintSets.
+ * @param modifier Modifier to apply to this layout node.
+ * @param transition Defines the interpolation parameters between the [ConstraintSet]s to achieve
+ * fine-tuned animations.
+ * @param optimizationLevel Optimization parameter for the underlying ConstraintLayout,
+ * [Optimizer.OPTIMIZATION_STANDARD] by default.
+ * @param debugFlags Flags to enable visual debugging. [DebugFlags.None] by default.
+ * @param content The content to be laid out by MotionLayout, note that each layout Composable
+ * should be bound to an ID defined in the [ConstraintSet]s using
+ * [Modifier.layoutId][androidx.compose.ui.layout.layoutId].
  */
 @ExperimentalMotionApi
 @Composable
@@ -102,8 +144,56 @@ inline fun MotionLayout(
 }
 
 /**
- * Layout that animates the default transition of a [MotionScene] with a progress value (from 0 to
- * 1).
+ * Layout that can animate between multiple [ConstraintSet]s as defined by [Transition]s in the
+ * given [MotionScene].
+ *
+ * &nbsp;
+ *
+ * The animation is driven by the [progress] value, so it will typically be a result of
+ * using an [Animatable][androidx.compose.animation.core.Animatable] or
+ * [animateFloatAsState][androidx.compose.animation.core.animateFloatAsState]:
+ * ```
+ *  var animateToEnd by remember { mutableStateOf(false) }
+ *  MotionLayout(
+ *      motionScene = MotionScene {
+ *          val buttonRef = createRefFor("button")
+ *          defaultTransition(
+ *              from = constraintSet {
+ *                  constrain(buttonRef) {
+ *                      top.linkTo(parent.top)
+ *                  }
+ *              },
+ *              to = constraintSet {
+ *                  constrain(buttonRef) {
+ *                      bottom.linkTo(parent.bottom)
+ *                  }
+ *              }
+ *          )
+ *      },
+ *      progress = animateFloatAsState(if (animateToEnd) 1f else 0f).value,
+ *      modifier = Modifier.fillMaxSize()
+ *  ) {
+ *      Button(onClick = { animateToEnd = !animateToEnd }, Modifier.layoutId("button")) {
+ *          Text("Hello, World!")
+ *      }
+ *  }
+ * ```
+ *
+ * Note that you must use [Modifier.layoutId][androidx.compose.ui.layout.layoutId] to bind the
+ * the references used in the [ConstraintSet]s to the Composable.
+ *
+ * @param motionScene Holds all the layout states defined in [ConstraintSet]s and the
+ * interpolation associated between them (known as [Transition]s).
+ * @param progress Sets the interpolated position of the layout between the ConstraintSets.
+ * @param modifier Modifier to apply to this layout node.
+ * @param transitionName The name of the transition to apply on the layout. By default, it will
+ * target the transition defined with [MotionSceneScope.defaultTransition].
+ * @param optimizationLevel Optimization parameter for the underlying ConstraintLayout,
+ * [Optimizer.OPTIMIZATION_STANDARD] by default.
+ * @param debugFlags Flags to enable visual debugging. [DebugFlags.None] by default.
+ * @param content The content to be laid out by MotionLayout, note that each layout Composable
+ * should be bound to an ID defined in the [ConstraintSet]s using
+ * [Modifier.layoutId][androidx.compose.ui.layout.layoutId].
  */
 @ExperimentalMotionApi
 @Composable
@@ -128,16 +218,74 @@ inline fun MotionLayout(
 }
 
 /**
- * Layout that takes a MotionScene and animates by providing a [constraintSetName] to animate to.
+ * Layout that can animate between multiple [ConstraintSet]s as defined by [Transition]s in the
+ * given [MotionScene].
  *
- * During recomposition, MotionLayout will interpolate from whichever ConstraintSet it is currently
- * in, to [constraintSetName].
+ * &nbsp;
  *
- * Typically the first value of [constraintSetName] should match the start ConstraintSet in the
- * default transition, or be null.
+ * The animation is driven based on the given [constraintSetName]. During recomposition,
+ * MotionLayout will interpolate from whichever [ConstraintSet] it currently is, to the one
+ * corresponding to [constraintSetName]. So, a null [constraintSetName] will result in no changes.
  *
- * Animation is run by [animationSpec], and will only start another animation once any other ones
- * are finished. Use [finishedAnimationListener] to know when a transition has stopped.
+ * ```
+ *  var name by remember { mutableStateOf(0) }
+ *  MotionLayout(
+ *      motionScene = MotionScene {
+ *          val buttonRef = createRefFor("button")
+ *          val initialStart = constraintSet("0") {
+ *              constrain(buttonRef) {
+ *                  centerHorizontallyTo(parent, bias = 0f)
+ *                  centerVerticallyTo(parent, bias = 0f)
+ *              }
+ *          }
+ *          val initialEnd = constraintSet("1") {
+ *              constrain(buttonRef) {
+ *                  centerHorizontallyTo(parent, bias = 0f)
+ *                  centerVerticallyTo(parent, bias = 1f)
+ *              }
+ *          }
+ *          constraintSet("2") {
+ *              constrain(buttonRef) {
+ *                  centerHorizontallyTo(parent, bias = 1f)
+ *                  centerVerticallyTo(parent, bias = 0f)
+ *              }
+ *          }
+ *          constraintSet("3") {
+ *              constrain(buttonRef) {
+ *                  centerHorizontallyTo(parent, bias = 1f)
+ *                  centerVerticallyTo(parent, bias = 1f)
+ *              }
+ *          }
+ *          // We need at least the default transition to define the initial state
+ *          defaultTransition(initialStart, initialEnd)
+ *      },
+ *      constraintSetName = name.toString(),
+ *      animationSpec = tween(1200),
+ *      modifier = Modifier.fillMaxSize()
+ *  ) {
+ *      // Switch to a random ConstraintSet on click
+ *      Button(onClick = { name = IntRange(0, 3).random() }, Modifier.layoutId("button")) {
+ *          Text("Hello, World!")
+ *      }
+ *  }
+ * ```
+ *
+ * Animations are run one after the other, if multiple are queued, only the last one will be
+ * executed. You may use [finishedAnimationListener] to know whenever an animation is finished.
+ *
+ * @param motionScene Holds all the layout states defined in [ConstraintSet]s and the
+ * interpolation associated between them (known as [Transition]s).
+ * @param constraintSetName The name of the [ConstraintSet] to animate to. Null for no animation.
+ * @param animationSpec Specifies how the internal progress value is animated.
+ * @param modifier Modifier to apply to this layout node.
+ * @param finishedAnimationListener Called when an animation triggered by a change in
+ * [constraintSetName] has ended.
+ * @param optimizationLevel Optimization parameter for the underlying ConstraintLayout,
+ * [Optimizer.OPTIMIZATION_STANDARD] by default.
+ * @param debugFlags Flags to enable visual debugging. [DebugFlags.None] by default.
+ * @param content The content to be laid out by MotionLayout, note that each layout Composable
+ * should be bound to an ID defined in the [ConstraintSet]s using
+ * [Modifier.layoutId][androidx.compose.ui.layout.layoutId].
  */
 @ExperimentalMotionApi
 @Composable
