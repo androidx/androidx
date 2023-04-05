@@ -1361,9 +1361,9 @@ public class ConstraintSetParser {
             state.verticalGuideline(guidelineId);
         }
 
-        // Ignore LTR for Horizontal guidelines, since `start` & `end` represent the distance
-        // from `top` and `bottom` respectively
-        boolean isLtr = state.isLtr() || orientation == ConstraintWidget.HORIZONTAL;
+        // Layout direction may be ignored for Horizontal guidelines (placed along the Y axis),
+        // since `start` & `end` represent the `top` and `bottom` distances respectively.
+        boolean isLtr = !state.isRtl() || orientation == ConstraintWidget.HORIZONTAL;
 
         GuidelineReference guidelineReference = (GuidelineReference) reference.getFacade();
 
@@ -1444,7 +1444,7 @@ public class ConstraintSetParser {
             State state,
             String elementName, CLObject element
     ) throws CLParsingException {
-        boolean isLtr = state.isLtr();
+        boolean isLtr = !state.isRtl();
         BarrierReference reference = state.barrier(elementName, State.Direction.END);
         ArrayList<String> constraints = element.names();
         if (constraints == null) {
@@ -1646,7 +1646,7 @@ public class ConstraintSetParser {
                 //  where the bias needs to be reversed in RTL, we probably want a better or more
                 //  intuitive way to do this
                 value = layoutVariables.get(element.get(attributeName));
-                if (!state.isLtr()) {
+                if (state.isRtl()) {
                     value = 1f - value;
                 }
                 reference.horizontalBias(value);
@@ -1814,7 +1814,7 @@ public class ConstraintSetParser {
             ConstraintReference reference,
             String constraintName
     ) throws CLParsingException {
-        boolean isLtr = state.isLtr();
+        boolean isLtr = !state.isRtl();
         CLArray constraint = element.getArrayOrNull(constraintName);
         if (constraint != null && constraint.size() > 1) {
             // params: target, anchor

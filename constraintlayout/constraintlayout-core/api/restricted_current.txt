@@ -2268,14 +2268,16 @@ package androidx.constraintlayout.core.state {
     method public androidx.constraintlayout.core.state.helpers.HorizontalChainReference! horizontalChain(java.lang.Object!...);
     method public androidx.constraintlayout.core.state.helpers.GuidelineReference! horizontalGuideline(Object!);
     method public boolean isBaselineNeeded(androidx.constraintlayout.core.widgets.ConstraintWidget!);
-    method public boolean isLtr();
+    method @Deprecated public boolean isLtr();
+    method public boolean isRtl();
     method public void map(Object!, Object!);
     method public void reset();
     method public boolean sameFixedHeight(int);
     method public boolean sameFixedWidth(int);
     method public void setDpToPixel(androidx.constraintlayout.core.state.CorePixelDp!);
     method public androidx.constraintlayout.core.state.State! setHeight(androidx.constraintlayout.core.state.Dimension!);
-    method public void setLtr(boolean);
+    method @Deprecated public void setLtr(boolean);
+    method public void setRtl(boolean);
     method public void setTag(String!, String!);
     method public androidx.constraintlayout.core.state.State! setWidth(androidx.constraintlayout.core.state.Dimension!);
     method public androidx.constraintlayout.core.state.helpers.VerticalChainReference! verticalChain();

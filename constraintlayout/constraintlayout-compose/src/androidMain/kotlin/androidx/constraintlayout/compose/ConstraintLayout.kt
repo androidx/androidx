@@ -1362,7 +1362,7 @@ internal open class Measurer(
         state.mParent.height.apply(state, root, ConstraintWidget.VERTICAL)
         // Build constraint set and apply it to the state.
         state.rootIncomingConstraints = constraints
-        state.isLtr = layoutDirection == LayoutDirection.Ltr
+        state.isRtl = layoutDirection == LayoutDirection.Rtl
         resetMeasureState()
         if (constraintSet.isDirty(measurables)) {
             state.reset()
