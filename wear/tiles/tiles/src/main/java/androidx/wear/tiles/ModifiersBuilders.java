@@ -22,16 +22,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.tiles.ActionBuilders.Action;
+import androidx.wear.tiles.ColorBuilders.ColorProp;
+import androidx.wear.tiles.DimensionBuilders.DpProp;
+import androidx.wear.tiles.TypeBuilders.BoolProp;
 import androidx.wear.protolayout.proto.ModifiersProto;
 import androidx.wear.protolayout.proto.TypesProto;
 import androidx.wear.protolayout.protobuf.ByteString;
 
-/**
- * Builders for modifiers for composable layout elements.
- *
- * @deprecated Use {@link androidx.wear.protolayout.ModifiersBuilders} instead.
- */
-@Deprecated
+/** Builders for modifiers for composable layout elements. */
 public final class ModifiersBuilders {
     private ModifiersBuilders() {}
 
@@ -57,9 +56,9 @@ public final class ModifiersBuilders {
          * Intended for testing purposes only.
          */
         @Nullable
-        public ActionBuilders.Action getOnClick() {
+        public Action getOnClick() {
             if (mImpl.hasOnClick()) {
-                return ActionBuilders.Action.fromActionProto(mImpl.getOnClick());
+                return Action.fromActionProto(mImpl.getOnClick());
             } else {
                 return null;
             }
@@ -95,7 +94,7 @@ public final class ModifiersBuilders {
              * Sets the action to perform when the element this modifier is attached to is clicked.
              */
             @NonNull
-            public Builder setOnClick(@NonNull ActionBuilders.Action onClick) {
+            public Builder setOnClick(@NonNull Action onClick) {
                 mImpl.setOnClick(onClick.toActionProto());
                 return this;
             }
@@ -179,9 +178,9 @@ public final class ModifiersBuilders {
          * the value of "rtl_aware". Intended for testing purposes only.
          */
         @Nullable
-        public DimensionBuilders.DpProp getEnd() {
+        public DpProp getEnd() {
             if (mImpl.hasEnd()) {
-                return DimensionBuilders.DpProp.fromProto(mImpl.getEnd());
+                return DpProp.fromProto(mImpl.getEnd());
             } else {
                 return null;
             }
@@ -192,9 +191,9 @@ public final class ModifiersBuilders {
          * and the value of "rtl_aware". Intended for testing purposes only.
          */
         @Nullable
-        public DimensionBuilders.DpProp getStart() {
+        public DpProp getStart() {
             if (mImpl.hasStart()) {
-                return DimensionBuilders.DpProp.fromProto(mImpl.getStart());
+                return DpProp.fromProto(mImpl.getStart());
             } else {
                 return null;
             }
@@ -202,9 +201,9 @@ public final class ModifiersBuilders {
 
         /** Gets the padding at the top, in DP. Intended for testing purposes only. */
         @Nullable
-        public DimensionBuilders.DpProp getTop() {
+        public DpProp getTop() {
             if (mImpl.hasTop()) {
-                return DimensionBuilders.DpProp.fromProto(mImpl.getTop());
+                return DpProp.fromProto(mImpl.getTop());
             } else {
                 return null;
             }
@@ -212,9 +211,9 @@ public final class ModifiersBuilders {
 
         /** Gets the padding at the bottom, in DP. Intended for testing purposes only. */
         @Nullable
-        public DimensionBuilders.DpProp getBottom() {
+        public DpProp getBottom() {
             if (mImpl.hasBottom()) {
-                return DimensionBuilders.DpProp.fromProto(mImpl.getBottom());
+                return DpProp.fromProto(mImpl.getBottom());
             } else {
                 return null;
             }
@@ -227,9 +226,9 @@ public final class ModifiersBuilders {
          * map to left/right, accordingly. Intended for testing purposes only.
          */
         @Nullable
-        public TypeBuilders.BoolProp getRtlAware() {
+        public BoolProp getRtlAware() {
             if (mImpl.hasRtlAware()) {
-                return TypeBuilders.BoolProp.fromProto(mImpl.getRtlAware());
+                return BoolProp.fromProto(mImpl.getRtlAware());
             } else {
                 return null;
             }
@@ -259,7 +258,7 @@ public final class ModifiersBuilders {
              * and the value of "rtl_aware".
              */
             @NonNull
-            public Builder setEnd(@NonNull DimensionBuilders.DpProp end) {
+            public Builder setEnd(@NonNull DpProp end) {
                 mImpl.setEnd(end.toProto());
                 return this;
             }
@@ -269,21 +268,21 @@ public final class ModifiersBuilders {
              * DP and the value of "rtl_aware".
              */
             @NonNull
-            public Builder setStart(@NonNull DimensionBuilders.DpProp start) {
+            public Builder setStart(@NonNull DpProp start) {
                 mImpl.setStart(start.toProto());
                 return this;
             }
 
             /** Sets the padding at the top, in DP. */
             @NonNull
-            public Builder setTop(@NonNull DimensionBuilders.DpProp top) {
+            public Builder setTop(@NonNull DpProp top) {
                 mImpl.setTop(top.toProto());
                 return this;
             }
 
             /** Sets the padding at the bottom, in DP. */
             @NonNull
-            public Builder setBottom(@NonNull DimensionBuilders.DpProp bottom) {
+            public Builder setBottom(@NonNull DpProp bottom) {
                 mImpl.setBottom(bottom.toProto());
                 return this;
             }
@@ -295,7 +294,7 @@ public final class ModifiersBuilders {
              * always map to left/right, accordingly.
              */
             @NonNull
-            public Builder setRtlAware(@NonNull TypeBuilders.BoolProp rtlAware) {
+            public Builder setRtlAware(@NonNull BoolProp rtlAware) {
                 mImpl.setRtlAware(rtlAware.toProto());
                 return this;
             }
@@ -315,7 +314,7 @@ public final class ModifiersBuilders {
             /** Sets the padding for all sides of the content, in DP. */
             @NonNull
             @SuppressLint("MissingGetterMatchingBuilder")
-            public Builder setAll(@NonNull DimensionBuilders.DpProp value) {
+            public Builder setAll(@NonNull DpProp value) {
                 return setStart(value).setEnd(value).setTop(value).setBottom(value);
             }
 
@@ -337,9 +336,9 @@ public final class ModifiersBuilders {
 
         /** Gets the width of the border, in DP. Intended for testing purposes only. */
         @Nullable
-        public DimensionBuilders.DpProp getWidth() {
+        public DpProp getWidth() {
             if (mImpl.hasWidth()) {
-                return DimensionBuilders.DpProp.fromProto(mImpl.getWidth());
+                return DpProp.fromProto(mImpl.getWidth());
             } else {
                 return null;
             }
@@ -347,9 +346,9 @@ public final class ModifiersBuilders {
 
         /** Gets the color of the border. Intended for testing purposes only. */
         @Nullable
-        public ColorBuilders.ColorProp getColor() {
+        public ColorProp getColor() {
             if (mImpl.hasColor()) {
-                return ColorBuilders.ColorProp.fromProto(mImpl.getColor());
+                return ColorProp.fromProto(mImpl.getColor());
             } else {
                 return null;
             }
@@ -375,14 +374,14 @@ public final class ModifiersBuilders {
 
             /** Sets the width of the border, in DP. */
             @NonNull
-            public Builder setWidth(@NonNull DimensionBuilders.DpProp width) {
+            public Builder setWidth(@NonNull DpProp width) {
                 mImpl.setWidth(width.toProto());
                 return this;
             }
 
             /** Sets the color of the border. */
             @NonNull
-            public Builder setColor(@NonNull ColorBuilders.ColorProp color) {
+            public Builder setColor(@NonNull ColorProp color) {
                 mImpl.setColor(color.toProto());
                 return this;
             }
@@ -405,9 +404,9 @@ public final class ModifiersBuilders {
 
         /** Gets the radius of the corner in DP. Intended for testing purposes only. */
         @Nullable
-        public DimensionBuilders.DpProp getRadius() {
+        public DpProp getRadius() {
             if (mImpl.hasRadius()) {
-                return DimensionBuilders.DpProp.fromProto(mImpl.getRadius());
+                return DpProp.fromProto(mImpl.getRadius());
             } else {
                 return null;
             }
@@ -433,7 +432,7 @@ public final class ModifiersBuilders {
 
             /** Sets the radius of the corner in DP. */
             @NonNull
-            public Builder setRadius(@NonNull DimensionBuilders.DpProp radius) {
+            public Builder setRadius(@NonNull DpProp radius) {
                 mImpl.setRadius(radius.toProto());
                 return this;
             }
@@ -459,9 +458,9 @@ public final class ModifiersBuilders {
          * transparent. Intended for testing purposes only.
          */
         @Nullable
-        public ColorBuilders.ColorProp getColor() {
+        public ColorProp getColor() {
             if (mImpl.hasColor()) {
-                return ColorBuilders.ColorProp.fromProto(mImpl.getColor());
+                return ColorProp.fromProto(mImpl.getColor());
             } else {
                 return null;
             }
@@ -505,7 +504,7 @@ public final class ModifiersBuilders {
              * transparent.
              */
             @NonNull
-            public Builder setColor(@NonNull ColorBuilders.ColorProp color) {
+            public Builder setColor(@NonNull ColorProp color) {
                 mImpl.setColor(color.toProto());
                 return this;
             }

@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.glance.layout.size
 import androidx.glance.text.Text
 import androidx.test.core.app.ApplicationProvider
+import androidx.wear.tiles.LayoutElementBuilders
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertIs
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -45,21 +46,19 @@ class GlanceWearTilesTest {
     }
 
     @Test
-    @Suppress("deprecation") // For backwards compatibility.
     fun createEmptyUi() = fakeCoroutineScope.runTest {
         val compositionResult =
             compose(
                 context = ApplicationProvider.getApplicationContext<Context>(),
                 size = DpSize(100.dp, 50.dp)) {
             }
-        assertIs<androidx.wear.tiles.LayoutElementBuilders.Box>(compositionResult.layout)
+        assertIs<LayoutElementBuilders.Box>(compositionResult.layout)
         assertThat(
-            (compositionResult.layout as androidx.wear.tiles.LayoutElementBuilders.Box)
+            (compositionResult.layout as LayoutElementBuilders.Box)
             .contents).isEmpty()
     }
 
     @Test
-    @Suppress("deprecation") // For backwards compatibility.
     fun createSimpleWearTiles() = fakeCoroutineScope.runTest {
         val compositionResult =
             compose(
@@ -68,9 +67,9 @@ class GlanceWearTilesTest {
                 Text("text content")
             }
 
-        val box = assertIs<androidx.wear.tiles.LayoutElementBuilders.Box>(compositionResult.layout)
+        val box = assertIs<LayoutElementBuilders.Box>(compositionResult.layout)
         assertThat(box.contents).hasSize(1)
-        val text = assertIs<androidx.wear.tiles.LayoutElementBuilders.Text>(box.contents[0])
+        val text = assertIs<LayoutElementBuilders.Text>(box.contents[0])
         assertThat(text.text!!.value).isEqualTo("text content")
     }
 }
