@@ -241,10 +241,8 @@ object Release {
             }
         }
         projectZipTask.configure { zipTask ->
-            if (!isPresubmitBuild()) {
-                zipTask.dependsOn(verifyInputs)
-                zipTask.finalizedBy(verifyOutputs)
-            }
+            zipTask.dependsOn(verifyInputs)
+            zipTask.finalizedBy(verifyOutputs)
             val verifyOutputsTask = verifyOutputs.get()
             verifyOutputsTask.addFile(zipTask.archiveFile.get().getAsFile())
         }
