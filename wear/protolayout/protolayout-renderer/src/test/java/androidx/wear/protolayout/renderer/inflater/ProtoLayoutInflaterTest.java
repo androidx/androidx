@@ -2472,7 +2472,8 @@ public class ProtoLayoutInflaterTest {
         assertThat(tv1AfterMutation.getText().toString()).isEqualTo("Hello");
         assertThat(tv2AfterMutation.getText().toString()).isEqualTo("Mars");
         // Can't get android resource ID from image, so use the size to infer that the image has
-        // been correctly updated to a different one:
+        // been
+        // correctly updated to a different one:
         assertThat(imageAfterMutation.getDrawable().getIntrinsicHeight()).isEqualTo(120);
         assertThat(imageAfterMutation.getDrawable().getIntrinsicWidth()).isEqualTo(120);
         assertThat(imageAfterMutation.getMeasuredHeight()).isEqualTo(50);
@@ -3299,7 +3300,11 @@ public class ProtoLayoutInflaterTest {
             FixedQuotaManagerImpl quotaManager) {
         mDataPipeline =
                 new ProtoLayoutDynamicDataPipeline(
-                        /* canUpdateGateways= */ true, null, mStateStore, quotaManager);
+                        /* canUpdateGateways= */ true,
+                        null,
+                        mStateStore,
+                        quotaManager,
+                        new FixedQuotaManagerImpl(MAX_VALUE));
         rendererConfigBuilder.setDynamicDataPipeline(mDataPipeline);
         return new Renderer(rendererConfigBuilder.build(), mDataPipeline);
     }

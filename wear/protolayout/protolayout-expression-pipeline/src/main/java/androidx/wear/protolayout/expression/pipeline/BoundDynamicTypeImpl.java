@@ -24,9 +24,12 @@ import java.util.List;
  */
 class BoundDynamicTypeImpl implements BoundDynamicType {
     private final List<DynamicDataNode<?>> mNodes;
+    private final QuotaManager mDynamicDataNodesQuotaManager;
 
-    BoundDynamicTypeImpl(List<DynamicDataNode<?>> nodes) {
+    BoundDynamicTypeImpl(
+            List<DynamicDataNode<?>> nodes, QuotaManager dynamicDataNodesQuotaManager) {
         this.mNodes = nodes;
+        this.mDynamicDataNodesQuotaManager = dynamicDataNodesQuotaManager;
     }
 
     /**
@@ -76,5 +79,6 @@ class BoundDynamicTypeImpl implements BoundDynamicType {
         mNodes.stream()
                 .filter(n -> n instanceof DynamicDataSourceNode)
                 .forEach(n -> ((DynamicDataSourceNode<?>) n).destroy());
+        mDynamicDataNodesQuotaManager.releaseQuota(getDynamicNodeCount());
     }
 }

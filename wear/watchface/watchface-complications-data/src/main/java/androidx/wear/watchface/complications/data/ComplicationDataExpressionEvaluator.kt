@@ -24,6 +24,7 @@ import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
 import androidx.wear.protolayout.expression.pipeline.BoundDynamicType
+import androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver
 import androidx.wear.protolayout.expression.pipeline.StateStore
@@ -123,7 +124,15 @@ class ComplicationDataExpressionEvaluator(
                         if (!keepExpression) expressionTrimmer(this)
                         setter(this, value)
                     },
-                    binder = { receiver -> value.evaluator.bind(expression, executor, receiver) },
+                    binder = { receiver ->
+                        value.evaluator.bind(
+                            DynamicTypeBindingRequest.forDynamicFloat(
+                                expression,
+                                executor,
+                                receiver
+                            )
+                        )
+                    },
                 )
             )
         }
@@ -149,7 +158,14 @@ class ComplicationDataExpressionEvaluator(
                         )
                     },
                     binder = { receiver ->
-                        value.evaluator.bind(expression, ULocale.getDefault(), executor, receiver)
+                        value.evaluator.bind(
+                            DynamicTypeBindingRequest.forDynamicString(
+                                expression,
+                                ULocale.getDefault(),
+                                executor,
+                                receiver
+                            )
+                        )
                     },
                 )
             )
