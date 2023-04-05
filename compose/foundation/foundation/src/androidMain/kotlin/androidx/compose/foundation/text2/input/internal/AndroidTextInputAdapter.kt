@@ -25,6 +25,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldState
@@ -40,7 +41,11 @@ import androidx.core.view.inputmethod.EditorInfoCompat
 import java.util.concurrent.Executor
 import org.jetbrains.annotations.TestOnly
 
-private const val DEBUG = false
+/**
+ * Enable to print logs during debugging, see [logDebug].
+ */
+@VisibleForTesting
+internal const val TIA_DEBUG = false
 private const val TAG = "AndroidTextInputAdapter"
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -477,7 +482,7 @@ internal fun EditorInfo.update(textFieldValue: TextFieldValue, imeOptions: ImeOp
 private fun hasFlag(bits: Int, flag: Int): Boolean = (bits and flag) == flag
 
 private fun logDebug(tag: String = TAG, content: () -> String) {
-    if (DEBUG) {
+    if (TIA_DEBUG) {
         Log.d(tag, content())
     }
 }
