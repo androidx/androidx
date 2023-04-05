@@ -2502,9 +2502,7 @@ package androidx.constraintlayout.core.state.helpers {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void addChainElement(Object, float, float, float, float, float);
     method public androidx.constraintlayout.core.state.helpers.ChainReference bias(float);
     method public float getBias();
-    method protected float getPostGoneMargin(String);
     method protected float getPostMargin(String);
-    method protected float getPreGoneMargin(String);
     method protected float getPreMargin(String);
     method public androidx.constraintlayout.core.state.State.Chain getStyle();
     method protected float getWeight(String);
