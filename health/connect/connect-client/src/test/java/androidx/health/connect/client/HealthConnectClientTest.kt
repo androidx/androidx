@@ -129,6 +129,30 @@ class HealthConnectClientTest {
     }
 
     @Test
+    @Config(sdk = [Build.VERSION_CODES.P])
+    @Suppress("Deprecation")
+    fun backingImplementationLegacy_enabledSupportedVersion_isAvailable() {
+        installPackage(
+            context,
+            HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME,
+            versionCode = HealthConnectClient.DEFAULT_PROVIDER_MIN_VERSION_CODE,
+            enabled = true
+        )
+        installService(context, HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME)
+
+        assertThat(HealthConnectClient.isProviderAvailableLegacy(context)).isTrue()
+        assertThat(
+            HealthConnectClient.getSdkStatusLegacy(
+                context,
+                HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME
+            )
+        )
+            .isEqualTo(HealthConnectClient.SDK_AVAILABLE)
+        assertThat(HealthConnectClient.getOrCreateLegacy(context))
+            .isInstanceOf(HealthConnectClientImpl::class.java)
+    }
+
+    @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     @Suppress("Deprecation")
     fun sdkVersionTooOld_unavailable() {
@@ -139,6 +163,20 @@ class HealthConnectClientTest {
             .isEqualTo(HealthConnectClient.SDK_UNAVAILABLE)
         assertThrows(UnsupportedOperationException::class.java) {
             HealthConnectClient.getOrCreate(context, PROVIDER_PACKAGE_NAME)
+        }
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.O_MR1])
+    @Suppress("Deprecation")
+    fun sdkVersionTooOld_legacyClient_unavailable() {
+        assertThat(HealthConnectClient.isApiSupported()).isFalse()
+        assertThat(HealthConnectClient.isProviderAvailableLegacy(context, PROVIDER_PACKAGE_NAME))
+            .isFalse()
+        assertThat(HealthConnectClient.getSdkStatusLegacy(context, PROVIDER_PACKAGE_NAME))
+            .isEqualTo(HealthConnectClient.SDK_UNAVAILABLE)
+        assertThrows(UnsupportedOperationException::class.java) {
+            HealthConnectClient.getOrCreateLegacy(context, PROVIDER_PACKAGE_NAME)
         }
     }
 

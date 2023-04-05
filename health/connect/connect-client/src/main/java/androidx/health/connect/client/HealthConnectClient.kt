@@ -394,6 +394,25 @@ interface HealthConnectClient {
             return SDK_AVAILABLE
         }
 
+        @JvmOverloads
+        @JvmStatic
+        @AvailabilityStatus
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun getSdkStatusLegacy(
+            context: Context,
+            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
+        ): Int {
+            @Suppress("Deprecation")
+            if (!isApiSupported()) {
+                return SDK_UNAVAILABLE
+            }
+            @Suppress("Deprecation")
+            if (!isProviderAvailableLegacy(context, providerPackageName)) {
+                return SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
+            }
+            return SDK_AVAILABLE
+        }
+
         /**
          * Determines whether the current Health Connect SDK is supported on this device. If it is
          * not supported, then installing any provider will not help - instead disable the
@@ -466,6 +485,41 @@ interface HealthConnectClient {
 
             if (BuildCompat.isAtLeastU()) {
                 return HealthConnectClientUpsideDownImpl(context)
+            }
+            return HealthConnectClientImpl(
+                HealthDataService.getClient(context, providerPackageName)
+            )
+        }
+
+        @JvmOverloads
+        @JvmStatic
+        @Deprecated("use getSdkStatusLegacy()")
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun isProviderAvailableLegacy(
+            context: Context,
+            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
+        ): Boolean {
+            @Suppress("Deprecation")
+            if (!isApiSupported()) {
+                return false
+            }
+            return isPackageInstalled(context.packageManager, providerPackageName)
+        }
+
+        @JvmOverloads
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun getOrCreateLegacy(
+            context: Context,
+            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
+        ): HealthConnectClient {
+            @Suppress("Deprecation")
+            if (!isApiSupported()) {
+                throw UnsupportedOperationException("SDK version too low")
+            }
+            @Suppress("Deprecation")
+            if (!isProviderAvailableLegacy(context, providerPackageName)) {
+                throw IllegalStateException("Service not available")
             }
             return HealthConnectClientImpl(
                 HealthDataService.getClient(context, providerPackageName)
