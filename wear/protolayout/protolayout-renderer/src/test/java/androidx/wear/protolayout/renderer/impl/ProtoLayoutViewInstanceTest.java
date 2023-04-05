@@ -79,55 +79,129 @@ public class ProtoLayoutViewInstanceTest {
     }
 
     @Test
-    public void adaptiveUpdateRatesDisabled_attach_reinflatesCompletely() {
+    public void adaptiveUpdateRatesDisabled_attach_reinflatesCompletely() throws Exception {
         setupInstance(/* adaptiveUpdateRatesEnabled= */ false);
-        mInstanceUnderTest.renderAndAttach(
-                layout(column(text(TEXT1), text(TEXT2))), RESOURCES, mRootContainer);
+        ListenableFuture<Void> result =
+                mInstanceUnderTest.renderAndAttach(
+                        layout(column(text(TEXT1), text(TEXT2))), RESOURCES, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
+
+        assertNoException(result);
+
         List<View> layout1 = findViewsWithText(mRootContainer, TEXT1);
         assertThat(layout1).hasSize(1);
 
-        mInstanceUnderTest.renderAndAttach(
-                layout(column(text(TEXT1), text(TEXT3))), RESOURCES, mRootContainer);
+        result =
+                mInstanceUnderTest.renderAndAttach(
+                        layout(column(text(TEXT1), text(TEXT3))), RESOURCES, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
 
+        assertNoException(result);
         assertThat(findViewsWithText(mRootContainer, TEXT1)).containsNoneIn(layout1);
         assertThat(findViewsWithText(mRootContainer, TEXT3)).isNotEmpty();
     }
 
     @Test
-    public void adaptiveUpdateRatesEnabled_attach_appliesDiffOnly() {
+    public void adaptiveUpdateRatesEnabled_attach_appliesDiffOnly() throws Exception {
         setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
-        mInstanceUnderTest.renderAndAttach(
-                layout(column(text(TEXT1), text(TEXT2))), RESOURCES, mRootContainer);
+        ListenableFuture<Void> result =
+                mInstanceUnderTest.renderAndAttach(
+                        layout(column(text(TEXT1), text(TEXT2))), RESOURCES, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
+
+        assertNoException(result);
+
         List<View> layout1 = findViewsWithText(mRootContainer, TEXT1);
         assertThat(layout1).hasSize(1);
 
-        mInstanceUnderTest.renderAndAttach(
-                layout(column(text(TEXT1), text(TEXT3))), RESOURCES, mRootContainer);
+        result =
+                mInstanceUnderTest.renderAndAttach(
+                        layout(column(text(TEXT1), text(TEXT3))), RESOURCES, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
 
+        assertNoException(result);
         // Assert that only the modified text is reinflated.
         assertThat(findViewsWithText(mRootContainer, TEXT1)).containsExactlyElementsIn(layout1);
         assertThat(findViewsWithText(mRootContainer, TEXT3)).isNotEmpty();
     }
 
     @Test
-    public void adaptiveUpdateRatesEnabled_attach_withDynamicValue_appliesDiffOnly() {
+    public void reattach_usesCachedLayoutForDiffUpdate() throws Exception {
+        setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
+        ListenableFuture<Void> result =
+                mInstanceUnderTest.renderAndAttach(
+                        layout(column(text(TEXT1), text(TEXT2))), RESOURCES, mRootContainer);
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertNoException(result);
+        List<View> layout1 = findViewsWithText(mRootContainer, TEXT1);
+        assertThat(layout1).hasSize(1);
+
+        mInstanceUnderTest.detach(mRootContainer);
+
+        result =
+                mInstanceUnderTest.renderAndAttach(
+                        layout(column(text(TEXT1), text(TEXT3))), RESOURCES, mRootContainer);
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertNoException(result);
+        // Assert that only the modified text is reinflated.
+        assertThat(findViewsWithText(mRootContainer, TEXT1)).containsExactlyElementsIn(layout1);
+        assertThat(findViewsWithText(mRootContainer, TEXT3)).isNotEmpty();
+    }
+
+    @Test
+    public void adaptiveUpdateRatesEnabled_applyingDiffToDetachedContainer_returnsNothing()
+            throws Exception {
+        setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
+
+        // First one that does the full layout update.
+        ListenableFuture<Void> result =
+                mInstanceUnderTest.renderAndAttach(
+                        layout(column(text(TEXT1), text(TEXT2))), RESOURCES, mRootContainer);
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertNoException(result);
+
+        List<View> layout1 = findViewsWithText(mRootContainer, TEXT1);
+        assertThat(layout1).hasSize(1);
+
+        // Second one that applies mutation only.
+        result =
+                mInstanceUnderTest.renderAndAttach(
+                        layout(column(text(TEXT1), text(TEXT3))), RESOURCES, mRootContainer);
+        // Detach so it can't apply update.
+        mInstanceUnderTest.detach(mRootContainer);
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertThat(result.isCancelled()).isTrue();
+        assertThat(mRootContainer.getChildCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void adaptiveUpdateRatesEnabled_attach_withDynamicValue_appliesDiffOnly()
+            throws Exception {
         setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
 
         // Render the first layout.
         Layout layout1 = layout(column(dynamicFixedText(TEXT1), dynamicFixedText(TEXT2)));
-        mInstanceUnderTest.renderAndAttach(layout1, RESOURCES, mRootContainer);
+        ListenableFuture<Void> result =
+                mInstanceUnderTest.renderAndAttach(layout1, RESOURCES, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
+
+        assertNoException(result);
+
         List<View> textView1 = findViewsWithText(mRootContainer, TEXT1);
         assertThat(textView1).hasSize(1);
         assertThat(findViewsWithText(mRootContainer, TEXT2)).hasSize(1);
 
         Layout layout2 = layout(column(dynamicFixedText(TEXT1), dynamicFixedText(TEXT3)));
-        mInstanceUnderTest.renderAndAttach(layout2, RESOURCES, mRootContainer);
+        result = mInstanceUnderTest.renderAndAttach(layout2, RESOURCES, mRootContainer);
+        // Make sure future is computing result.
+        assertThat(result.isDone()).isFalse();
         shadowOf(Looper.getMainLooper()).idle();
+
+        assertNoException(result);
         // Assert that only the modified text is reinflated.
         assertThat(findViewsWithText(mRootContainer, TEXT1)).containsExactlyElementsIn(textView1);
         assertThat(findViewsWithText(mRootContainer, TEXT2)).isEmpty();
@@ -135,28 +209,34 @@ public class ProtoLayoutViewInstanceTest {
     }
 
     @Test
-    public void adaptiveUpdateRatesEnabled_ongoingRendering_skipsNewLayout() {
+    public void adaptiveUpdateRatesEnabled_ongoingRendering_skipsNewLayout() throws Exception {
         FrameLayout container = new FrameLayout(mApplicationContext);
         setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
-        mInstanceUnderTest.renderAndAttach(
-                layout(column(text(TEXT1), text(TEXT2))), RESOURCES, container);
+        ListenableFuture<Void> result1 =
+                mInstanceUnderTest.renderAndAttach(
+                        layout(column(text(TEXT1), text(TEXT2))), RESOURCES, container);
+        assertThat(result1.isDone()).isFalse();
 
-        mInstanceUnderTest.renderAndAttach(
-                layout(column(text(TEXT1), text(TEXT3))), RESOURCES, container);
+        ListenableFuture<Void> result2 =
+                mInstanceUnderTest.renderAndAttach(
+                        layout(column(text(TEXT1), text(TEXT3))), RESOURCES, container);
         shadowOf(Looper.getMainLooper()).idle();
 
+        assertNoException(result1);
+        assertThat(result2.isCancelled()).isTrue();
         // Assert that only the modified text is reinflated.
         assertThat(findViewsWithText(container, TEXT2)).hasSize(1);
         assertThat(findViewsWithText(container, TEXT3)).isEmpty();
     }
 
     @Test
-    public void attachingToANewContainer_withoutDetach_throws() {
+    public void attachingToANewContainer_withoutDetach_throws() throws Exception {
         FrameLayout container1 = new FrameLayout(mApplicationContext);
         FrameLayout container2 = new FrameLayout(mApplicationContext);
         setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
-        mInstanceUnderTest.renderAndAttach(
-                layout(column(text(TEXT1), text(TEXT2))), RESOURCES, container1);
+        ListenableFuture<Void> result =
+                mInstanceUnderTest.renderAndAttach(
+                        layout(column(text(TEXT1), text(TEXT2))), RESOURCES, container1);
 
         assertThrows(
                 IllegalStateException.class,
@@ -164,64 +244,96 @@ public class ProtoLayoutViewInstanceTest {
                         mInstanceUnderTest.renderAndAttach(
                                 layout(column(text(TEXT1), text(TEXT2))), RESOURCES, container2));
         shadowOf(Looper.getMainLooper()).idle();
+
+        // Check the result from first attach.
+        assertNoException(result);
     }
 
     @Test
-    public void renderingToADetachedContainer_isNoOp() {
+    public void renderingToADetachedContainer_isNoOp() throws Exception {
         FrameLayout container1 = new FrameLayout(mApplicationContext);
         FrameLayout container2 = new FrameLayout(mApplicationContext);
         setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
-        mInstanceUnderTest.renderAndAttach(layout(text(TEXT1)), RESOURCES, container1);
+        ListenableFuture<Void> result1 =
+                mInstanceUnderTest.renderAndAttach(layout(text(TEXT1)), RESOURCES, container1);
         mInstanceUnderTest.detach(container1);
 
-        mInstanceUnderTest.renderAndAttach(layout(text(TEXT1)), RESOURCES, container2);
+        ListenableFuture<Void> result2 =
+                mInstanceUnderTest.renderAndAttach(layout(text(TEXT1)), RESOURCES, container2);
         shadowOf(Looper.getMainLooper()).idle();
 
+        assertThat(result1.isCancelled()).isTrue();
+        assertThat(result2.isDone()).isTrue();
+        assertNoException(result2);
         assertThat(findViewsWithText(container1, TEXT1)).isEmpty();
         assertThat(findViewsWithText(container2, TEXT1)).hasSize(1);
     }
 
     @Test
-    public void adaptiveUpdateRatesDisabled_sameLayoutReference_subsequentRendering_isNoOp() {
+    public void adaptiveUpdateRatesDisabled_sameLayoutReference_subsequentRendering_isNoOp()
+            throws Exception {
         Layout layout = layout(text(TEXT1));
         setupInstance(/* adaptiveUpdateRatesEnabled= */ false);
-        mInstanceUnderTest.renderAndAttach(layout, RESOURCES, mRootContainer);
+        ListenableFuture<Void> result =
+                mInstanceUnderTest.renderAndAttach(layout, RESOURCES, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
 
-        mInstanceUnderTest.renderAndAttach(layout, RESOURCES, mRootContainer);
+        assertNoException(result);
 
+        result = mInstanceUnderTest.renderAndAttach(layout, RESOURCES, mRootContainer);
+
+        shadowOf(Looper.getMainLooper()).idle();
+        assertNoException(result);
         assertThat(shadowOf(Looper.getMainLooper()).isIdle()).isTrue();
     }
 
     @Test
-    public void adaptiveUpdateRatesEnabled_afterNoChange_reattach_sameLayoutReference_rerenders() {
+    public void adaptiveUpdateRatesEnabled_afterNoChange_reattach_sameLayoutReference_isNoOp()
+            throws Exception {
         Layout layout1 = layout(text(TEXT1));
         Layout layout2 = layout(text(TEXT1));
         setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
-        mInstanceUnderTest.renderAndAttach(layout1, RESOURCES, mRootContainer);
+        ListenableFuture<Void> result =
+                mInstanceUnderTest.renderAndAttach(layout1, RESOURCES, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
+
+        assertNoException(result);
+
         // Make sure we have an UnchangedRenderResult
-        mInstanceUnderTest.renderAndAttach(layout2, RESOURCES, mRootContainer);
+        result = mInstanceUnderTest.renderAndAttach(layout2, RESOURCES, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
+
+        assertNoException(result);
+        assertThat(findViewsWithText(mRootContainer, TEXT1)).hasSize(1);
+
         mInstanceUnderTest.detach(mRootContainer);
+        assertThat(findViewsWithText(mRootContainer, TEXT1)).isEmpty();
         shadowOf(Looper.getMainLooper()).idle();
 
-        mInstanceUnderTest.renderAndAttach(layout2, RESOURCES, mRootContainer);
+        result = mInstanceUnderTest.renderAndAttach(layout2, RESOURCES, mRootContainer);
 
-        assertThat(shadowOf(Looper.getMainLooper()).isIdle()).isFalse();
+        assertThat(result.isDone()).isTrue();
+        assertNoException(result);
+        assertThat(findViewsWithText(mRootContainer, TEXT1)).hasSize(1);
     }
 
     @Test
-    public void layoutViewIsCachedWhenDetached() {
+    public void fullInflationResultCanBeReused() throws Exception {
         setupInstance(/* adaptiveUpdateRatesEnabled= */ false);
         Layout layout = layout(text(TEXT1));
-        mInstanceUnderTest.renderAndAttach(layout, RESOURCES, mRootContainer);
+        ListenableFuture<Void> result =
+                mInstanceUnderTest.renderAndAttach(layout, RESOURCES, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
+
+        assertNoException(result);
+
         ListenableFuture<?> renderFuture = mInstanceUnderTest.mRenderFuture;
 
         mInstanceUnderTest.detach(mRootContainer);
-        mInstanceUnderTest.renderAndAttach(layout, RESOURCES, mRootContainer);
+        result = mInstanceUnderTest.renderAndAttach(layout, RESOURCES, mRootContainer);
 
+        shadowOf(Looper.getMainLooper()).idle();
+        assertNoException(result);
         assertThat(mInstanceUnderTest.mRenderFuture).isSameInstanceAs(renderFuture);
     }
 
@@ -230,14 +342,52 @@ public class ProtoLayoutViewInstanceTest {
             throws Exception {
         Layout layout = layout(text(TEXT1));
         setupInstance(/* adaptiveUpdateRatesEnabled= */ false);
-        mInstanceUnderTest.renderAndAttach(layout, RESOURCES, mRootContainer);
+        ListenableFuture<Void> result =
+                mInstanceUnderTest.renderAndAttach(layout, RESOURCES, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
+        assertNoException(result);
+        List<View> textViews1 = findViewsWithText(mRootContainer, TEXT1);
+        assertThat(textViews1).hasSize(1);
+
+        mInstanceUnderTest.close();
+        result = mInstanceUnderTest.renderAndAttach(layout, RESOURCES, mRootContainer);
+
+        assertThat(shadowOf(Looper.getMainLooper()).isIdle()).isFalse();
+        shadowOf(Looper.getMainLooper()).idle();
+        assertNoException(result);
+        List<View> textViews2 = findViewsWithText(mRootContainer, TEXT1);
+        assertThat(textViews2).hasSize(1);
+        assertThat(textViews1.get(0)).isNotSameInstanceAs(textViews2.get(0));
+    }
+
+    @Test
+    public void detach_clearsHostView() throws Exception {
+        Layout layout = layout(text(TEXT1));
+        setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
+        ListenableFuture<Void> result =
+                mInstanceUnderTest.renderAndAttach(layout, RESOURCES, mRootContainer);
+        shadowOf(Looper.getMainLooper()).idle();
+        assertNoException(result);
+        assertThat(findViewsWithText(mRootContainer, TEXT1)).hasSize(1);
+
+        mInstanceUnderTest.detach(mRootContainer);
+
+        assertThat(mRootContainer.getChildCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void close_clearsHostView() throws Exception {
+        Layout layout = layout(text(TEXT1));
+        setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
+        ListenableFuture<Void> result =
+                mInstanceUnderTest.renderAndAttach(layout, RESOURCES, mRootContainer);
+        shadowOf(Looper.getMainLooper()).idle();
+        assertNoException(result);
+        assertThat(findViewsWithText(mRootContainer, TEXT1)).hasSize(1);
 
         mInstanceUnderTest.close();
 
-        mInstanceUnderTest.renderAndAttach(layout, RESOURCES, mRootContainer);
-
-        assertThat(shadowOf(Looper.getMainLooper()).isIdle()).isFalse();
+        assertThat(mRootContainer.getChildCount()).isEqualTo(0);
     }
 
     private void setupInstance(boolean adaptiveUpdateRatesEnabled) {
@@ -248,13 +398,12 @@ public class ProtoLayoutViewInstanceTest {
 
         ProtoLayoutViewInstance.Config config =
                 new Config.Builder(
-                        mApplicationContext,
-                        listeningExecutorService,
-                        listeningExecutorService,
-                        /* clickableIdExtra= */ "CLICKABLE_ID_EXTRA")
+                                mApplicationContext,
+                                listeningExecutorService,
+                                listeningExecutorService,
+                                /* clickableIdExtra= */ "CLICKABLE_ID_EXTRA")
                         .setStateStore(new StateStore(ImmutableMap.of()))
-                        .setLoadActionListener(nextState -> {
-                        })
+                        .setLoadActionListener(nextState -> {})
                         .setAnimationEnabled(true)
                         .setRunningAnimationsLimit(Integer.MAX_VALUE)
                         .setUpdatesEnabled(true)
@@ -270,6 +419,11 @@ public class ProtoLayoutViewInstanceTest {
         return views;
     }
 
+    private static void assertNoException(ListenableFuture<Void> result) throws Exception {
+        // Assert that result hasn't thrown exception.
+        result.get();
+    }
+
     static class FakeExecutorService extends AbstractExecutorService {
 
         private final Handler mHandler;
@@ -279,8 +433,7 @@ public class ProtoLayoutViewInstanceTest {
         }
 
         @Override
-        public void shutdown() {
-        }
+        public void shutdown() {}
 
         @Override
         public List<Runnable> shutdownNow() {
