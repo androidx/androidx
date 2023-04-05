@@ -33,7 +33,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.SheetValue.Expanded
 import androidx.compose.material3.SheetValue.Hidden
-import androidx.compose.material3.SheetValue.PartiallyExpanded
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -54,6 +53,8 @@ import androidx.compose.ui.semantics.expand
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import kotlin.math.max
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -197,7 +198,7 @@ fun ModalBottomSheet(
                                         animateToDismiss()
                                         true
                                     }
-                                    if (currentValue == PartiallyExpanded) {
+                                    if (currentValue == SheetValue.PartiallyExpanded) {
                                         expand(expandActionLabel) {
                                             if (swipeableState.confirmValueChange(Expanded)) {
                                                 scope.launch { sheetState.expand() }
@@ -206,9 +207,9 @@ fun ModalBottomSheet(
                                         }
                                     } else if (hasPartiallyExpandedState) {
                                         collapse(collapseActionLabel) {
-                                            if (
-                                                swipeableState.confirmValueChange(PartiallyExpanded)
-                                            ) {
+                                            val confirmPartial = swipeableState
+                                                .confirmValueChange(SheetValue.PartiallyExpanded)
+                                            if (confirmPartial) {
                                                 scope.launch { partialExpand() }
                                             }
                                             true
@@ -286,29 +287,29 @@ private fun Modifier.modalBottomSheetSwipeable(
     bottomPadding: Float,
     onDragStopped: CoroutineScope.(velocity: Float) -> Unit,
 ) = draggable(
-            state = sheetState.swipeableState.swipeDraggableState,
-            orientation = Orientation.Vertical,
-            enabled = sheetState.isVisible,
-            startDragImmediately = sheetState.swipeableState.isAnimationRunning,
-            onDragStopped = onDragStopped
-        )
-        .swipeAnchors(
-            state = sheetState.swipeableState,
-            anchorChangeHandler = anchorChangeHandler,
-            possibleValues = setOf(Hidden, PartiallyExpanded, Expanded),
-        ) { value, sheetSize ->
-            when (value) {
-                Hidden -> screenHeight + bottomPadding
-                PartiallyExpanded -> when {
-                    sheetSize.height < screenHeight / 2 -> null
-                    sheetState.skipPartiallyExpanded -> null
-                    else -> screenHeight / 2f
-                }
-                Expanded -> if (sheetSize.height != 0) {
-                    max(0f, screenHeight - sheetSize.height)
-                } else null
+    state = sheetState.swipeableState.swipeDraggableState,
+    orientation = Orientation.Vertical,
+    enabled = sheetState.isVisible,
+    startDragImmediately = sheetState.swipeableState.isAnimationRunning,
+    onDragStopped = onDragStopped
+)
+    .swipeAnchors(
+        state = sheetState.swipeableState,
+        anchorChangeHandler = anchorChangeHandler,
+        possibleValues = setOf(Hidden, SheetValue.PartiallyExpanded, Expanded),
+    ) { value, sheetSize ->
+        when (value) {
+            Hidden -> screenHeight + bottomPadding
+            SheetValue.PartiallyExpanded -> when {
+                sheetSize.height < screenHeight / 2 -> null
+                sheetState.skipPartiallyExpanded -> null
+                else -> screenHeight / 2f
             }
+            Expanded -> if (sheetSize.height != 0) {
+                max(0f, screenHeight - sheetSize.height)
+            } else null
         }
+    }
 
 @ExperimentalMaterial3Api
 private fun ModalBottomSheetAnchorChangeHandler(
@@ -319,9 +320,9 @@ private fun ModalBottomSheetAnchorChangeHandler(
     val previousTargetOffset = previousAnchors[previousTarget]
     val newTarget = when (previousTarget) {
         Hidden -> Hidden
-        PartiallyExpanded, Expanded -> {
-            val hasPartiallyExpandedState = newAnchors.containsKey(PartiallyExpanded)
-            val newTarget = if (hasPartiallyExpandedState) PartiallyExpanded
+        SheetValue.PartiallyExpanded, Expanded -> {
+            val hasPartiallyExpandedState = newAnchors.containsKey(SheetValue.PartiallyExpanded)
+            val newTarget = if (hasPartiallyExpandedState) SheetValue.PartiallyExpanded
             else if (newAnchors.containsKey(Expanded)) Expanded else Hidden
             newTarget
         }
@@ -338,7 +339,16 @@ private fun ModalBottomSheetAnchorChangeHandler(
     }
 }
 
-internal expect fun ModalBottomSheetPopup(
+/**
+ * Popup specific for modal bottom sheet.
+ */
+@Composable
+@ExperimentalMaterial3Api
+internal fun ModalBottomSheetPopup(
     onDismissRequest: () -> Unit,
     content: @Composable () -> Unit
+) = Popup(
+    onDismissRequest = onDismissRequest,
+    properties = PopupProperties(focusable = true),
+    content = content
 )
