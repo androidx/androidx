@@ -359,6 +359,16 @@ package androidx.wear.protolayout {
     field public static final int VERTICAL_ALIGN_UNDEFINED = 0; // 0x0
   }
 
+  @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final class LayoutElementBuilders.AndroidTextStyle {
+    method public boolean getExcludeFontPadding();
+  }
+
+  public static final class LayoutElementBuilders.AndroidTextStyle.Builder {
+    ctor public LayoutElementBuilders.AndroidTextStyle.Builder();
+    method public androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle build();
+    method public androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle.Builder setExcludeFontPadding(boolean);
+  }
+
   public static final class LayoutElementBuilders.Arc implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement {
     method public androidx.wear.protolayout.DimensionBuilders.DegreesProp? getAnchorAngle();
     method public androidx.wear.protolayout.LayoutElementBuilders.ArcAnchorTypeProp? getAnchorType();
@@ -696,6 +706,7 @@ package androidx.wear.protolayout {
   }
 
   public static final class LayoutElementBuilders.SpanText implements androidx.wear.protolayout.LayoutElementBuilders.Span {
+    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle? getAndroidTextStyle();
     method public androidx.wear.protolayout.LayoutElementBuilders.FontStyle? getFontStyle();
     method public androidx.wear.protolayout.ModifiersBuilders.SpanModifiers? getModifiers();
     method public androidx.wear.protolayout.TypeBuilders.StringProp? getText();
@@ -704,6 +715,7 @@ package androidx.wear.protolayout {
   public static final class LayoutElementBuilders.SpanText.Builder implements androidx.wear.protolayout.LayoutElementBuilders.Span.Builder {
     ctor public LayoutElementBuilders.SpanText.Builder();
     method public androidx.wear.protolayout.LayoutElementBuilders.SpanText build();
+    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.LayoutElementBuilders.SpanText.Builder setAndroidTextStyle(androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle);
     method public androidx.wear.protolayout.LayoutElementBuilders.SpanText.Builder setFontStyle(androidx.wear.protolayout.LayoutElementBuilders.FontStyle);
     method public androidx.wear.protolayout.LayoutElementBuilders.SpanText.Builder setModifiers(androidx.wear.protolayout.ModifiersBuilders.SpanModifiers);
     method public androidx.wear.protolayout.LayoutElementBuilders.SpanText.Builder setText(androidx.wear.protolayout.TypeBuilders.StringProp);
@@ -744,6 +756,7 @@ package androidx.wear.protolayout {
   }
 
   public static final class LayoutElementBuilders.Text implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement {
+    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle? getAndroidTextStyle();
     method public androidx.wear.protolayout.LayoutElementBuilders.FontStyle? getFontStyle();
     method public androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint? getLayoutConstraintsForDynamicText();
     method public androidx.wear.protolayout.DimensionBuilders.SpProp? getLineHeight();
@@ -757,6 +770,7 @@ package androidx.wear.protolayout {
   public static final class LayoutElementBuilders.Text.Builder implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement.Builder {
     ctor public LayoutElementBuilders.Text.Builder();
     method public androidx.wear.protolayout.LayoutElementBuilders.Text build();
+    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.LayoutElementBuilders.Text.Builder setAndroidTextStyle(androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle);
     method public androidx.wear.protolayout.LayoutElementBuilders.Text.Builder setFontStyle(androidx.wear.protolayout.LayoutElementBuilders.FontStyle);
     method public androidx.wear.protolayout.LayoutElementBuilders.Text.Builder setLayoutConstraintsForDynamicText(androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint);
     method public androidx.wear.protolayout.LayoutElementBuilders.Text.Builder setLineHeight(androidx.wear.protolayout.DimensionBuilders.SpProp);

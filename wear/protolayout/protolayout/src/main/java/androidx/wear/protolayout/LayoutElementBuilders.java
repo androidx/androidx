@@ -697,6 +697,96 @@ public final class LayoutElementBuilders {
         }
     }
 
+    /**
+     * An Android platform specific text style configuration options for styling and compatibility.
+     *
+     * @since 1.2
+     */
+    @ProtoLayoutExperimental
+    public static final class AndroidTextStyle {
+        private final LayoutElementProto.AndroidTextStyle mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        AndroidTextStyle(LayoutElementProto.AndroidTextStyle impl,
+                @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets whether the {@link Text} excludes padding specified by the font, i.e. extra top and
+         * bottom padding above the normal ascent and descent. The default is false.
+         *
+         * @since 1.2
+         */
+        public boolean getExcludeFontPadding() {
+            return mImpl.getExcludeFontPadding();
+        }
+
+        /** Get the fingerprint for this object, or null if unknown. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static AndroidTextStyle fromProto(
+                @NonNull LayoutElementProto.AndroidTextStyle proto,
+                @Nullable Fingerprint fingerprint) {
+            return new AndroidTextStyle(proto, fingerprint);
+        }
+
+        @NonNull
+        static AndroidTextStyle fromProto(@NonNull LayoutElementProto.AndroidTextStyle proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.AndroidTextStyle toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "AndroidTextStyle{" + "excludeFontPadding=" + getExcludeFontPadding() + "}";
+        }
+
+        /** Builder for {@link AndroidTextStyle} */
+        public static final class Builder {
+            private final LayoutElementProto.AndroidTextStyle.Builder mImpl =
+                    LayoutElementProto.AndroidTextStyle.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(408674745);
+
+            public Builder() {}
+
+            /**
+             * Sets whether the {@link Text} excludes padding specified by the font, i.e. extra
+             * top and bottom padding above the normal ascent and descent. The default is false.
+             *
+             * @since 1.2
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setExcludeFontPadding(boolean excludeFontPadding) {
+                mImpl.setExcludeFontPadding(excludeFontPadding);
+                mFingerprint.recordPropertyUpdate(1, Boolean.hashCode(excludeFontPadding));
+                return this;
+            }
+
+            /** Builds an instance from accumulated values. */
+            @NonNull
+            public AndroidTextStyle build() {
+                return new AndroidTextStyle(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
     /** A text string. */
     public static final class Text implements LayoutElement {
         private final LayoutElementProto.Text mImpl;
@@ -813,6 +903,22 @@ public final class LayoutElementBuilders {
         public SpProp getLineHeight() {
             if (mImpl.hasLineHeight()) {
                 return SpProp.fromProto(mImpl.getLineHeight());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets an Android platform specific text style configuration options for styling and
+         * compatibility.
+         *
+         * @since 1.2
+         */
+        @ProtoLayoutExperimental
+        @Nullable
+        public AndroidTextStyle getAndroidTextStyle() {
+            if (mImpl.hasAndroidTextStyle()) {
+                return AndroidTextStyle.fromProto(mImpl.getAndroidTextStyle());
             } else {
                 return null;
             }
@@ -1014,6 +1120,21 @@ public final class LayoutElementBuilders {
                 mImpl.setLineHeight(lineHeight.toProto());
                 mFingerprint.recordPropertyUpdate(
                         7, checkNotNull(lineHeight.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets an Android platform specific text style configuration options for styling and
+             * compatibility.
+             *
+             * @since 1.2
+             */
+            @ProtoLayoutExperimental
+            @NonNull
+            public Builder setAndroidTextStyle(@NonNull AndroidTextStyle androidTextStyle) {
+                mImpl.setAndroidTextStyle(androidTextStyle.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        8, checkNotNull(androidTextStyle.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
@@ -1897,6 +2018,22 @@ public final class LayoutElementBuilders {
             }
         }
 
+        /**
+         * Gets an Android platform specific text style configuration options for styling and
+         * compatibility.
+         *
+         * @since 1.2
+         */
+        @ProtoLayoutExperimental
+        @Nullable
+        public AndroidTextStyle getAndroidTextStyle() {
+            if (mImpl.hasAndroidTextStyle()) {
+                return AndroidTextStyle.fromProto(mImpl.getAndroidTextStyle());
+            } else {
+                return null;
+            }
+        }
+
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -1974,6 +2111,21 @@ public final class LayoutElementBuilders {
                 mImpl.setModifiers(modifiers.toProto());
                 mFingerprint.recordPropertyUpdate(
                         3, checkNotNull(modifiers.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets an Android platform specific text style configuration options for styling and
+             * compatibility.
+             *
+             * @since 1.2
+             */
+            @ProtoLayoutExperimental
+            @NonNull
+            public Builder setAndroidTextStyle(@NonNull AndroidTextStyle androidTextStyle) {
+                mImpl.setAndroidTextStyle(androidTextStyle.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        4, checkNotNull(androidTextStyle.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 

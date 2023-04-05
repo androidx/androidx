@@ -145,8 +145,8 @@ message TextOverflowProp {
 // An Android platform specific text style configuration options for styling and
 // compatibility.
 message AndroidTextStyle {
-  // Whether the Text excludes extra top and bottom padding above the normal
-  // ascent and descent. The default is false.
+  // Whether the Text excludes padding specified by the font, i.e. extra top and bottom padding
+  // above the normal ascent and descent. The default is false.
   bool exclude_font_padding = 1;
 }
 
