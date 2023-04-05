@@ -16,38 +16,37 @@
 
 package androidx.compose.foundation.text2
 
-import android.view.KeyEvent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalTextInputService
-import androidx.compose.ui.test.SemanticsNodeInteraction
-import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.KeyInjectionScope
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.performKeyPress
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.withKeyDown
+import androidx.compose.ui.test.withKeysDown
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth
-import org.mockito.kotlin.mock
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -55,18 +54,23 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalFoundationApi::class,
+    ExperimentalTestApi::class
+)
 class TextFieldKeyEventTest {
     @get:Rule
     val rule = createComposeRule()
+
+    private val tag = "TextFieldTestTag"
 
     private var defaultDensity = Density(1f)
 
     @Test
     fun textField_typedEvents() {
         keysSequenceTest {
-            Key.H.downAndUp()
-            Key.I.downAndUp(KeyEvent.META_SHIFT_ON)
+            pressKey(Key.H)
+            press(Key.ShiftLeft + Key.I)
             expectedText("hI")
         }
     }
@@ -74,12 +78,14 @@ class TextFieldKeyEventTest {
     @Ignore // re-enable after copy-cut-paste is supported
     @Test
     fun textField_copyPaste() {
-        keysSequenceTest(initText = "hello") {
-            Key.A.downAndUp(KeyEvent.META_CTRL_ON)
-            Key.C.downAndUp(KeyEvent.META_CTRL_ON)
-            Key.DirectionRight.downAndUp()
-            Key.Spacebar.downAndUp()
-            Key.V.downAndUp(KeyEvent.META_CTRL_ON)
+        keysSequenceTest("hello") {
+            withKeyDown(Key.CtrlLeft) {
+                pressKey(Key.A)
+                pressKey(Key.C)
+            }
+            pressKey(Key.DirectionRight)
+            pressKey(Key.Spacebar)
+            press(Key.CtrlLeft + Key.V)
             expectedText("hello hello")
         }
     }
@@ -87,13 +93,13 @@ class TextFieldKeyEventTest {
     @Ignore // re-enable after copy-cut-paste is supported
     @Test
     fun textField_directCopyPaste() {
-        keysSequenceTest(initText = "hello") {
-            Key.A.downAndUp(KeyEvent.META_CTRL_ON)
-            Key.Copy.downAndUp()
+        keysSequenceTest("hello") {
+            press(Key.CtrlLeft + Key.A)
+            pressKey(Key.Copy)
             expectedText("hello")
-            Key.DirectionRight.downAndUp()
-            Key.Spacebar.downAndUp()
-            Key.Paste.downAndUp()
+            pressKey(Key.DirectionRight)
+            pressKey(Key.Spacebar)
+            pressKey(Key.Paste)
             expectedText("hello hello")
         }
     }
@@ -101,223 +107,238 @@ class TextFieldKeyEventTest {
     @Ignore // re-enable after copy-cut-paste is supported
     @Test
     fun textField_directCutPaste() {
-        keysSequenceTest(initText = "hello") {
-            Key.A.downAndUp(KeyEvent.META_CTRL_ON)
-            Key.Cut.downAndUp()
+        keysSequenceTest("hello") {
+            press(Key.CtrlLeft + Key.A)
+            pressKey(Key.Cut)
             expectedText("")
-            Key.Paste.downAndUp()
+            pressKey(Key.Paste)
             expectedText("hello")
         }
     }
 
     @Test
     fun textField_linesNavigation() {
-        keysSequenceTest(initText = "hello\nworld") {
-            Key.DirectionDown.downAndUp()
-            Key.A.downAndUp()
-            Key.DirectionUp.downAndUp()
-            Key.A.downAndUp()
+        keysSequenceTest("hello\nworld") {
+            pressKey(Key.DirectionDown)
+            pressKey(Key.A)
+            pressKey(Key.DirectionUp)
+            pressKey(Key.A)
             expectedText("haello\naworld")
-            Key.DirectionUp.downAndUp()
-            Key.A.downAndUp()
+            pressKey(Key.DirectionUp)
+            pressKey(Key.A)
             expectedText("ahaello\naworld")
         }
     }
 
     @Test
     fun textField_linesNavigation_cache() {
-        keysSequenceTest(initText = "hello\n\nworld") {
-            Key.DirectionRight.downAndUp()
-            Key.DirectionDown.downAndUp()
-            Key.DirectionDown.downAndUp()
-            Key.Zero.downAndUp()
+        keysSequenceTest("hello\n\nworld") {
+            pressKey(Key.DirectionRight)
+            pressKey(Key.DirectionDown)
+            pressKey(Key.DirectionDown)
+            pressKey(Key.Zero)
             expectedText("hello\n\nw0orld")
         }
     }
 
     @Test
     fun textField_newLine() {
-        keysSequenceTest(initText = "hello") {
-            Key.Enter.downAndUp()
+        keysSequenceTest("hello") {
+            pressKey(Key.Enter)
             expectedText("\nhello")
         }
     }
 
     @Test
     fun textField_backspace() {
-        keysSequenceTest(initText = "hello") {
-            Key.DirectionRight.downAndUp()
-            Key.DirectionRight.downAndUp()
-            Key.Backspace.downAndUp()
+        keysSequenceTest("hello") {
+            pressKey(Key.DirectionRight)
+            pressKey(Key.DirectionRight)
+            pressKey(Key.Backspace)
             expectedText("hllo")
         }
     }
 
     @Test
     fun textField_delete() {
-        keysSequenceTest(initText = "hello") {
-            Key.Delete.downAndUp()
+        keysSequenceTest("hello") {
+            pressKey(Key.Delete)
             expectedText("ello")
         }
     }
 
     @Test
     fun textField_delete_atEnd() {
-        val text = "hello"
-        val state = TextFieldState(
-            TextFieldValue(
-                text,
-                // Place cursor at end.
-                selection = TextRange(text.length)
-            )
-        )
-        keysSequenceTest(state = state) {
-            Key.Delete.downAndUp()
+        keysSequenceTest("hello", TextRange(5)) {
+            pressKey(Key.Delete)
             expectedText("hello")
         }
     }
 
     @Test
     fun textField_delete_whenEmpty() {
-        keysSequenceTest(initText = "") {
-            Key.Delete.downAndUp()
+        keysSequenceTest {
+            pressKey(Key.Delete)
             expectedText("")
         }
     }
 
     @Test
     fun textField_nextWord() {
-        keysSequenceTest(initText = "hello world") {
-            Key.DirectionRight.downAndUp(KeyEvent.META_CTRL_ON)
-            Key.Zero.downAndUp()
+        keysSequenceTest("hello world") {
+            press(Key.CtrlLeft + Key.DirectionRight)
+            pressKey(Key.Zero)
             expectedText("hello0 world")
-            Key.DirectionRight.downAndUp(KeyEvent.META_CTRL_ON)
-            Key.Zero.downAndUp()
+            press(Key.CtrlLeft + Key.DirectionRight)
+            pressKey(Key.Zero)
             expectedText("hello0 world0")
         }
     }
 
     @Test
     fun textField_nextWord_doubleSpace() {
-        keysSequenceTest(initText = "hello  world") {
-            Key.DirectionRight.downAndUp(KeyEvent.META_CTRL_ON)
-            Key.DirectionRight.downAndUp()
-            Key.DirectionRight.downAndUp(KeyEvent.META_CTRL_ON)
-            Key.Zero.downAndUp()
+        keysSequenceTest("hello  world") {
+            press(Key.CtrlLeft + Key.DirectionRight)
+            pressKey(Key.DirectionRight)
+            press(Key.CtrlLeft + Key.DirectionRight)
+            pressKey(Key.Zero)
             expectedText("hello  world0")
         }
     }
 
     @Test
     fun textField_prevWord() {
-        keysSequenceTest(initText = "hello world") {
-            Key.DirectionRight.downAndUp(KeyEvent.META_CTRL_ON)
-            Key.DirectionRight.downAndUp(KeyEvent.META_CTRL_ON)
-            Key.DirectionLeft.downAndUp(KeyEvent.META_CTRL_ON)
-            Key.Zero.downAndUp()
+        keysSequenceTest("hello world") {
+            withKeyDown(Key.CtrlLeft) {
+                pressKey(Key.DirectionRight)
+                pressKey(Key.DirectionRight)
+                pressKey(Key.DirectionLeft)
+            }
+            pressKey(Key.Zero)
             expectedText("hello 0world")
         }
     }
 
     @Test
     fun textField_HomeAndEnd() {
-        keysSequenceTest(initText = "hello world") {
-            Key.MoveEnd.downAndUp()
-            Key.Zero.downAndUp()
-            Key.MoveHome.downAndUp()
-            Key.Zero.downAndUp()
+        keysSequenceTest("hello world") {
+            pressKey(Key.MoveEnd)
+            pressKey(Key.Zero)
+            pressKey(Key.MoveHome)
+            pressKey(Key.Zero)
             expectedText("0hello world0")
         }
     }
 
     @Test
     fun textField_byWordSelection() {
-        keysSequenceTest(initText = "hello  world\nhi") {
-            Key.DirectionRight.downAndUp(KeyEvent.META_SHIFT_ON or KeyEvent.META_CTRL_ON)
-            expectedSelection(TextRange(0, 5))
-            Key.DirectionRight.downAndUp(KeyEvent.META_SHIFT_ON or KeyEvent.META_CTRL_ON)
-            expectedSelection(TextRange(0, 12))
-            Key.DirectionRight.downAndUp(KeyEvent.META_SHIFT_ON or KeyEvent.META_CTRL_ON)
-            expectedSelection(TextRange(0, 15))
-            Key.DirectionLeft.downAndUp(KeyEvent.META_SHIFT_ON or KeyEvent.META_CTRL_ON)
-            expectedSelection(TextRange(0, 13))
+        keysSequenceTest("hello  world\nhi") {
+            withKeysDown(listOf(Key.ShiftLeft, Key.CtrlLeft)) {
+                pressKey(Key.DirectionRight)
+                expectedSelection(TextRange(0, 5))
+                pressKey(Key.DirectionRight)
+                expectedSelection(TextRange(0, 12))
+                pressKey(Key.DirectionRight)
+                expectedSelection(TextRange(0, 15))
+                pressKey(Key.DirectionLeft)
+                expectedSelection(TextRange(0, 13))
+            }
         }
     }
 
     @Test
     fun textField_lineEndStart() {
-        keysSequenceTest(initText = "hello world\nhi") {
-            Key.MoveEnd.downAndUp()
-            Key.Zero.downAndUp()
+        keysSequenceTest("hello world\nhi") {
+            pressKey(Key.MoveEnd)
+            pressKey(Key.Zero)
             expectedText("hello world0\nhi")
-            Key.MoveEnd.downAndUp()
-            Key.MoveHome.downAndUp()
-            Key.Zero.downAndUp()
+            pressKey(Key.MoveEnd)
+            pressKey(Key.MoveHome)
+            pressKey(Key.Zero)
             expectedText("0hello world0\nhi")
-            Key.MoveEnd.downAndUp(KeyEvent.META_SHIFT_ON)
+            press(Key.ShiftLeft + Key.MoveEnd)
             expectedSelection(TextRange(1, 16))
         }
     }
 
     @Test
     fun textField_deleteWords() {
-        keysSequenceTest(initText = "hello world\nhi world") {
-            Key.MoveEnd.downAndUp()
-            Key.Backspace.downAndUp(KeyEvent.META_CTRL_ON)
-            expectedText("hello \nhi world")
-            Key.Delete.downAndUp(KeyEvent.META_CTRL_ON)
+        keysSequenceTest("hello world\nhi world") {
+            pressKey(Key.MoveEnd)
+            withKeyDown(Key.CtrlLeft) {
+                pressKey(Key.Backspace)
+                expectedText("hello \nhi world")
+                pressKey(Key.Delete)
+            }
             expectedText("hello  world")
         }
     }
 
     @Test
     fun textField_deleteToBeginningOfLine() {
-        keysSequenceTest(initText = "hello world\nhi world") {
-            Key.DirectionRight.downAndUp(KeyEvent.META_CTRL_ON)
-            Key.Backspace.downAndUp(KeyEvent.META_ALT_ON)
-            expectedText(" world\nhi world")
-            Key.Backspace.downAndUp(KeyEvent.META_ALT_ON)
-            expectedText(" world\nhi world")
-            repeat(3) { Key.DirectionRight.downAndUp() }
-            Key.Backspace.downAndUp(KeyEvent.META_ALT_ON)
+        keysSequenceTest("hello world\nhi world") {
+            press(Key.CtrlLeft + Key.DirectionRight)
+
+            withKeyDown(Key.AltLeft) {
+                pressKey(Key.Backspace)
+                expectedText(" world\nhi world")
+                pressKey(Key.Backspace)
+                expectedText(" world\nhi world")
+            }
+
+            repeat(3) { pressKey(Key.DirectionRight) }
+
+            press(Key.AltLeft + Key.Backspace)
             expectedText("rld\nhi world")
-            Key.DirectionDown.downAndUp()
-            Key.MoveEnd.downAndUp()
-            Key.Backspace.downAndUp(KeyEvent.META_ALT_ON)
-            expectedText("rld\n")
-            Key.Backspace.downAndUp(KeyEvent.META_ALT_ON)
-            expectedText("rld\n")
+            pressKey(Key.DirectionDown)
+            pressKey(Key.MoveEnd)
+
+            withKeyDown(Key.AltLeft) {
+                pressKey(Key.Backspace)
+                expectedText("rld\n")
+                pressKey(Key.Backspace)
+                expectedText("rld\n")
+            }
         }
     }
 
     @Test
     fun textField_deleteToEndOfLine() {
-        keysSequenceTest(initText = "hello world\nhi world") {
-            Key.DirectionRight.downAndUp(KeyEvent.META_CTRL_ON)
-            Key.Delete.downAndUp(KeyEvent.META_ALT_ON)
-            expectedText("hello\nhi world")
-            Key.Delete.downAndUp(KeyEvent.META_ALT_ON)
-            expectedText("hello\nhi world")
-            repeat(3) { Key.DirectionRight.downAndUp() }
-            Key.Delete.downAndUp(KeyEvent.META_ALT_ON)
+        keysSequenceTest("hello world\nhi world") {
+            press(Key.CtrlLeft + Key.DirectionRight)
+            withKeyDown(Key.AltLeft) {
+                pressKey(Key.Delete)
+                expectedText("hello\nhi world")
+                pressKey(Key.Delete)
+                expectedText("hello\nhi world")
+            }
+
+            repeat(3) { pressKey(Key.DirectionRight) }
+
+            press(Key.AltLeft + Key.Delete)
             expectedText("hello\nhi")
-            Key.MoveHome.downAndUp()
-            Key.Delete.downAndUp(KeyEvent.META_ALT_ON)
-            expectedText("hello\n")
-            Key.Delete.downAndUp(KeyEvent.META_ALT_ON)
-            expectedText("hello\n")
+
+            pressKey(Key.MoveHome)
+            withKeyDown(Key.AltLeft) {
+                pressKey(Key.Delete)
+                expectedText("hello\n")
+                pressKey(Key.Delete)
+                expectedText("hello\n")
+            }
         }
     }
 
     @Test
     fun textField_paragraphNavigation() {
-        keysSequenceTest(initText = "hello world\nhi") {
-            Key.DirectionDown.downAndUp(KeyEvent.META_CTRL_ON)
-            Key.Zero.downAndUp()
+        keysSequenceTest("hello world\nhi") {
+            press(Key.CtrlLeft + Key.DirectionDown)
+            pressKey(Key.Zero)
             expectedText("hello world0\nhi")
-            Key.DirectionDown.downAndUp(KeyEvent.META_CTRL_ON)
-            Key.DirectionUp.downAndUp(KeyEvent.META_CTRL_ON)
-            Key.Zero.downAndUp()
+            withKeyDown(Key.CtrlLeft) {
+                pressKey(Key.DirectionDown)
+                pressKey(Key.DirectionUp)
+            }
+            pressKey(Key.Zero)
             expectedText("hello world0\n0hi")
         }
     }
@@ -325,94 +346,141 @@ class TextFieldKeyEventTest {
     @Ignore // TODO(halilibo): Remove ignore when backing buffer supports reversed selection
     @Test
     fun textField_selectionCaret() {
-        keysSequenceTest(initText = "hello world") {
-            Key.DirectionRight.downAndUp(KeyEvent.META_CTRL_ON or KeyEvent.META_SHIFT_ON)
+        keysSequenceTest("hello world") {
+            press(Key.CtrlLeft + Key.ShiftLeft + Key.DirectionRight)
             expectedSelection(TextRange(0, 5))
-            Key.DirectionRight.downAndUp(KeyEvent.META_SHIFT_ON)
+            press(Key.ShiftLeft + Key.DirectionRight)
             expectedSelection(TextRange(0, 6))
-            Key.Backslash.downAndUp(KeyEvent.META_CTRL_ON)
+            press(Key.CtrlLeft + Key.Backslash)
             expectedSelection(TextRange(6, 6))
-            Key.DirectionLeft.downAndUp(KeyEvent.META_CTRL_ON or KeyEvent.META_SHIFT_ON)
+            press(Key.CtrlLeft + Key.ShiftLeft + Key.DirectionLeft)
             expectedSelection(TextRange(6, 0))
-            Key.DirectionRight.downAndUp(KeyEvent.META_SHIFT_ON)
+            press(Key.ShiftLeft + Key.DirectionRight)
             expectedSelection(TextRange(1, 6))
         }
     }
 
     @Ignore // (b/276789499) Ignore for now
     @Test
-    fun textField_pageNavigation() {
+    fun textField_pageNavigationDown() {
         keysSequenceTest(
-            initText = "1\n2\n3\n4\n5",
-            modifier = Modifier.requiredSize(77.dp)
+            initText = "A\nB\nC\nD\nE",
+            modifier = Modifier.requiredSize(73.dp)
         ) {
-            // By page down, the cursor should be at the visible top line. In this case the height
-            // constraint is 77dp which covers from 1(30), 2(30) and middle of 3(17). Thus,
-            // by page down, the first line should be 3, and cursor should be the before letter 3,
-            // i.e. index = 4.
-            Key.PageDown.downAndUp()
+            pressKey(Key.PageDown)
             expectedSelection(TextRange(4))
         }
     }
 
     @Test
+    fun textField_pageNavigationDown_exactFit() {
+        keysSequenceTest(
+            initText = "A\nB\nC\nD\nE",
+            modifier = Modifier.requiredSize(90.dp) // exactly 3 lines fit
+        ) {
+            pressKey(Key.PageDown)
+            expectedSelection(TextRange(6))
+        }
+    }
+
+    @Test
+    fun textField_pageNavigationUp() {
+        keysSequenceTest(
+            initText = "A\nB\nC\nD\nE",
+            initSelection = TextRange(8), // just before 5
+            modifier = Modifier.requiredSize(73.dp)
+        ) {
+            pressKey(Key.PageUp)
+            expectedSelection(TextRange(4))
+        }
+    }
+
+    @Test
+    fun textField_pageNavigationUp_exactFit() {
+        keysSequenceTest(
+            initText = "A\nB\nC\nD\nE",
+            initSelection = TextRange(8), // just before 5
+            modifier = Modifier.requiredSize(90.dp) // exactly 3 lines fit
+        ) {
+            pressKey(Key.PageUp)
+            expectedSelection(TextRange(2))
+        }
+    }
+
+    @Test
+    fun textField_pageNavigationUp_cantGoUp() {
+        keysSequenceTest(
+            initText = "1\n2\n3\n4\n5",
+            initSelection = TextRange(0),
+            modifier = Modifier.requiredSize(90.dp)
+        ) {
+            pressKey(Key.PageUp)
+            expectedSelection(TextRange(0))
+        }
+    }
+
+    @Test
     fun textField_tabSingleLine() {
-        keysSequenceTest(initText = "text", singleLine = true) {
-            Key.Tab.downAndUp()
+        keysSequenceTest("text", singleLine = true) {
+            pressKey(Key.Tab)
             expectedText("text") // no change, should try focus change instead
         }
     }
 
     @Test
     fun textField_tabMultiLine() {
-        keysSequenceTest(initText = "text") {
-            Key.Tab.downAndUp()
+        keysSequenceTest("text") {
+            pressKey(Key.Tab)
             expectedText("\ttext")
         }
     }
 
     @Test
     fun textField_shiftTabSingleLine() {
-        keysSequenceTest(initText = "text", singleLine = true) {
-            Key.Tab.downAndUp(metaState = KeyEvent.META_SHIFT_ON)
+        keysSequenceTest("text", singleLine = true) {
+            press(Key.ShiftLeft + Key.Tab)
             expectedText("text") // no change, should try focus change instead
         }
     }
 
     @Test
     fun textField_enterSingleLine() {
-        keysSequenceTest(initText = "text", singleLine = true) {
-            Key.Enter.downAndUp()
+        keysSequenceTest("text", singleLine = true) {
+            pressKey(Key.Enter)
             expectedText("text") // no change, should do ime action instead
         }
     }
 
     @Test
     fun textField_enterMultiLine() {
-        keysSequenceTest(initText = "text") {
-            Key.Enter.downAndUp()
+        keysSequenceTest("text") {
+            pressKey(Key.Enter)
             expectedText("\ntext")
         }
     }
 
     @Test
     fun textField_withActiveSelection_tabSingleLine() {
-        keysSequenceTest(initText = "text", singleLine = true) {
-            Key.DirectionRight.downAndUp()
-            Key.DirectionRight.downAndUp(KeyEvent.META_SHIFT_ON)
-            Key.DirectionRight.downAndUp(KeyEvent.META_SHIFT_ON)
-            Key.Tab.downAndUp()
+        keysSequenceTest("text", singleLine = true) {
+            pressKey(Key.DirectionRight)
+            withKeyDown(Key.ShiftLeft) {
+                pressKey(Key.DirectionRight)
+                pressKey(Key.DirectionRight)
+            }
+            pressKey(Key.Tab)
             expectedText("text") // no change, should try focus change instead
         }
     }
 
     @Test
     fun textField_withActiveSelection_tabMultiLine() {
-        keysSequenceTest(initText = "text") {
-            Key.DirectionRight.downAndUp()
-            Key.DirectionRight.downAndUp(KeyEvent.META_SHIFT_ON)
-            Key.DirectionRight.downAndUp(KeyEvent.META_SHIFT_ON)
-            Key.Tab.downAndUp()
+        keysSequenceTest("text") {
+            pressKey(Key.DirectionRight)
+            withKeyDown(Key.ShiftLeft) {
+                pressKey(Key.DirectionRight)
+                pressKey(Key.DirectionRight)
+            }
+            pressKey(Key.Tab)
             expectedText("t\tt")
         }
     }
@@ -420,64 +488,74 @@ class TextFieldKeyEventTest {
     @Ignore // TODO(halilibo): Remove ignore when backing buffer supports reversed selection
     @Test
     fun textField_selectToLeft() {
-        keysSequenceTest(initText = "hello world hello") {
-            Key.MoveEnd.downAndUp()
+        keysSequenceTest("hello world hello") {
+            pressKey(Key.MoveEnd)
             expectedSelection(TextRange(17))
-            Key.DirectionLeft.downAndUp(KeyEvent.META_SHIFT_ON)
-            Key.DirectionLeft.downAndUp(KeyEvent.META_SHIFT_ON)
-            Key.DirectionLeft.downAndUp(KeyEvent.META_SHIFT_ON)
+            withKeyDown(Key.ShiftLeft) {
+                pressKey(Key.DirectionLeft)
+                pressKey(Key.DirectionLeft)
+                pressKey(Key.DirectionLeft)
+            }
             expectedSelection(TextRange(17, 14))
         }
     }
 
     @Test
     fun textField_withActiveSelection_shiftTabSingleLine() {
-        keysSequenceTest(initText = "text", singleLine = true) {
-            Key.DirectionRight.downAndUp()
-            Key.DirectionRight.downAndUp(KeyEvent.META_SHIFT_ON)
-            Key.DirectionRight.downAndUp(KeyEvent.META_SHIFT_ON)
-            Key.Tab.downAndUp(metaState = KeyEvent.META_SHIFT_ON)
+        keysSequenceTest("text", singleLine = true) {
+            pressKey(Key.DirectionRight)
+            withKeyDown(Key.ShiftLeft) {
+                pressKey(Key.DirectionRight)
+                pressKey(Key.DirectionRight)
+                pressKey(Key.Tab)
+            }
             expectedText("text") // no change, should try focus change instead
         }
     }
 
     @Test
     fun textField_withActiveSelection_enterSingleLine() {
-        keysSequenceTest(initText = "text", singleLine = true) {
-            Key.DirectionRight.downAndUp()
-            Key.DirectionRight.downAndUp(KeyEvent.META_SHIFT_ON)
-            Key.DirectionRight.downAndUp(KeyEvent.META_SHIFT_ON)
-            Key.Enter.downAndUp()
+        keysSequenceTest("text", singleLine = true) {
+            pressKey(Key.DirectionRight)
+            withKeyDown(Key.ShiftLeft) {
+                pressKey(Key.DirectionRight)
+                pressKey(Key.DirectionRight)
+            }
+            pressKey(Key.Enter)
             expectedText("text") // no change, should do ime action instead
         }
     }
 
     @Test
     fun textField_withActiveSelection_enterMultiLine() {
-        keysSequenceTest(initText = "text") {
-            Key.DirectionRight.downAndUp()
-            Key.DirectionRight.downAndUp(KeyEvent.META_SHIFT_ON)
-            Key.DirectionRight.downAndUp(KeyEvent.META_SHIFT_ON)
-            Key.Enter.downAndUp()
+        keysSequenceTest("text") {
+            pressKey(Key.DirectionRight)
+            withKeyDown(Key.ShiftLeft) {
+                pressKey(Key.DirectionRight)
+                pressKey(Key.DirectionRight)
+            }
+            pressKey(Key.Enter)
             expectedText("t\nt")
         }
     }
 
+    @OptIn(ExperimentalTestApi::class)
     private inner class SequenceScope(
         val state: TextFieldState,
-        val nodeGetter: () -> SemanticsNodeInteraction
-    ) {
-        fun Key.downAndUp(metaState: Int = 0) {
-            this.down(metaState)
-            this.up(metaState)
+        private val keyInjectionScope: KeyInjectionScope
+    ) : KeyInjectionScope by keyInjectionScope {
+
+        fun press(keys: List<Key>) {
+            require(keys.isNotEmpty()) { "At least one key must be specified for press action" }
+            if (keys.size == 1) {
+                pressKey(keys.first())
+            } else {
+                withKeysDown(keys.dropLast(1)) { pressKey(keys.last()) }
+            }
         }
 
-        fun Key.down(metaState: Int = 0) {
-            nodeGetter().performKeyPress(downEvent(this, metaState))
-        }
-
-        fun Key.up(metaState: Int = 0) {
-            nodeGetter().performKeyPress(upEvent(this, metaState))
+        infix operator fun Key.plus(other: Key): MutableList<Key> {
+            return mutableListOf(this, other)
         }
 
         fun expectedText(text: String) {
@@ -495,40 +573,25 @@ class TextFieldKeyEventTest {
 
     private fun keysSequenceTest(
         initText: String = "",
+        initSelection: TextRange = TextRange.Zero,
         modifier: Modifier = Modifier.fillMaxSize(),
         singleLine: Boolean = false,
         sequence: SequenceScope.() -> Unit,
     ) {
-        val state = TextFieldState(TextFieldValue(initText))
-        keysSequenceTest(
-            state = state,
-            modifier = modifier,
-            singleLine = singleLine,
-            sequence = sequence
-        )
-    }
-
-    private fun keysSequenceTest(
-        state: TextFieldState,
-        modifier: Modifier = Modifier.fillMaxSize(),
-        singleLine: Boolean = false,
-        sequence: SequenceScope.() -> Unit,
-    ) {
-        val inputService = TextInputService(mock())
+        val state = TextFieldState(TextFieldValue(initText, initSelection))
         val focusRequester = FocusRequester()
         rule.setContent {
             LocalClipboardManager.current.setText(AnnotatedString("InitialTestText"))
-            CompositionLocalProvider(
-                LocalTextInputService provides inputService,
-                LocalDensity provides defaultDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides defaultDensity) {
                 BasicTextField2(
                     state = state,
                     textStyle = TextStyle(
                         fontFamily = TEST_FONT_FAMILY,
                         fontSize = 30.sp
                     ),
-                    modifier = modifier.focusRequester(focusRequester),
+                    modifier = modifier
+                        .focusRequester(focusRequester)
+                        .testTag(tag),
                     maxLines = if (singleLine) 1 else Int.MAX_VALUE,
                 )
             }
@@ -536,18 +599,11 @@ class TextFieldKeyEventTest {
 
         rule.runOnIdle { focusRequester.requestFocus() }
 
-        sequence(SequenceScope(state) { rule.onNode(hasSetTextAction()) })
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(1000)
+
+        rule.onNodeWithTag(tag).performKeyInput {
+            sequence(SequenceScope(state, this@performKeyInput))
+        }
     }
-}
-
-private fun downEvent(key: Key, metaState: Int = 0): androidx.compose.ui.input.key.KeyEvent {
-    return androidx.compose.ui.input.key.KeyEvent(
-        KeyEvent(0L, 0L, KeyEvent.ACTION_DOWN, key.nativeKeyCode, 0, metaState)
-    )
-}
-
-private fun upEvent(key: Key, metaState: Int = 0): androidx.compose.ui.input.key.KeyEvent {
-    return androidx.compose.ui.input.key.KeyEvent(
-        KeyEvent(0L, 0L, KeyEvent.ACTION_UP, key.nativeKeyCode, 0, metaState)
-    )
 }

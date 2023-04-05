@@ -28,6 +28,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -640,5 +641,15 @@ class StatelessInputConnectionTest {
         ic.performEditorAction(-1)
 
         assertThat(receivedImeActions).isEqualTo(listOf<ImeAction>())
+    }
+
+    @Test
+    fun debugMode_isDisabled() {
+        // run this in presubmit to check that we are not accidentally enabling logs on prod
+        assertFalse(
+            SIC_DEBUG,
+            "Oops, looks like you accidentally enabled logging. Don't worry, we've all " +
+                "been there. Just remember to turn it off before you deploy your code."
+        )
     }
 }

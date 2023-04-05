@@ -29,6 +29,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.style.ResolvedTextDirection
+import kotlin.math.abs
 
 /**
  * [TextFieldPreparedSelection] provides a scope for many selection-related operations. However,
@@ -130,9 +131,20 @@ internal class TextFieldPreparedSelection(
         } ?: Rect.Zero
         val currentOffset = initialValue.selection.end
         val currentPos = value.getCursorRect(currentOffset)
-        val x = currentPos.left
-        val y = currentPos.top + visibleInnerTextFieldRect.size.height * pagesAmount
-        return value.getOffsetForPosition(Offset(x, y))
+        val newPos = currentPos.translate(
+            translateX = 0f,
+            translateY = visibleInnerTextFieldRect.size.height * pagesAmount
+        )
+        // which line does the new cursor position belong?
+        val topLine = value.getLineForVerticalPosition(newPos.top)
+        val lineSeparator = value.getLineBottom(topLine)
+        return if (abs(newPos.top - lineSeparator) > abs(newPos.bottom - lineSeparator)) {
+            // most of new cursor is on top line
+            value.getOffsetForPosition(newPos.topLeft)
+        } else {
+            // most of new cursor is on bottom line
+            value.getOffsetForPosition(newPos.bottomLeft)
+        }
     }
 
     /**

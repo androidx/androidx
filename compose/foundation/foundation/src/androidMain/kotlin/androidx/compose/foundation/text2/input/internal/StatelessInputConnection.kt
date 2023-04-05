@@ -28,13 +28,15 @@ import android.view.inputmethod.ExtractedText
 import android.view.inputmethod.ExtractedTextRequest
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputContentInfo
+import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.getSelectedText
 import androidx.compose.ui.text.input.getTextAfterSelection
 import androidx.compose.ui.text.input.getTextBeforeSelection
 
-private const val DEBUG = false
+@VisibleForTesting
+internal const val SIC_DEBUG = false
 private const val TAG = "StatelessIC"
 private const val DEBUG_CLASS = "StatelessInputConnection"
 
@@ -361,7 +363,7 @@ internal class StatelessInputConnection(
     // endregion
 
     private fun logDebug(message: String) {
-        if (DEBUG) {
+        if (SIC_DEBUG) {
             Log.d(TAG, "$DEBUG_CLASS.$message, $isICActive, ${activeSessionProvider() != null}")
         }
     }
