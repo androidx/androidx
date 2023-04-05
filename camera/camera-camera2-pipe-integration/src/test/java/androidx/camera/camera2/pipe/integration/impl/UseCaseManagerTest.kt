@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.integration.impl
 
 import android.os.Build
 import android.util.Size
+import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
@@ -274,6 +275,7 @@ class UseCaseManagerTest {
             ComboRequestListener()
         ),
         cameraStateAdapter = CameraStateAdapter(),
+        cameraGraphFlags = CameraGraph.Flags(),
         displayInfoManager = DisplayInfoManager(ApplicationProvider.getApplicationContext()),
     ).also {
         useCaseManagerList.add(it)
@@ -282,7 +284,7 @@ class UseCaseManagerTest {
     private fun createImageCapture(): ImageCapture =
         ImageCapture.Builder()
             .setCaptureOptionUnpacker { _, _ -> }
-            .setSessionOptionUnpacker() { _, _, _ -> }
+            .setSessionOptionUnpacker { _, _, _ -> }
             .build().also {
                 it.simulateActivation()
                 useCaseList.add(it)
@@ -291,7 +293,7 @@ class UseCaseManagerTest {
     private fun createPreview(): Preview =
         Preview.Builder()
             .setCaptureOptionUnpacker { _, _ -> }
-            .setSessionOptionUnpacker() { _, _, _ -> }
+            .setSessionOptionUnpacker { _, _, _ -> }
             .build().apply {
                 setSurfaceProvider(
                     CameraXExecutors.mainThreadExecutor(),

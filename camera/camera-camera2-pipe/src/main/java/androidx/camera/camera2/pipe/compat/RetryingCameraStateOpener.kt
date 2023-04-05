@@ -151,6 +151,7 @@ constructor(
     private val cameraOpener: CameraOpener,
     private val camera2MetadataProvider: Camera2MetadataProvider,
     private val cameraErrorListener: CameraErrorListener,
+    private val camera2DeviceCloser: Camera2DeviceCloser,
     private val timeSource: TimeSource,
     private val cameraInteropConfig: CameraPipe.CameraInteropConfig?
 ) {
@@ -168,6 +169,7 @@ constructor(
                 requestTimestamp,
                 timeSource,
                 cameraErrorListener,
+                camera2DeviceCloser,
                 cameraInteropConfig?.cameraDeviceStateCallback,
                 cameraInteropConfig?.cameraSessionStateCallback
             )

@@ -80,6 +80,9 @@ class CameraQuirks @Inject constructor(
         if (YuvImageOnePixelShiftQuirk.isEnabled()) {
             quirks.add(YuvImageOnePixelShiftQuirk())
         }
+        if (CaptureSessionStuckQuirk.isEnabled()) {
+            quirks.add(CaptureSessionStuckQuirk())
+        }
 
         Quirks(quirks)
     }

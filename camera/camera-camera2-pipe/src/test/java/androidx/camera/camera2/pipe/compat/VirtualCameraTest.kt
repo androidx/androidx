@@ -27,6 +27,7 @@ import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.Token
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
+import androidx.camera.camera2.pipe.testing.FakeCamera2DeviceCloser
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.RobolectricCameras
 import com.google.common.truth.Truth.assertThat
@@ -170,6 +171,7 @@ internal class AndroidCameraDeviceTest {
     private val cameraId = RobolectricCameras.create()
     private val testCamera = RobolectricCameras.open(cameraId)
     private val timeSource: TimeSource = SystemTimeSource()
+    private val cameraDeviceCloser = FakeCamera2DeviceCloser()
     private val now = Timestamps.now(timeSource)
     private val cameraErrorListener = object : CameraErrorListener {
         var lastCameraId: CameraId? = null
@@ -200,7 +202,8 @@ internal class AndroidCameraDeviceTest {
                 attemptNumber = 1,
                 attemptTimestampNanos = now,
                 timeSource,
-                cameraErrorListener
+                cameraErrorListener,
+                cameraDeviceCloser,
             )
 
         assertThat(listener.state.value).isInstanceOf(CameraStateUnopened.javaClass)
@@ -246,7 +249,8 @@ internal class AndroidCameraDeviceTest {
                 attemptNumber = 1,
                 attemptTimestampNanos = now,
                 timeSource,
-                cameraErrorListener
+                cameraErrorListener,
+                cameraDeviceCloser,
             )
 
         listener.onDisconnected(testCamera.cameraDevice)
@@ -268,7 +272,8 @@ internal class AndroidCameraDeviceTest {
                 attemptNumber = 1,
                 attemptTimestampNanos = now,
                 timeSource,
-                cameraErrorListener
+                cameraErrorListener,
+                cameraDeviceCloser,
             )
 
         listener.close()
@@ -287,7 +292,8 @@ internal class AndroidCameraDeviceTest {
                 attemptNumber = 1,
                 attemptTimestampNanos = now,
                 timeSource,
-                cameraErrorListener
+                cameraErrorListener,
+                cameraDeviceCloser,
             )
 
         listener.closeWith(IllegalArgumentException("Test Exception"))
@@ -306,7 +312,8 @@ internal class AndroidCameraDeviceTest {
                 attemptNumber = 1,
                 attemptTimestampNanos = now,
                 timeSource,
-                cameraErrorListener
+                cameraErrorListener,
+                cameraDeviceCloser,
             )
 
         listener.onError(testCamera.cameraDevice, CameraDevice.StateCallback.ERROR_CAMERA_SERVICE)
@@ -327,7 +334,8 @@ internal class AndroidCameraDeviceTest {
                 attemptNumber = 1,
                 attemptTimestampNanos = now,
                 timeSource,
-                cameraErrorListener
+                cameraErrorListener,
+                cameraDeviceCloser,
             )
 
         listener.onOpened(testCamera.cameraDevice)
@@ -349,7 +357,8 @@ internal class AndroidCameraDeviceTest {
                 attemptNumber = 1,
                 attemptTimestampNanos = now,
                 timeSource,
-                cameraErrorListener
+                cameraErrorListener,
+                cameraDeviceCloser
             )
 
         listener.onError(testCamera.cameraDevice, CameraDevice.StateCallback.ERROR_CAMERA_SERVICE)
