@@ -42,7 +42,7 @@ package androidx.compose.ui.text {
     method public androidx.compose.ui.text.AnnotatedString.Builder append(char char);
     method public void append(androidx.compose.ui.text.AnnotatedString text);
     method public void append(androidx.compose.ui.text.AnnotatedString text, int start, int end);
-    method @Deprecated public void deprecated_append_returning_void(char char);
+    method @Deprecated public void append(char char);
     method public int getLength();
     method public void pop();
     method public void pop(int index);

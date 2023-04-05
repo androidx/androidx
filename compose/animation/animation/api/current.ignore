@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedDeprecatedMethod: androidx.compose.animation.SplineBasedFloatDecayAnimationSpec_androidKt#splineBasedDecayDeprecated(androidx.compose.ui.unit.Density):
+    Removed deprecated method androidx.compose.animation.SplineBasedFloatDecayAnimationSpec_androidKt.splineBasedDecayDeprecated(androidx.compose.ui.unit.Density)
