@@ -45,7 +45,6 @@ import java.util.concurrent.atomic.AtomicReference
 import kotlin.test.assertFailsWith
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -117,6 +116,8 @@ class ComplicationDataSourceServiceTest {
         /** Last error provided to [onComplicationDataError]. */
         var lastSendError: Throwable? = null
 
+        val lastPreviewOrErrorLatch = CountDownLatch(1)
+
         override var wearPlatformVersion = Build.VERSION.SDK_INT
 
         override fun createMainThreadHandler(): Handler = mPretendMainThreadHandler
@@ -139,10 +140,12 @@ class ComplicationDataSourceServiceTest {
 
         override fun onComplicationDataError(throwable: Throwable) {
             lastSendError = throwable
+            lastPreviewOrErrorLatch.countDown()
         }
 
         override fun getPreviewData(type: ComplicationType): ComplicationData? {
             lastPreviewType = type
+            lastPreviewOrErrorLatch.countDown()
             return previewData
         }
     }
@@ -343,7 +346,6 @@ class ComplicationDataSourceServiceTest {
         assertThat(data.allValues).containsExactly(null)
     }
 
-    @Ignore // b/276294993
     @Test
     fun testOnComplicationDataError() {
         val data =
@@ -359,7 +361,7 @@ class ComplicationDataSourceServiceTest {
             .thenThrow(error)
 
         mProvider.onUpdate(id, ComplicationType.LONG_TEXT.toWireComplicationType(), mLocalManager)
-        runUiThreadTasksWhileAwaitingDataLatch(1000)
+        mService.lastPreviewOrErrorLatch.await(1, TimeUnit.SECONDS)
 
         assertThat(mService.lastSendError).isEqualTo(error)
     }
