@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.sp
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.itemsIndexed
+import androidx.paging.compose.itemKey
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -113,10 +113,11 @@ fun PagingRoomDemo() {
 
         val lazyPagingItems = pager.flow.collectAsLazyPagingItems()
         LazyColumn {
-            itemsIndexed(
-                items = lazyPagingItems,
-                key = { _, user -> user.id }
-            ) { index, user ->
+            items(
+                count = lazyPagingItems.itemCount,
+                key = lazyPagingItems.itemKey { user -> user.id },
+            ) { index ->
+                val user = lazyPagingItems[index]
                 var counter by rememberSaveable { mutableStateOf(0) }
                 Text(
                     text = "counter=$counter index=$index ${user?.name} ${user?.id}",
