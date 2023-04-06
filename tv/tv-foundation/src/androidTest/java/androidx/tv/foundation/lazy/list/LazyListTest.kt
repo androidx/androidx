@@ -602,7 +602,6 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             .assertHeightIsEqualTo(150.dp)
     }
 
-    @Ignore("Disabled due to b/277124390")
     @Test
     fun whenNotAnymoreAvailableItemWasDisplayed() {
         var items by mutableStateOf((1..30).toList())
