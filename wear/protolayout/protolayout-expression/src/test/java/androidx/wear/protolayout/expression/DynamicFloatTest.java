@@ -20,6 +20,7 @@ import static androidx.wear.protolayout.expression.AnimationParameterBuilders.RE
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
+import androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationParameters;
 import androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
@@ -35,8 +36,11 @@ public final class DynamicFloatTest {
   private static final float CONSTANT_VALUE = 42.42f;
   private static final AnimationSpec SPEC =
       new AnimationSpec.Builder()
-          .setStartDelayMillis(1)
-          .setDurationMillis(2)
+          .setAnimationParameters(
+                  new AnimationParameters.Builder()
+                          .setDurationMillis(2)
+                          .setDelayMillis(1)
+                          .build())
           .setRepeatable(
               new AnimationParameterBuilders.Repeatable.Builder()
                   .setRepeatMode(REPEAT_MODE_REVERSE)
@@ -169,11 +173,11 @@ public final class DynamicFloatTest {
             DynamicFloat.animate(
                     /* start= */ 1f,
                     /* end= */ 2f,
-                    new AnimationSpec.Builder().setStartDelayMillis(0).build())
+                    new AnimationSpec.Builder().build())
                 .toString())
         .isEqualTo(
             "AnimatableFixedFloat{fromValue=1.0, toValue=2.0, animationSpec=AnimationSpec{"
-                + "durationMillis=0, startDelayMillis=0, easing=null, repeatable=null}}");
+                + "animationParameters=null, repeatable=null}}");
   }
 
   @Test
@@ -199,12 +203,18 @@ public final class DynamicFloatTest {
     assertThat(
             DynamicFloat.animate(
                     /* stateKey= */ "key",
-                    new AnimationSpec.Builder().setStartDelayMillis(1).build())
+                    new AnimationSpec.Builder()
+                            .setAnimationParameters(
+                                    new AnimationParameters.Builder()
+                                            .setDelayMillis(1)
+                                            .build())
+                            .build())
                 .toString())
         .isEqualTo(
             "AnimatableDynamicFloat{"
                 + "input=StateFloatSource{sourceKey=key}, animationSpec=AnimationSpec{"
-                + "durationMillis=0, startDelayMillis=1, easing=null, repeatable=null}}");
+                + "animationParameters=AnimationParameters{durationMillis=0, easing=null, "
+                + "delayMillis=1}, repeatable=null}}");
   }
 
   @Test
