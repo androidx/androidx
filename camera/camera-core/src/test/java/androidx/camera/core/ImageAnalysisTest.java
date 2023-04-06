@@ -237,7 +237,7 @@ public class ImageAnalysisTest {
         if (useResolutionSelector) {
             ResolutionSelector.Builder selectorBuilder = new ResolutionSelector.Builder();
             if (appResolution != null) {
-                selectorBuilder.setResolutionStrategy(ResolutionStrategy.create(appResolution,
+                selectorBuilder.setResolutionStrategy(new ResolutionStrategy(appResolution,
                         ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER));
             } else {
                 selectorBuilder.setAspectRatioStrategy(

@@ -33,7 +33,6 @@ import androidx.camera.core.UseCase
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
-import androidx.camera.core.resolutionselector.HighResolution
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
@@ -555,7 +554,7 @@ class PreviewTest(
         // Arrange.
         val resolutionSelector =
             ResolutionSelector.Builder()
-                .setHighResolutionEnabledFlags(HighResolution.FLAG_DEFAULT_MODE_ON)
+                .setHighResolutionEnabledFlag(ResolutionSelector.HIGH_RESOLUTION_FLAG_ON)
                 .setResolutionFilter { _, _ ->
                     listOf(maxHighResolutionOutputSize)
                 }
