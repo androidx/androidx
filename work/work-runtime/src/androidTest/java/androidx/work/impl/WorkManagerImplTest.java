@@ -85,6 +85,7 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.testutils.RepeatRule;
 import androidx.work.BackoffPolicy;
+import androidx.work.Clock;
 import androidx.work.Configuration;
 import androidx.work.Constraints;
 import androidx.work.Constraints.ContentUriTrigger;
@@ -141,6 +142,7 @@ public class WorkManagerImplTest {
 
     private Context mContext;
     private Configuration mConfiguration;
+    private OverrideClock mClock = new OverrideClock();
     private WorkDatabase mDatabase;
     private Scheduler mScheduler;
     private WorkManagerImpl mWorkManagerImpl;
@@ -169,6 +171,7 @@ public class WorkManagerImplTest {
         mContext = ApplicationProvider.getApplicationContext();
         mConfiguration = new Configuration.Builder()
                 .setExecutor(Executors.newSingleThreadExecutor())
+                .setClock(mClock)
                 .setMinimumLoggingLevel(Log.DEBUG)
                 .build();
         InstantWorkTaskExecutor workTaskExecutor = new InstantWorkTaskExecutor();
@@ -1837,13 +1840,17 @@ public class WorkManagerImplTest {
     @Test
     @MediumTest
     public void testGenerateCleanupCallback_deletesOldFinishedWork() {
+        long nowMillis = TimeUnit.DAYS.toMillis(30);
+        mClock.mOverrideTimeMillis = nowMillis;
+
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialState(SUCCEEDED)
-                .setLastEnqueueTime(CleanupCallback.INSTANCE.getPruneDate() - 1L,
+                .setLastEnqueueTime(nowMillis - WorkDatabaseKt.PRUNE_THRESHOLD_MILLIS - 1L,
                         TimeUnit.MILLISECONDS)
                 .build();
         OneTimeWorkRequest work2 = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .setLastEnqueueTime(Long.MAX_VALUE, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(nowMillis - WorkDatabaseKt.PRUNE_THRESHOLD_MILLIS + 1L,
+                        TimeUnit.MILLISECONDS)
                 .build();
 
         insertWorkSpecAndTags(work1);
@@ -1851,7 +1858,8 @@ public class WorkManagerImplTest {
 
         SupportSQLiteOpenHelper openHelper = mDatabase.getOpenHelper();
         SupportSQLiteDatabase db = openHelper.getWritableDatabase();
-        CleanupCallback.INSTANCE.onOpen(db);
+
+        new CleanupCallback(mClock).onOpen(db);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getWorkSpec(work1.getStringId()), is(nullValue()));
@@ -1861,19 +1869,22 @@ public class WorkManagerImplTest {
     @Test
     @MediumTest
     public void testGenerateCleanupCallback_doesNotDeleteOldFinishedWorkWithActiveDependents() {
+        long nowMillis = TimeUnit.DAYS.toMillis(30);
+        mClock.mOverrideTimeMillis = nowMillis;
+
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialState(SUCCEEDED)
-                .setLastEnqueueTime(CleanupCallback.INSTANCE.getPruneDate() - 1L,
+                .setLastEnqueueTime(nowMillis - WorkDatabaseKt.PRUNE_THRESHOLD_MILLIS - 1L,
                         TimeUnit.MILLISECONDS)
                 .build();
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialState(SUCCEEDED)
-                .setLastEnqueueTime(CleanupCallback.INSTANCE.getPruneDate() - 1L,
+                .setLastEnqueueTime(nowMillis - WorkDatabaseKt.PRUNE_THRESHOLD_MILLIS - 1L,
                         TimeUnit.MILLISECONDS)
                 .build();
         OneTimeWorkRequest work2 = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialState(ENQUEUED)
-                .setLastEnqueueTime(CleanupCallback.INSTANCE.getPruneDate() - 1L,
+                .setLastEnqueueTime(nowMillis - WorkDatabaseKt.PRUNE_THRESHOLD_MILLIS - 1L,
                         TimeUnit.MILLISECONDS)
                 .build();
 
@@ -1887,7 +1898,8 @@ public class WorkManagerImplTest {
 
         SupportSQLiteOpenHelper openHelper = mDatabase.getOpenHelper();
         SupportSQLiteDatabase db = openHelper.getWritableDatabase();
-        CleanupCallback.INSTANCE.onOpen(db);
+
+        new CleanupCallback(mClock).onOpen(db);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getWorkSpec(work0.getStringId()), is(nullValue()));
@@ -2150,5 +2162,15 @@ public class WorkManagerImplTest {
                 Constraints.NONE, 0, null,
                 Long.MAX_VALUE // Documented error value.
         );
+    }
+
+    private class OverrideClock implements Clock {
+        long mOverrideTimeMillis = Long.MAX_VALUE;
+
+        @Override
+        public long currentTimeMillis() {
+            return mOverrideTimeMillis == Long.MAX_VALUE ? System.currentTimeMillis()
+                    : mOverrideTimeMillis;
+        }
     }
 }
