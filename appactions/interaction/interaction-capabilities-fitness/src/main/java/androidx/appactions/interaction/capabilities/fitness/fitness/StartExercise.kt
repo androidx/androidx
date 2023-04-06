@@ -25,7 +25,6 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
-import androidx.appactions.interaction.capabilities.core.impl.task.AbstractTaskUpdater
 import java.time.Duration
 import java.util.Optional
 
@@ -58,7 +57,7 @@ private val ACTION_SPEC =
 class StartExercise private constructor() {
     class CapabilityBuilder :
         CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session
+            CapabilityBuilder, Property, Argument, Output, Confirmation, Session
             >(ACTION_SPEC) {
         fun setDurationProperty(duration: TypeProperty<Duration>): CapabilityBuilder =
             apply {
@@ -161,8 +160,6 @@ class StartExercise private constructor() {
     class Output internal constructor()
 
     class Confirmation internal constructor()
-
-    class TaskUpdater internal constructor() : AbstractTaskUpdater()
 
     sealed interface Session : BaseSession<Argument, Output>
 }

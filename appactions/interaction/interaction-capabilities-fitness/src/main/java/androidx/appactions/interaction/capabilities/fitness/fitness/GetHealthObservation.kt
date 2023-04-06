@@ -24,7 +24,6 @@ import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
-import androidx.appactions.interaction.capabilities.core.impl.task.AbstractTaskUpdater
 import java.time.LocalTime
 import java.util.Optional
 
@@ -60,7 +59,7 @@ private val ACTION_SPEC =
 class GetHealthObservation private constructor() {
     class CapabilityBuilder :
         CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session
+            CapabilityBuilder, Property, Argument, Output, Confirmation, Session
             >(ACTION_SPEC) {
         private var propertyBuilder: Property.Builder = Property.Builder()
         fun setStartTimeProperty(startTime: TypeProperty<LocalTime>): CapabilityBuilder = apply {
@@ -162,8 +161,6 @@ class GetHealthObservation private constructor() {
     class Output internal constructor()
 
     class Confirmation internal constructor()
-
-    class TaskUpdater internal constructor() : AbstractTaskUpdater()
 
     sealed interface Session : BaseSession<Argument, Output>
 }
