@@ -32,7 +32,7 @@ object TestingUtils {
     fun <ArgumentT, OutputT> createFakeActionExecutor(): ActionExecutorAsync<ArgumentT, OutputT> {
         return ActionExecutorAsync { _: ArgumentT ->
             Futures.immediateFuture(
-                ExecutionResult.getDefaultInstance(),
+                ExecutionResult.Builder<OutputT>().build(),
             )
         }
     }

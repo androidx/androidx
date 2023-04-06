@@ -157,7 +157,7 @@ class SingleTurnCapabilityTest {
     @Test
     fun oneShotSession_uiHandle_withActionExecutor() {
         val actionExecutor =
-            ActionExecutor<Argument, Output> { ExecutionResult.getDefaultInstance() }
+            ActionExecutor<Argument, Output> { ExecutionResult.Builder<Output>().build() }
         val capability =
             SingleTurnCapabilityImpl(
                 id = "capabilityId",
@@ -178,7 +178,7 @@ class SingleTurnCapabilityTest {
     fun oneShotSession_uiHandle_withActionExecutorAsync() {
         val actionExecutorAsync =
             ActionExecutorAsync<Argument, Output> {
-                Futures.immediateFuture(ExecutionResult.getDefaultInstance())
+                Futures.immediateFuture(ExecutionResult.Builder<Output>().build())
             }
         val capability =
             SingleTurnCapabilityImpl(
@@ -247,7 +247,7 @@ class SingleTurnCapabilityTest {
         assertThat(withTimeoutOrNull(BLOCKING_TIMEOUT) { argumentChannel.receive() }).isNull()
 
         // unblock first request handling.
-        executionResultChannel.send(ExecutionResult.getDefaultInstance())
+        executionResultChannel.send(ExecutionResult.Builder<Output>().build())
         assertThat(callbackInternal1.receiveResponse().fulfillmentResponse).isEqualTo(
             FulfillmentResponse.getDefaultInstance(),
         )
@@ -255,7 +255,7 @@ class SingleTurnCapabilityTest {
         assertThat(argumentChannel.receive()).isEqualTo(
             Argument.newBuilder().setOptionalStringField("string value 2").build(),
         )
-        executionResultChannel.send(ExecutionResult.getDefaultInstance())
+        executionResultChannel.send(ExecutionResult.Builder<Output>().build())
         assertThat(callbackInternal2.receiveResponse().fulfillmentResponse).isEqualTo(
             FulfillmentResponse.getDefaultInstance(),
         )

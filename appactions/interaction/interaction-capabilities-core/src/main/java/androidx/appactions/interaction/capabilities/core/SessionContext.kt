@@ -17,13 +17,13 @@
 package androidx.appactions.interaction.capabilities.core
 
 /**
- * InitArg contains data passed to {@code BaseSession#onInit}.
+ * [SessionContext] contains data passed to {@code BaseSession#onCreate}.
  */
-class InitArg internal constructor() {
+class SessionContext internal constructor() {
     override fun toString() =
-        "InitArg()"
+        "SessionContext()"
 
     override fun equals(other: Any?): Boolean {
-        return other is InitArg
+        return other is SessionContext
     }
 }
