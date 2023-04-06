@@ -53,6 +53,7 @@ import androidx.testutils.withActivity
 import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import java.lang.IllegalArgumentException
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
@@ -555,7 +556,7 @@ class FragmentNavigatorTest {
 
     @UiThreadTest
     @Test
-    fun testNavigateAndAddIndependentFragment() {
+    fun testNavigationAndAddIndependentFragmentWithoutBackStack() {
         val entry = createBackStackEntry()
 
         fragmentNavigator.navigate(listOf(entry), null, null)
@@ -582,6 +583,42 @@ class FragmentNavigatorTest {
         assertWithMessage("Independent fragment should be added")
             .that(fragmentManager.findFragmentById(R.id.container))
             .isEqualTo(independentFragment)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateAndAddIndependentFragmentWithBackStack() {
+        val entry = createBackStackEntry()
+
+        fragmentNavigator.navigate(listOf(entry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry)
+        fragmentManager.executePendingTransactions()
+        val fragment = fragmentManager.findFragmentById(R.id.container)
+        assertWithMessage("Fragment should be added")
+            .that(fragment)
+            .isNotNull()
+        assertWithMessage("Fragment should be the correct type")
+            .that(fragment)
+            .isInstanceOf(EmptyFragment::class.java)
+        assertWithMessage("Fragment should be the primary navigation Fragment")
+            .that(fragmentManager.primaryNavigationFragment)
+            .isSameInstanceAs(fragment)
+
+        val independentFragment = EmptyFragment()
+        fragmentManager.beginTransaction()
+            .replace(R.id.container, independentFragment)
+            .addToBackStack(null)
+            .commit()
+        try {
+            fragmentManager.executePendingTransactions()
+        } catch (e: IllegalArgumentException) {
+            assertWithMessage("adding a fragment to the back stack manually should fail")
+                .that(e.message)
+                .contains("The fragment " + independentFragment + " is unknown to the " +
+                    "FragmentNavigator. Please use the navigate() function to add fragments to " +
+                    "the FragmentNavigator managed FragmentManager.")
+        }
     }
 
     @LargeTest

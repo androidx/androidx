@@ -143,6 +143,13 @@ public open class FragmentNavigator(
                 val entry = (state.backStack.value + state.transitionsInProgress.value).lastOrNull {
                     it.id == fragment.tag
                 }
+                if (!pop) {
+                    requireNotNull(entry) {
+                        "The fragment " + fragment + " is unknown to the FragmentNavigator. " +
+                            "Please use the navigate() function to add fragments to the " +
+                            "FragmentNavigator managed FragmentManager."
+                    }
+                }
                 if (entry != null) {
                     // In case we get a fragment that was never attached to the fragment manager,
                     // we need to make sure we still return the entries to their proper final state.
