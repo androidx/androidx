@@ -28,6 +28,7 @@ import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
 import androidx.appactions.interaction.proto.ParamValue
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -135,7 +136,7 @@ internal class TaskCapabilitySession<
                 pendingTouchEventRequest = null
             }
             if (nextRequest != null) {
-                scope.launch {
+                scope.launch(start = CoroutineStart.UNDISPATCHED) {
                     sessionOrchestrator.processUpdateRequest(nextRequest)
                     dispatchPendingRequestIfIdle()
                 }

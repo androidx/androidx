@@ -25,6 +25,7 @@ import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.ParamValue
 import androidx.concurrent.futures.await
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -70,7 +71,7 @@ internal class SingleTurnCapabilitySession<
         val paramValuesMap: Map<String, List<ParamValue>> =
             argumentsWrapper.paramValues.mapValues { entry -> entry.value.mapNotNull { it.value } }
         val argument = actionSpec.buildArgument(paramValuesMap)
-        scope.launch {
+        scope.launch(start = CoroutineStart.UNDISPATCHED) {
             try {
                 mutex.lock(owner = this@SingleTurnCapabilitySession)
                 UiHandleRegistry.registerUiHandle(uiHandle, sessionId)
