@@ -24,16 +24,18 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 /**
- * Extension method on a [Flow] to generate a `PagingSourceFactory` for constructing a [Pager].
+ * Returns a factory that creates [PagingSource] instances.
  *
- * The [Flow] of list represents the data source, with each static list representing a generation
- * of data from which a [PagingSource] will load from. With every emission, the current
- * [PagingSource] will be invalidated, thereby triggering a new generation of Paged data. The
- * same factory should be reused within the lifetime of a ViewModel.
+ * Since this method returns a lambda, call [this.invoke] to create a new PagingSource. Can be
+ * used as the pagingSourceFactory when constructing a [Pager]. The same factory should be reused
+ * within the lifetime of a ViewModel.
+ *
+ * Extension method on a [Flow] of list that represents the data source, with each static list
+ * representing a generation of data from which a [PagingSource] will load from. With every
+ * emission, the current [PagingSource] will be invalidated, thereby triggering a new generation
+ * of Paged data.
  *
  * Supports multiple factories and thus multiple collection on the same flow.
- *
- * Returns a `pagingSourceFactory` to be supplied to a [Pager].
  *
  * @param coroutineScope the CoroutineScope to collect from the Flow of list.
  */
