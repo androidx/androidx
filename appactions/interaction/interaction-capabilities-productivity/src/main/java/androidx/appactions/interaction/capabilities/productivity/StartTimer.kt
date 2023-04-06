@@ -25,7 +25,7 @@ import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
-import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
+import androidx.appactions.interaction.capabilities.core.properties.ParamProperty
 import androidx.appactions.interaction.capabilities.core.impl.task.SessionBridge
 import androidx.appactions.interaction.capabilities.core.impl.task.TaskHandler
 import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
@@ -122,9 +122,9 @@ class StartTimer private constructor() {
     // TODO(b/268369632): Remove Property from public capability APIs.
     class Property
     internal constructor(
-        val identifier: TypeProperty<StringValue>?,
-        val name: TypeProperty<StringValue>?,
-        val duration: TypeProperty<Duration>?,
+        val identifier: ParamProperty<StringValue>?,
+        val name: ParamProperty<StringValue>?,
+        val duration: ParamProperty<Duration>?,
     ) {
         override fun toString(): String {
             return "Property(identifier=$identifier,name=$name,duration=$duration}"
@@ -151,17 +151,17 @@ class StartTimer private constructor() {
         }
 
         class Builder {
-            private var identifier: TypeProperty<StringValue>? = null
-            private var name: TypeProperty<StringValue>? = null
-            private var duration: TypeProperty<Duration>? = null
+            private var identifier: ParamProperty<StringValue>? = null
+            private var name: ParamProperty<StringValue>? = null
+            private var duration: ParamProperty<Duration>? = null
 
-            fun setIdentifier(identifier: TypeProperty<StringValue>): Builder = apply {
+            fun setIdentifier(identifier: ParamProperty<StringValue>): Builder = apply {
                 this.identifier = identifier
             }
 
-            fun setName(name: TypeProperty<StringValue>): Builder = apply { this.name = name }
+            fun setName(name: ParamProperty<StringValue>): Builder = apply { this.name = name }
 
-            fun setDuration(duration: TypeProperty<Duration>): Builder = apply {
+            fun setDuration(duration: ParamProperty<Duration>): Builder = apply {
                 this.duration = duration
             }
 

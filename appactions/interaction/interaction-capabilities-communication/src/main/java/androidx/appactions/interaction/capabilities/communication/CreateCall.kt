@@ -27,7 +27,7 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.CALL_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.PARTICIPANT_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
+import androidx.appactions.interaction.capabilities.core.properties.ParamProperty
 import androidx.appactions.interaction.capabilities.core.values.Call
 import androidx.appactions.interaction.capabilities.core.values.Call.CallFormat
 import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
@@ -88,8 +88,8 @@ class CreateCall private constructor() {
     // TODO(b/268369632): Remove Property from public capability APIs.
     class Property
     internal constructor(
-        val callFormat: TypeProperty<CallFormat>?,
-        val participant: TypeProperty<Participant>?
+        val callFormat: ParamProperty<CallFormat>?,
+        val participant: ParamProperty<Participant>?
     ) {
         override fun toString(): String {
             return "Property(callFormat=$callFormat, participant=$participant)"
@@ -114,11 +114,11 @@ class CreateCall private constructor() {
         }
 
         class Builder {
-            private var callFormat: TypeProperty<CallFormat>? = null
+            private var callFormat: ParamProperty<CallFormat>? = null
 
-            private var participant: TypeProperty<Participant>? = null
+            private var participant: ParamProperty<Participant>? = null
 
-            fun setCallFormat(callFormat: TypeProperty<CallFormat>): Builder = apply {
+            fun setCallFormat(callFormat: ParamProperty<CallFormat>): Builder = apply {
                 this.callFormat = callFormat
             }
 

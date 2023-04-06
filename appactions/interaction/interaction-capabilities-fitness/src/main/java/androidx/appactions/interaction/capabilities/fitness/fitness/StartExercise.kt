@@ -24,7 +24,7 @@ import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
-import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
+import androidx.appactions.interaction.capabilities.core.properties.ParamProperty
 import java.time.Duration
 import java.util.Optional
 
@@ -59,12 +59,12 @@ class StartExercise private constructor() {
         CapabilityBuilderBase<
             CapabilityBuilder, Property, Argument, Output, Confirmation, Session
             >(ACTION_SPEC) {
-        fun setDurationProperty(duration: TypeProperty<Duration>): CapabilityBuilder =
+        fun setDurationProperty(duration: ParamProperty<Duration>): CapabilityBuilder =
             apply {
                 Property.Builder().setDuration(duration).build()
             }
 
-        fun setNameProperty(name: TypeProperty<StringValue>): CapabilityBuilder =
+        fun setNameProperty(name: ParamProperty<StringValue>): CapabilityBuilder =
             apply {
                 Property.Builder().setName(name).build()
             }
@@ -78,8 +78,8 @@ class StartExercise private constructor() {
 
     // TODO(b/268369632): Remove Property from public capability APIs.
     class Property internal constructor(
-        val duration: TypeProperty<Duration>?,
-        val name: TypeProperty<StringValue>?
+        val duration: ParamProperty<Duration>?,
+        val name: ParamProperty<StringValue>?
     ) {
         override fun toString(): String {
             return "Property(duration=$duration, name=$name)"
@@ -104,13 +104,13 @@ class StartExercise private constructor() {
         }
 
         class Builder {
-            private var duration: TypeProperty<Duration>? = null
-            private var name: TypeProperty<StringValue>? = null
+            private var duration: ParamProperty<Duration>? = null
+            private var name: ParamProperty<StringValue>? = null
 
-            fun setDuration(duration: TypeProperty<Duration>): Builder =
+            fun setDuration(duration: ParamProperty<Duration>): Builder =
                 apply { this.duration = duration }
 
-            fun setName(name: TypeProperty<StringValue>): Builder =
+            fun setName(name: ParamProperty<StringValue>): Builder =
                 apply { this.name = name }
 
             fun build(): Property = Property(duration, name)

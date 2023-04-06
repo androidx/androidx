@@ -28,7 +28,7 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.RECIPIENT_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
-import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
+import androidx.appactions.interaction.capabilities.core.properties.ParamProperty
 import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
 import androidx.appactions.interaction.capabilities.core.values.Message
 import androidx.appactions.interaction.capabilities.core.values.properties.Recipient
@@ -88,8 +88,8 @@ class CreateMessage private constructor() {
     // TODO(b/268369632): Remove Property from public capability APIs.
     class Property
     internal constructor(
-        val recipient: TypeProperty<Recipient>?,
-        val messageText: TypeProperty<StringValue>?
+        val recipient: ParamProperty<Recipient>?,
+        val messageText: ParamProperty<StringValue>?
     ) {
         override fun toString(): String {
             return "Property(recipient=$recipient, messageText=$messageText)"
@@ -114,14 +114,14 @@ class CreateMessage private constructor() {
         }
 
         class Builder {
-            private var recipient: TypeProperty<Recipient>? = null
-            private var messageText: TypeProperty<StringValue>? = null
+            private var recipient: ParamProperty<Recipient>? = null
+            private var messageText: ParamProperty<StringValue>? = null
 
-            fun setRecipient(recipient: TypeProperty<Recipient>): Builder = apply {
+            fun setRecipient(recipient: ParamProperty<Recipient>): Builder = apply {
                 this.recipient = recipient
             }
 
-            fun setMessageText(messageText: TypeProperty<StringValue>): Builder = apply {
+            fun setMessageText(messageText: ParamProperty<StringValue>): Builder = apply {
                 this.messageText = messageText
             }
 

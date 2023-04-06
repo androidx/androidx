@@ -16,32 +16,83 @@
 
 package androidx.appactions.interaction.capabilities.core.properties
 
-/**
- * Base class for the property which describes a parameter for {@code Capability}. This class
- * should not be used directly. Instead, use the typed property classes such as {@link
- * StringProperty}, etc.
- *
- */
-sealed interface ParamProperty<V> {
-
-    /** The current list of possible values for this parameter, can change over time. */
-    val possibleValues: List<V>
-
+/** The property which describes a complex type. */
+class ParamProperty<T> internal constructor(
+    private val possibleValueSupplier: () -> List<T>,
     /** Indicates that a value for this property is required to be present for fulfillment. */
-    val isRequired: Boolean
-
+    val isRequired: Boolean,
     /**
      * Indicates that a match of possible value for the given property must be present. Defaults to
      * false.
      *
      * <p>If true, Assistant skips the capability if there is no match.
      */
-    val isValueMatchRequired: Boolean
-
+    val isValueMatchRequired: Boolean,
     /**
      * If true, the {@code Capability} will be rejected by assistant if corresponding param is
      * set in argument. And the value of |isRequired| and |entityMatchRequired| will also be ignored
      * by assistant.
      */
-    val isProhibited: Boolean
+    val isProhibited: Boolean,
+) {
+    /** The current list of possible values for this parameter, can change over time. */
+    val possibleValues: List<T>
+        get() = possibleValueSupplier()
+
+    /** Builder for {@link ParamProperty}. */
+    class Builder<T> {
+        private var possibleValueSupplier: () -> List<T> = { emptyList<T>() }
+        private var isRequired = false
+        private var isValueMatchRequired = false
+        private var isProhibited = false
+
+        /**
+         * Sets one or more possible values for this parameter.
+         *
+         * @param values the possible values.
+         */
+        fun setPossibleValues(vararg values: T) = apply {
+            this.possibleValueSupplier = { values.asList() }
+        }
+
+        /**
+         * Sets a supplier of possible values for this parameter.
+         *
+         * @param supplier the supplier of possible values.
+         */
+        fun setPossibleValueSupplier(supplier: () -> List<T>) = apply {
+            this.possibleValueSupplier = supplier
+        }
+
+        /** Sets whether or not this property requires a value for fulfillment. */
+        fun setRequired(isRequired: Boolean) = apply {
+            this.isRequired = isRequired
+        }
+
+        /**
+         * Sets whether or not this property requires that the value for this property must match
+         * one of
+         * the Entity in the defined possible entities.
+         */
+        fun setValueMatchRequired(isValueMatchRequired: Boolean) = apply {
+            this.isValueMatchRequired = isValueMatchRequired
+        }
+
+        /**
+         * Sets whether this property is prohibited in the response.
+         *
+         * @param isProhibited Whether this property is prohibited in the response.
+         */
+        fun setProhibited(isProhibited: Boolean) = apply {
+            this.isProhibited = isProhibited
+        }
+
+        /** Builds the property for this entity parameter. */
+        fun build() = ParamProperty(
+            this.possibleValueSupplier,
+            this.isRequired,
+            this.isValueMatchRequired,
+            this.isProhibited,
+        )
+    }
 }

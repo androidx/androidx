@@ -23,7 +23,7 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder;
 import androidx.appactions.interaction.capabilities.core.properties.Entity;
-import androidx.appactions.interaction.capabilities.core.properties.TypeProperty;
+import androidx.appactions.interaction.capabilities.core.properties.ParamProperty;
 import androidx.appactions.interaction.capabilities.core.values.EntityValue;
 
 import com.google.auto.value.AutoValue;
@@ -85,19 +85,19 @@ public final class CapabilityTwoEntityValues {
             return new AutoValue_CapabilityTwoEntityValues_Property.Builder();
         }
 
-        public abstract Optional<TypeProperty<Entity>> slotA();
+        public abstract Optional<ParamProperty<Entity>> slotA();
 
-        public abstract Optional<TypeProperty<Entity>> slotB();
+        public abstract Optional<ParamProperty<Entity>> slotB();
 
         /** Builder for {@link Property} */
         @AutoValue.Builder
         public abstract static class Builder {
 
             @NonNull
-            public abstract Builder setSlotA(@NonNull TypeProperty<Entity> value);
+            public abstract Builder setSlotA(@NonNull ParamProperty<Entity> value);
 
             @NonNull
-            public abstract Builder setSlotB(@NonNull TypeProperty<Entity> value);
+            public abstract Builder setSlotB(@NonNull ParamProperty<Entity> value);
 
             @NonNull
             public abstract Property build();

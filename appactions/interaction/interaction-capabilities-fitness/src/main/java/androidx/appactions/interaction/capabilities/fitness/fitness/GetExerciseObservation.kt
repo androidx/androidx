@@ -23,7 +23,7 @@ import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
+import androidx.appactions.interaction.capabilities.core.properties.ParamProperty
 import java.time.LocalTime
 import java.util.Optional
 
@@ -62,11 +62,11 @@ class GetExerciseObservation private constructor() {
             CapabilityBuilder, Property, Argument, Output, Confirmation, Session
             >(ACTION_SPEC) {
         private var propertyBuilder: Property.Builder = Property.Builder()
-        fun setStartTimeProperty(startTime: TypeProperty<LocalTime>): CapabilityBuilder = apply {
+        fun setStartTimeProperty(startTime: ParamProperty<LocalTime>): CapabilityBuilder = apply {
             propertyBuilder.setEndTime(startTime)
         }
 
-        fun setEndTimeProperty(endTime: TypeProperty<LocalTime>): CapabilityBuilder = apply {
+        fun setEndTimeProperty(endTime: ParamProperty<LocalTime>): CapabilityBuilder = apply {
             propertyBuilder.setEndTime(endTime)
         }
 
@@ -79,8 +79,8 @@ class GetExerciseObservation private constructor() {
 
     // TODO(b/268369632): Remove Property from public capability APIs.
     class Property internal constructor(
-        val startTime: TypeProperty<LocalTime>?,
-        val endTime: TypeProperty<LocalTime>?
+        val startTime: ParamProperty<LocalTime>?,
+        val endTime: ParamProperty<LocalTime>?
     ) {
         override fun toString(): String {
             return "Property(startTime=$startTime, endTime=$endTime)"
@@ -105,13 +105,13 @@ class GetExerciseObservation private constructor() {
         }
 
         class Builder {
-            private var startTime: TypeProperty<LocalTime>? = null
-            private var endTime: TypeProperty<LocalTime>? = null
+            private var startTime: ParamProperty<LocalTime>? = null
+            private var endTime: ParamProperty<LocalTime>? = null
 
-            fun setStartTime(startTime: TypeProperty<LocalTime>): Builder =
+            fun setStartTime(startTime: ParamProperty<LocalTime>): Builder =
                 apply { this.startTime = startTime }
 
-            fun setEndTime(endTime: TypeProperty<LocalTime>): Builder =
+            fun setEndTime(endTime: ParamProperty<LocalTime>): Builder =
                 apply { this.endTime = endTime }
 
             fun build(): Property = Property(startTime, endTime)

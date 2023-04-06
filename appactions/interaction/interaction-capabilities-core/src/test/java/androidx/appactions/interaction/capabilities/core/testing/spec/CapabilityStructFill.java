@@ -27,8 +27,8 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.ParamVa
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder;
+import androidx.appactions.interaction.capabilities.core.properties.ParamProperty;
 import androidx.appactions.interaction.capabilities.core.properties.StringValue;
-import androidx.appactions.interaction.capabilities.core.properties.TypeProperty;
 import androidx.appactions.interaction.capabilities.core.values.ListItem;
 
 import com.google.auto.value.AutoValue;
@@ -92,19 +92,19 @@ public final class CapabilityStructFill {
             return new AutoValue_CapabilityStructFill_Property.Builder();
         }
 
-        public abstract Optional<TypeProperty<ListItem>> listItem();
+        public abstract Optional<ParamProperty<ListItem>> listItem();
 
-        public abstract Optional<TypeProperty<StringValue>> anyString();
+        public abstract Optional<ParamProperty<StringValue>> anyString();
 
         /** Builder for {@link Property} */
         @AutoValue.Builder
         public abstract static class Builder {
 
             @NonNull
-            public abstract Builder setListItem(@NonNull TypeProperty<ListItem> value);
+            public abstract Builder setListItem(@NonNull ParamProperty<ListItem> value);
 
             @NonNull
-            public abstract Builder setAnyString(@NonNull TypeProperty<StringValue> value);
+            public abstract Builder setAnyString(@NonNull ParamProperty<StringValue> value);
 
             @NonNull
             public abstract Property build();
