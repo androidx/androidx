@@ -22,7 +22,6 @@ import android.os.IBinder;
 import android.view.WindowMetrics;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.window.extensions.WindowExtensions;
 import androidx.window.extensions.core.util.function.Consumer;
 import androidx.window.extensions.core.util.function.Function;
@@ -119,33 +118,6 @@ public interface ActivityEmbeddingComponent {
      */
     void setSplitAttributesCalculator(
             @NonNull Function<SplitAttributesCalculatorParams, SplitAttributes> calculator);
-
-    // TODO(b/264546746): Remove deprecated Window Extensions APIs after apps in g3 is updated to
-    // the latest library.
-    /**
-     * @deprecated Use {@link #setSplitAttributesCalculator(Function)}.
-     *
-     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
-     * @hide
-     */
-    @Deprecated
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    default void setSplitAttributesCalculator(@NonNull SplitAttributesCalculator calculator) {
-        final Function<SplitAttributesCalculatorParams, SplitAttributes> function =
-                params -> {
-                    SplitAttributesCalculator.SplitAttributesCalculatorParams legacyParams =
-                            new SplitAttributesCalculator.SplitAttributesCalculatorParams(
-                                    params.getParentWindowMetrics(),
-                                    params.getParentConfiguration(),
-                                    params.getDefaultSplitAttributes(),
-                                    params.areDefaultConstraintsSatisfied(),
-                                    params.getParentWindowLayoutInfo(),
-                                    params.getSplitRuleTag()
-                            );
-                    return calculator.computeSplitAttributesForParams(legacyParams);
-                };
-        setSplitAttributesCalculator(function);
-    }
 
     /**
      * Clears the previously callback set in {@link #setSplitAttributesCalculator(Function)}.
