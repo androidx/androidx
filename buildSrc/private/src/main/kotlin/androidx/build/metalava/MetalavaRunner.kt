@@ -72,6 +72,13 @@ abstract class MetalavaWorkAction @Inject constructor(
     override fun execute() {
         val outputStream = ByteArrayOutputStream()
         var successful = false
+        val k2UastArg = listOfNotNull(
+            // Enable Android Lint infrastructure used by Metalava to use K2 UAST
+            // (also historically known as FIR) when running Metalava for this module.
+            "--Xuse-k2-uast".takeIf {
+                parameters.k2UastEnabled.get()
+            }
+        )
         try {
             execOperations.javaexec {
                 // Intellij core reflects into java.util.ResourceBundle
@@ -79,14 +86,9 @@ abstract class MetalavaWorkAction @Inject constructor(
                     "--add-opens",
                     "java.base/java.util=ALL-UNNAMED"
                 )
-                if (parameters.k2UastEnabled.get()) {
-                    // Enable Android Lint infrastructure used by Metalava to use K2 UAST
-                    // (also historically known as FIR) when running Metalava for this module.
-                    it.systemProperty("lint.use.fir.uast", true)
-                }
                 it.classpath(parameters.metalavaClasspath.get())
                 it.mainClass.set("com.android.tools.metalava.Driver")
-                it.args = parameters.args.get()
+                it.args = parameters.args.get() + k2UastArg
                 it.setStandardOutput(outputStream)
                 it.setErrorOutput(outputStream)
             }
