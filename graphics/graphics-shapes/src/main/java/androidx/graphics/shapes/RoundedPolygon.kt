@@ -22,10 +22,10 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.PointF
 import android.graphics.RectF
+import androidx.core.graphics.div
 import androidx.core.graphics.minus
 import androidx.core.graphics.plus
 import androidx.core.graphics.times
-import androidx.core.graphics.div
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.sqrt
@@ -206,24 +206,46 @@ class RoundedPolygon {
                 )
             )
         }
+
+        // For each side, check if we have enough space to do the cuts needed, and if not split
+        // the available space, first for round cuts, then for smoothing if there is space left.
+        // Each element in this list is a pair, that represent how much we can do of the cut for
+        // the given side (side i goes from corner i to corner i+1), the elements of the pair are:
+        // first is how much we can use of expectedRoundCut, second how much of expectedCut
         val cutAdjusts = (0 until n).map { ix ->
-            // TODO: check expectedRoundCut first, and ensure we fulfill rounding needs first for
-            // both corners before using space for smoothing
+            val expectedRoundCut = roundedCorners[ix].expectedRoundCut +
+                roundedCorners[(ix + 1) % n].expectedRoundCut
             val expectedCut = roundedCorners[ix].expectedCut +
                     roundedCorners[(ix + 1) % n].expectedCut
             val sideSize = (vertices[ix] - vertices[(ix + 1) % n]).getDistance()
-            if (expectedCut > sideSize) {
-                sideSize / expectedCut
+
+            // Check expectedRoundCut first, and ensure we fulfill rounding needs first for
+            // both corners before using space for smoothing
+            if (expectedRoundCut > sideSize) {
+                // Not enough room for fully rounding, see how much we can actually do.
+                sideSize / expectedRoundCut to 0f
+            } else if (expectedCut > sideSize) {
+                // We can do full rounding, but not full smoothing.
+                1f to (sideSize - expectedRoundCut) / expectedCut
             } else {
-                1f
+                // There is enough room for rounding & smoothing.
+                0f to 1f
             }
         }
+
         // Create and store list of beziers for each [potentially] rounded corner
         for (i in 0 until n) {
+            // allowedCuts[0] is for the side from the previous corner to this one,
+            // allowedCuts[1] is for the side from this corner to the next one.
+            val allowedCuts = (0..1).map { delta ->
+                val (roundCutRatio, cutRatio) = cutAdjusts[(i + n - 1 + delta) % n]
+                roundedCorners[i].expectedRoundCut * roundCutRatio +
+                    roundedCorners[i].expectedCut * cutRatio
+            }
             corners.add(
                 roundedCorners[i].getCubics(
-                    allowedCut0 = roundedCorners[i].expectedCut * cutAdjusts[(i + n - 1) % n],
-                    allowedCut1 = roundedCorners[i].expectedCut * cutAdjusts[i]
+                    allowedCut0 = allowedCuts[0],
+                    allowedCut1 = allowedCuts[1]
                 )
             )
         }
@@ -367,7 +389,7 @@ class RoundedPolygon {
         if (this === other) return true
         if (other !is RoundedPolygon) return false
 
-        if (!cubicShape.equals(other.cubicShape)) return false
+        if (cubicShape != other.cubicShape) return false
 
         return true
     }
@@ -424,7 +446,7 @@ private class RoundedCorner(
         if (sinAngle > 1e-3) { cornerRadius * (cosAngle + 1) / sinAngle } else { 0f }
     // smoothing changes the actual cut. 0 is same as expectedRoundCut, 1 doubles it
     val expectedCut: Float
-        get() = ((1 + smoothing) * expectedRoundCut) // TODO: coerceAtMost(maxCut)?
+        get() = ((1 + smoothing) * expectedRoundCut)
     // the center of the circle approximated by the rounding curve (or the middle of the three
     // curves if smoothing is requested). The center is the same as p0 if there is no rounding.
     lateinit var center: PointF
@@ -458,16 +480,19 @@ private class RoundedCorner(
         center = p1 + ((d1 + d2) / 2f).getDirection() * centerDistance
         val circleIntersection0 = p1 + d1 * actualRoundCut
         val circleIntersection2 = p1 + d2 * actualRoundCut
-        val flanking0 = computeFlankingCurve(actualRoundCut, actualSmoothing0, p1, p0,
-            circleIntersection0, circleIntersection2, center, actualR)
-        val flanking2 = computeFlankingCurve(actualRoundCut, actualSmoothing1, p1, p2,
-            circleIntersection2, circleIntersection0, center, actualR).reverse()
-        val roundingCurves = listOf(
+        val flanking0 = computeFlankingCurve(
+            actualRoundCut, actualSmoothing0, p1, p0,
+            circleIntersection0, circleIntersection2, center, actualR
+        )
+        val flanking2 = computeFlankingCurve(
+            actualRoundCut, actualSmoothing1, p1, p2,
+            circleIntersection2, circleIntersection0, center, actualR
+        ).reverse()
+        return listOf(
             flanking0,
             Cubic.circularArc(center, flanking0.p3, flanking2.p0),
             flanking2
         )
-        return roundingCurves
     }
 
     /**
