@@ -246,18 +246,82 @@ class TextFieldKeyEventTest {
         }
     }
 
+    @Ignore // TODO(halilibo): Remove ignore when backing buffer supports reversed selection
     @Test
     fun textField_lineEndStart() {
-        keysSequenceTest("hello world\nhi") {
+        keysSequenceTest(initText = "hi\nhello world\nhi") {
+            pressKey(Key.MoveEnd)
+            pressKey(Key.DirectionRight)
+            pressKey(Key.Zero)
+            expectedText("hi\n0hello world\nhi")
             pressKey(Key.MoveEnd)
             pressKey(Key.Zero)
-            expectedText("hello world0\nhi")
-            pressKey(Key.MoveEnd)
+            expectedText("hi\n0hello world0\nhi")
+            withKeyDown(Key.ShiftLeft) { pressKey(Key.MoveHome) }
+            expectedSelection(TextRange(16, 3))
             pressKey(Key.MoveHome)
+            pressKey(Key.DirectionRight)
+            withKeyDown(Key.ShiftLeft) { pressKey(Key.MoveEnd) }
+            expectedSelection(TextRange(4, 16))
+            expectedText("hi\n0hello world0\nhi")
+        }
+    }
+
+    @Ignore // TODO(halilibo): Remove ignore when backing buffer supports reversed selection
+    @Test
+    fun textField_altLineLeftRight() {
+        keysSequenceTest(initText = "hi\nhello world\nhi") {
+            withKeyDown(Key.AltLeft) { pressKey(Key.DirectionRight) }
+            pressKey(Key.DirectionRight)
             pressKey(Key.Zero)
-            expectedText("0hello world0\nhi")
-            press(Key.ShiftLeft + Key.MoveEnd)
-            expectedSelection(TextRange(1, 16))
+            expectedText("hi\n0hello world\nhi")
+            withKeyDown(Key.AltLeft) { pressKey(Key.DirectionRight) }
+            pressKey(Key.Zero)
+            expectedText("hi\n0hello world0\nhi")
+            withKeysDown(listOf(Key.ShiftLeft, Key.AltLeft)) { pressKey(Key.DirectionLeft) }
+            expectedSelection(TextRange(16, 3))
+            withKeyDown(Key.AltLeft) { pressKey(Key.DirectionLeft) }
+            pressKey(Key.DirectionRight)
+            withKeysDown(listOf(Key.ShiftLeft, Key.AltLeft)) { pressKey(Key.DirectionRight) }
+            expectedSelection(TextRange(4, 16))
+            expectedText("hi\n0hello world0\nhi")
+        }
+    }
+
+    @Ignore // TODO(halilibo): Remove ignore when backing buffer supports reversed selection
+    @Test
+    fun textField_altTop() {
+        keysSequenceTest(initText = "hi\nhello world\nhi") {
+            pressKey(Key.MoveEnd)
+            repeat(3) { pressKey(Key.DirectionRight) }
+            pressKey(Key.Zero)
+            expectedText("hi\nhe0llo world\nhi")
+            withKeyDown(Key.AltLeft) { pressKey(Key.DirectionUp) }
+            pressKey(Key.Zero)
+            expectedText("0hi\nhe0llo world\nhi")
+            pressKey(Key.MoveEnd)
+            repeat(3) { pressKey(Key.DirectionRight) }
+            withKeysDown(listOf(Key.ShiftLeft, Key.AltLeft)) { pressKey(Key.DirectionUp) }
+            expectedSelection(TextRange(6, 0))
+            expectedText("0hi\nhe0llo world\nhi")
+        }
+    }
+
+    @Test
+    fun textField_altBottom() {
+        keysSequenceTest(initText = "hi\nhello world\nhi") {
+            pressKey(Key.MoveEnd)
+            repeat(3) { pressKey(Key.DirectionRight) }
+            pressKey(Key.Zero)
+            expectedText("hi\nhe0llo world\nhi")
+            withKeysDown(listOf(Key.ShiftLeft, Key.AltLeft)) { pressKey(Key.DirectionDown) }
+            expectedSelection(TextRange(6, 18))
+            pressKey(Key.DirectionLeft)
+            pressKey(Key.Zero)
+            expectedText("hi\nhe00llo world\nhi")
+            withKeyDown(Key.AltLeft) { pressKey(Key.DirectionDown) }
+            pressKey(Key.Zero)
+            expectedText("hi\nhe00llo world\nhi0")
         }
     }
 
@@ -538,7 +602,6 @@ class TextFieldKeyEventTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     private inner class SequenceScope(
         val state: TextFieldState,
         private val keyInjectionScope: KeyInjectionScope
