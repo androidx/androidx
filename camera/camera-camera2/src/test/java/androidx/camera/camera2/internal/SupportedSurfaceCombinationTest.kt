@@ -23,6 +23,8 @@ import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
+import android.hardware.camera2.CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+import android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.media.CamcorderProfile
 import android.media.CamcorderProfile.QUALITY_1080P
@@ -35,15 +37,21 @@ import android.util.Range
 import android.util.Size
 import android.view.WindowManager
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.internal.SupportedSurfaceCombination.FeatureSettings
 import androidx.camera.camera2.internal.compat.CameraManagerCompat
 import androidx.camera.core.CameraSelector.LensFacing
 import androidx.camera.core.CameraX
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.DynamicRange
+import androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT
+import androidx.camera.core.DynamicRange.FORMAT_HLG
+import androidx.camera.core.DynamicRange.SDR
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.CameraDeviceSurfaceManager
 import androidx.camera.core.impl.CameraMode
 import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+import androidx.camera.core.impl.ImageInputConfig
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.SurfaceCombination
 import androidx.camera.core.impl.SurfaceConfig
@@ -186,8 +194,12 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getLegacySupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(
-                CameraMode.DEFAULT, it.surfaceConfigList)).isTrue()
+            assertThat(
+                supportedSurfaceCombination.checkSupported(
+                    FeatureSettings.of(CameraMode.DEFAULT, DynamicRange.BIT_DEPTH_8_BIT),
+                    it.surfaceConfigList
+                )
+            ).isTrue()
         }
     }
 
@@ -215,8 +227,12 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getLimitedSupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(
-                CameraMode.DEFAULT, it.surfaceConfigList)).isFalse()
+            assertThat(
+                supportedSurfaceCombination.checkSupported(
+                    FeatureSettings.of(CameraMode.DEFAULT, DynamicRange.BIT_DEPTH_8_BIT),
+                    it.surfaceConfigList
+                )
+            ).isFalse()
         }
     }
 
@@ -227,8 +243,12 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getFullSupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(
-                CameraMode.DEFAULT, it.surfaceConfigList)).isFalse()
+            assertThat(
+                supportedSurfaceCombination.checkSupported(
+                    FeatureSettings.of(CameraMode.DEFAULT, DynamicRange.BIT_DEPTH_8_BIT),
+                    it.surfaceConfigList
+                )
+            ).isFalse()
         }
     }
 
@@ -239,8 +259,12 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(
-                CameraMode.DEFAULT, it.surfaceConfigList)).isFalse()
+            assertThat(
+                supportedSurfaceCombination.checkSupported(
+                    FeatureSettings.of(CameraMode.DEFAULT, DynamicRange.BIT_DEPTH_8_BIT),
+                    it.surfaceConfigList
+                )
+            ).isFalse()
         }
     }
 
@@ -253,8 +277,12 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getLimitedSupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(
-                CameraMode.DEFAULT, it.surfaceConfigList)).isTrue()
+            assertThat(
+                supportedSurfaceCombination.checkSupported(
+                    FeatureSettings.of(CameraMode.DEFAULT, DynamicRange.BIT_DEPTH_8_BIT),
+                    it.surfaceConfigList
+                )
+            ).isTrue()
         }
     }
 
@@ -286,8 +314,12 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getFullSupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(
-                CameraMode.DEFAULT, it.surfaceConfigList)).isFalse()
+            assertThat(
+                supportedSurfaceCombination.checkSupported(
+                    FeatureSettings.of(CameraMode.DEFAULT, DynamicRange.BIT_DEPTH_8_BIT),
+                    it.surfaceConfigList
+                )
+            ).isFalse()
         }
     }
 
@@ -300,8 +332,12 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(
-                CameraMode.DEFAULT, it.surfaceConfigList)).isFalse()
+            assertThat(
+                supportedSurfaceCombination.checkSupported(
+                    FeatureSettings.of(CameraMode.DEFAULT, DynamicRange.BIT_DEPTH_8_BIT),
+                    it.surfaceConfigList
+                )
+            ).isFalse()
         }
     }
 
@@ -314,8 +350,12 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getFullSupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(
-                CameraMode.DEFAULT, it.surfaceConfigList)).isTrue()
+            assertThat(
+                supportedSurfaceCombination.checkSupported(
+                    FeatureSettings.of(CameraMode.DEFAULT, DynamicRange.BIT_DEPTH_8_BIT),
+                    it.surfaceConfigList
+                )
+            ).isTrue()
         }
     }
 
@@ -347,8 +387,12 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(
-                CameraMode.DEFAULT, it.surfaceConfigList)).isFalse()
+            assertThat(
+                supportedSurfaceCombination.checkSupported(
+                    FeatureSettings.of(CameraMode.DEFAULT, DynamicRange.BIT_DEPTH_8_BIT),
+                    it.surfaceConfigList
+                )
+            ).isFalse()
         }
     }
 
@@ -362,8 +406,12 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getLimitedSupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(
-                CameraMode.DEFAULT, it.surfaceConfigList)).isTrue()
+            assertThat(
+                supportedSurfaceCombination.checkSupported(
+                    FeatureSettings.of(CameraMode.DEFAULT, DynamicRange.BIT_DEPTH_8_BIT),
+                    it.surfaceConfigList
+                )
+            ).isTrue()
         }
     }
 
@@ -377,8 +425,12 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getLegacySupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(
-                CameraMode.DEFAULT, it.surfaceConfigList)).isTrue()
+            assertThat(
+                supportedSurfaceCombination.checkSupported(
+                    FeatureSettings.of(CameraMode.DEFAULT, DynamicRange.BIT_DEPTH_8_BIT),
+                    it.surfaceConfigList
+                )
+            ).isTrue()
         }
     }
 
@@ -392,8 +444,12 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getFullSupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(
-                CameraMode.DEFAULT, it.surfaceConfigList)).isTrue()
+            assertThat(
+                supportedSurfaceCombination.checkSupported(
+                    FeatureSettings.of(CameraMode.DEFAULT, DynamicRange.BIT_DEPTH_8_BIT),
+                    it.surfaceConfigList
+                )
+            ).isTrue()
         }
     }
 
@@ -407,8 +463,12 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getRAWSupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(
-                CameraMode.DEFAULT, it.surfaceConfigList)).isTrue()
+            assertThat(
+                supportedSurfaceCombination.checkSupported(
+                    FeatureSettings.of(CameraMode.DEFAULT, DynamicRange.BIT_DEPTH_8_BIT),
+                    it.surfaceConfigList
+                )
+            ).isTrue()
         }
     }
 
@@ -421,8 +481,12 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(
-                CameraMode.DEFAULT, it.surfaceConfigList)).isTrue()
+            assertThat(
+                supportedSurfaceCombination.checkSupported(
+                    FeatureSettings.of(CameraMode.DEFAULT, DynamicRange.BIT_DEPTH_8_BIT),
+                    it.surfaceConfigList
+                )
+            ).isTrue()
         }
     }
 
@@ -456,8 +520,12 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getConcurrentSupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(
-                CameraMode.CONCURRENT_CAMERA, it.surfaceConfigList)).isTrue()
+            assertThat(
+                supportedSurfaceCombination.checkSupported(
+                    FeatureSettings.of(CameraMode.CONCURRENT_CAMERA, DynamicRange.BIT_DEPTH_8_BIT),
+                    it.surfaceConfigList
+                )
+            ).isTrue()
         }
     }
 
@@ -492,8 +560,14 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getUltraHighResolutionSupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(
-                CameraMode.ULTRA_HIGH_RESOLUTION_CAMERA, it.surfaceConfigList)).isTrue()
+            assertThat(
+                supportedSurfaceCombination.checkSupported(
+                    FeatureSettings.of(
+                        CameraMode.ULTRA_HIGH_RESOLUTION_CAMERA, DynamicRange.BIT_DEPTH_8_BIT
+                    ),
+                    it.surfaceConfigList
+                )
+            ).isTrue()
         }
     }
 
@@ -1443,33 +1517,35 @@ class SupportedSurfaceCombinationTest {
     }
 
     private fun getSuggestedSpecsAndVerify(
-        useCasesExpectedResultMap: Map<UseCase, Size>,
+        useCasesExpectedSizeMap: Map<UseCase, Size>,
         attachedSurfaceInfoList: List<AttachedSurfaceInfo> = emptyList(),
         hardwareLevel: Int = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
         capabilities: IntArray? = null,
         compareWithAtMost: Boolean = false,
-        compareExpectedFps: Range<Int>? = null
+        compareExpectedFps: Range<Int>? = null,
+        cameraMode: Int = CameraMode.DEFAULT,
+        useCasesExpectedDynamicRangeMap: Map<UseCase, DynamicRange> = emptyMap()
     ) {
         setupCameraAndInitCameraX(
             hardwareLevel = hardwareLevel,
-            capabilities = capabilities
+            capabilities = capabilities,
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
 
-        val useCaseConfigMap = getUseCaseToConfigMap(useCasesExpectedResultMap.keys.toList())
+        val useCaseConfigMap = getUseCaseToConfigMap(useCasesExpectedSizeMap.keys.toList())
         val useCaseConfigToOutputSizesMap =
             getUseCaseConfigToOutputSizesMap(useCaseConfigMap.values.toList())
         val suggestedStreamSpecs = supportedSurfaceCombination.getSuggestedStreamSpecifications(
-            CameraMode.DEFAULT,
+            cameraMode,
             attachedSurfaceInfoList,
             useCaseConfigToOutputSizesMap
         )
 
-        useCasesExpectedResultMap.keys.forEach {
+        useCasesExpectedSizeMap.keys.forEach {
             val resultSize = suggestedStreamSpecs[useCaseConfigMap[it]]!!.resolution
-            val expectedSize = useCasesExpectedResultMap[it]!!
+            val expectedSize = useCasesExpectedSizeMap[it]!!
             if (!compareWithAtMost) {
                 assertThat(resultSize).isEqualTo(expectedSize)
             } else {
@@ -1477,9 +1553,18 @@ class SupportedSurfaceCombinationTest {
             }
 
             if (compareExpectedFps != null) {
-                assertThat(suggestedStreamSpecs[useCaseConfigMap[it]]!!.expectedFrameRateRange
-                == compareExpectedFps)
+                assertThat(
+                    suggestedStreamSpecs[useCaseConfigMap[it]]!!.expectedFrameRateRange
+                        == compareExpectedFps
+                )
             }
+        }
+
+        useCasesExpectedDynamicRangeMap.keys.forEach {
+            val resultDynamicRange = suggestedStreamSpecs[useCaseConfigMap[it]]!!.dynamicRange
+            val expectedDynamicRange = useCasesExpectedDynamicRangeMap[it]
+
+            assertThat(resultDynamicRange).isEqualTo(expectedDynamicRange)
         }
     }
 
@@ -1502,6 +1587,185 @@ class SupportedSurfaceCombinationTest {
         }
 
         return resultMap
+    }
+
+    // //////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // StreamSpec selection tests for DynamicRange
+    //
+    // //////////////////////////////////////////////////////////////////////////////////////////
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun check10BitDynamicRangeCombinationsSupported() {
+        setupCameraAndInitCameraX(
+            capabilities = intArrayOf(
+                REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT
+            )
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+
+        GuaranteedConfigurationsUtil.get10BitSupportedCombinationList().forEach {
+            assertThat(
+                supportedSurfaceCombination.checkSupported(
+                    FeatureSettings.of(CameraMode.DEFAULT, BIT_DEPTH_10_BIT),
+                    it.surfaceConfigList
+                )
+            ).isTrue()
+        }
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun check10BitDynamicRangeCombinationsSubListSupported() {
+        setupCameraAndInitCameraX(
+            capabilities = intArrayOf(
+                REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT
+            )
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+
+        GuaranteedConfigurationsUtil.get10BitSupportedCombinationList().also {
+            assertThat(
+                isAllSubConfigListSupported(
+                    CameraMode.DEFAULT,
+                    supportedSurfaceCombination, it, BIT_DEPTH_10_BIT
+                )
+            ).isTrue()
+        }
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun getSupportedStreamSpecThrows_whenUsingConcurrentCameraAndSupported10BitRange() {
+        shadowOf(context.packageManager).setSystemFeature(
+            FEATURE_CAMERA_CONCURRENT, true
+        )
+        val useCase = createUseCase(
+            CaptureType.PREVIEW,
+            dynamicRange = DynamicRange.HDR_UNSPECIFIED_10_BIT
+        )
+        val useCaseExpectedSizeMap = mapOf(
+            useCase to Size(0, 0) // Should throw before verifying size
+        )
+
+        assertThrows(IllegalArgumentException::class.java) {
+            getSuggestedSpecsAndVerify(
+                useCaseExpectedSizeMap,
+                cameraMode = CameraMode.CONCURRENT_CAMERA,
+            )
+        }
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun getSupportedStreamSpecThrows_whenUsingUltraHighResolutionAndSupported10BitRange() {
+        shadowOf(context.packageManager).setSystemFeature(
+            FEATURE_CAMERA_CONCURRENT, true
+        )
+        val useCase = createUseCase(
+            CaptureType.PREVIEW,
+            dynamicRange = DynamicRange.HDR_UNSPECIFIED_10_BIT
+        )
+        val useCaseExpectedSizeMap = mapOf(
+            useCase to Size(0, 0) // Should throw before verifying size
+        )
+
+        assertThrows(IllegalArgumentException::class.java) {
+            getSuggestedSpecsAndVerify(
+                useCaseExpectedSizeMap,
+                cameraMode = CameraMode.ULTRA_HIGH_RESOLUTION_CAMERA,
+            )
+        }
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun tenBitTable_isUsed_whenAttaching10BitUseCaseToAlreadyAttachedSdrUseCases() {
+        // JPEG use case can't be attached with an existing PRIV + YUV in the 10-bit tables
+        val useCase = createUseCase(
+            CaptureType.IMAGE_CAPTURE,
+            dynamicRange = DynamicRange(FORMAT_HLG, BIT_DEPTH_10_BIT)
+        )
+        val useCaseExpectedSizeMap = mapOf(
+            // Size would be valid for LIMITED table
+            useCase to RECORD_SIZE
+        )
+        // existing surfaces (Preview + ImageAnalysis)
+        val attachedPreview = AttachedSurfaceInfo.create(
+            SurfaceConfig.create(
+                ConfigType.PRIV,
+                ConfigSize.PREVIEW
+            ),
+            ImageFormat.PRIVATE,
+            PREVIEW_SIZE,
+            SDR,
+            /*targetFrameRate=*/null
+        )
+        val attachedAnalysis = AttachedSurfaceInfo.create(
+            SurfaceConfig.create(
+                ConfigType.YUV,
+                ConfigSize.RECORD
+            ),
+            ImageFormat.YUV_420_888,
+            RECORD_SIZE,
+            SDR,
+            /*targetFrameRate=*/null
+        )
+
+        assertThrows(IllegalArgumentException::class.java) {
+            getSuggestedSpecsAndVerify(
+                useCaseExpectedSizeMap,
+                attachedSurfaceInfoList = listOf(attachedPreview, attachedAnalysis),
+                // LIMITED allows this combination, but 10-bit table does not
+                hardwareLevel = INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
+                capabilities = intArrayOf(REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT)
+            )
+        }
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun canAttachHlgDynamicRange_toExistingSdrStreams() {
+        // JPEG use case can be attached with an existing PRIV + PRIV in the 10-bit tables
+        val useCase = createUseCase(
+            CaptureType.IMAGE_CAPTURE,
+            dynamicRange = DynamicRange(FORMAT_HLG, BIT_DEPTH_10_BIT)
+        )
+        val useCaseExpectedSizeMap = mapOf(
+            // Size is valid for 10-bit table within constraints
+            useCase to RECORD_SIZE
+        )
+        // existing surfaces (PRIV + PRIV)
+        val attachedPriv1 = AttachedSurfaceInfo.create(
+            SurfaceConfig.create(
+                ConfigType.PRIV,
+                ConfigSize.PREVIEW
+            ),
+            ImageFormat.PRIVATE,
+            PREVIEW_SIZE,
+            SDR,
+            /*targetFrameRate=*/null
+        )
+        val attachedPriv2 = AttachedSurfaceInfo.create(
+            SurfaceConfig.create(
+                ConfigType.PRIV,
+                ConfigSize.RECORD
+            ),
+            ImageFormat.YUV_420_888,
+            RECORD_SIZE,
+            SDR,
+            /*targetFrameRate=*/null
+        )
+
+        getSuggestedSpecsAndVerify(
+            useCaseExpectedSizeMap,
+            attachedSurfaceInfoList = listOf(attachedPriv1, attachedPriv2),
+            capabilities = intArrayOf(REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT)
+        )
     }
 
     // //////////////////////////////////////////////////////////////////////////////////////////
@@ -1635,8 +1899,11 @@ class SupportedSurfaceCombinationTest {
             SurfaceConfig.create(
                 ConfigType.JPEG,
                 ConfigSize.PREVIEW
-            ), ImageFormat.JPEG,
-            Size(1280, 720), Range(40, 50)
+            ),
+            ImageFormat.JPEG,
+            Size(1280, 720),
+            SDR,
+            Range(40, 50)
         )
         getSuggestedSpecsAndVerify(
             useCaseExpectedResultMap,
@@ -1659,8 +1926,11 @@ class SupportedSurfaceCombinationTest {
             SurfaceConfig.create(
                 ConfigType.JPEG,
                 ConfigSize.PREVIEW
-            ), ImageFormat.JPEG,
-            Size(1280, 720), Range(40, 50)
+            ),
+            ImageFormat.JPEG,
+            Size(1280, 720),
+            SDR,
+            Range(40, 50)
         )
         getSuggestedSpecsAndVerify(
             useCaseExpectedResultMap,
@@ -1683,8 +1953,11 @@ class SupportedSurfaceCombinationTest {
             SurfaceConfig.create(
                 ConfigType.JPEG,
                 ConfigSize.PREVIEW
-            ), ImageFormat.JPEG,
-            Size(1280, 720), Range(40, 50)
+            ),
+            ImageFormat.JPEG,
+            Size(1280, 720),
+            SDR,
+            Range(40, 50)
         )
         getSuggestedSpecsAndVerify(
             useCaseExpectedResultMap,
@@ -2114,7 +2387,7 @@ class SupportedSurfaceCombinationTest {
      * resolution supported sizes of the camera. Default value is null.
      * @param capabilities the capabilities of the camera. Default value is null.
      */
-    fun setupCamera(
+    private fun setupCamera(
         cameraId: String = DEFAULT_CAMERA_ID,
         hardwareLevel: Int = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
         sensorOrientation: Int = SENSOR_ORIENTATION_90,
@@ -2290,7 +2563,8 @@ class SupportedSurfaceCombinationTest {
     private fun isAllSubConfigListSupported(
         cameraMode: Int = CameraMode.DEFAULT,
         supportedSurfaceCombination: SupportedSurfaceCombination,
-        combinationList: List<SurfaceCombination>
+        combinationList: List<SurfaceCombination>,
+        requiredMaxBitDepth: Int = DynamicRange.BIT_DEPTH_8_BIT
     ): Boolean {
         combinationList.forEach { combination ->
             val configList = combination.surfaceConfigList
@@ -2303,9 +2577,9 @@ class SupportedSurfaceCombinationTest {
                     addAll(configList)
                     removeAt(index)
                 }
-                if (!supportedSurfaceCombination.checkSupported(
-                        cameraMode, subConfigurationList
-                    )
+                val featureSettings = FeatureSettings.of(cameraMode, requiredMaxBitDepth)
+                if (!supportedSurfaceCombination
+                        .checkSupported(featureSettings, subConfigurationList)
                 ) {
                     return false
                 }
@@ -2316,15 +2590,21 @@ class SupportedSurfaceCombinationTest {
 
     private fun createUseCase(
         captureType: CaptureType,
-        targetFrameRate: Range<Int>? = null
+        targetFrameRate: Range<Int>? = null,
+        dynamicRange: DynamicRange? = null
     ): UseCase {
-        val builder = FakeUseCaseConfig.Builder(captureType, when (captureType) {
-            CaptureType.IMAGE_CAPTURE -> ImageFormat.JPEG
-            CaptureType.IMAGE_ANALYSIS -> ImageFormat.YUV_420_888
-            else -> INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
-        })
+        val builder = FakeUseCaseConfig.Builder(
+            captureType, when (captureType) {
+                CaptureType.IMAGE_CAPTURE -> ImageFormat.JPEG
+                CaptureType.IMAGE_ANALYSIS -> ImageFormat.YUV_420_888
+                else -> INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+            }
+        )
         targetFrameRate?.let {
             builder.mutableConfig.insertOption(UseCaseConfig.OPTION_TARGET_FRAME_RATE, it)
+        }
+        dynamicRange?.let {
+            builder.mutableConfig.insertOption(ImageInputConfig.OPTION_INPUT_DYNAMIC_RANGE, it)
         }
         return builder.build()
     }

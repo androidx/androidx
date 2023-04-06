@@ -19,6 +19,7 @@ import android.graphics.ImageFormat
 import android.os.Build
 import android.util.Range
 import android.util.Size
+import androidx.camera.core.DynamicRange
 import com.google.common.truth.Truth
 import org.junit.Before
 import org.junit.Test
@@ -38,11 +39,12 @@ class AttachedSurfaceInfoTest {
     )
     private val imageFormat = ImageFormat.JPEG
     private val size = Size(1920, 1080)
+    private val dynamicRange = DynamicRange.SDR
     private val targetFramerate = Range(10, 20)
     @Before
     fun setup() {
         attachedSurfaceInfo = AttachedSurfaceInfo.create(
-            surfaceConfig, imageFormat, size,
+            surfaceConfig, imageFormat, size, dynamicRange,
             targetFramerate
         )
     }
@@ -67,6 +69,11 @@ class AttachedSurfaceInfoTest {
     }
 
     @Test
+    fun canGetDynamicRange() {
+        Truth.assertThat(attachedSurfaceInfo!!.dynamicRange).isEqualTo(dynamicRange)
+    }
+
+    @Test
     fun canGetTargetFrameRate() {
         Truth.assertThat(attachedSurfaceInfo!!.targetFrameRate).isEqualTo(targetFramerate)
     }
@@ -75,7 +82,10 @@ class AttachedSurfaceInfoTest {
     fun nullGetTargetFrameRateReturnsNull() {
         val attachedSurfaceInfo2 = AttachedSurfaceInfo.create(
             surfaceConfig,
-            imageFormat, size, null
+            imageFormat,
+            size,
+            dynamicRange,
+            null
         )
         Truth.assertThat(attachedSurfaceInfo2.targetFrameRate).isNull()
     }
