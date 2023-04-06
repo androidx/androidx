@@ -34,9 +34,12 @@ import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ServiceLifecycleDispatcher
 import androidx.lifecycle.lifecycleScope
 import androidx.wear.tiles.EventBuilders.TileRemoveEvent
+import androidx.wear.tiles.LayoutElementBuilders
 import androidx.wear.tiles.RequestBuilders
+import androidx.wear.tiles.ResourceBuilders
 import androidx.wear.tiles.TileBuilders
 import androidx.wear.tiles.TileService
+import androidx.wear.tiles.TimelineBuilders
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.Arrays
@@ -69,10 +72,8 @@ import kotlinx.coroutines.launch
  * updated with an error UI using the provided layout.
  */
 
-@Suppress("deprecation") // For backwards compatibility.
 public abstract class GlanceTileService(
-    private val errorUiLayout:
-    androidx.wear.tiles.LayoutElementBuilders.LayoutElement? = errorUiLayout()
+    private val errorUiLayout: LayoutElementBuilders.LayoutElement? = errorUiLayout()
 ) : TileService() {
     private val lifecycleOwner = object : LifecycleOwner {
         val localLifecycle = LifecycleRegistry(this)
@@ -84,7 +85,7 @@ public abstract class GlanceTileService(
             lifecycleOwner.lifecycleScope.coroutineContext + BroadcastFrameClock()
         )
 
-    private var resources: androidx.wear.tiles.ResourceBuilders.Resources? = null
+    private var resources: ResourceBuilders.Resources? = null
 
     override fun onCreate() {
         lifecycleDispatcher.onServicePreSuperOnCreate()
@@ -174,7 +175,7 @@ public abstract class GlanceTileService(
 
     internal class GlanceTile(
         val tile: TileBuilders.Tile?,
-        val resources: androidx.wear.tiles.ResourceBuilders.Resources?
+        val resources: ResourceBuilders.Resources?
     )
 
     /**
@@ -185,9 +186,8 @@ public abstract class GlanceTileService(
         resourcesOnly: Boolean,
         lastClickableId: String
     ): GlanceTile = coroutineScope {
-        val timelineBuilders =
-            if (resourcesOnly) null else androidx.wear.tiles.TimelineBuilders.Timeline.Builder()
-        var resourcesBuilder: androidx.wear.tiles.ResourceBuilders.Resources.Builder
+        val timelineBuilders = if (resourcesOnly) null else TimelineBuilders.Timeline.Builder()
+        var resourcesBuilder: ResourceBuilders.Resources.Builder
 
         val state = if (stateDefinition != null) getTileState<Any>() else null
         if (timelineMode === TimelineMode.SingleEntry) {
@@ -195,9 +195,9 @@ public abstract class GlanceTileService(
 
             timelineBuilders?.let {
                 timelineBuilders.addTimelineEntry(
-                    androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
+                    TimelineBuilders.TimelineEntry.Builder()
                         .setLayout(
-                            androidx.wear.tiles.LayoutElementBuilders.Layout.Builder()
+                            LayoutElementBuilders.Layout.Builder()
                                 .setRoot(content.layout)
                                 .build()
                         ).build()
@@ -207,22 +207,22 @@ public abstract class GlanceTileService(
             resourcesBuilder = content.resources
         } else { // timelineMode is TimelineMode.TimeBoundEntries
             val timeIntervals = (timelineMode as TimelineMode.TimeBoundEntries).timeIntervals
-            resourcesBuilder = androidx.wear.tiles.ResourceBuilders.Resources.Builder()
+            resourcesBuilder = ResourceBuilders.Resources.Builder()
 
             timeIntervals.forEach { interval ->
                 val content = runComposition(screenSize, state, lastClickableId, interval)
                 timelineBuilders?.let {
                     timelineBuilders
                         .addTimelineEntry(
-                            androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
+                            TimelineBuilders.TimelineEntry.Builder()
                                 .setValidity(
-                                    androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder()
+                                    TimelineBuilders.TimeInterval.Builder()
                                         .setStartMillis(interval.start.toEpochMilli())
                                         .setEndMillis(interval.end.toEpochMilli())
                                         .build()
                                 )
                                 .setLayout(
-                                    androidx.wear.tiles.LayoutElementBuilders.Layout.Builder()
+                                    LayoutElementBuilders.Layout.Builder()
                                         .setRoot(content.layout)
                                         .build()
                                 ).build()
@@ -295,10 +295,10 @@ public abstract class GlanceTileService(
      */
     final override fun onResourcesRequest(
         requestParams: RequestBuilders.ResourcesRequest
-    ): ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources> {
+    ): ListenableFuture<ResourceBuilders.Resources> {
         resources?.let {
             if (requestParams.version !== resources!!.version) {
-                Futures.immediateFailedFuture<androidx.wear.tiles.ResourceBuilders.Resources>(
+                Futures.immediateFailedFuture<ResourceBuilders.Resources>(
                     IllegalArgumentException(
                         "resource version is not matched " +
                             "between the request and the resources composed during onTileRequest"

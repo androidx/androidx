@@ -19,7 +19,12 @@ package androidx.wear.tiles.timeline;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.annotation.Nullable;
+import androidx.wear.tiles.LayoutElementBuilders.Layout;
+import androidx.wear.tiles.LayoutElementBuilders.Text;
 import androidx.wear.tiles.TilesTestRunner;
+import androidx.wear.tiles.TimelineBuilders.TimeInterval;
+import androidx.wear.tiles.TimelineBuilders.Timeline;
+import androidx.wear.tiles.TimelineBuilders.TimelineEntry;
 
 import com.google.common.truth.Expect;
 
@@ -36,17 +41,11 @@ public class TilesTimelineCacheTest {
     @Rule public Expect expect = Expect.create();
 
     @Test
-    @SuppressWarnings("deprecation") // TODO(b/276343540): Use protolayout types
     public void timelineCache_noValidityMakesDefaultTile() {
         // Purposefully not setting a validity period.
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry entry =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
-                        .setLayout(buildTextLayout("Hello World"))
-                        .build();
-        androidx.wear.tiles.TimelineBuilders.Timeline timeline =
-                new androidx.wear.tiles.TimelineBuilders.Timeline.Builder()
-                        .addTimelineEntry(entry)
-                        .build();
+        TimelineEntry entry =
+                new TimelineEntry.Builder().setLayout(buildTextLayout("Hello World")).build();
+        Timeline timeline = new Timeline.Builder().addTimelineEntry(entry).build();
 
         TilesTimelineCache timelineCache = new TilesTimelineCache(timeline);
 
@@ -54,7 +53,6 @@ public class TilesTimelineCacheTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation") // TODO(b/276343540): Use protolayout types
     public void timelineCache_nonOverlappingTilesShownAtCorrectTime() {
         // Check for non-overlapping time slots (i.e. pure sequential), for example:
         //     +-------------------+------------------+
@@ -67,31 +65,28 @@ public class TilesTimelineCacheTest {
         //     +-------------------+------------------+
         final long cutoverMillis = Duration.ofMinutes(10).toMillis();
 
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry entry1 =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
+        TimelineEntry entry1 =
+                new TimelineEntry.Builder()
                         .setLayout(buildTextLayout("Tile1"))
                         .setValidity(
-                                new androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder()
+                                new TimeInterval.Builder()
                                         .setStartMillis(0)
                                         .setEndMillis(cutoverMillis)
                                         .build())
                         .build();
 
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry entry2 =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
+        TimelineEntry entry2 =
+                new TimelineEntry.Builder()
                         .setLayout(buildTextLayout("Tile2"))
                         .setValidity(
-                                new androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder()
+                                new TimeInterval.Builder()
                                         .setStartMillis(cutoverMillis)
                                         .setEndMillis(Long.MAX_VALUE)
                                         .build())
                         .build();
 
-        androidx.wear.tiles.TimelineBuilders.Timeline timeline =
-                new androidx.wear.tiles.TimelineBuilders.Timeline.Builder()
-                        .addTimelineEntry(entry1)
-                        .addTimelineEntry(entry2)
-                        .build();
+        Timeline timeline =
+                new Timeline.Builder().addTimelineEntry(entry1).addTimelineEntry(entry2).build();
 
         TilesTimelineCache timelineCache = new TilesTimelineCache(timeline);
 
@@ -118,7 +113,6 @@ public class TilesTimelineCacheTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation") // TODO(b/276343540): Use protolayout types
     public void timelineCache_overlappingEntryWithDefault() {
         // Test that with a default, and an entry "on top", the entry is shown for its validity
         // period, and the default for all other times. As an example
@@ -135,23 +129,21 @@ public class TilesTimelineCacheTest {
         final long entry1StartMillis = Duration.ofMinutes(10).toMillis();
         final long entry1EndMillis = entry1StartMillis + Duration.ofMinutes(10).toMillis();
 
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry defaultEntry =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
-                        .setLayout(buildTextLayout("DefaultTile"))
-                        .build();
+        TimelineEntry defaultEntry =
+                new TimelineEntry.Builder().setLayout(buildTextLayout("DefaultTile")).build();
 
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry entry1 =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
+        TimelineEntry entry1 =
+                new TimelineEntry.Builder()
                         .setLayout(buildTextLayout("Entry1"))
                         .setValidity(
-                                new androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder()
+                                new TimeInterval.Builder()
                                         .setStartMillis(entry1StartMillis)
                                         .setEndMillis(entry1EndMillis)
                                         .build())
                         .build();
 
-        androidx.wear.tiles.TimelineBuilders.Timeline timeline =
-                new androidx.wear.tiles.TimelineBuilders.Timeline.Builder()
+        Timeline timeline =
+                new Timeline.Builder()
                         .addTimelineEntry(entry1)
                         .addTimelineEntry(defaultEntry)
                         .build();
@@ -173,7 +165,6 @@ public class TilesTimelineCacheTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation") // TODO(b/276343540): Use protolayout types
     public void timelineCache_testStackedEntries() {
         // Do a test with "perfectly stacked" entries, for example
         //            +-------+
@@ -200,43 +191,41 @@ public class TilesTimelineCacheTest {
         final long entry3EndMillis =
                 entry3StartMillis + Duration.ofMinutes(2).toMillis(); // Valid for 2 minutes
 
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry defaultEntry =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
-                        .setLayout(buildTextLayout("DefaultTile"))
-                        .build();
+        TimelineEntry defaultEntry =
+                new TimelineEntry.Builder().setLayout(buildTextLayout("DefaultTile")).build();
 
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry entry1 =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
+        TimelineEntry entry1 =
+                new TimelineEntry.Builder()
                         .setLayout(buildTextLayout("Entry1"))
                         .setValidity(
-                                new androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder()
+                                new TimeInterval.Builder()
                                         .setStartMillis(entry1StartMillis)
                                         .setEndMillis(entry1EndMillis)
                                         .build())
                         .build();
 
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry entry2 =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
+        TimelineEntry entry2 =
+                new TimelineEntry.Builder()
                         .setLayout(buildTextLayout("Entry2"))
                         .setValidity(
-                                new androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder()
+                                new TimeInterval.Builder()
                                         .setStartMillis(entry2StartMillis)
                                         .setEndMillis(entry2EndMillis)
                                         .build())
                         .build();
 
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry entry3 =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
+        TimelineEntry entry3 =
+                new TimelineEntry.Builder()
                         .setLayout(buildTextLayout("Entry3"))
                         .setValidity(
-                                new androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder()
+                                new TimeInterval.Builder()
                                         .setStartMillis(entry3StartMillis)
                                         .setEndMillis(entry3EndMillis)
                                         .build())
                         .build();
 
-        androidx.wear.tiles.TimelineBuilders.Timeline timeline =
-                new androidx.wear.tiles.TimelineBuilders.Timeline.Builder()
+        Timeline timeline =
+                new Timeline.Builder()
                         .addTimelineEntry(defaultEntry)
                         .addTimelineEntry(entry1)
                         .addTimelineEntry(entry2)
@@ -276,7 +265,6 @@ public class TilesTimelineCacheTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation") // TODO(b/276343540): Use protolayout types
     public void timelineCache_testStackedHangingEntries() {
         // Test with "hanging" entries, for example
         //                +--------------+
@@ -303,43 +291,41 @@ public class TilesTimelineCacheTest {
         final long entry3EndMillis =
                 entry3StartMillis + Duration.ofMinutes(4).toMillis(); // Valid for 4 minutes
 
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry defaultEntry =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
-                        .setLayout(buildTextLayout("DefaultTile"))
-                        .build();
+        TimelineEntry defaultEntry =
+                new TimelineEntry.Builder().setLayout(buildTextLayout("DefaultTile")).build();
 
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry entry1 =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
+        TimelineEntry entry1 =
+                new TimelineEntry.Builder()
                         .setLayout(buildTextLayout("Entry1"))
                         .setValidity(
-                                new androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder()
+                                new TimeInterval.Builder()
                                         .setStartMillis(entry1StartMillis)
                                         .setEndMillis(entry1EndMillis)
                                         .build())
                         .build();
 
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry entry2 =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
+        TimelineEntry entry2 =
+                new TimelineEntry.Builder()
                         .setLayout(buildTextLayout("Entry2"))
                         .setValidity(
-                                new androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder()
+                                new TimeInterval.Builder()
                                         .setStartMillis(entry2StartMillis)
                                         .setEndMillis(entry2EndMillis)
                                         .build())
                         .build();
 
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry entry3 =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
+        TimelineEntry entry3 =
+                new TimelineEntry.Builder()
                         .setLayout(buildTextLayout("Entry3"))
                         .setValidity(
-                                new androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder()
+                                new TimeInterval.Builder()
                                         .setStartMillis(entry3StartMillis)
                                         .setEndMillis(entry3EndMillis)
                                         .build())
                         .build();
 
-        androidx.wear.tiles.TimelineBuilders.Timeline timeline =
-                new androidx.wear.tiles.TimelineBuilders.Timeline.Builder()
+        Timeline timeline =
+                new Timeline.Builder()
                         .addTimelineEntry(defaultEntry)
                         .addTimelineEntry(entry1)
                         .addTimelineEntry(entry2)
@@ -375,7 +361,6 @@ public class TilesTimelineCacheTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation") // TODO(b/276343540): Use protolayout types
     public void timelineCache_stackedEntriesShortestAlwaysWins() {
         // Test that if entries are stacked, the shortest entry always wins, not the "top". For
         // example:
@@ -404,43 +389,41 @@ public class TilesTimelineCacheTest {
         final long entry3EndMillis =
                 entry3StartMillis + Duration.ofMinutes(6).toMillis(); // Valid for 6 minutes
 
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry defaultEntry =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
-                        .setLayout(buildTextLayout("DefaultTile"))
-                        .build();
+        TimelineEntry defaultEntry =
+                new TimelineEntry.Builder().setLayout(buildTextLayout("DefaultTile")).build();
 
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry entry1 =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
+        TimelineEntry entry1 =
+                new TimelineEntry.Builder()
                         .setLayout(buildTextLayout("Entry1"))
                         .setValidity(
-                                new androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder()
+                                new TimeInterval.Builder()
                                         .setStartMillis(entry1StartMillis)
                                         .setEndMillis(entry1EndMillis)
                                         .build())
                         .build();
 
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry entry2 =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
+        TimelineEntry entry2 =
+                new TimelineEntry.Builder()
                         .setLayout(buildTextLayout("Entry2"))
                         .setValidity(
-                                new androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder()
+                                new TimeInterval.Builder()
                                         .setStartMillis(entry2StartMillis)
                                         .setEndMillis(entry2EndMillis)
                                         .build())
                         .build();
 
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry entry3 =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
+        TimelineEntry entry3 =
+                new TimelineEntry.Builder()
                         .setLayout(buildTextLayout("Entry3"))
                         .setValidity(
-                                new androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder()
+                                new TimeInterval.Builder()
                                         .setStartMillis(entry3StartMillis)
                                         .setEndMillis(entry3EndMillis)
                                         .build())
                         .build();
 
-        androidx.wear.tiles.TimelineBuilders.Timeline timeline =
-                new androidx.wear.tiles.TimelineBuilders.Timeline.Builder()
+        Timeline timeline =
+                new Timeline.Builder()
                         .addTimelineEntry(defaultEntry)
                         .addTimelineEntry(entry1)
                         .addTimelineEntry(entry2)
@@ -483,7 +466,6 @@ public class TilesTimelineCacheTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation") // TODO(b/276343540): Use protolayout types
     public void timelineCache_noValidTilePicksClosest() {
         final long entry1StartMillis = Duration.ofMinutes(10).toMillis();
         final long entry1EndMillis =
@@ -492,31 +474,28 @@ public class TilesTimelineCacheTest {
         final long entry2EndMillis =
                 entry2StartMillis + Duration.ofMinutes(10).toMillis(); // 10 minutes
 
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry entry1 =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
+        TimelineEntry entry1 =
+                new TimelineEntry.Builder()
                         .setLayout(buildTextLayout("Entry1"))
                         .setValidity(
-                                new androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder()
+                                new TimeInterval.Builder()
                                         .setStartMillis(entry1StartMillis)
                                         .setEndMillis(entry1EndMillis)
                                         .build())
                         .build();
 
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry entry2 =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
+        TimelineEntry entry2 =
+                new TimelineEntry.Builder()
                         .setLayout(buildTextLayout("Entry2"))
                         .setValidity(
-                                new androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder()
+                                new TimeInterval.Builder()
                                         .setStartMillis(entry2StartMillis)
                                         .setEndMillis(entry2EndMillis)
                                         .build())
                         .build();
 
-        androidx.wear.tiles.TimelineBuilders.Timeline timeline =
-                new androidx.wear.tiles.TimelineBuilders.Timeline.Builder()
-                        .addTimelineEntry(entry1)
-                        .addTimelineEntry(entry2)
-                        .build();
+        Timeline timeline =
+                new Timeline.Builder().addTimelineEntry(entry1).addTimelineEntry(entry2).build();
 
         TilesTimelineCache timelineCache = new TilesTimelineCache(timeline);
 
@@ -543,10 +522,8 @@ public class TilesTimelineCacheTest {
                 .isEqualTo(Long.MAX_VALUE);
     }
 
-    @SuppressWarnings("deprecation") // TODO(b/276343540): Use protolayout types
     private void expectTimelineEntryEqual(
-            @Nullable androidx.wear.tiles.TimelineBuilders.TimelineEntry actual,
-            @Nullable androidx.wear.tiles.TimelineBuilders.TimelineEntry expected) {
+            @Nullable TimelineEntry actual, @Nullable TimelineEntry expected) {
         if (expected == null) {
             expect.that(actual).isNull();
         } else {
@@ -555,13 +532,7 @@ public class TilesTimelineCacheTest {
         }
     }
 
-    @SuppressWarnings("deprecation") // TODO(b/276343540): Use protolayout types
-    private static androidx.wear.tiles.LayoutElementBuilders.Layout buildTextLayout(String text) {
-        return new androidx.wear.tiles.LayoutElementBuilders.Layout.Builder()
-                .setRoot(
-                        new androidx.wear.tiles.LayoutElementBuilders.Text.Builder()
-                                .setText(text)
-                                .build())
-                .build();
+    private static Layout buildTextLayout(String text) {
+        return new Layout.Builder().setRoot(new Text.Builder().setText(text).build()).build();
     }
 }
