@@ -45,6 +45,7 @@ import androidx.compose.animation.demos.lookahead.LookaheadWithFlowRowDemo
 import androidx.compose.animation.demos.lookahead.LookaheadWithIntrinsicsDemo
 import androidx.compose.animation.demos.lookahead.LookaheadWithMovableContentDemo
 import androidx.compose.animation.demos.lookahead.LookaheadWithSubcompose
+import androidx.compose.animation.demos.lookahead.LookaheadWithTabRowDemo
 import androidx.compose.animation.demos.lookahead.ScreenSizeChangeDemo
 import androidx.compose.animation.demos.singlevalue.SingleValueAnimationDemo
 import androidx.compose.animation.demos.statetransition.CrossfadeDemo
@@ -129,6 +130,9 @@ val AnimationDemos = DemoCategory(
                 },
                 ComposableDemo("Lookahead With Disappearing Movable Content") {
                     LookaheadWithDisappearingMovableContentDemo()
+                },
+                ComposableDemo("Lookahead With Tab Row") {
+                    LookaheadWithTabRowDemo()
                 },
             )
         ),

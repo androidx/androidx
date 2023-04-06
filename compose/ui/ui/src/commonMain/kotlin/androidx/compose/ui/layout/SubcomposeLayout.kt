@@ -559,6 +559,7 @@ internal class LayoutNodeSubcompositionsState(
     private val slotIdToNode = mutableMapOf<Any?, LayoutNode>()
     private val scope = Scope()
     private val intermediateMeasureScope = IntermediateMeasureScopeImpl()
+    private var lookaheadMeasuredSize: IntSize = IntSize.Zero
 
     /**
      * Default intermediate measure policy. It measures the children with the lookahead constraints
@@ -848,6 +849,7 @@ internal class LayoutNodeSubcompositionsState(
                 currentIndex = 0
                 val result = scope.block(constraints)
                 val indexAfterMeasure = currentIndex
+                lookaheadMeasuredSize = IntSize(result.width, result.height)
                 return object : MeasureResult {
                     override val width: Int
                         get() = result.width
@@ -997,8 +999,12 @@ internal class LayoutNodeSubcompositionsState(
         override fun measurablesForSlot(slotId: Any?): List<Measurable> =
             slotIdToNode[slotId]?.childMeasurables ?: emptyList()
 
+        /**
+         * This is the size returned in the MeasureResult in the measure policy from the lookahead
+         * pass.
+         */
         override val lookaheadSize: IntSize
-            get() = root.layoutDelegate.lookaheadPassDelegate!!.run { IntSize(width, height) }
+            get() = lookaheadMeasuredSize
     }
 }
 
