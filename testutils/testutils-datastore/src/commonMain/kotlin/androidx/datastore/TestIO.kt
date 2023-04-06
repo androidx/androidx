@@ -50,5 +50,21 @@ abstract class TestIO<F : TestFile, IOE : Throwable>(
 
 abstract class TestFile {
     abstract fun getAbsolutePath(): String
+
+    /**
+     * Deletes the file if it exists.
+     * Will return `false` if the file does not exist or cannot be deleted. (similar to File.delete)
+     */
     abstract fun delete(): Boolean
+
+    /**
+     * Returns true if this file/directory exists.
+     */
+    abstract fun exists(): Boolean
+
+    fun deleteIfExists() {
+        if (exists()) {
+            delete()
+        }
+    }
 }

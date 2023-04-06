@@ -78,6 +78,8 @@ class SingleProcessDatastoreJavaTest : SingleProcessDataStoreTest<JavaIOFile>(Fi
 
     @Test
     fun testReadUnreadableFile() = doTest {
+        // ensure the file exists by writing into it
+        testFile.file.writeText("")
         testFile.file.setReadable(false)
         val result = runCatching {
             store.data.first()
@@ -89,6 +91,8 @@ class SingleProcessDatastoreJavaTest : SingleProcessDataStoreTest<JavaIOFile>(Fi
 
     @Test
     fun testReadAfterTransientBadRead() = doTest {
+        // ensure the file exists by writing into it
+        testFile.file.writeText("")
         testFile.file.setReadable(false)
 
         assertThrows<IOException> { store.data.first() }.hasMessageThat()

@@ -21,6 +21,7 @@ import androidx.datastore.core.Storage
 import androidx.datastore.core.TestingSerializer
 import java.io.File
 import java.io.IOException
+import java.util.UUID
 import kotlin.reflect.KClass
 
 class FileTestIO(dirName: String = "test-dir") : TestIO<JavaIOFile, IOException>(dirName) {
@@ -39,7 +40,18 @@ class FileTestIO(dirName: String = "test-dir") : TestIO<JavaIOFile, IOException>
     }
 
     override fun newTempFile(tempFolder: JavaIOFile): JavaIOFile {
-        return File.createTempFile("temp", "temp", tempFolder.file).toJavaFile()
+        /**
+         * We need to create a new temp file without creating it so we use a UUID to decide the
+         * file name but also try 100 times in case a collision happens.
+         */
+        repeat(100) {
+            val randName = UUID.randomUUID().toString().take(10)
+            val tmpFile = File(tempFolder.file, "temp-$randName-temp")
+            if (!tmpFile.exists()) {
+                return tmpFile.toJavaFile()
+            }
+        }
+        error("Unable to create temp file in $tempFolder")
     }
 
     override fun getStorage(
@@ -70,6 +82,10 @@ class JavaIOFile(val file: File) : TestFile() {
 
     override fun delete(): Boolean {
         return file.delete()
+    }
+
+    override fun exists(): Boolean {
+        return file.exists()
     }
 }
 
