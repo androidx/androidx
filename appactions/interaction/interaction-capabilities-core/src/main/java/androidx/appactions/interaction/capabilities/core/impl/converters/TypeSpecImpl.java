@@ -18,7 +18,6 @@ package androidx.appactions.interaction.capabilities.core.impl.converters;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
 import androidx.appactions.interaction.protobuf.Struct;
 import androidx.appactions.interaction.protobuf.Value;
@@ -34,7 +33,7 @@ import java.util.function.Supplier;
  * TypeSpecImpl is used to convert between java/kotlin objects in capabilities/values and Value
  * proto.
  */
-final class TypeSpecImpl<T, BuilderT extends BuilderOf<T>> implements TypeSpec<T> {
+final class TypeSpecImpl<T, BuilderT> implements TypeSpec<T> {
     /* The function to retrieve the identifier. */
     final Function<T, Optional<String>> mIdentifierGetter;
 
@@ -47,15 +46,20 @@ final class TypeSpecImpl<T, BuilderT extends BuilderOf<T>> implements TypeSpec<T
     /** Supplies BuilderT instances. */
     final Supplier<BuilderT> mBuilderSupplier;
 
+    /** Builds the object instance. */
+    final Function<BuilderT, T> mBuilderFinalizer;
+
     TypeSpecImpl(
             Function<T, Optional<String>> identifierGetter,
             List<FieldBinding<T, BuilderT>> bindings,
             Supplier<BuilderT> builderSupplier,
+            Function<BuilderT, T> builderFinalizer,
             Optional<CheckedInterfaces.Consumer<Struct>> structValidator) {
         this.mIdentifierGetter = identifierGetter;
         this.mBindings = Collections.unmodifiableList(bindings);
         this.mBuilderSupplier = builderSupplier;
         this.mStructValidator = structValidator;
+        this.mBuilderFinalizer = builderFinalizer;
     }
 
     @Nullable
@@ -100,6 +104,6 @@ final class TypeSpecImpl<T, BuilderT extends BuilderOf<T>> implements TypeSpec<T
             Optional<Value> fieldValue = Optional.ofNullable(fieldsMap.get(binding.name()));
             binding.valueSetter().accept(builder, fieldValue);
         }
-        return builder.build();
+        return mBuilderFinalizer.apply(builder);
     }
 }

@@ -20,6 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import androidx.appactions.builtintypes.properties.Name;
+import androidx.appactions.builtintypes.types.Thing;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
 import androidx.appactions.interaction.capabilities.core.testing.spec.TestEntity;
 import androidx.appactions.interaction.protobuf.Struct;
@@ -297,5 +299,33 @@ public final class TypeSpecImplTest {
 
         assertThrows(
                 StructConversionException.class, () -> entityTypeSpec.fromValue(malformedValue));
+    }
+
+    @Test
+    public void newBuilderForThing_builtInTypes_smokeTest() throws Exception {
+        TypeSpec<Thing> thingTypeSpec =
+                TypeSpecBuilder.newBuilderForThing("Thing", Thing::Builder, Thing.Builder::build)
+                        .build();
+
+        Thing thing = Thing.Builder().setIdentifier("thing").setName(new Name("Thing One")).build();
+        Value thingValue =
+                structToValue(
+                        Struct.newBuilder()
+                                .putFields(
+                                        "@type", Value.newBuilder().setStringValue("Thing").build())
+                                .putFields(
+                                        "identifier",
+                                        Value.newBuilder().setStringValue("thing").build())
+                                .putFields(
+                                        "name",
+                                        Value.newBuilder().setStringValue("Thing One").build())
+                                .build());
+
+        assertThat(thingTypeSpec.getIdentifier(thing)).isEqualTo("thing");
+        assertThat(thingTypeSpec.toValue(thing)).isEqualTo(thingValue);
+        assertThat(thingTypeSpec.fromValue(thingValue).getIdentifier())
+                .isEqualTo(thing.getIdentifier());
+        assertThat(thingTypeSpec.fromValue(thingValue).getName().asText())
+                .isEqualTo(thing.getName().asText());
     }
 }
