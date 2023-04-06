@@ -1005,3 +1005,6 @@ import static androidx\.wear\.tiles\.material\.Helper\.checkNotNull;
 import static androidx\.wear\.tiles\.material\.Typography\.TYPOGRAPHY_BODY[0-9]+;
 # > Task :wear:tiles:tiles-material:compileDebugAndroidTestJavaWithJavac
 \$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/layouts/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] Button in androidx\.wear\.tiles\.material has been deprecated
+# > Configure project :androidx-demos
+WARNING: The option setting 'android\.experimental\.disableCompileSdkChecks=true' is experimental\.
+The current default is 'false'\.
