@@ -115,7 +115,7 @@ class UiSessionsTest {
                 for (uiResponse in uiResponses) {
                     this.updateUi(uiResponse)
                 }
-                return ExecutionResult.getDefaultInstance()
+                return ExecutionResult.Builder<Output>().build()
             }
         }
     }
@@ -160,7 +160,7 @@ class UiSessionsTest {
                 this.updateUi(remoteViewsUiResponse)
                 this.updateUi(tileLayoutUiResponse)
 
-                return ExecutionResult.getDefaultInstance()
+                return ExecutionResult.Builder<Output>().build()
             }
         })
         val session = multiTurnCapability.createSession(sessionId, hostProperties)
@@ -193,7 +193,7 @@ class UiSessionsTest {
                     argument: Argument,
                 ): ExecutionResult<Output> {
                     this.updateUi(remoteViewsUiResponse)
-                    return ExecutionResult.getDefaultInstance()
+                    return ExecutionResult.Builder<Output>().build()
                 }
             },
             object : Session {
@@ -201,7 +201,7 @@ class UiSessionsTest {
                     argument: Argument,
                 ): ExecutionResult<Output> {
                     this.updateUi(tileLayoutUiResponse)
-                    return ExecutionResult.getDefaultInstance()
+                    return ExecutionResult.Builder<Output>().build()
                 }
             },
         )
@@ -259,7 +259,7 @@ class UiSessionsTest {
         ).setExecutor(object : ActionExecutor<Argument, Output> {
             override suspend fun execute(argument: Argument): ExecutionResult<Output> {
                 this.updateUi(remoteViewsUiResponse)
-                return ExecutionResult.getDefaultInstance()
+                return ExecutionResult.Builder<Output>().build()
             }
         }).build()
         val session = oneShotCapability.createSession(

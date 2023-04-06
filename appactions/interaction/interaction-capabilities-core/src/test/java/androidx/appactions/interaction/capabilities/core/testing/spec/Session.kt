@@ -31,7 +31,7 @@ interface Session : BaseSession<Argument, Output> {
         val DEFAULT: Session = object : Session {
             override fun onFinishAsync(argument: Argument) =
                 Futures.immediateFuture(
-                    ExecutionResult.getDefaultInstance<Output>(),
+                    ExecutionResult.Builder<Output>().build(),
                 )
         }
     }
