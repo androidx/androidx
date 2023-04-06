@@ -34,6 +34,7 @@ import androidx.compose.material.BottomDrawerValue.Closed
 import androidx.compose.material.BottomDrawerValue.Expanded
 import androidx.compose.material.BottomDrawerValue.Open
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -56,6 +57,7 @@ import androidx.compose.ui.semantics.dismiss
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
@@ -121,7 +123,8 @@ class DrawerState(
         initialValue = initialValue,
         animationSpec = AnimationSpec,
         confirmValueChange = confirmStateChange,
-        velocityThreshold = DrawerVelocityThreshold
+        positionalThreshold = { with(requireDensity()) { DrawerPositionalThreshold.toPx() } },
+        velocityThreshold = { with(requireDensity()) { DrawerVelocityThreshold.toPx() } },
     )
 
     /**
@@ -229,6 +232,12 @@ class DrawerState(
 
     internal fun requireOffset(): Float = swipeableState.requireOffset()
 
+    internal var density: Density? = null
+    private fun requireDensity() = requireNotNull(density) {
+        "The density on DrawerState ($this) was not set. Did you use DrawerState with the Drawer " +
+            "composable?"
+    }
+
     companion object {
         /**
          * The default [Saver] implementation for [DrawerState].
@@ -245,11 +254,43 @@ class DrawerState(
  * State of the [BottomDrawer] composable.
  *
  * @param initialValue The initial value of the state.
+ * @param density The density that this state can use to convert values to and from dp.
+ * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change.
+ */
+@Suppress("NotCloseable", "Deprecation")
+@ExperimentalMaterialApi
+fun BottomDrawerState(
+    initialValue: BottomDrawerValue,
+    density: Density,
+    confirmStateChange: (BottomDrawerValue) -> Boolean = { true }
+) = BottomDrawerState(
+    initialValue = initialValue,
+    confirmStateChange = confirmStateChange
+).also {
+    it.density = density
+}
+
+/**
+ * State of the [BottomDrawer] composable.
+ *
+ * @param initialValue The initial value of the state.
  * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change.
  */
 @Suppress("NotCloseable")
 @ExperimentalMaterialApi
-class BottomDrawerState(
+class BottomDrawerState @Deprecated(
+    "This constructor is deprecated. Density must be provided by the component. Please use " +
+        "the constructor that provides a [Density].",
+    ReplaceWith(
+        """
+            BottomDrawerState(
+                initialValue = initialValue,
+                density =,
+                confirmStateChange = confirmStateChange
+            )
+            """
+    )
+) constructor(
     initialValue: BottomDrawerValue,
     confirmStateChange: (BottomDrawerValue) -> Boolean = { true }
 ) {
@@ -257,7 +298,8 @@ class BottomDrawerState(
         initialValue = initialValue,
         animationSpec = AnimationSpec,
         confirmValueChange = confirmStateChange,
-        velocityThreshold = DrawerVelocityThreshold
+        positionalThreshold = { with(requireDensity()) { DrawerPositionalThreshold.toPx() } },
+        velocityThreshold = { with(requireDensity()) { DrawerVelocityThreshold.toPx() } },
     )
 
     /**
@@ -342,10 +384,34 @@ class BottomDrawerState(
         swipeableState
     )
 
+    internal var density: Density? = null
+
+    private fun requireDensity() = requireNotNull(density) {
+        "The density on BottomDrawerState ($this) was not set. Did you use BottomDrawer" +
+            " with the BottomDrawer composable?"
+    }
+
     companion object {
         /**
          * The default [Saver] implementation for [BottomDrawerState].
          */
+        fun Saver(density: Density, confirmStateChange: (BottomDrawerValue) -> Boolean) =
+            Saver<BottomDrawerState, BottomDrawerValue>(
+                save = { it.swipeableState.currentValue },
+                restore = { BottomDrawerState(it, density, confirmStateChange) }
+            )
+
+        /**
+         * The default [Saver] implementation for [BottomDrawerState].
+         */
+        @Deprecated(
+            message = "This function is deprecated. Please use the overload where Density is" +
+                " provided.",
+            replaceWith = ReplaceWith(
+                "Saver(density, confirmValueChange)"
+            )
+        )
+        @Suppress("Deprecation")
         fun Saver(confirmStateChange: (BottomDrawerValue) -> Boolean) =
             Saver<BottomDrawerState, BottomDrawerValue>(
                 save = { it.swipeableState.currentValue },
@@ -382,8 +448,9 @@ fun rememberBottomDrawerState(
     initialValue: BottomDrawerValue,
     confirmStateChange: (BottomDrawerValue) -> Boolean = { true }
 ): BottomDrawerState {
-    return rememberSaveable(saver = BottomDrawerState.Saver(confirmStateChange)) {
-        BottomDrawerState(initialValue, confirmStateChange)
+    val density = LocalDensity.current
+    return rememberSaveable(density, saver = BottomDrawerState.Saver(density, confirmStateChange)) {
+        BottomDrawerState(initialValue, density, confirmStateChange)
     }
 }
 
@@ -430,6 +497,13 @@ fun ModalDrawer(
     scrimColor: Color = DrawerDefaults.scrimColor,
     content: @Composable () -> Unit
 ) {
+    // b/278692145 Remove this once deprecated methods without density are removed
+    if (drawerState.density == null) {
+        val density = LocalDensity.current
+        SideEffect {
+            drawerState.density = density
+        }
+    }
     val scope = rememberCoroutineScope()
     BoxWithConstraints(modifier.fillMaxSize()) {
         val modalDrawerConstraints = constraints
@@ -564,6 +638,13 @@ fun BottomDrawer(
     scrimColor: Color = DrawerDefaults.scrimColor,
     content: @Composable () -> Unit
 ) {
+    // b/278692145 Remove this once deprecated methods without density are removed
+    if (drawerState.density == null) {
+        val density = LocalDensity.current
+        SideEffect {
+            drawerState.density = density
+        }
+    }
     val scope = rememberCoroutineScope()
 
     BoxWithConstraints(modifier.fillMaxSize()) {
@@ -767,6 +848,7 @@ private fun Scrim(
 }
 
 private val EndDrawerPadding = 56.dp
+private val DrawerPositionalThreshold = 56.dp
 private val DrawerVelocityThreshold = 400.dp
 
 // TODO: b/177571613 this should be a proper decay settling

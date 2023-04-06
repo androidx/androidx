@@ -24,8 +24,8 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.SwipeableV2Defaults
 import androidx.compose.material.SwipeableV2State
-import androidx.compose.material.fractionalPositionalThreshold
 import androidx.compose.material.rememberSwipeableV2State
 import androidx.compose.material.swipeAnchors
 import androidx.compose.material.swipeable.TestState.A
@@ -138,11 +138,13 @@ class SwipeableV2StateTest {
         lateinit var state: SwipeableV2State<TestState>
         lateinit var scope: CoroutineScope
         rule.setContent {
-            state = remember {
+            val velocityThreshold = SwipeableV2Defaults.velocityThreshold
+            state = remember(velocityThreshold) {
                 SwipeableV2State(
                     initialValue = A,
                     animationSpec = tween(animationDuration, easing = LinearEasing),
-                    positionalThreshold = fractionalPositionalThreshold(0.5f)
+                    positionalThreshold = { distance -> distance * 0.5f },
+                    velocityThreshold = velocityThreshold
                 )
             }
             scope = rememberCoroutineScope()
@@ -368,7 +370,11 @@ class SwipeableV2StateTest {
             B to maxBound / 2,
             C to maxBound
         )
-        val state = SwipeableV2State(initialValue = A)
+        val state = SwipeableV2State(
+            initialValue = A,
+            positionalThreshold = defaultPositionalThreshold,
+            velocityThreshold = defaultVelocityThreshold
+        )
         var size by mutableStateOf(100.dp)
 
         rule.setContent {
@@ -401,7 +407,11 @@ class SwipeableV2StateTest {
 
     @Test
     fun swipeable_targetNotInAnchors_animateTo_updatesCurrentValue() {
-        val state = SwipeableV2State(initialValue = A)
+        val state = SwipeableV2State(
+            initialValue = A,
+            positionalThreshold = defaultPositionalThreshold,
+            velocityThreshold = defaultVelocityThreshold
+        )
         assertThat(state.anchors).isEmpty()
         assertThat(state.currentValue).isEqualTo(A)
         runBlocking { state.animateTo(B) }
@@ -410,7 +420,11 @@ class SwipeableV2StateTest {
 
     @Test
     fun swipeable_targetNotInAnchors_snapTo_updatesCurrentValue() {
-        val state = SwipeableV2State(initialValue = A)
+        val state = SwipeableV2State(
+            initialValue = A,
+            positionalThreshold = defaultPositionalThreshold,
+            velocityThreshold = defaultVelocityThreshold
+        )
         assertThat(state.anchors).isEmpty()
         assertThat(state.currentValue).isEqualTo(A)
         runBlocking { state.snapTo(B) }
@@ -419,7 +433,11 @@ class SwipeableV2StateTest {
 
     @Test
     fun swipeable_updateAnchors_initialUpdate_initialValueInAnchors_shouldntUpdate() {
-        val state = SwipeableV2State(initialValue = A)
+        val state = SwipeableV2State(
+            initialValue = A,
+            positionalThreshold = defaultPositionalThreshold,
+            velocityThreshold = defaultVelocityThreshold
+        )
         val anchors = mapOf(A to 200f, C to 300f)
         val shouldInvokeChangeHandler = state.updateAnchors(anchors)
         assertThat(shouldInvokeChangeHandler).isFalse()
@@ -427,7 +445,11 @@ class SwipeableV2StateTest {
 
     @Test
     fun swipeable_updateAnchors_initialUpdate_initialValueNotInAnchors_shouldUpdate() {
-        val state = SwipeableV2State(initialValue = A)
+        val state = SwipeableV2State(
+            initialValue = A,
+            positionalThreshold = defaultPositionalThreshold,
+            velocityThreshold = defaultVelocityThreshold
+        )
         val anchors = mapOf(B to 200f, C to 300f)
         val shouldInvokeChangeHandler = state.updateAnchors(anchors)
         assertThat(shouldInvokeChangeHandler).isTrue()
@@ -435,7 +457,11 @@ class SwipeableV2StateTest {
 
     @Test
     fun swipeable_updateAnchors_updateExistingAnchors_shouldUpdate() {
-        val state = SwipeableV2State(initialValue = A)
+        val state = SwipeableV2State(
+            initialValue = A,
+            positionalThreshold = defaultPositionalThreshold,
+            velocityThreshold = defaultVelocityThreshold
+        )
         val anchors = mapOf(A to 0f, B to 200f, C to 300f)
 
         var shouldInvokeChangeHandler = state.updateAnchors(anchors)
@@ -450,7 +476,12 @@ class SwipeableV2StateTest {
         val clock = HandPumpTestFrameClock()
         val animationScope = CoroutineScope(clock)
         val animationDuration = 2000
-        val state = SwipeableV2State(initialValue = A, animationSpec = tween(animationDuration))
+        val state = SwipeableV2State(
+            initialValue = A,
+            animationSpec = tween(animationDuration),
+            positionalThreshold = defaultPositionalThreshold,
+            velocityThreshold = defaultVelocityThreshold
+        )
         val anchors = mapOf(A to 0f, B to 200f, C to 300f)
 
         state.updateAnchors(anchors)
@@ -478,4 +509,10 @@ class SwipeableV2StateTest {
             return onFrame(frameCh.receive())
         }
     }
+
+    private val defaultPositionalThreshold: (totalDistance: Float) -> Float = {
+        with(rule.density) { 56.dp.toPx() }
+    }
+
+    private val defaultVelocityThreshold: () -> Float = { with(rule.density) { 125.dp.toPx() } }
 }

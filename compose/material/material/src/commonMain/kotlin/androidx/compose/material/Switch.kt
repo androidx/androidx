@@ -107,22 +107,19 @@ fun Switch(
     // the animation state through this, animating back to the previous value if we don't receive
     // a new checked value.
     var forceAnimationCheck by remember { mutableStateOf(false) }
-    val swipeableState = remember {
+    val switchVelocityThresholdPx = with(LocalDensity.current) { SwitchVelocityThreshold.toPx() }
+    val swipeableState = remember(switchVelocityThresholdPx) {
         SwipeableV2State(
             initialValue = checked,
-            positionalThreshold = SwitchThreshold,
-            animationSpec = AnimationSpec
+            animationSpec = AnimationSpec,
+            positionalThreshold = { distance -> distance * SwitchPositionalThreshold },
+            velocityThreshold = { switchVelocityThresholdPx }
         )
     }
     val currentOnCheckedChange by rememberUpdatedState(onCheckedChange)
     val currentChecked by rememberUpdatedState(checked)
-
-    // Todo: Offer static anchors Modifier.swipeable overload b/265435207
-    val density = LocalDensity.current
     SideEffect {
-        swipeableState.density = density
-        val anchors = mapOf(false to minBound, true to maxBound)
-        swipeableState.updateAnchors(anchors)
+        swipeableState.updateAnchors(mapOf(false to minBound, true to maxBound))
     }
     LaunchedEffect(swipeableState) {
         snapshotFlow { swipeableState.currentValue }
@@ -419,5 +416,5 @@ private class DefaultSwitchColors(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
-private val SwitchThreshold = fractionalPositionalThreshold(0.7f)
+private const val SwitchPositionalThreshold = 0.7f
+private val SwitchVelocityThreshold = 125.dp
