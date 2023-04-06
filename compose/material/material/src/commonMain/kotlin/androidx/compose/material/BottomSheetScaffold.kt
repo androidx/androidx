@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.material.BottomSheetValue.Collapsed
 import androidx.compose.material.BottomSheetValue.Expanded
+import androidx.compose.material.SwipeableV2State.AnchorChangedCallback
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
@@ -40,6 +41,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.collapse
 import androidx.compose.ui.semantics.expand
@@ -53,6 +55,7 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMaxBy
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /**
@@ -227,6 +230,8 @@ class BottomSheetState @Deprecated(
         "The density on BottomSheetState ($this) was not set. Did you use BottomSheetState with " +
             "the BottomSheetScaffold composable?"
     }
+
+    internal val lastVelocity: Float get() = swipeableState.lastVelocity
 
     companion object {
 
@@ -451,14 +456,16 @@ fun BottomSheetScaffold(
                     modifier = nestedScroll
                         .fillMaxWidth()
                         .requiredHeightIn(min = sheetPeekHeight),
-                    anchors = { state, sheetSize ->
-                        when (state) {
-                            Collapsed -> layoutHeight - peekHeightPx
-                            Expanded -> if (sheetSize.height == peekHeightPx.roundToInt()) {
-                                null
-                            } else {
-                                layoutHeight - sheetSize.height.toFloat()
-                            }
+                    calculateAnchors = { sheetSize ->
+                        val sheetHeight = sheetSize.height.toFloat()
+                        val collapsedHeight = layoutHeight - peekHeightPx
+                        if (sheetHeight == 0f || sheetHeight == peekHeightPx) {
+                            mapOf(Collapsed to collapsedHeight)
+                        } else {
+                            mapOf(
+                                Collapsed to collapsedHeight,
+                                Expanded to layoutHeight - sheetHeight
+                            )
                         }
                     },
                     sheetBackgroundColor = sheetBackgroundColor,
@@ -508,7 +515,7 @@ fun BottomSheetScaffold(
 private fun BottomSheet(
     state: BottomSheetState,
     sheetGesturesEnabled: Boolean,
-    anchors: (state: BottomSheetValue, sheetSize: IntSize) -> Float?,
+    calculateAnchors: (sheetSize: IntSize) -> Map<BottomSheetValue, Float>,
     sheetShape: Shape,
     sheetElevation: Dp,
     sheetBackgroundColor: Color,
@@ -517,17 +524,8 @@ private fun BottomSheet(
     content: @Composable ColumnScope.() -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    val anchorChangeHandler = remember(state, scope) {
-        BottomSheetScaffoldAnchorChangeHandler(
-            state = state,
-            animateTo = { target -> scope.launch { state.animateTo(target) } },
-            snapTo = { target ->
-                val didSnapImmediately = state.trySnapTo(target)
-                if (!didSnapImmediately) {
-                    scope.launch { state.snapTo(target) }
-                }
-            }
-        )
+    val anchorChangeCallback = remember(state, scope) {
+        BottomSheetScaffoldAnchorChangeCallback(state, scope)
     }
     Surface(
         modifier
@@ -536,12 +534,12 @@ private fun BottomSheet(
                 orientation = Orientation.Vertical,
                 enabled = sheetGesturesEnabled,
             )
-            .swipeAnchors(
-                state = state.swipeableState,
-                possibleValues = setOf(Collapsed, Expanded),
-                calculateAnchor = anchors,
-                anchorChangeHandler = anchorChangeHandler
-            )
+            .onSizeChanged { layoutSize ->
+                state.swipeableState.updateAnchors(
+                    newAnchors = calculateAnchors(layoutSize),
+                    onAnchorsChanged = anchorChangeCallback
+                )
+            }
             .semantics {
                 // If we don't have anchors yet, or have only one anchor we don't want any
                 // accessibility actions
@@ -712,13 +710,12 @@ private fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
 }
 
 @OptIn(ExperimentalMaterialApi::class)
-private fun BottomSheetScaffoldAnchorChangeHandler(
+private fun BottomSheetScaffoldAnchorChangeCallback(
     state: BottomSheetState,
-    animateTo: (target: BottomSheetValue) -> Unit,
-    snapTo: (target: BottomSheetValue) -> Unit,
-) = AnchorChangeHandler<BottomSheetValue> { previousTarget, previousAnchors, newAnchors ->
-    val previousTargetOffset = previousAnchors[previousTarget]
-    val newTarget = when (previousTarget) {
+    scope: CoroutineScope
+) = AnchorChangedCallback<BottomSheetValue> { prevTarget, prevAnchors, newAnchors ->
+    val previousTargetOffset = prevAnchors[prevTarget]
+    val newTarget = when (prevTarget) {
         Collapsed -> Collapsed
         Expanded -> if (newAnchors.containsKey(Expanded)) Expanded else Collapsed
     }
@@ -726,10 +723,11 @@ private fun BottomSheetScaffoldAnchorChangeHandler(
     if (newTargetOffset != previousTargetOffset) {
         if (state.isAnimationRunning) {
             // Re-target the animation to the new offset if it changed
-            animateTo(newTarget)
+            scope.launch { state.animateTo(newTarget, velocity = state.lastVelocity) }
         } else {
             // Snap to the new offset value of the target if no animation was running
-            snapTo(newTarget)
+            val didSnapSynchronously = state.trySnapTo(newTarget)
+            if (!didSnapSynchronously) scope.launch { state.snapTo(newTarget) }
         }
     }
 }
