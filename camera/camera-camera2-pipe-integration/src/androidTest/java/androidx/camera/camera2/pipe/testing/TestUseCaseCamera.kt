@@ -30,6 +30,7 @@ import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
+import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpInactiveSurfaceCloser
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraConfig
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
@@ -64,6 +65,7 @@ class TestUseCaseCamera(
     val useCaseSurfaceManager: UseCaseSurfaceManager = UseCaseSurfaceManager(
         threads,
         cameraPipe,
+        NoOpInactiveSurfaceCloser,
     ),
 ) : UseCaseCamera {
     val useCaseCameraGraphConfig =

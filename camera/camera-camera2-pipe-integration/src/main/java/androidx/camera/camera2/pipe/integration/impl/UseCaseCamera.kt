@@ -36,6 +36,7 @@ import dagger.Module
 import javax.inject.Inject
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -134,7 +135,7 @@ class UseCaseCameraImpl @Inject constructor(
 
     override fun close(): Job {
         return if (closed.compareAndSet(expect = false, update = true)) {
-            threads.scope.launch {
+            threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
                 debug { "Closing $this" }
                 useCaseGraphConfig.graph.close()
                 useCaseSurfaceManager.stopAsync().await()
