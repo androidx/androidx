@@ -368,7 +368,7 @@ interface HealthConnectClient {
         @JvmOverloads
         @JvmStatic
         @AvailabilityStatus
-        fun sdkStatus(
+        fun getSdkStatus(
             context: Context,
             providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
         ): Int {

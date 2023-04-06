@@ -26,7 +26,7 @@ import androidx.health.connect.client.HealthConnectClient
 
 @Sampled
 suspend fun AvailabilityCheckSamples(context: Context, providerPackageName: String) {
-    val availabilityStatus = HealthConnectClient.sdkStatus(context, providerPackageName)
+    val availabilityStatus = HealthConnectClient.getSdkStatus(context, providerPackageName)
     if (availabilityStatus == HealthConnectClient.SDK_UNAVAILABLE) {
         return // early return as there is no viable integration
     }
