@@ -20,6 +20,7 @@ package androidx.camera.camera2.pipe.integration.compat
 
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.compat.workaround.AutoFlashAEModeDisabler
+import androidx.camera.camera2.pipe.integration.compat.workaround.InactiveSurfaceCloser
 import androidx.camera.camera2.pipe.integration.compat.workaround.MeteringRegionCorrection
 import androidx.camera.camera2.pipe.integration.compat.workaround.UseTorchAsFlash
 import dagger.Module
@@ -28,6 +29,7 @@ import dagger.Module
 @Module(
     includes = [
         AutoFlashAEModeDisabler.Bindings::class,
+        InactiveSurfaceCloser.Bindings::class,
         MeteringRegionCorrection.Bindings::class,
         UseTorchAsFlash.Bindings::class,
     ],

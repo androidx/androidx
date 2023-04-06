@@ -59,6 +59,9 @@ class CameraQuirks @Inject constructor(
         if (CameraNoResponseWhenEnablingFlashQuirk.isEnabled(cameraMetadata)) {
             quirks.add(CameraNoResponseWhenEnablingFlashQuirk())
         }
+        if (ConfigureSurfaceToSecondarySessionFailQuirk.isEnabled(cameraMetadata)) {
+            quirks.add(ConfigureSurfaceToSecondarySessionFailQuirk())
+        }
         if (FlashTooSlowQuirk.isEnabled(cameraMetadata)) {
             quirks.add(FlashTooSlowQuirk())
         }
@@ -76,6 +79,12 @@ class CameraQuirks @Inject constructor(
         }
         if (JpegHalCorruptImageQuirk.isEnabled()) {
             quirks.add(JpegHalCorruptImageQuirk())
+        }
+        if (PreviewOrientationIncorrectQuirk.load(cameraMetadata)) {
+            quirks.add(PreviewOrientationIncorrectQuirk())
+        }
+        if (TextureViewIsClosedQuirk.load(cameraMetadata)) {
+            quirks.add(TextureViewIsClosedQuirk())
         }
         if (YuvImageOnePixelShiftQuirk.isEnabled()) {
             quirks.add(YuvImageOnePixelShiftQuirk())
