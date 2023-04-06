@@ -58,6 +58,14 @@ class InspectionPlugin : Plugin<Project> {
             it.setupNonDexedInspectorAttribute()
         }
 
+        project.configurations.create(EXPORT_INSPECTOR_DEPENDENCIES) {
+            // to allow including these dependencies in an SBOM
+            it.description = "Re-publishes dependencies of the inspector"
+            it.isCanBeConsumed = true
+            it.isCanBeResolved = false
+            it.extendsFrom(project.configurations.getByName("implementation"))
+        }
+
         project.pluginManager.withPlugin("com.android.library") {
             foundLibraryPlugin = true
             val libExtension = project.extensions.getByType(LibraryExtension::class.java)
@@ -190,6 +198,16 @@ fun packageInspector(libraryProject: Project, inspectorProjectPath: String) {
             }
         }
     }
+
+    libraryProject.configurations.create(IMPORT_INSPECTOR_DEPENDENCIES)
+    libraryProject.dependencies.add(IMPORT_INSPECTOR_DEPENDENCIES,
+        libraryProject.dependencies.project(
+            mapOf(
+                "path" to inspectorProjectPath,
+                "configuration" to EXPORT_INSPECTOR_DEPENDENCIES
+            )
+        )
+    )
 }
 
 fun Project.createConsumeInspectionConfiguration(): Configuration =
@@ -223,6 +241,8 @@ private fun generateProguardDetectionFile(libraryProject: Project) {
 }
 
 const val EXTENSION_NAME = "inspection"
+const val EXPORT_INSPECTOR_DEPENDENCIES = "exportInspectorImplementation"
+const val IMPORT_INSPECTOR_DEPENDENCIES = "importInspectorImplementation"
 
 open class InspectionExtension(@Suppress("UNUSED_PARAMETER") project: Project) {
     /**
