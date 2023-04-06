@@ -28,7 +28,6 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.PARTICIPANT_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
-import androidx.appactions.interaction.capabilities.core.impl.task.AbstractTaskUpdater
 import androidx.appactions.interaction.capabilities.core.values.Call
 import androidx.appactions.interaction.capabilities.core.values.Call.CallFormat
 import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
@@ -76,7 +75,7 @@ private val ACTION_SPEC =
 class CreateCall private constructor() {
     class CapabilityBuilder :
         CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session
+            CapabilityBuilder, Property, Argument, Output, Confirmation, Session
         >(ACTION_SPEC) {
         override fun build(): Capability {
             super.setProperty(Property.Builder().build())
@@ -237,8 +236,6 @@ class CreateCall private constructor() {
     }
 
     class Confirmation internal constructor()
-
-    class TaskUpdater internal constructor() : AbstractTaskUpdater()
 
     sealed interface Session : BaseSession<Argument, Output>
 }

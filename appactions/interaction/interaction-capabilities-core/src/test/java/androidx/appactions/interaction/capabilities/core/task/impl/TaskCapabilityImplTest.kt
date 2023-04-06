@@ -918,7 +918,6 @@ class TaskCapabilityImplTest {
             Argument,
             Output,
             Confirmation,
-            RequiredTaskUpdater,
             Session,
             >(ACTION_SPEC) {
 
@@ -928,9 +927,6 @@ class TaskCapabilityImplTest {
 
         override val sessionBridge: SessionBridge<Session, Confirmation> = SessionBridge {
             TaskHandler.Builder<Confirmation>().build()
-        }
-        override val sessionUpdaterSupplier: Supplier<RequiredTaskUpdater> = Supplier {
-            RequiredTaskUpdater()
         }
 
         public override fun setSessionFactory(

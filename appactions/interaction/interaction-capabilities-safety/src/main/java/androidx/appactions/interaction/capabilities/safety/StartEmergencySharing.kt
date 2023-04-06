@@ -22,7 +22,6 @@ import androidx.appactions.interaction.capabilities.core.BaseSession
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.impl.task.AbstractTaskUpdater
 import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
 import androidx.appactions.interaction.capabilities.core.values.SuccessStatus
 import androidx.appactions.interaction.capabilities.core.values.executionstatus.NoInternetConnection
@@ -57,7 +56,7 @@ class StartEmergencySharing private constructor() {
     // TODO(b/267805819): Update to include the SessionFactory once Session API is ready.
     class CapabilityBuilder :
         CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session,
+            CapabilityBuilder, Property, Argument, Output, Confirmation, Session,
             >(ACTION_SPEC) {
         override fun build(): Capability {
             super.setProperty(Property())
@@ -168,8 +167,6 @@ class StartEmergencySharing private constructor() {
     }
 
     class Confirmation internal constructor()
-
-    class TaskUpdater internal constructor() : AbstractTaskUpdater()
 
     sealed interface Session : BaseSession<Argument, Output>
 }

@@ -23,7 +23,6 @@ import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
-import androidx.appactions.interaction.capabilities.core.impl.task.AbstractTaskUpdater
 import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
 import androidx.appactions.interaction.capabilities.core.values.SuccessStatus
 import androidx.appactions.interaction.proto.ParamValue
@@ -58,7 +57,7 @@ class StopTimer private constructor() {
 
     class CapabilityBuilder :
         CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session
+            CapabilityBuilder, Property, Argument, Output, Confirmation, Session
         >(ACTION_SPEC) {
         override fun build(): Capability {
             super.setProperty(Property.Builder().build())
@@ -190,8 +189,6 @@ class StopTimer private constructor() {
     }
 
     class Confirmation internal constructor()
-
-    class TaskUpdater internal constructor() : AbstractTaskUpdater()
 
     sealed interface Session : BaseSession<Argument, Output>
 }
