@@ -67,7 +67,7 @@ public final class DynamicColorTest {
   @Test
   public void stateToString() {
     assertThat(DynamicColor.fromState("key").toString())
-        .isEqualTo("StateColorSource{sourceKey=key}");
+        .isEqualTo("StateColorSource{sourceKey=key, sourceNamespace=}");
   }
 
   @Test
@@ -132,7 +132,8 @@ public final class DynamicColorTest {
                 .toString())
         .isEqualTo(
             "AnimatableDynamicColor{"
-                + "input=StateColorSource{sourceKey=key}, animationSpec=AnimationSpec{"
+                + "input=StateColorSource{sourceKey=key, sourceNamespace=}, "
+                + "animationSpec=AnimationSpec{"
                 + "animationParameters=AnimationParameters{durationMillis=0, easing=null, "
                 + "delayMillis=1}, repeatable=null}}");
   }

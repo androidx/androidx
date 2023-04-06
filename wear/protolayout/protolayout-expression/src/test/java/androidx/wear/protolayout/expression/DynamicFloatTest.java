@@ -76,7 +76,7 @@ public final class DynamicFloatTest {
     @Test
     public void stateToString() {
         assertThat(DynamicFloat.fromState("key").toString())
-                .isEqualTo("StateFloatSource{sourceKey=key}");
+                .isEqualTo("StateFloatSource{sourceKey=key, sourceNamespace=}");
     }
 
     @Test
@@ -230,7 +230,8 @@ public final class DynamicFloatTest {
                                                 .build())
                                 .toString())
                 .isEqualTo(
-                        "AnimatableDynamicFloat{input=StateFloatSource{sourceKey=key},"
+                        "AnimatableDynamicFloat{"
+                                + "input=StateFloatSource{sourceKey=key, sourceNamespace=},"
                                 + " animationSpec=AnimationSpec{animationParameters"
                                 + "=AnimationParameters{durationMillis=0,"
                                 + " easing=null, delayMillis=1}, repeatable=null}}");

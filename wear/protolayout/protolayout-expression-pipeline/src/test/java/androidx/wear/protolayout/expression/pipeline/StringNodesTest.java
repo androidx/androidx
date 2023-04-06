@@ -23,6 +23,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import android.icu.util.ULocale;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.wear.protolayout.expression.AppDataKey;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
 import androidx.wear.protolayout.expression.pipeline.StringNodes.FixedStringNode;
 import androidx.wear.protolayout.expression.pipeline.StringNodes.Int32FormatNode;
 import androidx.wear.protolayout.expression.pipeline.StringNodes.StateStringNode;
@@ -43,6 +45,7 @@ import java.util.Random;
 
 @RunWith(AndroidJUnit4.class)
 public class StringNodesTest {
+    private static final AppDataKey<DynamicString> KEY_FOO = new AppDataKey<>("foo");
     @Test
     public void fixedStringNodeTest() {
         List<String> results = new ArrayList<>();
@@ -106,7 +109,7 @@ public class StringNodesTest {
         StateStore oss =
                 new StateStore(
                         ImmutableMap.of(
-                                "foo",
+                                KEY_FOO,
                                 StateEntryValue.newBuilder()
                                         .setStringVal(FixedString.newBuilder().setValue("bar"))
                                         .build()));
@@ -129,7 +132,7 @@ public class StringNodesTest {
         StateStore oss =
                 new StateStore(
                         ImmutableMap.of(
-                                "foo",
+                                KEY_FOO,
                                 StateEntryValue.newBuilder()
                                         .setStringVal(
                                                 FixedString.newBuilder().setValue(string500chars))
@@ -152,7 +155,7 @@ public class StringNodesTest {
         StateStore oss =
                 new StateStore(
                         ImmutableMap.of(
-                                "foo",
+                                KEY_FOO,
                                 StateEntryValue.newBuilder()
                                         .setStringVal(FixedString.newBuilder().setValue("bar"))
                                         .build()));
@@ -168,7 +171,7 @@ public class StringNodesTest {
 
         oss.setStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
+                        KEY_FOO,
                         StateEntryValue.newBuilder()
                                 .setStringVal(FixedString.newBuilder().setValue("baz"))
                                 .build()));
@@ -208,7 +211,7 @@ public class StringNodesTest {
         StateStore oss =
                 new StateStore(
                         ImmutableMap.of(
-                                "foo",
+                                KEY_FOO,
                                 StateEntryValue.newBuilder()
                                         .setStringVal(FixedString.newBuilder().setValue("bar"))
                                         .build()));
@@ -225,7 +228,7 @@ public class StringNodesTest {
         node.destroy();
         oss.setStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
+                        KEY_FOO,
                         StateEntryValue.newBuilder()
                                 .setStringVal(FixedString.newBuilder().setValue("baz"))
                                 .build()));

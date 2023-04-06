@@ -57,7 +57,7 @@ public final class DynamicInt32Test {
     @Test
     public void stateToString() {
         assertThat(DynamicInt32.fromState("key").toString())
-                .isEqualTo("StateInt32Source{sourceKey=key}");
+                .isEqualTo("StateInt32Source{sourceKey=key, sourceNamespace=}");
     }
 
     @Test

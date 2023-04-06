@@ -42,6 +42,8 @@ import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable;
+import androidx.wear.protolayout.expression.AppDataKey;
+import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.pipeline.FixedQuotaManagerImpl;
 import androidx.wear.protolayout.expression.pipeline.QuotaManager;
 import androidx.wear.protolayout.expression.pipeline.StateStore;
@@ -1928,7 +1930,7 @@ public class ProtoLayoutDynamicDataPipelineTest {
     private void setFloatStateVal(String key, float val) {
         mStateStore.setStateEntryValuesProto(
                 ImmutableMap.of(
-                        key,
+                        new AppDataKey<DynamicBuilders.DynamicFloat>(key),
                         StateEntryValue.newBuilder()
                                 .setFloatVal(FixedFloat.newBuilder().setValue(val))
                                 .build()));
@@ -1938,7 +1940,7 @@ public class ProtoLayoutDynamicDataPipelineTest {
     private void setBoolStateVal(String key, boolean val) {
         mStateStore.setStateEntryValuesProto(
                 ImmutableMap.of(
-                        key,
+                        new AppDataKey<DynamicBuilders.DynamicBool>(key),
                         StateEntryValue.newBuilder()
                                 .setBoolVal(FixedBool.newBuilder().setValue(val))
                                 .build()));

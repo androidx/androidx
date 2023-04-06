@@ -27,6 +27,8 @@ import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.wear.protolayout.expression.AppDataKey;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.AnimatableFixedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.DynamicAnimatedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.FixedInt32Node;
@@ -64,6 +66,8 @@ public class Int32NodesTest {
     @Rule public final MockitoRule mockito = MockitoJUnit.rule();
 
     @Mock private DynamicTypeValueReceiverWithPreUpdate<Integer> mMockValueReceiver;
+
+    private static final AppDataKey<DynamicInt32> KEY_FOO = new AppDataKey<>("foo");
 
     @Test
     public void testFixedInt32Node() {
@@ -174,7 +178,7 @@ public class Int32NodesTest {
         StateStore oss =
                 new StateStore(
                         ImmutableMap.of(
-                                "foo",
+                                KEY_FOO,
                                 StateEntryValue.newBuilder()
                                         .setInt32Val(FixedInt32.newBuilder().setValue(65))
                                         .build()));
@@ -195,7 +199,7 @@ public class Int32NodesTest {
         StateStore oss =
                 new StateStore(
                         ImmutableMap.of(
-                                "foo",
+                                KEY_FOO,
                                 StateEntryValue.newBuilder()
                                         .setInt32Val(FixedInt32.newBuilder().setValue(65))
                                         .build()));
@@ -211,7 +215,7 @@ public class Int32NodesTest {
 
         oss.setStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
+                        KEY_FOO,
                         StateEntryValue.newBuilder()
                                 .setInt32Val(FixedInt32.newBuilder().setValue(12))
                                 .build()));
@@ -302,7 +306,7 @@ public class Int32NodesTest {
         StateStore oss =
                 new StateStore(
                         ImmutableMap.of(
-                                "foo",
+                                KEY_FOO,
                                 StateEntryValue.newBuilder()
                                         .setInt32Val(
                                                 FixedInt32.newBuilder().setValue(value1).build())
@@ -325,7 +329,7 @@ public class Int32NodesTest {
         results.clear();
         oss.setStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
+                        KEY_FOO,
                         StateEntryValue.newBuilder()
                                 .setInt32Val(FixedInt32.newBuilder().setValue(value2))
                                 .build()));
@@ -339,7 +343,7 @@ public class Int32NodesTest {
         results.clear();
         oss.setStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
+                        KEY_FOO,
                         StateEntryValue.newBuilder()
                                 .setInt32Val(FixedInt32.newBuilder().setValue(value3))
                                 .build()));

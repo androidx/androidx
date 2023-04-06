@@ -21,6 +21,7 @@ import android.support.wearable.complications.ComplicationData.Companion.TYPE_NO
 import android.support.wearable.complications.ComplicationData.Companion.TYPE_SHORT_TEXT
 import android.support.wearable.complications.ComplicationText as WireComplicationText
 import android.util.Log
+import androidx.wear.protolayout.expression.AppDataKey
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
@@ -75,7 +76,7 @@ class ComplicationDataExpressionEvaluatorTest {
      */
     enum class DataWithExpressionScenario(
         val expressed: WireComplicationData,
-        val states: List<Map<String, StateEntryValue>>,
+        val states: List<Map<AppDataKey<*>, StateEntryValue>>,
         val evaluated: List<WireComplicationData>,
     ) {
         SET_IMMEDIATELY_WHEN_ALL_DATA_AVAILABLE(
@@ -127,15 +128,38 @@ class ComplicationDataExpressionEvaluatorTest {
             states =
                 aggregate(
                     // Each map piles on top of the previous ones.
-                    mapOf("ranged_value" to StateEntryValue.fromFloat(1f)),
-                    mapOf("long_text" to StateEntryValue.fromString("Long Text")),
-                    mapOf("long_title" to StateEntryValue.fromString("Long Title")),
-                    mapOf("short_text" to StateEntryValue.fromString("Short Text")),
-                    mapOf("short_title" to StateEntryValue.fromString("Short Title")),
-                    mapOf("description" to StateEntryValue.fromString("Description")),
-                    mapOf("placeholder" to StateEntryValue.fromString("Placeholder")),
-                    mapOf("list" to StateEntryValue.fromString("List")),
-                    mapOf("timeline" to StateEntryValue.fromString("Timeline")),
+                    mapOf(
+                        AppDataKey<DynamicFloat>("ranged_value") to StateEntryValue.fromFloat(1f)
+                    ),
+                    mapOf(
+                        AppDataKey<DynamicString>("long_text") to
+                            StateEntryValue.fromString("Long Text")
+                    ),
+                    mapOf(
+                        AppDataKey<DynamicString>("long_title") to
+                            StateEntryValue.fromString("Long Title")
+                    ),
+                    mapOf(
+                        AppDataKey<DynamicString>("short_text") to
+                            StateEntryValue.fromString("Short Text")
+                    ),
+                    mapOf(
+                        AppDataKey<DynamicString>("short_title") to
+                            StateEntryValue.fromString("Short Title")
+                    ),
+                    mapOf(
+                        AppDataKey<DynamicString>("description") to
+                            StateEntryValue.fromString("Description")
+                    ),
+                    mapOf(
+                        AppDataKey<DynamicString>("placeholder") to
+                            StateEntryValue.fromString("Placeholder")
+                    ),
+                    mapOf(AppDataKey<DynamicString>("list") to StateEntryValue.fromString("List")),
+                    mapOf(
+                        AppDataKey<DynamicString>("timeline") to
+                            StateEntryValue.fromString("Timeline")
+                    ),
                     // Only the last one will trigger an evaluated data.
                 ),
             evaluated =
@@ -169,7 +193,9 @@ class ComplicationDataExpressionEvaluatorTest {
                     .build(),
             states =
                 listOf(
-                    mapOf("valid" to StateEntryValue.fromString("Valid")),
+                    mapOf(
+                        AppDataKey<DynamicString>("valid") to StateEntryValue.fromString("Valid")
+                    ),
                 ),
             evaluated =
                 listOf(
@@ -189,7 +215,9 @@ class ComplicationDataExpressionEvaluatorTest {
             states =
                 listOf(
                     mapOf(),
-                    mapOf("valid" to StateEntryValue.fromString("Valid")),
+                    mapOf(
+                        AppDataKey<DynamicString>("valid") to StateEntryValue.fromString("Valid")
+                    ),
                 ),
             evaluated =
                 listOf(
@@ -205,10 +233,12 @@ class ComplicationDataExpressionEvaluatorTest {
             states =
                 listOf(
                     mapOf(
-                        "valid" to StateEntryValue.fromString("Valid"),
-                        "invalid" to StateEntryValue.fromString("Valid"),
+                        AppDataKey<DynamicString>("valid") to StateEntryValue.fromString("Valid"),
+                        AppDataKey<DynamicString>("invalid") to StateEntryValue.fromString("Valid"),
                     ),
-                    mapOf("valid" to StateEntryValue.fromString("Valid")),
+                    mapOf(
+                        AppDataKey<DynamicString>("valid") to StateEntryValue.fromString("Valid")
+                    ),
                 ),
             evaluated =
                 listOf(
@@ -237,18 +267,18 @@ class ComplicationDataExpressionEvaluatorTest {
         ),
         SET_TO_EVALUATED_WITHOUT_PLACEHOLDER_EVEN_IF_PLACEHOLDER_INVALID_IF_NOT_NO_DATA(
             expressed =
-            WireComplicationData.Builder(TYPE_SHORT_TEXT)
-                .setShortText(WireComplicationText("Text"))
-                .setPlaceholder(stateData("placeholder"))
-                .build(),
-            states = listOf(), // placeholder state not set.
-            evaluated =
-            listOf(
-                // No placeholder.
                 WireComplicationData.Builder(TYPE_SHORT_TEXT)
                     .setShortText(WireComplicationText("Text"))
+                    .setPlaceholder(stateData("placeholder"))
                     .build(),
-            )
+            states = listOf(), // placeholder state not set.
+            evaluated =
+                listOf(
+                    // No placeholder.
+                    WireComplicationData.Builder(TYPE_SHORT_TEXT)
+                        .setShortText(WireComplicationText("Text"))
+                        .build(),
+                )
         ),
     }
 

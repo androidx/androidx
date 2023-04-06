@@ -18,6 +18,10 @@ package androidx.wear.protolayout.expression.pipeline;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.UiThread;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicType;
+import androidx.wear.protolayout.expression.DynamicDataKey;
+import androidx.wear.protolayout.expression.PlatformDataKey;
+import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue;
 
 import java.util.function.Function;
@@ -26,17 +30,17 @@ class StateSourceNode<T>
         implements DynamicDataSourceNode<T>,
         DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> {
     private final StateStore mStateStore;
-    private final String mBindKey;
+    private final DynamicDataKey<?> mKey;
     private final Function<StateEntryValue, T> mStateExtractor;
     private final DynamicTypeValueReceiverWithPreUpdate<T> mDownstream;
 
     StateSourceNode(
             StateStore stateStore,
-            String bindKey,
+            DynamicDataKey<?> key,
             Function<StateEntryValue, T> stateExtractor,
             DynamicTypeValueReceiverWithPreUpdate<T> downstream) {
         this.mStateStore = stateStore;
-        this.mBindKey = bindKey;
+        this.mKey = key;
         this.mStateExtractor = stateExtractor;
         this.mDownstream = downstream;
     }
@@ -50,8 +54,8 @@ class StateSourceNode<T>
     @Override
     @UiThread
     public void init() {
-        mStateStore.registerCallback(mBindKey, this);
-        StateEntryValue item = mStateStore.getStateEntryValuesProto(mBindKey);
+        mStateStore.registerCallback(mKey, this);
+        StateEntryValue item = mStateStore.getStateEntryValuesProto(mKey);
 
         if (item != null) {
             this.onData(item);
@@ -63,7 +67,7 @@ class StateSourceNode<T>
     @Override
     @UiThread
     public void destroy() {
-        mStateStore.unregisterCallback(mBindKey, this);
+        mStateStore.unregisterCallback(mKey, this);
     }
 
     @Override
@@ -80,5 +84,14 @@ class StateSourceNode<T>
     @Override
     public void onInvalidated() {
         mDownstream.onInvalidated();
+    }
+
+    @NonNull
+    static <T extends DynamicType> DynamicDataKey<T> createKey(
+           @NonNull String namespace, @NonNull String key) {
+        if (namespace.isEmpty()) {
+            return new AppDataKey<T>(key);
+        }
+        return new PlatformDataKey<T>(namespace, key);
     }
 }

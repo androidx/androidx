@@ -60,7 +60,7 @@ public final class DynamicBoolTest {
     @Test
     public void stateToString() {
         assertThat(DynamicBool.fromState("key").toString())
-                .isEqualTo("StateBoolSource{sourceKey=key}");
+                .isEqualTo("StateBoolSource{sourceKey=key, sourceNamespace=}");
     }
 
     @Test

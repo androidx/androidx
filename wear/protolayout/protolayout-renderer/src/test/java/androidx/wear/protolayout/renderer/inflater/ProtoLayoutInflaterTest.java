@@ -75,6 +75,8 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable;
+import androidx.wear.protolayout.expression.AppDataKey;
+import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.pipeline.FixedQuotaManagerImpl;
 import androidx.wear.protolayout.expression.pipeline.StateStore;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationParameters;
@@ -415,15 +417,17 @@ public class ProtoLayoutInflaterTest {
         assertThat(tv.isImportantForAccessibility()).isTrue();
         assertThat(info.isFocusable()).isTrue();
 
+        AppDataKey<DynamicBuilders.DynamicString> keyContent = new AppDataKey<>("content");
+        AppDataKey<DynamicBuilders.DynamicString> keyState = new AppDataKey<>("state");
         mStateStore.setStateEntryValuesProto(
                 ImmutableMap.of(
-                        "content",
+                        keyContent,
                         StateEntryValue.newBuilder()
                                 .setStringVal(
                                         FixedString.newBuilder()
                                                 .setValue(initialDynamicContentDescription))
                                 .build(),
-                        "state",
+                        keyState,
                         StateEntryValue.newBuilder()
                                 .setStringVal(
                                         FixedString.newBuilder()
@@ -431,7 +435,7 @@ public class ProtoLayoutInflaterTest {
                                 .build()));
 
         info = AccessibilityNodeInfoCompat.wrap(tv.createAccessibilityNodeInfo());
-        assertThat(mStateStore.getStateEntryValuesProto("content").getStringVal().getValue())
+        assertThat(mStateStore.getStateEntryValuesProto(keyContent).getStringVal().getValue())
                 .isEqualTo(initialDynamicContentDescription);
         assertThat(info.getContentDescription().toString())
                 .isEqualTo(initialDynamicContentDescription);
@@ -439,13 +443,13 @@ public class ProtoLayoutInflaterTest {
 
         mStateStore.setStateEntryValuesProto(
                 ImmutableMap.of(
-                        "content",
+                        keyContent,
                         StateEntryValue.newBuilder()
                                 .setStringVal(
                                         FixedString.newBuilder()
                                                 .setValue(targetDynamicContentDescription))
                                 .build(),
-                        "state",
+                        keyState,
                         StateEntryValue.newBuilder()
                                 .setStringVal(
                                         FixedString.newBuilder()
@@ -1677,7 +1681,7 @@ public class ProtoLayoutInflaterTest {
 
         mStateStore.setStateEntryValuesProto(
                 ImmutableMap.of(
-                        "anim_val",
+                        new AppDataKey<DynamicBuilders.DynamicFloat>("anim_val"),
                         StateEntryValue.newBuilder()
                                 .setFloatVal(FixedFloat.newBuilder().setValue(0.44f))
                                 .build()));
@@ -2125,9 +2129,10 @@ public class ProtoLayoutInflaterTest {
 
     @Test
     public void inflate_arcLine_dynamicData_updatesArcLength() {
+        AppDataKey<DynamicBuilders.DynamicInt32> keyFoo = new AppDataKey<>("foo");
         mStateStore.setStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
+                        keyFoo,
                         StateEntryValue.newBuilder()
                                 .setInt32Val(FixedInt32.newBuilder().setValue(10))
                                 .build()));
@@ -2175,7 +2180,7 @@ public class ProtoLayoutInflaterTest {
 
         mStateStore.setStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
+                        keyFoo,
                         StateEntryValue.newBuilder()
                                 .setInt32Val(FixedInt32.newBuilder().setValue(20))
                                 .build()));
@@ -2270,9 +2275,10 @@ public class ProtoLayoutInflaterTest {
 
     @Test
     public void inflate_text_dynamicColor_updatesColor() {
+        AppDataKey<DynamicBuilders.DynamicColor> keyFoo = new AppDataKey<>("foo");
         mStateStore.setStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
+                        keyFoo,
                         StateEntryValue.newBuilder()
                                 .setColorVal(FixedColor.newBuilder().setArgb(0xFFFFFFFF))
                                 .build()));
@@ -2303,7 +2309,7 @@ public class ProtoLayoutInflaterTest {
 
         mStateStore.setStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
+                        keyFoo,
                         StateEntryValue.newBuilder()
                                 .setColorVal(FixedColor.newBuilder().setArgb(0x11111111))
                                 .build()));
@@ -2318,7 +2324,7 @@ public class ProtoLayoutInflaterTest {
 
         mStateStore.setStateEntryValuesProto(
                 ImmutableMap.of(
-                        "tint",
+                        new AppDataKey<DynamicBuilders.DynamicColor>("tint"),
                         StateEntryValue.newBuilder()
                                 .setColorVal(FixedColor.newBuilder().setArgb(0xFFFFFFFF))
                                 .build()));

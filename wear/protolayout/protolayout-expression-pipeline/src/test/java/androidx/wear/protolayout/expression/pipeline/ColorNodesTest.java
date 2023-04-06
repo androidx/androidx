@@ -25,6 +25,8 @@ import static java.lang.Integer.MAX_VALUE;
 import android.os.Looper;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor;
+import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.pipeline.ColorNodes.AnimatableFixedColorNode;
 import androidx.wear.protolayout.expression.pipeline.ColorNodes.DynamicAnimatedColorNode;
 import androidx.wear.protolayout.expression.pipeline.ColorNodes.FixedColorNode;
@@ -49,6 +51,7 @@ public class ColorNodesTest {
 
     private static final int FROM_COLOR = 0xFF00FF00;
     private static final int TO_COLOR = 0xFFFF00FF;
+    private static final AppDataKey<DynamicColor> KEY_FOO = new AppDataKey<>("foo");
 
     @Test
     public void fixedColorNode() {
@@ -69,7 +72,7 @@ public class ColorNodesTest {
         StateStore oss =
                 new StateStore(
                         ImmutableMap.of(
-                                "foo",
+                                KEY_FOO,
                                 StateEntryValue.newBuilder()
                                         .setColorVal(FixedColor.newBuilder().setArgb(FROM_COLOR))
                                         .build()));
@@ -90,7 +93,7 @@ public class ColorNodesTest {
         StateStore oss =
                 new StateStore(
                         ImmutableMap.of(
-                                "foo",
+                                KEY_FOO,
                                 StateEntryValue.newBuilder()
                                         .setColorVal(FixedColor.newBuilder().setArgb(FROM_COLOR))
                                         .build()));
@@ -102,7 +105,7 @@ public class ColorNodesTest {
         node.init();
         oss.setStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
+                        KEY_FOO,
                         StateEntryValue.newBuilder()
                                 .setColorVal(FixedColor.newBuilder().setArgb(TO_COLOR))
                                 .build()));
@@ -116,7 +119,7 @@ public class ColorNodesTest {
         StateStore oss =
                 new StateStore(
                         ImmutableMap.of(
-                                "foo",
+                                KEY_FOO,
                                 StateEntryValue.newBuilder()
                                         .setColorVal(FixedColor.newBuilder().setArgb(FROM_COLOR))
                                         .build()));
@@ -132,7 +135,7 @@ public class ColorNodesTest {
         node.destroy();
         oss.setStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
+                        KEY_FOO,
                         StateEntryValue.newBuilder()
                                 .setColorVal(FixedColor.newBuilder().setArgb(TO_COLOR))
                                 .build()));
@@ -213,7 +216,7 @@ public class ColorNodesTest {
         StateStore oss =
                 new StateStore(
                         ImmutableMap.of(
-                                "foo",
+                                KEY_FOO,
                                 StateEntryValue.newBuilder()
                                         .setColorVal(
                                                 FixedColor.newBuilder().setArgb(FROM_COLOR).build())
@@ -235,7 +238,7 @@ public class ColorNodesTest {
 
         oss.setStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
+                        KEY_FOO,
                         StateEntryValue.newBuilder()
                                 .setColorVal(FixedColor.newBuilder().setArgb(TO_COLOR))
                                 .build()));
@@ -256,7 +259,7 @@ public class ColorNodesTest {
         StateStore oss =
                 new StateStore(
                         ImmutableMap.of(
-                                "foo",
+                                KEY_FOO,
                                 StateEntryValue.newBuilder()
                                         .setColorVal(
                                                 FixedColor.newBuilder().setArgb(color1).build())
@@ -279,7 +282,7 @@ public class ColorNodesTest {
         results.clear();
         oss.setStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
+                        KEY_FOO,
                         StateEntryValue.newBuilder()
                                 .setColorVal(FixedColor.newBuilder().setArgb(color2))
                                 .build()));
@@ -293,7 +296,7 @@ public class ColorNodesTest {
         results.clear();
         oss.setStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
+                        KEY_FOO,
                         StateEntryValue.newBuilder()
                                 .setColorVal(FixedColor.newBuilder().setArgb(color3))
                                 .build()));
@@ -316,7 +319,7 @@ public class ColorNodesTest {
         StateStore oss =
                 new StateStore(
                         ImmutableMap.of(
-                                "foo",
+                                KEY_FOO,
                                 StateEntryValue.newBuilder()
                                         .setColorVal(
                                                 FixedColor.newBuilder().setArgb(color1).build())
@@ -341,7 +344,7 @@ public class ColorNodesTest {
         results.clear();
         oss.setStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
+                        KEY_FOO,
                         StateEntryValue.newBuilder()
                                 .setColorVal(FixedColor.newBuilder().setArgb(color2))
                                 .build()));
@@ -354,7 +357,7 @@ public class ColorNodesTest {
 
         oss.setStateEntryValuesProto(
                 ImmutableMap.of(
-                        "foo",
+                        KEY_FOO,
                         StateEntryValue.newBuilder()
                                 .setColorVal(FixedColor.newBuilder().setArgb(color3))
                                 .build()));

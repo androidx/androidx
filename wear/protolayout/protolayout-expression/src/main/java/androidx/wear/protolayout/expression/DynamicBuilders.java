@@ -677,6 +677,16 @@ public final class DynamicBuilders {
             return mImpl.getSourceKey();
         }
 
+        /**
+         * Gets the namespace for the state key.
+         *
+         * @since 1.2
+         */
+        @NonNull
+        public String getSourceNamespace() {
+            return mImpl.getSourceNamespace();
+        }
+
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -712,7 +722,12 @@ public final class DynamicBuilders {
         @Override
         @NonNull
         public String toString() {
-            return "StateInt32Source{" + "sourceKey=" + getSourceKey() + "}";
+            return "StateInt32Source{"
+                    + "sourceKey="
+                    + getSourceKey()
+                    + ", sourceNamespace="
+                    + getSourceNamespace()
+                    + "}";
         }
 
         /** Builder for {@link StateInt32Source}. */
@@ -732,6 +747,18 @@ public final class DynamicBuilders {
             public Builder setSourceKey(@NonNull String sourceKey) {
                 mImpl.setSourceKey(sourceKey);
                 mFingerprint.recordPropertyUpdate(1, sourceKey.hashCode());
+                return this;
+            }
+
+            /**
+             * Sets the name space for the state key.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setSourceNamespace(@NonNull String sourceNamespace) {
+                mImpl.setSourceNamespace(sourceNamespace);
+                mFingerprint.recordPropertyUpdate(2, sourceNamespace.hashCode());
                 return this;
             }
 
@@ -2643,6 +2670,17 @@ public final class DynamicBuilders {
             return mImpl.getSourceKey();
         }
 
+        /**
+         * Gets the namespace for the state key.
+         *
+         * @since 1.2
+         */
+        @NonNull
+        public String getSourceNamespace() {
+            return mImpl.getSourceNamespace();
+        }
+
+
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -2678,7 +2716,11 @@ public final class DynamicBuilders {
         @Override
         @NonNull
         public String toString() {
-            return "StateStringSource{" + "sourceKey=" + getSourceKey() + "}";
+            return "StateStringSource{"+ "sourceKey="
+                    + getSourceKey()
+                    + ", sourceNamespace="
+                    + getSourceNamespace()
+                    + "}";
         }
 
         /** Builder for {@link StateStringSource}. */
@@ -2698,6 +2740,18 @@ public final class DynamicBuilders {
             public Builder setSourceKey(@NonNull String sourceKey) {
                 mImpl.setSourceKey(sourceKey);
                 mFingerprint.recordPropertyUpdate(1, sourceKey.hashCode());
+                return this;
+            }
+
+            /**
+             * Sets the name space for the state key.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setSourceNamespace(@NonNull String sourceNamespace) {
+                mImpl.setSourceNamespace(sourceNamespace);
+                mFingerprint.recordPropertyUpdate(2, sourceNamespace.hashCode());
                 return this;
             }
 
@@ -3520,6 +3574,17 @@ public final class DynamicBuilders {
             return mImpl.getSourceKey();
         }
 
+        /**
+         * Gets the namespace for the state key.
+         *
+         * @since 1.2
+         */
+        @NonNull
+        public String getSourceNamespace() {
+            return mImpl.getSourceNamespace();
+        }
+
+
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -3555,7 +3620,11 @@ public final class DynamicBuilders {
         @Override
         @NonNull
         public String toString() {
-            return "StateFloatSource{" + "sourceKey=" + getSourceKey() + "}";
+            return "StateFloatSource{"+ "sourceKey="
+                    + getSourceKey()
+                    + ", sourceNamespace="
+                    + getSourceNamespace()
+                    + "}";
         }
 
         /** Builder for {@link StateFloatSource}. */
@@ -3575,6 +3644,18 @@ public final class DynamicBuilders {
             public Builder setSourceKey(@NonNull String sourceKey) {
                 mImpl.setSourceKey(sourceKey);
                 mFingerprint.recordPropertyUpdate(1, sourceKey.hashCode());
+                return this;
+            }
+
+            /**
+             * Sets the name space for the state key.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setSourceNamespace(@NonNull String sourceNamespace) {
+                mImpl.setSourceNamespace(sourceNamespace);
+                mFingerprint.recordPropertyUpdate(2, sourceNamespace.hashCode());
                 return this;
             }
 
@@ -4935,6 +5016,17 @@ public final class DynamicBuilders {
             return mImpl.getSourceKey();
         }
 
+        /**
+         * Gets the namespace for the state key.
+         *
+         * @since 1.2
+         */
+        @NonNull
+        public String getSourceNamespace() {
+            return mImpl.getSourceNamespace();
+        }
+
+
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -4970,7 +5062,12 @@ public final class DynamicBuilders {
         @Override
         @NonNull
         public String toString() {
-            return "StateBoolSource{" + "sourceKey=" + getSourceKey() + "}";
+            return "StateBoolSource{"
+                    + "sourceKey="
+                    + getSourceKey()
+                    + ", sourceNamespace="
+                    + getSourceNamespace()
+                    + "}";
         }
 
         /** Builder for {@link StateBoolSource}. */
@@ -4991,6 +5088,18 @@ public final class DynamicBuilders {
             public Builder setSourceKey(@NonNull String sourceKey) {
                 mImpl.setSourceKey(sourceKey);
                 mFingerprint.recordPropertyUpdate(1, sourceKey.hashCode());
+                return this;
+            }
+
+            /**
+             * Sets the name space for the state key.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setSourceNamespace(@NonNull String sourceNamespace) {
+                mImpl.setSourceNamespace(sourceNamespace);
+                mFingerprint.recordPropertyUpdate(2, sourceNamespace.hashCode());
                 return this;
             }
 
@@ -5727,6 +5836,16 @@ public final class DynamicBuilders {
             return mImpl.getSourceKey();
         }
 
+        /**
+         * Gets the namespace for the state key.
+         *
+         * @since 1.2
+         */
+        @NonNull
+        public String getSourceNamespace() {
+            return mImpl.getSourceNamespace();
+        }
+
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -5762,7 +5881,12 @@ public final class DynamicBuilders {
         @Override
         @NonNull
         public String toString() {
-            return "StateColorSource{" + "sourceKey=" + getSourceKey() + "}";
+            return "StateColorSource{"
+                    + "sourceKey="
+                    + getSourceKey()
+                    + ", sourceNamespace="
+                    + getSourceNamespace()
+                    + "}";
         }
 
         /** Builder for {@link StateColorSource}. */
@@ -5782,6 +5906,18 @@ public final class DynamicBuilders {
             public Builder setSourceKey(@NonNull String sourceKey) {
                 mImpl.setSourceKey(sourceKey);
                 mFingerprint.recordPropertyUpdate(1, sourceKey.hashCode());
+                return this;
+            }
+
+            /**
+             * Sets the name space for the state key.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setSourceNamespace(@NonNull String sourceNamespace) {
+                mImpl.setSourceNamespace(sourceNamespace);
+                mFingerprint.recordPropertyUpdate(2, sourceNamespace.hashCode());
                 return this;
             }
 

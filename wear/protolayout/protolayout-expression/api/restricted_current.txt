@@ -78,6 +78,10 @@ package androidx.wear.protolayout.expression {
     method public androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable.Builder setReverseRepeatOverride(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationParameters);
   }
 
+  public final class AppDataKey<T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType> extends androidx.wear.protolayout.expression.DynamicDataKey<T> {
+    ctor public AppDataKey(String);
+  }
+
   public class ConditionScopes {
   }
 
@@ -275,6 +279,15 @@ package androidx.wear.protolayout.expression {
   }
 
   public static interface DynamicBuilders.DynamicType {
+  }
+
+  public abstract class DynamicDataKey<T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType> {
+    method public String getKey();
+    method public String getNamespace();
+  }
+
+  public final class PlatformDataKey<T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType> extends androidx.wear.protolayout.expression.DynamicDataKey<T> {
+    ctor public PlatformDataKey(String, String);
   }
 
   public final class StateEntryBuilders {

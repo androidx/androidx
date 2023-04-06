@@ -38,6 +38,7 @@ import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32.IntFormatter;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
+import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedBool;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedFloat;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedInt32;
@@ -504,25 +505,25 @@ public class ParametrizedDynamicTypeEvaluatorTest {
         return DynamicDuration.withSecondsPrecision(Duration.ofSeconds(seconds));
     }
 
-    private static ImmutableMap<String, StateEntryValue> generateExampleState() {
+    private static ImmutableMap<AppDataKey<?>, StateEntryValue> generateExampleState() {
         return ImmutableMap.of(
-                "state_hello_world",
+                new AppDataKey<DynamicString>("state_hello_world"),
                 StateEntryValue.newBuilder()
                         .setStringVal(FixedString.newBuilder().setValue("hello_world"))
                         .build(),
-                "state_int_15",
+                new AppDataKey<DynamicInt32>("state_int_15"),
                 StateEntryValue.newBuilder()
                         .setInt32Val(FixedInt32.newBuilder().setValue(15))
                         .build(),
-                "state_float_1.5",
+                new AppDataKey<DynamicFloat>("state_float_1.5"),
                 StateEntryValue.newBuilder()
                         .setFloatVal(FixedFloat.newBuilder().setValue(1.5f))
                         .build(),
-                "state_bool_true",
+                new AppDataKey<DynamicBool>("state_bool_true"),
                 StateEntryValue.newBuilder()
                         .setBoolVal(FixedBool.newBuilder().setValue(true))
                         .build(),
-                "state_bool_false",
+                new AppDataKey<DynamicBool>("state_bool_false"),
                 StateEntryValue.newBuilder()
                         .setBoolVal(FixedBool.newBuilder().setValue(false))
                         .build());

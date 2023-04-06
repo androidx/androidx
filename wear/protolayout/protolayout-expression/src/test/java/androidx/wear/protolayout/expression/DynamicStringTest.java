@@ -55,7 +55,7 @@ public final class DynamicStringTest {
   @Test
   public void stateToString() {
     assertThat(DynamicString.fromState("key").toString())
-        .isEqualTo("StateStringSource{sourceKey=key}");
+        .isEqualTo("StateStringSource{sourceKey=key, sourceNamespace=}");
   }
 
   @Test
