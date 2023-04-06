@@ -74,6 +74,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable;
 import androidx.wear.protolayout.expression.pipeline.FixedQuotaManagerImpl;
 import androidx.wear.protolayout.expression.pipeline.StateStore;
+import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationParameters;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.Repeatable;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicFloat;
@@ -4042,7 +4043,9 @@ public class ProtoLayoutInflaterTest {
     @NonNull
     private static FadeInTransition.Builder fadeIn(int delay) {
         return FadeInTransition.newBuilder()
-                .setAnimationSpec(AnimationSpec.newBuilder().setStartDelayMillis(delay));
+                .setAnimationSpec(
+                        AnimationSpec.newBuilder().setAnimationParameters(
+                                AnimationParameters.newBuilder().setDelayMillis(delay)));
     }
 
     private LayoutElement textFadeInSlideIn(String text) {

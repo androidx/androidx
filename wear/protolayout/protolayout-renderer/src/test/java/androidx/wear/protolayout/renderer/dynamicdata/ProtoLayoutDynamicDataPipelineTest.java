@@ -45,6 +45,7 @@ import androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable;
 import androidx.wear.protolayout.expression.pipeline.FixedQuotaManagerImpl;
 import androidx.wear.protolayout.expression.pipeline.QuotaManager;
 import androidx.wear.protolayout.expression.pipeline.StateStore;
+import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationParameters;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.RepeatMode;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.Repeatable;
@@ -1455,8 +1456,11 @@ public class ProtoLayoutDynamicDataPipelineTest {
                                 .setToValue(to)
                                 .setAnimationSpec(
                                         AnimationSpec.newBuilder()
-                                                .setDurationMillis(duration)
-                                                .setStartDelayMillis(delay)
+                                                .setAnimationParameters(
+                                                        AnimationParameters.newBuilder()
+                                                                .setDurationMillis(duration)
+                                                                .setDelayMillis(delay)
+                                                                .build())
                                                 .build()))
                 .build();
     }
@@ -1464,6 +1468,8 @@ public class ProtoLayoutDynamicDataPipelineTest {
     @NonNull
     private DynamicFloat animatableFixedFloat(
             float from, float to, int duration, int delay, int repeatDelay, int iterations) {
+        AnimationParameters alternateParameters =
+                AnimationParameters.newBuilder().setDelayMillis(repeatDelay).build();
         return DynamicFloat.newBuilder()
                 .setAnimatableFixed(
                         AnimatableFixedFloat.newBuilder()
@@ -1471,8 +1477,11 @@ public class ProtoLayoutDynamicDataPipelineTest {
                                 .setToValue(to)
                                 .setAnimationSpec(
                                         AnimationSpec.newBuilder()
-                                                .setDurationMillis(duration)
-                                                .setStartDelayMillis(delay)
+                                                .setAnimationParameters(
+                                                        AnimationParameters.newBuilder()
+                                                                .setDurationMillis(duration)
+                                                                .setDelayMillis(delay)
+                                                                .build())
                                                 .setRepeatable(
                                                         Repeatable.newBuilder()
                                                                 .setRepeatMode(
@@ -1480,10 +1489,10 @@ public class ProtoLayoutDynamicDataPipelineTest {
                                                                                 .REPEAT_MODE_REVERSE
                                                                 )
                                                                 .setIterations(iterations)
-                                                                .setForwardRepeatDelayMillis(
-                                                                        repeatDelay)
-                                                                .setReverseRepeatDelayMillis(
-                                                                        repeatDelay)
+                                                                .setForwardRepeatOverride(
+                                                                        alternateParameters)
+                                                                .setReverseRepeatOverride(
+                                                                        alternateParameters)
                                                                 .build())
                                                 .build()))
                 .build();
