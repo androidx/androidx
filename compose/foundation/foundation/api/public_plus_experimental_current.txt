@@ -1292,7 +1292,7 @@ package androidx.compose.foundation.text.selection {
 package androidx.compose.foundation.text2 {
 
   public final class BasicTextField2Kt {
-    method @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static void BasicTextField2(androidx.compose.foundation.text2.input.TextFieldState state, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional boolean readOnly, optional androidx.compose.foundation.text2.input.TextEditFilter? filter, optional androidx.compose.ui.text.TextStyle textStyle, optional androidx.compose.foundation.text.KeyboardOptions keyboardOptions, optional androidx.compose.foundation.text.KeyboardActions keyboardActions, optional int minLines, optional int maxLines, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.ui.graphics.Brush cursorBrush, optional androidx.compose.foundation.ScrollState scrollState, optional kotlin.jvm.functions.Function1<? super kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> decorationBox);
+    method @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static void BasicTextField2(androidx.compose.foundation.text2.input.TextFieldState state, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional boolean readOnly, optional androidx.compose.foundation.text2.input.TextEditFilter? filter, optional androidx.compose.ui.text.TextStyle textStyle, optional androidx.compose.foundation.text.KeyboardOptions keyboardOptions, optional androidx.compose.foundation.text.KeyboardActions keyboardActions, optional androidx.compose.foundation.text2.input.TextFieldLineLimits lineLimits, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.ui.graphics.Brush cursorBrush, optional androidx.compose.foundation.ScrollState scrollState, optional kotlin.jvm.functions.Function1<? super kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> decorationBox);
   }
 
 }
@@ -1384,6 +1384,27 @@ package androidx.compose.foundation.text2.input {
     method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldEditResult selectAllChanges(androidx.compose.foundation.text2.input.MutableTextFieldValue);
     method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldEditResult selectCharsIn(androidx.compose.foundation.text2.input.MutableTextFieldValue, long range);
     method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldEditResult selectCodepointsIn(androidx.compose.foundation.text2.input.MutableTextFieldValue, long range);
+  }
+
+  @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public sealed interface TextFieldLineLimits {
+    field public static final androidx.compose.foundation.text2.input.TextFieldLineLimits.Companion Companion;
+  }
+
+  public static final class TextFieldLineLimits.Companion {
+    method public androidx.compose.foundation.text2.input.TextFieldLineLimits getDefault();
+    property public final androidx.compose.foundation.text2.input.TextFieldLineLimits Default;
+  }
+
+  @androidx.compose.runtime.Immutable public static final class TextFieldLineLimits.MultiLine implements androidx.compose.foundation.text2.input.TextFieldLineLimits {
+    ctor public TextFieldLineLimits.MultiLine(optional int minHeightInLines, optional int maxHeightInLines);
+    method public int getMaxHeightInLines();
+    method public int getMinHeightInLines();
+    property public final int maxHeightInLines;
+    property public final int minHeightInLines;
+  }
+
+  public static final class TextFieldLineLimits.SingleLine implements androidx.compose.foundation.text2.input.TextFieldLineLimits {
+    field public static final androidx.compose.foundation.text2.input.TextFieldLineLimits.SingleLine INSTANCE;
   }
 
   @androidx.compose.foundation.ExperimentalFoundationApi public final class TextFieldState {
