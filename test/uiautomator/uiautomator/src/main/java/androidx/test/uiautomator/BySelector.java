@@ -16,6 +16,7 @@
 
 package androidx.test.uiautomator;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 
 import java.util.LinkedList;
@@ -50,6 +51,10 @@ public class BySelector {
     Integer mMinDepth;
     Integer mMaxDepth;
 
+    // Parent selector
+    BySelector mParentSelector;
+    Integer mParentHeight;
+
     // Child selectors
     final List<BySelector> mChildSelectors = new LinkedList<>();
 
@@ -81,6 +86,10 @@ public class BySelector {
 
         mMinDepth = original.mMinDepth;
         mMaxDepth = original.mMaxDepth;
+
+        mParentSelector = original.mParentSelector == null ? null :
+                new BySelector(original.mParentSelector);
+        mParentHeight = original.mParentHeight;
 
         for (BySelector childSelector : original.mChildSelectors) {
             mChildSelectors.add(new BySelector(childSelector));
@@ -564,6 +573,52 @@ public class BySelector {
     }
 
     /**
+     * Adds a parent selector criteria for matching. A UI element will be considered a match if it
+     * has a parent element (direct ancestor) which matches the {@code parentSelector} and all
+     * other criteria for this selector are met.
+     *
+     * @param parentSelector The selector used to find a matching parent element.
+     * @return A reference to this {@link BySelector}.
+     */
+    public @NonNull BySelector hasParent(@NonNull BySelector parentSelector) {
+        checkNotNull(parentSelector, "parentSelector cannot be null");
+        return hasAncestor(parentSelector, 1);
+    }
+
+    /**
+     * Adds an ancestor selector criteria for matching. A UI element will be considered a match if
+     * it has an ancestor element which matches the {@code ancestorSelector} and all other
+     * criteria for this selector are met.
+     *
+     * @param ancestorSelector The selector used to find a matching ancestor element.
+     * @return A reference to this {@link BySelector}.
+     */
+    public @NonNull BySelector hasAncestor(@NonNull BySelector ancestorSelector) {
+        checkNotNull(ancestorSelector, "ancestorSelector cannot be null");
+        if (mParentSelector != null) {
+            throw new IllegalStateException("Parent/ancestor selector is already defined");
+        }
+        mParentSelector = ancestorSelector;
+        return this;
+    }
+
+    /**
+     * Adds an ancestor selector criteria for matching. A UI element will be considered a match if
+     * it has an ancestor element which matches the {@code ancestorSelector} and all other
+     * criteria for this selector are met.
+     *
+     * @param ancestorSelector The selector used to find a matching ancestor element.
+     * @param maxHeight        The maximum height above the element to search for the ancestor.
+     * @return A reference to this {@link BySelector}.
+     */
+    public @NonNull BySelector hasAncestor(@NonNull BySelector ancestorSelector,
+            @IntRange(from = 1) int maxHeight) {
+        hasAncestor(ancestorSelector);
+        mParentHeight = maxHeight;
+        return this;
+    }
+
+    /**
      * Adds a child selector criteria for matching. A UI element will be considered a match if it
      * has a child element (direct descendant) which matches the {@code childSelector} and all
      * other criteria for this selector are met. If specified more than once, matches must be found
@@ -571,10 +626,10 @@ public class BySelector {
      *
      * @param childSelector The selector used to find a matching child element.
      * @return A reference to this {@link BySelector}.
+     * @throws IllegalArgumentException if the selector has a parent selector
      */
     public @NonNull BySelector hasChild(@NonNull BySelector childSelector) {
         checkNotNull(childSelector, "childSelector cannot be null");
-
         return hasDescendant(childSelector, 1);
     }
 
@@ -586,10 +641,15 @@ public class BySelector {
      *
      * @param descendantSelector The selector used to find a matching descendant element.
      * @return A reference to this {@link BySelector}.
+     * @throws IllegalArgumentException if the selector has a parent selector
      */
     public @NonNull BySelector hasDescendant(@NonNull BySelector descendantSelector) {
         checkNotNull(descendantSelector, "descendantSelector cannot be null");
-
+        if (descendantSelector.mParentSelector != null) {
+            // Search root is ambiguous with nested parent selectors.
+            throw new IllegalArgumentException(
+                    "Nested parent/ancestor selectors are not supported");
+        }
         mChildSelectors.add(descendantSelector);
         return this;
     }
@@ -603,12 +663,11 @@ public class BySelector {
      * @param descendantSelector The selector used to find a matching descendant element.
      * @param maxDepth The maximum depth under the element to search the descendant.
      * @return A reference to this {@link BySelector}.
+     * @throws IllegalArgumentException if the selector has a parent selector
      */
     public @NonNull BySelector hasDescendant(@NonNull BySelector descendantSelector, int maxDepth) {
-        checkNotNull(descendantSelector, "descendantSelector cannot be null");
-
+        hasDescendant(descendantSelector);
         descendantSelector.mMaxDepth = maxDepth;
-        mChildSelectors.add(descendantSelector);
         return this;
     }
 
@@ -661,6 +720,11 @@ public class BySelector {
         }
         if (mSelected != null) {
             builder.append("SELECTED='").append(mSelected).append("', ");
+        }
+        if (mParentSelector != null) {
+            builder.append("PARENT='")
+                    .append(mParentSelector.toString().substring(11))
+                    .append("', ");
         }
         for (BySelector childSelector : mChildSelectors) {
             builder.append("CHILD='").append(childSelector.toString().substring(11)).append("', ");
