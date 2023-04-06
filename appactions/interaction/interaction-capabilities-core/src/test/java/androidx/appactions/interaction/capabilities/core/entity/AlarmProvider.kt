@@ -21,10 +21,9 @@ import androidx.appactions.interaction.capabilities.core.values.Alarm
 
 /**  Internal testing object for entity provider */
 class AlarmProvider internal constructor(
-    private var id: String,
+    override val id: String,
     private var response: EntityLookupResponse<Alarm>,
 ) : EntityProvider<Alarm>(TypeConverters.ALARM_TYPE_SPEC) {
-    override fun getId(): String = id
     override suspend fun lookup(request: EntityLookupRequest<Alarm>):
         EntityLookupResponse<Alarm> = response
 }

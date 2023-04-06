@@ -54,6 +54,9 @@ import io.grpc.Status
 import io.grpc.StatusException
 import io.grpc.StatusRuntimeException
 import io.grpc.stub.StreamObserver
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * Implementation of [AppInteractionServiceImplBase] generated from the GRPC proto file. This
@@ -430,7 +433,40 @@ internal class AppInteractionServiceGrpcImpl(
         request: GroundingRequest,
         responseObserver: StreamObserver<GroundingResponse>,
     ) {
-        // TODO(b/268265068): Implement grounding API
+        val entityProvider = appInteractionService.registeredEntityProviders.filter {
+            it.id == request.getRequest().getEntityProviderId()
+        }.firstOrNull()
+        if (entityProvider == null) {
+            return respondAndComplete(
+                GroundingResponse.newBuilder()
+                    .setResponse(
+                        GroundingResponse.Response.newBuilder().setStatus(
+                            GroundingResponse.Status.INVALID_ENTITY_PROVIDER,
+                        ),
+                    ).build(),
+                responseObserver,
+            )
+        }
+        CoroutineScope(Dispatchers.Unconfined).launch {
+            try {
+                respondAndComplete(
+                    entityProvider.lookupInternal(request),
+                    responseObserver,
+                )
+            } catch (t: Throwable) {
+                respondWithError(
+                    when {
+                        t is StatusRuntimeException || t is StatusException -> t
+                        else -> StatusRuntimeException(
+                            Status.INTERNAL.withDescription(
+                                t.message,
+                            ).withCause(t),
+                        )
+                    },
+                    responseObserver,
+                )
+            }
+        }
     }
 
     private fun requestCollectionOnDestroy(
