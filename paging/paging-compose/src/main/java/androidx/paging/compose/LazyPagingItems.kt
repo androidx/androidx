@@ -354,7 +354,28 @@ public fun <T : Any> LazyListScope.items(
  * @param itemContent the content displayed by a single item. In case the item is `null`, the
  * [itemContent] method should handle the logic of displaying a placeholder instead of the main
  * content displayed by an item which is not `null`.
+ *
+ * @deprecated Deprecating support for indexed keys on non-null items as it is susceptible to
+ * errors when items indices shift due to prepends. Call LazyListScope.items directly
+ * with LazyPagingItems #itemKey and #itemContentType helper functions.
  */
+@Deprecated(
+    message = "Deprecating support for indexed keys on non-null items as it is susceptible to" +
+        "errors when items indices shift due to prepends. Call LazyListScope.items directly" +
+        "with LazyPagingItems #itemKey and #itemContentType helper functions.",
+    replaceWith = ReplaceWith(
+        expression = """items(
+           count = items.itemCount,
+           key = items.itemKey(key),
+           contentType = items.itemContentType(
+                contentType
+           )
+        ) { index ->
+            val item = items[index]
+            itemContent(item)
+        }""",
+    )
+)
 public fun <T : Any> LazyListScope.itemsIndexed(
     items: LazyPagingItems<T>,
     key: ((index: Int, item: T) -> Any)? = null,

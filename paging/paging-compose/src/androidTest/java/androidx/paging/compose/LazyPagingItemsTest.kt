@@ -178,6 +178,7 @@ class LazyPagingItemsTest {
             .assertDoesNotExist()
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun lazyPagingColumnShowsIndexedItems() {
         val pager = createPager()
@@ -236,6 +237,7 @@ class LazyPagingItemsTest {
             .assertDoesNotExist()
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun lazyPagingRowShowsIndexedItems() {
         val pager = createPager()
@@ -831,6 +833,7 @@ class LazyPagingItemsTest {
             .assertExists()
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun stateIsMovedWithItemWithCustomKey_itemsIndexed() {
         val items = mutableListOf(1)
