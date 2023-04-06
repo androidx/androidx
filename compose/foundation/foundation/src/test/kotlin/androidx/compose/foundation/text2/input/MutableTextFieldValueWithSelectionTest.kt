@@ -154,9 +154,12 @@ class MutableTextFieldValueWithSelectionTest {
 
     @Test
     fun resetTo_copiesTextAndSelection() {
-        val state = MutableTextFieldValueWithSelection(TextFieldValue("hello", TextRange(2)))
         val expectedValue = TextFieldValue("world", TextRange(5))
-        state.resetTo(expectedValue)
+        val state = MutableTextFieldValueWithSelection(
+            value = TextFieldValue("hello", TextRange(2)),
+            sourceValue = expectedValue
+        )
+        state.revertAllChanges()
         assertThat(state.toTextFieldValue()).isEqualTo(expectedValue)
     }
 

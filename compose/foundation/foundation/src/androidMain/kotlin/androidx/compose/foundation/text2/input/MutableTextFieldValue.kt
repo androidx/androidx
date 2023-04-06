@@ -116,6 +116,10 @@ open class MutableTextFieldValue internal constructor(
 
     override fun toString(): String = buffer.toString()
 
+    internal fun clearChangeList() {
+        changeTracker?.clearChanges()
+    }
+
     internal fun toTextFieldValue(
         selection: TextRange,
         composition: TextRange? = null
