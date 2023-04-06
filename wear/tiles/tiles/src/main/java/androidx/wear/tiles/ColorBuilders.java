@@ -22,7 +22,11 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.proto.ColorProto;
 
-/** Builders for color utilities for layout elements. */
+/**
+ * Builders for color utilities for layout elements.
+ *
+ * @deprecated Use {@link androidx.wear.protolayout.ColorBuilders} instead.
+ */
 public final class ColorBuilders {
     private ColorBuilders() {}
 
