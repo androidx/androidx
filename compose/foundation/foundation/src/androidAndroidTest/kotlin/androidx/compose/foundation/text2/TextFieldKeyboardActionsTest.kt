@@ -28,8 +28,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardHelper
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text2.input.TextFieldState
-import androidx.compose.foundation.text2.input.TextFieldLineLimits.MultiLine
-import androidx.compose.foundation.text2.input.TextFieldLineLimits.SingleLine
 import androidx.compose.foundation.text2.input.internal.AndroidTextInputAdapter
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -351,7 +349,7 @@ class TextFieldKeyboardActionsTest {
                 keyboardActions = KeyboardActionsAll {
                     calledFor = it
                 },
-                lineLimits = SingleLine
+                maxLines = 1
             )
         }
 
@@ -372,8 +370,7 @@ class TextFieldKeyboardActionsTest {
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
                 keyboardActions = KeyboardActionsAll {
                     calledFor = it
-                },
-                lineLimits = MultiLine(maxHeightInLines = 1)
+                }
             )
         }
 
@@ -397,7 +394,7 @@ class TextFieldKeyboardActionsTest {
                 BasicTextField2(
                     state = TextFieldState(),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                    lineLimits = SingleLine
+                    maxLines = 1
                 )
                 Box(
                     Modifier

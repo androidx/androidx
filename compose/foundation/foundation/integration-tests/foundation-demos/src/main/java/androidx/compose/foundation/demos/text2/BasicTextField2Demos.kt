@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text2.BasicTextField2
-import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.LocalTextStyle
@@ -68,7 +67,7 @@ fun SingleLineBasicTextField2() {
         state = state,
         modifier = demoTextFieldModifiers,
         textStyle = LocalTextStyle.current,
-        lineLimits = TextFieldLineLimits.SingleLine
+        maxLines = 1
     )
 }
 
