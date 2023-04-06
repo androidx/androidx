@@ -193,7 +193,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile>(private val testIO: Test
 
     @Test
     fun testReadFromNonExistentFile() = doTest {
-        assertThat(testFile.delete()).isTrue()
+        testFile.deleteIfExists()
         val newStore = newDataStore(testFile)
         assertThat(newStore.data.first()).isEqualTo(0)
     }
@@ -689,12 +689,10 @@ abstract class SingleProcessDataStoreTest<F : TestFile>(private val testIO: Test
 
     @Test
     fun testDefaultValueUsedWhenNoDataOnDisk() = doTest {
+        testFile.deleteIfExists()
         val dataStore = newDataStore(
             serializerConfig = TestingSerializerConfig(defaultValue = 99),
             scope = dataStoreScope)
-
-        assertThat(testFile.delete()).isTrue()
-
         assertThat(dataStore.data.first()).isEqualTo(99)
     }
 
