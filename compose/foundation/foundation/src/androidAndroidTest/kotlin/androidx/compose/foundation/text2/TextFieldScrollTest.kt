@@ -26,6 +26,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.TextLayoutResultProxy
+import androidx.compose.foundation.text2.input.TextFieldLineLimits
+import androidx.compose.foundation.text2.input.TextFieldLineLimits.MultiLine
+import androidx.compose.foundation.text2.input.TextFieldLineLimits.SingleLine
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -200,7 +203,7 @@ class TextFieldScrollTest {
                         state = TextFieldState(longText),
                         modifier = Modifier.size(textFieldSize.toDp()),
                         scrollState = rememberScrollState(),
-                        isVertical = false
+                        lineLimits = SingleLine
                     )
                 }
             }
@@ -234,7 +237,7 @@ class TextFieldScrollTest {
                         state = TextFieldState(longText),
                         modifier = Modifier.size(textFieldSize.toDp()),
                         scrollState = rememberScrollState(),
-                        isVertical = true
+                        lineLimits = MultiLine()
                     )
                 }
             }
@@ -318,7 +321,7 @@ class TextFieldScrollTest {
                 state = TextFieldState(longText),
                 modifier = Modifier.size(width = 300.dp, height = 50.dp),
                 scrollState = scrollState!!,
-                isVertical = false
+                lineLimits = SingleLine
             )
         }
 
@@ -351,9 +354,8 @@ class TextFieldScrollTest {
             ScrollableContent(
                 state = TextFieldState(longText),
                 scrollState = if (stateToggle) scrollState1 else scrollState2,
-                isVertical = false,
                 modifier = Modifier.size(width = 300.dp, height = 50.dp),
-                maxLines = 1
+                lineLimits = SingleLine
             )
         }
 
@@ -389,9 +391,8 @@ class TextFieldScrollTest {
             ScrollableContent(
                 state = state,
                 scrollState = scrollState,
-                isVertical = false,
                 modifier = Modifier.size(width = 300.dp, height = 50.dp),
-                maxLines = 1
+                lineLimits = SingleLine
             )
         }
 
@@ -413,9 +414,8 @@ class TextFieldScrollTest {
             ScrollableContent(
                 state = state,
                 scrollState = scrollState,
-                isVertical = false,
                 modifier = Modifier.size(width = 300.dp, height = 50.dp),
-                maxLines = 1
+                lineLimits = SingleLine
             )
         }
 
@@ -437,9 +437,8 @@ class TextFieldScrollTest {
             ScrollableContent(
                 state = state,
                 scrollState = scrollState,
-                isVertical = false,
                 modifier = Modifier.size(width = 300.dp, height = 50.dp),
-                maxLines = 1
+                lineLimits = SingleLine
             )
         }
 
@@ -507,7 +506,7 @@ class TextFieldScrollTest {
                     state = TextFieldState(text),
                     modifier = Modifier.size(size, height),
                     scrollState = textFieldScrollState,
-                    isVertical = true
+                    lineLimits = MultiLine()
                 )
                 Box(Modifier.size(size))
                 Box(Modifier.size(size))
@@ -549,9 +548,8 @@ class TextFieldScrollTest {
                 ScrollableContent(
                     state = state,
                     scrollState = scrollState,
-                    isVertical = false,
                     modifier = modifier,
-                    maxLines = 1
+                    lineLimits = SingleLine
                 )
             }
         }
@@ -570,9 +568,8 @@ class TextFieldScrollTest {
                 ScrollableContent(
                     state = state,
                     scrollState = scrollState,
-                    isVertical = true,
                     modifier = modifier,
-                    maxLines = maxLines
+                    lineLimits = MultiLine(maxHeightInLines = maxLines)
                 )
             }
         }
@@ -583,11 +580,9 @@ class TextFieldScrollTest {
         modifier: Modifier,
         state: TextFieldState,
         scrollState: ScrollState,
-        isVertical: Boolean,
-        maxLines: Int = Int.MAX_VALUE
+        lineLimits: TextFieldLineLimits
     ) {
         val textLayoutResultRef: Ref<TextLayoutResultProxy?> = remember { Ref() }
-        val resolvedMaxLines = if (isVertical) maxLines else 1
 
         testScope = rememberCoroutineScope()
         BasicTextField2(
@@ -596,7 +591,7 @@ class TextFieldScrollTest {
             onTextLayout = {
                 textLayoutResultRef.value = TextLayoutResultProxy(it)
             },
-            maxLines = resolvedMaxLines,
+            lineLimits = lineLimits,
             modifier = modifier.testTag(TextfieldTag)
         )
     }
