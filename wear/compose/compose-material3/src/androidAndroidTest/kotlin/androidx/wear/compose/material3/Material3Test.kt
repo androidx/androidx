@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2023 The Android Open Source Project
  *
@@ -21,8 +20,11 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material.icons.Icons
@@ -35,8 +37,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
@@ -59,6 +61,28 @@ fun TestImage(iconLabel: String = "TestIcon") {
         contentScale = ContentScale.Fit,
         alignment = Alignment.Center
     )
+}
+
+@Composable
+fun TestIcon(modifier: Modifier = Modifier, iconLabel: String = "TestIcon") {
+    val testImage = Icons.Outlined.Add
+    Icon(
+        imageVector = testImage,
+        contentDescription = iconLabel,
+        modifier = modifier.testTag(iconLabel)
+    )
+}
+
+@Composable
+fun CenteredText(
+    text: String
+) {
+    Column(
+        modifier = Modifier.fillMaxHeight(),
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(text)
+    }
 }
 
 fun ComposeContentTestRule.setContentWithThemeForSizeAssertions(
