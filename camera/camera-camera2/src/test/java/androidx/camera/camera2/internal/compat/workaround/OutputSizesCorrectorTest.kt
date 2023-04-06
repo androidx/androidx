@@ -83,7 +83,7 @@ class OutputSizesCorrectorTest {
                 Size(3088, 3088),
             ),
             ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
-        )!!.toList()
+        ).toList()
 
         assertThat(resultList).containsExactlyElementsIn(
             listOf(
@@ -120,7 +120,7 @@ class OutputSizesCorrectorTest {
                 Size(3088, 3088),
             ),
             SurfaceTexture::class.java
-        )!!.toList()
+        ).toList()
 
         assertThat(resultList).containsExactlyElementsIn(
             listOf(
@@ -152,7 +152,7 @@ class OutputSizesCorrectorTest {
         )
 
         val resultList = mutableListOf<Size>().apply {
-            outputSizesCorrector.applyQuirks(outputSizes, ImageFormat.YUV_420_888)!!
+            outputSizesCorrector.applyQuirks(outputSizes, ImageFormat.YUV_420_888)
                 .forEach { size ->
                     add(size)
                 }
@@ -191,7 +191,7 @@ class OutputSizesCorrectorTest {
         val resultList = outputSizesCorrector.applyQuirks(
             outputSizes,
             SurfaceTexture::class.java
-        )!!.toList()
+        ).toList()
 
         assertThat(resultList).containsExactlyElementsIn(
             listOf(
@@ -221,7 +221,7 @@ class OutputSizesCorrectorTest {
         val resultList = outputSizesCorrector.applyQuirks(
             outputSizes,
             ImageFormat.YUV_420_888
-        )!!.toList()
+        ).toList()
 
         val expectedList = if (Build.VERSION.SDK_INT == 21) {
             // non-4:3 sizes are removed
@@ -267,7 +267,7 @@ class OutputSizesCorrectorTest {
         val resultList = outputSizesCorrector.applyQuirks(
             outputSizes,
             SurfaceTexture::class.java
-        )!!.toList()
+        ).toList()
 
         val expectedList = if (Build.VERSION.SDK_INT == 21) {
             // non-4:3 sizes are removed

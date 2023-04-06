@@ -264,6 +264,11 @@ class SupportedOutputSizesSorter {
 
         Collections.sort(resolutionCandidateList, new CompareSizesByArea(true));
 
+        if (resolutionCandidateList.isEmpty()) {
+            Logger.w(TAG, "The retrieved supported resolutions from camera info internal is empty"
+                    + ". Format is " + imageFormat + ".");
+        }
+
         return resolutionCandidateList;
     }
 
