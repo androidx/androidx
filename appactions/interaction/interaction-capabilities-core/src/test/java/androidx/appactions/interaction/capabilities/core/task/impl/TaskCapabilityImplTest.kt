@@ -53,8 +53,7 @@ import androidx.appactions.interaction.capabilities.core.values.SearchAction
 import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils.buildRequestArgs
 import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils.buildSearchActionParamValue
 import androidx.appactions.interaction.capabilities.testing.internal.FakeCallbackInternal
-import androidx.appactions.interaction.capabilities.testing.internal.SettableFutureWrapper
-import androidx.appactions.interaction.capabilities.testing.internal.TestingUtils.CB_TIMEOUT
+import androidx.appactions.interaction.capabilities.testing.internal.TestingUtils.awaitSync
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
 import androidx.appactions.interaction.proto.AppActionsContext.DialogParameter
@@ -78,7 +77,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.util.concurrent.TimeUnit.MILLISECONDS
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import java.util.function.Supplier
@@ -702,7 +700,7 @@ class TaskCapabilityImplTest {
     @Test
     @kotlin.Throws(Exception::class)
     @Suppress("DEPRECATION") // TODO(b/269638788) migrate session state to AppDialogState message
-    fun identifierOnly_refillsStruct() {
+    fun identifierOnly_refillsStruct() = runBlocking<Unit> {
         val property: CapabilityStructFill.Property =
             CapabilityStructFill.Property.newBuilder()
                 .setListItem(TypeProperty.Builder<ListItem>().setRequired(true).build())
@@ -710,9 +708,9 @@ class TaskCapabilityImplTest {
                 .build()
         val item1: ListItem = ListItem.newBuilder().setName("red apple").setId("item1").build()
         val item2: ListItem = ListItem.newBuilder().setName("green apple").setId("item2").build()
-        val onReceivedCb: SettableFutureWrapper<ListItem> = SettableFutureWrapper()
-        val onFinishListItemCb: SettableFutureWrapper<ListItem> = SettableFutureWrapper()
-        val onFinishStringCb: SettableFutureWrapper<String> = SettableFutureWrapper()
+        val onReceivedDeferred = CompletableDeferred<ListItem>()
+        val onFinishListItemDeferred = CompletableDeferred<ListItem>()
+        val onFinishStringDeferred = CompletableDeferred<String>()
 
         val sessionFactory =
             SessionFactory<CapabilityStructFill.Session> {
@@ -722,8 +720,8 @@ class TaskCapabilityImplTest {
                     ): ExecutionResult<Void> {
                         val listItem: ListItem = argument.listItem().orElse(null)
                         val string: String = argument.anyString().orElse(null)
-                        onFinishListItemCb.set(listItem)
-                        onFinishStringCb.set(string)
+                        onFinishListItemDeferred.complete(listItem)
+                        onFinishStringDeferred.complete(string)
                         return ExecutionResult.getDefaultInstance<Void>()
                     }
 
@@ -732,7 +730,7 @@ class TaskCapabilityImplTest {
                             override fun onReceivedAsync(
                                 value: ListItem,
                             ): ListenableFuture<ValidationResult> {
-                                onReceivedCb.set(value)
+                                onReceivedDeferred.complete(value)
                                 return Futures.immediateFuture(ValidationResult.newAccepted())
                             }
 
@@ -779,8 +777,8 @@ class TaskCapabilityImplTest {
             callback,
         )
         assertThat(callback.receiveResponse().fulfillmentResponse).isNotNull()
-        assertThat(onReceivedCb.getFuture().isDone()).isFalse()
-        assertThat(onFinishListItemCb.getFuture().isDone()).isFalse()
+        assertThat(onReceivedDeferred.isCompleted).isFalse()
+        assertThat(onFinishListItemDeferred.isCompleted).isFalse()
         assertThat(session.state)
             .isEqualTo(
                 AppDialogState.newBuilder()
@@ -827,8 +825,8 @@ class TaskCapabilityImplTest {
             callback2,
         )
         assertThat(callback2.receiveResponse().fulfillmentResponse).isNotNull()
-        assertThat(onReceivedCb.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isEqualTo(item2)
-        assertThat(onFinishListItemCb.getFuture().isDone()).isFalse()
+        assertThat(onReceivedDeferred.awaitSync()).isEqualTo(item2)
+        assertThat(onFinishListItemDeferred.isCompleted).isFalse()
 
         // third sync request, sending grounded ParamValue with identifier only, completes task
         val callback3 = FakeCallbackInternal()
@@ -843,14 +841,8 @@ class TaskCapabilityImplTest {
             callback3,
         )
         assertThat(callback3.receiveResponse().fulfillmentResponse).isNotNull()
-        assertThat(onFinishListItemCb.getFuture().get(CB_TIMEOUT, MILLISECONDS))
-            .isEqualTo(
-                item2,
-            )
-        assertThat(
-            onFinishStringCb.getFuture().get(CB_TIMEOUT, MILLISECONDS),
-        )
-            .isEqualTo("unused")
+        assertThat(onFinishListItemDeferred.awaitSync()).isEqualTo(item2)
+        assertThat(onFinishStringDeferred.awaitSync()).isEqualTo("unused")
     }
 
     @Test

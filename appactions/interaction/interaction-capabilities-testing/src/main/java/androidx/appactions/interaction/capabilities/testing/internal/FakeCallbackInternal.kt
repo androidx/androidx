@@ -17,19 +17,17 @@
 package androidx.appactions.interaction.capabilities.testing.internal
 
 import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal
-import androidx.appactions.interaction.capabilities.core.impl.FulfillmentResult
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal
+import androidx.appactions.interaction.capabilities.core.impl.FulfillmentResult
 import androidx.appactions.interaction.proto.FulfillmentResponse
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
 
 /**
  * A fake CallbackInternal instance being used for testing to receive the [FulfillmentResult]
  * containing either [FulfillmentResponse] or [ErrorStatusInternal]
  */
 class FakeCallbackInternal constructor(
-    private val timeoutMs: Long = TestingUtils.CB_TIMEOUT
+    private val timeoutMs: Long = TestingUtils.CB_TIMEOUT,
 ) : CallbackInternal {
 
     private val completer = CompletableDeferred<FulfillmentResult>()
@@ -42,7 +40,7 @@ class FakeCallbackInternal constructor(
         completer.complete(FulfillmentResult(errorStatus))
     }
 
-    fun receiveResponse(): FulfillmentResult = runBlocking {
-        withTimeout(timeoutMs) { completer.await() }
+    fun receiveResponse(): FulfillmentResult = with(TestingUtils) {
+        completer.awaitSync(timeoutMs)
     }
 }
