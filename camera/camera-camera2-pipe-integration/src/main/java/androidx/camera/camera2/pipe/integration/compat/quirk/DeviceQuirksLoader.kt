@@ -82,6 +82,9 @@ object DeviceQuirksLoader {
         if (SurfaceOrderQuirk.load()) {
             quirks.add(SurfaceOrderQuirk())
         }
+        if (CaptureSessionOnClosedNotCalledQuirk.isEnabled()) {
+            quirks.add(CaptureSessionOnClosedNotCalledQuirk())
+        }
         return quirks
     }
 }
