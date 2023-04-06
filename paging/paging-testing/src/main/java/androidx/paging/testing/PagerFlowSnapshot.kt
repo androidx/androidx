@@ -57,7 +57,7 @@ import kotlinx.coroutines.withContext
 public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
     coroutineScope: CoroutineScope,
     onError: LoadErrorHandler = LoadErrorHandler { THROW },
-    loadOperations: suspend SnapshotLoader<Value>.() -> @JvmSuppressWildcards Unit
+    loadOperations: suspend SnapshotLoader<Value>.() -> @JvmSuppressWildcards Unit = { }
 ): @JvmSuppressWildcards List<Value> {
 
     lateinit var loader: SnapshotLoader<Value>
