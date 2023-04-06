@@ -105,6 +105,7 @@ class ImageProcessingLatencyTest(
         measureImageProcessing(CameraSelector.LENS_FACING_FRONT)
     }
 
+    @Suppress("DEPRECATION") // legacy resolution API
     private fun measureImageProcessing(lensFacing: Int): Unit = runBlocking {
         // The log is used to profile the ImageProcessing performance. The log parser identifies
         // the log pattern "Image processing performance profiling" in the device output log.
