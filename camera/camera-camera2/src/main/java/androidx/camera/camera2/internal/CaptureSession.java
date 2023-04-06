@@ -617,6 +617,11 @@ final class CaptureSession implements CaptureSessionInterface {
                 return -1;
             }
 
+            if (mState != State.OPENED) {
+                Logger.d(TAG, "Skipping issueRepeatingCaptureRequests due to session closed");
+                return -1;
+            }
+
             CaptureConfig captureConfig = sessionConfig.getRepeatingCaptureConfig();
             if (captureConfig.getSurfaces().isEmpty()) {
                 Logger.d(TAG, "Skipping issueRepeatingCaptureRequests for no surface.");
@@ -691,6 +696,10 @@ final class CaptureSession implements CaptureSessionInterface {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     int issueBurstCaptureRequest(List<CaptureConfig> captureConfigs) {
         synchronized (mSessionLock) {
+            if (mState != State.OPENED) {
+                Logger.d(TAG, "Skipping issueBurstCaptureRequest due to session closed");
+                return -1;
+            }
             if (captureConfigs.isEmpty()) {
                 return -1;
             }
