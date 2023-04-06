@@ -59,6 +59,8 @@ import androidx.compose.ui.semantics.textSelectionRange
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastAny
@@ -123,7 +125,7 @@ internal class TextFieldDecoratorModifierNode(
     var filter: TextEditFilter?,
     var enabled: Boolean,
     var readOnly: Boolean,
-    var keyboardOptions: KeyboardOptions,
+    keyboardOptions: KeyboardOptions,
     var keyboardActions: KeyboardActions,
     var singleLine: Boolean
 ) : Modifier.Node(),
@@ -134,6 +136,9 @@ internal class TextFieldDecoratorModifierNode(
     PointerInputModifierNode,
     KeyInputModifierNode,
     CompositionLocalConsumerModifierNode {
+
+    var keyboardOptions: KeyboardOptions = keyboardOptions.withDefaultsFrom(filter?.keyboardOptions)
+        private set
 
     // semantics properties that require semantics invalidation
     private var lastText: AnnotatedString? = null
@@ -206,6 +211,7 @@ internal class TextFieldDecoratorModifierNode(
         val previousWriteable = this.enabled && !this.readOnly
         val writeable = enabled && !readOnly
         val previousTextFieldState = this.textFieldState
+        val previousKeyboardOptions = this.keyboardOptions
 
         // Apply the diff.
         this.textFieldState = textFieldState
@@ -214,19 +220,22 @@ internal class TextFieldDecoratorModifierNode(
         this.filter = filter
         this.enabled = enabled
         this.readOnly = readOnly
-        this.keyboardOptions = keyboardOptions
+        this.keyboardOptions = keyboardOptions.withDefaultsFrom(filter?.keyboardOptions)
         this.keyboardActions = keyboardActions
         this.singleLine = singleLine
 
         // React to diff.
         // If made writable while focused, or we got a completely new state instance,
         // start a new input session.
-        if (previousWriteable != writeable || textFieldState != previousTextFieldState) {
+        if (writeable != previousWriteable ||
+            textFieldState != previousTextFieldState ||
+            keyboardOptions != previousKeyboardOptions
+        ) {
             if (writeable && isFocused) {
                 // The old session will be implicitly disposed.
                 textInputSession = textInputAdapter?.startInputSession(
                     textFieldState,
-                    keyboardOptions.toImeOptions(singleLine),
+                    this.keyboardOptions.toImeOptions(singleLine),
                     filter,
                     onImeActionPerformed
                 )
@@ -401,4 +410,34 @@ internal class TextFieldDecoratorModifierNode(
         textInputSession?.dispose()
         textInputSession = null
     }
+}
+
+/**
+ * Returns a [KeyboardOptions] that is merged with [defaults], with this object's values taking
+ * precedence.
+ */
+// TODO KeyboardOptions can't actually be merged correctly in all cases, because its properties
+//  don't all have proper "unspecified" values. I think we can fix that in a backwards-compatible
+//  way, but it will require adding new API outside of the text2 package so we should hold off on
+//  making them until after the study.
+internal fun KeyboardOptions.withDefaultsFrom(defaults: KeyboardOptions?): KeyboardOptions {
+    if (defaults == null) return this
+    return KeyboardOptions(
+        capitalization = if (this.capitalization != KeyboardCapitalization.None) {
+            this.capitalization
+        } else {
+            defaults.capitalization
+        },
+        autoCorrect = this.autoCorrect && defaults.autoCorrect,
+        keyboardType = if (this.keyboardType != KeyboardType.Text) {
+            this.keyboardType
+        } else {
+            defaults.keyboardType
+        },
+        imeAction = if (this.imeAction != ImeAction.Default) {
+            this.imeAction
+        } else {
+            defaults.imeAction
+        }
+    )
 }
