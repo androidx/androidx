@@ -19,8 +19,8 @@ package androidx.appactions.interaction.capabilities.core.testing.spec;
 import androidx.annotation.NonNull;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.properties.Entity;
+import androidx.appactions.interaction.capabilities.core.properties.ParamProperty;
 import androidx.appactions.interaction.capabilities.core.properties.StringValue;
-import androidx.appactions.interaction.capabilities.core.properties.TypeProperty;
 
 import com.google.auto.value.AutoValue;
 
@@ -34,25 +34,25 @@ public abstract class Property {
         return new AutoValue_Property.Builder();
     }
 
-    public abstract TypeProperty<Entity> requiredEntityField();
+    public abstract ParamProperty<Entity> requiredEntityField();
 
-    public abstract Optional<TypeProperty<StringValue>> optionalStringField();
+    public abstract Optional<ParamProperty<StringValue>> optionalStringField();
 
-    public abstract Optional<TypeProperty<TestEnum>> enumField();
+    public abstract Optional<ParamProperty<TestEnum>> enumField();
 
-    public abstract Optional<TypeProperty<StringValue>> repeatedStringField();
+    public abstract Optional<ParamProperty<StringValue>> repeatedStringField();
 
     /** Builder for the testing Property. */
     @AutoValue.Builder
     public abstract static class Builder implements BuilderOf<Property> {
 
-        public abstract Builder setRequiredEntityField(TypeProperty<Entity> property);
+        public abstract Builder setRequiredEntityField(ParamProperty<Entity> property);
 
-        public abstract Builder setOptionalStringField(TypeProperty<StringValue> property);
+        public abstract Builder setOptionalStringField(ParamProperty<StringValue> property);
 
-        public abstract Builder setEnumField(TypeProperty<TestEnum> property);
+        public abstract Builder setEnumField(ParamProperty<TestEnum> property);
 
-        public abstract Builder setRepeatedStringField(TypeProperty<StringValue> property);
+        public abstract Builder setRepeatedStringField(ParamProperty<StringValue> property);
 
         @NonNull
         @Override
