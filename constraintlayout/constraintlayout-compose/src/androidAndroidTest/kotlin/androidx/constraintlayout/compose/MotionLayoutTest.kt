@@ -316,8 +316,8 @@ internal class MotionLayoutTest {
             val circleRef = createRefFor("circle")
             val aCSetRef = constraintSet {
                 constrain(circleRef) {
-                    width = rootHeightPx.toDp().asDimension
-                    height = rootHeightPx.toDp().asDimension
+                    width = rootHeightPx.toDp().asDimension()
+                    height = rootHeightPx.toDp().asDimension()
                     centerVerticallyTo(parent)
                     start.linkTo(parent.start)
                 }
@@ -325,7 +325,7 @@ internal class MotionLayoutTest {
             val bCSetRef = constraintSet {
                 constrain(circleRef) {
                     width = Dimension.fillToConstraints
-                    height = rootHeightPx.toDp().asDimension
+                    height = rootHeightPx.toDp().asDimension()
                     centerTo(parent)
                 }
             }
@@ -427,8 +427,8 @@ internal class MotionLayoutTest {
                     defaultTransition(
                         from = constraintSet {
                             constrain(box) {
-                                width = boxWidthStartPx.toDp().asDimension
-                                height = boxHeight.toDp().asDimension
+                                width = boxWidthStartPx.toDp().asDimension()
+                                height = boxHeight.toDp().asDimension()
 
                                 top.linkTo(parent.top)
                                 centerHorizontallyTo(parent)
@@ -436,8 +436,8 @@ internal class MotionLayoutTest {
                         },
                         to = constraintSet {
                             constrain(box) {
-                                width = boxWidthEndPx.toDp().asDimension
-                                height = boxHeight.toDp().asDimension
+                                width = boxWidthEndPx.toDp().asDimension()
+                                height = boxHeight.toDp().asDimension()
 
                                 centerHorizontallyTo(parent)
                                 bottom.linkTo(parent.bottom)

@@ -1954,14 +1954,14 @@ class ConstraintLayoutTest {
                     val (box0, box1, box2) = createRefsFor("box0", "box1")
 
                     constrain(box0, box1) {
-                        width = boxSize.toDp().asDimension
-                        height = boxSize.toDp().asDimension
+                        width = boxSize.toDp().asDimension()
+                        height = boxSize.toDp().asDimension()
                         top.linkTo(parent.top, margin.toDp())
                         start.linkTo(parent.start, margin.toDp())
                     }
                     constrain(box2) {
-                        width = boxSize.toDp().asDimension
-                        height = boxSize.toDp().asDimension
+                        width = boxSize.toDp().asDimension()
+                        height = boxSize.toDp().asDimension()
 
                         top.linkTo(box0.bottom)
                         start.linkTo(box0.end)
@@ -2399,8 +2399,8 @@ class ConstraintLayoutTest {
                 Box(
                     Modifier
                         .constrainAs(boxRef) {
-                            width = boxSizePx.toDp().asDimension
-                            height = boxSizePx.toDp().asDimension
+                            width = boxSizePx.toDp().asDimension()
+                            height = boxSizePx.toDp().asDimension()
                             centerTo(parent)
 
                             translationX = translationXPx.toDp()
@@ -2505,8 +2505,8 @@ class ConstraintLayoutTest {
                     Modifier
                         .testTag("box1")
                         .constrainAs(box1) {
-                            width = boxSizePx.toDp().asDimension
-                            height = boxSizePx.toDp().asDimension
+                            width = boxSizePx.toDp().asDimension()
+                            height = boxSizePx.toDp().asDimension()
 
                             top.linkTo(box0.top)
                             start.linkTo(box0.end)

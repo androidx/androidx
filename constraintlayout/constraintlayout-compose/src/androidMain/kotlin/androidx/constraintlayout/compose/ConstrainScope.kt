@@ -448,8 +448,16 @@ class ConstrainScope internal constructor(
      *
      * @see Dimension.value
      */
+    @Deprecated("Prefer `Dp.asDimension()`.", ReplaceWith("this.asDimension()"))
     val Dp.asDimension: Dimension
         get() = Dimension.value(this)
+
+    /**
+     * Convenience extension method to parse a [Dp] as a [Dimension] object.
+     *
+     * @see Dimension.value
+     */
+    fun Dp.asDimension(): Dimension = Dimension.value(this)
 
     private inner class DimensionProperty(initialValue: Dimension) :
         ObservableProperty<Dimension>(initialValue) {
