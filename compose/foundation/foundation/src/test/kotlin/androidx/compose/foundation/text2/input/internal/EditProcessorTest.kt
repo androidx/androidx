@@ -331,7 +331,7 @@ class EditProcessorTest {
 
         val initialBuffer = processor.mBuffer
 
-        processor.update(CommitTextCommand("d", 4)) { old, new -> new.resetTo(old) }
+        processor.update(CommitTextCommand("d", 4)) { _, new -> new.revertAllChanges() }
 
         val value = processor.value
 

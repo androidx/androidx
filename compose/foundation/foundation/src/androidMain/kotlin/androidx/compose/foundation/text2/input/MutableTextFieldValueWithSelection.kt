@@ -28,6 +28,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 @ExperimentalFoundationApi
 class MutableTextFieldValueWithSelection internal constructor(
     value: TextFieldValue,
+    /** The value reverted to when [revertAllChanges] is called. */
+    private val sourceValue: TextFieldValue = TextFieldValue(),
     initialChanges: ChangeTracker? = null
 ) : MutableTextFieldValue(value, initialChanges) {
 
@@ -192,11 +194,14 @@ class MutableTextFieldValueWithSelection internal constructor(
     }
 
     /**
-     * Resets this value to [value].
+     * Revert all changes made to this value since it was created. After calling this method, this
+     * object will be in the same state it was when it was initially created, and [changes] will be
+     * empty.
      */
-    fun resetTo(value: TextFieldValue) {
-        replace(0, length, value.text)
-        selectionInChars = value.selection
+    fun revertAllChanges() {
+        replace(0, length, sourceValue.text)
+        selectionInChars = sourceValue.selection
+        clearChangeList()
     }
 
     override fun onTextWillChange(rangeToBeReplaced: TextRange, newLength: Int) {

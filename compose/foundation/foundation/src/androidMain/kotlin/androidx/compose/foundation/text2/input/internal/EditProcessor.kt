@@ -169,7 +169,8 @@ internal class EditProcessor(
         } else {
             val oldValue = value
             val mutableValue = MutableTextFieldValueWithSelection(
-                proposedValue,
+                value = proposedValue,
+                sourceValue = oldValue,
                 initialChanges = mBuffer.changeTracker
             )
             filter.filter(oldState = oldValue, newState = mutableValue)

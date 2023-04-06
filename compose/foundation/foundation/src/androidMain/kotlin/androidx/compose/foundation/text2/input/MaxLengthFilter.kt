@@ -56,7 +56,7 @@ private data class MaxLengthFilter(
     override fun filter(oldState: TextFieldValue, newState: MutableTextFieldValueWithSelection) {
         val newLength = if (inCodepoints) newState.codepointLength else newState.length
         if (newLength > maxLength) {
-            newState.resetTo(oldState)
+            newState.revertAllChanges()
         }
     }
 
