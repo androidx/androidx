@@ -22,7 +22,7 @@ import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
 import androidx.appactions.interaction.capabilities.core.EntitySearchResult
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.HostProperties
-import androidx.appactions.interaction.capabilities.core.InitArg
+import androidx.appactions.interaction.capabilities.core.SessionContext
 import androidx.appactions.interaction.capabilities.core.SessionFactory
 import androidx.appactions.interaction.capabilities.core.ValidationResult
 import androidx.appactions.interaction.capabilities.core.ValueListener
@@ -90,7 +90,7 @@ class TaskCapabilityImplTest {
             {
                 object : Session {
                     override fun onFinishAsync(argument: Argument) =
-                        Futures.immediateFuture(ExecutionResult.getDefaultInstance<Output>())
+                        Futures.immediateFuture(ExecutionResult.Builder<Output>().build())
                 }
             },
             sessionBridge = { TaskHandler.Builder<Confirmation>().build() },
@@ -137,20 +137,20 @@ class TaskCapabilityImplTest {
 
     @Test
     @kotlin.Throws(Exception::class)
-    fun onInitInvoked_invokedOnce() {
-        val onInitInvocationCount = AtomicInteger(0)
+    fun onCreateInvoked_invokedOnce() {
+        val onCreateInvocationCount = AtomicInteger(0)
         val capability: Capability =
             createCapability(
                 SINGLE_REQUIRED_FIELD_PROPERTY,
                 sessionFactory =
                 SessionFactory {
                     object : Session {
-                        override fun onInit(initArg: InitArg) {
-                            onInitInvocationCount.incrementAndGet()
+                        override fun onCreate(sessionContext: SessionContext) {
+                            onCreateInvocationCount.incrementAndGet()
                         }
                         override fun onFinishAsync(argument: Argument) =
                             Futures.immediateFuture(
-                                ExecutionResult.getDefaultInstance<Output>(),
+                                ExecutionResult.Builder<Output>().build(),
                             )
                     }
                 },
@@ -166,7 +166,7 @@ class TaskCapabilityImplTest {
             callback,
         )
         assertThat(callback.receiveResponse().fulfillmentResponse).isNotNull()
-        assertThat(onInitInvocationCount.get()).isEqualTo(1)
+        assertThat(onCreateInvocationCount.get()).isEqualTo(1)
 
         // TURN 2.
         val callback2 = FakeCallbackInternal()
@@ -179,7 +179,7 @@ class TaskCapabilityImplTest {
             callback2,
         )
         assertThat(callback2.receiveResponse().fulfillmentResponse).isNotNull()
-        assertThat(onInitInvocationCount.get()).isEqualTo(1)
+        assertThat(onCreateInvocationCount.get()).isEqualTo(1)
     }
 
     class RequiredTaskUpdater : AbstractTaskUpdater() {
@@ -251,7 +251,7 @@ class TaskCapabilityImplTest {
             "mySessionId",
         )
 
-        onFinishResult.complete(ExecutionResult.getDefaultInstance<Output>())
+        onFinishResult.complete(ExecutionResult.Builder<Output>().build())
         assertThat(callback.receiveResponse().fulfillmentResponse).isNotNull()
         assertThat(UiHandleRegistry.getSessionIdFromUiHandle(externalSession)).isNull()
     }
@@ -267,7 +267,7 @@ class TaskCapabilityImplTest {
                     object : Session {
                         override fun onFinishAsync(argument: Argument) =
                             Futures.immediateFuture(
-                                ExecutionResult.getDefaultInstance<Output>(),
+                                ExecutionResult.Builder<Output>().build(),
                             )
                     }
                 },
@@ -321,7 +321,7 @@ class TaskCapabilityImplTest {
                 object : CapabilityTwoEntityValues.Session {
                     override suspend fun onFinish(
                         argument: CapabilityTwoEntityValues.Argument,
-                    ): ExecutionResult<Void> = ExecutionResult.getDefaultInstance()
+                    ): ExecutionResult<Void> = ExecutionResult.Builder<Void>().build()
                 }
             }
         val sessionBridge =
@@ -418,7 +418,7 @@ class TaskCapabilityImplTest {
                         argument: CapabilityTwoEntityValues.Argument,
                     ): ExecutionResult<Void> {
                         onFinishInvocationCount.incrementAndGet()
-                        return ExecutionResult.getDefaultInstance()
+                        return ExecutionResult.Builder<Void>().build()
                     }
                 }
             }
@@ -565,7 +565,7 @@ class TaskCapabilityImplTest {
                 sessionFactory = {
                     object : Session {
                         override suspend fun onFinish(argument: Argument) =
-                            ExecutionResult.getDefaultInstance<Output>()
+                            ExecutionResult.Builder<Output>().build()
 
                         override fun getRequiredEntityListener() =
                             object : AppEntityListener<EntityValue> {
@@ -722,7 +722,7 @@ class TaskCapabilityImplTest {
                         val string: String = argument.anyString().orElse(null)
                         onFinishListItemDeferred.complete(listItem)
                         onFinishStringDeferred.complete(string)
-                        return ExecutionResult.getDefaultInstance<Void>()
+                        return ExecutionResult.Builder<Void>().build()
                     }
 
                     override fun getListItemListener() =

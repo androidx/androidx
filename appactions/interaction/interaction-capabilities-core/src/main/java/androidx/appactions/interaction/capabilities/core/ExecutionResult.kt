@@ -54,10 +54,4 @@ class ExecutionResult<OutputT> internal constructor(
         /** Builds and returns the ExecutionResult instance. */
         fun build() = ExecutionResult(startDictation, output)
     }
-
-    companion object {
-        /** Returns a default ExecutionResult instance. */
-        @JvmStatic
-        fun <OutputT> getDefaultInstance() = ExecutionResult.Builder<OutputT>().build()
-    }
 }

@@ -27,7 +27,7 @@ interface BaseSession<ArgumentT, OutputT> {
      *
      * This method is called once, before any other listeners are invoked.
      */
-    fun onInit(initArg: InitArg) {}
+    fun onCreate(sessionContext: SessionContext) {}
 
     /**
      * Called when all arguments are finalized.
@@ -46,7 +46,7 @@ interface BaseSession<ArgumentT, OutputT> {
      * @return a [ListenableFuture] containing an [ExecutionResult] instance.
      */
     fun onFinishAsync(argument: ArgumentT): ListenableFuture<ExecutionResult<OutputT>> {
-        return Futures.immediateFuture(ExecutionResult.getDefaultInstance())
+        return Futures.immediateFuture(ExecutionResult.Builder<OutputT>().build())
     }
 
     /** Implement any cleanup logic. This method is called some time after the session finishes. */
