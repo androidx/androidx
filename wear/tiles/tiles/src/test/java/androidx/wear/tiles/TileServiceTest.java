@@ -473,7 +473,6 @@ public class TileServiceTest {
 
         @Override
         @NonNull
-        @SuppressWarnings("deprecation") // for backward compatibility
         protected ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources>
                 onResourcesRequest(@NonNull ResourcesRequest requestParams) {
             androidx.wear.tiles.ResourceBuilders.Resources resources =

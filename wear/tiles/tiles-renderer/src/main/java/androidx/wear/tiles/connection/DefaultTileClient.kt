@@ -28,6 +28,7 @@ import androidx.wear.tiles.ResourcesRequestData
 import androidx.wear.tiles.TileCallback
 import androidx.wear.tiles.TileData
 import androidx.wear.tiles.TileRequestData
+import androidx.wear.tiles.ResourceBuilders
 import androidx.wear.tiles.TileAddEventData
 import androidx.wear.tiles.TileBuilders
 import androidx.wear.tiles.TileEnterEventData
@@ -149,10 +150,9 @@ public class DefaultTileClient : TileClient {
         }
     }
 
-    @Suppress("deprecation") // TODO(b/276343540): Use protolayout types
     public override fun requestResources(
         requestParams: RequestBuilders.ResourcesRequest
-    ): ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources> {
+    ): ListenableFuture<ResourceBuilders.Resources> {
         return runForFuture {
             val params = ResourcesRequestData(
                 requestParams.toProto().toByteArray(),
@@ -226,9 +226,8 @@ public class DefaultTileClient : TileClient {
         }
     }
 
-    @Suppress("deprecation") // TODO(b/276343540): Use protolayout types
     private class ResourcesResultCallback(
-        private val continuation: Continuation<androidx.wear.tiles.ResourceBuilders.Resources>
+        private val continuation: Continuation<ResourceBuilders.Resources>
     ) : ResourcesCallback.Stub() {
         override fun updateResources(resourcesData: ResourcesData?) {
             when {
@@ -248,8 +247,7 @@ public class DefaultTileClient : TileClient {
                 else -> {
                     try {
                         val resources = ResourceProto.Resources.parseFrom(resourcesData.contents)
-                        continuation.resume(
-                            androidx.wear.tiles.ResourceBuilders.Resources.fromProto(resources))
+                        continuation.resume(ResourceBuilders.Resources.fromProto(resources))
                     } catch (ex: InvalidProtocolBufferException) {
                         continuation.resumeWithException(ex)
                     }

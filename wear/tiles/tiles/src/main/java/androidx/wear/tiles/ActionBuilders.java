@@ -24,17 +24,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.tiles.StateBuilders.State;
 import androidx.wear.protolayout.proto.ActionProto;
 
 import java.util.Collections;
 import java.util.Map;
 
-/**
- * Builders for actions that can be performed when a user interacts with layout elements.
- *
- * @deprecated Use {@link androidx.wear.protolayout.ActionBuilders} instead.
- */
-@Deprecated
+/** Builders for actions that can be performed when a user interacts with layout elements. */
 public final class ActionBuilders {
     private ActionBuilders() {}
 
@@ -346,7 +342,10 @@ public final class ActionBuilders {
      * to an Android activity. Supports types in android.os.PersistableBundle, excluding arrays.
      */
     public interface AndroidExtra {
-        /** Get the protocol buffer representation of this object. */
+        /**
+         * Get the protocol buffer representation of this object.
+         *
+         */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         ActionProto.AndroidExtra toAndroidExtraProto();
@@ -354,6 +353,7 @@ public final class ActionBuilders {
         /**
          * Return an instance of one of this object's subtypes, from the protocol buffer
          * representation.
+         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -556,9 +556,9 @@ public final class ActionBuilders {
          * only.
          */
         @Nullable
-        public StateBuilders.State getRequestState() {
+        public State getRequestState() {
             if (mImpl.hasRequestState()) {
-                return StateBuilders.State.fromProto(mImpl.getRequestState());
+                return State.fromProto(mImpl.getRequestState());
             } else {
                 return null;
             }
@@ -596,7 +596,7 @@ public final class ActionBuilders {
              * a {@link androidx.wear.tiles.ModifiersBuilders.Clickable}.
              */
             @NonNull
-            public Builder setRequestState(@NonNull StateBuilders.State requestState) {
+            public Builder setRequestState(@NonNull State requestState) {
                 mImpl.setRequestState(requestState.toProto());
                 return this;
             }
@@ -611,7 +611,10 @@ public final class ActionBuilders {
 
     /** Interface defining an action that can be used by a layout element. */
     public interface Action {
-        /** Get the protocol buffer representation of this object. */
+        /**
+         * Get the protocol buffer representation of this object.
+         *
+         */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         ActionProto.Action toActionProto();
@@ -619,6 +622,7 @@ public final class ActionBuilders {
         /**
          * Return an instance of one of this object's subtypes, from the protocol buffer
          * representation.
+         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull

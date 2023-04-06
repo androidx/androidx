@@ -22,6 +22,7 @@ import android.content.ComponentName
 import android.content.Intent
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.wear.tiles.RequestBuilders
+import androidx.wear.tiles.ResourceBuilders
 import androidx.wear.tiles.TileBuilders
 import androidx.wear.tiles.TileService
 import androidx.wear.tiles.client.TileClient
@@ -113,10 +114,9 @@ public class TestTileClient<T : TileService> :
         return innerTileService.requestTile(requestParams)
     }
 
-    @Suppress("deprecation") // For backwards compatibility.
     override fun requestResources(
         requestParams: RequestBuilders.ResourcesRequest
-    ): ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources> {
+    ): ListenableFuture<ResourceBuilders.Resources> {
         maybeBind()
         return innerTileService.requestResources(requestParams)
     }
