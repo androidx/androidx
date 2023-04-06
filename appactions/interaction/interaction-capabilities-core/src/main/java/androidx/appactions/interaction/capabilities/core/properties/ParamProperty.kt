@@ -16,10 +16,15 @@
 
 package androidx.appactions.interaction.capabilities.core.properties
 
-/** The property which describes a complex type. */
-class ParamProperty<T> internal constructor(
+/**
+ * Configure parameters for the capability such as providing possible values of some type, or
+ * marking a parameter as required for execution.
+ */
+class ParamProperty<T>
+internal constructor(
     private val possibleValueSupplier: () -> List<T>,
     /** Indicates that a value for this property is required to be present for fulfillment. */
+    @get:JvmName("isRequired")
     val isRequired: Boolean,
     /**
      * Indicates that a match of possible value for the given property must be present. Defaults to
@@ -27,12 +32,14 @@ class ParamProperty<T> internal constructor(
      *
      * <p>If true, Assistant skips the capability if there is no match.
      */
+    @get:JvmName("isValueMatchRequired")
     val isValueMatchRequired: Boolean,
     /**
-     * If true, the {@code Capability} will be rejected by assistant if corresponding param is
-     * set in argument. And the value of |isRequired| and |entityMatchRequired| will also be ignored
-     * by assistant.
+     * If true, the {@code Capability} will be rejected by assistant if corresponding param is set
+     * in argument. And the value of |isRequired| and |entityMatchRequired| will also be ignored by
+     * assistant.
      */
+    @get:JvmName("isProhibited")
     val isProhibited: Boolean,
 ) {
     /** The current list of possible values for this parameter, can change over time. */
@@ -65,34 +72,30 @@ class ParamProperty<T> internal constructor(
         }
 
         /** Sets whether or not this property requires a value for fulfillment. */
-        fun setRequired(isRequired: Boolean) = apply {
-            this.isRequired = isRequired
-        }
+        fun setRequired(required: Boolean) = apply { this.isRequired = required }
 
         /**
          * Sets whether or not this property requires that the value for this property must match
-         * one of
-         * the Entity in the defined possible entities.
+         * one of the Entity in the defined possible entities.
          */
-        fun setValueMatchRequired(isValueMatchRequired: Boolean) = apply {
-            this.isValueMatchRequired = isValueMatchRequired
+        fun setValueMatchRequired(valueMatchRequired: Boolean) = apply {
+            this.isValueMatchRequired = valueMatchRequired
         }
 
         /**
          * Sets whether this property is prohibited in the response.
          *
-         * @param isProhibited Whether this property is prohibited in the response.
+         * @param prohibited Whether this property is prohibited in the response.
          */
-        fun setProhibited(isProhibited: Boolean) = apply {
-            this.isProhibited = isProhibited
-        }
+        fun setProhibited(prohibited: Boolean) = apply { this.isProhibited = prohibited }
 
         /** Builds the property for this entity parameter. */
-        fun build() = ParamProperty(
-            this.possibleValueSupplier,
-            this.isRequired,
-            this.isValueMatchRequired,
-            this.isProhibited,
-        )
+        fun build() =
+            ParamProperty(
+                this.possibleValueSupplier,
+                this.isRequired,
+                this.isValueMatchRequired,
+                this.isProhibited,
+            )
     }
 }
