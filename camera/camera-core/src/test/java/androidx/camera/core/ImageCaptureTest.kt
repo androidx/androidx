@@ -644,6 +644,7 @@ class ImageCaptureTest {
         assertThat(cameraControl.isZslConfigAdded).isTrue()
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun throwException_whenSetBothTargetResolutionAndAspectRatio() {
         assertThrows(IllegalArgumentException::class.java) {
@@ -652,6 +653,7 @@ class ImageCaptureTest {
         }
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun throwException_whenSetTargetResolutionWithResolutionSelector() {
         assertThrows(IllegalArgumentException::class.java) {
@@ -661,6 +663,7 @@ class ImageCaptureTest {
         }
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun throwException_whenSetTargetAspectRatioWithResolutionSelector() {
         assertThrows(IllegalArgumentException::class.java) {

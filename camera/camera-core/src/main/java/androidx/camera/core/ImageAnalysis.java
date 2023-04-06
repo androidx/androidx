@@ -1288,6 +1288,8 @@ public final class ImageAnalysis extends UseCase {
          *
          * @param aspectRatio The desired ImageAnalysis {@link AspectRatio}
          * @return The current Builder.
+         * @deprecated use {@link ResolutionSelector} with {@link AspectRatioStrategy} to specify
+         * the preferred aspect ratio settings instead.
          */
         @NonNull
         @Override
@@ -1391,6 +1393,8 @@ public final class ImageAnalysis extends UseCase {
          *
          * @param resolution The target resolution to choose from supported output sizes list.
          * @return The current Builder.
+         * @deprecated use {@link ResolutionSelector} with {@link ResolutionStrategy} to specify
+         * the preferred resolution settings instead.
          */
         @NonNull
         @Override

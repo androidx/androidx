@@ -110,6 +110,7 @@ public class TargetAspectRatioTest {
         mConfig = config;
     }
 
+    @SuppressWarnings("deprecation") // legacy resolution API
     @Test
     public void getCorrectedRatio() {
         // Set up device properties
