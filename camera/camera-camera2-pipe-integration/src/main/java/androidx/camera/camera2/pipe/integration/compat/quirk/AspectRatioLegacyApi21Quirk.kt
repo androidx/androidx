@@ -47,7 +47,7 @@ class AspectRatioLegacyApi21Quirk : Quirk {
     }
 
     companion object {
-        fun load(cameraMetadata: CameraMetadata): Boolean {
+        fun isEnabled(cameraMetadata: CameraMetadata): Boolean {
             val level: Int? = cameraMetadata[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL]
             return level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY &&
                 Build.VERSION.SDK_INT == 21

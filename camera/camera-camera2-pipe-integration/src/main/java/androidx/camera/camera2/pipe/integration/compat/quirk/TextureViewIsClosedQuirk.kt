@@ -38,7 +38,7 @@ import androidx.camera.core.impl.Quirk
 class TextureViewIsClosedQuirk : Quirk {
     companion object {
         @Suppress("UNUSED_PARAMETER")
-        fun load(cameraMetadata: CameraMetadata): Boolean {
+        fun isEnabled(cameraMetadata: CameraMetadata): Boolean {
             return Build.VERSION.SDK_INT <= Build.VERSION_CODES.M
         }
     }

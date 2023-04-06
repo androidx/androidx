@@ -41,7 +41,7 @@ import androidx.camera.core.impl.Quirk
 class PreviewOrientationIncorrectQuirk : Quirk {
 
     companion object {
-        fun load(cameraMetadata: CameraMetadata): Boolean {
+        fun isEnabled(cameraMetadata: CameraMetadata): Boolean {
             val level = cameraMetadata[INFO_SUPPORTED_HARDWARE_LEVEL]
             return level == INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
         }

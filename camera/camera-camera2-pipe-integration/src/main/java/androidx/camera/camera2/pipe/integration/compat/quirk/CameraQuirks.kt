@@ -50,7 +50,7 @@ class CameraQuirks @Inject constructor(
         if (AfRegionFlipHorizontallyQuirk.isEnabled(cameraMetadata)) {
             quirks.add(AfRegionFlipHorizontallyQuirk())
         }
-        if (AspectRatioLegacyApi21Quirk.load(cameraMetadata)) {
+        if (AspectRatioLegacyApi21Quirk.isEnabled(cameraMetadata)) {
             quirks.add(AspectRatioLegacyApi21Quirk())
         }
         if (CamcorderProfileResolutionQuirk.isEnabled(cameraMetadata)) {
@@ -80,10 +80,10 @@ class CameraQuirks @Inject constructor(
         if (JpegHalCorruptImageQuirk.isEnabled()) {
             quirks.add(JpegHalCorruptImageQuirk())
         }
-        if (PreviewOrientationIncorrectQuirk.load(cameraMetadata)) {
+        if (PreviewOrientationIncorrectQuirk.isEnabled(cameraMetadata)) {
             quirks.add(PreviewOrientationIncorrectQuirk())
         }
-        if (TextureViewIsClosedQuirk.load(cameraMetadata)) {
+        if (TextureViewIsClosedQuirk.isEnabled(cameraMetadata)) {
             quirks.add(TextureViewIsClosedQuirk())
         }
         if (YuvImageOnePixelShiftQuirk.isEnabled()) {
