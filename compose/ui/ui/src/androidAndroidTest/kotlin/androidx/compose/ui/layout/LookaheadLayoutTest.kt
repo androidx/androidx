@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
@@ -519,6 +520,60 @@ class LookaheadLayoutTest {
             assertEquals(controlGroupPlace, lookaheadPlace)
             assertTrue(lookaheadMeasure < measure)
             assertTrue(lookaheadPlace < place)
+        }
+    }
+
+    @Test
+    fun defaultMeasurePolicyInSubcomposeLayout() {
+        var actualLookaheadSize by mutableStateOf(IntSize.Zero)
+        var defaultIntermediateMeasureSize by mutableStateOf(IntSize.Zero)
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                LookaheadScope {
+                    SubcomposeLayout(
+                        Modifier
+                            .fillMaxSize()
+                            .requiredSize(200.dp),
+                        intermediateMeasurePolicy = { constraints ->
+                            measurablesForSlot(Unit)[0].measure(constraints)
+                            actualLookaheadSize = this.lookaheadSize
+                            layout(0, 0) {}
+                        }
+                    ) { constraints ->
+                        val placeable = subcompose(Unit) {
+                            Box(Modifier.requiredSize(400.dp, 600.dp))
+                        }[0].measure(constraints)
+                        layout(500, 300) {
+                            placeable.place(0, 0)
+                        }
+                    }
+                    SubcomposeLayout(
+                        Modifier
+                            .size(150.dp)
+                            .intermediateLayout { measurable, _ ->
+                                measurable
+                                    .measure(Constraints(0, 2000, 0, 2000))
+                                    .run {
+                                        defaultIntermediateMeasureSize = IntSize(width, height)
+                                        layout(width, height) {
+                                            place(0, 0)
+                                        }
+                                    }
+                            }
+                    ) { constraints ->
+                        val placeable = subcompose(Unit) {
+                            Box(Modifier.requiredSize(400.dp, 600.dp))
+                        }[0].measure(constraints)
+                        layout(500, 300) {
+                            placeable.place(0, 0)
+                        }
+                    }
+                }
+            }
+        }
+        rule.runOnIdle {
+            assertEquals(IntSize(500, 300), actualLookaheadSize)
+            assertEquals(IntSize(500, 300), defaultIntermediateMeasureSize)
         }
     }
 
