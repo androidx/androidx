@@ -25,6 +25,7 @@ import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
+import androidx.work.Clock
 import androidx.work.Data
 import androidx.work.impl.WorkDatabaseVersions.VERSION_10
 import androidx.work.impl.WorkDatabaseVersions.VERSION_11
@@ -116,6 +117,7 @@ abstract class WorkDatabase : RoomDatabase() {
          * @param context         A context (this method will use the application context from it)
          * @param queryExecutor   An [Executor] that will be used to execute all async Room
          * queries.
+         * @param clock           The [Clock] to use for pruning operations
          * @param useTestDatabase `true` to generate an in-memory database that allows main thread
          * access
          * @return The created WorkDatabase
@@ -124,6 +126,7 @@ abstract class WorkDatabase : RoomDatabase() {
         fun create(
             context: Context,
             queryExecutor: Executor,
+            clock: Clock,
             useTestDatabase: Boolean
         ): WorkDatabase {
             val builder = if (useTestDatabase) {
@@ -141,7 +144,7 @@ abstract class WorkDatabase : RoomDatabase() {
                     }
             }
             return builder.setQueryExecutor(queryExecutor)
-                .addCallback(CleanupCallback)
+                .addCallback(CleanupCallback(clock))
                 .addMigrations(Migration_1_2)
                 .addMigrations(RescheduleMigration(context, VERSION_2, VERSION_3))
                 .addMigrations(Migration_3_4)
@@ -175,14 +178,17 @@ private const val PRUNE_SQL_FORMAT_SUFFIX = " AND " +
     "    prerequisite_id=id AND " +
     "    work_spec_id NOT IN " +
     "        (SELECT id FROM workspec WHERE state IN $COMPLETED_STATES))"
-private val PRUNE_THRESHOLD_MILLIS = TimeUnit.DAYS.toMillis(1)
 
-internal object CleanupCallback : RoomDatabase.Callback() {
+@JvmField
+val PRUNE_THRESHOLD_MILLIS: Long = TimeUnit.DAYS.toMillis(1)
+
+internal class CleanupCallback(val clock: Clock) : RoomDatabase.Callback() {
+
     private val pruneSQL: String
         get() = "$PRUNE_SQL_FORMAT_PREFIX$pruneDate$PRUNE_SQL_FORMAT_SUFFIX"
 
-    val pruneDate: Long
-        get() = System.currentTimeMillis() - PRUNE_THRESHOLD_MILLIS
+    private val pruneDate: Long
+        get() = clock.currentTimeMillis() - PRUNE_THRESHOLD_MILLIS
 
     override fun onOpen(db: SupportSQLiteDatabase) {
         super.onOpen(db)

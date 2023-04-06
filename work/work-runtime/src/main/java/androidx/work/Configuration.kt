@@ -49,6 +49,12 @@ class Configuration internal constructor(builder: Builder) {
     val taskExecutor: Executor
 
     /**
+     * The [Clock] used by [WorkManager] to calculate schedules and perform book-keeping.
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    val clock: Clock
+
+    /**
      * The [WorkerFactory] used by [WorkManager] to create [ListenableWorker]s
      */
     val workerFactory: WorkerFactory
@@ -139,6 +145,7 @@ class Configuration internal constructor(builder: Builder) {
         // So this should not be a single threaded executor. Writes will still be serialized
         // as this will be wrapped with an SerialExecutor.
         taskExecutor = builder.taskExecutor ?: createDefaultExecutor(isTaskExecutor = true)
+        clock = builder.clock ?: SystemClock()
         workerFactory = builder.workerFactory ?: WorkerFactory.getDefaultWorkerFactory()
         inputMergerFactory = builder.inputMergerFactory ?: NoOpInputMergerFactory
         runnableScheduler = builder.runnableScheduler ?: DefaultRunnableScheduler()
@@ -165,6 +172,7 @@ class Configuration internal constructor(builder: Builder) {
         internal var workerFactory: WorkerFactory? = null
         internal var inputMergerFactory: InputMergerFactory? = null
         internal var taskExecutor: Executor? = null
+        internal var clock: Clock? = null
         internal var runnableScheduler: RunnableScheduler? = null
         internal var initializationExceptionHandler: Consumer<Throwable>? = null
         internal var schedulingExceptionHandler: Consumer<Throwable>? = null
@@ -194,6 +202,7 @@ class Configuration internal constructor(builder: Builder) {
             workerFactory = configuration.workerFactory
             inputMergerFactory = configuration.inputMergerFactory
             taskExecutor = configuration.taskExecutor
+            clock = configuration.clock
             loggingLevel = configuration.minimumLoggingLevel
             minJobSchedulerId = configuration.minJobSchedulerId
             maxJobSchedulerId = configuration.maxJobSchedulerId
@@ -251,6 +260,18 @@ class Configuration internal constructor(builder: Builder) {
          */
         fun setTaskExecutor(taskExecutor: Executor): Builder {
             this.taskExecutor = taskExecutor
+            return this
+        }
+
+        /**
+         * Sets a [Clock] for WorkManager to calculate schedules and perform book-keeping.
+         *
+         * @param clock The [Clock] to use
+         * @return This [Builder] instance
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        fun setClock(clock: Clock): Builder {
+            this.clock = clock
             return this
         }
 
