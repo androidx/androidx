@@ -38,7 +38,7 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
-import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
+import androidx.appactions.interaction.capabilities.core.properties.ParamProperty
 import androidx.appactions.interaction.capabilities.core.testing.spec.Argument
 import androidx.appactions.interaction.capabilities.core.testing.spec.CapabilityStructFill
 import androidx.appactions.interaction.capabilities.core.testing.spec.CapabilityTwoEntityValues
@@ -302,14 +302,14 @@ class TaskCapabilityImplTest {
         val property: CapabilityTwoEntityValues.Property =
             CapabilityTwoEntityValues.Property.newBuilder()
                 .setSlotA(
-                    TypeProperty.Builder<
+                    ParamProperty.Builder<
                         androidx.appactions.interaction.capabilities.core.properties.Entity,
                         >()
                         .setRequired(true)
                         .build(),
                 )
                 .setSlotB(
-                    TypeProperty.Builder<
+                    ParamProperty.Builder<
                         androidx.appactions.interaction.capabilities.core.properties.Entity,
                         >()
                         .setRequired(true)
@@ -397,14 +397,14 @@ class TaskCapabilityImplTest {
         val property: CapabilityTwoEntityValues.Property =
             CapabilityTwoEntityValues.Property.newBuilder()
                 .setSlotA(
-                    TypeProperty.Builder<
+                    ParamProperty.Builder<
                         androidx.appactions.interaction.capabilities.core.properties.Entity,
                         >()
                         .setRequired(true)
                         .build(),
                 )
                 .setSlotB(
-                    TypeProperty.Builder<
+                    ParamProperty.Builder<
                         androidx.appactions.interaction.capabilities.core.properties.Entity,
                         >()
                         .setRequired(false)
@@ -488,14 +488,14 @@ class TaskCapabilityImplTest {
         val property: Property =
             Property.newBuilder()
                 .setRequiredEntityField(
-                    TypeProperty.Builder<
+                    ParamProperty.Builder<
                         androidx.appactions.interaction.capabilities.core.properties.Entity,
                         >()
                         .setRequired(true)
                         .build(),
                 )
                 .setEnumField(
-                    TypeProperty.Builder<TestEnum>()
+                    ParamProperty.Builder<TestEnum>()
                         .setPossibleValues(TestEnum.VALUE_1, TestEnum.VALUE_2)
                         .setRequired(true)
                         .build(),
@@ -703,8 +703,8 @@ class TaskCapabilityImplTest {
     fun identifierOnly_refillsStruct() = runBlocking<Unit> {
         val property: CapabilityStructFill.Property =
             CapabilityStructFill.Property.newBuilder()
-                .setListItem(TypeProperty.Builder<ListItem>().setRequired(true).build())
-                .setAnyString(TypeProperty.Builder<StringValue>().setRequired(true).build())
+                .setListItem(ParamProperty.Builder<ListItem>().setRequired(true).build())
+                .setAnyString(ParamProperty.Builder<StringValue>().setRequired(true).build())
                 .build()
         val item1: ListItem = ListItem.newBuilder().setName("red apple").setId("item1").build()
         val item2: ListItem = ListItem.newBuilder().setName("green apple").setId("item2").build()
@@ -1038,7 +1038,7 @@ class TaskCapabilityImplTest {
         private val SINGLE_REQUIRED_FIELD_PROPERTY: Property =
             Property.newBuilder()
                 .setRequiredEntityField(
-                    TypeProperty.Builder<
+                    ParamProperty.Builder<
                         androidx.appactions.interaction.capabilities.core.properties.Entity,
                         >()
                         .setRequired(true)

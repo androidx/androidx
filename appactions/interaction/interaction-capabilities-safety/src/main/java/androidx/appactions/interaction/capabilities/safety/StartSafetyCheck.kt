@@ -24,7 +24,7 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.ParamVa
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.SAFETY_CHECK_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
+import androidx.appactions.interaction.capabilities.core.properties.ParamProperty
 import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
 import androidx.appactions.interaction.capabilities.core.values.SafetyCheck
 import androidx.appactions.interaction.capabilities.core.values.SuccessStatus
@@ -90,8 +90,8 @@ class StartSafetyCheck private constructor() {
 
     // TODO(b/268369632): Remove Property from public capability APIs.
     class Property internal constructor(
-        val duration: TypeProperty<Duration>?,
-        val checkInTime: TypeProperty<ZonedDateTime>?
+        val duration: ParamProperty<Duration>?,
+        val checkInTime: ParamProperty<ZonedDateTime>?
     ) {
         override fun toString(): String {
             return "Property(duration=$duration, checkInTime=$checkInTime)"
@@ -116,14 +116,14 @@ class StartSafetyCheck private constructor() {
         }
 
         class Builder {
-            private var duration: TypeProperty<Duration>? = null
+            private var duration: ParamProperty<Duration>? = null
 
-            private var checkInTime: TypeProperty<ZonedDateTime>? = null
+            private var checkInTime: ParamProperty<ZonedDateTime>? = null
 
-            fun setDuration(duration: TypeProperty<Duration>): Builder =
+            fun setDuration(duration: ParamProperty<Duration>): Builder =
                 apply { this.duration = duration }
 
-            fun setCheckInTime(checkInTime: TypeProperty<ZonedDateTime>): Builder =
+            fun setCheckInTime(checkInTime: ParamProperty<ZonedDateTime>): Builder =
                 apply { this.checkInTime = checkInTime }
 
             fun build(): Property = Property(duration, checkInTime)

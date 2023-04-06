@@ -22,7 +22,7 @@ import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
+import androidx.appactions.interaction.capabilities.core.properties.ParamProperty
 import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
 import androidx.appactions.interaction.capabilities.core.values.SuccessStatus
 import androidx.appactions.interaction.proto.ParamValue
@@ -73,7 +73,7 @@ class PauseTimer private constructor() {
     // TODO(b/268369632): Remove Property from public capability APIs.
     class Property
     internal constructor(
-        val timerList: TypeProperty<TimerValue>?,
+        val timerList: ParamProperty<TimerValue>?,
     ) {
         override fun toString(): String {
             return "Property(timerList=$timerList}"
@@ -95,9 +95,9 @@ class PauseTimer private constructor() {
         }
 
         class Builder {
-            private var timerList: TypeProperty<TimerValue>? = null
+            private var timerList: ParamProperty<TimerValue>? = null
 
-            fun setTimerList(timerList: TypeProperty<TimerValue>): Builder = apply {
+            fun setTimerList(timerList: ParamProperty<TimerValue>): Builder = apply {
                 this.timerList = timerList
             }
 

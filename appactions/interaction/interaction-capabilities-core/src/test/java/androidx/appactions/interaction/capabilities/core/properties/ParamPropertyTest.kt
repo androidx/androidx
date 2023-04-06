@@ -22,11 +22,11 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class TypePropertyTest {
+class ParamPropertyTest {
     @Test
     fun dynamicInventory_test() {
         val mutablePossibleValues = mutableListOf<String>("a", "b")
-        val testProperty = TypeProperty.Builder<String>()
+        val testProperty = ParamProperty.Builder<String>()
             .setPossibleValueSupplier { mutablePossibleValues.toList() }
             .build()
 

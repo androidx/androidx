@@ -25,7 +25,7 @@ import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
-import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
+import androidx.appactions.interaction.capabilities.core.properties.ParamProperty
 import androidx.appactions.interaction.capabilities.core.impl.task.SessionBridge
 import androidx.appactions.interaction.capabilities.core.impl.task.TaskHandler
 import java.util.Optional
@@ -44,7 +44,7 @@ private val ACTION_SPEC = ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
 
 class FakeCapability private constructor() {
     class Property(
-        val fieldOne: TypeProperty<StringValue>? = null,
+        val fieldOne: ParamProperty<StringValue>? = null,
     )
 
     class Argument internal constructor(
@@ -89,9 +89,9 @@ class FakeCapability private constructor() {
             builder.build()
         }
 
-        private var fieldOne: TypeProperty<StringValue>? = null
+        private var fieldOne: ParamProperty<StringValue>? = null
 
-        fun setFieldOne(fieldOne: TypeProperty<StringValue>) = apply {
+        fun setFieldOne(fieldOne: ParamProperty<StringValue>) = apply {
             this.fieldOne = fieldOne
         }
 
