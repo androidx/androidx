@@ -21,11 +21,14 @@ import androidx.compose.foundation.demos.text.TagLine
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.text2.input.TextFieldLineLimits.MultiLine
+import androidx.compose.foundation.text2.input.TextFieldLineLimits.SingleLine
 import androidx.compose.material.Slider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -44,6 +47,16 @@ fun ScrollableDemos() {
         item {
             TagLine(tag = "SingleLine Horizontal Scroll")
             SingleLineHorizontalScrollableTextField()
+        }
+
+        item {
+            TagLine(tag = "SingleLine Horizontal Scroll with newlines")
+            SingleLineHorizontalScrollableTextFieldWithNewlines()
+        }
+
+        item {
+            TagLine(tag = "SingleLine Vertical Scroll")
+            SingleLineVerticalScrollableTextField()
         }
 
         item {
@@ -67,12 +80,44 @@ fun ScrollableDemos() {
 @Composable
 fun SingleLineHorizontalScrollableTextField() {
     val state = remember {
-        TextFieldState("When content gets long, this field should scroll horizontally")
+        TextFieldState("When content gets long,this field should scroll horizontally")
     }
     BasicTextField2(
         state = state,
-        maxLines = 1,
+        lineLimits = SingleLine,
         textStyle = TextStyle(fontSize = 24.sp)
+    )
+}
+
+// TODO this is not supported currently. Add tests for this when supported.
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun SingleLineHorizontalScrollableTextFieldWithNewlines() {
+    val state = remember {
+        TextFieldState("This \ntext \ncontains \nnewlines \nbut \nis \nsingle-line.")
+    }
+    BasicTextField2(
+        state = state,
+        lineLimits = SingleLine,
+        textStyle = TextStyle(fontSize = 24.sp)
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun SingleLineVerticalScrollableTextField() {
+    val state = remember {
+        TextFieldState(
+            buildString {
+                repeat(10) {
+                    appendLine("When content gets long, this field should scroll vertically")
+                }
+            })
+    }
+    BasicTextField2(
+        state = state,
+        textStyle = TextStyle(fontSize = 24.sp),
+        lineLimits = MultiLine(maxHeightInLines = 1)
     )
 }
 
@@ -80,12 +125,19 @@ fun SingleLineHorizontalScrollableTextField() {
 @Composable
 fun MultiLineVerticalScrollableTextField() {
     val state = remember {
-        TextFieldState("When content gets long, this field should scroll vertically")
+        TextFieldState(
+            buildString {
+                repeat(10) {
+                    appendLine("When content gets long, this field should scroll vertically")
+                }
+            }
+        )
     }
     BasicTextField2(
         state = state,
         textStyle = TextStyle(fontSize = 24.sp),
-        modifier = Modifier.height(200.dp)
+        modifier = Modifier.heightIn(max = 200.dp),
+        lineLimits = MultiLine()
     )
 }
 
@@ -110,7 +162,7 @@ fun HoistedHorizontalScroll() {
             scrollState = scrollState,
             textStyle = TextStyle(fontSize = 24.sp),
             modifier = Modifier.height(200.dp),
-            maxLines = 1
+            lineLimits = SingleLine
         )
     }
 }
@@ -139,14 +191,14 @@ fun SharedHoistedScroll() {
             scrollState = scrollState,
             textStyle = TextStyle(fontSize = 24.sp),
             modifier = Modifier.fillMaxWidth(),
-            maxLines = 1
+            lineLimits = SingleLine
         )
         BasicTextField2(
             state = state2,
             scrollState = scrollState,
             textStyle = TextStyle(fontSize = 24.sp),
             modifier = Modifier.fillMaxWidth(),
-            maxLines = 1
+            lineLimits = SingleLine
         )
     }
 }
