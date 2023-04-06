@@ -27,6 +27,8 @@ import android.widget.LinearLayout
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory
+import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState
+import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionStateChangedListener
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import androidx.privacysandbox.ui.provider.toCoreLibInfo
@@ -38,7 +40,6 @@ import androidx.testutils.withActivity
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
-import java.util.function.Consumer
 import org.junit.Assert.assertTrue
 import org.junit.Assume
 import org.junit.Before
@@ -62,6 +63,8 @@ class IntegrationTests {
     private lateinit var context: Context
     private lateinit var activity: AppCompatActivity
     private lateinit var view: SandboxedSdkView
+    private lateinit var stateChangeListener: TestStateChangeListener
+    private lateinit var errorLatch: CountDownLatch
 
     @Before
     fun setup() {
@@ -69,6 +72,9 @@ class IntegrationTests {
         context = InstrumentationRegistry.getInstrumentation().context
         activity = activityScenarioRule.withActivity { this }
         view = SandboxedSdkView(context)
+        errorLatch = CountDownLatch(1)
+        stateChangeListener = TestStateChangeListener(errorLatch)
+        view.addStateChangedListener(stateChangeListener)
         activity.runOnUiThread(Runnable {
             val linearLayout = LinearLayout(context)
             linearLayout.layoutParams = LinearLayout.LayoutParams(
@@ -130,6 +136,7 @@ class IntegrationTests {
         view.layout(10, 10, 10, 10)
         layoutChangeLatch.await(2000, TimeUnit.MILLISECONDS)
         assertTrue(layoutChangeLatch.count == 0.toLong())
+        assertTrue(stateChangeListener.currentState == SandboxedSdkUiSessionState.Active)
     }
 
     @Test
@@ -194,27 +201,31 @@ class IntegrationTests {
 
     @Test
     fun testSessionError() {
-        val errorLatch = CountDownLatch(1)
-        val errorConsumer = TestErrorConsumer(errorLatch)
-        view.setSdkErrorConsumer(errorConsumer)
-        val adapter = TestSandboxedUiAdapter(null, null, true)
+        val adapter = TestSandboxedUiAdapter(
+            null, null, true
+        )
         val coreLibInfo = adapter.toCoreLibInfo(context)
         val adapterThatFailsToCreateUi =
             SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
         view.setAdapter(adapterThatFailsToCreateUi)
         errorLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
-        assertTrue(errorConsumer.isErrorConsumed)
-        assertTrue(errorConsumer.lastThrowable.message == "Test Session Exception")
+        assertTrue(stateChangeListener.currentState is SandboxedSdkUiSessionState.Error)
+        val errorMessage = (stateChangeListener.currentState as
+            SandboxedSdkUiSessionState.Error).throwable.message
+        assertTrue(errorMessage == "Test Session Exception")
     }
 
-    class TestErrorConsumer(private val latch: CountDownLatch?) : Consumer<Throwable> {
-        var isErrorConsumed = false
-        lateinit var lastThrowable: Throwable
+    class TestStateChangeListener(private val errorLatch: CountDownLatch) :
+        SandboxedSdkUiSessionStateChangedListener {
+        var currentState: SandboxedSdkUiSessionState? = null
+        var error: Throwable? = null
 
-        override fun accept(throwable: Throwable) {
-            lastThrowable = throwable
-            isErrorConsumed = true
-            latch?.countDown()
+        override fun onStateChanged(state: SandboxedSdkUiSessionState) {
+            currentState = state
+            if (state is SandboxedSdkUiSessionState.Error) {
+                errorLatch.countDown()
+                error = state.throwable
+            }
         }
     }
 
@@ -243,8 +254,8 @@ class IntegrationTests {
             } else {
                 TestSession(context)
             }
-            openSessionLatch?.countDown()
             client.onSessionOpened(session)
+            openSessionLatch?.countDown()
         }
 
         inner class FailingTestSession(
