@@ -75,9 +75,9 @@ fun BasicTextField2FilterDemos() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DigitsOnlyBasicTextField2() {
-    FilterDemo(filter = { old, new ->
+    FilterDemo(filter = { _, new ->
         if (!new.isDigitsOnly()) {
-            new.resetTo(old)
+            new.revertAllChanges()
         }
     })
 }

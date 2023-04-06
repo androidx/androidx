@@ -1347,7 +1347,7 @@ package androidx.compose.foundation.text2.input {
     method public void placeCursorBeforeCharAt(int index);
     method public void placeCursorBeforeCodepointAt(int index);
     method public void placeCursorBeforeFirstChange();
-    method public void resetTo(androidx.compose.ui.text.input.TextFieldValue value);
+    method public void revertAllChanges();
     method public void selectAll();
     method public void selectAllChanges();
     method public void selectCharsIn(long range);

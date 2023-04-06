@@ -761,7 +761,7 @@ internal class BasicTextField2Test {
             oldState: TextFieldValue,
             newState: MutableTextFieldValueWithSelection
         ) {
-            newState.resetTo(oldState)
+            newState.revertAllChanges()
         }
     }
 }
