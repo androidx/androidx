@@ -44,7 +44,7 @@ class TextFieldBufferWithSelection internal constructor(
      *
      * @see selectionInCodepoints
      */
-    var selectionInChars: TextRange = value.selection
+    var selectionInChars: TextRange = value.selectionInChars
         private set
 
     /**
@@ -199,7 +199,7 @@ class TextFieldBufferWithSelection internal constructor(
      */
     fun revertAllChanges() {
         replace(0, length, sourceValue.toString())
-        selectionInChars = sourceValue.selection
+        selectionInChars = sourceValue.selectionInChars
         clearChangeList()
     }
 

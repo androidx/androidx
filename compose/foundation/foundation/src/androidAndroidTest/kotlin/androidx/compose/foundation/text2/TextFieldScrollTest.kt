@@ -454,7 +454,7 @@ class TextFieldScrollTest {
 
         rule.runOnIdle {
             assertThat(scrollState.value).isEqualTo(scrollState.maxValue)
-            assertThat(state.value.selection).isEqualTo(TextRange(5))
+            assertThat(state.value.selectionInChars).isEqualTo(TextRange(5))
         }
     }
 

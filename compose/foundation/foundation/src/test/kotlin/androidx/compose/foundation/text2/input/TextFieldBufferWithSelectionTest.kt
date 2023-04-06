@@ -234,9 +234,9 @@ class TextFieldBufferWithSelectionTest {
     private fun TextFieldCharSequence.toParsableString(): String = buildString {
         append(this@toParsableString)
         if (isNotEmpty()) {
-            insert(selection.min, '_')
-            if (!selection.collapsed) {
-                insert(selection.max + 1, '_')
+            insert(selectionInChars.min, '_')
+            if (!selectionInChars.collapsed) {
+                insert(selectionInChars.max + 1, '_')
             }
         }
     }

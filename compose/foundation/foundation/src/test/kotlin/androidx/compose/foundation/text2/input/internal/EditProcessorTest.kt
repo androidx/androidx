@@ -49,8 +49,8 @@ class EditProcessorTest {
         val newState = processor.value
 
         assertThat(newState.toString()).isEqualTo("XABCDE")
-        assertThat(newState.selection.min).isEqualTo(1)
-        assertThat(newState.selection.max).isEqualTo(1)
+        assertThat(newState.selectionInChars.min).isEqualTo(1)
+        assertThat(newState.selectionInChars.max).isEqualTo(1)
         // edit command updates should not trigger reset listeners.
         assertThat(resetCalled).isEqualTo(0)
     }
@@ -67,8 +67,8 @@ class EditProcessorTest {
         val newState = processor.value
 
         assertThat(newState.toString()).isEqualTo("ABCDE")
-        assertThat(newState.selection.min).isEqualTo(0)
-        assertThat(newState.selection.max).isEqualTo(2)
+        assertThat(newState.selectionInChars.min).isEqualTo(0)
+        assertThat(newState.selectionInChars.max).isEqualTo(2)
         // edit command updates should not trigger reset listeners.
         assertThat(resetCalled).isEqualTo(0)
     }
@@ -121,8 +121,9 @@ class EditProcessorTest {
         processor.reset(newTextFieldValue)
 
         assertThat(processor.mBuffer).isSameInstanceAs(initialBuffer)
-        assertThat(newTextFieldValue.selection.start).isEqualTo(processor.mBuffer.selectionStart)
-        assertThat(newTextFieldValue.selection.end).isEqualTo(processor.mBuffer.selectionEnd)
+        assertThat(newTextFieldValue.selectionInChars.start)
+            .isEqualTo(processor.mBuffer.selectionStart)
+        assertThat(newTextFieldValue.selectionInChars.end).isEqualTo(processor.mBuffer.selectionEnd)
         assertThat(resetCalled).isEqualTo(2)
     }
 
@@ -140,8 +141,11 @@ class EditProcessorTest {
         assertThat(EditingBuffer.NOWHERE).isEqualTo(initialBuffer.compositionStart)
         assertThat(EditingBuffer.NOWHERE).isEqualTo(initialBuffer.compositionEnd)
 
-        val newTextFieldValue =
-            TextFieldCharSequence(textFieldValue, textFieldValue.selection, composition = null)
+        val newTextFieldValue = TextFieldCharSequence(
+            textFieldValue,
+            textFieldValue.selectionInChars,
+            composition = null
+        )
         processor.reset(newTextFieldValue)
 
         assertThat(processor.mBuffer).isSameInstanceAs(initialBuffer)
@@ -188,11 +192,15 @@ class EditProcessorTest {
 
         // change the text
         val newValue =
-            TextFieldCharSequence("cd", processor.value.selection, processor.value.composition)
+            TextFieldCharSequence(
+                "cd",
+                processor.value.selectionInChars,
+                processor.value.compositionInChars
+            )
         processor.reset(newValue)
 
         assertThat(processor.value.toString()).isEqualTo(newValue.toString())
-        assertThat(processor.value.composition).isNull()
+        assertThat(processor.value.compositionInChars).isNull()
     }
 
     @Test
@@ -210,13 +218,13 @@ class EditProcessorTest {
         val newValue =
             TextFieldCharSequence(
                 processor.value,
-                processor.value.selection,
-                processor.value.composition
+                processor.value.selectionInChars,
+                processor.value.compositionInChars
             )
         processor.reset(newValue)
 
         assertThat(processor.value.toString()).isEqualTo(newValue.toString())
-        assertThat(processor.value.composition).isEqualTo(composition)
+        assertThat(processor.value.compositionInChars).isEqualTo(composition)
     }
 
     @Test
@@ -233,13 +241,13 @@ class EditProcessorTest {
         val newValue =
             TextFieldCharSequence(
                 processor.value,
-                processor.value.selection,
+                processor.value.selectionInChars,
                 composition = TextRange(0, 2)
             )
         processor.reset(newValue)
 
         assertThat(processor.value.toString()).isEqualTo(newValue.toString())
-        assertThat(processor.value.composition).isNull()
+        assertThat(processor.value.compositionInChars).isNull()
     }
 
     @Test
@@ -255,13 +263,13 @@ class EditProcessorTest {
         // change the composition
         val newValue = TextFieldCharSequence(
             processor.value,
-            processor.value.selection,
+            processor.value.selectionInChars,
             composition = TextRange(0, 1)
         )
         processor.reset(newValue)
 
         assertThat(processor.value.toString()).isEqualTo(newValue.toString())
-        assertThat(processor.value.composition).isNull()
+        assertThat(processor.value.compositionInChars).isNull()
     }
 
     @Test
@@ -283,13 +291,13 @@ class EditProcessorTest {
         val newValue = TextFieldCharSequence(
             processor.value,
             selection = newSelection,
-            composition = processor.value.composition
+            composition = processor.value.compositionInChars
         )
         processor.reset(newValue)
 
         assertThat(processor.value.toString()).isEqualTo(newValue.toString())
-        assertThat(processor.value.composition).isEqualTo(composition)
-        assertThat(processor.value.selection).isEqualTo(newSelection)
+        assertThat(processor.value.compositionInChars).isEqualTo(composition)
+        assertThat(processor.value.selectionInChars).isEqualTo(newSelection)
     }
 
     @Test

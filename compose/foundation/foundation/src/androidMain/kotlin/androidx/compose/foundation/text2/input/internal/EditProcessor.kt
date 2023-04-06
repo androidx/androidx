@@ -53,7 +53,7 @@ internal class EditProcessor(
     // The editing buffer used for applying editor commands from IME.
     internal var mBuffer: EditingBuffer = EditingBuffer(
         text = initialValue.toString(),
-        selection = initialValue.selection
+        selection = initialValue.selectionInChars
     )
         private set
 
@@ -91,21 +91,21 @@ internal class EditProcessor(
 
         var textChanged = false
         var selectionChanged = false
-        val compositionChanged = newValue.composition != mBuffer.composition
+        val compositionChanged = newValue.compositionInChars != mBuffer.composition
 
         if (!bufferState.contentEquals(newValue)) {
             // reset the buffer in its entirety
             mBuffer = EditingBuffer(
                 text = newValue.toString(),
-                selection = newValue.selection
+                selection = newValue.selectionInChars
             )
             textChanged = true
-        } else if (bufferState.selection != newValue.selection) {
-            mBuffer.setSelection(newValue.selection.min, newValue.selection.max)
+        } else if (bufferState.selectionInChars != newValue.selectionInChars) {
+            mBuffer.setSelection(newValue.selectionInChars.min, newValue.selectionInChars.max)
             selectionChanged = true
         }
 
-        val composition = newValue.composition
+        val composition = newValue.compositionInChars
         if (composition == null || composition.collapsed) {
             mBuffer.commitComposition()
         } else {
@@ -171,7 +171,7 @@ internal class EditProcessor(
             filter.filter(oldState = oldValue, newState = mutableValue)
             // If neither the text nor the selection changed, we want to preserve the composition.
             // Otherwise, the IME will reset it anyway.
-            val newValue = mutableValue.toTextFieldCharSequence(proposedValue.composition)
+            val newValue = mutableValue.toTextFieldCharSequence(proposedValue.compositionInChars)
             if (newValue == proposedValue) {
                 value = newValue
             } else {

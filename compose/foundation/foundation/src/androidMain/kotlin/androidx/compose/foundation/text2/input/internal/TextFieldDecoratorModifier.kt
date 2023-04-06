@@ -268,11 +268,11 @@ internal class TextFieldDecoratorModifierNode(
             // selection might change without triggering a modifier update.
             if (localSemantics == null ||
                 !value.contentEquals(lastText) ||
-                lastSelection != value.selection ||
+                lastSelection != value.selectionInChars ||
                 lastEnabled != enabled ||
                 lastSecureContent != secureContent
             ) {
-                localSemantics = generateSemantics(value, value.selection)
+                localSemantics = generateSemantics(value, value.selectionInChars)
             }
             return localSemantics
         }

@@ -108,7 +108,7 @@ class TextFieldCursorTest {
     private var textLayoutResult: TextLayoutResult? = null
     private val cursorRect: Rect
         // assume selection is collapsed
-        get() = textLayoutResult?.getCursorRect(state.value.selection.start) ?: Rect.Zero
+        get() = textLayoutResult?.getCursorRect(state.value.selectionInChars.start) ?: Rect.Zero
 
     private val backgroundModifier = Modifier.background(contentColor)
     private val focusModifier = Modifier.onFocusChanged { if (it.isFocused) isFocused = true }

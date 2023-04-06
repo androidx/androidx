@@ -60,7 +60,7 @@ class TextFieldState(
     }
 
     override fun toString(): String =
-        "TextFieldState(selection=${value.selection}, text=\"$value\")"
+        "TextFieldState(selection=${value.selectionInChars}, text=\"$value\")"
 
     @Suppress("ShowingMemberInHiddenClass")
     @PublishedApi
@@ -85,8 +85,8 @@ class TextFieldState(
     object Saver : androidx.compose.runtime.saveable.Saver<TextFieldState, Any> {
         override fun SaverScope.save(value: TextFieldState): Any? = listOf(
             value.value.toString(),
-            value.value.selection.start,
-            value.value.selection.end
+            value.value.selectionInChars.start,
+            value.value.selectionInChars.end
         )
 
         override fun restore(value: Any): TextFieldState? {
@@ -146,7 +146,7 @@ fun TextFieldState.setTextAndSelectAll(text: String) {
 
 @OptIn(ExperimentalFoundationApi::class)
 internal fun TextFieldState.deselect() {
-    if (!value.selection.collapsed) {
+    if (!value.selectionInChars.collapsed) {
         edit {
             selectCharsIn(TextRange.Zero)
         }

@@ -83,7 +83,7 @@ internal class TextFieldPreparedSelection(
     /**
      * Current active selection in the context of this [TextFieldPreparedSelection]
      */
-    var selection = initialValue.selection
+    var selection = initialValue.selectionInChars
 
     /**
      * Initial text value.
@@ -129,7 +129,7 @@ internal class TextFieldPreparedSelection(
         val visibleInnerTextFieldRect = innerTextFieldCoordinates?.let { inner ->
             decorationBoxCoordinates?.localBoundingBoxOf(inner)
         } ?: Rect.Zero
-        val currentOffset = initialValue.selection.end
+        val currentOffset = initialValue.selectionInChars.end
         val currentPos = value.getCursorRect(currentOffset)
         val newPos = currentPos.translate(
             translateX = 0f,
@@ -329,7 +329,7 @@ internal class TextFieldPreparedSelection(
 
     // it selects a text from the original selection start to a current selection end
     fun selectMovement() = applyIfNotEmpty(false) {
-        selection = TextRange(initialValue.selection.start, selection.end)
+        selection = TextRange(initialValue.selectionInChars.start, selection.end)
     }
 
     private fun isLtr(): Boolean {

@@ -207,11 +207,11 @@ internal class TextFieldCoreModifierNode(
         val value = textFieldState.value
         val textLayoutResult = textLayoutState.layoutResult ?: return
 
-        if (value.selection.collapsed) {
+        if (value.selectionInChars.collapsed) {
             drawText(textLayoutResult)
-            drawCursor(value.selection, textLayoutResult)
+            drawCursor(value.selectionInChars, textLayoutResult)
         } else {
-            drawSelection(value.selection, textLayoutResult)
+            drawSelection(value.selectionInChars, textLayoutResult)
             drawText(textLayoutResult)
         }
     }
@@ -224,7 +224,7 @@ internal class TextFieldCoreModifierNode(
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult {
-        val currSelection = textFieldState.value.selection
+        val currSelection = textFieldState.value.selectionInChars
         val offsetToFollow = when {
             currSelection.start != previousSelection.start -> currSelection.start
             currSelection.end != previousSelection.end -> currSelection.end
@@ -262,11 +262,11 @@ internal class TextFieldCoreModifierNode(
     ): MeasureResult {
         val value = textFieldState.value
         val offsetToFollow = when {
-            value.selection.start != previousSelection.start -> value.selection.start
-            value.selection.end != previousSelection.end -> value.selection.end
-            else -> value.selection.min
+            value.selectionInChars.start != previousSelection.start -> value.selectionInChars.start
+            value.selectionInChars.end != previousSelection.end -> value.selectionInChars.end
+            else -> value.selectionInChars.min
         }
-        previousSelection = value.selection
+        previousSelection = value.selectionInChars
 
         // If the maxIntrinsicWidth of the children is already smaller than the constraint, pass
         // the original constraints so that the children has more information to determine its

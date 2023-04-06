@@ -36,7 +36,7 @@ class TextFieldStateSaverTest {
 
         assertNotNull(restoredState)
         assertThat(restoredState.value.toString()).isEqualTo("hello, world")
-        assertThat(restoredState.value.selection).isEqualTo(TextRange(0, 5))
+        assertThat(restoredState.value.selectionInChars).isEqualTo(TextRange(0, 5))
     }
 
     private object TestSaverScope : SaverScope {

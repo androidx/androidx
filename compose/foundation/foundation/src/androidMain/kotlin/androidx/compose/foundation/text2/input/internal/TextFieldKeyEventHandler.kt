@@ -217,7 +217,7 @@ internal class TextFieldKeyEventHandler {
             textPreparedSelectionState = preparedSelectionState
         )
         preparedSelection.block()
-        if (preparedSelection.selection != preparedSelection.initialValue.selection) {
+        if (preparedSelection.selection != preparedSelection.initialValue.selectionInChars) {
             // update the editProcessor with the latest selection state.
             // this has to be a reset because EditCommands do not inform IME.
             state.edit {

@@ -206,7 +206,7 @@ private object PlaceCursorAfterLastChangeResult : TextFieldEditResult() {
         newValue: TextFieldBuffer
     ): TextRange {
         return if (newValue.changes.changeCount == 0) {
-            oldValue.selection
+            oldValue.selectionInChars
         } else {
             TextRange(newValue.changes.getRange(newValue.changes.changeCount).max)
         }
@@ -221,7 +221,7 @@ private object PlaceCursorBeforeFirstChangeResult : TextFieldEditResult() {
         newValue: TextFieldBuffer
     ): TextRange {
         return if (newValue.changes.changeCount == 0) {
-            oldValue.selection
+            oldValue.selectionInChars
         } else {
             TextRange(newValue.changes.getRange(0).min)
         }
@@ -237,7 +237,7 @@ private object SelectAllChangesResult : TextFieldEditResult() {
     ): TextRange {
         val changes = newValue.changes
         return if (changes.changeCount == 0) {
-            oldValue.selection
+            oldValue.selectionInChars
         } else {
             TextRange(
                 changes.getRange(0).min,

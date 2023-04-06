@@ -1392,11 +1392,11 @@ package androidx.compose.foundation.text2.input {
   @androidx.compose.foundation.ExperimentalFoundationApi public sealed interface TextFieldCharSequence extends java.lang.CharSequence {
     method public boolean contentEquals(CharSequence other);
     method public boolean equals(Object? other);
-    method public androidx.compose.ui.text.TextRange? getComposition();
-    method public long getSelection();
+    method public androidx.compose.ui.text.TextRange? getCompositionInChars();
+    method public long getSelectionInChars();
     method public int hashCode();
-    property public abstract androidx.compose.ui.text.TextRange? composition;
-    property public abstract long selection;
+    property public abstract androidx.compose.ui.text.TextRange? compositionInChars;
+    property public abstract long selectionInChars;
   }
 
   public final class TextFieldCharSequenceKt {

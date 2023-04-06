@@ -97,7 +97,7 @@ class TextFieldStateTest {
             replace(0, 0, "hello")
             placeCursorAtEnd()
         }
-        assertThat(state.value.selection).isEqualTo(TextRange(5))
+        assertThat(state.value.selectionInChars).isEqualTo(TextRange(5))
     }
 
     @Test
@@ -106,7 +106,7 @@ class TextFieldStateTest {
             replace(0, 0, "hello")
             placeCursorBeforeCharAt(2)
         }
-        assertThat(state.value.selection).isEqualTo(TextRange(2))
+        assertThat(state.value.selectionInChars).isEqualTo(TextRange(2))
     }
 
     @Test
@@ -128,7 +128,7 @@ class TextFieldStateTest {
             replace(0, 0, "hello")
             placeCursorBeforeCodepointAt(2)
         }
-        assertThat(state.value.selection).isEqualTo(TextRange(2))
+        assertThat(state.value.selectionInChars).isEqualTo(TextRange(2))
     }
 
     @Test
@@ -150,7 +150,7 @@ class TextFieldStateTest {
             replace(0, 0, "hello")
             selectAll()
         }
-        assertThat(state.value.selection).isEqualTo(TextRange(0, 5))
+        assertThat(state.value.selectionInChars).isEqualTo(TextRange(0, 5))
     }
 
     @Test
@@ -159,7 +159,7 @@ class TextFieldStateTest {
             replace(0, 0, "hello")
             selectCharsIn(TextRange(1, 4))
         }
-        assertThat(state.value.selection).isEqualTo(TextRange(1, 4))
+        assertThat(state.value.selectionInChars).isEqualTo(TextRange(1, 4))
     }
 
     @Test
@@ -187,7 +187,7 @@ class TextFieldStateTest {
             replace(0, 0, "hello")
             selectCodepointsIn(TextRange(1, 4))
         }
-        assertThat(state.value.selection).isEqualTo(TextRange(1, 4))
+        assertThat(state.value.selectionInChars).isEqualTo(TextRange(1, 4))
     }
 
     @Test
@@ -255,14 +255,14 @@ class TextFieldStateTest {
     fun setTextAndPlaceCursorAtEnd_works() {
         state.setTextAndPlaceCursorAtEnd("Hello")
         assertThat(state.value.toString()).isEqualTo("Hello")
-        assertThat(state.value.selection).isEqualTo(TextRange(5))
+        assertThat(state.value.selectionInChars).isEqualTo(TextRange(5))
     }
 
     @Test
     fun setTextAndSelectAll_works() {
         state.setTextAndSelectAll("Hello")
         assertThat(state.value.toString()).isEqualTo("Hello")
-        assertThat(state.value.selection).isEqualTo(TextRange(0, 5))
+        assertThat(state.value.selectionInChars).isEqualTo(TextRange(0, 5))
     }
 
     @Test

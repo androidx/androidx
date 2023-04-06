@@ -224,7 +224,7 @@ internal class StatelessInputConnection(
 
     override fun getSelectedText(flags: Int): CharSequence? {
         // https://source.chromium.org/chromium/chromium/src/+/master:content/public/android/java/src/org/chromium/content/browser/input/TextInputState.java;l=56;drc=0e20d1eb38227949805a4c0e9d5cdeddc8d23637
-        val result: CharSequence? = if (value.selection.collapsed) {
+        val result: CharSequence? = if (value.selectionInChars.collapsed) {
             null
         } else {
             // TODO(b/135556699) should return styled text
@@ -252,7 +252,7 @@ internal class StatelessInputConnection(
 
     override fun getCursorCapsMode(reqModes: Int): Int {
         logDebug("getCursorCapsMode($reqModes)")
-        return TextUtils.getCapsMode(value, value.selection.min, reqModes)
+        return TextUtils.getCapsMode(value, value.selectionInChars.min, reqModes)
     }
 
     // endregion
@@ -369,29 +369,29 @@ internal class StatelessInputConnection(
      * Returns the text before the selection.
      *
      * @param maxChars maximum number of characters (inclusive) before the minimum value in
-     * [TextFieldCharSequence.selection].
+     * [TextFieldCharSequence.selectionInChars].
      *
      * @see TextRange.min
      */
     fun TextFieldCharSequence.getTextBeforeSelection(maxChars: Int): CharSequence =
-        subSequence(max(0, selection.min - maxChars), selection.min)
+        subSequence(max(0, selectionInChars.min - maxChars), selectionInChars.min)
 
     /**
      * Returns the text after the selection.
      *
      * @param maxChars maximum number of characters (exclusive) after the maximum value in
-     * [TextFieldCharSequence.selection].
+     * [TextFieldCharSequence.selectionInChars].
      *
      * @see TextRange.max
      */
     fun TextFieldCharSequence.getTextAfterSelection(maxChars: Int): CharSequence =
-        subSequence(selection.max, min(selection.max + maxChars, length))
+        subSequence(selectionInChars.max, min(selectionInChars.max + maxChars, length))
 
     /**
      * Returns the currently selected text.
      */
     fun TextFieldCharSequence.getSelectedText(): CharSequence =
-        subSequence(selection.min, selection.max)
+        subSequence(selectionInChars.min, selectionInChars.max)
 
     private fun logDebug(message: String) {
         if (SIC_DEBUG) {
@@ -407,8 +407,8 @@ private fun TextFieldCharSequence.toExtractedText(): ExtractedText {
     res.startOffset = 0
     res.partialEndOffset = length
     res.partialStartOffset = -1 // -1 means full text
-    res.selectionStart = selection.min
-    res.selectionEnd = selection.max
+    res.selectionStart = selectionInChars.min
+    res.selectionEnd = selectionInChars.max
     res.flags = if ('\n' in this) 0 else ExtractedText.FLAG_SINGLE_LINE
     return res
 }

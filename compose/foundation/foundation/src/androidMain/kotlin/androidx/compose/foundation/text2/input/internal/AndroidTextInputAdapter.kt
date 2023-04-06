@@ -62,14 +62,14 @@ internal class AndroidTextInputAdapter constructor(
     private val textInputCommandExecutor = TextInputCommandExecutor(view, inputMethodManager)
 
     private val resetListener = EditProcessor.ResetListener { old, new ->
-        val needUpdateSelection = (old.selection != new.selection) ||
-            old.composition != new.composition
+        val needUpdateSelection = (old.selectionInChars != new.selectionInChars) ||
+            old.compositionInChars != new.compositionInChars
         if (needUpdateSelection) {
             inputMethodManager.updateSelection(
-                selectionStart = new.selection.min,
-                selectionEnd = new.selection.max,
-                compositionStart = new.composition?.min ?: -1,
-                compositionEnd = new.composition?.max ?: -1
+                selectionStart = new.selectionInChars.min,
+                selectionEnd = new.selectionInChars.max,
+                compositionStart = new.compositionInChars?.min ?: -1,
+                compositionEnd = new.compositionInChars?.max ?: -1
             )
         }
 
@@ -472,8 +472,8 @@ internal fun EditorInfo.update(textFieldValue: TextFieldCharSequence, imeOptions
         }
     }
 
-    this.initialSelStart = textFieldValue.selection.start
-    this.initialSelEnd = textFieldValue.selection.end
+    this.initialSelStart = textFieldValue.selectionInChars.start
+    this.initialSelEnd = textFieldValue.selectionInChars.end
 
     EditorInfoCompat.setInitialSurroundingText(this, textFieldValue)
 

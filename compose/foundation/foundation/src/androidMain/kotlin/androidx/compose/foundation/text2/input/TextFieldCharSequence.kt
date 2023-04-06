@@ -23,7 +23,7 @@ import androidx.compose.ui.text.TextRange
  * An immutable snapshot of the contents of a [TextFieldCharSequence] at a point in time.
  *
  * This class is a [CharSequence] and directly represents the text being edited. It also stores
- * the current [selection] of the field, which may either represent the cursor (if the selection is
+ * the current [selectionInChars] of the field, which may either represent the cursor (if the selection is
  * [collapsed][TextRange.collapsed]) or the selection range.
  *
  * This class also may contain the range being composed by the IME, if any, although this is not
@@ -37,7 +37,7 @@ sealed interface TextFieldCharSequence : CharSequence {
      * The selection range. If the selection is collapsed, it represents cursor
      * location. When selection range is out of bounds, it is constrained with the text length.
      */
-    val selection: TextRange
+    val selectionInChars: TextRange
 
     /**
      * Composition range created by  IME. If null, there is no composition range.
@@ -51,7 +51,7 @@ sealed interface TextFieldCharSequence : CharSequence {
      * composition by setting the value to null. Applying a composition will accept the changes
      * that were still being composed by IME.
      */
-    val composition: TextRange?
+    val compositionInChars: TextRange?
 
     /**
      * Returns true if the text in this object is equal to the text in [other], disregarding any
@@ -87,9 +87,9 @@ private class TextFieldCharSequenceWrapper(
     override val length: Int
         get() = text.length
 
-    override val selection: TextRange = selection.constrain(0, text.length)
+    override val selectionInChars: TextRange = selection.constrain(0, text.length)
 
-    override val composition: TextRange? = composition?.constrain(0, text.length)
+    override val compositionInChars: TextRange? = composition?.constrain(0, text.length)
 
     override operator fun get(index: Int): Char = text[index]
 
@@ -110,8 +110,8 @@ private class TextFieldCharSequenceWrapper(
 
         other as TextFieldCharSequenceWrapper
 
-        if (selection != other.selection) return false
-        if (composition != other.composition) return false
+        if (selectionInChars != other.selectionInChars) return false
+        if (compositionInChars != other.compositionInChars) return false
         if (!contentEquals(other.text)) return false
 
         return true
@@ -119,8 +119,8 @@ private class TextFieldCharSequenceWrapper(
 
     override fun hashCode(): Int {
         var result = text.hashCode()
-        result = 31 * result + selection.hashCode()
-        result = 31 * result + (composition?.hashCode() ?: 0)
+        result = 31 * result + selectionInChars.hashCode()
+        result = 31 * result + (compositionInChars?.hashCode() ?: 0)
         return result
     }
 

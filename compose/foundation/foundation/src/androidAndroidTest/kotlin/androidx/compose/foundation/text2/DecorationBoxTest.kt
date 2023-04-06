@@ -242,7 +242,7 @@ class DecorationBoxTest {
 
         // assertThat selection happened
         rule.runOnIdle {
-            assertThat(state.value.selection).isEqualTo(TextRange(0, 5))
+            assertThat(state.value.selectionInChars).isEqualTo(TextRange(0, 5))
         }
     }
 }
