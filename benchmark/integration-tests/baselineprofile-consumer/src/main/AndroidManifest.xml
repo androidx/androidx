@@ -20,7 +20,6 @@
         android:allowBackup="false"
         android:label="Jetpack Baselineprofiles Target"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat"
         tools:ignore="MissingApplicationIcon">
 
         <activity

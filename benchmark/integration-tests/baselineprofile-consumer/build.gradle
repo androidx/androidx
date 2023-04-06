@@ -1,3 +1,5 @@
+import com.android.build.api.artifact.SingleArtifact
+
 /*
  * Copyright 2022 The Android Open Source Project
  *
@@ -35,14 +37,11 @@ android {
 dependencies {
     implementation(libs.kotlinStdlib)
     implementation(libs.constraintLayout)
+    implementation(project(":profileinstaller:profileinstaller"))
     baselineProfile(project(":benchmark:integration-tests:baselineprofile-producer"))
 }
 
 baselineProfile {
-    filter {
-        include "androidx.benchmark.integration.baselineprofile.consumer.**"
-    }
-
     // Note that these are the default settings, just reported here to make it explicit.
     // `automaticGenerationDuringBuild` has to be off otherwise assembling release on CI would
     // trigger baseline profile generation and integration tests on device.
@@ -51,3 +50,25 @@ baselineProfile {
 }
 
 apply(from: "../baselineprofile-test-utils/utils.gradle")
+
+// Exposes the apk for profile verifier tests. When calling this function, the generated apks
+// can be utilized with `profileinstaller:integration-tests:profile-verification`.
+configurations {
+    apkAssets {
+        canBeConsumed = true
+        canBeResolved = false
+        attributes {
+            attribute(
+                    LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
+                    objects.named(LibraryElements, 'profileverification-apkAssets')
+            )
+        }
+    }
+}
+androidComponents {
+    onVariants(selector().all().withBuildType("release"), { variant ->
+        artifacts {
+            apkAssets(variant.artifacts.get(SingleArtifact.APK.INSTANCE))
+        }
+    })
+}

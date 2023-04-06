@@ -63,6 +63,11 @@ class BaselineProfileConsumerPluginTest(agpVersion: String?) {
         "src/$variantName/$EXPECTED_PROFILE_FOLDER/startup-prof.txt"
     )
 
+    private fun mergedArtProfile(variantName: String) = File(
+        projectSetup.consumer.rootDir,
+        "build/intermediates/merged_art_profile/$variantName/baseline-prof.txt"
+    )
+
     private fun readBaselineProfileFileContent(variantName: String): List<String> =
         baselineProfileFile(variantName).readLines()
 
@@ -380,15 +385,76 @@ class BaselineProfileConsumerPluginTest(agpVersion: String?) {
             .build()
 
         // In the final output there should be :
-        //  - one single file in src/main/generatedBaselineProfiles because merge = `all`.
+        //  - one single file in src/main/generated/baselineProfiles (because this is a library).
         //  - There should be only the Utils class [CLASS_2] because of the include filter.
-        //  - The method `someOtherMethod` [CLASS_2_METHOD_3] should be included only once.
+        //  - The method `someOtherMethod` [CLASS_2_METHOD_3] should be included only once
+        //      (despite being included multiple times with different flags).
         assertThat(readBaselineProfileFileContent("main"))
             .containsExactly(
                 Fixtures.CLASS_2,
                 Fixtures.CLASS_2_METHOD_1,
                 Fixtures.CLASS_2_METHOD_2,
                 Fixtures.CLASS_2_METHOD_3,
+            )
+    }
+
+    @Test
+    fun testFilterPerVariant() {
+        projectSetup.consumer.setup(
+            androidPlugin = ANDROID_APPLICATION_PLUGIN,
+            flavors = true,
+            baselineProfileBlock = """
+                filter {
+                    include("com.sample.Activity")
+                }
+                variants {
+                    freeRelease {
+                        filter { include("com.sample.Utils") }
+                    }
+                    paidRelease {
+                        filter { include("com.sample.Fragment") }
+                    }
+                }
+            """.trimIndent()
+        )
+
+        val commonProfile = listOf(
+            Fixtures.CLASS_1,
+            Fixtures.CLASS_1_METHOD_1,
+            Fixtures.CLASS_1_METHOD_2,
+            Fixtures.CLASS_2,
+            Fixtures.CLASS_2_METHOD_1,
+            Fixtures.CLASS_2_METHOD_2,
+            Fixtures.CLASS_2_METHOD_3,
+            Fixtures.CLASS_3,
+            Fixtures.CLASS_3_METHOD_1,
+        )
+        projectSetup.producer.setupWithFreeAndPaidFlavors(
+            freeReleaseProfileLines = commonProfile,
+            paidReleaseProfileLines = commonProfile,
+        )
+
+        gradleRunner
+            .withArguments("generateBaselineProfile", "--stacktrace")
+            .build()
+
+        assertThat(readBaselineProfileFileContent("freeRelease"))
+            .containsExactly(
+                Fixtures.CLASS_1,
+                Fixtures.CLASS_1_METHOD_1,
+                Fixtures.CLASS_1_METHOD_2,
+                Fixtures.CLASS_2,
+                Fixtures.CLASS_2_METHOD_1,
+                Fixtures.CLASS_2_METHOD_2,
+                Fixtures.CLASS_2_METHOD_3,
+            )
+        assertThat(readBaselineProfileFileContent("paidRelease"))
+            .containsExactly(
+                Fixtures.CLASS_1,
+                Fixtures.CLASS_1_METHOD_1,
+                Fixtures.CLASS_1_METHOD_2,
+                Fixtures.CLASS_3,
+                Fixtures.CLASS_3_METHOD_1,
             )
     }
 
@@ -893,6 +959,57 @@ class BaselineProfileConsumerPluginTest(agpVersion: String?) {
                 Fixtures.CLASS_2_METHOD_1
             )
         )
+    }
+
+    @Test
+    fun testBaselineProfileIsInMergeArtProfileIntermediate() {
+        projectSetup.consumer.setup(
+            androidPlugin = ANDROID_APPLICATION_PLUGIN,
+            flavors = true,
+            baselineProfileBlock = """
+                saveInSrc = true
+                automaticGenerationDuringBuild = true
+            """.trimIndent()
+        )
+
+        data class VariantAndProfile(val variantName: String, val profile: List<String>)
+
+        val freeRelease = VariantAndProfile(
+            variantName = "freeRelease",
+            profile = listOf(
+                Fixtures.CLASS_1,
+                Fixtures.CLASS_1_METHOD_1,
+                Fixtures.CLASS_1_METHOD_2,
+                Fixtures.CLASS_3,
+                Fixtures.CLASS_3_METHOD_1,
+            )
+        )
+        val paidRelease = VariantAndProfile(
+            variantName = "paidRelease",
+            profile = listOf(
+                Fixtures.CLASS_1,
+                Fixtures.CLASS_1_METHOD_1,
+                Fixtures.CLASS_1_METHOD_2,
+                Fixtures.CLASS_2,
+                Fixtures.CLASS_2_METHOD_1,
+                Fixtures.CLASS_2_METHOD_2,
+                Fixtures.CLASS_2_METHOD_3,
+            )
+        )
+        projectSetup.producer.setupWithFreeAndPaidFlavors(
+            freeReleaseProfileLines = freeRelease.profile,
+            paidReleaseProfileLines = paidRelease.profile,
+        )
+
+        gradleRunner
+            .build("mergeFreeReleaseArtProfile", "mergePaidReleaseArtProfile") {}
+
+        arrayOf(freeRelease, paidRelease).forEach {
+            val notFound = mergedArtProfile(it.variantName)
+                .readLines()
+                .require(*(it.profile).toTypedArray())
+            assertThat(notFound).isEmpty()
+        }
     }
 }
 

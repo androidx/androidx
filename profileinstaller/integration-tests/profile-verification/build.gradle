@@ -66,6 +66,7 @@ dependencies {
     androidTestImplementation(project(":core:core"))
     apkAssets(project(":profileinstaller:integration-tests:profile-verification-sample"))
     apkAssets(project(":profileinstaller:integration-tests:profile-verification-sample-no-initializer"))
+    apkAssets(project(":benchmark:integration-tests:baselineprofile-consumer"))
 }
 
 // It makes sure that the apks are generated before the assets are packed.
