@@ -27,7 +27,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.DefaultMinLines
 import androidx.compose.foundation.text.InternalFoundationTextApi
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -36,6 +35,9 @@ import androidx.compose.foundation.text.heightInLines
 import androidx.compose.foundation.text.textFieldMinSize
 import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.text2.input.TextFieldLineLimits
+import androidx.compose.foundation.text2.input.TextFieldLineLimits.MultiLine
+import androidx.compose.foundation.text2.input.TextFieldLineLimits.SingleLine
 import androidx.compose.foundation.text2.input.internal.AndroidTextInputPlugin
 import androidx.compose.foundation.text2.input.internal.TextFieldCoreModifier
 import androidx.compose.foundation.text2.input.internal.TextFieldDecoratorModifier
@@ -86,13 +88,11 @@ import kotlin.math.roundToInt
  * for different [Interaction]s.
  * @param cursorBrush [Brush] to paint cursor with. If [SolidColor] with [Color.Unspecified]
  * provided, there will be no cursor drawn
- * @param minLines The minimum height in terms of minimum number of visible lines. It is required
- * that 1 <= [minLines] <= [maxLines].
- * @param maxLines The maximum height in terms of maximum number of visible lines. It is required
- * that 1 <= [minLines] <= [maxLines].
+ * @param lineLimits Whether the text field should be [SingleLine], scroll horizontally, and
+ * ignore newlines; or [MultiLine] and grow and scroll vertically.
  * @param scrollState Scroll state that manages either horizontal or vertical scroll of TextField.
- * If [maxLines] is 1, this TextField is treated as single line which activates horizontal scroll
- * behavior. In other cases TextField becomes vertically scrollable.
+ * If [lineLimits] is [SingleLine], this text field is treated as single line with horizontal
+ * scroll behavior. In other cases the text field becomes vertically scrollable.
  * @param keyboardOptions software keyboard options that contains configuration such as
  * [KeyboardType] and [ImeAction].
  * @param keyboardActions when the input service emits an IME action, the corresponding callback
@@ -122,8 +122,7 @@ fun BasicTextField2(
     textStyle: TextStyle = TextStyle.Default,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
-    minLines: Int = DefaultMinLines,
-    maxLines: Int = Int.MAX_VALUE,
+    lineLimits: TextFieldLineLimits = TextFieldLineLimits.Default,
     onTextLayout: Density.(TextLayoutResult) -> Unit = {},
     interactionSource: MutableInteractionSource? = null,
     cursorBrush: Brush = SolidColor(Color.Black),
@@ -138,7 +137,7 @@ fun BasicTextField2(
     val fontFamilyResolver = LocalFontFamilyResolver.current
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
-    val singleLine = minLines == 1 && maxLines == 1
+    val singleLine = lineLimits == SingleLine
     // We're using this to communicate focus state to cursor for now.
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
@@ -188,6 +187,16 @@ fun BasicTextField2(
 
     Box(decorationModifiers) {
         decorationBox(innerTextField = {
+            val minLines: Int
+            val maxLines: Int
+            if (lineLimits is MultiLine) {
+                minLines = lineLimits.minHeightInLines
+                maxLines = lineLimits.maxHeightInLines
+            } else {
+                minLines = 1
+                maxLines = 1
+            }
+
             val coreModifiers = Modifier
                 .heightInLines(
                     textStyle = textStyle,

@@ -764,7 +764,6 @@ internal class BasicTextField2Test {
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(Tag),
                 filter = filter,
-                maxLines = Int.MAX_VALUE
             )
         }
         requestFocus(Tag)
@@ -789,7 +788,6 @@ internal class BasicTextField2Test {
                 modifier = Modifier.testTag(Tag),
                 filter = filter,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                maxLines = Int.MAX_VALUE
             )
         }
         requestFocus(Tag)
@@ -814,7 +812,6 @@ internal class BasicTextField2Test {
                 modifier = Modifier.testTag(Tag),
                 filter = filter,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                maxLines = Int.MAX_VALUE
             )
         }
         requestFocus(Tag)
@@ -843,7 +840,6 @@ internal class BasicTextField2Test {
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(Tag),
                 filter = filter,
-                maxLines = Int.MAX_VALUE
             )
         }
         requestFocus(Tag)
