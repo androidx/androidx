@@ -16,6 +16,7 @@
 
 package androidx.camera.core.resolutionselector;
 
+import static androidx.camera.core.AspectRatio.RATIO_16_9;
 import static androidx.camera.core.AspectRatio.RATIO_4_3;
 
 import androidx.annotation.IntDef;
@@ -33,13 +34,20 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * The aspect ratio strategy defines the sequence of aspect ratios that are used to select the
  * best size for a particular image.
+ *
+ * <p>Applications can create a {@link ResolutionSelector} with a proper AspectRatioStrategy to
+ * choose a resolution that matches the preferred aspect ratio.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class AspectRatioStrategy {
     /**
      * CameraX doesn't fall back to select sizes of any other aspect ratio when this fallback
      * rule is used.
+     *
+     * <p>Note that an AspectRatioStrategy with more restricted settings may result in that no
+     * resolution can be selected to use. Applications will receive
+     * {@link IllegalArgumentException} when binding the {@link UseCase}s with such kind of
+     * AspectRatioStrategy.
      */
     public static final int FALLBACK_RULE_NONE = 0;
     /**
@@ -70,37 +78,25 @@ public final class AspectRatioStrategy {
      */
     @NonNull
     public static final AspectRatioStrategy RATIO_4_3_FALLBACK_AUTO_STRATEGY =
-            AspectRatioStrategy.create(RATIO_4_3, FALLBACK_RULE_AUTO);
+            new AspectRatioStrategy(RATIO_4_3, FALLBACK_RULE_AUTO);
+
+    /**
+     * The pre-defined aspect ratio strategy that selects sizes with
+     * {@link AspectRatio#RATIO_16_9} in priority. Then, selects sizes with other aspect ratios
+     * according to which aspect ratio can contain the closest FOV of the camera sensor.
+     *
+     * <p>Please see the
+     * <a href="https://source.android.com/docs/core/camera/camera3_crop_reprocess">Output streams,
+     * Cropping, and Zoom</a> introduction to know more about the camera FOV.
+     */
+    @NonNull
+    public static final AspectRatioStrategy RATIO_16_9_FALLBACK_AUTO_STRATEGY =
+            new AspectRatioStrategy(RATIO_16_9, FALLBACK_RULE_AUTO);
 
     @AspectRatio.Ratio
     private final int mPreferredAspectRatio;
     @AspectRatioFallbackRule
     private final int mFallbackRule;
-
-    private AspectRatioStrategy(@AspectRatio.Ratio int preferredAspectRatio,
-            @AspectRatioFallbackRule int fallbackRule) {
-        mPreferredAspectRatio = preferredAspectRatio;
-        mFallbackRule = fallbackRule;
-    }
-
-    /**
-     * Returns the specified preferred aspect ratio.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @AspectRatio.Ratio
-    public int getPreferredAspectRatio() {
-        return mPreferredAspectRatio;
-    }
-
-    /**
-     * Returns the specified fallback rule for choosing the aspect ratio when the preferred aspect
-     * ratio is not available.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @AspectRatioFallbackRule
-    public int getFallbackRule() {
-        return mFallbackRule;
-    }
 
     /**
      * Creates a new AspectRatioStrategy instance, configured with the specified preferred aspect
@@ -123,10 +119,26 @@ public final class AspectRatioStrategy {
      * @param preferredAspectRatio the preferred aspect ratio to select first.
      * @param fallbackRule the rule to follow when the preferred aspect ratio is not available.
      */
-    @NonNull
-    public static AspectRatioStrategy create(
-            @AspectRatio.Ratio int preferredAspectRatio,
+    public AspectRatioStrategy(@AspectRatio.Ratio int preferredAspectRatio,
             @AspectRatioFallbackRule int fallbackRule) {
-        return new AspectRatioStrategy(preferredAspectRatio, fallbackRule);
+        mPreferredAspectRatio = preferredAspectRatio;
+        mFallbackRule = fallbackRule;
+    }
+
+    /**
+     * Returns the specified preferred aspect ratio.
+     */
+    @AspectRatio.Ratio
+    public int getPreferredAspectRatio() {
+        return mPreferredAspectRatio;
+    }
+
+    /**
+     * Returns the specified fallback rule for choosing the aspect ratio when the preferred aspect
+     * ratio is not available.
+     */
+    @AspectRatioFallbackRule
+    public int getFallbackRule() {
+        return mFallbackRule;
     }
 }

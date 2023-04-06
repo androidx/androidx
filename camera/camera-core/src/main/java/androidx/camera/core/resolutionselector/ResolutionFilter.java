@@ -17,12 +17,12 @@
 package androidx.camera.core.resolutionselector;
 
 import android.util.Size;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.camera.core.AspectRatio;
-import androidx.camera.core.ImageCapture;
+import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 
 import java.util.List;
@@ -31,9 +31,11 @@ import java.util.List;
  * Applications can filter out unsuitable sizes and sort the resolution list in the preferred
  * order by implementing the resolution filter interface. The preferred order is the order in
  * which the resolutions should be tried first.
+ *
+ * <p>Applications can create a {@link ResolutionSelector} with a proper ResolutionFilter to
+ * choose the preferred resolution.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ResolutionFilter {
     /**
      * Removes unsuitable sizes and sorts the resolution list in the preferred order.
@@ -50,8 +52,12 @@ public interface ResolutionFilter {
      * @param rotationDegrees the rotation degrees to rotate the image to the desired
      *                        orientation, matching the {@link UseCase}’s target rotation setting
      *                        . For example, the target rotation set via
-     *                        {@link ImageCapture.Builder#setTargetRotation(int)} or
-     *                        {@link ImageCapture#setTargetRotation(int)}.
+     *                        {@link Preview.Builder#setTargetRotation(int)} or
+     *                        {@link Preview#setTargetRotation(int)}. After rotating the sizes by
+     *                        the rotation degrees, applications can obtain the source image size
+     *                        in the specified target orientation. Then, applications can put the
+     *                        size that best fits to the {@link Preview}'s Android
+     *                        {@link View} size at the front of the returned list.
      * @return the desired ordered sizes list for resolution selection. The returned list should
      * only include sizes in the provided input supported sizes list.
      */

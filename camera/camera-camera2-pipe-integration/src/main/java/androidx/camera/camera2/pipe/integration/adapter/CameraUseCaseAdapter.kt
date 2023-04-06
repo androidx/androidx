@@ -138,7 +138,7 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
             mutableConfig.insertOption(
                 OPTION_RESOLUTION_SELECTOR,
                 ResolutionSelector.Builder().setResolutionStrategy(
-                    ResolutionStrategy.create(
+                    ResolutionStrategy(
                         previewSize,
                         ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER
                     )

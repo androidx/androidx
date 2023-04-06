@@ -25,7 +25,6 @@ import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
 import androidx.camera.core.impl.utils.AspectRatioUtil
 import androidx.camera.core.resolutionselector.AspectRatioStrategy
-import androidx.camera.core.resolutionselector.HighResolution
 import androidx.camera.core.resolutionselector.ResolutionFilter
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
@@ -399,7 +398,7 @@ class SupportedOutputSizesSorterTest {
     fun getSupportedOutputSizes_whenHighResolutionIsEnabled_aspectRatio16x9() {
         verifySupportedOutputSizesWithResolutionSelectorSettings(
             preferredAspectRatio = AspectRatio.RATIO_16_9,
-            highResolutionEnabledFlags = HighResolution.FLAG_DEFAULT_MODE_ON,
+            highResolutionEnabledFlag = ResolutionSelector.HIGH_RESOLUTION_FLAG_ON,
             expectedList = listOf(
                 // Matched preferred AspectRatio items, sorted by area size.
                 Size(8000, 4500), // 16:9 high resolution size
@@ -427,7 +426,7 @@ class SupportedOutputSizesSorterTest {
     fun highResolutionCanNotBeSelected_whenHighResolutionForceDisabled() {
         verifySupportedOutputSizesWithResolutionSelectorSettings(
             preferredAspectRatio = AspectRatio.RATIO_16_9,
-            highResolutionEnabledFlags = HighResolution.FLAG_DEFAULT_MODE_ON,
+            highResolutionEnabledFlag = ResolutionSelector.HIGH_RESOLUTION_FLAG_ON,
             highResolutionForceDisabled = true,
             expectedList = listOf(
                 // Matched preferred AspectRatio items, sorted by area size.
@@ -546,7 +545,7 @@ class SupportedOutputSizesSorterTest {
         boundSize: Size? = null,
         resolutionFallbackRule: Int = FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER,
         resolutionFilter: ResolutionFilter? = null,
-        highResolutionEnabledFlags: Int = 0,
+        highResolutionEnabledFlag: Int = ResolutionSelector.HIGH_RESOLUTION_FLAG_OFF,
         highResolutionForceDisabled: Boolean = false,
         expectedList: List<Size> = Collections.emptyList(),
     ) {
@@ -558,7 +557,7 @@ class SupportedOutputSizesSorterTest {
             boundSize,
             resolutionFallbackRule,
             resolutionFilter,
-            highResolutionEnabledFlags,
+            highResolutionEnabledFlag,
             highResolutionForceDisabled
         )
         val resultList = outputSizesSorter.getSortedSupportedOutputSizes(useCaseConfig)
@@ -573,7 +572,7 @@ class SupportedOutputSizesSorterTest {
         boundSize: Size? = null,
         resolutionFallbackRule: Int = FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER,
         resolutionFilter: ResolutionFilter? = null,
-        highResolutionEnabledFlags: Int = 0,
+        highResolutionEnabledFlag: Int = ResolutionSelector.HIGH_RESOLUTION_FLAG_OFF,
         highResolutionForceDisabled: Boolean = false,
     ): UseCaseConfig<*> {
         val useCaseConfigBuilder = FakeUseCaseConfig.Builder(captureType, ImageFormat.JPEG)
@@ -581,7 +580,7 @@ class SupportedOutputSizesSorterTest {
 
         // Creates aspect ratio strategy and sets to resolution selector
         val aspectRatioStrategy = if (preferredAspectRatio != TARGET_ASPECT_RATIO_NONE) {
-            AspectRatioStrategy.create(preferredAspectRatio, aspectRatioFallbackRule)
+            AspectRatioStrategy(preferredAspectRatio, aspectRatioFallbackRule)
         } else {
             null
         }
@@ -594,7 +593,7 @@ class SupportedOutputSizesSorterTest {
         } else {
             boundSize?.let {
                 resolutionSelectorBuilder.setResolutionStrategy(
-                    ResolutionStrategy.create(
+                    ResolutionStrategy(
                         boundSize,
                         resolutionFallbackRule
                     )
@@ -605,7 +604,7 @@ class SupportedOutputSizesSorterTest {
         // Sets the resolution filter to resolution selector
         resolutionFilter?.let { resolutionSelectorBuilder.setResolutionFilter(it) }
         // Sets the high resolution enabled flags to resolution selector
-        resolutionSelectorBuilder.setHighResolutionEnabledFlags(highResolutionEnabledFlags)
+        resolutionSelectorBuilder.setHighResolutionEnabledFlag(highResolutionEnabledFlag)
 
         // Sets the custom resolution selector to use case config
         useCaseConfigBuilder.setResolutionSelector(resolutionSelectorBuilder.build())

@@ -115,7 +115,7 @@ public final class Camera2UseCaseConfigFactory implements UseCaseConfigFactory {
         if (captureType == CaptureType.PREVIEW) {
             Size previewSize = mDisplayInfoManager.getPreviewSize();
             mutableConfig.insertOption(OPTION_MAX_RESOLUTION, previewSize);
-            ResolutionStrategy resolutionStrategy = ResolutionStrategy.create(previewSize,
+            ResolutionStrategy resolutionStrategy = new ResolutionStrategy(previewSize,
                     ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER);
             mutableConfig.insertOption(OPTION_RESOLUTION_SELECTOR,
                     new ResolutionSelector.Builder().setResolutionStrategy(

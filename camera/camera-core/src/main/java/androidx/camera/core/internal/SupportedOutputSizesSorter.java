@@ -289,7 +289,8 @@ class SupportedOutputSizesSorter {
     private List<Size> applyHighResolutionSettings(@NonNull List<Size> resolutionCandidateList,
             @NonNull ResolutionSelector resolutionSelector, int imageFormat) {
         // Appends high resolution output sizes if high resolution is enabled by ResolutionSelector
-        if (resolutionSelector.getHighResolutionEnabledFlags() != 0) {
+        if (resolutionSelector.getHighResolutionEnabledFlag()
+                == ResolutionSelector.HIGH_RESOLUTION_FLAG_ON) {
             List<Size> allSizesList = new ArrayList<>();
             allSizesList.addAll(resolutionCandidateList);
             allSizesList.addAll(mCameraInfoInternal.getSupportedHighResolutions(imageFormat));
@@ -402,7 +403,7 @@ class SupportedOutputSizesSorter {
         }
         Integer fallbackRule = resolutionStrategy.getFallbackRule();
 
-        if (fallbackRule == null) {
+        if (resolutionStrategy.equals(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)) {
             // Do nothing for HIGHEST_AVAILABLE_STRATEGY case.
             return;
         }

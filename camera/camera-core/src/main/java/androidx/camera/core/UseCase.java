@@ -57,6 +57,7 @@ import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.utils.UseCaseConfigUtil;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
 import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LifecycleOwner;
@@ -262,8 +263,8 @@ public abstract class UseCase {
         // Forces disable ZSL when high resolution is enabled.
         if (mergedConfig.containsOption(ImageOutputConfig.OPTION_RESOLUTION_SELECTOR)
                 && mergedConfig.retrieveOption(
-                ImageOutputConfig.OPTION_RESOLUTION_SELECTOR).getHighResolutionEnabledFlags()
-                != 0) {
+                ImageOutputConfig.OPTION_RESOLUTION_SELECTOR).getHighResolutionEnabledFlag()
+                != ResolutionSelector.HIGH_RESOLUTION_FLAG_OFF) {
             mergedConfig.insertOption(UseCaseConfig.OPTION_ZSL_DISABLED, true);
         }
 
