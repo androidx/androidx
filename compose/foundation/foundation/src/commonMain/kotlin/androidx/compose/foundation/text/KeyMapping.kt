@@ -149,8 +149,8 @@ internal val defaultKeyMapping: KeyMapping =
                         }
                     event.isShiftPressed ->
                         when (event.key) {
-                            MappedKeys.MoveHome -> KeyCommand.SELECT_HOME
-                            MappedKeys.MoveEnd -> KeyCommand.SELECT_END
+                            MappedKeys.MoveHome -> KeyCommand.SELECT_LINE_LEFT
+                            MappedKeys.MoveEnd -> KeyCommand.SELECT_LINE_RIGHT
                             else -> null
                         }
                     event.isAltPressed ->
