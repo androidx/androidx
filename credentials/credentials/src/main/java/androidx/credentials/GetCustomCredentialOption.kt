@@ -16,6 +16,7 @@
 
 package androidx.credentials
 
+import android.content.ComponentName
 import android.os.Bundle
 
 /**
@@ -39,6 +40,11 @@ import android.os.Bundle
  * otherwise
  * @param isAutoSelectAllowed defines if a credential entry will be automatically chosen if it is
  * the only one available option, false by default
+ * @param allowedProviders a set of provider service [ComponentName] allowed to receive this
+ * option. This property will only be honored at API level >= 34; also a [SecurityException] will
+ * be thrown if it is set as non-empty but your app does not have
+ * android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS. For API level < 34, control the
+ * allowed provider via [library dependencies](https://developer.android.com/training/sign-in/passkeys#add-dependencies).
  * @throws IllegalArgumentException If [type] is empty
  * @throws NullPointerException If [requestData] or [type] is null
  */
@@ -48,12 +54,14 @@ open class GetCustomCredentialOption @JvmOverloads constructor(
     candidateQueryData: Bundle,
     isSystemProviderRequired: Boolean,
     isAutoSelectAllowed: Boolean = false,
+    allowedProviders: Set<ComponentName> = emptySet(),
 ) : CredentialOption(
     type = type,
     requestData = requestData,
     candidateQueryData = candidateQueryData,
     isSystemProviderRequired = isSystemProviderRequired,
-    isAutoSelectAllowed = isAutoSelectAllowed
+    isAutoSelectAllowed = isAutoSelectAllowed,
+    allowedProviders = allowedProviders,
 ) {
     /** Returns the credential type that this request is for. */
     fun getCustomRequestType() = type
