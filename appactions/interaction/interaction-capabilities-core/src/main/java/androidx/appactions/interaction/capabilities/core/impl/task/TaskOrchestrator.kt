@@ -451,7 +451,8 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
     ): FulfillmentResponse {
         val result = externalSession.onFinish(actionSpec.buildArgument(finalArguments))
         status = CapabilitySession.Status.COMPLETED
-        val fulfillmentResponse = FulfillmentResponse.newBuilder()
+        val fulfillmentResponse =
+            FulfillmentResponse.newBuilder().setStartDictation(result.shouldStartDictation)
         convertToExecutionOutput(result)?.let { fulfillmentResponse.executionOutput = it }
         return fulfillmentResponse.build()
     }

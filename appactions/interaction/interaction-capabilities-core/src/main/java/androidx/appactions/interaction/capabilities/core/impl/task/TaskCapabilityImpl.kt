@@ -15,8 +15,9 @@
  */
 
 package androidx.appactions.interaction.capabilities.core.impl.task
-import androidx.appactions.interaction.capabilities.core.Capability
+
 import androidx.appactions.interaction.capabilities.core.BaseSession
+import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.SessionFactory
 import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
@@ -27,7 +28,6 @@ import java.util.function.Supplier
 
 /**
  * @param id a unique id for this capability, can be null
- * @param supportsMultiTurnTask whether this is a single-turn capability or a multi-turn capability
  * @param actionSpec the ActionSpec for this capability
  * @param sessionFactory the SessionFactory provided by the library user
  * @param sessionBridge a SessionBridge object that converts SessionT into TaskHandler instance
@@ -40,19 +40,20 @@ internal class TaskCapabilityImpl<
     SessionT : BaseSession<ArgumentT, OutputT>,
     ConfirmationT,
     SessionUpdaterT,
-    > constructor(
+>
+constructor(
     override val id: String,
-    val actionSpec: ActionSpec<PropertyT, ArgumentT, OutputT>,
-    val property: PropertyT,
-    val sessionFactory: SessionFactory<SessionT>,
-    val sessionBridge: SessionBridge<SessionT, ConfirmationT>,
-    val sessionUpdaterSupplier: Supplier<SessionUpdaterT>,
+    private val actionSpec: ActionSpec<PropertyT, ArgumentT, OutputT>,
+    private val property: PropertyT,
+    private val sessionFactory: SessionFactory<SessionT>,
+    private val sessionBridge: SessionBridge<SessionT, ConfirmationT>,
+    private val sessionUpdaterSupplier: Supplier<SessionUpdaterT>,
 ) : Capability {
 
-    override val supportsMultiTurnTask = true
-
     override fun getAppAction(): AppAction {
-        return actionSpec.convertPropertyToProto(property).toBuilder()
+        return actionSpec
+            .convertPropertyToProto(property)
+            .toBuilder()
             .setTaskInfo(TaskInfo.newBuilder().setSupportsPartialFulfillment(true))
             .setIdentifier(id)
             .build()
@@ -62,9 +63,10 @@ internal class TaskCapabilityImpl<
         sessionId: String,
         hostProperties: HostProperties,
     ): CapabilitySession {
-        val externalSession = sessionFactory.createSession(
-            hostProperties,
-        )
+        val externalSession =
+            sessionFactory.createSession(
+                hostProperties,
+            )
         return TaskCapabilitySession(
             sessionId,
             actionSpec,

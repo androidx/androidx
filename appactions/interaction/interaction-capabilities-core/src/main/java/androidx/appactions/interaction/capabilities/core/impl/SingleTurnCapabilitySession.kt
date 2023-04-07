@@ -90,7 +90,7 @@ internal class SingleTurnCapabilitySession<
         executionResult: ExecutionResult<OutputT>,
     ): FulfillmentResponse {
         val fulfillmentResponseBuilder =
-            FulfillmentResponse.newBuilder().setStartDictation(executionResult.startDictation)
+            FulfillmentResponse.newBuilder().setStartDictation(executionResult.shouldStartDictation)
         executionResult.output?.let {
             fulfillmentResponseBuilder.setExecutionOutput(
                 actionSpec.convertOutputToProto(it),

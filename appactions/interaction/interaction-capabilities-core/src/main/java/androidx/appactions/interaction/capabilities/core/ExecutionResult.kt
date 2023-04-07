@@ -21,29 +21,29 @@ import java.util.Objects
  * Class that represents the response after a Capability fulfills an action.
  */
 class ExecutionResult<OutputT> internal constructor(
-    val startDictation: Boolean,
+    @get:JvmName("shouldStartDictation")
+    val shouldStartDictation: Boolean,
     val output: OutputT?,
 ) {
     override fun toString() =
-        "ExecutionResult(startDictation=$startDictation,output=$output)"
+        "ExecutionResult(shouldStartDictation=$shouldStartDictation,output=$output)"
 
     override fun equals(other: Any?): Boolean {
         return other is ExecutionResult<*> && output == other.output
     }
 
-    override fun hashCode() = Objects.hash(startDictation, output)
+    override fun hashCode() = Objects.hash(shouldStartDictation, output)
 
     /**
      * Builder for ExecutionResult.
      */
     class Builder<OutputT> {
-        private var startDictation: Boolean = false
-
+        private var shouldStartDictation: Boolean = false
         private var output: OutputT? = null
 
         /** Sets whether or not this fulfillment should start dictation. */
         fun setStartDictation(startDictation: Boolean) = apply {
-            this.startDictation = startDictation
+            this.shouldStartDictation = startDictation
         }
 
         /** Sets the execution output. */
@@ -52,6 +52,6 @@ class ExecutionResult<OutputT> internal constructor(
         }
 
         /** Builds and returns the ExecutionResult instance. */
-        fun build() = ExecutionResult(startDictation, output)
+        fun build() = ExecutionResult(shouldStartDictation, output)
     }
 }
