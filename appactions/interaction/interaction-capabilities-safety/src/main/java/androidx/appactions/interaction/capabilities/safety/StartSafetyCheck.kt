@@ -46,19 +46,19 @@ private const val CAPABILITY_NAME = "actions.intent.START_SAFETY_CHECK"
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
         .setDescriptor(StartSafetyCheck.Property::class.java)
-        .setArgument(StartSafetyCheck.Argument::class.java, StartSafetyCheck.Argument::Builder)
+        .setArguments(StartSafetyCheck.Arguments::class.java, StartSafetyCheck.Arguments::Builder)
         .setOutput(StartSafetyCheck.Output::class.java)
         .bindOptionalParameter(
             "safetyCheck.duration",
             { property -> Optional.ofNullable(property.duration) },
-            StartSafetyCheck.Argument.Builder::setDuration,
+            StartSafetyCheck.Arguments.Builder::setDuration,
             TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
             TypeConverters.DURATION_ENTITY_CONVERTER
         )
         .bindOptionalParameter(
             "safetyCheck.checkInTime",
             { property -> Optional.ofNullable(property.checkInTime) },
-            StartSafetyCheck.Argument.Builder::setCheckInTime,
+            StartSafetyCheck.Arguments.Builder::setCheckInTime,
             TypeConverters.ZONED_DATETIME_PARAM_VALUE_CONVERTER,
             TypeConverters.ZONED_DATETIME_ENTITY_CONVERTER
         )
@@ -79,7 +79,7 @@ class StartSafetyCheck private constructor() {
     // TODO(b/267805819): Update to include the SessionFactory once Session API is ready.
     class CapabilityBuilder :
         CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, Session
+            CapabilityBuilder, Property, Arguments, Output, Confirmation, Session
             >(ACTION_SPEC) {
         override fun build(): Capability {
             // TODO(b/268369632): No-op remove empty property builder after Property od removed
@@ -130,19 +130,19 @@ class StartSafetyCheck private constructor() {
         }
     }
 
-    class Argument internal constructor(
+    class Arguments internal constructor(
         val duration: Duration?,
         val checkInTime: ZonedDateTime?
     ) {
         override fun toString(): String {
-            return "Argument(duration=$duration, checkInTime=$checkInTime)"
+            return "Arguments(duration=$duration, checkInTime=$checkInTime)"
         }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
 
-            other as Argument
+            other as Arguments
 
             if (duration != other.duration) return false
             if (checkInTime != other.checkInTime) return false
@@ -156,7 +156,7 @@ class StartSafetyCheck private constructor() {
             return result
         }
 
-        class Builder : BuilderOf<Argument> {
+        class Builder : BuilderOf<Arguments> {
             private var duration: Duration? = null
 
             private var checkInTime: ZonedDateTime? = null
@@ -167,7 +167,7 @@ class StartSafetyCheck private constructor() {
             fun setCheckInTime(checkInTime: ZonedDateTime): Builder =
                 apply { this.checkInTime = checkInTime }
 
-            override fun build(): Argument = Argument(duration, checkInTime)
+            override fun build(): Arguments = Arguments(duration, checkInTime)
         }
     }
 
@@ -285,5 +285,5 @@ class StartSafetyCheck private constructor() {
 
     class Confirmation internal constructor()
 
-    sealed interface Session : BaseSession<Argument, Output>
+    sealed interface Session : BaseSession<Arguments, Output>
 }

@@ -29,8 +29,8 @@ object TestingUtils {
     // use this timeout for waiting an arbitrary period of time.
     const val BLOCKING_TIMEOUT = 300L
 
-    fun <ArgumentT, OutputT> createFakeActionExecutor(): ActionExecutorAsync<ArgumentT, OutputT> {
-        return ActionExecutorAsync { _: ArgumentT ->
+    fun <ArgumentsT, OutputT> createFakeActionExecutor(): ActionExecutorAsync<ArgumentsT, OutputT> {
+        return ActionExecutorAsync { _: ArgumentsT ->
             Futures.immediateFuture(
                 ExecutionResult.Builder<OutputT>().build(),
             )

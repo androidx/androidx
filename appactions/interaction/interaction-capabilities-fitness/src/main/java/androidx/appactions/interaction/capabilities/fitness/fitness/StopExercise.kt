@@ -34,12 +34,12 @@ private const val CAPABILITY_NAME = "actions.intent.PAUSE_EXERCISE"
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
         .setDescriptor(StopExercise.Property::class.java)
-        .setArgument(StopExercise.Argument::class.java, StopExercise.Argument::Builder)
+        .setArguments(StopExercise.Arguments::class.java, StopExercise.Arguments::Builder)
         .setOutput(StopExercise.Output::class.java)
         .bindOptionalParameter(
             "exercise.name",
             { property -> Optional.ofNullable(property.name) },
-            StopExercise.Argument.Builder::setName,
+            StopExercise.Arguments.Builder::setName,
             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
             TypeConverters.STRING_VALUE_ENTITY_CONVERTER
         )
@@ -49,7 +49,7 @@ private val ACTION_SPEC =
 class StopExercise private constructor() {
     class CapabilityBuilder :
         CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, Session
+            CapabilityBuilder, Property, Arguments, Output, Confirmation, Session
             >(ACTION_SPEC) {
         private var propertyBuilder: Property.Builder = Property.Builder()
         fun setNameProperty(name: ParamProperty<StringValue>): CapabilityBuilder =
@@ -97,18 +97,18 @@ class StopExercise private constructor() {
         }
     }
 
-    class Argument internal constructor(
+    class Arguments internal constructor(
         val name: String?
     ) {
         override fun toString(): String {
-            return "Argument(name=$name)"
+            return "Arguments(name=$name)"
         }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass !== other?.javaClass) return false
 
-            other as Argument
+            other as Arguments
 
             if (name != other.name) return false
 
@@ -119,13 +119,13 @@ class StopExercise private constructor() {
             return name.hashCode()
         }
 
-        class Builder : BuilderOf<Argument> {
+        class Builder : BuilderOf<Arguments> {
             private var name: String? = null
 
             fun setName(name: String): Builder =
                 apply { this.name = name }
 
-            override fun build(): Argument = Argument(name)
+            override fun build(): Arguments = Arguments(name)
         }
     }
 
@@ -133,5 +133,5 @@ class StopExercise private constructor() {
 
     class Confirmation internal constructor()
 
-    sealed interface Session : BaseSession<Argument, Output>
+    sealed interface Session : BaseSession<Arguments, Output>
 }

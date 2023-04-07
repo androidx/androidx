@@ -39,7 +39,7 @@ private const val CAPABILITY_NAME = "actions.intent.STOP_SAFETY_CHECK"
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
         .setDescriptor(StopSafetyCheck.Property::class.java)
-        .setArgument(StopSafetyCheck.Argument::class.java, StopSafetyCheck.Argument::Builder)
+        .setArguments(StopSafetyCheck.Arguments::class.java, StopSafetyCheck.Arguments::Builder)
         .setOutput(StopSafetyCheck.Output::class.java)
         .bindOptionalOutput(
             "executionStatus",
@@ -53,7 +53,7 @@ class StopSafetyCheck private constructor() {
     // TODO(b/267805819): Update to include the SessionFactory once Session API is ready.
     class CapabilityBuilder :
         CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, Session
+            CapabilityBuilder, Property, Arguments, Output, Confirmation, Session
             >(ACTION_SPEC) {
         override fun build(): Capability {
             super.setProperty(Property())
@@ -64,9 +64,9 @@ class StopSafetyCheck private constructor() {
     // TODO(b/268369632): Remove Property from public capability APIs.
     class Property internal constructor()
 
-    class Argument internal constructor() {
-        class Builder : BuilderOf<Argument> {
-            override fun build(): Argument = Argument()
+    class Arguments internal constructor() {
+        class Builder : BuilderOf<Arguments> {
+            override fun build(): Arguments = Arguments()
         }
     }
 
@@ -165,5 +165,5 @@ class StopSafetyCheck private constructor() {
 
     class Confirmation internal constructor()
 
-    sealed interface Session : BaseSession<Argument, Output>
+    sealed interface Session : BaseSession<Arguments, Output>
 }

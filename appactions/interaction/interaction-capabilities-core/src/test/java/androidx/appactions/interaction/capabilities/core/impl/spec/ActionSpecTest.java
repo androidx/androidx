@@ -46,45 +46,45 @@ import java.util.Optional;
 @RunWith(JUnit4.class)
 public final class ActionSpecTest {
 
-    private static final ActionSpec<Property, Argument, Output> ACTION_SPEC =
+    private static final ActionSpec<Property, Arguments, Output> ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed("actions.intent.TEST")
                     .setDescriptor(Property.class)
-                    .setArgument(Argument.class, Argument::newBuilder)
+                    .setArguments(Arguments.class, Arguments::newBuilder)
                     .setOutput(Output.class)
                     .bindParameter(
                             "requiredEntity",
                             Property::requiredEntityField,
-                            Argument.Builder::setRequiredEntityField,
+                            Arguments.Builder::setRequiredEntityField,
                             TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
                             TypeConverters.ENTITY_ENTITY_CONVERTER)
                     .bindOptionalParameter(
                             "optionalEntity",
                             Property::optionalEntityField,
-                            Argument.Builder::setOptionalEntityField,
+                            Arguments.Builder::setOptionalEntityField,
                             TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
                             TypeConverters.ENTITY_ENTITY_CONVERTER)
                     .bindRepeatedParameter(
                             "repeatedEntity",
                             Property::repeatedEntityField,
-                            Argument.Builder::setRepeatedEntityField,
+                            Arguments.Builder::setRepeatedEntityField,
                             TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
                             TypeConverters.ENTITY_ENTITY_CONVERTER)
                     .bindParameter(
                             "requiredString",
                             Property::requiredStringField,
-                            Argument.Builder::setRequiredStringField,
+                            Arguments.Builder::setRequiredStringField,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                             TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
                     .bindOptionalParameter(
                             "optionalString",
                             Property::optionalStringField,
-                            Argument.Builder::setOptionalStringField,
+                            Arguments.Builder::setOptionalStringField,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                             TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
                     .bindRepeatedParameter(
                             "repeatedString",
                             Property::repeatedStringField,
-                            Argument.Builder::setRepeatedStringField,
+                            Arguments.Builder::setRepeatedStringField,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                             TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
                     .bindOptionalOutput(
@@ -116,27 +116,27 @@ public final class ActionSpecTest {
                             .setName(theString)
                             .build();
 
-    private static final ActionSpec<GenericEntityProperty, GenericEntityArgument, Output>
+    private static final ActionSpec<GenericEntityProperty, GenericEntityArguments, Output>
             GENERIC_TYPES_ACTION_SPEC =
                     ActionSpecBuilder.ofCapabilityNamed("actions.intent.TEST")
                             .setDescriptor(GenericEntityProperty.class)
-                            .setArgument(
-                                    GenericEntityArgument.class, GenericEntityArgument::newBuilder)
+                            .setArguments(GenericEntityArguments.class,
+                                    GenericEntityArguments::newBuilder)
                             .setOutput(Output.class)
                             .bindParameter(
                                     "requiredEntity",
                                     GenericEntityProperty::singularField,
-                                    GenericEntityArgument.Builder::setSingularField,
+                                    GenericEntityArguments.Builder::setSingularField,
                                     STRING_PARAM_VALUE_CONVERTER,
                                     STRING_ENTITY_CONVERTER)
                             .bindOptionalParameter("optionalEntity",
                                     GenericEntityProperty::optionalField,
-                                    GenericEntityArgument.Builder::setOptionalField,
+                                    GenericEntityArguments.Builder::setOptionalField,
                                     STRING_PARAM_VALUE_CONVERTER,
                                     STRING_ENTITY_CONVERTER)
                             .bindRepeatedParameter("repeatedEntities",
                                     GenericEntityProperty::repeatedField,
-                                    GenericEntityArgument.Builder::setRepeatedField,
+                                    GenericEntityArguments.Builder::setRepeatedField,
                                     STRING_PARAM_VALUE_CONVERTER,
                                     STRING_ENTITY_CONVERTER)
                             .build();
@@ -413,10 +413,10 @@ public final class ActionSpecTest {
     }
 
     @AutoValue
-    abstract static class Argument {
+    abstract static class Arguments {
 
         static Builder newBuilder() {
-            return new AutoValue_ActionSpecTest_Argument.Builder();
+            return new AutoValue_ActionSpecTest_Arguments.Builder();
         }
 
         abstract EntityValue requiredEntityField();
@@ -432,7 +432,7 @@ public final class ActionSpecTest {
         abstract List<String> repeatedStringField();
 
         @AutoValue.Builder
-        abstract static class Builder implements BuilderOf<Argument> {
+        abstract static class Builder implements BuilderOf<Arguments> {
 
             abstract Builder setRequiredEntityField(EntityValue value);
 
@@ -448,7 +448,7 @@ public final class ActionSpecTest {
 
             @NonNull
             @Override
-            public abstract Argument build();
+            public abstract Arguments build();
         }
     }
 
@@ -502,10 +502,10 @@ public final class ActionSpecTest {
     }
 
     @AutoValue
-    abstract static class GenericEntityArgument {
+    abstract static class GenericEntityArguments {
 
         static Builder newBuilder() {
-            return new AutoValue_ActionSpecTest_GenericEntityArgument.Builder();
+            return new AutoValue_ActionSpecTest_GenericEntityArguments.Builder();
         }
 
         abstract String singularField();
@@ -515,7 +515,7 @@ public final class ActionSpecTest {
         abstract List<String> repeatedField();
 
         @AutoValue.Builder
-        abstract static class Builder implements BuilderOf<GenericEntityArgument> {
+        abstract static class Builder implements BuilderOf<GenericEntityArguments> {
 
             abstract Builder setSingularField(String value);
 
@@ -525,7 +525,7 @@ public final class ActionSpecTest {
 
             @NonNull
             @Override
-            public abstract GenericEntityArgument build();
+            public abstract GenericEntityArguments build();
         }
     }
 

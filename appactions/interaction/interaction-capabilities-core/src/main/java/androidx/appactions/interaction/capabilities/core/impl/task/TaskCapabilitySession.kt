@@ -33,15 +33,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 internal class TaskCapabilitySession<
-    ArgumentT,
+    ArgumentsT,
     OutputT,
     ConfirmationT,
 >(
     override val sessionId: String,
-    actionSpec: ActionSpec<*, ArgumentT, OutputT>,
+    actionSpec: ActionSpec<*, ArgumentsT, OutputT>,
     appAction: AppAction,
     taskHandler: TaskHandler<ConfirmationT>,
-    externalSession: BaseSession<ArgumentT, OutputT>,
+    externalSession: BaseSession<ArgumentsT, OutputT>,
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
 ) : CapabilitySession, TaskUpdateHandler {
     override val state: AppDialogState
@@ -64,7 +64,7 @@ internal class TaskCapabilitySession<
     /** Contains session state and request processing logic. */
     private val sessionOrchestrator:
         TaskOrchestrator<
-            ArgumentT,
+            ArgumentsT,
             OutputT,
             ConfirmationT,
         > =

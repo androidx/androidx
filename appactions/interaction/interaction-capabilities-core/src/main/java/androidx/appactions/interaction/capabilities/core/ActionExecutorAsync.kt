@@ -21,7 +21,7 @@ import androidx.appactions.interaction.capabilities.core.impl.concurrent.convert
 import com.google.common.util.concurrent.ListenableFuture
 
 /** An ListenableFuture-based interface of executing an action. */
-fun interface ActionExecutorAsync<ArgumentT, OutputT> {
+fun interface ActionExecutorAsync<ArgumentsT, OutputT> {
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     val uiHandle: Any
         get() = this
@@ -29,21 +29,21 @@ fun interface ActionExecutorAsync<ArgumentT, OutputT> {
     /**
      * Calls to execute the action.
      *
-     * @param argument the argument for this action.
+     * @param arguments the argument for this action.
      * @return A ListenableFuture containing the ExecutionResult
      */
-    fun execute(argument: ArgumentT): ListenableFuture<ExecutionResult<OutputT>>
+    fun execute(arguments: ArgumentsT): ListenableFuture<ExecutionResult<OutputT>>
 
     companion object {
-        fun <ArgumentT, OutputT> ActionExecutor<ArgumentT, OutputT>.toActionExecutorAsync():
-            ActionExecutorAsync<ArgumentT, OutputT> =
-            object : ActionExecutorAsync<ArgumentT, OutputT> {
+        fun <ArgumentsT, OutputT> ActionExecutor<ArgumentsT, OutputT>.toActionExecutorAsync():
+            ActionExecutorAsync<ArgumentsT, OutputT> =
+            object : ActionExecutorAsync<ArgumentsT, OutputT> {
                 override val uiHandle = this@toActionExecutorAsync
                 override fun execute(
-                    argument: ArgumentT,
+                    arguments: ArgumentsT,
                 ): ListenableFuture<ExecutionResult<OutputT>> =
                     convertToListenableFuture("ActionExecutor#execute") {
-                        this@toActionExecutorAsync.execute(argument)
+                        this@toActionExecutorAsync.execute(arguments)
                     }
             }
     }

@@ -42,26 +42,26 @@ private const val CAPABILITY_NAME = "actions.intent.START_TIMER"
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
         .setDescriptor(StartTimer.Property::class.java)
-        .setArgument(StartTimer.Argument::class.java, StartTimer.Argument::Builder)
+        .setArguments(StartTimer.Arguments::class.java, StartTimer.Arguments::Builder)
         .setOutput(StartTimer.Output::class.java)
         .bindOptionalParameter(
             "timer.identifier",
             { property -> Optional.ofNullable(property.identifier) },
-            StartTimer.Argument.Builder::setIdentifier,
+            StartTimer.Arguments.Builder::setIdentifier,
             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
             TypeConverters.STRING_VALUE_ENTITY_CONVERTER,
         )
         .bindOptionalParameter(
             "timer.name",
             { property -> Optional.ofNullable(property.name) },
-            StartTimer.Argument.Builder::setName,
+            StartTimer.Arguments.Builder::setName,
             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
             TypeConverters.STRING_VALUE_ENTITY_CONVERTER,
         )
         .bindOptionalParameter(
             "timer.duration",
             { property -> Optional.ofNullable(property.duration) },
-            StartTimer.Argument.Builder::setDuration,
+            StartTimer.Arguments.Builder::setDuration,
             TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
             TypeConverters.DURATION_ENTITY_CONVERTER,
         )
@@ -97,7 +97,7 @@ class StartTimer private constructor() {
 
     class CapabilityBuilder :
         CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, Session,
+            CapabilityBuilder, Property, Arguments, Output, Confirmation, Session,
             >(ACTION_SPEC) {
 
         override val sessionBridge: SessionBridge<Session, Confirmation> = SESSION_BRIDGE
@@ -112,7 +112,7 @@ class StartTimer private constructor() {
         }
     }
 
-    interface Session : BaseSession<Argument, Output> {
+    interface Session : BaseSession<Arguments, Output> {
         val nameListener: ValueListener<String>?
             get() = null
         val durationListener: ValueListener<Duration>?
@@ -169,20 +169,20 @@ class StartTimer private constructor() {
         }
     }
 
-    class Argument internal constructor(
+    class Arguments internal constructor(
         val identifier: String?,
         val name: String?,
         val duration: Duration?,
     ) {
         override fun toString(): String {
-            return "Argument(identifier=$identifier,name=$name,duration=$duration)"
+            return "Arguments(identifier=$identifier,name=$name,duration=$duration)"
         }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
 
-            other as Argument
+            other as Arguments
 
             if (identifier != other.identifier) return false
             if (name != other.name) return false
@@ -198,7 +198,7 @@ class StartTimer private constructor() {
             return result
         }
 
-        class Builder : BuilderOf<Argument> {
+        class Builder : BuilderOf<Arguments> {
             private var identifier: String? = null
             private var name: String? = null
             private var duration: Duration? = null
@@ -209,7 +209,7 @@ class StartTimer private constructor() {
 
             fun setDuration(duration: Duration): Builder = apply { this.duration = duration }
 
-            override fun build(): Argument = Argument(identifier, name, duration)
+            override fun build(): Arguments = Arguments(identifier, name, duration)
         }
     }
 

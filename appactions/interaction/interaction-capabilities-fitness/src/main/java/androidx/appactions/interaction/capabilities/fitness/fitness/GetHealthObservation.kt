@@ -34,22 +34,22 @@ private const val CAPABILITY_NAME = "actions.intent.START_EXERCISE"
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
         .setDescriptor(GetHealthObservation.Property::class.java)
-        .setArgument(
-            GetHealthObservation.Argument::class.java,
-            GetHealthObservation.Argument::Builder
+        .setArguments(
+            GetHealthObservation.Arguments::class.java,
+            GetHealthObservation.Arguments::Builder
         )
         .setOutput(GetHealthObservation.Output::class.java)
         .bindOptionalParameter(
             "exerciseObservation.startTime",
             { property -> Optional.ofNullable(property.startTime) },
-            GetHealthObservation.Argument.Builder::setStartTime,
+            GetHealthObservation.Arguments.Builder::setStartTime,
             TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER,
             TypeConverters.LOCAL_TIME_ENTITY_CONVERTER
         )
         .bindOptionalParameter(
             "exerciseObservation.endTime",
             { property -> Optional.ofNullable(property.endTime) },
-            GetHealthObservation.Argument.Builder::setEndTime,
+            GetHealthObservation.Arguments.Builder::setEndTime,
             TypeConverters.LOCAL_TIME_PARAM_VALUE_CONVERTER,
             TypeConverters.LOCAL_TIME_ENTITY_CONVERTER
         )
@@ -59,7 +59,7 @@ private val ACTION_SPEC =
 class GetHealthObservation private constructor() {
     class CapabilityBuilder :
         CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, Session
+            CapabilityBuilder, Property, Arguments, Output, Confirmation, Session
             >(ACTION_SPEC) {
         private var propertyBuilder: Property.Builder = Property.Builder()
         fun setStartTimeProperty(startTime: ParamProperty<LocalTime>): CapabilityBuilder = apply {
@@ -118,19 +118,19 @@ class GetHealthObservation private constructor() {
         }
     }
 
-    class Argument internal constructor(
+    class Arguments internal constructor(
         val startTime: LocalTime?,
         val endTime: LocalTime?
     ) {
         override fun toString(): String {
-            return "Argument(startTime=$startTime, endTime=$endTime)"
+            return "Arguments(startTime=$startTime, endTime=$endTime)"
         }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass !== other?.javaClass) return false
 
-            other as Argument
+            other as Arguments
 
             if (startTime != other.startTime) return false
             if (endTime != other.endTime) return false
@@ -144,7 +144,7 @@ class GetHealthObservation private constructor() {
             return result
         }
 
-        class Builder : BuilderOf<Argument> {
+        class Builder : BuilderOf<Arguments> {
             private var startTime: LocalTime? = null
             private var endTime: LocalTime? = null
 
@@ -154,7 +154,7 @@ class GetHealthObservation private constructor() {
             fun setEndTime(endTime: LocalTime): Builder =
                 apply { this.endTime = endTime }
 
-            override fun build(): Argument = Argument(startTime, endTime)
+            override fun build(): Arguments = Arguments(startTime, endTime)
         }
     }
 
@@ -162,5 +162,5 @@ class GetHealthObservation private constructor() {
 
     class Confirmation internal constructor()
 
-    sealed interface Session : BaseSession<Argument, Output>
+    sealed interface Session : BaseSession<Arguments, Output>
 }

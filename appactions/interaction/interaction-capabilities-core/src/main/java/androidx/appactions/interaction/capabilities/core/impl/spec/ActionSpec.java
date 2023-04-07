@@ -29,10 +29,10 @@ import java.util.Map;
  * A specification for an action, describing it from the app's point of view.
  *
  * @param <PropertyT> typed description of action's characteristics.
- * @param <ArgumentT> typed representation of action's arguments.
+ * @param <ArgumentsT> typed representation of action's arguments.
  * @param <OutputT>   typed action's execution output.
  */
-public interface ActionSpec<PropertyT, ArgumentT, OutputT> {
+public interface ActionSpec<PropertyT, ArgumentsT, OutputT> {
 
     /** Converts the property to the {@code AppAction} proto. */
     @NonNull
@@ -40,7 +40,7 @@ public interface ActionSpec<PropertyT, ArgumentT, OutputT> {
 
     /** Builds this action's arguments from an ArgumentsWrapper instance. */
     @NonNull
-    ArgumentT buildArgument(@NonNull Map<String, List<ParamValue>> args)
+    ArgumentsT buildArguments(@NonNull Map<String, List<ParamValue>> args)
             throws StructConversionException;
 
     /** Converts the output to the {@code StructuredOutput} proto. */

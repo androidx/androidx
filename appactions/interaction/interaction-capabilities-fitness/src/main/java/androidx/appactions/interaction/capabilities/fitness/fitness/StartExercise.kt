@@ -35,19 +35,19 @@ private const val CAPABILITY_NAME = "actions.intent.START_EXERCISE"
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
         .setDescriptor(StartExercise.Property::class.java)
-        .setArgument(StartExercise.Argument::class.java, StartExercise.Argument::Builder)
+        .setArguments(StartExercise.Arguments::class.java, StartExercise.Arguments::Builder)
         .setOutput(StartExercise.Output::class.java)
         .bindOptionalParameter(
             "exercise.duration",
             { property -> Optional.ofNullable(property.duration) },
-            StartExercise.Argument.Builder::setDuration,
+            StartExercise.Arguments.Builder::setDuration,
             TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
             TypeConverters.DURATION_ENTITY_CONVERTER
         )
         .bindOptionalParameter(
             "exercise.name",
             { property -> Optional.ofNullable(property.name) },
-            StartExercise.Argument.Builder::setName,
+            StartExercise.Arguments.Builder::setName,
             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
             TypeConverters.STRING_VALUE_ENTITY_CONVERTER
         )
@@ -57,7 +57,7 @@ private val ACTION_SPEC =
 class StartExercise private constructor() {
     class CapabilityBuilder :
         CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, Session
+            CapabilityBuilder, Property, Arguments, Output, Confirmation, Session
             >(ACTION_SPEC) {
         fun setDurationProperty(duration: ParamProperty<Duration>): CapabilityBuilder =
             apply {
@@ -117,19 +117,19 @@ class StartExercise private constructor() {
         }
     }
 
-    class Argument internal constructor(
+    class Arguments internal constructor(
         val duration: Duration?,
         val name: String?
     ) {
         override fun toString(): String {
-            return "Argument(duration=$duration, name=$name)"
+            return "Arguments(duration=$duration, name=$name)"
         }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass !== other?.javaClass) return false
 
-            other as Argument
+            other as Arguments
 
             if (duration != other.duration) return false
             if (name != other.name) return false
@@ -143,7 +143,7 @@ class StartExercise private constructor() {
             return result
         }
 
-        class Builder : BuilderOf<Argument> {
+        class Builder : BuilderOf<Arguments> {
             private var duration: Duration? = null
             private var name: String? = null
 
@@ -153,7 +153,7 @@ class StartExercise private constructor() {
             fun setName(name: String): Builder =
                 apply { this.name = name }
 
-            override fun build(): Argument = Argument(duration, name)
+            override fun build(): Arguments = Arguments(duration, name)
         }
     }
 
@@ -161,5 +161,5 @@ class StartExercise private constructor() {
 
     class Confirmation internal constructor()
 
-    sealed interface Session : BaseSession<Argument, Output>
+    sealed interface Session : BaseSession<Arguments, Output>
 }

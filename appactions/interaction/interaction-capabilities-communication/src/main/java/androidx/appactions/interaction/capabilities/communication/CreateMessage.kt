@@ -43,19 +43,19 @@ private const val CAPABILITY_NAME: String = "actions.intent.CREATE_MESSAGE"
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
         .setDescriptor(CreateMessage.Property::class.java)
-        .setArgument(CreateMessage.Argument::class.java, CreateMessage.Argument::Builder)
+        .setArguments(CreateMessage.Arguments::class.java, CreateMessage.Arguments::Builder)
         .setOutput(CreateMessage.Output::class.java)
         .bindRepeatedParameter(
             "message.recipient",
             { property -> Optional.ofNullable(property.recipient) },
-            CreateMessage.Argument.Builder::setRecipientList,
+            CreateMessage.Arguments.Builder::setRecipientList,
             RecipientValue.PARAM_VALUE_CONVERTER,
             EntityConverter.of(RECIPIENT_TYPE_SPEC)
         )
         .bindOptionalParameter(
             "message.text",
             { property -> Optional.ofNullable(property.messageText) },
-            CreateMessage.Argument.Builder::setMessageText,
+            CreateMessage.Arguments.Builder::setMessageText,
             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
             TypeConverters.STRING_VALUE_ENTITY_CONVERTER
         )
@@ -75,7 +75,7 @@ private val ACTION_SPEC =
 class CreateMessage private constructor() {
     class CapabilityBuilder :
         CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, Session
+            CapabilityBuilder, Property, Arguments, Output, Confirmation, Session
         >(ACTION_SPEC) {
         override fun build(): Capability {
             super.setProperty(Property.Builder().build())
@@ -129,17 +129,17 @@ class CreateMessage private constructor() {
         }
     }
 
-    class Argument
+    class Arguments
     internal constructor(val recipientList: List<RecipientValue>, val messageText: String?) {
         override fun toString(): String {
-            return "Argument(recipient=$recipientList, messageTextList=$messageText)"
+            return "Arguments(recipient=$recipientList, messageTextList=$messageText)"
         }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
 
-            other as Argument
+            other as Arguments
 
             if (recipientList != other.recipientList) return false
             if (messageText != other.messageText) return false
@@ -153,7 +153,7 @@ class CreateMessage private constructor() {
             return result
         }
 
-        class Builder : BuilderOf<Argument> {
+        class Builder : BuilderOf<Arguments> {
             private var recipientList: List<RecipientValue> = mutableListOf()
             private var messageText: String? = null
 
@@ -165,7 +165,7 @@ class CreateMessage private constructor() {
                 this.messageText = messageTextList
             }
 
-            override fun build(): Argument = Argument(recipientList, messageText)
+            override fun build(): Arguments = Arguments(recipientList, messageText)
         }
     }
 
@@ -238,5 +238,5 @@ class CreateMessage private constructor() {
 
     class Confirmation internal constructor()
 
-    sealed interface Session : BaseSession<Argument, Output>
+    sealed interface Session : BaseSession<Arguments, Output>
 }

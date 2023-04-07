@@ -39,7 +39,7 @@ import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.capabilities.core.properties.ParamProperty
-import androidx.appactions.interaction.capabilities.core.testing.spec.Argument
+import androidx.appactions.interaction.capabilities.core.testing.spec.Arguments
 import androidx.appactions.interaction.capabilities.core.testing.spec.CapabilityStructFill
 import androidx.appactions.interaction.capabilities.core.testing.spec.CapabilityTwoEntityValues
 import androidx.appactions.interaction.capabilities.core.testing.spec.Confirmation
@@ -89,7 +89,7 @@ class TaskCapabilityImplTest {
             sessionFactory =
             {
                 object : Session {
-                    override fun onFinishAsync(argument: Argument) =
+                    override fun onFinishAsync(arguments: Arguments) =
                         Futures.immediateFuture(ExecutionResult.Builder<Output>().build())
                 }
             },
@@ -148,7 +148,7 @@ class TaskCapabilityImplTest {
                         override fun onCreate(sessionContext: SessionContext) {
                             onCreateInvocationCount.incrementAndGet()
                         }
-                        override fun onFinishAsync(argument: Argument) =
+                        override fun onFinishAsync(arguments: Arguments) =
                             Futures.immediateFuture(
                                 ExecutionResult.Builder<Output>().build(),
                             )
@@ -223,7 +223,7 @@ class TaskCapabilityImplTest {
         val onFinishReached = CompletableDeferred<Unit>()
         val onFinishResult = CompletableDeferred<ExecutionResult<Output>>()
         val externalSession = object : Session {
-            override suspend fun onFinish(argument: Argument): ExecutionResult<Output> {
+            override suspend fun onFinish(arguments: Arguments): ExecutionResult<Output> {
                 onFinishReached.complete(Unit)
                 return onFinishResult.await()
             }
@@ -263,7 +263,7 @@ class TaskCapabilityImplTest {
                 sessionFactory =
                 SessionFactory {
                     object : Session {
-                        override fun onFinishAsync(argument: Argument) =
+                        override fun onFinishAsync(arguments: Arguments) =
                             Futures.immediateFuture(
                                 ExecutionResult.Builder<Output>().build(),
                             )
@@ -318,7 +318,7 @@ class TaskCapabilityImplTest {
             SessionFactory<CapabilityTwoEntityValues.Session> {
                 object : CapabilityTwoEntityValues.Session {
                     override suspend fun onFinish(
-                        argument: CapabilityTwoEntityValues.Argument,
+                        arguments: CapabilityTwoEntityValues.Arguments,
                     ): ExecutionResult<Void> = ExecutionResult.Builder<Void>().build()
                 }
             }
@@ -413,7 +413,7 @@ class TaskCapabilityImplTest {
             SessionFactory<CapabilityTwoEntityValues.Session> {
                 object : CapabilityTwoEntityValues.Session {
                     override suspend fun onFinish(
-                        argument: CapabilityTwoEntityValues.Argument,
+                        arguments: CapabilityTwoEntityValues.Arguments,
                     ): ExecutionResult<Void> {
                         onFinishInvocationCount.incrementAndGet()
                         return ExecutionResult.Builder<Void>().build()
@@ -562,7 +562,7 @@ class TaskCapabilityImplTest {
                 SINGLE_REQUIRED_FIELD_PROPERTY,
                 sessionFactory = {
                     object : Session {
-                        override suspend fun onFinish(argument: Argument) =
+                        override suspend fun onFinish(arguments: Arguments) =
                             ExecutionResult.Builder<Output>().build()
 
                         override fun getRequiredEntityListener() =
@@ -714,10 +714,10 @@ class TaskCapabilityImplTest {
             SessionFactory<CapabilityStructFill.Session> {
                 object : CapabilityStructFill.Session {
                     override suspend fun onFinish(
-                        argument: CapabilityStructFill.Argument,
+                        arguments: CapabilityStructFill.Arguments,
                     ): ExecutionResult<Void> {
-                        val listItem: ListItem = argument.listItem().orElse(null)
-                        val string: String = argument.anyString().orElse(null)
+                        val listItem: ListItem = arguments.listItem().orElse(null)
+                        val string: String = arguments.anyString().orElse(null)
                         onFinishListItemDeferred.complete(listItem)
                         onFinishStringDeferred.complete(string)
                         return ExecutionResult.Builder<Void>().build()
@@ -849,7 +849,7 @@ class TaskCapabilityImplTest {
         val sessionFactory =
             SessionFactory<Session> {
                 object : Session {
-                    override suspend fun onFinish(argument: Argument) =
+                    override suspend fun onFinish(arguments: Arguments) =
                         ExecutionResult.Builder<Output>()
                             .setOutput(
                                 Output.builder()
@@ -911,7 +911,7 @@ class TaskCapabilityImplTest {
         val sessionFactory =
             SessionFactory<Session> {
                 object : Session {
-                    override suspend fun onFinish(argument: Argument) =
+                    override suspend fun onFinish(arguments: Arguments) =
                         ExecutionResult.Builder<Output>()
                             .setStartDictation(true)
                             .build()
@@ -942,7 +942,7 @@ class TaskCapabilityImplTest {
         CapabilityBuilderBase<
             CapabilityBuilder,
             Property,
-            Argument,
+            Arguments,
             Output,
             Confirmation,
             Session,
@@ -1015,38 +1015,38 @@ class TaskCapabilityImplTest {
                     return ParamValue.newBuilder().build()
                 }
             }
-        private val ACTION_SPEC: ActionSpec<Property, Argument, Output> =
+        private val ACTION_SPEC: ActionSpec<Property, Arguments, Output> =
             ActionSpecBuilder.ofCapabilityNamed(
                 CAPABILITY_NAME,
             )
                 .setDescriptor(Property::class.java)
-                .setArgument(Argument::class.java, Argument::newBuilder)
+                .setArguments(Arguments::class.java, Arguments::newBuilder)
                 .setOutput(Output::class.java)
                 .bindParameter(
                     "required",
                     Property::requiredEntityField,
-                    Argument.Builder::setRequiredEntityField,
+                    Arguments.Builder::setRequiredEntityField,
                     TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
                     TypeConverters.ENTITY_ENTITY_CONVERTER,
                 )
                 .bindOptionalParameter(
                     "optional",
                     Property::optionalStringField,
-                    Argument.Builder::setOptionalStringField,
+                    Arguments.Builder::setOptionalStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                     TypeConverters.STRING_VALUE_ENTITY_CONVERTER,
                 )
                 .bindOptionalParameter(
                     "optionalEnum",
                     Property::enumField,
-                    Argument.Builder::setEnumField,
+                    Arguments.Builder::setEnumField,
                     ENUM_CONVERTER,
                     { Entity.newBuilder().setIdentifier(it.toString()).build() },
                 )
                 .bindRepeatedParameter(
                     "repeated",
                     Property::repeatedStringField,
-                    Argument.Builder::setRepeatedStringField,
+                    Arguments.Builder::setRepeatedStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                     TypeConverters.STRING_VALUE_ENTITY_CONVERTER,
                 )
@@ -1097,7 +1097,7 @@ class TaskCapabilityImplTest {
             sessionUpdaterSupplier: Supplier<SessionUpdaterT>,
         ): TaskCapabilityImpl<
             Property,
-            Argument,
+            Arguments,
             Output,
             Session,
             Confirmation,

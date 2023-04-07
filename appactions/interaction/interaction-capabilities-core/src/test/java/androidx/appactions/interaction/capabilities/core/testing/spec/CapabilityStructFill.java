@@ -39,20 +39,20 @@ import java.util.Optional;
 public final class CapabilityStructFill {
 
     private static final String CAPABILITY_NAME = "actions.intent.TEST";
-    public static final ActionSpec<Property, Argument, Void> ACTION_SPEC =
+    public static final ActionSpec<Property, Arguments, Void> ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                     .setDescriptor(Property.class)
-                    .setArgument(Argument.class, Argument::newBuilder)
+                    .setArguments(Arguments.class, Arguments::newBuilder)
                     .bindOptionalParameter(
                             "listItem",
                             Property::listItem,
-                            Argument.Builder::setListItem,
+                            Arguments.Builder::setListItem,
                             ParamValueConverter.Companion.of(LIST_ITEM_TYPE_SPEC),
                             EntityConverter.Companion.of(LIST_ITEM_TYPE_SPEC)::convert)
                     .bindOptionalParameter(
                             "string",
                             Property::anyString,
-                            Argument.Builder::setAnyString,
+                            Arguments.Builder::setAnyString,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                             TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
                     .build();
@@ -61,18 +61,18 @@ public final class CapabilityStructFill {
 
     /** Two required strings */
     @AutoValue
-    public abstract static class Argument {
+    public abstract static class Arguments {
         public static Builder newBuilder() {
-            return new AutoValue_CapabilityStructFill_Argument.Builder();
+            return new AutoValue_CapabilityStructFill_Arguments.Builder();
         }
 
         public abstract Optional<ListItem> listItem();
 
         public abstract Optional<String> anyString();
 
-        /** Builder for the testing Argument. */
+        /** Builder for the testing Arguments. */
         @AutoValue.Builder
-        public abstract static class Builder implements BuilderOf<Argument> {
+        public abstract static class Builder implements BuilderOf<Arguments> {
 
             public abstract Builder setListItem(@NonNull ListItem value);
 
@@ -80,7 +80,7 @@ public final class CapabilityStructFill {
 
             @NonNull
             @Override
-            public abstract Argument build();
+            public abstract Arguments build();
         }
     }
 
@@ -111,7 +111,7 @@ public final class CapabilityStructFill {
         }
     }
 
-    public interface Session extends BaseSession<Argument, Void> {
+    public interface Session extends BaseSession<Arguments, Void> {
         @NonNull
         AppEntityListener<ListItem> getListItemListener();
     }

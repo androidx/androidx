@@ -31,20 +31,20 @@ import java.util.Optional;
 public final class CapabilityTwoStrings {
 
     private static final String CAPABILITY_NAME = "actions.intent.TEST";
-    public static final ActionSpec<Property, Argument, Void> ACTION_SPEC =
+    public static final ActionSpec<Property, Arguments, Void> ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                     .setDescriptor(Property.class)
-                    .setArgument(Argument.class, Argument::newBuilder)
+                    .setArguments(Arguments.class, Arguments::newBuilder)
                     .bindOptionalParameter(
                             "stringSlotA",
                             Property::stringSlotA,
-                            Argument.Builder::setStringSlotA,
+                            Arguments.Builder::setStringSlotA,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                             TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
                     .bindOptionalParameter(
                             "stringSlotB",
                             Property::stringSlotB,
-                            Argument.Builder::setStringSlotB,
+                            Arguments.Builder::setStringSlotB,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                             TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
                     .build();
@@ -54,18 +54,18 @@ public final class CapabilityTwoStrings {
 
     /** Two required strings */
     @AutoValue
-    public abstract static class Argument {
+    public abstract static class Arguments {
         public static Builder newBuilder() {
-            return new AutoValue_CapabilityTwoStrings_Argument.Builder();
+            return new AutoValue_CapabilityTwoStrings_Arguments.Builder();
         }
 
         public abstract Optional<String> stringSlotA();
 
         public abstract Optional<String> stringSlotB();
 
-        /** Builder for the testing Argument. */
+        /** Builder for the testing Arguments. */
         @AutoValue.Builder
-        public abstract static class Builder implements BuilderOf<Argument> {
+        public abstract static class Builder implements BuilderOf<Arguments> {
 
             public abstract Builder setStringSlotA(@NonNull String value);
 
@@ -73,7 +73,7 @@ public final class CapabilityTwoStrings {
 
             @NonNull
             @Override
-            public abstract Argument build();
+            public abstract Arguments build();
         }
     }
 

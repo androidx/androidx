@@ -35,15 +35,15 @@ import java.util.function.Supplier
  */
 internal class TaskCapabilityImpl<
     PropertyT,
-    ArgumentT,
+    ArgumentsT,
     OutputT,
-    SessionT : BaseSession<ArgumentT, OutputT>,
+    SessionT : BaseSession<ArgumentsT, OutputT>,
     ConfirmationT,
     SessionUpdaterT,
 >
 constructor(
     override val id: String,
-    private val actionSpec: ActionSpec<PropertyT, ArgumentT, OutputT>,
+    private val actionSpec: ActionSpec<PropertyT, ArgumentsT, OutputT>,
     private val property: PropertyT,
     private val sessionFactory: SessionFactory<SessionT>,
     private val sessionBridge: SessionBridge<SessionT, ConfirmationT>,

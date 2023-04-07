@@ -33,20 +33,20 @@ import java.util.Optional;
 public final class CapabilityTwoEntityValues {
 
     private static final String CAPABILITY_NAME = "actions.intent.TEST";
-    public static final ActionSpec<Property, Argument, Void> ACTION_SPEC =
+    public static final ActionSpec<Property, Arguments, Void> ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                     .setDescriptor(Property.class)
-                    .setArgument(Argument.class, Argument::newBuilder)
+                    .setArguments(Arguments.class, Arguments::newBuilder)
                     .bindOptionalParameter(
                             "slotA",
                             Property::slotA,
-                            Argument.Builder::setSlotA,
+                            Arguments.Builder::setSlotA,
                             TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
                             TypeConverters.ENTITY_ENTITY_CONVERTER)
                     .bindOptionalParameter(
                             "slotB",
                             Property::slotB,
-                            Argument.Builder::setSlotB,
+                            Arguments.Builder::setSlotB,
                             TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
                             TypeConverters.ENTITY_ENTITY_CONVERTER)
                     .build();
@@ -55,25 +55,25 @@ public final class CapabilityTwoEntityValues {
 
     /** Two required strings */
     @AutoValue
-    public abstract static class Argument {
+    public abstract static class Arguments {
         public static Builder newBuilder() {
-            return new AutoValue_CapabilityTwoEntityValues_Argument.Builder();
+            return new AutoValue_CapabilityTwoEntityValues_Arguments.Builder();
         }
 
         public abstract Optional<EntityValue> slotA();
 
         public abstract Optional<EntityValue> slotB();
 
-        /** Builder for the testing Argument. */
+        /** Builder for the testing Arguments. */
         @AutoValue.Builder
-        public abstract static class Builder implements BuilderOf<Argument> {
+        public abstract static class Builder implements BuilderOf<Arguments> {
 
             public abstract Builder setSlotA(EntityValue value);
 
             public abstract Builder setSlotB(EntityValue value);
 
             @Override
-            public abstract Argument build();
+            public abstract Arguments build();
         }
     }
 
@@ -104,5 +104,5 @@ public final class CapabilityTwoEntityValues {
         }
     }
 
-    public interface Session extends BaseSession<Argument, Void> {}
+    public interface Session extends BaseSession<Arguments, Void> {}
 }
