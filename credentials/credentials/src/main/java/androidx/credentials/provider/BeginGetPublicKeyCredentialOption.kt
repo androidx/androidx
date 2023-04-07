@@ -26,6 +26,8 @@ import androidx.credentials.internal.FrameworkClassParsingException
  *
  * @property requestJson the request in JSON format in the standard webauthn web json
  * shown [here](https://w3c.github.io/webauthn/#dictdef-publickeycredentialrequestoptionsjson)
+ * @property clientDataHash a hash that is used to verify the relying party identity, set only if
+ * [android.service.credentials.CallingAppInfo.getOrigin] is set
  *
  * @throws NullPointerException If [requestJson] is null
  * @throws IllegalArgumentException If [requestJson] is empty
@@ -33,10 +35,11 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * Note : Credential providers are not expected to utilize the constructor in this class for any
  * production flow. This constructor must only be used for testing purposes.
  */
-class BeginGetPublicKeyCredentialOption constructor(
+class BeginGetPublicKeyCredentialOption @JvmOverloads constructor(
     candidateQueryData: Bundle,
     id: String,
     val requestJson: String,
+    val clientDataHash: String? = null,
 ) : BeginGetCredentialOption(
     id,
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
@@ -53,10 +56,11 @@ class BeginGetPublicKeyCredentialOption constructor(
         @JvmStatic
         internal fun createFrom(data: Bundle, id: String): BeginGetPublicKeyCredentialOption {
             try {
-                val requestJson = data.getString(
-                    GetPublicKeyCredentialOption.BUNDLE_KEY_REQUEST_JSON
-                )
-                return BeginGetPublicKeyCredentialOption(data, id, requestJson!!)
+                val requestJson = data.getString(GetPublicKeyCredentialOption
+                    .BUNDLE_KEY_REQUEST_JSON)
+                val clientDataHash = data.getString(GetPublicKeyCredentialOption
+                    .BUNDLE_KEY_CLIENT_DATA_HASH)
+                return BeginGetPublicKeyCredentialOption(data, id, requestJson!!, clientDataHash)
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()
             }
