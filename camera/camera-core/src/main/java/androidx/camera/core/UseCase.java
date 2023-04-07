@@ -263,8 +263,8 @@ public abstract class UseCase {
         // Forces disable ZSL when high resolution is enabled.
         if (mergedConfig.containsOption(ImageOutputConfig.OPTION_RESOLUTION_SELECTOR)
                 && mergedConfig.retrieveOption(
-                ImageOutputConfig.OPTION_RESOLUTION_SELECTOR).getHighResolutionEnabledFlag()
-                != ResolutionSelector.HIGH_RESOLUTION_FLAG_OFF) {
+                ImageOutputConfig.OPTION_RESOLUTION_SELECTOR).getAllowedResolutionMode()
+                != ResolutionSelector.ALLOWED_RESOLUTIONS_NORMAL) {
             mergedConfig.insertOption(UseCaseConfig.OPTION_ZSL_DISABLED, true);
         }
 
