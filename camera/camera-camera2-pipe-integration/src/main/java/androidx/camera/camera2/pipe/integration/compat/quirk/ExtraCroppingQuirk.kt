@@ -75,7 +75,7 @@ class ExtraCroppingQuirk : Quirk {
                 "SM-G610M" to Range(21, 26)
             )
 
-        fun load(): Boolean {
+        fun isEnabled(): Boolean {
             return isSamsungDistortion
         }
 

@@ -41,7 +41,7 @@ import androidx.camera.core.impl.Quirk
  * J7 (SM-J710MN) API 27
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-class ExcludedSupportedSizesQuirk() : Quirk {
+class ExcludedSupportedSizesQuirk : Quirk {
     /**
      * Retrieves problematic supported surface sizes that have to be excluded on the current
      * device, for the given camera id and image format.
@@ -207,7 +207,7 @@ class ExcludedSupportedSizesQuirk() : Quirk {
     companion object {
         private const val TAG: String = "ExcludedSupportedSizesQuirk"
         private const val UNKNOWN_IMAGE_FORMAT: Int = -1
-        fun load(): Boolean {
+        fun isEnabled(): Boolean {
             return (isOnePlus6 || isOnePlus6T || isHuaweiP20Lite || isSamsungJ7PrimeApi27Above ||
                 isSamsungJ7Api27Above)
         }
