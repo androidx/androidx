@@ -112,10 +112,13 @@ class FocusTargetModifierNode : ObserverNode, ModifierLocalNode, Modifier.Node()
     ) {
         if (!isProcessingCustomEnter) {
             isProcessingCustomEnter = true
-            fetchFocusProperties().enter(focusDirection).also {
-                if (it !== Default) block(it)
+            try {
+                fetchFocusProperties().enter(focusDirection).also {
+                    if (it !== Default) block(it)
+                }
+            } finally {
+                isProcessingCustomEnter = false
             }
-            isProcessingCustomEnter = false
         }
     }
 
@@ -136,10 +139,13 @@ class FocusTargetModifierNode : ObserverNode, ModifierLocalNode, Modifier.Node()
     ) {
         if (!isProcessingCustomExit) {
             isProcessingCustomExit = true
-            fetchFocusProperties().exit(focusDirection).also {
-                if (it !== Default) block(it)
+            try {
+                fetchFocusProperties().exit(focusDirection).also {
+                    if (it !== Default) block(it)
+                }
+            } finally {
+                isProcessingCustomExit = false
             }
-            isProcessingCustomExit = false
         }
     }
 
