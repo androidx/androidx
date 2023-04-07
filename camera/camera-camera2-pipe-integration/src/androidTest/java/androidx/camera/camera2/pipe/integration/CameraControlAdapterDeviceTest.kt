@@ -162,7 +162,7 @@ class CameraControlAdapterDeviceTest {
     fun tearDown(): Unit = runBlocking {
         if (::camera.isInitialized) {
             withContext(Dispatchers.Main) {
-                camera.detachUseCases()
+                camera.removeUseCases(camera.useCases)
             }
         }
 
