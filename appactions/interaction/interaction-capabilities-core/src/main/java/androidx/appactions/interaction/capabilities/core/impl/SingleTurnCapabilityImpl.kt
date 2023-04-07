@@ -37,8 +37,7 @@ internal class SingleTurnCapabilityImpl<
     val property: PropertyT,
     val actionExecutorAsync: ActionExecutorAsync<ArgumentT, OutputT>,
 ) : Capability {
-    override val supportsMultiTurnTask = false
-    val mutex = Mutex()
+    private val mutex = Mutex()
 
     override fun getAppAction(): AppAction {
         return actionSpec.convertPropertyToProto(property).toBuilder()

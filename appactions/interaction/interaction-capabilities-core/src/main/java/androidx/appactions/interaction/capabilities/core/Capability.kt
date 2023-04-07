@@ -33,11 +33,6 @@ interface Capability {
     val id: String
 
     /**
-     * Returns whether or not this capability supports multi-turn task.
-     */
-    val supportsMultiTurnTask: Boolean
-
-    /**
      * Returns an app action proto describing how to fulfill this capability.
      *
      * @suppress

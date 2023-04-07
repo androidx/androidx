@@ -83,7 +83,7 @@ import java.util.function.Supplier
 
 @RunWith(JUnit4::class)
 class TaskCapabilityImplTest {
-    val capability: Capability =
+    private val capability: Capability =
         createCapability<EmptyTaskUpdater>(
             SINGLE_REQUIRED_FIELD_PROPERTY,
             sessionFactory =
@@ -96,13 +96,13 @@ class TaskCapabilityImplTest {
             sessionBridge = { TaskHandler.Builder<Confirmation>().build() },
             sessionUpdaterSupplier = ::EmptyTaskUpdater,
         )
-    val hostProperties: HostProperties =
+    private val hostProperties: HostProperties =
         HostProperties.Builder()
             .setMaxHostSizeDp(
                 SizeF(300f, 500f),
             )
             .build()
-    val fakeSessionId = "fakeSessionId"
+    private val fakeSessionId = "fakeSessionId"
 
     @Test
     fun getAppAction_smokeTest() {
@@ -212,9 +212,7 @@ class TaskCapabilityImplTest {
                     mCompleterRef.getAndSet(
                         newCompleter,
                     )
-                if (oldCompleter != null) {
-                    oldCompleter.setCancelled()
-                }
+                oldCompleter?.setCancelled()
                 "waiting for setValidationResult"
             }
         }
@@ -905,6 +903,35 @@ class TaskCapabilityImplTest {
                 .getOutputValuesList(),
         )
             .containsExactlyElementsIn(expectedOutput.getOutputValuesList())
+    }
+
+    @Test
+    @kotlin.Throws(Exception::class)
+    fun executionResult_shouldStartDictation_resultReturned() {
+        val sessionFactory =
+            SessionFactory<Session> {
+                object : Session {
+                    override suspend fun onFinish(argument: Argument) =
+                        ExecutionResult.Builder<Output>()
+                            .setStartDictation(true)
+                            .build()
+                }
+            }
+        val capability =
+            CapabilityBuilder().setId("fakeId").setSessionFactory(sessionFactory).build()
+        val session = capability.createSession(fakeSessionId, hostProperties)
+        val callback = FakeCallbackInternal()
+
+        session.execute(
+            buildRequestArgs(
+                SYNC, /* args...= */
+                "required",
+                ParamValue.newBuilder().setIdentifier("foo").setStringValue("foo").build(),
+            ),
+            callback,
+        )
+
+        assertThat(callback.receiveResponse().fulfillmentResponse!!.startDictation).isTrue()
     }
 
     /**
