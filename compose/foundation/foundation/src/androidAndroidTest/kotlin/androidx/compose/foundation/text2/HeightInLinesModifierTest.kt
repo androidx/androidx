@@ -48,7 +48,6 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.createFontFamilyResolver
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -346,7 +345,7 @@ class HeightInLinesModifierTest {
             }
         ) {
             BasicTextField2(
-                state = remember { TextFieldState(TextFieldValue(text)) },
+                state = remember { TextFieldState(text) },
                 textStyle = textStyle,
                 lineLimits = lineLimits,
                 modifier = Modifier.requiredWidth(100.dp),

@@ -18,27 +18,26 @@ package androidx.compose.foundation.text2.input
 
 import androidx.annotation.CallSuper
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text2.input.MutableTextFieldValue.ChangeList
+import androidx.compose.foundation.text2.input.TextFieldBuffer.ChangeList
 import androidx.compose.foundation.text2.input.internal.ChangeTracker
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
 
 /**
- * A mutable version of [TextFieldValue], similar to [StringBuilder].
+ * A mutable version of [TextFieldCharSequence], similar to [StringBuilder].
  *
  * This class provides methods for changing the text, such as [replace] and [append].
  *
- * To get one of these, and for usage samples, see [TextFieldState.edit]. Every change to the buffer is tracked in a [ChangeList] which you can access via the
- * [changes] property.
+ * To get one of these, and for usage samples, see [TextFieldState.edit]. Every change to the buffer
+ * is tracked in a [ChangeList] which you can access via the [changes] property.
  */
 @ExperimentalFoundationApi
-open class MutableTextFieldValue internal constructor(
-    internal val value: TextFieldValue,
+open class TextFieldBuffer internal constructor(
+    internal val value: TextFieldCharSequence,
     initialChanges: ChangeTracker? = null
 ) : CharSequence,
     Appendable {
 
-    private val buffer = StringBuffer(value.text)
+    private val buffer = StringBuffer(value)
 
     /**
      * Lazily-allocated [ChangeTracker], initialized on the first text change.
@@ -120,10 +119,10 @@ open class MutableTextFieldValue internal constructor(
         changeTracker?.clearChanges()
     }
 
-    internal fun toTextFieldValue(
+    internal fun toTextFieldCharSequence(
         selection: TextRange,
         composition: TextRange? = null
-    ): TextFieldValue = TextFieldValue(
+    ): TextFieldCharSequence = TextFieldCharSequence(
         buffer.toString(),
         selection = selection,
         composition = composition
@@ -151,8 +150,8 @@ open class MutableTextFieldValue internal constructor(
         }
     }
 
-    internal fun toTextFieldValue(selection: TextRange): TextFieldValue =
-        TextFieldValue(buffer.toString(), selection = selection)
+    internal fun toTextFieldCharSequence(selection: TextRange): TextFieldCharSequence =
+        TextFieldCharSequence(buffer.toString(), selection = selection)
 
     internal fun codepointsToChars(range: TextRange): TextRange = TextRange(
         codepointIndexToCharIndex(range.start),
@@ -170,7 +169,7 @@ open class MutableTextFieldValue internal constructor(
 
     /**
      * The ordered list of non-overlapping and discontinuous changes performed on a
-     * [MutableTextFieldValue] during the current [edit][TextFieldState.edit] or
+     * [TextFieldBuffer] during the current [edit][TextFieldState.edit] or
      * [filter][TextEditFilter.filter] operation. Changes are listed in the order they appear in the
      * text, not the order in which they were made. Overlapping changes are represented as a single
      * change.
@@ -183,7 +182,7 @@ open class MutableTextFieldValue internal constructor(
         val changeCount: Int
 
         /**
-         * Returns the range in the [MutableTextFieldValue] that was changed.
+         * Returns the range in the [TextFieldBuffer] that was changed.
          *
          * @throws IndexOutOfBoundsException If [changeIndex] is not in [0, [changeCount]).
          */
@@ -201,10 +200,10 @@ open class MutableTextFieldValue internal constructor(
 /**
  * Insert [text] at the given [index] in this value.
  *
- * @see MutableTextFieldValue.replace
+ * @see TextFieldBuffer.replace
  */
 @ExperimentalFoundationApi
-fun MutableTextFieldValue.insert(index: Int, text: String) {
+fun TextFieldBuffer.insert(index: Int, text: String) {
     replace(index, index, text)
 }
 
@@ -212,7 +211,7 @@ fun MutableTextFieldValue.insert(index: Int, text: String) {
  * Delete the text between [start] (inclusive) and [end] (exclusive).
  */
 @ExperimentalFoundationApi
-fun MutableTextFieldValue.delete(start: Int, end: Int) {
+fun TextFieldBuffer.delete(start: Int, end: Int) {
     replace(start, end, "")
 }
 

@@ -21,7 +21,6 @@ package androidx.compose.foundation.text2.input
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.text.input.TextFieldValue
 
 /**
  * A function that is ran after every change made to a [TextFieldState] by user input and can change
@@ -55,7 +54,7 @@ fun interface TextEditFilter {
      * @param newState The value of the field after the change. This value can be changed in-place
      * to alter or reject the changes or set the selection.
      */
-    fun filter(oldState: TextFieldValue, newState: MutableTextFieldValueWithSelection)
+    fun filter(oldState: TextFieldCharSequence, newState: TextFieldBufferWithSelection)
 
     companion object
 }
@@ -84,7 +83,10 @@ private class FilterChain(
     override val keyboardOptions: KeyboardOptions?
 ) : TextEditFilter {
 
-    override fun filter(oldState: TextFieldValue, newState: MutableTextFieldValueWithSelection) {
+    override fun filter(
+        oldState: TextFieldCharSequence,
+        newState: TextFieldBufferWithSelection
+    ) {
         first.filter(oldState, newState)
         second.filter(oldState, newState)
     }

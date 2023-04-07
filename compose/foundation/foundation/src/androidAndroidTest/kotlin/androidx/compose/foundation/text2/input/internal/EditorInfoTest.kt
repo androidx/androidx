@@ -18,18 +18,20 @@ package androidx.compose.foundation.text2.input.internal
 
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@OptIn(ExperimentalFoundationApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class EditorInfoTest {
@@ -530,13 +532,13 @@ class EditorInfoTest {
     fun initial_selection_info_is_set() {
         val selection = TextRange(1, 2)
         val info = EditorInfo()
-        info.update(TextFieldValue("abc", selection), ImeOptions.Default)
+        info.update(TextFieldCharSequence("abc", selection), ImeOptions.Default)
 
         assertThat(info.initialSelStart).isEqualTo(selection.start)
         assertThat(info.initialSelEnd).isEqualTo(selection.end)
     }
 
     private fun EditorInfo.update(imeOptions: ImeOptions) {
-        this.update(TextFieldValue(), imeOptions)
+        this.update(TextFieldCharSequence(), imeOptions)
     }
 }

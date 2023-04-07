@@ -20,7 +20,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.toUpperCase
 
@@ -42,7 +41,10 @@ private data class AllCapsFilter(private val locale: Locale) : TextEditFilter {
         capitalization = KeyboardCapitalization.Characters
     )
 
-    override fun filter(oldState: TextFieldValue, newState: MutableTextFieldValueWithSelection) {
+    override fun filter(
+        oldState: TextFieldCharSequence,
+        newState: TextFieldBufferWithSelection
+    ) {
         val selection = newState.selectionInCodepoints
         newState.replace(0, newState.length, newState.toString().toUpperCase(locale))
         newState.selectCodepointsIn(selection)

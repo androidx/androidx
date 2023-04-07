@@ -20,22 +20,21 @@ package androidx.compose.foundation.text2.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
 
 /**
  * A value to be returned from [TextFieldState.edit] that specifies where the place the cursor or
  * selection.
  *
  * Predefined results include:
- *  - [MutableTextFieldValue.placeCursorAtEnd]
- *  - [MutableTextFieldValue.placeCursorBeforeFirstChange]
- *  - [MutableTextFieldValue.placeCursorAfterLastChange]
- *  - [MutableTextFieldValue.placeCursorBeforeCharAt]
- *  - [MutableTextFieldValue.placeCursorBeforeCodepointAt]
- *  - [MutableTextFieldValue.selectAll]
- *  - [MutableTextFieldValue.selectAllChanges]
- *  - [MutableTextFieldValue.selectCharsIn]
- *  - [MutableTextFieldValue.selectCodepointsIn]
+ *  - [TextFieldBuffer.placeCursorAtEnd]
+ *  - [TextFieldBuffer.placeCursorBeforeFirstChange]
+ *  - [TextFieldBuffer.placeCursorAfterLastChange]
+ *  - [TextFieldBuffer.placeCursorBeforeCharAt]
+ *  - [TextFieldBuffer.placeCursorBeforeCodepointAt]
+ *  - [TextFieldBuffer.selectAll]
+ *  - [TextFieldBuffer.selectAllChanges]
+ *  - [TextFieldBuffer.selectCharsIn]
+ *  - [TextFieldBuffer.selectCodepointsIn]
  */
 @ExperimentalFoundationApi
 sealed class TextFieldEditResult {
@@ -44,8 +43,8 @@ sealed class TextFieldEditResult {
      * set the cursor instead.
      */
     internal abstract fun calculateSelection(
-        oldValue: TextFieldValue,
-        newValue: MutableTextFieldValue
+        oldValue: TextFieldCharSequence,
+        newValue: TextFieldBuffer
     ): TextRange
 }
 
@@ -55,16 +54,16 @@ sealed class TextFieldEditResult {
  * If [index] is inside an invalid run, the cursor will be placed at the nearest earlier index.
  *
  * To place the cursor at the beginning of the field, pass index 0. To place the cursor at the end
- * of the field, after the last character, pass index [MutableTextFieldValue.codepointLength].
+ * of the field, after the last character, pass index [TextFieldBuffer.codepointLength].
  *
  * @param index Codepoint index to place cursor before, should be in range 0 to
- * [MutableTextFieldValue.codepointLength], inclusive.
+ * [TextFieldBuffer.codepointLength], inclusive.
  *
  * @see placeCursorBeforeCharAt
  * @see TextFieldState.edit
  */
 @ExperimentalFoundationApi
-fun MutableTextFieldValue.placeCursorBeforeCodepointAt(index: Int): TextFieldEditResult =
+fun TextFieldBuffer.placeCursorBeforeCodepointAt(index: Int): TextFieldEditResult =
     object : SelectRangeResult(this, TextRange(index), inCodepoints = true) {
         override fun toString(): String = "placeCursorBeforeCodepoint(index=$index)"
     }
@@ -76,16 +75,16 @@ fun MutableTextFieldValue.placeCursorBeforeCodepointAt(index: Int): TextFieldEdi
  * nearest earlier index.
  *
  * To place the cursor at the beginning of the field, pass index 0. To place the cursor at the end
- * of the field, after the last character, pass index [MutableTextFieldValue.length].
+ * of the field, after the last character, pass index [TextFieldBuffer.length].
  *
  * @param index Codepoint index to place cursor before, should be in range 0 to
- * [MutableTextFieldValue.length], inclusive.
+ * [TextFieldBuffer.length], inclusive.
  *
  * @see placeCursorBeforeCodepointAt
  * @see TextFieldState.edit
  */
 @ExperimentalFoundationApi
-fun MutableTextFieldValue.placeCursorBeforeCharAt(index: Int): TextFieldEditResult =
+fun TextFieldBuffer.placeCursorBeforeCharAt(index: Int): TextFieldEditResult =
     object : SelectRangeResult(this, TextRange(index), inCodepoints = false) {
         override fun toString(): String = "placeCursorBeforeChar(index=$index)"
     }
@@ -98,11 +97,11 @@ fun MutableTextFieldValue.placeCursorBeforeCharAt(index: Int): TextFieldEditResu
  */
 @Suppress("UnusedReceiverParameter")
 @ExperimentalFoundationApi
-fun MutableTextFieldValue.placeCursorAtEnd(): TextFieldEditResult = PlaceCursorAtEndResult
+fun TextFieldBuffer.placeCursorAtEnd(): TextFieldEditResult = PlaceCursorAtEndResult
 
 /**
  * Returns a [TextFieldEditResult] that places the cursor after the last change made to this
- * [MutableTextFieldValue].
+ * [TextFieldBuffer].
  *
  * @see placeCursorAtEnd
  * @see placeCursorBeforeFirstChange
@@ -110,19 +109,19 @@ fun MutableTextFieldValue.placeCursorAtEnd(): TextFieldEditResult = PlaceCursorA
  */
 @Suppress("UnusedReceiverParameter")
 @ExperimentalFoundationApi
-fun MutableTextFieldValue.placeCursorAfterLastChange(): TextFieldEditResult =
+fun TextFieldBuffer.placeCursorAfterLastChange(): TextFieldEditResult =
     PlaceCursorAfterLastChangeResult
 
 /**
  * Returns a [TextFieldEditResult] that places the cursor before the first change made to this
- * [MutableTextFieldValue].
+ * [TextFieldBuffer].
  *
  * @see placeCursorAfterLastChange
  * @see TextFieldState.edit
  */
 @Suppress("UnusedReceiverParameter")
 @ExperimentalFoundationApi
-fun MutableTextFieldValue.placeCursorBeforeFirstChange(): TextFieldEditResult =
+fun TextFieldBuffer.placeCursorBeforeFirstChange(): TextFieldEditResult =
     PlaceCursorBeforeFirstChangeResult
 
 /**
@@ -133,17 +132,17 @@ fun MutableTextFieldValue.placeCursorBeforeFirstChange(): TextFieldEditResult =
  *
  * To place the start of the selection at the beginning of the field, pass index 0. To place the end
  * of the selection at the end of the field, after the last codepoint, pass index
- * [MutableTextFieldValue.codepointLength]. Passing a zero-length range is the same as calling
+ * [TextFieldBuffer.codepointLength]. Passing a zero-length range is the same as calling
  * [placeCursorBeforeCodepointAt].
  *
  * @param range Codepoint range of the selection, should be in range 0 to
- * [MutableTextFieldValue.codepointLength], inclusive.
+ * [TextFieldBuffer.codepointLength], inclusive.
  *
  * @see selectCharsIn
  * @see TextFieldState.edit
  */
 @ExperimentalFoundationApi
-fun MutableTextFieldValue.selectCodepointsIn(range: TextRange): TextFieldEditResult =
+fun TextFieldBuffer.selectCodepointsIn(range: TextRange): TextFieldEditResult =
     object : SelectRangeResult(this, range, inCodepoints = true) {
         override fun toString(): String = "selectCodepoints(range=$range)"
     }
@@ -156,17 +155,17 @@ fun MutableTextFieldValue.selectCodepointsIn(range: TextRange): TextFieldEditRes
  *
  * To place the start of the selection at the beginning of the field, pass index 0. To place the end
  * of the selection at the end of the field, after the last character, pass index
- * [MutableTextFieldValue.length]. Passing a zero-length range is the same as calling
+ * [TextFieldBuffer.length]. Passing a zero-length range is the same as calling
  * [placeCursorBeforeCharAt].
  *
  * @param range Codepoint range of the selection, should be in range 0 to
- * [MutableTextFieldValue.length], inclusive.
+ * [TextFieldBuffer.length], inclusive.
  *
  * @see selectCharsIn
  * @see TextFieldState.edit
  */
 @ExperimentalFoundationApi
-fun MutableTextFieldValue.selectCharsIn(range: TextRange): TextFieldEditResult =
+fun TextFieldBuffer.selectCharsIn(range: TextRange): TextFieldEditResult =
     object : SelectRangeResult(this, range, inCodepoints = false) {
         override fun toString(): String = "selectChars(range=$range)"
     }
@@ -180,7 +179,7 @@ fun MutableTextFieldValue.selectCharsIn(range: TextRange): TextFieldEditResult =
  */
 @Suppress("UnusedReceiverParameter")
 @ExperimentalFoundationApi
-fun MutableTextFieldValue.selectAllChanges(): TextFieldEditResult = SelectAllChangesResult
+fun TextFieldBuffer.selectAllChanges(): TextFieldEditResult = SelectAllChangesResult
 
 /**
  * Returns a [TextFieldEditResult] that places the selection around all the text.
@@ -190,12 +189,12 @@ fun MutableTextFieldValue.selectAllChanges(): TextFieldEditResult = SelectAllCha
  */
 @Suppress("UnusedReceiverParameter")
 @ExperimentalFoundationApi
-fun MutableTextFieldValue.selectAll(): TextFieldEditResult = SelectAllResult
+fun TextFieldBuffer.selectAll(): TextFieldEditResult = SelectAllResult
 
 private object PlaceCursorAtEndResult : TextFieldEditResult() {
     override fun calculateSelection(
-        oldValue: TextFieldValue,
-        newValue: MutableTextFieldValue
+        oldValue: TextFieldCharSequence,
+        newValue: TextFieldBuffer
     ): TextRange = TextRange(newValue.length)
 
     override fun toString(): String = "placeCursorAtEnd()"
@@ -203,11 +202,11 @@ private object PlaceCursorAtEndResult : TextFieldEditResult() {
 
 private object PlaceCursorAfterLastChangeResult : TextFieldEditResult() {
     override fun calculateSelection(
-        oldValue: TextFieldValue,
-        newValue: MutableTextFieldValue
+        oldValue: TextFieldCharSequence,
+        newValue: TextFieldBuffer
     ): TextRange {
         return if (newValue.changes.changeCount == 0) {
-            oldValue.selection
+            oldValue.selectionInChars
         } else {
             TextRange(newValue.changes.getRange(newValue.changes.changeCount).max)
         }
@@ -218,11 +217,11 @@ private object PlaceCursorAfterLastChangeResult : TextFieldEditResult() {
 
 private object PlaceCursorBeforeFirstChangeResult : TextFieldEditResult() {
     override fun calculateSelection(
-        oldValue: TextFieldValue,
-        newValue: MutableTextFieldValue
+        oldValue: TextFieldCharSequence,
+        newValue: TextFieldBuffer
     ): TextRange {
         return if (newValue.changes.changeCount == 0) {
-            oldValue.selection
+            oldValue.selectionInChars
         } else {
             TextRange(newValue.changes.getRange(0).min)
         }
@@ -233,12 +232,12 @@ private object PlaceCursorBeforeFirstChangeResult : TextFieldEditResult() {
 
 private object SelectAllChangesResult : TextFieldEditResult() {
     override fun calculateSelection(
-        oldValue: TextFieldValue,
-        newValue: MutableTextFieldValue
+        oldValue: TextFieldCharSequence,
+        newValue: TextFieldBuffer
     ): TextRange {
         val changes = newValue.changes
         return if (changes.changeCount == 0) {
-            oldValue.selection
+            oldValue.selectionInChars
         } else {
             TextRange(
                 changes.getRange(0).min,
@@ -252,8 +251,8 @@ private object SelectAllChangesResult : TextFieldEditResult() {
 
 private object SelectAllResult : TextFieldEditResult() {
     override fun calculateSelection(
-        oldValue: TextFieldValue,
-        newValue: MutableTextFieldValue
+        oldValue: TextFieldCharSequence,
+        newValue: TextFieldBuffer
     ): TextRange = TextRange(0, newValue.length)
 
     override fun toString(): String = "selectAll()"
@@ -261,7 +260,7 @@ private object SelectAllResult : TextFieldEditResult() {
 
 /** Open for [toString] overrides. */
 private open class SelectRangeResult(
-    value: MutableTextFieldValue,
+    value: TextFieldBuffer,
     private val rawRange: TextRange,
     private val inCodepoints: Boolean
 ) : TextFieldEditResult() {
@@ -271,7 +270,7 @@ private open class SelectRangeResult(
     }
 
     final override fun calculateSelection(
-        oldValue: TextFieldValue,
-        newValue: MutableTextFieldValue
+        oldValue: TextFieldCharSequence,
+        newValue: TextFieldBuffer
     ): TextRange = if (inCodepoints) newValue.codepointsToChars(rawRange) else rawRange
 }

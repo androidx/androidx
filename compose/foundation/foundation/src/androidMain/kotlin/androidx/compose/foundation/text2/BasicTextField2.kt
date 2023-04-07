@@ -35,10 +35,10 @@ import androidx.compose.foundation.text.heightInLines
 import androidx.compose.foundation.text.textFieldMinSize
 import androidx.compose.foundation.text2.input.CodepointTransformation
 import androidx.compose.foundation.text2.input.TextEditFilter
-import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.SingleLine
+import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.AndroidTextInputPlugin
 import androidx.compose.foundation.text2.input.internal.TextFieldCoreModifier
 import androidx.compose.foundation.text2.input.internal.TextFieldDecoratorModifier
@@ -58,6 +58,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalPlatformTextInputPluginRegistry
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -158,7 +159,7 @@ fun BasicTextField2(
     val textLayoutState = remember {
         TextLayoutState(
             TextDelegate(
-                text = state.value.annotatedString,
+                text = AnnotatedString(state.value.toString()),
                 style = textStyle,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
@@ -231,10 +232,9 @@ fun BasicTextField2(
 
             Layout(modifier = coreModifiers) { _, constraints ->
                 val result = with(textLayoutState) {
-                    val annotatedString = state.value.annotatedString
-                    val visualText = annotatedString.toVisualText(codepointTransformation)
+                    val visualText = state.value.toVisualText(codepointTransformation)
                     layout(
-                        text = visualText,
+                        text = AnnotatedString(visualText.toString()),
                         textStyle = textStyle,
                         softWrap = !singleLine,
                         density = density,
