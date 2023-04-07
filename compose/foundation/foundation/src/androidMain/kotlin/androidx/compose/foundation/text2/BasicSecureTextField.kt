@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text2
 
-import android.provider.Settings
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.Interaction
@@ -43,7 +42,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -132,14 +130,6 @@ fun BasicSecureTextField(
     decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit =
         @Composable { innerTextField -> innerTextField() }
 ) {
-    val context = LocalContext.current
-    // TODO: consider converting this into a CompositionLocal
-    val systemShowPasswordEnabled = remember(context.contentResolver) {
-        Settings.System.getInt(
-            context.contentResolver, Settings.System.TEXT_SHOW_PASSWORD, 1
-        ) > 0
-    }
-
     val coroutineScope = rememberCoroutineScope()
     val secureTextFieldController = remember(coroutineScope) {
         SecureTextFieldController(coroutineScope)
@@ -148,8 +138,7 @@ fun BasicSecureTextField(
     // revealing last typed character depends on two conditions;
     // 1 - Requested Obfuscation method
     // 2 - if the system allows it
-    val revealLastTypedEnabled = textObfuscationMode == TextObfuscationMode.RevealLastTyped &&
-        systemShowPasswordEnabled
+    val revealLastTypedEnabled = textObfuscationMode == TextObfuscationMode.RevealLastTyped
 
     // while toggling between obfuscation methods if the revealing gets disabled, reset the reveal.
     if (!revealLastTypedEnabled) {
