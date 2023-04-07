@@ -36,14 +36,14 @@ class ExtraCroppingQuirkTest {
     @Test
     fun deviceModelNotContained_returnsNull() {
         ReflectionHelpers.setStaticField(Build::class.java, "MODEL", "non-existent")
-        assert(!ExtraCroppingQuirk.load())
+        assert(!ExtraCroppingQuirk.isEnabled())
         Truth.assertThat(quirk.getVerifiedResolution(SurfaceConfig.ConfigType.PRIV)).isNull()
     }
 
     @Test
     fun deviceBrandNotSamsung_returnsNull() {
         ReflectionHelpers.setStaticField(Build::class.java, "BRAND", "non-existent")
-        assert(!ExtraCroppingQuirk.load())
+        assert(!ExtraCroppingQuirk.isEnabled())
         Truth.assertThat(quirk.getVerifiedResolution(SurfaceConfig.ConfigType.PRIV)).isNull()
     }
 
@@ -52,7 +52,7 @@ class ExtraCroppingQuirkTest {
         ReflectionHelpers.setStaticField(Build::class.java, "BRAND", "samsung")
         ReflectionHelpers.setStaticField(Build::class.java, "MODEL", "SM-J710MN")
         ReflectionHelpers.setStaticField(Build.VERSION::class.java, "SDK_INT", 20)
-        assert(!ExtraCroppingQuirk.load())
+        assert(!ExtraCroppingQuirk.isEnabled())
         Truth.assertThat(quirk.getVerifiedResolution(SurfaceConfig.ConfigType.PRIV)).isNull()
     }
 
@@ -61,7 +61,7 @@ class ExtraCroppingQuirkTest {
         ReflectionHelpers.setStaticField(Build::class.java, "BRAND", "samsung")
         ReflectionHelpers.setStaticField(Build::class.java, "MODEL", "SM-J710MN")
         ReflectionHelpers.setStaticField(Build.VERSION::class.java, "SDK_INT", 22)
-        assert(ExtraCroppingQuirk.load())
+        assert(ExtraCroppingQuirk.isEnabled())
         Truth.assertThat(quirk.getVerifiedResolution(SurfaceConfig.ConfigType.RAW)).isNull()
     }
 
@@ -70,7 +70,7 @@ class ExtraCroppingQuirkTest {
         ReflectionHelpers.setStaticField(Build::class.java, "BRAND", "samsung")
         ReflectionHelpers.setStaticField(Build::class.java, "MODEL", "SM-J710MN")
         ReflectionHelpers.setStaticField(Build.VERSION::class.java, "SDK_INT", 22)
-        assert(ExtraCroppingQuirk.load())
+        assert(ExtraCroppingQuirk.isEnabled())
         Truth.assertThat(quirk.getVerifiedResolution(SurfaceConfig.ConfigType.PRIV))
             .isEqualTo(Size(1920, 1080))
     }
@@ -80,7 +80,7 @@ class ExtraCroppingQuirkTest {
         ReflectionHelpers.setStaticField(Build::class.java, "BRAND", "samsung")
         ReflectionHelpers.setStaticField(Build::class.java, "MODEL", "SM-J710MN")
         ReflectionHelpers.setStaticField(Build.VERSION::class.java, "SDK_INT", 22)
-        assert(ExtraCroppingQuirk.load())
+        assert(ExtraCroppingQuirk.isEnabled())
         Truth.assertThat(quirk.getVerifiedResolution(SurfaceConfig.ConfigType.YUV))
             .isEqualTo(Size(1280, 720))
     }
@@ -90,7 +90,7 @@ class ExtraCroppingQuirkTest {
         ReflectionHelpers.setStaticField(Build::class.java, "BRAND", "samsung")
         ReflectionHelpers.setStaticField(Build::class.java, "MODEL", "SM-J710MN")
         ReflectionHelpers.setStaticField(Build.VERSION::class.java, "SDK_INT", 22)
-        assert(ExtraCroppingQuirk.load())
+        assert(ExtraCroppingQuirk.isEnabled())
         Truth.assertThat(quirk.getVerifiedResolution(SurfaceConfig.ConfigType.JPEG))
             .isEqualTo(Size(3264, 1836))
     }

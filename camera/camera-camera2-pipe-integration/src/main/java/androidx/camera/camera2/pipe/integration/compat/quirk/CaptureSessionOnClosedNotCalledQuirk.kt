@@ -13,33 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.annotation.SuppressLint
-import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.core.impl.Quirk
 
 /**
- * A quirk to denote a new surface should be acquired while the camera is going to create a new
- * [android.hardware.camera2.CameraCaptureSession].
+ * A quirk to denote the devices may not receive
+ * [android.hardware.camera2.CameraCaptureSession.StateCallback.onClosed] callback.
  *
  * QuirkSummary
- * - Bug Id: 145725334
- * - Description: When using TextureView below Android API 23, it releases
- *   [android.graphics.SurfaceTexture] when activity is stopped.
- * - Device(s): Devices in Android API version <= 23
- *
- * TODO(b/270421716): enable CameraXQuirksClassDetector lint check when kotlin is supported.
+ * - Bug Id:      144817309
+ * - Description: On Android API 22s and lower,
+ *                [android.hardware.camera2.CameraCaptureSession.StateCallback.onClosed] callback
+ *                will not be triggered under some circumstances.
+ * - Device(s):   Devices in Android API version <= 22
  */
 @SuppressLint("CameraXQuirksClassDetector")
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-class TextureViewIsClosedQuirk : Quirk {
+class CaptureSessionOnClosedNotCalledQuirk : Quirk {
     companion object {
-        @Suppress("UNUSED_PARAMETER")
-        fun isEnabled(cameraMetadata: CameraMetadata): Boolean {
-            return Build.VERSION.SDK_INT <= Build.VERSION_CODES.M
-        }
+        /**
+         * The quirk is disabled for CameraPipe, as it intrinsically handles things without the
+         * reliance on the onClosed callback. For [androidx.camera.core.impl.DeferrableSurface] that
+         * does need this signal for ref-counting, CameraPipe has an extra pipeline that "finalizes"
+         * the capture session when a new capture session is created or the camera device is closed.
+         */
+        fun isEnabled(): Boolean = false
     }
 }
