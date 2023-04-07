@@ -176,6 +176,10 @@ message AppActionsContext {
 
     // List of BII intent parameters of this dialog.
     repeated DialogParameter params = 3;
+
+    // Validation errors of this dialog, including both slot-level and
+    // task-level validation errors. Leave empty if validation is successful.
+    repeated ValidationError validation_errors = 4;
   }
 
   message DialogParameter {
@@ -185,8 +189,36 @@ message AppActionsContext {
     // Current values of the associated parameter.
     repeated CurrentValue current_value = 2;
 
-    bool is_focused = 3;
+    bool is_focused = 3 [deprecated = true];
   }
+
+  message ValidationError {
+    message Slot {
+      // Name of this slot, e.g. "timer.duration".
+      string name = 1;
+    }
+
+    // The list of slots that are affected by this error.
+    repeated Slot slots = 1;
+
+    // TODO(b/269659830): Add link to below description.
+    // The validation error status with parameters (if any), where all parameter
+    // values should use the string type. These will correspond to the supported
+    // validation errors defined in BII definitions (link), and transformed
+    // as described in (link). For example, DurationTooShort with parameter min
+    // duration 1 second can be represented as such:
+    //
+    // fields {
+    //   key: "@type"
+    //   value: { string_value: "DurationTooShort" }
+    // }
+    // fields {
+    //   key: "minDuration"
+    //   value: { string_value: "PT1S" }
+    // }
+    google.protobuf.Struct error = 2;
+  }
+
 
   // Current version of the protocol. Populated with from the interaction-capabiliites-core library.
   optional Version version = 4;
@@ -264,8 +296,8 @@ message FulfillmentRequest {
       CONFIRM = 2 [deprecated = true];
       // Assistant cancels an ongoing task of the app.
       CANCEL = 3;
-      // Assistant terminates an ongoing task of the app.
-      TERMINATE = 4;
+      // Deprecated: Delete this enum value after cleaning up references
+      TERMINATE = 4 [deprecated = true];
     }
 
     enum SyncStatus {
