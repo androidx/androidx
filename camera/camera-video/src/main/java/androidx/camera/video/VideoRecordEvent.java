@@ -332,6 +332,18 @@ public abstract class VideoRecordEvent {
         public static final int ERROR_DURATION_LIMIT_REACHED = 9;
 
         /**
+         * The recording was stopped because the {@link Recording} object was garbage collected.
+         *
+         * <p>The {@link Recording} object returned by
+         * {@link PendingRecording#start(Executor, Consumer)} must be referenced until the
+         * recording is no longer needed. If it is not, the active recording will be stopped and
+         * this error will be produced. Once {@link Recording#stop()} or
+         * {@link Recording#close()} has been invoked, the recording object no longer needs to be
+         * referenced.
+         */
+        public static final int ERROR_RECORDING_GARBAGE_COLLECTED = 10;
+
+        /**
          * Describes the error that occurred during a video recording.
          *
          * <p>This is the error code returning from {@link Finalize#getError()}.
@@ -342,7 +354,7 @@ public abstract class VideoRecordEvent {
         @IntDef(value = {ERROR_NONE, ERROR_UNKNOWN, ERROR_FILE_SIZE_LIMIT_REACHED,
                 ERROR_INSUFFICIENT_STORAGE, ERROR_INVALID_OUTPUT_OPTIONS, ERROR_ENCODING_FAILED,
                 ERROR_RECORDER_ERROR, ERROR_NO_VALID_DATA, ERROR_SOURCE_INACTIVE,
-                ERROR_DURATION_LIMIT_REACHED})
+                ERROR_DURATION_LIMIT_REACHED, ERROR_RECORDING_GARBAGE_COLLECTED})
         public @interface VideoRecordError {
         }
 
@@ -418,6 +430,7 @@ public abstract class VideoRecordEvent {
                 case ERROR_NO_VALID_DATA: return "ERROR_NO_VALID_DATA";
                 case ERROR_SOURCE_INACTIVE: return "ERROR_SOURCE_INACTIVE";
                 case ERROR_DURATION_LIMIT_REACHED: return "ERROR_DURATION_LIMIT_REACHED";
+                case ERROR_RECORDING_GARBAGE_COLLECTED: return "ERROR_RECORDING_GARBAGE_COLLECTED";
             }
 
             // Should never reach here, but just in case...

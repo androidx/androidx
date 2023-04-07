@@ -857,7 +857,8 @@ public final class Recorder implements VideoOutput {
         }
     }
 
-    void stop(@NonNull Recording activeRecording) {
+    void stop(@NonNull Recording activeRecording, @VideoRecordError int error,
+            @Nullable Throwable errorCause) {
         RecordingRecord pendingRecordingToFinalize = null;
         synchronized (mLock) {
             if (!isSameRecording(activeRecording, mPendingRecordingRecord) && !isSameRecording(
@@ -902,7 +903,7 @@ public final class Recorder implements VideoOutput {
                     long explicitlyStopTimeUs = TimeUnit.NANOSECONDS.toMicros(System.nanoTime());
                     RecordingRecord finalActiveRecordingRecord = mActiveRecordingRecord;
                     mSequentialExecutor.execute(() -> stopInternal(finalActiveRecordingRecord,
-                            explicitlyStopTimeUs, ERROR_NONE, null));
+                            explicitlyStopTimeUs, error, errorCause));
                     break;
                 case ERROR:
                     // In an error state, the recording will already be finalized. Treat as a
@@ -912,9 +913,13 @@ public final class Recorder implements VideoOutput {
         }
 
         if (pendingRecordingToFinalize != null) {
+            if (error == VideoRecordEvent.Finalize.ERROR_RECORDING_GARBAGE_COLLECTED) {
+                Logger.e(TAG, "Recording was stopped due to recording being garbage collected "
+                        + "before any valid data has been produced.");
+            }
             finalizePendingRecording(pendingRecordingToFinalize, ERROR_NO_VALID_DATA,
                     new RuntimeException("Recording was stopped before any data could be "
-                            + "produced."));
+                            + "produced.", errorCause));
         }
     }
 

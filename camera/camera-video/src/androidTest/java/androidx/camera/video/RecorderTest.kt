@@ -68,6 +68,7 @@ import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INVALID_OUTPUT_OPTI
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NO_VALID_DATA
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_RECORDER_ERROR
+import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_RECORDING_GARBAGE_COLLECTED
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE
 import androidx.camera.video.VideoRecordEvent.Pause
 import androidx.camera.video.VideoRecordEvent.Resume
@@ -768,7 +769,9 @@ class RecorderTest(
         // very overloaded here. This event means the recording has finished, but does not relate
         // to the finalizer that runs during garbage collection. However, that is what causes the
         // recording to finish.
-        listener.verifyFinalize()
+        listener.verifyFinalize { finalize ->
+            assertThat(finalize.error).isEqualTo(ERROR_RECORDING_GARBAGE_COLLECTED)
+        }
     }
 
     @Test
