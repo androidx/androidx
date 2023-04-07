@@ -638,6 +638,12 @@ class AffectedModuleDetectorImpl constructor(
                 ":constraintlayout:constraintlayout-compose:integration-tests",
                 ":constraintlayout:constraintlayout-compose:integration-tests:macrobenchmark",
                 ":constraintlayout:constraintlayout-compose:integration-tests:macrobenchmark-target"
+            ),
+            setOf(
+                ":profileinstaller:integration-tests:profile-verification",
+                ":profileinstaller:integration-tests:profile-verification-sample",
+                ":profileinstaller:integration-tests:profile-verification-sample-no-initializer",
+                ":benchmark:integration-tests:baselineprofile-consumer",
             )
         )
 
