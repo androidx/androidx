@@ -26,10 +26,6 @@ import androidx.appactions.interaction.capabilities.core.values.EntityValue;
 import androidx.appactions.interaction.capabilities.core.values.ItemList;
 import androidx.appactions.interaction.capabilities.core.values.ListItem;
 import androidx.appactions.interaction.capabilities.core.values.Message;
-import androidx.appactions.interaction.capabilities.core.values.Order;
-import androidx.appactions.interaction.capabilities.core.values.OrderItem;
-import androidx.appactions.interaction.capabilities.core.values.Organization;
-import androidx.appactions.interaction.capabilities.core.values.ParcelDelivery;
 import androidx.appactions.interaction.capabilities.core.values.Person;
 import androidx.appactions.interaction.capabilities.core.values.SafetyCheck;
 import androidx.appactions.interaction.capabilities.core.values.SearchAction;
@@ -60,62 +56,6 @@ public final class TypeConverters {
                             ItemList.Builder::addAllListItems,
                             LIST_ITEM_TYPE_SPEC)
                     .build();
-    public static final TypeSpec<OrderItem> ORDER_ITEM_TYPE_SPEC =
-            TypeSpecBuilder.newBuilderForThing("OrderItem", OrderItem::newBuilder).build();
-    public static final TypeSpec<Organization> ORGANIZATION_TYPE_SPEC =
-            TypeSpecBuilder.newBuilderForThing("Organization", Organization::newBuilder).build();
-    public static final TypeSpec<ParcelDelivery> PARCEL_DELIVERY_TYPE_SPEC =
-            TypeSpecBuilder.newBuilder("ParcelDelivery", ParcelDelivery::newBuilder)
-                    .bindStringField(
-                            "deliveryAddress",
-                            ParcelDelivery::getDeliveryAddress,
-                            ParcelDelivery.Builder::setDeliveryAddress)
-                    .bindZonedDateTimeField(
-                            "expectedArrivalFrom",
-                            ParcelDelivery::getExpectedArrivalFrom,
-                            ParcelDelivery.Builder::setExpectedArrivalFrom)
-                    .bindZonedDateTimeField(
-                            "expectedArrivalUntil",
-                            ParcelDelivery::getExpectedArrivalUntil,
-                            ParcelDelivery.Builder::setExpectedArrivalUntil)
-                    .bindStringField(
-                            "hasDeliveryMethod",
-                            ParcelDelivery::getDeliveryMethod,
-                            ParcelDelivery.Builder::setDeliveryMethod)
-                    .bindStringField(
-                            "trackingNumber",
-                            ParcelDelivery::getTrackingNumber,
-                            ParcelDelivery.Builder::setTrackingNumber)
-                    .bindStringField(
-                            "trackingUrl",
-                            ParcelDelivery::getTrackingUrl,
-                            ParcelDelivery.Builder::setTrackingUrl)
-                    .build();
-    public static final TypeSpec<Order> ORDER_TYPE_SPEC =
-            TypeSpecBuilder.newBuilderForThing("Order", Order::newBuilder)
-                    .bindZonedDateTimeField(
-                            "orderDate", Order::getOrderDate, Order.Builder::setOrderDate)
-                    .bindSpecField(
-                            "orderDelivery",
-                            Order::getOrderDelivery,
-                            Order.Builder::setOrderDelivery,
-                            PARCEL_DELIVERY_TYPE_SPEC)
-                    .bindRepeatedSpecField(
-                            "orderedItem",
-                            Order::getOrderedItems,
-                            Order.Builder::addAllOrderedItems,
-                            ORDER_ITEM_TYPE_SPEC)
-                    .bindEnumField(
-                            "orderStatus",
-                            Order::getOrderStatus,
-                            Order.Builder::setOrderStatus,
-                            Order.OrderStatus.class)
-                    .bindSpecField(
-                            "seller",
-                            Order::getSeller,
-                            Order.Builder::setSeller,
-                            ORGANIZATION_TYPE_SPEC)
-                    .build();
     public static final TypeSpec<Person> PERSON_TYPE_SPEC =
             TypeSpecBuilder.newBuilderForThing("Person", Person::newBuilder)
                     .bindStringField("email", Person::getEmail, Person.Builder::setEmail)
@@ -131,7 +71,7 @@ public final class TypeConverters {
             new UnionTypeSpec.Builder<Attendee>()
                     .bindMemberType(
                             (attendee) -> attendee.asPerson().orElse(null),
-                            (person) -> new Attendee(person),
+                            Attendee::new,
                             PERSON_TYPE_SPEC)
                     .build();
     public static final TypeSpec<CalendarEvent> CALENDAR_EVENT_TYPE_SPEC =
@@ -161,14 +101,14 @@ public final class TypeConverters {
             new UnionTypeSpec.Builder<Recipient>()
                     .bindMemberType(
                             (recipient) -> recipient.asPerson().orElse(null),
-                            (person) -> new Recipient(person),
+                            Recipient::new,
                             PERSON_TYPE_SPEC)
                     .build();
     public static final TypeSpec<Participant> PARTICIPANT_TYPE_SPEC =
             new UnionTypeSpec.Builder<Participant>()
                     .bindMemberType(
                             (participant) -> participant.asPerson().orElse(null),
-                            (person) -> new Participant(person),
+                            Participant::new,
                             PERSON_TYPE_SPEC)
                     .build();
     public static final TypeSpec<Message> MESSAGE_TYPE_SPEC =
