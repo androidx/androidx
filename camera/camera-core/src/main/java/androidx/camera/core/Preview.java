@@ -226,8 +226,12 @@ public final class Preview extends UseCase {
         // Close previous session's deferrable surface before creating new one
         clearPipeline();
 
-        final SurfaceRequest surfaceRequest = new SurfaceRequest(streamSpec.getResolution(),
-                getCamera(), this::notifyReset);
+        final SurfaceRequest surfaceRequest = new SurfaceRequest(
+                streamSpec.getResolution(),
+                getCamera(),
+                streamSpec.getDynamicRange(),
+                /* expectedFrameRate= */null,
+                this::notifyReset);
         mCurrentSurfaceRequest = surfaceRequest;
 
         if (mSurfaceProvider != null) {
@@ -283,7 +287,8 @@ public final class Preview extends UseCase {
 
         // Send the app Surface to the app.
         mSessionDeferrableSurface = mCameraEdge.getDeferrableSurface();
-        mCurrentSurfaceRequest = appEdge.createSurfaceRequest(camera);
+        mCurrentSurfaceRequest = appEdge.createSurfaceRequest(camera,
+                /* expectedFrameRateRange= */null);
         if (mSurfaceProvider != null) {
             // Only send surface request if the provider is set.
             sendSurfaceRequest();
