@@ -16,6 +16,9 @@
 
 package androidx.car.app.sample.navigation.common.car;
 
+import android.content.ComponentName;
+import android.content.Intent;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.CarContext;
@@ -34,8 +37,11 @@ import androidx.car.app.navigation.model.NavigationTemplate;
 import androidx.car.app.navigation.model.RoutingInfo;
 import androidx.car.app.navigation.model.Step;
 import androidx.car.app.navigation.model.TravelEstimate;
+import androidx.car.app.notification.CarPendingIntent;
 import androidx.car.app.sample.navigation.common.R;
 import androidx.car.app.sample.navigation.common.model.Instruction;
+import androidx.car.app.suggestion.SuggestionManager;
+import androidx.car.app.suggestion.model.Suggestion;
 import androidx.core.graphics.drawable.IconCompat;
 
 import java.util.ArrayList;
@@ -133,6 +139,9 @@ public final class NavigationScreen extends Screen {
     @NonNull
     @Override
     public Template onGetTemplate() {
+        // Send out suggestion when navigation screen start
+        createAndSendSuggestion();
+
         mSurfaceRenderer.updateMarkerVisibility(
                 /* showMarkers=*/ false, /* numMarkers=*/ 0, /* activeMarker=*/ -1);
 
@@ -339,5 +348,39 @@ public final class NavigationScreen extends Screen {
                                 mListener.executeScript(instructions);
                             }
                         });
+    }
+
+    private void createAndSendSuggestion() {
+        CarIcon homeIcon = new CarIcon.Builder(IconCompat.createWithResource(
+                getCarContext(),
+                R.drawable.ic_home)).build();
+        CarIcon workIcon = new CarIcon.Builder(IconCompat.createWithResource(
+                getCarContext(),
+                R.drawable.ic_work)).build();
+
+        List<Suggestion> suggestionList = new ArrayList<>();
+        suggestionList.add(getSuggestion(R.string.suggestion_card_home_title,
+                R.string.suggestion_card_home_subtitle, homeIcon));
+        suggestionList.add(getSuggestion(R.string.suggestion_card_work_title,
+                R.string.suggestion_card_work_subtitle, workIcon));
+
+        getCarContext().getCarService(SuggestionManager.class)
+                .updateSuggestions(suggestionList);
+    }
+
+    private Suggestion getSuggestion(int title, int subtitle, CarIcon icon) {
+        return new Suggestion.Builder()
+                .setIdentifier("0")
+                .setTitle(getCarContext().getString(title))
+                .setSubtitle(getCarContext().getString(subtitle))
+                .setIcon(icon)
+                .setAction(
+                        CarPendingIntent.getCarApp(getCarContext(), 0,
+                                new Intent().setComponent(
+                                        new ComponentName(getCarContext(),
+                                                NavigationCarAppService.class))
+                                        .setAction(NavigationSession.EXECUTE_SCRIPT),
+                                0))
+                .build();
     }
 }
