@@ -23,7 +23,7 @@ import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
-import androidx.appactions.interaction.capabilities.core.properties.ParamProperty
+import androidx.appactions.interaction.capabilities.core.properties.Property
 import java.util.Optional
 
 /** PauseExercise.kt in interaction-capabilities-fitness */
@@ -32,7 +32,7 @@ private const val CAPABILITY_NAME = "actions.intent.PAUSE_EXERCISE"
 // TODO(b/273602015): Update to use Name property from builtintype library.
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setDescriptor(PauseExercise.Property::class.java)
+        .setDescriptor(PauseExercise.Properties::class.java)
         .setArguments(PauseExercise.Arguments::class.java, PauseExercise.Arguments::Builder)
         .setOutput(PauseExercise.Output::class.java)
         .bindOptionalParameter(
@@ -48,10 +48,10 @@ private val ACTION_SPEC =
 class PauseExercise private constructor() {
     class CapabilityBuilder :
         Capability.Builder<
-            CapabilityBuilder, Property, Arguments, Output, Confirmation, Session
+            CapabilityBuilder, Properties, Arguments, Output, Confirmation, Session
             >(ACTION_SPEC) {
-        private var propertyBuilder: Property.Builder = Property.Builder()
-        fun setNameProperty(name: ParamProperty<StringValue>): CapabilityBuilder =
+        private var propertyBuilder: Properties.Builder = Properties.Builder()
+        fun setNameProperty(name: Property<StringValue>): CapabilityBuilder =
             apply {
                 propertyBuilder.setName(name)
             }
@@ -64,8 +64,8 @@ class PauseExercise private constructor() {
     }
 
     // TODO(b/268369632): Remove Property from public capability APIs.
-    class Property internal constructor(
-        val name: ParamProperty<StringValue>?,
+    class Properties internal constructor(
+        val name: Property<StringValue>?,
     ) {
         override fun toString(): String {
             return "Property(name=$name)"
@@ -75,7 +75,7 @@ class PauseExercise private constructor() {
             if (this === other) return true
             if (javaClass !== other?.javaClass) return false
 
-            other as Property
+            other as Properties
 
             if (name != other.name) return false
 
@@ -87,12 +87,12 @@ class PauseExercise private constructor() {
         }
 
         class Builder {
-            private var name: ParamProperty<StringValue>? = null
+            private var name: Property<StringValue>? = null
 
-            fun setName(name: ParamProperty<StringValue>): Builder =
+            fun setName(name: Property<StringValue>): Builder =
                 apply { this.name = name }
 
-            fun build(): Property = Property(name)
+            fun build(): Properties = Properties(name)
         }
     }
 

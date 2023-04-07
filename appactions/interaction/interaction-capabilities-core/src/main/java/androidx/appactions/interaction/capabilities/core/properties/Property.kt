@@ -20,7 +20,7 @@ package androidx.appactions.interaction.capabilities.core.properties
  * Configure parameters for the capability such as providing possible values of some type, or
  * marking a parameter as required for execution.
  */
-class ParamProperty<T>
+class Property<T>
 internal constructor(
     private val possibleValueSupplier: () -> List<T>,
     /** Indicates that a value for this property is required to be present for fulfillment. */
@@ -46,7 +46,7 @@ internal constructor(
     val possibleValues: List<T>
         get() = possibleValueSupplier()
 
-    /** Builder for {@link ParamProperty}. */
+    /** Builder for {@link Property}. */
     class Builder<T> {
         private var possibleValueSupplier: () -> List<T> = { emptyList<T>() }
         private var isRequired = false
@@ -91,7 +91,7 @@ internal constructor(
 
         /** Builds the property for this entity parameter. */
         fun build() =
-            ParamProperty(
+            Property(
                 this.possibleValueSupplier,
                 this.isRequired,
                 this.isValueMatchRequired,

@@ -21,7 +21,7 @@ import androidx.appactions.interaction.capabilities.core.BaseSession
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.ParamProperty
+import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
 import androidx.appactions.interaction.capabilities.core.values.SuccessStatus
 import androidx.appactions.interaction.proto.ParamValue
@@ -34,7 +34,7 @@ private const val CAPABILITY_NAME = "actions.intent.PAUSE_TIMER"
 
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setDescriptor(PauseTimer.Property::class.java)
+        .setDescriptor(PauseTimer.Properties::class.java)
         .setArguments(PauseTimer.Arguments::class.java, PauseTimer.Arguments::Builder)
         .setOutput(PauseTimer.Output::class.java)
         .bindRepeatedParameter(
@@ -57,22 +57,22 @@ class PauseTimer private constructor() {
     class CapabilityBuilder :
         Capability.Builder<
             CapabilityBuilder,
-            Property,
+            Properties,
             Arguments,
             Output,
             Confirmation,
             Session,
         >(ACTION_SPEC) {
         override fun build(): Capability {
-            super.setProperty(Property.Builder().build())
+            super.setProperty(Properties.Builder().build())
             return super.build()
         }
     }
 
     // TODO(b/268369632): Remove Property from public capability APIs.
-    class Property
+    class Properties
     internal constructor(
-        val timerList: ParamProperty<TimerValue>?,
+        val timerList: Property<TimerValue>?,
     ) {
         override fun toString(): String {
             return "Property(timerList=$timerList}"
@@ -82,7 +82,7 @@ class PauseTimer private constructor() {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
 
-            other as Property
+            other as Properties
 
             if (timerList != other.timerList) return false
 
@@ -94,13 +94,13 @@ class PauseTimer private constructor() {
         }
 
         class Builder {
-            private var timerList: ParamProperty<TimerValue>? = null
+            private var timerList: Property<TimerValue>? = null
 
-            fun setTimerList(timerList: ParamProperty<TimerValue>): Builder = apply {
+            fun setTimerList(timerList: Property<TimerValue>): Builder = apply {
                 this.timerList = timerList
             }
 
-            fun build(): Property = Property(timerList)
+            fun build(): Properties = Properties(timerList)
         }
     }
 

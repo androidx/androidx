@@ -21,7 +21,7 @@ import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder;
-import androidx.appactions.interaction.capabilities.core.properties.ParamProperty;
+import androidx.appactions.interaction.capabilities.core.properties.Property;
 import androidx.appactions.interaction.capabilities.core.properties.StringValue;
 
 import com.google.auto.value.AutoValue;
@@ -31,19 +31,19 @@ import java.util.Optional;
 public final class CapabilityTwoStrings {
 
     private static final String CAPABILITY_NAME = "actions.intent.TEST";
-    public static final ActionSpec<Property, Arguments, Void> ACTION_SPEC =
+    public static final ActionSpec<Properties, Arguments, Void> ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-                    .setDescriptor(Property.class)
+                    .setDescriptor(Properties.class)
                     .setArguments(Arguments.class, Arguments::newBuilder)
                     .bindOptionalParameter(
                             "stringSlotA",
-                            Property::stringSlotA,
+                            Properties::stringSlotA,
                             Arguments.Builder::setStringSlotA,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                             TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
                     .bindOptionalParameter(
                             "stringSlotB",
-                            Property::stringSlotB,
+                            Properties::stringSlotB,
                             Arguments.Builder::setStringSlotB,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                             TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
@@ -79,28 +79,28 @@ public final class CapabilityTwoStrings {
 
     /** Two required strings */
     @AutoValue
-    public abstract static class Property {
+    public abstract static class Properties {
         @NonNull
         public static Builder newBuilder() {
-            return new AutoValue_CapabilityTwoStrings_Property.Builder();
+            return new AutoValue_CapabilityTwoStrings_Properties.Builder();
         }
 
-        public abstract Optional<ParamProperty<StringValue>> stringSlotA();
+        public abstract Optional<Property<StringValue>> stringSlotA();
 
-        public abstract Optional<ParamProperty<StringValue>> stringSlotB();
+        public abstract Optional<Property<StringValue>> stringSlotB();
 
         /** Builder for {@link Property} */
         @AutoValue.Builder
         public abstract static class Builder {
 
             @NonNull
-            public abstract Builder setStringSlotA(@NonNull ParamProperty<StringValue> value);
+            public abstract Builder setStringSlotA(@NonNull Property<StringValue> value);
 
             @NonNull
-            public abstract Builder setStringSlotB(@NonNull ParamProperty<StringValue> value);
+            public abstract Builder setStringSlotB(@NonNull Property<StringValue> value);
 
             @NonNull
-            public abstract Property build();
+            public abstract Properties build();
         }
     }
 }

@@ -27,7 +27,7 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.RECIPIENT_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
-import androidx.appactions.interaction.capabilities.core.properties.ParamProperty
+import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
 import androidx.appactions.interaction.capabilities.core.values.Message
 import androidx.appactions.interaction.capabilities.core.values.properties.Recipient
@@ -41,7 +41,7 @@ private const val CAPABILITY_NAME: String = "actions.intent.CREATE_MESSAGE"
 
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setDescriptor(CreateMessage.Property::class.java)
+        .setDescriptor(CreateMessage.Properties::class.java)
         .setArguments(CreateMessage.Arguments::class.java, CreateMessage.Arguments::Builder)
         .setOutput(CreateMessage.Output::class.java)
         .bindRepeatedParameter(
@@ -74,21 +74,21 @@ private val ACTION_SPEC =
 class CreateMessage private constructor() {
     class CapabilityBuilder :
         Capability.Builder<
-            CapabilityBuilder, Property, Arguments, Output, Confirmation, Session
+            CapabilityBuilder, Properties, Arguments, Output, Confirmation, Session
             >(ACTION_SPEC) {
         override fun build(): Capability {
-            super.setProperty(Property.Builder().build())
+            super.setProperty(Properties.Builder().build())
             // TODO(b/268369632): No-op remove empty property builder after Property is removed.
-            super.setProperty(Property.Builder().build())
+            super.setProperty(Properties.Builder().build())
             return super.build()
         }
     }
 
     // TODO(b/268369632): Remove Property from public capability APIs.
-    class Property
+    class Properties
     internal constructor(
-        val recipient: ParamProperty<Recipient>?,
-        val messageText: ParamProperty<StringValue>?
+        val recipient: Property<Recipient>?,
+        val messageText: Property<StringValue>?
     ) {
         override fun toString(): String {
             return "Property(recipient=$recipient, messageText=$messageText)"
@@ -98,7 +98,7 @@ class CreateMessage private constructor() {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
 
-            other as Property
+            other as Properties
 
             if (recipient != other.recipient) return false
             if (messageText != other.messageText) return false
@@ -113,18 +113,18 @@ class CreateMessage private constructor() {
         }
 
         class Builder {
-            private var recipient: ParamProperty<Recipient>? = null
-            private var messageText: ParamProperty<StringValue>? = null
+            private var recipient: Property<Recipient>? = null
+            private var messageText: Property<StringValue>? = null
 
-            fun setRecipient(recipient: ParamProperty<Recipient>): Builder = apply {
+            fun setRecipient(recipient: Property<Recipient>): Builder = apply {
                 this.recipient = recipient
             }
 
-            fun setMessageText(messageText: ParamProperty<StringValue>): Builder = apply {
+            fun setMessageText(messageText: Property<StringValue>): Builder = apply {
                 this.messageText = messageText
             }
 
-            fun build(): Property = Property(recipient, messageText)
+            fun build(): Properties = Properties(recipient, messageText)
         }
     }
 
