@@ -39,8 +39,7 @@ import android.hardware.camera2.CaptureRequest.CONTROL_AE_REGIONS
 import android.hardware.camera2.CaptureRequest.CONTROL_AF_MODE
 import android.hardware.camera2.CaptureRequest.CONTROL_AF_REGIONS
 import android.hardware.camera2.CaptureRequest.CONTROL_AWB_REGIONS
-import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT
-import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT_CUSTOM
+import android.hardware.camera2.CaptureRequest.CONTROL_EFFECT_MODE
 import android.hardware.camera2.CaptureRequest.CONTROL_ZOOM_RATIO
 import android.hardware.camera2.CaptureRequest.FLASH_MODE
 import android.hardware.camera2.CaptureRequest.FLASH_MODE_TORCH
@@ -58,6 +57,7 @@ import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.ImageCaptureFailWithAutoFlashQuirk
 import androidx.camera.camera2.pipe.integration.compat.workaround.AutoFlashAEModeDisablerImpl
 import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
+import androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo
 import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.testing.VerifyResultListener
@@ -119,6 +119,7 @@ class CameraControlAdapterDeviceTest {
     private lateinit var comboListener: ComboRequestListener
     private lateinit var characteristics: CameraCharacteristics
     private var hasFlashUnit: Boolean = false
+    private var testEffectMode: Int? = null
 
     private val imageCapture = ImageCapture.Builder().build()
     private val imageAnalysis = ImageAnalysis.Builder().build().apply {
@@ -153,9 +154,8 @@ class CameraControlAdapterDeviceTest {
             CameraSelector.LENS_FACING_BACK
         )!!
 
-        hasFlashUnit = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE).let {
-            it != null && it
-        }
+        hasFlashUnit = camera.cameraInfo.hasFlashUnit()
+        testEffectMode = camera.getTestEffectMode()
     }
 
     @After
@@ -425,12 +425,14 @@ class CameraControlAdapterDeviceTest {
     private suspend fun arrangeRequestOptions() {
         cameraControl.setExposureCompensationIndex(1)
         cameraControl.setZoomRatio(camera.getMaxSupportedZoomRatio())
-        cameraControl.camera2cameraControl.setCaptureRequestOptions(
-            CaptureRequestOptions.Builder().setCaptureRequestOption(
-                CONTROL_CAPTURE_INTENT,
-                CONTROL_CAPTURE_INTENT_CUSTOM
-            ).build()
-        ).await()
+        testEffectMode?.let { effectMode ->
+            cameraControl.camera2cameraControl.setCaptureRequestOptions(
+                CaptureRequestOptions.Builder().setCaptureRequestOption(
+                    CONTROL_EFFECT_MODE,
+                    effectMode
+                ).build()
+            ).await()
+        }
 
         // Ensure the requests are already set to the CaptureRequest.
         waitForResult().verify(
@@ -443,11 +445,13 @@ class CameraControlAdapterDeviceTest {
                 )
 
                 // Ensure the Camera2Interop working before testing
-                assumeThat(
-                    "Camera2Interop Request doesn't set to CaptureRequest, ignore the test",
-                    captureRequest.request[CONTROL_CAPTURE_INTENT],
-                    equalTo(CONTROL_CAPTURE_INTENT_CUSTOM)
-                )
+                if (testEffectMode != null) {
+                    assumeThat(
+                        "Camera2Interop Request doesn't set to CaptureRequest, ignore the test",
+                        captureRequest.request[CONTROL_EFFECT_MODE],
+                        equalTo(testEffectMode)
+                    )
+                }
 
                 // Ensure the Zoom working before testing
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -469,6 +473,11 @@ class CameraControlAdapterDeviceTest {
         )
     }
 
+    private fun Camera.getTestEffectMode(): Int? {
+        return Camera2CameraInfo.from(cameraInfo)
+            .getCameraCharacteristic(CameraCharacteristics.CONTROL_AVAILABLE_EFFECTS)?.getOrNull(0)
+    }
+
     private fun Camera.getMaxSupportedZoomRatio(): Float {
         return cameraInfo.zoomState.value!!.maxZoomRatio
     }
@@ -477,15 +486,16 @@ class CameraControlAdapterDeviceTest {
         waitForResult(captureCount = 30).verify(
             { metadata: RequestMetadata, _ ->
                 val checkEV = metadata.request[CONTROL_AE_EXPOSURE_COMPENSATION] == 1
-                val checkCaptureIntent =
-                    metadata.request[CONTROL_CAPTURE_INTENT] == CONTROL_CAPTURE_INTENT_CUSTOM
+                val checkEffectMode = testEffectMode?.let {
+                    metadata.request[CONTROL_EFFECT_MODE] == it
+                } ?: true
                 val checkZoom = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     metadata.request[CONTROL_ZOOM_RATIO] != null
                 } else {
                     metadata.request[SCALER_CROP_REGION] != null
                 }
 
-                checkEV && checkCaptureIntent && checkZoom
+                checkEV && checkEffectMode && checkZoom
             },
             TIMEOUT
         )
