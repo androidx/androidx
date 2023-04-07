@@ -142,9 +142,9 @@ public class SurfaceProcessorNode implements
         Size rotatedCropSize = getRotatedSize(cropRect, rotationDegrees);
         checkArgument(isAspectRatioMatchingWithRoundingError(rotatedCropSize, outConfig.getSize()));
 
-        StreamSpec streamSpec = StreamSpec.builder(outConfig.getSize())
-                .setExpectedFrameRateRange(input.getStreamSpec().getExpectedFrameRateRange())
-                .build();
+        // Copy the stream spec from the input to the output, except for the resolution.
+        StreamSpec streamSpec = input.getStreamSpec().toBuilder().setResolution(
+                outConfig.getSize()).build();
 
         outputSurface = new SurfaceEdge(
                 outConfig.getTargets(),

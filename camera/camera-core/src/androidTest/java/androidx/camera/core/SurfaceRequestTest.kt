@@ -81,6 +81,19 @@ class SurfaceRequestTest {
     }
 
     @Test
+    fun canRetrieveDynamicRange() {
+        val dynamicRange = DynamicRange.HDR_UNSPECIFIED_10_BIT
+        val request = createNewRequest(FAKE_SIZE, dynamicRange)
+        Truth.assertThat(request.dynamicRange).isEqualTo(dynamicRange)
+    }
+
+    @Test
+    fun dynamicRangeIsSdr_whenNotSet() {
+        val request = createNewRequest(FAKE_SIZE)
+        Truth.assertThat(request.dynamicRange).isEqualTo(DynamicRange.SDR)
+    }
+
+    @Test
     @Suppress("UNCHECKED_CAST")
     fun setWillNotProvideSurface_resultsInWILL_NOT_PROVIDE_SURFACE() {
         val request = createNewRequest(FAKE_SIZE)
@@ -371,11 +384,18 @@ class SurfaceRequestTest {
 
     private fun createNewRequest(
         size: Size,
+        dynamicRange: DynamicRange = DynamicRange.SDR,
         expectedFrameRate: Range<Int>? = null,
         autoCleanup: Boolean = true,
         onInvalidated: () -> Unit = {},
     ): SurfaceRequest {
-        val request = SurfaceRequest(size, FakeCamera(), expectedFrameRate, onInvalidated)
+        val request = SurfaceRequest(
+            size,
+            FakeCamera(),
+            dynamicRange,
+            expectedFrameRate,
+            onInvalidated
+        )
         if (autoCleanup) {
             surfaceRequests.add(request)
         }
@@ -386,7 +406,8 @@ class SurfaceRequestTest {
         private val FAKE_SIZE: Size by lazy { Size(0, 0) }
         private val FAKE_INFO: SurfaceRequest.TransformationInfo by lazy {
             SurfaceRequest.TransformationInfo.of(Rect(), 0, Surface.ROTATION_0,
-                /*hasCameraTransform=*/true)
+                /*hasCameraTransform=*/true
+            )
         }
         private val NO_OP_RESULT_LISTENER = Consumer { _: SurfaceRequest.Result? -> }
         private val MOCK_SURFACE = Mockito.mock(
