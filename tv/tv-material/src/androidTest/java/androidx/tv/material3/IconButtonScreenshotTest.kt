@@ -216,7 +216,7 @@ class IconButtonScreenshotTest {
         rule.setContent {
             LightMaterialTheme {
                 localInputModeManager = LocalInputModeManager.current
-                Box(Modifier.sizeIn(minWidth = 50.dp, minHeight = 50.dp).testTag(wrapperTestTag)) {
+                Box(Modifier.sizeIn(minWidth = 52.dp, minHeight = 52.dp).testTag(wrapperTestTag)) {
                     IconButton(
                         onClick = { /* doSomething() */ },
                         modifier = Modifier
@@ -246,7 +246,7 @@ class IconButtonScreenshotTest {
         rule.setContent {
             DarkMaterialTheme {
                 localInputModeManager = LocalInputModeManager.current
-                Box(Modifier.sizeIn(minWidth = 50.dp, minHeight = 50.dp).testTag(wrapperTestTag)) {
+                Box(Modifier.sizeIn(minWidth = 52.dp, minHeight = 52.dp).testTag(wrapperTestTag)) {
                     IconButton(
                         onClick = { /* doSomething() */ },
                         modifier = Modifier
