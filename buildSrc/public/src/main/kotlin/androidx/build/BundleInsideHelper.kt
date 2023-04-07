@@ -33,6 +33,8 @@ import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
  * Allow java and Android libraries to bundle other projects inside the project jar/aar.
  */
 object BundleInsideHelper {
+    val CONFIGURATION_NAME = "bundleInside"
+    val REPACKAGE_TASK_NAME = "repackageBundledJars"
     /**
      * Creates a configuration for the users to use that will be used to bundle these dependency
      * jars inside of libs/ directory inside of the aar.
@@ -52,7 +54,7 @@ object BundleInsideHelper {
      */
     @JvmStatic
     fun Project.forInsideAar(relocations: List<Relocation>) {
-        val bundle = configurations.create("bundleInside")
+        val bundle = configurations.create(CONFIGURATION_NAME)
         val repackage = configureRepackageTaskForType(relocations, bundle)
         // Add to AGP's configuration so this jar get packaged inside of the aar.
         dependencies.add("implementation", files(repackage.flatMap { it.archiveFile }))
@@ -95,7 +97,7 @@ object BundleInsideHelper {
      */
     @JvmStatic
     fun Project.forInsideJar(from: String, to: String) {
-        val bundle = configurations.create("bundleInside")
+        val bundle = configurations.create(CONFIGURATION_NAME)
         val repackage = configureRepackageTaskForType(
             listOf(Relocation(from, to)),
             bundle
@@ -137,7 +139,7 @@ object BundleInsideHelper {
     fun Project.forInsideJarKmp(from: String, to: String) {
         val kmpExtension = extensions.findByType<KotlinMultiplatformExtension>()
             ?: error("kmp only")
-        val bundle = configurations.create("bundleInside")
+        val bundle = configurations.create(CONFIGURATION_NAME)
         val repackage = configureRepackageTaskForType(
             listOf(Relocation(from, to)),
             bundle
@@ -189,7 +191,7 @@ object BundleInsideHelper {
      */
     @JvmStatic
     fun Project.forInsideLintJar() {
-        val bundle = configurations.create("bundleInside")
+        val bundle = configurations.create(CONFIGURATION_NAME)
         val compileOnly = configurations.getByName("compileOnly")
         val testImplementation = configurations.getByName("testImplementation")
         // bundleInside dependencies should be included as compileOnly as well
@@ -222,7 +224,7 @@ object BundleInsideHelper {
         configuration: Configuration
     ): TaskProvider<ShadowJar> {
         return tasks.register(
-            "repackageBundledJars",
+            REPACKAGE_TASK_NAME,
             ShadowJar::class.java
         ) { task ->
             task.apply {
