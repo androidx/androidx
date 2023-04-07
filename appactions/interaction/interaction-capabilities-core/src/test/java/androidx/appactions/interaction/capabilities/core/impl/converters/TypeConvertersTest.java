@@ -22,7 +22,6 @@ import static androidx.appactions.interaction.capabilities.core.impl.converters.
 import static androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.ITEM_LIST_TYPE_SPEC;
 import static androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.LIST_ITEM_TYPE_SPEC;
 import static androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.MESSAGE_TYPE_SPEC;
-import static androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.ORDER_TYPE_SPEC;
 import static androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.PARTICIPANT_TYPE_SPEC;
 import static androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.RECIPIENT_TYPE_SPEC;
 import static androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.SAFETY_CHECK_TYPE_SPEC;
@@ -39,10 +38,6 @@ import androidx.appactions.interaction.capabilities.core.values.EntityValue;
 import androidx.appactions.interaction.capabilities.core.values.ItemList;
 import androidx.appactions.interaction.capabilities.core.values.ListItem;
 import androidx.appactions.interaction.capabilities.core.values.Message;
-import androidx.appactions.interaction.capabilities.core.values.Order;
-import androidx.appactions.interaction.capabilities.core.values.OrderItem;
-import androidx.appactions.interaction.capabilities.core.values.Organization;
-import androidx.appactions.interaction.capabilities.core.values.ParcelDelivery;
 import androidx.appactions.interaction.capabilities.core.values.Person;
 import androidx.appactions.interaction.capabilities.core.values.SafetyCheck;
 import androidx.appactions.interaction.capabilities.core.values.SearchAction;
@@ -75,23 +70,6 @@ public final class TypeConvertersTest {
         return Value.newBuilder().setStructValue(struct).build();
     }
 
-    private static final Order ORDER_JAVA_THING =
-            Order.newBuilder()
-                    .setId("id")
-                    .setName("name")
-                    .addOrderedItem(OrderItem.newBuilder().setName("apples").build())
-                    .addOrderedItem(OrderItem.newBuilder().setName("oranges").build())
-                    .setSeller(Organization.newBuilder().setName("Google").build())
-                    .setOrderDate(ZonedDateTime.of(2022, 1, 1, 8, 0, 0, 0, ZoneOffset.UTC))
-                    .setOrderStatus(Order.OrderStatus.ORDER_DELIVERED)
-                    .setOrderDelivery(
-                            ParcelDelivery.newBuilder()
-                                    .setDeliveryAddress("test address")
-                                    .setDeliveryMethod("UPS")
-                                    .setTrackingNumber("A12345")
-                                    .setTrackingUrl("https://")
-                                    .build())
-                    .build();
     private static final Person PERSON_JAVA_THING =
             Person.newBuilder()
                     .setName("name")
@@ -125,77 +103,7 @@ public final class TypeConvertersTest {
                     .setDuration(Duration.ofMinutes(5))
                     .setCheckinTime(ZonedDateTime.of(2023, 01, 10, 10, 0, 0, 0, ZoneOffset.UTC))
                     .build();
-    private static final ListValue ORDER_ITEMS_STRUCT =
-            ListValue.newBuilder()
-                    .addValues(
-                            Value.newBuilder()
-                                    .setStructValue(
-                                            Struct.newBuilder()
-                                                    .putFields(
-                                                            "@type",
-                                                            Value.newBuilder()
-                                                                    .setStringValue("OrderItem")
-                                                                    .build())
-                                                    .putFields(
-                                                            "name",
-                                                            Value.newBuilder()
-                                                                    .setStringValue("apples")
-                                                                    .build()))
-                                    .build())
-                    .addValues(
-                            Value.newBuilder()
-                                    .setStructValue(
-                                            Struct.newBuilder()
-                                                    .putFields(
-                                                            "@type",
-                                                            Value.newBuilder()
-                                                                    .setStringValue("OrderItem")
-                                                                    .build())
-                                                    .putFields(
-                                                            "name",
-                                                            Value.newBuilder()
-                                                                    .setStringValue("oranges")
-                                                                    .build()))
-                                    .build())
-                    .build();
-    private static final Struct PARCEL_DELIVERY_STRUCT =
-            Struct.newBuilder()
-                    .putFields("@type", Value.newBuilder().setStringValue("ParcelDelivery").build())
-                    .putFields(
-                            "deliveryAddress",
-                            Value.newBuilder().setStringValue("test address").build())
-                    .putFields(
-                            "hasDeliveryMethod", Value.newBuilder().setStringValue("UPS").build())
-                    .putFields(
-                            "trackingNumber", Value.newBuilder().setStringValue("A12345").build())
-                    .putFields("trackingUrl", Value.newBuilder().setStringValue("https://").build())
-                    .build();
-    private static final Struct ORGANIZATION_STRUCT =
-            Struct.newBuilder()
-                    .putFields("@type", Value.newBuilder().setStringValue("Organization").build())
-                    .putFields("name", Value.newBuilder().setStringValue("Google").build())
-                    .build();
-    private static final Struct ORDER_STRUCT =
-            Struct.newBuilder()
-                    .putFields("@type", Value.newBuilder().setStringValue("Order").build())
-                    .putFields("identifier", Value.newBuilder().setStringValue("id").build())
-                    .putFields("name", Value.newBuilder().setStringValue("name").build())
-                    .putFields(
-                            "orderDate",
-                            Value.newBuilder().setStringValue("2022-01-01T08:00Z").build())
-                    .putFields(
-                            "orderDelivery",
-                            Value.newBuilder().setStructValue(PARCEL_DELIVERY_STRUCT).build())
-                    .putFields(
-                            "orderedItem",
-                            Value.newBuilder().setListValue(ORDER_ITEMS_STRUCT).build())
-                    .putFields(
-                            "orderStatus",
-                            Value.newBuilder().setStringValue("OrderDelivered").build())
-                    .putFields(
-                            "seller",
-                            Value.newBuilder().setStructValue(ORGANIZATION_STRUCT).build())
-                    .build();
+
     private static final Struct PERSON_STRUCT =
             Struct.newBuilder()
                     .putFields("@type", Value.newBuilder().setStringValue("Person").build())
@@ -281,10 +189,6 @@ public final class TypeConvertersTest {
 
     private static ParamValue toParamValue(Struct struct, String identifier) {
         return ParamValue.newBuilder().setIdentifier(identifier).setStructValue(struct).build();
-    }
-
-    private static Entity toEntity(Struct struct) {
-        return Entity.newBuilder().setIdentifier("id").setStructValue(struct).build();
     }
 
     @Test
@@ -461,19 +365,6 @@ public final class TypeConvertersTest {
                         ParamValueConverter.Companion.of(ITEM_LIST_TYPE_SPEC)
                                 .fromParamValue(toParamValue(itemListStruct, "testList")))
                 .isEqualTo(itemList);
-    }
-
-    @Test
-    public void order_conversions_matchesExpected() throws Exception {
-        EntityConverter<Order> entityConverter = EntityConverter.Companion.of(ORDER_TYPE_SPEC);
-        ParamValueConverter<Order> paramValueConverter =
-                ParamValueConverter.Companion.of(ORDER_TYPE_SPEC);
-
-        assertThat(paramValueConverter.toParamValue(ORDER_JAVA_THING))
-                .isEqualTo(toParamValue(ORDER_STRUCT, "id"));
-        assertThat(paramValueConverter.fromParamValue(toParamValue(ORDER_STRUCT, "id")))
-                .isEqualTo(ORDER_JAVA_THING);
-        assertThat(entityConverter.convert(ORDER_JAVA_THING)).isEqualTo(toEntity(ORDER_STRUCT));
     }
 
     @Test

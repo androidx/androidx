@@ -16,7 +16,7 @@
 
 package androidx.appactions.interaction.capabilities.core.entity
 
-import androidx.appactions.interaction.capabilities.core.values.Order
+import androidx.appactions.interaction.capabilities.core.values.Alarm
 import androidx.appactions.interaction.proto.Entity
 import androidx.appactions.interaction.proto.GroundingRequest
 import androidx.appactions.interaction.proto.GroundingResponse
@@ -49,7 +49,7 @@ private val VALID_GROUNDING_REQUEST = GroundingRequest.newBuilder()
                                             .putFields(
                                                 "@type",
                                                 Value.newBuilder()
-                                                    .setStringValue("Order")
+                                                    .setStringValue("Alarm")
                                                     .build(),
                                             ),
                                     )
@@ -63,10 +63,10 @@ private val VALID_GROUNDING_REQUEST = GroundingRequest.newBuilder()
 @RunWith(JUnit4::class)
 class EntityProviderTest {
     private fun createExternalResponse(
-        candidateList: List<EntityLookupCandidate<Order>>,
+        candidateList: List<EntityLookupCandidate<Alarm>>,
         status: Int,
-    ): EntityLookupResponse<Order> {
-        return EntityLookupResponse.Builder<Order>()
+    ): EntityLookupResponse<Alarm> {
+        return EntityLookupResponse.Builder<Alarm>()
             .setCandidateList(candidateList)
             .setStatus(status)
             .setNextPageToken(ByteString.EMPTY)
@@ -83,10 +83,10 @@ class EntityProviderTest {
         ).build()
     }
 
-    private fun createExternalCandidate(id: String, name: String): EntityLookupCandidate<Order> {
-        val candidateBuilder: EntityLookupCandidate.Builder<Order> =
+    private fun createExternalCandidate(id: String, name: String): EntityLookupCandidate<Alarm> {
+        val candidateBuilder: EntityLookupCandidate.Builder<Alarm> =
             EntityLookupCandidate.Builder()
-        candidateBuilder.setCandidate(Order.newBuilder().setName(name).setId(id).build())
+        candidateBuilder.setCandidate(Alarm.newBuilder().setName(name).setId(id).build())
         return candidateBuilder.build()
     }
 
@@ -97,7 +97,7 @@ class EntityProviderTest {
                     .setIdentifier(id)
                     .setStructValue(
                         Struct.newBuilder()
-                            .putFields("@type", Value.newBuilder().setStringValue("Order").build())
+                            .putFields("@type", Value.newBuilder().setStringValue("Alarm").build())
                             .putFields("identifier", Value.newBuilder().setStringValue(id).build())
                             .putFields("name", Value.newBuilder().setStringValue(name).build()),
                     ),
@@ -107,7 +107,7 @@ class EntityProviderTest {
 
     @Test
     fun invalidEntity_returnError() = runBlocking<Unit> {
-        val entityProvider = OrderProvider(
+        val entityProvider = AlarmProvider(
             "id",
             createExternalResponse(
                 listOf(),
@@ -129,7 +129,7 @@ class EntityProviderTest {
 
     @Test
     fun errorInExternalResponse_returnError() = runBlocking<Unit> {
-        val entityProvider = OrderProvider(
+        val entityProvider = AlarmProvider(
             "id",
             createExternalResponse(
                 listOf(),
@@ -146,10 +146,10 @@ class EntityProviderTest {
 
     @Test
     fun success() = runBlocking<Unit> {
-        val candidateBuilder: EntityLookupCandidate.Builder<Order> =
+        val candidateBuilder: EntityLookupCandidate.Builder<Alarm> =
             EntityLookupCandidate.Builder()
-        candidateBuilder.setCandidate(Order.newBuilder().setName("testing-order").build())
-        val entityProvider = OrderProvider(
+        candidateBuilder.setCandidate(Alarm.newBuilder().setName("testing-alarm").build())
+        val entityProvider = AlarmProvider(
             "id",
             createExternalResponse(
                 listOf(
