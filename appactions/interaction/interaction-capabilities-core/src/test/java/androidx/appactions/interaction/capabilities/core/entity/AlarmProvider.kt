@@ -17,14 +17,14 @@
 package androidx.appactions.interaction.capabilities.core.entity
 
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
-import androidx.appactions.interaction.capabilities.core.values.Order
+import androidx.appactions.interaction.capabilities.core.values.Alarm
 
 /**  Internal testing object for entity provider */
-class OrderProvider internal constructor(
+class AlarmProvider internal constructor(
     private var id: String,
-    private var response: EntityLookupResponse<Order>,
-) : EntityProvider<Order>(TypeConverters.ORDER_TYPE_SPEC) {
+    private var response: EntityLookupResponse<Alarm>,
+) : EntityProvider<Alarm>(TypeConverters.ALARM_TYPE_SPEC) {
     override fun getId(): String = id
-    override suspend fun lookup(request: EntityLookupRequest<Order>):
-        EntityLookupResponse<Order> = response
+    override suspend fun lookup(request: EntityLookupRequest<Alarm>):
+        EntityLookupResponse<Alarm> = response
 }
