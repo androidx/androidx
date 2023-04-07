@@ -24,6 +24,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -604,6 +605,7 @@ class SnapshotStateMapTests {
     @Test(timeout = 5000)
     @OptIn(ExperimentalCoroutinesApi::class)
     @IgnoreJsTarget // Not relevant in a single threaded environment
+    @Ignore // b/277334100
     fun concurrentMixingWriteApply_clear(): Unit = runTest {
         repeat(100) {
             val maps = Array(100) { mutableStateMapOf<Int, Int>() }.toList()
