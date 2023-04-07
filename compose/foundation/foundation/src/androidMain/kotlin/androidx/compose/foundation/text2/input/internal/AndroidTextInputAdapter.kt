@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package androidx.compose.foundation.text2.input.internal
 
 import android.os.Looper
@@ -28,6 +30,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.TextEditFilter
+import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.text.input.ImeAction
@@ -36,7 +39,6 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PlatformTextInput
 import androidx.compose.ui.text.input.PlatformTextInputAdapter
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.core.view.inputmethod.EditorInfoCompat
 import java.util.concurrent.Executor
 import org.jetbrains.annotations.TestOnly
@@ -48,7 +50,6 @@ import org.jetbrains.annotations.TestOnly
 internal const val TIA_DEBUG = false
 private const val TAG = "AndroidTextInputAdapter"
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class AndroidTextInputAdapter constructor(
     view: View,
     private val platformTextInput: PlatformTextInput
@@ -61,25 +62,25 @@ internal class AndroidTextInputAdapter constructor(
     private val textInputCommandExecutor = TextInputCommandExecutor(view, inputMethodManager)
 
     private val resetListener = EditProcessor.ResetListener { old, new ->
-        val needUpdateSelection = (old.selection != new.selection) ||
-            old.composition != new.composition
+        val needUpdateSelection = (old.selectionInChars != new.selectionInChars) ||
+            old.compositionInChars != new.compositionInChars
         if (needUpdateSelection) {
             inputMethodManager.updateSelection(
-                selectionStart = new.selection.min,
-                selectionEnd = new.selection.max,
-                compositionStart = new.composition?.min ?: -1,
-                compositionEnd = new.composition?.max ?: -1
+                selectionStart = new.selectionInChars.min,
+                selectionEnd = new.selectionInChars.max,
+                compositionStart = new.compositionInChars?.min ?: -1,
+                compositionEnd = new.compositionInChars?.max ?: -1
             )
         }
 
-        if (old.text != new.text) {
+        if (!old.contentEquals(new)) {
             inputMethodManager.restartInput()
         }
     }
 
     override fun createInputConnection(outAttrs: EditorInfo): InputConnection {
         logDebug { "createInputConnection" }
-        val value = currentTextInputSession?.value ?: TextFieldValue()
+        val value = currentTextInputSession?.value ?: TextFieldCharSequence()
         val imeOptions = currentTextInputSession?.imeOptions ?: ImeOptions.Default
 
         logDebug { "createInputConnection.value = $value" }
@@ -182,7 +183,7 @@ internal class AndroidTextInputAdapter constructor(
         // endregion
 
         // region EditableTextInputSession
-        override val value: TextFieldValue
+        override val value: TextFieldCharSequence
             get() = state.value
 
         private var filter: TextEditFilter? = initialFilter
@@ -391,7 +392,7 @@ private fun Choreographer.asExecutor(): Executor = Executor { runnable ->
 /**
  * Fills necessary info of EditorInfo.
  */
-internal fun EditorInfo.update(textFieldValue: TextFieldValue, imeOptions: ImeOptions) {
+internal fun EditorInfo.update(textFieldValue: TextFieldCharSequence, imeOptions: ImeOptions) {
     this.imeOptions = when (imeOptions.imeAction) {
         ImeAction.Default -> {
             if (imeOptions.singleLine) {
@@ -471,10 +472,10 @@ internal fun EditorInfo.update(textFieldValue: TextFieldValue, imeOptions: ImeOp
         }
     }
 
-    this.initialSelStart = textFieldValue.selection.start
-    this.initialSelEnd = textFieldValue.selection.end
+    this.initialSelStart = textFieldValue.selectionInChars.start
+    this.initialSelEnd = textFieldValue.selectionInChars.end
 
-    EditorInfoCompat.setInitialSurroundingText(this, textFieldValue.text)
+    EditorInfoCompat.setInitialSurroundingText(this, textFieldValue)
 
     this.imeOptions = this.imeOptions or EditorInfo.IME_FLAG_NO_FULLSCREEN
 }

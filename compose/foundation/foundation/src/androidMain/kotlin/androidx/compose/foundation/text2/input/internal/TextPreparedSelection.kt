@@ -83,12 +83,12 @@ internal class TextFieldPreparedSelection(
     /**
      * Current active selection in the context of this [TextFieldPreparedSelection]
      */
-    var selection = initialValue.selection
+    var selection = initialValue.selectionInChars
 
     /**
      * Initial text value.
      */
-    private val text = initialValue.text
+    private val text: String = initialValue.toString()
 
     /**
      * If there is a non-collapsed selection, delete its contents. Or execute the given [or] block.
@@ -129,7 +129,7 @@ internal class TextFieldPreparedSelection(
         val visibleInnerTextFieldRect = innerTextFieldCoordinates?.let { inner ->
             decorationBoxCoordinates?.localBoundingBoxOf(inner)
         } ?: Rect.Zero
-        val currentOffset = initialValue.selection.end
+        val currentOffset = initialValue.selectionInChars.end
         val currentPos = value.getCursorRect(currentOffset)
         val newPos = currentPos.translate(
             translateX = 0f,
@@ -329,7 +329,7 @@ internal class TextFieldPreparedSelection(
 
     // it selects a text from the original selection start to a current selection end
     fun selectMovement() = applyIfNotEmpty(false) {
-        selection = TextRange(initialValue.selection.start, selection.end)
+        selection = TextRange(initialValue.selectionInChars.start, selection.end)
     }
 
     private fun isLtr(): Boolean {
@@ -340,8 +340,8 @@ internal class TextFieldPreparedSelection(
     private tailrec fun TextLayoutResult.getNextWordOffsetForLayout(
         currentOffset: Int = selection.end
     ): Int {
-        if (currentOffset >= initialValue.text.length) {
-            return initialValue.text.length
+        if (currentOffset >= initialValue.length) {
+            return initialValue.length
         }
         val currentWord = getWordBoundary(charOffset(currentOffset))
         return if (currentWord.end <= currentOffset) {

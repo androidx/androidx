@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
+import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,7 +36,6 @@ import androidx.compose.ui.test.performTextInputSelection
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
@@ -147,7 +147,7 @@ class BasicTextField2SemanticsTest {
 
     @Test
     fun contentSemanticsAreSet_inTheFirstComposition() {
-        val state = TextFieldState(TextFieldValue("hello"))
+        val state = TextFieldState("hello")
         rule.setContent {
             BasicTextField2(
                 state = state,
@@ -160,7 +160,7 @@ class BasicTextField2SemanticsTest {
 
     @Test
     fun contentSemanticsAreSet_afterRecomposition() {
-        val state = TextFieldState(TextFieldValue("hello"))
+        val state = TextFieldState("hello")
         rule.setContent {
             BasicTextField2(
                 state = state,
@@ -170,14 +170,14 @@ class BasicTextField2SemanticsTest {
 
         rule.onNodeWithTag(Tag).assertTextEquals("hello")
 
-        state.editProcessor.reset(TextFieldValue("hello2"))
+        state.editProcessor.reset(TextFieldCharSequence("hello2"))
 
         rule.onNodeWithTag(Tag).assertTextEquals("hello2")
     }
 
     @Test
     fun selectionSemanticsAreSet_inTheFirstComposition() {
-        val state = TextFieldState(TextFieldValue("hello", selection = TextRange(2)))
+        val state = TextFieldState("hello", initialSelectionInChars = TextRange(2))
         rule.setContent {
             BasicTextField2(
                 state = state,
@@ -193,7 +193,7 @@ class BasicTextField2SemanticsTest {
 
     @Test
     fun selectionSemanticsAreSet_afterRecomposition() {
-        val state = TextFieldState(TextFieldValue("hello"))
+        val state = TextFieldState("hello")
         rule.setContent {
             BasicTextField2(
                 state = state,
@@ -206,7 +206,7 @@ class BasicTextField2SemanticsTest {
             assertSelection(TextRange.Zero)
         }
 
-        state.editProcessor.reset(TextFieldValue("hello", selection = TextRange(2)))
+        state.editProcessor.reset(TextFieldCharSequence("hello", selection = TextRange(2)))
 
         with(rule.onNodeWithTag(Tag)) {
             assertTextEquals("hello")
@@ -217,7 +217,7 @@ class BasicTextField2SemanticsTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun inputSelection_changesSelectionState() {
-        val state = TextFieldState(TextFieldValue("hello"))
+        val state = TextFieldState("hello")
         rule.setContent {
             BasicTextField2(
                 state = state,
@@ -228,13 +228,13 @@ class BasicTextField2SemanticsTest {
         rule.onNodeWithTag(Tag).performTextInputSelection(TextRange(2))
 
         rule.runOnIdle {
-            assertThat(state.value.selection).isEqualTo(TextRange(2))
+            assertThat(state.value.selectionInChars).isEqualTo(TextRange(2))
         }
     }
 
     @Test
     fun textLayoutResultSemanticsAreSet_inTheFirstComposition() {
-        val state = TextFieldState(TextFieldValue("hello"))
+        val state = TextFieldState("hello")
         rule.setContent {
             BasicTextField2(
                 state = state,
@@ -267,8 +267,8 @@ class BasicTextField2SemanticsTest {
 
     @Test
     fun semanticsAreSet_afterStateObjectChanges() {
-        val state1 = TextFieldState(TextFieldValue("hello"))
-        val state2 = TextFieldState(TextFieldValue("world", TextRange(2)))
+        val state1 = TextFieldState("hello")
+        val state2 = TextFieldState("world", TextRange(2))
         var chosenState by mutableStateOf(true)
         rule.setContent {
             BasicTextField2(

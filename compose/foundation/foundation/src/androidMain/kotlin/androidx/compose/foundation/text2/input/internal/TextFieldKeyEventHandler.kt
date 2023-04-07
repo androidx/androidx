@@ -26,6 +26,7 @@ import androidx.compose.foundation.text.showCharacterPalette
 import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.TextFieldPreparedSelection.Companion.NoCharacterFound
+import androidx.compose.foundation.text2.input.selectCharsIn
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.type
@@ -216,12 +217,12 @@ internal class TextFieldKeyEventHandler {
             textPreparedSelectionState = preparedSelectionState
         )
         preparedSelection.block()
-        if (preparedSelection.selection != preparedSelection.initialValue.selection) {
+        if (preparedSelection.selection != preparedSelection.initialValue.selectionInChars) {
             // update the editProcessor with the latest selection state.
             // this has to be a reset because EditCommands do not inform IME.
-            state.editProcessor.reset(
-                preparedSelection.initialValue.copy(selection = preparedSelection.selection)
-            )
+            state.edit {
+                selectCharsIn(preparedSelection.selection)
+            }
         }
     }
 

@@ -22,6 +22,7 @@ import android.view.KeyEvent
 import android.view.inputmethod.InputConnection
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.TextEditFilter
+import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
@@ -75,7 +76,7 @@ internal interface EditableTextInputSession : TextInputSession {
      * The current [TextFieldValue] in this input session. This value is typically supplied by a
      * backing [TextFieldState] that is used to initialize the session.
      */
-    val value: TextFieldValue
+    val value: TextFieldCharSequence
 
     /**
      * Callback to execute for InputConnection to communicate the changes requested by the IME.

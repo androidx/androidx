@@ -35,7 +35,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.roundToInt
@@ -202,6 +201,3 @@ fun SharedHoistedScroll() {
         )
     }
 }
-
-@OptIn(ExperimentalFoundationApi::class)
-private fun TextFieldState(text: String) = TextFieldState(TextFieldValue(text))

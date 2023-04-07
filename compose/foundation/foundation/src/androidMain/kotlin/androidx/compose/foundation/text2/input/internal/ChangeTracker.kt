@@ -19,7 +19,7 @@
 package androidx.compose.foundation.text2.input.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text2.input.MutableTextFieldValue.ChangeList
+import androidx.compose.foundation.text2.input.TextFieldBuffer.ChangeList
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.text.TextRange
 

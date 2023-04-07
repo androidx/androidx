@@ -24,7 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
 
 /**
  * The editable text state of a text field, including both the text itself and position of the
@@ -33,11 +32,15 @@ import androidx.compose.ui.text.input.TextFieldValue
  * To change the state, call [edit].
  */
 @ExperimentalFoundationApi
-class TextFieldState(initialValue: TextFieldValue = TextFieldValue()) {
+class TextFieldState(
+    initialText: String = "",
+    initialSelectionInChars: TextRange = TextRange.Zero
+) {
 
-    internal var editProcessor = EditProcessor(initialValue)
+    internal var editProcessor =
+        EditProcessor(TextFieldCharSequence(initialText, initialSelectionInChars))
 
-    val value: TextFieldValue
+    val value: TextFieldCharSequence
         get() = editProcessor.value
 
     /**
@@ -50,25 +53,25 @@ class TextFieldState(initialValue: TextFieldValue = TextFieldValue()) {
      * @see setTextAndPlaceCursorAtEnd
      * @see setTextAndSelectAll
      */
-    inline fun edit(block: MutableTextFieldValue.() -> TextFieldEditResult) {
+    inline fun edit(block: TextFieldBuffer.() -> TextFieldEditResult) {
         val mutableValue = startEdit(value)
         val result = mutableValue.block()
         commitEdit(mutableValue, result)
     }
 
     override fun toString(): String =
-        "TextFieldState(selection=${value.selection}, text=\"${value.text}\")"
+        "TextFieldState(selection=${value.selectionInChars}, text=\"$value\")"
 
     @Suppress("ShowingMemberInHiddenClass")
     @PublishedApi
-    internal fun startEdit(value: TextFieldValue): MutableTextFieldValue =
-        MutableTextFieldValue(value)
+    internal fun startEdit(value: TextFieldCharSequence): TextFieldBuffer =
+        TextFieldBuffer(value)
 
     @Suppress("ShowingMemberInHiddenClass")
     @PublishedApi
-    internal fun commitEdit(newValue: MutableTextFieldValue, result: TextFieldEditResult) {
+    internal fun commitEdit(newValue: TextFieldBuffer, result: TextFieldEditResult) {
         val newSelection = result.calculateSelection(value, newValue)
-        val finalValue = newValue.toTextFieldValue(newSelection)
+        val finalValue = newValue.toTextFieldCharSequence(newSelection)
         editProcessor.reset(finalValue)
     }
 
@@ -81,20 +84,18 @@ class TextFieldState(initialValue: TextFieldValue = TextFieldValue()) {
     @Suppress("RedundantNullableReturnType")
     object Saver : androidx.compose.runtime.saveable.Saver<TextFieldState, Any> {
         override fun SaverScope.save(value: TextFieldState): Any? = listOf(
-            value.value.text,
-            value.value.selection.start,
-            value.value.selection.end
+            value.value.toString(),
+            value.value.selectionInChars.start,
+            value.value.selectionInChars.end
         )
 
         override fun restore(value: Any): TextFieldState? {
             val (text, selectionStart, selectionEnd) = value as List<*>
             return TextFieldState(
-                TextFieldValue(
-                    text = text as String,
-                    selection = TextRange(
-                        start = selectionStart as Int,
-                        end = selectionEnd as Int
-                    )
+                initialText = text as String,
+                initialSelectionInChars = TextRange(
+                    start = selectionStart as Int,
+                    end = selectionEnd as Int
                 )
             )
         }
@@ -145,7 +146,9 @@ fun TextFieldState.setTextAndSelectAll(text: String) {
 
 @OptIn(ExperimentalFoundationApi::class)
 internal fun TextFieldState.deselect() {
-    if (!value.selection.collapsed) {
-        editProcessor.reset(value.copy(selection = TextRange.Zero, composition = TextRange.Zero))
+    if (!value.selectionInChars.collapsed) {
+        edit {
+            selectCharsIn(TextRange.Zero)
+        }
     }
 }

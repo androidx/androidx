@@ -42,13 +42,12 @@ import androidx.compose.ui.test.withKeysDown
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -624,13 +623,13 @@ class TextFieldKeyEventTest {
 
         fun expectedText(text: String) {
             rule.runOnIdle {
-                Truth.assertThat(state.value.text).isEqualTo(text)
+                assertThat(state.value.toString()).isEqualTo(text)
             }
         }
 
         fun expectedSelection(selection: TextRange) {
             rule.runOnIdle {
-                Truth.assertThat(state.value.selection).isEqualTo(selection)
+                assertThat(state.value.selectionInChars).isEqualTo(selection)
             }
         }
     }
@@ -642,7 +641,7 @@ class TextFieldKeyEventTest {
         singleLine: Boolean = false,
         sequence: SequenceScope.() -> Unit,
     ) {
-        val state = TextFieldState(TextFieldValue(initText, initSelection))
+        val state = TextFieldState(initText, initSelection)
         val focusRequester = FocusRequester()
         rule.setContent {
             LocalClipboardManager.current.setText(AnnotatedString("InitialTestText"))

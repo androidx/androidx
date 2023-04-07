@@ -23,9 +23,10 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.KeyboardHelper
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text2.input.MutableTextFieldValue.ChangeList
-import androidx.compose.foundation.text2.input.MutableTextFieldValueWithSelection
+import androidx.compose.foundation.text2.input.TextFieldBuffer.ChangeList
+import androidx.compose.foundation.text2.input.TextFieldBufferWithSelection
 import androidx.compose.foundation.text2.input.TextEditFilter
+import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.AndroidTextInputAdapter
 import androidx.compose.foundation.text2.input.rememberTextFieldState
@@ -62,7 +63,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -107,7 +107,7 @@ internal class BasicTextField2Test {
 
     @Test
     fun textField_contentChange_updatesState() {
-        val state = TextFieldState(TextFieldValue("Hello ", TextRange(Int.MAX_VALUE)))
+        val state = TextFieldState("Hello ", TextRange(Int.MAX_VALUE))
         rule.setContent {
             BasicTextField2(
                 state = state,
@@ -120,7 +120,7 @@ internal class BasicTextField2Test {
         rule.onNodeWithTag(Tag).performTextInput("World!")
 
         rule.runOnIdle {
-            assertThat(state.value.text).isEqualTo("Hello World!")
+            assertThat(state.value.toString()).isEqualTo("Hello World!")
         }
 
         rule.onNodeWithTag(Tag).assertTextEquals("Hello World!")
@@ -161,7 +161,7 @@ internal class BasicTextField2Test {
 
     @Test
     fun textField_textStyleFontSizeChange_relayouts() {
-        val state = TextFieldState(TextFieldValue("Hello ", TextRange(Int.MAX_VALUE)))
+        val state = TextFieldState("Hello ", TextRange(Int.MAX_VALUE))
         var style by mutableStateOf(TextStyle(fontSize = 20.sp))
         val textLayoutResults = mutableListOf<TextLayoutResult>()
         rule.setContent {
@@ -186,7 +186,7 @@ internal class BasicTextField2Test {
 
     @Test
     fun textField_textStyleColorChange_doesNotRelayout() {
-        val state = TextFieldState(TextFieldValue("Hello"))
+        val state = TextFieldState("Hello")
         var style by mutableStateOf(TextStyle(color = Color.Red))
         val textLayoutResults = mutableListOf<TextLayoutResult>()
         rule.setContent {
@@ -211,7 +211,7 @@ internal class BasicTextField2Test {
 
     @Test
     fun textField_contentChange_relayouts() {
-        val state = TextFieldState(TextFieldValue("Hello ", TextRange(Int.MAX_VALUE)))
+        val state = TextFieldState("Hello ", TextRange(Int.MAX_VALUE))
         val textLayoutResults = mutableListOf<TextLayoutResult>()
         rule.setContent {
             BasicTextField2(
@@ -285,8 +285,8 @@ internal class BasicTextField2Test {
 
     @Test
     fun textField_whenStateObjectChanges_newTextIsRendered() {
-        val state1 = TextFieldState(TextFieldValue("Hello"))
-        val state2 = TextFieldState(TextFieldValue("World"))
+        val state1 = TextFieldState("Hello")
+        val state2 = TextFieldState("World")
         var toggleState by mutableStateOf(true)
         val state by derivedStateOf { if (toggleState) state1 else state2 }
         rule.setContent {
@@ -306,8 +306,8 @@ internal class BasicTextField2Test {
 
     @Test
     fun textField_whenStateObjectChanges_restartsInput() {
-        val state1 = TextFieldState(TextFieldValue("Hello"))
-        val state2 = TextFieldState(TextFieldValue("World"))
+        val state1 = TextFieldState("Hello")
+        val state2 = TextFieldState("World")
         var toggleState by mutableStateOf(true)
         val state by derivedStateOf { if (toggleState) state1 else state2 }
         rule.setContent {
@@ -329,8 +329,8 @@ internal class BasicTextField2Test {
             performTextReplacement("Compose2")
             assertTextEquals("Compose2")
         }
-        assertThat(state1.value.text).isEqualTo("Compose")
-        assertThat(state2.value.text).isEqualTo("Compose2")
+        assertThat(state1.value.toString()).isEqualTo("Compose")
+        assertThat(state2.value.toString()).isEqualTo("Compose2")
     }
 
     @Test
@@ -606,7 +606,7 @@ internal class BasicTextField2Test {
         AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { _, ic ->
             inputConnection = ic
         }
-        val state = TextFieldState(TextFieldValue("hello"))
+        val state = TextFieldState("hello")
         lateinit var changes: ChangeList
         rule.setContent {
             BasicTextField2(
@@ -642,7 +642,7 @@ internal class BasicTextField2Test {
         AndroidTextInputAdapter.setInputConnectionCreatedListenerForTests { _, ic ->
             inputConnection = ic
         }
-        val state = TextFieldState(TextFieldValue("hello"))
+        val state = TextFieldState("hello")
         lateinit var changes: ChangeList
         rule.setContent {
             BasicTextField2(
@@ -699,7 +699,7 @@ internal class BasicTextField2Test {
 
     @Test
     fun textField_changesAreTracked_whenKeyEventDeletes() {
-        val state = TextFieldState(TextFieldValue("hello"))
+        val state = TextFieldState("hello")
         lateinit var changes: ChangeList
         rule.setContent {
             BasicTextField2(
@@ -877,8 +877,8 @@ internal class BasicTextField2Test {
 
     private object RejectAllTextFilter : TextEditFilter {
         override fun filter(
-            oldState: TextFieldValue,
-            newState: MutableTextFieldValueWithSelection
+            oldState: TextFieldCharSequence,
+            newState: TextFieldBufferWithSelection
         ) {
             newState.revertAllChanges()
         }
@@ -887,8 +887,8 @@ internal class BasicTextField2Test {
     private class KeyboardOptionsFilter(override val keyboardOptions: KeyboardOptions) :
         TextEditFilter {
         override fun filter(
-            oldState: TextFieldValue,
-            newState: MutableTextFieldValueWithSelection
+            oldState: TextFieldCharSequence,
+            newState: TextFieldBufferWithSelection
         ) {
             // Noop
         }

@@ -22,6 +22,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.TextEditFilter
+import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.deselect
 import androidx.compose.ui.Modifier
@@ -62,7 +63,6 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastAny
 
@@ -146,7 +146,7 @@ internal class TextFieldDecoratorModifierNode(
         private set
 
     // semantics properties that require semantics invalidation
-    private var lastText: AnnotatedString? = null
+    private var lastText: CharSequence? = null
     private var lastSelection: TextRange? = null
     private var lastEnabled: Boolean = enabled
     private var lastSecureContent: Boolean = secureContent
@@ -267,12 +267,12 @@ internal class TextFieldDecoratorModifierNode(
             // Cache invalidation is done here instead of only in updateNode because the text or
             // selection might change without triggering a modifier update.
             if (localSemantics == null ||
-                lastText != value.annotatedString ||
-                lastSelection != value.selection ||
+                !value.contentEquals(lastText) ||
+                lastSelection != value.selectionInChars ||
                 lastEnabled != enabled ||
                 lastSecureContent != secureContent
             ) {
-                localSemantics = generateSemantics(value.annotatedString, value.selection)
+                localSemantics = generateSemantics(value, value.selectionInChars)
             }
             return localSemantics
         }
@@ -337,7 +337,7 @@ internal class TextFieldDecoratorModifierNode(
     }
 
     private fun generateSemantics(
-        text: AnnotatedString,
+        text: CharSequence,
         selection: TextRange
     ): SemanticsConfiguration {
         lastText = text
@@ -348,7 +348,7 @@ internal class TextFieldDecoratorModifierNode(
             getTextLayoutResult {
                 textLayoutState.layoutResult?.let { result -> it.add(result) } ?: false
             }
-            editableText = text
+            editableText = AnnotatedString(text.toString())
             textSelectionRange = selection
             imeAction = keyboardOptions.imeAction
             if (!enabled) disabled()
@@ -378,8 +378,8 @@ internal class TextFieldDecoratorModifierNode(
                 ) {
                     // reset is required to make sure IME gets the update.
                     textFieldState.editProcessor.reset(
-                        TextFieldValue(
-                            annotatedString = text,
+                        TextFieldCharSequence(
+                            text = textFieldState.value,
                             selection = TextRange(start, end)
                         )
                     )

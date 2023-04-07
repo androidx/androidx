@@ -32,12 +32,11 @@ import androidx.compose.foundation.text2.input.then
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.substring
 
 @Sampled
 fun BasicTextField2StateEditSample() {
-    val state = TextFieldState(TextFieldValue("hello world"))
+    val state = TextFieldState("hello world")
     state.edit {
         // Insert a comma after "hello".
         replace(5, 5, ",") // = "hello, world"
@@ -60,7 +59,7 @@ fun BasicTextField2CustomFilterSample() {
     BasicTextField2(state, filter = { old, new ->
         // If the old text was wrapped in parentheses, keep the text wrapped and preserve the
         // cursor position or selection.
-        if (old.text.startsWith('(') && old.text.endsWith(')')) {
+        if (old.startsWith('(') && old.endsWith(')')) {
             val selection = new.selectionInChars
             if (!new.endsWith(')')) {
                 new.append(')')
