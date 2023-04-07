@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalFoundationApi::class)
+@file:OptIn(ExperimentalFoundationApi::class, ExperimentalFoundationApi::class)
 
 package androidx.compose.foundation.samples
 
@@ -26,6 +26,7 @@ import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.delete
 import androidx.compose.foundation.text2.input.forEachChange
 import androidx.compose.foundation.text2.input.forEachChangeReversed
+import androidx.compose.foundation.text2.input.insert
 import androidx.compose.foundation.text2.input.rememberTextFieldState
 import androidx.compose.foundation.text2.input.selectCharsIn
 import androidx.compose.foundation.text2.input.then
@@ -56,20 +57,39 @@ fun BasicTextField2StateEditSample() {
 @Composable
 fun BasicTextField2CustomFilterSample() {
     val state = remember { TextFieldState() }
-    BasicTextField2(state, filter = { old, new ->
-        // If the old text was wrapped in parentheses, keep the text wrapped and preserve the
-        // cursor position or selection.
-        if (old.startsWith('(') && old.endsWith(')')) {
-            val selection = new.selectionInChars
-            if (!new.endsWith(')')) {
-                new.append(')')
-                new.selectCharsIn(TextRange(selection.start, selection.end))
-            }
-            if (!new.startsWith('(')) {
-                new.replace(0, 0, "(")
-                new.selectCharsIn(TextRange(selection.start + 1, selection.end + 1))
+    BasicTextField2(state, filter = { _, new ->
+        // A filter that always places newly-input text at the start of the string, after a
+        // prompt character, like a shell.
+        val promptChar = '>'
+
+        fun CharSequence.countPrefix(char: Char): Int {
+            var i = 0
+            while (i < length && get(i) == char) i++
+            return i
+        }
+
+        // Step one: Figure out the insertion point.
+        val newPromptChars = new.countPrefix(promptChar)
+        val insertionPoint = if (newPromptChars == 0) 0 else 1
+
+        // Step two: Ensure text is placed at the insertion point.
+        if (new.changes.changeCount == 1) {
+            val insertedRange = new.changes.getRange(0)
+            val replacedRange = new.changes.getOriginalRange(0)
+            if (!replacedRange.collapsed && insertedRange.collapsed) {
+                // Text was deleted, delete forwards from insertion point.
+                new.delete(insertionPoint, insertionPoint + replacedRange.length)
             }
         }
+        // Else text was replaced or there were multiple changes - don't handle.
+
+        // Step three: Ensure the prompt character is there.
+        if (newPromptChars == 0) {
+            new.insert(0, ">")
+        }
+
+        // Step four: Ensure the cursor is ready for the next input.
+        new.placeCursorAfterCharAt(0)
     })
 }
 

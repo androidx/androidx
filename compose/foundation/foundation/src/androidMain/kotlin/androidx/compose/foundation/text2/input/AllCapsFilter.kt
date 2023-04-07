@@ -42,12 +42,16 @@ private data class AllCapsFilter(private val locale: Locale) : TextEditFilter {
     )
 
     override fun filter(
-        oldState: TextFieldCharSequence,
-        newState: TextFieldBufferWithSelection
+        originalValue: TextFieldCharSequence,
+        valueWithChanges: TextFieldBufferWithSelection
     ) {
-        val selection = newState.selectionInCodepoints
-        newState.replace(0, newState.length, newState.toString().toUpperCase(locale))
-        newState.selectCodepointsIn(selection)
+        val selection = valueWithChanges.selectionInCodepoints
+        valueWithChanges.replace(
+            0,
+            valueWithChanges.length,
+            valueWithChanges.toString().toUpperCase(locale)
+        )
+        valueWithChanges.selectCodepointsIn(selection)
     }
 
     override fun toString(): String = "TextEditFilter.allCaps(locale=$locale)"

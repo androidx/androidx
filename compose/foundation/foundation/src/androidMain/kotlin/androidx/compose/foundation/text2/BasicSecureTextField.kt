@@ -64,7 +64,7 @@ import kotlinx.coroutines.launch
  * BasicSecureTextField is specifically designed for password entry fields and is a preconfigured
  * alternative to BasicTextField2. It only supports a single line of content and comes with default
  * settings for KeyboardOptions, filter, and obscureText that are appropriate for entering secure
- * content. Additionally, some context menu actions like cut, copy, and paste are disabled for
+ * content. Additionally, some context menu actions like cut, copy, and drag are disabled for
  * added security.
  *
  * @param state [TextFieldState] object that holds the internal state of a [BasicTextField2].
@@ -253,19 +253,22 @@ internal class PasswordRevealFilter(
     internal var revealCodepointIndex by mutableStateOf(-1)
         private set
 
-    override fun filter(oldState: TextFieldCharSequence, newState: TextFieldBufferWithSelection) {
+    override fun filter(
+        originalValue: TextFieldCharSequence,
+        valueWithChanges: TextFieldBufferWithSelection
+    ) {
         // We only care about a single character insertion changes
-        val singleCharacterInsertion = newState.changes.changeCount == 1 &&
-            newState.changes.getRange(0).length == 1 &&
-            newState.changes.getOriginalRange(0).length == 0
+        val singleCharacterInsertion = valueWithChanges.changes.changeCount == 1 &&
+            valueWithChanges.changes.getRange(0).length == 1 &&
+            valueWithChanges.changes.getOriginalRange(0).length == 0
 
         // if there is an expanded selection, don't reveal anything
-        if (!singleCharacterInsertion || newState.hasSelection) {
+        if (!singleCharacterInsertion || valueWithChanges.hasSelection) {
             revealCodepointIndex = -1
             return
         }
 
-        val insertionPoint = newState.changes.getRange(0).min
+        val insertionPoint = valueWithChanges.changes.getRange(0).min
         if (revealCodepointIndex != insertionPoint) {
             // start the timer for auto hide
             scheduleHide()

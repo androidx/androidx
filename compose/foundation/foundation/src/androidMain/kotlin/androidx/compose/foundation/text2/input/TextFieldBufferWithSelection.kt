@@ -62,12 +62,13 @@ class TextFieldBufferWithSelection internal constructor(
      *
      * To place the cursor at the beginning of the field, pass index 0. To place the cursor at the
      * end of the field, after the last character, pass index
-     * [TextFieldBuffer.codepointLength].
+     * [TextFieldBuffer.codepointLength] or call [placeCursorAtEnd].
      *
      * @param index Codepoint index to place cursor before, should be in range 0 to
      * [TextFieldBuffer.codepointLength], inclusive.
      *
      * @see placeCursorBeforeCharAt
+     * @see placeCursorAfterCodepointAt
      */
     fun placeCursorBeforeCodepointAt(index: Int) {
         requireValidIndex(index, inCodepoints = true)
@@ -81,17 +82,59 @@ class TextFieldBufferWithSelection internal constructor(
      * If [index] is inside a surrogate pair or other invalid run, the cursor will be placed at the
      * nearest earlier index.
      *
-     * To place the cursor at the beginning of the field, pass index 0. To place the cursor at the end
-     * of the field, after the last character, pass index [TextFieldBuffer.length].
+     * To place the cursor at the beginning of the field, pass index 0. To place the cursor at the
+     * end of the field, after the last character, pass index [TextFieldBuffer.length] or call
+     * [placeCursorAtEnd].
      *
-     * @param index Codepoint index to place cursor before, should be in range 0 to
+     * @param index Character index to place cursor before, should be in range 0 to
      * [TextFieldBuffer.length], inclusive.
      *
      * @see placeCursorBeforeCodepointAt
+     * @see placeCursorAfterCharAt
      */
     fun placeCursorBeforeCharAt(index: Int) {
         requireValidIndex(index, inCodepoints = false)
         selectionInChars = TextRange(index)
+    }
+
+    /**
+     * Places the cursor after the codepoint at the given index.
+     *
+     * If [index] is inside an invalid run, the cursor will be placed at the nearest later index.
+     *
+     * To place the cursor at the end of the field, after the last character, pass index
+     * [MutableTextFieldValue.codepointLength] or call [placeCursorAtEnd].
+     *
+     * @param index Codepoint index to place cursor after, should be in range 0 to
+     * [MutableTextFieldValue.codepointLength], inclusive.
+     *
+     * @see placeCursorAfterCharAt
+     * @see placeCursorBeforeCodepointAt
+     */
+    fun placeCursorAfterCodepointAt(index: Int) {
+        requireValidIndex(index, inCodepoints = true)
+        val charIndex = codepointIndexToCharIndex((index + 1).coerceAtMost(codepointLength))
+        selectionInChars = TextRange(charIndex)
+    }
+
+    /**
+     * Places the cursor after the character at the given index.
+     *
+     * If [index] is inside a surrogate pair or other invalid run, the cursor will be placed at the
+     * nearest later index.
+     *
+     * To place the cursor at the end of the field, after the last character, pass index
+     * [MutableTextFieldValue.length] or call [placeCursorAtEnd].
+     *
+     * @param index Character index to place cursor after, should be in range 0 to
+     * [MutableTextFieldValue.length], inclusive.
+     *
+     * @see placeCursorAfterCodepointAt
+     * @see placeCursorBeforeCharAt
+     */
+    fun placeCursorAfterCharAt(index: Int) {
+        requireValidIndex(index, inCodepoints = false)
+        selectionInChars = TextRange((index + 1).coerceAtMost(length))
     }
 
     /**
@@ -102,7 +145,7 @@ class TextFieldBufferWithSelection internal constructor(
     }
 
     /**
-     * Returns a [TextFieldEditResult] that places the cursor after the last change made to this
+     * Returns a [TextEditResult] that places the cursor after the last change made to this
      * [TextFieldBuffer].
      *
      * @see placeCursorAtEnd
@@ -115,7 +158,7 @@ class TextFieldBufferWithSelection internal constructor(
     }
 
     /**
-     * Returns a [TextFieldEditResult] that places the cursor before the first change made to this
+     * Returns a [TextEditResult] that places the cursor before the first change made to this
      * [TextFieldBuffer].
      *
      * @see placeCursorAfterLastChange
@@ -176,7 +219,7 @@ class TextFieldBufferWithSelection internal constructor(
     }
 
     /**
-     * Returns a [TextFieldEditResult] that places the selection before the first change and after the
+     * Returns a [TextEditResult] that places the selection before the first change and after the
      * last change.
      *
      * @see selectAll

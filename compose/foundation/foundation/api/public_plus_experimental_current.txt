@@ -1327,7 +1327,7 @@ package androidx.compose.foundation.text2.input {
   }
 
   @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public fun interface TextEditFilter {
-    method public void filter(androidx.compose.foundation.text2.input.TextFieldCharSequence oldState, androidx.compose.foundation.text2.input.TextFieldBufferWithSelection newState);
+    method public void filter(androidx.compose.foundation.text2.input.TextFieldCharSequence originalValue, androidx.compose.foundation.text2.input.TextFieldBufferWithSelection valueWithChanges);
     method public default androidx.compose.foundation.text.KeyboardOptions? getKeyboardOptions();
     property public default androidx.compose.foundation.text.KeyboardOptions? keyboardOptions;
     field public static final androidx.compose.foundation.text2.input.TextEditFilter.Companion Companion;
@@ -1338,6 +1338,23 @@ package androidx.compose.foundation.text2.input {
 
   public final class TextEditFilterKt {
     method @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text2.input.TextEditFilter then(androidx.compose.foundation.text2.input.TextEditFilter, androidx.compose.foundation.text2.input.TextEditFilter next, optional androidx.compose.foundation.text.KeyboardOptions? keyboardOptions);
+  }
+
+  @androidx.compose.foundation.ExperimentalFoundationApi public abstract sealed class TextEditResult {
+  }
+
+  public final class TextEditResultKt {
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextEditResult placeCursorAfterCharAt(androidx.compose.foundation.text2.input.TextFieldBuffer, int index);
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextEditResult placeCursorAfterCodepointAt(androidx.compose.foundation.text2.input.TextFieldBuffer, int index);
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextEditResult placeCursorAfterLastChange(androidx.compose.foundation.text2.input.TextFieldBuffer);
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextEditResult placeCursorAtEnd(androidx.compose.foundation.text2.input.TextFieldBuffer);
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextEditResult placeCursorBeforeCharAt(androidx.compose.foundation.text2.input.TextFieldBuffer, int index);
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextEditResult placeCursorBeforeCodepointAt(androidx.compose.foundation.text2.input.TextFieldBuffer, int index);
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextEditResult placeCursorBeforeFirstChange(androidx.compose.foundation.text2.input.TextFieldBuffer);
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextEditResult selectAll(androidx.compose.foundation.text2.input.TextFieldBuffer);
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextEditResult selectAllChanges(androidx.compose.foundation.text2.input.TextFieldBuffer);
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextEditResult selectCharsIn(androidx.compose.foundation.text2.input.TextFieldBuffer, long range);
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextEditResult selectCodepointsIn(androidx.compose.foundation.text2.input.TextFieldBuffer, long range);
   }
 
   @androidx.compose.foundation.ExperimentalFoundationApi public class TextFieldBuffer implements java.lang.Appendable java.lang.CharSequence {
@@ -1374,6 +1391,8 @@ package androidx.compose.foundation.text2.input {
     method public boolean getHasSelection();
     method public long getSelectionInChars();
     method public long getSelectionInCodepoints();
+    method public void placeCursorAfterCharAt(int index);
+    method public void placeCursorAfterCodepointAt(int index);
     method public void placeCursorAfterLastChange();
     method public void placeCursorAtEnd();
     method public void placeCursorBeforeCharAt(int index);
@@ -1403,21 +1422,6 @@ package androidx.compose.foundation.text2.input {
     method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldCharSequence TextFieldCharSequence(optional String text, optional long selection);
   }
 
-  @androidx.compose.foundation.ExperimentalFoundationApi public abstract sealed class TextFieldEditResult {
-  }
-
-  public final class TextFieldEditResultKt {
-    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldEditResult placeCursorAfterLastChange(androidx.compose.foundation.text2.input.TextFieldBuffer);
-    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldEditResult placeCursorAtEnd(androidx.compose.foundation.text2.input.TextFieldBuffer);
-    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldEditResult placeCursorBeforeCharAt(androidx.compose.foundation.text2.input.TextFieldBuffer, int index);
-    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldEditResult placeCursorBeforeCodepointAt(androidx.compose.foundation.text2.input.TextFieldBuffer, int index);
-    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldEditResult placeCursorBeforeFirstChange(androidx.compose.foundation.text2.input.TextFieldBuffer);
-    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldEditResult selectAll(androidx.compose.foundation.text2.input.TextFieldBuffer);
-    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldEditResult selectAllChanges(androidx.compose.foundation.text2.input.TextFieldBuffer);
-    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldEditResult selectCharsIn(androidx.compose.foundation.text2.input.TextFieldBuffer, long range);
-    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.text2.input.TextFieldEditResult selectCodepointsIn(androidx.compose.foundation.text2.input.TextFieldBuffer, long range);
-  }
-
   @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public sealed interface TextFieldLineLimits {
     field public static final androidx.compose.foundation.text2.input.TextFieldLineLimits.Companion Companion;
   }
@@ -1441,7 +1445,7 @@ package androidx.compose.foundation.text2.input {
 
   @androidx.compose.foundation.ExperimentalFoundationApi public final class TextFieldState {
     ctor public TextFieldState(optional String initialText, optional long initialSelectionInChars);
-    method public inline void edit(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.text2.input.TextFieldBuffer,? extends androidx.compose.foundation.text2.input.TextFieldEditResult> block);
+    method public inline void edit(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.text2.input.TextFieldBuffer,? extends androidx.compose.foundation.text2.input.TextEditResult> block);
     method public androidx.compose.foundation.text2.input.TextFieldCharSequence getValue();
     property public final androidx.compose.foundation.text2.input.TextFieldCharSequence value;
   }
