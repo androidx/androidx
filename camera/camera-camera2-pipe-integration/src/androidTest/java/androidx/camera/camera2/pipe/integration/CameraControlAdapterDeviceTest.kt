@@ -24,6 +24,7 @@ import android.hardware.camera2.CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES
 import android.hardware.camera2.CameraCharacteristics.CONTROL_MAX_REGIONS_AE
 import android.hardware.camera2.CameraCharacteristics.CONTROL_MAX_REGIONS_AF
 import android.hardware.camera2.CameraCharacteristics.CONTROL_MAX_REGIONS_AWB
+import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_OFF
 import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON
 import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_ALWAYS_FLASH
@@ -47,10 +48,15 @@ import android.hardware.camera2.CaptureRequest.SCALER_CROP_REGION
 import android.hardware.camera2.params.MeteringRectangle
 import android.os.Build
 import android.util.Size
+import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
+import androidx.camera.camera2.pipe.integration.compat.quirk.CrashWhenTakingPhotoWithAutoFlashAEModeQuirk
+import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
+import androidx.camera.camera2.pipe.integration.compat.quirk.ImageCaptureFailWithAutoFlashQuirk
+import androidx.camera.camera2.pipe.integration.compat.workaround.AutoFlashAEModeDisablerImpl
 import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
 import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
@@ -64,12 +70,17 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory
 import androidx.camera.core.UseCase
+import androidx.camera.core.impl.CameraInfoInternal
+import androidx.camera.core.impl.DeferrableSurface
+import androidx.camera.core.impl.Quirks
+import androidx.camera.core.impl.SessionConfig
+import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.SurfaceTextureProvider
-import androidx.camera.video.Recorder
-import androidx.camera.video.VideoCapture
+import androidx.camera.testing.fakes.FakeUseCase
+import androidx.camera.testing.fakes.FakeUseCaseConfig
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -381,7 +392,7 @@ class CameraControlAdapterDeviceTest {
 
     @Test
     fun setTemplateRecord_afModeToContinuousVideo() = runBlocking {
-        bindUseCase(createVideoCapture())
+        bindUseCase(createFakeRecordingUseCase())
 
         // Assert. Verify the afMode.
         waitForResult(captureCount = 60).verify(
@@ -494,8 +505,52 @@ class CameraControlAdapterDeviceTest {
         cameraControl = camera.cameraControl as CameraControlAdapter
     }
 
-    private fun createVideoCapture(): VideoCapture<Recorder> {
-        return VideoCapture.withOutput(Recorder.Builder().build())
+    private fun createFakeRecordingUseCase(): FakeUseCase {
+        return FakeTestUseCase(
+            FakeUseCaseConfig.Builder().setTargetName("FakeRecordingUseCase").useCaseConfig
+        ).apply {
+            initAndActive()
+        }
+    }
+
+    private class FakeTestUseCase(config: FakeUseCaseConfig) : FakeUseCase(config) {
+
+        val deferrableSurface = object : DeferrableSurface() {
+            init {
+                terminationFuture.addListener(
+                    { cleanUp() }, Dispatchers.IO.asExecutor()
+                )
+            }
+
+            private val surfaceTexture = SurfaceTexture(0).also {
+                it.setDefaultBufferSize(640, 480)
+            }
+            val testSurface = Surface(surfaceTexture)
+
+            override fun provideSurface(): ListenableFuture<Surface> {
+                return Futures.immediateFuture(testSurface)
+            }
+
+            fun cleanUp() {
+                testSurface.release()
+                surfaceTexture.release()
+            }
+        }
+
+        fun initAndActive() {
+            val sessionConfigBuilder = SessionConfig.Builder().apply {
+                setTemplateType(CameraDevice.TEMPLATE_RECORD)
+                addSurface(deferrableSurface)
+            }
+
+            updateSessionConfig(sessionConfigBuilder.build())
+            notifyActive()
+        }
+
+        override fun onUnbind() {
+            super.onUnbind()
+            deferrableSurface.close()
+        }
     }
 
     private suspend fun createPreview(): Preview =
@@ -539,8 +594,14 @@ class CameraControlAdapterDeviceTest {
     }
 
     private fun RequestMetadata.isAeMode(aeMode: Int): Boolean {
-        return if (characteristics.isAeModeSupported(aeMode)) {
-            getOrDefault(CONTROL_AE_MODE, null) == aeMode
+        val aeQuirkEnabled =
+            camera.getCameraQuirks().contains(ImageCaptureFailWithAutoFlashQuirk::class.java) ||
+                DeviceQuirks[CrashWhenTakingPhotoWithAutoFlashAEModeQuirk::class.java] != null
+        val aeModeCorrected =
+            if (aeQuirkEnabled) AutoFlashAEModeDisablerImpl.getCorrectedAeMode(aeMode) else aeMode
+
+        return if (characteristics.isAeModeSupported(aeModeCorrected)) {
+            getOrDefault(CONTROL_AE_MODE, null) == aeModeCorrected
         } else {
             val fallbackMode =
                 if (characteristics.isAeModeSupported(CONTROL_AE_MODE_ON)) {
@@ -550,6 +611,10 @@ class CameraControlAdapterDeviceTest {
                 }
             getOrDefault(CONTROL_AE_MODE, null) == fallbackMode
         }
+    }
+
+    private fun Camera.getCameraQuirks(): Quirks {
+        return (cameraInfo as? CameraInfoInternal)?.cameraQuirks!!
     }
 
     private fun CameraCharacteristics.isAfModeSupported(
