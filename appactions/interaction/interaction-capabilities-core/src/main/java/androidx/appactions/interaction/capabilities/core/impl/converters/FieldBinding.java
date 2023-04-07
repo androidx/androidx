@@ -16,7 +16,6 @@
 
 package androidx.appactions.interaction.capabilities.core.impl.converters;
 
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.protobuf.Value;
 
 import com.google.auto.value.AutoValue;
@@ -25,9 +24,9 @@ import java.util.Optional;
 import java.util.function.Function;
 
 @AutoValue
-abstract class FieldBinding<T, BuilderT extends BuilderOf<T>> {
+abstract class FieldBinding<T, BuilderT> {
 
-    static <T, BuilderT extends BuilderOf<T>> FieldBinding<T, BuilderT> create(
+    static <T, BuilderT> FieldBinding<T, BuilderT> create(
             String name,
             Function<T, Optional<Value>> valueGetter,
             CheckedInterfaces.BiConsumer<BuilderT, Optional<Value>> valueSetter) {
