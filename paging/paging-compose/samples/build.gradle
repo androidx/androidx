@@ -27,9 +27,9 @@ dependencies {
     implementation(libs.kotlinStdlib)
 
     compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
-    implementation(project(":compose:foundation:foundation"))
-    implementation(project(":compose:material:material"))
-    implementation(projectOrArtifact(":paging:paging-compose"))
+    implementation(projectOrArtifact(":compose:foundation:foundation"))
+    implementation(projectOrArtifact(":compose:material:material"))
+    implementation(project(":paging:paging-compose"))
     implementation(project(":internal-testutils-paging"))
 }
 
