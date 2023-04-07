@@ -110,17 +110,17 @@ public interface WindowAreaComponent {
 
     /**
      * Session state constant to represent that there is an
-     * active session currently in progress, and the content provided by the application
-     * is visible.
+     * active presentation session currently in progress, and the content provided by the
+     * application is visible.
      */
-    int SESSION_STATE_VISIBLE = 2;
+    int SESSION_STATE_CONTENT_VISIBLE = 2;
 
     /**
      * Session state constant to represent that there is an
-     * active session currently in progress, but the content provided by the application
-     * is no longer visible.
+     * active presentation session currently in progress, but the content provided by the
+     * application is no longer visible.
      */
-    int SESSION_STATE_INVISIBLE = 3;
+    int SESSION_STATE_CONTENT_INVISIBLE = 3;
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -129,8 +129,8 @@ public interface WindowAreaComponent {
     @IntDef({
             SESSION_STATE_ACTIVE,
             SESSION_STATE_INACTIVE,
-            SESSION_STATE_VISIBLE,
-            SESSION_STATE_INVISIBLE
+            SESSION_STATE_CONTENT_VISIBLE,
+            SESSION_STATE_CONTENT_INVISIBLE
     })
     @interface WindowAreaSessionState {}
 
