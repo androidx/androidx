@@ -417,6 +417,7 @@ public abstract class VideoRecordEvent {
                 case ERROR_RECORDER_ERROR: return "ERROR_RECORDER_ERROR";
                 case ERROR_NO_VALID_DATA: return "ERROR_NO_VALID_DATA";
                 case ERROR_SOURCE_INACTIVE: return "ERROR_SOURCE_INACTIVE";
+                case ERROR_DURATION_LIMIT_REACHED: return "ERROR_DURATION_LIMIT_REACHED";
             }
 
             // Should never reach here, but just in case...
