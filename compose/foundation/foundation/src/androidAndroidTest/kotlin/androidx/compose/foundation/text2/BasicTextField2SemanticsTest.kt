@@ -81,6 +81,7 @@ class BasicTextField2SemanticsTest {
                 )
             )
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.SetText))
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Password))
             // TODO(halilibo): enable after selection work is completed.
             // .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.SetSelection))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.GetTextLayoutResult))
@@ -287,6 +288,20 @@ class BasicTextField2SemanticsTest {
             assertTextEquals("world")
             assertSelection(TextRange(2))
         }
+    }
+
+    @Test
+    fun passwordSemanticsAreSet_accordingToSecureContent() {
+        val state = TextFieldState()
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                secureContent = true,
+                modifier = Modifier.testTag(Tag)
+            )
+        }
+
+        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Password))
     }
 
     private fun SemanticsNodeInteraction.assertSelection(expected: TextRange) {

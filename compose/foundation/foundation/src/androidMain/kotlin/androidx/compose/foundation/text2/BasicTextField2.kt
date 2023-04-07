@@ -33,6 +33,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.TextDelegate
 import androidx.compose.foundation.text.heightInLines
 import androidx.compose.foundation.text.textFieldMinSize
+import androidx.compose.foundation.text2.input.CodepointTransformation
 import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.TextFieldLineLimits
@@ -42,6 +43,7 @@ import androidx.compose.foundation.text2.input.internal.AndroidTextInputPlugin
 import androidx.compose.foundation.text2.input.internal.TextFieldCoreModifier
 import androidx.compose.foundation.text2.input.internal.TextFieldDecoratorModifier
 import androidx.compose.foundation.text2.input.internal.TextLayoutState
+import androidx.compose.foundation.text2.input.toVisualText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -82,27 +84,34 @@ import kotlin.math.roundToInt
  * If the filter is changed on an existing text field, it will be applied to the next user edit.
  * the filter will not immediately affect the current [state].
  * @param textStyle Style configuration for text content that's displayed in the editor.
+ * @param keyboardOptions software keyboard options that contains configuration such as
+ * [KeyboardType] and [ImeAction].
+ * @param keyboardActions when the input service emits an IME action, the corresponding callback
+ * is called. Note that this IME action may be different from what you specified in
+ * [KeyboardOptions.imeAction].
+ * @param lineLimits Whether the text field should be [SingleLine], scroll horizontally, and
+ * ignore newlines; or [MultiLine] and grow and scroll vertically.
+ * @param onTextLayout Callback that is executed when a new text layout is calculated. A
+ * [TextLayoutResult] object that callback provides contains paragraph information, size of the
+ * text, baselines and other details. The callback can be used to add additional decoration or
+ * functionality to the text. For example, to draw a cursor or selection around the text. [Density]
+ * scope is the one that was used while creating the given text layout.
  * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
  * for this TextField. You can create and pass in your own remembered [MutableInteractionSource]
  * if you want to observe [Interaction]s and customize the appearance / behavior of this TextField
  * for different [Interaction]s.
  * @param cursorBrush [Brush] to paint cursor with. If [SolidColor] with [Color.Unspecified]
  * provided, there will be no cursor drawn
- * @param lineLimits Whether the text field should be [SingleLine], scroll horizontally, and
- * ignore newlines; or [MultiLine] and grow and scroll vertically.
  * @param scrollState Scroll state that manages either horizontal or vertical scroll of TextField.
  * If [lineLimits] is [SingleLine], this text field is treated as single line with horizontal
  * scroll behavior. In other cases the text field becomes vertically scrollable.
- * @param keyboardOptions software keyboard options that contains configuration such as
- * [KeyboardType] and [ImeAction].
- * @param keyboardActions when the input service emits an IME action, the corresponding callback
- * is called. Note that this IME action may be different from what you specified in
- * [KeyboardOptions.imeAction].
- * @param onTextLayout Callback that is executed when a new text layout is calculated. A
- * [TextLayoutResult] object that callback provides contains paragraph information, size of the
- * text, baselines and other details. The callback can be used to add additional decoration or
- * functionality to the text. For example, to draw a cursor or selection around the text. [Density]
- * scope is the one that was used while creating the given text layout.
+ * @param codepointTransformation Visual transformation interface that provides a 1-to-1 mapping of
+ * codepoints.
+ * @param secureContent Controls whether the content of this editor should be secured, for example,
+ * if it's a password input field. Enabling this flag will disable context menu actions like cut,
+ * copy, and paste for added security. It will also notify the accessibility service that the
+ * editor may contain sensitive input. However, just turning on this flag is not enough to use this
+ * editor as a password field. For password entry fields, please refer to [BasicSecureTextField].
  * @param decorationBox Composable lambda that allows to add decorations around text field, such
  * as icon, placeholder, helper messages or similar, and automatically increase the hit target area
  * of the text field. To allow you to control the placement of the inner text field relative to your
@@ -127,6 +136,8 @@ fun BasicTextField2(
     interactionSource: MutableInteractionSource? = null,
     cursorBrush: Brush = SolidColor(Color.Black),
     scrollState: ScrollState = rememberScrollState(),
+    codepointTransformation: CodepointTransformation? = null,
+    secureContent: Boolean = false,
     decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit =
         @Composable { innerTextField -> innerTextField() }
 ) {
@@ -170,6 +181,7 @@ fun BasicTextField2(
                 keyboardOptions = keyboardOptions,
                 keyboardActions = keyboardActions,
                 singleLine = singleLine,
+                secureContent = secureContent
             )
         )
         .focusable(interactionSource = interactionSource, enabled = enabled)
@@ -219,8 +231,10 @@ fun BasicTextField2(
 
             Layout(modifier = coreModifiers) { _, constraints ->
                 val result = with(textLayoutState) {
+                    val annotatedString = state.value.annotatedString
+                    val visualText = annotatedString.toVisualText(codepointTransformation)
                     layout(
-                        text = state.value.annotatedString,
+                        text = visualText,
                         textStyle = textStyle,
                         softWrap = !singleLine,
                         density = density,
