@@ -55,6 +55,7 @@ import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
 import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.testing.VerifyResultListener
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.FocusMeteringAction
@@ -391,10 +392,10 @@ class CameraControlAdapterDeviceTest {
         )
     }
 
-    @SdkSuppress(minSdkVersion = 22) // b/266740827
     @Test
     fun setZoomRatio_operationCanceledExceptionIfNoUseCase() {
-        assertFutureFailedWithOperationCancellation(cameraControl.setZoomRatio(1.5f))
+        val ratio = camera.getMaxSupportedZoomRatio()
+        assertFutureFailedWithOperationCancellation(cameraControl.setZoomRatio(ratio))
     }
 
     private fun <T> assertFutureFailedWithOperationCancellation(future: ListenableFuture<T>) {
@@ -407,12 +408,12 @@ class CameraControlAdapterDeviceTest {
     }
 
     private fun CameraCharacteristics.getMaxRegionCount(
-        option_max_regions: CameraCharacteristics.Key<Int>
-    ) = get(option_max_regions) ?: 0
+        optionMaxRegions: CameraCharacteristics.Key<Int>
+    ) = get(optionMaxRegions) ?: 0
 
     private suspend fun arrangeRequestOptions() {
         cameraControl.setExposureCompensationIndex(1)
-        cameraControl.setZoomRatio(1.0f)
+        cameraControl.setZoomRatio(camera.getMaxSupportedZoomRatio())
         cameraControl.camera2cameraControl.setCaptureRequestOptions(
             CaptureRequestOptions.Builder().setCaptureRequestOption(
                 CONTROL_CAPTURE_INTENT,
@@ -455,6 +456,10 @@ class CameraControlAdapterDeviceTest {
             },
             TIMEOUT
         )
+    }
+
+    private fun Camera.getMaxSupportedZoomRatio(): Float {
+        return cameraInfo.zoomState.value!!.maxZoomRatio
     }
 
     private suspend fun verifyRequestOptions() {
