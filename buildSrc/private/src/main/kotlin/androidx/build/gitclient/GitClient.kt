@@ -19,6 +19,7 @@ package androidx.build.gitclient
 import androidx.build.releasenotes.getBuganizerLink
 import androidx.build.releasenotes.getChangeIdAOSPLink
 import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
@@ -121,6 +122,35 @@ interface GitClient {
             }
             logger.info("UsingGitRunnerGitClient")
             return GitRunnerGitClient(gitRoot, logger)
+        }
+    }
+}
+
+data class MultiGitClient(
+    val logger: Logger,
+    val changeInfoPath: String,
+    val manifestPath: String
+) {
+    // Map from the root of the git repository to a GitClient for that repository
+    // In AndroidX this directory could be frameworks/support, external/noto-fonts, or others
+    @Transient // We don't want Gradle to persist GitClient in the configuration cache
+    val cache: MutableMap<File, GitClient> = ConcurrentHashMap()
+
+    fun getGitClient(projectDir: File): GitClient {
+        return cache.getOrPut(
+            key = projectDir
+        ) {
+            GitClient.create(projectDir, logger, changeInfoPath, manifestPath)
+        }
+    }
+
+    companion object {
+        fun create(project: Project): MultiGitClient {
+            return MultiGitClient(
+                project.logger,
+                GitClient.getChangeInfoPath(project).get(),
+                GitClient.getManifestPath(project).get()
+            )
         }
     }
 }
