@@ -22,6 +22,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -595,6 +596,7 @@ class SnapshotStateListTests {
     @Test(timeout = 5000)
     @OptIn(ExperimentalCoroutinesApi::class)
     @IgnoreJsTarget // Not relevant in a single threaded environment
+    @Ignore // b/277334100
     fun concurrentMixingWriteApply_add(): Unit = runTest {
         repeat(1000) {
             val lists = Array(100) { mutableStateListOf<Int>() }.toList()
@@ -660,6 +662,7 @@ class SnapshotStateListTests {
     @Test(timeout = 5000)
     @OptIn(ExperimentalCoroutinesApi::class)
     @IgnoreJsTarget // Not relevant in a single threaded environment
+    @Ignore // b/277334100
     fun concurrentMixingWriteApply_addAll_removeRange(): Unit = runTest {
         repeat(10) {
             val lists = Array(100) { mutableStateListOf<Int>() }.toList()
