@@ -168,7 +168,7 @@ internal class EditProcessor(
                 sourceValue = oldValue,
                 initialChanges = mBuffer.changeTracker
             )
-            filter.filter(oldState = oldValue, newState = mutableValue)
+            filter.filter(originalValue = oldValue, valueWithChanges = mutableValue)
             // If neither the text nor the selection changed, we want to preserve the composition.
             // Otherwise, the IME will reset it anyway.
             val newValue = mutableValue.toTextFieldCharSequence(proposedValue.compositionInChars)
