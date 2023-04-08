@@ -53,6 +53,7 @@ import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.SystemDataSources
+import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.permission.dialogs.sample.ComplicationDeniedActivity
 import androidx.wear.watchface.complications.permission.dialogs.sample.ComplicationRationalActivity
@@ -122,6 +123,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         )
     }
 
+    @OptIn(ComplicationExperimental::class)
     private val leftComplication =
         ComplicationSlot.createRoundRectComplicationSlotBuilder(
                 ComplicationID.LEFT.ordinal,
@@ -149,6 +151,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             .setScreenReaderNameResourceId(R.string.left_complication_screen_reader_name)
             .build()
 
+    @OptIn(ComplicationExperimental::class)
     private val rightComplication =
         ComplicationSlot.createRoundRectComplicationSlotBuilder(
                 ComplicationID.RIGHT.ordinal,
@@ -188,6 +191,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         )
 
     // The upper and lower complicationSlots change shape depending on the complication's type.
+    @OptIn(ComplicationExperimental::class)
     private val upperComplication =
         ComplicationSlot.createRoundRectComplicationSlotBuilder(
                 ComplicationID.UPPER.ordinal,
@@ -218,6 +222,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             .setScreenReaderNameResourceId(R.string.upper_complication_screen_reader_name)
             .build()
 
+    @OptIn(ComplicationExperimental::class)
     private val lowerComplication =
         ComplicationSlot.createRoundRectComplicationSlotBuilder(
                 ComplicationID.LOWER.ordinal,
@@ -248,6 +253,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             .setScreenReaderNameResourceId(R.string.lower_complication_screen_reader_name)
             .build()
 
+    @OptIn(ComplicationExperimental::class)
     private val backgroundComplication =
         ComplicationSlot.createBackgroundComplicationSlotBuilder(
                 ComplicationID.BACKGROUND.ordinal,
@@ -261,6 +267,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
 
     override fun createUserStyleSchema() = UserStyleSchema(listOf(colorStyleSetting))
 
+    @OptIn(ComplicationExperimental::class)
     override fun createComplicationSlotsManager(
         currentUserStyleRepository: CurrentUserStyleRepository
     ) =
@@ -275,6 +282,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             currentUserStyleRepository
         )
 
+    @OptIn(ComplicationExperimental::class)
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,

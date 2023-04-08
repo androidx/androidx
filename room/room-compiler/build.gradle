@@ -274,8 +274,10 @@ afterEvaluate {
 // make sure we validate published artifacts on the build server.
 BuildOnServerKt.addToBuildOnServer(project, checkArtifactContentsTask)
 
-tasks.findByName("compileKotlin").dependsOn(generateAntlrTask)
-tasks.findByName("sourceJar").dependsOn(generateAntlrTask)
+def tasksThatDependOnAntlr = ["compileKotlin", "sourceJar", "kotlinSourcesJar", "generateKmpDocs"]
+tasks.matching { tasksThatDependOnAntlr.contains(it.name) }.configureEach {
+    it.dependsOn(generateAntlrTask)
+}
 
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {

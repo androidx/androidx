@@ -39,6 +39,7 @@ import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.SystemDataSources
+import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -287,6 +288,7 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
 
     private val watchFaceStyle by lazy { WatchFaceColorStyle.create(this, "red_style") }
 
+    @OptIn(ComplicationExperimental::class)
     public override fun createComplicationSlotsManager(
         currentUserStyleRepository: CurrentUserStyleRepository
     ): ComplicationSlotsManager {
