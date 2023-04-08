@@ -43,19 +43,19 @@ private const val CAPABILITY_NAME: String = "actions.intent.CREATE_CALL"
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
         .setDescriptor(CreateCall.Property::class.java)
-        .setArgument(CreateCall.Argument::class.java, CreateCall.Argument::Builder)
+        .setArguments(CreateCall.Arguments::class.java, CreateCall.Arguments::Builder)
         .setOutput(CreateCall.Output::class.java)
         .bindOptionalParameter(
             "call.callFormat",
             { property -> Optional.ofNullable(property.callFormat) },
-            CreateCall.Argument.Builder::setCallFormat,
+            CreateCall.Arguments.Builder::setCallFormat,
             TypeConverters.CALL_FORMAT_PARAM_VALUE_CONVERTER,
             TypeConverters.CALL_FORMAT_ENTITY_CONVERTER
         )
         .bindRepeatedParameter(
             "call.participant",
             { property -> Optional.ofNullable(property.participant) },
-            CreateCall.Argument.Builder::setParticipantList,
+            CreateCall.Arguments.Builder::setParticipantList,
             ParticipantValue.PARAM_VALUE_CONVERTER,
             EntityConverter.of(PARTICIPANT_TYPE_SPEC)
         )
@@ -75,7 +75,7 @@ private val ACTION_SPEC =
 class CreateCall private constructor() {
     class CapabilityBuilder :
         CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, Session
+            CapabilityBuilder, Property, Arguments, Output, Confirmation, Session
         >(ACTION_SPEC) {
         override fun build(): Capability {
             super.setProperty(Property.Builder().build())
@@ -126,20 +126,20 @@ class CreateCall private constructor() {
         }
     }
 
-    class Argument
+    class Arguments
     internal constructor(
         val callFormat: CallFormat?,
         val participantList: List<ParticipantValue>,
     ) {
         override fun toString(): String {
-            return "Argument(callFormat=$callFormat, participantList=$participantList)"
+            return "Arguments(callFormat=$callFormat, participantList=$participantList)"
         }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
 
-            other as Argument
+            other as Arguments
 
             if (callFormat != other.callFormat) return false
             if (participantList != other.participantList) return false
@@ -153,7 +153,7 @@ class CreateCall private constructor() {
             return result
         }
 
-        class Builder : BuilderOf<Argument> {
+        class Builder : BuilderOf<Arguments> {
             private var callFormat: CallFormat? = null
             private var participantList: List<ParticipantValue> = mutableListOf()
 
@@ -165,7 +165,7 @@ class CreateCall private constructor() {
                 this.participantList = participantList
             }
 
-            override fun build(): Argument = Argument(callFormat, participantList)
+            override fun build(): Arguments = Arguments(callFormat, participantList)
         }
     }
 
@@ -237,5 +237,5 @@ class CreateCall private constructor() {
 
     class Confirmation internal constructor()
 
-    sealed interface Session : BaseSession<Argument, Output>
+    sealed interface Session : BaseSession<Arguments, Output>
 }

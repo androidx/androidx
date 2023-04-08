@@ -29,13 +29,13 @@ import kotlinx.coroutines.sync.Mutex
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class SingleTurnCapabilityImpl<
     PropertyT,
-    ArgumentT,
+    ArgumentsT,
     OutputT,
     > constructor(
     override val id: String,
-    val actionSpec: ActionSpec<PropertyT, ArgumentT, OutputT>,
+    val actionSpec: ActionSpec<PropertyT, ArgumentsT, OutputT>,
     val property: PropertyT,
-    val actionExecutorAsync: ActionExecutorAsync<ArgumentT, OutputT>,
+    val actionExecutorAsync: ActionExecutorAsync<ArgumentsT, OutputT>,
 ) : Capability {
     private val mutex = Mutex()
 

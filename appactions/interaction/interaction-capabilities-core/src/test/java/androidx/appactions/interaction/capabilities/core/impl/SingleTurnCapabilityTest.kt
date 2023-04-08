@@ -33,7 +33,7 @@ import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUti
 import androidx.appactions.interaction.capabilities.testing.internal.FakeCallbackInternal
 import androidx.appactions.interaction.capabilities.testing.internal.TestingUtils.CB_TIMEOUT
 import androidx.appactions.interaction.capabilities.testing.internal.TestingUtils.BLOCKING_TIMEOUT
-import androidx.appactions.interaction.capabilities.core.testing.spec.Argument
+import androidx.appactions.interaction.capabilities.core.testing.spec.Arguments
 import androidx.appactions.interaction.capabilities.core.testing.spec.Output
 import androidx.appactions.interaction.capabilities.core.testing.spec.Property
 import androidx.appactions.interaction.proto.FulfillmentResponse
@@ -58,7 +58,7 @@ class SingleTurnCapabilityTest {
     @Test
     fun oneShotCapability_successWithOutput() {
         val actionExecutor =
-            ActionExecutor<Argument, Output> {
+            ActionExecutor<Arguments, Output> {
                 ExecutionResult.Builder<Output>()
                     .setOutput(
                         Output.builder().setOptionalStringField("stringOutput").build(),
@@ -120,7 +120,7 @@ class SingleTurnCapabilityTest {
 
     @Test
     fun oneShotCapability_failure() {
-        val actionExecutor = ActionExecutor<Argument, Output> { throw IllegalStateException("") }
+        val actionExecutor = ActionExecutor<Arguments, Output> { throw IllegalStateException("") }
         val capability =
             SingleTurnCapabilityImpl(
                 id = "capabilityId",
@@ -157,7 +157,7 @@ class SingleTurnCapabilityTest {
     @Test
     fun oneShotSession_uiHandle_withActionExecutor() {
         val actionExecutor =
-            ActionExecutor<Argument, Output> { ExecutionResult.Builder<Output>().build() }
+            ActionExecutor<Arguments, Output> { ExecutionResult.Builder<Output>().build() }
         val capability =
             SingleTurnCapabilityImpl(
                 id = "capabilityId",
@@ -177,7 +177,7 @@ class SingleTurnCapabilityTest {
     @Test
     fun oneShotSession_uiHandle_withActionExecutorAsync() {
         val actionExecutorAsync =
-            ActionExecutorAsync<Argument, Output> {
+            ActionExecutorAsync<Arguments, Output> {
                 Futures.immediateFuture(ExecutionResult.Builder<Output>().build())
             }
         val capability =
@@ -200,9 +200,9 @@ class SingleTurnCapabilityTest {
     @Test
     fun multipleSessions_sequentialExecution(): Unit = runBlocking {
         val executionResultChannel = Channel<ExecutionResult<Output>>()
-        val argumentChannel = Channel<Argument>()
+        val argumentChannel = Channel<Arguments>()
 
-        val actionExecutor = ActionExecutor<Argument, Output> {
+        val actionExecutor = ActionExecutor<Arguments, Output> {
             argumentChannel.send(it)
             executionResultChannel.receive()
         }
@@ -241,7 +241,7 @@ class SingleTurnCapabilityTest {
 
         // verify ActionExecutor receives 1st request.
         assertThat(argumentChannel.receive()).isEqualTo(
-            Argument.newBuilder().setOptionalStringField("string value 1").build(),
+            Arguments.newBuilder().setOptionalStringField("string value 1").build(),
         )
         // verify the 2nd request cannot be received due to mutex.
         assertThat(withTimeoutOrNull(BLOCKING_TIMEOUT) { argumentChannel.receive() }).isNull()
@@ -253,7 +253,7 @@ class SingleTurnCapabilityTest {
         )
 
         assertThat(argumentChannel.receive()).isEqualTo(
-            Argument.newBuilder().setOptionalStringField("string value 2").build(),
+            Arguments.newBuilder().setOptionalStringField("string value 2").build(),
         )
         executionResultChannel.send(ExecutionResult.Builder<Output>().build())
         assertThat(callbackInternal2.receiveResponse().fulfillmentResponse).isEqualTo(
@@ -262,17 +262,17 @@ class SingleTurnCapabilityTest {
     }
 
     companion object {
-        val ACTION_SPEC: ActionSpec<Property, Argument, Output> =
+        val ACTION_SPEC: ActionSpec<Property, Arguments, Output> =
             ActionSpecBuilder.ofCapabilityNamed(
                 "actions.intent.TEST",
             )
                 .setDescriptor(Property::class.java)
-                .setArgument(Argument::class.java, Argument::newBuilder)
+                .setArguments(Arguments::class.java, Arguments::newBuilder)
                 .setOutput(Output::class.java)
                 .bindOptionalParameter(
                     "optionalString",
                     Property::optionalStringField,
-                    Argument.Builder::setOptionalStringField,
+                    Arguments.Builder::setOptionalStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                     TypeConverters.STRING_VALUE_ENTITY_CONVERTER
                 )

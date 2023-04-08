@@ -33,11 +33,11 @@ import java.util.Optional
 private const val CAPABILITY_NAME = "actions.intent.FAKE_CAPABILITY"
 private val ACTION_SPEC = ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
     .setDescriptor(FakeCapability.Property::class.java)
-    .setArgument(FakeCapability.Argument::class.java, FakeCapability.Argument::Builder)
+    .setArguments(FakeCapability.Arguments::class.java, FakeCapability.Arguments::Builder)
     .setOutput(FakeCapability.Output::class.java).bindOptionalParameter(
         "fieldOne",
         { property -> Optional.ofNullable(property.fieldOne) },
-        FakeCapability.Argument.Builder::setFieldOne,
+        FakeCapability.Arguments.Builder::setFieldOne,
         TypeConverters.STRING_PARAM_VALUE_CONVERTER,
         TypeConverters.STRING_VALUE_ENTITY_CONVERTER,
     ).build()
@@ -47,15 +47,15 @@ class FakeCapability private constructor() {
         val fieldOne: ParamProperty<StringValue>? = null,
     )
 
-    class Argument internal constructor(
+    class Arguments internal constructor(
         val fieldOne: String?,
     ) {
-        class Builder : BuilderOf<Argument> {
+        class Builder : BuilderOf<Arguments> {
             private var fieldOne: String? = null
             fun setFieldOne(value: String) = apply {
                 fieldOne = value
             }
-            override fun build() = Argument(fieldOne)
+            override fun build() = Arguments(fieldOne)
         }
     }
 
@@ -63,7 +63,7 @@ class FakeCapability private constructor() {
 
     class Confirmation internal constructor()
 
-    interface Session : BaseSession<Argument, Output> {
+    interface Session : BaseSession<Arguments, Output> {
         val fieldOneListener: ValueListener<String>?
             get() = null
     }
@@ -71,7 +71,7 @@ class FakeCapability private constructor() {
     class CapabilityBuilder : CapabilityBuilderBase<
         CapabilityBuilder,
         Property,
-        Argument,
+        Arguments,
         Output,
         Confirmation,
         Session,

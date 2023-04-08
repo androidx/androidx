@@ -22,14 +22,14 @@ import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.appactions.interaction.capabilities.core.values.EntityValue
 
-interface Session : BaseSession<Argument, Output> {
+interface Session : BaseSession<Arguments, Output> {
 
     fun getRequiredEntityListener(): AppEntityListener<EntityValue>? = null
 
     companion object {
         @JvmStatic
         val DEFAULT: Session = object : Session {
-            override fun onFinishAsync(argument: Argument) =
+            override fun onFinishAsync(arguments: Arguments) =
                 Futures.immediateFuture(
                     ExecutionResult.Builder<Output>().build(),
                 )

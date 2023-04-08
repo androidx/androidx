@@ -32,21 +32,21 @@ abstract class CapabilityBuilderBase<
     CapabilityBuilderBase<
         BuilderT,
         PropertyT,
-        ArgumentT,
+        ArgumentsT,
         OutputT,
         ConfirmationT,
         SessionT,>,
     PropertyT,
-    ArgumentT,
+    ArgumentsT,
     OutputT,
     ConfirmationT,
-    SessionT : BaseSession<ArgumentT, OutputT>,
+    SessionT : BaseSession<ArgumentsT, OutputT>,
     > protected constructor(
-    private val actionSpec: ActionSpec<PropertyT, ArgumentT, OutputT>,
+    private val actionSpec: ActionSpec<PropertyT, ArgumentsT, OutputT>,
 ) {
     private var id: String? = null
     private var property: PropertyT? = null
-    private var actionExecutorAsync: ActionExecutorAsync<ArgumentT, OutputT>? = null
+    private var actionExecutorAsync: ActionExecutorAsync<ArgumentsT, OutputT>? = null
     private var sessionFactory: SessionFactory<SessionT>? = null
 
     /**
@@ -88,7 +88,7 @@ abstract class CapabilityBuilderBase<
      * This method accepts a coroutine-based ActionExecutor instance. There is also an overload
      * which accepts the ActionExecutorAsync instead.
      */
-    fun setExecutor(actionExecutor: ActionExecutor<ArgumentT, OutputT>) = asBuilder().apply {
+    fun setExecutor(actionExecutor: ActionExecutor<ArgumentsT, OutputT>) = asBuilder().apply {
         this.actionExecutorAsync = actionExecutor.toActionExecutorAsync()
     }
 
@@ -101,7 +101,7 @@ abstract class CapabilityBuilderBase<
      * This method accepts the ActionExecutorAsync interface which returns a ListenableFuture.
      */
     fun setExecutor(
-        actionExecutorAsync: ActionExecutorAsync<ArgumentT, OutputT>,
+        actionExecutorAsync: ActionExecutorAsync<ArgumentsT, OutputT>,
     ) = asBuilder().apply {
         this.actionExecutorAsync = actionExecutorAsync
     }

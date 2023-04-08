@@ -27,10 +27,10 @@ import java.util.Optional;
 
 /** Testing implementation of a capability Argument. */
 @AutoValue
-public abstract class Argument {
+public abstract class Arguments {
 
     public static Builder newBuilder() {
-        return new AutoValue_Argument.Builder();
+        return new AutoValue_Arguments.Builder();
     }
 
     public abstract Optional<EntityValue> requiredEntityField();
@@ -43,7 +43,7 @@ public abstract class Argument {
 
     /** Builder for the testing Argument. */
     @AutoValue.Builder
-    public abstract static class Builder implements BuilderOf<Argument> {
+    public abstract static class Builder implements BuilderOf<Arguments> {
 
         public abstract Builder setRequiredEntityField(EntityValue value);
 
@@ -55,6 +55,6 @@ public abstract class Argument {
 
         @NonNull
         @Override
-        public abstract Argument build();
+        public abstract Arguments build();
     }
 }
