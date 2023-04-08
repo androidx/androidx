@@ -291,14 +291,6 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
                 task.kotlinOptions.freeCompilerArgs += kotlinCompilerArgs
             }
 
-            // If no one else is going to register a source jar, then we should.
-            // This cross-plugin hands-off logic shouldn't be necessary once we clean up sourceSet
-            // logic (b/235828421)
-            if (!project.plugins.hasPlugin(LibraryPlugin::class.java) &&
-                !project.plugins.hasPlugin(JavaPlugin::class.java)) {
-                project.configureSourceJarForJava()
-            }
-
             val isAndroidProject = project.plugins.hasPlugin(LibraryPlugin::class.java) ||
                 project.plugins.hasPlugin(AppPlugin::class.java)
             // Explicit API mode is broken for Android projects
@@ -489,7 +481,6 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
 
     private fun configureWithJavaPlugin(project: Project, extension: AndroidXExtension) {
         project.configureErrorProneForJava()
-        project.configureSourceJarForJava()
 
         // Force Java 1.8 source- and target-compatibility for all Java libraries.
         val javaExtension = project.extensions.getByType<JavaPluginExtension>()
@@ -506,6 +497,9 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
                     sourceCompatibility = VERSION_1_8
                     targetCompatibility = VERSION_1_8
                 }
+            }
+            if (!project.plugins.hasPlugin(KotlinBasePluginWrapper::class.java)) {
+                project.configureSourceJarForJava()
             }
         }
 

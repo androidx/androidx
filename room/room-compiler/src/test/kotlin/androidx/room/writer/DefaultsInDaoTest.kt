@@ -129,7 +129,7 @@ class DefaultsInDaoTest(
         )
         compileInEachDefaultsMode(source) { generated ->
             generated.contains("public Object upsert(final User obj, " +
-                "final Continuation<? super Unit> continuation)")
+                "final Continuation<? super Unit> \$completion)")
             if (jvmDefaultMode == JvmDefaultMode.DISABLE) {
                 generated.contains("SubjectDao.DefaultImpls.upsert(SubjectDao_Impl.this")
             } else {
