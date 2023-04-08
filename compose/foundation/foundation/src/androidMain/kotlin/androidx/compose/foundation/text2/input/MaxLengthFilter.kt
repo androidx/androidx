@@ -53,12 +53,13 @@ private data class MaxLengthFilter(
     }
 
     override fun filter(
-        oldState: TextFieldCharSequence,
-        newState: TextFieldBufferWithSelection
+        originalValue: TextFieldCharSequence,
+        valueWithChanges: TextFieldBufferWithSelection
     ) {
-        val newLength = if (inCodepoints) newState.codepointLength else newState.length
+        val newLength =
+            if (inCodepoints) valueWithChanges.codepointLength else valueWithChanges.length
         if (newLength > maxLength) {
-            newState.revertAllChanges()
+            valueWithChanges.revertAllChanges()
         }
     }
 

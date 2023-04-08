@@ -877,18 +877,18 @@ internal class BasicTextField2Test {
 
     private object RejectAllTextFilter : TextEditFilter {
         override fun filter(
-            oldState: TextFieldCharSequence,
-            newState: TextFieldBufferWithSelection
+            originalValue: TextFieldCharSequence,
+            valueWithChanges: TextFieldBufferWithSelection
         ) {
-            newState.revertAllChanges()
+            valueWithChanges.revertAllChanges()
         }
     }
 
     private class KeyboardOptionsFilter(override val keyboardOptions: KeyboardOptions) :
         TextEditFilter {
         override fun filter(
-            oldState: TextFieldCharSequence,
-            newState: TextFieldBufferWithSelection
+            originalValue: TextFieldCharSequence,
+            valueWithChanges: TextFieldBufferWithSelection
         ) {
             // Noop
         }

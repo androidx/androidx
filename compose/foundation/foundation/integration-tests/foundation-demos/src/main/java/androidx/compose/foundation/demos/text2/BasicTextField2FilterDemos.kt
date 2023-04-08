@@ -59,7 +59,7 @@ fun BasicTextField2FilterDemos() {
         TagLine(tag = "Digits Only BasicTextField2")
         DigitsOnlyBasicTextField2()
 
-        TagLine(tag = "Custom (wrap the text in parentheses)")
+        TagLine(tag = "Custom (type backwards with prompt)")
         Box(demoTextFieldModifiers, propagateMinConstraints = true) {
             BasicTextField2CustomFilterSample()
         }
@@ -85,11 +85,11 @@ fun DigitsOnlyBasicTextField2() {
         )
 
         override fun filter(
-            oldState: TextFieldCharSequence,
-            newState: TextFieldBufferWithSelection
+            originalValue: TextFieldCharSequence,
+            valueWithChanges: TextFieldBufferWithSelection
         ) {
-            if (!newState.isDigitsOnly()) {
-                newState.revertAllChanges()
+            if (!valueWithChanges.isDigitsOnly()) {
+                valueWithChanges.revertAllChanges()
             }
         }
     })

@@ -46,14 +46,14 @@ class TextFieldState(
     /**
      * Runs [block] with a mutable version of the current state. The block can make changes to the
      * text, and must specify the new location of the cursor or selection by returning a
-     * [TextFieldEditResult] such as [placeCursorAtEnd] or [selectAll] (see the documentation on
-     * [TextFieldEditResult] for the full list of prebuilt results).
+     * [TextEditResult] such as [placeCursorAtEnd] or [selectAll] (see the documentation on
+     * [TextEditResult] for the full list of prebuilt results).
      *
      * @sample androidx.compose.foundation.samples.BasicTextField2StateEditSample
      * @see setTextAndPlaceCursorAtEnd
      * @see setTextAndSelectAll
      */
-    inline fun edit(block: TextFieldBuffer.() -> TextFieldEditResult) {
+    inline fun edit(block: TextFieldBuffer.() -> TextEditResult) {
         val mutableValue = startEdit(value)
         val result = mutableValue.block()
         commitEdit(mutableValue, result)
@@ -69,7 +69,7 @@ class TextFieldState(
 
     @Suppress("ShowingMemberInHiddenClass")
     @PublishedApi
-    internal fun commitEdit(newValue: TextFieldBuffer, result: TextFieldEditResult) {
+    internal fun commitEdit(newValue: TextFieldBuffer, result: TextEditResult) {
         val newSelection = result.calculateSelection(value, newValue)
         val finalValue = newValue.toTextFieldCharSequence(newSelection)
         editProcessor.reset(finalValue)
