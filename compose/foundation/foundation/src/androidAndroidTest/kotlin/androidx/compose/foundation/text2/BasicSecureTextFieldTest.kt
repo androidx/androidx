@@ -31,7 +31,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTextInput
@@ -57,6 +60,18 @@ class BasicSecureTextFieldTest {
     }
 
     private val Tag = "BasicSecureTextField"
+
+    @Test
+    fun passwordSemanticsAreSet() {
+        rule.setContent {
+            BasicSecureTextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(Tag)
+            )
+        }
+
+        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Password))
+    }
 
     @Test
     fun lastTypedCharacterIsRevealedTemporarily() {

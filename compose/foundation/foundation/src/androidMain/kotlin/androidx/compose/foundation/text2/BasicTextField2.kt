@@ -108,11 +108,6 @@ import kotlin.math.roundToInt
  * scroll behavior. In other cases the text field becomes vertically scrollable.
  * @param codepointTransformation Visual transformation interface that provides a 1-to-1 mapping of
  * codepoints.
- * @param secureContent Controls whether the content of this editor should be secured, for example,
- * if it's a password input field. Enabling this flag will disable context menu actions like cut,
- * copy, and paste for added security. It will also notify the accessibility service that the
- * editor may contain sensitive input. However, just turning on this flag is not enough to use this
- * editor as a password field. For password entry fields, please refer to [BasicSecureTextField].
  * @param decorationBox Composable lambda that allows to add decorations around text field, such
  * as icon, placeholder, helper messages or similar, and automatically increase the hit target area
  * of the text field. To allow you to control the placement of the inner text field relative to your
@@ -138,7 +133,6 @@ fun BasicTextField2(
     cursorBrush: Brush = SolidColor(Color.Black),
     scrollState: ScrollState = rememberScrollState(),
     codepointTransformation: CodepointTransformation? = null,
-    secureContent: Boolean = false,
     decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit =
         @Composable { innerTextField -> innerTextField() }
 ) {
@@ -182,7 +176,6 @@ fun BasicTextField2(
                 keyboardOptions = keyboardOptions,
                 keyboardActions = keyboardActions,
                 singleLine = singleLine,
-                secureContent = secureContent
             )
         )
         .focusable(interactionSource = interactionSource, enabled = enabled)

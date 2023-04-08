@@ -43,6 +43,8 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.semantics.password
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -159,11 +161,19 @@ fun BasicSecureTextField(
         }
     }
 
+    val secureTextFieldModifier = modifier
+        .semantics(mergeDescendants = true) { password() }
+        .then(
+            if (revealLastTypedEnabled) {
+                secureTextFieldController.focusChangeModifier
+            } else {
+                Modifier
+            }
+        )
+
     BasicTextField2(
         state = state,
-        modifier = if (revealLastTypedEnabled) {
-            modifier.then(secureTextFieldController.focusChangeModifier)
-        } else modifier,
+        modifier = secureTextFieldModifier,
         enabled = enabled,
         readOnly = false,
         filter = if (revealLastTypedEnabled) {
@@ -185,7 +195,6 @@ fun BasicSecureTextField(
         onTextLayout = onTextLayout,
         codepointTransformation = codepointTransformation,
         decorationBox = decorationBox,
-        secureContent = true
     )
 }
 
