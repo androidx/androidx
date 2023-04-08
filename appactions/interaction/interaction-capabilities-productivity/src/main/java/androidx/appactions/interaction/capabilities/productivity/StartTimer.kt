@@ -18,7 +18,6 @@ package androidx.appactions.interaction.capabilities.productivity
 
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.BaseSession
-import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
 import androidx.appactions.interaction.capabilities.core.SessionFactory
 import androidx.appactions.interaction.capabilities.core.ValueListener
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
@@ -96,7 +95,7 @@ private val SESSION_BRIDGE = SessionBridge<StartTimer.Session, StartTimer.Confir
 class StartTimer private constructor() {
 
     class CapabilityBuilder :
-        CapabilityBuilderBase<
+        Capability.Builder<
             CapabilityBuilder, Property, Arguments, Output, Confirmation, Session,
             >(ACTION_SPEC) {
 

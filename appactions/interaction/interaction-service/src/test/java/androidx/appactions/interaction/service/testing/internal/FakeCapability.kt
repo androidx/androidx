@@ -18,7 +18,6 @@ package androidx.appactions.interaction.service.testing.internal
 
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.BaseSession
-import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
 import androidx.appactions.interaction.capabilities.core.SessionFactory
 import androidx.appactions.interaction.capabilities.core.ValueListener
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
@@ -68,7 +67,7 @@ class FakeCapability private constructor() {
             get() = null
     }
 
-    class CapabilityBuilder : CapabilityBuilderBase<
+    class CapabilityBuilder : Capability.Builder<
         CapabilityBuilder,
         Property,
         Arguments,
