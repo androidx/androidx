@@ -33,18 +33,18 @@ import java.util.function.Supplier;
 
 /** The implementation of {@code ActionSpec} interface. */
 final class ActionSpecImpl<
-                PropertyT, ArgumentT, ArgumentBuilderT extends BuilderOf<ArgumentT>, OutputT>
-        implements ActionSpec<PropertyT, ArgumentT, OutputT> {
+                PropertyT, ArgumentsT, ArgumentsBuilderT extends BuilderOf<ArgumentsT>, OutputT>
+        implements ActionSpec<PropertyT, ArgumentsT, OutputT> {
 
     private final String mCapabilityName;
-    private final Supplier<ArgumentBuilderT> mArgumentBuilderSupplier;
-    private final List<ParamBinding<PropertyT, ArgumentT, ArgumentBuilderT>> mParamBindingList;
+    private final Supplier<ArgumentsBuilderT> mArgumentBuilderSupplier;
+    private final List<ParamBinding<PropertyT, ArgumentsT, ArgumentsBuilderT>> mParamBindingList;
     private final Map<String, Function<OutputT, List<ParamValue>>> mOutputBindings;
 
     ActionSpecImpl(
             String capabilityName,
-            Supplier<ArgumentBuilderT> argumentBuilderSupplier,
-            List<ParamBinding<PropertyT, ArgumentT, ArgumentBuilderT>> paramBindingList,
+            Supplier<ArgumentsBuilderT> argumentBuilderSupplier,
+            List<ParamBinding<PropertyT, ArgumentsT, ArgumentsBuilderT>> paramBindingList,
             Map<String, Function<OutputT, List<ParamValue>>> outputBindings) {
         this.mCapabilityName = capabilityName;
         this.mArgumentBuilderSupplier = argumentBuilderSupplier;
@@ -68,16 +68,16 @@ final class ActionSpecImpl<
 
     @NonNull
     @Override
-    public ArgumentT buildArgument(Map<String, List<ParamValue>> args)
+    public ArgumentsT buildArguments(@NonNull Map<String, List<ParamValue>> args)
             throws StructConversionException {
-        ArgumentBuilderT argumentBuilder = mArgumentBuilderSupplier.get();
-        for (ParamBinding<PropertyT, ArgumentT, ArgumentBuilderT> binding : mParamBindingList) {
+        ArgumentsBuilderT argumentBuilder = mArgumentBuilderSupplier.get();
+        for (ParamBinding<PropertyT, ArgumentsT, ArgumentsBuilderT> binding : mParamBindingList) {
             List<ParamValue> paramValues = args.get(binding.name());
             if (paramValues == null) {
                 continue;
             }
             try {
-                binding.argumentSetter().setArgument(argumentBuilder, paramValues);
+                binding.argumentSetter().setArguments(argumentBuilder, paramValues);
             } catch (StructConversionException e) {
                 // Wrap the exception with a more meaningful error message.
                 throw new StructConversionException(

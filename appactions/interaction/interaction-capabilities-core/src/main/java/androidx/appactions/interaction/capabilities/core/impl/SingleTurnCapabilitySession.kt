@@ -37,12 +37,12 @@ import kotlinx.coroutines.sync.Mutex
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class SingleTurnCapabilitySession<
-    ArgumentT,
+    ArgumentsT,
     OutputT,
 >(
     override val sessionId: String,
-    private val actionSpec: ActionSpec<*, ArgumentT, OutputT>,
-    private val actionExecutorAsync: ActionExecutorAsync<ArgumentT, OutputT>,
+    private val actionSpec: ActionSpec<*, ArgumentsT, OutputT>,
+    private val actionExecutorAsync: ActionExecutorAsync<ArgumentsT, OutputT>,
     private val mutex: Mutex,
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
 ) : CapabilitySession {
@@ -70,12 +70,12 @@ internal class SingleTurnCapabilitySession<
     ) {
         val paramValuesMap: Map<String, List<ParamValue>> =
             argumentsWrapper.paramValues.mapValues { entry -> entry.value.mapNotNull { it.value } }
-        val argument = actionSpec.buildArgument(paramValuesMap)
+        val arguments = actionSpec.buildArguments(paramValuesMap)
         scope.launch(start = CoroutineStart.UNDISPATCHED) {
             try {
                 mutex.lock(owner = this@SingleTurnCapabilitySession)
                 UiHandleRegistry.registerUiHandle(uiHandle, sessionId)
-                val output = actionExecutorAsync.execute(argument).await()
+                val output = actionExecutorAsync.execute(arguments).await()
                 callback.onSuccess(convertToFulfillmentResponse(output))
             } catch (t: Throwable) {
                 callback.onError(ErrorStatusInternal.CANCELLED)

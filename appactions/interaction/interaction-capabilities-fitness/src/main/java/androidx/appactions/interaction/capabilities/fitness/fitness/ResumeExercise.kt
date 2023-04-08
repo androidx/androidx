@@ -34,12 +34,12 @@ private const val CAPABILITY_NAME = "actions.intent.RESUME_EXERCISE"
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
         .setDescriptor(ResumeExercise.Property::class.java)
-        .setArgument(ResumeExercise.Argument::class.java, ResumeExercise.Argument::Builder)
+        .setArguments(ResumeExercise.Arguments::class.java, ResumeExercise.Arguments::Builder)
         .setOutput(ResumeExercise.Output::class.java)
         .bindOptionalParameter(
             "exercise.name",
             { property -> Optional.ofNullable(property.name) },
-            ResumeExercise.Argument.Builder::setName,
+            ResumeExercise.Arguments.Builder::setName,
             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
             TypeConverters.STRING_VALUE_ENTITY_CONVERTER
         )
@@ -49,7 +49,7 @@ private val ACTION_SPEC =
 class ResumeExercise private constructor() {
     class CapabilityBuilder :
         CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, Session
+            CapabilityBuilder, Property, Arguments, Output, Confirmation, Session
             >(ACTION_SPEC) {
         private var propertyBuilder: Property.Builder = Property.Builder()
         fun setNameProperty(name: ParamProperty<StringValue>): CapabilityBuilder =
@@ -97,18 +97,18 @@ class ResumeExercise private constructor() {
         }
     }
 
-    class Argument internal constructor(
+    class Arguments internal constructor(
         val name: String?
     ) {
         override fun toString(): String {
-            return "Argument(name=$name)"
+            return "Arguments(name=$name)"
         }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass !== other?.javaClass) return false
 
-            other as Argument
+            other as Arguments
 
             if (name != other.name) return false
 
@@ -119,13 +119,13 @@ class ResumeExercise private constructor() {
             return name.hashCode()
         }
 
-        class Builder : BuilderOf<Argument> {
+        class Builder : BuilderOf<Arguments> {
             private var name: String? = null
 
             fun setName(name: String): Builder =
                 apply { this.name = name }
 
-            override fun build(): Argument = Argument(name)
+            override fun build(): Arguments = Arguments(name)
         }
     }
 
@@ -133,5 +133,5 @@ class ResumeExercise private constructor() {
 
     class Confirmation internal constructor()
 
-    sealed interface Session : BaseSession<Argument, Output>
+    sealed interface Session : BaseSession<Arguments, Output>
 }

@@ -31,7 +31,7 @@ import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUti
 import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils.buildArgs
 import androidx.appactions.interaction.capabilities.testing.internal.TestingUtils.CB_TIMEOUT
 import androidx.appactions.interaction.service.testing.internal.FakeCapability
-import androidx.appactions.interaction.service.testing.internal.FakeCapability.Argument
+import androidx.appactions.interaction.service.testing.internal.FakeCapability.Arguments
 import androidx.appactions.interaction.service.testing.internal.FakeCapability.Output
 import androidx.appactions.interaction.service.testing.internal.FakeCapability.Session
 import androidx.test.core.app.ApplicationProvider
@@ -107,7 +107,7 @@ class UiSessionsTest {
     fun createFakeSessionWithUiResponses(vararg uiResponses: UiResponse): Session {
         return object : Session {
             override suspend fun onFinish(
-                argument: Argument,
+                arguments: Arguments,
             ): ExecutionResult<Output> {
                 for (uiResponse in uiResponses) {
                     this.updateUi(uiResponse)
@@ -152,7 +152,7 @@ class UiSessionsTest {
         assertThat(UiSessions.getUiCacheOrNull(sessionId)).isNull()
         sessionFactory.addSessions(object : Session {
             override suspend fun onFinish(
-                argument: Argument,
+                arguments: Arguments,
             ): ExecutionResult<Output> {
                 this.updateUi(remoteViewsUiResponse)
                 this.updateUi(tileLayoutUiResponse)
@@ -187,7 +187,7 @@ class UiSessionsTest {
         sessionFactory.addSessions(
             object : Session {
                 override suspend fun onFinish(
-                    argument: Argument,
+                    arguments: Arguments,
                 ): ExecutionResult<Output> {
                     this.updateUi(remoteViewsUiResponse)
                     return ExecutionResult.Builder<Output>().build()
@@ -195,7 +195,7 @@ class UiSessionsTest {
             },
             object : Session {
                 override suspend fun onFinish(
-                    argument: Argument,
+                    arguments: Arguments,
                 ): ExecutionResult<Output> {
                     this.updateUi(tileLayoutUiResponse)
                     return ExecutionResult.Builder<Output>().build()
@@ -253,8 +253,8 @@ class UiSessionsTest {
         assertThat(UiSessions.getUiCacheOrNull(sessionId)).isNull()
         val oneShotCapability = FakeCapability.CapabilityBuilder().setId(
             "oneShotCapability",
-        ).setExecutor(object : ActionExecutor<Argument, Output> {
-            override suspend fun execute(argument: Argument): ExecutionResult<Output> {
+        ).setExecutor(object : ActionExecutor<Arguments, Output> {
+            override suspend fun execute(arguments: Arguments): ExecutionResult<Output> {
                 this.updateUi(remoteViewsUiResponse)
                 return ExecutionResult.Builder<Output>().build()
             }

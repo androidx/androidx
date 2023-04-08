@@ -36,12 +36,12 @@ private const val CAPABILITY_NAME = "actions.intent.RESET_TIMER"
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
         .setDescriptor(ResetTimer.Property::class.java)
-        .setArgument(ResetTimer.Argument::class.java, ResetTimer.Argument::Builder)
+        .setArguments(ResetTimer.Arguments::class.java, ResetTimer.Arguments::Builder)
         .setOutput(ResetTimer.Output::class.java)
         .bindRepeatedParameter(
             "timer",
             { property -> Optional.ofNullable(property.timerList) },
-            ResetTimer.Argument.Builder::setTimerList,
+            ResetTimer.Arguments.Builder::setTimerList,
             TimerValue.PARAM_VALUE_CONVERTER,
             TimerValue.ENTITY_CONVERTER
         )
@@ -57,7 +57,7 @@ class ResetTimer private constructor() {
 
     class CapabilityBuilder :
         CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, Session
+            CapabilityBuilder, Property, Arguments, Output, Confirmation, Session
         >(ACTION_SPEC) {
         override fun build(): Capability {
             super.setProperty(Property.Builder().build())
@@ -97,16 +97,16 @@ class ResetTimer private constructor() {
         }
     }
 
-    class Argument internal constructor(val timerList: List<TimerValue>?) {
+    class Arguments internal constructor(val timerList: List<TimerValue>?) {
         override fun toString(): String {
-            return "Argument(timerList=$timerList)"
+            return "Arguments(timerList=$timerList)"
         }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
 
-            other as Argument
+            other as Arguments
 
             if (timerList != other.timerList) return false
 
@@ -117,14 +117,14 @@ class ResetTimer private constructor() {
             return timerList.hashCode()
         }
 
-        class Builder : BuilderOf<Argument> {
+        class Builder : BuilderOf<Arguments> {
             private var timerList: List<TimerValue>? = null
 
             fun setTimerList(
                 timerList: List<TimerValue>,
             ): Builder = apply { this.timerList = timerList }
 
-            override fun build(): Argument = Argument(timerList)
+            override fun build(): Arguments = Arguments(timerList)
         }
     }
 
@@ -190,5 +190,5 @@ class ResetTimer private constructor() {
 
     class Confirmation internal constructor()
 
-    sealed interface Session : BaseSession<Argument, Output>
+    sealed interface Session : BaseSession<Arguments, Output>
 }

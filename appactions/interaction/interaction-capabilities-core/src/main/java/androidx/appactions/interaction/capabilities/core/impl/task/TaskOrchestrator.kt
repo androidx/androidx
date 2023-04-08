@@ -54,12 +54,12 @@ import kotlin.jvm.Throws
  *
  * Only one request can be processed at a time.
  */
-internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
+internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
     private val sessionId: String,
-    private val actionSpec: ActionSpec<*, ArgumentT, OutputT>,
+    private val actionSpec: ActionSpec<*, ArgumentsT, OutputT>,
     private val appAction: AppActionsContext.AppAction,
     private val taskHandler: TaskHandler<ConfirmationT>,
-    private val externalSession: BaseSession<ArgumentT, OutputT>,
+    private val externalSession: BaseSession<ArgumentsT, OutputT>,
 ) {
     /**
      * A [reader-writer lock](https://en.wikipedia.org/wiki/Readers%E2%80%93writer_lock) to protect
@@ -449,7 +449,7 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
     private suspend fun getFulfillmentResponseForExecution(
         finalArguments: Map<String, List<ParamValue>>,
     ): FulfillmentResponse {
-        val result = externalSession.onFinish(actionSpec.buildArgument(finalArguments))
+        val result = externalSession.onFinish(actionSpec.buildArguments(finalArguments))
         status = CapabilitySession.Status.COMPLETED
         val fulfillmentResponse =
             FulfillmentResponse.newBuilder().setStartDictation(result.shouldStartDictation)

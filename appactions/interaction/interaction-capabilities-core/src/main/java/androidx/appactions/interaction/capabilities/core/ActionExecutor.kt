@@ -22,12 +22,12 @@ package androidx.appactions.interaction.capabilities.core
  * Actions are executed asynchronously using Kotlin coroutines.
  * For a Future-based solution, see ActionExecutorAsync.
  */
-fun interface ActionExecutor<ArgumentT, OutputT> {
+fun interface ActionExecutor<ArgumentsT, OutputT> {
     /**
      * Calls to execute the action.
      *
-     * @param argument the argument for this action.
+     * @param arguments the argument for this action.
      * @return the ExecutionResult
      */
-    suspend fun execute(argument: ArgumentT): ExecutionResult<OutputT>
+    suspend fun execute(arguments: ArgumentsT): ExecutionResult<OutputT>
 }

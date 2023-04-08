@@ -42,28 +42,28 @@ import java.util.function.Supplier;
  * A builder for the {@code ActionSpec}.
  *
  * @param <PropertyT>
- * @param <ArgumentT>
- * @param <ArgumentBuilderT>
+ * @param <ArgumentsT>
+ * @param <ArgumentsBuilderT>
  * @param <OutputT>
  */
 public final class ActionSpecBuilder<
-        PropertyT, ArgumentT, ArgumentBuilderT extends BuilderOf<ArgumentT>, OutputT> {
+        PropertyT, ArgumentsT, ArgumentsBuilderT extends BuilderOf<ArgumentsT>, OutputT> {
 
     private final String mCapabilityName;
-    private final Supplier<ArgumentBuilderT> mArgumentBuilderSupplier;
-    private final ArrayList<ParamBinding<PropertyT, ArgumentT, ArgumentBuilderT>>
+    private final Supplier<ArgumentsBuilderT> mArgumentBuilderSupplier;
+    private final ArrayList<ParamBinding<PropertyT, ArgumentsT, ArgumentsBuilderT>>
             mParamBindingList = new ArrayList<>();
     private final Map<String, Function<OutputT, List<ParamValue>>> mOutputBindings =
             new HashMap<>();
 
     private ActionSpecBuilder(
-            String capabilityName, Supplier<ArgumentBuilderT> argumentBuilderSupplier) {
+            String capabilityName, Supplier<ArgumentsBuilderT> argumentBuilderSupplier) {
         this.mCapabilityName = capabilityName;
         this.mArgumentBuilderSupplier = argumentBuilderSupplier;
     }
 
     /**
-     * Creates an empty {@code ActionSpecBuilder} with the given capability name. ArgumentT is set
+     * Creates an empty {@code ActionSpecBuilder} with the given capability name. ArgumentsT is set
      * to Object as a placeholder, which must be replaced by calling setArgument.
      */
     @NonNull
@@ -75,23 +75,23 @@ public final class ActionSpecBuilder<
     /** Sets the property type and returns a new {@code ActionSpecBuilder}. */
     @NonNull
     public <NewPropertyT>
-            ActionSpecBuilder<NewPropertyT, ArgumentT, ArgumentBuilderT, OutputT> setDescriptor(
+            ActionSpecBuilder<NewPropertyT, ArgumentsT, ArgumentsBuilderT, OutputT> setDescriptor(
                     @NonNull Class<NewPropertyT> unused) {
         return new ActionSpecBuilder<>(this.mCapabilityName, this.mArgumentBuilderSupplier);
     }
 
     /** Sets the argument type and its builder and returns a new {@code ActionSpecBuilder}. */
     @NonNull
-    public <NewArgumentT, NewArgumentBuilderT extends BuilderOf<NewArgumentT>>
-            ActionSpecBuilder<PropertyT, NewArgumentT, NewArgumentBuilderT, OutputT> setArgument(
-                    @NonNull Class<NewArgumentT> unused,
-                    @NonNull Supplier<NewArgumentBuilderT> argumentBuilderSupplier) {
+    public <NewArgumentsT, NewArgumentsBuilderT extends BuilderOf<NewArgumentsT>>
+            ActionSpecBuilder<PropertyT, NewArgumentsT, NewArgumentsBuilderT, OutputT> setArguments(
+                    @NonNull Class<NewArgumentsT> unused,
+                    @NonNull Supplier<NewArgumentsBuilderT> argumentBuilderSupplier) {
         return new ActionSpecBuilder<>(this.mCapabilityName, argumentBuilderSupplier);
     }
 
     @NonNull
     public <NewOutputT>
-            ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, NewOutputT> setOutput(
+            ActionSpecBuilder<PropertyT, ArgumentsT, ArgumentsBuilderT, NewOutputT> setOutput(
                     @NonNull Class<NewOutputT> unused) {
         return new ActionSpecBuilder<>(this.mCapabilityName, this.mArgumentBuilderSupplier);
     }
@@ -105,11 +105,11 @@ public final class ActionSpecBuilder<
      * @return the builder itself.
      */
     @NonNull
-    private ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT>
+    private ActionSpecBuilder<PropertyT, ArgumentsT, ArgumentsBuilderT, OutputT>
             bindParameterInternal(
                     @NonNull String paramName,
                     @NonNull Function<? super PropertyT, Optional<IntentParameter>> paramGetter,
-                    @NonNull ArgumentSetter<ArgumentBuilderT> argumentSetter) {
+                    @NonNull ArgumentSetter<ArgumentsBuilderT> argumentSetter) {
         mParamBindingList.add(ParamBinding.create(paramName, paramGetter, argumentSetter));
         return this;
     }
@@ -129,12 +129,12 @@ public final class ActionSpecBuilder<
      */
     @NonNull
     public <T, PossibleValueT>
-            ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT> bindParameter(
+            ActionSpecBuilder<PropertyT, ArgumentsT, ArgumentsBuilderT, OutputT> bindParameter(
                     @NonNull String paramName,
                     @NonNull
                             Function<? super PropertyT, ParamProperty<PossibleValueT>>
                                     propertyGetter,
-                    @NonNull BiConsumer<? super ArgumentBuilderT, T> paramConsumer,
+                    @NonNull BiConsumer<? super ArgumentsBuilderT, T> paramConsumer,
                     @NonNull ParamValueConverter<T> paramValueConverter,
                     @NonNull EntityConverter<PossibleValueT> entityConverter) {
         return bindOptionalParameter(
@@ -163,7 +163,7 @@ public final class ActionSpecBuilder<
      */
     @NonNull
     public <T, PossibleValueT>
-            ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT>
+            ActionSpecBuilder<PropertyT, ArgumentsT, ArgumentsBuilderT, OutputT>
                     bindOptionalParameter(
                             @NonNull String paramName,
                             @NonNull
@@ -171,7 +171,7 @@ public final class ActionSpecBuilder<
                                                     ? super PropertyT,
                                                     Optional<ParamProperty<PossibleValueT>>>
                                             optionalPropertyGetter,
-                            @NonNull BiConsumer<? super ArgumentBuilderT, T> paramConsumer,
+                            @NonNull BiConsumer<? super ArgumentsBuilderT, T> paramConsumer,
                             @NonNull ParamValueConverter<T> paramValueConverter,
                             @NonNull EntityConverter<PossibleValueT> entityConverter) {
         return bindParameterInternal(
@@ -200,7 +200,7 @@ public final class ActionSpecBuilder<
      */
     @NonNull
     public <T, PossibleValueT>
-            ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT>
+            ActionSpecBuilder<PropertyT, ArgumentsT, ArgumentsBuilderT, OutputT>
                     bindRepeatedParameter(
                             @NonNull String paramName,
                             @NonNull
@@ -208,7 +208,7 @@ public final class ActionSpecBuilder<
                                                     ? super PropertyT,
                                                     Optional<ParamProperty<PossibleValueT>>>
                                             optionalPropertyGetter,
-                            @NonNull BiConsumer<? super ArgumentBuilderT, List<T>> paramConsumer,
+                            @NonNull BiConsumer<? super ArgumentsBuilderT, List<T>> paramConsumer,
                             @NonNull ParamValueConverter<T> paramValueConverter,
                             @NonNull EntityConverter<PossibleValueT> entityConverter) {
         return bindParameterInternal(
@@ -234,7 +234,7 @@ public final class ActionSpecBuilder<
     @NonNull
     @SuppressWarnings("JdkCollectors")
     public <T>
-            ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT> bindOptionalOutput(
+            ActionSpecBuilder<PropertyT, ArgumentsT, ArgumentsBuilderT, OutputT> bindOptionalOutput(
                     @NonNull String name,
                     @NonNull Function<OutputT, Optional<T>> outputGetter,
                     @NonNull Function<T, ParamValue> converter) {
@@ -261,7 +261,7 @@ public final class ActionSpecBuilder<
     @NonNull
     @SuppressWarnings("JdkCollectors")
     public <T>
-            ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT> bindRepeatedOutput(
+            ActionSpecBuilder<PropertyT, ArgumentsT, ArgumentsBuilderT, OutputT> bindRepeatedOutput(
                     @NonNull String name,
                     @NonNull Function<OutputT, List<T>> outputGetter,
                     @NonNull Function<T, ParamValue> converter) {
@@ -276,7 +276,7 @@ public final class ActionSpecBuilder<
 
     /** Builds an {@code ActionSpec} from this builder. */
     @NonNull
-    public ActionSpec<PropertyT, ArgumentT, OutputT> build() {
+    public ActionSpec<PropertyT, ArgumentsT, OutputT> build() {
         return new ActionSpecImpl<>(
                 mCapabilityName,
                 mArgumentBuilderSupplier,

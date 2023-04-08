@@ -39,9 +39,9 @@ private const val CAPABILITY_NAME = "actions.intent.START_EMERGENCY_SHARING"
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
         .setDescriptor(StartEmergencySharing.Property::class.java)
-        .setArgument(
-            StartEmergencySharing.Argument::class.java,
-            StartEmergencySharing.Argument::Builder
+        .setArguments(
+            StartEmergencySharing.Arguments::class.java,
+            StartEmergencySharing.Arguments::Builder
         )
         .setOutput(StartEmergencySharing.Output::class.java)
         .bindOptionalOutput(
@@ -56,7 +56,7 @@ class StartEmergencySharing private constructor() {
     // TODO(b/267805819): Update to include the SessionFactory once Session API is ready.
     class CapabilityBuilder :
         CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, Session,
+            CapabilityBuilder, Property, Arguments, Output, Confirmation, Session,
             >(ACTION_SPEC) {
         override fun build(): Capability {
             super.setProperty(Property())
@@ -67,9 +67,9 @@ class StartEmergencySharing private constructor() {
     // TODO(b/268369632): Remove Property from public capability APIs.
     class Property internal constructor()
 
-    class Argument internal constructor() {
-        class Builder : BuilderOf<Argument> {
-            override fun build(): Argument = Argument()
+    class Arguments internal constructor() {
+        class Builder : BuilderOf<Arguments> {
+            override fun build(): Arguments = Arguments()
         }
     }
 
@@ -168,5 +168,5 @@ class StartEmergencySharing private constructor() {
 
     class Confirmation internal constructor()
 
-    sealed interface Session : BaseSession<Argument, Output>
+    sealed interface Session : BaseSession<Arguments, Output>
 }
