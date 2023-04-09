@@ -84,7 +84,7 @@ public class BeginCreatePublicKeyCredentialRequestJavaTest {
                             "sample_package_name", new SigningInfo())
             );
 
-            String testJsonActual = createPublicKeyCredentialReq.getJson();
+            String testJsonActual = createPublicKeyCredentialReq.getRequestJson();
             assertThat(testJsonActual).isEqualTo(testJsonExpected);
         }
     }

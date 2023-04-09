@@ -76,7 +76,7 @@ class BeginCreatePublicKeyCredentialRequestTest {
             )
         )
 
-        val testJsonActual = createPublicKeyCredentialReq.json
+        val testJsonActual = createPublicKeyCredentialReq.requestJson
         assertThat(testJsonActual).isEqualTo(testJsonExpected)
     }
     // TODO ("Add framework conversion, createFrom & preferImmediatelyAvailable tests")

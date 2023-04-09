@@ -36,7 +36,7 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * the complete [CreatePublicKeyCredentialRequest]. This request will contain all required
  * parameters to actually register a public key.
  *
- * @property json the request json to be used for registering the public key credential
+ * @property requestJson the request json to be used for registering the public key credential
  *
  * @see BeginCreateCredentialRequest
  *
@@ -44,19 +44,19 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * production flow. This constructor must only be used for testing purposes.
  */
 class BeginCreatePublicKeyCredentialRequest constructor(
-    val json: String,
+    val requestJson: String,
     callingAppInfo: CallingAppInfo?,
 ) : BeginCreateCredentialRequest(
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
     // TODO ("Use custom version of toCandidateData in this class")
     toCandidateDataBundle(
-        json,
+        requestJson,
         /*preferImmediatelyAvailableCredentials=*/false
     ),
     callingAppInfo
 ) {
     init {
-        require(json.isNotEmpty()) { "json must not be empty" }
+        require(requestJson.isNotEmpty()) { "json must not be empty" }
     }
 
     /** @hide **/
