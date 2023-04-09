@@ -262,6 +262,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // without Views.
     AnimationInfo mAnimationInfo;
 
+    // Handler used when the Fragment is postponed but not yet attached to the FragmentManager
+    Handler mPostponedHandler;
+
     // Runnable that is used to indicate if the Fragment has a postponed transition that is on a
     // timeout.
     Runnable mPostponedDurationRunnable = new Runnable() {
@@ -2852,14 +2855,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     public final void postponeEnterTransition(long duration, @NonNull TimeUnit timeUnit) {
         ensureAnimationInfo().mEnterTransitionPostponed = true;
-        Handler handler;
         if (mFragmentManager != null) {
-            handler = mFragmentManager.getHost().getHandler();
+            mPostponedHandler = mFragmentManager.getHost().getHandler();
         } else {
-            handler = new Handler(Looper.getMainLooper());
+            mPostponedHandler = new Handler(Looper.getMainLooper());
         }
-        handler.removeCallbacks(mPostponedDurationRunnable);
-        handler.postDelayed(mPostponedDurationRunnable, timeUnit.toMillis(duration));
+        mPostponedHandler.removeCallbacks(mPostponedDurationRunnable);
+        mPostponedHandler.postDelayed(mPostponedDurationRunnable, timeUnit.toMillis(duration));
     }
 
     /**
@@ -2920,6 +2922,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             } else {
                 // We've already posted our call, so we can execute directly
                 controller.executePendingOperations();
+            }
+            if (mPostponedHandler != null) {
+                mPostponedHandler.removeCallbacks(mPostponedDurationRunnable);
+                mPostponedHandler = null;
             }
         }
     }
