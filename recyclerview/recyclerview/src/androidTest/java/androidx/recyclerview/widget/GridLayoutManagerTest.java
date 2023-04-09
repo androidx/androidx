@@ -19,6 +19,7 @@ package androidx.recyclerview.widget;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
+import static androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_TO_POSITION;
 import static androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL;
 import static androidx.recyclerview.widget.LinearLayoutManager.VERTICAL;
 
@@ -964,8 +965,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         waitForFirstLayout(recyclerView);
 
         final AccessibilityNodeInfoCompat nodeInfo = AccessibilityNodeInfoCompat.obtain();
-        assertFalse(nodeInfo.getActionList().contains(
-                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_TO_POSITION));
+        assertFalse(nodeInfo.getActionList().contains(ACTION_SCROLL_TO_POSITION));
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -973,8 +973,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
             }
         });
 
-        assertFalse(nodeInfo.getActionList().contains(
-                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_TO_POSITION));
+        assertFalse(nodeInfo.getActionList().contains(ACTION_SCROLL_TO_POSITION));
     }
 
     @Test
@@ -985,8 +984,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         waitForFirstLayout(recyclerView);
 
         final AccessibilityNodeInfoCompat nodeInfo = AccessibilityNodeInfoCompat.obtain();
-        assertFalse(nodeInfo.getActionList().contains(
-                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_TO_POSITION));
+        assertFalse(nodeInfo.getActionList().contains(ACTION_SCROLL_TO_POSITION));
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -994,8 +992,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
             }
         });
 
-        assertTrue(nodeInfo.getActionList().contains(
-                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_TO_POSITION));
+        assertTrue(nodeInfo.getActionList().contains(ACTION_SCROLL_TO_POSITION));
     }
 
     @Test
