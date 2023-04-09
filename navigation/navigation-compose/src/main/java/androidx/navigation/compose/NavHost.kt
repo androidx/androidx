@@ -55,6 +55,9 @@ import kotlinx.coroutines.flow.map
  * @param startDestination the route (like "topic/{topicId}") for the start destination. route instances
  * with filled in arguments are not supported. If your start destination requires an argument, you can
  * set a default value while creating your graph.
+ * When a user opens your app via an explicit deep link, the startDestination is added at the bottom of the
+ * stack so that the user goes back to your app's entry point when pressing back.
+ * 
  * @param modifier The modifier to be applied to the layout.
  * @param route the route for the root level of this graph allowing you to use it with [NavHostController.getBackStackEntry]
  * @param builder the builder used to construct the graph
