@@ -37,15 +37,15 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
-import androidx.appactions.interaction.capabilities.core.properties.ParamProperty
+import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.testing.spec.Arguments
 import androidx.appactions.interaction.capabilities.core.testing.spec.CapabilityStructFill
 import androidx.appactions.interaction.capabilities.core.testing.spec.CapabilityTwoEntityValues
 import androidx.appactions.interaction.capabilities.core.testing.spec.Confirmation
 import androidx.appactions.interaction.capabilities.core.testing.spec.Output
-import androidx.appactions.interaction.capabilities.core.testing.spec.Property
 import androidx.appactions.interaction.capabilities.core.testing.spec.Session
 import androidx.appactions.interaction.capabilities.core.testing.spec.TestEnum
+import androidx.appactions.interaction.capabilities.core.testing.spec.Properties
 import androidx.appactions.interaction.capabilities.core.values.EntityValue
 import androidx.appactions.interaction.capabilities.core.values.ListItem
 import androidx.appactions.interaction.capabilities.core.values.SearchAction
@@ -296,17 +296,17 @@ class TaskCapabilityImplTest {
 
     @Test
     fun slotFilling_getStatus_smokeTest() {
-        val property: CapabilityTwoEntityValues.Property =
-            CapabilityTwoEntityValues.Property.newBuilder()
+        val property: CapabilityTwoEntityValues.Properties =
+            CapabilityTwoEntityValues.Properties.newBuilder()
                 .setSlotA(
-                    ParamProperty.Builder<
+                    Property.Builder<
                         androidx.appactions.interaction.capabilities.core.properties.Entity,
                         >()
                         .setRequired(true)
                         .build(),
                 )
                 .setSlotB(
-                    ParamProperty.Builder<
+                    Property.Builder<
                         androidx.appactions.interaction.capabilities.core.properties.Entity,
                         >()
                         .setRequired(true)
@@ -391,17 +391,17 @@ class TaskCapabilityImplTest {
     @kotlin.Throws(Exception::class)
     fun slotFilling_optionalButRejectedParam_onFinishNotInvoked() {
         val onFinishInvocationCount = AtomicInteger(0)
-        val property: CapabilityTwoEntityValues.Property =
-            CapabilityTwoEntityValues.Property.newBuilder()
+        val property: CapabilityTwoEntityValues.Properties =
+            CapabilityTwoEntityValues.Properties.newBuilder()
                 .setSlotA(
-                    ParamProperty.Builder<
+                    Property.Builder<
                         androidx.appactions.interaction.capabilities.core.properties.Entity,
                         >()
                         .setRequired(true)
                         .build(),
                 )
                 .setSlotB(
-                    ParamProperty.Builder<
+                    Property.Builder<
                         androidx.appactions.interaction.capabilities.core.properties.Entity,
                         >()
                         .setRequired(false)
@@ -482,17 +482,17 @@ class TaskCapabilityImplTest {
     @Test
     @kotlin.Throws(Exception::class)
     fun slotFilling_assistantRemovedParam_clearInSdkState() {
-        val property: Property =
-            Property.newBuilder()
+        val property: Properties =
+            Properties.newBuilder()
                 .setRequiredEntityField(
-                    ParamProperty.Builder<
+                    Property.Builder<
                         androidx.appactions.interaction.capabilities.core.properties.Entity,
                         >()
                         .setRequired(true)
                         .build(),
                 )
                 .setEnumField(
-                    ParamProperty.Builder<TestEnum>()
+                    Property.Builder<TestEnum>()
                         .setPossibleValues(TestEnum.VALUE_1, TestEnum.VALUE_2)
                         .setRequired(true)
                         .build(),
@@ -698,10 +698,10 @@ class TaskCapabilityImplTest {
     @kotlin.Throws(Exception::class)
     @Suppress("DEPRECATION") // TODO(b/269638788) migrate session state to AppDialogState message
     fun identifierOnly_refillsStruct() = runBlocking<Unit> {
-        val property: CapabilityStructFill.Property =
-            CapabilityStructFill.Property.newBuilder()
-                .setListItem(ParamProperty.Builder<ListItem>().setRequired(true).build())
-                .setAnyString(ParamProperty.Builder<StringValue>().setRequired(true).build())
+        val property: CapabilityStructFill.Properties =
+            CapabilityStructFill.Properties.newBuilder()
+                .setListItem(Property.Builder<ListItem>().setRequired(true).build())
+                .setAnyString(Property.Builder<StringValue>().setRequired(true).build())
                 .build()
         val item1: ListItem = ListItem.newBuilder().setName("red apple").setId("item1").build()
         val item2: ListItem = ListItem.newBuilder().setName("green apple").setId("item2").build()
@@ -940,7 +940,7 @@ class TaskCapabilityImplTest {
     class CapabilityBuilder :
         Capability.Builder<
             CapabilityBuilder,
-            Property,
+            Properties,
             Arguments,
             Output,
             Confirmation,
@@ -1014,37 +1014,37 @@ class TaskCapabilityImplTest {
                     return ParamValue.newBuilder().build()
                 }
             }
-        private val ACTION_SPEC: ActionSpec<Property, Arguments, Output> =
+        private val ACTION_SPEC: ActionSpec<Properties, Arguments, Output> =
             ActionSpecBuilder.ofCapabilityNamed(
                 CAPABILITY_NAME,
             )
-                .setDescriptor(Property::class.java)
+                .setDescriptor(Properties::class.java)
                 .setArguments(Arguments::class.java, Arguments::newBuilder)
                 .setOutput(Output::class.java)
                 .bindParameter(
                     "required",
-                    Property::requiredEntityField,
+                    Properties::requiredEntityField,
                     Arguments.Builder::setRequiredEntityField,
                     TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
                     TypeConverters.ENTITY_ENTITY_CONVERTER,
                 )
                 .bindOptionalParameter(
                     "optional",
-                    Property::optionalStringField,
+                    Properties::optionalStringField,
                     Arguments.Builder::setOptionalStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                     TypeConverters.STRING_VALUE_ENTITY_CONVERTER,
                 )
                 .bindOptionalParameter(
                     "optionalEnum",
-                    Property::enumField,
+                    Properties::enumField,
                     Arguments.Builder::setEnumField,
                     ENUM_CONVERTER,
                     { Entity.newBuilder().setIdentifier(it.toString()).build() },
                 )
                 .bindRepeatedParameter(
                     "repeated",
-                    Property::repeatedStringField,
+                    Properties::repeatedStringField,
                     Arguments.Builder::setRepeatedStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                     TypeConverters.STRING_VALUE_ENTITY_CONVERTER,
@@ -1061,10 +1061,10 @@ class TaskCapabilityImplTest {
                 )
                 .build()
 
-        private val SINGLE_REQUIRED_FIELD_PROPERTY: Property =
-            Property.newBuilder()
+        private val SINGLE_REQUIRED_FIELD_PROPERTY: Properties =
+            Properties.newBuilder()
                 .setRequiredEntityField(
-                    ParamProperty.Builder<
+                    Property.Builder<
                         androidx.appactions.interaction.capabilities.core.properties.Entity,
                         >()
                         .setRequired(true)
@@ -1090,12 +1090,12 @@ class TaskCapabilityImplTest {
          * etc., defined under ../../testing/spec
          */
         private fun <SessionUpdaterT : AbstractTaskUpdater> createCapability(
-            property: Property,
+            property: Properties,
             sessionFactory: SessionFactory<Session>,
             sessionBridge: SessionBridge<Session, Confirmation>,
             sessionUpdaterSupplier: Supplier<SessionUpdaterT>,
         ): TaskCapabilityImpl<
-            Property,
+            Properties,
             Arguments,
             Output,
             Session,

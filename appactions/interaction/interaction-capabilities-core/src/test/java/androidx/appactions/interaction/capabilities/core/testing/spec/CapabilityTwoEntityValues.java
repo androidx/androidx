@@ -23,7 +23,7 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder;
 import androidx.appactions.interaction.capabilities.core.properties.Entity;
-import androidx.appactions.interaction.capabilities.core.properties.ParamProperty;
+import androidx.appactions.interaction.capabilities.core.properties.Property;
 import androidx.appactions.interaction.capabilities.core.values.EntityValue;
 
 import com.google.auto.value.AutoValue;
@@ -33,19 +33,19 @@ import java.util.Optional;
 public final class CapabilityTwoEntityValues {
 
     private static final String CAPABILITY_NAME = "actions.intent.TEST";
-    public static final ActionSpec<Property, Arguments, Void> ACTION_SPEC =
+    public static final ActionSpec<Properties, Arguments, Void> ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-                    .setDescriptor(Property.class)
+                    .setDescriptor(Properties.class)
                     .setArguments(Arguments.class, Arguments::newBuilder)
                     .bindOptionalParameter(
                             "slotA",
-                            Property::slotA,
+                            Properties::slotA,
                             Arguments.Builder::setSlotA,
                             TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
                             TypeConverters.ENTITY_ENTITY_CONVERTER)
                     .bindOptionalParameter(
                             "slotB",
-                            Property::slotB,
+                            Properties::slotB,
                             Arguments.Builder::setSlotB,
                             TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
                             TypeConverters.ENTITY_ENTITY_CONVERTER)
@@ -79,28 +79,28 @@ public final class CapabilityTwoEntityValues {
 
     /** Two required strings */
     @AutoValue
-    public abstract static class Property {
+    public abstract static class Properties {
         @NonNull
         public static Builder newBuilder() {
-            return new AutoValue_CapabilityTwoEntityValues_Property.Builder();
+            return new AutoValue_CapabilityTwoEntityValues_Properties.Builder();
         }
 
-        public abstract Optional<ParamProperty<Entity>> slotA();
+        public abstract Optional<Property<Entity>> slotA();
 
-        public abstract Optional<ParamProperty<Entity>> slotB();
+        public abstract Optional<Property<Entity>> slotB();
 
         /** Builder for {@link Property} */
         @AutoValue.Builder
         public abstract static class Builder {
 
             @NonNull
-            public abstract Builder setSlotA(@NonNull ParamProperty<Entity> value);
+            public abstract Builder setSlotA(@NonNull Property<Entity> value);
 
             @NonNull
-            public abstract Builder setSlotB(@NonNull ParamProperty<Entity> value);
+            public abstract Builder setSlotB(@NonNull Property<Entity> value);
 
             @NonNull
-            public abstract Property build();
+            public abstract Properties build();
         }
     }
 
