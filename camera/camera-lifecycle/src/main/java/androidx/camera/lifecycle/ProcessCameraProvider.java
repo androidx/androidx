@@ -421,14 +421,22 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      * {@link PackageManager#FEATURE_CAMERA_CONCURRENT} or cameras are already used by other
      * {@link UseCase}s, {@link UnsupportedOperationException} will be thrown.
      *
+     * <p>To set up concurrent camera, call {@link #getAvailableConcurrentCameraInfos()} to get
+     * the list of available combinations of concurrent cameras. Each sub-list contains the
+     * {@link CameraInfo}s for a combination of cameras that can be operated concurrently.
+     * Each camera can have its own {@link UseCase}s and {@link LifecycleOwner}. See
+     * <a href="{@docRoot}training/camerax/architecture#lifecycles">CameraX lifecycles</a>
+     *
      * @param singleCameraConfigs input list of {@link SingleCameraConfig}s.
      * @return output {@link ConcurrentCamera} instance.
      *
      * @throws IllegalArgumentException If less or more than two camera configs are provided.
      * @throws UnsupportedOperationException If device is not supporting concurrent camera or
      * cameras are already used by other {@link UseCase}s.
+     *
+     * @see ConcurrentCamera
+     * @see #getAvailableConcurrentCameraInfos()
      */
-    @SuppressWarnings({"lambdaLast"})
     @MainThread
     @NonNull
     public ConcurrentCamera bindToLifecycle(@NonNull List<SingleCameraConfig> singleCameraConfigs) {
