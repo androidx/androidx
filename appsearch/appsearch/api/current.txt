@@ -334,7 +334,6 @@ package androidx.appsearch.app {
     field public static final int AGGREGATION_SCORING_OUTER_RESULT_RANKING_SIGNAL = 0; // 0x0
     field public static final int AGGREGATION_SCORING_RESULT_COUNT = 1; // 0x1
     field public static final int AGGREGATION_SCORING_SUM_RANKING_SIGNAL = 5; // 0x5
-    field public static final String QUALIFIED_ID = "this.qualifiedId()";
   }
 
   public static final class JoinSpec.Builder {
