@@ -132,6 +132,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CancellationException;
@@ -569,16 +570,19 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         // handleInvalidate() can be used as an alternative.
         Runnable onSurfaceInvalidated = this::notifyReset;
 
-        // TODO(b/229410005): The expected FPS range will need to come from the camera rather
-        //  than what is requested in the config. For now we use the default range of (30, 30)
-        //  for behavioral consistency.
-        Range<Integer> targetFpsRange = requireNonNull(
-                config.getTargetFrameRate(Defaults.DEFAULT_FPS_RANGE));
+        // If the expected frame rate range is unspecified, we need to give an educated estimate
+        // on what frame rate the camera will be operating at. For most devices this is a
+        // constant frame rate of 30fps, but in the future this could probably be queried from
+        // the camera.
+        Range<Integer> expectedFrameRate = streamSpec.getExpectedFrameRateRange();
+        if (Objects.equals(expectedFrameRate, StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED)) {
+            expectedFrameRate = Defaults.DEFAULT_FPS_RANGE;
+        }
         MediaSpec mediaSpec = requireNonNull(getMediaSpec());
         LegacyVideoCapabilities videoCapabilities = LegacyVideoCapabilities.from(
                 camera.getCameraInfo());
         VideoEncoderInfo videoEncoderInfo = getVideoEncoderInfo(config.getVideoEncoderInfoFinder(),
-                videoCapabilities, mediaSpec, resolution, targetFpsRange);
+                videoCapabilities, mediaSpec, resolution, expectedFrameRate);
         mCropRect = calculateCropRect(resolution, videoEncoderInfo);
         mNode = createNodeIfNeeded(camera, mCropRect, resolution);
         // Choose Timebase based on the whether the buffer is copied.
@@ -596,10 +600,13 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         if (mNode != null) {
             // Make sure the previously created camera edge is cleared before creating a new one.
             checkState(mCameraEdge == null);
+            // Update the StreamSpec to use the frame rate range that is not unspecified.
+            StreamSpec updatedStreamSpec =
+                    streamSpec.toBuilder().setExpectedFrameRateRange(expectedFrameRate).build();
             SurfaceEdge cameraEdge = new SurfaceEdge(
                     VIDEO_CAPTURE,
                     INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
-                    streamSpec,
+                    updatedStreamSpec,
                     getSensorToBufferTransformMatrix(),
                     camera.getHasTransform(),
                     mCropRect,
@@ -616,7 +623,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             SurfaceEdge appEdge = requireNonNull(nodeOutput.get(outConfig));
             appEdge.addOnInvalidatedListener(
                     () -> onAppEdgeInvalidated(appEdge, camera, config, timebase));
-            mSurfaceRequest = appEdge.createSurfaceRequest(camera, targetFpsRange);
+            mSurfaceRequest = appEdge.createSurfaceRequest(camera);
             mDeferrableSurface = cameraEdge.getDeferrableSurface();
             DeferrableSurface latestDeferrableSurface = mDeferrableSurface;
             mDeferrableSurface.getTerminationFuture().addListener(() -> {
@@ -631,7 +638,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                     resolution,
                     camera,
                     streamSpec.getDynamicRange(),
-                    targetFpsRange,
+                    expectedFrameRate,
                     onSurfaceInvalidated);
             mDeferrableSurface = mSurfaceRequest.getDeferrableSurface();
         }
@@ -644,6 +651,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config,
                 streamSpec.getResolution());
+        // Use the frame rate range directly from the StreamSpec here (don't resolve it to the
+        // default if unresolved).
         sessionConfigBuilder.setExpectedFrameRateRange(streamSpec.getExpectedFrameRateRange());
         sessionConfigBuilder.addErrorListener(
                 (sessionConfig, error) -> resetPipeline(cameraId, config, streamSpec));
@@ -1031,7 +1040,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             @NonNull LegacyVideoCapabilities videoCapabilities,
             @NonNull MediaSpec mediaSpec,
             @NonNull Size resolution,
-            @NonNull Range<Integer> targetFps) {
+            @NonNull Range<Integer> expectedFrameRate) {
         if (mVideoEncoderInfo != null) {
             return mVideoEncoderInfo;
         }
@@ -1040,7 +1049,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         VideoValidatedEncoderProfilesProxy encoderProfiles =
                 videoCapabilities.findHighestSupportedEncoderProfilesFor(resolution);
         VideoEncoderInfo videoEncoderInfo = resolveVideoEncoderInfo(videoEncoderInfoFinder,
-                encoderProfiles, mediaSpec, resolution, targetFps);
+                encoderProfiles, mediaSpec, resolution, expectedFrameRate);
         if (videoEncoderInfo == null) {
             // If VideoCapture cannot find videoEncoderInfo, it means that VideoOutput should
             // also not be able to find the encoder. VideoCapture will not handle this situation
@@ -1068,7 +1077,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             @Nullable VideoValidatedEncoderProfilesProxy encoderProfiles,
             @NonNull MediaSpec mediaSpec,
             @NonNull Size resolution,
-            @NonNull Range<Integer> targetFps) {
+            @NonNull Range<Integer> expectedFrameRate) {
         // Resolve the VideoEncoderConfig
         MimeInfo videoMimeInfo = resolveVideoMimeInfo(mediaSpec, encoderProfiles);
         VideoEncoderConfig videoEncoderConfig = resolveVideoEncoderConfig(
@@ -1077,7 +1086,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 Timebase.UPTIME,
                 mediaSpec.getVideoSpec(),
                 resolution,
-                targetFps);
+                expectedFrameRate);
 
         return videoEncoderInfoFinder.apply(videoEncoderConfig);
     }
