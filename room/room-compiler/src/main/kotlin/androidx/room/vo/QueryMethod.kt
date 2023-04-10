@@ -29,7 +29,6 @@ import androidx.room.solver.query.result.QueryResultBinder
 sealed class QueryMethod(
     val element: XMethodElement,
     val query: ParsedQuery,
-    val name: String,
     val returnType: XType,
     val parameters: List<QueryParameter>
 ) {
@@ -58,12 +57,11 @@ sealed class QueryMethod(
 class ReadQueryMethod(
     element: XMethodElement,
     query: ParsedQuery,
-    name: String,
     returnType: XType,
     parameters: List<QueryParameter>,
     val inTransaction: Boolean,
     val queryResultBinder: QueryResultBinder
-) : QueryMethod(element, query, name, returnType, parameters)
+) : QueryMethod(element, query, returnType, parameters)
 
 /**
  * A query method who's query is a INSERT, UPDATE or DELETE statement.
@@ -71,8 +69,7 @@ class ReadQueryMethod(
 class WriteQueryMethod(
     element: XMethodElement,
     query: ParsedQuery,
-    name: String,
     returnType: XType,
     parameters: List<QueryParameter>,
     val preparedQueryResultBinder: PreparedQueryResultBinder
-) : QueryMethod(element, query, name, returnType, parameters)
+) : QueryMethod(element, query, returnType, parameters)

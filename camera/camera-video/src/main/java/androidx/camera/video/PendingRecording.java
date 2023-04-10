@@ -62,7 +62,8 @@ public final class PendingRecording {
     PendingRecording(@NonNull Context context, @NonNull Recorder recorder,
             @NonNull OutputOptions options) {
         // Application context is sufficient for all our needs, so store that to avoid leaking
-        // unused resources
+        // unused resources. For attribution, ContextUtil.getApplicationContext() will retain the
+        // attribution tag from the original context.
         mContext = ContextUtil.getApplicationContext(context);
         mRecorder = recorder;
         mOutputOptions = options;

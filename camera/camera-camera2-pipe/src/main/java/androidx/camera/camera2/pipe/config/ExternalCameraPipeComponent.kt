@@ -22,11 +22,7 @@ import javax.inject.Singleton
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Singleton
-@Component(
-    modules = [
-        ThreadConfigModule::class
-    ]
-)
+@Component(modules = [ThreadConfigModule::class])
 internal interface ExternalCameraPipeComponent {
     fun cameraGraphBuilder(): ExternalCameraGraphComponent.Builder
 }

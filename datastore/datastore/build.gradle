@@ -14,57 +14,102 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+import androidx.build.KmpPlatformsKt
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
 }
 
 android {
+    namespace "androidx.datastore.datastore"
+}
+
+androidXMultiplatform {
+    jvm()
+    mac()
+    ios()
+    linux()
+    android()
     sourceSets {
-        androidTest {
-            // Shared TestingSerializer between test and androidTest
-            kotlin.srcDirs += test.kotlin.srcDirs
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(libs.kotlinCoroutinesCore)
+                api("androidx.annotation:annotation:1.2.0")
+                api(project(":datastore:datastore-core"))
+                api(project(":datastore:datastore-core-okio"))
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTestCommon)
+                implementation(libs.kotlinTestAnnotationsCommon)
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(libs.okio)
+                api(project(":datastore:datastore-core"))
+                api(project(":datastore:datastore-core-okio"))
+                implementation(project(":internal-testutils-kmp"))
+                implementation(project(":internal-testutils-datastore"))
+            }
+        }
+        jvmMain {
+            dependsOn(commonMain)
+
+        }
+        jvmTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.kotlinTest)
+                implementation(project(":internal-testutils-kmp"))
+                implementation(project(":internal-testutils-datastore"))
+            }
+        }
+        androidMain {
+            dependsOn(jvmMain)
+            dependencies {
+                implementation(libs.okio)
+            }
+        }
+        androidAndroidTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.truth)
+                implementation(project(":internal-testutils-truth"))
+                implementation(project(":internal-testutils-kmp"))
+                implementation(project(":internal-testutils-datastore"))
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(libs.testRunner)
+                implementation(libs.testCore)
+            }
+
+        }
+        targets.withType(org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget).configureEach {
+            binaries.all {
+                binaryOptions["memoryModel"] = "experimental"
+            }
+        }
+        targets.all { target ->
+            if (target.platformType == org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(nativeMain)
+                }
+                target.compilations["test"].defaultSourceSet {
+                    dependsOn(nativeTest)
+                }
+            }
         }
     }
 }
 
-dependencies {
-    api(libs.kotlinStdlib)
-    api(libs.kotlinCoroutinesCore)
-    api("androidx.annotation:annotation:1.2.0")
-    api(project(":datastore:datastore-core"))
-
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(libs.truth)
-    testImplementation(project(":internal-testutils-truth"))
-
-    androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.kotlinCoroutinesTest)
-    androidTestImplementation(libs.truth)
-    androidTestImplementation(project(":internal-testutils-truth"))
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testCore)
-}
-
 androidx {
     name = "Android DataStore"
-    publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.DATASTORE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Android DataStore - contains the underlying store used by each serialization " +
             "method along with components that require an Android dependency"
     legacyDisableKotlinStrictApiMode = true
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
-    }
 }

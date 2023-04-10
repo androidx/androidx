@@ -21,6 +21,8 @@ import static androidx.lifecycle.Lifecycle.Event.ON_START;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import static kotlinx.coroutines.test.TestCoroutineDispatchersKt.UnconfinedTestDispatcher;
+
 import androidx.annotation.Nullable;
 import androidx.arch.core.executor.JunitTaskExecutorRule;
 import androidx.arch.core.executor.TaskExecutor;
@@ -34,8 +36,6 @@ import org.junit.runners.JUnit4;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import kotlinx.coroutines.test.TestCoroutineDispatcher;
 
 @RunWith(JUnit4.class)
 public class ThreadedLiveDataTest {
@@ -52,7 +52,7 @@ public class ThreadedLiveDataTest {
     public void init() {
         mLiveData = new MutableLiveData<>();
         mLifecycleOwner = new TestLifecycleOwner(Lifecycle.State.INITIALIZED,
-                new TestCoroutineDispatcher());
+                UnconfinedTestDispatcher(null, null));
     }
 
     @Test

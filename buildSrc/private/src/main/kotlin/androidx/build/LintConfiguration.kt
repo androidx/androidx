@@ -16,38 +16,22 @@
 
 package androidx.build
 
-import androidx.build.dependencyTracker.AffectedModuleDetector
 import com.android.build.api.dsl.Lint
 import com.android.build.gradle.internal.lint.AndroidLintAnalysisTask
-import com.android.build.gradle.internal.lint.AndroidLintTextOutputTask
-import com.google.common.io.Files
-import org.gradle.api.DefaultTask
+import com.android.build.gradle.internal.lint.AndroidLintTask
+import java.io.File
+import java.util.Locale
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.getByType
-import java.io.File
-import java.util.Locale
-
-/**
- * Setting this property means that lint will update lint-baseline.xml if it exists.
- */
-private const val UPDATE_LINT_BASELINE = "updateLintBaseline"
 
 /**
  * Name of the service we use to limit the number of concurrent executions of lint
  */
 public const val LINT_SERVICE_NAME = "androidxLintService"
-
-/**
- * Property used by Lint to continue creating baselines without failing lint, normally set by:
- * -Dlint.baselines.continue=true from command line.
- */
-private const val LINT_BASELINE_CONTINUE = "lint.baselines.continue"
 
 // service for limiting the number of concurrent lint tasks
 interface AndroidXLintService : BuildService<BuildServiceParameters.None>
@@ -71,18 +55,6 @@ fun Project.configureNonAndroidProjectForLint(extension: AndroidXExtension) {
 
     // Create fake variant tasks since that is what is invoked by developers.
     val lintTask = tasks.named("lint")
-    lintTask.configure { task ->
-        AffectedModuleDetector.configureTaskGuard(task)
-    }
-    afterEvaluate {
-        tasks.named("lintAnalyze").configure { task ->
-            AffectedModuleDetector.configureTaskGuard(task)
-        }
-        /* TODO: uncomment when we upgrade to AGP 7.1.0-alpha04
-        tasks.named("lintReport").configure { task ->
-            AffectedModuleDetector.configureTaskGuard(task)
-        }*/
-    }
     tasks.register("lintDebug") {
         it.dependsOn(lintTask)
         it.enabled = false
@@ -98,10 +70,14 @@ fun Project.configureNonAndroidProjectForLint(extension: AndroidXExtension) {
 
     val lint = extensions.getByType<Lint>()
     // Support the lint standalone plugin case which, as yet, lacks AndroidComponents finalizeDsl
-    afterEvaluate { configureLint(lint, extension) }
+    afterEvaluate { configureLint(lint, extension, true) }
 }
 
-fun Project.configureAndroidProjectForLint(lint: Lint, extension: AndroidXExtension) {
+fun Project.configureAndroidProjectForLint(
+    lint: Lint,
+    extension: AndroidXExtension,
+    isLibrary: Boolean
+) {
     project.afterEvaluate {
         // makes sure that the lintDebug task will exist, so we can find it by name
         setUpLintDebugIfNeeded()
@@ -109,32 +85,10 @@ fun Project.configureAndroidProjectForLint(lint: Lint, extension: AndroidXExtens
     tasks.register("lintAnalyze") {
         it.enabled = false
     }
-    configureLint(lint, extension)
+    configureLint(lint, extension, isLibrary)
     tasks.named("lint").configure { task ->
         // We already run lintDebug, we don't need to run lint which lints the release variant
         task.enabled = false
-    }
-    afterEvaluate {
-        for (variant in project.agpVariants) {
-            tasks.named(
-                "lint${variant.name.replaceFirstChar {
-                    if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
-                }}"
-            ).configure { task ->
-                AffectedModuleDetector.configureTaskGuard(task)
-            }
-            tasks.named(
-                "lintAnalyze${variant.name.replaceFirstChar {
-                    if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
-                }}"
-            ).configure { task ->
-                AffectedModuleDetector.configureTaskGuard(task)
-            }
-            /* TODO: uncomment when we upgrade to AGP 7.1.0-alpha04
-            tasks.named("lintReport${variant.name.capitalize(Locale.US)}").configure { task ->
-                AffectedModuleDetector.configureTaskGuard(task)
-            }*/
-        }
     }
 }
 
@@ -158,55 +112,42 @@ private fun Project.setUpLintDebugIfNeeded() {
     }
 }
 
-fun Project.configureLint(lint: Lint, extension: AndroidXExtension) {
-    project.dependencies.add(
-        "lintChecks",
-        project.rootProject.project(":lint-checks")
-    )
+fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: Boolean) {
+    val lintChecksProject = project.rootProject.findProject(":lint-checks")
+        ?: if (allowMissingLintProject()) {
+            return
+        } else {
+            throw GradleException("Project :lint-checks does not exist")
+        }
+
+    project.dependencies.add("lintChecks", lintChecksProject)
 
     // The purpose of this specific project is to test that lint is running, so
     // it contains expected violations that we do not want to trigger a build failure
     val isTestingLintItself = (project.path == ":lint-checks:integration-tests")
-
-    // If -PupdateLintBaseline was set we should update the baseline if it exists
-    // forUseAtConfigurationTime() is deprecated in Gradle 7.4, but we still use 7.3
-    @Suppress("DEPRECATION")
-    val updateLintBaseline = project.providers.gradleProperty(UPDATE_LINT_BASELINE)
-        .forUseAtConfigurationTime().isPresent && !isTestingLintItself
 
     lint.apply {
         // Skip lintVital tasks on assemble. We explicitly run lintRelease for libraries.
         checkReleaseBuilds = false
     }
 
-    // task to copy autogenerated baselines back into the source tree
-    val updateBaselineTask = project.tasks.register(
-        "updateLintBaseline",
-        UpdateBaselineTask::class.java,
-    ) { copyTask ->
-        copyTask.source.set(generatedLintBaseline)
-        copyTask.dest.set(lintBaseline)
-    }
-
-    val projectGeneratedLintBaseline = generatedLintBaseline
-
     tasks.withType(AndroidLintAnalysisTask::class.java).configureEach { task ->
         // don't run too many copies of lint at once due to memory limitations
         task.usesService(
             task.project.gradle.sharedServices.registrations.getByName(LINT_SERVICE_NAME).service
         )
-        if (updateLintBaseline) {
-            // Remove the generated baseline before running lint, so that lint won't try to use it
-            task.doFirst {
-                if (projectGeneratedLintBaseline.exists()) {
-                    projectGeneratedLintBaseline.delete()
+    }
+
+    tasks.withType(AndroidLintTask::class.java).configureEach { task ->
+        // Remove the lint and column attributes from generated lint baseline XML.
+        if (task.name.startsWith("updateLintBaseline")) {
+            task.doLast {
+                task.outputs.files.find { it.name == "lint-baseline.xml" }?.let { file ->
+                    if (file.exists()) {
+                        file.writeText(removeLineAndColumnAttributes(file.readText()))
+                    }
                 }
             }
-        }
-    }
-    tasks.withType(AndroidLintTextOutputTask::class.java).configureEach { task ->
-        if (updateLintBaseline) {
-            task.finalizedBy(updateBaselineTask)
         }
     }
 
@@ -233,7 +174,15 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension) {
         // We run lint on each library, so we don't want transitive checking of each dependency
         checkDependencies = false
 
-        fatal.add("VisibleForTests")
+        if (extension.type.allowCallingVisibleForTestsApis) {
+            // Test libraries are allowed to call @VisibleForTests code
+            disable.add("VisibleForTests")
+        } else {
+            fatal.add("VisibleForTests")
+        }
+
+        // Reenable after b/238892319 is resolved
+        disable.add("NotificationPermission")
 
         // Disable dependency checks that suggest to change them. We want libraries to be
         // intentional with their dependency version bumps.
@@ -244,24 +193,17 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension) {
         // concerned with drawables potentially being a little bit blurry
         disable.add("IconMissingDensityFolder")
 
-        // Disable a check that's only triggered by translation updates which are
-        // outside of library owners' control, b/174655193
-        disable.add("UnusedQuantity")
-
         // Disable until it works for our projects, b/171986505
         disable.add("JavaPluginLanguageLevel")
 
-        // Disable the TODO check until we have a policy that requires it.
+        // Explicitly disable StopShip check (see b/244617216)
         disable.add("StopShip")
 
         // Broken in 7.0.0-alpha15 due to b/180408990
         disable.add("RestrictedApi")
 
-        // Broken in 7.0.0-alpha15 due to b/187508590
-        disable.add("InvalidPackage")
-
-        // Reenable after upgradingto 7.1.0-beta01
-        disable.add("SupportAnnotationUsage")
+        // Disable until ag/19949626 goes in (b/261918265)
+        disable.add("MissingQuantity")
 
         // Provide stricter enforcement for project types intended to run on a device.
         if (extension.type.compilationTarget == CompilationTarget.DEVICE) {
@@ -277,6 +219,7 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension) {
             // Only override if not set explicitly.
             // Some Kotlin projects may wish to disable this.
             if (
+                isLibrary &&
                 !disable.contains("SyntheticAccessor") &&
                 extension.type != LibraryType.SAMPLES
             ) {
@@ -295,6 +238,11 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension) {
 
         // Broken in 7.0.0-alpha15 due to b/187343720
         disable.add("UnusedResources")
+
+        // Disable NullAnnotationGroup check for :compose:ui:ui-text (b/233788571)
+        if (isLibrary && project.group == "androidx.compose.ui" && project.name == "ui-text") {
+            disable.add("NullAnnotationGroup")
+        }
 
         if (extension.type == LibraryType.SAMPLES) {
             // TODO: b/190833328 remove if / when AGP will analyze dependencies by default
@@ -320,79 +268,9 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension) {
             lintConfig = File(project.getSupportRootFolder(), lintXmlPath)
         }
 
-        // Ideally, teams aren't able to add new violations to a baseline file; they should only
-        // be able to burn down existing violations. That's hard to enforce, though, so we'll
-        // generally allow teams to update their baseline files with a publicly-known flag.
-        if (updateLintBaseline) {
-            // Continue generating baselines regardless of errors.
-            abortOnError = false
-
-            // Avoid printing every single lint error to the terminal.
-            textReport = false
-        }
-
-        // If we give lint the filepath of a baseline file, then:
-        //   If the file does not exist, lint will write new violations to it
-        //   If the file does exist, lint will read extemptions from it
-
-        // So, if we want to update the baselines, we need to give lint an empty location
-        // to save to.
-
-        // If we're not updating the baselines, then we want lint to check for new errors.
-        // This requires us only pass a baseline to lint if one already exists.
-        if (updateLintBaseline) {
-            baseline = generatedLintBaseline
-        } else if (lintBaseline.exists()) {
-            baseline = lintBaseline
-        }
+        baseline = lintBaseline.get().asFile
     }
 }
 
-val Project.lintBaseline get() = File(projectDir, "/lint-baseline.xml")
-val Project.generatedLintBaseline get() = File(project.buildDir, "/generated-lint-baseline.xml")
-
-/**
- * Task that copies the generated line baseline
- * If an input baseline file has no issues, it is considered to be nonexistent
- */
-abstract class UpdateBaselineTask : DefaultTask() {
-    @get:InputFiles // allows missing input file
-    abstract val source: RegularFileProperty
-
-    @get:OutputFile
-    abstract val dest: RegularFileProperty
-
-    @TaskAction
-    fun copyBaseline() {
-        val source = source.get().asFile
-        val dest = dest.get().asFile
-        val sourceText = if (source.exists()) {
-            source.readText()
-        } else {
-            ""
-        }
-        var sourceHasIssues =
-            if (source.exists()) {
-                // Does the baseline contain any issues?
-                source.reader().useLines { lines ->
-                    lines.any { line ->
-                        line.endsWith("<issue")
-                    }
-                }
-            } else {
-                false
-            }
-        val destNonempty = dest.exists()
-        val changing = (sourceHasIssues != destNonempty) ||
-            (sourceHasIssues && sourceText != dest.readText())
-        if (changing) {
-            if (sourceHasIssues) {
-                Files.copy(source, dest)
-                println("Updated baseline file ${dest.path}")
-            } else {
-                dest.delete()
-                println("Deleted baseline file ${dest.path}")
-            }
-        }
-    }
-}
+val Project.lintBaseline: RegularFileProperty get() =
+    project.objects.fileProperty().fileValue(File(projectDir, "/lint-baseline.xml"))

@@ -16,17 +16,30 @@
 
 package androidx.glance.appwidget
 
+import android.content.Context
+import android.content.Intent
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.glance.GlanceId
-import androidx.glance.state.GlanceStateDefinition
+import androidx.glance.session.SessionManager
 
 class TestGlanceAppWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = TestGlanceAppWidget
+    companion object {
+        var ignoreBroadcasts = false
+    }
+
+    override fun onReceive(context: Context, intent: Intent) {
+        if (ignoreBroadcasts) {
+            Log.w("TestGlanceAppWidgetReceiver", "Ignored $intent")
+            return
+        }
+        super.onReceive(context, intent)
+    }
 }
 
 object TestGlanceAppWidget : GlanceAppWidget(errorUiLayout = 0) {
-
-    override var stateDefinition: GlanceStateDefinition<*>? = null
+    override var sessionManager: SessionManager? = null
 
     override var sizeMode: SizeMode = SizeMode.Single
 
@@ -34,6 +47,17 @@ object TestGlanceAppWidget : GlanceAppWidget(errorUiLayout = 0) {
     override fun Content() {
         uiDefinition()
     }
+
+    override suspend fun provideGlance(
+        context: Context,
+        id: GlanceId
+    ) {
+        onProvideGlance?.invoke(this)
+        onProvideGlance = null
+        provideContent(uiDefinition)
+    }
+
+    var onProvideGlance: (suspend TestGlanceAppWidget.() -> Unit)? = null
 
     private var onDeleteBlock: ((GlanceId) -> Unit)? = null
 
@@ -45,7 +69,7 @@ object TestGlanceAppWidget : GlanceAppWidget(errorUiLayout = 0) {
         onDeleteBlock = null
     }
 
-    override suspend fun onDelete(glanceId: GlanceId) {
+    override suspend fun onDelete(context: Context, glanceId: GlanceId) {
         onDeleteBlock?.apply { this(glanceId) }
     }
 

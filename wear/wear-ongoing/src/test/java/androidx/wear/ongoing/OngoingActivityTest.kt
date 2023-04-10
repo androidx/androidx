@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.content.LocusIdCompat
 import androidx.test.core.app.ApplicationProvider
@@ -22,6 +23,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @RunWith(PatchedRobolectricTestRunner::class)
 @DoNotInstrument
 @Config(sdk = [Build.VERSION_CODES.Q])
+@RequiresApi(Build.VERSION_CODES.Q) // Lint doesn't understand @Config b/236744544
 open class OngoingActivityTest {
     private val AnimatedIconResourceId = 123
     private val StaticIconResourceId = 456
@@ -35,6 +37,7 @@ open class OngoingActivityTest {
     private val NotificationId = 4321
     private val ChannelId = "ChannelId"
     private val Title = "AppTitle"
+    private val ContentDescription = "ContentDescription"
 
     private lateinit var context: Context
     private lateinit var notificationManager: NotificationManager
@@ -80,6 +83,7 @@ open class OngoingActivityTest {
             .setStatus(BasicStatus)
             .setTouchIntent(PendingIntentValue)
             .setTitle(Title)
+            .setContentDescription(ContentDescription)
             .build()
         oa.apply(context)
 
@@ -94,6 +98,7 @@ open class OngoingActivityTest {
         // TODO(ssancho): check status
         assertEquals(PendingIntentValue, received.touchIntent)
         assertEquals(Title, received.title)
+        assertEquals(ContentDescription, received.contentDescription)
     }
 
     @Test
@@ -107,6 +112,7 @@ open class OngoingActivityTest {
             .setStatus(BasicStatus)
             .setTouchIntent(PendingIntentValue)
             .setTitle(Title)
+            .setContentDescription(ContentDescription)
             .build()
         oa.apply(context)
         notificationManager.notify(NotificationId, builder.build())
@@ -131,6 +137,7 @@ open class OngoingActivityTest {
         // TODO(ssancho): check status
         assertEquals(PendingIntentValue, received.touchIntent)
         assertEquals(Title, received.title)
+        assertEquals(ContentDescription, received.contentDescription)
 
         notificationManager.cancel(NotificationId)
     }
@@ -199,6 +206,7 @@ open class OngoingActivityTest {
             .setStatus(BasicStatus)
             .setTouchIntent(PendingIntentValue)
             .setTitle(Title)
+            .setContentDescription(ContentDescription)
             .build()
         oa.apply(context)
         val notification = builder.build()
@@ -216,6 +224,7 @@ open class OngoingActivityTest {
         // TODO(ssancho): check status
         assertEquals(PendingIntentValue, received.touchIntent)
         assertEquals(Title, received.title)
+        assertEquals(ContentDescription, received.contentDescription)
     }
 
     @Test

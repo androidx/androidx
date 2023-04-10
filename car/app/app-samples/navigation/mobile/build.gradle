@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import androidx.build.LibraryType
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -32,13 +34,14 @@ android {
             // Enables code shrinking, obfuscation, and optimization.
             minifyEnabled true
             proguardFiles getDefaultProguardFile(
-                    'proguard-android-optimize.txt'),
-                    'proguard-rules.pro'
+                    'proguard-android-optimize.txt')
         }
     }
+    namespace "androidx.car.app.sample.navigation"
 }
 
 dependencies {
     implementation(project(":car:app:app-samples:navigation-common"))
     implementation(project(":car:app:app-projected"))
 }
+

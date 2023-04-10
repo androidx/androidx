@@ -17,31 +17,31 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"Atingeți senzorul de amprentă"</string>
+    <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"Atinge senzorul de amprentă"</string>
     <string name="fingerprint_not_recognized" msgid="3873359464293253009">"Nu este recunoscut"</string>
     <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"Hardware-ul pentru amprentă nu este disponibil."</string>
     <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"Nu au fost înregistrate amprente digitale."</string>
     <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"Acest dispozitiv nu are senzor de amprentă"</string>
     <string name="fingerprint_error_user_canceled" msgid="7627716295344353987">"Operațiunea privind amprenta a fost anulată de utilizator."</string>
-    <string name="fingerprint_error_lockout" msgid="7291787166416782245">"Prea multe încercări. Încercați din nou mai târziu."</string>
+    <string name="fingerprint_error_lockout" msgid="7291787166416782245">"Prea multe încercări. Încearcă din nou mai târziu."</string>
     <string name="default_error_msg" msgid="4776854077120974966">"Eroare necunoscută"</string>
     <string name="generic_error_user_canceled" msgid="7309881387583143581">"Autentificarea a fost anulată de utilizator."</string>
-    <string name="confirm_device_credential_password" msgid="5912733858573823945">"Folosiți parola"</string>
+    <string name="confirm_device_credential_password" msgid="5912733858573823945">"Folosește parola"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Nu este setat niciun cod PIN, model sau parolă."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Dispozitivul nu acceptă codul PIN, modelul sau parola."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Pictograma amprentă"</string>
-    <string name="use_fingerprint_label" msgid="6961788485681412417">"Folosiți amprenta"</string>
-    <string name="use_face_label" msgid="6533512708069459542">"Folosiți chipul"</string>
-    <string name="use_biometric_label" msgid="6524145989441579428">"Folosiți sistemele biometrice"</string>
-    <string name="use_screen_lock_label" msgid="5459869335976243512">"Folosiți blocarea ecranului"</string>
-    <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"Folosiți amprenta sau blocarea ecranului"</string>
-    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"Folosiți deblocarea facială sau ecranul de blocare"</string>
-    <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"Folosiți sistemele biometrice sau blocarea ecranului"</string>
-    <string name="fingerprint_prompt_message" msgid="7449360011861769080">"Folosiți amprenta pentru a continua"</string>
-    <string name="face_prompt_message" msgid="2282389249605674226">"Folosiți-vă chipul ca să continuați"</string>
-    <string name="biometric_prompt_message" msgid="1160635338192065472">"Folosiți sistemele biometrice pentru a continua"</string>
-    <string name="screen_lock_prompt_message" msgid="5659570757430909869">"Introduceți blocarea ecranului ca să continuați"</string>
-    <string name="fingerprint_or_screen_lock_prompt_message" msgid="8382576858490514495">"Folosiți amprenta sau blocarea ecranului pentru a continua"</string>
-    <string name="face_or_screen_lock_prompt_message" msgid="4562557128765735254">"Folosiți-vă chipul sau blocarea ecranului pentru a continua"</string>
-    <string name="biometric_or_screen_lock_prompt_message" msgid="2102429900219199821">"Folosiți sistemele biometrice sau blocarea ecranului pentru a continua"</string>
+    <string name="use_fingerprint_label" msgid="6961788485681412417">"Folosește amprenta"</string>
+    <string name="use_face_label" msgid="6533512708069459542">"Folosește chipul"</string>
+    <string name="use_biometric_label" msgid="6524145989441579428">"Folosește sistemele biometrice"</string>
+    <string name="use_screen_lock_label" msgid="5459869335976243512">"Folosește blocarea ecranului"</string>
+    <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"Folosește amprenta sau blocarea ecranului"</string>
+    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"Folosește deblocarea facială sau ecranul de blocare"</string>
+    <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"Folosește sistemele biometrice sau blocarea ecranului"</string>
+    <string name="fingerprint_prompt_message" msgid="7449360011861769080">"Folosește amprenta pentru a continua"</string>
+    <string name="face_prompt_message" msgid="2282389249605674226">"Folosește-ți chipul pentru a continua"</string>
+    <string name="biometric_prompt_message" msgid="1160635338192065472">"Folosește sistemele biometrice pentru a continua"</string>
+    <string name="screen_lock_prompt_message" msgid="5659570757430909869">"Introdu blocarea ecranului pentru a continua"</string>
+    <string name="fingerprint_or_screen_lock_prompt_message" msgid="8382576858490514495">"Folosește amprenta sau blocarea ecranului pentru a continua"</string>
+    <string name="face_or_screen_lock_prompt_message" msgid="4562557128765735254">"Folosește-ți chipul sau blocarea ecranului pentru a continua"</string>
+    <string name="biometric_or_screen_lock_prompt_message" msgid="2102429900219199821">"Folosește sistemele biometrice sau blocarea ecranului pentru a continua"</string>
 </resources>

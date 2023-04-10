@@ -15,6 +15,8 @@
  */
 package androidx.navigation
 
+import kotlinx.coroutines.flow.StateFlow
+
 /**
  * A Navigator built specifically for [NavGraph] elements. Handles navigating to the
  * correct destination when the NavGraph is the target of navigation actions.
@@ -29,6 +31,13 @@ package androidx.navigation
 public open class NavGraphNavigator(
     private val navigatorProvider: NavigatorProvider
 ) : Navigator<NavGraph>() {
+
+    /**
+     * Gets the backstack of [NavBackStackEntry] associated with this Navigator
+     */
+    public val backStack: StateFlow<List<NavBackStackEntry>>
+        get() = state.backStack
+
     /**
      * Creates a new [NavGraph] associated with this navigator.
      * @return The created [NavGraph].

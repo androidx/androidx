@@ -15,9 +15,12 @@
   -->
 
 <resources>
-
-    <style name="Theme.SplashScreen" parent="Theme.SplashScreenBase">
+    <style name="Base.Theme.SplashScreen" parent="android:Theme.DeviceDefault.DayNight">
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
         <item name="android:enforceStatusBarContrast">false</item>
         <item name="android:enforceNavigationBarContrast">false</item>
+    </style>
+
+    <style name="Base.Theme.SplashScreen.Light" parent="Base.Theme.SplashScreen">
     </style>
 </resources>

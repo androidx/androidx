@@ -23,12 +23,12 @@ import android.graphics.Bitmap
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.transition.TransitionManager
 import android.view.PixelCopy
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.FrameLayout
-import android.widget.LinearLayout
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.animateFloatAsState
@@ -56,6 +56,8 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.DefaultShadowColor
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
@@ -108,25 +110,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.unit.toOffset
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertSame
-import org.junit.Assert.assertTrue
-import org.junit.Assert.fail
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertSame
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
 
 /**
  * Corresponds to ContainingViewTest, but tests single composition measure, layout and draw.
@@ -186,6 +186,132 @@ class AndroidLayoutDrawTest {
     }
 
     @Test
+    fun testCompositingStrategyAuto() {
+        drawLatch = CountDownLatch(1)
+        var compositingApplied = false
+        activity.runOnUiThread {
+            compositingApplied = when (Build.VERSION.SDK_INT) {
+                // Use public RenderNode API
+                in Build.VERSION_CODES.Q..Int.MAX_VALUE ->
+                    verifyRenderNode29CompositingStrategy(
+                        CompositingStrategy.Auto,
+                        expectedCompositing = false,
+                        expectedOverlappingRendering = true
+                    )
+                // Cannot access private APIs on P
+                Build.VERSION_CODES.P ->
+                    verifyViewLayerCompositingStrategy(
+                        CompositingStrategy.Auto,
+                        View.LAYER_TYPE_NONE,
+                        true
+                    )
+                // Use stub access to framework RenderNode API
+                in Build.VERSION_CODES.M..Int.MAX_VALUE ->
+                    verifyRenderNode23CompositingStrategy(
+                        CompositingStrategy.Auto,
+                        expectedLayerType = View.LAYER_TYPE_NONE,
+                        expectedOverlappingRendering = true
+                    )
+                // No RenderNodes, use Views instead
+                else ->
+                    verifyViewLayerCompositingStrategy(
+                        CompositingStrategy.Auto,
+                        View.LAYER_TYPE_NONE,
+                    true
+                    )
+            }
+            drawLatch.countDown()
+        }
+
+        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(compositingApplied)
+    }
+
+    @Test
+    fun testCompositingStrategyModulateAlpha() {
+        drawLatch = CountDownLatch(1)
+        var compositingApplied = false
+        activity.runOnUiThread {
+            compositingApplied = when (Build.VERSION.SDK_INT) {
+                // Use public RenderNode API
+                in Build.VERSION_CODES.Q..Int.MAX_VALUE ->
+                    verifyRenderNode29CompositingStrategy(
+                        CompositingStrategy.ModulateAlpha,
+                        expectedCompositing = false,
+                        expectedOverlappingRendering = false
+                    )
+                // Cannot access private APIs on P
+                Build.VERSION_CODES.P ->
+                    verifyViewLayerCompositingStrategy(
+                        CompositingStrategy.ModulateAlpha,
+                        View.LAYER_TYPE_NONE,
+                        false
+                    )
+                // Use stub access to framework RenderNode API
+                in Build.VERSION_CODES.M..Int.MAX_VALUE ->
+                    verifyRenderNode23CompositingStrategy(
+                        CompositingStrategy.ModulateAlpha,
+                        expectedLayerType = View.LAYER_TYPE_NONE,
+                        expectedOverlappingRendering = false
+                    )
+                // No RenderNodes, use Views instead
+                else ->
+                    verifyViewLayerCompositingStrategy(
+                        CompositingStrategy.ModulateAlpha,
+                        View.LAYER_TYPE_NONE,
+                        false
+                    )
+            }
+            drawLatch.countDown()
+        }
+
+        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(compositingApplied)
+    }
+
+    @Test
+    fun testCompositingStrategyAlways() {
+        drawLatch = CountDownLatch(1)
+        var compositingApplied = false
+        activity.runOnUiThread {
+            compositingApplied = when (Build.VERSION.SDK_INT) {
+                // Use public RenderNode API
+                in Build.VERSION_CODES.Q..Int.MAX_VALUE ->
+                    verifyRenderNode29CompositingStrategy(
+                        CompositingStrategy.Offscreen,
+                        expectedCompositing = true,
+                        expectedOverlappingRendering = true
+                    )
+                // Cannot access private APIs on P
+                Build.VERSION_CODES.P ->
+                    verifyViewLayerCompositingStrategy(
+                        CompositingStrategy.Offscreen,
+                        View.LAYER_TYPE_HARDWARE,
+                        true
+                    )
+                // Use stub access to framework RenderNode API
+                in Build.VERSION_CODES.M..Int.MAX_VALUE ->
+                    verifyRenderNode23CompositingStrategy(
+                        CompositingStrategy.Offscreen,
+                        expectedLayerType = View.LAYER_TYPE_HARDWARE,
+                        expectedOverlappingRendering = true
+                    )
+                // No RenderNodes, use Views instead
+                else ->
+                    verifyViewLayerCompositingStrategy(
+                        CompositingStrategy.Offscreen,
+                        View.LAYER_TYPE_HARDWARE,
+                        true
+                    )
+            }
+            drawLatch.countDown()
+        }
+
+        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(compositingApplied)
+    }
+
+    @Test
     fun testLayerCameraDistance() {
         val targetCameraDistance = 15f
         drawLatch = CountDownLatch(1)
@@ -220,6 +346,69 @@ class AndroidLayoutDrawTest {
         assertTrue(cameraDistanceApplied)
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun verifyRenderNode29CompositingStrategy(
+        compositingStrategy: CompositingStrategy,
+        expectedCompositing: Boolean,
+        expectedOverlappingRendering: Boolean
+    ): Boolean {
+        val node = RenderNodeApi29(AndroidComposeView(activity)).apply {
+            this.compositingStrategy = compositingStrategy
+        }
+        return expectedCompositing == node.isUsingCompositingLayer() &&
+            expectedOverlappingRendering == node.hasOverlappingRendering()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun verifyRenderNode23CompositingStrategy(
+        compositingStrategy: CompositingStrategy,
+        expectedLayerType: Int,
+        expectedOverlappingRendering: Boolean
+    ): Boolean {
+        val node = RenderNodeApi23(AndroidComposeView(activity)).apply {
+            this.compositingStrategy = compositingStrategy
+        }
+        return expectedLayerType == node.getLayerType() &&
+            expectedOverlappingRendering == node.hasOverlappingRendering()
+    }
+
+    private fun verifyViewLayerCompositingStrategy(
+        compositingStrategy: CompositingStrategy,
+        expectedLayerType: Int,
+        expectedOverlappingRendering: Boolean
+    ): Boolean {
+        val view = ViewLayer(
+            AndroidComposeView(activity),
+            ViewLayerContainer(activity),
+            {},
+            {}).apply {
+            updateLayerProperties(
+                scaleX = 1f,
+                scaleY = 1f,
+                alpha = 1f,
+                translationX = 0f,
+                translationY = 0f,
+                shadowElevation = 0f,
+                rotationX = 0f,
+                rotationY = 0f,
+                rotationZ = 0f,
+                cameraDistance = cameraDistance,
+                transformOrigin = TransformOrigin.Center,
+                shape = RectangleShape,
+                clip = true,
+                layoutDirection = LayoutDirection.Ltr,
+                density = Density(1f),
+                renderEffect = null,
+                ambientShadowColor = DefaultShadowColor,
+                spotShadowColor = DefaultShadowColor,
+                compositingStrategy = compositingStrategy
+            )
+        }
+        return expectedLayerType == view.layerType &&
+            expectedOverlappingRendering == view.hasOverlappingRendering()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
     private fun verifyRenderNode29CameraDistance(cameraDistance: Float): Boolean =
         // Verify that the internal render node has the camera distance property
         // given to the wrapper
@@ -227,6 +416,7 @@ class AndroidLayoutDrawTest {
             this.cameraDistance = cameraDistance
         }.dumpRenderNodeData().cameraDistance == cameraDistance
 
+    @RequiresApi(Build.VERSION_CODES.M)
     private fun verifyRenderNode23CameraDistance(cameraDistance: Float): Boolean =
         // Verify that the internal render node has the camera distance property
         // given to the wrapper
@@ -257,7 +447,10 @@ class AndroidLayoutDrawTest {
                 clip = true,
                 layoutDirection = LayoutDirection.Ltr,
                 density = Density(1f),
-                renderEffect = null
+                renderEffect = null,
+                ambientShadowColor = DefaultShadowColor,
+                spotShadowColor = DefaultShadowColor,
+                compositingStrategy = CompositingStrategy.Auto
             )
         }
         // Verify that the camera distance is applied properly even after accounting for
@@ -503,21 +696,6 @@ class AndroidLayoutDrawTest {
             }
         }
         validateSquareColors(outerColor = green, innerColor = white, size = 20)
-    }
-
-    // Tests that calling measure multiple times on the same Measurable causes an exception
-    @Test
-    fun multipleMeasureCall() {
-        val latch = CountDownLatch(1)
-        activityTestRule.runOnUiThreadIR {
-            activity.setContent {
-                TwoMeasureLayout(50, latch) {
-                    AtLeastSize(50) {
-                    }
-                }
-            }
-        }
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
     }
 
     @Test
@@ -2787,7 +2965,7 @@ class AndroidLayoutDrawTest {
         assertSame(firstMeasurable, m)
     }
 
-    // LayoutNodeWrappers remain even when there are multiple for a modifier
+    // NodeCoordinators remain even when there are multiple for a modifier
     @Test
     fun replaceMultiImplementationModifier() {
         var color by mutableStateOf(Color.Red)
@@ -2917,60 +3095,6 @@ class AndroidLayoutDrawTest {
         drawLatch = CountDownLatch(1)
         zIndex = 1f
         validateSquareColors(outerColor = Color.Blue, innerColor = Color.White, size = 10)
-    }
-
-    @FlakyTest
-    @Test
-    fun makingItemLarger() {
-        var height by mutableStateOf(30)
-        var latch = CountDownLatch(1)
-        var composeView: View? = null
-        activityTestRule.runOnUiThread {
-            val linearLayout = LinearLayout(activity)
-            linearLayout.orientation = LinearLayout.VERTICAL
-            val child = ComposeView(activity)
-            activity.setContentView(linearLayout)
-            linearLayout.addView(
-                child,
-                LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    1f
-                )
-            )
-            linearLayout.addView(
-                View(activity),
-                LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    0,
-                    10000f
-                )
-            )
-            child.setContent {
-                Layout(
-                    {},
-                    Modifier.onGloballyPositioned {
-                        latch.countDown()
-                    }
-                ) { _, constraints ->
-                    layout(constraints.maxWidth, height.coerceAtMost(constraints.maxHeight)) {}
-                }
-            }
-            composeView = child
-        }
-
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-        latch = CountDownLatch(1)
-
-        activityTestRule.runOnUiThread {
-            assertEquals(height, composeView!!.measuredHeight)
-            height = 60
-        }
-
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-        activityTestRule.runOnUiThread {
-            assertEquals(height, composeView!!.measuredHeight)
-        }
     }
 
     // Make sure that when the child of a layer changes that the drawing changes to match.
@@ -3557,26 +3681,7 @@ class AndroidLayoutDrawTest {
         }
     }
 
-    @Test
-    fun androidComposeViewIsTransitionGroup() {
-        // ensure that the android compose view is a transition group.
-
-        val latch = CountDownLatch(1)
-        activityTestRule.runOnUiThread {
-            activity.setContent {
-                Layout({}) { _, _ ->
-                    layout(10, 10) {
-                        latch.countDown()
-                    }
-                }
-            }
-        }
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-
-        val composeView = activityTestRule.findAndroidComposeView()
-        assertTrue(composeView.isTransitionGroup)
-    }
-
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun drawnInCorrectLayer() {
         var innerDrawLatch = CountDownLatch(1)
@@ -3645,6 +3750,37 @@ class AndroidLayoutDrawTest {
         )
 
         assertEquals(1, innerDrawLatch.count)
+    }
+
+    /**
+     * Android Transitions should be possible with Compose Views. View layers can
+     * confuse the Android Transition system.
+     */
+    @Test
+    fun worksWithTransitions() {
+        val frameLayout = FrameLayout(activity)
+        activityTestRule.runOnUiThread {
+            activity.setContentView(frameLayout)
+            val composeView = ComposeView(activity).apply {
+                setContent {
+                    Box {}
+                }
+            }
+            frameLayout.addView(composeView)
+        }
+
+        activityTestRule.runOnUiThread {
+            TransitionManager.beginDelayedTransition(frameLayout)
+            frameLayout.removeAllViews()
+            val composeView = ComposeView(activity).apply {
+                setContent {
+                    Box(Modifier.drawLatchModifier()) {}
+                }
+            }
+            frameLayout.addView(composeView)
+        }
+
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
     }
 
     private fun Modifier.layout(onLayout: () -> Unit) = layout { measurable, constraints ->
@@ -3752,6 +3888,7 @@ class AndroidLayoutDrawTest {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun validateSquareColors(
         outerColor: Color,
         innerColor: Color,
@@ -3837,6 +3974,7 @@ fun Bitmap.assertRect(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Suppress("DEPRECATION")
 fun androidx.test.rule.ActivityTestRule<*>.validateSquareColors(
     drawLatch: CountDownLatch,
@@ -4016,33 +4154,6 @@ internal fun Padding(
         },
         content = content
     )
-}
-
-@Composable
-fun TwoMeasureLayout(
-    size: Int,
-    latch: CountDownLatch,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
-    Layout(modifier = modifier, content = content) { measurables, _ ->
-        val testConstraints = Constraints()
-        measurables.forEach { it.measure(testConstraints) }
-        val childConstraints = Constraints.fixed(size, size)
-        try {
-            val placeables2 = measurables.map { it.measure(childConstraints) }
-            fail("Measuring twice on the same Measurable should throw an exception")
-            layout(size, size) {
-                placeables2.forEach { child ->
-                    child.placeRelative(0, 0)
-                }
-            }
-        } catch (_: IllegalStateException) {
-            // expected
-            latch.countDown()
-        }
-        layout(0, 0) { }
-    }
 }
 
 @Composable

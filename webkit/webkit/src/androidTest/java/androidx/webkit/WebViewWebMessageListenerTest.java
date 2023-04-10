@@ -17,10 +17,13 @@
 package androidx.webkit;
 
 import android.net.Uri;
+import android.os.Build;
 import android.webkit.WebView;
 
+import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -35,13 +38,14 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * Test {@link WebViewCompat#addWebMessageListener()} and {@link
- * WebViewCompat#removeWebMessageListener()} basic usages.
+ * Test {@link WebViewCompat#addWebMessageListener} and {@link
+ * WebViewCompat#removeWebMessageListener} basic usages.
  *
  * Test in Chromium tree JsJavaInteractionTest.java for these APIs are more comprehensive.
  */
 @MediumTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 public class WebViewWebMessageListenerTest {
     private static final String BASE_URI = "http://www.example.com";
     private static final String JS_OBJECT_NAME = "myObject";
@@ -61,16 +65,16 @@ public class WebViewWebMessageListenerTest {
     private static final Set<String> MATCH_EXAMPLE_COM = new HashSet<>(Arrays.asList(BASE_URI));
 
     private WebViewOnUiThread mWebViewOnUiThread;
-    private TestWebMessageListener mListener = new TestWebMessageListener();
+    private final TestWebMessageListener mListener = new TestWebMessageListener();
 
     private static class TestWebMessageListener implements WebViewCompat.WebMessageListener {
-        private BlockingQueue<Data> mQueue = new LinkedBlockingQueue<>();
+        private final BlockingQueue<Data> mQueue = new LinkedBlockingQueue<>();
 
-        public static class Data {
-            public WebMessageCompat mMessage;
-            public Uri mSourceOrigin;
-            public boolean mIsMainFrame;
-            public JavaScriptReplyProxy mReplyProxy;
+        static class Data {
+            WebMessageCompat mMessage;
+            Uri mSourceOrigin;
+            boolean mIsMainFrame;
+            JavaScriptReplyProxy mReplyProxy;
 
             Data(WebMessageCompat message, Uri sourceOrigin, boolean isMainFrame,
                     JavaScriptReplyProxy replyProxy) {
@@ -82,8 +86,9 @@ public class WebViewWebMessageListenerTest {
         }
 
         @Override
-        public void onPostMessage(WebView webView, WebMessageCompat message, Uri sourceOrigin,
-                boolean isMainFrame, JavaScriptReplyProxy replyProxy) {
+        public void onPostMessage(@NonNull WebView webView, @NonNull WebMessageCompat message,
+                @NonNull Uri sourceOrigin,
+                boolean isMainFrame, @NonNull JavaScriptReplyProxy replyProxy) {
             mQueue.add(new Data(message, sourceOrigin, isMainFrame, replyProxy));
         }
 

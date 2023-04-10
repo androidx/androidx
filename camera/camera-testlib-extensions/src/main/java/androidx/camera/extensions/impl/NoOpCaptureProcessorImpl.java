@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class NoOpCaptureProcessorImpl implements CaptureProcessorImpl {
@@ -46,6 +47,12 @@ final class NoOpCaptureProcessorImpl implements CaptureProcessorImpl {
 
     @Override
     public void onImageFormatUpdate(int imageFormat) {
+
+    }
+
+    @Override
+    public void process(Map<Integer, Pair<Image, TotalCaptureResult>> results,
+            ProcessResultImpl resultCallback, Executor executor) {
 
     }
 }

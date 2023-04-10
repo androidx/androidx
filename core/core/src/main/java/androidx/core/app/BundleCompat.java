@@ -16,13 +16,16 @@
 
 package androidx.core.app;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -32,7 +35,8 @@ import java.lang.reflect.Method;
  */
 public final class BundleCompat {
 
-    static class BundleCompatBaseImpl {
+    @SuppressLint("BanUncheckedReflection") // Only called prior to API 18
+    static class BeforeApi18Impl {
         private static final String TAG = "BundleCompatBaseImpl";
 
         private static Method sGetIBinderMethod;
@@ -41,7 +45,7 @@ public final class BundleCompat {
         private static Method sPutIBinderMethod;
         private static boolean sPutIBinderMethodFetched;
 
-        private BundleCompatBaseImpl() {
+        private BeforeApi18Impl() {
         }
 
         public static IBinder getBinder(Bundle bundle, String key) {
@@ -103,9 +107,9 @@ public final class BundleCompat {
     @Nullable
     public static IBinder getBinder(@NonNull Bundle bundle, @Nullable String key) {
         if (Build.VERSION.SDK_INT >= 18) {
-            return bundle.getBinder(key);
+            return Api18Impl.getBinder(bundle, key);
         } else {
-            return BundleCompatBaseImpl.getBinder(bundle, key);
+            return BeforeApi18Impl.getBinder(bundle, key);
         }
     }
 
@@ -119,9 +123,26 @@ public final class BundleCompat {
     public static void putBinder(@NonNull Bundle bundle, @Nullable String key,
             @Nullable IBinder binder) {
         if (Build.VERSION.SDK_INT >= 18) {
-            bundle.putBinder(key, binder);
+            Api18Impl.putBinder(bundle, key, binder);
         } else {
-            BundleCompatBaseImpl.putBinder(bundle, key, binder);
+            BeforeApi18Impl.putBinder(bundle, key, binder);
+        }
+    }
+
+    @RequiresApi(18)
+    static class Api18Impl {
+        private Api18Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static IBinder getBinder(Bundle bundle, String key) {
+            return bundle.getBinder(key);
+        }
+
+        @DoNotInline
+        static void putBinder(Bundle bundle, String key, IBinder value) {
+            bundle.putBinder(key, value);
         }
     }
 }

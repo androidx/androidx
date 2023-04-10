@@ -25,23 +25,23 @@ import androidx.glance.layout.runTestingComposition
 import androidx.glance.unit.Dimension
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TextTest {
-    private lateinit var fakeCoroutineScope: TestCoroutineScope
+    private lateinit var fakeCoroutineScope: TestScope
 
     @Before
     fun setUp() {
-        fakeCoroutineScope = TestCoroutineScope()
+        fakeCoroutineScope = TestScope()
     }
 
     @Test
-    fun createComposableText() = fakeCoroutineScope.runBlockingTest {
+    fun createComposableText() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             Text("text")
         }
@@ -52,7 +52,7 @@ class TextTest {
     }
 
     @Test
-    fun createComposableTextWithStyle() = fakeCoroutineScope.runBlockingTest {
+    fun createComposableTextWithStyle() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             Text(
                 "text",
@@ -78,7 +78,7 @@ class TextTest {
     }
 
     @Test
-    fun createComposableTextWithModifiers() = fakeCoroutineScope.runBlockingTest {
+    fun createComposableTextWithModifiers() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             Text("text", modifier = GlanceModifier.fillMaxWidth())
         }
@@ -87,6 +87,17 @@ class TextTest {
         val text = assertIs<EmittableText>(root.children[0])
         assertThat(text.modifier.findModifier<WidthModifier>()?.width)
             .isEqualTo(Dimension.Fill)
+    }
+
+    @Test
+    fun createComposableTextWithMaxLines() = fakeCoroutineScope.runTest {
+        val root = runTestingComposition {
+          Text("text", maxLines = 3)
+        }
+
+        assertThat(root.children).hasSize(1)
+        val text = assertIs<EmittableText>(root.children[0])
+        assertThat(text.maxLines).isEqualTo(3)
     }
 
     @Test
@@ -105,7 +116,7 @@ class TextTest {
     }
 
     @Test
-    fun textAlign() = fakeCoroutineScope.runBlockingTest {
+    fun textAlign() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             Text("text", style = TextStyle(textAlign = TextAlign.Center))
         }

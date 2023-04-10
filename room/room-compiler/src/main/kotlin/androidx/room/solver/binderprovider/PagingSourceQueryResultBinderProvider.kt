@@ -16,83 +16,23 @@
 
 package androidx.room.solver.binderprovider
 
-import androidx.room.compiler.processing.XRawType
-import androidx.room.compiler.processing.XType
 import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.RoomPagingTypeNames
-import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.QueryResultBinderProvider
-import androidx.room.solver.TypeAdapterExtras
-import androidx.room.solver.query.result.ListQueryResultAdapter
-import androidx.room.solver.query.result.PagingSourceQueryResultBinder
-import androidx.room.solver.query.result.QueryResultBinder
-import com.squareup.javapoet.TypeName
 
 @Suppress("FunctionName")
-fun PagingSourceQueryResultBinderProvider(context: Context): QueryResultBinderProvider =
-    PagingSourceQueryResultBinderProviderImpl(
-        context = context
+fun PagingSourceQueryResultBinderProvider(context: Context): QueryResultBinderProvider {
+    val limitOffsetPagingSource = RoomPagingTypeNames.LIMIT_OFFSET_PAGING_SOURCE
+
+    return MultiTypedPagingSourceQueryResultBinderProvider(
+        context = context,
+        roomPagingClassName = limitOffsetPagingSource,
+        pagingSourceTypeName = PagingTypeNames.PAGING_SOURCE
     ).requireArtifact(
         context = context,
-        requiredType = RoomPagingTypeNames.LIMIT_OFFSET_PAGING_SOURCE,
+        requiredType = limitOffsetPagingSource,
         missingArtifactErrorMsg = ProcessorErrors.MISSING_ROOM_PAGING_ARTIFACT
     )
-
-private class PagingSourceQueryResultBinderProviderImpl(
-    val context: Context
-) : QueryResultBinderProvider {
-    private val pagingSourceType: XRawType? by lazy {
-        context.processingEnv.findType(PagingTypeNames.PAGING_SOURCE)?.rawType
-    }
-
-    override fun provide(
-        declared: XType,
-        query: ParsedQuery,
-        extras: TypeAdapterExtras
-    ): QueryResultBinder {
-        if (query.tables.isEmpty()) {
-            context.logger.e(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
-        }
-        val typeArg = declared.typeArguments.last()
-        val listAdapter = context.typeAdapterStore.findRowAdapter(typeArg, query)?.let {
-            ListQueryResultAdapter(typeArg, it)
-        }
-        val tableNames = (
-            (listAdapter?.accessedTableNames() ?: emptyList()) +
-                query.tables.map { it.name }
-            ).toSet()
-
-        return PagingSourceQueryResultBinder(
-            listAdapter = listAdapter,
-            tableNames = tableNames,
-        )
-    }
-
-    override fun matches(declared: XType): Boolean {
-        val collectionTypeRaw = context.COMMON_TYPES.READONLY_COLLECTION.rawType
-
-        if (pagingSourceType == null) {
-            return false
-        }
-
-        if (declared.typeArguments.isEmpty()) {
-            return false
-        }
-
-        if (!pagingSourceType!!.isAssignableFrom(declared)) {
-            return false
-        }
-
-        if (declared.typeArguments.first().typeName != TypeName.INT.box()) {
-            context.logger.e(ProcessorErrors.PAGING_SPECIFY_PAGING_SOURCE_TYPE)
-        }
-
-        if (collectionTypeRaw.isAssignableFrom(declared.typeArguments.last().rawType)) {
-            context.logger.e(ProcessorErrors.PAGING_SPECIFY_PAGING_SOURCE_VALUE_TYPE)
-        }
-
-        return true
-    }
 }

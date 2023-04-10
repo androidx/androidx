@@ -260,6 +260,22 @@ class NavGraphAndroidTest {
     }
 
     @Test
+    fun startDestDisplayNameWithRoute() {
+        val navigatorProvider = NavigatorProvider().apply {
+            addNavigator(NavGraphNavigator(this))
+            addNavigator(NoOpNavigator())
+        }
+        val graph = navigatorProvider.getNavigator(NavGraphNavigator::class.java)
+            .createDestination().apply {
+                route = GRAPH_ROUTE
+                id = GRAPH_ID
+                label = GRAPH_LABEL
+                setStartDestination(DESTINATION_ROUTE)
+            }
+        assertThat(graph.startDestDisplayName).isEqualTo(DESTINATION_ROUTE)
+    }
+
+    @Test
     fun toStringStartDestInNodes() {
         val navigatorProvider = NavigatorProvider().apply {
             addNavigator(NavGraphNavigator(this))
@@ -356,8 +372,10 @@ class NavGraphAndroidTest {
                 setStartDestination(DESTINATION_ROUTE)
                 addDestination(destination)
             }
+        // even though id was set after route, it should still be able to find the destination
+        // based on route
         val expected = "NavGraph(0x${GRAPH_ID.toString(16)}) route=$GRAPH_ROUTE " +
-            "label=$GRAPH_LABEL startDestination=$DESTINATION_ROUTE"
+            "label=$GRAPH_LABEL startDestination={$destination}"
         assertThat(graph.toString()).isEqualTo(expected)
     }
 }

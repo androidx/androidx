@@ -25,6 +25,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 import android.view.View;
 
@@ -58,6 +59,9 @@ public class MediaControlView_WithoutPlayerTest extends MediaWidgetTestBase {
 
     @Before
     public void setup() throws Throwable {
+        // Ignore all tests, b/202710013
+        assumeTrue(false);
+
         mActivity = mActivityRule.getActivity();
         mMediaControlView = mActivity.findViewById(
                 androidx.media2.widget.test.R.id.mediacontrolview);

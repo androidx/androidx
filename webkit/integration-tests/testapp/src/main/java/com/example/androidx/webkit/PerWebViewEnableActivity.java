@@ -19,6 +19,7 @@ package com.example.androidx.webkit;
 import android.os.Bundle;
 import android.webkit.WebView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewFeature;
@@ -32,7 +33,7 @@ import androidx.webkit.WebViewFeature;
 public class PerWebViewEnableActivity extends AppCompatActivity {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_per_web_view_enable);
         setTitle(R.string.per_web_view_enable_activity_title);

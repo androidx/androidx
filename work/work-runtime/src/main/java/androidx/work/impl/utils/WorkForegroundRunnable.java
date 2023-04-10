@@ -18,10 +18,10 @@ package androidx.work.impl.utils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.core.os.BuildCompat;
 import androidx.work.ForegroundInfo;
 import androidx.work.ForegroundUpdater;
 import androidx.work.ListenableWorker;
@@ -73,22 +73,30 @@ public class WorkForegroundRunnable implements Runnable {
     @Override
     @SuppressLint("UnsafeExperimentalUsageError")
     public void run() {
-        if (!mWorkSpec.expedited || BuildCompat.isAtLeastS()) {
+        if (!mWorkSpec.expedited || Build.VERSION.SDK_INT >= 31) {
             mFuture.set(null);
             return;
         }
 
         final SettableFuture<ForegroundInfo> foregroundFuture = SettableFuture.create();
-        mTaskExecutor.getMainThreadExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
+        mTaskExecutor.getMainThreadExecutor().execute(() -> {
+            // don't even try calling getForegroundInfoAsync if we are already cancelled
+            // TODO: cancellation should be propagated to LF returned by getForegroundInfoAsync()
+            if (!mFuture.isCancelled()) {
                 foregroundFuture.setFuture(mWorker.getForegroundInfoAsync());
+            } else {
+                foregroundFuture.cancel(true);
             }
         });
 
         foregroundFuture.addListener(new Runnable() {
             @Override
             public void run() {
+                // don't do anything if we've already cancelled
+                // TODO: cancellation should be propagated to setForegroundAsync
+                if (mFuture.isCancelled()) {
+                    return;
+                }
                 try {
                     ForegroundInfo foregroundInfo = foregroundFuture.get();
                     if (foregroundInfo == null) {
@@ -99,8 +107,6 @@ public class WorkForegroundRunnable implements Runnable {
                     }
                     Logger.get().debug(TAG,
                             "Updating notification for " + mWorkSpec.workerClassName);
-                    // Mark as running in the foreground
-                    mWorker.setRunInForeground(true);
                     mFuture.setFuture(
                             mForegroundUpdater.setForegroundAsync(
                                     mContext, mWorker.getId(), foregroundInfo));

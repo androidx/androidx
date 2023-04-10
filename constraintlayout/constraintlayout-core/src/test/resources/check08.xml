@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2011 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<!-- gone test -->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" android:id="@+id/activity_main"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:tag="0,0,210,96" tools:context="com.example.android.checkconstraintlayout.MainActivity">
+
+    <TextView android:text="TextView" android:tag="882,39,171,57"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:id="@+id/textView1" app:layout_constraintRight_toLeftOf="@+id/button5"
+        app:layout_goneMarginEnd="9dp" app:layout_goneMarginTop="13dp"
+        android:layout_marginEnd="16dp" android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/button5" />
+
+    <Button android:text="Button" android:tag="0,0,0,0" android:visibility="gone"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:id="@+id/button5" app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView android:text="TextView" android:tag="0,0,0,0" android:visibility="gone"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:id="@+id/textView2" app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="37dp" android:layout_marginStart="43dp"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+    <TextView android:text="TextView" android:tag="39,1836,171,57"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:id="@+id/textView3" app:layout_goneMarginBottom="9dp"
+        app:layout_goneMarginStart="13dp" app:layout_constraintLeft_toLeftOf="@+id/textView2"
+        app:layout_constraintBottom_toTopOf="@+id/textView2" android:layout_marginBottom="23dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

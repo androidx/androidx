@@ -36,7 +36,6 @@ class FieldProcessor(
     val context = baseContext.fork(element)
     fun process(): Field {
         val member = element.asMemberOf(containing)
-        val type = member.typeName
         val columnInfo = element.getAnnotation(ColumnInfo::class)?.value
         val name = element.name
         val rawCName = if (columnInfo != null && columnInfo.name != ColumnInfo.INHERIT_FIELD_NAME) {
@@ -56,7 +55,7 @@ class FieldProcessor(
             ProcessorErrors.COLUMN_NAME_CANNOT_BE_EMPTY
         )
         context.checker.notUnbound(
-            type, element,
+            member, element,
             ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_FIELDS
         )
 

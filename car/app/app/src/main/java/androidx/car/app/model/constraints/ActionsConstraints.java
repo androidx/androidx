@@ -25,8 +25,11 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.Action.ActionType;
+import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarText;
 
 import java.util.Collections;
@@ -42,6 +45,28 @@ import java.util.Set;
 @RestrictTo(Scope.LIBRARY)
 public final class ActionsConstraints {
 
+    /**
+     * Constraints for template headers, where only one of a custom non-standard action with an
+     * icon, the special-purpose back or app-icon standard action is allowed.
+     */
+    @NonNull
+    public static final ActionsConstraints ACTIONS_CONSTRAINTS_HEADER =
+            new ActionsConstraints.Builder()
+                    .setMaxActions(1)
+                    .setRequireActionIcons(true)
+                    .setOnClickListenerAllowed(false)
+                    .build();
+    /**
+     * Constraints for template headers, where any custom action with an icon is allowed in
+     * addition to the special-purpose back and app-icon standard actions .
+     */
+    @NonNull
+    public static final ActionsConstraints ACTIONS_CONSTRAINTS_MULTI_HEADER =
+            new ActionsConstraints.Builder()
+                    .setMaxActions(2)
+                    .setRequireActionIcons(true)
+                    .setOnClickListenerAllowed(true)
+                    .build();
     /** Conservative constraints for most template types. */
     @NonNull
     private static final ActionsConstraints ACTIONS_CONSTRAINTS_CONSERVATIVE =
@@ -49,7 +74,6 @@ public final class ActionsConstraints {
                     .setTitleTextConstraints(CarTextConstraints.CONSERVATIVE)
                     .setMaxActions(2)
                     .build();
-
     /**
      * Constraints for actions within the template body.
      */
@@ -58,8 +82,8 @@ public final class ActionsConstraints {
             new ActionsConstraints.Builder(ACTIONS_CONSTRAINTS_CONSERVATIVE)
                     .setTitleTextConstraints(CarTextConstraints.COLOR_ONLY)
                     .setMaxCustomTitles(2)
+                    .setOnClickListenerAllowed(true)
                     .build();
-
     /**
      * Constraints for actions within the template body. The one of the action in this body can be
      * primary action.
@@ -70,19 +94,8 @@ public final class ActionsConstraints {
                     .setTitleTextConstraints(CarTextConstraints.COLOR_ONLY)
                     .setMaxCustomTitles(2)
                     .setMaxPrimaryActions(1)
+                    .setOnClickListenerAllowed(true)
                     .build();
-
-    /**
-     * Constraints for template headers, where only the special-purpose back and app-icon standard
-     * actions are allowed.
-     */
-    @NonNull
-    public static final ActionsConstraints ACTIONS_CONSTRAINTS_HEADER =
-            new ActionsConstraints.Builder()
-                    .setMaxActions(1)
-                    .addDisallowedActionType(Action.TYPE_CUSTOM)
-                    .build();
-
     /**
      * Default constraints that should be applied to most templates (2 actions, 1 can have
      * title)'s {@link androidx.car.app.model.ActionStrip}.
@@ -92,17 +105,17 @@ public final class ActionsConstraints {
             new ActionsConstraints.Builder(ACTIONS_CONSTRAINTS_CONSERVATIVE)
                     .setMaxCustomTitles(1)
                     .setTitleTextConstraints(CarTextConstraints.TEXT_ONLY)
+                    .setOnClickListenerAllowed(true)
                     .build();
 
-    /** Constraints for navigation templates. */
+    /** Constraints for map based templates. */
     @NonNull
     public static final ActionsConstraints ACTIONS_CONSTRAINTS_NAVIGATION =
             new ActionsConstraints.Builder(ACTIONS_CONSTRAINTS_CONSERVATIVE)
                     .setMaxActions(4)
-                    .setMaxCustomTitles(1)
-                    // Must specify a custom stop action.
-                    .addRequiredActionType(Action.TYPE_CUSTOM)
-                    .setTitleTextConstraints(CarTextConstraints.TEXT_ONLY)
+                    .setMaxCustomTitles(4)
+                    .setTitleTextConstraints(CarTextConstraints.TEXT_AND_ICON)
+                    .setOnClickListenerAllowed(true)
                     .build();
 
     /**
@@ -114,14 +127,87 @@ public final class ActionsConstraints {
     public static final ActionsConstraints ACTIONS_CONSTRAINTS_MAP =
             new ActionsConstraints.Builder(ACTIONS_CONSTRAINTS_CONSERVATIVE)
                     .setMaxActions(4)
+                    .setOnClickListenerAllowed(true)
+                    .build();
+
+    /**
+     * Constraints for additional row actions. Only allows custom actions.
+     */
+    //TODO(b/249225370): Allow multiple actions in the row.
+    @NonNull
+    public static final ActionsConstraints ACTIONS_CONSTRAINTS_ROW =
+            new ActionsConstraints.Builder()
+                    .setMaxActions(1)
+                    .addAllowedActionType(Action.TYPE_CUSTOM)
+                    .setRequireActionIcons(true)
+                    .setOnClickListenerAllowed(true)
+                    .build();
+
+    /**
+     * Constraints for floating action buttons.
+     *
+     * <p>Only buttons with icons and background color are allowed.
+     */
+    @NonNull
+    public static final ActionsConstraints ACTIONS_CONSTRAINTS_FAB =
+            new ActionsConstraints.Builder()
+                    .setMaxActions(1)
+                    .addAllowedActionType(Action.TYPE_CUSTOM)
+                    .setRequireActionIcons(true)
+                    .setRequireActionBackgroundColor(true)
+                    .setOnClickListenerAllowed(true)
+                    .build();
+
+    /** Constraints for TabTemplate. */
+    @NonNull
+    @ExperimentalCarApi
+    @RequiresCarApi(6)
+    public static final ActionsConstraints ACTIONS_CONSTRAINTS_TABS =
+            new ActionsConstraints.Builder(ACTIONS_CONSTRAINTS_HEADER)
+                    .addRequiredActionType(Action.TYPE_APP_ICON)
                     .build();
 
     private final int mMaxActions;
     private final int mMaxPrimaryActions;
     private final int mMaxCustomTitles;
+    private final boolean mRequireActionIcons;
+    private final boolean mRequireActionBackgroundColor;
+    private final boolean mOnClickListenerAllowed;
     private final CarTextConstraints mTitleTextConstraints;
     private final Set<Integer> mRequiredActionTypes;
     private final Set<Integer> mDisallowedActionTypes;
+    private final Set<Integer> mAllowedActionTypes;
+
+    ActionsConstraints(Builder builder) {
+        mMaxActions = builder.mMaxActions;
+        mMaxPrimaryActions = builder.mMaxPrimaryActions;
+        mMaxCustomTitles = builder.mMaxCustomTitles;
+        mTitleTextConstraints = builder.mTitleTextConstraints;
+        mRequireActionIcons = builder.mRequireActionIcons;
+        mRequireActionBackgroundColor = builder.mRequireActionBackgroundColor;
+        mOnClickListenerAllowed = builder.mOnClickListenerAllowed;
+        mRequiredActionTypes = new HashSet<>(builder.mRequiredActionTypes);
+        mAllowedActionTypes = new HashSet<>(builder.mAllowedActionTypes);
+
+        Set<Integer> disallowedActionTypes = new HashSet<>(builder.mDisallowedActionTypes);
+        disallowedActionTypes.retainAll(mRequiredActionTypes);
+        if (!disallowedActionTypes.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Disallowed action types cannot also be in the required set");
+        }
+
+        if (!builder.mDisallowedActionTypes.isEmpty() && !mAllowedActionTypes.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Both disallowed and allowed action type set cannot be defined.");
+        }
+
+        mDisallowedActionTypes = new HashSet<>(builder.mDisallowedActionTypes);
+
+        if (mRequiredActionTypes.size() > mMaxActions) {
+            throw new IllegalArgumentException(
+                    "Required action types exceeded max allowed actions");
+        }
+    }
 
     /** Returns the max number of actions allowed. */
     public int getMaxActions() {
@@ -156,13 +242,41 @@ public final class ActionsConstraints {
         return mDisallowedActionTypes;
     }
 
+    /** Adds the set of allowed action types. */
+    @NonNull
+    public Set<Integer> getAllowedActionTypes() {
+        return mAllowedActionTypes;
+    }
+
+    /**
+     * If {@code true}, all non-standard actions must have an
+     * {@link androidx.car.app.model.CarIcon}.
+     */
+    public boolean areActionIconsRequired() {
+        return mRequireActionIcons;
+    }
+
+    /**
+     * If {@code true}, all non-standard actions must have a background
+     * {@link androidx.car.app.model.CarColor}.
+     */
+    public boolean isActionBackgroundColorRequired() {
+        return mRequireActionBackgroundColor;
+    }
+
+    /** If {@code true}, actions can enable an {@link androidx.car.app.model.OnClickDelegate}. */
+    public boolean isOnClickListenerAllowed() {
+        return mOnClickListenerAllowed;
+    }
+
     /**
      * Validates the input list of {@link Action}s against this {@link ActionsConstraints} instance.
      *
      * @throws IllegalArgumentException if the actions has more actions than allowed, if it has
      *                                  more actions with custom titles than allowed, if the
-     *                                  actions do not contain all required types, or if the
-     *                                  actions contain any disallowed types
+     *                                  actions do not contain all required types, if the
+     *                                  actions contain any disallowed types, or if the actions
+     *                                  contain any types not in the allowed set.
      */
     public void validateOrThrow(@NonNull List<Action> actions) {
         int maxAllowedActions = mMaxActions;
@@ -175,9 +289,16 @@ public final class ActionsConstraints {
                         : new HashSet<>(mRequiredActionTypes);
 
         for (Action action : actions) {
-            if (mDisallowedActionTypes.contains(action.getType())) {
+            if (!mDisallowedActionTypes.isEmpty()
+                    && mDisallowedActionTypes.contains(action.getType())) {
                 throw new IllegalArgumentException(
                         Action.typeToString(action.getType()) + " is disallowed");
+            }
+
+            if (!mAllowedActionTypes.isEmpty()
+                    && !mAllowedActionTypes.contains(action.getType())) {
+                throw new IllegalArgumentException(
+                        Action.typeToString(action.getType()) + " is not allowed");
             }
 
             requiredTypes.remove(action.getType());
@@ -207,6 +328,26 @@ public final class ActionsConstraints {
                                     + " primary actions");
                 }
             }
+
+            if (mRequireActionIcons && action.getIcon() == null && !action.isStandard()) {
+                throw new IllegalArgumentException("Non-standard actions without an icon are "
+                        + "disallowed");
+            }
+
+            if (mRequireActionBackgroundColor
+                    && (action.getBackgroundColor() == null
+                    || CarColor.DEFAULT.equals(action.getBackgroundColor()))
+                    && !action.isStandard()) {
+                throw new IllegalArgumentException("Non-standard actions without a background "
+                        + "color are disallowed");
+            }
+
+            if (!mOnClickListenerAllowed
+                    && action.getOnClickDelegate() != null
+                    && !action.isStandard()) {
+                throw new IllegalArgumentException("Setting a click listener for a custom action "
+                        + "is disallowed");
+            }
         }
 
         if (!requiredTypes.isEmpty()) {
@@ -219,45 +360,80 @@ public final class ActionsConstraints {
         }
     }
 
-    ActionsConstraints(Builder builder) {
-        mMaxActions = builder.mMaxActions;
-        mMaxPrimaryActions = builder.mMaxPrimaryActions;
-        mMaxCustomTitles = builder.mMaxCustomTitles;
-        mTitleTextConstraints = builder.mTitleTextConstraints;
-        mRequiredActionTypes = new HashSet<>(builder.mRequiredActionTypes);
-
-        if (!builder.mDisallowedActionTypes.isEmpty()) {
-            Set<Integer> disallowedActionTypes = new HashSet<>(builder.mDisallowedActionTypes);
-            disallowedActionTypes.retainAll(mRequiredActionTypes);
-            if (!disallowedActionTypes.isEmpty()) {
-                throw new IllegalArgumentException(
-                        "Disallowed action types cannot also be in the required set");
-            }
-        }
-        mDisallowedActionTypes = new HashSet<>(builder.mDisallowedActionTypes);
-
-        if (mRequiredActionTypes.size() > mMaxActions) {
-            throw new IllegalArgumentException(
-                    "Required action types exceeded max allowed actions");
-        }
-    }
-
     /**
      * A builder of {@link ActionsConstraints}.
      */
     @VisibleForTesting
     public static final class Builder {
+        final Set<Integer> mRequiredActionTypes = new HashSet<>();
+        final Set<Integer> mDisallowedActionTypes = new HashSet<>();
+        final Set<Integer> mAllowedActionTypes = new HashSet<>();
         int mMaxActions = Integer.MAX_VALUE;
         int mMaxPrimaryActions = 0;
         int mMaxCustomTitles;
+        boolean mRequireActionIcons;
+        boolean mRequireActionBackgroundColor;
+        boolean mOnClickListenerAllowed;
         CarTextConstraints mTitleTextConstraints = CarTextConstraints.UNCONSTRAINED;
-        final Set<Integer> mRequiredActionTypes = new HashSet<>();
-        final Set<Integer> mDisallowedActionTypes = new HashSet<>();
+
+        /** Returns an empty {@link Builder} instance. */
+        public Builder() {
+        }
+
+        /**
+         * Returns a new builder that contains the same data as the given {@link ActionsConstraints}
+         * instance.
+         *
+         * @throws NullPointerException if {@code latLng} is {@code null}
+         */
+        public Builder(@NonNull ActionsConstraints constraints) {
+            requireNonNull(constraints);
+            mMaxActions = constraints.getMaxActions();
+            mMaxPrimaryActions = constraints.getMaxPrimaryActions();
+            mMaxCustomTitles = constraints.getMaxCustomTitles();
+            mTitleTextConstraints = constraints.getTitleTextConstraints();
+            mRequiredActionTypes.addAll(constraints.getRequiredActionTypes());
+            mDisallowedActionTypes.addAll(constraints.getDisallowedActionTypes());
+            mAllowedActionTypes.addAll(constraints.getAllowedActionTypes());
+            mRequireActionIcons = constraints.areActionIconsRequired();
+            mRequireActionBackgroundColor = constraints.isActionBackgroundColorRequired();
+            mOnClickListenerAllowed = constraints.isOnClickListenerAllowed();
+        }
 
         /** Sets the maximum number of actions allowed. */
         @NonNull
         public Builder setMaxActions(int maxActions) {
             mMaxActions = maxActions;
+            return this;
+        }
+
+        /**
+         * Set {@code true} if all non-standard actions must have an
+         * {@link androidx.car.app.model.CarIcon}.
+         */
+        @NonNull
+        public Builder setRequireActionIcons(boolean requireActionIcons) {
+            mRequireActionIcons = requireActionIcons;
+            return this;
+        }
+
+        /**
+         * Set {@code true} if all non-standard actions must have a background
+         * {@link androidx.car.app.model.CarColor}.
+         */
+        @NonNull
+        public Builder setRequireActionBackgroundColor(boolean requireActionBackgroundColor) {
+            mRequireActionBackgroundColor = requireActionBackgroundColor;
+            return this;
+        }
+
+        /**
+         * Set {@code true} if all actions can have an
+         * {@link androidx.car.app.model.OnClickDelegate}.
+         */
+        @NonNull
+        public Builder setOnClickListenerAllowed(boolean onClickListenerAllowed) {
+            mOnClickListenerAllowed = onClickListenerAllowed;
             return this;
         }
 
@@ -296,32 +472,19 @@ public final class ActionsConstraints {
             return this;
         }
 
+        /** Adds an action type to the set of allowed types */
+        @NonNull
+        public Builder addAllowedActionType(@ActionType int actionType) {
+            mAllowedActionTypes.add(actionType);
+            return this;
+        }
+
         /**
          * Returns an {@link ActionsConstraints} instance defined by this builder.
          */
         @NonNull
         public ActionsConstraints build() {
             return new ActionsConstraints(this);
-        }
-
-        /** Returns an empty {@link Builder} instance. */
-        public Builder() {
-        }
-
-        /**
-         * Returns a new builder that contains the same data as the given {@link ActionsConstraints}
-         * instance.
-         *
-         * @throws NullPointerException if {@code latLng} is {@code null}
-         */
-        public Builder(@NonNull ActionsConstraints constraints) {
-            requireNonNull(constraints);
-            mMaxActions = constraints.getMaxActions();
-            mMaxPrimaryActions = constraints.getMaxPrimaryActions();
-            mMaxCustomTitles = constraints.getMaxCustomTitles();
-            mTitleTextConstraints = constraints.getTitleTextConstraints();
-            mRequiredActionTypes.addAll(constraints.getRequiredActionTypes());
-            mDisallowedActionTypes.addAll(constraints.getDisallowedActionTypes());
         }
     }
 }

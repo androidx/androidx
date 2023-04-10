@@ -8,7 +8,6 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(project(":compose:compiler:compiler"))
     implementation(libs.kotlinStdlib)
 
     implementation(project(":compose:foundation:foundation"))
@@ -27,4 +26,8 @@ androidx {
     publish = Publish.NONE
     inceptionYear = "2019"
     description = "This is a project for Material demos."
+}
+
+android {
+    namespace "androidx.compose.material.demos"
 }

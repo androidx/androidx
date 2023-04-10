@@ -24,6 +24,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.ImageReaderProxy;
@@ -45,9 +46,13 @@ import java.util.concurrent.Executor;
  * ImageProxy is responsible for closing it after use. A limited number of ImageProxy may be
  * acquired at one time as defined by <code>maxImages</code> in the constructor. Any ImageProxy
  * produced after that will be dropped unless one of the ImageProxy currently acquired is closed.
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnImageCloseListener {
+public class MetadataImageReader implements ImageReaderProxy,
+        ForwardingImageProxy.OnImageCloseListener {
     private static final String TAG = "MetadataImageReader";
     private final Object mLock = new Object();
 
@@ -60,9 +65,23 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
         }
     };
 
+    /**
+     * Used to record how many OnImageAvailable callback has been called but the images are not
+     * acquired yet.
+     */
+    @GuardedBy("mLock")
+    private int mUnAcquiredAvailableImageCount = 0;
+
     // Callback when Image is ready from the underlying ImageReader.
     private ImageReaderProxy.OnImageAvailableListener mTransformedListener =
-            (reader) -> imageIncoming(reader);
+            (reader) -> {
+                synchronized (mLock) {
+                    // Increases the un-acquired images count when receiving the image available
+                    // callback.
+                    mUnAcquiredAvailableImageCount++;
+                }
+                imageIncoming(reader);
+            };
 
     @GuardedBy("mLock")
     private boolean mClosed = false;
@@ -105,7 +124,7 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
      * @param format    Image format
      * @param maxImages Maximum Image number the ImageReader can hold.
      */
-    MetadataImageReader(int width, int height, int format, int maxImages) {
+    public MetadataImageReader(int width, int height, int format, int maxImages) {
         this(createImageReaderProxy(width, height, format, maxImages));
     }
 
@@ -250,13 +269,15 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
     @Override
     public void clearOnImageAvailableListener() {
         synchronized (mLock) {
+            mImageReaderProxy.clearOnImageAvailableListener();
             mListener = null;
             mExecutor = null;
+            mUnAcquiredAvailableImageCount = 0;
         }
     }
 
     @Override
-    public void onImageClose(ImageProxy image) {
+    public void onImageClose(@NonNull ImageProxy image) {
         synchronized (mLock) {
             dequeImageProxy(image);
         }
@@ -297,11 +318,18 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
                 }
             }
             mAcquiredImageProxies.remove(image);
+
+            // Calls the imageIncoming() function to acquire next images from the image reader if
+            // the un-acquired available image count is larger than 0.
+            if (mUnAcquiredAvailableImageCount > 0) {
+                imageIncoming(mImageReaderProxy);
+            }
         }
     }
 
     // Return the necessary CameraCaptureCallback, which needs to register to capture session.
-    CameraCaptureCallback getCameraCaptureCallback() {
+    @NonNull
+    public CameraCaptureCallback getCameraCaptureCallback() {
         return mCameraCaptureCallback;
     }
 
@@ -312,9 +340,18 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
                 return;
             }
 
-            // Acquire all currently pending images in order to prevent backing up of the queue.
+            int numAcquired = mPendingImages.size() + mMatchedImageProxies.size();
+            // Do not acquire the next image if unclosed images count has reached the max images
+            // count.
+            if (numAcquired >= imageReader.getMaxImages()) {
+                Logger.d(TAG, "Skip to acquire the next image because the acquired image count "
+                        + "has reached the max images count.");
+                return;
+            }
+
+            // Acquires currently pending images as more as possible to prevent backing up of the
+            // queue. MetadataImageReader's user also needs to close the acquired images ASAP.
             // However don't use acquireLatestImage() to make sure that all images are matched.
-            int numAcquired = 0;
             ImageProxy image;
             do {
                 image = null;
@@ -324,16 +361,20 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
                     Logger.d(TAG, "Failed to acquire next image.", e);
                 } finally {
                     if (image != null) {
+                        // Decreases the un-acquired images count after successfully acquiring an
+                        // image.
+                        mUnAcquiredAvailableImageCount--;
                         numAcquired++;
                         // Add the incoming Image to pending list and do the matching logic.
                         mPendingImages.put(image.getImageInfo().getTimestamp(), image);
                         matchImages();
                     }
                 }
-                // Only acquire maxImages number of images in case the producer pushing images into
-                // the queue is faster than the rater at which images are acquired to prevent
-                // acquiring images indefinitely.
-            } while (image != null && numAcquired < imageReader.getMaxImages());
+                // Only acquires more images if the un-acquired available images count is larger
+                // than 0 and the currently non-closed acquired images count doesn't exceed the
+                // max images count.
+            } while (image != null && mUnAcquiredAvailableImageCount > 0
+                    && numAcquired < imageReader.getMaxImages());
         }
     }
 

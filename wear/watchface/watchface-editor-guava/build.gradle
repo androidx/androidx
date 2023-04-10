@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -42,7 +40,6 @@ dependencies {
 androidx {
     name = "Android Wear Watchface Client Editor"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.WEAR_WATCHFACE
     inceptionYear = "2021"
     description = "Guava wrappers for the Androidx Wear Watchface Editor library"
 }
@@ -51,4 +48,5 @@ android {
     defaultConfig {
         minSdkVersion 26
     }
+    namespace "androidx.wear.watchface.editor.guava"
 }

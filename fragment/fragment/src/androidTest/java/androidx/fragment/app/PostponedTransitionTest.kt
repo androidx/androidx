@@ -33,12 +33,13 @@ import androidx.testutils.runOnUiThreadRethrow
 import androidx.testutils.waitForExecution
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.rules.RuleChain
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -46,14 +47,16 @@ import java.util.concurrent.TimeUnit
 class PostponedTransitionTest() {
 
     @Suppress("DEPRECATION")
-    @get:Rule
     var activityRule = androidx.test.rule.ActivityTestRule(FragmentTestActivity::class.java)
 
-    private val instrumentation = InstrumentationRegistry.getInstrumentation()
-    private val beginningFragment = PostponedFragment1()
+    // Detect leaks BEFORE and AFTER activity is destroyed
+    @get:Rule
+    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
+        .around(activityRule)
 
-    @Before
-    fun setupContainer() {
+    private val instrumentation = InstrumentationRegistry.getInstrumentation()
+
+    private fun setupContainer(beginningFragment: PostponedFragment1 = PostponedFragment1()) {
         activityRule.setContentView(R.layout.simple_container)
         val fm = activityRule.activity.supportFragmentManager
 
@@ -89,6 +92,9 @@ class PostponedTransitionTest() {
     // will properly postpone it, both adding and popping.
     @Test
     fun replaceTransition() {
+        val beginningFragment = PostponedFragment1()
+        setupContainer(beginningFragment)
+
         val fm = activityRule.activity.supportFragmentManager
         val startBlue = activityRule.findBlue()
         val startGreen = activityRule.findGreen()
@@ -137,6 +143,9 @@ class PostponedTransitionTest() {
 
     @Test
     fun changePostponedFragmentVisibility() {
+        val beginningFragment = PostponedFragment1()
+        setupContainer(beginningFragment)
+
         val fm = activityRule.activity.supportFragmentManager
         val startBlue = activityRule.findBlue()
 
@@ -173,6 +182,9 @@ class PostponedTransitionTest() {
     // Ensure that replacing a fragment doesn't cause problems with the back stack nesting level
     @Test
     fun backStackNestingLevel() {
+        val beginningFragment = PostponedFragment1()
+        setupContainer(beginningFragment)
+
         val fm = activityRule.activity.supportFragmentManager
         val startBlue = activityRule.findBlue()
         val startGreen = activityRule.findGreen()
@@ -245,6 +257,9 @@ class PostponedTransitionTest() {
     // This tests when the transactions are executed together
     @Test
     fun forcedTransition1() {
+        val beginningFragment = PostponedFragment1()
+        setupContainer(beginningFragment)
+
         val fm = activityRule.activity.supportFragmentManager
         val startBlue = activityRule.findBlue()
         val startGreen = activityRule.findGreen()
@@ -312,6 +327,9 @@ class PostponedTransitionTest() {
     // This tests when the transactions are processed separately.
     @Test
     fun forcedTransition2() {
+        val beginningFragment = PostponedFragment1()
+        setupContainer(beginningFragment)
+
         val fm = activityRule.activity.supportFragmentManager
         val startBlue = activityRule.findBlue()
         val startGreen = activityRule.findGreen()
@@ -389,6 +407,9 @@ class PostponedTransitionTest() {
     // Do a bunch of things to one fragment in a transaction and see if it can screw things up.
     @Test
     fun extensiveTransition() {
+        val beginningFragment = PostponedFragment1()
+        setupContainer(beginningFragment)
+
         val fm = activityRule.activity.supportFragmentManager
         val startBlue = activityRule.findBlue()
         val startGreen = activityRule.findGreen()
@@ -443,6 +464,9 @@ class PostponedTransitionTest() {
     // Execute transactions on different containers and ensure that they don't conflict
     @Test
     fun differentContainers() {
+        val beginningFragment = PostponedFragment1()
+        setupContainer(beginningFragment)
+
         val fm = activityRule.activity.supportFragmentManager
         fm.beginTransaction()
             .remove(beginningFragment)
@@ -552,6 +576,9 @@ class PostponedTransitionTest() {
     // The postponement can be started out-of-order
     @Test
     fun outOfOrderContainers() {
+        val beginningFragment = PostponedFragment1()
+        setupContainer(beginningFragment)
+
         val fm = activityRule.activity.supportFragmentManager
         fm.beginTransaction()
             .remove(beginningFragment)
@@ -661,6 +688,9 @@ class PostponedTransitionTest() {
     // affect the postponed transaction
     @Test
     fun commitNowNoEffect() {
+        val beginningFragment = PostponedFragment1()
+        setupContainer(beginningFragment)
+
         val fm = activityRule.activity.supportFragmentManager
         fm.beginTransaction()
             .remove(beginningFragment)
@@ -743,6 +773,9 @@ class PostponedTransitionTest() {
     // container forces the postponed transition to start.
     @Test
     fun commitNowStartsPostponed() {
+        val beginningFragment = PostponedFragment1()
+        setupContainer(beginningFragment)
+
         val fm = activityRule.activity.supportFragmentManager
         val startBlue = activityRule.findBlue()
         val startGreen = activityRule.findGreen()
@@ -788,6 +821,9 @@ class PostponedTransitionTest() {
     // another transaction doesn't accidentally remove the view early.
     @Test
     fun noAccidentalRemoval() {
+        val beginningFragment = PostponedFragment1()
+        setupContainer(beginningFragment)
+
         val fm = activityRule.activity.supportFragmentManager
         fm.beginTransaction()
             .remove(beginningFragment)
@@ -837,6 +873,9 @@ class PostponedTransitionTest() {
     // the transaction results in the original state with no transition.
     @Test
     fun popPostponedTransaction() {
+        val beginningFragment = PostponedFragment1()
+        setupContainer(beginningFragment)
+
         val fm = activityRule.activity.supportFragmentManager
         val startBlue = activityRule.findBlue()
 
@@ -872,6 +911,8 @@ class PostponedTransitionTest() {
     // the state as if it wasn't postponed.
     @Test
     fun saveWhilePostponed() {
+        setupContainer(PostponedFragment1())
+
         val viewModelStore = ViewModelStore()
         val fc1 = activityRule.startupFragmentController(viewModelStore)
 
@@ -909,6 +950,9 @@ class PostponedTransitionTest() {
     // Ensure that the postponed fragment transactions don't allow reentrancy in fragment manager
     @Test
     fun postponeDoesNotAllowReentrancy() {
+        val beginningFragment = PostponedFragment1()
+        setupContainer(beginningFragment)
+
         val fm = activityRule.activity.supportFragmentManager
         val startBlue = activityRule.findBlue()
 
@@ -937,6 +981,9 @@ class PostponedTransitionTest() {
     // Ensure startPostponedEnterTransaction is called after the timeout expires
     @Test
     fun testTimedPostpone() {
+        val beginningFragment = PostponedFragment1()
+        setupContainer(beginningFragment)
+
         val fm = activityRule.activity.supportFragmentManager
         val startBlue = activityRule.findBlue()
 
@@ -968,6 +1015,9 @@ class PostponedTransitionTest() {
     // Ensure that if startPostponedEnterTransaction is called before the timeout, there is no crash
     @Test
     fun testTimedPostponeStartPostponedCalledTwice() {
+        val beginningFragment = PostponedFragment1()
+        setupContainer(beginningFragment)
+
         val fm = activityRule.activity.supportFragmentManager
         val startBlue = activityRule.findBlue()
         val startGreen = activityRule.findGreen()
@@ -1002,6 +1052,9 @@ class PostponedTransitionTest() {
     // Ensure that if postponedEnterTransition is called twice the first one is removed.
     @Test
     fun testTimedPostponeEnterPostponedCalledTwice() {
+        val beginningFragment = PostponedFragment1()
+        setupContainer(beginningFragment)
+
         val fm = activityRule.activity.supportFragmentManager
         val startBlue = activityRule.findBlue()
 
@@ -1038,6 +1091,8 @@ class PostponedTransitionTest() {
     // Ensure that if postponedEnterTransition with a duration of 0 it waits one frame.
     @Test
     fun testTimedPostponeEnterPostponedCalledWithZero() {
+        setupContainer(PostponedFragment1())
+
         val fm = activityRule.activity.supportFragmentManager
         val startBlue = activityRule.findBlue()
 
@@ -1065,6 +1120,9 @@ class PostponedTransitionTest() {
     // Ensure postponedEnterTransaction(long, TimeUnit) works even if called in constructor
     @Test
     fun testTimedPostponeCalledInConstructor() {
+        val beginningFragment = PostponedFragment1()
+        setupContainer(beginningFragment)
+
         val fm = activityRule.activity.supportFragmentManager
         val startBlue = activityRule.findBlue()
 

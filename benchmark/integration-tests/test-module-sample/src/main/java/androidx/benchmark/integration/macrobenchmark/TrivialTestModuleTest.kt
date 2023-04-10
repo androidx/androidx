@@ -49,6 +49,7 @@ class TrivialTestModuleTest {
 
     @Ignore // b/202321897
     @Test
+    @Suppress("DEPRECATION")
     fun targetPackageInstalled() {
         val pm = InstrumentationRegistry.getInstrumentation().context.packageManager
         try {

@@ -188,8 +188,8 @@ public class ShortcutManagerCompat {
      */
     public static boolean requestPinShortcut(@NonNull final Context context,
             @NonNull ShortcutInfoCompat shortcut, @Nullable final IntentSender callback) {
-        if (Build.VERSION.SDK_INT <= 31
-                && shortcut.isExcludedFrom(ShortcutInfoCompat.SURFACE_LAUNCHER)) {
+        if (Build.VERSION.SDK_INT <= 32
+                && shortcut.isExcludedFromSurfaces(ShortcutInfoCompat.SURFACE_LAUNCHER)) {
             // A shortcut that is not frequently used cannot be pinned to WorkSpace.
             return false;
         }
@@ -594,7 +594,7 @@ public class ShortcutManagerCompat {
      * Compatibility behavior:
      * <ul>
      *      <li>API 25 and above, this method matches platform behavior.
-     *      <li>API 24 and earlier, this method behalves the same as {@link #removeDynamicShortcuts}
+     *      <li>API 24 and earlier, this method behaves the same as {@link #removeDynamicShortcuts}
      * </ul>
      *
      * @throws IllegalArgumentException If trying to disable immutable shortcuts.
@@ -623,7 +623,7 @@ public class ShortcutManagerCompat {
      * Compatibility behavior:
      * <ul>
      *      <li>API 25 and above, this method matches platform behavior.
-     *      <li>API 24 and earlier, this method behalves the same as {@link #addDynamicShortcuts}
+     *      <li>API 24 and earlier, this method behaves the same as {@link #addDynamicShortcuts}
      * </ul>
      *
      * @throws IllegalArgumentException If trying to enable immutable shortcuts.
@@ -691,7 +691,7 @@ public class ShortcutManagerCompat {
      * Compatibility behavior:
      * <ul>
      *      <li>API 30 and above, this method matches platform behavior.
-     *      <li>API 29 and earlier, this method behalves the same as {@link #removeDynamicShortcuts}
+     *      <li>API 29 and earlier, this method behaves the same as {@link #removeDynamicShortcuts}
      * </ul>
      *
      * @throws IllegalStateException when the user is locked.
@@ -748,8 +748,8 @@ public class ShortcutManagerCompat {
         Preconditions.checkNotNull(context);
         Preconditions.checkNotNull(shortcut);
 
-        if (Build.VERSION.SDK_INT <= 31
-                && shortcut.isExcludedFrom(ShortcutInfoCompat.SURFACE_LAUNCHER)) {
+        if (Build.VERSION.SDK_INT <= 32
+                && shortcut.isExcludedFromSurfaces(ShortcutInfoCompat.SURFACE_LAUNCHER)) {
             for (ShortcutInfoChangeListener listener : getShortcutInfoListeners(context)) {
                 listener.onShortcutAdded(Collections.singletonList(shortcut));
             }
@@ -860,6 +860,7 @@ public class ShortcutManagerCompat {
         return sShortcutInfoCompatSaver;
     }
 
+    @SuppressWarnings("deprecation")
     private static List<ShortcutInfoChangeListener> getShortcutInfoListeners(Context context) {
         if (sShortcutInfoChangeListeners == null) {
             List<ShortcutInfoChangeListener> result = new ArrayList<>();
@@ -907,10 +908,10 @@ public class ShortcutManagerCompat {
     private static List<ShortcutInfoCompat> removeShortcutsExcludedFromSurface(
             @NonNull final List<ShortcutInfoCompat> shortcuts, final int surfaces) {
         Objects.requireNonNull(shortcuts);
-        if (Build.VERSION.SDK_INT > 31) return shortcuts;
+        if (Build.VERSION.SDK_INT > 32) return shortcuts;
         final List<ShortcutInfoCompat> clone = new ArrayList<>(shortcuts);
         for (ShortcutInfoCompat si: shortcuts) {
-            if (si.isExcludedFrom(surfaces)) {
+            if (si.isExcludedFromSurfaces(surfaces)) {
                 clone.remove(si);
             }
         }

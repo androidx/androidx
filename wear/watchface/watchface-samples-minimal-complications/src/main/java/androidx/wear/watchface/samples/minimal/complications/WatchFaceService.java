@@ -18,6 +18,7 @@ package androidx.wear.watchface.samples.minimal.complications;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.RectF;
 import android.view.SurfaceHolder;
 
@@ -43,9 +44,14 @@ import org.jetbrains.annotations.NotNull;
 
 /** The service hosting the watch face. */
 public class WatchFaceService extends ListenableWatchFaceService {
-
-    public static final int COMPLICATION_ID = 1;
     public static final RectF COMPLICATION_BOUNDS = new RectF(.3f, 0.7f, .7f, .9f);
+
+    /**
+     * Returns complication id that was specified in XML.
+     */
+    public static int getComplicationId(@NonNull Resources resources) {
+        return resources.getInteger(R.integer.complication_slot_id);
+    }
 
     @NotNull
     @Override
@@ -72,7 +78,8 @@ public class WatchFaceService extends ListenableWatchFaceService {
 
     @NotNull
     @Override
-    public ComplicationSlotInflationFactory getComplicationSlotInflationFactory() {
+    public ComplicationSlotInflationFactory getComplicationSlotInflationFactory(
+            @NonNull CurrentUserStyleRepository currentUserStyleRepository) {
         final Context context = this;
         return new ComplicationSlotInflationFactory() {
             @NonNull

@@ -16,9 +16,8 @@
 
 package androidx.wear.watchface.client
 
+import androidx.wear.watchface.data.DeviceConfig as WireDeviceConfig
 import androidx.annotation.RestrictTo
-
-typealias WireDeviceConfig = androidx.wear.watchface.data.DeviceConfig
 
 /**
  * Describes the hardware configuration of the device the watch face is running on.
@@ -46,6 +45,42 @@ public class DeviceConfig(
         analogPreviewReferenceTimeMillis,
         digitalPreviewReferenceTimeMillis
     )
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as DeviceConfig
+
+        if (hasLowBitAmbient != other.hasLowBitAmbient) {
+            return false
+        }
+        if (hasBurnInProtection != other.hasBurnInProtection) {
+            return false
+        }
+        if (analogPreviewReferenceTimeMillis != other.analogPreviewReferenceTimeMillis) {
+            return false
+        }
+        if (digitalPreviewReferenceTimeMillis != other.digitalPreviewReferenceTimeMillis) {
+            return false
+        }
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = hasLowBitAmbient.hashCode()
+        result = 31 * result + hasBurnInProtection.hashCode()
+        result = 31 * result + analogPreviewReferenceTimeMillis.hashCode()
+        result = 31 * result + digitalPreviewReferenceTimeMillis.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "DeviceConfig(hasLowBitAmbient=$hasLowBitAmbient, " +
+            "hasBurnInProtection=$hasBurnInProtection, " +
+            "analogPreviewReferenceTimeMillis=$analogPreviewReferenceTimeMillis, " +
+            "digitalPreviewReferenceTimeMillis=$digitalPreviewReferenceTimeMillis)"
+    }
 }
 
 /** @hide */

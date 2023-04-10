@@ -17,6 +17,7 @@
 package androidx.health.services.client.impl.request
 
 import android.os.Parcelable
+import androidx.annotation.RestrictTo
 import androidx.health.services.client.data.ProtoParcelable
 import androidx.health.services.client.proto.RequestsProto
 
@@ -25,12 +26,12 @@ import androidx.health.services.client.proto.RequestsProto
  *
  * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class FlushRequest(public val packageName: String) :
     ProtoParcelable<RequestsProto.FlushRequest>() {
 
-    override val proto: RequestsProto.FlushRequest by lazy {
+    override val proto: RequestsProto.FlushRequest =
         RequestsProto.FlushRequest.newBuilder().setPackageName(packageName).build()
-    }
 
     public companion object {
         @JvmField

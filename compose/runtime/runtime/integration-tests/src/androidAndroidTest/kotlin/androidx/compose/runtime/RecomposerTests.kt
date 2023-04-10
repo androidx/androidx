@@ -19,6 +19,7 @@ package androidx.compose.runtime
 import android.view.View
 import android.widget.TextView
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.TestMonotonicFrameClock
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -30,7 +31,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -124,8 +126,8 @@ class RecomposerTests : BaseComposeTest() {
     }
 
     @Test
-    @OptIn(ExperimentalCoroutinesApi::class)
-    fun runningRecomposerFlow() = runBlockingTest {
+    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
+    fun runningRecomposerFlow() = runTest(UnconfinedTestDispatcher()) {
         lateinit var recomposer: RecomposerInfo
         val recomposerJob = launch(TestMonotonicFrameClock(this)) {
             withRunningRecomposer {

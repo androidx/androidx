@@ -70,8 +70,14 @@ import static android.content.Context.WINDOW_SERVICE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
+import android.Manifest;
 import android.accounts.AccountManager;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
@@ -87,12 +93,16 @@ import android.app.job.JobScheduler;
 import android.app.usage.UsageStatsManager;
 import android.appwidget.AppWidgetManager;
 import android.bluetooth.BluetoothManager;
+import android.content.BroadcastReceiver;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.RestrictionsManager;
 import android.content.pm.LauncherApps;
 import android.content.pm.PackageManager;
+import android.content.pm.PermissionInfo;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.hardware.ConsumerIrManager;
@@ -134,9 +144,13 @@ import android.view.accessibility.CaptioningManager;
 import android.view.inputmethod.InputMethodManager;
 import android.view.textservice.TextServicesManager;
 
+import androidx.annotation.OptIn;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.core.os.BuildCompat;
 import androidx.core.test.R;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -146,7 +160,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @LargeTest
 public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowActivity> {
     private Context mContext;
+    private IntentFilter mTestFilter = new IntentFilter();
+    private String mPermission;
+    private BroadcastReceiver mTestReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
 
+        }
+    };
     public ContextCompatTest() {
         super(ThemedYellowActivity.class);
     }
@@ -154,6 +175,7 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
     @Before
     public void setup() {
         mContext = mActivityTestRule.getActivity();
+        mPermission = mContext.getPackageName() + ".DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION";
     }
 
     @Test
@@ -445,6 +467,93 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
         return ((size * tdensity) + (sdensity >> 1)) / sdensity;
     }
 
+    @Test
+    public void testRegisterReceiver_noExportStateFlagThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> ContextCompat.registerReceiver(mContext,
+                mTestReceiver, mTestFilter, 0));
+    }
+
+    @Test
+    public void testRegisterReceiver_specifyBothExportStateFlagsThrowsException() {
+        assertThrows(IllegalArgumentException.class,
+                () -> ContextCompat.registerReceiver(mContext,
+                mTestReceiver, mTestFilter,
+                ContextCompat.RECEIVER_EXPORTED | ContextCompat.RECEIVER_NOT_EXPORTED));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 33)
+    public void testRegisterReceiverApi33() {
+        Context spyContext = spy(mContext);
+
+        ContextCompat.registerReceiver(spyContext, mTestReceiver, mTestFilter,
+                ContextCompat.RECEIVER_NOT_EXPORTED);
+        verify(spyContext).registerReceiver(eq(mTestReceiver), eq(mTestFilter), eq(null),
+                any(), eq(ContextCompat.RECEIVER_NOT_EXPORTED));
+
+        ContextCompat.registerReceiver(spyContext, mTestReceiver, mTestFilter,
+                ContextCompat.RECEIVER_EXPORTED);
+        verify(spyContext).registerReceiver(eq(mTestReceiver), eq(mTestFilter), eq(null), any(),
+                eq(ContextCompat.RECEIVER_EXPORTED));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26, maxSdkVersion = 32)
+    public void testRegisterReceiverApi26() {
+        Context spyContext = spy(mContext);
+
+        ContextCompat.registerReceiver(spyContext, mTestReceiver, mTestFilter,
+                ContextCompat.RECEIVER_NOT_EXPORTED);
+        verify(spyContext).registerReceiver(eq(mTestReceiver), eq(mTestFilter),
+                eq(mPermission), any());
+
+        ContextCompat.registerReceiver(spyContext, mTestReceiver, mTestFilter,
+                ContextCompat.RECEIVER_EXPORTED);
+        verify(spyContext).registerReceiver(eq(mTestReceiver), eq(mTestFilter), eq(null), any(),
+                eq(0));
+
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 32)
+    public void testRegisterReceiverPermissionNotGrantedApi26() {
+        InstrumentationRegistry
+                .getInstrumentation().getUiAutomation().adoptShellPermissionIdentity();
+        assertThrows(RuntimeException.class,
+                () -> ContextCompat.registerReceiver(mContext,
+                        mTestReceiver, mTestFilter, ContextCompat.RECEIVER_NOT_EXPORTED));
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = 25)
+    public void testRegisterReceiver() {
+        Context spyContext = spy(mContext);
+
+        ContextCompat.registerReceiver(spyContext, mTestReceiver, mTestFilter,
+                ContextCompat.RECEIVER_NOT_EXPORTED);
+        verify(spyContext).registerReceiver(eq(mTestReceiver), eq(mTestFilter), eq(mPermission),
+                any());
+
+        ContextCompat.registerReceiver(spyContext, mTestReceiver, mTestFilter,
+                ContextCompat.RECEIVER_EXPORTED);
+        verify(spyContext).registerReceiver(eq(mTestReceiver), eq(mTestFilter), eq(null), any());
+    }
+
+    @Test
+    public void testRegisterReceiver_mergedPermission_hasSignatureProtectionLevel()
+            throws Exception {
+        // Packages registering unexported runtime receivers on pre-T devices will have their
+        // receiver protected by a permission; to ensure other apps on the device cannot send a
+        // broadcast to these receivers, the permission must be declared with the signature
+        // protectionLevel.
+        PermissionInfo permissionInfo =
+                mContext.getPackageManager().getPermissionInfo(mPermission, 0);
+
+        assertEquals("The permission guarding unexported runtime receivers must have the "
+                + "signature protectionLevel.", PermissionInfo.PROTECTION_SIGNATURE,
+                permissionInfo.protectionLevel);
+    }
+
     @Test(expected = NullPointerException.class)
     public void testCheckSelfPermissionNull() {
         ContextCompat.checkSelfPermission(mContext, null);
@@ -473,5 +582,23 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
         assertEquals("Delete packages permission denied", PackageManager.PERMISSION_DENIED,
                 ContextCompat.checkSelfPermission(mContext,
                         android.Manifest.permission.DELETE_PACKAGES));
+    }
+
+    @Test
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
+    public void testCheckSelfPermissionNotificationPermission() {
+        if (BuildCompat.isAtLeastT()) {
+            assertEquals(
+                    mContext.checkCallingPermission(Manifest.permission.POST_NOTIFICATIONS),
+                    ContextCompat.checkSelfPermission(
+                            mContext,
+                            Manifest.permission.POST_NOTIFICATIONS));
+        } else {
+            assertEquals("Notification permission allowed by default on devices <= SDK 32",
+                    NotificationManagerCompat.from(mContext).areNotificationsEnabled()
+                            ? PackageManager.PERMISSION_GRANTED : PackageManager.PERMISSION_DENIED,
+                    ContextCompat.checkSelfPermission(mContext,
+                            Manifest.permission.POST_NOTIFICATIONS));
+        }
     }
 }

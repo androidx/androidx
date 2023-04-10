@@ -15,7 +15,6 @@
  */
 package androidx.fragment.app
 
-import android.app.Instrumentation
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
@@ -28,9 +27,11 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 
 @SmallTest
@@ -38,25 +39,24 @@ import org.junit.runner.RunWith
 class FragmentReorderingTest() {
 
     @Suppress("DEPRECATION")
-    @get:Rule
     var activityRule = androidx.test.rule.ActivityTestRule(FragmentTestActivity::class.java)
 
-    private lateinit var container: ViewGroup
-    private lateinit var fm: FragmentManager
-    private lateinit var instrumentation: Instrumentation
+    // Detect leaks BEFORE and AFTER activity is destroyed
+    @get:Rule
+    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
+        .around(activityRule)
 
     @Before
     fun setup() {
         activityRule.setContentView(R.layout.simple_container)
-        container = activityRule.activity.findViewById<View>(R.id.fragmentContainer) as ViewGroup
-        fm = activityRule.activity.supportFragmentManager
-        instrumentation = InstrumentationRegistry.getInstrumentation()
     }
 
     // Ensure that a replaced fragment is stopped before its replacement is started
     // and vice versa when popped
     @Test
     fun stopBeforeStart() {
+        val fm = activityRule.activity.supportFragmentManager
+
         val fragment1 = StrictViewFragment()
         fm.beginTransaction()
             .add(R.id.fragmentContainer, fragment1)
@@ -67,7 +67,7 @@ class FragmentReorderingTest() {
         val fragment2 = StrictViewFragment()
         lateinit var replaceStateWhenStopped: Lifecycle.State
         lateinit var replaceStateWhenPopStarted: Lifecycle.State
-        instrumentation.runOnMainSync {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
             fragment1.lifecycle.addObserver(
                 LifecycleEventObserver { _, event ->
                     if (event == Lifecycle.Event.ON_STOP) {
@@ -104,6 +104,11 @@ class FragmentReorderingTest() {
     // actually creates a View.
     @Test
     fun addReplace() {
+        val container =
+            activityRule.activity.findViewById<View>(R.id.fragmentContainer) as ViewGroup
+        val fm = activityRule.activity.supportFragmentManager
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+
         val fragment1 = CountCallsFragment()
         val fragment2 = StrictViewFragment()
         instrumentation.runOnMainSync {
@@ -134,6 +139,10 @@ class FragmentReorderingTest() {
     // the same view back again.
     @Test
     fun startWithPop() {
+        val container =
+            activityRule.activity.findViewById<View>(R.id.fragmentContainer) as ViewGroup
+        val fm = activityRule.activity.supportFragmentManager
+
         // Start with a single fragment on the back stack
         val fragment1 = CountCallsFragment()
         fm.beginTransaction()
@@ -146,7 +155,7 @@ class FragmentReorderingTest() {
         assertChildren(container, fragment1)
 
         // Now pop and add
-        instrumentation.runOnMainSync {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
             fm.popBackStack()
             fm.beginTransaction()
                 .add(R.id.fragmentContainer, fragment1)
@@ -166,9 +175,12 @@ class FragmentReorderingTest() {
     // Popping the back stack in the middle of other operations doesn't fool it.
     @Test
     fun middlePop() {
+        val container =
+            activityRule.activity.findViewById<View>(R.id.fragmentContainer) as ViewGroup
+        val fm = activityRule.activity.supportFragmentManager
         val fragment1 = CountCallsFragment()
         val fragment2 = CountCallsFragment()
-        instrumentation.runOnMainSync {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
             fm.beginTransaction()
                 .add(R.id.fragmentContainer, fragment1)
                 .addToBackStack(null)
@@ -195,9 +207,12 @@ class FragmentReorderingTest() {
     // View being created. Hide still gets notified.
     @Test
     fun removeRedundantRemove() {
+        val container =
+            activityRule.activity.findViewById<View>(R.id.fragmentContainer) as ViewGroup
+        val fm = activityRule.activity.supportFragmentManager
         val fragment1 = CountCallsFragment()
         var id = -1
-        instrumentation.runOnMainSync {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
             id = fm.beginTransaction()
                 .add(R.id.fragmentContainer, fragment1)
                 .addToBackStack(null)
@@ -234,6 +249,9 @@ class FragmentReorderingTest() {
     // Ensure that removing and adding the same view results in no operation
     @Test
     fun removeRedundantAdd() {
+        val container =
+            activityRule.activity.findViewById<View>(R.id.fragmentContainer) as ViewGroup
+        val fm = activityRule.activity.supportFragmentManager
         val fragment1 = CountCallsFragment()
         val id = fm.beginTransaction()
             .add(R.id.fragmentContainer, fragment1)
@@ -243,7 +261,7 @@ class FragmentReorderingTest() {
         activityRule.executePendingTransactions()
         assertThat(fragment1.onCreateViewCount).isEqualTo(1)
 
-        instrumentation.runOnMainSync {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
             fm.beginTransaction()
                 .remove(fragment1)
                 .addToBackStack(null)
@@ -271,6 +289,9 @@ class FragmentReorderingTest() {
     // detaching, then attaching results in on change. Hide still functions
     @Test
     fun removeRedundantAttach() {
+        val container =
+            activityRule.activity.findViewById<View>(R.id.fragmentContainer) as ViewGroup
+        val fm = activityRule.activity.supportFragmentManager
         val fragment1 = CountCallsFragment()
         val id = fm.beginTransaction()
             .add(R.id.fragmentContainer, fragment1)
@@ -281,7 +302,7 @@ class FragmentReorderingTest() {
         assertThat(fragment1.onAttachCount).isEqualTo(1)
         assertChildren(container, fragment1)
 
-        instrumentation.runOnMainSync {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
             fm.beginTransaction()
                 .detach(fragment1)
                 .addToBackStack(null)
@@ -325,6 +346,9 @@ class FragmentReorderingTest() {
     // attaching, then detaching shouldn't result in a View being created
     @Test
     fun removeRedundantDetach() {
+        val container =
+            activityRule.activity.findViewById<View>(R.id.fragmentContainer) as ViewGroup
+        val fm = activityRule.activity.supportFragmentManager
         val fragment1 = CountCallsFragment()
         val id = fm.beginTransaction()
             .add(R.id.fragmentContainer, fragment1)
@@ -341,7 +365,7 @@ class FragmentReorderingTest() {
         assertThat(fragment1.onCreateViewCount).isEqualTo(0)
         assertChildren(container)
 
-        instrumentation.runOnMainSync {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
             fm.beginTransaction()
                 .attach(fragment1)
                 .addToBackStack(null)
@@ -383,6 +407,10 @@ class FragmentReorderingTest() {
     // show, then hide should optimize out
     @Test
     fun removeRedundantHide() {
+        val container =
+            activityRule.activity.findViewById<View>(R.id.fragmentContainer) as ViewGroup
+        val fm = activityRule.activity.supportFragmentManager
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
         val fragment1 = CountCallsFragment()
         val id = fm.beginTransaction()
             .add(R.id.fragmentContainer, fragment1)
@@ -494,6 +522,9 @@ class FragmentReorderingTest() {
     // hiding and showing the same view should optimize out
     @Test
     fun removeRedundantShow() {
+        val container =
+            activityRule.activity.findViewById<View>(R.id.fragmentContainer) as ViewGroup
+        val fm = activityRule.activity.supportFragmentManager
         val fragment1 = CountCallsFragment()
         val id = fm.beginTransaction()
             .add(R.id.fragmentContainer, fragment1)
@@ -505,7 +536,7 @@ class FragmentReorderingTest() {
         assertThat(fragment1.onHideCount).isEqualTo(0)
         assertChildren(container, fragment1)
 
-        instrumentation.runOnMainSync {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
             fm.beginTransaction()
                 .hide(fragment1)
                 .addToBackStack(null)
@@ -544,6 +575,9 @@ class FragmentReorderingTest() {
     // the transaction completes.
     @Test
     fun viewOrder() {
+        val container =
+            activityRule.activity.findViewById<View>(R.id.fragmentContainer) as ViewGroup
+        val fm = activityRule.activity.supportFragmentManager
         val fragment1 = CountCallsFragment()
         val id = fm.beginTransaction()
             .add(R.id.fragmentContainer, fragment1)
@@ -555,7 +589,7 @@ class FragmentReorderingTest() {
 
         val fragment2 = CountCallsFragment()
 
-        instrumentation.runOnMainSync {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
             fm.beginTransaction()
                 .replace(R.id.fragmentContainer, fragment2)
                 .addToBackStack(null)
@@ -578,8 +612,11 @@ class FragmentReorderingTest() {
     // Popping an added transaction results in no operation
     @Test
     fun addPopBackStack() {
+        val container =
+            activityRule.activity.findViewById<View>(R.id.fragmentContainer) as ViewGroup
+        val fm = activityRule.activity.supportFragmentManager
         val fragment1 = CountCallsFragment()
-        instrumentation.runOnMainSync {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
             fm.beginTransaction()
                 .add(R.id.fragmentContainer, fragment1)
                 .addToBackStack(null)
@@ -598,9 +635,12 @@ class FragmentReorderingTest() {
     // optimization.
     @Test
     fun popNonBackStack() {
+        val container =
+            activityRule.activity.findViewById<View>(R.id.fragmentContainer) as ViewGroup
+        val fm = activityRule.activity.supportFragmentManager
         val fragment1 = CountCallsFragment()
         val fragment2 = CountCallsFragment()
-        instrumentation.runOnMainSync {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
             fm.beginTransaction()
                 .add(R.id.fragmentContainer, fragment1)
                 .addToBackStack(null)
@@ -623,9 +663,12 @@ class FragmentReorderingTest() {
     // transaction should all be run prior to running the ordered transaction.
     @Test
     fun noReordering() {
+        val container =
+            activityRule.activity.findViewById<View>(R.id.fragmentContainer) as ViewGroup
+        val fm = activityRule.activity.supportFragmentManager
         val fragment1 = CountCallsFragment()
         val fragment2 = CountCallsFragment()
-        instrumentation.runOnMainSync {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
             fm.beginTransaction()
                 .add(R.id.fragmentContainer, fragment1)
                 .addToBackStack(null)
@@ -649,7 +692,9 @@ class FragmentReorderingTest() {
     @Test
     fun focusedView() {
         activityRule.setContentView(R.layout.double_container)
-        container = activityRule.activity.findViewById<View>(R.id.fragmentContainer1) as ViewGroup
+        val fm = activityRule.activity.supportFragmentManager
+        val container =
+            activityRule.activity.findViewById<View>(R.id.fragmentContainer1) as ViewGroup
         lateinit var firstEditText: EditText
         activityRule.runOnUiThread {
             firstEditText = EditText(container.context)

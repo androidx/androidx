@@ -18,6 +18,7 @@ package androidx.media.session;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import android.app.ForegroundServiceStartNotAllowedException;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -35,9 +36,11 @@ import android.support.v4.media.session.PlaybackStateCompat.MediaKeyAction;
 import android.util.Log;
 import android.view.KeyEvent;
 
+import androidx.annotation.DoNotInline;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
-import androidx.core.os.BuildCompat;
 import androidx.media.MediaBrowserServiceCompat;
 
 import java.util.List;
@@ -113,7 +116,17 @@ public class MediaButtonReceiver extends BroadcastReceiver {
                 getServiceComponentByAction(context, Intent.ACTION_MEDIA_BUTTON);
         if (mediaButtonServiceComponentName != null) {
             intent.setComponent(mediaButtonServiceComponentName);
-            ContextCompat.startForegroundService(context, intent);
+            try {
+                ContextCompat.startForegroundService(context, intent);
+            } catch (/* ForegroundServiceStartNotAllowedException */ IllegalStateException e) {
+                if (Build.VERSION.SDK_INT >= 31
+                        && Api31.instanceOfForegroundServiceStartNotAllowedException(e)) {
+                    onForegroundServiceStartNotAllowedException(intent,
+                            Api31.castToForegroundServiceStartNotAllowedException(e));
+                } else {
+                    throw e;
+                }
+            }
             return;
         }
         ComponentName mediaBrowserServiceComponentName = getServiceComponentByAction(context,
@@ -131,6 +144,41 @@ public class MediaButtonReceiver extends BroadcastReceiver {
         }
         throw new IllegalStateException("Could not find any Service that handles "
                 + Intent.ACTION_MEDIA_BUTTON + " or implements a media browser service.");
+    }
+
+    /**
+     * This method is called when an exception is thrown when calling {@link
+     * Context#startForegroundService(Intent)} as a result of receiving a media button event.
+     *
+     * <p>By default, this method only logs the exception and it can be safely overridden. Apps
+     * that find that such a media button event has been legitimately sent, may choose to
+     * override this method and take the opportunity to post a notification from where the user
+     * journey can continue.
+     *
+     * <p>This exception can be thrown if a broadcast media button event is received and a media
+     * service is found in the manifest that is registered to handle {@link
+     * Intent#ACTION_MEDIA_BUTTON}. If this happens on API 31+ and the app is in the background then
+     * an exception is thrown.
+     *
+     * <p>Normally, a media button intent should only be required to be sent by the system in case
+     * of a Bluetooth media button event that wants to restart the app. However, in such a case the
+     * app gets an exemption and is allowed to start the foreground service. In this case this
+     * method will never be called.
+     *
+     * <p>In all other cases, apps should use a {@linkplain MediaBrowserCompat media browser} to
+     * bind to and start the service instead of broadcasting an intent.
+     *
+     * @param intent The intent that was used {@linkplain Context#startForegroundService(Intent)
+     *               for starting the foreground service}.
+     * @param e      The exception thrown by the system and caught by this broadcast receiver.
+     */
+    @RequiresApi(31)
+    protected void onForegroundServiceStartNotAllowedException(
+            @NonNull Intent intent, @NonNull ForegroundServiceStartNotAllowedException e) {
+        Log.e(
+                TAG,
+                "caught exception when trying to start a foreground service from the "
+                        + "background: " + e.getMessage());
     }
 
     private static class MediaButtonConnectionCallback extends
@@ -151,6 +199,7 @@ public class MediaButtonReceiver extends BroadcastReceiver {
             mMediaBrowser = mediaBrowser;
         }
 
+        @SuppressWarnings("deprecation")
         @Override
         public void onConnected() {
             MediaControllerCompat mediaController = new MediaControllerCompat(mContext,
@@ -187,6 +236,7 @@ public class MediaButtonReceiver extends BroadcastReceiver {
      * @param intent The intent to parse.
      * @return The extracted {@link KeyEvent} if found, or null.
      */
+    @SuppressWarnings("deprecation")
     public static KeyEvent handleIntent(MediaSessionCompat mediaSessionCompat, Intent intent) {
         if (mediaSessionCompat == null || intent == null
                 || !Intent.ACTION_MEDIA_BUTTON.equals(intent.getAction())
@@ -272,7 +322,7 @@ public class MediaButtonReceiver extends BroadcastReceiver {
             intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
         }
         return PendingIntent.getBroadcast(context, keyCode, intent,
-                BuildCompat.isAtLeastS() ? PendingIntent.FLAG_MUTABLE : 0);
+                Build.VERSION.SDK_INT >= 31 ? PendingIntent.FLAG_MUTABLE : 0);
     }
 
     /**
@@ -295,6 +345,7 @@ public class MediaButtonReceiver extends BroadcastReceiver {
         return null;
     }
 
+    @SuppressWarnings("deprecation")
     private static ComponentName getServiceComponentByAction(Context context, String action) {
         PackageManager pm = context.getPackageManager();
         Intent queryIntent = new Intent(action);
@@ -309,6 +360,30 @@ public class MediaButtonReceiver extends BroadcastReceiver {
         } else {
             throw new IllegalStateException("Expected 1 service that handles " + action + ", found "
                     + resolveInfos.size());
+        }
+    }
+
+    @RequiresApi(31)
+    private static final class Api31 {
+        /**
+         * Returns true if the passed exception is a
+         * {@link ForegroundServiceStartNotAllowedException}.
+         */
+        @DoNotInline
+        public static boolean instanceOfForegroundServiceStartNotAllowedException(
+                IllegalStateException e) {
+            return e instanceof ForegroundServiceStartNotAllowedException;
+        }
+
+        /**
+         * Casts the {@link IllegalStateException} to a
+         * {@link ForegroundServiceStartNotAllowedException} and throws an exception if the cast
+         * fails.
+         */
+        @DoNotInline
+        public static ForegroundServiceStartNotAllowedException
+                castToForegroundServiceStartNotAllowedException(IllegalStateException e) {
+            return (ForegroundServiceStartNotAllowedException) e;
         }
     }
 }

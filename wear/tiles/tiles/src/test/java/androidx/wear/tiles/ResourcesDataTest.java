@@ -20,7 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Parcel;
 
-import androidx.wear.tiles.proto.ResourceProto.Resources;
+import androidx.wear.protolayout.proto.ResourceProto.Resources;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

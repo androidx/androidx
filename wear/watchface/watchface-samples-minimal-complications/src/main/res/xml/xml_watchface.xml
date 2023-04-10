@@ -16,7 +16,7 @@
 <XmlWatchFace xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <ComplicationSlot
-        app:slotId="1"
+        app:slotId="@integer/complication_slot_id"
         app:boundsType="ROUND_RECT"
         app:supportedTypes="SHORT_TEXT|RANGED_VALUE|SMALL_IMAGE"
         app:systemDataSourceFallback="DATA_SOURCE_WATCH_BATTERY"

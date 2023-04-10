@@ -23,6 +23,8 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import androidx.annotation.NonNull;
+
 /**
  * A LinearLayout that preserves the focused child view.
  */
@@ -31,7 +33,7 @@ class PlaybackControlsRowView extends LinearLayout {
         /**
          * Returns true if the key event should be consumed.
          */
-        public boolean onUnhandledKey(KeyEvent event);
+        boolean onUnhandledKey(@NonNull KeyEvent event);
     }
 
     private OnUnhandledKeyListener mOnUnhandledKeyListener;

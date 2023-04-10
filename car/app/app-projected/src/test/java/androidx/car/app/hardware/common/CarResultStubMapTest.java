@@ -35,12 +35,14 @@ import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
@@ -49,6 +51,8 @@ import java.util.concurrent.Executor;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class CarResultStubMapTest {
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
 
     @Mock
     private ICarHost mMockCarHost;
@@ -77,7 +81,6 @@ public class CarResultStubMapTest {
 
     @Before
     public void setUp() throws RemoteException {
-        MockitoAnnotations.initMocks(this);
         // Perform after mocks initialized.
         mCarHardwareHost = new TestCarHardwareHostStub(mMockCarHardwareHost);
 
@@ -92,7 +95,7 @@ public class CarResultStubMapTest {
         Integer desiredResult = 5;
         Bundleable desiredBundleable = Bundleable.create(desiredResult);
         int desiredResultType = ICarHardwareResultTypes.TYPE_SENSOR_ACCELEROMETER;
-        Integer unsupportedResult = new Integer(-1);
+        Integer unsupportedResult = -1;
         String param = "param";
         Bundleable paramBundle = Bundleable.create(param);
 
@@ -121,7 +124,7 @@ public class CarResultStubMapTest {
         Integer desiredResult = 5;
         Bundleable desiredBundleable = Bundleable.create(desiredResult);
         int desiredResultType = ICarHardwareResultTypes.TYPE_SENSOR_ACCELEROMETER;
-        Integer unsupportedResult = new Integer(-1);
+        Integer unsupportedResult = -1;
         String param = "param";
         Bundleable paramBundle = Bundleable.create(param);
 
@@ -193,7 +196,7 @@ public class CarResultStubMapTest {
     public void addListener_multiple_listener_multiple_param() throws BundlerException,
             RemoteException {
         int desiredResultType = ICarHardwareResultTypes.TYPE_SENSOR_ACCELEROMETER;
-        Integer unsupportedResult = new Integer(-1);
+        Integer unsupportedResult = -1;
 
         CarResultStubMap<Integer, Integer> carResultStubMap = new CarResultStubMap<>(
                 desiredResultType,

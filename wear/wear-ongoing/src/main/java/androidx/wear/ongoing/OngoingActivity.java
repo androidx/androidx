@@ -15,6 +15,7 @@
  */
 package androidx.wear.ongoing;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -28,6 +29,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresPermission;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.LocusIdCompat;
 import androidx.core.util.Preconditions;
@@ -67,7 +69,6 @@ import java.util.function.Predicate;
  * It's worth mentioning that the information provided may be used/redered differently on different
  * SysUIs, so we can only provide a general expectation.
  */
-@RequiresApi(24)
 public final class OngoingActivity {
     @Nullable
     private final String mTag;
@@ -120,6 +121,7 @@ public final class OngoingActivity {
         private int mOngoingActivityId = DEFAULT_ID;
         private String mCategory;
         private String mTitle;
+        private String mContentDescription;
 
         static final int DEFAULT_ID = -1;
 
@@ -288,6 +290,19 @@ public final class OngoingActivity {
         }
 
         /**
+         * Sets the content description of this {@link OngoingActivity}. If this is set to a
+         * non-null value, it could be used by accesibility services to describe the ongoing
+         * activity.
+         * <p>
+         * No defaults from the notification are used for this field.
+         */
+        @NonNull
+        public Builder setContentDescription(@Nullable String contentDescription) {
+            mContentDescription = contentDescription;
+            return this;
+        }
+
+        /**
          * Combine all options provided and the information in the notification if needed,
          * return a new {@link OngoingActivity} object. See particular setters for information on
          * what defaults from the notification are used.
@@ -336,7 +351,8 @@ public final class OngoingActivity {
                         mOngoingActivityId,
                         category,
                         SystemClock.elapsedRealtime(),
-                        mTitle
+                        mTitle,
+                        mContentDescription
                     ));
         }
     }
@@ -440,6 +456,14 @@ public final class OngoingActivity {
     }
 
     /**
+     * Get the content description of this {@link OngoingActivity} if set.
+     */
+    @Nullable
+    public String getContentDescription() {
+        return mData.getContentDescription();
+    }
+
+    /**
      * Notify the system that this activity should be shown as an Ongoing Activity.
      *
      * This will modify the notification builder associated with this Ongoing Activity, so needs
@@ -462,6 +486,7 @@ public final class OngoingActivity {
      *                this call returns.
      * @param status  The new status of this Ongoing Activity.
      */
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     public void update(@NonNull Context context, @NonNull Status status) {
         Preconditions.checkNotNull(mNotificationBuilder);
         mData.setStatus(status.toVersionedParcelable());

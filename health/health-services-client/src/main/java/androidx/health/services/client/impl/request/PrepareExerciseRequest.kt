@@ -17,6 +17,7 @@
 package androidx.health.services.client.impl.request
 
 import android.os.Parcelable
+import androidx.annotation.RestrictTo
 import androidx.health.services.client.data.ProtoParcelable
 import androidx.health.services.client.data.WarmUpConfig
 import androidx.health.services.client.proto.RequestsProto
@@ -26,17 +27,17 @@ import androidx.health.services.client.proto.RequestsProto
  *
  * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PrepareExerciseRequest(
     public val packageName: String,
     public val warmUpConfig: WarmUpConfig,
 ) : ProtoParcelable<RequestsProto.PrepareExerciseRequest>() {
 
-    override val proto: RequestsProto.PrepareExerciseRequest by lazy {
+    override val proto: RequestsProto.PrepareExerciseRequest =
         RequestsProto.PrepareExerciseRequest.newBuilder()
             .setPackageName(packageName)
             .setConfig(warmUpConfig.proto)
             .build()
-    }
 
     public companion object {
         @JvmField

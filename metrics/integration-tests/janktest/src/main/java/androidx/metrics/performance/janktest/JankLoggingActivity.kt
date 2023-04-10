@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.metrics.performance.PerformanceMetricsState
 import androidx.metrics.performance.FrameData
 import androidx.metrics.performance.JankStats
 import androidx.metrics.performance.janktest.databinding.ActivityMainBinding
@@ -27,7 +28,6 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
-import java.util.concurrent.Executors
 
 /**
  * This activity shows the basic usage of JankStats, from creating and enabling it to track
@@ -40,17 +40,15 @@ class JankLoggingActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     lateinit var jankStats: JankStats
 
-    lateinit var jankStatsAggregator: JankStatsAggregator
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val executor = Executors.newSingleThreadExecutor()
 
-        jankStats = JankStats.create(binding.root, executor, jankFrameListener)
-        jankStats.addState("Activity", javaClass.simpleName)
+        jankStats = JankStats.createAndTrack(window, jankFrameListener)
+        val metricsStateHolder = PerformanceMetricsState.getHolderForHierarchy(binding.root)
+        metricsStateHolder.state?.putState("Activity", javaClass.simpleName)
 
         setSupportActionBar(binding.toolbar)
 
@@ -60,15 +58,8 @@ class JankLoggingActivity : AppCompatActivity() {
     }
 
     object jankFrameListener : JankStats.OnFrameListener {
-
-        override fun onFrame(frameData: FrameData) {
-            println(
-                "*** Jank frame start, duration, jank = ${frameData.frameStartNanos}, " +
-                    "${frameData.frameDurationNanos}, ${frameData.isJank}"
-            )
-            for (state in frameData.states) {
-                println("    ${state.stateName}: ${state.state}")
-            }
+        override fun onFrame(volatileFrameData: FrameData) {
+            println("JankStats.OnFrameListener: $volatileFrameData")
         }
     }
 
@@ -79,7 +70,6 @@ class JankLoggingActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        jankStatsAggregator.issueJankReport("Activity paused")
         jankStats.isTrackingEnabled = false
     }
 

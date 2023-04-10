@@ -18,11 +18,10 @@ package androidx.wear.watchface.control
 
 import android.annotation.SuppressLint
 import androidx.annotation.UiThread
+import androidx.annotation.VisibleForTesting
 import androidx.wear.watchface.utility.TraceEvent
 import androidx.wear.watchface.IndentingPrintWriter
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 
 /** Keeps track of [InteractiveWatchFaceImpl]s. */
 internal class InteractiveInstanceManager {
@@ -53,6 +52,11 @@ internal class InteractiveInstanceManager {
         private val pendingWallpaperInteractiveWatchFaceInstanceLock = Any()
         private var pendingWallpaperInteractiveWatchFaceInstance:
             PendingWallpaperInteractiveWatchFaceInstance? = null
+
+        @VisibleForTesting
+        fun getInstances() = synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
+            instances.map { it.key }
+        }
 
         @SuppressLint("SyntheticAccessor")
         fun addInstance(impl: InteractiveWatchFaceImpl) {
@@ -112,34 +116,23 @@ internal class InteractiveInstanceManager {
         fun getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
             value: PendingWallpaperInteractiveWatchFaceInstance
         ): IInteractiveWatchFace? {
-            synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
+            val impl = synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
                 val instance = instances[value.params.instanceId]
-                return if (instance != null) {
-                    // The system on reboot will use this to connect to an existing watch face, we
-                    // need to ensure there isn't a skew between the style the watch face actually
-                    // has and what the system thinks we should have. Note runBlocking is safe here
-                    // because we never await.
-                    val engine = instance.impl.engine!!
-                    runBlocking {
-                        withContext(engine.uiThreadCoroutineScope.coroutineContext) {
-                            if (engine.deferredWatchFaceImpl.isCompleted) {
-                                // setUserStyle awaits deferredWatchFaceImpl but it's completed.
-                                engine.setUserStyle(value.params.userStyle)
-                            } else {
-                                // Defer the UI update until deferredWatchFaceImpl is about to
-                                // complete.
-                                engine.pendingUserStyle = value.params.userStyle
-                            }
-                        }
-                    }
-                    instance.impl
-                } else {
+                if (instance == null) {
                     TraceEvent("Set pendingWallpaperInteractiveWatchFaceInstance").use {
                         pendingWallpaperInteractiveWatchFaceInstance = value
                     }
-                    null
+                    return null
                 }
+                instance.impl
             }
+
+            // The system on reboot will use this to connect to an existing watch face, we need to
+            // ensure there isn't a skew between the style the watch face actually has and what the
+            // system thinks we should have. Note runBlocking is safe here because we never await.
+            val engine = impl.engine!!
+            engine.setUserStyle(value.params.userStyle)
+            return impl
         }
 
         /** Can be called on any thread. */

@@ -17,14 +17,27 @@
 package androidx.camera.camera2.pipe
 
 import androidx.annotation.RequiresApi
+import kotlin.reflect.KClass
 
 /**
+ * An interface for wrapper objects that should not normally be accessed directly.
+ *
  * This interface indicates that an object or interface wraps a specific Android object or type and
  * provides a way to retrieve the underlying object directly. Accessing the underlying objects can
- * be useful for compatibility and testing, but it is extremely risky if the lifetime of the object
- * is managed by Camera Pipe and the wrapped object is closed, released, or altered.
+ * be useful for compatibility and testing, but is extremely risky if the state or lifetime of the
+ * of the object is managed by CameraPipe.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public interface UnsafeWrapper<T> {
-    public fun unwrap(): T?
+public interface UnsafeWrapper {
+    /**
+     * Attempt to unwrap this object into an underlying type.
+     *
+     * This operation is not safe and should be used with caution as it makes no guarantees about
+     * the state of the underlying objects. In particular, implementations should assume that fakes,
+     * test wrappers will always return null. Finally this method should return null when unwrapping
+     * into the provided type is not supported.
+     *
+     * @return unwrapped object matching T or null
+     */
+    public fun <T : Any> unwrapAs(type: KClass<T>): T?
 }

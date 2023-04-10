@@ -38,7 +38,7 @@ import java.util.List;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public class WatchFaceRenderParams implements VersionedParcelable, Parcelable {
@@ -114,6 +114,7 @@ public class WatchFaceRenderParams implements VersionedParcelable, Parcelable {
 
     public static final Parcelable.Creator<WatchFaceRenderParams> CREATOR =
             new Parcelable.Creator<WatchFaceRenderParams>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public WatchFaceRenderParams createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

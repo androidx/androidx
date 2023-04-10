@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -30,7 +29,10 @@ dependencies {
 androidx {
     name = "Android Arch-Runtime"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.ARCH_CORE
     inceptionYear = "2017"
     description = "Android Arch-Runtime"
+}
+
+android {
+    namespace "androidx.arch.core"
 }

@@ -22,6 +22,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewFeature;
@@ -44,10 +45,10 @@ public class MediumInterstitialActivity extends AppCompatActivity {
 
     public static final String LAYOUT_HORIZONTAL = "layoutHorizontal";
     private static final int STRETCH_THIS_DIMENSION = 0;
-    private static final int MARGIN_DP = 5;
+    private static final int MARGIN_DP = 2;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // Decide whether to show the WebViews side-by-side ("tall") or stacked on top of each

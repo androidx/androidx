@@ -16,6 +16,7 @@
 
 package androidx.room.solver
 
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.processor.CustomConverterProcessor
@@ -136,7 +137,8 @@ class TypeConverterStoreTest {
     private fun TypeConverter.toSignature(): String {
         return when (this) {
             is CompositeTypeConverter -> "${conv1.toSignature()} : ${conv2.toSignature()}"
-            else -> "${from.typeName} -> ${to.typeName}"
+            else -> from.asTypeName().toString(CodeLanguage.JAVA) + " -> " +
+                to.asTypeName().toString(CodeLanguage.JAVA)
         }
     }
 }

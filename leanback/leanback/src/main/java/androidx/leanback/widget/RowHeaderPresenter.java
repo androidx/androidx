@@ -22,6 +22,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.leanback.R;
 
@@ -91,7 +93,7 @@ public class RowHeaderPresenter extends Presenter {
          * Creating a new ViewHolder that supports title and description.
          * @param view Root of Views.
          */
-        public ViewHolder(View view) {
+        public ViewHolder(@NonNull View view) {
             super(view);
             mTitleView = (RowHeaderView)view.findViewById(R.id.row_header);
             mDescriptionView = (TextView)view.findViewById(R.id.row_header_description);
@@ -104,7 +106,7 @@ public class RowHeaderPresenter extends Presenter {
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
-        public ViewHolder(RowHeaderView view) {
+        public ViewHolder(@NonNull RowHeaderView view) {
             super(view);
             mTitleView = view;
             initColors();
@@ -124,8 +126,9 @@ public class RowHeaderPresenter extends Presenter {
         }
     }
 
+    @NonNull
     @Override
-    public Presenter.ViewHolder onCreateViewHolder(ViewGroup parent) {
+    public Presenter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent) {
         View root = LayoutInflater.from(parent.getContext())
                 .inflate(mLayoutResourceId, parent, false);
 
@@ -137,7 +140,7 @@ public class RowHeaderPresenter extends Presenter {
     }
 
     @Override
-    public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
+    public void onBindViewHolder(@NonNull Presenter.ViewHolder viewHolder, @Nullable Object item) {
         HeaderItem headerItem = item == null ? null : ((Row) item).getHeaderItem();
         RowHeaderPresenter.ViewHolder vh = (RowHeaderPresenter.ViewHolder)viewHolder;
         if (headerItem == null) {
@@ -170,7 +173,7 @@ public class RowHeaderPresenter extends Presenter {
     }
 
     @Override
-    public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
+    public void onUnbindViewHolder(@NonNull Presenter.ViewHolder viewHolder) {
         RowHeaderPresenter.ViewHolder vh = (ViewHolder)viewHolder;
         if (vh.mTitleView != null) {
             vh.mTitleView.setText(null);
@@ -187,7 +190,7 @@ public class RowHeaderPresenter extends Presenter {
     /**
      * Sets the select level.
      */
-    public final void setSelectLevel(ViewHolder holder, float selectLevel) {
+    public final void setSelectLevel(@NonNull ViewHolder holder, float selectLevel) {
         holder.mSelectLevel = selectLevel;
         onSelectLevelChanged(holder);
     }
@@ -195,7 +198,7 @@ public class RowHeaderPresenter extends Presenter {
     /**
      * Called when the select level changes.  The default implementation sets the alpha on the view.
      */
-    protected void onSelectLevelChanged(ViewHolder holder) {
+    protected void onSelectLevelChanged(@NonNull ViewHolder holder) {
         if (mAnimateSelect) {
             holder.view.setAlpha(holder.mUnselectAlpha + holder.mSelectLevel
                     * (1f - holder.mUnselectAlpha));
@@ -206,7 +209,7 @@ public class RowHeaderPresenter extends Presenter {
      * Returns the space (distance in pixels) below the baseline of the
      * text view, if one exists; otherwise, returns 0.
      */
-    public int getSpaceUnderBaseline(ViewHolder holder) {
+    public int getSpaceUnderBaseline(@NonNull ViewHolder holder) {
         int space = holder.view.getPaddingBottom();
         if (holder.view instanceof TextView) {
             space += (int) getFontDescent((TextView) holder.view, mFontMeasurePaint);
@@ -215,7 +218,10 @@ public class RowHeaderPresenter extends Presenter {
     }
 
     @SuppressWarnings("ReferenceEquality")
-    protected static float getFontDescent(TextView textView, Paint fontMeasurePaint) {
+    protected static float getFontDescent(
+            @NonNull TextView textView,
+            @NonNull Paint fontMeasurePaint
+    ) {
         if (fontMeasurePaint.getTextSize() != textView.getTextSize()) {
             fontMeasurePaint.setTextSize(textView.getTextSize());
         }

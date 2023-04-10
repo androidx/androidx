@@ -28,14 +28,17 @@ import android.view.Display
 import android.view.DisplayCutout
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
-import androidx.window.layout.ActivityCompatHelperApi30.currentWindowBounds
-import androidx.window.layout.ActivityCompatHelperApi24.isInMultiWindowMode
-import androidx.window.layout.ActivityCompatHelperApi30.maximumWindowBounds
-import androidx.window.layout.DisplayCompatHelperApi17.getRealSize
-import androidx.window.layout.DisplayCompatHelperApi28.safeInsetBottom
-import androidx.window.layout.DisplayCompatHelperApi28.safeInsetLeft
-import androidx.window.layout.DisplayCompatHelperApi28.safeInsetRight
-import androidx.window.layout.DisplayCompatHelperApi28.safeInsetTop
+import androidx.core.view.WindowInsetsCompat
+import androidx.window.core.Bounds
+import androidx.window.layout.util.ActivityCompatHelperApi24.isInMultiWindowMode
+import androidx.window.layout.util.ActivityCompatHelperApi30.currentWindowBounds
+import androidx.window.layout.util.ActivityCompatHelperApi30.currentWindowInsets
+import androidx.window.layout.util.ActivityCompatHelperApi30.maximumWindowBounds
+import androidx.window.layout.util.DisplayCompatHelperApi17.getRealSize
+import androidx.window.layout.util.DisplayCompatHelperApi28.safeInsetBottom
+import androidx.window.layout.util.DisplayCompatHelperApi28.safeInsetLeft
+import androidx.window.layout.util.DisplayCompatHelperApi28.safeInsetRight
+import androidx.window.layout.util.DisplayCompatHelperApi28.safeInsetTop
 import java.lang.reflect.InvocationTargetException
 
 /**
@@ -61,7 +64,13 @@ internal object WindowMetricsCalculatorCompat : WindowMetricsCalculator {
         } else {
             computeWindowBoundsIceCreamSandwich(activity)
         }
-        return WindowMetrics(bounds)
+        // TODO (b/233899790): compute insets for other platform versions below R
+        val windowInsetsCompat = if (Build.VERSION.SDK_INT >= VERSION_CODES.R) {
+            computeWindowInsetsCompat(activity)
+        } else {
+            WindowInsetsCompat.Builder().build()
+        }
+        return WindowMetrics(Bounds(bounds), windowInsetsCompat)
     }
 
     /**
@@ -79,7 +88,13 @@ internal object WindowMetricsCalculatorCompat : WindowMetricsCalculator {
             val displaySize = getRealSizeForDisplay(display)
             Rect(0, 0, displaySize.x, displaySize.y)
         }
-        return WindowMetrics(bounds)
+        // TODO (b/233899790): compute insets for other platform versions below R
+        val windowInsetsCompat = if (Build.VERSION.SDK_INT >= VERSION_CODES.R) {
+            computeWindowInsetsCompat(activity)
+        } else {
+            WindowInsetsCompat.Builder().build()
+        }
+        return WindowMetrics(Bounds(bounds), windowInsetsCompat)
     }
 
     /** Computes the window bounds for [Build.VERSION_CODES.Q].  */
@@ -266,7 +281,6 @@ internal object WindowMetricsCalculatorCompat : WindowMetricsCalculator {
      * Given that multi-window mode isn't supported before N we simply return the real display
      * size which should match the window size of a full-screen app.
      */
-    @RequiresApi(VERSION_CODES.ICE_CREAM_SANDWICH)
     internal fun computeWindowBoundsIceCreamSandwich(activity: Activity): Rect {
         // [WindowManager#getDefaultDisplay] is deprecated but we have this for
         // compatibility with older versions
@@ -298,7 +312,6 @@ internal object WindowMetricsCalculatorCompat : WindowMetricsCalculator {
      * @see Display.getRealSize
      */
     @VisibleForTesting
-    @RequiresApi(VERSION_CODES.ICE_CREAM_SANDWICH)
     internal fun getRealSizeForDisplay(display: Display): Point {
         val size = Point()
         if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {
@@ -378,5 +391,33 @@ internal object WindowMetricsCalculatorCompat : WindowMetricsCalculator {
             Log.w(TAG, e)
         }
         return displayCutout
+    }
+
+    /**
+     * [ArrayList] that defines different types of sources causing window insets.
+     */
+    internal val insetsTypeMasks: ArrayList<Int> = arrayListOf(
+        WindowInsetsCompat.Type.statusBars(),
+        WindowInsetsCompat.Type.navigationBars(),
+        WindowInsetsCompat.Type.captionBar(),
+        WindowInsetsCompat.Type.ime(),
+        WindowInsetsCompat.Type.systemGestures(),
+        WindowInsetsCompat.Type.mandatorySystemGestures(),
+        WindowInsetsCompat.Type.tappableElement(),
+        WindowInsetsCompat.Type.displayCutout()
+    )
+
+    /**
+     * Computes the current [WindowInsetsCompat] for a given [Activity].
+     */
+    @RequiresApi(VERSION_CODES.R)
+    internal fun computeWindowInsetsCompat(activity: Activity): WindowInsetsCompat {
+        val build = Build.VERSION.SDK_INT
+        val windowInsetsCompat = if (build >= VERSION_CODES.R) {
+            currentWindowInsets(activity)
+        } else {
+            throw Exception("Incompatible SDK version")
+        }
+        return windowInsetsCompat
     }
 }

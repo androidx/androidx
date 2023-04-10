@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.graphics.Matrix;
 import android.view.View;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -47,7 +48,7 @@ class ViewUtilsApi21 extends ViewUtilsApi19 {
             // Since this was an @hide method made public, we can link directly against it with
             // a try/catch for its absence instead of doing the same through reflection.
             try {
-                view.transformMatrixToGlobal(matrix);
+                Api29Impl.transformMatrixToGlobal(view, matrix);
             } catch (NoSuchMethodError e) {
                 sTryHiddenTransformMatrixToGlobal = false;
             }
@@ -61,7 +62,7 @@ class ViewUtilsApi21 extends ViewUtilsApi19 {
             // Since this was an @hide method made public, we can link directly against it with
             // a try/catch for its absence instead of doing the same through reflection.
             try {
-                view.transformMatrixToLocal(matrix);
+                Api29Impl.transformMatrixToLocal(view, matrix);
             } catch (NoSuchMethodError e) {
                 sTryHiddenTransformMatrixToLocal = false;
             }
@@ -75,11 +76,32 @@ class ViewUtilsApi21 extends ViewUtilsApi19 {
             // Since this was an @hide method made public, we can link directly against it with
             // a try/catch for its absence instead of doing the same through reflection.
             try {
-                view.setAnimationMatrix(matrix);
+                Api29Impl.setAnimationMatrix(view, matrix);
             } catch (NoSuchMethodError e) {
                 sTryHiddenSetAnimationMatrix = false;
             }
         }
     }
 
+    @RequiresApi(29)
+    static class Api29Impl {
+        private Api29Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void transformMatrixToGlobal(View view, Matrix matrix) {
+            view.transformMatrixToGlobal(matrix);
+        }
+
+        @DoNotInline
+        static void transformMatrixToLocal(View view, Matrix matrix) {
+            view.transformMatrixToLocal(matrix);
+        }
+
+        @DoNotInline
+        static void setAnimationMatrix(View view, Matrix matrix) {
+            view.setAnimationMatrix(matrix);
+        }
+    }
 }

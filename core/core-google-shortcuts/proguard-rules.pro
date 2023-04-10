@@ -16,5 +16,5 @@
 # loaded by reflection in androidx.core.content.pm.ShortcutManagerCompat
 -if public class androidx.core.content.pm.ShortcutManagerCompat
 -keep public class androidx.core.google.shortcuts.ShortcutInfoChangeListenerImpl extends androidx.core.content.pm.ShortcutInfoChangeListener {
-    public static ShortcutInfoChangeListenerImpl getInstance(...);
+    public static androidx.core.google.shortcuts.ShortcutInfoChangeListenerImpl getInstance(...);
 }

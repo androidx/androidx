@@ -18,14 +18,26 @@ package androidx.wear.watchface.style
 
 import android.content.res.Resources
 import android.content.res.XmlResourceParser
+import android.graphics.drawable.Icon
+import android.os.Build
 import androidx.annotation.RestrictTo
+import androidx.wear.watchface.complications.IllegalNodeException
+import androidx.wear.watchface.complications.iterate
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
+import androidx.wear.watchface.style.UserStyleSetting.Option
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.DataInputStream
+import java.io.DataOutputStream
+import java.io.IOException
+import java.io.OutputStream
+import java.security.DigestOutputStream
+import java.security.MessageDigest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
 
 /**
  * An immutable representation of user style choices that maps each [UserStyleSetting] to
@@ -64,6 +76,30 @@ public class UserStyle private constructor(
         selectedOptions: Map<UserStyleSetting, UserStyleSetting.Option>
     ) : this(selectedOptions, true)
 
+    /** Constructs this UserStyle from data serialized to a [ByteArray] by [toByteArray]. */
+    internal constructor(
+        byteArray: ByteArray,
+        styleSchema: UserStyleSchema
+    ) : this(
+        UserStyleData(
+            HashMap<String, ByteArray>().apply {
+                val bais = ByteArrayInputStream(byteArray)
+                val reader = DataInputStream(bais)
+                val numKeys = reader.readInt()
+                for (i in 0 until numKeys) {
+                    val key = reader.readUTF()
+                    val numBytes = reader.readInt()
+                    val value = ByteArray(numBytes)
+                    reader.read(value, 0, numBytes)
+                    put(key, value)
+                }
+                reader.close()
+                bais.close()
+            }
+        ),
+        styleSchema
+    )
+
     /** The number of entries in the style. */
     override val size: Int by selectedOptions::size
 
@@ -76,6 +112,7 @@ public class UserStyle private constructor(
      * @param styleSchema The [UserStyleSchema] for this UserStyle, describes how we interpret
      * [userStyle].
      */
+    @Suppress("Deprecation") // userStyleSettings
     public constructor(
         userStyle: UserStyleData,
         styleSchema: UserStyleSchema
@@ -93,7 +130,7 @@ public class UserStyle private constructor(
     )
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toWireFormat(): UserStyleWireFormat = UserStyleWireFormat(toMap())
 
     /** Returns the style as a [UserStyleData]. */
@@ -105,6 +142,22 @@ public class UserStyle private constructor(
     /** Returns the style as a [Map]<[String], [ByteArray]>. */
     private fun toMap(): Map<String, ByteArray> =
         selectedOptions.entries.associate { it.key.id.value to it.value.id.value }
+
+    /** Returns the style encoded as a [ByteArray]. */
+    internal fun toByteArray(): ByteArray {
+        val baos = ByteArrayOutputStream()
+        val writer = DataOutputStream(baos)
+        writer.writeInt(selectedOptions.size)
+        for ((key, value) in selectedOptions) {
+            writer.writeUTF(key.id.value)
+            writer.writeInt(value.id.value.size)
+            writer.write(value.id.value, 0, value.id.value.size)
+        }
+        writer.close()
+        baos.close()
+        val ba = baos.toByteArray()
+        return ba
+    }
 
     /** Returns the [UserStyleSetting.Option] for [key] if there is one or `null` otherwise. */
     public override operator fun get(key: UserStyleSetting): UserStyleSetting.Option? =
@@ -320,7 +373,7 @@ public class UserStyleData(
     public val userStyleMap: Map<String, ByteArray>
 ) {
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(
         userStyle: UserStyleWireFormat
     ) : this(userStyle.mUserStyle)
@@ -336,7 +389,7 @@ public class UserStyleData(
     ) + "}"
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toWireFormat(): UserStyleWireFormat = UserStyleWireFormat(userStyleMap)
 
     override fun equals(other: Any?): Boolean {
@@ -365,63 +418,82 @@ public class UserStyleData(
 }
 
 /**
- * Describes the list of [UserStyleSetting]s the user can configure.
+ * Describes the list of [UserStyleSetting]s the user can configure. Note style schemas can be
+ * hierarchical (see [UserStyleSetting.Option.childSettings]), editors should use
+ * [rootUserStyleSettings] rather than [userStyleSettings] for populating the top level UI.
  *
  * @param userStyleSettings The user configurable style categories associated with this watch face.
  * Empty if the watch face doesn't support user styling. Note we allow at most one
- * [UserStyleSetting.ComplicationSlotsUserStyleSetting] and one
- * [UserStyleSetting.CustomValueUserStyleSetting] in the list.
+ * [UserStyleSetting.CustomValueUserStyleSetting] in the list. Prior to android T ot most one
+ * [UserStyleSetting.ComplicationSlotsUserStyleSetting] is allowed, however from android T it's
+ * possible with hierarchical styles for there to be more than one, but at most one can be active at
+ * any given time.
  */
-public class UserStyleSchema(
-    public val userStyleSettings: List<UserStyleSetting>
+public class UserStyleSchema constructor(
+    userStyleSettings: List<UserStyleSetting>
 ) {
+    public val userStyleSettings = userStyleSettings
+        @Deprecated("use rootUserStyleSettings instead")
+        get
+
+    /** For use with hierarchical schemas, lists all the settings with no parent [Option]. */
+    public val rootUserStyleSettings by lazy {
+        userStyleSettings.filter { !it.hasParent }
+    }
+
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     companion object {
         @Throws(IOException::class, XmlPullParserException::class)
-        fun inflate(resources: Resources, parser: XmlResourceParser): UserStyleSchema {
+        fun inflate(
+            resources: Resources,
+            parser: XmlResourceParser,
+            complicationScaleX: Float,
+            complicationScaleY: Float
+        ): UserStyleSchema {
             require(parser.name == "UserStyleSchema") {
-               "Expected a UserStyleSchema node"
+                "Expected a UserStyleSchema node"
             }
 
+            val idToSetting = HashMap<String, UserStyleSetting>()
             val userStyleSettings = ArrayList<UserStyleSetting>()
-            val outerDepth = parser.depth
-            var type = parser.next()
 
             // Parse the UserStyle declaration.
-            do {
-                if (type == XmlPullParser.START_TAG) {
-                    when (parser.name) {
-                        "BooleanUserStyleSetting" -> userStyleSettings.add(
-                            UserStyleSetting.BooleanUserStyleSetting.inflate(resources, parser)
-                        )
+            parser.iterate {
+                when (parser.name) {
+                    "BooleanUserStyleSetting" -> userStyleSettings.add(
+                        UserStyleSetting.BooleanUserStyleSetting.inflate(resources, parser)
+                    )
 
-                        "ComplicationSlotsUserStyleSetting" -> userStyleSettings.add(
-                            UserStyleSetting.ComplicationSlotsUserStyleSetting.inflate(
-                                resources,
-                                parser
-                            )
+                    "ComplicationSlotsUserStyleSetting" -> userStyleSettings.add(
+                        UserStyleSetting.ComplicationSlotsUserStyleSetting.inflate(
+                            resources,
+                            parser,
+                            complicationScaleX,
+                            complicationScaleY
                         )
+                    )
 
-                        "DoubleRangeUserStyleSetting" -> userStyleSettings.add(
-                            UserStyleSetting.DoubleRangeUserStyleSetting.inflate(resources, parser)
-                        )
+                    "DoubleRangeUserStyleSetting" -> userStyleSettings.add(
+                        UserStyleSetting.DoubleRangeUserStyleSetting.inflate(resources, parser)
+                    )
 
-                        "ListUserStyleSetting" -> userStyleSettings.add(
-                            UserStyleSetting.ListUserStyleSetting.inflate(resources, parser)
+                    "ListUserStyleSetting" -> userStyleSettings.add(
+                        UserStyleSetting.ListUserStyleSetting.inflate(
+                            resources,
+                            parser,
+                            idToSetting
                         )
+                    )
 
-                        "LongRangeUserStyleSetting" -> userStyleSettings.add(
-                            UserStyleSetting.LongRangeUserStyleSetting.inflate(resources, parser)
-                        )
+                    "LongRangeUserStyleSetting" -> userStyleSettings.add(
+                        UserStyleSetting.LongRangeUserStyleSetting.inflate(resources, parser)
+                    )
 
-                        else -> throw IllegalArgumentException(
-                            "Unexpected node ${parser.name} at line ${parser.lineNumber}"
-                        )
-                    }
+                    else -> throw IllegalNodeException(parser)
                 }
-                type = parser.next()
-            } while (type != XmlPullParser.END_DOCUMENT && parser.depth > outerDepth)
+                idToSetting[userStyleSettings.last().id.value] = userStyleSettings.last()
+            }
 
             return UserStyleSchema(userStyleSettings)
         }
@@ -430,7 +502,11 @@ public class UserStyleSchema(
     init {
         var complicationSlotsUserStyleSettingCount = 0
         var customValueUserStyleSettingCount = 0
+        var displayNameIndex = 1
         for (setting in userStyleSettings) {
+            // Provide the ordinal used by fallback descriptions for each setting.
+            setting.setDisplayNameIndex(displayNameIndex++)
+
             when (setting) {
                 is UserStyleSetting.ComplicationSlotsUserStyleSetting ->
                     complicationSlotsUserStyleSettingCount++
@@ -441,11 +517,23 @@ public class UserStyleSchema(
                     // Nothing
                 }
             }
+
+            for (option in setting.options) {
+                for (childSetting in option.childSettings) {
+                    require(userStyleSettings.contains(childSetting)) {
+                        "childSettings must be in the list of settings the UserStyleSchema is " +
+                            "constructed with"
+                    }
+                }
+            }
         }
 
-        // This requirement makes it easier to implement companion editors.
-        require(complicationSlotsUserStyleSettingCount <= 1) {
-            "At most only one ComplicationSlotsUserStyleSetting is allowed"
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            validateComplicationSettings(rootUserStyleSettings, null)
+        } else {
+            require(complicationSlotsUserStyleSettingCount <= 1) {
+               "Prior to Android T, at most only one ComplicationSlotsUserStyleSetting is allowed"
+            }
         }
 
         // There's a hard limit to how big Schema + UserStyle can be and since this data is sent
@@ -457,18 +545,170 @@ public class UserStyleSchema(
         }
     }
 
+    private fun validateComplicationSettings(
+        settings: Collection<UserStyleSetting>,
+        initialPrevSetting: UserStyleSetting.ComplicationSlotsUserStyleSetting?
+    ) {
+        var prevSetting = initialPrevSetting
+        for (setting in settings) {
+            if (setting is UserStyleSetting.ComplicationSlotsUserStyleSetting) {
+                require(prevSetting == null) {
+                    "From Android T multiple ComplicationSlotsUserStyleSettings are allowed, but" +
+                        " at most one can be active for any permutation of UserStyle. Note: " +
+                        "$setting and $prevSetting"
+                }
+                prevSetting = setting
+            }
+        }
+        for (setting in settings) {
+            for (option in setting.options) {
+                validateComplicationSettings(option.childSettings, prevSetting)
+            }
+        }
+    }
+
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @Suppress("Deprecation") // userStyleSettings
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(wireFormat: UserStyleSchemaWireFormat) : this(
         wireFormat.mSchema.map { UserStyleSetting.createFromWireFormat(it) }
-    )
+    ) {
+        val wireUserStyleSettingsIterator = wireFormat.mSchema.iterator()
+        for (userStyle in userStyleSettings) {
+            val wireUserStyleSetting = wireUserStyleSettingsIterator.next()
+            wireUserStyleSetting.mOptionChildIndices?.let {
+                // Unfortunately due to VersionedParcelable limitations, we can not extend the
+                // Options wire format (extending the contents of a list is not supported!!!).
+                // This means we need to encode/decode the childSettings in a round about way.
+                val optionsIterator = userStyle.options.iterator()
+                var option: Option? = null
+                for (childIndex in it) {
+                    if (option == null) {
+                        option = optionsIterator.next()
+                    }
+                    if (childIndex == -1) {
+                        option = null
+                    } else {
+                        val childSettings = option.childSettings as ArrayList
+                        val child = userStyleSettings[childIndex]
+                        childSettings.add(child)
+                        child.hasParent = true
+                    }
+                }
+            }
+        }
+    }
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @Suppress("Deprecation") // userStyleSettings
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toWireFormat(): UserStyleSchemaWireFormat =
-        UserStyleSchemaWireFormat(userStyleSettings.map { it.toWireFormat() })
+        UserStyleSchemaWireFormat(
+            userStyleSettings.map { userStyleSetting ->
+                val wireFormat = userStyleSetting.toWireFormat()
+                // Unfortunately due to VersionedParcelable limitations, we can not extend the
+                // Options wire format (extending the contents of a list is not supported!!!).
+                // This means we need to encode/decode the childSettings in a round about way.
+                val optionChildIndices = ArrayList<Int>()
+                for (option in userStyleSetting.options) {
+                    for (child in option.childSettings) {
+                        optionChildIndices.add(
+                            userStyleSettings.indexOfFirst {
+                                it == child
+                            }
+                        )
+                    }
+                    optionChildIndices.add(-1)
+                }
+                wireFormat.mOptionChildIndices = optionChildIndices
+                wireFormat
+            }
+        )
 
+    /** @hide */
+    @Suppress("Deprecation") // userStyleSettings
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun getDefaultUserStyle() = UserStyle(
+        HashMap<UserStyleSetting, UserStyleSetting.Option>().apply {
+            for (setting in userStyleSettings) {
+                this[setting] = setting.defaultOption
+            }
+        }
+    )
+
+    @Suppress("Deprecation") // userStyleSettings
     override fun toString(): String = "[" + userStyleSettings.joinToString() + "]"
+
+    /**
+     * Returns the [UserStyleSetting] whose [UserStyleSetting.Id] matches [settingId] or `null` if
+     * none match.
+     */
+    @Suppress("Deprecation") // userStyleSettings
+    operator fun get(settingId: UserStyleSetting.Id): UserStyleSetting? {
+        // NB more than one match is not allowed, UserStyleSetting id's are required to be unique.
+        return userStyleSettings.firstOrNull { it.id == settingId }
+    }
+
+    /**
+     * Computes a SHA-1 [MessageDigest] hash of the [UserStyleSchema]. Note that for performance
+     * reasons where possible the resource id or url for [Icon]s in the schema are used rather than
+     * the image bytes. This means that this hash should be considered insensitive to changes to the
+     * contents of icons between APK versions, which the developer should account for accordingly.
+     */
+    fun getDigestHash(): ByteArray {
+        val md = MessageDigest.getInstance("SHA-1")
+        val digestOutputStream = DigestOutputStream(NullOutputStream(), md)
+
+        @Suppress("Deprecation")
+        for (setting in userStyleSettings) {
+            setting.updateMessageDigest(digestOutputStream)
+        }
+
+        return md.digest()
+    }
+
+    private class NullOutputStream : OutputStream() {
+        override fun write(value: Int) {}
+    }
+
+    private fun findActiveComplicationSetting(
+        settings: Collection<UserStyleSetting>,
+        userStyle: UserStyle
+    ): UserStyleSetting.ComplicationSlotsUserStyleSetting? {
+        for (setting in settings) {
+            if (setting is UserStyleSetting.ComplicationSlotsUserStyleSetting) {
+                return setting
+            }
+            findActiveComplicationSetting(userStyle[setting]!!.childSettings, userStyle)?.let {
+                return it
+            }
+        }
+        return null
+    }
+
+    /**
+     * When a UserStyleSchema contains hierarchical styles, only part of it is deemed to be active
+     * based on the user’s options in [userStyle]. Conversely if the UserStyleSchema doesn’t contain
+     * any hierarchical styles then all of it is considered to be active all the time.
+     *
+     * From the active portion of the UserStyleSchema we only allow there to be at most one
+     * [UserStyleSetting.ComplicationSlotsUserStyleSetting]. This function searches the active
+     * portion of the UserStyleSchema for the [UserStyleSetting.ComplicationSlotsUserStyleSetting],
+     * if one is found then it returns the selected [ComplicationSlotsOption] from that, based on
+     * the [userStyle]. If a [UserStyleSetting.ComplicationSlotsUserStyleSetting] is not found in
+     * the active portion of the UserStyleSchema it returns `null`.
+     *
+     * @param userStyle The [UserStyle] for which the function will search for the selected
+     * [ComplicationSlotsOption], if any.
+     * @return The selected [ComplicationSlotsOption] based on the [userStyle] if any, or `null`
+     * otherwise.
+     */
+    public fun findComplicationSlotsOptionForUserStyle(
+        userStyle: UserStyle
+    ): ComplicationSlotsOption? =
+        findActiveComplicationSetting(rootUserStyleSettings, userStyle)?.let {
+            userStyle[it] as ComplicationSlotsOption
+        }
 }
 
 /**
@@ -480,15 +720,7 @@ public class UserStyleSchema(
  */
 public class CurrentUserStyleRepository(public val schema: UserStyleSchema) {
     // Mutable backing field for [userStyle].
-    private val mutableUserStyle = MutableStateFlow(
-        UserStyle(
-            HashMap<UserStyleSetting, UserStyleSetting.Option>().apply {
-                for (setting in schema.userStyleSettings) {
-                    this[setting] = setting.defaultOption
-                }
-            }
-        )
-    )
+    private val mutableUserStyle = MutableStateFlow(schema.getDefaultUserStyle())
 
     /**
      * The current [UserStyle]. If accessed from java, consider using
@@ -506,6 +738,7 @@ public class CurrentUserStyleRepository(public val schema: UserStyleSchema) {
         mutableUserStyle.value = newUserStyle
     }
 
+    @Suppress("Deprecation") // userStyleSettings
     internal fun validateUserStyle(userStyle: UserStyle) {
         for ((key, value) in userStyle) {
             val setting = schema.userStyleSettings.firstOrNull { it == key }

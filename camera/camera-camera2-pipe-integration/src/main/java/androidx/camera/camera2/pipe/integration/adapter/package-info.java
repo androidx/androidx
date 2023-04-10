@@ -17,7 +17,7 @@
 /**
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 package androidx.camera.camera2.pipe.integration.adapter;
 
 import androidx.annotation.RestrictTo;

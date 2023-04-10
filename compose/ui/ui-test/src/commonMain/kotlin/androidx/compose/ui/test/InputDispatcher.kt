@@ -15,7 +15,9 @@
  */
 package androidx.compose.ui.test
 
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.node.RootForTest
 
 internal expect fun createInputDispatcher(
@@ -51,6 +53,14 @@ internal expect fun createInputDispatcher(
  * * [enqueueMouseCancel]
  * * [enqueueMouseScroll]
  *
+ * Rotary input:
+ * * [enqueueRotaryScrollHorizontally]
+ * * [enqueueRotaryScrollVertically]
+ *
+ * Key input:
+ * * [enqueueKeyDown]
+ * * [enqueueKeyUp]
+ *
  * Chaining methods:
  * * [advanceEventTime]
  */
@@ -66,6 +76,17 @@ internal abstract class InputDispatcher(
          */
         var eventPeriodMillis = 16L
             internal set
+
+        /**
+         * The delay between a down event on a particular [Key] and the first repeat event on that
+         * same key.
+         */
+        const val InitialRepeatDelay = 500L
+
+        /**
+         * The interval between subsequent repeats (after the initial repeat) on a particular key.
+         */
+        const val SubsequentRepeatDelay = 50L
     }
 
     /**
@@ -85,26 +106,56 @@ internal abstract class InputDispatcher(
     protected var mouseInputState: MouseInputState = MouseInputState()
 
     /**
+     * The state of the keyboard keys. The key input state is always available.
+     * It starts with no keys pressed down and the [KeyInputState.downTime] set to zero.
+     */
+    protected var keyInputState: KeyInputState = KeyInputState()
+
+    /**
+     * The state of the rotary button.
+     */
+    protected var rotaryInputState: RotaryInputState = RotaryInputState()
+
+    /**
      * Indicates if a gesture is in progress or not. A gesture is in progress if at least one
      * finger is (still) touching the screen.
      */
     val isTouchInProgress: Boolean
         get() = partialGesture != null
 
+    /**
+     * Indicates whether caps lock is on or not.
+     */
+    val isCapsLockOn: Boolean get() = keyInputState.capsLockOn
+
+    /**
+     * Indicates whether num lock is on or not.
+     */
+    val isNumLockOn: Boolean get() = keyInputState.numLockOn
+
+    /**
+     * Indicates whether scroll lock is on or not.
+     */
+    val isScrollLockOn: Boolean get() = keyInputState.scrollLockOn
+
     init {
-        val state = testContext.states.remove(root)
+        val rootHash = identityHashCode(root)
+        val state = testContext.states.remove(rootHash)
         if (state != null) {
             partialGesture = state.partialGesture
             mouseInputState = state.mouseInputState
+            keyInputState = state.keyInputState
         }
     }
 
     protected open fun saveState(root: RootForTest?) {
         if (root != null) {
-            testContext.states[root] =
+            val rootHash = identityHashCode(root)
+            testContext.states[rootHash] =
                 InputDispatcherState(
                     partialGesture,
-                    mouseInputState
+                    mouseInputState,
+                    keyInputState
                 )
         }
     }
@@ -120,13 +171,21 @@ internal abstract class InputDispatcher(
     /**
      * Increases the current event time by [durationMillis].
      *
+     * Depending on the [keyInputState], there may be repeat key events that need to be sent within
+     * the given duration. If there are, the clock will be forwarded until it is time for the repeat
+     * key event, the key event will be sent, and then the clock will be forwarded by the remaining
+     * duration.
+     *
      * @param durationMillis The duration of the delay. Must be positive
      */
     fun advanceEventTime(durationMillis: Long = eventPeriodMillis) {
         require(durationMillis >= 0) {
             "duration of a delay can only be positive, not $durationMillis"
         }
-        currentTime += durationMillis
+
+        val endTime = currentTime + durationMillis
+        keyInputState.sendRepeatKeysIfNeeded(endTime)
+        currentTime = endTime
     }
 
     /**
@@ -146,6 +205,14 @@ internal abstract class InputDispatcher(
      * [Offset.Zero].
      */
     val currentMousePosition: Offset get() = mouseInputState.lastPosition
+
+    /**
+     * Indicates if the given [key] is pressed down or not.
+     *
+     * @param key The key to be checked.
+     * @return true if given [key] is pressed, otherwise false.
+     */
+    fun isKeyDown(key: Key): Boolean = keyInputState.isKeyDown(key)
 
     /**
      * Generates a down touch event at [position] for the pointer with the given [pointerId].
@@ -476,8 +543,8 @@ internal abstract class InputDispatcher(
 
     /**
      * Generates a scroll event on [scrollWheel] by [delta]. Negative values correspond to
-     * rotating the scroll wheel leftward or downward, positive values correspond to rotating the
-     * scroll wheel rightward or upward.
+     * rotating the scroll wheel leftward or upward, positive values correspond to rotating the
+     * scroll wheel rightward or downward.
      */
     // TODO(fresen): verify the sign of the horizontal scroll axis (is left negative or positive?)
     @OptIn(ExperimentalTestApi::class)
@@ -491,6 +558,58 @@ internal abstract class InputDispatcher(
         }
     }
 
+    /**
+     * Generates a key down event for the given [key].
+     *
+     * @param key The keyboard key to be pushed down. Platform specific.
+     */
+    fun enqueueKeyDown(key: Key) {
+        val keyboard = keyInputState
+
+        check(!keyboard.isKeyDown(key)) {
+            "Cannot send key down event, Key($key) is already pressed down."
+        }
+
+        // TODO(Onadim): Figure out whether key input needs to enqueue a touch cancel.
+        // Down time is the time of the most recent key down event, which is now.
+        keyboard.downTime = currentTime
+
+        // Add key to pressed keys.
+        keyboard.setKeyDown(key)
+
+        keyboard.enqueueDown(key)
+    }
+
+    /**
+     * Generates a key up event for the given [key].
+     *
+     * @param key The keyboard key to be released. Platform specific.
+     */
+    fun enqueueKeyUp(key: Key) {
+        val keyboard = keyInputState
+
+        check(keyboard.isKeyDown(key)) {
+            "Cannot send key up event, Key($key) is not pressed down."
+        }
+
+        // TODO(Onadim): Figure out whether key input needs to enqueue a touch cancel.
+        // Remove key from pressed keys.
+        keyboard.setKeyUp(key)
+
+        // Send the up event
+        keyboard.enqueueUp(key)
+    }
+
+    fun enqueueRotaryScrollHorizontally(horizontalScrollPixels: Float) {
+        // TODO(b/214437966): figure out if ongoing scroll events need to be cancelled.
+        rotaryInputState.enqueueRotaryScrollHorizontally(horizontalScrollPixels)
+    }
+
+    fun enqueueRotaryScrollVertically(verticalScrollPixels: Float) {
+        // TODO(b/214437966): figure out if ongoing scroll events need to be cancelled.
+        rotaryInputState.enqueueRotaryScrollHorizontally(verticalScrollPixels)
+    }
+
     private fun MouseInputState.enterHover() {
         enqueueEnter()
         isEntered = true
@@ -499,6 +618,56 @@ internal abstract class InputDispatcher(
     private fun MouseInputState.exitHover() {
         enqueueExit()
         isEntered = false
+    }
+
+    /**
+     * Sends any and all repeat key events that are required between [currentTime] and [endTime].
+     *
+     * Mutates the value of [currentTime] in order to send each of the repeat events at exactly the
+     * time it should be sent.
+     *
+     * @param endTime All repeats set to occur before this time will be sent.
+     */
+    // TODO(b/236623354): Extend repeat key event support to [MainTestClock.advanceTimeBy].
+    private fun KeyInputState.sendRepeatKeysIfNeeded(endTime: Long) {
+
+        // Return if there is no key to repeat or if it is not yet time to repeat it.
+        if (repeatKey == null || endTime - downTime < InitialRepeatDelay) return
+
+        // Initial repeat
+        if (lastRepeatTime <= downTime) {
+            // Not yet had a repeat on this key, but it needs at least the initial one.
+            check(repeatCount == 0) {
+                "repeatCount should be reset to 0 when downTime updates"
+            }
+            repeatCount = 1
+
+            lastRepeatTime = downTime + InitialRepeatDelay
+            currentTime = lastRepeatTime
+
+            enqueueRepeat()
+        }
+
+        // Subsequent repeats
+        val numRepeats: Int = ((endTime - lastRepeatTime) / SubsequentRepeatDelay).toInt()
+
+        repeat(numRepeats) {
+            repeatCount += 1
+            lastRepeatTime += SubsequentRepeatDelay
+            currentTime = lastRepeatTime
+            enqueueRepeat()
+        }
+    }
+
+    /**
+     * Enqueues a key down event on the repeat key, if there is one. If the repeat key is null,
+     * an [IllegalStateException] is thrown.
+     */
+    private fun KeyInputState.enqueueRepeat() {
+        val repKey = checkNotNull(repeatKey) {
+            "A repeat key event cannot be sent if the repeat key is null."
+        }
+        keyInputState.enqueueDown(repKey)
     }
 
     /**
@@ -532,8 +701,20 @@ internal abstract class InputDispatcher(
 
     protected abstract fun MouseInputState.enqueueCancel()
 
+    protected abstract fun KeyInputState.enqueueDown(key: Key)
+
+    protected abstract fun KeyInputState.enqueueUp(key: Key)
+
     @OptIn(ExperimentalTestApi::class)
     protected abstract fun MouseInputState.enqueueScroll(delta: Float, scrollWheel: ScrollWheel)
+
+    protected abstract fun RotaryInputState.enqueueRotaryScrollHorizontally(
+        horizontalScrollPixels: Float
+    )
+
+    protected abstract fun RotaryInputState.enqueueRotaryScrollVertically(
+        verticalScrollPixels: Float
+    )
 
     /**
      * Called when this [InputDispatcher] is about to be discarded, from
@@ -597,14 +778,79 @@ internal class MouseInputState {
 }
 
 /**
+ * The current key input state. Contains the keys that are pressed, the down time of the
+ * keyboard (which is the time of the last key down event), the state of the lock keys and
+ * the device ID.
+ */
+internal class KeyInputState {
+    private val downKeys: HashSet<Key> = hashSetOf()
+
+    var downTime = 0L
+    var repeatKey: Key? = null
+    var repeatCount = 0
+    var lastRepeatTime = downTime
+    var capsLockOn = false
+    var numLockOn = false
+    var scrollLockOn = false
+
+    fun isKeyDown(key: Key): Boolean = downKeys.contains(key)
+
+    fun setKeyUp(key: Key) {
+        downKeys.remove(key)
+        if (key == repeatKey) {
+            repeatKey = null
+            repeatCount = 0
+        }
+    }
+
+    fun setKeyDown(key: Key) {
+        downKeys.add(key)
+        repeatKey = key
+        repeatCount = 0
+        updateLockKeys(key)
+    }
+
+    /**
+     * Updates lock key state values.
+     *
+     * Note that lock keys may not be toggled in the same way across all platforms.
+     *
+     * Take caps lock as an example; consistently, all platforms turn caps lock on upon the first
+     * key down event, and it stays on after the subsequent key up. However, on some platforms caps
+     * lock will turn off immediately upon the next key down event (MacOS for example), whereas
+     * other platforms (e.g. linux) wait for the next key up event before turning caps lock off.
+     *
+     * By calling this function whenever a lock key is pressed down, MacOS-like behaviour is
+     * achieved.
+     */
+    // TODO(Onadim): Investigate how lock key toggling is handled in Android, ChromeOS and Windows.
+    @OptIn(ExperimentalComposeUiApi::class)
+    private fun updateLockKeys(key: Key) {
+        when (key) {
+            Key.CapsLock -> capsLockOn = !capsLockOn
+            Key.NumLock -> numLockOn = !numLockOn
+            Key.ScrollLock -> scrollLockOn = !scrollLockOn
+        }
+    }
+}
+
+/**
+ * We don't have any state associated with RotaryInput, but we use a RotaryInputState class for
+ * consistency with the other APIs.
+ */
+internal class RotaryInputState
+
+/**
  * The state of an [InputDispatcher], saved when the [GestureScope] is disposed and restored
  * when the [GestureScope] is recreated.
  *
  * @param partialGesture The state of an incomplete gesture. If no gesture was in progress
  * when the state of the [InputDispatcher] was saved, this will be `null`.
  * @param mouseInputState The state of the mouse.
+ * @param keyInputState The state of the keyboard.
  */
 internal data class InputDispatcherState(
     val partialGesture: PartialGesture?,
     val mouseInputState: MouseInputState,
+    val keyInputState: KeyInputState
 )

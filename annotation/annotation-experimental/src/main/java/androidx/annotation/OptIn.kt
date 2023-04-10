@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATED_JAVA_ANNOTATION")
+
 package androidx.annotation
 
+import java.lang.annotation.ElementType
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
 import kotlin.reflect.KClass
@@ -37,6 +40,14 @@ import kotlin.reflect.KClass
     AnnotationTarget.PROPERTY_SETTER,
     AnnotationTarget.FILE,
     AnnotationTarget.TYPEALIAS
+)
+@java.lang.annotation.Target(
+    ElementType.CONSTRUCTOR,
+    ElementType.FIELD,
+    ElementType.LOCAL_VARIABLE,
+    ElementType.METHOD,
+    ElementType.PACKAGE,
+    ElementType.TYPE,
 )
 public annotation class OptIn(
     /**

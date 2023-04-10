@@ -136,7 +136,9 @@ function getBuildCommand() {
   if [ "$expectedMessage" == "" ]; then
     testCommand="$* 2>&1"
   else
-    testCommand="$* >log 2>&1; $vgrep '$expectedMessage' log $grepOptions"
+    # escape single quotes (end the previous quote, add an escaped quote, and start a new quote)
+    escapedMessage="$(echo "$expectedMessage" | sed "s/'/'\\\\''/g")"
+    testCommand="$* >log 2>&1; $vgrep '$escapedMessage' log $grepOptions"
   fi
   echo "$testCommand"
 }
@@ -158,7 +160,7 @@ function getTestStateCommand() {
 $scriptPath/impl/restore-state.sh . $workingDir --move && cd $workingDir
 "
   buildCommand="$*"
-  cleanupCommand="$scriptPath/impl/backup-state.sh \$testDir $workingDir --move >/dev/null"
+  cleanupCommand="$scriptPath/impl/backup-state.sh \$testDir --move >/dev/null"
 
   fullFiltererCommand="$setupCommand
 if $buildCommand >/dev/null 2>/dev/null; then
@@ -193,13 +195,13 @@ function backupState() {
   cd "$scriptPath"
   backupDir="$1"
   shift
-  ./impl/backup-state.sh "$backupDir" "$workingDir" "$@"
+  ./impl/backup-state.sh "$backupDir" "$@"
 }
 
 function restoreState() {
   cd "$scriptPath"
   backupDir="$1"
-  ./impl/restore-state.sh "$backupDir" "$workingDir"
+  ./impl/restore-state.sh "$backupDir"
 }
 
 function clearState() {
@@ -338,6 +340,8 @@ function determineMinimalSetOfRequiredTasks() {
   cp -r "$tempDir/prev" "$requiredTasksWork"
   mkdir -p "$requiredTasksWork/tasks"
   bash -c "cd $requiredTasksWork/tasks && split -l 1 '$taskListFile'"
+  # also include the original tasks in case either we failed to compute the list of tasks (due to the build failing during project configuration) or there are too many tasks to fit in one command line invocation
+  echo "$gradleTasks" > "$requiredTasksWork/tasks/givenTasks"
 
   rm -rf "$requiredTasksDir"
   # Build the command for passing to diff-filterer.

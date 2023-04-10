@@ -80,10 +80,10 @@ public final class SizeFCompat {
         return Api21Impl.toSizeF(this);
     }
 
-    /** Creates a {@link SizeFCompat} from a {@link SizeF}. */
+    /** Converts this {@link SizeF} into a {@link SizeFCompat}. */
     @RequiresApi(21)
     @NonNull
-    public static SizeFCompat createFromSizeF(@NonNull SizeF size) {
+    public static SizeFCompat toSizeFCompat(@NonNull SizeF size) {
         return Api21Impl.toSizeFCompat(size);
     }
 

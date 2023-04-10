@@ -30,37 +30,71 @@ class IdeaSuppressionDetectorTest : AbstractLintDetectorTest(
 
     @Test
     fun `Detection of IDEA-specific suppression in Java sources`() {
-        val input = arrayOf(
-            javaSample("androidx.IdeaSuppressionJava")
+        val input = java(
+            "src/androidx/IdeaSuppressionJava.java",
+            """
+                public class IdeaSuppressionJava {
+
+                    // Call to a deprecated method with an inline suppression.
+                    public void callDeprecatedMethod() {
+                        //noinspection deprecation
+                        deprecatedMethod();
+
+                        notDeprecatedMethod();
+                    }
+
+                    @Deprecated
+                    public void deprecatedMethod() {}
+
+                    public void notDeprecatedMethod() {}
+                }
+            """.trimIndent()
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/androidx/IdeaSuppressionJava.java:29: Error: Uses IntelliJ-specific suppression, should use @SuppressWarnings("deprecation") [IdeaSuppression]
+src/androidx/IdeaSuppressionJava.java:5: Error: Uses IntelliJ-specific suppression, should use @SuppressWarnings("deprecation") [IdeaSuppression]
         //noinspection deprecation
         ~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
-        check(*input).expect(expected)
+        check(input).expect(expected)
     }
 
     @Test
     fun `Detection of IDEA-specific suppression in Kotlin sources`() {
-        val input = arrayOf(
-            ktSample("androidx.IdeaSuppressionKotlin")
+        val input = kotlin(
+            "src/androidx/IdeaSuppressionKotlin.kt",
+            """
+                class IdeaSuppressionKotlin {
+
+                    // Call to a deprecated method with an inline suppression.
+                    fun callDeprecatedMethod() {
+                        //noinspection deprecation
+                        deprecatedMethod()
+
+                        notDeprecatedMethod()
+                    }
+
+                    @Deprecated("Replaced with {@link #notDeprecatedMethod()}")
+                    fun deprecatedMethod() {}
+
+                    fun notDeprecatedMethod() {}
+                }
+            """.trimIndent()
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/androidx/IdeaSuppressionKotlin.kt:27: Error: Uses IntelliJ-specific suppression, should use @SuppressWarnings("deprecation") [IdeaSuppression]
+src/androidx/IdeaSuppressionKotlin.kt:5: Error: Uses IntelliJ-specific suppression, should use @SuppressWarnings("deprecation") [IdeaSuppression]
         //noinspection deprecation
         ~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
-        check(*input).expect(expected)
+        check(input).expect(expected)
     }
 }

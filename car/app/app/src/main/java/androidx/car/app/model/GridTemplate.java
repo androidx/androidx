@@ -21,11 +21,11 @@ import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONS
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.constraints.CarTextConstraints;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -46,19 +46,15 @@ import java.util.Objects;
  * </ul>
  */
 @CarProtocol
+@KeepFields
 public final class GridTemplate implements Template {
-    @Keep
     private final boolean mIsLoading;
-    @Keep
     @Nullable
     private final CarText mTitle;
-    @Keep
     @Nullable
     private final Action mHeaderAction;
-    @Keep
     @Nullable
     private final ItemList mSingleList;
-    @Keep
     @Nullable
     private final ActionStrip mActionStrip;
 
@@ -266,11 +262,11 @@ public final class GridTemplate implements Template {
          * {@link androidx.car.app.constraints.ConstraintManager#CONTENT_LIMIT_TYPE_GRID}. The
          * host will ignore any items over that limit.
          *
-         * <p>Either a header {@link Action} or title must be set on the template.
+         * <p>If none of the header {@link Action}, the header title or the action strip have been
+         * set on the template, the header is hidden.
          *
          * @throws IllegalStateException    if the template is in a loading state but there are
-         *                                  lists added, or vice versa, or if the template does not
-         *                                  have either a title or header {@link Action} set.
+         *                                  lists added, or vice versa.
          * @throws IllegalArgumentException if the added {@link ItemList} does not meet the
          *                                  template's requirements.
          * @see androidx.car.app.constraints.ConstraintManager#getContentLimit(int)
@@ -290,10 +286,6 @@ public final class GridTemplate implements Template {
                                 "All the items in grid template's item list must be grid items");
                     }
                 }
-            }
-
-            if (CarText.isNullOrEmpty(mTitle) && mHeaderAction == null) {
-                throw new IllegalStateException("Either the title or header action must be set");
             }
 
             return new GridTemplate(this);

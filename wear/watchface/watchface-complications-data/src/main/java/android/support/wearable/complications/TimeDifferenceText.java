@@ -25,7 +25,11 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.wear.watchface.complications.data.R;
 
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -66,6 +70,74 @@ public final class TimeDifferenceText implements TimeDependentText {
         mStyle = style;
         mShowNowText = showNowText;
         mMinimumUnit = minimumUnit;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TimeDifferenceText that = (TimeDifferenceText) o;
+        return mReferencePeriodStart == that.mReferencePeriodStart
+                && mReferencePeriodEnd == that.mReferencePeriodEnd && mStyle == that.mStyle
+                && mShowNowText == that.mShowNowText && mMinimumUnit == that.mMinimumUnit;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mReferencePeriodStart, mReferencePeriodEnd, mStyle, mShowNowText,
+                mMinimumUnit);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        if (ComplicationData.shouldRedact()) {
+            return "TimeDifferenceText{Redacted}";
+        }
+        return "TimeDifferenceText{mReferencePeriodStart=" + mReferencePeriodStart
+                + ", mReferencePeriodEnd=" + mReferencePeriodEnd
+                + ", mStyle=" + mStyle  + ", mShowNowText=" + mShowNowText
+                + ", mMinimumUnit=" + mMinimumUnit + '}';
+    }
+
+    private static class SerializedForm implements Serializable {
+        long mReferencePeriodStart;
+        long mReferencePeriodEnd;
+
+        @ComplicationText.TimeDifferenceStyle
+        int mStyle;
+
+        boolean mShowNowText;
+
+        @Nullable
+        TimeUnit mMinimumUnit;
+
+        SerializedForm(
+                long referencePeriodStart,
+                long referencePeriodEnd,
+                @ComplicationText.TimeDifferenceStyle int style,
+                boolean showNowText,
+                @Nullable TimeUnit minimumUnit) {
+            mReferencePeriodStart = referencePeriodStart;
+            mReferencePeriodEnd = referencePeriodEnd;
+            mStyle = style;
+            mShowNowText = showNowText;
+            mMinimumUnit = minimumUnit;
+        }
+
+        Object readResolve() {
+            return new TimeDifferenceText(mReferencePeriodStart, mReferencePeriodEnd, mStyle,
+                    mShowNowText, mMinimumUnit);
+        }
+    }
+
+    Object writeReplace() {
+        return new SerializedForm(mReferencePeriodStart, mReferencePeriodEnd, mStyle,
+                mShowNowText, mMinimumUnit);
+    }
+
+    private void readObject(ObjectInputStream stream) throws InvalidObjectException {
+        throw new InvalidObjectException("Use SerializedForm");
     }
 
     @NonNull

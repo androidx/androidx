@@ -29,11 +29,11 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.isKotlin
 import com.intellij.psi.impl.source.PsiClassReferenceType
+import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.psiUtil.getSuperNames
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UElement
-import org.jetbrains.uast.kotlin.KotlinUClass
 import org.jetbrains.uast.visitor.AbstractUastVisitor
 
 /**
@@ -75,7 +75,7 @@ class OnCreateDialogIncorrectCallbackDetector : Detector(), SourceCodeScanner {
     private inner class UastHandler(val context: JavaContext) : UElementHandler() {
         override fun visitClass(node: UClass) {
             if (isKotlin(context.psiFile) &&
-                (node as? KotlinUClass)?.ktClass?.getSuperNames()?.firstOrNull() !=
+                (node.sourcePsi as? KtClassOrObject)?.getSuperNames()?.firstOrNull() !=
                 DIALOG_FRAGMENT_CLASS
             ) {
                 return

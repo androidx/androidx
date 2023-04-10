@@ -25,6 +25,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
+import androidx.camera.core.impl.CameraConfig;
+import androidx.camera.core.impl.CameraConfigs;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
@@ -63,15 +65,22 @@ public class FakeCamera implements CameraInternal {
     private Set<UseCase> mAttachedUseCases = new HashSet<>();
     private State mState = State.CLOSED;
     private int mAvailableCameraCount = 1;
+    private List<UseCase> mUseCaseResetHistory = new ArrayList<>();
 
     @Nullable
     private SessionConfig mSessionConfig;
 
     private List<DeferrableSurface> mConfiguredDeferrableSurfaces = Collections.emptyList();
 
+    private CameraConfig mCameraConfig = CameraConfigs.emptyConfig();
+
     public FakeCamera() {
         this(DEFAULT_CAMERA_ID, /*cameraControl=*/null,
                 new FakeCameraInfoInternal(DEFAULT_CAMERA_ID));
+    }
+
+    public FakeCamera(@NonNull CameraControlInternal cameraControl) {
+        this(DEFAULT_CAMERA_ID, cameraControl, new FakeCameraInfoInternal(DEFAULT_CAMERA_ID));
     }
 
     public FakeCamera(@NonNull String cameraId) {
@@ -191,7 +200,7 @@ public class FakeCamera implements CameraInternal {
         Logger.d(TAG, "Use case " + useCase + " ACTIVE for camera " + mCameraId);
 
         mUseCaseAttachState.setUseCaseActive(useCase.getName() + useCase.hashCode(),
-                useCase.getSessionConfig());
+                useCase.getSessionConfig(), useCase.getCurrentConfig());
         updateCaptureSessionConfig();
     }
 
@@ -210,16 +219,16 @@ public class FakeCamera implements CameraInternal {
         Logger.d(TAG, "Use case " + useCase + " UPDATED for camera " + mCameraId);
 
         mUseCaseAttachState.updateUseCase(useCase.getName() + useCase.hashCode(),
-                useCase.getSessionConfig());
+                useCase.getSessionConfig(), useCase.getCurrentConfig());
         updateCaptureSessionConfig();
     }
 
     @Override
     public void onUseCaseReset(@NonNull UseCase useCase) {
         Logger.d(TAG, "Use case " + useCase + " RESET for camera " + mCameraId);
-
+        mUseCaseResetHistory.add(useCase);
         mUseCaseAttachState.updateUseCase(useCase.getName() + useCase.hashCode(),
-                useCase.getSessionConfig());
+                useCase.getSessionConfig(), useCase.getCurrentConfig());
         updateCaptureSessionConfig();
         openCaptureSession();
     }
@@ -238,8 +247,11 @@ public class FakeCamera implements CameraInternal {
 
         Logger.d(TAG, "Use cases " + useCases + " ATTACHED for camera " + mCameraId);
         for (UseCase useCase : useCases) {
-            mUseCaseAttachState.setUseCaseAttached(useCase.getName() + useCase.hashCode(),
-                    useCase.getSessionConfig());
+            useCase.onStateAttached();
+            mUseCaseAttachState.setUseCaseAttached(
+                    useCase.getName() + useCase.hashCode(),
+                    useCase.getSessionConfig(),
+                    useCase.getCurrentConfig());
         }
 
         open();
@@ -262,6 +274,7 @@ public class FakeCamera implements CameraInternal {
         Logger.d(TAG, "Use cases " + useCases + " DETACHED for camera " + mCameraId);
         for (UseCase useCase : useCases) {
             mUseCaseAttachState.setUseCaseDetached(useCase.getName() + useCase.hashCode());
+            useCase.onStateDetached();
         }
 
         if (mUseCaseAttachState.getAttachedSessionConfigs().isEmpty()) {
@@ -290,6 +303,11 @@ public class FakeCamera implements CameraInternal {
     @Override
     public CameraInfoInternal getCameraInfoInternal() {
         return mCameraInfoInternal;
+    }
+
+    @NonNull
+    public List<UseCase> getUseCaseResetHistory() {
+        return mUseCaseResetHistory;
     }
 
     private void checkNotReleased() {
@@ -370,5 +388,16 @@ public class FakeCamera implements CameraInternal {
         // Clears the mConfiguredDeferrableSurfaces to prevent from duplicate
         // notifySurfaceDetached calls.
         mConfiguredDeferrableSurfaces.clear();
+    }
+
+    @NonNull
+    @Override
+    public CameraConfig getExtendedConfig() {
+        return mCameraConfig;
+    }
+
+    @Override
+    public void setExtendedConfig(@Nullable CameraConfig cameraConfig) {
+        mCameraConfig = cameraConfig;
     }
 }

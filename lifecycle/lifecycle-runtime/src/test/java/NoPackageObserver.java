@@ -19,7 +19,7 @@ import static androidx.lifecycle.Lifecycle.Event.ON_CREATE;
 import androidx.lifecycle.LifecycleObserver;
 
 @SuppressWarnings("deprecation")
-class NoPackageObserver implements LifecycleObserver {
+public class NoPackageObserver implements LifecycleObserver {
     @androidx.lifecycle.OnLifecycleEvent(ON_CREATE)
     void onCreate() {
     }

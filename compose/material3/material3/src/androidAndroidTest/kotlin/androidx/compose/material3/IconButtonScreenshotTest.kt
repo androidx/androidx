@@ -17,17 +17,23 @@
 package androidx.compose.material3
 
 import android.os.Build
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.captureToImage
@@ -36,6 +42,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -47,7 +54,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-@OptIn(ExperimentalTestApi::class)
+@OptIn(ExperimentalTestApi::class, ExperimentalMaterial3Api::class)
 class IconButtonScreenshotTest {
 
     @get:Rule
@@ -61,7 +68,7 @@ class IconButtonScreenshotTest {
 
     @Test
     fun iconButton_lightTheme() {
-        rule.setMaterialContent {
+        rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
                 IconButton(onClick = { /* doSomething() */ }) {
                     Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
@@ -73,17 +80,13 @@ class IconButtonScreenshotTest {
 
     @Test
     fun iconButton_darkTheme() {
-        rule.setContent {
-            MaterialTheme(darkColorScheme()) {
-                Surface(modifier = Modifier.fillMaxSize()) {
-                    Box(wrap.testTag(wrapperTestTag)) {
-                        IconButton(onClick = { /* doSomething() */ }) {
-                            Icon(
-                                Icons.Filled.Favorite,
-                                contentDescription = "Localized description"
-                            )
-                        }
-                    }
+        rule.setMaterialContent(darkColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                IconButton(onClick = { /* doSomething() */ }) {
+                    Icon(
+                        Icons.Filled.Favorite,
+                        contentDescription = "Localized description"
+                    )
                 }
             }
         }
@@ -92,8 +95,7 @@ class IconButtonScreenshotTest {
 
     @Test
     fun iconButton_lightTheme_disabled() {
-
-        rule.setMaterialContent {
+        rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
                 IconButton(onClick = { /* doSomething() */ }, enabled = false) {
                     Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
@@ -105,7 +107,7 @@ class IconButtonScreenshotTest {
 
     @Test
     fun iconButton_lightTheme_pressed() {
-        rule.setMaterialContent {
+        rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
                 IconButton(onClick = { /* doSomething() */ }) {
                     Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
@@ -130,7 +132,7 @@ class IconButtonScreenshotTest {
 
     @Test
     fun iconButton_lightTheme_hovered() {
-        rule.setMaterialContent {
+        rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
                 IconButton(onClick = { /* doSomething() */ }) {
                     Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
@@ -147,14 +149,14 @@ class IconButtonScreenshotTest {
     @Test
     fun iconButton_lightTheme_focused() {
         val focusRequester = FocusRequester()
+        var localInputModeManager: InputModeManager? = null
 
-        rule.setMaterialContent {
+        rule.setMaterialContent(lightColorScheme()) {
+            localInputModeManager = LocalInputModeManager.current
             Box(wrap.testTag(wrapperTestTag)) {
-                IconButton(onClick = { /* doSomething() */ },
+                IconButton(
+                    onClick = { /* doSomething() */ },
                     modifier = Modifier
-                        // Normally this is only focusable in non-touch mode, so let's force it to
-                        // always be focusable so we can test how it appears
-                        .focusProperties { canFocus = true }
                         .focusRequester(focusRequester)
                 ) {
                     Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
@@ -163,10 +165,390 @@ class IconButtonScreenshotTest {
         }
 
         rule.runOnIdle {
+            @OptIn(ExperimentalComposeUiApi::class)
+            localInputModeManager!!.requestInputMode(InputMode.Keyboard)
             focusRequester.requestFocus()
         }
 
         assertAgainstGolden("iconButton_lightTheme_focused")
+    }
+
+    @Test
+    fun iconButton_largeContentClipped() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                IconButton(onClick = { /* doSomething() */ }) {
+                    Box(
+                        Modifier
+                            .size(100.dp)
+                            .background(Color.Blue))
+                }
+            }
+        }
+        assertAgainstGolden("iconButton_largeContentClipped")
+    }
+
+    @Test
+    fun iconToggleButton_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                IconToggleButton(checked = false, onCheckedChange = { /* doSomething() */ }) {
+                    Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                }
+            }
+        }
+        assertAgainstGolden("iconToggleButton_lightTheme")
+    }
+
+    @Test
+    fun iconToggleButton_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                IconToggleButton(checked = false, onCheckedChange = { /* doSomething() */ }) {
+                    Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                }
+            }
+        }
+        assertAgainstGolden("iconToggleButton_darkTheme")
+    }
+
+    @Test
+    fun iconToggleButton_checked_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                IconToggleButton(checked = true, onCheckedChange = { /* doSomething() */ }) {
+                    Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                }
+            }
+        }
+        assertAgainstGolden("iconToggleButton_checked_lightTheme")
+    }
+
+    @Test
+    fun iconToggleButton_checked_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                IconToggleButton(checked = true, onCheckedChange = { /* doSomething() */ }) {
+                    Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                }
+            }
+        }
+        assertAgainstGolden("iconToggleButton_checked_darkTheme")
+    }
+
+    @Test
+    fun iconToggleButton_largeContentClipped() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                IconToggleButton(checked = true, onCheckedChange = { /* doSomething() */ }) {
+                    Box(
+                        Modifier
+                            .size(100.dp)
+                            .background(Color.Blue))
+                }
+            }
+        }
+        assertAgainstGolden("iconToggleButton_largeContentClipped")
+    }
+
+    @Test
+    fun filledIconButton_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                FilledIconButton(onClick = { /* doSomething() */ }) {
+                    Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                }
+            }
+        }
+        assertAgainstGolden("filledIconButton_lightTheme")
+    }
+
+    @Test
+    fun filledIconButton_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                FilledIconButton(onClick = { /* doSomething() */ }) {
+                    Icon(
+                        Icons.Filled.Favorite,
+                        contentDescription = "Localized description"
+                    )
+                }
+            }
+        }
+        assertAgainstGolden("filledIconButton_darkTheme")
+    }
+
+    @Test
+    fun filledIconToggleButton_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                FilledIconToggleButton(checked = false, onCheckedChange = { /* doSomething() */ }) {
+                    Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                }
+            }
+        }
+        assertAgainstGolden("filledIconToggleButton_lightTheme")
+    }
+
+    @Test
+    fun filledIconToggleButton_lightTheme_disabled() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                FilledIconToggleButton(
+                    checked = false,
+                    onCheckedChange = { /* doSomething() */ },
+                    enabled = false
+                ) {
+                    Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                }
+            }
+        }
+        assertAgainstGolden("filledIconToggleButton_lightTheme_disabled")
+    }
+
+    @Test
+    fun filledIconToggleButton_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                FilledIconToggleButton(checked = false, onCheckedChange = { /* doSomething() */ }) {
+                    Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                }
+            }
+        }
+        assertAgainstGolden("filledIconToggleButton_darkTheme")
+    }
+
+    @Test
+    fun filledIconToggleButton_checked_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                FilledIconToggleButton(checked = true, onCheckedChange = { /* doSomething() */ }) {
+                    Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                }
+            }
+        }
+        assertAgainstGolden("filledIconToggleButton_checked_lightTheme")
+    }
+
+    @Test
+    fun filledIconToggleButton_checked_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                FilledIconToggleButton(checked = true, onCheckedChange = { /* doSomething() */ }) {
+                    Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                }
+            }
+        }
+        assertAgainstGolden("filledIconToggleButton_checked_darkTheme")
+    }
+
+    @Test
+    fun filledTonalIconButton_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                FilledTonalIconButton(onClick = { /* doSomething() */ }) {
+                    Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                }
+            }
+        }
+        assertAgainstGolden("filledTonalIconButton_lightTheme")
+    }
+
+    @Test
+    fun filledTonalIconButton_lightTheme_disabled() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                FilledTonalIconButton(
+                    onClick = { /* doSomething() */ },
+                    enabled = false
+                ) {
+                    Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                }
+            }
+        }
+        assertAgainstGolden("filledTonalIconButton_lightTheme_disabled")
+    }
+
+    @Test
+    fun filledTonalIconButton_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                FilledTonalIconButton(onClick = { /* doSomething() */ }) {
+                    Icon(
+                        Icons.Filled.Favorite,
+                        contentDescription = "Localized description"
+                    )
+                }
+            }
+        }
+        assertAgainstGolden("filledTonalIconButton_darkTheme")
+    }
+
+    @Test
+    fun filledTonalIconToggleButton_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                FilledTonalIconToggleButton(
+                    checked = false,
+                    onCheckedChange = { /* doSomething() */ }
+                ) {
+                    Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                }
+            }
+        }
+        assertAgainstGolden("filledTonalIconToggleButton_lightTheme")
+    }
+
+    @Test
+    fun filledTonalIconToggleButton_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                FilledTonalIconToggleButton(
+                    checked = false,
+                    onCheckedChange = { /* doSomething() */ }
+                ) {
+                    Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                }
+            }
+        }
+        assertAgainstGolden("filledTonalIconToggleButton_darkTheme")
+    }
+
+    @Test
+    fun filledTonalIconToggleButton_checked_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                FilledTonalIconToggleButton(
+                    checked = true,
+                    onCheckedChange = { /* doSomething() */ }
+                ) {
+                    Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                }
+            }
+        }
+        assertAgainstGolden("filledTonalIconToggleButton_checked_lightTheme")
+    }
+
+    @Test
+    fun filledTonalIconToggleButton_checked_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                FilledTonalIconToggleButton(
+                    checked = true,
+                    onCheckedChange = { /* doSomething() */ }
+                ) {
+                    Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                }
+            }
+        }
+        assertAgainstGolden("filledTonalIconToggleButton_checked_darkTheme")
+    }
+
+    @Test
+    fun outlinedIconButton_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                OutlinedIconButton(onClick = { /* doSomething() */ }) {
+                    Icon(
+                        Icons.Outlined.FavoriteBorder,
+                        contentDescription = "Localized description"
+                    )
+                }
+            }
+        }
+        assertAgainstGolden("outlinedIconButton_lightTheme")
+    }
+
+    @Test
+    fun outlinedButton_lightTheme_disabled() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                OutlinedIconButton(onClick = { /* doSomething() */ }, enabled = false) {
+                    Icon(
+                        Icons.Outlined.FavoriteBorder,
+                        contentDescription = "Localized description"
+                    )
+                }
+            }
+        }
+        assertAgainstGolden("outlinedButton_lightTheme_disabled")
+    }
+
+    @Test
+    fun outlinedIconButton_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                OutlinedIconButton(onClick = { /* doSomething() */ }) {
+                    Icon(
+                        Icons.Outlined.FavoriteBorder,
+                        contentDescription = "Localized description"
+                    )
+                }
+            }
+        }
+        assertAgainstGolden("outlinedIconButton_darkTheme")
+    }
+
+    @Test
+    fun outlinedIconToggleButton_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                OutlinedIconToggleButton(
+                    checked = false,
+                    onCheckedChange = { /* doSomething() */ }) {
+                    Icon(
+                        Icons.Outlined.FavoriteBorder,
+                        contentDescription = "Localized description"
+                    )
+                }
+            }
+        }
+        assertAgainstGolden("outlinedIconToggleButton_lightTheme")
+    }
+
+    @Test
+    fun outlinedIconToggleButton_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                OutlinedIconToggleButton(
+                    checked = false,
+                    onCheckedChange = { /* doSomething() */ }) {
+                    Icon(
+                        Icons.Outlined.FavoriteBorder,
+                        contentDescription = "Localized description"
+                    )
+                }
+            }
+        }
+        assertAgainstGolden("outlinedIconToggleButton_darkTheme")
+    }
+
+    @Test
+    fun outlinedIconToggleButton_checked_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                OutlinedIconToggleButton(
+                    checked = true,
+                    onCheckedChange = { /* doSomething() */ }) {
+                    Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                }
+            }
+        }
+        assertAgainstGolden("outlinedIconToggleButton_checked_lightTheme")
+    }
+
+    @Test
+    fun outlinedIconToggleButton_checked_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                OutlinedIconToggleButton(
+                    checked = true,
+                    onCheckedChange = { /* doSomething() */ }) {
+                    Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                }
+            }
+        }
+        assertAgainstGolden("outlinedIconToggleButton_checked_darkTheme")
     }
 
     private fun assertAgainstGolden(goldenName: String) {

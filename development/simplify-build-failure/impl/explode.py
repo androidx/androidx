@@ -15,7 +15,7 @@
 #  limitations under the License.
 #
 
-import os, sys
+import os, sys, shutil
 
 def usage():
   print("Usage: explode.py [--consolidate-leaves] [--remove-leaves] <inputFile> <outputPath>")
@@ -31,6 +31,16 @@ class FileIo(object):
       if os.path.isfile(filePath) or os.path.islink(filePath):
         os.remove(filePath)
       os.makedirs(filePath)
+
+  def removePath(self, filePath):
+    if len(os.path.split(filePath)) < 2:
+      raise Exception("Will not remove path at " + filePath + "; is too close to the root of the filesystem")
+    if os.path.islink(filePath):
+      os.remove(filePath)
+    elif os.path.isdir(filePath):
+      shutil.rmtree(filePath)
+    elif os.path.isfile(filePath):
+      os.remove(filePath)
 
   def copyFile(self, fromPath, toPath):
     self.ensureDirExists(os.path.dirname(toPath))
@@ -167,7 +177,12 @@ def main(args):
   stack = [Block(0, -1)]
   inputPath = args[0]
   outputPath = args[1]
-  lines = open(inputPath).readlines()
+  inputFile = open(inputPath)
+  lines = []
+  try:
+    lines = inputFile.readlines()
+  except UnicodeDecodeError:
+    fileIo.copyFile(inputPath, outputPath + "/binary")
   numLines = len(lines)
   for i in range(numLines):
     lineName = getLineName(i, numLines)

@@ -1,5 +1,3 @@
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -12,7 +10,7 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.leanback:leanback:1.1.0-beta01")
-    api("androidx.paging:paging-runtime:3.0.0")
+    api("androidx.paging:paging-runtime:3.1.0")
 
     // To avoid manifest merger warnings due to duplicate package names
     // It can be removed if leanback library is updated to a newer version
@@ -50,20 +48,13 @@ android {
         // Bug in Android Lint 7.0.0-alpha15 b/187419330
         disable("MissingLeanbackLauncher", "ImpliedTouchscreenHardware", "MissingLeanbackSupport")
     }
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
-    }
+    namespace "androidx.leanback.paging"
 }
 
 androidx {
     name = "AndroidX Leanback Paging"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.LEANBACK_PAGING
-    mavenGroup = LibraryGroups.LEANBACK
     inceptionYear = "2020"
     description = "AndroidX Leanback Paging"
     failOnDeprecationWarnings = false

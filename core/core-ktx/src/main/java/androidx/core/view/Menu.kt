@@ -71,8 +71,16 @@ public operator fun Menu.iterator(): MutableIterator<MenuItem> =
         private var index = 0
         override fun hasNext() = index < size()
         override fun next() = getItem(index++) ?: throw IndexOutOfBoundsException()
-        override fun remove() = removeItem(--index)
+        override fun remove() = removeItemAt(--index)
     }
+
+/**
+ * Removes the menu item at the specified index.
+ *
+ * @throws IndexOutOfBoundsException if index is less than 0 or greater than or equal to the count.
+ */
+public inline fun Menu.removeItemAt(index: Int) =
+    getItem(index)?.let { removeItem(it.itemId) } ?: throw IndexOutOfBoundsException()
 
 /** Returns a [Sequence] over the items in this menu. */
 public val Menu.children: Sequence<MenuItem>

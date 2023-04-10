@@ -1,0 +1,19 @@
+{
+    "__comment": [
+        "Compose and Main are two configurations we have in CI.",
+        "Each can have include and exclude filters where these filters run an",
+        "exact match on the project name.",
+        "If the project matches both exclude and include filters, exclude is prioritized."
+    ],
+    "compose" : {
+        "include" : [
+            "compose-runtime"
+        ],
+        "default": false
+    },
+    "main" : {
+        "exclude" : [
+        ],
+        "default": true
+    }
+}

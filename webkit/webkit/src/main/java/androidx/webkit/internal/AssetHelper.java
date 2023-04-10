@@ -39,7 +39,6 @@ import java.util.zip.GZIPInputStream;
   * Forked from the chromuim project org.chromium.android_webview.AndroidProtocolHandler
   */
 public class AssetHelper {
-    private static final String TAG = "AssetHelper";
 
     /**
      * Default value to be used as MIME type if guessing MIME type failed.
@@ -185,7 +184,7 @@ public class AssetHelper {
     public static File getDataDir(@NonNull Context context) {
         // Context#getDataDir is only available in APIs >= 24.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return context.getDataDir();
+            return ApiHelperForN.getDataDir(context);
         } else {
             // For APIs < 24 cache dir is created under the data dir.
             return context.getCacheDir().getParentFile();
@@ -204,4 +203,5 @@ public class AssetHelper {
         String mimeType = URLConnection.guessContentTypeFromName(filePath);
         return mimeType == null ? DEFAULT_MIME_TYPE : mimeType;
     }
+
 }

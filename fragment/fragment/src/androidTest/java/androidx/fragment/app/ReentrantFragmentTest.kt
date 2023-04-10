@@ -22,9 +22,11 @@ import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.lifecycle.ViewModelStore
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
@@ -50,8 +52,12 @@ class ReentrantFragmentTest(
     }
 
     @Suppress("DEPRECATION")
+    val activityRule = androidx.test.rule.ActivityTestRule(EmptyFragmentTestActivity::class.java)
+
+    // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    var activityRule = androidx.test.rule.ActivityTestRule(EmptyFragmentTestActivity::class.java)
+    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
+        .around(activityRule)
 
     // Make sure that executing transactions during activity lifecycle events
     // is properly prevented.
@@ -142,6 +148,7 @@ class ReentrantFragment : StrictFragment() {
     private var toState = State.DETACHED
     private var isRestored: Boolean = false
 
+    @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         if (savedInstanceState != null) {
             fromState = savedInstanceState.getSerializable(FROM_STATE) as State

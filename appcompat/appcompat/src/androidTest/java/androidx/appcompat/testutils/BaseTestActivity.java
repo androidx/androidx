@@ -210,6 +210,7 @@ public abstract class BaseTestActivity extends RecreatedAppCompatActivity {
         mDestroyed = true;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onBackPressed() {
         super.onBackPressed();

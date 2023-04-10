@@ -13,7 +13,7 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 #
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.12)
 
 project(camera_core_jni)
 
@@ -23,7 +23,9 @@ add_library(
         image_processing_util_jni.cc)
 
 find_library(log-lib log)
+find_library(jnigraphics-lib jnigraphics)
 find_library(android-lib android)
 find_package(libyuv REQUIRED)
 
-target_link_libraries(image_processing_util_jni PRIVATE ${log-lib} ${android-lib} libyuv::yuv)
+target_link_libraries(image_processing_util_jni PRIVATE ${log-lib} ${android-lib} ${jnigraphics-lib} libyuv::yuv)
+

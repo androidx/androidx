@@ -23,11 +23,11 @@ import android.text.TextPaint
 import android.text.style.ScaleXSpan
 import androidx.compose.ui.text.android.style.BaselineShiftSpan
 import androidx.compose.ui.text.android.style.SkewXSpan
-import androidx.compose.ui.text.font.test.R
 import androidx.core.content.res.ResourcesCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.testutils.fonts.R
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import org.junit.Before
@@ -58,21 +58,22 @@ class TextLayoutSpanTest {
         val text = SpannableString("abc")
         val fontSize = 20
 
-        val spanOutterMult = 0.5f
-        val spanOutter = spy(BaselineShiftSpan(spanOutterMult))
+        val spanOuterMult = 0.5f
+        val spanOuter = spy(BaselineShiftSpan(spanOuterMult))
         val spanInnerMult = 0.3f
         val spanInner = spy(BaselineShiftSpan(spanInnerMult))
 
-        text.setSpan(spanOutter, 1, 3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        text.setSpan(spanOuter, 1, 3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         text.setSpan(spanInner, 2, 3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
+        val ascent = 0.8f; // The test font has 0.8em ascent
         // first baselineShiftSpan is applied
-        var expectShift = (-fontSize * spanOutterMult).toInt()
+        var expectShift = (-fontSize * ascent * spanOuterMult).toInt()
         doAnswer(updatePaintAnswer(baselineShift = expectShift))
-            .`when`(spanOutter).updateMeasureState(any())
+            .`when`(spanOuter).updateMeasureState(any())
 
         // second baselineShiftSpan is applied
-        expectShift = (-fontSize * (spanOutterMult + spanInnerMult)).toInt()
+        expectShift = (-fontSize * ascent * (spanOuterMult + spanInnerMult)).toInt()
         doAnswer(updatePaintAnswer(baselineShift = expectShift))
             .`when`(spanInner).updateMeasureState(any())
 
@@ -97,13 +98,14 @@ class TextLayoutSpanTest {
         text.setSpan(spanOutter, 1, 3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         text.setSpan(spanInner, 2, 3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
+        val ascent = 0.8f; // The test font has 0.8em ascent
         // first baselineShiftSpan is applied
-        var expectShift = (-fontSize * spanOutterMult).toInt()
+        var expectShift = (-fontSize * ascent * spanOutterMult).toInt()
         doAnswer(updatePaintAnswer(baselineShift = expectShift))
             .`when`(spanOutter).updateDrawState(any())
 
         // second baselineShiftSpan is applied
-        expectShift = (-fontSize * (spanOutterMult + spanInnerMult)).toInt()
+        expectShift = (-fontSize * ascent * (spanOutterMult + spanInnerMult)).toInt()
         doAnswer(updatePaintAnswer(baselineShift = expectShift))
             .`when`(spanInner).updateDrawState(any())
 

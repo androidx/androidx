@@ -93,6 +93,28 @@ public final class AccessibilityEventCompat {
 
     /**
      * Represents the event of an application making an announcement.
+     *
+     * <p>
+     * Note: This event carries no semantic meaning and is appropriate only in exceptional
+     * situations. Apps can generally achieve correct behavior for accessibility by
+     * accurately supplying the semantics of their UI. They should not need to specify what
+     * exactly is announced to users.
+     *
+     * <p>
+     * In general, only announce transitions that can't be handled by the following preferred
+     * alternatives:
+     * <ul>
+     *     <li>Label your controls concisely and precisely. Don’t generate a confirmation message
+     *     for simple actions like a button press.</li>
+     *     <li>For significant UI changes like window changes, use
+     *     {@link android.app.Activity#setTitle(CharSequence)} and
+     *     {@link androidx.core.view.ViewCompat#setAccessibilityPaneTitle(View, CharSequence)} )}.
+     *     </li>
+     *     <li>Use {@link androidx.core.view.ViewCompat#setAccessibilityLiveRegion(View, int)}
+     *     to inform the user of changes to critical views within the user interface. These
+     *     should still be used sparingly as they may generate announcements every time a View is
+     *     updated.</li>
+     * </ul>
      */
     public static final int TYPE_ANNOUNCEMENT = 0x00004000;
 
@@ -202,6 +224,36 @@ public final class AccessibilityEventCompat {
     public static final int CONTENT_CHANGE_TYPE_STATE_DESCRIPTION = 0x00000040;
 
     /**
+     * Change type for {@link #TYPE_WINDOW_CONTENT_CHANGED} event:
+     * A drag has started while accessibility is enabled. This is either via an
+     * AccessibilityAction, or via touch events. This is sent from the source that initiated the
+     * drag.
+     *
+     * @see AccessibilityNodeInfo.AccessibilityAction#ACTION_DRAG_START
+     */
+    public static final int CONTENT_CHANGE_TYPE_DRAG_STARTED = 0x00000080;
+
+    /**
+     * Change type for {@link #TYPE_WINDOW_CONTENT_CHANGED} event:
+     * A drag in with accessibility enabled has ended. This means the content has been
+     * successfully dropped. This is sent from the target that accepted the dragged content.
+     *
+     * @see AccessibilityNodeInfo.AccessibilityAction#ACTION_DRAG_DROP
+     */
+    public static final int CONTENT_CHANGE_TYPE_DRAG_DROPPED = 0x00000100;
+
+    /**
+     * Change type for {@link #TYPE_WINDOW_CONTENT_CHANGED} event:
+     * A drag in with accessibility enabled has ended. This means the content has been
+     * unsuccessfully dropped, the user has canceled the action via an AccessibilityAction, or
+     * no drop has been detected within a timeout and the drag was automatically cancelled. This is
+     * sent from the source that initiated the drag.
+     *
+     * @see AccessibilityNodeInfo.AccessibilityAction#ACTION_DRAG_CANCEL
+     */
+    public static final int CONTENT_CHANGE_TYPE_DRAG_CANCELLED = 0x0000200;
+
+    /**
      * Mask for {@link AccessibilityEvent} all types.
      *
      * @see AccessibilityEvent#TYPE_VIEW_CLICKED
@@ -238,7 +290,10 @@ public final class AccessibilityEventCompat {
                     CONTENT_CHANGE_TYPE_STATE_DESCRIPTION,
                     CONTENT_CHANGE_TYPE_SUBTREE,
                     CONTENT_CHANGE_TYPE_TEXT,
-                    CONTENT_CHANGE_TYPE_UNDEFINED
+                    CONTENT_CHANGE_TYPE_UNDEFINED,
+                    CONTENT_CHANGE_TYPE_DRAG_STARTED,
+                    CONTENT_CHANGE_TYPE_DRAG_DROPPED,
+                    CONTENT_CHANGE_TYPE_DRAG_CANCELLED
             })
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(RetentionPolicy.SOURCE)

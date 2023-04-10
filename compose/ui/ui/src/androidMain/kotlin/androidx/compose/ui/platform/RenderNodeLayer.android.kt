@@ -24,12 +24,16 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.CanvasHolder
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.GraphicLayerInfo
 import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.unit.Density
@@ -97,12 +101,10 @@ internal class RenderNodeLayer(
         }
 
     @RequiresApi(29)
-    private class UniqueDrawingIdApi29 {
-        @RequiresApi(29)
-        companion object {
-            @JvmStatic
-            fun getUniqueDrawingId(view: View) = view.uniqueDrawingId
-        }
+    private object UniqueDrawingIdApi29 {
+        @JvmStatic
+        @androidx.annotation.DoNotInline
+        fun getUniqueDrawingId(view: View) = view.uniqueDrawingId
     }
 
     override fun updateLayerProperties(
@@ -120,6 +122,9 @@ internal class RenderNodeLayer(
         shape: Shape,
         clip: Boolean,
         renderEffect: RenderEffect?,
+        ambientShadowColor: Color,
+        spotShadowColor: Color,
+        compositingStrategy: CompositingStrategy,
         layoutDirection: LayoutDirection,
         density: Density
     ) {
@@ -131,6 +136,8 @@ internal class RenderNodeLayer(
         renderNode.translationX = translationX
         renderNode.translationY = translationY
         renderNode.elevation = shadowElevation
+        renderNode.ambientShadowColor = ambientShadowColor.toArgb()
+        renderNode.spotShadowColor = spotShadowColor.toArgb()
         renderNode.rotationZ = rotationZ
         renderNode.rotationX = rotationX
         renderNode.rotationY = rotationY
@@ -140,6 +147,7 @@ internal class RenderNodeLayer(
         renderNode.clipToOutline = clip && shape !== RectangleShape
         renderNode.clipToBounds = clip && shape === RectangleShape
         renderNode.renderEffect = renderEffect
+        renderNode.compositingStrategy = compositingStrategy
         val shapeChanged = outlineResolver.update(
             shape,
             renderNode.alpha,
@@ -289,7 +297,9 @@ internal class RenderNodeLayer(
             } else {
                 null
             }
-            renderNode.record(canvasHolder, clipPath, drawBlock!!)
+            drawBlock?.let {
+                renderNode.record(canvasHolder, clipPath, it)
+            }
         }
     }
 
@@ -333,6 +343,17 @@ internal class RenderNodeLayer(
         transformOrigin = TransformOrigin.Center
         this.drawBlock = drawBlock
         this.invalidateParentLayer = invalidateParentLayer
+    }
+
+    override fun transform(matrix: Matrix) {
+        matrix.timesAssign(matrixCache.calculateMatrix(renderNode))
+    }
+
+    override fun inverseTransform(matrix: Matrix) {
+        val inverse = matrixCache.calculateInverseMatrix(renderNode)
+        if (inverse != null) {
+            matrix.timesAssign(inverse)
+        }
     }
 
     companion object {

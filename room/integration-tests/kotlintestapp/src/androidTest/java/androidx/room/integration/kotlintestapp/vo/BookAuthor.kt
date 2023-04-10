@@ -39,7 +39,7 @@ import androidx.room.Index
             deferred = true
         )
     ),
-    primaryKeys = arrayOf("bookId", "authorId"),
+    primaryKeys = ["bookId", "authorId"],
     indices = [Index("bookId"), Index("authorId")]
 )
 data class BookAuthor(val bookId: String, val authorId: String)

@@ -76,6 +76,14 @@ fun DefaultParametersPreview3(a: () -> Int = { 4 }, b: Int = 3, c: Data = Data()
 
 @Preview
 @Composable
+fun DefaultParametersPreview4(a: String = "Hello", b: Color = Color.White) {
+    if (a != "Hello") throw IllegalArgumentException("Unexpected default value")
+    if (b != Color.White) throw IllegalArgumentException("Unexpected default value")
+    Text("Default parameter  $a $b")
+}
+
+@Preview
+@Composable
 private fun LifecyclePreview() {
     val lifecycleState = LocalLifecycleOwner.current.lifecycle.currentState
     if (lifecycleState != Lifecycle.State.RESUMED) throw IllegalArgumentException(
@@ -131,5 +139,16 @@ class TestGroup {
         Surface(color = Color.Red) {
             Text("In class")
         }
+    }
+}
+
+@Preview
+annotation class MyAnnotation()
+
+@Composable
+@MyAnnotation
+fun Multipreview() {
+    Surface(color = Color.Red) {
+        Text("Hello world")
     }
 }

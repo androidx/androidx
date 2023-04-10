@@ -31,12 +31,20 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ComponentActivityResultTest {
+
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
+
     @Test
     fun launchInOnCreate() {
         ActivityScenario.launch(ResultComponentActivity::class.java).use { scenario ->
@@ -83,14 +91,14 @@ class ComponentActivityResultTest {
                 launcher.launch(Intent(this, FinishActivity::class.java))
             }
 
-            scenario.withActivity {
-                assertThat(launchCount).isEqualTo(1)
-            }
+            val launchCountDownLatch = scenario.withActivity { launchCount }
+
+            assertThat(launchCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
         }
     }
 
     @Test
-    fun noActivityAvailableTest() {
+    fun noActivityAvailableLifecycleTest() {
         ActivityScenario.launch(RegisterInInitActivity::class.java).use { scenario ->
             var exceptionThrown = false
             scenario.withActivity {
@@ -101,10 +109,33 @@ class ComponentActivityResultTest {
                 }
             }
 
-            scenario.withActivity {
+            val launchCountDownLatch = scenario.withActivity {
                 assertThat(exceptionThrown).isTrue()
-                assertThat(launchCount).isEqualTo(0)
+                launchCount
             }
+
+            assertThat(launchCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isFalse()
+        }
+    }
+
+    @Test
+    fun noActivityAvailableNoLifecycleTest() {
+        ActivityScenario.launch(RegisterInInitActivity::class.java).use { scenario ->
+            var exceptionThrown = false
+            scenario.withActivity {
+                try {
+                    launcherNoLifecycle.launch(Intent("no action"))
+                } catch (e: ActivityNotFoundException) {
+                    exceptionThrown = true
+                }
+            }
+
+            val launchCountDownLatch = scenario.withActivity {
+                assertThat(exceptionThrown).isTrue()
+                launchCount
+            }
+
+            assertThat(launchCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isFalse()
         }
     }
 }
@@ -115,6 +146,7 @@ class PassThroughActivity : ComponentActivity() {
             finish()
         }
     }
+    @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         launcher.launch(intent.getParcelableExtra("destinationIntent"))
@@ -175,11 +207,15 @@ class RegisterBeforeOnCreateActivity : ComponentActivity() {
 
 class RegisterInInitActivity : ComponentActivity() {
     var launcher: ActivityResultLauncher<Intent>
-    var launchCount = 0
+    val launcherNoLifecycle: ActivityResultLauncher<Intent>
+    var launchCount = CountDownLatch(1)
 
     init {
         launcher = registerForActivityResult(StartActivityForResult()) {
-            launchCount++
+            launchCount.countDown()
+        }
+        launcherNoLifecycle = activityResultRegistry.register("test", StartActivityForResult()) {
+            launchCount.countDown()
         }
     }
 }

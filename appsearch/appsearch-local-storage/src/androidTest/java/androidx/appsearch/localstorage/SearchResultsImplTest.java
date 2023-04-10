@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.InternalSetSchemaResponse;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchSpec;
 
@@ -51,7 +52,8 @@ public class SearchResultsImplTest {
         mAppSearchImpl = AppSearchImpl.create(
                 mTemporaryFolder.newFolder(),
                 new UnlimitedLimitConfig(),
-                /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE);
+                /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
+                /*visibilityChecker=*/null);
     }
 
     @After
@@ -64,21 +66,25 @@ public class SearchResultsImplTest {
         // Insert package1 schema
         List<AppSearchSchema> schema1 =
                 ImmutableList.of(new AppSearchSchema.Builder("schema1").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1",
                 "database1",
                 schema1,
-                /*visibilityStore=*/ null,
-                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
-                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
+                /*visibilityDocuments=*/ Collections.emptyList(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Insert one package1 documents
         GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
                 "schema1").build();
-        mAppSearchImpl.putDocument("package1", "database1", document1, /*logger=*/ null);
+        mAppSearchImpl.putDocument(
+                "package1",
+                "database1",
+                document1,
+                /*sendChangeNotifications=*/ false,
+                /*logger=*/ null);
 
         // Query for only 1 result per page
         SearchSpec searchSpec = new SearchSpec.Builder()
@@ -95,12 +101,12 @@ public class SearchResultsImplTest {
                 searchSpec,
                 /*logger=*/ null);
 
-        List<SearchResult> results = searchResults.getNextPage().get();
+        List<SearchResult> results = searchResults.getNextPageAsync().get();
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getGenericDocument()).isEqualTo(document1);
 
         // We get all documents, and it shouldn't fail if we keep calling getNextPage().
-        results = searchResults.getNextPage().get();
+        results = searchResults.getNextPageAsync().get();
         assertThat(results).isEmpty();
     }
 
@@ -109,16 +115,15 @@ public class SearchResultsImplTest {
         // Insert package1 schema
         List<AppSearchSchema> schema1 =
                 ImmutableList.of(new AppSearchSchema.Builder("schema1").build());
-        mAppSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 "package1",
                 "database1",
                 schema1,
-                /*visibilityStore=*/ null,
-                /*schemasNotDisplayedBySystem=*/ Collections.emptyList(),
-                /*schemasVisibleToPackages=*/ Collections.emptyMap(),
+                /*visibilityDocuments=*/ Collections.emptyList(),
                 /*forceOverride=*/ false,
                 /*version=*/ 0,
                 /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Insert 3 package1 documents
         GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
@@ -127,9 +132,24 @@ public class SearchResultsImplTest {
                 "schema1").build();
         GenericDocument document3 = new GenericDocument.Builder<>("namespace", "id3",
                 "schema1").build();
-        mAppSearchImpl.putDocument("package1", "database1", document1, /*logger=*/ null);
-        mAppSearchImpl.putDocument("package1", "database1", document2, /*logger=*/ null);
-        mAppSearchImpl.putDocument("package1", "database1", document3, /*logger=*/ null);
+        mAppSearchImpl.putDocument(
+                "package1",
+                "database1",
+                document1,
+                /*sendChangeNotifications=*/ false,
+                /*logger=*/ null);
+        mAppSearchImpl.putDocument(
+                "package1",
+                "database1",
+                document2,
+                /*sendChangeNotifications=*/ false,
+                /*logger=*/ null);
+        mAppSearchImpl.putDocument(
+                "package1",
+                "database1",
+                document3,
+                /*sendChangeNotifications=*/ false,
+                /*logger=*/ null);
 
         // Query for only 2 result per page
         SearchSpec searchSpec = new SearchSpec.Builder()
@@ -146,18 +166,18 @@ public class SearchResultsImplTest {
                 searchSpec,
                 /*logger=*/ null);
         List<GenericDocument> outDocs = new ArrayList<>();
-        List<SearchResult> results = searchResults.getNextPage().get();
+        List<SearchResult> results = searchResults.getNextPageAsync().get();
         assertThat(results).hasSize(2);
         outDocs.add(results.get(0).getGenericDocument());
         outDocs.add(results.get(1).getGenericDocument());
 
-        results = searchResults.getNextPage().get();
+        results = searchResults.getNextPageAsync().get();
         assertThat(results).hasSize(1);
         outDocs.add(results.get(0).getGenericDocument());
         assertThat(outDocs).containsExactly(document1, document2, document3);
 
         // We get all documents, and it shouldn't fail if we keep calling getNextPage().
-        results = searchResults.getNextPage().get();
+        results = searchResults.getNextPageAsync().get();
         assertThat(results).isEmpty();
     }
 }

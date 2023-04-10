@@ -17,10 +17,8 @@ package androidx.wear.input
 
 import android.app.RemoteInput
 import android.content.Intent
-import android.os.Build
 import androidx.annotation.NonNull
 import androidx.annotation.Nullable
-import androidx.annotation.RequiresApi
 
 /**
  * Helper functions for supporting remote inputs through starting an [android.content.Intent].
@@ -51,7 +49,6 @@ import androidx.annotation.RequiresApi
  *
  * More information about accessing these results can be found in [RemoteInput].
  */
-@RequiresApi(Build.VERSION_CODES.N)
 public class RemoteInputIntentHelper private constructor() {
     public companion object {
         private const val ACTION_REMOTE_INPUT: String =
@@ -103,6 +100,7 @@ public class RemoteInputIntentHelper private constructor() {
          * @return The array of [RemoteInput] previously added with [putRemoteInputsExtra] or null
          * which means no user input required.
          */
+        @Suppress("DEPRECATION")
         @JvmStatic
         @Nullable
         public fun getRemoteInputsExtra(intent: Intent): List<RemoteInput>? =

@@ -33,6 +33,7 @@ import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Context
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
+import com.android.tools.lint.detector.api.Incident
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.LintMap
@@ -41,12 +42,20 @@ import com.android.tools.lint.detector.api.PartialResult
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
+import org.jetbrains.kotlin.backend.jvm.ir.psiElement
+import org.jetbrains.kotlin.descriptors.MemberDescriptor
 import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
+import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.psi.KtModifierListOwner
 import org.jetbrains.kotlin.psi.KtPropertyAccessor
+import org.jetbrains.kotlin.psi.psiUtil.hasActualModifier
+import org.jetbrains.kotlin.resolve.BindingContext
+import org.jetbrains.kotlin.resolve.multiplatform.ExpectedActualResolver
 import org.jetbrains.uast.UDeclaration
 import org.jetbrains.uast.UMethod
+import org.jetbrains.uast.kotlin.KotlinUastResolveProviderService
 
 /**
  * Detector responsible for enforcing @Sampled annotation usage
@@ -112,11 +121,11 @@ class SampledAnnotationDetector : Detector(), SourceCodeScanner {
                 functionLocations == null -> {
                     locations.forEach { location ->
                         if (location.shouldReport()) {
-                            context.report(
-                                UNRESOLVED_SAMPLE_LINK,
-                                location,
-                                "Couldn't find a valid @Sampled function matching $link"
-                            )
+                            val incident = Incident(context)
+                                .issue(UNRESOLVED_SAMPLE_LINK)
+                                .location(location)
+                                .message("Couldn't find a valid @Sampled function matching $link")
+                            context.report(incident)
                         }
                     }
                 }
@@ -125,11 +134,11 @@ class SampledAnnotationDetector : Detector(), SourceCodeScanner {
                 functionLocations.size > 1 -> {
                     locations.forEach { location ->
                         if (location.shouldReport()) {
-                            context.report(
-                                MULTIPLE_FUNCTIONS_FOUND,
-                                location,
-                                "Found multiple functions matching $link"
-                            )
+                            val incident = Incident(context)
+                                .issue(MULTIPLE_FUNCTIONS_FOUND)
+                                .location(location)
+                                .message("Found multiple functions matching $link")
+                            context.report(incident)
                         }
                     }
                 }
@@ -140,12 +149,12 @@ class SampledAnnotationDetector : Detector(), SourceCodeScanner {
             if (sampleLinks[link] == null) {
                 locations.forEach { location ->
                     if (location.shouldReport()) {
-                        context.report(
-                            OBSOLETE_SAMPLED_ANNOTATION,
-                            location,
-                            "$link is annotated with @$SAMPLED_ANNOTATION, but is not " +
-                                "linked to from a @$SAMPLE_KDOC_ANNOTATION tag."
-                        )
+                        val incident = Incident(context)
+                            .issue(OBSOLETE_SAMPLED_ANNOTATION)
+                            .location(location)
+                            .message("$link is annotated with @$SAMPLED_ANNOTATION, but is not " +
+                                "linked to from a @$SAMPLE_KDOC_ANNOTATION tag.")
+                        context.report(incident)
                     }
                 }
             }
@@ -242,6 +251,24 @@ private class KDocSampleLinkHandler(private val context: JavaContext) {
                 .forEach {
                     handleSampleLink(it)
                 }
+            // Expect declarations are not visible in UAST, but they may have sample links on them.
+            // If we are looking at an actual declaration, also manually find the corresponding
+            // expect declaration for analysis.
+            if ((source as? KtModifierListOwner)?.hasActualModifier() == true) {
+                val service = node.project.getService(KotlinUastResolveProviderService::class.java)
+                val member = service.getBindingContext(source)
+                    .get(BindingContext.DECLARATION_TO_DESCRIPTOR, source) as? MemberDescriptor
+                    // Should never be null since `actual` is only applicable to members
+                    ?: return
+                val expected = ExpectedActualResolver.findExpectedForActual(member) ?: return
+                // There may be multiple possible candidates, we want to check them all regardless.
+                expected.values.toList().flatten().forEach { descriptor ->
+                    val element = descriptor.psiElement
+                    (element as? KtDeclaration)?.docComment?.let {
+                        handleSampleLink(it)
+                    }
+                }
+            }
         }
     }
 
@@ -294,13 +321,13 @@ private class SampledAnnotationHandler(private val context: JavaContext) {
         val currentPath = context.psiFile!!.virtualFile.path
 
         if (SAMPLES_DIRECTORY !in currentPath) {
-            context.report(
-                INVALID_SAMPLES_LOCATION,
-                node,
-                context.getNameLocation(node),
-                "${node.name} is annotated with @$SAMPLED_ANNOTATION" +
-                    ", but is not inside a project/directory named $SAMPLES_DIRECTORY."
-            )
+            val incident = Incident(context)
+                .issue(INVALID_SAMPLES_LOCATION)
+                .location(context.getNameLocation(node))
+                .message("${node.name} is annotated with @$SAMPLED_ANNOTATION" +
+                    ", but is not inside a project/directory named $SAMPLES_DIRECTORY.")
+                .scope(node)
+            context.report(incident)
             return
         }
 
@@ -320,11 +347,11 @@ private class SampledAnnotationHandler(private val context: JavaContext) {
         val location = context.getNameLocation(node)
 
         if (sampledFunctionLintMap.getLocation(fullFqName) != null) {
-            context.report(
-                MULTIPLE_FUNCTIONS_FOUND,
-                location,
-                "Found multiple functions matching $fullFqName"
-            )
+            val incident = Incident(context)
+                .issue(MULTIPLE_FUNCTIONS_FOUND)
+                .location(location)
+                .message("Found multiple functions matching $fullFqName")
+            context.report(incident)
         }
 
         sampledFunctionLintMap.put(fullFqName, location)

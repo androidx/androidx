@@ -26,6 +26,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measured
 import androidx.compose.ui.layout.VerticalAlignmentLine
 import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.foundation.layout.internal.JvmDefaultWithCompatibility
 
 /**
  * A layout composable that places its children in a vertical sequence. For a layout composable
@@ -98,27 +99,28 @@ internal val DefaultColumnMeasurePolicy = rowColumnMeasurePolicy(
 internal fun columnMeasurePolicy(
     verticalArrangement: Arrangement.Vertical,
     horizontalAlignment: Alignment.Horizontal
-) = remember(verticalArrangement, horizontalAlignment) {
-    if (verticalArrangement == Arrangement.Top && horizontalAlignment == Alignment.Start) {
+) = if (verticalArrangement == Arrangement.Top && horizontalAlignment == Alignment.Start) {
         DefaultColumnMeasurePolicy
     } else {
-        rowColumnMeasurePolicy(
-            orientation = LayoutOrientation.Vertical,
-            arrangement = { totalSize, size, _, density, outPosition ->
-                with(verticalArrangement) { density.arrange(totalSize, size, outPosition) }
-            },
-            arrangementSpacing = verticalArrangement.spacing,
-            crossAxisAlignment = CrossAxisAlignment.horizontal(horizontalAlignment),
-            crossAxisSize = SizeMode.Wrap
-        )
+        remember(verticalArrangement, horizontalAlignment) {
+            rowColumnMeasurePolicy(
+                orientation = LayoutOrientation.Vertical,
+                arrangement = { totalSize, size, _, density, outPosition ->
+                    with(verticalArrangement) { density.arrange(totalSize, size, outPosition) }
+                },
+                arrangementSpacing = verticalArrangement.spacing,
+                crossAxisAlignment = CrossAxisAlignment.horizontal(horizontalAlignment),
+                crossAxisSize = SizeMode.Wrap
+            )
+        }
     }
-}
 
 /**
  * Scope for the children of [Column].
  */
 @LayoutScopeMarker
 @Immutable
+@JvmDefaultWithCompatibility
 interface ColumnScope {
     /**
      * Size the element's height proportional to its [weight] relative to other weighted sibling

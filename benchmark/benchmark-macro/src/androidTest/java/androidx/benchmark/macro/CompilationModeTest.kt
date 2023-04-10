@@ -16,9 +16,12 @@
 
 package androidx.benchmark.macro
 
+import android.os.Build
 import androidx.benchmark.Shell
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import kotlin.test.assertFailsWith
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -27,43 +30,72 @@ import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@Suppress("DEPRECATION")
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-public class CompilationModeTest {
+class CompilationModeTest {
     private val vmRunningInterpretedOnly: Boolean
 
     init {
-        val getProp = Shell.executeCommand("getprop dalvik.vm.extra-opts")
-        vmRunningInterpretedOnly = getProp.contains("-Xusejit:false")
+        vmRunningInterpretedOnly = Shell.getprop("dalvik.vm.extra-opts")
+            .contains("-Xusejit:false")
+    }
+
+    @SdkSuppress(minSdkVersion = 24)
+    @Test
+    fun partial() {
+        assertFailsWith<IllegalArgumentException> { // can't ignore with 0 iters
+            CompilationMode.Partial(BaselineProfileMode.Disable, warmupIterations = 0)
+        }
+        assertFailsWith<java.lang.IllegalArgumentException> { // can't set negative iters
+            CompilationMode.Partial(BaselineProfileMode.Require, warmupIterations = -1)
+        }
     }
 
     @Test
-    public fun names() {
+    fun names() {
         // We test these names, as they're likely built into parameterized
         // test strings, so stability/brevity are important
-        assertEquals("None", CompilationMode.None.toString())
-        assertEquals("SpeedProfile(iterations=123)", CompilationMode.SpeedProfile(123).toString())
-        assertEquals("Speed", CompilationMode.Speed.toString())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            assertEquals("None", CompilationMode.None().toString())
+            assertEquals("BaselineProfile", CompilationMode.Partial().toString())
+            assertEquals(
+                "WarmupProfile(iterations=3)",
+                CompilationMode.Partial(
+                    BaselineProfileMode.Disable,
+                    warmupIterations = 3
+                ).toString()
+            )
+            assertEquals(
+                "Partial(baselineProfile=Require,iterations=3)",
+                CompilationMode.Partial(warmupIterations = 3).toString()
+            )
+            assertEquals("Full", CompilationMode.Full().toString())
+        }
         assertEquals("Interpreted", CompilationMode.Interpreted.toString())
     }
 
     @Test
-    public fun isSupportedWithVmSettings_jitEnabled() {
+    fun isSupportedWithVmSettings_jitEnabled() {
         assumeFalse(vmRunningInterpretedOnly)
 
-        assertTrue(CompilationMode.None.isSupportedWithVmSettings())
-        assertTrue(CompilationMode.SpeedProfile().isSupportedWithVmSettings())
-        assertTrue(CompilationMode.Speed.isSupportedWithVmSettings())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            assertTrue(CompilationMode.None().isSupportedWithVmSettings())
+            assertTrue(CompilationMode.Partial().isSupportedWithVmSettings())
+            assertTrue(CompilationMode.Full().isSupportedWithVmSettings())
+        }
         assertFalse(CompilationMode.Interpreted.isSupportedWithVmSettings())
     }
 
     @Test
-    public fun isSupportedWithVmSettings_jitDisabled() {
+    fun isSupportedWithVmSettings_jitDisabled() {
         assumeTrue(vmRunningInterpretedOnly)
 
-        assertFalse(CompilationMode.None.isSupportedWithVmSettings())
-        assertFalse(CompilationMode.SpeedProfile().isSupportedWithVmSettings())
-        assertFalse(CompilationMode.Speed.isSupportedWithVmSettings())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            assertFalse(CompilationMode.None().isSupportedWithVmSettings())
+            assertFalse(CompilationMode.Partial().isSupportedWithVmSettings())
+            assertFalse(CompilationMode.Full().isSupportedWithVmSettings())
+        }
         assertTrue(CompilationMode.Interpreted.isSupportedWithVmSettings())
     }
 }

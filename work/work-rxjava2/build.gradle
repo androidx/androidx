@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -29,14 +28,17 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinStdlib)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
 }
 
 androidx {
     name = "Android WorkManager RxJava2 Support"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WORK
     inceptionYear = "2018"
     description = "Android WorkManager RxJava2 interoperatibility library"
     failOnDeprecationWarnings = false
+}
+
+android {
+    namespace "androidx.work.rxjava2"
 }

@@ -32,6 +32,7 @@ import androidx.media2.test.client.RemoteMediaSession;
 import androidx.media2.test.common.TestUtils;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.After;
@@ -42,6 +43,7 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.Executor;
 
 /** Test {@link RemoteMediaSession}. */
+@SdkSuppress(maxSdkVersion = 32) // b/244312419
 @RunWith(AndroidJUnit4.class)
 public class RemoteMediaSessionTest {
 

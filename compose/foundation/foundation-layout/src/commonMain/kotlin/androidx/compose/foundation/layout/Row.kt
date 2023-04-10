@@ -27,6 +27,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Measured
 import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.foundation.layout.internal.JvmDefaultWithCompatibility
 
 /**
  * A layout composable that places its children in a horizontal sequence. For a layout composable
@@ -102,29 +103,30 @@ internal val DefaultRowMeasurePolicy = rowColumnMeasurePolicy(
 internal fun rowMeasurePolicy(
     horizontalArrangement: Arrangement.Horizontal,
     verticalAlignment: Alignment.Vertical
-) = remember(horizontalArrangement, verticalAlignment) {
-    if (horizontalArrangement == Arrangement.Start && verticalAlignment == Alignment.Top) {
+) = if (horizontalArrangement == Arrangement.Start && verticalAlignment == Alignment.Top) {
         DefaultRowMeasurePolicy
     } else {
-        rowColumnMeasurePolicy(
-            orientation = LayoutOrientation.Horizontal,
-            arrangement = { totalSize, size, layoutDirection, density, outPosition ->
-                with(horizontalArrangement) {
-                    density.arrange(totalSize, size, layoutDirection, outPosition)
-                }
-            },
-            arrangementSpacing = horizontalArrangement.spacing,
-            crossAxisAlignment = CrossAxisAlignment.vertical(verticalAlignment),
-            crossAxisSize = SizeMode.Wrap
-        )
+        remember(horizontalArrangement, verticalAlignment) {
+            rowColumnMeasurePolicy(
+                orientation = LayoutOrientation.Horizontal,
+                arrangement = { totalSize, size, layoutDirection, density, outPosition ->
+                    with(horizontalArrangement) {
+                        density.arrange(totalSize, size, layoutDirection, outPosition)
+                    }
+                },
+                arrangementSpacing = horizontalArrangement.spacing,
+                crossAxisAlignment = CrossAxisAlignment.vertical(verticalAlignment),
+                crossAxisSize = SizeMode.Wrap
+            )
+        }
     }
-}
 
 /**
  * Scope for the children of [Row].
  */
 @LayoutScopeMarker
 @Immutable
+@JvmDefaultWithCompatibility
 interface RowScope {
     /**
      * Size the element's width proportional to its [weight] relative to other weighted sibling

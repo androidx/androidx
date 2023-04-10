@@ -232,6 +232,11 @@ class TextRenderer {
         mNeedUpdateLayout = true;
     }
 
+    @NonNull
+    public TextPaint getPaint() {
+        return mPaint;
+    }
+
     /**
      * Sets the padding which will be applied to the bounds before the text is drawn. The {@code
      * start} and {@code end} parameters should be given as a proportion of the width of the bounds,

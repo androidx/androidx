@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -28,11 +26,14 @@ dependencies {
     // Add dependencies here
 }
 
+android {
+    namespace "<PACKAGE>"
+}
+
 androidx {
     name = "<NAME>"
     type = LibraryType.<LIBRARY_TYPE>
     mavenVersion = LibraryVersions.<GROUPID>
-    mavenGroup = LibraryGroups.<GROUPID>
     inceptionYear = "<YEAR>"
     description = "<DESCRIPTION>"
 }

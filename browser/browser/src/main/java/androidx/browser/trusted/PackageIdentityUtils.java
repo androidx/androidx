@@ -77,6 +77,7 @@ class PackageIdentityUtils {
     }
 
     @RequiresApi(28)
+    @SuppressWarnings("deprecation")
     static class Api28Implementation implements SignaturesCompat {
         @Override
         @Nullable

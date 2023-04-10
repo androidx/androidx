@@ -1,0 +1,56 @@
+# This workflow creates a new PR with the updated build ids for Playground prebuilts.
+# To run it, navigate to https://github.com/androidx/androidx/actions/workflows/update_prebuilts.yml
+# and click "Run workflow"
+name: Update Prebuilts
+on:
+  workflow_dispatch:
+    inputs:
+      target-branch:
+        description: 'The target branch for the PR'
+        required: false
+        default: 'androidx-main'
+        type: string
+      comment:
+        description: 'Any comment you would like to add to the PR body'
+        required: false
+        default: ''
+        type: string
+jobs:
+  update-prebuilts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout androidx repo"
+        uses: actions/checkout@v2
+      - name: "Run update prebuilt snapshot ids script"
+        shell: bash
+        run: development/update_playground.sh
+      - name: "Check if anything changed"
+        shell: bash
+        id: "check-for-changes"
+        run: |
+          set -x
+          git status
+          HAS_CHANGES=`git status --porcelain|grep playground\.properties|wc -l`
+          echo "::set-output name=has_changes::$HAS_CHANGES"
+      - name: "Create a PR"
+        shell: bash
+        id: "create-pr"
+        if: ${{ steps.check-for-changes.outputs.has_changes >= 1 }}
+        run: |
+          set -x
+          BRANCH_NAME="ci-workflow-bot/update-prebuilts-$(date "+%Y-%m-%d-%H-%M")/${{ github.run_id }}-${{ github.run_number }}"
+          git config user.email "androidx-github-bot@google.com"
+          git config user.name "AndroidX Github Bot"
+          git checkout -b $BRANCH_NAME
+          git add playground-common/playground.properties
+          git commit -m "Update playground snapshot ids" # PR body overrides this commit message
+          git push origin $BRANCH_NAME
+          # create pull request
+          gh pr create --base ${{ github.event.inputs.target-branch || 'androidx-main' }} \
+            --title "[AndroidX Github Bot] Update playground snapshot ids" \
+            --body "This CL was created by the update_prebuilts workflow.
+            ${{ github.event.inputs.comment || '' }}
+            Bug: n/a
+            Test: CI"
+        env:
+          GITHUB_TOKEN: ${{ secrets.ANDROIDX_GITHUB_BOT_TOKEN }}

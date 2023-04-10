@@ -341,7 +341,7 @@ public abstract class RoundedBitmapDrawable extends Drawable {
     }
 
     @Override
-    protected void onBoundsChange(Rect bounds) {
+    protected void onBoundsChange(@NonNull Rect bounds) {
         super.onBoundsChange(bounds);
         if (mIsCircular) {
             updateCircularCornerRadius();

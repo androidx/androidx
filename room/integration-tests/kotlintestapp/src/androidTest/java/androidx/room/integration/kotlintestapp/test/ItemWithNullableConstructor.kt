@@ -53,8 +53,8 @@ class ItemWithNullableConstructor {
 
     @Test
     fun insertWithNull() {
-        db.dao.insert(TestItem(null, null))
-        assertThat(db.dao.get(), `is`(TestItem(1, null)))
+        db.getDao().insert(TestItem(null, null))
+        assertThat(db.getDao().get(), `is`(TestItem(1, null)))
     }
 
     @Entity
@@ -80,6 +80,6 @@ class ItemWithNullableConstructor {
     )
     @SuppressWarnings(RoomWarnings.MISSING_SCHEMA_LOCATION)
     abstract class Db : RoomDatabase() {
-        abstract val dao: TestDao
+        abstract fun getDao(): TestDao
     }
 }

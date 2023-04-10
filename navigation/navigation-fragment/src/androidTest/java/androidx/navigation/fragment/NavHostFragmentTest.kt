@@ -161,5 +161,9 @@ class NavControllerInOnCreateFragment : EmptyFragment() {
         assertWithMessage("The NavController's graph should be set")
             .that(navController.graph)
             .isNotNull()
+        val backStackEntry = navController.getBackStackEntry(R.id.start_fragment)
+        val savedStateHandle = backStackEntry.savedStateHandle
+        assertThat(savedStateHandle)
+            .isNotNull()
     }
 }

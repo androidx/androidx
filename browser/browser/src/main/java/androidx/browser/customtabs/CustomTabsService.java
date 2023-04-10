@@ -260,6 +260,7 @@ public abstract class CustomTabsService extends Service {
                     uri, purpose, extras);
         }
 
+        @SuppressWarnings("deprecation")
         private @Nullable PendingIntent getSessionIdFromBundle(@Nullable Bundle bundle) {
             if (bundle == null) return null;
 

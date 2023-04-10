@@ -87,14 +87,34 @@ public class MediaNotificationManager extends BroadcastReceiver {
         mNotificationManager = NotificationManagerCompat.from(mService);
 
         String pkg = mService.getPackageName();
-        mPauseIntent = PendingIntent.getBroadcast(mService, REQUEST_CODE,
-                new Intent(ACTION_PAUSE).setPackage(pkg), PendingIntent.FLAG_CANCEL_CURRENT);
-        mPlayIntent = PendingIntent.getBroadcast(mService, REQUEST_CODE,
-                new Intent(ACTION_PLAY).setPackage(pkg), PendingIntent.FLAG_CANCEL_CURRENT);
-        mPreviousIntent = PendingIntent.getBroadcast(mService, REQUEST_CODE,
-                new Intent(ACTION_PREV).setPackage(pkg), PendingIntent.FLAG_CANCEL_CURRENT);
-        mNextIntent = PendingIntent.getBroadcast(mService, REQUEST_CODE,
-                new Intent(ACTION_NEXT).setPackage(pkg), PendingIntent.FLAG_CANCEL_CURRENT);
+        mPauseIntent = PendingIntent.getBroadcast(
+                mService,
+                REQUEST_CODE,
+                new Intent(ACTION_PAUSE).setPackage(pkg),
+                Build.VERSION.SDK_INT >= 23
+                        ? PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_CANCEL_CURRENT
+                        : PendingIntent.FLAG_CANCEL_CURRENT);
+        mPlayIntent = PendingIntent.getBroadcast(
+                mService,
+                REQUEST_CODE,
+                new Intent(ACTION_PLAY).setPackage(pkg),
+                Build.VERSION.SDK_INT >= 23
+                        ? PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_CANCEL_CURRENT
+                        : PendingIntent.FLAG_CANCEL_CURRENT);
+        mPreviousIntent = PendingIntent.getBroadcast(
+                mService,
+                REQUEST_CODE,
+                new Intent(ACTION_PREV).setPackage(pkg),
+                Build.VERSION.SDK_INT >= 23
+                        ? PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_CANCEL_CURRENT
+                        : PendingIntent.FLAG_CANCEL_CURRENT);
+        mNextIntent = PendingIntent.getBroadcast(
+                mService,
+                REQUEST_CODE,
+                new Intent(ACTION_NEXT).setPackage(pkg),
+                Build.VERSION.SDK_INT >= 23
+                        ? PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_CANCEL_CURRENT
+                        : PendingIntent.FLAG_CANCEL_CURRENT);
 
         // Cancel all notifications to handle the case where the Service was killed and
         // restarted by the system.
@@ -209,8 +229,13 @@ public class MediaNotificationManager extends BroadcastReceiver {
     private PendingIntent createContentIntent() {
         Intent openUI = new Intent(mService, MediaBrowserSupport.class);
         openUI.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        return PendingIntent.getActivity(mService, REQUEST_CODE, openUI,
-                PendingIntent.FLAG_CANCEL_CURRENT);
+        return PendingIntent.getActivity(
+                mService,
+                REQUEST_CODE,
+                openUI,
+                Build.VERSION.SDK_INT >= 23
+                        ? PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_CANCEL_CURRENT
+                        : PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
     private final MediaControllerCompat.Callback mCb = new MediaControllerCompat.Callback() {

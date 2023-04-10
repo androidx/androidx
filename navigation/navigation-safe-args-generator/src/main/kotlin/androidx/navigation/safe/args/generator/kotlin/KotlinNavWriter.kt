@@ -222,7 +222,13 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
             if (destination.args.any { it.type is ObjectArrayType }) {
                 addAnnotation(
                     AnnotationSpec.builder(Suppress::class)
-                        .addMember("%S", "UNCHECKED_CAST")
+                        .addMember("%S,%S", "UNCHECKED_CAST", "DEPRECATION")
+                        .build()
+                )
+            } else if (destination.args.any { it.type is ObjectType }) {
+                addAnnotation(
+                    AnnotationSpec.builder(Suppress::class)
+                        .addMember("%S", "DEPRECATION")
                         .build()
                 )
             }
@@ -303,7 +309,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                     arg.type.typeName().copy(nullable = true)
                 )
                 beginControlFlow("if (%L.contains(%S))", savedStateParamName, arg.name)
-                addStatement("%L = %L[%S]", tempVal, savedStateParamName, arg.name)
+                arg.type.addSavedStateGetStatement(this, arg, tempVal, savedStateParamName)
                 if (!arg.isNullable) {
                     beginControlFlow("if (%L == null)", tempVal)
                     val errorMessage = if (arg.type.allowsNullable()) {

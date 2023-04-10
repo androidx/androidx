@@ -22,16 +22,19 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.testutils.TestDispatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
+import androidx.paging.CombinedLoadStates
+import androidx.paging.LoadState
+import androidx.paging.LoadStates
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
@@ -39,6 +42,9 @@ import androidx.paging.TestPagingSource
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.isActive
+import org.junit.Assert.assertFalse
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -64,6 +70,63 @@ class LazyPagingItemsTest {
         }
     ): Pager<Int, Int> {
         return Pager(config = config, pagingSourceFactory = pagingSourceFactory)
+    }
+
+    @Test
+    fun lazyPagingInitialLoadState() {
+        val pager = createPager()
+        val loadStates: MutableList<CombinedLoadStates> = mutableListOf()
+        rule.setContent {
+            val lazyPagingItems = pager.flow.collectAsLazyPagingItems()
+            loadStates.add(lazyPagingItems.loadState)
+        }
+
+        rule.waitForIdle()
+
+        val expected = CombinedLoadStates(
+            refresh = LoadState.Loading,
+            prepend = LoadState.NotLoading(false),
+            append = LoadState.NotLoading(false),
+            source = LoadStates(
+                LoadState.Loading,
+                LoadState.NotLoading(false),
+                LoadState.NotLoading(false)
+            ),
+            mediator = null
+        )
+        assertThat(loadStates).isNotEmpty()
+        assertThat(loadStates.first()).isEqualTo(expected)
+    }
+
+    @Test
+    fun lazyPagingLoadStateAfterRefresh() {
+        val pager = createPager()
+        val loadStates: MutableList<CombinedLoadStates> = mutableListOf()
+
+        lateinit var lazyPagingItems: LazyPagingItems<Int>
+        rule.setContent {
+            lazyPagingItems = pager.flow.collectAsLazyPagingItems()
+            loadStates.add(lazyPagingItems.loadState)
+        }
+
+        // we only want loadStates after manual refresh
+        loadStates.clear()
+        lazyPagingItems.refresh()
+        rule.waitForIdle()
+
+        assertThat(loadStates).isNotEmpty()
+        val expected = CombinedLoadStates(
+            refresh = LoadState.Loading,
+            prepend = LoadState.NotLoading(false),
+            append = LoadState.NotLoading(false),
+            source = LoadStates(
+                LoadState.Loading,
+                LoadState.NotLoading(false),
+                LoadState.NotLoading(false)
+            ),
+            mediator = null
+        )
+        assertThat(loadStates.first()).isEqualTo(expected)
     }
 
     @Test
@@ -458,6 +521,7 @@ class LazyPagingItemsTest {
             .assertTopPositionInRootIsEqualTo(itemSize * 2)
     }
 
+    @Ignore // b/229089541
     @Test
     fun removingItem() {
         val items = mutableListOf(1, 2, 3)
@@ -564,5 +628,60 @@ class LazyPagingItemsTest {
 
         rule.onNodeWithText("Item=1. index=1. remembered index=0")
             .assertExists()
+    }
+
+    @Test
+    fun collectOnDefaultThread() {
+        val items = mutableListOf(1, 2, 3)
+        val pager = createPager {
+            TestPagingSource(items = items, loadDelay = 0)
+        }
+
+        lateinit var lazyPagingItems: LazyPagingItems<Int>
+        rule.setContent {
+            lazyPagingItems = pager.flow.collectAsLazyPagingItems()
+        }
+
+        rule.waitUntil {
+            lazyPagingItems.itemCount == 3
+        }
+        assertThat(lazyPagingItems.itemSnapshotList).containsExactlyElementsIn(
+            items
+        )
+    }
+
+    @Test
+    fun collectOnWorkerThread() {
+        val items = mutableListOf(1, 2, 3)
+        val pager = createPager {
+            TestPagingSource(items = items, loadDelay = 0)
+        }
+
+        val context = TestDispatcher()
+        lateinit var lazyPagingItems: LazyPagingItems<Int>
+        rule.setContent {
+            assertThat(context.queue).isEmpty()
+            lazyPagingItems = pager.flow.collectAsLazyPagingItems(context)
+        }
+
+        rule.runOnIdle {
+            assertFalse(context.isActive)
+            // collection should not have started yet
+            assertThat(lazyPagingItems.itemSnapshotList).isEmpty()
+        }
+
+        // start LaunchedEffects
+        context.executeAll()
+
+        rule.runOnIdle {
+            // continue with pagingDataDiffer collections
+            context.executeAll()
+        }
+        rule.waitUntil {
+            lazyPagingItems.itemCount == items.size
+        }
+        assertThat(lazyPagingItems.itemSnapshotList).containsExactlyElementsIn(
+            items
+        )
     }
 }

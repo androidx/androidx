@@ -18,6 +18,7 @@
 
 package androidx.core.view
 
+import android.annotation.SuppressLint
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.Px
@@ -62,6 +63,27 @@ public inline fun ViewGroup.forEachIndexed(action: (index: Int, view: View) -> U
         action(index, getChildAt(index))
     }
 }
+
+/**
+ * Returns an [IntRange] of the valid indices for the children of this view group.
+ *
+ * This can be used for looping:
+ * ```kotlin
+ * for (i in viewGroup.indices.reversed) {
+ *   if (viewGroup[i] is SomeView) {
+ *     viewGroup.removeViewAt(i)
+ *   }
+ * }
+ * ```
+ *
+ * Or to determine if an index is valid:
+ * ```kotlin
+ * if (2 in viewGroup.indices) {
+ *   // Do something…
+ * }
+ * ```
+ */
+public inline val ViewGroup.indices: IntRange get() = 0 until childCount
 
 /** Returns a [MutableIterator] over the views in this view group. */
 public operator fun ViewGroup.iterator(): MutableIterator<View> = object : MutableIterator<View> {
@@ -130,8 +152,14 @@ public inline fun ViewGroup.MarginLayoutParams.updateMargins(
  * Updates the relative margins in the ViewGroup's MarginLayoutParams.
  * This version of the method allows using named parameters to just set one or more axes.
  *
+ * Note that this inline method references platform APIs added in API 17 and may raise runtime
+ * verification warnings on earlier platforms. See Chromium's guide to
+ * [Class Verification Failures](https://chromium.googlesource.com/chromium/src/+/HEAD/build/android/docs/class_verification_failures.md)
+ * for more information.
+ *
  * @see ViewGroup.MarginLayoutParams.setMargins
  */
+@SuppressLint("ClassVerificationFailure") // Can't work around this for default arguments.
 @RequiresApi(17)
 public inline fun ViewGroup.MarginLayoutParams.updateMarginsRelative(
     @Px start: Int = marginStart,

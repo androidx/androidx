@@ -28,14 +28,16 @@ import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.google.common.truth.IterableSubject
 
 /**
- * This function adds a parent composable which has size. [View.requestFocus()][android.view.View
- * .requestFocus] will not take focus if the view has no size.
+ * This function adds a parent composable which has size.
+ * [View.requestFocus()][android.view.View.requestFocus] will not take focus if the view has no
+ * size.
  */
 internal fun ComposeContentTestRule.setFocusableContent(content: @Composable () -> Unit) {
     setContent {
-        Box(modifier = Modifier.requiredSize(10.dp, 10.dp)) { content() }
+        Box(modifier = Modifier.requiredSize(100.dp, 100.dp)) { content() }
     }
 }
 
@@ -52,11 +54,12 @@ internal fun FocusableBox(
     height: Int,
     focusRequester: FocusRequester? = null,
     deactivated: Boolean = false,
+    modifier: Modifier = Modifier,
     content: @Composable () -> Unit = {}
 ) {
     Layout(
         content = content,
-        modifier = Modifier
+        modifier = modifier
             .offset { IntOffset(x, y) }
             .focusRequester(focusRequester ?: remember { FocusRequester() })
             .onFocusChanged { isFocused.value = it.isFocused }
@@ -73,4 +76,16 @@ internal fun FocusableBox(
             }
         }
     )
+}
+
+/**
+ * Asserts that the elements appear in the specified order.
+ *
+ * Consider using this helper function instead of
+ * [containsExactlyElementsIn][com.google.common.truth.IterableSubject.containsExactlyElementsIn]
+ * or [containsExactly][com.google.common.truth.IterableSubject.containsExactly] as it also asserts
+ * that the elements are in the specified order.
+ */
+fun IterableSubject.isExactly(vararg expected: Any?) {
+    return containsExactlyElementsIn(expected).inOrder()
 }

@@ -17,6 +17,7 @@
 package androidx.health.services.client.impl.request
 
 import android.os.Parcelable
+import androidx.annotation.RestrictTo
 import androidx.health.services.client.data.ProtoParcelable
 import androidx.health.services.client.proto.RequestsProto
 
@@ -25,17 +26,17 @@ import androidx.health.services.client.proto.RequestsProto
  *
  * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class AutoPauseAndResumeConfigRequest(
     public val packageName: String,
     public val shouldEnable: Boolean,
 ) : ProtoParcelable<RequestsProto.AutoPauseAndResumeConfigRequest>() {
 
-    override val proto: RequestsProto.AutoPauseAndResumeConfigRequest by lazy {
+    override val proto: RequestsProto.AutoPauseAndResumeConfigRequest =
         RequestsProto.AutoPauseAndResumeConfigRequest.newBuilder()
             .setPackageName(packageName)
             .setShouldEnable(shouldEnable)
             .build()
-    }
 
     public companion object {
         @JvmField

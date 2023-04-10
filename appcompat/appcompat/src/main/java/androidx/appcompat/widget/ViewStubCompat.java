@@ -153,7 +153,7 @@ public final class ViewStubCompat extends View {
 
     @SuppressLint("MissingSuperCall") // Intentionally not calling super method.
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
     }
 
     @Override

@@ -196,6 +196,7 @@ public abstract class StorageStrategy<K> {
         }
 
         @Override
+        @SuppressWarnings("deprecation")
         public @Nullable Selection<K> asSelection(@NonNull Bundle state) {
 
             String keyType = state.getString(SELECTION_KEY_TYPE, null);

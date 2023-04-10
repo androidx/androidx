@@ -20,14 +20,14 @@ import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.intellij.psi.PsiElement
-import com.intellij.psi.util.PsiTreeUtil
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import kotlin.reflect.KClass
 
 @RunWith(RobolectricTestRunner::class)
 @Config(
@@ -35,11 +35,10 @@ import kotlin.reflect.KClass
     minSdk = 23,
     maxSdk = 23
 )
-@Ignore("b/173733968")
 class ComposeCallLoweringTests : AbstractLoweringTests() {
-
     @Test
-    fun testInlineGroups(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testInlineGroups() {
         compose(
             """
 
@@ -62,7 +61,8 @@ class ComposeCallLoweringTests : AbstractLoweringTests() {
     }
 
     @Test
-    fun testReturnInsideKey(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testReturnInsideKey() {
         compose(
             """
             @Composable fun ShowMessage(text: String): Int = key(text) {
@@ -82,7 +82,8 @@ class ComposeCallLoweringTests : AbstractLoweringTests() {
     }
 
     @Test
-    fun testMoveFromIssue(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testMoveFromIssue() {
         compose(
             """
         """,
@@ -94,7 +95,8 @@ class ComposeCallLoweringTests : AbstractLoweringTests() {
     }
 
     @Test
-    fun testSimpleInlining(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testSimpleInlining() {
         compose(
             """
             @Composable
@@ -112,7 +114,8 @@ class ComposeCallLoweringTests : AbstractLoweringTests() {
     }
 
     @Test
-    fun testVarargCall(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testVarargCall() {
         compose(
             """
             @Composable
@@ -141,7 +144,8 @@ class ComposeCallLoweringTests : AbstractLoweringTests() {
     }
 
     @Test
-    fun testVarargs(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testVarargs() {
         codegen(
             """
             import androidx.compose.runtime.*
@@ -162,7 +166,8 @@ class ComposeCallLoweringTests : AbstractLoweringTests() {
     }
 
     @Test
-    fun testComposableLambdaCall(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testComposableLambdaCall() {
         codegen(
             """
                 import androidx.compose.runtime.*
@@ -176,7 +181,8 @@ class ComposeCallLoweringTests : AbstractLoweringTests() {
     }
 
     @Test
-    fun testProperties(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testProperties() {
         codegen(
             """
             import androidx.compose.runtime.*
@@ -205,7 +211,8 @@ class ComposeCallLoweringTests : AbstractLoweringTests() {
     }
 
     @Test
-    fun testUnboundSymbolIssue(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testUnboundSymbolIssue() {
         codegenNoImports(
             """
             import androidx.compose.runtime.Composable
@@ -259,7 +266,8 @@ class ComposeCallLoweringTests : AbstractLoweringTests() {
     }
 
     @Test
-    fun testPropertyValues(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testPropertyValues() {
         compose(
             """
             val foo @Composable get() = "123"
@@ -291,7 +299,8 @@ class ComposeCallLoweringTests : AbstractLoweringTests() {
     }
 
     @Test
-    fun testComposableLambdaCallWithGenerics(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testComposableLambdaCallWithGenerics() {
         codegen(
             """
                 import androidx.compose.runtime.*
@@ -321,7 +330,8 @@ class ComposeCallLoweringTests : AbstractLoweringTests() {
     }
 
     @Test
-    fun testMethodInvocations(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testMethodInvocations() {
         codegen(
             """
                 import androidx.compose.runtime.*
@@ -339,7 +349,8 @@ class ComposeCallLoweringTests : AbstractLoweringTests() {
     }
 
     @Test
-    fun testReceiverLambdaInvocation(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testReceiverLambdaInvocation() {
         codegen(
             """
                 class TextSpanScope
@@ -352,7 +363,8 @@ class ComposeCallLoweringTests : AbstractLoweringTests() {
     }
 
     @Test
-    fun testReceiverLambda2(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testReceiverLambda2() {
         codegen(
             """
                 class DensityScope(val density: Density)
@@ -373,7 +385,8 @@ class ComposeCallLoweringTests : AbstractLoweringTests() {
     }
 
     @Test
-    fun testInlineChildren(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testInlineChildren() {
         codegen(
             """
                 import androidx.compose.runtime.*
@@ -392,7 +405,8 @@ class ComposeCallLoweringTests : AbstractLoweringTests() {
     }
 
     @Test
-    fun testNoComposerImport(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testNoComposerImport() {
         codegenNoImports(
             """
         import androidx.compose.runtime.Composable
@@ -416,7 +430,8 @@ class ComposeCallLoweringTests : AbstractLoweringTests() {
     }
 
     @Test
-    fun testInlineNoinline(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testInlineNoinline() {
         codegen(
             """
         @Composable
@@ -439,7 +454,8 @@ class ComposeCallLoweringTests : AbstractLoweringTests() {
     }
 
     @Test
-    fun testInlinedComposable(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testInlinedComposable() {
         codegen(
             """
         @Composable
@@ -458,7 +474,8 @@ class ComposeCallLoweringTests : AbstractLoweringTests() {
     }
 
     @Test
-    fun testGenericParameterOrderIssue(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testGenericParameterOrderIssue() {
         codegen(
             """
 @Composable
@@ -476,7 +493,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testArgumentOrderIssue(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testArgumentOrderIssue() {
         codegen(
             """
                 class A
@@ -498,7 +516,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testObjectName(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testObjectName() {
         codegen(
             """
 
@@ -515,7 +534,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testStuffThatIWantTo(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testStuffThatIWantTo() {
         codegen(
             """
 
@@ -533,7 +553,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testSimpleFunctionResolution(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testSimpleFunctionResolution() {
         compose(
             """
             import androidx.compose.runtime.*
@@ -552,7 +573,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testSimpleClassResolution(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testSimpleClassResolution() {
         compose(
             """
             import androidx.compose.runtime.*
@@ -568,7 +590,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testSetContent(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testSetContent() {
         codegen(
             """
                 fun fakeCompose(block: @Composable ()->Unit) { }
@@ -585,7 +608,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testComposeWithResult(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testComposeWithResult() {
         compose(
             """
                 @Composable fun <T> identity(block: @Composable ()->T): T = block()
@@ -604,7 +628,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testObservable(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testObservable() {
         compose(
             """
                 import androidx.compose.runtime.*
@@ -632,7 +657,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testObservableLambda(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testObservableLambda() {
         compose(
             """
                 @Composable
@@ -664,7 +690,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testObservableGenericFunction(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testObservableGenericFunction() {
         compose(
             """
             @Composable
@@ -689,7 +716,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testObservableExtension(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testObservableExtension() {
         compose(
             """
             @Composable
@@ -716,7 +744,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testObserverableExpressionBody(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testObserverableExpressionBody() {
         compose(
             """
             @Composable
@@ -745,7 +774,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testObservableInlineWrapper(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testObservableInlineWrapper() {
         compose(
             """
             var inWrapper = false
@@ -784,7 +814,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testObservableDefaultParameter(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testObservableDefaultParameter() {
         compose(
             """
             val counter = mutableStateOf(0)
@@ -811,7 +842,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testObservableEarlyReturn(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testObservableEarlyReturn() {
         compose(
             """
             val counter = mutableStateOf(0)
@@ -850,7 +882,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testCGSimpleTextView(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testCGSimpleTextView() {
         compose(
             """
 
@@ -865,7 +898,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testCGLocallyScopedFunction(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testCGLocallyScopedFunction() {
         compose(
             """
                 @Composable
@@ -886,7 +920,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testCGLocallyScopedExtensionFunction(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testCGLocallyScopedExtensionFunction() {
         compose(
             """
                 @Composable
@@ -907,7 +942,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testImplicitReceiverScopeCall(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testImplicitReceiverScopeCall() {
         compose(
             """
                 import androidx.compose.runtime.*
@@ -935,7 +971,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testCGLocallyScopedInvokeOperator(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testCGLocallyScopedInvokeOperator() {
         compose(
             """
                 @Composable
@@ -957,7 +994,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testTrivialExtensionFunction(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testTrivialExtensionFunction() {
         compose(
             """ """,
             """
@@ -969,7 +1007,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testTrivialInvokeExtensionFunction(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testTrivialInvokeExtensionFunction() {
         compose(
             """ """,
             """
@@ -981,7 +1020,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testCGNSimpleTextView(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testCGNSimpleTextView() {
         compose(
             """
 
@@ -996,7 +1036,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testInliningTemp2(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testInliningTemp2() {
         compose(
             """
                 @Composable
@@ -1012,7 +1053,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testInliningTemp3(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testInliningTemp3() {
         compose(
             """
                 @Composable
@@ -1028,7 +1070,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testInliningTemp4(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testInliningTemp4() {
         compose(
             """
                 @Composable
@@ -1044,7 +1087,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testInline_NonComposable_Identity(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testInline_NonComposable_Identity() {
         compose(
             """
             @Composable inline fun InlineWrapper(base: Int, content: @Composable ()->Unit) {
@@ -1062,7 +1106,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testInline_Composable_Identity(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testInline_Composable_Identity() {
         compose(
             """
             """,
@@ -1075,7 +1120,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testInline_Composable_EmitChildren(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testInline_Composable_EmitChildren() {
         compose(
             """
             @Composable
@@ -1100,7 +1146,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testCGNInlining(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testCGNInlining() {
         compose(
             """
 
@@ -1117,7 +1164,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testInlineClassesAsComposableParameters(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testInlineClassesAsComposableParameters() {
         codegen(
             """
                 inline class WrappedInt(val int: Int)
@@ -1134,7 +1182,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testInlineClassesAsDefaultParameters(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testInlineClassesAsDefaultParameters() {
         compose(
             """
                 inline class Positive(val int: Int) {
@@ -1153,7 +1202,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testRangeForLoop(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testRangeForLoop() {
         codegen(
             """
                 @Composable fun Foo(i: Int) {}
@@ -1168,7 +1218,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testReturnValue(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testReturnValue() {
         compose(
             """
             var a = 0
@@ -1234,7 +1285,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testReorderedArgsReturnValue(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testReorderedArgsReturnValue() {
         compose(
             """
             @Composable
@@ -1255,7 +1307,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testTrivialReturnValue(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testTrivialReturnValue() {
         compose(
             """
         @Composable
@@ -1279,7 +1332,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testForDevelopment(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testForDevelopment() {
         codegen(
             """
             import androidx.compose.runtime.*
@@ -1298,7 +1352,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testInliningTemp(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testInliningTemp() {
         compose(
             """
                 @Composable
@@ -1319,7 +1374,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testCGUpdatedComposition(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testCGUpdatedComposition() {
         var value = "Hello, world!"
 
         compose(
@@ -1340,7 +1396,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testCGNUpdatedComposition(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testCGNUpdatedComposition() {
         var value = "Hello, world!"
 
         compose(
@@ -1361,7 +1418,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testCGViewGroup(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testCGViewGroup() {
         val tvId = 258
         val llId = 260
         var text = "Hello, world!"
@@ -1394,7 +1452,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testCGNFunctionComponent(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testCGNFunctionComponent() {
         var text = "Hello, world!"
         val tvId = 123
 
@@ -1423,7 +1482,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testCompositionLocalConsumedFromDefaultParameter(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testCompositionLocalConsumedFromDefaultParameter() {
         val initialText = "no text"
         val helloWorld = "Hello World!"
         compose(
@@ -1466,7 +1526,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testCGNViewGroup(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testCGNViewGroup() {
         val tvId = 258
         val llId = 260
         var text = "Hello, world!"
@@ -1499,7 +1560,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testMemoization(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testMemoization() {
         val tvId = 258
         val tagId = (3 shl 24) or "composed_set".hashCode()
 
@@ -1578,7 +1640,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testInlineClassMemoization(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testInlineClassMemoization() {
         val tvId = 258
         val tagId = (3 shl 24) or "composed_set".hashCode()
 
@@ -1664,7 +1727,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testStringParameterMemoization(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testStringParameterMemoization() {
         val tvId = 258
         val tagId = (3 shl 24) or "composed_set".hashCode()
 
@@ -1711,7 +1775,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testCGNSimpleCall(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testCGNSimpleCall() {
         val tvId = 258
         var text = "Hello, world!"
 
@@ -1739,7 +1804,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testCGNCallWithChildren(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testCGNCallWithChildren() {
         val tvId = 258
         var text = "Hello, world!"
 
@@ -1772,7 +1838,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testCGComposableFunctionInvocationOneParameter(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testCGComposableFunctionInvocationOneParameter() {
         val tvId = 91
         var phone = "(123) 456-7890"
         compose(
@@ -1798,7 +1865,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testCGComposableFunctionInvocationTwoParameters(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testCGComposableFunctionInvocationTwoParameters() {
         val tvId = 111
         val rsId = 112
         var left = 0
@@ -1857,7 +1925,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testImplicitReceiverPassing1(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testImplicitReceiverPassing1() {
         compose(
             """
                 @Composable fun Int.Foo(x: @Composable Int.() -> Unit) {
@@ -1879,7 +1948,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testImplicitReceiverPassing2(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testImplicitReceiverPassing2() {
         compose(
             """
                 @Composable fun Int.Foo(x: @Composable Int.(text: String) -> Unit, text: String) {
@@ -1905,7 +1975,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testEffects1(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testEffects1() {
         compose(
             """
                 @Composable
@@ -1935,7 +2006,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testEffects2(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testEffects2() {
         compose(
             """
                 @Composable
@@ -1966,7 +2038,7 @@ fun <T> B(foo: T, bar: String) { }
 
     @Ignore("b/171801506")
     @Test
-    fun testEffects3(): Unit = ensureSetup {
+    fun testEffects3() {
         val log = StringBuilder()
         compose(
             """
@@ -2008,7 +2080,7 @@ fun <T> B(foo: T, bar: String) { }
 
     @Ignore("b/171801506")
     @Test
-    fun testEffects4(): Unit = ensureSetup {
+    fun testEffects4() {
         val log = StringBuilder()
         compose(
             """
@@ -2051,7 +2123,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testVariableCalls1(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testVariableCalls1() {
         compose(
             """
                 val component = @Composable {
@@ -2069,7 +2142,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testVariableCalls2(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testVariableCalls2() {
         compose(
             """
                 val component = @Composable {
@@ -2091,7 +2165,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testVariableCalls3(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testVariableCalls3() {
         compose(
             """
                 val component = @Composable {
@@ -2119,7 +2194,8 @@ fun <T> B(foo: T, bar: String) { }
 
     // b/123721921
     @Test
-    fun testDefaultParameters1(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testDefaultParameters1() {
         compose(
             """
                 @Composable
@@ -2138,7 +2214,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testDefaultParameters2(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testDefaultParameters2() {
         compose(
             """
                 @Composable
@@ -2158,7 +2235,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testMovement(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testMovement() {
         val tvId = 50
         val btnIdAdd = 100
         val btnIdUp = 200
@@ -2244,7 +2322,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testObserveKtxWithInline(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testObserveKtxWithInline() {
         compose(
             """
                 @Composable
@@ -2281,7 +2360,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testKeyTag(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testKeyTag() {
         compose(
             """
             val list = mutableStateListOf(0,1,2,3)
@@ -2330,7 +2410,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testNonComposeParameters(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testNonComposeParameters() {
         compose(
             """
                 class Action(
@@ -2352,7 +2433,7 @@ fun <T> B(foo: T, bar: String) { }
 
     @Ignore("b/171801506")
     @Test
-    fun testStableParameters_Various(): Unit = ensureSetup {
+    fun testStableParameters_Various() {
         val output = ArrayList<String>()
         compose(
             """
@@ -2511,7 +2592,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testStableParameters_Lambdas(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testStableParameters_Lambdas() {
         val output = ArrayList<String>()
         compose(
             """
@@ -2591,7 +2673,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testRecomposeScope(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testRecomposeScope() {
         compose(
             """
             val m = mutableStateOf(0)
@@ -2643,7 +2726,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testRecomposeScope_ReceiverScope(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testRecomposeScope_ReceiverScope() {
         compose(
             """
             val m = mutableStateOf(0)
@@ -2677,7 +2761,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testCompose_InlineReceiver(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testCompose_InlineReceiver() {
         compose(
             """
             object Context {
@@ -2698,7 +2783,8 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testRecomposeScope_Method(): Unit = ensureSetup {
+    @Ignore("b/173733968")
+    fun testRecomposeScope_Method() {
         compose(
             """
             val m = mutableStateOf(0)
@@ -2745,9 +2831,3 @@ fun <T> B(foo: T, bar: String) { }
 fun View.getComposedSet(tagId: Int): Set<String>? = getTag(tagId) as? Set<String>
 
 private val noParameters = { emptyMap<String, String>() }
-
-private inline fun <reified T : PsiElement> PsiElement.parentOfType(): T? = parentOfType(T::class)
-
-private fun <T : PsiElement> PsiElement.parentOfType(vararg classes: KClass<out T>): T? {
-    return PsiTreeUtil.getParentOfType(this, *classes.map { it.java }.toTypedArray())
-}

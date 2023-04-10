@@ -1,7 +1,8 @@
 package androidx.room.integration.kotlintestapp.vo
 
 import androidx.room.TypeConverter
-import androidx.room.util.StringUtil
+import androidx.room.util.joinIntoString
+import androidx.room.util.splitToIntList
 
 object StringToIntListConverters {
     @TypeConverter
@@ -9,10 +10,10 @@ object StringToIntListConverters {
     // constructor of the class, and a object has a private constructor.
     @JvmStatic
     fun stringToIntList(data: String?): List<Int>? =
-        if (data == null) null else StringUtil.splitToIntList(data)
+        if (data == null) null else splitToIntList(data)
 
     @TypeConverter
     @JvmStatic
     fun intListToString(ints: List<Int>?): String? =
-        if (ints == null) null else StringUtil.joinIntoString(ints)
+        if (ints == null) null else joinIntoString(ints)
 }

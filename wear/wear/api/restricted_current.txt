@@ -17,6 +17,30 @@ package androidx.wear.activity {
 
 package androidx.wear.ambient {
 
+  public final class AmbientLifecycleObserver implements androidx.wear.ambient.AmbientLifecycleObserverInterface {
+    ctor public AmbientLifecycleObserver(android.app.Activity activity, java.util.concurrent.Executor callbackExecutor, androidx.wear.ambient.AmbientLifecycleObserverInterface.AmbientLifecycleCallback callbacks);
+    ctor public AmbientLifecycleObserver(android.app.Activity activity, androidx.wear.ambient.AmbientLifecycleObserverInterface.AmbientLifecycleCallback callbacks);
+    method public boolean isAmbient();
+  }
+
+  public interface AmbientLifecycleObserverInterface extends androidx.lifecycle.DefaultLifecycleObserver {
+    method public boolean isAmbient();
+  }
+
+  public static final class AmbientLifecycleObserverInterface.AmbientDetails {
+    ctor public AmbientLifecycleObserverInterface.AmbientDetails(boolean burnInProtectionRequired, boolean deviceHasLowBitAmbient);
+    method public boolean getBurnInProtectionRequired();
+    method public boolean getDeviceHasLowBitAmbient();
+    property public final boolean burnInProtectionRequired;
+    property public final boolean deviceHasLowBitAmbient;
+  }
+
+  public static interface AmbientLifecycleObserverInterface.AmbientLifecycleCallback {
+    method public default void onEnterAmbient(androidx.wear.ambient.AmbientLifecycleObserverInterface.AmbientDetails ambientDetails);
+    method public default void onExitAmbient();
+    method public default void onUpdateAmbient();
+  }
+
   @Deprecated public final class AmbientMode extends android.app.Fragment {
     ctor @Deprecated public AmbientMode();
     method @Deprecated public static <T extends android.app.Activity> androidx.wear.ambient.AmbientMode.AmbientController! attachAmbientSupport(T!);
@@ -50,30 +74,30 @@ package androidx.wear.ambient {
     method @Deprecated public void setAmbientOffloadEnabled(boolean);
   }
 
-  public final class AmbientModeSupport extends androidx.fragment.app.Fragment {
-    ctor public AmbientModeSupport();
-    method public static <T extends androidx.fragment.app.FragmentActivity> androidx.wear.ambient.AmbientModeSupport.AmbientController! attach(T!);
-    field public static final String EXTRA_BURN_IN_PROTECTION = "com.google.android.wearable.compat.extra.BURN_IN_PROTECTION";
-    field public static final String EXTRA_LOWBIT_AMBIENT = "com.google.android.wearable.compat.extra.LOWBIT_AMBIENT";
-    field public static final String FRAGMENT_TAG = "android.support.wearable.ambient.AmbientMode";
+  @Deprecated public final class AmbientModeSupport extends androidx.fragment.app.Fragment {
+    ctor @Deprecated public AmbientModeSupport();
+    method @Deprecated public static <T extends androidx.fragment.app.FragmentActivity> androidx.wear.ambient.AmbientModeSupport.AmbientController! attach(T!);
+    field @Deprecated public static final String EXTRA_BURN_IN_PROTECTION = "com.google.android.wearable.compat.extra.BURN_IN_PROTECTION";
+    field @Deprecated public static final String EXTRA_LOWBIT_AMBIENT = "com.google.android.wearable.compat.extra.LOWBIT_AMBIENT";
+    field @Deprecated public static final String FRAGMENT_TAG = "android.support.wearable.ambient.AmbientMode";
   }
 
-  public abstract static class AmbientModeSupport.AmbientCallback {
-    ctor public AmbientModeSupport.AmbientCallback();
-    method public void onAmbientOffloadInvalidated();
-    method public void onEnterAmbient(android.os.Bundle!);
-    method public void onExitAmbient();
-    method public void onUpdateAmbient();
+  @Deprecated public abstract static class AmbientModeSupport.AmbientCallback {
+    ctor @Deprecated public AmbientModeSupport.AmbientCallback();
+    method @Deprecated public void onAmbientOffloadInvalidated();
+    method @Deprecated public void onEnterAmbient(android.os.Bundle!);
+    method @Deprecated public void onExitAmbient();
+    method @Deprecated public void onUpdateAmbient();
   }
 
-  public static interface AmbientModeSupport.AmbientCallbackProvider {
-    method public androidx.wear.ambient.AmbientModeSupport.AmbientCallback! getAmbientCallback();
+  @Deprecated public static interface AmbientModeSupport.AmbientCallbackProvider {
+    method @Deprecated public androidx.wear.ambient.AmbientModeSupport.AmbientCallback! getAmbientCallback();
   }
 
-  public final class AmbientModeSupport.AmbientController {
-    method public boolean isAmbient();
-    method public void setAmbientOffloadEnabled(boolean);
-    method public void setAutoResumeEnabled(boolean);
+  @Deprecated public final class AmbientModeSupport.AmbientController {
+    method @Deprecated public boolean isAmbient();
+    method @Deprecated public void setAmbientOffloadEnabled(boolean);
+    method @Deprecated public void setAutoResumeEnabled(boolean);
   }
 
 }
@@ -129,10 +153,12 @@ package androidx.wear.widget {
     ctor public ArcLayout(android.content.Context, android.util.AttributeSet?, int, int);
     method @FloatRange(from=0.0f, to=360.0f, toInclusive=true) public float getAnchorAngleDegrees();
     method @androidx.wear.widget.ArcLayout.AnchorType public int getAnchorType();
+    method @FloatRange(from=0.0f, to=360.0f, toInclusive=true) public float getMaxAngleDegrees();
     method public boolean isClockwise();
     method public void setAnchorAngleDegrees(@FloatRange(from=0.0f, to=360.0f, toInclusive=true) float);
     method public void setAnchorType(@androidx.wear.widget.ArcLayout.AnchorType int);
     method public void setClockwise(boolean);
+    method public void setMaxAngleDegrees(@FloatRange(from=0.0f, to=360.0f, toInclusive=true) float);
     field public static final int ANCHOR_CENTER = 1; // 0x1
     field public static final int ANCHOR_END = 2; // 0x2
     field public static final int ANCHOR_START = 0; // 0x0
@@ -146,9 +172,11 @@ package androidx.wear.widget {
     ctor public ArcLayout.LayoutParams(int, int);
     ctor public ArcLayout.LayoutParams(android.view.ViewGroup.LayoutParams);
     method @androidx.wear.widget.ArcLayout.LayoutParams.VerticalAlignment public int getVerticalAlignment();
+    method public float getWeight();
     method public boolean isRotated();
     method public void setRotated(boolean);
     method public void setVerticalAlignment(@androidx.wear.widget.ArcLayout.LayoutParams.VerticalAlignment int);
+    method public void setWeight(float);
     field public static final int VERTICAL_ALIGN_CENTER = 1; // 0x1
     field public static final int VERTICAL_ALIGN_INNER = 2; // 0x2
     field public static final int VERTICAL_ALIGN_OUTER = 0; // 0x0
@@ -162,6 +190,7 @@ package androidx.wear.widget {
     method @FloatRange(from=0.0f, to=360.0f, toInclusive=true) public float getSweepAngleDegrees();
     method @Px public int getThickness();
     method public boolean isPointInsideClickArea(float, float);
+    method public default void setSweepAngleDegrees(@FloatRange(from=0.0f, to=360.0f, toInclusive=true) float);
   }
 
   @UiThread public class BoxInsetLayout extends android.view.ViewGroup {
@@ -318,7 +347,7 @@ package androidx.wear.widget {
     method public void setAlpha(int);
     method public void setBackgroundColor(@ColorInt int);
     method public void setClipEnabled(boolean);
-    method public void setColorFilter(android.graphics.ColorFilter!);
+    method public void setColorFilter(android.graphics.ColorFilter?);
     method public void setDrawable(android.graphics.drawable.Drawable?);
     method public void setRadius(int);
   }

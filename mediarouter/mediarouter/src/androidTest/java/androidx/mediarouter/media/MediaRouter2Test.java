@@ -148,7 +148,8 @@ public class MediaRouter2Test {
             }
 
             @Override
-            public void onRouteUnselected(MediaRouter router, RouteInfo route, int reason) {
+            public void onRouteUnselected(
+                    @NonNull MediaRouter router, @NonNull RouteInfo route, int reason) {
                 if (TextUtils.equals(route.getDescriptorId(), descriptorId)
                         && reason == MediaRouter.UNSELECT_REASON_STOPPED) {
                     onRouteUnselectedLatch.countDown();
@@ -156,7 +157,7 @@ public class MediaRouter2Test {
             }
 
             @Override
-            public void onRouteChanged(MediaRouter router, RouteInfo route) {
+            public void onRouteChanged(@NonNull MediaRouter router, @NonNull RouteInfo route) {
                 if (onRouteUnselectedLatch.getCount() == 0
                         && TextUtils.equals(route.getDescriptorId(), descriptorId)
                         && route.isEnabled()) {
@@ -232,7 +233,8 @@ public class MediaRouter2Test {
 
         addCallback(new MediaRouter.Callback() {
             @Override
-            public void onRouterParamsChanged(MediaRouter router, MediaRouterParams params) {
+            public void onRouterParamsChanged(
+                    @NonNull MediaRouter router, MediaRouterParams params) {
                 routerParams[0] = params;
                 onRouterParmasChangedLatch.countDown();
             }
@@ -253,7 +255,8 @@ public class MediaRouter2Test {
 
     void addCallback(MediaRouter.Callback callback) {
         getInstrumentation().runOnMainSync(() -> {
-            mRouter.addCallback(mSelector, callback, MediaRouter.CALLBACK_FLAG_REQUEST_DISCOVERY
+            mRouter.addCallback(mSelector, callback,
+                    MediaRouter.CALLBACK_FLAG_REQUEST_DISCOVERY
                             | MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
         });
         mCallbacks.add(callback);
@@ -263,7 +266,7 @@ public class MediaRouter2Test {
         CountDownLatch latch = new CountDownLatch(1);
         MediaRouter.Callback callback = new MediaRouter.Callback() {
             @Override
-            public void onRouteAdded(MediaRouter router, RouteInfo route) {
+            public void onRouteAdded(@NonNull MediaRouter router, @NonNull RouteInfo route) {
                 if (!route.isDefaultOrBluetooth()) {
                     latch.countDown();
                 }

@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 import androidx.build.SdkHelperKt
 import androidx.build.SupportConfig
 
@@ -25,6 +23,8 @@ plugins {
     id("kotlin")
     id("kotlin-kapt")
 }
+
+androidx.configureAarAsJarForConfiguration("testImplementation")
 
 dependencies {
     implementation(libs.kotlinStdlib)
@@ -40,23 +40,21 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.googleCompileTesting)
     testImplementation(libs.hiltCore)
-    testImplementation(fileTree(
-            dir: "${new File(project(":hilt:hilt-work").buildDir, "libJar")}",
-            include : "*.jar"))
+    testImplementationAarAsJar(project(":hilt:hilt-work"))
     testImplementation(fileTree(
             dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
             include : "android.jar"))
 }
 
-tasks.named("compileKotlin").configure {
-    dependsOn(":hilt:hilt-work:jarRelease")
+tasks.withType(Test).configureEach {
+    // https://github.com/google/compile-testing/issues/222
+    it.jvmArgs "--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED"
 }
 
 androidx {
     name = "AndroidX Hilt Extension Compiler"
-    type = LibraryType.COMPILER_PLUGIN
+    type = LibraryType.ANNOTATION_PROCESSOR
     mavenVersion = LibraryVersions.HILT
-    mavenGroup = LibraryGroups.HILT
     inceptionYear = "2020"
     description = "AndroidX Hilt Extension Compiler"
 }

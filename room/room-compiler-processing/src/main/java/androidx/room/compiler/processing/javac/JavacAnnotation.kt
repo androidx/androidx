@@ -21,6 +21,7 @@ import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XAnnotationValue
+import androidx.room.compiler.processing.compat.XConverters.toXProcessing
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.AnnotationMirror
@@ -28,7 +29,7 @@ import javax.lang.model.element.AnnotationMirror
 internal class JavacAnnotation(
     val env: JavacProcessingEnv,
     val mirror: AnnotationMirror
-) : InternalXAnnotation {
+) : InternalXAnnotation() {
 
     override val name: String
         get() = mirror.annotationType.asElement().simpleName.toString()
@@ -40,13 +41,12 @@ internal class JavacAnnotation(
         JavacDeclaredType(env, mirror.annotationType, XNullability.NONNULL)
     }
 
-    override val annotationValues: List<XAnnotationValue>
-        get() {
-            return AnnotationMirrors.getAnnotationValuesWithDefaults(mirror)
-                .map { (executableElement, annotationValue) ->
-                    JavacAnnotationValue(env, executableElement, annotationValue)
-                }
-        }
+    override val annotationValues: List<XAnnotationValue> by lazy {
+        AnnotationMirrors.getAnnotationValuesWithDefaults(mirror)
+            .map { (executableElement, annotationValue) ->
+                annotationValue.toXProcessing(executableElement, env)
+            }
+    }
 
     override fun <T : Annotation> asAnnotationBox(annotationClass: Class<T>): XAnnotationBox<T> {
         return mirror.box(env, annotationClass)

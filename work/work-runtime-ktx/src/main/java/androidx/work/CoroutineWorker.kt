@@ -50,7 +50,7 @@ public abstract class CoroutineWorker(
                     job.cancel()
                 }
             },
-            taskExecutor.backgroundExecutor
+            taskExecutor.serialTaskExecutor
         )
     }
 

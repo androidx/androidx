@@ -22,11 +22,13 @@ import androidx.wear.watchface.control.IPendingInteractiveWatchFace;
 import androidx.wear.watchface.control.data.DefaultProviderPoliciesParams;
 import androidx.wear.watchface.control.data.GetComplicationSlotMetadataParams;
 import androidx.wear.watchface.control.data.GetUserStyleSchemaParams;
+import androidx.wear.watchface.control.data.GetUserStyleFlavorsParams;
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams;
 import androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFormat;
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams;
 import androidx.wear.watchface.data.ComplicationSlotMetadataWireFormat;
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
+import androidx.wear.watchface.style.data.UserStyleFlavorsWireFormat;
 import androidx.wear.watchface.editor.IEditorService;
 
 /**
@@ -37,12 +39,12 @@ import androidx.wear.watchface.editor.IEditorService;
 interface IWatchFaceControlService {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 7
+    // Next Id: 11
 
     /**
      * API version number. This should be incremented every time a new method is added.
      */
-    const int API_VERSION = 3;
+    const int API_VERSION = 5;
 
     /**
      * Returns the version number for this API which the client can use to determine which methods
@@ -122,4 +124,18 @@ interface IWatchFaceControlService {
      */
     ComplicationSlotMetadataWireFormat[] getComplicationSlotMetadata(
             in GetComplicationSlotMetadataParams params) = 8;
+
+    /**
+     * Returns whether or not the watch face has a complication cache.
+     *
+     * @since API version 4.
+     */
+    boolean hasComplicationCache() = 9;
+
+    /**
+     * Returns the static {@link UserStyleFlavorsWireFormat}
+     *
+     * @since API version 5.
+     */
+    UserStyleFlavorsWireFormat getUserStyleFlavors(in GetUserStyleFlavorsParams params) = 10;
 }

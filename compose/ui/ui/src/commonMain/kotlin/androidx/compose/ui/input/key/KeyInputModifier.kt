@@ -16,11 +16,9 @@
 
 package androidx.compose.ui.input.key
 
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.findActiveFocusNode
-import androidx.compose.ui.node.ModifiedKeyInputNode
-import androidx.compose.ui.platform.debugInspectorInfo
-import androidx.compose.ui.platform.inspectable
+import androidx.compose.ui.node.modifierElementOf
 
 /**
  * Adding this [modifier][Modifier] to the [modifier][Modifier] parameter of a component will
@@ -32,14 +30,19 @@ import androidx.compose.ui.platform.inspectable
  *
  * @sample androidx.compose.ui.samples.KeyEventSample
  */
-fun Modifier.onKeyEvent(onKeyEvent: (KeyEvent) -> Boolean): Modifier = inspectable(
-    inspectorInfo = debugInspectorInfo {
-        name = "onKeyEvent"
-        properties["onKeyEvent"] = onKeyEvent
-    }
-) {
-    KeyInputModifier(onKeyEvent = onKeyEvent, onPreviewKeyEvent = null)
-}
+@OptIn(ExperimentalComposeUiApi::class)
+@Suppress("ModifierInspectorInfo") // b/251831790.
+fun Modifier.onKeyEvent(onKeyEvent: (KeyEvent) -> Boolean): Modifier = this.then(
+    modifierElementOf(
+        key = onKeyEvent,
+        create = { KeyInputInputModifierNodeImpl(onEvent = onKeyEvent, onPreEvent = null) },
+        update = { it.onEvent = onKeyEvent },
+        definitions = {
+            name = "onKeyEvent"
+            properties["onKeyEvent"] = onKeyEvent
+        }
+    )
+)
 
 /**
  * Adding this [modifier][Modifier] to the [modifier][Modifier] parameter of a component will
@@ -49,33 +52,20 @@ fun Modifier.onKeyEvent(onKeyEvent: (KeyEvent) -> Boolean): Modifier = inspectab
  * keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
  * Return true to stop propagation of this event. If you return false, the key event will be sent
  * to this [onPreviewKeyEvent]'s child. If none of the children consume the event, it will be
- * sent back up to the root [KeyInputModifier] using the onKeyEvent callback.
+ * sent back up to the root [KeyInputModifierNode] using the onKeyEvent callback.
  *
  * @sample androidx.compose.ui.samples.KeyEventSample
  */
-fun Modifier.onPreviewKeyEvent(onPreviewKeyEvent: (KeyEvent) -> Boolean): Modifier = inspectable(
-    inspectorInfo = debugInspectorInfo {
-        name = "onPreviewKeyEvent"
-        properties["onPreviewKeyEvent"] = onPreviewKeyEvent
-    }
-) {
-    KeyInputModifier(onKeyEvent = null, onPreviewKeyEvent = onPreviewKeyEvent)
-}
-
-internal class KeyInputModifier(
-    val onKeyEvent: ((KeyEvent) -> Boolean)?,
-    val onPreviewKeyEvent: ((KeyEvent) -> Boolean)?
-) : Modifier.Element {
-    lateinit var keyInputNode: ModifiedKeyInputNode
-
-    fun processKeyInput(keyEvent: KeyEvent): Boolean {
-        val activeKeyInputNode = keyInputNode.findPreviousFocusWrapper()
-            ?.findActiveFocusNode()
-            ?.findLastKeyInputWrapper()
-            ?: error("KeyEvent can't be processed because this key input node is not active.")
-        return with(activeKeyInputNode) {
-            val consumed = propagatePreviewKeyEvent(keyEvent)
-            if (consumed) true else propagateKeyEvent(keyEvent)
+@OptIn(ExperimentalComposeUiApi::class)
+@Suppress("ModifierInspectorInfo") // b/251831790.
+fun Modifier.onPreviewKeyEvent(onPreviewKeyEvent: (KeyEvent) -> Boolean): Modifier = this.then(
+    modifierElementOf(
+        key = onPreviewKeyEvent,
+        create = { KeyInputInputModifierNodeImpl(onEvent = null, onPreEvent = onPreviewKeyEvent) },
+        update = { it.onPreEvent = onPreviewKeyEvent },
+        definitions = {
+            name = "onPreviewKeyEvent"
+            properties["onPreviewKeyEvent"] = onPreviewKeyEvent
         }
-    }
-}
+    )
+)

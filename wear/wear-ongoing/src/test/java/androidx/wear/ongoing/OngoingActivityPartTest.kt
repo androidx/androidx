@@ -113,6 +113,7 @@ open class OngoingActivityPartTest {
         )
     }
 
+    @Suppress("deprecation")
     @Test
     fun testOngoingActivityStatusSerialization() {
         val key = "KEY"

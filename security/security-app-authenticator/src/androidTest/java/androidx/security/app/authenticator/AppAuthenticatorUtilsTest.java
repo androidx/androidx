@@ -79,6 +79,7 @@ public class AppAuthenticatorUtilsTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void getUidForPackage_returnsExpectedUid() throws Exception {
         // The AppAuthenticatorUtils provides an instance method to obtain the UID of the
         // specified package to facilitate tests; this test verifies a base AppAuthenticatorUtils

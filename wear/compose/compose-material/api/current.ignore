@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+ChangedValue: androidx.wear.compose.material.TimeTextDefaults#TimeFormat12Hours:
+    Field androidx.wear.compose.material.TimeTextDefaults.TimeFormat12Hours has changed value from h:mm a to h:mm

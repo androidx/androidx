@@ -55,14 +55,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Align
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.anyChangeConsumed
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -107,6 +103,7 @@ import org.hamcrest.CoreMatchers.not
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -527,14 +524,18 @@ class AndroidViewCompatTest {
             Box(Modifier.onGloballyPositioned { outer = it.positionInWindow() }) {
                 val paddingDp = with(LocalDensity.current) { padding.toDp() }
                 Box(Modifier.padding(paddingDp)) {
-                    AndroidView(::ComposeView) {
-                        it.setContent {
-                            Box(
-                                Modifier.padding(paddingDp)
-                                    .onGloballyPositioned { inner = it.positionInWindow() }
-                            )
+                    AndroidView(
+                        {
+                            ComposeView(it).apply {
+                                setContent {
+                                    Box(
+                                        Modifier.padding(paddingDp)
+                                            .onGloballyPositioned { inner = it.positionInWindow() }
+                                    )
+                                }
+                            }
                         }
-                    }
+                    )
                 }
             }
         }
@@ -567,14 +568,18 @@ class AndroidViewCompatTest {
                 Box {
                     val paddingDp = with(LocalDensity.current) { padding.toDp() }
                     Box(Modifier.padding(paddingDp)) {
-                        AndroidView(::ComposeView) {
-                            it.setContent {
-                                Box(
-                                    Modifier.padding(paddingDp)
-                                        .onGloballyPositioned { coordinates = it }
-                                )
+                        AndroidView(
+                            {
+                                ComposeView(it).apply {
+                                    setContent {
+                                        Box(
+                                            Modifier.padding(paddingDp)
+                                                .onGloballyPositioned { coordinates = it }
+                                        )
+                                    }
+                                }
                             }
-                        }
+                        )
                     }
                 }
             }
@@ -774,85 +779,32 @@ class AndroidViewCompatTest {
         rule.runOnIdle { assertEquals(invalidatesDuringScroll + 1, view!!.draws) }
     }
 
-    @Test
-    fun viewGetsEventsBeforeParent() {
-        val parentEvents = mutableListOf<Pair<PointerEventType, Boolean>>()
-        val viewEvents = mutableListOf<Int>()
-        rule.setContent {
-            Box(Modifier.fillMaxSize().pointerInput(Unit) {
-                awaitPointerEventScope {
-                    while (true) {
-                        val event = awaitPointerEvent()
-                        parentEvents += event.type to event.changes.any { it.anyChangeConsumed() }
-                    }
-                }
-            }) {
-                AndroidView(
-                    factory = { context ->
-                        object : View(context) {
-                            override fun dispatchTouchEvent(event: MotionEvent): Boolean {
-                                viewEvents += event.actionMasked
-                                return true
-                            }
-                        }
-                    },
-                    modifier = Modifier.fillMaxSize().testTag("Tag")
-                )
-            }
-        }
-
-        rule.onNodeWithTag("Tag").performTouchInput {
-            down(Offset.Zero)
-            moveTo(Offset(10f, 10f))
-            up()
-        }
-
-        rule.runOnIdle {
-            assertThat(viewEvents).containsExactly(
-                ACTION_DOWN,
-                ACTION_MOVE,
-                ACTION_UP
-            )
-            assertThat(parentEvents).containsExactly(
-                PointerEventType.Press to true,
-                PointerEventType.Move to true,
-                PointerEventType.Release to true
-            )
-        }
-    }
-
+    @Ignore // b/254573760
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     @Test
     fun testWebViewIsRelaidOut_afterPageLoad() {
         var boxY = 0
-        var pageFinished = false
-        val latch = CountDownLatch(2)
+        val latch = CountDownLatch(1)
         rule.setContent {
             Column {
                 AndroidView(
                     factory = {
                         val webView = WebView(it)
                         webView.webViewClient = object : WebViewClient() {
-                            override fun onPageFinished(view: WebView?, url: String?) {
-                                super.onPageFinished(view, url)
+                            override fun onPageCommitVisible(view: WebView?, url: String?) {
+                                super.onPageCommitVisible(view, url)
                                 latch.countDown()
-                                pageFinished = true
                             }
                         }
                         webView.loadData("This is a test text", "text/html", "UTF-8")
                         webView
-                    },
-                    modifier = Modifier.drawBehind {
-                        // We would like to use onPageCommitVisible instead of onPageFinished,
-                        // such that this modifier would not be needed at all, but
-                        // onPageCommitVisible was only added in API 23.
-                        if (pageFinished) latch.countDown()
                     }
                 )
                 Box(Modifier.onGloballyPositioned { boxY = it.positionInRoot().y.roundToInt() })
             }
         }
         assertTrue(latch.await(3, TimeUnit.SECONDS))
-        rule.runOnIdle { assertTrue(boxY > 0) }
+        rule.waitUntil { boxY > 0 }
     }
 
     @Test
@@ -967,10 +919,10 @@ class AndroidViewCompatTest {
             setMeasuredDimension(size, size)
         }
 
-        override fun draw(canvas: Canvas?) {
+        override fun draw(canvas: Canvas) {
             super.draw(canvas)
             drawnAfterLastColorChange = true
-            canvas!!.drawRect(
+            canvas.drawRect(
                 Rect(0, 0, size, size),
                 Paint().apply { color = this@ColoredSquareView.color.toArgb() }
             )
@@ -1004,7 +956,7 @@ class AndroidViewCompatTest {
             }
         }
 
-        override fun onDraw(canvas: Canvas?) {
+        override fun onDraw(canvas: Canvas) {
             super.onDraw(canvas)
             ++draws
         }

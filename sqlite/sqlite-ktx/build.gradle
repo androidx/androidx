@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -28,13 +27,16 @@ dependencies {
     api(libs.kotlinStdlib)
 
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
 }
 
 androidx {
     name = "Android DB KTX"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.SQLITE
     inceptionYear = "2018"
     description = "Kotlin extensions for DB"
+}
+
+android {
+    namespace "androidx.sqlite.db.ktx"
 }

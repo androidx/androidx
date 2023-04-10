@@ -23,16 +23,27 @@ class AnnotatedJavaMembers {
     @ExperimentalJavaAnnotation
     public static final int FIELD_STATIC = -1;
 
+    private int mFieldWithSetMarker;
+
     @ExperimentalJavaAnnotation
     public static int methodStatic() {
         return -1;
     }
 
     @ExperimentalJavaAnnotation
-    public final int field = -1;
+    public int field = -1;
 
     @ExperimentalJavaAnnotation
     public int method() {
         return -1;
+    }
+
+    public int getFieldWithSetMarker() {
+        return mFieldWithSetMarker;
+    }
+
+    @ExperimentalJavaAnnotation
+    public void setFieldWithSetMarker(int value) {
+        mFieldWithSetMarker = value;
     }
 }

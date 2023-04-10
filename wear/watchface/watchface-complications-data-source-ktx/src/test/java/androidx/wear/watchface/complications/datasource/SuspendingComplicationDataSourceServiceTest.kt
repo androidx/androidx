@@ -46,6 +46,34 @@ class TestService : SuspendingComplicationDataSourceService() {
         ).build()
 }
 
+class TestTimelineService : SuspendingTimelineComplicationDataSourceService() {
+    override suspend fun onComplicationRequest(request: ComplicationRequest) =
+        ComplicationDataTimeline(
+            ShortTextComplicationData.Builder(
+                PlainComplicationText.Builder("Default").build(),
+                ComplicationText.EMPTY
+            ).build(),
+            listOf(
+                TimelineEntry(
+                    TimeInterval(
+                        Instant.ofEpochSecond(100000000),
+                        Instant.ofEpochSecond(100001000)
+                    ),
+                    ShortTextComplicationData.Builder(
+                        PlainComplicationText.Builder("Override").build(),
+                        ComplicationText.EMPTY
+                    ).build()
+                )
+            )
+        )
+
+    override fun getPreviewData(type: ComplicationType) =
+        ShortTextComplicationData.Builder(
+            PlainComplicationText.Builder("Preview").build(),
+            ComplicationText.EMPTY
+        ).build()
+}
+
 /** Needed to prevent Robolectric from instrumenting various classes.  */
 class ComplicationsTestRunner(clazz: Class<*>?) : RobolectricTestRunner(clazz) {
     override fun createClassLoaderConfig(method: FrameworkMethod): InstrumentationConfiguration {
@@ -63,13 +91,15 @@ class ComplicationsTestRunner(clazz: Class<*>?) : RobolectricTestRunner(clazz) {
 @RunWith(ComplicationsTestRunner::class)
 @DoNotInstrument
 public class SuspendingComplicationDataSourceServiceTest {
+    val resources = ApplicationProvider.getApplicationContext<Context>().resources
+
     @Test
     public fun onComplicationRequest() {
         val testService = TestService()
         lateinit var result: ComplicationData
 
         testService.onComplicationRequest(
-            ComplicationRequest(123, ComplicationType.SMALL_IMAGE),
+            ComplicationRequest(123, ComplicationType.SMALL_IMAGE, false),
             object : ComplicationDataSourceService.ComplicationRequestListener {
                 override fun onComplicationData(complicationData: ComplicationData?) {
                     result = complicationData!!
@@ -78,11 +108,40 @@ public class SuspendingComplicationDataSourceServiceTest {
         )
 
         assertThat(
-            (result as ShortTextComplicationData).text.getTextAt(
-                ApplicationProvider.getApplicationContext<Context>().resources,
-                Instant.EPOCH
-            )
+            (result as ShortTextComplicationData).text.getTextAt(resources, Instant.EPOCH)
         ).isEqualTo("Complication")
+    }
+
+    @Test
+    public fun onComplicationRequest_with_timeline() {
+        val testService = TestTimelineService()
+        lateinit var result: ComplicationDataTimeline
+
+        testService.onComplicationRequest(
+            ComplicationRequest(123, ComplicationType.SMALL_IMAGE, false),
+            object : ComplicationDataSourceService.ComplicationRequestListener {
+                override fun onComplicationData(complicationData: ComplicationData?) { }
+
+                override fun onComplicationDataTimeline(
+                    complicationDataTimeline: ComplicationDataTimeline?
+                ) {
+                    result = complicationDataTimeline!!
+                }
+            }
+        )
+
+        assertThat(
+            (result.defaultComplicationData as ShortTextComplicationData)
+                .text.getTextAt(resources, Instant.EPOCH)
+        ).isEqualTo("Default")
+
+        val timelineEntry = result.timelineEntries.toTypedArray()[0]
+        assertThat(timelineEntry.validity.start).isEqualTo(Instant.ofEpochSecond(100000000))
+        assertThat(timelineEntry.validity.end).isEqualTo(Instant.ofEpochSecond(100001000))
+        assertThat(
+            (timelineEntry.complicationData as ShortTextComplicationData)
+                .text.getTextAt(resources, Instant.EPOCH)
+        ).isEqualTo("Override")
     }
 
     @Test

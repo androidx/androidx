@@ -51,6 +51,10 @@ dependencies {
     testImplementation(libs.junit)
 }
 
+android {
+    namespace "androidx.room.integration.autovaluetestapp"
+}
+
 // Enable parameter names to support Room incremental when its a project() dep.
 // See b/198431380
 tasks.withType(JavaCompile) {

@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -30,7 +28,6 @@ dependencies {
 androidx {
     name = "AndroidX Wear Watchface Samples app"
     type = LibraryType.SAMPLES
-    mavenGroup = LibraryGroups.WEAR_WATCHFACE
     inceptionYear = "2021"
     description = "APK for the sample code for the Androidx Wear Watchface library"
 }
@@ -60,4 +57,5 @@ android {
         sourceCompatibility 1.8
         targetCompatibility 1.8
     }
+    namespace "androidx.wear.watchface.samples.app"
 }

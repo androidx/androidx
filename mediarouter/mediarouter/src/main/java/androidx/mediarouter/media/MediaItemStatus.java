@@ -255,6 +255,7 @@ public final class MediaItemStatus {
         return mBundle.getBundle(KEY_EXTRAS);
     }
 
+    @NonNull
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();

@@ -29,10 +29,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.toAndroidRect
-import androidx.compose.ui.node.InnerPlaceable
+import androidx.compose.ui.node.InnerNodeCoordinator
 import androidx.compose.ui.node.LayoutNode
+import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -43,11 +43,11 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.ScrollAxisRange
+import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsModifierCore
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
-import androidx.compose.ui.semantics.SemanticsWrapper
 import androidx.compose.ui.semantics.collapse
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.copyText
@@ -65,6 +65,7 @@ import androidx.compose.ui.semantics.horizontalScrollAxisRange
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onLongClick
+import androidx.compose.ui.semantics.password
 import androidx.compose.ui.semantics.pasteText
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.role
@@ -72,12 +73,16 @@ import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.semantics.setSelection
 import androidx.compose.ui.semantics.setText
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.testTag
+import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.semantics.text
 import androidx.compose.ui.semantics.textSelectionRange
 import androidx.compose.ui.semantics.verticalScrollAxisRange
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.unit.IntRect
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
@@ -92,7 +97,6 @@ import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -137,20 +141,19 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         info = AccessibilityNodeInfoCompat.obtain()
     }
 
-    @After
-    fun cleanup() {
-        info.recycle()
-    }
-
     @Test
+    @OptIn(ExperimentalComposeUiApi::class)
     fun testPopulateAccessibilityNodeInfoProperties_general() {
         val clickActionLabel = "click"
         val dismissActionLabel = "dismiss"
         val expandActionLabel = "expand"
         val collapseActionLabel = "collapse"
         val stateDescription = "checked"
+        val resourceName = "myResourceName"
         val semanticsNode = createSemanticsNodeWithProperties(1, true) {
             this.stateDescription = stateDescription
+            testTag = resourceName
+            testTagsAsResourceId = true
             heading()
             onClick(clickActionLabel) { true }
             dismiss(dismissActionLabel) { true }
@@ -209,9 +212,11 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             }
         }
         assertEquals(stateDescription, stateDescriptionResult)
+        assertEquals(resourceName, info.viewIdResourceName)
         assertTrue(info.isHeading)
         assertTrue(info.isClickable)
         assertTrue(info.isVisibleToUser)
+        assertTrue(info.isImportantForAccessibility)
     }
 
     @Test
@@ -230,6 +235,17 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         accessibilityDelegate.populateAccessibilityNodeInfoProperties(1, info, node)
 
         assertFalse(info.isScreenReaderFocusable)
+    }
+
+    @Test
+    fun testPopulateAccessibilityNodeInfoProperties_screenReaderFocusable_speakable() {
+        val node = createSemanticsNodeWithProperties(1, false) {
+            text = AnnotatedString("Example text")
+        }
+
+        accessibilityDelegate.populateAccessibilityNodeInfoProperties(1, info, node)
+
+        assertTrue(info.isScreenReaderFocusable)
     }
 
     @Test
@@ -329,6 +345,30 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_RIGHT
             )
         )
+        assertFalse(
+            containsAction(
+                info,
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_UP
+            )
+        )
+        assertFalse(
+            containsAction(
+                info,
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_DOWN
+            )
+        )
+        assertFalse(
+            containsAction(
+                info,
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_LEFT
+            )
+        )
+        assertFalse(
+            containsAction(
+                info,
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_RIGHT
+            )
+        )
     }
 
     @Test
@@ -346,7 +386,16 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             role = Role.Switch
         }
         accessibilityDelegate.populateAccessibilityNodeInfoProperties(1, info, semanticsNode)
-        assertEquals("android.widget.Switch", info.className)
+        assertEquals("android.view.View", info.className)
+    }
+
+    @Test
+    fun testPopulateAccessibilityNodeInfoProperties_switchRoleDescription() {
+        val semanticsNode = createSemanticsNodeWithProperties(1, true) {
+            role = Role.Switch
+        }
+        accessibilityDelegate.populateAccessibilityNodeInfoProperties(1, info, semanticsNode)
+        assertEquals("Switch", info.roleDescription)
     }
 
     @Test
@@ -386,13 +435,22 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
     }
 
     @Test
+    fun nodeWithTextAndLayoutResult_className_textView() {
+        val semanticsNode = createSemanticsNodeWithProperties(1, true) {
+            text = AnnotatedString("")
+        }
+
+        accessibilityDelegate.populateAccessibilityNodeInfoProperties(1, info, semanticsNode)
+        assertEquals("android.widget.TextView", info.className)
+    }
+
+    @Test
     fun testPopulateAccessibilityNodeInfoProperties_liveRegion() {
         var semanticsNode = createSemanticsNodeWithProperties(1, true) {
             liveRegion = LiveRegionMode.Polite
         }
         accessibilityDelegate.populateAccessibilityNodeInfoProperties(1, info, semanticsNode)
         assertEquals(ViewCompat.ACCESSIBILITY_LIVE_REGION_POLITE, info.liveRegion)
-        info.recycle()
 
         info = AccessibilityNodeInfoCompat.obtain()
         semanticsNode = createSemanticsNodeWithProperties(1, true) {
@@ -885,7 +943,6 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         val nodes = SemanticsOwner(
             LayoutNode().also {
                 it.modifier = SemanticsModifierCore(
-                    id = SemanticsModifierCore.generateSemanticsId(),
                     mergeDescendants = false,
                     clearAndSetSemantics = false,
                     properties = {}
@@ -902,7 +959,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         assertEquals(1, nodes.size)
         assertEquals(AccessibilityNodeProviderCompat.HOST_VIEW_ID, nodes.keys.first())
         assertEquals(
-            Rect.Zero.toAndroidRect(),
+            IntRect.Zero.toAndroidRect(),
             nodes[AccessibilityNodeProviderCompat.HOST_VIEW_ID]!!.adjustedBounds
         )
     }
@@ -1240,15 +1297,143 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         )
     }
 
+    @Test
+    fun passwordVisibilityToggle_fromInvisibleToVisible_doNotSendTextChangeEvent() {
+        sendTextSemanticsChangeEvent(oldNodePassword = true, newNodePassword = false)
+
+        verify(container, never()).requestSendAccessibilityEvent(
+            eq(androidComposeView),
+            argThat(
+                ArgumentMatcher {
+                    it.eventType == AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED
+                }
+            )
+        )
+    }
+
+    @Test
+    fun passwordVisibilityToggle_fromVisibleToInvisible_doNotSendTextChangeEvent() {
+        sendTextSemanticsChangeEvent(oldNodePassword = false, newNodePassword = true)
+
+        verify(container, never()).requestSendAccessibilityEvent(
+            eq(androidComposeView),
+            argThat(
+                ArgumentMatcher {
+                    it.eventType == AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED
+                }
+            )
+        )
+    }
+
+    @Test
+    fun passwordVisibilityToggle_fromInvisibleToVisible_sendTwoSelectionEvents() {
+        sendTextSemanticsChangeEvent(oldNodePassword = true, newNodePassword = false)
+
+        verify(container, times(2)).requestSendAccessibilityEvent(
+            eq(androidComposeView),
+            argThat(
+                ArgumentMatcher {
+                    it.eventType == AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED
+                }
+            )
+        )
+    }
+
+    @Test
+    fun passwordVisibilityToggle_fromVisibleToInvisible_sendTwoSelectionEvents() {
+        sendTextSemanticsChangeEvent(oldNodePassword = false, newNodePassword = true)
+
+        verify(container, times(2)).requestSendAccessibilityEvent(
+            eq(androidComposeView),
+            argThat(
+                ArgumentMatcher {
+                    it.eventType == AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED
+                }
+            )
+        )
+    }
+
+    @Test
+    fun textChanged_sendTextChangeEvent() {
+        sendTextSemanticsChangeEvent(oldNodePassword = false, newNodePassword = false)
+
+        verify(container, times(1)).requestSendAccessibilityEvent(
+            eq(androidComposeView),
+            argThat(
+                ArgumentMatcher {
+                    it.eventType == AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED
+                }
+            )
+        )
+    }
+
+    @Test
+    fun textChanged_passwordNode_sendTextChangeEvent() {
+        sendTextSemanticsChangeEvent(oldNodePassword = true, newNodePassword = true)
+
+        verify(container, times(1)).requestSendAccessibilityEvent(
+            eq(androidComposeView),
+            argThat(
+                ArgumentMatcher {
+                    it.eventType == AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED
+                }
+            )
+        )
+    }
+
+    private fun sendTextSemanticsChangeEvent(oldNodePassword: Boolean, newNodePassword: Boolean) {
+        val nodeId = 1
+        val oldTextNode = createSemanticsNodeWithProperties(nodeId, true) {
+            setText { true }
+            if (oldNodePassword) password()
+            textSelectionRange = TextRange(4)
+            editableText = AnnotatedString(
+                when {
+                    oldNodePassword && !newNodePassword -> "****"
+                    !oldNodePassword && newNodePassword -> "1234"
+                    !oldNodePassword && !newNodePassword -> "1234"
+                    else -> "1234"
+                }
+            )
+        }
+        accessibilityDelegate.previousSemanticsNodes[nodeId] =
+            AndroidComposeViewAccessibilityDelegateCompat.SemanticsNodeCopy(oldTextNode, mapOf())
+
+        val newTextNode = createSemanticsNodeWithAdjustedBoundsWithProperties(nodeId, true) {
+            setText { true }
+            if (newNodePassword) password()
+            textSelectionRange = TextRange(4)
+            editableText = AnnotatedString(
+                when {
+                    oldNodePassword && !newNodePassword -> "1234"
+                    !oldNodePassword && newNodePassword -> "****"
+                    !oldNodePassword && !newNodePassword -> "1235"
+                    else -> "1235"
+                }
+            )
+        }
+        accessibilityDelegate.sendSemanticsPropertyChangeEvents(mapOf(nodeId to newTextNode))
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
     private fun createSemanticsNodeWithProperties(
         id: Int,
         mergeDescendants: Boolean,
         properties: (SemanticsPropertyReceiver.() -> Unit)
     ): SemanticsNode {
-        val semanticsModifier = SemanticsModifierCore(id, mergeDescendants, false, properties)
+        val layoutNode = LayoutNode(semanticsId = id)
+        val nodeCoordinator = InnerNodeCoordinator(layoutNode)
+        val modifierNode = object : SemanticsModifierNode, Modifier.Node() {
+            override val semanticsConfiguration = SemanticsConfiguration().also {
+                it.isMergingSemanticsOfDescendants = mergeDescendants
+                it.properties()
+            }
+        }
+        modifierNode.updateCoordinator(nodeCoordinator)
         return SemanticsNode(
-            SemanticsWrapper(InnerPlaceable(LayoutNode()), semanticsModifier),
-            true
+            modifierNode,
+            true,
+            layoutNode
         )
     }
 

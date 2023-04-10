@@ -25,6 +25,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Stable
@@ -70,7 +72,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.CountDownLatch
 import kotlin.math.max
 
 @MediumTest
@@ -91,16 +92,6 @@ class SemanticsTests {
         isDebugInspectorInfoEnabled = false
     }
 
-    private fun executeUpdateBlocking(updateFunction: () -> Unit) {
-        val latch = CountDownLatch(1)
-        rule.runOnUiThread {
-            updateFunction()
-            latch.countDown()
-        }
-
-        latch.await()
-    }
-
     @Test
     fun unchangedSemanticsDoesNotCauseRelayout() {
         val layoutCounter = Counter(0)
@@ -115,6 +106,37 @@ class SemanticsTests {
         rule.runOnIdle { recomposeForcer.value++ }
 
         rule.runOnIdle { assertEquals(1, layoutCounter.count) }
+    }
+
+    @Test
+    fun valueSemanticsAreEqual() {
+        assertEquals(
+            Modifier.semantics {
+                text = AnnotatedString("text")
+                contentDescription = "foo"
+                popup()
+            },
+            Modifier.semantics {
+                text = AnnotatedString("text")
+                contentDescription = "foo"
+                popup()
+            }
+        )
+    }
+
+    @Test
+    fun containerProperty() {
+        rule.setContent {
+            Surface(
+                Modifier.testTag(TestTag)
+            ) {
+                Text("Hello World", modifier = Modifier.padding(8.dp))
+            }
+        }
+
+        rule.onNodeWithTag(TestTag)
+            .assert(SemanticsMatcher.expectValue(
+                SemanticsProperties.IsContainer, true))
     }
 
     @Test
@@ -533,6 +555,12 @@ class SemanticsTests {
 
         val isAfter = mutableStateOf(false)
 
+        val content: @Composable () -> Unit = {
+            SimpleTestLayout {
+                nodeCount++
+            }
+        }
+
         rule.setContent {
             SimpleTestLayout(
                 Modifier.testTag(TestTag).semantics {
@@ -543,12 +571,9 @@ class SemanticsTests {
                             return@onClick true
                         }
                     )
-                }
-            ) {
-                SimpleTestLayout {
-                    nodeCount++
-                }
-            }
+                },
+                content = content
+            )
         }
 
         // This isn't the important part, just makes sure everything is behaving as expected
@@ -1076,6 +1101,41 @@ class SemanticsTests {
         )
         assertEquals(
             child2,
+            root.replacedChildrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
+        )
+    }
+
+    @Test
+    fun testChildrenSortedByBounds_sameOffset_differentSize() {
+        val child1 = "child1"
+        val child2 = "child2"
+        rule.setContent {
+            Box(
+                Modifier.testTag(TestTag)
+            ) {
+                SimpleTestLayout(
+                    Modifier
+                        .requiredSize(100.dp)
+                        .offset(x = 50.dp, y = 0.dp)
+                        .semantics { testTag = child1 }
+                ) {}
+                SimpleTestLayout(
+                    Modifier.requiredSize(50.dp)
+                    .offset(x = 50.dp, y = 0.dp)
+                    .semantics { testTag = child2 }
+                ) {}
+            }
+        }
+
+        // Size should not be a factor.  z-order or placement order should break the tie instead.
+        val root = rule.onNodeWithTag(TestTag).fetchSemanticsNode("can't find node $TestTag")
+        assertEquals(2, root.replacedChildrenSortedByBounds.size)
+        assertEquals(
+            child2,
+            root.replacedChildrenSortedByBounds[0].config.getOrNull(SemanticsProperties.TestTag)
+        )
+        assertEquals(
+            child1,
             root.replacedChildrenSortedByBounds[1].config.getOrNull(SemanticsProperties.TestTag)
         )
     }

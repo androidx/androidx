@@ -17,7 +17,15 @@
 
 <resources>
 
-    <style name="Theme.SplashScreen" parent="Theme.SplashScreenBase">
-        <item name="android:windowLayoutInDisplayCutoutMode">default</item>
+    <style name="Base.v27.Theme.SplashScreen" parent="Base.v21.Theme.SplashScreen">
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
     </style>
+
+    <style name="Base.v27.Theme.SplashScreen.Light" parent="Base.v21.Theme.SplashScreen.Light">
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+    </style>
+
+    <style name="Base.Theme.SplashScreen.Light" parent="Base.v27.Theme.SplashScreen.Light"/>
+    <style name="Base.Theme.SplashScreen" parent="Base.v27.Theme.SplashScreen"/>
+
 </resources>

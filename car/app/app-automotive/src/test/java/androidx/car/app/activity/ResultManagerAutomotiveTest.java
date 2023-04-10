@@ -16,6 +16,8 @@
 
 package androidx.car.app.activity;
 
+import static androidx.car.app.SessionInfo.DEFAULT_SESSION_INFO;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -43,19 +45,20 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link ResultManagerAutomotive}. */
 @RunWith(RobolectricTestRunner.class)
-@Config(instrumentedPackages = { "androidx.car.app.activity" })
+@Config(instrumentedPackages = {"androidx.car.app.activity"})
 @DoNotInstrument
 public class ResultManagerAutomotiveTest {
     private final ComponentName mRendererComponent = new ComponentName(
             ApplicationProvider.getApplicationContext(), getClass().getName());
     private final Application mApplication = ApplicationProvider.getApplicationContext();
-    private CarAppActivity mCarAppActivity = mock(CarAppActivity.class);
-    private ResultManagerAutomotive mResultManager = new ResultManagerAutomotive();
+    private final CarAppActivity mCarAppActivity = mock(CarAppActivity.class);
+    private final ResultManagerAutomotive mResultManager = new ResultManagerAutomotive();
     private CarAppViewModel mCarAppViewModel;
 
     @Before
     public void setUp() {
-        mCarAppViewModel = new CarAppViewModel(mApplication, mRendererComponent);
+        mCarAppViewModel = new CarAppViewModel(mApplication, mRendererComponent,
+                DEFAULT_SESSION_INFO);
     }
 
     @Test

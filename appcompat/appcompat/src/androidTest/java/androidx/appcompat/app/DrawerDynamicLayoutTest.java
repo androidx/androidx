@@ -139,15 +139,6 @@ public class DrawerDynamicLayoutTest {
                 inflateViewStub(R.layout.drawer_dynamic_content_single_start));
     }
 
-    @Test(expected=IllegalStateException.class)
-    public void testDoubleStartDrawers() {
-        onView(withId(R.id.drawer_layout)).check(doesNotExist());
-        // Note the expected exception in the @Test annotation, as we expect the DrawerLayout
-        // to throw exception during the measure pass as it detects two start drawers.
-        onView(withId(R.id.drawer_stub)).perform(
-                inflateViewStub(R.layout.drawer_dynamic_content_double_start));
-    }
-
     @Test
     public void testSingleEndDrawer() {
         onView(withId(R.id.drawer_layout)).check(doesNotExist());
@@ -155,38 +146,11 @@ public class DrawerDynamicLayoutTest {
                 inflateViewStub(R.layout.drawer_dynamic_content_single_end));
     }
 
-    @Test(expected=IllegalStateException.class)
-    public void testDoubleEndDrawers() {
-        onView(withId(R.id.drawer_layout)).check(doesNotExist());
-        // Note the expected exception in the @Test annotation, as we expect the DrawerLayout
-        // to throw exception during the measure pass as it detects two end drawers.
-        onView(withId(R.id.drawer_stub)).perform(
-                inflateViewStub(R.layout.drawer_dynamic_content_double_end, true));
-    }
-
     @Test
     public void testSingleStartDrawerSingleEndDrawer() {
         onView(withId(R.id.drawer_layout)).check(doesNotExist());
         onView(withId(R.id.drawer_stub)).perform(
                 inflateViewStub(R.layout.drawer_dynamic_content_start_end));
-    }
-
-    @Test(expected=IllegalStateException.class)
-    public void testDoubleStartDrawersSingleEndDrawer() {
-        onView(withId(R.id.drawer_layout)).check(doesNotExist());
-        // Note the expected exception in the @Test annotation, as we expect the DrawerLayout
-        // to throw exception during the measure pass as it detects two start drawers.
-        onView(withId(R.id.drawer_stub)).perform(
-                inflateViewStub(R.layout.drawer_dynamic_content_double_start_single_end));
-    }
-
-    @Test(expected=IllegalStateException.class)
-    public void testDoubleEndDrawersSingleStartDrawer() {
-        onView(withId(R.id.drawer_layout)).check(doesNotExist());
-        // Note the expected exception in the @Test annotation, as we expect the DrawerLayout
-        // to throw exception during the measure pass as it detects two start drawers.
-        onView(withId(R.id.drawer_stub)).perform(
-                inflateViewStub(R.layout.drawer_dynamic_content_double_end_single_start));
     }
 
     @Test

@@ -16,24 +16,38 @@
 
 package androidx.compose.ui.input.pointer
 
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalPointerIconService
 import androidx.compose.ui.platform.debugInspectorInfo
-
-@ExperimentalComposeUiApi
-object PointerIconDefaults {
-    val Default = pointerIconDefault
-    val Crosshair = pointerIconCrosshair
-    val Text = pointerIconText
-    val Hand = pointerIconHand
-}
 
 /**
  * Represents a pointer icon to use in [Modifier.pointerHoverIcon]
  */
-interface PointerIcon
+@Stable
+interface PointerIcon {
+
+    /**
+     * A collection of common pointer icons used for the mouse cursor. These icons will be used to
+     * assign default pointer icons for various widgets.
+     */
+    companion object {
+
+        /** The default arrow icon that is commonly used for cursor icons. */
+        val Default = pointerIconDefault
+
+        /** Commonly used when selecting precise portions of the screen. */
+        val Crosshair = pointerIconCrosshair
+
+        /** Also called an I-beam cursor, this is commonly used on selectable or editable text. */
+        val Text = pointerIconText
+
+        /** Commonly used to indicate to a user that an element is clickable. */
+        val Hand = pointerIconHand
+    }
+}
 
 internal expect val pointerIconDefault: PointerIcon
 internal expect val pointerIconCrosshair: PointerIcon
@@ -54,6 +68,7 @@ internal interface PointerIconService {
  * @param overrideDescendants when false (by default) descendants are able to set their own pointer
  * icon. if true it overrides descendants' icon.
  */
+@Stable
 fun Modifier.pointerHoverIcon(icon: PointerIcon, overrideDescendants: Boolean = false) =
     composed(
         inspectorInfo = debugInspectorInfo {
@@ -74,10 +89,10 @@ fun Modifier.pointerHoverIcon(icon: PointerIcon, overrideDescendants: Boolean = 
                         else
                             PointerEventPass.Initial
                         val event = awaitPointerEvent(pass)
-                        when (event.type) {
-                            PointerEventType.Enter, PointerEventType.Move -> {
-                                pointerIconService.current = icon
-                            }
+                        val isOutsideRelease = event.type == PointerEventType.Release &&
+                            event.changes[0].isOutOfBounds(size, Size.Zero)
+                        if (event.type != PointerEventType.Exit && !isOutsideRelease) {
+                            pointerIconService.current = icon
                         }
                     }
                 }

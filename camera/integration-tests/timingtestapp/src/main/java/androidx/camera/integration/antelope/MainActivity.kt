@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
@@ -264,12 +265,14 @@ class MainActivity : AppCompatActivity() {
             // Launch the permission request for CAMERA
             requestPermission.launch(Manifest.permission.CAMERA)
             return false
-        } else if (ContextCompat.checkSelfPermission(
+        } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(
                 this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            // Launch the permission request for WRITE_EXTERNAL_STORAGE
+            // Launch the permission request for WRITE_EXTERNAL_STORAGE. From Android T, skips to
+            // request WRITE_EXTERNAL_STORAGE permission since it won't be granted any more.
             requestPermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             return false
         }

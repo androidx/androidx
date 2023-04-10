@@ -19,6 +19,9 @@ package androidx.cursoradapter.widget;
 import android.database.Cursor;
 import android.widget.Filter;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * The CursorFilter delegates most of the work to the
  * {@link android.widget.CursorAdapter}. Subclasses should override these
@@ -30,10 +33,10 @@ class CursorFilter extends Filter {
     CursorFilterClient mClient;
 
     interface CursorFilterClient {
-        CharSequence convertToString(Cursor cursor);
-        Cursor runQueryOnBackgroundThread(CharSequence constraint);
-        Cursor getCursor();
-        void changeCursor(Cursor cursor);
+        @NonNull CharSequence convertToString(@Nullable Cursor cursor);
+        @Nullable Cursor runQueryOnBackgroundThread(@Nullable CharSequence constraint);
+        @Nullable Cursor getCursor();
+        void changeCursor(@Nullable Cursor cursor);
     }
 
     CursorFilter(CursorFilterClient client) {

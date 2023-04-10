@@ -22,6 +22,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * Static library support version of the framework's {@link android.widget.ResourceCursorAdapter}.
  * Used to write apps that run on platforms prior to Android 3.0.  When running
@@ -95,7 +98,8 @@ public abstract class ResourceCursorAdapter extends CursorAdapter {
      * @param flags Flags used to determine the behavior of the adapter,
      * as per {@link CursorAdapter#CursorAdapter(Context, Cursor, int)}.
      */
-    public ResourceCursorAdapter(Context context, int layout, Cursor c, int flags) {
+    public ResourceCursorAdapter(@NonNull Context context, int layout, @Nullable Cursor c,
+            int flags) {
         super(context, c, flags);
         mLayout = mDropDownLayout = layout;
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -107,13 +111,17 @@ public abstract class ResourceCursorAdapter extends CursorAdapter {
      * @see android.widget.CursorAdapter#newView(android.content.Context,
      *      android.database.Cursor, ViewGroup)
      */
+    @NonNull
     @Override
-    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+    public View newView(@NonNull Context context, @Nullable Cursor cursor,
+            @Nullable ViewGroup parent) {
         return mInflater.inflate(mLayout, parent, false);
     }
 
+    @NonNull
     @Override
-    public View newDropDownView(Context context, Cursor cursor, ViewGroup parent) {
+    public View newDropDownView(@NonNull Context context, @Nullable Cursor cursor,
+            @Nullable ViewGroup parent) {
         return mInflater.inflate(mDropDownLayout, parent, false);
     }
 

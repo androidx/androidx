@@ -20,9 +20,7 @@ import { log } from './logger';
 import { ContentNode } from './types';
 import { PlainTextFormatter } from './plain_text_formatter';
 
-// https://github.com/ebidel/try-puppeteer/commit/aacadb54abf861a807e9a71ee54d03abbf21d193
-// use --no-sandbox for some reason
-const CHROME_LAUNCH_ARGS = ['--no-sandbox', '--enable-dom-distiller'];
+const CHROME_LAUNCH_ARGS = ['--enable-dom-distiller'];
 
 // A list of DOM Node types that are usually not useful in the context
 // of fetching text content from the page.
@@ -38,6 +36,11 @@ export async function handleRequest(request: Request, response: Response) {
   if (url) {
     try {
       log(`Handling license request for ${url}`);
+      if (!isValidProtocol(url)) {
+        response.status(400).send('Invalid request.');
+        return;
+      }
+
       const nodes = await handleLicenseRequest(url);
       const content = PlainTextFormatter.plainTextFor(nodes);
       response.status(200).send(content);
@@ -47,6 +50,25 @@ export async function handleRequest(request: Request, response: Response) {
     }
   } else {
     response.status(400).send('URL required');
+  }
+}
+
+/**
+ * Validates the protocol. Only allows `https?` requests.
+ * @param requestUrl The request url
+ * @return `true` if the protocol is valid.
+ */
+function isValidProtocol(requestUrl: string): boolean {
+  const url = new URL(requestUrl);
+  if (url.protocol === 'https:') {
+    // Allow https requests
+    return true;
+  } else if (url.protocol === 'http:') {
+    // Allow http requests
+    return true;
+  } else {
+    log(`Invalid protocol ${url.protocol}`);
+    return false;
   }
 }
 

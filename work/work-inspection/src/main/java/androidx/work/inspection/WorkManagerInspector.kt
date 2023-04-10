@@ -92,7 +92,7 @@ class WorkManagerInspector(
                 workManager
                     .workDatabase
                     .workSpecDao()
-                    .allWorkSpecIdsLiveData
+                    .getAllWorkSpecIdsLiveData()
                     .safeObserveWhileNotNull(this, executor) { oldList, newList ->
                         updateWorkIdList(oldList ?: listOf(), newList)
                     }
@@ -133,13 +133,13 @@ class WorkManagerInspector(
                 owner,
                 object : Observer<T> {
                     private var lastValue: T? = null
-                    override fun onChanged(t: T) {
-                        if (t == null) {
+                    override fun onChanged(value: T) {
+                        if (value == null) {
                             removeObserver(this)
                         } else {
                             executor.execute {
-                                listener(lastValue, t)
-                                lastValue = t
+                                listener(lastValue, value)
+                                lastValue = value
                             }
                         }
                     }

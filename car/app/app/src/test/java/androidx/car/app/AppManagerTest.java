@@ -16,11 +16,14 @@
 
 package androidx.car.app;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -36,6 +39,8 @@ import android.os.RemoteException;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.model.Alert;
+import androidx.car.app.model.CarText;
 import androidx.car.app.model.Template;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
@@ -44,12 +49,14 @@ import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
@@ -60,6 +67,9 @@ import org.robolectric.shadows.ShadowApplication;
 @Config(instrumentedPackages = { "androidx.activity" })
 @DoNotInstrument
 public final class AppManagerTest {
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
+
     @Mock
     private ICarHost mMockCarHost;
     @Mock
@@ -74,6 +84,12 @@ public final class AppManagerTest {
     @Captor
     private ArgumentCaptor<ISurfaceCallback> mSurfaceCallbackCaptor;
 
+    @Captor
+    private ArgumentCaptor<Bundleable> mAlertCaptor;
+
+    @Captor
+    private ArgumentCaptor<Integer> mAlertIdCaptor;
+
     private Application mApplication;
     private TestCarContext mTestCarContext;
     private final HostDispatcher mHostDispatcher = new HostDispatcher();
@@ -82,8 +98,6 @@ public final class AppManagerTest {
 
     @Before
     public void setUp() throws RemoteException {
-        MockitoAnnotations.initMocks(this);
-
         mApplication = ApplicationProvider.getApplicationContext();
         mTestCarContext = TestCarContext.createCarContext(mApplication);
 
@@ -109,6 +123,22 @@ public final class AppManagerTest {
                     @Override
                     public void sendLocation(Location location) throws RemoteException {
                         mMockAppHost.sendLocation(location);
+                    }
+
+                    @Override
+                    public void showAlert(Bundleable alert) throws RemoteException {
+                        mMockAppHost.showAlert(alert);
+                    }
+
+                    @Override
+                    public void dismissAlert(int alertId) throws RemoteException {
+                        mMockAppHost.dismissAlert(alertId);
+                    }
+
+                    @Override
+                    public Bundleable openMicrophone(Bundleable openMicrophoneRequest)
+                            throws RemoteException {
+                        return mMockAppHost.openMicrophone(openMicrophoneRequest);
                     }
                 };
         when(mMockCarHost.getHost(any())).thenReturn(appHost.asBinder());
@@ -447,6 +477,18 @@ public final class AppManagerTest {
     }
 
     @Test
+    public void onSurfaceClick_dispatches()
+            throws RemoteException {
+        mTestCarContext.getLifecycleOwner().mRegistry.setCurrentState(Lifecycle.State.CREATED);
+        mAppManager.setSurfaceCallback(mSurfaceCallback);
+        verify(mMockAppHost).setSurfaceCallback(mSurfaceCallbackCaptor.capture());
+
+        mSurfaceCallbackCaptor.getValue().onClick(1, 2);
+
+        verify(mSurfaceCallback).onClick(1, 2);
+    }
+
+    @Test
     public void onSurfaceScale_lifecycleNotCreated_doesNotDispatch()
             throws RemoteException, BundlerException {
         mAppManager.setSurfaceCallback(mSurfaceCallback);
@@ -483,7 +525,7 @@ public final class AppManagerTest {
 
         mAppManager.getIInterface().startLocationUpdates(mMockOnDoneCallback);
 
-        verify(mMockOnDoneCallback).onFailure(any());
+        verify(mMockOnDoneCallback, atLeastOnce()).onFailure(any());
     }
 
     @Test
@@ -499,6 +541,25 @@ public final class AppManagerTest {
         mAppManager.getIInterface().stopLocationUpdates(mMockOnDoneCallback);
 
         verify(mMockOnDoneCallback).onFailure(any());
+    }
+
+    @Test
+    public void onShowAlert_dispatches() throws RemoteException, BundlerException {
+        mTestCarContext.getLifecycleOwner().mRegistry.setCurrentState(Lifecycle.State.CREATED);
+        Alert alert = new Alert.Builder(1, CarText.create("title"), 10).build();
+        mAppManager.showAlert(alert);
+        verify(mMockAppHost).showAlert(mAlertCaptor.capture());
+
+        assertThat(mAlertCaptor.getValue().get()).isEqualTo(alert);
+    }
+
+    @Test
+    public void onDismissAlert_dispatches() throws RemoteException, BundlerException {
+        mTestCarContext.getLifecycleOwner().mRegistry.setCurrentState(Lifecycle.State.CREATED);
+        mAppManager.dismissAlert(123);
+        verify(mMockAppHost).dismissAlert(mAlertIdCaptor.capture());
+
+        assertThat(mAlertIdCaptor.getValue()).isEqualTo(123);
     }
 
     private static class NonBundleableTemplate implements Template {

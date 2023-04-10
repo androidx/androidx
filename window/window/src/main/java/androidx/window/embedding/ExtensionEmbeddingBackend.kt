@@ -17,11 +17,14 @@
 package androidx.window.embedding
 
 import android.app.Activity
+import android.content.Context
 import android.util.Log
 import androidx.annotation.GuardedBy
 import androidx.annotation.VisibleForTesting
 import androidx.core.util.Consumer
-import androidx.window.core.ExperimentalWindowApi
+import androidx.window.core.ConsumerAdapter
+import androidx.window.core.ExtensionsUtil
+import androidx.window.core.PredicateAdapter
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CopyOnWriteArraySet
@@ -29,7 +32,6 @@ import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
-@ExperimentalWindowApi
 internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
     @field:VisibleForTesting @field:GuardedBy(
         "globalLock"
@@ -51,11 +53,11 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         private val globalLock = ReentrantLock()
         private const val TAG = "EmbeddingBackend"
 
-        fun getInstance(): ExtensionEmbeddingBackend {
+        fun getInstance(applicationContext: Context): ExtensionEmbeddingBackend {
             if (globalInstance == null) {
                 globalLock.withLock {
                     if (globalInstance == null) {
-                        val embeddingExtension = initAndVerifyEmbeddingExtension()
+                        val embeddingExtension = initAndVerifyEmbeddingExtension(applicationContext)
                         globalInstance = ExtensionEmbeddingBackend(embeddingExtension)
                     }
                 }
@@ -68,13 +70,22 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
          * implemented by OEM if available on this device. This also verifies if the loaded
          * implementation conforms to the declared API version.
          */
-        private fun initAndVerifyEmbeddingExtension(): EmbeddingInterfaceCompat? {
+        private fun initAndVerifyEmbeddingExtension(
+            applicationContext: Context
+        ): EmbeddingInterfaceCompat? {
             var impl: EmbeddingInterfaceCompat? = null
             try {
-                if (isExtensionVersionSupported(EmbeddingCompat.getExtensionApiLevel()) &&
+                if (isExtensionVersionSupported(ExtensionsUtil.safeVendorApiLevel) &&
                     EmbeddingCompat.isEmbeddingAvailable()
                 ) {
-                    impl = EmbeddingCompat()
+                    impl = EmbeddingBackend::class.java.classLoader?.let { loader ->
+                        EmbeddingCompat(
+                            EmbeddingCompat.embeddingComponent(),
+                            EmbeddingAdapter(PredicateAdapter(loader)),
+                            ConsumerAdapter(loader),
+                            applicationContext
+                        )
+                    }
                     // TODO(b/190433400): Check API conformance
                 }
             } catch (t: Throwable) {
@@ -105,30 +116,30 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         }
     }
 
-    private val splitRules: CopyOnWriteArraySet<EmbeddingRule> =
+    private val rules: CopyOnWriteArraySet<EmbeddingRule> =
         CopyOnWriteArraySet<EmbeddingRule>()
 
-    override fun getSplitRules(): Set<EmbeddingRule> {
-        return splitRules
+    override fun getRules(): Set<EmbeddingRule> {
+        return rules
     }
 
-    override fun setSplitRules(rules: Set<EmbeddingRule>) {
-        splitRules.clear()
-        splitRules.addAll(rules)
-        embeddingExtension?.setSplitRules(splitRules)
+    override fun setRules(rules: Set<EmbeddingRule>) {
+        this.rules.clear()
+        this.rules.addAll(rules)
+        embeddingExtension?.setRules(this.rules)
     }
 
-    override fun registerRule(rule: EmbeddingRule) {
-        if (!splitRules.contains(rule)) {
-            splitRules.add(rule)
-            embeddingExtension?.setSplitRules(splitRules)
+    override fun addRule(rule: EmbeddingRule) {
+        if (!rules.contains(rule)) {
+            rules.add(rule)
+            embeddingExtension?.setRules(rules)
         }
     }
 
-    override fun unregisterRule(rule: EmbeddingRule) {
-        if (splitRules.contains(rule)) {
-            splitRules.remove(rule)
-            embeddingExtension?.setSplitRules(splitRules)
+    override fun removeRule(rule: EmbeddingRule) {
+        if (rules.contains(rule)) {
+            rules.remove(rule)
+            embeddingExtension?.setRules(rules)
         }
     }
 
@@ -154,7 +165,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         }
     }
 
-    override fun registerSplitListenerForActivity(
+    override fun addSplitListenerForActivity(
         activity: Activity,
         executor: Executor,
         callback: Consumer<List<SplitInfo>>
@@ -178,7 +189,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         }
     }
 
-    override fun unregisterSplitListenerForActivity(
+    override fun removeSplitListenerForActivity(
         consumer: Consumer<List<SplitInfo>>
     ) {
         globalLock.withLock {
@@ -207,5 +218,9 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
 
     override fun isSplitSupported(): Boolean {
         return embeddingExtension != null
+    }
+
+    override fun isActivityEmbedded(activity: Activity): Boolean {
+        return embeddingExtension?.isActivityEmbedded(activity) ?: false
     }
 }

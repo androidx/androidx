@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.complications
 
+import android.support.wearable.complications.ComplicationProviderInfo as WireComplicationProviderInfo
 import android.app.Service
 import android.content.ComponentName
 import android.content.Context
@@ -40,9 +41,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.time.Instant
-
-private typealias WireComplicationProviderInfo =
-    android.support.wearable.complications.ComplicationProviderInfo
 
 private const val LEFT_COMPLICATION_ID = 101
 private const val RIGHT_COMPLICATION_ID = 102

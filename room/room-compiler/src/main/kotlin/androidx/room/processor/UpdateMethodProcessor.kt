@@ -16,8 +16,7 @@
 
 package androidx.room.processor
 
-import androidx.room.OnConflictStrategy.IGNORE
-import androidx.room.OnConflictStrategy.REPLACE
+import androidx.room.OnConflictStrategy
 import androidx.room.Update
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
@@ -38,7 +37,7 @@ class UpdateMethodProcessor(
 
         val onConflict = annotation?.value?.onConflict ?: OnConflictProcessor.INVALID_ON_CONFLICT
         context.checker.check(
-            onConflict in REPLACE..IGNORE,
+            onConflict in OnConflictStrategy.NONE..OnConflictStrategy.IGNORE,
             executableElement, ProcessorErrors.INVALID_ON_CONFLICT_VALUE
         )
 
@@ -52,7 +51,7 @@ class UpdateMethodProcessor(
                 context.checker.check(
                     missingPrimaryKeys.isEmpty(), executableElement,
                     ProcessorErrors.missingPrimaryKeysInPartialEntityForUpdate(
-                        partialEntityName = pojo.typeName.toString(),
+                        partialEntityName = pojo.typeName.toString(context.codeLanguage),
                         primaryKeyNames = missingPrimaryKeys.map { it.columnName }
                     )
                 )
@@ -70,7 +69,6 @@ class UpdateMethodProcessor(
 
         return UpdateMethod(
             element = delegate.executableElement,
-            name = delegate.executableElement.name,
             entities = entities,
             onConflictStrategy = onConflict,
             methodBinder = methodBinder,

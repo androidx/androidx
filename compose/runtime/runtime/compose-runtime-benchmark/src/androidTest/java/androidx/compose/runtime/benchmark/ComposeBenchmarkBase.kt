@@ -21,24 +21,23 @@ import androidx.activity.compose.setContent
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ControlledComposition
-import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.TestMonotonicFrameClock
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.DelayController
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 
-@OptIn(InternalComposeApi::class)
 abstract class ComposeBenchmarkBase {
     @get:Rule
     val benchmarkRule = BenchmarkRule()
@@ -47,8 +46,13 @@ abstract class ComposeBenchmarkBase {
     @get:Rule
     val activityRule = androidx.test.rule.ActivityTestRule(ComposeActivity::class.java)
 
+    // Here and elsewhere in this file, this is intentionally not OptIn, because we want to
+    // communicate to consumers that by using this API, they're also transitively getting all the
+    // experimental risk of using the experimental API in the kotlinx testing library.
+    // DO NOT MAKE OPT-IN!
     @ExperimentalCoroutinesApi
-    suspend fun DelayController.measureCompose(block: @Composable () -> Unit) = coroutineScope {
+    @ExperimentalTestApi
+    suspend fun TestScope.measureCompose(block: @Composable () -> Unit) = coroutineScope {
         val activity = activityRule.activity
         val recomposer = Recomposer(coroutineContext)
         val emptyView = View(activity)
@@ -61,19 +65,20 @@ abstract class ComposeBenchmarkBase {
 
                 runWithTimingDisabled {
                     activity.setContentView(emptyView)
-                    advanceUntilIdle()
+                    testScheduler.advanceUntilIdle()
                     Runtime.getRuntime().gc()
                 }
             }
         } finally {
             activity.setContentView(emptyView)
-            advanceUntilIdle()
+            testScheduler.advanceUntilIdle()
             recomposer.cancel()
         }
     }
 
     @ExperimentalCoroutinesApi
-    suspend fun DelayController.measureRecomposeSuspending(
+    @ExperimentalTestApi
+    suspend fun TestScope.measureRecomposeSuspending(
         block: RecomposeReceiver.() -> Unit
     ) = coroutineScope {
         val receiver = RecomposeReceiver()
@@ -99,7 +104,7 @@ abstract class ComposeBenchmarkBase {
                 "recomposer does not have invalidations for frame",
                 recomposer.hasPendingWork
             )
-            advanceUntilIdle()
+            testScheduler.advanceUntilIdle()
             assertFalse(
                 "recomposer has invalidations for frame",
                 recomposer.hasPendingWork
@@ -107,7 +112,7 @@ abstract class ComposeBenchmarkBase {
             runWithTimingDisabled {
                 receiver.resetCb()
                 Snapshot.sendApplyNotifications()
-                advanceUntilIdle()
+                testScheduler.advanceUntilIdle()
             }
             iterations++
         }
@@ -118,14 +123,13 @@ abstract class ComposeBenchmarkBase {
 }
 
 @ExperimentalCoroutinesApi
+@ExperimentalTestApi
 fun runBlockingTestWithFrameClock(
     context: CoroutineContext = EmptyCoroutineContext,
-    testBody: suspend TestCoroutineScope.() -> Unit
-) {
-    runBlockingTest(context) {
-        withContext(TestMonotonicFrameClock(this)) {
-            testBody()
-        }
+    testBody: suspend TestScope.() -> Unit
+): Unit = runTest(UnconfinedTestDispatcher() + context) {
+    withContext(TestMonotonicFrameClock(this)) {
+        testBody()
     }
 }
 

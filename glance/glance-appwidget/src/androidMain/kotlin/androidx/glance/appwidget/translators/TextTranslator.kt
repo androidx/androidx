@@ -35,6 +35,7 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.widget.RemoteViewsCompat.setTextViewGravity
+import androidx.core.widget.RemoteViewsCompat.setTextViewMaxLines
 import androidx.core.widget.RemoteViewsCompat.setTextViewTextColor
 import androidx.core.widget.RemoteViewsCompat.setTextViewTextColorResource
 import androidx.glance.appwidget.GlanceAppWidgetTag
@@ -43,7 +44,7 @@ import androidx.glance.appwidget.R
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.applyModifiers
 import androidx.glance.appwidget.insertView
-import androidx.glance.appwidget.unit.DayNightColorProvider
+import androidx.glance.color.DayNightColorProvider
 import androidx.glance.text.EmittableText
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
@@ -52,7 +53,6 @@ import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.FixedColorProvider
 import androidx.glance.unit.ResourceColorProvider
-import androidx.glance.unit.resolve
 
 internal fun RemoteViews.translateEmittableText(
     translationContext: TranslationContext,
@@ -64,6 +64,7 @@ internal fun RemoteViews.translateEmittableText(
         viewDef.mainViewId,
         element.text,
         element.style,
+        maxLines = element.maxLines,
     )
     applyModifiers(translationContext, this, element.modifier, viewDef)
 }
@@ -73,8 +74,13 @@ internal fun RemoteViews.setText(
     resId: Int,
     text: String,
     style: TextStyle?,
+    maxLines: Int,
     verticalTextGravity: Int = Gravity.TOP,
 ) {
+    if (maxLines != Int.MAX_VALUE) {
+        setTextViewMaxLines(resId, maxLines)
+    }
+
     if (style == null) {
         setTextViewText(resId, text)
         return
@@ -103,9 +109,9 @@ internal fun RemoteViews.setText(
     }
     style.fontWeight?.let {
         val textAppearance = when (it) {
-            FontWeight.Bold -> R.style.TextAppearance_Bold
-            FontWeight.Medium -> R.style.TextAppearance_Medium
-            else -> R.style.TextAppearance_Normal
+            FontWeight.Bold -> R.style.Glance_AppWidget_TextAppearance_Bold
+            FontWeight.Medium -> R.style.Glance_AppWidget_TextAppearance_Medium
+            else -> R.style.Glance_AppWidget_TextAppearance_Normal
         }
         spans.add(TextAppearanceSpan(translationContext.context, textAppearance))
     }
@@ -131,7 +137,7 @@ internal fun RemoteViews.setText(
             if (Build.VERSION.SDK_INT >= 31) {
                 setTextViewTextColorResource(resId, colorProvider.resId)
             } else {
-                setTextColor(resId, colorProvider.resolve(translationContext.context).toArgb())
+                setTextColor(resId, colorProvider.getColor(translationContext.context).toArgb())
             }
         }
         is DayNightColorProvider -> {
@@ -142,10 +148,9 @@ internal fun RemoteViews.setText(
                     night = colorProvider.night.toArgb()
                 )
             } else {
-                setTextColor(resId, colorProvider.resolve(translationContext.context).toArgb())
+                setTextColor(resId, colorProvider.getColor(translationContext.context).toArgb())
             }
         }
-        null -> {}
         else -> Log.w(GlanceAppWidgetTag, "Unexpected text color: $colorProvider")
     }
 }

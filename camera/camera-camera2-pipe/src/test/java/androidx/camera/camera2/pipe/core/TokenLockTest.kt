@@ -19,7 +19,6 @@ package androidx.camera.camera2.pipe.core
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -30,7 +29,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-@OptIn(ExperimentalCoroutinesApi::class)
 internal class TokenLockTest {
     @Test
     fun testTokenLockReportsNoAvailableCapacityWhenClosed() {
@@ -81,9 +79,7 @@ internal class TokenLockTest {
         val token1 = tokenLock.acquire(1)
 
         // This should suspend, and then cancel the request for the token.
-        val token2: TokenLock.Token? = withTimeoutOrNull(10) {
-            tokenLock.acquire(2)
-        }
+        val token2: TokenLock.Token? = withTimeoutOrNull(10) { tokenLock.acquire(2) }
 
         assertThat(token2).isNull()
         assertThat(tokenLock.available).isEqualTo(1)
@@ -254,9 +250,7 @@ internal class TokenLockTest {
     fun tokensAreClosedWithUseKeyword() = runBlocking {
         val tokenLock = TokenLockImpl(1)
 
-        tokenLock.acquire(1).use {
-            assertThat(tokenLock.size).isEqualTo(1)
-        }
+        tokenLock.acquire(1).use { assertThat(tokenLock.size).isEqualTo(1) }
         assertThat(tokenLock.size).isEqualTo(0)
     }
 
@@ -264,9 +258,7 @@ internal class TokenLockTest {
     fun testWithTokenExtension() = runBlocking {
         val tokenLock = TokenLockImpl(1)
 
-        tokenLock.withToken(1) {
-            assertThat(tokenLock.size).isEqualTo(1)
-        }
+        tokenLock.withToken(1) { assertThat(tokenLock.size).isEqualTo(1) }
         assertThat(tokenLock.size).isEqualTo(0)
     }
 

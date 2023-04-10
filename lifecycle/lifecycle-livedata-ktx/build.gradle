@@ -15,7 +15,6 @@
  */
 
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -23,13 +22,6 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
-    }
 }
 
 dependencies {
@@ -45,15 +37,23 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
+
+    constraints {
+        implementation(project(":lifecycle:lifecycle-livedata"))
+    }
 }
 
 androidx {
     name = "LiveData Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'livedata' artifact"
+}
+
+android {
+    namespace "androidx.lifecycle.livedata.ktx"
 }

@@ -29,6 +29,7 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.core.os.BuildCompat;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
@@ -42,6 +43,7 @@ import androidx.media2.test.service.MockPlayer;
 import androidx.media2.test.service.RemoteMediaController;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Before;
@@ -55,6 +57,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Tests {@link MediaSession}.
  */
+@SdkSuppress(maxSdkVersion = 32) // b/244312419
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaSessionTest extends MediaSessionTestBase {
@@ -124,7 +127,12 @@ public class MediaSessionTest extends MediaSessionTestBase {
             extras.putParcelable("key", new CustomParcelable(1));
             builder = new MediaSession.Builder(mContext, mPlayer);
             builder.setExtras(extras);
-            fail("custom parcelables shouldn't be allowed for extras");
+            // TODO(b/220842943): Re-enable for T and beyond once the version of media2-session
+            // used in version-compat-tests/previous/service/build.gradle is one that includes
+            // https://r.android.com/1950077.
+            if (!BuildCompat.isAtLeastT()) {
+                fail("custom parcelables shouldn't be allowed for extras");
+            }
         } catch (IllegalArgumentException e) {
             // expected. pass-through
         }

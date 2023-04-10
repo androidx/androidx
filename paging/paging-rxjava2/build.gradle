@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -50,15 +49,11 @@ dependencies {
 androidx {
     name = "Android Paging-RXJava2"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.PAGING
     inceptionYear = "2018"
     description = "Android Paging-RXJava2"
     legacyDisableKotlinStrictApiMode = true
 }
 
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
-    }
+android {
+    namespace "androidx.paging.rxjava2"
 }

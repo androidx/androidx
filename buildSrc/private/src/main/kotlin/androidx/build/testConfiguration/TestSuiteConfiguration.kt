@@ -29,6 +29,7 @@ import androidx.build.getSupportRootFolder
 import androidx.build.getTestConfigDirectory
 import androidx.build.hasAndroidTestSourceCode
 import androidx.build.hasBenchmarkPlugin
+import androidx.build.isPresubmitBuild
 import androidx.build.renameApkForTesting
 import com.android.build.api.artifact.Artifacts
 import com.android.build.api.artifact.SingleArtifact
@@ -38,6 +39,7 @@ import com.android.build.api.variant.HasAndroidTest
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.tasks.PackageAndroidArtifact
 import org.gradle.api.Project
+import org.gradle.api.UnknownTaskException
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Zip
@@ -60,6 +62,7 @@ fun Project.createTestConfigurationGenerationTask(
     overrideProject: Project = this
 ) {
     val xmlName = "${path.asFilenamePrefix()}$variantName.xml"
+    val sha256XmlName = "${path.asFilenamePrefix()}$variantName$SHA_256_FILE_SUFFIX"
     rootProject.tasks.named("createModuleInfo").configure {
         it as ModuleInfoGenerator
         it.testModules.add(
@@ -73,22 +76,28 @@ fun Project.createTestConfigurationGenerationTask(
         "${AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK}$variantName",
         GenerateTestConfigurationTask::class.java
     ) { task ->
+        val androidXExtension = extensions.getByType<AndroidXExtension>()
+
         task.testFolder.set(artifacts.get(SingleArtifact.APK))
         task.testLoader.set(artifacts.getBuiltArtifactsLoader())
         task.outputXml.fileValue(File(getTestConfigDirectory(), xmlName))
+        task.shaReportOutput.fileValue(File(getTestConfigDirectory(), sha256XmlName))
         task.constrainedOutputXml.fileValue(File(getConstrainedTestConfigDirectory(), xmlName))
+        task.constrainedShaReportOutput.fileValue(
+            File(getConstrainedTestConfigDirectory(), sha256XmlName)
+        )
+        task.presubmit.set(isPresubmitBuild())
         // Disable work tests on < API 18: b/178127496
         if (path.startsWith(":work:")) {
             task.minSdk.set(maxOf(18, minSdk))
         } else {
             task.minSdk.set(minSdk)
         }
+        task.disableDeviceTests.set(androidXExtension.disableDeviceTests)
         val hasBenchmarkPlugin = hasBenchmarkPlugin()
         task.hasBenchmarkPlugin.set(hasBenchmarkPlugin)
         if (hasBenchmarkPlugin) {
-            task.benchmarkRunAlsoInterpreted.set(
-                extensions.getByType<AndroidXExtension>().benchmarkRunAlsoInterpreted
-            )
+            task.benchmarkRunAlsoInterpreted.set(androidXExtension.benchmarkRunAlsoInterpreted)
         }
         task.testRunner.set(testRunner)
         task.testProjectPath.set(path)
@@ -223,6 +232,7 @@ fun Project.createOrUpdateMediaTestConfigurationGenerationTask(
 ) {
     val mediaPrefix = getMediaConfigTaskPrefix(isMedia2)
     val mediaTask = getOrCreateMediaTestConfigTask(this, isMedia2)
+    val sha256ReportFileName = "$mediaPrefix$SHA_256_FILE_SUFFIX"
     mediaTask.configure {
         it as GenerateMediaTestConfigurationTask
         if (this.name.contains("client")) {
@@ -282,8 +292,21 @@ fun Project.createOrUpdateMediaTestConfigurationGenerationTask(
                 "${mediaPrefix}ClientToTServiceToT$variantName.xml"
             )
         )
+        it.shaReportOutput.fileValue(
+            File(
+                this.getTestConfigDirectory(),
+                sha256ReportFileName
+            )
+        )
+        it.constrainedShaReportOutput.fileValue(
+            File(
+                this.getConstrainedTestConfigDirectory(),
+                sha256ReportFileName
+            )
+        )
         it.minSdk.set(minSdk)
         it.testRunner.set(testRunner)
+        it.presubmit.set(isPresubmitBuild())
         AffectedModuleDetector.configureTaskGuard(it)
     }
 }
@@ -291,18 +314,16 @@ fun Project.createOrUpdateMediaTestConfigurationGenerationTask(
 private fun Project.getOrCreateMacrobenchmarkConfigTask(variantName: String):
     TaskProvider<GenerateTestConfigurationTask> {
         val parentProject = this.parent!!
-        return if (
-            parentProject.tasks.withType(GenerateTestConfigurationTask::class.java).isEmpty()
-        ) {
-            parentProject.tasks.register(
-                "${AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK}$variantName",
-                GenerateTestConfigurationTask::class.java
-            )
-        } else {
-            parentProject.tasks.withType(GenerateTestConfigurationTask::class.java)
-                .named("${AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK}$variantName")
-        }
+    return try {
+        parentProject.tasks.withType(GenerateTestConfigurationTask::class.java)
+            .named("${AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK}$variantName")
+    } catch (e: UnknownTaskException) {
+        parentProject.tasks.register(
+            "${AndroidXImplPlugin.GENERATE_TEST_CONFIGURATION_TASK}$variantName",
+            GenerateTestConfigurationTask::class.java
+        )
     }
+}
 
 private fun Project.configureMacrobenchmarkConfigTask(
     variantName: String,
@@ -313,6 +334,8 @@ private fun Project.configureMacrobenchmarkConfigTask(
     val configTask = getOrCreateMacrobenchmarkConfigTask(variantName)
     if (path.endsWith("macrobenchmark")) {
         configTask.configure { task ->
+            val androidXExtension = extensions.getByType<AndroidXExtension>()
+
             task.testFolder.set(artifacts.get(SingleArtifact.APK))
             task.testLoader.set(artifacts.getBuiltArtifactsLoader())
             task.outputXml.fileValue(
@@ -321,16 +344,30 @@ private fun Project.configureMacrobenchmarkConfigTask(
                     "${this.path.asFilenamePrefix()}$variantName.xml"
                 )
             )
+            task.shaReportOutput.fileValue(
+                File(
+                    this.getTestConfigDirectory(),
+                    "${this.path.asFilenamePrefix()}$variantName$SHA_256_FILE_SUFFIX"
+                )
+            )
             task.constrainedOutputXml.fileValue(
                 File(
                     this.getTestConfigDirectory(),
                     "${this.path.asFilenamePrefix()}$variantName.xml"
                 )
             )
+            task.constrainedShaReportOutput.fileValue(
+                File(
+                    this.getTestConfigDirectory(),
+                    "${this.path.asFilenamePrefix()}$variantName$SHA_256_FILE_SUFFIX"
+                )
+            )
             task.minSdk.set(minSdk)
+            task.disableDeviceTests.set(androidXExtension.disableDeviceTests)
             task.hasBenchmarkPlugin.set(this.hasBenchmarkPlugin())
             task.testRunner.set(testRunner)
             task.testProjectPath.set(this.path)
+            task.presubmit.set(isPresubmitBuild())
             val detector = AffectedModuleDetector.getInstance(project)
             task.affectedModuleDetectorSubset.set(
                 project.provider {
@@ -424,3 +461,9 @@ fun Project.configureTestConfigGeneration(baseExtension: BaseExtension) {
         }
     }
 }
+
+/**
+ * Suffix to add for xml files which include the SHA256 of referred APKs.
+ * see: [TestApkSha256Report].
+ */
+private const val SHA_256_FILE_SUFFIX = "-sha256Report.xml"

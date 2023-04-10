@@ -23,8 +23,10 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 /**
  * Helper for accessing ColorFilter APIs on various API levels of the platform
@@ -32,17 +34,19 @@ import androidx.annotation.Nullable;
 public class BlendModeColorFilterCompat {
 
     /**
-     * Convenience method to create ColorFilter in a backward
-     * compatible way. This method falls back on PorterDuffColorFilter for API levels that
-     * do not support BlendModeColorFilter. This method returns null if the BlendMode provided is
-     * not supported on a given API level.
+     * Convenience method to create ColorFilter in a backward-compatible way.
+     *
+     * This method falls back on PorterDuffColorFilter for API levels that do not support
+     * BlendModeColorFilter. This method returns {@code null} if the BlendMode provided is not
+     * supported on a given API level.
      */
     public static @Nullable ColorFilter createBlendModeColorFilterCompat(int color,
             @NonNull BlendModeCompat blendModeCompat) {
         if (Build.VERSION.SDK_INT >= 29) {
-            BlendMode blendMode = BlendModeUtils.obtainBlendModeFromCompat(blendModeCompat);
+            Object blendMode =
+                    BlendModeUtils.Api29Impl.obtainBlendModeFromCompat(blendModeCompat);
             return blendMode != null
-                    ? new BlendModeColorFilter(color, blendMode) : null;
+                    ? Api29Impl.createBlendModeColorFilter(color, blendMode) : null;
         } else {
             PorterDuff.Mode porterDuffMode =
                     BlendModeUtils.obtainPorterDuffFromCompat(blendModeCompat);
@@ -51,5 +55,19 @@ public class BlendModeColorFilterCompat {
         }
     }
 
-    private BlendModeColorFilterCompat() { }
+    private BlendModeColorFilterCompat() {
+        // This class is not instantiable.
+    }
+
+    @RequiresApi(29)
+    static class Api29Impl {
+        private Api29Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static ColorFilter createBlendModeColorFilter(int color, Object mode) {
+            return new BlendModeColorFilter(color, (BlendMode) mode);
+        }
+    }
 }

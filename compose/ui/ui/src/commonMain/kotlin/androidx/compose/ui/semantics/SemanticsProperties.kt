@@ -96,6 +96,11 @@ object SemanticsProperties {
     val Focused = SemanticsPropertyKey<Boolean>("Focused")
 
     /**
+     * @see SemanticsPropertyReceiver.isContainer
+     */
+    val IsContainer = SemanticsPropertyKey<Boolean>("IsContainer")
+
+    /**
      * @see SemanticsPropertyReceiver.invisibleToUser
      */
     @ExperimentalComposeUiApi
@@ -298,10 +303,35 @@ object SemanticsActions {
     val Dismiss = ActionPropertyKey<() -> Boolean>("Dismiss")
 
     /**
+     * @see SemanticsPropertyReceiver.requestFocus
+     */
+    val RequestFocus = ActionPropertyKey<() -> Boolean>("RequestFocus")
+
+    /**
      * @see SemanticsPropertyReceiver.customActions
      */
     val CustomActions =
         SemanticsPropertyKey<List<CustomAccessibilityAction>>("CustomActions")
+
+    /**
+     * @see SemanticsPropertyReceiver.pageUp
+     */
+    val PageUp = ActionPropertyKey<() -> Boolean>("PageUp")
+
+    /**
+     * @see SemanticsPropertyReceiver.pageLeft
+     */
+    val PageLeft = ActionPropertyKey<() -> Boolean>("PageLeft")
+
+    /**
+     * @see SemanticsPropertyReceiver.pageDown
+     */
+    val PageDown = ActionPropertyKey<() -> Boolean>("PageDown")
+
+    /**
+     * @see SemanticsPropertyReceiver.pageRight
+     */
+    val PageRight = ActionPropertyKey<() -> Boolean>("PageRight")
 }
 
 /**
@@ -394,7 +424,9 @@ class AccessibilityAction<T : Function<Boolean>>(val label: String?, val action:
     }
 }
 
-internal fun <T : Function<Boolean>> ActionPropertyKey(
+@Suppress("NOTHING_TO_INLINE")
+// inline to break static initialization cycle issue
+private inline fun <T : Function<Boolean>> ActionPropertyKey(
     name: String
 ): SemanticsPropertyKey<AccessibilityAction<T>> {
     return SemanticsPropertyKey(
@@ -441,7 +473,7 @@ class CustomAccessibilityAction(val label: String, val action: () -> Boolean) {
  * Accessibility range information, to represent the status of a progress bar or
  * seekable progress bar.
  *
- * @param current current value in the range
+ * @param current current value in the range. Must not be NaN.
  * @param range range of this node
  * @param steps if greater than `0`, specifies the number of discrete values, evenly distributed
  * between across the whole value range. If `0`, any value from the range specified can be chosen.
@@ -453,6 +485,10 @@ class ProgressBarRangeInfo(
     /*@IntRange(from = 0)*/
     val steps: Int = 0
 ) {
+    init {
+        require(!current.isNaN()) { "current must not be NaN" }
+    }
+
     companion object {
         /**
          * Accessibility range information to present indeterminate progress bar
@@ -542,9 +578,9 @@ class ScrollAxisRange(
  * exact role is not listed, [SemanticsPropertyReceiver.role] should not be set and the framework
  * will automatically resolve it.
  */
-@Suppress("INLINE_CLASS_DEPRECATED")
 @Immutable
-inline class Role private constructor(@Suppress("unused") private val value: Int) {
+@kotlin.jvm.JvmInline
+value class Role private constructor(@Suppress("unused") private val value: Int) {
     companion object {
         /**
          * This element is a button control. Associated semantics properties for accessibility:
@@ -583,6 +619,12 @@ inline class Role private constructor(@Suppress("unused") private val value: Int
          * [SemanticsProperties.ContentDescription]
          */
         val Image = Role(5)
+        /**
+         * This element is associated with a drop down menu.
+         * Associated semantics properties for accessibility:
+         * [SemanticsActions.OnClick]
+         */
+        val DropdownList = Role(6)
     }
 
     override fun toString() = when (this) {
@@ -592,6 +634,7 @@ inline class Role private constructor(@Suppress("unused") private val value: Int
         RadioButton -> "RadioButton"
         Tab -> "Tab"
         Image -> "Image"
+        DropdownList -> "DropdownList"
         else -> "Unknown"
     }
 }
@@ -601,9 +644,9 @@ inline class Role private constructor(@Suppress("unused") private val value: Int
  * automatically notify the user about changes to the node's content description or text, or to
  * the content descriptions or text of the node's children (where applicable).
  */
-@Suppress("INLINE_CLASS_DEPRECATED")
 @Immutable
-inline class LiveRegionMode private constructor(@Suppress("unused") private val value: Int) {
+@kotlin.jvm.JvmInline
+value class LiveRegionMode private constructor(@Suppress("unused") private val value: Int) {
     companion object {
         /**
          * Live region mode specifying that accessibility services should announce
@@ -715,6 +758,14 @@ var SemanticsPropertyReceiver.liveRegion by SemanticsProperties.LiveRegion
 var SemanticsPropertyReceiver.focused by SemanticsProperties.Focused
 
 /**
+ * Whether this semantics node is a container. This is defined as a node whose function
+ * is to serve as a boundary or border in organizing its children.
+ *
+ * @see SemanticsProperties.IsContainer
+ */
+var SemanticsPropertyReceiver.isContainer by SemanticsProperties.IsContainer
+
+/**
  * Whether this node is specially known to be invisible to the user.
  *
  * For example, if the node is currently occluded by a dark semitransparent
@@ -767,9 +818,16 @@ fun SemanticsPropertyReceiver.dialog() {
  */
 var SemanticsPropertyReceiver.role by SemanticsProperties.Role
 
-// TODO(b/138172781): Move to FoundationSemanticsProperties.kt
 /**
  * Test tag attached to this semantics node.
+ *
+ * This can be used to find nodes in testing frameworks:
+ * - In Compose's built-in unit test framework, use with
+ * [onNodeWithTag][androidx.compose.ui.test.onNodeWithTag].
+ * - For newer AccessibilityNodeInfo-based integration test frameworks, it can be matched in the
+ * extras with key "androidx.compose.ui.semantics.testTag"
+ * - For legacy AccessibilityNodeInfo-based integration tests, it's optionally exposed as the
+ * resource id if [testTagsAsResourceId] is true (for matching with 'By.res' in UIAutomator).
  */
 var SemanticsPropertyReceiver.testTag by SemanticsProperties.TestTag
 
@@ -1059,4 +1117,66 @@ fun SemanticsPropertyReceiver.dismiss(
     action: (() -> Boolean)?
 ) {
     this[SemanticsActions.Dismiss] = AccessibilityAction(label, action)
+}
+
+/**
+ * Action that gives input focus to this node.
+ *
+ * @param label Optional label for this action.
+ * @param action Action to be performed when the [SemanticsActions.RequestFocus] is called.
+ */
+fun SemanticsPropertyReceiver.requestFocus(label: String? = null, action: (() -> Boolean)?) {
+    this[SemanticsActions.RequestFocus] = AccessibilityAction(label, action)
+}
+
+/**
+ * Action to page up.
+ *
+ * @param label Optional label for this action.
+ * @param action Action to be performed when the [SemanticsActions.PageUp] is called.
+ */
+fun SemanticsPropertyReceiver.pageUp(
+    label: String? = null,
+    action: (() -> Boolean)?
+) {
+    this[SemanticsActions.PageUp] = AccessibilityAction(label, action)
+}
+
+/**
+ * Action to page down.
+ *
+ * @param label Optional label for this action.
+ * @param action Action to be performed when the [SemanticsActions.PageDown] is called.
+ */
+fun SemanticsPropertyReceiver.pageDown(
+    label: String? = null,
+    action: (() -> Boolean)?
+) {
+    this[SemanticsActions.PageDown] = AccessibilityAction(label, action)
+}
+
+/**
+ * Action to page left.
+ *
+ * @param label Optional label for this action.
+ * @param action Action to be performed when the [SemanticsActions.PageLeft] is called.
+ */
+fun SemanticsPropertyReceiver.pageLeft(
+    label: String? = null,
+    action: (() -> Boolean)?
+) {
+    this[SemanticsActions.PageLeft] = AccessibilityAction(label, action)
+}
+
+/**
+ * Action to page right.
+ *
+ * @param label Optional label for this action.
+ * @param action Action to be performed when the [SemanticsActions.PageRight] is called.
+ */
+fun SemanticsPropertyReceiver.pageRight(
+    label: String? = null,
+    action: (() -> Boolean)?
+) {
+    this[SemanticsActions.PageRight] = AccessibilityAction(label, action)
 }

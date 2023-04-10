@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -26,12 +29,21 @@ dependencies {
     testImplementation(projectOrArtifact(":navigation:navigation-testing"))
     testImplementation("androidx.arch.core:core-testing:2.1.0")
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.truth)
+    testImplementation(libs.kotlinCoroutinesTest)
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.truth)
+}
+
+androidx {
+    type = LibraryType.INTERNAL_TEST_LIBRARY
+}
+
+android {
+    namespace "androidx.testutils.navigation"
 }

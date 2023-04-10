@@ -39,6 +39,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Pair;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.MediaItem;
@@ -61,6 +62,7 @@ import androidx.media2.test.common.PollingCheck;
 import androidx.media2.test.common.TestUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Before;
@@ -77,6 +79,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Tests {@link MediaController}.
  */
+@SdkSuppress(maxSdkVersion = 32) // b/244312419
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaControllerTest extends MediaSessionTestBase {
@@ -149,7 +152,12 @@ public class MediaControllerTest extends MediaSessionTestBase {
             connectionHints.putParcelable("key", new CustomParcelable(1));
             builder = new MediaController.Builder(mContext);
             builder.setConnectionHints(connectionHints);
-            fail("custom parcelables shouldn't be allowed for connectionHints");
+            // TODO(b/220842943): Re-enable for T and beyond once the version of media2-session
+            // used in version-compat-tests/previous/client/build.gradle is one that includes
+            // https://r.android.com/1950077.
+            if (!BuildCompat.isAtLeastT()) {
+                fail("custom parcelables shouldn't be allowed for connectionHints");
+            }
         } catch (IllegalArgumentException e) {
             // expected. pass-through
         }

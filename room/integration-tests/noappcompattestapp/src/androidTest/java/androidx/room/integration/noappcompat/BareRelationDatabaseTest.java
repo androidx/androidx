@@ -29,6 +29,7 @@ import androidx.room.Query;
 import androidx.room.Relation;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.RoomWarnings;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -91,9 +92,11 @@ public class BareRelationDatabaseTest {
 
     @Dao
     interface UserPetDao {
+        @SuppressWarnings(RoomWarnings.RELATION_QUERY_WITHOUT_TRANSACTION)
         @Query("SELECT * FROM User WHERE userId = :id")
         UserAndPets getUserWithPets(long id);
 
+        @SuppressWarnings(RoomWarnings.RELATION_QUERY_WITHOUT_TRANSACTION)
         @Query("SELECT * FROM User")
         List<UserAndPet> getUsersWithPet();
 

@@ -16,11 +16,9 @@
 
 package androidx.room.solver.types
 
+import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.processing.XType
-import androidx.room.ext.L
-import androidx.room.ext.T
 import androidx.room.solver.CodeGenScope
-import com.squareup.javapoet.CodeBlock
 
 /**
  * A [TypeConverter] that has only 1 statement (e.g. foo ? bar : baz).
@@ -28,30 +26,30 @@ import com.squareup.javapoet.CodeBlock
 abstract class SingleStatementTypeConverter(
     from: XType,
     to: XType
-) : TypeConverter(
-    from, to
-) {
+) : TypeConverter(from, to) {
     final override fun doConvert(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
-        scope.builder().apply {
-            addStatement("$L = $L", outputVarName, buildStatement(inputVarName, scope))
+        scope.builder.apply {
+            addStatement("%L = %L", outputVarName, buildStatement(inputVarName, scope))
         }
     }
 
     final override fun doConvert(inputVarName: String, scope: CodeGenScope): String {
         val outputVarName = scope.getTmpVar()
-        scope.builder().apply {
-            addStatement(
-                "final $T $L = $L", to.typeName, outputVarName, buildStatement(inputVarName, scope)
+        scope.builder.apply {
+            addLocalVariable(
+                name = outputVarName,
+                typeName = to.asTypeName(),
+                assignExpr = buildStatement(inputVarName, scope)
             )
         }
         return outputVarName
     }
 
     /**
-     * Returns a [CodeBlock] that will compute the [to] value.
+     * Returns a [XCodeBlock] that will compute the [to] value.
      */
     abstract fun buildStatement(
         inputVarName: String,
         scope: CodeGenScope
-    ): CodeBlock
+    ): XCodeBlock
 }

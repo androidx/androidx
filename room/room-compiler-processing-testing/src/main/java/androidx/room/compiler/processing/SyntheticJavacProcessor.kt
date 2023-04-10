@@ -23,9 +23,17 @@ import javax.lang.model.SourceVersion
 @Suppress("VisibleForTests")
 @ExperimentalProcessingApi
 class SyntheticJavacProcessor private constructor(
-    private val impl: SyntheticProcessorImpl
-) : JavacBasicAnnotationProcessor(), SyntheticProcessor by impl {
-    constructor(handlers: List<(XTestInvocation) -> Unit>) : this(SyntheticProcessorImpl(handlers))
+    config: XProcessingEnvConfig,
+    private val impl: SyntheticProcessorImpl,
+) : JavacBasicAnnotationProcessor(
+    configureEnv = {
+        config
+    }
+), SyntheticProcessor by impl {
+    constructor(
+        config: XProcessingEnvConfig,
+        handlers: List<(XTestInvocation) -> Unit>,
+    ) : this(config, SyntheticProcessorImpl(handlers))
 
     override fun processingSteps(): Iterable<XProcessingStep> = impl.processingSteps()
 

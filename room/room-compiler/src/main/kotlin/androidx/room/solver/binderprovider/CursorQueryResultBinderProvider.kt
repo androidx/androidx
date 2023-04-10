@@ -35,5 +35,5 @@ class CursorQueryResultBinderProvider(val context: Context) : QueryResultBinderP
     }
 
     override fun matches(declared: XType): Boolean =
-        declared.typeArguments.isEmpty() && declared.typeName == AndroidTypeNames.CURSOR
+        declared.typeArguments.isEmpty() && declared.asTypeName() == AndroidTypeNames.CURSOR
 }

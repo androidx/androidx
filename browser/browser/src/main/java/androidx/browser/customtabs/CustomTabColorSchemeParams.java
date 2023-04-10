@@ -93,6 +93,7 @@ public final class CustomTabColorSchemeParams {
      * null.
      */
     @NonNull
+    @SuppressWarnings("deprecation")
     static CustomTabColorSchemeParams fromBundle(@Nullable Bundle bundle) {
         if (bundle == null) {
             bundle = new Bundle(0);

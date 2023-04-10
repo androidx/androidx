@@ -195,4 +195,42 @@ public class EmojiInputFilterTest {
 
         verify(mEmojiCompat).process(eq(testString));
     }
+
+    @Test
+    public void emojiInputFilterAdded_beforeEmojiCompatInit_doesntCallSetText_ifSameString() {
+        mEmojiCompat = mock(EmojiCompat.class);
+        mTextView = mock(TextView.class);
+        EmojiCompat.reset(mEmojiCompat);
+        when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_LOADING);
+        mInputFilter = new EmojiInputFilter(mTextView);
+        InputFilter[] filters = new InputFilter[1];
+        filters[0] = mInputFilter;
+
+        // first ensure the input filter registers a callback
+        SpannableString testString = new SpannableString("abc");
+        mInputFilter.filter(testString, 0, 1, null, 0, 1);
+
+        ArgumentCaptor<EmojiCompat.InitCallback> captor = ArgumentCaptor
+                .forClass(EmojiCompat.InitCallback.class);
+        verify(mEmojiCompat).registerInitCallback(captor.capture());
+
+        reset(mTextView);
+        when(mTextView.isAttachedToWindow()).thenReturn(true);
+        when(mTextView.getText()).thenReturn(testString);
+        when(mTextView.getFilters()).thenReturn(filters);
+
+        // don't wrap the string
+        when(mEmojiCompat.process(eq(testString))).thenReturn(testString);
+        when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_SUCCEEDED);
+        // trigger initialized
+        captor.getValue().onInitialized();
+
+        // validate interactions don't do anything except check for update
+        verify(mTextView).getFilters();
+        verify(mTextView).isAttachedToWindow();
+        verify(mTextView).getText();
+        // any other interactions fail this test because they _may_ be destructive on a TextView
+        // if you add a safe interaction please update test
+        verifyNoMoreInteractions(mTextView);
+    }
 }

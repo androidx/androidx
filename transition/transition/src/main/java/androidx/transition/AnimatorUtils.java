@@ -20,7 +20,9 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
 
@@ -29,13 +31,13 @@ class AnimatorUtils {
     static void addPauseListener(@NonNull Animator animator,
             @NonNull AnimatorListenerAdapter listener) {
         if (Build.VERSION.SDK_INT >= 19) {
-            animator.addPauseListener(listener);
+            Api19Impl.addPauseListener(animator, listener);
         }
     }
 
     static void pause(@NonNull Animator animator) {
         if (Build.VERSION.SDK_INT >= 19) {
-            animator.pause();
+            Api19Impl.pause(animator);
         } else {
             final ArrayList<Animator.AnimatorListener> listeners = animator.getListeners();
             if (listeners != null) {
@@ -51,7 +53,7 @@ class AnimatorUtils {
 
     static void resume(@NonNull Animator animator) {
         if (Build.VERSION.SDK_INT >= 19) {
-            animator.resume();
+            Api19Impl.resume(animator);
         } else {
             final ArrayList<Animator.AnimatorListener> listeners = animator.getListeners();
             if (listeners != null) {
@@ -78,6 +80,24 @@ class AnimatorUtils {
 
     }
 
-    private AnimatorUtils() {
+    private AnimatorUtils() { }
+
+    @RequiresApi(19)
+    static class Api19Impl {
+        private Api19Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void addPauseListener(Animator animator, AnimatorListenerAdapter listener) {
+            animator.addPauseListener(listener);
+        }
+        @DoNotInline
+        static void pause(Animator animator) {
+            animator.pause();
+        }@DoNotInline
+        static void resume(Animator animator) {
+            animator.resume();
+        }
     }
 }

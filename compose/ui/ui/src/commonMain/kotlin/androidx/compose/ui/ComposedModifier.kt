@@ -245,7 +245,9 @@ private class KeyedComposedModifierN(
  */
 @Suppress("ModifierFactoryExtensionFunction")
 fun Composer.materialize(modifier: Modifier): Modifier {
-    if (modifier.all { it !is ComposedModifier }) return modifier
+    if (modifier.all { it !is ComposedModifier }) {
+        return modifier
+    }
 
     // This is a fake composable function that invokes the compose runtime directly so that it
     // can call the element factory functions from the non-@Composable lambda of Modifier.foldIn.
@@ -258,11 +260,13 @@ fun Composer.materialize(modifier: Modifier): Modifier {
     val result = modifier.foldIn<Modifier>(Modifier) { acc, element ->
         acc.then(
             if (element is ComposedModifier) {
-                @kotlin.Suppress("UNCHECKED_CAST")
+                @Suppress("UNCHECKED_CAST")
                 val factory = element.factory as Modifier.(Composer, Int) -> Modifier
                 val composedMod = factory(Modifier, this, 0)
                 materialize(composedMod)
-            } else element
+            } else {
+                element
+            }
         )
     }
 

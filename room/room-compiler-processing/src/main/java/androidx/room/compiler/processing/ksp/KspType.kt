@@ -16,16 +16,25 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.isArray
 import androidx.room.compiler.processing.tryBox
 import androidx.room.compiler.processing.tryUnbox
+import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSTypeArgument
+import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.Nullability
+import com.google.devtools.ksp.symbol.Variance
 import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.WildcardTypeName
+import com.squareup.kotlinpoet.javapoet.JTypeName
+import com.squareup.kotlinpoet.javapoet.KTypeName
 import kotlin.reflect.KClass
 
 /**
@@ -49,12 +58,33 @@ internal abstract class KspType(
     }
 
     final override val typeName: TypeName by lazy {
-        jvmTypeResolver?.resolveJvmType(
-            env = env
-        )?.typeName ?: resolveTypeName()
+        xTypeName.java
     }
 
-    protected abstract fun resolveTypeName(): TypeName
+    private val xTypeName: XTypeName by lazy {
+        XTypeName(
+            jvmWildcardType?.asTypeName()?.java ?: resolveJTypeName(),
+            jvmWildcardType?.asTypeName()?.kotlin ?: resolveKTypeName(),
+            nullability
+        )
+    }
+
+    override fun asTypeName() = xTypeName
+
+    /**
+     * A Kotlin type might have a slightly different type in JVM due to wildcards.
+     * This fields holds onto that value which will be used when creating JVM types.
+     */
+    private val jvmWildcardType by lazy {
+        jvmTypeResolver?.resolveJvmType(env)
+    }
+
+    internal val jvmWildcardTypeOrSelf
+        get() = jvmWildcardType ?: this
+
+    protected abstract fun resolveJTypeName(): JTypeName
+
+    protected abstract fun resolveKTypeName(): KTypeName
 
     override val nullability by lazy {
         when (ksType.nullability) {
@@ -65,28 +95,87 @@ internal abstract class KspType(
     }
 
     override val superTypes: List<XType> by lazy {
-        val declaration = ksType.declaration as? KSClassDeclaration
-        declaration?.superTypes?.toList()?.map {
+        if (xTypeName == XTypeName.ANY_OBJECT) {
+            // The object class doesn't have any supertypes.
+            return@lazy emptyList<XType>()
+        }
+        val resolvedTypeArguments: Map<String, KSTypeArgument> =
+            ksType.declaration.typeParameters.mapIndexed { i, parameter ->
+                parameter.name.asString() to ksType.arguments[i]
+            }.toMap()
+        val superTypes = (ksType.declaration as? KSClassDeclaration)?.superTypes?.toList()?.map {
             env.wrap(
-                ksType = it.resolve(),
+                ksType = resolveTypeArguments(it.resolve(), resolvedTypeArguments),
                 allowPrimitives = false
             )
         } ?: emptyList()
+        val (superClasses, superInterfaces) = superTypes.partition {
+            it.typeElement?.isClass() == true
+        }
+        // Per documentation, always return the class before the interfaces.
+        if (superClasses.isEmpty()) {
+            // Return Object when there's no explicit super class specified on the class/interface.
+            // This matches javac's Types#directSupertypes().
+            listOf(env.requireType(TypeName.OBJECT)) + superInterfaces
+        } else {
+            check(superClasses.size == 1)
+            superClasses + superInterfaces
+        }
+    }
+
+    private fun resolveTypeArguments(
+        type: KSType,
+        resolvedTypeArguments: Map<String, KSTypeArgument>
+    ): KSType {
+        return type.replace(
+            type.arguments.map { argument ->
+                val argDeclaration = argument.type?.resolve()?.declaration
+                if (argDeclaration is KSTypeParameter) {
+                    // If this is a type parameter, replace it with the resolved type argument.
+                    resolvedTypeArguments[argDeclaration.name.asString()] ?: argument
+                } else if (
+                    argument.type != null && argument.type?.resolve()?.arguments?.isEmpty() == false
+                ) {
+                    // If this is a type with arguments, the arguments may contain a type parameter,
+                    // e.g. Foo<T>, so try to resolve the type and then convert to a type argument.
+                    env.resolver.getTypeArgument(
+                        env.resolver.createKSTypeReferenceFromKSType(
+                            resolveTypeArguments(argument.type!!.resolve(), resolvedTypeArguments)
+                        ),
+                        variance = Variance.INVARIANT
+                    )
+                } else {
+                    argument
+                }
+            }.toList()
+        )
     }
 
     override val typeElement by lazy {
-        // for primitive types, we could technically return null from here as they are not backed
-        // by a type element in javac but in Kotlin we have types for them, hence returning them
-        // is better.
+        // Array types don't have an associated type element (only the componentType does), so
+        // return null.
+        if (isArray()) {
+            return@lazy null
+        }
+
+        // If this is a primitive, return null for consistency since primitives normally imply
+        // that there isn't an associated type element.
+        if (this is KspPrimitiveType) {
+            return@lazy null
+        }
+
         val declaration = ksType.declaration as? KSClassDeclaration
         declaration?.let {
             env.wrapClassDeclaration(it)
         }
     }
 
+    @OptIn(KspExperimental::class)
     override val typeArguments: List<XType> by lazy {
-        ksType.arguments.mapIndexed { index, arg ->
-            env.wrap(ksType.declaration.typeParameters[index], arg)
+        if (env.resolver.isJavaRawType(ksType)) {
+            emptyList()
+        } else {
+            ksType.arguments.map { env.wrap(it) }
         }
     }
 
@@ -96,7 +185,14 @@ internal abstract class KspType(
     }
 
     override fun isError(): Boolean {
-        return ksType.isError
+        // Avoid returning true if this type represents a java wildcard type, e.g. "? extends Foo"
+        // since in that case the wildcard type is not the error type itself. Instead, the error
+        // type should be on the XType#extendsBound() type, "Foo", instead.
+        return ksType.isError && !isJavaWildcardType()
+    }
+
+    private fun isJavaWildcardType(): Boolean {
+        return asTypeName().java is WildcardTypeName
     }
 
     override fun defaultValue(): String {
@@ -108,8 +204,9 @@ internal abstract class KspType(
         val builtIns = env.resolver.builtIns
         return when (ksType) {
             builtIns.booleanType -> "false"
-            builtIns.byteType, builtIns.shortType, builtIns.intType, builtIns.longType, builtIns
+            builtIns.byteType, builtIns.shortType, builtIns.intType, builtIns
                 .charType -> "0"
+            builtIns.longType -> "0L"
             builtIns.floatType -> "0f"
             builtIns.doubleType -> "0.0"
             else -> "null"
@@ -135,7 +232,7 @@ internal abstract class KspType(
         if (nullability == XNullability.UNKNOWN || other.nullability == XNullability.UNKNOWN) {
             // if one the nullabilities is unknown, it is coming from java source code or .class.
             // for those cases, use java platform type equality (via typename)
-            return typeName == other.typeName
+            return asTypeName().java == other.asTypeName().java
         }
         // NOTE: this is inconsistent with java where nullability is ignored.
         // it is intentional but might be reversed if it happens to break use cases.

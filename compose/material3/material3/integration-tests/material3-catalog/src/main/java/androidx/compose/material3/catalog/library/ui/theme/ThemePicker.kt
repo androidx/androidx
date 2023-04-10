@@ -20,8 +20,14 @@ import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.add
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Divider
 import androidx.compose.material.RadioButton
@@ -32,6 +38,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.catalog.library.R
 import androidx.compose.material3.catalog.library.model.ColorMode
+import androidx.compose.material3.catalog.library.model.FontScaleMode
 import androidx.compose.material3.catalog.library.model.MaxFontScale
 import androidx.compose.material3.catalog.library.model.MinFontScale
 import androidx.compose.material3.catalog.library.model.TextDirection
@@ -46,8 +53,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.insets.LocalWindowInsets
-import com.google.accompanist.insets.rememberInsetsPaddingValues
 
 @Composable
 fun ThemePicker(
@@ -55,11 +60,15 @@ fun ThemePicker(
     onThemeChange: (theme: Theme) -> Unit
 ) {
     LazyColumn(
-        contentPadding = rememberInsetsPaddingValues(
-            insets = LocalWindowInsets.current.navigationBars,
-            additionalTop = ThemePickerPadding,
-            additionalBottom = ThemePickerPadding
-        ),
+        contentPadding = WindowInsets.safeDrawing
+            .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+            .add(
+                WindowInsets(
+                    top = ThemePickerPadding,
+                    bottom = ThemePickerPadding
+                )
+            )
+            .asPaddingValues(),
         verticalArrangement = Arrangement.spacedBy(ThemePickerPadding)
     ) {
         item {
@@ -191,15 +200,59 @@ fun ThemePicker(
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(horizontal = ThemePickerPadding)
             )
-            var fontScale by remember { mutableStateOf(theme.fontScale) }
-            FontScaleItem(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = ThemePickerPadding),
-                fontScale = fontScale,
-                onValueChange = { fontScale = it },
-                onValueChangeFinished = { onThemeChange(theme.copy(fontScale = fontScale)) }
-            )
+            Column {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(ThemePickerPadding)
+                ) {
+                    RadioButton(
+                        selected = theme.fontScaleMode == FontScaleMode.System,
+                        onClick = {
+                            onThemeChange(theme.copy(fontScaleMode = FontScaleMode.System))
+                        },
+                        colors = RadioButtonDefaults.colors(
+                            selectedColor = MaterialTheme.colorScheme.primary,
+                            unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        ),
+                    )
+                    Text(
+                        text = FontScaleMode.System.label,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(ThemePickerPadding)
+                ) {
+
+                    RadioButton(
+                        selected = theme.fontScaleMode == FontScaleMode.Custom,
+                        onClick = {
+                            onThemeChange(theme.copy(fontScaleMode = FontScaleMode.Custom))
+                        },
+                        colors = RadioButtonDefaults.colors(
+                            selectedColor = MaterialTheme.colorScheme.primary,
+                            unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        ),
+                    )
+                    Text(
+                        text = FontScaleMode.Custom.label,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+
+                var fontScale by remember { mutableStateOf(theme.fontScale) }
+                FontScaleItem(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = ThemePickerPadding),
+                    enabled = theme.fontScaleMode == FontScaleMode.Custom,
+                    fontScale = fontScale,
+                    onValueChange = { fontScale = it },
+                    onValueChangeFinished = { onThemeChange(theme.copy(fontScale = fontScale)) }
+                )
+            }
         }
     }
 }
@@ -296,6 +349,7 @@ private fun TextDirectionItem(
 @Composable
 private fun FontScaleItem(
     modifier: Modifier = Modifier,
+    enabled: Boolean,
     fontScale: Float,
     fontScaleMin: Float = MinFontScale,
     fontScaleMax: Float = MaxFontScale,
@@ -305,6 +359,7 @@ private fun FontScaleItem(
     Column(modifier = modifier) {
         // TODO: Replace with M3 Slider when available
         Slider(
+            enabled = enabled,
             value = fontScale,
             onValueChange = onValueChange,
             onValueChangeFinished = onValueChangeFinished,

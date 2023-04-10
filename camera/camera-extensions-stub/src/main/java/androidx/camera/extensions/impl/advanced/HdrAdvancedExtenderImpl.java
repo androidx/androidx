@@ -18,6 +18,8 @@ package androidx.camera.extensions.impl.advanced;
 
 import android.annotation.SuppressLint;
 import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.CaptureResult;
 import android.util.Range;
 import android.util.Size;
 
@@ -75,6 +77,16 @@ public class HdrAdvancedExtenderImpl implements AdvancedExtenderImpl {
 
     @Override
     public SessionProcessorImpl createSessionProcessor() {
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
+
+    @Override
+    public List<CaptureRequest.Key> getAvailableCaptureRequestKeys() {
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
+
+    @Override
+    public List<CaptureResult.Key> getAvailableCaptureResultKeys() {
         throw new RuntimeException("Stub, replace with implementation.");
     }
 }

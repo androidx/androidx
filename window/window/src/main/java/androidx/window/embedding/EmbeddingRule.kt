@@ -16,11 +16,8 @@
 
 package androidx.window.embedding
 
-import androidx.window.core.ExperimentalWindowApi
-
 /**
  * Base abstract class for activity embedding presentation rules, such as [SplitPairRule] and
  * [ActivityRule]. Allows grouping different rule types together when updating.
  */
-@ExperimentalWindowApi
 abstract class EmbeddingRule internal constructor()

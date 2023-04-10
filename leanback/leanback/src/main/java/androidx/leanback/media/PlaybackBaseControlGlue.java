@@ -24,6 +24,8 @@ import android.view.KeyEvent;
 import android.view.View;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.leanback.widget.Action;
 import androidx.leanback.widget.ArrayObjectAdapter;
 import androidx.leanback.widget.ControlButtonPresenterSelector;
@@ -135,43 +137,43 @@ public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends P
             .Callback() {
 
         @Override
-        public void onPlayStateChanged(PlayerAdapter wrapper) {
+        public void onPlayStateChanged(@NonNull PlayerAdapter wrapper) {
             if (DEBUG) Log.v(TAG, "onPlayStateChanged");
             PlaybackBaseControlGlue.this.onPlayStateChanged();
         }
 
         @Override
-        public void onCurrentPositionChanged(PlayerAdapter wrapper) {
+        public void onCurrentPositionChanged(@NonNull PlayerAdapter wrapper) {
             if (DEBUG) Log.v(TAG, "onCurrentPositionChanged");
             PlaybackBaseControlGlue.this.onUpdateProgress();
         }
 
         @Override
-        public void onBufferedPositionChanged(PlayerAdapter wrapper) {
+        public void onBufferedPositionChanged(@NonNull PlayerAdapter wrapper) {
             if (DEBUG) Log.v(TAG, "onBufferedPositionChanged");
             PlaybackBaseControlGlue.this.onUpdateBufferedProgress();
         }
 
         @Override
-        public void onDurationChanged(PlayerAdapter wrapper) {
+        public void onDurationChanged(@NonNull PlayerAdapter wrapper) {
             if (DEBUG) Log.v(TAG, "onDurationChanged");
             PlaybackBaseControlGlue.this.onUpdateDuration();
         }
 
         @Override
-        public void onPlayCompleted(PlayerAdapter wrapper) {
+        public void onPlayCompleted(@NonNull PlayerAdapter wrapper) {
             if (DEBUG) Log.v(TAG, "onPlayCompleted");
             PlaybackBaseControlGlue.this.onPlayCompleted();
         }
 
         @Override
-        public void onPreparedStateChanged(PlayerAdapter wrapper) {
+        public void onPreparedStateChanged(@NonNull PlayerAdapter wrapper) {
             if (DEBUG) Log.v(TAG, "onPreparedStateChanged");
             PlaybackBaseControlGlue.this.onPreparedStateChanged();
         }
 
         @Override
-        public void onVideoSizeChanged(PlayerAdapter wrapper, int width, int height) {
+        public void onVideoSizeChanged(@NonNull PlayerAdapter wrapper, int width, int height) {
             mVideoWidth = width;
             mVideoHeight = height;
             if (mPlayerCallback != null) {
@@ -180,7 +182,11 @@ public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends P
         }
 
         @Override
-        public void onError(PlayerAdapter wrapper, int errorCode, String errorMessage) {
+        public void onError(
+                @NonNull PlayerAdapter wrapper,
+                int errorCode,
+                @Nullable String errorMessage
+        ) {
             mErrorSet = true;
             mErrorCode = errorCode;
             mErrorMessage = errorMessage;
@@ -190,7 +196,7 @@ public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends P
         }
 
         @Override
-        public void onBufferingStateChanged(PlayerAdapter wrapper, boolean start) {
+        public void onBufferingStateChanged(@NonNull PlayerAdapter wrapper, boolean start) {
             mBuffering = start;
             if (mPlayerCallback != null) {
                 mPlayerCallback.onBufferingStateChanged(start);
@@ -198,7 +204,7 @@ public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends P
         }
 
         @Override
-        public void onMetadataChanged(PlayerAdapter wrapper) {
+        public void onMetadataChanged(@NonNull PlayerAdapter wrapper) {
             PlaybackBaseControlGlue.this.onMetadataChanged();
         }
     };
@@ -209,7 +215,7 @@ public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends P
      * @param context
      * @param impl Implementation to underlying media player.
      */
-    public PlaybackBaseControlGlue(Context context, T impl) {
+    public PlaybackBaseControlGlue(@NonNull Context context, T impl) {
         super(context);
         mPlayerAdapter = impl;
         mPlayerAdapter.setCallback(mAdapterCallback);
@@ -220,7 +226,7 @@ public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends P
     }
 
     @Override
-    protected void onAttachedToHost(PlaybackGlueHost host) {
+    protected void onAttachedToHost(@NonNull PlaybackGlueHost host) {
         super.onAttachedToHost(host);
         host.setOnKeyInterceptListener(this);
         host.setOnActionClickedListener(this);
@@ -287,6 +293,7 @@ public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends P
         }
     }
 
+    @NonNull
     protected abstract PlaybackRowPresenter onCreateRowPresenter();
 
     /**
@@ -320,7 +327,7 @@ public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends P
      * The primary actions and playback state related aspects of the row
      * are updated by the glue.
      */
-    public void setControlsRow(PlaybackControlsRow controlsRow) {
+    public void setControlsRow(@NonNull PlaybackControlsRow controlsRow) {
         mControlsRow = controlsRow;
         mControlsRow.setCurrentPosition(-1);
         mControlsRow.setDuration(-1);
@@ -344,13 +351,14 @@ public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends P
     /**
      * Sets the controls row Presenter to be managed by the glue layer.
      */
-    public void setPlaybackRowPresenter(PlaybackRowPresenter presenter) {
+    public void setPlaybackRowPresenter(@Nullable PlaybackRowPresenter presenter) {
         mControlsRowPresenter = presenter;
     }
 
     /**
      * Returns the playback controls row managed by the glue layer.
      */
+    @Nullable
     public PlaybackControlsRow getControlsRow() {
         return mControlsRow;
     }
@@ -358,6 +366,7 @@ public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends P
     /**
      * Returns the playback controls row Presenter managed by the glue layer.
      */
+    @Nullable
     public PlaybackRowPresenter getPlaybackRowPresenter() {
         return mControlsRowPresenter;
     }
@@ -366,7 +375,7 @@ public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends P
      * Handles action clicks.  A subclass may override this add support for additional actions.
      */
     @Override
-    public abstract void onActionClicked(Action action);
+    public abstract void onActionClicked(@NonNull Action action);
 
     /**
      * Handles key events and returns true if handled.  A subclass may override this to provide
@@ -404,7 +413,10 @@ public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends P
         mPlayerAdapter.previous();
     }
 
-    protected static void notifyItemChanged(ArrayObjectAdapter adapter, Object object) {
+    protected static void notifyItemChanged(
+            @NonNull ArrayObjectAdapter adapter,
+            @NonNull Object object
+    ) {
         int index = adapter.indexOf(object);
         if (index >= 0) {
             adapter.notifyArrayItemRangeChanged(index, 1);
@@ -417,7 +429,7 @@ public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends P
      *
      * @param primaryActionsAdapter The adapter to add primary {@link Action}s.
      */
-    protected void onCreatePrimaryActions(ArrayObjectAdapter primaryActionsAdapter) {
+    protected void onCreatePrimaryActions(@NonNull ArrayObjectAdapter primaryActionsAdapter) {
     }
 
     /**
@@ -425,7 +437,7 @@ public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends P
      *
      * @param secondaryActionsAdapter The adapter you need to add the {@link Action}s to.
      */
-    protected void onCreateSecondaryActions(ArrayObjectAdapter secondaryActionsAdapter) {
+    protected void onCreateSecondaryActions(@NonNull ArrayObjectAdapter secondaryActionsAdapter) {
     }
 
     @CallSuper
@@ -497,7 +509,7 @@ public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends P
      * {@link PlaybackTransportRowPresenter#setDescriptionPresenter(Presenter)}.
      * @param cover The drawable representing cover image.
      */
-    public void setArt(Drawable cover) {
+    public void setArt(@Nullable Drawable cover) {
         if (mCover == cover) {
             return;
         }
@@ -511,6 +523,7 @@ public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends P
     /**
      * @return The drawable representing cover image.
      */
+    @Nullable
     public Drawable getArt() {
         return mCover;
     }
@@ -520,7 +533,7 @@ public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends P
      * {@link PlaybackTransportRowPresenter#setDescriptionPresenter(Presenter)}.
      * @param subtitle Subtitle to set.
      */
-    public void setSubtitle(CharSequence subtitle) {
+    public void setSubtitle(@Nullable CharSequence subtitle) {
         if (TextUtils.equals(subtitle, mSubtitle)) {
             return;
         }
@@ -533,6 +546,7 @@ public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends P
     /**
      * Return The media subtitle.
      */
+    @Nullable
     public CharSequence getSubtitle() {
         return mSubtitle;
     }
@@ -541,7 +555,7 @@ public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends P
      * Sets the media title. The title will be rendered by default description presenter
      * {@link PlaybackTransportRowPresenter#setDescriptionPresenter(Presenter)}.
      */
-    public void setTitle(CharSequence title) {
+    public void setTitle(@Nullable CharSequence title) {
         if (TextUtils.equals(title, mTitle)) {
             return;
         }
@@ -554,6 +568,7 @@ public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends P
     /**
      * Returns the title of the media item.
      */
+    @Nullable
     public CharSequence getTitle() {
         return mTitle;
     }

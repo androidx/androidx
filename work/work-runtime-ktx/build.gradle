@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
+
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -36,22 +35,17 @@ dependencies {
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has its own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has its own MockMaker
-    androidTestImplementation("androidx.room:room-testing:2.2.5")
+    androidTestImplementation("androidx.room:room-testing:2.5.0-beta01")
     testImplementation(libs.junit)
 }
 
 androidx {
     name = "Android WorkManager Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WORK
     inceptionYear = "2018"
     description = "Android WorkManager Kotlin Extensions"
 }
 
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
-    }
+android {
+    namespace "androidx.work.ktx"
 }

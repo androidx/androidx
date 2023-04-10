@@ -16,6 +16,7 @@
 
 package androidx.lifecycle.observers;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.GeneratedAdapter;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
@@ -27,8 +28,8 @@ public class Interface2_LifecycleAdapter implements GeneratedAdapter {
     }
 
     @Override
-    public void callMethods(LifecycleOwner source, Lifecycle.Event event, boolean onAny,
-            MethodCallsLogger logger) {
+    public void callMethods(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event,
+            boolean onAny, MethodCallsLogger logger) {
 
     }
 }

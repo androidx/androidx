@@ -25,11 +25,14 @@ import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArraySet;
@@ -50,7 +53,10 @@ public class SliceConvert {
      * Convert {@link androidx.slice.Slice androidx.slice.Slice} to
      * {@link android.app.slice.Slice android.app.slice.Slice}
      */
-    public static android.app.slice.Slice unwrap(androidx.slice.Slice slice) {
+    @SuppressWarnings({"ConstantConditions", "deprecation"})
+    @SuppressLint("WrongConstant") // conversion from platform definition
+    @Nullable
+    public static android.app.slice.Slice unwrap(@Nullable Slice slice) {
         if (slice == null || slice.getUri() == null) return null;
         android.app.slice.Slice.Builder builder = new android.app.slice.Slice.Builder(
                 slice.getUri(), unwrap(slice.getSpec()));
@@ -107,7 +113,10 @@ public class SliceConvert {
      * Convert {@link android.app.slice.Slice android.app.slice.Slice} to
      * {@link androidx.slice.Slice androidx.slice.Slice}
      */
-    public static androidx.slice.Slice wrap(android.app.slice.Slice slice, Context context) {
+    @SuppressWarnings("ConstantConditions") // conditional nullability
+    @Nullable
+    public static androidx.slice.Slice wrap(@Nullable android.app.slice.Slice slice,
+            @NonNull Context context) {
         if (slice == null || slice.getUri() == null) return null;
         androidx.slice.Slice.Builder builder = new androidx.slice.Slice.Builder(
                 slice.getUri());
@@ -162,9 +171,10 @@ public class SliceConvert {
     /**
      * @hide
      */
+    @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static Set<androidx.slice.SliceSpec> wrap(
-            Set<android.app.slice.SliceSpec> supportedSpecs) {
+            @Nullable Set<android.app.slice.SliceSpec> supportedSpecs) {
         Set<androidx.slice.SliceSpec> ret = new ArraySet<>();
         if (supportedSpecs != null) {
             for (android.app.slice.SliceSpec spec : supportedSpecs) {

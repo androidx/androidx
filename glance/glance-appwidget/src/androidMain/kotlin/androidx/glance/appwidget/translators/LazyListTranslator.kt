@@ -18,6 +18,7 @@ package androidx.glance.appwidget.translators
 
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_MUTABLE
+import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.Intent
 import android.content.Intent.FILL_IN_COMPONENT
 import android.widget.RemoteViews
@@ -57,28 +58,28 @@ private fun RemoteViews.translateEmittableLazyList(
         "Glance does not support nested list views."
     }
     // TODO(b/205868100): Remove [FILL_IN_COMPONENT] flag and set target component here when all
-    // click actions on descendants are exclusively [LaunchActivityAction] or exclusively not
-    // [LaunchActivityAction].
+    // click actions on descendants are exclusively [StartActivityAction] or exclusively not
+    // [StartActivityAction].
     setPendingIntentTemplate(
         viewDef.mainViewId,
         PendingIntent.getActivity(
             translationContext.context,
             0,
             Intent(),
-            FILL_IN_COMPONENT or FLAG_MUTABLE
+            FILL_IN_COMPONENT or FLAG_MUTABLE or FLAG_UPDATE_CURRENT,
         )
     )
     val items = RemoteViewsCompat.RemoteCollectionItems.Builder().apply {
-        val childContext = translationContext.copy(isLazyCollectionDescendant = true)
-        element.children.fold(false) { previous, itemEmittable ->
+        val childContext = translationContext.forLazyCollection(viewDef.mainViewId)
+        element.children.foldIndexed(false) { position, previous, itemEmittable ->
             itemEmittable as EmittableLazyListItem
             val itemId = itemEmittable.itemId
             addItem(
                 itemId,
                 translateComposition(
-                    childContext.resetViewId(LazyListItemStartingViewId),
+                    childContext.forLazyViewItem(position, LazyListItemStartingViewId),
                     listOf(itemEmittable),
-                    translationContext.layoutConfiguration.addLayout(itemEmittable),
+                    translationContext.layoutConfiguration?.addLayout(itemEmittable) ?: -1,
                 )
             )
             // If the user specifies any explicit ids, we assume the list to be stable

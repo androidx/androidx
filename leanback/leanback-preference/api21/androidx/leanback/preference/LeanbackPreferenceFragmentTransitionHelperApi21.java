@@ -23,14 +23,12 @@ import android.app.Fragment;
 import android.transition.Transition;
 import android.view.Gravity;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.leanback.transition.FadeAndShortSlide;
 
 /**
  * @hide
  */
-@RequiresApi(21)
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class LeanbackPreferenceFragmentTransitionHelperApi21 {
 

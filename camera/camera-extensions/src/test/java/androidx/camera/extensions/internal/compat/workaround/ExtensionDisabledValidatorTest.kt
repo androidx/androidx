@@ -17,7 +17,12 @@
 package androidx.camera.extensions.internal.compat.workaround
 
 import android.os.Build
+import androidx.camera.extensions.internal.ExtensionVersion
+import androidx.camera.extensions.internal.util.ExtensionsTestUtil.resetSingleton
+import androidx.camera.extensions.internal.util.ExtensionsTestUtil.setTestApiVersionAndAdvancedExtender
 import com.google.common.truth.Truth.assertThat
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
@@ -27,26 +32,37 @@ import org.robolectric.util.ReflectionHelpers
 
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(
+    minSdk = Build.VERSION_CODES.LOLLIPOP,
+    instrumentedPackages = arrayOf("androidx.camera.extensions.internal")
+)
 class ExtensionDisabledValidatorTest(private val config: TestConfig) {
-    @Test
-    fun shouldUseDefaultVendorExtender() {
-        // Set up device properties
-        if (config.brand != null) {
-            ReflectionHelpers.setStaticField(Build::class.java, "BRAND", config.brand)
-            ReflectionHelpers.setStaticField(Build::class.java, "DEVICE", config.device)
-        }
 
-        val validator =
-            ExtensionDisabledValidator()
-        assertThat(validator.shouldDisableExtension(config.isAdvancedExtenderSupported))
-            .isEqualTo(config.shouldDisableExtension)
+    @Before
+    fun setUp() {
+        setTestApiVersionAndAdvancedExtender(config.version, config.isAdvancedInterface)
+    }
+
+    @After
+    fun tearDown() {
+        resetSingleton(ExtensionVersion::class.java, "sExtensionVersion")
+    }
+
+    @Test
+    fun shouldDisableExtensionMode() {
+        // Set up device properties
+        ReflectionHelpers.setStaticField(Build::class.java, "BRAND", config.brand)
+        ReflectionHelpers.setStaticField(Build::class.java, "DEVICE", config.device)
+
+        val validator = ExtensionDisabledValidator()
+        assertThat(validator.shouldDisableExtension()).isEqualTo(config.shouldDisableExtension)
     }
 
     class TestConfig(
-        val brand: String?,
-        val device: String?,
-        val isAdvancedExtenderSupported: Boolean,
+        val brand: String,
+        val device: String,
+        val version: String,
+        val isAdvancedInterface: Boolean,
         val shouldDisableExtension: Boolean
     )
 
@@ -55,10 +71,25 @@ class ExtensionDisabledValidatorTest(private val config: TestConfig) {
         @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")
         fun createTestSet(): List<TestConfig> {
             return listOf(
-                TestConfig("Google", "Redfin", false, true),
-                TestConfig("Google", "Redfin", true, false),
-                TestConfig("", "", false, false),
-                TestConfig("", "", true, false)
+                // Pixel 5 extension capability is disabled on basic extender
+                TestConfig("Google", "Redfin", "1.2.0", false, true),
+
+                // Pixel 5 extension capability is enabled on advanced extender
+                TestConfig("Google", "Redfin", "1.2.0", true, false),
+
+                // All Motorola devices should be disabled for version 1.1.0 and older.
+                TestConfig("Motorola", "Smith", "1.1.0", false, true),
+                TestConfig("Motorola", "Hawaii P", "1.1.0", false, true),
+
+                // Make sure Motorola device would still be enabled for newer versions
+                // Motorola doesn't support this today but making sure there is a path to enable
+                TestConfig("Motorola", "Hawaii P", "1.2.0", false, false),
+
+                // Other cases should be kept normal.
+                TestConfig("", "", "1.2.0", false, false),
+
+                // Advanced extender is enabled for all devices
+                TestConfig("", "", "1.2.0", true, false),
             )
         }
     }

@@ -25,6 +25,7 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.ConstantObservable;
 import androidx.camera.core.impl.Observable;
+import androidx.camera.core.impl.Timebase;
 import androidx.core.util.Consumer;
 
 import java.util.concurrent.Executor;
@@ -50,30 +51,12 @@ public interface VideoOutput {
      */
     @RestrictTo(Scope.LIBRARY)
     enum SourceState {
-        /** The video frame producer is active and is producing frames.
-         */
-        ACTIVE,
-        /** The video frame producer is inactive and is not producing frames.
-         */
+        /** The video frame producer is active and is producing frames. */
+        ACTIVE_STREAMING,
+        /** The video frame producer is active but is not producing frames. */
+        ACTIVE_NON_STREAMING,
+        /** The video frame producer is inactive. */
         INACTIVE
-    }
-
-    /**
-     * A state which represents whether the video output is ready for frame streaming.
-     *
-     * <p>This is used in the observable returned by {@link #getStreamState()} to inform producers
-     * that they can start or stop producing frames.
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY)
-    enum StreamState {
-        /** The video output is active and ready to receive frames. */
-        ACTIVE,
-        /** The video output is inactive and any frames sent will be discarded. */
-        INACTIVE;
-
-        static final Observable<StreamState> ALWAYS_ACTIVE_OBSERVABLE =
-                ConstantObservable.withValue(StreamState.ACTIVE);
     }
 
     /**
@@ -109,26 +92,26 @@ public interface VideoOutput {
     void onSurfaceRequested(@NonNull SurfaceRequest request);
 
     /**
-     * Observable state which can be used to determine if the video output is ready for streaming.
+     * Called when a new {@link Surface} has been requested by a video frame producer.
      *
-     * <p>When the StreamState is ACTIVE, the {@link Surface} provided to
-     * {@link #onSurfaceRequested} should be ready to consume frames.
+     * @param timebase the video source timebase
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY)
+    default void onSurfaceRequested(@NonNull SurfaceRequest request, @NonNull Timebase timebase) {
+        onSurfaceRequested(request);
+    }
+
+    /**
+     * Returns an observable {@link StreamInfo} which contains the information of the
+     * {@link VideoOutput}.
      *
-     * <p>When the StreamState is INACTIVE, any frames drawn to the {@link Surface} may be
-     * discarded.
-     *
-     * <p>This can be used by video producers to determine when frames should be drawn to the
-     * {@link Surface} to ensure they are not doing excess work.
-     *
-     * <p>Implementers of the VideoOutput interface should consider overriding this method
-     * as a performance improvement. The default implementation returns an {@link Observable}
-     * which is always {@link StreamState#ACTIVE}.
      * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY)
-    default Observable<StreamState> getStreamState() {
-        return StreamState.ALWAYS_ACTIVE_OBSERVABLE;
+    default Observable<StreamInfo> getStreamInfo() {
+        return StreamInfo.ALWAYS_ACTIVE_OBSERVABLE;
     }
 
     /**

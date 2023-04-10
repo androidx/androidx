@@ -15,8 +15,6 @@
  */
 
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -43,8 +41,10 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
-    testImplementation("org.robolectric:robolectric:4.6.1") // TODO(b/205731854): fix tests to work with SDK 31 and robolectric 4.7
+    testImplementation(libs.robolectric)
     testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.mockitoKotlin4)
     testImplementation(project(":camera:camera-camera2-pipe-testing"))
     testImplementation(project(":internal-testutils-truth"))
 
@@ -56,8 +56,12 @@ dependencies {
 }
 
 android {
+    lintOptions {
+        enable 'CameraXQuirksClassDetector'
+    }
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.camera.camera2.pipe"
 }
 
 kapt {
@@ -67,36 +71,12 @@ kapt {
     }
 }
 
-// Create export artifact for all variants (debug/release) for JarJaring
-android.libraryVariants.all { variant ->
-    def variantName = variant.name
-    def suffix = variantName.capitalize()
-    def exportJarTask = tasks.register("exportJar${suffix}", Jar) {
-        archiveBaseName.set("camera-camera2-pipe-${variantName}-export")
-        def kotlinCompileTask = tasks.findByName("compile${suffix}Kotlin")
-        from(kotlinCompileTask.outputs.files)
-        from(files(variant.javaCompileProvider.get().destinationDir))
-        dependsOn(kotlinCompileTask)
-        dependsOn(variant.javaCompileProvider.get())
-    }
-    def exportConfiguration = configurations.register("export${suffix}")
-    artifacts.add(exportConfiguration.name, exportJarTask.flatMap{ it.archiveFile })
-}
-
 androidx {
     name = "Jetpack Camera Pipe"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.CAMERA
     mavenVersion = LibraryVersions.CAMERA_PIPE
     runApiTasks = new RunApiTasks.No("CameraPipe is an implementation detail of other libraries.")
     inceptionYear = "2020"
     description = "A set of opinionated camera interfaces and implementations on top of Camera2 " +
             "that will form a flexible shim layer to power Frameserver and CameraX."
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
-    }
 }

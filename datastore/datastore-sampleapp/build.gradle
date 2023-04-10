@@ -21,8 +21,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.protobuf")
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.4.21'
-
+    alias(libs.plugins.kotlinSerialization)
 }
 
 dependencies {
@@ -36,7 +35,7 @@ dependencies {
     implementation(libs.protobufLite)
     implementation(libs.kotlinStdlib)
     implementation("androidx.appcompat:appcompat:1.2.0")
-    implementation("androidx.activity:activity-ktx:1.2.0")
+    implementation("androidx.activity:activity-ktx:1.5.0")
 
     // For settings fragment
     implementation("androidx.preference:preference:1.1.1")
@@ -67,9 +66,10 @@ protobuf {
     }
 }
 
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+android {
+    namespace "com.example.datastoresampleapp"
+    defaultConfig {
+        multiDexEnabled true
     }
 }
+

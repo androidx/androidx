@@ -44,8 +44,25 @@ public class ShortTextLayoutHelper extends LayoutHelper {
 
     @Override
     public void getIconBounds(@NonNull Rect outRect) {
-        ComplicationData data = getComplicationData();
-        if (data.getIcon() == null) {
+        if (!hasIcon() || hasSmallImage()) {
+            outRect.setEmpty();
+        } else {
+            getBounds(outRect);
+            if (isWideRectangle(outRect)) {
+                // Left square part of the inner bounds
+                getLeftPart(outRect, outRect);
+            } else {
+                // Use top half of the central square
+                getCentralSquare(outRect, outRect);
+                getTopHalf(outRect, outRect);
+                getCentralSquare(outRect, outRect);
+            }
+        }
+    }
+
+    @Override
+    public void getSmallImageBounds(@NonNull Rect outRect) {
+        if (!hasSmallImage()) {
             outRect.setEmpty();
         } else {
             getBounds(outRect);
@@ -64,9 +81,8 @@ public class ShortTextLayoutHelper extends LayoutHelper {
     @NonNull
     @Override
     public Layout.Alignment getShortTextAlignment() {
-        ComplicationData data = getComplicationData();
         getBounds(mBounds);
-        if (isWideRectangle(mBounds) && data.getIcon() != null) {
+        if (isWideRectangle(mBounds) && hasIcon()) {
             // Wide rectangle with an icon available, align normal
             return Layout.Alignment.ALIGN_NORMAL;
         } else {
@@ -77,8 +93,7 @@ public class ShortTextLayoutHelper extends LayoutHelper {
 
     @Override
     public int getShortTextGravity() {
-        ComplicationData data = getComplicationData();
-        if (data.getShortTitle() != null && data.getIcon() == null) {
+        if (hasShortTitle() && !hasIcon()) {
             // If title is shown, align to bottom.
             return Gravity.BOTTOM;
         } else {
@@ -89,9 +104,8 @@ public class ShortTextLayoutHelper extends LayoutHelper {
 
     @Override
     public void getShortTextBounds(@NonNull Rect outRect) {
-        ComplicationData data = getComplicationData();
         getBounds(outRect);
-        if (data.getIcon() != null) { // If there is an icon
+        if (hasIcon()) {
             if (isWideRectangle(outRect)) {
                 // Text to the right of icon
                 getRightPart(outRect, outRect);
@@ -100,7 +114,7 @@ public class ShortTextLayoutHelper extends LayoutHelper {
                 getCentralSquare(outRect, outRect);
                 getBottomHalf(outRect, outRect);
             }
-        } else if (data.getShortTitle() != null) {
+        } else if (hasShortTitle()) {
             // Text above title
             getTopHalf(outRect, outRect);
         }
@@ -120,8 +134,7 @@ public class ShortTextLayoutHelper extends LayoutHelper {
 
     @Override
     public void getShortTitleBounds(@NonNull Rect outRect) {
-        ComplicationData data = getComplicationData();
-        if (data.getIcon() != null || data.getShortTitle() == null) {
+        if (hasIcon() || !hasShortTitle()) {
             outRect.setEmpty();
         } else {
             // Title is always on bottom half

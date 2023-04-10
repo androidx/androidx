@@ -24,6 +24,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
+
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.media2.common.MediaItem;
@@ -38,6 +41,7 @@ import androidx.media2.test.service.MockPlayer;
 import androidx.media2.test.service.RemoteMediaController;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Before;
@@ -51,6 +55,7 @@ import java.util.concurrent.TimeUnit;
  * Tests whether the methods of {@link SessionPlayer} are triggered by the
  * session/controller.
  */
+@SdkSuppress(maxSdkVersion = 32) // b/244312419
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class SessionPlayerTest extends MediaSessionTestBase {
@@ -62,6 +67,9 @@ public class SessionPlayerTest extends MediaSessionTestBase {
     @Before
     @Override
     public void setUp() throws Exception {
+        // b/204596299
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         super.setUp();
         mPlayer = new MockPlayer(1);
         mSession = new MediaSession.Builder(mContext, mPlayer)

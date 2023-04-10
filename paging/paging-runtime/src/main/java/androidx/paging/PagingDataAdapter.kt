@@ -17,6 +17,7 @@
 package androidx.paging
 
 import androidx.annotation.IntRange
+import androidx.annotation.MainThread
 import androidx.lifecycle.Lifecycle
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.REFRESH
@@ -26,6 +27,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.ALLOW
 import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -58,11 +60,79 @@ import kotlinx.coroutines.flow.Flow
  *
  * @sample androidx.paging.samples.pagingDataAdapterSample
  */
-abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder> @JvmOverloads constructor(
+abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>
+/**
+ * Construct a [PagingDataAdapter].
+ *
+ * @param mainDispatcher [CoroutineContext] where UI events are dispatched. Typically, this should be
+ * [Dispatchers.Main].
+ * @param workerDispatcher [CoroutineContext] where the work to generate UI events is dispatched, for
+ * example when diffing lists on [REFRESH]. Typically, this should have a background
+ * [CoroutineDispatcher] set; [Dispatchers.Default] by default.
+ * @param diffCallback Callback for calculating the diff between two non-disjoint lists on
+ * [REFRESH]. Used as a fallback for item-level diffing when Paging is unable to find a faster path
+ * for generating the UI events required to display the new list.
+ */
+@JvmOverloads
+constructor(
     diffCallback: DiffUtil.ItemCallback<T>,
-    mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
-    workerDispatcher: CoroutineDispatcher = Dispatchers.Default
+    mainDispatcher: CoroutineContext = Dispatchers.Main,
+    workerDispatcher: CoroutineContext = Dispatchers.Default,
 ) : RecyclerView.Adapter<VH>() {
+
+    /**
+     * Construct a [PagingDataAdapter].
+     *
+     * @param diffCallback Callback for calculating the diff between two non-disjoint lists on
+     * [REFRESH]. Used as a fallback for item-level diffing when Paging is unable to find a faster
+     * path for generating the UI events required to display the new list.
+     * @param mainDispatcher [CoroutineDispatcher] where UI events are dispatched. Typically,
+     * this should be [Dispatchers.Main].
+     */
+    @Deprecated(
+        message = "Superseded by constructors which accept CoroutineContext",
+        level = DeprecationLevel.HIDDEN
+    )
+    // Only for binary compatibility; cannot apply @JvmOverloads as the function signature would
+    // conflict with the primary constructor.
+    @Suppress("MissingJvmstatic")
+    constructor(
+        diffCallback: DiffUtil.ItemCallback<T>,
+        mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
+    ) : this(
+        diffCallback = diffCallback,
+        mainDispatcher = mainDispatcher,
+        workerDispatcher = Dispatchers.Default,
+    )
+
+    /**
+     * Construct a [PagingDataAdapter].
+     *
+     * @param diffCallback Callback for calculating the diff between two non-disjoint lists on
+     * [REFRESH]. Used as a fallback for item-level diffing when Paging is unable to find a faster
+     * path for generating the UI events required to display the new list.
+     * @param mainDispatcher [CoroutineDispatcher] where UI events are dispatched. Typically,
+     * this should be [Dispatchers.Main].
+     * @param workerDispatcher [CoroutineDispatcher] where the work to generate UI events is
+     * dispatched, for example when diffing lists on [REFRESH]. Typically, this should dispatch on a
+     * background thread; [Dispatchers.Default] by default.
+     */
+    @Deprecated(
+        message = "Superseded by constructors which accept CoroutineContext",
+        level = DeprecationLevel.HIDDEN
+    )
+    // Only for binary compatibility; cannot apply @JvmOverloads as the function signature would
+    // conflict with the primary constructor.
+    @Suppress("MissingJvmstatic")
+    constructor(
+        diffCallback: DiffUtil.ItemCallback<T>,
+        mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
+        workerDispatcher: CoroutineDispatcher = Dispatchers.Default,
+    ) : this(
+        diffCallback = diffCallback,
+        mainDispatcher = mainDispatcher,
+        workerDispatcher = workerDispatcher,
+    )
 
     /**
      * Track whether developer called [setStateRestorationPolicy] or not to decide whether the
@@ -228,6 +298,7 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder> @JvmOver
      * @param position Index of the presented item to return, including placeholders.
      * @return The presented item at [position], `null` if it is a placeholder
      */
+    @MainThread
     protected fun getItem(@IntRange(from = 0) position: Int) = differ.getItem(position)
 
     /**
@@ -237,6 +308,7 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder> @JvmOver
      * @param index Index of the presented item to return, including placeholders.
      * @return The presented item at position [index], `null` if it is a placeholder.
      */
+    @MainThread
     fun peek(@IntRange(from = 0) index: Int) = differ.peek(index)
 
     /**

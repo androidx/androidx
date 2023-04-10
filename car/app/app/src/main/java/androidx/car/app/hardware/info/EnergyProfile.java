@@ -20,13 +20,13 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarValue;
+import androidx.car.app.annotations.KeepFields;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -38,6 +38,7 @@ import java.util.Objects;
 /** Information about car hardware fuel profile such as fuel types and connector ports. */
 @CarProtocol
 @RequiresCarApi(3)
+@KeepFields
 public final class EnergyProfile {
 
     /**
@@ -186,11 +187,9 @@ public final class EnergyProfile {
     @FuelType
     public static final int FUEL_TYPE_OTHER = 12;
 
-    @Keep
     @NonNull
     private final CarValue<List<@EvConnectorType Integer>> mEvConnectorTypes;
 
-    @Keep
     @NonNull
     private final CarValue<List<@FuelType Integer>> mFuelTypes;
 
@@ -250,15 +249,15 @@ public final class EnergyProfile {
 
     /** Constructs an empty instance, used by serialization code. */
     private EnergyProfile() {
-        mEvConnectorTypes = CarValue.UNIMPLEMENTED_INTEGER_LIST;
-        mFuelTypes = CarValue.UNIMPLEMENTED_INTEGER_LIST;
+        mEvConnectorTypes = CarValue.UNKNOWN_INTEGER_LIST;
+        mFuelTypes = CarValue.UNKNOWN_INTEGER_LIST;
     }
 
     /** A builder of {@link EnergyProfile}. */
     public static final class Builder {
         CarValue<List<@EvConnectorType Integer>> mEvConnectorTypes =
-                CarValue.UNIMPLEMENTED_INTEGER_LIST;
-        CarValue<List<@FuelType Integer>> mFuelTypes = CarValue.UNIMPLEMENTED_INTEGER_LIST;
+                CarValue.UNKNOWN_INTEGER_LIST;
+        CarValue<List<@FuelType Integer>> mFuelTypes = CarValue.UNKNOWN_INTEGER_LIST;
 
         /**
          * Sets the cars EV connector types.

@@ -17,9 +17,7 @@
 package androidx.camera.extensions;
 
 
-import android.content.Context;
-import android.hardware.camera2.CameraCharacteristics;
-import android.util.Pair;
+import android.os.Build;
 import android.util.Range;
 import android.util.Size;
 
@@ -44,11 +42,8 @@ import androidx.camera.extensions.internal.ExtensionVersion;
 import androidx.camera.extensions.internal.ExtensionsUseCaseConfigFactory;
 import androidx.camera.extensions.internal.VendorExtender;
 import androidx.camera.extensions.internal.Version;
-import androidx.camera.extensions.internal.compat.workaround.ExtensionDisabledValidator;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A class for querying extensions related information.
@@ -64,8 +59,6 @@ import java.util.Map;
 final class ExtensionsInfo {
     private static final String EXTENDED_CAMERA_CONFIG_PROVIDER_ID_PREFIX = ":camera:camera"
             + "-extensions-";
-    private static final ExtensionDisabledValidator sExtensionDisabledValidator =
-            new ExtensionDisabledValidator();
     private final CameraProvider mCameraProvider;
 
     ExtensionsInfo(@NonNull CameraProvider cameraProvider) {
@@ -212,12 +205,13 @@ final class ExtensionsInfo {
                 vendorExtender.init(cameraInfo);
 
                 ExtensionsUseCaseConfigFactory factory = new
-                        ExtensionsUseCaseConfigFactory(mode, vendorExtender, context);
+                        ExtensionsUseCaseConfigFactory(mode, vendorExtender);
 
                 ExtensionsConfig.Builder builder = new ExtensionsConfig.Builder()
                         .setExtensionMode(mode)
                         .setUseCaseConfigFactory(factory)
                         .setCompatibilityId(id)
+                        .setZslDisabled(true)
                         .setUseCaseCombinationRequiredRule(
                                 CameraConfig.REQUIRED_RULE_COEXISTING_PREVIEW_AND_IMAGE_CAPTURE);
 
@@ -235,21 +229,14 @@ final class ExtensionsInfo {
     private static VendorExtender getVendorExtender(int mode) {
         boolean isAdvancedExtenderSupported = isAdvancedExtenderSupported();
 
-        // Disable Advanced Extender until it is well tested.
-        if (isAdvancedExtenderSupported) {
-            return new DisabledVendorExtender();
-        }
-
-        // Force disable extension for some devices by quirk.
-        if (sExtensionDisabledValidator.shouldDisableExtension(isAdvancedExtenderSupported)) {
-            return new DisabledVendorExtender();
-        }
-
         VendorExtender vendorExtender;
         if (isAdvancedExtenderSupported) {
             vendorExtender = new AdvancedVendorExtender(mode);
-        } else {
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             vendorExtender = new BasicVendorExtender(mode);
+        } else {
+            vendorExtender = new VendorExtender() {
+            };
         }
         return vendorExtender;
     }
@@ -287,48 +274,5 @@ final class ExtensionsInfo {
                 throw new IllegalArgumentException("Invalid extension mode!");
         }
         return id;
-    }
-
-    static class DisabledVendorExtender implements VendorExtender {
-        @Override
-        public boolean isExtensionAvailable(@NonNull String cameraId,
-                @NonNull Map<String, CameraCharacteristics> characteristicsMap) {
-            return false;
-        }
-
-        @Override
-        public void init(@NonNull CameraInfo cameraInfo) {
-
-        }
-
-        @Nullable
-        @Override
-        public Range<Long> getEstimatedCaptureLatencyRange(@Nullable Size size) {
-            return null;
-        }
-
-        @NonNull
-        @Override
-        public List<Pair<Integer, Size[]>> getSupportedPreviewOutputResolutions() {
-            return Collections.emptyList();
-        }
-
-        @NonNull
-        @Override
-        public List<Pair<Integer, Size[]>> getSupportedCaptureOutputResolutions() {
-            return Collections.emptyList();
-        }
-
-        @NonNull
-        @Override
-        public Size[] getSupportedYuvAnalysisResolutions() {
-            return new Size[0];
-        }
-
-        @Nullable
-        @Override
-        public SessionProcessor createSessionProcessor(@NonNull Context context) {
-            return null;
-        }
     }
 }

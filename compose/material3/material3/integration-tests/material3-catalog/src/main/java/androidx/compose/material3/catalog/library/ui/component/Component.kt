@@ -18,7 +18,12 @@ package androidx.compose.material3.catalog.library.ui.component
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -38,12 +43,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.insets.LocalWindowInsets
-import com.google.accompanist.insets.rememberInsetsPaddingValues
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun Component(
     component: Component,
@@ -52,6 +57,7 @@ fun Component(
     onExampleClick: (example: Example) -> Unit,
     onBackClick: () -> Unit
 ) {
+    val ltr = LocalLayoutDirection.current
     CatalogScaffold(
         topBarTitle = component.name,
         showBackNavigationIcon = true,
@@ -63,11 +69,12 @@ fun Component(
         onBackClick = onBackClick
     ) { paddingValues ->
         LazyColumn(
-            modifier = Modifier.padding(paddingValues),
-            contentPadding = rememberInsetsPaddingValues(
-                insets = LocalWindowInsets.current.navigationBars,
-                additionalStart = ComponentPadding,
-                additionalEnd = ComponentPadding
+            modifier = Modifier.consumeWindowInsets(paddingValues),
+            contentPadding = PaddingValues(
+                start = paddingValues.calculateStartPadding(ltr) + ComponentPadding,
+                top = paddingValues.calculateTopPadding() + ComponentPadding,
+                end = paddingValues.calculateEndPadding(ltr) + ComponentPadding,
+                bottom = paddingValues.calculateBottomPadding() + ComponentPadding
             )
         ) {
             item {

@@ -21,6 +21,7 @@ plugins {
 
 dependencies {
     implementation(project(":wear:wear"))
+    implementation(project(path: ":recyclerview:recyclerview"))
     implementation(project(path: ":appcompat:appcompat"))
 }
 
@@ -28,4 +29,5 @@ android {
     defaultConfig {
         minSdkVersion 24
     }
+    namespace "com.example.android.support.wear"
 }

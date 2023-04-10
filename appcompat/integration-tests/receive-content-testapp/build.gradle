@@ -23,6 +23,7 @@ android {
     defaultConfig {
         minSdkVersion 21
     }
+    namespace "androidx.appcompat.demo.receivecontent"
 }
 
 dependencies {
@@ -30,7 +31,7 @@ dependencies {
     implementation(project(":appcompat:appcompat"))
     implementation(libs.constraintLayout)
     implementation(libs.guavaAndroid)
-    implementation(project(":recyclerview:recyclerview"))
+    implementation(projectOrArtifact(":recyclerview:recyclerview"))
     implementation(libs.material)
 
     androidTestImplementation(libs.testCore)

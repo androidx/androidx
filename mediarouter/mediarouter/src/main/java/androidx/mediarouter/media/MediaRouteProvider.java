@@ -286,7 +286,7 @@ public abstract class MediaRouteProvider {
 
     /**
      * Called by the media router to obtain a route controller for a particular route which is a
-     * member of {@link MediaRouter.RouteGroup}.
+     * member of a route group.
      * <p>
      * The media router will invoke the {@link RouteController#onRelease} method of the route
      * controller when it is no longer needed to allow it to free its resources.
@@ -363,6 +363,7 @@ public abstract class MediaRouteProvider {
             return mComponentName;
         }
 
+        @NonNull
         @Override
         public String toString() {
             return "ProviderMetadata{ componentName="
@@ -601,6 +602,10 @@ public abstract class MediaRouteProvider {
          *                   the route controller.
          * @param dynamicRoutes The dynamic route descriptors for published routes.
          *                      At least a selected or selecting route should be included.
+         *
+         * @throws IllegalArgumentException Thrown when no dynamic route descriptors are {@link
+         * DynamicRouteDescriptor#SELECTED SELECTED} or {@link DynamicRouteDescriptor#SELECTING
+         * SELECTING}.
          */
         public final void notifyDynamicRoutesChanged(
                 @NonNull MediaRouteDescriptor groupRoute,
@@ -611,6 +616,23 @@ public abstract class MediaRouteProvider {
             if (dynamicRoutes == null) {
                 throw new NullPointerException("dynamicRoutes must not be null");
             }
+
+            boolean hasSelectedRoute = false;
+            for (DynamicRouteDescriptor route: dynamicRoutes) {
+                int state = route.getSelectionState();
+                if (state == DynamicRouteDescriptor.SELECTED
+                        || state == DynamicRouteDescriptor.SELECTING) {
+                    hasSelectedRoute = true;
+                    break;
+                }
+            }
+
+            if (!hasSelectedRoute) {
+                throw new IllegalArgumentException("dynamicRoutes must have at least one selected"
+                        + " or selecting route.");
+
+            }
+
             synchronized (mLock) {
                 if (mExecutor != null) {
                     final OnDynamicRoutesChangedListener listener = mListener;
@@ -767,8 +789,7 @@ public abstract class MediaRouteProvider {
              * Returns true if the route can be grouped into the dynamic group route.
              * <p>
              * Only applicable to unselected/unselecting routes.
-             * Note that {@link #isGroupable()} and {@link #isTransferable()} are NOT mutually
-             * exclusive.
+             * Note that this is NOT mutually exclusive with {@link #isTransferable()}.
              * </p>
              */
             public boolean isGroupable() {
@@ -779,8 +800,7 @@ public abstract class MediaRouteProvider {
              * Returns true if the current dynamic group route can be transferred to this route.
              * <p>
              * Only applicable to unselected/unselecting routes.
-             * Note that {@link #isGroupable()} and {@link #isTransferable()} are NOT mutually
-             * exclusive.
+             * Note that this is NOT mutually exclusive with {@link #isGroupable()}.
              * </p>
              */
             public boolean isTransferable() {

@@ -20,22 +20,26 @@ package androidx.lifecycle
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
+import androidx.arch.core.executor.ArchTaskExecutor
 import java.time.Duration
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Creates a LiveData that has values collected from the origin [Flow].
+ *
+ * If the origin [Flow] is a [StateFlow], then the initial value will be populated
+ * to the [LiveData]'s value field on the main thread.
  *
  * The upstream flow collection starts when the returned [LiveData] becomes active
  * ([LiveData.onActive]).
@@ -76,6 +80,15 @@ public fun <T> Flow<T>.asLiveData(
     collect {
         emit(it)
     }
+}.also { liveData ->
+    val flow = this
+    if (flow is StateFlow<T>) {
+        if (ArchTaskExecutor.getInstance().isMainThread) {
+            liveData.value = flow.value
+        } else {
+            liveData.postValue(flow.value)
+        }
+    }
 }
 
 /**
@@ -90,24 +103,20 @@ public fun <T> Flow<T>.asLiveData(
  * LiveData due to a slow collector, so collector always gets the most recent value emitted.
  */
 @OptIn(DelicateCoroutinesApi::class)
-public fun <T> LiveData<T>.asFlow(): Flow<T> = flow {
-    val channel = Channel<T>(Channel.CONFLATED)
+public fun <T> LiveData<T>.asFlow(): Flow<T> = callbackFlow {
     val observer = Observer<T> {
-        channel.trySend(it)
+        trySend(it)
     }
     withContext(Dispatchers.Main.immediate) {
         observeForever(observer)
     }
-    try {
-        for (value in channel) {
-            emit(value)
-        }
-    } finally {
+
+    awaitClose {
         GlobalScope.launch(Dispatchers.Main.immediate) {
             removeObserver(observer)
         }
     }
-}
+}.conflate()
 
 /**
  * Creates a LiveData that has values collected from the origin [Flow].
@@ -147,4 +156,4 @@ public fun <T> LiveData<T>.asFlow(): Flow<T> = flow {
 public fun <T> Flow<T>.asLiveData(
     context: CoroutineContext = EmptyCoroutineContext,
     timeout: Duration
-): LiveData<T> = asLiveData(context, timeout.toMillis())
+): LiveData<T> = asLiveData(context, Api26Impl.toMillis(timeout))

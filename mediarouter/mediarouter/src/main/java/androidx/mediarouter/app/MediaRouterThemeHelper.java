@@ -196,12 +196,11 @@ final class MediaRouterThemeHelper {
     }
 
     static TypedArray getStyledAttributes(Context context) {
-        TypedArray styledAttributes = context.obtainStyledAttributes(new int[] {
+        return context.obtainStyledAttributes(new int[]{
                 R.attr.mediaRouteDefaultIconDrawable,
                 R.attr.mediaRouteTvIconDrawable,
                 R.attr.mediaRouteSpeakerIconDrawable,
                 R.attr.mediaRouteSpeakerGroupIconDrawable});
-        return styledAttributes;
     }
 
     static void setDialogBackgroundColor(Context context, Dialog dialog) {

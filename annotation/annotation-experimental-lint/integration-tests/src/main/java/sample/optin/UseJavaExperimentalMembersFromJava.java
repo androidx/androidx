@@ -51,4 +51,14 @@ class UseJavaExperimentalMembersFromJava {
     int unsafeExperimentalStaticMethod() {
         return AnnotatedJavaMembers.methodStatic();
     }
+
+    /**
+     * Unsafe references to experimental properties.
+     */
+    void unsafePropertyUsage() {
+        new AnnotatedJavaMembers().field = -1;
+        int value = new AnnotatedJavaMembers().field;
+        new AnnotatedJavaMembers().setFieldWithSetMarker(-1);
+        int value2 = new AnnotatedJavaMembers().getFieldWithSetMarker(); // safe
+    }
 }

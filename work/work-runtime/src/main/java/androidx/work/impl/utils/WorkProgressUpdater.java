@@ -69,7 +69,7 @@ public class WorkProgressUpdater implements ProgressUpdater {
             @NonNull final UUID id,
             @NonNull final Data data) {
         final SettableFuture<Void> future = SettableFuture.create();
-        mTaskExecutor.executeOnBackgroundThread(new Runnable() {
+        mTaskExecutor.executeOnTaskThread(new Runnable() {
             @Override
             public void run() {
                 String workSpecId = id.toString();

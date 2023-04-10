@@ -144,8 +144,7 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
                 }
                 LibraryParams params = MediaUtils.convertToLibraryParams(
                         mLibrarySessionImpl.getContext(), option);
-                mLibrarySessionImpl.getCallback().onSubscribe(mLibrarySessionImpl.getInstance(),
-                        controller, id, params);
+                mLibrarySessionImpl.onSubscribeOnExecutor(controller, id, params);
             }
         });
     }
@@ -168,8 +167,7 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
                     }
                     return;
                 }
-                mLibrarySessionImpl.getCallback().onUnsubscribe(mLibrarySessionImpl.getInstance(),
-                                controller, id);
+                mLibrarySessionImpl.onUnsubscribeOnExecutor(controller, id);
             }
         });
     }

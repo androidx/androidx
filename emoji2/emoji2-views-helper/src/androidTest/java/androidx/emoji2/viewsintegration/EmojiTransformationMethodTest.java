@@ -30,12 +30,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.os.Build;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.method.TransformationMethod;
 import android.view.View;
 
+import androidx.annotation.RequiresApi;
 import androidx.emoji2.text.EmojiCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -47,6 +49,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 @SmallTest
+@RequiresApi(api = Build.VERSION_CODES.KITKAT)
 @RunWith(AndroidJUnit4.class)
 public class EmojiTransformationMethodTest {
 

@@ -17,18 +17,15 @@
 package com.example.android.support.wear.app;
 
 import android.app.Activity;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import com.example.android.support.wear.R;
 
 /**
  * Main activity for the RoundedDrawable demo.
  */
-@RequiresApi(Build.VERSION_CODES.N)
 public class RoundedDrawableDemo extends Activity {
 
     @Override

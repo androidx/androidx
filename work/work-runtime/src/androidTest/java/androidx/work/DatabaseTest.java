@@ -21,27 +21,34 @@ import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.model.WorkName;
 import androidx.work.impl.model.WorkTag;
 
+import com.google.common.truth.Truth;
+
 import org.junit.After;
 import org.junit.Before;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * An abstract class for getting an in-memory instance of the {@link WorkDatabase}.
  */
 public abstract class DatabaseTest extends WorkManagerTest {
     protected WorkDatabase mDatabase;
+    private final ExecutorService mQueryExecutor = Executors.newCachedThreadPool();
 
     @Before
     public void initializeDb() {
         mDatabase = WorkDatabase.create(
                 ApplicationProvider.getApplicationContext(),
-                Executors.newCachedThreadPool(),
+                mQueryExecutor,
                 true);
     }
 
     @After
-    public void closeDb() {
+    public void closeDb() throws InterruptedException {
+        mQueryExecutor.shutdown();
+        Truth.assertThat(mQueryExecutor.awaitTermination(3, TimeUnit.SECONDS)).isTrue();
         mDatabase.close();
     }
 

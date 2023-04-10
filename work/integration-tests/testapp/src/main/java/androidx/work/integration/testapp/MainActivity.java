@@ -54,6 +54,7 @@ import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 import androidx.work.impl.background.systemjob.SystemJobService;
 import androidx.work.impl.workers.ConstraintTrackingWorker;
+import androidx.work.impl.workers.ConstraintTrackingWorkerKt;
 import androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity;
 import androidx.work.integration.testapp.sherlockholmes.AnalyzeSherlockHolmesActivity;
 import androidx.work.multiprocess.RemoteWorkerService;
@@ -376,7 +377,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         Data inputData = new Data.Builder()
-                                .putString(ConstraintTrackingWorker.ARGUMENT_CLASS_NAME,
+                                .putString(ConstraintTrackingWorkerKt.ARGUMENT_CLASS_NAME,
                                         ForegroundWorker.class.getName())
                                 .build();
 
@@ -511,6 +512,26 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
+        findViewById(R.id.enqueue_periodic_work_multiprocess).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Context context = MainActivity.this;
+                        Intent intent = RemoteService.Companion
+                                .enqueueUniquePeriodicIntent(context);
+                        context.startService(intent);
+                    }
+                });
+
+        findViewById(R.id.update_periodic_work_multiprocess).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Context context = MainActivity.this;
+                        Intent intent = RemoteService.Companion.updateUniquePeriodicIntent(context);
+                        context.startService(intent);
+                    }
+                });
         findViewById(R.id.enqueue_remote_worker_1).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -547,6 +568,17 @@ public class MainActivity extends AppCompatActivity {
                 throw new RuntimeException("Crashed app");
             }
         });
+
+        findViewById(R.id.enqueue_infinite_work_charging).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        StressTest.queueLotsOfWorkers(
+                                WorkManager.getInstance(MainActivity.this)
+                        );
+                    }
+                });
+
 
         Button hundredJobExceptionButton = findViewById(R.id.create_hundred_job_exception);
         // 100 Job limits are only enforced on API 24+.

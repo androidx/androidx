@@ -30,6 +30,7 @@ import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.R;
 
@@ -234,7 +235,7 @@ class RoundRectDrawableWithShadow extends Drawable {
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
         if (mDirty) {
             buildComponents(getBounds());
             mDirty = false;

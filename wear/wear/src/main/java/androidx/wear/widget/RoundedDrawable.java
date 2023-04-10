@@ -245,7 +245,7 @@ public class RoundedDrawable extends Drawable {
     }
 
     @Override
-    public void setColorFilter(ColorFilter cf) {
+    public void setColorFilter(@Nullable ColorFilter cf) {
         mPaint.setColorFilter(cf);
     }
 

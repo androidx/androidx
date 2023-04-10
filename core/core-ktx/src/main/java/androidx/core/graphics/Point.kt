@@ -154,6 +154,34 @@ public inline operator fun Point.unaryMinus(): Point = Point(-x, -y)
 public inline operator fun PointF.unaryMinus(): PointF = PointF(-x, -y)
 
 /**
+ * Multiplies this point by the specified scalar value and returns the result as a new point.
+ */
+public inline operator fun Point.times(scalar: Float): Point {
+    return Point(Math.round(this.x * scalar), Math.round(this.y * scalar))
+}
+
+/**
+ * Multiplies this point by the specified scalar value and returns the result as a new point.
+ */
+public inline operator fun PointF.times(scalar: Float): PointF {
+    return PointF(this.x * scalar, this.y * scalar)
+}
+
+/**
+ * Divides this point by the specified scalar value and returns the result as a new point.
+ */
+public inline operator fun Point.div(scalar: Float): Point {
+    return Point(Math.round(this.x / scalar), Math.round(this.y / scalar))
+}
+
+/**
+ * Divides this point by the specified scalar value and returns the result as a new point.
+ */
+public inline operator fun PointF.div(scalar: Float): PointF {
+    return PointF(this.x / scalar, this.y / scalar)
+}
+
+/**
  * Returns a [PointF] representation of this point.
  */
 public inline fun Point.toPointF(): PointF = PointF(this)

@@ -19,9 +19,9 @@ import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.runtime.Composable
@@ -50,12 +50,12 @@ import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.toSize
 import androidx.test.platform.app.InstrumentationRegistry
-import org.junit.Assert
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import kotlin.math.abs
 import kotlin.math.round
+import org.junit.Assert
 
 /**
  * Constant to emulate very big but finite constraints
@@ -67,11 +67,11 @@ internal const val TEST_TAG = "test-item"
 
 fun ComposeContentTestRule.setContentWithTheme(
     modifier: Modifier = Modifier,
-    composable: @Composable () -> Unit
+    composable: @Composable BoxScope.() -> Unit
 ) {
     setContent {
         MaterialTheme {
-            Surface(modifier = modifier, content = composable)
+            Box(modifier = modifier, content = composable)
         }
     }
 }
@@ -84,16 +84,14 @@ fun ComposeContentTestRule.setContentWithThemeForSizeAssertions(
 ): SemanticsNodeInteraction {
     setContent {
         MaterialTheme {
-            Surface {
-                Box {
-                    Box(
-                        Modifier.sizeIn(
-                            maxWidth = parentMaxWidth,
-                            maxHeight = parentMaxHeight
-                        ).testTag("containerForSizeAssertion")
-                    ) {
-                        content()
-                    }
+            Box {
+                Box(
+                    Modifier.sizeIn(
+                        maxWidth = parentMaxWidth,
+                        maxHeight = parentMaxHeight
+                    ).testTag("containerForSizeAssertion")
+                ) {
+                    content()
                 }
             }
         }
@@ -155,6 +153,38 @@ fun ImageBitmap.assertContainsColor(expectedColor: Color, minPercent: Float = 50
         throw AssertionError(
             "Expected color $expectedColor found $actualPercent%, below threshold $minPercent%"
         )
+    }
+}
+
+/**
+ * Checks that [expectedColor]  is in the percentage [range] of an [ImageBitmap] color histogram
+ */
+fun ImageBitmap.assertColorInPercentageRange(
+    expectedColor: Color,
+    range: ClosedFloatingPointRange<Float> = 50.0f..100.0f
+) {
+    val histogram = histogram()
+    if (!histogram.containsKey(expectedColor)) {
+        throw AssertionError("Expected color $expectedColor was not found in the bitmap.")
+    }
+
+    ((histogram[expectedColor]!! * 100f) / (width * height)).let { actualPercent ->
+        if (actualPercent !in range) {
+            throw AssertionError(
+                "Expected color $expectedColor found " +
+                    "$actualPercent%, not in the percentage range $range"
+            )
+        }
+    }
+}
+
+/**
+ * Checks whether [expectedColor] does not exist in current [ImageBitmap]
+ */
+fun ImageBitmap.assertDoesNotContainColor(expectedColor: Color) {
+    val histogram = histogram()
+    if (histogram.containsKey(expectedColor)) {
+        throw AssertionError("Expected color $expectedColor exists in current bitmap")
     }
 }
 
@@ -312,3 +342,5 @@ private fun writeToDevice(
     }
     return file
 }
+
+class StableRef<T>(var value: T)

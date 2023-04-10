@@ -608,6 +608,7 @@ class ModifierInspectorInfoDetectorTest : LintDetectorTest() {
     @Test
     fun rememberModifierInfo() {
         lint().files(
+            Stubs.Composable,
             Stubs.Modifier,
             composedStub,
             Stubs.Remember,
@@ -647,6 +648,7 @@ class ModifierInspectorInfoDetectorTest : LintDetectorTest() {
     @Test
     fun emptyModifier() {
         lint().files(
+            Stubs.Composable,
             Stubs.Modifier,
             Stubs.Remember,
             composedStub,
@@ -1396,5 +1398,43 @@ class ModifierInspectorInfoDetectorTest : LintDetectorTest() {
                     1 errors, 0 warnings
                 """
             )
+    }
+
+    @Test
+    fun passInspectorInfoAtSecondLastParameter() {
+        lint().files(
+            Stubs.Modifier,
+            composedStub,
+            inspectableInfoStub,
+            kotlin(
+                """
+                package androidx.compose.ui
+
+                import androidx.compose.ui.Modifier
+                import androidx.compose.ui.platform.InspectorInfo
+                import androidx.compose.ui.platform.InspectorValueInfo
+                import androidx.compose.ui.platform.debugInspectorInfo
+
+                inline class Dp(val value: Float)
+
+                fun Modifier.width1(width: Dp, height: Dp) =
+                    this.then(SizeModifier1(width, inspectorInfo = debugInspectorInfo {
+                        name = "width1"
+                        properties["width"] = width
+                        properties["height"] = height
+                    }, height))
+
+                private class SizeModifier1(
+                    val width: Dp,
+                    inspectorInfo: InspectorInfo.() -> Unit,
+                    val height: Dp
+                ): Modifier.Element, InspectorValueInfo(inspectorInfo)
+
+                """
+            ).indented()
+        )
+            .testModes(TestMode.DEFAULT)
+            .run()
+            .expectClean()
     }
 }

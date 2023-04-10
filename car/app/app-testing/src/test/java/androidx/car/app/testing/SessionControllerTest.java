@@ -33,10 +33,12 @@ import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
@@ -44,6 +46,9 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class SessionControllerTest {
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
+
     private final Screen mScreen = new TestScreen();
 
     @Mock
@@ -56,7 +61,6 @@ public class SessionControllerTest {
 
     @Before
     public void setup() {
-        MockitoAnnotations.initMocks(this);
         mCarContext = TestCarContext.createCarContext(
                 ApplicationProvider.getApplicationContext());
         mIntent = new Intent().setComponent(new ComponentName(mCarContext,

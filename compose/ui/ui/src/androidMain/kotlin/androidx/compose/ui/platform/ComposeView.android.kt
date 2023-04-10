@@ -27,10 +27,12 @@ import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.InternalComposeUiApi
+import androidx.compose.ui.UiComposable
 import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.Owner
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.LifecycleOwner
 import java.lang.ref.WeakReference
 
 /**
@@ -38,13 +40,9 @@ import java.lang.ref.WeakReference
  * Subclasses should implement the [Content] function with the appropriate content.
  * Calls to [addView] and its variants and overloads will fail with [IllegalStateException].
  *
- * This [android.view.View] requires that the window it is attached to contains a
- * [ViewTreeLifecycleOwner]. This [androidx.lifecycle.LifecycleOwner] is used to
- * [dispose][androidx.compose.runtime.Composition.dispose] of the underlying composition
- * when the host [Lifecycle] is destroyed, permitting the view to be attached and
- * detached repeatedly while preserving the composition. Call [disposeComposition]
- * to dispose of the underlying composition earlier, or if the view is never initially
- * attached to a window. (The requirement to dispose of the composition explicitly
+ * By default, the composition is disposed according to [ViewCompositionStrategy.Default].
+ * Call [disposeComposition] to dispose of the underlying composition earlier, or if the view is
+ * never initially attached to a window. (The requirement to dispose of the composition explicitly
  * in the event that the view is never (re)attached is temporary.)
  */
 abstract class AbstractComposeView @JvmOverloads constructor(
@@ -124,11 +122,11 @@ abstract class AbstractComposeView @JvmOverloads constructor(
     // this particular ViewCompositionStrategy is not going to do something harmful with it.
     @Suppress("LeakingThis")
     private var disposeViewCompositionStrategy: (() -> Unit)? =
-        ViewCompositionStrategy.DisposeOnDetachedFromWindow.installFor(this)
+        ViewCompositionStrategy.Default.installFor(this)
 
     /**
      * Set the strategy for managing disposal of this View's internal composition.
-     * Defaults to [ViewCompositionStrategy.DisposeOnDetachedFromWindow].
+     * Defaults to [ViewCompositionStrategy.Default].
      *
      * This View's composition is a live resource that must be disposed to ensure that
      * long-lived references to it do not persist
@@ -174,12 +172,14 @@ abstract class AbstractComposeView @JvmOverloads constructor(
      * whichever comes first.
      */
     @Composable
+    @UiComposable
     abstract fun Content()
 
     /**
      * Perform initial composition for this view.
      * Once this method is called or the view becomes attached to a window,
-     * either [disposeComposition] must be called or the [ViewTreeLifecycleOwner] must
+     * either [disposeComposition] must be called or the
+     * [LifecycleOwner] returned by [findViewTreeLifecycleOwner] must
      * reach the [Lifecycle.State.DESTROYED] state for the composition to be cleaned up
      * properly. (This restriction is temporary.)
      *
@@ -335,6 +335,28 @@ abstract class AbstractComposeView @JvmOverloads constructor(
         getChildAt(0)?.layoutDirection = layoutDirection
     }
 
+    // Transition group handling:
+    // Both the framework and androidx transition APIs use isTransitionGroup as a signal for
+    // determining view properties to capture during a transition. As AbstractComposeView uses
+    // a view subhierarchy to perform its work but operates as a single unit, mark instances as
+    // transition groups by default.
+    // This is implemented as overridden methods instead of setting isTransitionGroup = true in
+    // the constructor so that values set explicitly by xml inflation performed by the ViewGroup
+    // constructor will take precedence. As of this writing all known framework implementations
+    // use the public isTransitionGroup method rather than checking the internal ViewGroup flag
+    // to determine behavior, making this implementation a slight compatibility risk for a
+    // tradeoff of cleaner View-consumer API behavior without the overhead of performing an
+    // additional obtainStyledAttributes call to determine a value potentially overridden from xml.
+
+    private var isTransitionGroupSet = false
+
+    override fun isTransitionGroup(): Boolean = !isTransitionGroupSet || super.isTransitionGroup()
+
+    override fun setTransitionGroup(isTransitionGroup: Boolean) {
+        super.setTransitionGroup(isTransitionGroup)
+        isTransitionGroupSet = true
+    }
+
     // Below: enforce restrictions on adding child views to this ViewGroup
 
     override fun addView(child: View?) {
@@ -384,13 +406,9 @@ abstract class AbstractComposeView @JvmOverloads constructor(
  * A [android.view.View] that can host Jetpack Compose UI content.
  * Use [setContent] to supply the content composable function for the view.
  *
- * This [android.view.View] requires that the window it is attached to contains a
- * [ViewTreeLifecycleOwner]. This [androidx.lifecycle.LifecycleOwner] is used to
- * [dispose][androidx.compose.runtime.Composition.dispose] of the underlying composition
- * when the host [Lifecycle] is destroyed, permitting the view to be attached and
- * detached repeatedly while preserving the composition. Call [disposeComposition]
- * to dispose of the underlying composition earlier, or if the view is never initially
- * attached to a window. (The requirement to dispose of the composition explicitly
+ * By default, the composition is disposed according to [ViewCompositionStrategy.Default].
+ * Call [disposeComposition] to dispose of the underlying composition earlier, or if the view is
+ * never initially attached to a window. (The requirement to dispose of the composition explicitly
  * in the event that the view is never (re)attached is temporary.)
  */
 class ComposeView @JvmOverloads constructor(

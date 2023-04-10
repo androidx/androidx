@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.CaptureResult;
 import android.view.Surface;
 
 import java.util.Map;
@@ -55,6 +56,8 @@ import java.util.Map;
  *
  * (6) {@link #deInitSession}: called when CameraCaptureSession is closed.
  * </pre>
+ *
+ * @since 1.2
  */
 @SuppressLint("UnknownNullness")
 public interface SessionProcessorImpl {
@@ -121,6 +124,22 @@ public interface SessionProcessorImpl {
      * supported. Setting a value to null explicitly un-sets the value.
      */
     void setParameters(Map<CaptureRequest.Key<?>, Object> parameters);
+
+    /**
+     * CameraX / Camera2 will call this interface in response to client requests involving
+     * the output preview surface. Typical examples include requests that include AF/AE triggers.
+     * Extensions can disregard any capture request keys that were not advertised in
+     * {@link AdvancedExtenderImpl#getAvailableCaptureRequestKeys}.
+     *
+     * @param triggers Capture request key value map.
+     * @param callback a callback to report the status.
+     * @return the id of the capture sequence.
+     *
+     * @throws IllegalArgumentException If there are no valid settings that can be applied
+     *
+     * @since 1.3
+     */
+    int startTrigger(Map<CaptureRequest.Key<?>, Object> triggers, CaptureCallback callback);
 
     /**
      * This will be invoked once after the {@link android.hardware.camera2.CameraCaptureSession}
@@ -235,5 +254,32 @@ public interface SessionProcessorImpl {
          * @param captureSequenceId id of the current capture sequence
          */
         void onCaptureSequenceAborted(int captureSequenceId);
+
+        /**
+         * Capture result callback that needs to be called when the process capture results are
+         * ready as part of frame post-processing.
+         *
+         * This callback will fire after {@link #onCaptureStarted}, {@link #onCaptureProcessStarted}
+         * and before {@link #onCaptureSequenceCompleted}. The callback is not expected to fire
+         * in case of capture failure  {@link #onCaptureFailed} or capture abort
+         * {@link #onCaptureSequenceAborted}.
+         *
+         * @param timestamp            The timestamp at start of capture. The same timestamp value
+         *                             passed to {@link #onCaptureStarted}.
+         * @param captureSequenceId    the capture id of the request that generated the capture
+         *                             results. This is the return value of either
+         *                             {@link #startRepeating} or {@link #startCapture}.
+         * @param result               Map containing the supported capture results. Do note
+         *                             that if results 'android.jpeg.quality' and
+         *                             'android.jpeg.orientation' are present in the process
+         *                             capture input results, then the values must also be passed
+         *                             as part of this callback. Both Camera2 and CameraX guarantee
+         *                             that those two settings and results are always supported and
+         *                             applied by the corresponding framework.
+         *
+         * @since 1.3
+         */
+        void onCaptureCompleted(long timestamp, int captureSequenceId,
+                Map<CaptureResult.Key, Object> result);
     }
 }

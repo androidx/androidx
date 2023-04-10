@@ -93,7 +93,7 @@ public class NotesAppSearchManager implements Closeable {
             PutDocumentsRequest request = new PutDocumentsRequest.Builder().addDocuments(notes)
                     .build();
             return Futures.transformAsync(mAppSearchSessionFuture,
-                    session -> session.put(request), mExecutor);
+                    session -> session.putAsync(request), mExecutor);
         } catch (Exception e) {
             return Futures.immediateFailedFuture(e);
         }
@@ -112,7 +112,7 @@ public class NotesAppSearchManager implements Closeable {
     }
 
     private ListenableFuture<AppSearchSession> createLocalSession() {
-        return LocalStorage.createSearchSession(
+        return LocalStorage.createSearchSessionAsync(
                 new LocalStorage.SearchContext.Builder(mContext, DB_NAME)
                         .build()
         );
@@ -122,7 +122,7 @@ public class NotesAppSearchManager implements Closeable {
         SetSchemaRequest request =
                 new SetSchemaRequest.Builder().setForceOverride(FORCE_OVERRIDE).build();
         return Futures.transformAsync(mAppSearchSessionFuture,
-                session -> session.setSchema(request),
+                session -> session.setSchemaAsync(request),
                 mExecutor);
     }
 
@@ -131,7 +131,7 @@ public class NotesAppSearchManager implements Closeable {
             SetSchemaRequest request = new SetSchemaRequest.Builder().addDocumentClasses(Note.class)
                     .build();
             return Futures.transformAsync(mAppSearchSessionFuture,
-                    session -> session.setSchema(request), mExecutor);
+                    session -> session.setSchemaAsync(request), mExecutor);
         } catch (AppSearchException e) {
             return Futures.immediateFailedFuture(e);
         }

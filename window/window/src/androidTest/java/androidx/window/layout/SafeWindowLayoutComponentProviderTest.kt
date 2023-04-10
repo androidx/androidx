@@ -16,6 +16,7 @@
 
 package androidx.window.layout
 
+import androidx.window.core.ConsumerAdapter
 import androidx.window.extensions.WindowExtensionsProvider
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -34,7 +35,10 @@ class SafeWindowLayoutComponentProviderTest {
      */
     @Test
     fun windowLayoutComponentIsAvailable_ifProviderIsAvailable() {
-        val safeComponent = SafeWindowLayoutComponentProvider.windowLayoutComponent
+        val loader = SafeWindowLayoutComponentProviderTest::class.java.classLoader!!
+        val consumerAdapter = ConsumerAdapter(loader)
+        val safeComponent = SafeWindowLayoutComponentProvider(loader, consumerAdapter)
+            .windowLayoutComponent
 
         try {
             val extensions = WindowExtensionsProvider.getWindowExtensions()

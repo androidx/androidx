@@ -15,11 +15,11 @@
  */
 package androidx.room.processor
 
-import androidx.room.ext.isEntityElement
 import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.ext.isEntityElement
 import androidx.room.vo.Entity
 import androidx.room.vo.Pojo
 import androidx.room.vo.ShortcutEntity
@@ -44,7 +44,15 @@ class ShortcutMethodProcessor(
         return annotation
     }
 
-    fun extractReturnType() = delegate.extractReturnType()
+    fun extractReturnType(): XType {
+        val returnType = delegate.extractReturnType()
+        context.checker.check(
+            !delegate.isSuspendAndReturnsDeferredType(),
+            executableElement,
+            ProcessorErrors.suspendReturnsDeferredType(returnType.rawType.typeName.toString())
+        )
+        return returnType
+    }
 
     fun extractParams(
         targetEntityType: XType?,
@@ -113,7 +121,7 @@ class ShortcutMethodProcessor(
                     context.logger.e(
                         targetEntity.element,
                         ProcessorErrors.shortcutMethodArgumentMustBeAClass(
-                            typeName = param.pojoType.typeName
+                            typeName = param.pojoType.asTypeName().toString(context.codeLanguage)
                         )
                     )
                     null
@@ -130,7 +138,7 @@ class ShortcutMethodProcessor(
                                 context.logger.e(
                                     it.element,
                                     ProcessorErrors.cannotFindAsEntityField(
-                                        targetEntity.typeName.toString()
+                                        targetEntity.typeName.toString(context.codeLanguage)
                                     )
 
                                 )
@@ -148,7 +156,7 @@ class ShortcutMethodProcessor(
                             context.logger.e(
                                 executableElement,
                                 ProcessorErrors.noColumnsInPartialEntity(
-                                    partialEntityName = pojo.typeName.toString()
+                                    partialEntityName = pojo.typeName.toString(context.codeLanguage)
                                 )
                             )
                         }
@@ -199,6 +207,11 @@ class ShortcutMethodProcessor(
         returnType: XType,
         params: List<ShortcutQueryParameter>
     ) = delegate.findInsertMethodBinder(returnType, params)
+
+    fun findUpsertMethodBinder(
+        returnType: XType,
+        params: List<ShortcutQueryParameter>
+    ) = delegate.findUpsertMethodBinder(returnType, params)
 
     fun findDeleteOrUpdateMethodBinder(returnType: XType) =
         delegate.findDeleteOrUpdateMethodBinder(returnType)

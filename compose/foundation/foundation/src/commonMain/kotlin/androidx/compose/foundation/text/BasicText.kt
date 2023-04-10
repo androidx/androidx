@@ -28,7 +28,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalFontLoader
+import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
@@ -52,7 +52,9 @@ import androidx.compose.ui.text.style.TextOverflow
  * [overflow] and TextAlign may have unexpected effects.
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if
  * necessary. If the text exceeds the given number of lines, it will be truncated according to
- * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
+ * [overflow] and [softWrap]. It is required that 1 <= [minLines] <= [maxLines].
+ * @param minLines The minimum height in terms of minimum number of visible lines. It is required
+ * that 1 <= [minLines] <= [maxLines].
  */
 @OptIn(InternalFoundationTextApi::class)
 @Composable
@@ -64,16 +66,21 @@ fun BasicText(
     overflow: TextOverflow = TextOverflow.Clip,
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
+    minLines: Int = 1
 ) {
     // NOTE(text-perf-review): consider precomputing layout here by pushing text to a channel...
     // something like:
     // remember(text) { precomputeTextLayout(text) }
-    require(maxLines > 0) { "maxLines should be greater than 0" }
+
+    // Unlike text field for which validation happens inside the 'heightInLines' modifier, in text
+    // 'maxLines' are not handled by the modifier but instead passed to the StaticLayout, therefore
+    // we perform validation here
+    validateMinMaxLines(minLines, maxLines)
 
     // selection registrar, if no SelectionContainer is added ambient value will be null
     val selectionRegistrar = LocalSelectionRegistrar.current
     val density = LocalDensity.current
-    val resourceLoader = LocalFontLoader.current
+    val fontFamilyResolver = LocalFontFamilyResolver.current
 
     // The ID used to identify this CoreText. If this CoreText is removed from the composition
     // tree and then added back, this ID should stay the same.
@@ -85,10 +92,13 @@ fun BasicText(
 
     // NOTE(text-perf-review): potential bug. selectableId is regenerated here whenever text
     // changes, but it is only saved in the initial creation of TextState.
-    val selectableId =
+    val selectableId = if (selectionRegistrar == null) {
+        SelectionRegistrar.InvalidSelectableId
+    } else {
         rememberSaveable(text, selectionRegistrar, saver = selectionIdSaver(selectionRegistrar)) {
-            selectionRegistrar?.nextSelectableId() ?: SelectionRegistrar.InvalidSelectableId
+            selectionRegistrar.nextSelectableId()
         }
+    }
 
     val controller = remember {
         TextController(
@@ -98,9 +108,10 @@ fun BasicText(
                     style = style,
                     density = density,
                     softWrap = softWrap,
-                    resourceLoader = resourceLoader,
+                    fontFamilyResolver = fontFamilyResolver,
                     overflow = overflow,
                     maxLines = maxLines,
+                    minLines = minLines,
                 ),
                 selectableId
             )
@@ -108,15 +119,18 @@ fun BasicText(
     }
     val state = controller.state
     if (!currentComposer.inserting) {
-        state.textDelegate = updateTextDelegate(
-            current = state.textDelegate,
-            text = text,
-            style = style,
-            density = density,
-            softWrap = softWrap,
-            resourceLoader = resourceLoader,
-            overflow = overflow,
-            maxLines = maxLines,
+        controller.setTextDelegate(
+            updateTextDelegate(
+                current = state.textDelegate,
+                text = text,
+                style = style,
+                density = density,
+                softWrap = softWrap,
+                fontFamilyResolver = fontFamilyResolver,
+                overflow = overflow,
+                maxLines = maxLines,
+                minLines = minLines,
+            )
         )
     }
     state.onTextLayout = onTextLayout
@@ -125,7 +139,7 @@ fun BasicText(
         state.selectionBackgroundColor = LocalTextSelectionColors.current.backgroundColor
     }
 
-    Layout(modifier.then(controller.modifiers), controller.measurePolicy)
+    Layout(modifier = modifier.then(controller.modifiers), measurePolicy = controller.measurePolicy)
 }
 
 /**
@@ -146,7 +160,9 @@ fun BasicText(
  * [overflow] and TextAlign may have unexpected effects.
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if
  * necessary. If the text exceeds the given number of lines, it will be truncated according to
- * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
+ * [overflow] and [softWrap]. It is required that 1 <= [minLines] <= [maxLines].
+ * @param minLines The minimum height in terms of minimum number of visible lines. It is required
+ * that 1 <= [minLines] <= [maxLines].
  * @param inlineContent A map store composables that replaces certain ranges of the text. It's
  * used to insert composables into text layout. Check [InlineTextContent] for more information.
  */
@@ -160,14 +176,18 @@ fun BasicText(
     overflow: TextOverflow = TextOverflow.Clip,
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
-    inlineContent: Map<String, InlineTextContent> = mapOf(),
+    minLines: Int = 1,
+    inlineContent: Map<String, InlineTextContent> = mapOf()
 ) {
-    require(maxLines > 0) { "maxLines should be greater than 0" }
+    // Unlike text field for which validation happens inside the 'heightInLines' modifier, in text
+    // 'maxLines' are not handled by the modifier but instead passed to the StaticLayout, therefore
+    // we perform validation here
+    validateMinMaxLines(minLines, maxLines)
 
     // selection registrar, if no SelectionContainer is added ambient value will be null
     val selectionRegistrar = LocalSelectionRegistrar.current
     val density = LocalDensity.current
-    val resourceLoader = LocalFontLoader.current
+    val fontFamilyResolver = LocalFontFamilyResolver.current
     val selectionBackgroundColor = LocalTextSelectionColors.current.backgroundColor
 
     val (placeholders, inlineComposables) = resolveInlineContent(text, inlineContent)
@@ -182,10 +202,13 @@ fun BasicText(
 
     // NOTE(text-perf-review): potential bug. selectableId is regenerated here whenever text
     // changes, but it is only saved in the initial creation of TextState.
-    val selectableId =
+    val selectableId = if (selectionRegistrar == null) {
+        SelectionRegistrar.InvalidSelectableId
+    } else {
         rememberSaveable(text, selectionRegistrar, saver = selectionIdSaver(selectionRegistrar)) {
-            selectionRegistrar?.nextSelectableId() ?: SelectionRegistrar.InvalidSelectableId
+            selectionRegistrar.nextSelectableId()
         }
+    }
 
     val controller = remember {
         TextController(
@@ -195,8 +218,9 @@ fun BasicText(
                     style = style,
                     density = density,
                     softWrap = softWrap,
-                    resourceLoader = resourceLoader,
+                    fontFamilyResolver = fontFamilyResolver,
                     overflow = overflow,
+                    minLines = minLines,
                     maxLines = maxLines,
                     placeholders = placeholders
                 ),
@@ -206,16 +230,19 @@ fun BasicText(
     }
     val state = controller.state
     if (!currentComposer.inserting) {
-        state.textDelegate = updateTextDelegate(
-            current = state.textDelegate,
-            text = text,
-            style = style,
-            density = density,
-            softWrap = softWrap,
-            resourceLoader = resourceLoader,
-            overflow = overflow,
-            maxLines = maxLines,
-            placeholders = placeholders,
+        controller.setTextDelegate(
+            updateTextDelegate(
+                current = state.textDelegate,
+                text = text,
+                style = style,
+                density = density,
+                softWrap = softWrap,
+                fontFamilyResolver = fontFamilyResolver,
+                overflow = overflow,
+                maxLines = maxLines,
+                minLines = minLines,
+                placeholders = placeholders,
+            )
         )
     }
     state.onTextLayout = onTextLayout
@@ -231,6 +258,54 @@ fun BasicText(
         },
         modifier = modifier.then(controller.modifiers),
         measurePolicy = controller.measurePolicy
+    )
+}
+
+@Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+@Composable
+fun BasicText(
+    text: String,
+    modifier: Modifier = Modifier,
+    style: TextStyle = TextStyle.Default,
+    onTextLayout: (TextLayoutResult) -> Unit = {},
+    overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
+    maxLines: Int = Int.MAX_VALUE
+) {
+    BasicText(
+        text = text,
+        modifier = modifier,
+        style = style,
+        onTextLayout = onTextLayout,
+        overflow = overflow,
+        softWrap = softWrap,
+        minLines = 1,
+        maxLines = maxLines
+    )
+}
+
+@Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+@Composable
+fun BasicText(
+    text: AnnotatedString,
+    modifier: Modifier = Modifier,
+    style: TextStyle = TextStyle.Default,
+    onTextLayout: (TextLayoutResult) -> Unit = {},
+    overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
+    maxLines: Int = Int.MAX_VALUE,
+    inlineContent: Map<String, InlineTextContent> = mapOf(),
+) {
+    BasicText(
+        text = text,
+        modifier = modifier,
+        style = style,
+        onTextLayout = onTextLayout,
+        overflow = overflow,
+        softWrap = softWrap,
+        minLines = 1,
+        maxLines = maxLines,
+        inlineContent = inlineContent
     )
 }
 

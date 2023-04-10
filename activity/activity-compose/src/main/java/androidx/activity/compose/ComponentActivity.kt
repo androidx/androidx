@@ -21,9 +21,12 @@ import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.ui.platform.ComposeView
-import androidx.lifecycle.ViewTreeLifecycleOwner
-import androidx.lifecycle.ViewTreeViewModelStoreOwner
-import androidx.savedstate.ViewTreeSavedStateRegistryOwner
+import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.lifecycle.findViewTreeViewModelStoreOwner
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeViewModelStoreOwner
+import androidx.savedstate.findViewTreeSavedStateRegistryOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 
 /**
  * Composes the given composable into the given activity. The [content] will become the root view
@@ -79,13 +82,13 @@ private val DefaultActivityContentLayoutParams = ViewGroup.LayoutParams(
  */
 private fun ComponentActivity.setOwners() {
     val decorView = window.decorView
-    if (ViewTreeLifecycleOwner.get(decorView) == null) {
-        ViewTreeLifecycleOwner.set(decorView, this)
+    if (decorView.findViewTreeLifecycleOwner() == null) {
+        decorView.setViewTreeLifecycleOwner(this)
     }
-    if (ViewTreeViewModelStoreOwner.get(decorView) == null) {
-        ViewTreeViewModelStoreOwner.set(decorView, this)
+    if (decorView.findViewTreeViewModelStoreOwner() == null) {
+        decorView.setViewTreeViewModelStoreOwner(this)
     }
-    if (ViewTreeSavedStateRegistryOwner.get(decorView) == null) {
-        ViewTreeSavedStateRegistryOwner.set(decorView, this)
+    if (decorView.findViewTreeSavedStateRegistryOwner() == null) {
+        decorView.setViewTreeSavedStateRegistryOwner(this)
     }
 }

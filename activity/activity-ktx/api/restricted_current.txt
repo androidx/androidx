@@ -2,11 +2,8 @@
 package androidx.activity {
 
   public final class ActivityViewModelLazyKt {
-    method @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<? extends VM>! viewModels(androidx.activity.ComponentActivity, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer);
-  }
-
-  public final class OnBackPressedDispatcherKt {
-    method public static androidx.activity.OnBackPressedCallback addCallback(androidx.activity.OnBackPressedDispatcher, optional androidx.lifecycle.LifecycleOwner? owner, optional boolean enabled, kotlin.jvm.functions.Function1<? super androidx.activity.OnBackPressedCallback,kotlin.Unit> onBackPressed);
+    method @Deprecated @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<? extends VM> viewModels(androidx.activity.ComponentActivity, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer);
+    method @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<? extends VM> viewModels(androidx.activity.ComponentActivity, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.viewmodel.CreationExtras>? extrasProducer, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer);
   }
 
   public final class PipHintTrackerKt {
@@ -17,7 +14,7 @@ package androidx.activity {
 package androidx.activity.contextaware {
 
   public final class ContextAwareKt {
-    method public static suspend inline <R> Object? withContextAvailable(androidx.activity.contextaware.ContextAware, kotlin.jvm.functions.Function1<? super android.content.Context,? extends R> onContextAvailable, kotlin.coroutines.Continuation<? super R> p);
+    method public static suspend inline <R> Object? withContextAvailable(androidx.activity.contextaware.ContextAware, kotlin.jvm.functions.Function1<? super android.content.Context,? extends R> onContextAvailable, kotlin.coroutines.Continuation<? super R>);
   }
 
 }

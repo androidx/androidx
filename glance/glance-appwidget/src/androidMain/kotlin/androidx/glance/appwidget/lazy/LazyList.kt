@@ -16,8 +16,8 @@
 
 package androidx.glance.appwidget.lazy
 
-import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
+import androidx.glance.Emittable
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
@@ -36,7 +36,7 @@ import androidx.glance.layout.wrapContentHeight
  */
 // TODO(b/198618359): interaction handling
 @Composable
-public fun LazyColumn(
+fun LazyColumn(
     modifier: GlanceModifier = GlanceModifier,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     content: LazyListScope.() -> Unit
@@ -58,7 +58,6 @@ private fun applyListScope(
     alignment: Alignment,
     content: LazyListScope.() -> Unit
 ): @Composable () -> Unit {
-    var nextImplicitItemId = ReservedItemIdRangeEnd
     val itemList = mutableListOf<Pair<Long?, @Composable LazyItemScope.() -> Unit>>()
     val listScopeImpl = object : LazyListScope {
         override fun item(itemId: Long, content: @Composable LazyItemScope.() -> Unit) {
@@ -83,8 +82,9 @@ private fun applyListScope(
     }
     listScopeImpl.apply(content)
     return {
-        itemList.forEach { (itemId, composable) ->
-            val id = itemId.takeIf { it != LazyListScope.UnspecifiedItemId } ?: nextImplicitItemId--
+        itemList.forEachIndexed { index, (itemId, composable) ->
+            val id = itemId.takeIf { it != LazyListScope.UnspecifiedItemId }
+                ?: (ReservedItemIdRangeEnd - index)
             check(id != LazyListScope.UnspecifiedItemId) { "Implicit list item ids exhausted." }
             LazyListItem(id, alignment) {
                 object : LazyItemScope { }.apply { composable() }
@@ -113,7 +113,6 @@ private fun LazyListItem(
  * Values between -2^63 and -2^62 are reserved for list items whose id has not been explicitly
  * defined.
  */
-@VisibleForTesting
 internal const val ReservedItemIdRangeEnd = -0x4_000_000_000_000_000L
 
 @DslMarker
@@ -125,6 +124,7 @@ annotation class LazyScopeMarker
 @LazyScopeMarker
 interface LazyItemScope
 
+@JvmDefaultWithCompatibility
 /**
  * Receiver scope which is used by [LazyColumn].
  */
@@ -237,7 +237,7 @@ inline fun <T> LazyListScope.itemsIndexed(
 
 internal abstract class EmittableLazyList : EmittableWithChildren(resetsDepthForChildren = true) {
     override var modifier: GlanceModifier = GlanceModifier
-    public var horizontalAlignment: Alignment.Horizontal = Alignment.Start
+    var horizontalAlignment: Alignment.Horizontal = Alignment.Start
 
     override fun toString() =
         "EmittableLazyList(modifier=$modifier, horizontalAlignment=$horizontalAlignment, " +
@@ -254,9 +254,21 @@ internal class EmittableLazyListItem : EmittableWithChildren() {
     var itemId: Long = 0
     var alignment: Alignment = Alignment.CenterStart
 
+    override fun copy(): Emittable = EmittableLazyListItem().also {
+        it.itemId = itemId
+        it.alignment = alignment
+        it.children.addAll(children.map { it.copy() })
+    }
+
     override fun toString() =
         "EmittableLazyListItem(modifier=$modifier, alignment=$alignment, " +
             "children=[\n${childrenToString()}\n])"
 }
 
-internal class EmittableLazyColumn : EmittableLazyList()
+internal class EmittableLazyColumn : EmittableLazyList() {
+    override fun copy(): Emittable = EmittableLazyColumn().also {
+        it.modifier = modifier
+        it.horizontalAlignment = horizontalAlignment
+        it.children.addAll(children.map { it.copy() })
+    }
+}

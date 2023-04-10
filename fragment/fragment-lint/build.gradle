@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 
 plugins {
@@ -25,7 +24,7 @@ plugins {
 dependencies {
     compileOnly(libs.androidLintMinApi)
     compileOnly(libs.kotlinStdlib)
-    compileOnly(libs.androidLintChecks)
+    compileOnly(libs.androidLintChecksMin)
 
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.kotlinReflect)
@@ -39,7 +38,6 @@ dependencies {
 androidx {
     name = "Android Fragment Lint Checks"
     type = LibraryType.LINT
-    mavenGroup = LibraryGroups.FRAGMENT
     inceptionYear = "2019"
     description = "Android Fragment Lint Checks"
 }

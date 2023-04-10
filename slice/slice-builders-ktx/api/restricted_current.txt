@@ -34,7 +34,7 @@ package androidx.slice.builders {
     method public static inline androidx.slice.builders.ListBuilder range(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.RangeBuilderDsl,kotlin.Unit> buildRange);
     method public static inline androidx.slice.builders.ListBuilder row(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.RowBuilderDsl,kotlin.Unit> buildRow);
     method public static inline androidx.slice.builders.ListBuilder seeMoreRow(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.RowBuilderDsl,kotlin.Unit> buildRow);
-    method public static androidx.slice.builders.SliceAction tapSliceAction(android.app.PendingIntent pendingIntent, androidx.core.graphics.drawable.IconCompat icon, optional @androidx.slice.builders.ListBuilder.ImageMode int imageMode, CharSequence title);
+    method public static androidx.slice.builders.SliceAction tapSliceAction(android.app.PendingIntent pendingIntent, androidx.core.graphics.drawable.IconCompat icon, optional int imageMode, CharSequence title);
     method public static androidx.slice.builders.SliceAction toggleSliceAction(android.app.PendingIntent pendingIntent, optional androidx.core.graphics.drawable.IconCompat? icon, CharSequence title, boolean isChecked);
   }
 

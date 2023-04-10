@@ -19,6 +19,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.leanback.R;
 
 /**
@@ -46,6 +48,7 @@ class MediaItemActionPresenter extends Presenter {
         }
     }
 
+    @NonNull
     @Override
     public Presenter.ViewHolder onCreateViewHolder(ViewGroup parent) {
         Context context = parent.getContext();
@@ -55,13 +58,13 @@ class MediaItemActionPresenter extends Presenter {
     }
 
     @Override
-    public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
+    public void onBindViewHolder(@NonNull Presenter.ViewHolder viewHolder, @Nullable Object item) {
         ViewHolder actionViewHolder = (ViewHolder) viewHolder;
         MultiActionsProvider.MultiAction action = (MultiActionsProvider.MultiAction) item;
         actionViewHolder.getIcon().setImageDrawable(action.getCurrentDrawable());
     }
 
     @Override
-    public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
+    public void onUnbindViewHolder(@NonNull Presenter.ViewHolder viewHolder) {
     }
 }

@@ -17,6 +17,7 @@
 package androidx.wear.watchface.editor
 
 import android.os.IBinder
+import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.IndentingPrintWriter
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
@@ -37,6 +38,8 @@ public class EditorService : IEditorService.Stub() {
     public companion object {
         /** [EditorService] singleton. */
         public val globalEditorService: EditorService by lazy { EditorService() }
+
+        internal const val TAG = "EditorService"
     }
 
     public override fun getApiVersion(): Int = API_VERSION
@@ -45,7 +48,14 @@ public class EditorService : IEditorService.Stub() {
         synchronized(lock) {
             val id = nextId++
             observers[id] = observer
-            val deathObserver = IBinder.DeathRecipient { unregisterObserver(id) }
+            val deathObserver = IBinder.DeathRecipient {
+                Log.w(TAG, "observer died, closing editor")
+                // If SysUI dies we should close the editor too, otherwise the watchface could get
+                // left in an inconsistent state where it has local edits that were not persisted by
+                // the system.
+                closeEditor()
+                unregisterObserver(id)
+            }
             observer.asBinder().linkToDeath(deathObserver, 0)
             deathObservers[id] = deathObserver
             return id
@@ -55,7 +65,12 @@ public class EditorService : IEditorService.Stub() {
     override fun unregisterObserver(observerId: Int) {
         synchronized(lock) {
             deathObservers[observerId]?.let {
-                observers[observerId]?.asBinder()?.unlinkToDeath(it, 0)
+                try {
+                    observers[observerId]?.asBinder()?.unlinkToDeath(it, 0)
+                } catch (e: NoSuchElementException) {
+                    // This really shouldn't happen.
+                    Log.w(TAG, "unregisterObserver encountered", e)
+                }
             }
             observers.remove(observerId)
             deathObservers.remove(observerId)

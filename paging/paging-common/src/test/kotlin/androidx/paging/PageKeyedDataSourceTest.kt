@@ -20,7 +20,7 @@ import androidx.testutils.TestDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -31,7 +31,6 @@ import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
-import org.mockito.Mockito.verifyZeroInteractions
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertFailsWith
 
@@ -93,7 +92,7 @@ class PageKeyedDataSourceTest {
     @Test
     fun loadFullVerify() {
         // validate paging entire ItemDataSource results in full, correctly ordered data
-        val dispatcher = TestCoroutineDispatcher()
+        val dispatcher = UnconfinedTestDispatcher()
         val testCoroutineScope = CoroutineScope(dispatcher)
         @Suppress("DEPRECATION")
         val pagedList = PagedList.Builder(ItemDataSource(), 100)
@@ -109,7 +108,7 @@ class PageKeyedDataSourceTest {
         for (i in 0..PAGE_MAP.keys.size) {
             pagedList.loadAround(0)
             pagedList.loadAround(pagedList.size - 1)
-            dispatcher.advanceUntilIdle()
+            dispatcher.scheduler.advanceUntilIdle()
         }
 
         // validate full load
@@ -258,7 +257,7 @@ class PageKeyedDataSourceTest {
 
         pagedList.loadAround(0)
 
-        verifyZeroInteractions(boundaryCallback)
+        verifyNoMoreInteractions(boundaryCallback)
 
         dispatcher.executeAll()
 
@@ -311,7 +310,7 @@ class PageKeyedDataSourceTest {
 
         pagedList.loadAround(0)
 
-        verifyZeroInteractions(boundaryCallback)
+        verifyNoMoreInteractions(boundaryCallback)
 
         dispatcher.executeAll()
 

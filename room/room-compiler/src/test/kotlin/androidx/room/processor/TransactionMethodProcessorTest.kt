@@ -23,6 +23,13 @@ import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.ext.GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
+import androidx.room.ext.KotlinTypeNames.FLOW
+import androidx.room.ext.LifecyclesTypeNames.COMPUTABLE_LIVE_DATA
+import androidx.room.ext.LifecyclesTypeNames.LIVE_DATA
+import androidx.room.ext.ReactiveStreamsTypeNames.PUBLISHER
+import androidx.room.ext.RxJava2TypeNames
+import androidx.room.ext.RxJava3TypeNames
 import androidx.room.testing.context
 import androidx.room.vo.TransactionMethod
 import org.hamcrest.CoreMatchers.`is`
@@ -42,6 +49,7 @@ class TransactionMethodProcessorTest {
                 import java.util.*;
                 import androidx.lifecycle.*;
                 import com.google.common.util.concurrent.*;
+                import org.reactivestreams.*;
                 @Dao
                 abstract class MyClass {
                 """
@@ -56,7 +64,7 @@ class TransactionMethodProcessorTest {
                 public String doInTransaction(int param) { return null; }
                 """
         ) { transaction, _ ->
-            assertThat(transaction.name, `is`("doInTransaction"))
+            assertThat(transaction.jvmName, `is`("doInTransaction"))
         }
     }
 
@@ -68,7 +76,7 @@ class TransactionMethodProcessorTest {
                 private String doInTransaction(int param) { return null; }
                 """
         ) { transaction, invocation ->
-            assertThat(transaction.name, `is`("doInTransaction"))
+            assertThat(transaction.jvmName, `is`("doInTransaction"))
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.TRANSACTION_METHOD_MODIFIERS
@@ -85,7 +93,7 @@ class TransactionMethodProcessorTest {
                 public final String doInTransaction(int param) { return null; }
                 """
         ) { transaction, invocation ->
-            assertThat(transaction.name, `is`("doInTransaction"))
+            assertThat(transaction.jvmName, `is`("doInTransaction"))
             invocation.assertCompilationResult {
                 hasErrorContaining(ProcessorErrors.TRANSACTION_METHOD_MODIFIERS)
             }
@@ -102,11 +110,11 @@ class TransactionMethodProcessorTest {
                 }
                 """
         ) { transaction, invocation ->
-            assertThat(transaction.name, `is`("doInTransaction"))
+            assertThat(transaction.jvmName, `is`("doInTransaction"))
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
-                        "kotlinx.coroutines.flow.Flow"
+                        FLOW.rawTypeName.toString()
                     )
                 )
             }
@@ -121,11 +129,30 @@ class TransactionMethodProcessorTest {
                 public LiveData<String> doInTransaction(int param) { return null; }
                 """
         ) { transaction, invocation ->
-            assertThat(transaction.name, `is`("doInTransaction"))
+            assertThat(transaction.jvmName, `is`("doInTransaction"))
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
-                        "androidx.lifecycle.LiveData"
+                        LIVE_DATA.rawTypeName.toString()
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun deferredReturnType_computableLiveData() {
+        singleTransactionMethod(
+            """
+                @Transaction
+                public ComputableLiveData<String> doInTransaction(int param) { return null; }
+                """
+        ) { transaction, invocation ->
+            assertThat(transaction.jvmName, `is`("doInTransaction"))
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.transactionMethodAsync(
+                        COMPUTABLE_LIVE_DATA.rawTypeName.toString()
                     )
                 )
             }
@@ -140,11 +167,11 @@ class TransactionMethodProcessorTest {
                 public io.reactivex.Flowable<String> doInTransaction(int param) { return null; }
                 """
         ) { transaction, invocation ->
-            assertThat(transaction.name, `is`("doInTransaction"))
+            assertThat(transaction.jvmName, `is`("doInTransaction"))
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
-                        "io.reactivex.Flowable"
+                        RxJava2TypeNames.FLOWABLE.rawTypeName.toString()
                     )
                 )
             }
@@ -161,11 +188,11 @@ class TransactionMethodProcessorTest {
                 }
                 """
         ) { transaction, invocation ->
-            assertThat(transaction.name, `is`("doInTransaction"))
+            assertThat(transaction.jvmName, `is`("doInTransaction"))
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
-                        "io.reactivex.rxjava3.core.Flowable"
+                        RxJava3TypeNames.FLOWABLE.rawTypeName.toString()
                     )
                 )
             }
@@ -180,11 +207,11 @@ class TransactionMethodProcessorTest {
                 public io.reactivex.Completable doInTransaction(int param) { return null; }
                 """
         ) { transaction, invocation ->
-            assertThat(transaction.name, `is`("doInTransaction"))
+            assertThat(transaction.jvmName, `is`("doInTransaction"))
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
-                        "io.reactivex.Completable"
+                        RxJava2TypeNames.COMPLETABLE.rawTypeName.toString()
                     )
                 )
             }
@@ -201,11 +228,11 @@ class TransactionMethodProcessorTest {
                 }
                 """
         ) { transaction, invocation ->
-            assertThat(transaction.name, `is`("doInTransaction"))
+            assertThat(transaction.jvmName, `is`("doInTransaction"))
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
-                        "io.reactivex.rxjava3.core.Completable"
+                        RxJava3TypeNames.COMPLETABLE.rawTypeName.toString()
                     )
                 )
             }
@@ -220,11 +247,11 @@ class TransactionMethodProcessorTest {
                 public io.reactivex.Single<String> doInTransaction(int param) { return null; }
                 """
         ) { transaction, invocation ->
-            assertThat(transaction.name, `is`("doInTransaction"))
+            assertThat(transaction.jvmName, `is`("doInTransaction"))
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
-                        "io.reactivex.Single"
+                        RxJava2TypeNames.SINGLE.rawTypeName.toString()
                     )
                 )
             }
@@ -241,11 +268,11 @@ class TransactionMethodProcessorTest {
                 }
                 """
         ) { transaction, invocation ->
-            assertThat(transaction.name, `is`("doInTransaction"))
+            assertThat(transaction.jvmName, `is`("doInTransaction"))
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
-                        "io.reactivex.rxjava3.core.Single"
+                        RxJava3TypeNames.SINGLE.rawTypeName.toString()
                     )
                 )
             }
@@ -260,19 +287,38 @@ class TransactionMethodProcessorTest {
                 public ListenableFuture<String> doInTransaction(int param) { return null; }
                 """
         ) { transaction, invocation ->
-            assertThat(transaction.name, `is`("doInTransaction"))
+            assertThat(transaction.jvmName, `is`("doInTransaction"))
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
-                        "com.google.common.util.concurrent.ListenableFuture"
+                        LISTENABLE_FUTURE.rawTypeName.toString()
                     )
                 )
             }
         }
     }
 
-    private val TransactionMethod.name: String
-        get() = element.name
+    @Test
+    fun deferredReturnType_publisher() {
+        singleTransactionMethod(
+            """
+                @Transaction
+                public Publisher<String> doInTransaction(int param) { return null; }
+                """
+        ) { transaction, invocation ->
+            assertThat(transaction.jvmName, `is`("doInTransaction"))
+            invocation.assertCompilationResult {
+                hasErrorContaining(
+                    ProcessorErrors.transactionMethodAsync(
+                        PUBLISHER.rawTypeName.toString()
+                    )
+                )
+            }
+        }
+    }
+
+    private val TransactionMethod.jvmName: String
+        get() = element.jvmName
 
     private fun singleTransactionMethod(
         vararg input: String,
@@ -285,8 +331,8 @@ class TransactionMethodProcessorTest {
             )
         )
         val otherSources = listOf(
-            COMMON.LIVE_DATA, COMMON.RX2_FLOWABLE, COMMON.PUBLISHER, COMMON.RX2_COMPLETABLE,
-            COMMON.RX2_SINGLE, COMMON.RX3_FLOWABLE, COMMON.RX3_COMPLETABLE,
+            COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.RX2_FLOWABLE, COMMON.PUBLISHER,
+            COMMON.RX2_COMPLETABLE, COMMON.RX2_SINGLE, COMMON.RX3_FLOWABLE, COMMON.RX3_COMPLETABLE,
             COMMON.RX3_SINGLE, COMMON.LISTENABLE_FUTURE, COMMON.FLOW
         )
         runProcessorTest(

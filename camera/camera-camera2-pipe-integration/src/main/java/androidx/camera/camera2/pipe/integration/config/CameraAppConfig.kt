@@ -20,13 +20,14 @@ package androidx.camera.camera2.pipe.integration.config
 
 import android.content.Context
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraPipe
-import androidx.camera.core.impl.CameraThreadConfig
+import androidx.camera.camera2.pipe.integration.impl.CameraInteropStateCallbackRepository
 import androidx.camera.core.impl.CameraFactory
+import androidx.camera.core.impl.CameraThreadConfig
 import dagger.Component
 import dagger.Module
 import dagger.Provides
-import kotlinx.coroutines.runBlocking
 import javax.inject.Singleton
 
 /** Dependency bindings for adapting a [CameraFactory] instance to [CameraPipe] */
@@ -37,13 +38,22 @@ abstract class CameraAppModule {
     companion object {
         @Singleton
         @Provides
-        fun provideCameraPipe(context: Context): CameraPipe {
-            return CameraPipe(CameraPipe.Config(appContext = context.applicationContext))
-        }
+        fun provideCameraPipe(
+            context: Context,
+            cameraInteropStateCallbackRepository: CameraInteropStateCallbackRepository
+        ): CameraPipe = CameraPipe(
+            CameraPipe.Config(
+                appContext = context.applicationContext,
+                cameraInteropConfig = CameraPipe.CameraInteropConfig(
+                    cameraInteropStateCallbackRepository.deviceStateCallback,
+                    cameraInteropStateCallbackRepository.sessionStateCallback
+                )
+            )
+        )
 
         @Provides
-        fun provideAvailableCameraIds(cameraPipe: CameraPipe): Set<String> {
-            return runBlocking { cameraPipe.cameras().ids().map { it.value }.toSet() }
+        fun provideCameraDevices(cameraPipe: CameraPipe): CameraDevices {
+            return cameraPipe.cameras()
         }
     }
 }
@@ -52,7 +62,7 @@ abstract class CameraAppModule {
 @Module
 class CameraAppConfig(
     private val context: Context,
-    private val cameraThreadConfig: CameraThreadConfig
+    private val cameraThreadConfig: CameraThreadConfig,
 ) {
     @Provides
     fun provideContext(): Context = context
@@ -71,7 +81,8 @@ class CameraAppConfig(
 )
 interface CameraAppComponent {
     fun cameraBuilder(): CameraComponent.Builder
-    fun getAvailableCameraIds(): Set<String>
+    fun getCameraPipe(): CameraPipe
+    fun getCameraDevices(): CameraDevices
 
     @Component.Builder
     interface Builder {

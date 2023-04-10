@@ -17,8 +17,12 @@
 package androidx.compose.material3.catalog.library.ui.example
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.catalog.library.model.Component
 import androidx.compose.material3.catalog.library.model.Example
 import androidx.compose.material3.catalog.library.model.Theme
@@ -26,8 +30,8 @@ import androidx.compose.material3.catalog.library.ui.common.CatalogScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.google.accompanist.insets.navigationBarsPadding
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun Example(
     component: Component,
@@ -49,8 +53,8 @@ fun Example(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .navigationBarsPadding(),
+                .consumeWindowInsets(WindowInsets.safeDrawing)
+                .padding(paddingValues),
             contentAlignment = Alignment.Center
         ) {
             example.content()

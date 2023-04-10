@@ -16,12 +16,13 @@
 
 package androidx.work.impl.background.systemalarm;
 
+import static androidx.work.impl.model.SystemIdInfoKt.systemIdInfo;
+import static androidx.work.impl.model.WorkSpecKt.generationalId;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import android.content.Context;
 
@@ -30,11 +31,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 import androidx.work.DatabaseTest;
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.SystemIdInfo;
+import androidx.work.impl.model.WorkGenerationalId;
 import androidx.work.worker.TestWorker;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -44,26 +44,17 @@ import java.util.concurrent.TimeUnit;
 @SmallTest
 public class AlarmsTest extends DatabaseTest {
 
-    private Context mContext;
-    private WorkManagerImpl mWorkManager;
-    private long mTriggerAt;
-
-    @Before
-    public void setUp() {
-        mContext = ApplicationProvider.getApplicationContext();
-        mWorkManager = mock(WorkManagerImpl.class);
-        // Set it to sometime in the future so as to avoid triggering real alarms.
-        mTriggerAt = System.currentTimeMillis() + TimeUnit.HOURS.toMillis(1);
-        when(mWorkManager.getWorkDatabase()).thenReturn(mDatabase);
-    }
+    private final Context mContext = ApplicationProvider.getApplicationContext();
+    // Set it to sometime in the future so as to avoid triggering real alarms.
+    private final long mTriggerAt = System.currentTimeMillis() + TimeUnit.HOURS.toMillis(1);
 
     @Test
     public void testSetAlarm_noPreExistingAlarms() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
-        String workSpecId = work.getStringId();
+        WorkGenerationalId workSpecId = generationalId(work.getWorkSpec());
 
-        Alarms.setAlarm(mContext, mWorkManager, workSpecId, mTriggerAt);
+        Alarms.setAlarm(mContext, mDatabase, workSpecId, mTriggerAt);
         SystemIdInfo systemIdInfo = mDatabase.systemIdInfoDao().getSystemIdInfo(workSpecId);
         assertThat(systemIdInfo, is(notNullValue()));
     }
@@ -72,12 +63,12 @@ public class AlarmsTest extends DatabaseTest {
     public void testSetAlarm_withPreExistingAlarms() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
-        String workSpecId = work.getStringId();
+        WorkGenerationalId workSpecId = generationalId(work.getWorkSpec());
 
-        SystemIdInfo systemIdInfo = new SystemIdInfo(workSpecId, 1);
+        SystemIdInfo systemIdInfo = systemIdInfo(workSpecId, 1);
         mDatabase.systemIdInfoDao().insertSystemIdInfo(systemIdInfo);
 
-        Alarms.setAlarm(mContext, mWorkManager, workSpecId, mTriggerAt);
+        Alarms.setAlarm(mContext, mDatabase, workSpecId, mTriggerAt);
         SystemIdInfo updatedSystemIdInfo = mDatabase.systemIdInfoDao().getSystemIdInfo(workSpecId);
         assertThat(updatedSystemIdInfo, is(notNullValue()));
         assertThat(updatedSystemIdInfo.systemId, is(systemIdInfo.systemId));
@@ -87,12 +78,12 @@ public class AlarmsTest extends DatabaseTest {
     public void testCancelAlarm() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
-        String workSpecId = work.getStringId();
+        WorkGenerationalId workSpecId = generationalId(work.getWorkSpec());
 
-        SystemIdInfo systemIdInfo = new SystemIdInfo(workSpecId, 1);
+        SystemIdInfo systemIdInfo = systemIdInfo(workSpecId, 1);
         mDatabase.systemIdInfoDao().insertSystemIdInfo(systemIdInfo);
 
-        Alarms.cancelAlarm(mContext, mWorkManager, workSpecId);
+        Alarms.cancelAlarm(mContext, mDatabase, workSpecId);
         SystemIdInfo updatedSystemIdInfo = mDatabase.systemIdInfoDao().getSystemIdInfo(workSpecId);
         assertThat(updatedSystemIdInfo, is(nullValue()));
     }

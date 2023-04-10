@@ -17,20 +17,40 @@
 package androidx.compose.ui.input.nestedscroll
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.background
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeDown
+import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlin.math.abs
+import kotlin.math.sign
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
@@ -961,8 +981,103 @@ class NestedScrollModifierTest {
         }
     }
 
-    // helper functions
+    @Test
+    fun nestedScroll_movingTarget_velocityShouldRespectSign() {
+        var lastVelocity = Velocity.Zero
+        val MaxOffsetBound = 900f
+        val ConsumedEverything = 0.0f
+        rule.setContent {
+            var offset by remember {
+                mutableStateOf(MaxOffsetBound)
+            }
+            val nestedScrollConnection = remember {
+                object : NestedScrollConnection {
+                    fun consumedDelta(scrollDelta: Float): Float {
+                        if (offset == 0f && scrollDelta < 0f) return ConsumedEverything
+                        if (offset == MaxOffsetBound && scrollDelta > 0f) return ConsumedEverything
+                        val previousOffset = offset
+                        offset = (scrollDelta + offset).coerceIn(0f, MaxOffsetBound)
+                        return offset - previousOffset
+                    }
 
+                    override fun onPreScroll(
+                        available: Offset,
+                        source: NestedScrollSource
+                    ): Offset {
+                        return if (available.y < 0) {
+                            val consumed = consumedDelta(available.y)
+                            Offset(x = 0f, y = consumed)
+                        } else Offset.Zero
+                    }
+
+                    override fun onPostScroll(
+                        consumed: Offset,
+                        available: Offset,
+                        source: NestedScrollSource
+                    ): Offset {
+                        return if (abs(available.y) > 0f &&
+                            available.y > 0f
+                        ) {
+                            Offset(0f, consumedDelta(available.y))
+                        } else
+                            super.onPostScroll(consumed, available, source)
+                    }
+
+                    override suspend fun onPreFling(available: Velocity): Velocity {
+                        lastVelocity = available
+                        return super.onPreFling(available)
+                    }
+                }
+            }
+
+            Column(modifier = Modifier.fillMaxSize().testTag("mainLayout")) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(80.dp)
+                )
+                LazyColumn(
+                    modifier = Modifier
+                        .graphicsLayer {
+                            translationY = offset
+                        }
+                        .nestedScroll(connection = nestedScrollConnection)
+                        .fillMaxWidth()
+                        .weight(1f)
+                ) {
+                    items(100) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(60.dp)
+                                .background(Color.Gray)
+                        ) {
+                            BasicText(text = it.toString())
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag("mainLayout").performTouchInput { swipeUp(bottom, centerY) }
+        rule.runOnIdle {
+            // swipe ups provide negative signed velocities
+            assertThat(sign(lastVelocity.y)).isEqualTo(-1)
+        }
+        rule.onNodeWithTag("mainLayout").performTouchInput { swipeDown(centerY, bottom) }
+        rule.runOnIdle {
+            // swipe downs provide positive signed velocities
+            assertThat(sign(lastVelocity.y)).isEqualTo(1)
+        }
+        rule.onNodeWithTag("mainLayout").performTouchInput { swipeDown(centerY, bottom) }
+        rule.runOnIdle {
+            // swipe downs provide positive signed velocities
+            assertThat(sign(lastVelocity.y)).isEqualTo(1)
+        }
+    }
+
+    // helper functions
     private fun testMiddleParentAdditionRemoval(
         content: @Composable (root: Modifier, middle: Modifier, child: Modifier) -> Unit
     ) {

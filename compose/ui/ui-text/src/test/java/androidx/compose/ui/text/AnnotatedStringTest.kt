@@ -113,8 +113,8 @@ class AnnotatedStringTest {
         )
         val annotatedString1 = AnnotatedString(
             text = text1,
-            spanStyles = spanStyles1,
-            paragraphStyles = paragraphStyles1,
+            spanStylesOrNull = spanStyles1,
+            paragraphStylesOrNull = paragraphStyles1,
             annotations = annotations1
         )
 
@@ -123,8 +123,8 @@ class AnnotatedStringTest {
         val paragraphStyle = ParagraphStyle(lineHeight = 10.sp)
         val annotatedString2 = AnnotatedString(
             text = text2,
-            spanStyles = listOf(Range(spanStyle, 0, text2.length)),
-            paragraphStyles = listOf(Range(paragraphStyle, 0, text2.length)),
+            spanStylesOrNull = listOf(Range(spanStyle, 0, text2.length)),
+            paragraphStylesOrNull = listOf(Range(paragraphStyle, 0, text2.length)),
             annotations = listOf(Range("annotation2", 0, text2.length, "scope2"))
         )
 
@@ -497,5 +497,66 @@ class AnnotatedStringTest {
     fun toString_returns_the_plain_string() {
         val text = "abc"
         assertThat(AnnotatedString(text).toString()).isEqualTo(text)
+    }
+
+    @Test
+    fun toUpperCase_andAnnotatedString_dontCrash() {
+        val annotatedString = buildAnnotatedString {
+            append("non-empty something")
+            pushStringAnnotation("tag", "annotation")
+            append("non-empty anything")
+            pop()
+        }
+        annotatedString.toUpperCase()
+    }
+
+    @Test
+    fun toUpperCase_andAnnotatedString_annotationAtStart_dontCrash() {
+        val annotatedString = buildAnnotatedString {
+            pushStringAnnotation("tag", "annotation")
+            append("non-empty anything")
+            pop()
+            append("non-empty something")
+        }
+        annotatedString.toUpperCase()
+    }
+
+    @Test
+    fun toUpperCase_andAnnotatedString_annotationInMiddle_dontCrash() {
+        val annotatedString = buildAnnotatedString {
+            append("non-empty before")
+            pushStringAnnotation("tag", "annotation")
+            append("non-empty anything")
+            pop()
+            append("non-empty after")
+        }
+        annotatedString.toUpperCase()
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun subSequence_throws_exception_for_overlapping_paragraphStyles() {
+        buildAnnotatedString {
+            append("1234")
+            addStyle(ParagraphStyle(), 0, 2)
+            addStyle(ParagraphStyle(), 1, 3)
+        }
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun subSequence_throws_exception_for_overlapping_paragraphStyles_when_not_sorted() {
+        buildAnnotatedString {
+            append("1234")
+            addStyle(ParagraphStyle(), 1, 3)
+            addStyle(ParagraphStyle(), 0, 2)
+        }
+    }
+
+    @Test
+    fun doesNot_throw_exception_if_paragraphStyles_are_not_sorted() {
+        buildAnnotatedString {
+            append("1234")
+            addStyle(ParagraphStyle(), 3, 4)
+            addStyle(ParagraphStyle(), 0, 2)
+        }
     }
 }

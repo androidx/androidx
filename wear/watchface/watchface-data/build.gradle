@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -46,12 +44,12 @@ android {
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
+    namespace "androidx.wear.watchface.data"
 }
 
 androidx {
     name = "Android Wear Watchface Data"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WEAR_WATCHFACE
     inceptionYear = "2020"
     description = "Android Wear Watchface hidden AIDL implementaion details"
 }

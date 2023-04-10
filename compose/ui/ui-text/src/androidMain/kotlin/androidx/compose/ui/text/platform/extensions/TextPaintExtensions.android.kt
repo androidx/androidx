@@ -18,26 +18,37 @@ package androidx.compose.ui.text.platform.extensions
 
 import android.graphics.Typeface
 import android.os.Build
+import android.text.TextPaint
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.platform.AndroidTextPaint
-import androidx.compose.ui.text.platform.TypefaceAdapter
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextGeometricTransform
+import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 
-@Suppress("DEPRECATION")
+/**
+ * Applies given SpanStyle to this AndroidTextPaint.
+ *
+ * Although most attributes in SpanStyle can be applied to TextPaint, some are only applicable as
+ * regular platform spans such as background, baselineShift. This function also returns a new
+ * SpanStyle that consists of attributes that were not applied to the TextPaint.
+ */
+@OptIn(ExperimentalTextApi::class)
 internal fun AndroidTextPaint.applySpanStyle(
     style: SpanStyle,
-    typefaceAdapter: TypefaceAdapter,
-    density: Density
+    resolveTypeface: (FontFamily?, FontWeight, FontStyle, FontSynthesis) -> Typeface,
+    density: Density,
 ): SpanStyle {
     when (style.fontSize.type) {
         TextUnitType.Sp -> with(density) {
@@ -50,7 +61,12 @@ internal fun AndroidTextPaint.applySpanStyle(
     }
 
     if (style.hasFontAttributes()) {
-        typeface = createTypeface(style, typefaceAdapter)
+        typeface = resolveTypeface(
+            style.fontFamily,
+            style.fontWeight ?: FontWeight.Normal,
+            style.fontStyle ?: FontStyle.Normal,
+            style.fontSynthesis ?: FontSynthesis.All
+        )
     }
 
     if (style.localeList != null && style.localeList != LocaleList.current) {
@@ -83,10 +99,16 @@ internal fun AndroidTextPaint.applySpanStyle(
         textSkewX += style.textGeometricTransform.skewX
     }
 
-    // these parameters are also updated by the Paragraph.draw
+    // these parameters are also updated by the Paragraph.paint
+
     setColor(style.color)
+    // setBrush draws the text with given Brush. ShaderBrush requires Size to
+    // create a Shader. However, Size is unavailable at this stage of the layout.
+    // Paragraph.paint will receive a proper Size after layout is completed.
+    setBrush(style.brush, Size.Unspecified, style.alpha)
     setShadow(style.shadow)
     setTextDecoration(style.textDecoration)
+    setDrawStyle(style.drawStyle)
 
     // letterSpacing with unit Sp needs to be handled by span.
     // baselineShift and bgColor is reset in the Android Layout constructor,
@@ -112,6 +134,31 @@ internal fun AndroidTextPaint.applySpanStyle(
     )
 }
 
+@OptIn(ExperimentalTextApi::class)
+internal fun AndroidTextPaint.setTextMotion(textMotion: TextMotion?) {
+    val finalTextMotion = textMotion ?: TextMotion.Static
+    flags = if (finalTextMotion.subpixelTextPositioning) {
+        flags or TextPaint.SUBPIXEL_TEXT_FLAG
+    } else {
+        flags and TextPaint.SUBPIXEL_TEXT_FLAG.inv()
+    }
+    when (finalTextMotion.linearity) {
+        TextMotion.Linearity.Linear -> {
+            flags = flags or TextPaint.LINEAR_TEXT_FLAG
+            hinting = TextPaint.HINTING_OFF
+        }
+        TextMotion.Linearity.FontHinting -> {
+            flags and TextPaint.LINEAR_TEXT_FLAG.inv()
+            hinting = TextPaint.HINTING_ON
+        }
+        TextMotion.Linearity.None -> {
+            flags and TextPaint.LINEAR_TEXT_FLAG.inv()
+            hinting = TextPaint.HINTING_OFF
+        }
+        else -> flags
+    }
+}
+
 /**
  * Returns true if this [SpanStyle] contains any font style attributes set.
  */
@@ -119,11 +166,14 @@ internal fun SpanStyle.hasFontAttributes(): Boolean {
     return fontFamily != null || fontStyle != null || fontWeight != null
 }
 
-private fun createTypeface(style: SpanStyle, typefaceAdapter: TypefaceAdapter): Typeface {
-    return typefaceAdapter.create(
-        fontFamily = style.fontFamily,
-        fontWeight = style.fontWeight ?: FontWeight.Normal,
-        fontStyle = style.fontStyle ?: FontStyle.Normal,
-        fontSynthesis = style.fontSynthesis ?: FontSynthesis.All
-    )
+/**
+ * Platform shadow layer turns off shadow when blur is zero. Where as developers expect when blur
+ * is zero, the shadow is still visible but without any blur. This utility function is used
+ * while setting shadow on spans or paint in order to replace 0 with Float.MIN_VALUE so that the
+ * shadow will still be visible and the blur is practically 0.
+ */
+internal fun correctBlurRadius(blurRadius: Float) = if (blurRadius == 0f) {
+    Float.MIN_VALUE
+} else {
+    blurRadius
 }

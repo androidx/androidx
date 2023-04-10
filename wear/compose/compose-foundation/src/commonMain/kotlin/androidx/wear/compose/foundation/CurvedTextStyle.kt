@@ -19,15 +19,22 @@ package androidx.wear.compose.foundation
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontSynthesis
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.sp
 
-/** The default values to use if their are not specified. */
+/** The default values to use if they are not specified. */
 internal val DefaultCurvedTextStyles = CurvedTextStyle(
     color = Color.Black,
     fontSize = 14.sp,
-    background = Color.Transparent
+    background = Color.Transparent,
+    fontWeight = FontWeight.Normal,
+    fontStyle = FontStyle.Normal,
+    fontSynthesis = FontSynthesis.All
 )
 
 /**
@@ -35,24 +42,60 @@ internal val DefaultCurvedTextStyles = CurvedTextStyle(
  *
  * @sample androidx.wear.compose.foundation.samples.CurvedAndNormalText
  *
+ * @param background The background color for the text.
  * @param color The text color.
  * @param fontSize The size of glyphs (in logical pixels) to use when painting the text. This
  * may be [TextUnit.Unspecified] for inheriting from another [CurvedTextStyle].
- * @param background The background color for the text.
- *
+ * @param fontFamily The font family to be used when rendering the text.
+ * @param fontWeight The thickness of the glyphs, in a range of [1, 1000]. see [FontWeight]
+ * @param fontStyle The typeface variant to use when drawing the letters (e.g. italic).
+ * @param fontSynthesis Whether to synthesize font weight and/or style when the requested weight
+ * or style cannot be found in the provided font family.
  */
 class CurvedTextStyle(
+    val background: Color = Color.Unspecified,
     val color: Color = Color.Unspecified,
     val fontSize: TextUnit = TextUnit.Unspecified,
-    val background: Color = Color.Unspecified,
+    val fontFamily: FontFamily? = null,
+    val fontWeight: FontWeight? = null,
+    val fontStyle: FontStyle? = null,
+    val fontSynthesis: FontSynthesis? = null
 ) {
+    /**
+     * Styling configuration for a curved text.
+     *
+     * @sample androidx.wear.compose.foundation.samples.CurvedAndNormalText
+     *
+     * @param background The background color for the text.
+     * @param color The text color.
+     * @param fontSize The size of glyphs (in logical pixels) to use when painting the text. This
+     * may be [TextUnit.Unspecified] for inheriting from another [CurvedTextStyle].
+     */
+    @Deprecated("This overload is provided for backwards compatibility with Compose for " +
+        "Wear OS 1.0. A newer overload is available with additional font parameters.",
+        level = DeprecationLevel.HIDDEN)
+    constructor(
+        background: Color = Color.Unspecified,
+        color: Color = Color.Unspecified,
+        fontSize: TextUnit = TextUnit.Unspecified
+    ) : this(background, color, fontSize, null)
+
     /**
      * Create a curved text style from the given text style.
      *
      * Note that not all parameters in the text style will be used, only [TextStyle.color],
-     * [TextStyle.fontSize] and [TextStyle.background]
+     * [TextStyle.fontSize], [TextStyle.background], [TextStyle.fontFamily],
+     * [TextStyle.fontWeight], [TextStyle.fontStyle] and [TextStyle.fontSynthesis].
      */
-    constructor(style: TextStyle) : this(style.color, style.fontSize, style.background)
+    constructor(style: TextStyle) : this(
+        style.background,
+        style.color,
+        style.fontSize,
+        style.fontFamily,
+        style.fontWeight,
+        style.fontStyle,
+        style.fontSynthesis
+    )
 
     /**
      * Returns a new curved text style that is a combination of this style and the given
@@ -71,6 +114,10 @@ class CurvedTextStyle(
             color = other.color.takeOrElse { this.color },
             fontSize = if (!other.fontSize.isUnspecified) other.fontSize else this.fontSize,
             background = other.background.takeOrElse { this.background },
+            fontFamily = other.fontFamily ?: this.fontFamily,
+            fontWeight = other.fontWeight ?: this.fontWeight,
+            fontStyle = other.fontStyle ?: this.fontStyle,
+            fontSynthesis = other.fontSynthesis ?: this.fontSynthesis,
         )
     }
 
@@ -79,39 +126,77 @@ class CurvedTextStyle(
      */
     operator fun plus(other: CurvedTextStyle): CurvedTextStyle = this.merge(other)
 
+    @Deprecated("This overload is provided for backwards compatibility with Compose for " +
+        "Wear OS 1.0. A newer overload is available with additional font parameters.")
     fun copy(
+        background: Color = this.background,
         color: Color = this.color,
         fontSize: TextUnit = this.fontSize,
-        background: Color = this.background,
     ): CurvedTextStyle {
         return CurvedTextStyle(
+            background = background,
             color = color,
             fontSize = fontSize,
-            background = background,
+            fontFamily = this.fontFamily,
+            fontWeight = this.fontWeight,
+            fontStyle = this.fontStyle,
+            fontSynthesis = this.fontSynthesis
         )
     }
 
-    override operator fun equals(other: Any?): Boolean {
+    fun copy(
+        background: Color = this.background,
+        color: Color = this.color,
+        fontSize: TextUnit = this.fontSize,
+        fontFamily: FontFamily? = this.fontFamily,
+        fontWeight: FontWeight? = this.fontWeight,
+        fontStyle: FontStyle? = this.fontStyle,
+        fontSynthesis: FontSynthesis? = this.fontSynthesis
+    ): CurvedTextStyle {
+        return CurvedTextStyle(
+            background = background,
+            color = color,
+            fontSize = fontSize,
+            fontFamily = fontFamily,
+            fontWeight = fontWeight,
+            fontStyle = fontStyle,
+            fontSynthesis = fontSynthesis
+        )
+    }
+
+    override fun equals(other: Any?): Boolean {
         if (this === other) return true
 
         return other is CurvedTextStyle &&
             color == other.color &&
             fontSize == other.fontSize &&
-            background == other.background
+            background == other.background &&
+            fontFamily == other.fontFamily &&
+            fontWeight == other.fontWeight &&
+            fontStyle == other.fontStyle &&
+            fontSynthesis == other.fontSynthesis
     }
 
     override fun hashCode(): Int {
         var result = color.hashCode()
         result = 31 * result + fontSize.hashCode()
         result = 31 * result + background.hashCode()
+        result = 31 * result + fontFamily.hashCode()
+        result = 31 * result + fontWeight.hashCode()
+        result = 31 * result + fontStyle.hashCode()
+        result = 31 * result + fontSynthesis.hashCode()
         return result
     }
 
     override fun toString(): String {
         return "CurvedTextStyle(" +
+            "background=$background" +
             "color=$color, " +
             "fontSize=$fontSize, " +
-            "background=$background" +
+            "fontFamily=$fontFamily, " +
+            "fontWeight=$fontWeight, " +
+            "fontStyle=$fontStyle, " +
+            "fontSynthesis=$fontSynthesis, " +
             ")"
     }
 }

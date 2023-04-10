@@ -19,9 +19,9 @@ package androidx.compose.ui.layout
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.platform.InspectorValueInfo
-import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.internal.JvmDefaultWithCompatibility
+import androidx.compose.ui.node.LayoutAwareModifierNode
+import androidx.compose.ui.node.modifierElementOf
 
 /**
  * Invoke [onPlaced] after the parent [LayoutModifier] and parent layout has been placed and before
@@ -30,39 +30,31 @@ import androidx.compose.ui.platform.debugInspectorInfo
  *
  * @sample androidx.compose.ui.samples.OnPlaced
  */
-@ExperimentalComposeUiApi
+@OptIn(ExperimentalComposeUiApi::class)
 @Stable
 fun Modifier.onPlaced(
     onPlaced: (LayoutCoordinates) -> Unit
-) = this.then(
-    OnPlacedModifierImpl(
-        callback = onPlaced,
-        inspectorInfo = debugInspectorInfo {
-            name = "onPlaced"
-            properties["onPlaced"] = onPlaced
-        }
-    )
+) = this then modifierElementOf(
+    key = onPlaced,
+    create = {
+        OnPlacedModifierImpl(callback = onPlaced)
+    },
+    update = {
+        it.callback = onPlaced
+    },
+    definitions = {
+        name = "onPlaced"
+        properties["onPlaced"] = onPlaced
+    }
 )
 
 @OptIn(ExperimentalComposeUiApi::class)
 private class OnPlacedModifierImpl(
-    val callback: (LayoutCoordinates) -> Unit,
-    inspectorInfo: InspectorInfo.() -> Unit
-) : OnPlacedModifier, InspectorValueInfo(inspectorInfo) {
+    var callback: (LayoutCoordinates) -> Unit
+) : LayoutAwareModifierNode, Modifier.Node() {
 
     override fun onPlaced(coordinates: LayoutCoordinates) {
         callback(coordinates)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is OnPlacedModifierImpl) return false
-
-        return callback == other.callback
-    }
-
-    override fun hashCode(): Int {
-        return callback.hashCode()
     }
 }
 
@@ -73,7 +65,7 @@ private class OnPlacedModifierImpl(
  *
  * @sample androidx.compose.ui.samples.OnPlaced
  */
-@ExperimentalComposeUiApi
+@JvmDefaultWithCompatibility
 interface OnPlacedModifier : Modifier.Element {
     /**
      * [onPlaced] is called after parent [LayoutModifier] and parent layout gets placed and

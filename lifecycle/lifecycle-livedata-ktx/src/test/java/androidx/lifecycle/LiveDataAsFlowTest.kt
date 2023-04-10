@@ -75,6 +75,7 @@ class LiveDataAsFlowTest {
         scopes.advanceTimeBy(200)
         assertThat(collected).isEqualTo(listOf(1))
         scopes.advanceTimeBy(800)
+        testScope.testScheduler.advanceUntilIdle()
         assertThat(collected).isEqualTo(listOf(1, 2, 4))
         job.cancel()
         scopes.triggerAllActions()
@@ -85,10 +86,13 @@ class LiveDataAsFlowTest {
     fun reusingFlow() {
         val ld = MutableLiveData<Int>()
         val flow = ld.asFlow()
-        mainScope.launch { ld.value = 1 }
         val firstCollection = testScope.launch {
             assertThat(flow.first()).isEqualTo(1)
         }
+        scopes.triggerAllActions()
+        assertThat(ld.hasActiveObservers()).isTrue()
+
+        mainScope.launch { ld.value = 1 }
         scopes.triggerAllActions()
         // check that we're done with previous collection
         assertThat(ld.hasActiveObservers()).isFalse()
@@ -118,7 +122,7 @@ class LiveDataAsFlowTest {
             assertThat(flowB.take(2).toList()).isEqualTo(listOf(1, 2))
         }
         scopes.triggerAllActions()
-        assertThat(ld.hasActiveObservers())
+        assertThat(ld.hasActiveObservers()).isTrue()
 
         mainScope.launch { ld.value = 1 }
         scopes.triggerAllActions()

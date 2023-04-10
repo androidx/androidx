@@ -27,12 +27,8 @@ import androidx.health.services.client.impl.internal.HsConnectionManager
 import androidx.health.services.client.impl.ipc.Client
 import androidx.health.services.client.impl.ipc.ClientConfiguration
 
-/**
- * A [HealthServicesClient] implementation.
- *
- * @hide
- */
-public class ServiceBackedHealthServicesClient public constructor(context: Context) :
+/** A [HealthServicesClient] implementation. */
+internal class ServiceBackedHealthServicesClient(context: Context) :
     HealthServicesClient,
     Client<IHealthServicesApiService>(
         CLIENT_CONFIGURATION,
@@ -44,11 +40,11 @@ public class ServiceBackedHealthServicesClient public constructor(context: Conte
     private val applicationContext = context.applicationContext
 
     override val exerciseClient: ExerciseClient
-        get() = ServiceBackedExerciseClient.getClient(applicationContext)
+        get() = ServiceBackedExerciseClient(applicationContext)
     override val passiveMonitoringClient: PassiveMonitoringClient
         get() = ServiceBackedPassiveMonitoringClient(applicationContext)
     override val measureClient: MeasureClient
-        get() = ServiceBackedMeasureClient.getClient(applicationContext)
+        get() = ServiceBackedMeasureClient(applicationContext)
 
     private companion object {
         private const val CLIENT = "HealthServicesClient"

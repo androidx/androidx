@@ -20,7 +20,9 @@ import android.net.TrafficStats;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import java.net.DatagramSocket;
 import java.net.Socket;
@@ -29,6 +31,7 @@ import java.net.SocketException;
 /**
  * Helper for accessing features in {@link TrafficStats}.
  */
+@SuppressWarnings("unused")
 public final class TrafficStatsCompat {
     /**
      * Clear active tag used when accounting {@link Socket} traffic originating
@@ -135,7 +138,7 @@ public final class TrafficStatsCompat {
      */
     public static void tagDatagramSocket(@NonNull DatagramSocket socket) throws SocketException {
         if (Build.VERSION.SDK_INT >= 24) {
-            TrafficStats.tagDatagramSocket(socket);
+            Api24Impl.tagDatagramSocket(socket);
         } else {
             final ParcelFileDescriptor pfd = ParcelFileDescriptor.fromDatagramSocket(socket);
             TrafficStats.tagSocket(new DatagramSocketWrapper(socket, pfd.getFileDescriptor()));
@@ -152,7 +155,7 @@ public final class TrafficStatsCompat {
      */
     public static void untagDatagramSocket(@NonNull DatagramSocket socket) throws SocketException {
         if (Build.VERSION.SDK_INT >= 24) {
-            TrafficStats.untagDatagramSocket(socket);
+            Api24Impl.untagDatagramSocket(socket);
         } else {
             final ParcelFileDescriptor pfd = ParcelFileDescriptor.fromDatagramSocket(socket);
             TrafficStats.untagSocket(new DatagramSocketWrapper(socket, pfd.getFileDescriptor()));
@@ -165,4 +168,21 @@ public final class TrafficStatsCompat {
     }
 
     private TrafficStatsCompat() {}
+
+    @RequiresApi(24)
+    static class Api24Impl {
+        private Api24Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void tagDatagramSocket(DatagramSocket socket) throws SocketException {
+            TrafficStats.tagDatagramSocket(socket);
+        }
+
+        @DoNotInline
+        static void untagDatagramSocket(DatagramSocket socket) throws SocketException {
+            TrafficStats.untagDatagramSocket(socket);
+        }
+    }
 }

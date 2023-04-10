@@ -24,7 +24,6 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
@@ -36,6 +35,7 @@ import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.Template;
 import androidx.car.app.model.Toggle;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Objects;
 
@@ -111,6 +111,7 @@ import java.util.Objects;
  * androidx.car.app.NAVIGATION_TEMPLATES} permission in the manifest.
  */
 @CarProtocol
+@KeepFields
 public final class NavigationTemplate implements Template {
 
     /**
@@ -120,25 +121,18 @@ public final class NavigationTemplate implements Template {
     public interface NavigationInfo {
     }
 
-    @Keep
     @Nullable
     private final NavigationInfo mNavigationInfo;
-    @Keep
     @Nullable
     private final CarColor mBackgroundColor;
-    @Keep
     @Nullable
     private final TravelEstimate mDestinationTravelEstimate;
-    @Keep
     @Nullable
     private final ActionStrip mActionStrip;
-    @Keep
     @Nullable
     private final ActionStrip mMapActionStrip;
-    @Keep
     @Nullable
     private final Toggle mPanModeToggle;
-    @Keep
     @Nullable
     private final PanModeDelegate mPanModeDelegate;
 
@@ -332,12 +326,18 @@ public final class NavigationTemplate implements Template {
         /**
          * Sets an {@link ActionStrip} with a list of template-scoped actions for this template.
          *
+         * <p>The {@link Action} buttons in Map Based Template are automatically adjusted based
+         * on the screen size. On narrow width screen, icon {@link Action}s show by
+         * default. If no icon specify, showing title {@link Action}s instead. On wider width
+         * screen, title {@link Action}s show by default. If no title specify, showing icon
+         * {@link Action}s instead.
+         *
          * <h4>Requirements</h4>
          *
-         * Besides {@link Action#APP_ICON} and {@link Action#BACK}, this template requires at
-         * least 1 and up to 4 {@link Action}s in its {@link ActionStrip}. Of the 4 allowed
-         * {@link Action}s, only one can contain a title as set via
-         * {@link Action.Builder#setTitle}. Otherwise, only {@link Action}s with icons are allowed.
+         * This template allows up to 4 {@link Action}s in its {@link ActionStrip}. Of the 4
+         * allowed {@link Action}s, it can either be a title {@link Action} as set via
+         * {@link Action.Builder#setTitle}, or a icon {@link Action} as set via
+         * {@link Action.Builder#setIcon}.
          *
          * @throws IllegalArgumentException if {@code actionStrip} does not meet the template's
          *                                  requirements

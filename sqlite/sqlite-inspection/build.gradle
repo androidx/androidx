@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -43,7 +42,6 @@ androidx {
     type = LibraryType.IDE_PLUGIN
     // Decouple SQLITE_INSPECTOR because it depends on
     // the inspection protocol, which is alpha
-    mavenGroup = LibraryGroups.INSPECTION_EXTENSIONS
     inceptionYear = "2019"
     description = "The implementation of SQLite Inspector."
 }
@@ -56,11 +54,5 @@ android {
     sourceSets {
         main.resources.srcDirs += "src/main/proto"
     }
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
-    }
+    namespace "androidx.sqlite.inspection"
 }

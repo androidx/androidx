@@ -20,14 +20,12 @@ import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import org.junit.Assume
+import java.io.File
+import kotlin.test.assertSame
+import kotlin.test.assertTrue
 import org.junit.Assume.assumeFalse
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.File
-import kotlin.test.assertFalse
-import kotlin.test.assertSame
-import kotlin.test.assertTrue
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -52,18 +50,21 @@ class ProfilerTest {
 
     private fun verifyProfiler(
         profiler: Profiler,
-        file: File
+        regex: Regex
     ) {
-        Assume.assumeFalse(
+        assumeFalse(
             "Workaround native crash on API 21 in CI, see b/173662168",
             profiler == MethodTracing && Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP,
         )
 
-        file.delete() // clean up, if previous run left this behind
-        assertFalse(file.exists())
-
-        profiler.start("test")
+        val outputRelPath = profiler.start("test")!!.outputRelativePath
         profiler.stop()
+        val file = File(Outputs.outputDirectory, outputRelPath)
+
+        assertTrue(
+            actual = regex.matches(outputRelPath),
+            message = "expected profiler output path $outputRelPath to match $regex"
+        )
         assertTrue(file.exists(), "Profiler should create: ${file.absolutePath}")
 
         // we don't delete the file to enable inspecting the file
@@ -73,13 +74,13 @@ class ProfilerTest {
     @Test
     fun methodTracing() = verifyProfiler(
         profiler = MethodTracing,
-        file = Outputs.testOutputFile("test-methodTracing.trace")
+        regex = Regex("test-methodTracing-.+.trace")
     )
 
     @Test
     fun stackSamplingLegacy() = verifyProfiler(
         profiler = StackSamplingLegacy,
-        file = Outputs.testOutputFile("test-stackSamplingLegacy.trace")
+        regex = Regex("test-stackSamplingLegacy-.+.trace")
     )
 
     @SdkSuppress(minSdkVersion = 29) // simpleperf on system image starting API 29
@@ -90,7 +91,7 @@ class ProfilerTest {
 
         verifyProfiler(
             profiler = StackSamplingSimpleperf,
-            file = Outputs.testOutputFile("test-stackSampling.trace")
+            regex = Regex("test-stackSampling-.+.trace")
         )
     }
 }

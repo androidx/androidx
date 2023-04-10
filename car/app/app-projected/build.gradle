@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 
 plugins {
@@ -27,14 +26,12 @@ dependencies {
     annotationProcessor(libs.nullaway)
 
     implementation("androidx.annotation:annotation:1.2.0")
-    implementation("androidx.annotation:annotation-experimental:1.1.0")
-    implementation libs.kotlinStdlib // Due to :annotation-experimental
 
-    testImplementation("junit:junit:4.13")
+    testImplementation(libs.junit)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
     testImplementation project(path: ':car:app:app-testing')
@@ -42,13 +39,9 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 23
+        minSdkVersion 21
         multiDexEnabled = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }
-    lintOptions {
-        // We rely on keeping a bunch of private variables in the library for serialization.
-        disable("BanKeepAnnotation")
     }
     buildFeatures {
         aidl = true
@@ -58,12 +51,12 @@ android {
     }
 
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.car.app.projected"
 }
 
 androidx {
     name = "Android for Cars App Library Projected Extension"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.CAR_APP
     inceptionYear = "2021"
     description = "Android Auto Projected specific funationaltiy to build navigation, parking, and charging apps for cars"
 }

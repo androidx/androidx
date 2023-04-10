@@ -20,26 +20,32 @@ import android.content.Context
 import android.os.Build
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
+import androidx.glance.Image
+import androidx.glance.ImageProvider
 import androidx.glance.appwidget.ViewSubject.Companion.assertThat
 import androidx.glance.appwidget.test.R
 import androidx.glance.layout.Column
+import androidx.glance.layout.ContentScale
 import androidx.glance.layout.Row
 import androidx.glance.layout.fillMaxHeight
+import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.width
 import androidx.glance.layout.wrapContentHeight
+import androidx.glance.layout.wrapContentSize
 import androidx.glance.layout.wrapContentWidth
 import androidx.glance.text.Text
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,16 +57,16 @@ import kotlin.test.assertNotNull
 @RunWith(RobolectricTestRunner::class)
 class ApplyDimensionModifierTest {
 
-    private lateinit var fakeCoroutineScope: TestCoroutineScope
+    private lateinit var fakeCoroutineScope: TestScope
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
     @Before
     fun setUp() {
-        fakeCoroutineScope = TestCoroutineScope()
+        fakeCoroutineScope = TestScope()
     }
 
     @Test
-    fun normalResourceWidth() = fakeCoroutineScope.runBlockingTest {
+    fun normalResourceWidth() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Text(
                 "content",
@@ -84,7 +90,7 @@ class ApplyDimensionModifierTest {
     }
 
     @Test
-    fun fillWidth() = fakeCoroutineScope.runBlockingTest {
+    fun fillWidth() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Text("content", modifier = GlanceModifier.fillMaxWidth())
         }
@@ -94,7 +100,7 @@ class ApplyDimensionModifierTest {
     }
 
     @Test
-    fun wrapWidth() = fakeCoroutineScope.runBlockingTest {
+    fun wrapWidth() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Text("content", modifier = GlanceModifier.wrapContentWidth())
         }
@@ -104,7 +110,7 @@ class ApplyDimensionModifierTest {
     }
 
     @Test
-    fun expandWidth() = fakeCoroutineScope.runBlockingTest {
+    fun expandWidth() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Row {
                 Text("content", modifier = GlanceModifier.defaultWeight())
@@ -119,7 +125,7 @@ class ApplyDimensionModifierTest {
     }
 
     @Test
-    fun fillResourceWidth() = fakeCoroutineScope.runBlockingTest {
+    fun fillResourceWidth() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Text("content", modifier = GlanceModifier.width(R.dimen.fill_dimension))
         }
@@ -129,7 +135,7 @@ class ApplyDimensionModifierTest {
     }
 
     @Test
-    fun wrapResourceWidth() = fakeCoroutineScope.runBlockingTest {
+    fun wrapResourceWidth() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Text("content", modifier = GlanceModifier.width(R.dimen.wrap_dimension))
         }
@@ -139,7 +145,7 @@ class ApplyDimensionModifierTest {
     }
 
     @Test
-    fun normalResourceHeight() = fakeCoroutineScope.runBlockingTest {
+    fun normalResourceHeight() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Text(
                 "content",
@@ -163,7 +169,7 @@ class ApplyDimensionModifierTest {
     }
 
     @Test
-    fun fillHeight() = fakeCoroutineScope.runBlockingTest {
+    fun fillHeight() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Text("content", modifier = GlanceModifier.fillMaxHeight())
         }
@@ -173,7 +179,7 @@ class ApplyDimensionModifierTest {
     }
 
     @Test
-    fun wrapHeight() = fakeCoroutineScope.runBlockingTest {
+    fun wrapHeight() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Text("content", modifier = GlanceModifier.wrapContentHeight())
         }
@@ -183,7 +189,7 @@ class ApplyDimensionModifierTest {
     }
 
     @Test
-    fun expandHeight() = fakeCoroutineScope.runBlockingTest {
+    fun expandHeight() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Column {
                 Text("content", modifier = GlanceModifier.defaultWeight())
@@ -198,7 +204,7 @@ class ApplyDimensionModifierTest {
     }
 
     @Test
-    fun fillResourceHeight() = fakeCoroutineScope.runBlockingTest {
+    fun fillResourceHeight() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Text("content", modifier = GlanceModifier.height(R.dimen.fill_dimension))
         }
@@ -208,7 +214,7 @@ class ApplyDimensionModifierTest {
     }
 
     @Test
-    fun wrapResourceHeight() = fakeCoroutineScope.runBlockingTest {
+    fun wrapResourceHeight() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Text("content", modifier = GlanceModifier.height(R.dimen.wrap_dimension))
         }
@@ -218,7 +224,7 @@ class ApplyDimensionModifierTest {
     }
 
     @Test
-    fun wrapWidth_fillHeight() = fakeCoroutineScope.runBlockingTest {
+    fun wrapWidth_fillHeight() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Text("content", modifier = GlanceModifier.wrapContentWidth().fillMaxHeight())
         }
@@ -230,7 +236,7 @@ class ApplyDimensionModifierTest {
     }
 
     @Test
-    fun fillWidth_wrapHeight() = fakeCoroutineScope.runBlockingTest {
+    fun fillWidth_wrapHeight() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Text("content", modifier = GlanceModifier.fillMaxWidth().wrapContentHeight())
         }
@@ -242,7 +248,7 @@ class ApplyDimensionModifierTest {
     }
 
     @Test
-    fun fillWidth_fixedHeight() = fakeCoroutineScope.runBlockingTest {
+    fun fillWidth_fixedHeight() = fakeCoroutineScope.runTest {
         val rv = context.runAndTranslate {
             Text("content", modifier = GlanceModifier.fillMaxWidth().height(50.dp))
         }
@@ -259,6 +265,89 @@ class ApplyDimensionModifierTest {
             assertThat(sizeView.minHeight).isEqualTo(targetHeight)
             assertThat(sizeView.maxHeight).isEqualTo(targetHeight)
         }
+    }
+
+    @Test
+    fun wrappedFitImageAdjustsSize() = fakeCoroutineScope.runTest {
+        // Any dimension set to wrap should cause the view bounds to be adjusted
+        setOf(
+            GlanceModifier.wrapContentSize(),
+            GlanceModifier.wrapContentWidth().fillMaxHeight(),
+            GlanceModifier.fillMaxWidth().wrapContentHeight(),
+            GlanceModifier.width(100.dp).wrapContentHeight(),
+            GlanceModifier.wrapContentWidth().height(100.dp)
+        ).forEach { sizeModifier ->
+            val imageView = getSizedAndTranslatedImageView(sizeModifier, ContentScale.Fit)
+            assertThat(imageView?.adjustViewBounds).isEqualTo(true)
+        }
+    }
+
+    @Test
+    fun cropImageDoesntAdjustsSize() = fakeCoroutineScope.runTest {
+        // If the contentScale is crop, never adjust the view bounds
+        setOf(
+            GlanceModifier.wrapContentSize(),
+            GlanceModifier.wrapContentWidth().fillMaxHeight(),
+            GlanceModifier.fillMaxWidth().wrapContentHeight(),
+            GlanceModifier.width(100.dp).wrapContentHeight(),
+            GlanceModifier.wrapContentWidth().height(100.dp),
+            GlanceModifier.fillMaxSize(),
+            GlanceModifier.width(100.dp).height(100.dp),
+            GlanceModifier.fillMaxWidth().height(100.dp),
+            GlanceModifier.width(100.dp).fillMaxHeight()
+        ).forEach { sizeModifier ->
+            val imageView = getSizedAndTranslatedImageView(sizeModifier, ContentScale.Crop)
+            assertThat(imageView?.adjustViewBounds).isEqualTo(false)
+        }
+    }
+
+    @Test
+    fun fillImageDoesntAdjustsSize() = fakeCoroutineScope.runTest {
+        // Image with FillBounds contentScale should never set adjust view bounds
+        setOf(
+            GlanceModifier.wrapContentSize(),
+            GlanceModifier.wrapContentWidth().fillMaxHeight(),
+            GlanceModifier.fillMaxWidth().wrapContentHeight(),
+            GlanceModifier.width(100.dp).wrapContentHeight(),
+            GlanceModifier.wrapContentWidth().height(100.dp),
+            GlanceModifier.fillMaxSize(),
+            GlanceModifier.width(100.dp).height(100.dp),
+            GlanceModifier.fillMaxWidth().height(100.dp),
+            GlanceModifier.width(100.dp).fillMaxHeight()
+        ).forEach { sizeModifier ->
+            val imageView = getSizedAndTranslatedImageView(sizeModifier, ContentScale.FillBounds)
+            assertThat(imageView?.adjustViewBounds).isEqualTo(false)
+        }
+    }
+
+    @Test
+    fun nonwrappedFitImageDoesntAdjustsSize() = fakeCoroutineScope.runTest {
+        // No dimension set to wrap should not cause the view bounds to be adjusted
+        setOf(
+            GlanceModifier.fillMaxSize(),
+            GlanceModifier.width(100.dp).fillMaxHeight(),
+            GlanceModifier.fillMaxWidth().height(100.dp),
+            GlanceModifier.width(100.dp).height(100.dp)
+        ).forEach { sizeModifier ->
+            val imageView = getSizedAndTranslatedImageView(sizeModifier, ContentScale.Fit)
+            assertThat(imageView?.adjustViewBounds).isEqualTo(false)
+        }
+    }
+
+    private suspend fun getSizedAndTranslatedImageView(
+        modifier: GlanceModifier,
+        contentScale: ContentScale
+    ): ImageView? {
+        val rv = context.runAndTranslate {
+            Image(
+                provider = ImageProvider(resId = R.drawable.glance_button_outline),
+                contentDescription = "TEST",
+                modifier = modifier,
+                contentScale = contentScale
+            )
+        }
+
+        return context.applyRemoteViews(rv).findViewByType()
     }
 
     private fun getSizingView(view: View): TextView {

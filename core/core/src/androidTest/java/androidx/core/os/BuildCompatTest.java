@@ -16,6 +16,7 @@
 
 package androidx.core.os;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -34,8 +35,9 @@ public class BuildCompatTest {
     @Test
     public void isAtLeastPreReleaseCodename() {
         assertTrue(BuildCompat.isAtLeastPreReleaseCodename("S", "S"));
-        assertTrue(BuildCompat.isAtLeastPreReleaseCodename("S", "T"));
-        assertFalse(BuildCompat.isAtLeastPreReleaseCodename("T", "S"));
+        assertTrue(BuildCompat.isAtLeastPreReleaseCodename("S", "Tiramisu"));
+        assertTrue(BuildCompat.isAtLeastPreReleaseCodename("Tiramisu", "Tiramisu"));
+        assertFalse(BuildCompat.isAtLeastPreReleaseCodename("Tiramisu", "S"));
 
         assertTrue(BuildCompat.isAtLeastPreReleaseCodename("O", "OMR1"));
         assertFalse(BuildCompat.isAtLeastPreReleaseCodename("OMR1", "O"));
@@ -47,6 +49,18 @@ public class BuildCompatTest {
         assertFalse(BuildCompat.isAtLeastPreReleaseCodename("S", "REL"));
 
         assertFalse(BuildCompat.isAtLeastPreReleaseCodename("RMR1", "REL"));
+    }
+
+    @Test
+    public void extensionConstants() {
+        if (!BuildCompat.isAtLeastR()) {
+            assertEquals(0, BuildCompat.R_EXTENSION_INT);
+            assertEquals(0, BuildCompat.S_EXTENSION_INT);
+        }
+        if (BuildCompat.isAtLeastS()) {
+            assertTrue(BuildCompat.R_EXTENSION_INT >= 1);
+            assertTrue(BuildCompat.S_EXTENSION_INT >= 1);
+        }
     }
 
 }

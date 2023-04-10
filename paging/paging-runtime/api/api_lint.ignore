@@ -1,8 +1,4 @@
 // Baseline format: 1.0
-ExecutorRegistration: androidx.paging.AsyncPagingDataDiffer#AsyncPagingDataDiffer(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>, androidx.recyclerview.widget.ListUpdateCallback):
-    Registration methods should have overload that accepts delivery Executor: `AsyncPagingDataDiffer`
-
-
 MissingGetterMatchingBuilder: androidx.paging.LivePagedListBuilder#setBoundaryCallback(androidx.paging.PagedList.BoundaryCallback<Value>):
     androidx.lifecycle.LiveData does not declare a `getBoundaryCallback()` method matching method androidx.paging.LivePagedListBuilder.setBoundaryCallback(androidx.paging.PagedList.BoundaryCallback<Value>)
 MissingGetterMatchingBuilder: androidx.paging.LivePagedListBuilder#setCoroutineScope(kotlinx.coroutines.CoroutineScope):

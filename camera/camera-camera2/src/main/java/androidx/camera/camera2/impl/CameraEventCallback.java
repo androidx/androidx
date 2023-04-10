@@ -29,15 +29,17 @@ import androidx.camera.core.impl.CaptureConfig;
 public abstract class CameraEventCallback {
 
     /**
-     * This will be invoked before creating a {@link CameraCaptureSession}. The returned
-     * parameter in CaptureConfig will be passed to the camera device as part of the capture session
-     * initialization via setSessionParameters(). The valid parameter is a subset of the
-     * available capture request parameters.
+     * This will be invoked before creating a {@link CameraCaptureSession} for initializing the
+     * session.
+     *
+     * <p>The returned parameter in CaptureConfig will be passed to the camera device as part of
+     * the capture session initialization via setSessionParameters(). The valid parameter is a
+     * subset of the available capture request parameters.
      *
      * @return CaptureConfig The request information to customize the session.
      */
     @Nullable
-    public CaptureConfig onPresetSession() {
+    public CaptureConfig onInitSession() {
         return null;
     }
 
@@ -79,4 +81,8 @@ public abstract class CameraEventCallback {
         return null;
     }
 
+    /**
+     * This will be invoked after the {@link CameraCaptureSession} is closed.
+     */
+    public void onDeInitSession() {}
 }

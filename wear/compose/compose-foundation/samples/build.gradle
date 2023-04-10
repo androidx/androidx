@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -26,7 +24,6 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(project(":compose:compiler:compiler"))
 
     implementation(libs.kotlinStdlib)
 
@@ -37,18 +34,19 @@ dependencies {
     implementation(project(":compose:ui:ui"))
     implementation(project(":compose:ui:ui-text"))
     implementation(project(":wear:compose:compose-foundation"))
+    implementation(project(":wear:compose:compose-material"))
 }
 
 android {
     defaultConfig {
         minSdkVersion 25
     }
+    namespace "androidx.wear.compose.foundation.samples"
 }
 
 androidx {
     name = "Android Wear Compose Foundation Samples"
     type = LibraryType.SAMPLES
-    mavenGroup = LibraryGroups.WEAR_COMPOSE
     inceptionYear = "2021"
     description = "Contains the sample code for the Android Wear Compose Foundation Classes"
 }

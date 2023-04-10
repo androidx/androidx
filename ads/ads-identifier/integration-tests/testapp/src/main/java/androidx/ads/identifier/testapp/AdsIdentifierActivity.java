@@ -102,6 +102,7 @@ public class AdsIdentifierActivity extends Activity {
     }
 
     /** Lists all the providers. */
+    @SuppressWarnings("deprecation")
     public void listProvider(View view) {
         TextView textView = findViewById(R.id.text);
         textView.setText("Services:\n");

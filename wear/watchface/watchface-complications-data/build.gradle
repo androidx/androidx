@@ -16,9 +16,8 @@
 
 import androidx.build.RunApiTasks
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -28,6 +27,7 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
+    api("androidx.versionedparcelable:versionedparcelable:1.1.0")
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
     implementation("androidx.core:core:1.1.0")
@@ -37,9 +37,15 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.testRules)
     testImplementation(libs.robolectric)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.truth)
-    testImplementation("junit:junit:4.13")
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.testParameterInjector)
+
+    annotationProcessor(project(":versionedparcelable:versionedparcelable-compiler"))
 }
 
 android {
@@ -55,12 +61,12 @@ android {
 
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.wear.watchface.complications.data"
 }
 
 androidx {
     name = "Android Wear Complications Data"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WEAR_WATCHFACE
     inceptionYear = "2020"
     description = "Android Wear Complications Data"
 }

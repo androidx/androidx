@@ -31,6 +31,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -195,8 +197,9 @@ public class GuidedStepSupportActivity extends FragmentActivity {
             return R.style.Theme_Example_Leanback_GuidedStep_First;
         }
 
+        @NonNull
         @Override
-        public Guidance onCreateGuidance(Bundle savedInstanceState) {
+        public Guidance onCreateGuidance(@Nullable Bundle savedInstanceState) {
             String title = getString(R.string.guidedstep_first_title);
             String breadcrumb = getString(R.string.guidedstep_first_breadcrumb);
             String description = getString(R.string.guidedstep_first_description);
@@ -207,7 +210,7 @@ public class GuidedStepSupportActivity extends FragmentActivity {
         }
 
         @Override
-        public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
+        public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
             Context context = getActivity();
             actions.add(new GuidedAction.Builder(context)
                     .clickAction(GuidedAction.ACTION_ID_CONTINUE)
@@ -278,6 +281,7 @@ public class GuidedStepSupportActivity extends FragmentActivity {
             }
         }
 
+        @NonNull
         @Override
         public Guidance onCreateGuidance(Bundle savedInstanceState) {
             String title = getString(R.string.guidedstep_newpayment_title);
@@ -290,7 +294,7 @@ public class GuidedStepSupportActivity extends FragmentActivity {
         }
 
         @Override
-        public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
+        public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
             addEditableAction(actions, NEW_PAYMENT, "Input credit card number", "",
                     InputType.TYPE_CLASS_NUMBER,
                     "Input credit card number", "Input credit card number");
@@ -406,6 +410,7 @@ public class GuidedStepSupportActivity extends FragmentActivity {
             };
         }
 
+        @NonNull
         @Override
         public Guidance onCreateGuidance(Bundle savedInstanceState) {
             String title = getString(R.string.guidedstep_second_title);
@@ -418,7 +423,7 @@ public class GuidedStepSupportActivity extends FragmentActivity {
         }
 
         @Override
-        public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
+        public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
             addEditableAction(getActivity(), actions, FIRST_NAME, "Pat", "Your first name");
             addEditableAction(getActivity(), actions, LAST_NAME, "Smith", "Your last name");
             List<GuidedAction> subActions = new ArrayList<GuidedAction>();
@@ -534,6 +539,7 @@ public class GuidedStepSupportActivity extends FragmentActivity {
 
         private long mSelectedOption = DEFAULT_OPTION;
 
+        @NonNull
         @Override
         public Guidance onCreateGuidance(Bundle savedInstanceState) {
             String title = getString(R.string.guidedstep_third_title);
@@ -556,7 +562,7 @@ public class GuidedStepSupportActivity extends FragmentActivity {
         }
 
         @Override
-        public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
+        public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
             String desc = "The description can be quite long as well.  "
                     + "Just be sure to set multilineDescription to true in the GuidedAction."
                     + "For testing purpose we make this line even longer since "
@@ -617,6 +623,7 @@ public class GuidedStepSupportActivity extends FragmentActivity {
             return b.getLong(EXTRA_OPTION, 0);
         }
 
+        @NonNull
         @Override
         public Guidance onCreateGuidance(Bundle savedInstanceState) {
             String title = getString(R.string.guidedstep_fourth_title);
@@ -629,7 +636,7 @@ public class GuidedStepSupportActivity extends FragmentActivity {
         }
 
         @Override
-        public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
+        public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
             actions.add(new GuidedAction.Builder(getActivity())
                     .clickAction(GuidedAction.ACTION_ID_FINISH)
                     .description("All Done...")

@@ -16,30 +16,31 @@
 
 package androidx.health.services.client.data
 
+import androidx.annotation.RestrictTo
 import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.Availability.LocationAvailability as LocationAvailabilityProto
 import androidx.health.services.client.proto.DataProto.Availability.LocationAvailability.LOCATION_AVAILABILITY_UNKNOWN
 
 /** Availability of a [DataType.LOCATION] data type. */
-public enum class LocationAvailability(public override val id: Int) : Availability {
-    UNKNOWN(0),
+public class LocationAvailability private constructor(
+    public override val id: Int,
+    public val name: String
+) : Availability {
 
-    /** Location is not available. */
-    UNAVAILABLE(1),
+    override fun toString(): String = name
 
-    /** The on-device GPS is disabled, so location cannot be acquired. */
-    NO_GPS(2),
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is LocationAvailability) return false
+        if (id != other.id) return false
 
-    /** Acquiring location. */
-    ACQUIRING(3),
+        return true
+    }
 
-    /** Acquired location through connected phone. */
-    ACQUIRED_TETHERED(4),
-
-    /** Acquired location through watch. */
-    ACQUIRED_UNTETHERED(5);
+    override fun hashCode(): Int = id
 
     /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public override fun toProto(): DataProto.Availability =
         DataProto.Availability.newBuilder()
             .setLocationAvailability(
@@ -48,11 +49,43 @@ public enum class LocationAvailability(public override val id: Int) : Availabili
             .build()
 
     public companion object {
+        /**
+         * The availability is unknown, or is represented by a value too new for this library
+         * version to parse.
+         */
+        @JvmField public val UNKNOWN: LocationAvailability = LocationAvailability(0, "UNKNOWN")
+
+        /** Location is not available. */
+        @JvmField
+        public val UNAVAILABLE: LocationAvailability = LocationAvailability(1, "UNAVAILABLE")
+
+        /** The on-device location service is disabled, so location cannot be acquired. */
+        @JvmField public val NO_GNSS: LocationAvailability = LocationAvailability(2, "NO_GNSS")
+
+        /** Acquiring location. */
+        @JvmField public val ACQUIRING: LocationAvailability = LocationAvailability(3, "ACQUIRING")
+
+        /** Acquired location through connected phone. */
+        @JvmField
+        public val ACQUIRED_TETHERED: LocationAvailability =
+            LocationAvailability(4, "ACQUIRED_TETHERED")
+
+        /** Acquired location through watch. */
+        @JvmField
+        public val ACQUIRED_UNTETHERED: LocationAvailability =
+            LocationAvailability(5, "ACQUIRED_UNTETHERED")
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmField
+        public val VALUES: List<LocationAvailability> =
+            listOf(UNKNOWN, UNAVAILABLE, NO_GNSS, ACQUIRING, ACQUIRED_TETHERED, ACQUIRED_UNTETHERED)
+
         @JvmStatic
-        public fun fromId(id: Int): LocationAvailability? = values().firstOrNull { it.id == id }
+        public fun fromId(id: Int): LocationAvailability? = VALUES.firstOrNull { it.id == id }
 
         /** @hide */
-        public fun fromProto(proto: LocationAvailabilityProto): LocationAvailability =
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        internal fun fromProto(proto: LocationAvailabilityProto): LocationAvailability =
             fromId(proto.number) ?: UNKNOWN
     }
 }

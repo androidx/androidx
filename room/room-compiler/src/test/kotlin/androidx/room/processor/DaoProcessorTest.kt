@@ -21,20 +21,23 @@ import androidx.room.compiler.processing.isTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
+import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
-import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RoomTypeNames.ROOM_DB
+import androidx.room.processor.ProcessorErrors.nullableComponentInDaoMethodReturnType
+import androidx.room.processor.ProcessorErrors.nullableCollectionOrArrayReturnTypeInDaoMethod
 import androidx.room.testing.context
 import androidx.room.vo.Dao
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
-import com.squareup.javapoet.TypeName
+import com.google.common.truth.Truth
 import createVerifierFromEntitiesAndViews
+import java.io.File
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.io.File
 
 @RunWith(Parameterized::class)
 class DaoProcessorTest(private val enableVerification: Boolean) {
@@ -154,7 +157,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
         ) { dao, _ ->
             assertThat(dao.queryMethods.size, `is`(1))
             val method = dao.queryMethods.first()
-            assertThat(method.name, `is`("getIds"))
+            assertThat(method.element.jvmName, `is`("getIds"))
         }
     }
 
@@ -170,7 +173,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
         ) { dao, _ ->
             assertThat(dao.queryMethods.size, `is`(1))
             val method = dao.queryMethods.first()
-            assertThat(method.name, `is`("getIds"))
+            assertThat(method.element.jvmName, `is`("getIds"))
         }
     }
 
@@ -188,10 +191,10 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
         ) { dao, _ ->
             assertThat(dao.queryMethods.size, `is`(1))
             val method = dao.queryMethods.first()
-            assertThat(method.name, `is`("getIds"))
+            assertThat(method.element.jvmName, `is`("getIds"))
             assertThat(dao.insertionMethods.size, `is`(1))
             val insertMethod = dao.insertionMethods.first()
-            assertThat(insertMethod.name, `is`("insert"))
+            assertThat(insertMethod.element.jvmName, `is`("insert"))
         }
     }
 
@@ -207,7 +210,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
         ) { dao, _ ->
             assertThat(dao.queryMethods.size, `is`(1))
             val method = dao.queryMethods.first()
-            assertThat(method.name, `is`("getIds"))
+            assertThat(method.element.jvmName, `is`("getIds"))
         }
     }
 
@@ -223,7 +226,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             """
         ) { dao, invocation ->
             val dbType = invocation.context.processingEnv
-                .requireType(RoomTypeNames.ROOM_DB)
+                .requireType(ROOM_DB)
             val daoProcessor =
                 DaoProcessor(invocation.context, dao.element, dbType, null)
 
@@ -248,6 +251,38 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
     }
 
     @Test
+    fun suppressedWarningsKotlin() {
+        val daoSrc = Source.kotlin(
+            "MyDao.kt",
+            """
+            package foo.bar
+            import androidx.room.*
+            @Dao
+            @Suppress(RoomWarnings.CURSOR_MISMATCH)
+            interface MyDao {
+                @Query("SELECT uid from user")
+                fun userId(): Int
+            }
+            """.trimIndent()
+        )
+        runProcessorTest(
+            sources = listOf(daoSrc) + COMMON.USER
+        ) { invocation ->
+            val dao = invocation.roundEnv
+                .getElementsAnnotatedWith(androidx.room.Dao::class.qualifiedName!!)
+                .first()
+            if (!dao.isTypeElement()) {
+                error("Expected DAO to be a type")
+            }
+            val dbType = invocation.context.processingEnv.requireType(ROOM_DB)
+            val daoProcessor =
+                DaoProcessor(invocation.context, dao, dbType, null)
+            Truth.assertThat(daoProcessor.context.logger.suppressedWarnings)
+                .containsExactly(Warning.CURSOR_MISMATCH)
+        }
+    }
+
+    @Test
     fun suppressedWarningsInheritance() {
         singleDao(
             """
@@ -260,7 +295,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             """
         ) { dao, invocation ->
             val dbType = invocation.context.processingEnv
-                .requireType(RoomTypeNames.ROOM_DB)
+                .requireType(ROOM_DB)
             val daoProcessor =
                 DaoProcessor(invocation.context, dao.element, dbType, null)
             assertThat(
@@ -385,7 +420,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
         ) { dao, _ ->
             assertThat(dao.queryMethods.size, `is`(1))
             val method = dao.queryMethods.first()
-            assertThat(method.name, `is`("deleteAllIds"))
+            assertThat(method.element.jvmName, `is`("deleteAllIds"))
         }
     }
 
@@ -401,11 +436,317 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
         ) { dao, invocation ->
             assertThat(dao.queryMethods.size, `is`(1))
             val method = dao.queryMethods.first()
-            assertThat(method.name, `is`("getAllIds"))
+            assertThat(method.element.jvmName, `is`("getAllIds"))
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.cannotFindQueryResultAdapter(TypeName.VOID)
+                    ProcessorErrors.cannotFindQueryResultAdapter("void")
                 )
+            }
+        }
+    }
+
+    @Test
+    fun jvmNameOnDao() {
+        val source = Source.kotlin("MyDao.kt", """
+            import androidx.room.*;
+            @Dao
+            interface MyDao {
+                @Suppress("INAPPLICABLE_JVM_NAME")
+                @JvmName("jvmMethodName")
+                @Query("SELECT 1")
+                fun method(): Int
+            }
+        """.trimIndent())
+        runProcessorTest(sources = listOf(source)) { invocation ->
+            val dao = invocation.processingEnv.requireTypeElement("MyDao")
+            val dbType = invocation.context.processingEnv.requireType(ROOM_DB)
+            DaoProcessor(
+                baseContext = invocation.context,
+                element = dao,
+                dbType = dbType,
+                dbVerifier = null
+            ).process()
+            invocation.assertCompilationResult {
+                hasWarningContaining(
+                    ProcessorErrors.JVM_NAME_ON_OVERRIDDEN_METHOD
+                )
+            }
+        }
+    }
+
+    @Test
+    fun disallowPropertyDao() {
+        val src = Source.kotlin(
+            "MyDatabase.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              val allEntities: List<MyEntity>
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                var pk: Int
+            )
+            """.trimIndent()
+        )
+        runKspTest(
+            sources = listOf(src),
+            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "true"),
+        ) { invocation ->
+            val dao = invocation.processingEnv.requireTypeElement("MyDao")
+            val dbType = invocation.context.processingEnv.requireType(ROOM_DB)
+            DaoProcessor(
+                baseContext = invocation.context,
+                element = dao,
+                dbType = dbType,
+                dbVerifier = null
+            ).process()
+            invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.KOTLIN_PROPERTY_OVERRIDE)
+            }
+        }
+    }
+
+    @Test
+    fun testSelectQueryWithNullableCollectionReturn() {
+        val src = Source.kotlin(
+            "MyDatabase.kt",
+            """
+            import androidx.room.*
+            import com.google.common.collect.ImmutableList
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              fun nullableList(): List<MyEntity>?
+
+              @Query("SELECT * FROM MyEntity")
+              fun nullableImmutableList(): ImmutableList<MyEntity>?
+
+              @Query("SELECT * FROM MyEntity")
+              fun nullableArray(): Array<MyEntity>?
+
+              @Query("SELECT * FROM MyEntity")
+              fun nullableOptional(): java.util.Optional<MyEntity>?
+
+              @Query("SELECT * FROM MyEntity")
+              fun nullableOptionalGuava(): com.google.common.base.Optional<MyEntity>?
+
+              @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
+              fun nullableMap(): Map<MyEntity, MyOtherEntity>?
+
+              @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
+              fun nullableImmutableMap(): com.google.common.collect.ImmutableMap<MyEntity, MyOtherEntity>?
+
+              @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
+              fun nullableImmutableSetMultimap(): com.google.common.collect.ImmutableSetMultimap<MyEntity, MyOtherEntity>?
+
+              @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
+              fun nullableImmutableListMultimap(): com.google.common.collect.ImmutableListMultimap<MyEntity, MyOtherEntity>?
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                var pk: Int
+            )
+
+            @Entity
+            data class MyOtherEntity(
+                @PrimaryKey
+                var otherPk: Int
+            )
+            """.trimIndent()
+        )
+        runKspTest(
+            sources = listOf(src),
+            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "true"),
+        ) { invocation ->
+            val dao = invocation.processingEnv.requireTypeElement("MyDao")
+            val dbType = invocation.context.processingEnv.requireType(ROOM_DB)
+            DaoProcessor(
+                baseContext = invocation.context,
+                element = dao,
+                dbType = dbType,
+                dbVerifier = null
+            ).process()
+            invocation.assertCompilationResult {
+                hasWarningContaining(
+                    nullableCollectionOrArrayReturnTypeInDaoMethod(
+                        "kotlin.collections.List<MyEntity>?",
+                        "Collection"
+                    )
+                )
+                hasWarningContaining(
+                    nullableCollectionOrArrayReturnTypeInDaoMethod(
+                    "com.google.common.collect.ImmutableList<MyEntity>?",
+                        "Collection"
+                    )
+                )
+                hasWarningContaining(
+                    nullableCollectionOrArrayReturnTypeInDaoMethod(
+                        "kotlin.Array<MyEntity>?",
+                        "Array"
+                    )
+                )
+                hasWarningContaining(
+                    nullableCollectionOrArrayReturnTypeInDaoMethod(
+                        "java.util.Optional<MyEntity>?",
+                        "Optional"
+                    )
+                )
+                hasWarningContaining(
+                    nullableCollectionOrArrayReturnTypeInDaoMethod(
+                        "com.google.common.base.Optional<MyEntity>?",
+                        "Optional"
+                    )
+                )
+                hasWarningContaining(
+                    nullableCollectionOrArrayReturnTypeInDaoMethod(
+                        "kotlin.collections.Map<MyEntity, MyOtherEntity>?",
+                        "Collection"
+                    )
+                )
+                hasWarningContaining(
+                    nullableCollectionOrArrayReturnTypeInDaoMethod(
+                        "com.google.common.collect.ImmutableMap<MyEntity, MyOtherEntity>?",
+                        "Collection"
+                    )
+                )
+                hasWarningContaining(
+                    nullableCollectionOrArrayReturnTypeInDaoMethod(
+                        "com.google.common.collect.ImmutableSetMultimap<MyEntity, MyOtherEntity>?",
+                        "Collection"
+                    )
+                )
+                hasWarningContaining(
+                    nullableCollectionOrArrayReturnTypeInDaoMethod(
+                        "com.google.common.collect.ImmutableListMultimap<MyEntity, MyOtherEntity>?",
+                        "Collection"
+                    )
+                )
+                hasWarningCount(9)
+            }
+        }
+    }
+
+    @Test
+    fun testSelectQueryWithNullableTypeArgCollectionReturn() {
+        val src = Source.kotlin(
+            "MyDatabase.kt",
+            """
+            import androidx.room.*
+            import com.google.common.collect.ImmutableList
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              fun nullableList(): List<MyEntity?>
+
+              @Query("SELECT * FROM MyEntity")
+              fun nullableImmutableList(): ImmutableList<MyEntity?>
+
+              @Query("SELECT * FROM MyEntity")
+              fun nullableArray(): Array<MyEntity?>
+
+              @Query("SELECT * FROM MyEntity")
+              fun nullableOptional(): java.util.Optional<MyEntity?>
+
+              @Query("SELECT * FROM MyEntity")
+              fun nullableOptionalGuava(): com.google.common.base.Optional<MyEntity?>
+
+              @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
+              fun nullableMap(): Map<MyEntity?, MyOtherEntity>
+
+              @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
+              fun nullableImmutableMap(): com.google.common.collect.ImmutableMap<MyEntity?, MyOtherEntity>
+
+              @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
+              fun nullableImmutableSetMultimap(): com.google.common.collect.ImmutableSetMultimap<MyEntity?, MyOtherEntity>
+
+              @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
+              fun nullableImmutableListMultimap(): com.google.common.collect.ImmutableListMultimap<MyEntity?, MyOtherEntity>
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                var pk: Int
+            )
+
+            @Entity
+            data class MyOtherEntity(
+                @PrimaryKey
+                var otherPk: Int
+            )
+            """.trimIndent()
+        )
+        runKspTest(
+            sources = listOf(src),
+            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "true"),
+        ) { invocation ->
+            val dao = invocation.processingEnv.requireTypeElement("MyDao")
+            val dbType = invocation.context.processingEnv.requireType(ROOM_DB)
+            DaoProcessor(
+                baseContext = invocation.context,
+                element = dao,
+                dbType = dbType,
+                dbVerifier = null
+            ).process()
+            invocation.assertCompilationResult {
+                hasWarningContaining(
+                    nullableComponentInDaoMethodReturnType("kotlin.collections.List<MyEntity?>")
+                )
+                hasWarningContaining(
+                    nullableComponentInDaoMethodReturnType(
+                    "com.google.common.collect.ImmutableList<MyEntity?>"
+                    )
+                )
+                hasWarningContaining(
+                    nullableComponentInDaoMethodReturnType("kotlin.Array<MyEntity?>")
+                )
+                hasWarningContaining(
+                    nullableComponentInDaoMethodReturnType("java.util.Optional<MyEntity?>")
+                )
+                hasWarningContaining(
+                    nullableComponentInDaoMethodReturnType(
+                        "com.google.common.base.Optional<MyEntity?>"
+                    )
+                )
+                hasWarningContaining(
+                    nullableComponentInDaoMethodReturnType(
+                        "kotlin.collections.Map<MyEntity?, MyOtherEntity>"
+                    )
+                )
+                hasWarningContaining(
+                    nullableComponentInDaoMethodReturnType(
+                        "com.google.common.collect.ImmutableMap<MyEntity?, MyOtherEntity>"
+                    )
+                )
+                // We expect "MutableMap" when ImmutableMap is used because TypeAdapterStore will
+                // convert the map to a mutable one and re-run the `findQueryResultAdapter`
+                // algorithm
+                hasWarningContaining(
+                    nullableComponentInDaoMethodReturnType(
+                        "kotlin.collections.MutableMap<MyEntity?, MyOtherEntity>"
+                    )
+                )
+                hasWarningContaining(
+                    nullableComponentInDaoMethodReturnType(
+                        "com.google.common.collect.ImmutableSetMultimap<MyEntity?, MyOtherEntity>"
+                    )
+                )
+                hasWarningContaining(
+                    nullableComponentInDaoMethodReturnType(
+                        "com.google.common.collect.ImmutableListMultimap<MyEntity?, MyOtherEntity>"
+                    )
+                )
+                hasWarningCount(10)
             }
         }
     }
@@ -437,7 +778,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
                 null
             }
             val dbType = invocation.context.processingEnv
-                .requireType(RoomTypeNames.ROOM_DB)
+                .requireType(ROOM_DB)
             val parser = DaoProcessor(
                 invocation.context,
                 dao, dbType, dbVerifier

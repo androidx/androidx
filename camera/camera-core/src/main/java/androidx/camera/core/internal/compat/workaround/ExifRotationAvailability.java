@@ -40,8 +40,7 @@ public class ExifRotationAvailability {
     public boolean isRotationOptionSupported() {
         ImageCaptureRotationOptionQuirk quirk =
                 DeviceQuirks.get(ImageCaptureRotationOptionQuirk.class);
-
-        return quirk != null ? quirk.isSupported(CaptureConfig.OPTION_ROTATION) : true;
+        return quirk == null || quirk.isSupported(CaptureConfig.OPTION_ROTATION);
     }
 
     /**
@@ -54,10 +53,6 @@ public class ExifRotationAvailability {
      * @param image The captured image object.
      */
     public boolean shouldUseExifOrientation(@NonNull ImageProxy image) {
-        ImageCaptureRotationOptionQuirk quirk =
-                DeviceQuirks.get(ImageCaptureRotationOptionQuirk.class);
-
-        return (quirk != null ? quirk.isSupported(CaptureConfig.OPTION_ROTATION) : true)
-                && image.getFormat() == ImageFormat.JPEG;
+        return isRotationOptionSupported() && image.getFormat() == ImageFormat.JPEG;
     }
 }

@@ -22,14 +22,14 @@ import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Update
+import androidx.room.Upsert
 import androidx.room.ext.KotlinTypeNames
-import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RoomTypeNames.ROOM_DB
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.parser.QueryType
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.vo.CustomTypeConverter
 import androidx.room.vo.Field
-import com.squareup.javapoet.TypeName
 
 object ProcessorErrors {
     private fun String.trim(): String {
@@ -42,6 +42,7 @@ object ProcessorErrors {
     val MISSING_INSERT_ANNOTATION = "Insertion methods must be annotated with ${Insert::class.java}"
     val MISSING_DELETE_ANNOTATION = "Deletion methods must be annotated with ${Delete::class.java}"
     val MISSING_UPDATE_ANNOTATION = "Update methods must be annotated with ${Update::class.java}"
+    val MISSING_UPSERT_ANNOTATION = "Upsertion methods must be annotated with ${Upsert::class.java}"
     val MISSING_RAWQUERY_ANNOTATION = "RawQuery methods must be annotated with" +
         " ${RawQuery::class.java}"
     val INVALID_ON_CONFLICT_VALUE = "On conflict value must be one of @OnConflictStrategy values."
@@ -57,6 +58,8 @@ object ProcessorErrors {
         " methods. It must be bound to a type through base Dao class."
     val CANNOT_USE_UNBOUND_GENERICS_IN_INSERTION_METHODS = "Cannot use unbound generics in" +
         " insertion methods. It must be bound to a type through base Dao class."
+    val CANNOT_USE_UNBOUND_GENERICS_IN_UPSERTION_METHODS = "Cannot use unbound generics in" +
+        " upsertion methods. It must be bound to a type through base Dao class."
     val CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_FIELDS = "Cannot use unbound fields in entities."
     val CANNOT_USE_UNBOUND_GENERICS_IN_DAO_CLASSES = "Cannot use unbound generics in Dao classes." +
         " If you are trying to create a base DAO, create a normal class, extend it with type" +
@@ -133,7 +136,7 @@ object ProcessorErrors {
     val QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE = "Query/Insert method parameters cannot " +
         "start with underscore (_)."
 
-    fun cannotFindQueryResultAdapter(returnTypeName: TypeName) = "Not sure how to convert a " +
+    fun cannotFindQueryResultAdapter(returnTypeName: String) = "Not sure how to convert a " +
         "Cursor to this method's return type ($returnTypeName)."
 
     fun classMustImplementEqualsAndHashCode(keyType: String) = "The key" +
@@ -143,29 +146,30 @@ object ProcessorErrors {
     val INSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_INSERT = "Method annotated with" +
         " @Insert but does not have any parameters to insert."
 
+    val UPSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_UPSERT = "Method annotated with" +
+        " @Upsert but does not have any parameters to insert or update."
+
     val DELETION_MISSING_PARAMS = "Method annotated with" +
         " @Delete but does not have any parameters to delete."
 
     fun cannotMapInfoSpecifiedColumn(column: String, columnsInQuery: List<String>) =
-        "Column(s) specified in the provided @MapInfo annotation must be present in the query. " +
-            "Provided: $column. Columns Found: ${columnsInQuery.joinToString(", ")}"
+        "Column specified in the provided @MapInfo annotation must be present in the query. " +
+            "Provided: $column. Columns found: ${columnsInQuery.joinToString(", ")}"
 
     val MAP_INFO_MUST_HAVE_AT_LEAST_ONE_COLUMN_PROVIDED = "To use the @MapInfo annotation, you " +
         "must provide either the key column name, value column name, or both."
 
-    fun keyMayNeedMapInfo(keyArg: TypeName): String {
+    fun keyMayNeedMapInfo(keyArg: String): String {
         return """
-            Looks like you may need to use @MapInfo to clarify the 'keyColumnName' needed for
-            the return type of a method. Type argument that needs
-            @MapInfo: $keyArg
+            Looks like you may need to use @MapInfo to clarify the 'keyColumn' needed for
+            the return type of a method. Type argument that needs @MapInfo: $keyArg
             """.trim()
     }
 
-    fun valueMayNeedMapInfo(valueArg: TypeName): String {
+    fun valueMayNeedMapInfo(valueArg: String): String {
         return """
-            Looks like you may need to use @MapInfo to clarify the 'valueColumnName' needed for
-            the return type of a method. Type argument that needs
-            @MapInfo: $valueArg
+            Looks like you may need to use @MapInfo to clarify the 'valueColumn' needed for
+            the return type of a method. Type argument that needs @MapInfo: $valueArg
             """.trim()
     }
 
@@ -175,7 +179,25 @@ object ProcessorErrors {
     val CANNOT_FIND_UPDATE_RESULT_ADAPTER = "Not sure how to handle update method's " +
         "return type. Currently the supported return types are void, int or Int."
 
+    fun suspendReturnsDeferredType(returnTypeName: String) = "Dao functions that have a suspend " +
+        "modifier must not return a deferred/async type ($returnTypeName). Most probably this " +
+        "is an error. Consider changing the return type or removing the suspend modifier."
+
     val CANNOT_FIND_INSERT_RESULT_ADAPTER = "Not sure how to handle insert method's return type."
+
+    val CANNOT_FIND_UPSERT_RESULT_ADAPTER = "Not sure how to handle upsert method's return type."
+
+    val INSERT_MULTI_PARAM_SINGLE_RETURN_MISMATCH = "Insert method accepts multiple parameters " +
+        "but the return type is a single element. Try using a multiple element return type."
+
+    val UPSERT_MULTI_PARAM_SINGLE_RETURN_MISMATCH = "Upsert method accepts multiple parameters " +
+        "but the return type is a single element. Try using a multiple element return type."
+
+    val INSERT_SINGLE_PARAM_MULTI_RETURN_MISMATCH = "Insert method accepts a single parameter " +
+        "but the return type is a collection of elements. Try using a single element return type."
+
+    val UPSERT_SINGLE_PARAM_MULTI_RETURN_MISMATCH = "Upsert method accepts a single parameter " +
+        "but the return type is a collection of elements. Try using a single element return type."
 
     val UPDATE_MISSING_PARAMS = "Method annotated with" +
         " @Update but does not have any parameters to update."
@@ -202,7 +224,7 @@ object ProcessorErrors {
         "annotated with @Entity or a collection/array of it."
 
     val DB_MUST_EXTEND_ROOM_DB = "Classes annotated with @Database should extend " +
-        RoomTypeNames.ROOM_DB
+        ROOM_DB.canonicalName
 
     val OBSERVABLE_QUERY_NOTHING_TO_OBSERVE = "Observable query return type (LiveData, Flowable" +
         ", DataSource, DataSourceFactory etc) can only be used with SELECT queries that" +
@@ -243,7 +265,7 @@ object ProcessorErrors {
         return MISSING_PARAMETER_FOR_BIND.format(bindVarName.joinToString(", "))
     }
 
-    fun valueCollectionMustBeListOrSet(mapValueTypeName: TypeName): String {
+    fun valueCollectionMustBeListOrSet(mapValueTypeName: String): String {
         return "Multimap 'value' collection type must be a List or Set. Found $mapValueTypeName."
     }
 
@@ -264,7 +286,7 @@ object ProcessorErrors {
 
     val DAO_METHOD_CONFLICTS_WITH_OTHERS = "Dao method has conflicts."
 
-    fun duplicateDao(dao: TypeName, methodNames: List<String>): String {
+    fun duplicateDao(dao: String, methodNames: List<String>): String {
         return """
                 All of these functions [${methodNames.joinToString(", ")}] return the same DAO
                 class [$dao].
@@ -276,7 +298,7 @@ object ProcessorErrors {
     }
 
     fun pojoMissingNonNull(
-        pojoTypeName: TypeName,
+        pojoTypeName: String,
         missingPojoFields: List<String>,
         allQueryColumns: List<String>
     ): String {
@@ -289,10 +311,10 @@ object ProcessorErrors {
     }
 
     fun cursorPojoMismatch(
-        pojoTypeNames: List<TypeName>,
+        pojoTypeNames: List<String>,
         unusedColumns: List<String>,
         allColumns: List<String>,
-        pojoUnusedFields: Map<TypeName, List<Field>>,
+        pojoUnusedFields: Map<String, List<Field>>,
     ): String {
         val unusedColumnsWarning = if (unusedColumns.isNotEmpty()) {
             val pojoNames = if (pojoTypeNames.size > 1) {
@@ -344,7 +366,7 @@ object ProcessorErrors {
             " ${converters.joinToString(", ") { it.toString() }}"
     }
 
-    fun typeConverterMustBeDeclared(typeName: TypeName): String {
+    fun typeConverterMustBeDeclared(typeName: String): String {
         return "Invalid type converter type: $typeName. Type converters must be a class."
     }
 
@@ -615,6 +637,18 @@ object ProcessorErrors {
     val MISSING_ROOM_PAGING_ARTIFACT = "To use PagingSource, you must add `room-paging`" +
         " artifact from Room as a dependency. androidx.room:room-paging:<version>"
 
+    val MISSING_ROOM_PAGING_GUAVA_ARTIFACT = "To use ListenableFuturePagingSource, you must " +
+        "add `room-paging-guava` artifact from Room as a dependency. " +
+        "androidx.room:room-paging-guava:<version>"
+
+    val MISSING_ROOM_PAGING_RXJAVA2_ARTIFACT = "To use RxPagingSource, you must " +
+        "add `room-paging-rxjava2` artifact from Room as a dependency. " +
+        "androidx.room:room-paging-rxjava2:<version>"
+
+    val MISSING_ROOM_PAGING_RXJAVA3_ARTIFACT = "To use RxPagingSource, you must " +
+        "add `room-paging-rxjava3` artifact from Room as a dependency. " +
+        "androidx.room:room-paging-rxjava3:<version>"
+
     val MISSING_ROOM_COROUTINE_ARTIFACT = "To use Coroutine features, you must add `ktx`" +
         " artifact from Room as a dependency. androidx.room:room-ktx:<version>"
 
@@ -677,7 +711,7 @@ object ProcessorErrors {
 
     val RAW_QUERY_BAD_RETURN_TYPE = "RawQuery methods must return a non-void type."
 
-    fun rawQueryBadEntity(typeName: TypeName): String {
+    fun rawQueryBadEntity(typeName: String): String {
         return """
             observedEntities field in RawQuery must either reference a class that is annotated
             with @Entity or it should reference a POJO that either contains @Embedded fields that
@@ -687,7 +721,7 @@ object ProcessorErrors {
     }
 
     val RAW_QUERY_STRING_PARAMETER_REMOVED = "RawQuery does not allow passing a string anymore." +
-        " Please use ${SupportDbTypeNames.QUERY}."
+        " Please use ${SupportDbTypeNames.QUERY.canonicalName}."
 
     val MISSING_COPY_ANNOTATIONS = "Annotated property getter is missing " +
         "@AutoValue.CopyAnnotations."
@@ -760,6 +794,13 @@ object ProcessorErrors {
         "(${primaryKeyNames.joinToString()}) needed to perform an INSERT. If your single " +
         "primary key is auto generated then the fields are optional."
 
+    fun missingPrimaryKeysInPartialEntityForUpsert(
+        partialEntityName: String,
+        primaryKeyNames: List<String>
+    ) = "The partial entity $partialEntityName is missing the primary key fields " +
+        "(${primaryKeyNames.joinToString()}) needed to perform an UPSERT. If your single " +
+        "primary key is auto generated then the fields are optional."
+
     fun missingRequiredColumnsInPartialEntity(
         partialEntityName: String,
         missingColumnNames: List<String>
@@ -779,7 +820,7 @@ object ProcessorErrors {
         "perform the query."
 
     fun cannotFindPreparedQueryResultAdapter(
-        returnType: TypeName,
+        returnType: String,
         type: QueryType
     ) = StringBuilder().apply {
         append("Not sure how to handle query method's return type ($returnType). ")
@@ -813,9 +854,9 @@ object ProcessorErrors {
 
     fun mismatchedGetter(
         fieldName: String,
-        ownerType: TypeName,
-        getterType: TypeName,
-        fieldType: TypeName
+        ownerType: String,
+        getterType: String,
+        fieldType: String
     ) = """
             $ownerType's $fieldName field has type $fieldType but its getter returns $getterType.
             This mismatch might cause unexpected $fieldName values in the database when $ownerType
@@ -824,9 +865,9 @@ object ProcessorErrors {
 
     fun mismatchedSetter(
         fieldName: String,
-        ownerType: TypeName,
-        setterType: TypeName,
-        fieldType: TypeName
+        ownerType: String,
+        setterType: String,
+        fieldType: String
     ) = """
             $ownerType's $fieldName field has type $fieldType but its setter accepts $setterType.
             This mismatch might cause unexpected $fieldName values when $ownerType is read from the
@@ -836,11 +877,11 @@ object ProcessorErrors {
     val DATABASE_INVALID_DAO_METHOD_RETURN_TYPE = "Abstract database methods must return a @Dao " +
         "annotated class or interface."
 
-    fun invalidEntityTypeInDatabaseAnnotation(typeName: TypeName): String {
+    fun invalidEntityTypeInDatabaseAnnotation(typeName: String): String {
         return "Invalid Entity type: $typeName. An entity in the database must be a class."
     }
 
-    fun invalidViewTypeInDatabaseAnnotation(typeName: TypeName): String {
+    fun invalidViewTypeInDatabaseAnnotation(typeName: String): String {
         return "Invalid View type: $typeName. Views in a database must be a class or an " +
             "interface."
     }
@@ -856,7 +897,7 @@ object ProcessorErrors {
         "or an interface."
 
     fun shortcutMethodArgumentMustBeAClass(
-        typeName: TypeName
+        typeName: String
     ): String {
         return "Invalid query argument: $typeName. It must be a class or an interface."
     }
@@ -925,34 +966,42 @@ object ProcessorErrors {
             """
             AutoMigration Failure in ‘$className’: Column ‘$columnName’ in table ‘$tableName’ has
             been either removed or renamed. Please annotate ‘$className’ with the @RenameColumn
-            or @RemoveColumn annotation to specify the change to be performed:
+            or @DeleteColumn annotation to specify the change to be performed:
             1) RENAME:
-                @RenameColumn(
+                @RenameColumn.Entries(
+                    @RenameColumn(
                         tableName = "$tableName",
                         fromColumnName = "$columnName",
                         toColumnName = <NEW_COLUMN_NAME>
+                    )
                 )
             2) DELETE:
-                @DeleteColumn=(
+                @DeleteColumn.Entries(
+                    @DeleteColumn(
                         tableName = "$tableName",
                         columnName = "$columnName"
+                    )
                 )
             """
         } else {
             """
             AutoMigration Failure: Please declare an interface extending 'AutoMigrationSpec',
-            and annotate with the @RenameColumn or @RemoveColumn annotation to specify the
+            and annotate with the @RenameColumn or @DeleteColumn annotation to specify the
             change to be performed:
             1) RENAME:
-                @RenameColumn(
+                @RenameColumn.Entries(
+                    @RenameColumn(
                         tableName = "$tableName",
                         fromColumnName = "$columnName",
                         toColumnName = <NEW_COLUMN_NAME>
+                    )
                 )
             2) DELETE:
-                @DeleteColumn=(
+                @DeleteColumn.Entries(
+                    @DeleteColumn(
                         tableName = "$tableName",
                         columnName = "$columnName"
+                    )
                 )
             """
         }
@@ -965,20 +1014,40 @@ object ProcessorErrors {
         return if (className != null) {
             """
             AutoMigration Failure in '$className': Table '$tableName' has been either removed or
-            renamed. Please annotate '$className' with the @RenameTable or @RemoveTable
+            renamed. Please annotate '$className' with the @RenameTable or @DeleteTable
             annotation to specify the change to be performed:
-            1) RENAME: @RenameTable.Entries(
-                @RenameTable(fromTableName = "$tableName", toTableName = <NEW_TABLE_NAME>))
-            2) DELETE: @DeleteTable.Entries(@DeleteTable(tableName = "$tableName"))
+            1) RENAME:
+                @RenameTable.Entries(
+                    @RenameTable(
+                        fromTableName = "$tableName",
+                        toTableName = <NEW_TABLE_NAME>
+                    )
+                )
+            2) DELETE:
+                @DeleteTable.Entries(
+                    @DeleteTable(
+                        tableName = "$tableName"
+                    )
+                )
             """
         } else {
             """
             AutoMigration Failure: Please declare an interface extending 'AutoMigrationSpec',
-            and annotate with the @RenameTable or @RemoveTable
-            annotation to specify the change to be performed:
-            1) RENAME: @RenameTable.Entries(
-                @RenameTable(fromTableName = "$tableName", toTableName = <NEW_TABLE_NAME>))
-            2) DELETE: @DeleteTable.Entries(@DeleteTable(tableName = "$tableName"))
+            and annotate with the @RenameTable or @DeleteTable annotation to specify the change
+            to be performed:
+            1) RENAME:
+                @RenameTable.Entries(
+                    @RenameTable(
+                        fromTableName = "$tableName",
+                        toTableName = <NEW_TABLE_NAME>
+                    )
+                )
+            2) DELETE:
+                @DeleteTable.Entries(
+                    @DeleteTable(
+                        tableName = "$tableName"
+                    )
+                )
             """
         }
     }
@@ -1021,4 +1090,58 @@ object ProcessorErrors {
     val AUTOMIGRATION_SPEC_MISSING_NOARG_CONSTRUCTOR = "Classes that are used as " +
         "AutoMigrationSpec " +
         "implementations must have no-argument public constructors."
+
+    val JVM_NAME_ON_OVERRIDDEN_METHOD = "Using @JvmName annotation on a function or accessor " +
+        "that will be overridden by Room is not supported. If this is important for your use " +
+        "case, please file a bug at $ISSUE_TRACKER_LINK with details."
+
+    fun ambiguousColumn(
+        columnName: String,
+        location: AmbiguousColumnLocation,
+        typeName: String?
+    ): String {
+        val (locationDesc, recommendation) = when (location) {
+            AmbiguousColumnLocation.MAP_INFO -> {
+                "in the @MapInfo" to "update @MapInfo"
+            }
+            AmbiguousColumnLocation.POJO -> {
+                checkNotNull(typeName)
+                "in the object '$typeName'" to "use @ColumnInfo"
+            }
+            AmbiguousColumnLocation.ENTITY -> {
+                checkNotNull(typeName)
+                "in the entity '$typeName'" to "use a new data class / POJO with @ColumnInfo'"
+            }
+        }
+        return "The column '$columnName' $locationDesc is ambiguous and cannot be properly " +
+            "resolved. Please alias the column and $recommendation. Otherwise there is a risk of " +
+            "the query returning invalid values. You can suppress this warning by annotating " +
+            "the method with @SuppressWarnings(RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT)."
+    }
+
+    enum class AmbiguousColumnLocation {
+        MAP_INFO,
+        POJO,
+        ENTITY,
+    }
+
+    val KOTLIN_PROPERTY_OVERRIDE = "Property getter overrides are not support when generating " +
+        "Kotlin code, please rewrite as an abstract function."
+
+    val NONNULL_VOID = "Invalid non-null declaration of 'Void', should be nullable. The 'Void' " +
+        "class represents a placeholder type that is uninstantiable and 'null' is always returned."
+
+    fun nullableCollectionOrArrayReturnTypeInDaoMethod(
+        typeName: String,
+        returnType: String
+    ): String {
+        return "The nullable `$returnType` ($typeName) return type in a DAO method is " +
+        "meaningless because Room will instead return an empty `$returnType` if no rows are " +
+        "returned from the query."
+    }
+
+    fun nullableComponentInDaoMethodReturnType(typeName: String): String {
+        return "The DAO method return type ($typeName) with the nullable type argument " +
+        "is meaningless because for now Room will never put a null value in a result."
+    }
 }

@@ -28,7 +28,4 @@
 
     <!-- String describing opened on phone animation which is read aloud when opened if accessibility is turned on [CHAR_LIMIT='NONE'] -->
     <string name="confirmation_overlay_a11y_description_phone">Opened on your phone</string>
-
-    <!-- String describing that image is read out on animation and will be followed by image description [CHAR_LIMIT='NONE'] -->
-    <string name="confirmation_overlay_a11y_type_image">Image</string>
 </resources>

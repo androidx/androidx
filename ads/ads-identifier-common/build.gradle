@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -30,7 +28,7 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.robolectric)
 }
 
@@ -39,13 +37,13 @@ android {
         aidl = true
     }
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.ads.identifier.common"
 }
 
 androidx {
     name = "AndroidX Ads Identifier Common"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.ADS_IDENTIFIER
-    mavenGroup = LibraryGroups.ADS
     inceptionYear = "2019"
     description = "AndroidX Ads Identifier Common"
 }

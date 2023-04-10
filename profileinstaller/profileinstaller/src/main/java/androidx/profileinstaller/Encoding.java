@@ -168,18 +168,20 @@ class Encoding {
 
     static void writeCompressed(@NonNull OutputStream os, byte[] data) throws IOException {
         writeUInt32(os, data.length); // uncompressed size
-        Deflater deflater = new Deflater(Deflater.BEST_SPEED);
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            try (DeflaterOutputStream dos = new DeflaterOutputStream(bos, deflater)) {
-                dos.write(data);
-            }
-            byte[] outputData = bos.toByteArray();
-            writeUInt32(os, outputData.length); // compressed size
-            os.write(outputData); // compressed body
+        byte[] outputData = compress(data);
+        writeUInt32(os, outputData.length); // compressed size
+        os.write(outputData); // compressed body
+    }
+
+    static byte[] compress(@NonNull byte[] data) throws IOException {
+        Deflater compressor = new Deflater(Deflater.BEST_SPEED);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try (DeflaterOutputStream deflater = new DeflaterOutputStream(out, compressor)) {
+            deflater.write(data);
         } finally {
-            deflater.end();
+            compressor.end();
         }
+        return out.toByteArray();
     }
 
     static void writeAll(@NonNull InputStream is, @NonNull OutputStream os) throws IOException {

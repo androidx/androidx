@@ -16,7 +16,9 @@
 
 package androidx.compose.ui.graphics
 
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 
 /**
  * Default camera distance for all layers
@@ -24,10 +26,16 @@ import androidx.compose.ui.unit.Density
 const val DefaultCameraDistance = 8.0f
 
 /**
+ * Default ambient shadow color for all layers.
+ */
+val DefaultShadowColor = Color.Black
+
+/**
  * A scope which can be used to define the effects to apply for the content, such as scaling
  * ([scaleX], [scaleY]), rotation ([rotationX], [rotationY], [rotationZ]), opacity ([alpha]), shadow
  * ([shadowElevation], [shape]), and clipping ([clip], [shape]).
  */
+@JvmDefaultWithCompatibility
 interface GraphicsLayerScope : Density {
     /**
      * The horizontal scale of the drawn area. Default value is `1`.
@@ -68,6 +76,48 @@ interface GraphicsLayerScope : Density {
      */
     /*@setparam:FloatRange(from = 0.0)*/
     var shadowElevation: Float
+
+    /**
+     * Sets the color of the ambient shadow that is drawn when [shadowElevation] > 0f.
+     *
+     * By default the shadow color is black. Generally, this color will be opaque so the intensity
+     * of the shadow is consistent between different graphics layers with different colors.
+     *
+     * The opacity of the final ambient shadow is a function of the shadow caster height, the
+     * alpha channel of the [ambientShadowColor] (typically opaque), and the
+     * [android.R.attr.ambientShadowAlpha] theme attribute.
+     *
+     * Note that this parameter is only supported on Android 9 (Pie) and above. On older versions,
+     * this property always returns [Color.Black] and setting new values is ignored.
+     */
+    // Add default getter/setter implementation to avoid breaking api changes due to abstract
+    // method additions. ReusableGraphicsLayer is the only implementation anyway.
+    var ambientShadowColor: Color
+        get() = DefaultShadowColor
+        // Keep the parameter name so current.txt maintains it for named parameter usage
+        @Suppress("UNUSED_PARAMETER")
+        set(ambientShadowColor) {}
+
+    /**
+     * Sets the color of the spot shadow that is drawn when [shadowElevation] > 0f.
+     *
+     * By default the shadow color is black. Generally, this color will be opaque so the intensity
+     * of the shadow is consistent between different graphics layers with different colors.
+     *
+     * The opacity of the final spot shadow is a function of the shadow caster height, the
+     * alpha channel of the [spotShadowColor] (typically opaque), and the
+     * [android.R.attr.spotShadowAlpha] theme attribute.
+     *
+     * Note that this parameter is only supported on Android 9 (Pie) and above. On older versions,
+     * this property always returns [Color.Black] and setting new values is ignored.
+     */
+    // Add default getter/setter implementation to avoid breaking api changes due to abstract
+    // method additions. ReusableGraphicsLayer is the only implementation anyway.
+    var spotShadowColor: Color
+        get() = DefaultShadowColor
+        // Keep the parameter name so current.txt maintains it for named parameter usage
+        @Suppress("UNUSED_PARAMETER")
+        set(spotShadowColor) {}
 
     /**
      * The rotation, in degrees, of the contents around the horizontal axis in degrees. Default
@@ -147,6 +197,24 @@ interface GraphicsLayerScope : Density {
     var renderEffect: RenderEffect?
         get() = null
         set(_) {}
+
+    /**
+     * Determines the [CompositingStrategy] used to render the contents of this graphicsLayer
+     * into an offscreen buffer first before rendering to the destination
+     */
+    var compositingStrategy: CompositingStrategy
+        get() = CompositingStrategy.Auto
+        // Keep the parameter name so current.txt maintains it for named parameter usage
+        @Suppress("UNUSED_PARAMETER")
+        set(compositingStrategy) {}
+
+    /**
+     * [Size] of the graphicsLayer represented in pixels. Drawing commands can extend beyond
+     * the size specified, however, if the graphicsLayer is promoted to an offscreen rasterization
+     * layer, any content rendered outside of the specified size will be clipped.
+     */
+    val size: Size
+        get() = Size.Unspecified
 }
 
 /**
@@ -161,6 +229,8 @@ internal class ReusableGraphicsLayerScope : GraphicsLayerScope {
     override var translationX: Float = 0f
     override var translationY: Float = 0f
     override var shadowElevation: Float = 0f
+    override var ambientShadowColor: Color = DefaultShadowColor
+    override var spotShadowColor: Color = DefaultShadowColor
     override var rotationX: Float = 0f
     override var rotationY: Float = 0f
     override var rotationZ: Float = 0f
@@ -168,6 +238,8 @@ internal class ReusableGraphicsLayerScope : GraphicsLayerScope {
     override var transformOrigin: TransformOrigin = TransformOrigin.Center
     override var shape: Shape = RectangleShape
     override var clip: Boolean = false
+    override var compositingStrategy: CompositingStrategy = CompositingStrategy.Auto
+    override var size: Size = Size.Unspecified
 
     internal var graphicsDensity: Density = Density(1.0f)
 
@@ -186,6 +258,8 @@ internal class ReusableGraphicsLayerScope : GraphicsLayerScope {
         translationX = 0f
         translationY = 0f
         shadowElevation = 0f
+        ambientShadowColor = DefaultShadowColor
+        spotShadowColor = DefaultShadowColor
         rotationX = 0f
         rotationY = 0f
         rotationZ = 0f
@@ -194,5 +268,7 @@ internal class ReusableGraphicsLayerScope : GraphicsLayerScope {
         shape = RectangleShape
         clip = false
         renderEffect = null
+        compositingStrategy = CompositingStrategy.Auto
+        size = Size.Unspecified
     }
 }

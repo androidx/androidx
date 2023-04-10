@@ -29,19 +29,25 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
-import org.junit.Test
-import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class FragmentFocusTest {
 
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
+
     @Test
     fun focusedViewRemoved() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val (fragment, firstEditText) = withActivity {
                 setContentView(R.layout.simple_container)
                 val container = findViewById<View>(R.id.fragmentContainer) as ViewGroup
@@ -74,7 +80,7 @@ class FragmentFocusTest {
 
     @Test
     fun focusedViewRootView() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragment = RequestViewFragment()
 
             withActivity {
@@ -99,7 +105,7 @@ class FragmentFocusTest {
 
     @Test
     fun inResumefocusedViewRemoved() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             withActivity {
                 val fragment = StrictViewFragment(R.layout.simple_container)
 
@@ -134,7 +140,7 @@ class FragmentFocusTest {
 
             val animator = ValueAnimator.ofFloat(0f, 1f).setDuration(1)
             animator.addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationStart(animation: Animator?) {
+                override fun onAnimationStart(animation: Animator) {
                     val editText = requireView().findViewById<EditText>(R.id.editText)
                     (view as ViewGroup).removeView(editText)
                     requireActivity().findViewById<ViewGroup>(
@@ -142,7 +148,7 @@ class FragmentFocusTest {
                     ).addView(editText)
                 }
 
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                     endAnimationCountDownLatch.countDown()
                 }
             })
@@ -166,7 +172,7 @@ class FragmentFocusTest {
 
             val animator = ValueAnimator.ofFloat(0f, 1f).setDuration(1)
             animator.addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                     endAnimationCountDownLatch.countDown()
                 }
             })

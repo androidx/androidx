@@ -50,7 +50,9 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.Delay
 
+@Suppress("DEPRECATION")
 @InternalCoroutinesApi
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -102,7 +104,7 @@ class PausingDispatcherTest {
      * refactoring of these tests so for now this is a good trade-off.
      */
     private fun CoroutineDispatcher.asMain(immediate: Boolean = false): MainCoroutineDispatcher {
-        return object : MainCoroutineDispatcher() {
+        return object : MainCoroutineDispatcher(), Delay by (this@asMain as Delay) {
             override val immediate: MainCoroutineDispatcher =
                 if (immediate) this else asMain(immediate = true)
 
@@ -181,6 +183,7 @@ class PausingDispatcherTest {
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
+    @Suppress("DEPRECATION")
     @Test
     fun yieldImmediateTest() {
         Dispatchers.resetMain()
@@ -198,6 +201,7 @@ class PausingDispatcherTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun yieldLoop() {
         runBlocking(Dispatchers.Main.immediate) {
@@ -270,7 +274,6 @@ class PausingDispatcherTest {
     fun throwException_thenRunAnother() {
         runBlocking(testingScope.coroutineContext) {
             try {
-                @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER")
                 owner.whenResumed {
                     assertThread()
                     expectations.expect(1)
@@ -295,7 +298,6 @@ class PausingDispatcherTest {
                     owner.whenResumed {
                         try {
                             expectations.expect(1)
-                            @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER")
                             withContext(testingScope.coroutineContext) {
                                 throw IllegalStateException("i fail")
                             }
@@ -483,7 +485,6 @@ class PausingDispatcherTest {
     @Test
     fun innerJobCancelsParent() {
         try {
-            @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER")
             runBlocking(testingScope.coroutineContext) {
                 owner.whenResumed {
                     throw IllegalStateException("i fail")
@@ -523,7 +524,6 @@ class PausingDispatcherTest {
                             assertThread()
                             expectations.expect(2)
                             try {
-                                @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER")
                                 withContext(testingScope.coroutineContext) {
                                     throw IllegalStateException("i fail")
                                 }
@@ -561,6 +561,7 @@ class PausingDispatcherTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun launchWhenCreated() {
         val owner = FakeLifecycleOwner()
@@ -578,6 +579,7 @@ class PausingDispatcherTest {
         drain()
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun launchWhenStarted() {
         val owner = FakeLifecycleOwner(Lifecycle.State.CREATED)
@@ -596,6 +598,7 @@ class PausingDispatcherTest {
         drain()
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun launchWhenResumed() {
         val owner = FakeLifecycleOwner(Lifecycle.State.STARTED)

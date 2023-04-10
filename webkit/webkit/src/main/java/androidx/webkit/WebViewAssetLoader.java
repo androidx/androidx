@@ -73,7 +73,7 @@ import java.util.List;
  *     {@literal @}Override
  *     {@literal @}SuppressWarnings("deprecation") // for API < 21
  *     public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
- *         return assetLoader.shouldInterceptRequest(Uri.parse(request));
+ *         return assetLoader.shouldInterceptRequest(Uri.parse(url));
  *     }
  * });
  *

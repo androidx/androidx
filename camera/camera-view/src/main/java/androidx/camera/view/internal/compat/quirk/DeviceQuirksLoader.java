@@ -40,17 +40,12 @@ public class DeviceQuirksLoader {
     static List<Quirk> loadQuirks() {
         final List<Quirk> quirks = new ArrayList<>();
 
-        // Load all device specific quirks
-        if (PreviewOneThirdWiderQuirk.load()) {
-            quirks.add(new PreviewOneThirdWiderQuirk());
-        }
-
         if (SurfaceViewStretchedQuirk.load()) {
             quirks.add(new SurfaceViewStretchedQuirk());
         }
 
-        if (TextureViewRotationQuirk.load()) {
-            quirks.add(new TextureViewRotationQuirk());
+        if (SurfaceViewNotCroppedByParentQuirk.load()) {
+            quirks.add(new SurfaceViewNotCroppedByParentQuirk());
         }
 
         return quirks;

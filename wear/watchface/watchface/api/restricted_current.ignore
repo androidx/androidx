@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.wear.watchface.RenderParameters#RenderParameters(androidx.wear.watchface.data.RenderParametersWireFormat):
+    Removed constructor androidx.wear.watchface.RenderParameters(androidx.wear.watchface.data.RenderParametersWireFormat)
+RemovedMethod: androidx.wear.watchface.RenderParameters#toWireFormat():
+    Removed method androidx.wear.watchface.RenderParameters.toWireFormat()

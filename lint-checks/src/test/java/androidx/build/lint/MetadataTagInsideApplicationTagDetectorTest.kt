@@ -36,7 +36,7 @@ class MetadataTagInsideApplicationTagDetectorTest : AbstractLintDetectorTest(
 
         /* ktlint-disable max-line-length */
         val expected = """
-AndroidManifest.xml:20: Error: Detected <application>-level meta-data tag. [MetadataTagInsideApplicationTag]
+AndroidManifest.xml:19: Error: Detected <application>-level meta-data tag. [MetadataTagInsideApplicationTag]
         <meta-data android:name="name" android:value="value" />
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings

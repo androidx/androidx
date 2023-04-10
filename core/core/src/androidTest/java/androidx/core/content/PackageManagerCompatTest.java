@@ -318,6 +318,7 @@ public class PackageManagerCompatTest {
      * this case, they are permission revocation apps.
      */
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    @SuppressWarnings("deprecation")
     static void setupPermissionRevocationApps(
             PackageManager packageManager, List<String> packageNames) {
         List<ResolveInfo> resolveInfos = new ArrayList<>();

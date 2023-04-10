@@ -41,6 +41,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.os.PersistableBundle;
 
+import androidx.core.util.Consumer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -66,6 +67,7 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)
@@ -79,6 +81,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
     private SystemJobScheduler mSystemJobScheduler;
     private WorkSpecDao mMockWorkSpecDao;
 
+    @SuppressWarnings("unchecked")
     @Before
     public void setUp() {
         Context context = ApplicationProvider.getApplicationContext();
@@ -98,6 +101,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
         when(workDatabase.systemIdInfoDao()).thenReturn(systemIdInfoDao);
         when(workDatabase.preferenceDao()).thenReturn(preferenceDao);
         when(workDatabase.workSpecDao()).thenReturn(mMockWorkSpecDao);
+        doCallRealMethod().when(workDatabase).runInTransaction(any(Callable.class));
         when(mWorkManager.getWorkDatabase()).thenReturn(workDatabase);
 
         doReturn(RESULT_SUCCESS).when(mJobScheduler).schedule(any(JobInfo.class));
@@ -230,6 +234,28 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
         mSystemJobScheduler.schedule(workSpec);
         // JobScheduler#schedule() should be called once at the very least.
         verify(mJobScheduler, times(1)).schedule(any(JobInfo.class));
+    }
+
+    @Test
+    @MediumTest
+    @SdkSuppress(minSdkVersion = 23)
+    @SuppressWarnings("unchecked")
+    public void testSchedulingExceptionHandler() {
+        doCallRealMethod().when(mSystemJobScheduler)
+                .scheduleInternal(any(WorkSpec.class), anyInt());
+
+        Consumer<Throwable> handler = mock(Consumer.class);
+        Configuration configuration = new Configuration.Builder()
+                .setSchedulingExceptionHandler(handler)
+                .build();
+
+        when(mWorkManager.getConfiguration()).thenReturn(configuration);
+        doThrow(new IllegalStateException("Error scheduling")).when(mJobScheduler).schedule(any());
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        WorkSpec workSpec = work.getWorkSpec();
+        addToWorkSpecDao(workSpec);
+        mSystemJobScheduler.schedule(workSpec);
+        verify(handler, times(1)).accept(any());
     }
 
     @Test

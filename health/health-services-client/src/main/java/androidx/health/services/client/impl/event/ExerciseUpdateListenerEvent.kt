@@ -7,12 +7,8 @@ import androidx.health.services.client.impl.response.ExerciseLapSummaryResponse
 import androidx.health.services.client.impl.response.ExerciseUpdateResponse
 import androidx.health.services.client.proto.EventsProto.ExerciseUpdateListenerEvent as ListenerProto
 
-/**
- * An event representing an `ExerciseUpdateListener` invocation.
- *
- * @hide
- */
-public class ExerciseUpdateListenerEvent(public override val proto: ListenerProto) :
+/** An event representing an [ExerciseUpdateListener] invocation. */
+internal class ExerciseUpdateListenerEvent(override val proto: ListenerProto) :
     ProtoParcelable<ListenerProto>() {
 
     public companion object {

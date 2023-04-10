@@ -52,4 +52,19 @@
         app:systemDataSourceFallbackDefaultType="PHOTO_IMAGE">
         <ComplicationSlotBounds app:left="0.1" app:top="0.2" app:right="0.3" app:bottom="0.4"/>
     </ComplicationSlot>
+    <ComplicationSlot
+        app:slotId="30"
+        app:boundsType="EDGE"
+        app:supportedTypes="SHORT_TEXT|RANGED_VALUE"
+        app:primaryDataSource="com.app.example1/com.app.example1.Class"
+        app:primaryDataSourceDefaultType="SHORT_TEXT"
+        app:secondaryDataSource="com.app.example2/com.app.example2.Class"
+        app:secondaryDataSourceDefaultType="SMALL_IMAGE"
+        app:systemDataSourceFallback="DATA_SOURCE_WATCH_BATTERY"
+        app:systemDataSourceFallbackDefaultType="RANGED_VALUE"
+        app:startArcAngle="-45.0"
+        app:totalArcAngle="90.0"
+        app:arcThickness="0.1">
+        <ComplicationSlotBounds app:left="0.0" app:top="0.0" app:right="1.0" app:bottom="1.0"/>
+    </ComplicationSlot>
 </XmlWatchFace>

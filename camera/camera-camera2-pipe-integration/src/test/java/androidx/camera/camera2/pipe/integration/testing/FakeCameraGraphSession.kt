@@ -25,10 +25,11 @@ import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.TorchState
-import kotlinx.coroutines.Deferred
 import java.util.concurrent.Semaphore
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
 
-class FakeCameraGraphSession : CameraGraph.Session {
+open class FakeCameraGraphSession : CameraGraph.Session {
 
     val repeatingRequests = mutableListOf<Request>()
     val repeatingRequestSemaphore = Semaphore(0)
@@ -52,6 +53,7 @@ class FakeCameraGraphSession : CameraGraph.Session {
         aeLockBehavior: Lock3ABehavior?,
         afLockBehavior: Lock3ABehavior?,
         awbLockBehavior: Lock3ABehavior?,
+        afTriggerStartAeMode: AeMode?,
         frameLimit: Int,
         timeLimitNs: Long
     ): Deferred<Result3A> {
@@ -110,6 +112,6 @@ class FakeCameraGraphSession : CameraGraph.Session {
         afRegions: List<MeteringRectangle>?,
         awbRegions: List<MeteringRectangle>?
     ): Deferred<Result3A> {
-        throw NotImplementedError("Not used in testing")
+        return CompletableDeferred(Result3A(Result3A.Status.OK))
     }
 }

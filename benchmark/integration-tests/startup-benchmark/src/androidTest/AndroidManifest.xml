@@ -15,8 +15,7 @@
   limitations under the License.
   -->
 <manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.benchmark.integration.startup.benchmark.test">
+    xmlns:android="http://schemas.android.com/apk/res/android">
     <application
             android:name="androidx.benchmark.integration.startup.benchmark.ArgumentInjectingApplication">
         <!-- enable profiling by shell for non-intrusive profiling tools -->

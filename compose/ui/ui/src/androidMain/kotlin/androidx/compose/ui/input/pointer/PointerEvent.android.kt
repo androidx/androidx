@@ -51,7 +51,6 @@ actual class PointerEvent internal actual constructor(
     actual var type: PointerEventType = calculatePointerEventType()
         internal set
 
-    @OptIn(ExperimentalComposeUiApi::class)
     private fun calculatePointerEventType(): PointerEventType {
         val motionEvent = motionEvent
         if (motionEvent != null) {
@@ -85,6 +84,7 @@ actual class PointerEvent internal actual constructor(
     fun component1(): List<PointerInputChange> = changes
 
     // only because PointerEvent was a data class
+    @OptIn(ExperimentalComposeUiApi::class)
     fun copy(
         changes: List<PointerInputChange>,
         motionEvent: MotionEvent?
@@ -103,6 +103,7 @@ actual class PointerEvent internal actual constructor(
                     it.position,
                     it.position,
                     it.pressed,
+                    it.pressure,
                     it.type,
                     this.internalPointerEvent?.issuesEnterExitEvent(it.id) == true
                 )
@@ -114,6 +115,8 @@ actual class PointerEvent internal actual constructor(
         }
     }
 }
+
+internal actual fun EmptyPointerKeyboardModifiers() = PointerKeyboardModifiers(0)
 
 actual val PointerButtons.isPrimaryPressed: Boolean
     get() = packedValue and (MotionEvent.BUTTON_PRIMARY or MotionEvent.BUTTON_STYLUS_PRIMARY) != 0
@@ -147,31 +150,24 @@ actual fun PointerButtons.indexOfFirstPressed(): Int {
         return -1
     }
     var index = 0
-    var shifted = packedValue
+    // shift stylus primary and secondary to primary and secondary
+    var shifted = ((packedValue and 0x60) ushr 5) or (packedValue and 0x60.inv())
     while (shifted and 1 == 0) {
         index++
         shifted = shifted ushr 1
     }
-    return indexRemovingStylusPrimaryAndSecondary(index)
+    return index
 }
 
 actual fun PointerButtons.indexOfLastPressed(): Int {
-    var shifted = packedValue
+    // shift stylus primary and secondary to primary and secondary
+    var shifted = ((packedValue and 0x60) ushr 5) or (packedValue and 0x60.inv())
     var index = -1
     while (shifted != 0) {
         index++
         shifted = shifted ushr 1
     }
-    return indexRemovingStylusPrimaryAndSecondary(index)
-}
-
-private fun indexRemovingStylusPrimaryAndSecondary(buttonIndex: Int): Int {
-    return when (buttonIndex) {
-        -1, 0, 1, 2, 3, 4 -> buttonIndex
-        5 -> 0 // stylus primary is just primary
-        6 -> 1 // stylus secondary is just secondary
-        else -> buttonIndex - 2
-    }
+    return index
 }
 
 actual val PointerKeyboardModifiers.isCtrlPressed: Boolean

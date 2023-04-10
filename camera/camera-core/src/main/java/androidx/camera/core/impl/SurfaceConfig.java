@@ -16,11 +16,14 @@
 
 package androidx.camera.core.impl;
 
+import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCaptureSession.StateCallback;
 import android.os.Handler;
+import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.internal.utils.SizeUtil;
 
 import com.google.auto.value.AutoValue;
 
@@ -77,6 +80,59 @@ public abstract class SurfaceConfig {
     }
 
     /**
+     * Gets {@link ConfigType} from image format.
+     *
+     * <p> PRIV refers to any target whose available sizes are found using
+     * StreamConfigurationMap.getOutputSizes(Class) with no direct application-visible format,
+     * YUV refers to a target Surface using the ImageFormat.YUV_420_888 format, JPEG refers to
+     * the ImageFormat.JPEG format, and RAW refers to the ImageFormat.RAW_SENSOR format.
+     */
+    @NonNull
+    public static SurfaceConfig.ConfigType getConfigType(int imageFormat) {
+        if (imageFormat == ImageFormat.YUV_420_888) {
+            return SurfaceConfig.ConfigType.YUV;
+        } else if (imageFormat == ImageFormat.JPEG) {
+            return SurfaceConfig.ConfigType.JPEG;
+        } else if (imageFormat == ImageFormat.RAW_SENSOR) {
+            return SurfaceConfig.ConfigType.RAW;
+        } else {
+            return SurfaceConfig.ConfigType.PRIV;
+        }
+    }
+
+    /**
+     * Transform to a SurfaceConfig object with image format and size info
+     *
+     * @param imageFormat           the image format info for the surface configuration object
+     * @param size                  the size info for the surface configuration object
+     * @param surfaceSizeDefinition the surface definition for the surface configuration object
+     * @return new {@link SurfaceConfig} object
+     */
+    @NonNull
+    public static SurfaceConfig transformSurfaceConfig(int imageFormat, @NonNull Size size,
+            @NonNull SurfaceSizeDefinition surfaceSizeDefinition) {
+        ConfigType configType =
+                SurfaceConfig.getConfigType(imageFormat);
+        ConfigSize configSize = ConfigSize.NOT_SUPPORT;
+
+        // Compare with surface size definition to determine the surface configuration size
+        int sizeArea = SizeUtil.getArea(size);
+        if (sizeArea <= SizeUtil.getArea(surfaceSizeDefinition.getAnalysisSize())) {
+            configSize = ConfigSize.VGA;
+        } else if (sizeArea
+                <= SizeUtil.getArea(surfaceSizeDefinition.getPreviewSize())) {
+            configSize = ConfigSize.PREVIEW;
+        } else if (sizeArea
+                <= SizeUtil.getArea(surfaceSizeDefinition.getRecordSize())) {
+            configSize = ConfigSize.RECORD;
+        } else {
+            configSize = ConfigSize.MAXIMUM;
+        }
+
+        return SurfaceConfig.create(configType, configSize);
+    }
+
+    /**
      * The Camera2 configuration type for the surface.
      *
      * <p>These are the enumerations defined in {@link
@@ -96,8 +152,8 @@ public abstract class SurfaceConfig {
      * android.hardware.camera2.CameraDevice#createCaptureSession(List, StateCallback, Handler)}.
      */
     public enum ConfigSize {
-        /** Default ANALYSIS size is 640x480. */
-        ANALYSIS(0),
+        /** Default VGA size is 640x480, which is the default size of Image Analysis. */
+        VGA(0),
         /**
          * PREVIEW refers to the best size match to the device's screen resolution, or to 1080p
          * (1920x1080), whichever is smaller.

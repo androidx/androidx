@@ -16,7 +16,6 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcelable
 import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.ExerciseTypeCapabilities.SupportedGoalEntry
 import androidx.health.services.client.proto.DataProto.ExerciseTypeCapabilities.SupportedMilestoneEntry
@@ -24,37 +23,48 @@ import androidx.health.services.client.proto.DataProto.ExerciseTypeCapabilities.
 /** Provides exercise specific capabilities data. */
 @Suppress("ParcelCreator")
 public class ExerciseTypeCapabilities(
-    public val supportedDataTypes: Set<DataType>,
-    public val supportedGoals: Map<DataType, Set<ComparisonType>>,
-    public val supportedMilestones: Map<DataType, Set<ComparisonType>>,
+    /** Supported [DataType]s for a given exercise. */
+    public val supportedDataTypes: Set<DataType<*, *>>,
+    /** Map from supported goals [DataType]s to a set of compatible [ComparisonType]s. */
+    public val supportedGoals: Map<AggregateDataType<*, *>, Set<ComparisonType>>,
+    /** Map from supported milestone [DataType]s to a set of compatible [ComparisonType]s. */
+    public val supportedMilestones: Map<AggregateDataType<*, *>, Set<ComparisonType>>,
+    /** Returns `true` if the given exercise supports auto pause and resume. */
     public val supportsAutoPauseAndResume: Boolean,
-    public val supportsLaps: Boolean,
-) : ProtoParcelable<DataProto.ExerciseTypeCapabilities>() {
+) {
 
     internal constructor(
         proto: DataProto.ExerciseTypeCapabilities
     ) : this(
-        proto.supportedDataTypesList.map { DataType(it) }.toSet(),
+        proto.supportedDataTypesList.map { DataType.deltaAndAggregateFromProto(it) }
+            .flatten()
+            .toSet(),
         proto
             .supportedGoalsList
             .map { entry ->
-                DataType(entry.dataType) to
-                    entry.comparisonTypesList.mapNotNull { ComparisonType.fromProto(it) }.toSet()
+                DataType.aggregateFromProto(entry.dataType) to
+                    entry
+                        .comparisonTypesList
+                        .map { ComparisonType.fromProto(it) }
+                        .filter { it != ComparisonType.UNKNOWN }
+                        .toSet()
             }
             .toMap(),
         proto
             .supportedMilestonesList
             .map { entry ->
-                DataType(entry.dataType) to
-                    entry.comparisonTypesList.mapNotNull { ComparisonType.fromProto(it) }.toSet()
+                DataType.aggregateFromProto(entry.dataType) to
+                    entry
+                        .comparisonTypesList
+                        .map { ComparisonType.fromProto(it) }
+                        .filter { it != ComparisonType.UNKNOWN }
+                        .toSet()
             }
             .toMap(),
         supportsAutoPauseAndResume = proto.isAutoPauseAndResumeSupported,
-        supportsLaps = proto.isLapsSupported
     )
 
-    /** @hide */
-    override val proto: DataProto.ExerciseTypeCapabilities by lazy {
+    internal val proto: DataProto.ExerciseTypeCapabilities =
         DataProto.ExerciseTypeCapabilities.newBuilder()
             .addAllSupportedDataTypes(supportedDataTypes.map { it.proto })
             .addAllSupportedGoals(
@@ -78,23 +88,12 @@ public class ExerciseTypeCapabilities(
                     .sortedBy { it.dataType.name } // Sorting to ensure equals() works
             )
             .setIsAutoPauseAndResumeSupported(supportsAutoPauseAndResume)
-            .setIsLapsSupported(supportsLaps)
             .build()
-    }
 
     override fun toString(): String =
         "ExerciseTypeCapabilities(" +
             "supportedDataTypes=$supportedDataTypes, " +
             "supportedGoals=$supportedGoals, " +
             "supportedMilestones=$supportedMilestones, " +
-            "supportsAutoPauseAndResume=$supportsAutoPauseAndResume, " +
-            "supportsLaps=$supportsLaps)"
-
-    public companion object {
-        @JvmField
-        public val CREATOR: Parcelable.Creator<ExerciseTypeCapabilities> = newCreator { bytes ->
-            val proto = DataProto.ExerciseTypeCapabilities.parseFrom(bytes)
-            ExerciseTypeCapabilities(proto)
-        }
-    }
+            "supportsAutoPauseAndResume=$supportsAutoPauseAndResume, "
 }

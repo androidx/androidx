@@ -1,5 +1,3 @@
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -19,7 +17,10 @@ androidx {
     name = "Android Support Library Role"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.CORE_ROLE
-    mavenGroup = LibraryGroups.CORE
     inceptionYear = "2019"
     description = "This Support Library provides names and documentation for roles."
+}
+
+android {
+    namespace "androidx.core.role"
 }

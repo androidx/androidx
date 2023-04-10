@@ -30,9 +30,11 @@ import android.text.Spanned;
 import android.text.style.BulletSpan;
 import android.text.style.ParagraphStyle;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
@@ -145,7 +147,7 @@ public final class HtmlCompat {
     @NonNull
     public static Spanned fromHtml(@NonNull String source, @FromHtmlFlags int flags) {
         if (Build.VERSION.SDK_INT >= 24) {
-            return Html.fromHtml(source, flags);
+            return Api24Impl.fromHtml(source, flags);
         }
         return Html.fromHtml(source);
     }
@@ -160,7 +162,7 @@ public final class HtmlCompat {
     public static Spanned fromHtml(@NonNull String source, @FromHtmlFlags int flags,
             @Nullable ImageGetter imageGetter, @Nullable TagHandler tagHandler) {
         if (Build.VERSION.SDK_INT >= 24) {
-            return Html.fromHtml(source, flags, imageGetter, tagHandler);
+            return Api24Impl.fromHtml(source, flags, imageGetter, tagHandler);
         }
         return Html.fromHtml(source, imageGetter, tagHandler);
     }
@@ -173,11 +175,34 @@ public final class HtmlCompat {
     @NonNull
     public static String toHtml(@NonNull Spanned text, @ToHtmlOptions int options) {
         if (Build.VERSION.SDK_INT >= 24) {
-            return Html.toHtml(text, options);
+            return Api24Impl.toHtml(text, options);
         }
         return Html.toHtml(text);
     }
 
     private HtmlCompat() {
+    }
+
+    @RequiresApi(24)
+    static class Api24Impl {
+        private Api24Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Spanned fromHtml(String source, int flags) {
+            return Html.fromHtml(source, flags);
+        }
+
+        @DoNotInline
+        static Spanned fromHtml(String source, int flags, ImageGetter imageGetter,
+                TagHandler tagHandler) {
+            return Html.fromHtml(source, flags, imageGetter, tagHandler);
+        }
+
+        @DoNotInline
+        static String toHtml(Spanned text, int option) {
+            return Html.toHtml(text, option);
+        }
     }
 }

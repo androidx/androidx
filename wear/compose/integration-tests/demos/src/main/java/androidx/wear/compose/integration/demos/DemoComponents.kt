@@ -22,6 +22,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
@@ -30,6 +31,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -41,13 +43,14 @@ import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.LocalContentAlpha
 import androidx.wear.compose.material.MaterialTheme
+import androidx.wear.compose.material.SwipeToDismissBoxState
 import androidx.wear.compose.material.Text
 import kotlin.reflect.KClass
 
 /**
  * Generic demo with a [title] that will be displayed in the list of demos.
  */
-sealed class Demo(val title: String) {
+sealed class Demo(val title: String, val description: String? = null) {
     override fun toString() = title
 }
 
@@ -71,13 +74,22 @@ class DemoCategory(
 ) : Demo(title)
 
 /**
+ * Parameters which are used by [Demo] screens.
+ */
+class DemoParameters(
+    val navigateBack: () -> Unit,
+    val swipeToDismissBoxState: SwipeToDismissBoxState
+)
+
+/**
  * Demo that displays [Composable] [content] when selected,
  * with a method to navigate back to the parent.
  */
 class ComposableDemo(
     title: String,
-    val content: @Composable (navigateBack: () -> Unit) -> Unit,
-) : Demo(title)
+    description: String? = null,
+    val content: @Composable (params: DemoParameters) -> Unit,
+) : Demo(title, description)
 
 /**
  * A simple [Icon] with default size
@@ -87,10 +99,11 @@ fun DemoIcon(
     resourceId: Int,
     modifier: Modifier = Modifier,
     size: Dp = 24.dp,
+    contentDescription: String? = null,
 ) {
     Icon(
         painter = painterResource(id = resourceId),
-        contentDescription = null,
+        contentDescription = contentDescription,
         modifier = modifier
             .size(size)
             .wrapContentSize(align = Alignment.Center),
@@ -150,14 +163,17 @@ fun TextIcon(
 }
 
 @Composable
-fun Centralize(content: @Composable () -> Unit) {
+fun Centralize(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        content()
-    }
+        horizontalAlignment = Alignment.CenterHorizontally,
+        content = content
+    )
 }
 
 public val DemoListTag = "DemoListTag"
+
+public val AlternatePrimaryColor1 = Color(0x7F, 0xCF, 0xFF)
+public val AlternatePrimaryColor2 = Color(0xD0, 0xBC, 0xFF)
+public val AlternatePrimaryColor3 = Color(0x6D, 0xD5, 0x8C)

@@ -19,14 +19,29 @@ import android.app.Fragment;
 import android.content.Context;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
+import androidx.annotation.RequiresApi;
+
 class FragmentUtil {
     static Context getContext(Fragment fragment) {
         if (Build.VERSION.SDK_INT >= 23) {
-            return fragment.getContext();
+            return Api23Impl.getContext(fragment);
         }
         return fragment.getActivity();
     }
 
     private FragmentUtil() {
+    }
+
+    @RequiresApi(23)
+    private static class Api23Impl {
+        private Api23Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Context getContext(Fragment fragment) {
+            return fragment.getContext();
+        }
     }
 }

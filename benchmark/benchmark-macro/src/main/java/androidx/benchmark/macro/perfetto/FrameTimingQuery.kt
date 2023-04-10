@@ -17,7 +17,7 @@
 package androidx.benchmark.macro.perfetto
 
 internal object FrameTimingQuery {
-    private fun getFullQuery(processName: String) = """
+    private fun getFullQuery(packageName: String) = """
         ------ Select all frame-relevant slices from slice table
         SELECT
             slice.name as name,
@@ -30,7 +30,7 @@ internal object FrameTimingQuery {
         WHERE (
             ( slice.name LIKE "Choreographer#doFrame%" AND process.pid LIKE thread.tid ) OR
             ( slice.name LIKE "DrawFrame%" AND thread.name like "RenderThread" )
-        ) AND (process.name LIKE "$processName")
+        ) AND ${processNameLikePkg(packageName)}
         ------ Add in actual frame slices (prepended with "actual " to differentiate)
         UNION
         SELECT
@@ -40,7 +40,7 @@ internal object FrameTimingQuery {
         FROM actual_frame_timeline_slice
             INNER JOIN process USING(upid)
         WHERE
-            process.name LIKE "$processName"
+            ${processNameLikePkg(packageName)}
         ------ Add in expected time slices (prepended with "expected " to differentiate)
         UNION
         SELECT
@@ -50,17 +50,17 @@ internal object FrameTimingQuery {
         FROM expected_frame_timeline_slice
             INNER JOIN process USING(upid)
         WHERE
-            process.name LIKE "$processName"
+            ${processNameLikePkg(packageName)}
         ORDER BY ts ASC
     """.trimIndent()
 
     enum class SubMetric {
-        FrameCpuTime,
-        FrameUiTime,
-        FrameOverrunTime;
+        FrameDurationCpuNs,
+        FrameDurationUiNs,
+        FrameOverrunNs;
 
         fun supportedOnApiLevel(apiLevel: Int): Boolean {
-            return apiLevel >= 31 || this != FrameOverrunTime
+            return apiLevel >= 31 || this != FrameOverrunNs
         }
     }
 
@@ -84,9 +84,9 @@ internal object FrameTimingQuery {
     ) {
         fun get(subMetric: SubMetric): Long {
             return when (subMetric) {
-                SubMetric.FrameCpuTime -> rtSlice.endTs - uiSlice.ts
-                SubMetric.FrameUiTime -> uiSlice.dur
-                SubMetric.FrameOverrunTime -> actualSlice!!.endTs - expectedSlice!!.endTs
+                SubMetric.FrameDurationCpuNs -> rtSlice.endTs - uiSlice.ts
+                SubMetric.FrameDurationUiNs -> uiSlice.dur
+                SubMetric.FrameOverrunNs -> actualSlice!!.endTs - expectedSlice!!.endTs
             }
         }
         companion object {
@@ -135,15 +135,14 @@ internal object FrameTimingQuery {
     }
 
     fun getFrameSubMetrics(
-        absoluteTracePath: String,
+        perfettoTraceProcessor: PerfettoTraceProcessor,
         captureApiLevel: Int,
         packageName: String,
     ): Map<SubMetric, List<Long>> {
-        val queryResult = PerfettoTraceProcessor.rawQuery(
-            absoluteTracePath = absoluteTracePath,
+        val queryResultIterator = perfettoTraceProcessor.rawQuery(
             query = getFullQuery(packageName)
         )
-        val slices = Slice.parseListFromQueryResult(queryResult).let { list ->
+        val slices = queryResultIterator.toSlices().let { list ->
             list.map { it.copy(ts = it.ts - list.first().ts) }
         }
 

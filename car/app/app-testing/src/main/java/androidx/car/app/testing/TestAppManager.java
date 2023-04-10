@@ -16,6 +16,8 @@
 
 package androidx.car.app.testing;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
@@ -23,11 +25,14 @@ import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.car.app.AppManager;
 import androidx.car.app.CarToast;
 import androidx.car.app.HostDispatcher;
 import androidx.car.app.Screen;
 import androidx.car.app.SurfaceCallback;
+import androidx.car.app.media.OpenMicrophoneRequest;
+import androidx.car.app.media.OpenMicrophoneResponse;
 import androidx.car.app.model.Template;
 import androidx.car.app.utils.CollectionUtils;
 
@@ -51,6 +56,8 @@ public class TestAppManager extends AppManager {
     private final List<Pair<Screen, Template>> mTemplatesReturned = new ArrayList<>();
     @Nullable
     private SurfaceCallback mSurfaceCallback;
+    @Nullable
+    private OpenMicrophoneRequest mOpenMicrophoneRequest = null;
 
     /**
      * Resets the values tracked by this {@link TestAppManager} and all {@link ScreenController}s.
@@ -109,6 +116,28 @@ public class TestAppManager extends AppManager {
     @Override
     public void showToast(@NonNull CharSequence text, @CarToast.Duration int duration) {
         mToastsShown.add(requireNonNull(text));
+    }
+
+    /**
+     * @hide
+     */
+    @Override
+    @Nullable
+    @RestrictTo(LIBRARY_GROUP)
+    public OpenMicrophoneResponse openMicrophone(@NonNull OpenMicrophoneRequest request) {
+        mOpenMicrophoneRequest = request;
+        return super.openMicrophone(request);
+    }
+
+    /**
+     * Returns the last {@link OpenMicrophoneRequest} sent to the host.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @Nullable
+    public OpenMicrophoneRequest getOpenMicrophoneRequest() {
+        return mOpenMicrophoneRequest;
     }
 
     void resetTemplatesStoredForScreen(Screen screen) {

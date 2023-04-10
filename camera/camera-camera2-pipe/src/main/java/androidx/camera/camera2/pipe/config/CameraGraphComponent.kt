@@ -18,45 +18,45 @@
 
 package androidx.camera.camera2.pipe.config
 
+import android.content.Context
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraBackend
+import androidx.camera.camera2.pipe.CameraBackends
+import androidx.camera.camera2.pipe.CameraContext
+import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.Request
-import androidx.camera.camera2.pipe.compat.Camera2CameraController
-import androidx.camera.camera2.pipe.compat.Camera2MetadataCache
-import androidx.camera.camera2.pipe.compat.Camera2RequestProcessorFactory
-import androidx.camera.camera2.pipe.compat.CameraController
-import androidx.camera.camera2.pipe.compat.SessionFactoryModule
-import androidx.camera.camera2.pipe.compat.StandardCamera2RequestProcessorFactory
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.graph.CameraGraphImpl
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.graph.GraphProcessor
 import androidx.camera.camera2.pipe.graph.GraphProcessorImpl
 import androidx.camera.camera2.pipe.graph.Listener3A
+import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.Subcomponent
-import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.CoroutineScope
 import javax.inject.Qualifier
 import javax.inject.Scope
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
 
-@Scope
-internal annotation class CameraGraphScope
+@Scope internal annotation class CameraGraphScope
 
-@Qualifier
-internal annotation class ForCameraGraph
+@Qualifier internal annotation class ForCameraGraph
+
+@Qualifier internal annotation class CameraGraphContext
 
 @CameraGraphScope
 @Subcomponent(
-    modules = [
-        CameraGraphModules::class,
-        CameraGraphConfigModule::class,
-        Camera2CameraGraphModules::class,
-    ]
-)
+    modules =
+        [
+            SharedCameraGraphModules::class,
+            InternalCameraGraphModules::class,
+            CameraGraphConfigModule::class,
+        ])
 internal interface CameraGraphComponent {
     fun cameraGraph(): CameraGraph
 
@@ -69,27 +69,27 @@ internal interface CameraGraphComponent {
 
 @Module
 internal class CameraGraphConfigModule(private val config: CameraGraph.Config) {
-    @Provides
-    fun provideCameraGraphConfig(): CameraGraph.Config = config
+    @Provides fun provideCameraGraphConfig(): CameraGraph.Config = config
 }
 
 @Module
-internal abstract class CameraGraphModules {
-    @Binds
-    abstract fun bindCameraGraph(cameraGraph: CameraGraphImpl): CameraGraph
+internal abstract class SharedCameraGraphModules {
+    @Binds abstract fun bindCameraGraph(cameraGraph: CameraGraphImpl): CameraGraph
+
+    @Binds abstract fun bindGraphProcessor(graphProcessor: GraphProcessorImpl): GraphProcessor
+
+    @Binds abstract fun bindGraphListener(graphProcessor: GraphProcessorImpl): GraphListener
 
     @Binds
-    abstract fun bindGraphProcessor(graphProcessor: GraphProcessorImpl): GraphProcessor
-
-    @Binds
-    abstract fun bindGraphListener(graphProcessor: GraphProcessorImpl): GraphListener
+    @CameraGraphContext
+    abstract fun bindCameraGraphContext(@CameraPipeContext cameraPipeContext: Context): Context
 
     companion object {
         @CameraGraphScope
         @Provides
         @ForCameraGraph
         fun provideCameraGraphCoroutineScope(threads: Threads): CoroutineScope {
-            return CoroutineScope(threads.defaultDispatcher.plus(CoroutineName("CXCP-Graph")))
+            return CoroutineScope(threads.lightweightDispatcher.plus(CoroutineName("CXCP-Graph")))
         }
 
         @CameraGraphScope
@@ -113,27 +113,52 @@ internal abstract class CameraGraphModules {
     }
 }
 
-@Module(
-    includes = [
-        SessionFactoryModule::class
-    ]
-)
-internal abstract class Camera2CameraGraphModules {
-    @Binds
-    abstract fun bindRequestProcessorFactory(
-        factoryStandard: StandardCamera2RequestProcessorFactory
-    ): Camera2RequestProcessorFactory
-
-    @Binds
-    abstract fun bindGraphState(camera2CameraState: Camera2CameraController): CameraController
-
+@Module
+internal abstract class InternalCameraGraphModules {
     companion object {
+        @CameraGraphScope
         @Provides
-        fun provideCamera2Metadata(
+        fun provideCameraBackend(
+            cameraBackends: CameraBackends,
             graphConfig: CameraGraph.Config,
-            metadataCache: Camera2MetadataCache
+            cameraContext: CameraContext
+        ): CameraBackend {
+            val customCameraBackend = graphConfig.customCameraBackend
+            if (customCameraBackend != null) {
+                return customCameraBackend.create(cameraContext)
+            }
+
+            val cameraBackendId = graphConfig.cameraBackendId
+            if (cameraBackendId != null) {
+                cameraBackends[cameraBackendId]
+            }
+            return cameraBackends.default
+        }
+
+        @CameraGraphScope
+        @Provides
+        fun provideCameraMetadata(
+            graphConfig: CameraGraph.Config,
+            cameraBackend: CameraBackend
         ): CameraMetadata {
-            return metadataCache.awaitMetadata(graphConfig.camera)
+            // TODO: It might be a good idea to cache and go through caches for some of these calls
+            //   instead of reading it directly from the backend.
+            return checkNotNull(cameraBackend.awaitCameraMetadata(graphConfig.camera)) {
+                "Failed to load metadata for ${graphConfig.camera}!"
+            }
+        }
+
+        @CameraGraphScope
+        @Provides
+        fun provideCameraController(
+            graphConfig: CameraGraph.Config,
+            cameraBackend: CameraBackend,
+            cameraContext: CameraContext,
+            graphProcessor: GraphProcessorImpl,
+            streamGraph: StreamGraphImpl,
+        ): CameraController {
+            return cameraBackend.createCameraController(
+                cameraContext, graphConfig, graphProcessor, streamGraph)
         }
     }
 }

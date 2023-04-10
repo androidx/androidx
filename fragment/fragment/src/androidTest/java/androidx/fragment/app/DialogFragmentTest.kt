@@ -35,20 +35,27 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class DialogFragmentTest {
+
     @Suppress("DEPRECATION")
+    val activityTestRule =
+        androidx.test.rule.ActivityTestRule(EmptyFragmentTestActivity::class.java)
+
+    // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    val activityTestRule = androidx.test.rule.ActivityTestRule(
-        EmptyFragmentTestActivity::class.java
-    )
+    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
+        .around(activityTestRule)
 
     @Test
     fun testDialogFragmentShows() {
@@ -105,6 +112,27 @@ class DialogFragmentTest {
         activityTestRule.runOnUiThread {
             activityTestRule.activity.supportFragmentManager.executePendingTransactions()
         }
+
+        assertWithMessage("Dialog should be removed")
+            .that(dialog?.isShowing)
+            .isFalse()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testDialogFragmentDismissNow() {
+        val fragment = TestDialogFragment()
+        fragment.show(activityTestRule.activity.supportFragmentManager, null)
+        activityTestRule.runOnUiThread {
+            activityTestRule.activity.supportFragmentManager.executePendingTransactions()
+        }
+
+        val dialog = fragment.dialog
+        assertWithMessage("Dialog was not being shown")
+            .that(dialog?.isShowing)
+            .isTrue()
+
+        fragment.dismissNow()
 
         assertWithMessage("Dialog should be removed")
             .that(dialog?.isShowing)
@@ -249,7 +277,7 @@ class DialogFragmentTest {
 
     @Test
     fun testInflatedFragmentContainerViewDialogFragmentShowsNow() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val fragment = InflatedDialogFragment()
 
             withActivity {

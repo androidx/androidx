@@ -35,6 +35,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
@@ -214,9 +215,13 @@ private object InteropSnippet6 {
 
 private object InteropSnippet7 {
     @Composable
-    fun rememberCustomView(): CustomView {
+    fun ToastGreetingButton(greeting: String) {
         val context = LocalContext.current
-        return remember { CustomView(context).apply { /*...*/ } }
+        Button(onClick = {
+            Toast.makeText(context, greeting, Toast.LENGTH_SHORT).show()
+        }) {
+            Text("Greet")
+        }
     }
 }
 
@@ -261,7 +266,7 @@ private object InteropSnippet9 {
             val intentFilter = IntentFilter(systemAction)
             val broadcast = object : BroadcastReceiver() {
                 override fun onReceive(context: Context?, intent: Intent?) {
-                    onSystemEvent(intent)
+                    currentOnSystemEvent(intent)
                 }
             }
 

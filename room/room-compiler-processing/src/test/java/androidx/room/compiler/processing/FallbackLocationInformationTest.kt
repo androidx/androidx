@@ -19,7 +19,7 @@ package androidx.room.compiler.processing
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getField
-import androidx.room.compiler.processing.util.getMethod
+import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -70,7 +70,7 @@ class FallbackLocationInformationTest {
             ).isEqualTo(
                 "prop in foo.bar.KotlinSubject"
             )
-            kotlinSubject.getMethod("method1").let { method ->
+            kotlinSubject.getMethodByJvmName("method1").let { method ->
                 assertThat(
                     method.fallbackLocationText
                 ).isEqualTo(
@@ -82,7 +82,7 @@ class FallbackLocationInformationTest {
                     "arg1 in foo.bar.KotlinSubject.method1(int)"
                 )
             }
-            kotlinSubject.getMethod("suspendFun").let { suspendFun ->
+            kotlinSubject.getMethodByJvmName("suspendFun").let { suspendFun ->
                 assertThat(
                     suspendFun.fallbackLocationText
                 ).isEqualTo(
@@ -96,11 +96,11 @@ class FallbackLocationInformationTest {
             }
 
             assertThat(
-                kotlinSubject.getMethod("getProp").fallbackLocationText
+                kotlinSubject.getMethodByJvmName("getProp").fallbackLocationText
             ).isEqualTo(
                 "foo.bar.KotlinSubject.getProp()"
             )
-            kotlinSubject.getMethod("setProp").let { propSetter ->
+            kotlinSubject.getMethodByJvmName("setProp").let { propSetter ->
                 assertThat(
                     propSetter.fallbackLocationText
                 ).isEqualTo(
@@ -113,7 +113,7 @@ class FallbackLocationInformationTest {
                 )
             }
 
-            kotlinSubject.getMethod("setPropWithAccessors").let { propSetter ->
+            kotlinSubject.getMethodByJvmName("setPropWithAccessors").let { propSetter ->
                 // javac does not know that this is synthetic setter
                 assertThat(
                     propSetter.fallbackLocationText
@@ -170,7 +170,7 @@ class FallbackLocationInformationTest {
             ).isEqualTo(
                 "field1 in foo.bar.JavaSubject"
             )
-            javaSubject.getMethod("method1").let { method ->
+            javaSubject.getMethodByJvmName("method1").let { method ->
                 assertThat(
                     method.fallbackLocationText
                 ).isEqualTo(

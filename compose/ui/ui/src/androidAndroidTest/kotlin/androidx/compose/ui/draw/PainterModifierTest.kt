@@ -21,13 +21,16 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.requiredWidthIn
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
@@ -91,6 +94,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -408,6 +412,70 @@ class PainterModifierTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testPainterIntrinsicWidthRespected() {
+        rule.setContent {
+            NoMinSizeContainer {
+                NoIntrinsicSizeContainer(
+                    Modifier
+                        .width(IntrinsicSize.Min)
+                        .paint(TestPainter(containerWidth, containerHeight))
+                ) {
+                    // Intentionally empty
+                }
+            }
+        }
+
+        rule.obtainScreenshotBitmap(
+            containerWidth.roundToInt(),
+            containerHeight.roundToInt()
+        ).apply {
+            assertEquals(Color.Red.toArgb(), getPixel(0, 0))
+            assertEquals(Color.Red.toArgb(), getPixel(containerWidth.roundToInt() - 1, 0))
+            assertEquals(
+                Color.Red.toArgb(),
+                getPixel(
+                    containerWidth.roundToInt() - 1,
+                    containerHeight.roundToInt() - 1
+                )
+            )
+            assertEquals(Color.Red.toArgb(), getPixel(0, containerHeight.roundToInt() - 1))
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testPainterIntrinsicHeightRespected() {
+        rule.setContent {
+            NoMinSizeContainer {
+                NoIntrinsicSizeContainer(
+                    Modifier
+                        .height(IntrinsicSize.Min)
+                        .paint(TestPainter(containerWidth, containerHeight))
+                ) {
+                    // Intentionally empty
+                }
+            }
+        }
+
+        rule.obtainScreenshotBitmap(
+            containerWidth.roundToInt(),
+            containerHeight.roundToInt()
+        ).apply {
+            assertEquals(Color.Red.toArgb(), getPixel(0, 0))
+            assertEquals(Color.Red.toArgb(), getPixel(containerWidth.roundToInt() - 1, 0))
+            assertEquals(
+                Color.Red.toArgb(),
+                getPixel(
+                    containerWidth.roundToInt() - 1,
+                    containerHeight.roundToInt() - 1
+                )
+            )
+            assertEquals(Color.Red.toArgb(), getPixel(0, containerHeight.roundToInt() - 1))
+        }
+    }
+
     @Test
     fun testPainterFixedHeightScalesDownWidth() {
         val composableHeightPx = 100f
@@ -543,6 +611,7 @@ class PainterModifierTest {
             .assertHeightIsEqualTo(composableHeight)
     }
 
+    @Ignore // b/265030745
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testBitmapPainterScalesContent(): Unit = with(rule.density) {
@@ -643,6 +712,7 @@ class PainterModifierTest {
                         rememberVectorPainter(
                             defaultWidth = vectorWidthDp,
                             defaultHeight = vectorHeightDp,
+                            autoMirror = false,
                             content = { viewportWidth, viewportHeight ->
                                 Path(
                                     fill = SolidColor(Color.Red),

@@ -622,14 +622,6 @@ final class GridModel<K> {
         final RelativeCoordinate mX;
         final RelativeCoordinate mY;
 
-        RelativePoint(
-                @NonNull List<Limits> columnLimits,
-                @NonNull List<Limits> rowLimits, Point point) {
-
-            this.mX = new RelativeCoordinate(columnLimits, point.x);
-            this.mY = new RelativeCoordinate(rowLimits, point.y);
-        }
-
         RelativePoint(@NonNull RelativeCoordinate x, @NonNull RelativeCoordinate y) {
             this.mX = x;
             this.mY = y;

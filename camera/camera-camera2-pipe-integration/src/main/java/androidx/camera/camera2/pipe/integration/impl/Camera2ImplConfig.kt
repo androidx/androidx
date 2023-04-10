@@ -34,25 +34,33 @@ import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.OptionsBundle
 
 internal const val CAPTURE_REQUEST_ID_STEM = "camera2.captureRequest.option."
-internal val TEMPLATE_TYPE_OPTION = Config.Option.create<Int>(
+internal val TEMPLATE_TYPE_OPTION: Config.Option<Int> = Config.Option.create(
     "camera2.captureRequest.templateType",
     Int::class.javaPrimitiveType!!
 )
-internal val DEVICE_STATE_CALLBACK_OPTION = Config.Option.create<CameraDevice.StateCallback>(
-    "camera2.cameraDevice.stateCallback",
-    CameraDevice.StateCallback::class.java
-)
-internal val SESSION_STATE_CALLBACK_OPTION =
-    Config.Option.create<CameraCaptureSession.StateCallback>(
+internal val DEVICE_STATE_CALLBACK_OPTION: Config.Option<CameraDevice.StateCallback> =
+    Config.Option.create(
+        "camera2.cameraDevice.stateCallback",
+        CameraDevice.StateCallback::class.java
+    )
+internal val SESSION_STATE_CALLBACK_OPTION: Config.Option<CameraCaptureSession.StateCallback> =
+    Config.Option.create(
         "camera2.cameraCaptureSession.stateCallback",
         CameraCaptureSession.StateCallback::class.java
     )
-internal val SESSION_CAPTURE_CALLBACK_OPTION = Config.Option.create<CaptureCallback>(
+internal val SESSION_CAPTURE_CALLBACK_OPTION: Config.Option<CaptureCallback> = Config.Option.create(
     "camera2.cameraCaptureSession.captureCallback",
     CaptureCallback::class.java
 )
-internal val CAPTURE_REQUEST_TAG_OPTION = Config.Option.create<Any>(
+internal val STREAM_USE_CASE_OPTION: Config.Option<Long> = Config.Option.create(
+    "camera2.cameraCaptureSession.streamUseCase",
+    Long::class.javaPrimitiveType!!
+)
+internal val CAPTURE_REQUEST_TAG_OPTION: Config.Option<Any> = Config.Option.create(
     "camera2.captureRequest.tag", Any::class.java
+)
+internal val SESSION_PHYSICAL_CAMERA_ID_OPTION: Config.Option<String> = Config.Option.create(
+    "camera2.cameraCaptureSession.physicalCameraId", String::class.java
 )
 // TODO: Porting the CameraEventCallback option constant.
 
@@ -85,6 +93,21 @@ class Camera2ImplConfig(config: Config) : CaptureRequestOptions(config) {
      */
     fun getCaptureRequestTemplate(valueIfMissing: Int): Int {
         return config.retrieveOption(TEMPLATE_TYPE_OPTION, valueIfMissing)!!
+    }
+
+    /**
+     * Returns a CameraDevice template on the given configuration. Requires API 33 or above.
+     *
+     * @see [android.hardware.camera2.CameraMetadata] for valid stream use cases.
+     * @see [android.hardware.camera2.params.OutputConfiguration] to see how
+     * camera2 framework uses this.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or `valueIfMissing` if the value does not exist in this
+     * configuration.
+     */
+    fun getStreamUseCase(valueIfMissing: Long? = null): Long? {
+        return config.retrieveOption(STREAM_USE_CASE_OPTION, valueIfMissing)
     }
 
     /**
@@ -141,6 +164,18 @@ class Camera2ImplConfig(config: Config) : CaptureRequestOptions(config) {
      */
     fun getCaptureRequestTag(valueIfMissing: Any? = null): Any? {
         return config.retrieveOption(CAPTURE_REQUEST_TAG_OPTION, valueIfMissing)
+    }
+
+    /**
+     * Returns the physical camera ID.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * Defaults to `null`.
+     * @return The stored value or `valueIfMissing` if the value does not exist in this
+     * configuration.
+     */
+    fun getPhysicalCameraId(valueIfMissing: String? = null): String? {
+        return config.retrieveOption(SESSION_PHYSICAL_CAMERA_ID_OPTION, valueIfMissing)
     }
 
     /**

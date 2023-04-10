@@ -33,15 +33,16 @@ import androidx.compose.runtime.Immutable
  * relative coordinates and can create a [Shader] representing the gradient
  * for a particular [Rect] on demand.
  */
-@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-inline class TileMode internal constructor(@Suppress("unused") private val value: Int) {
+@kotlin.jvm.JvmInline
+value class TileMode internal constructor(@Suppress("unused") private val value: Int) {
     companion object {
         /**
          * Edge is clamped to the final color.
          *
          * The gradient will paint the all the regions outside the inner area with
          * the color of the point closest to that region.
+         * ![TileMode.Clamp](https://developer.android.com/static/images/jetpack/compose/graphics/brush/tile_mode_clamp.png)
          */
         val Clamp = TileMode(0)
 
@@ -51,6 +52,7 @@ inline class TileMode internal constructor(@Suppress("unused") private val value
          * This is as if the stop points from 0.0 to 1.0 were then repeated from 1.0
          * to 2.0, 2.0 to 3.0, and so forth (and for linear gradients, similarly from
          * -1.0 to 0.0, -2.0 to -1.0, etc).
+         * ![TileMode.Repeated](https://developer.android.com/static/images/jetpack/compose/graphics/brush/tile_mode_repeated.png)
          */
         val Repeated = TileMode(1)
 
@@ -60,12 +62,14 @@ inline class TileMode internal constructor(@Suppress("unused") private val value
          * from 2.0 to 1.0, then forwards from 2.0 to 3.0, then backwards again from
          * 4.0 to 3.0, and so forth (and for linear gradients, similarly from in the
          * negative direction).
+         * ![TileMode.Mirror](https://developer.android.com/static/images/jetpack/compose/graphics/brush/tile_mode_mirror.png)
          */
         val Mirror = TileMode(2)
 
         /**
          * Render the shader's image pixels only within its original bounds. If the shader
          * draws outside of its original bounds, transparent black is drawn instead.
+         * ![TileMode.Decal](https://developer.android.com/static/images/jetpack/compose/graphics/brush/tile_mode_decal.png)
          */
         val Decal = TileMode(3)
     }

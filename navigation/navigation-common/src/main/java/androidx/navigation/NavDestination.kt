@@ -24,10 +24,11 @@ import androidx.annotation.CallSuper
 import androidx.annotation.IdRes
 import androidx.annotation.RestrictTo
 import androidx.collection.SparseArrayCompat
-import androidx.collection.forEach
 import androidx.collection.valueIterator
 import androidx.core.content.res.use
+import androidx.core.net.toUri
 import androidx.navigation.common.R
+import java.util.regex.Pattern
 import kotlin.reflect.KClass
 
 /**
@@ -70,6 +71,7 @@ public open class NavDestination(
         @get:Suppress("NullableCollection") // Needed for nullable bundle
         public val matchingArgs: Bundle?,
         private val isExactDeepLink: Boolean,
+        private val matchingPathSegments: Int,
         private val hasMatchingAction: Boolean,
         private val mimeTypeMatchLevel: Int
     ) : Comparable<DeepLinkMatch> {
@@ -78,6 +80,13 @@ public open class NavDestination(
             if (isExactDeepLink && !other.isExactDeepLink) {
                 return 1
             } else if (!isExactDeepLink && other.isExactDeepLink) {
+                return -1
+            }
+            // Then prefer most exact match path segments
+            val pathSegmentDifference = matchingPathSegments - other.matchingPathSegments
+            if (pathSegmentDifference > 0) {
+                return 1
+            } else if (pathSegmentDifference < 0) {
                 return -1
             }
             if (matchingArgs != null && other.matchingArgs == null) {
@@ -99,6 +108,35 @@ public open class NavDestination(
                 return -1
             }
             return mimeTypeMatchLevel - other.mimeTypeMatchLevel
+        }
+
+        /**
+         * Returns true if all args from [DeepLinkMatch.matchingArgs] can be found within
+         * the [arguments].
+         *
+         * This returns true even if the [arguments] contain more args
+         * than [DeepLinkMatch.matchingArgs].
+         *
+         * @param [arguments] The arguments to match with the matchingArgs stored in this
+         * DeepLinkMatch.
+         */
+        public fun hasMatchingArgs(arguments: Bundle?): Boolean {
+            if (arguments == null || matchingArgs == null || matchingArgs.isEmpty) return false
+
+            matchingArgs.keySet().forEach { key ->
+                // the arguments must at least contain every argument stored in this deep link
+                if (!arguments.containsKey(key)) return false
+
+                val type = destination.arguments[key]?.type
+                val matchingArgValue = type?.get(matchingArgs, key)
+                val entryArgValue = type?.get(arguments, key)
+                if (matchingArgValue == null || entryArgValue == null ||
+                    matchingArgValue != entryArgValue
+                ) {
+                    return false
+                }
+            }
+            return true
         }
     }
 
@@ -246,15 +284,15 @@ public open class NavDestination(
      *
      * In addition to a direct Uri match, the following features are supported:
      *
-     * Uris without a scheme are assumed as http and https. For example,
+     * - Uris without a scheme are assumed as http and https. For example,
      * `www.example.com` will match `http://www.example.com` and
      * `https://www.example.com`.
-     * Placeholders in the form of `{placeholder_name}` matches 1 or more
-     * characters. The String value of the placeholder will be available in the arguments
+     * - Placeholders in the form of `{placeholder_name}` matches 1 or more
+     * characters. The parsed value of the placeholder will be available in the arguments
      * [Bundle] with a key of the same name. For example,
      * `http://www.example.com/users/{id}` will match
      * `http://www.example.com/users/4`.
-     * The `.*` wildcard can be used to match 0 or more characters.
+     * - The `.*` wildcard can be used to match 0 or more characters.
      *
      * These Uris can be declared in your navigation XML files by adding one or more
      * `<deepLink app:uri="uriPattern" />` elements as
@@ -328,6 +366,23 @@ public open class NavDestination(
     }
 
     /**
+     * Determines if this NavDestination has a deep link of this route.
+     *
+     * @param [route] The route to match against this [NavDestination.route]
+     * @return The matching [DeepLinkMatch], or null if no match was found.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun matchDeepLink(route: String): DeepLinkMatch? {
+        val request = NavDeepLinkRequest.Builder.fromUri(createRoute(route).toUri()).build()
+        val matchingDeepLink = if (this is NavGraph) {
+            matchDeepLinkExcludingChildren(request)
+        } else {
+            matchDeepLink(request)
+        }
+        return matchingDeepLink
+    }
+
+    /**
      * Determines if this NavDestination has a deep link matching the given Uri.
      * @param navDeepLinkRequest The request to match against all deep links added in
      * [addDeepLink]
@@ -343,8 +398,10 @@ public open class NavDestination(
         var bestMatch: DeepLinkMatch? = null
         for (deepLink in deepLinks) {
             val uri = navDeepLinkRequest.uri
+            // includes matching args for path, query, and fragment
             val matchingArguments =
                 if (uri != null) deepLink.getMatchingArguments(uri, arguments) else null
+            val matchingPathSegments = deepLink.calculateMatchingPathSegments(uri)
             val requestAction = navDeepLinkRequest.action
             val matchingAction = requestAction != null && requestAction ==
                 deepLink.action
@@ -354,7 +411,8 @@ public open class NavDestination(
             if (matchingArguments != null || matchingAction || mimeTypeMatchLevel > -1) {
                 val newMatch = DeepLinkMatch(
                     this, matchingArguments,
-                    deepLink.isExactDeepLink, matchingAction, mimeTypeMatchLevel
+                    deepLink.isExactDeepLink, matchingPathSegments, matchingAction,
+                    mimeTypeMatchLevel
                 )
                 if (bestMatch == null || newMatch > bestMatch) {
                     bestMatch = newMatch
@@ -396,6 +454,38 @@ public open class NavDestination(
             current = parent
         } while (current != null)
         return hierarchy.toList().map { it.id }.toIntArray()
+    }
+
+    /**
+     * Returns true if the [NavBackStackEntry.destination] contains the route.
+     *
+     * The route may be either:
+     * 1. an exact route without arguments
+     * 2. a route containing arguments where no arguments are filled in
+     * 3. a route containing arguments where some or all arguments are filled in
+     *
+     * In the case of 3., it will only match if the entry arguments
+     * match exactly with the arguments that were filled in inside the route.
+     *
+     * @param [route] The route to match with the route of this destination
+     *
+     * @param [arguments] The [NavBackStackEntry.arguments] that was used to navigate
+     * to this destination
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun hasRoute(route: String, arguments: Bundle?): Boolean {
+        // this matches based on routePattern
+        if (this.route == route) return true
+
+        // if no match based on routePattern, this means route contains filled in args.
+        val matchingDeepLink = matchDeepLink(route)
+
+        // If matchingDeepLink is null or it has no matching args, the route does not contain
+        // filled in args, we would return false since it didn't pattern-match earlier either.
+        // Any args (partially or completely filled in) must exactly match between
+        // the route and entry's route
+        if (this != matchingDeepLink?.destination) return false
+        return matchingDeepLink.hasMatchingArgs(arguments)
     }
 
     /**
@@ -508,6 +598,50 @@ public open class NavDestination(
         return defaultArgs
     }
 
+    /**
+     * Parses a dynamic label containing arguments into a String.
+     *
+     * Supports String Resource arguments by parsing `R.string` values of `ReferenceType`
+     * arguments found in `android:label` into their String values.
+     *
+     * Returns `null` if label is null.
+     *
+     * Returns the original label if the label was a static string.
+     *
+     * @param context Context used to resolve a resource's name
+     * @param bundle Bundle containing the arguments used in the label
+     * @return The parsed string or null if the label is null
+     * @throws IllegalArgumentException if an argument provided in the label cannot be found in
+     * the bundle, or if the label contains a string template but the bundle is null
+     */
+    public fun fillInLabel(context: Context, bundle: Bundle?): String? {
+        val label = label ?: return null
+
+        val fillInPattern = Pattern.compile("\\{(.+?)\\}")
+        val matcher = fillInPattern.matcher(label)
+        val builder = StringBuffer()
+
+        while (matcher.find()) {
+            val argName = matcher.group(1)
+            if (bundle != null && bundle.containsKey(argName)) {
+                matcher.appendReplacement(builder, "")
+                val argType = argName?.let { arguments[argName]?.type }
+                if (argType == NavType.ReferenceType) {
+                    val value = context.getString(bundle.getInt(argName))
+                    builder.append(value)
+                } else {
+                    builder.append(bundle.getString(argName))
+                }
+            } else {
+                throw IllegalArgumentException(
+                    "Could not find \"$argName\" in $bundle to fill label \"$label\""
+                )
+            }
+        }
+        matcher.appendTail(builder)
+        return builder.toString()
+    }
+
     override fun toString(): String {
         val sb = StringBuilder()
         sb.append(javaClass.simpleName)
@@ -556,6 +690,7 @@ public open class NavDestination(
             equalArguments
     }
 
+    @Suppress("DEPRECATION")
     override fun hashCode(): Int {
         var result = id
         result = 31 * result + route.hashCode()

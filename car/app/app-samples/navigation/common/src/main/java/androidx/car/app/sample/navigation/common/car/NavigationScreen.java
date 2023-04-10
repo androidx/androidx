@@ -67,6 +67,8 @@ public final class NavigationScreen extends Screen {
     private final Action mSettingsAction;
     @NonNull
     private final SurfaceRenderer mSurfaceRenderer;
+    @NonNull
+    private final MicrophoneRecorder mMicrophoneRecorder;
 
     private boolean mIsNavigating;
     private boolean mIsRerouting;
@@ -100,6 +102,7 @@ public final class NavigationScreen extends Screen {
         mListener = listener;
         mSettingsAction = settingsAction;
         mSurfaceRenderer = surfaceRenderer;
+        mMicrophoneRecorder = new MicrophoneRecorder(carContext);
     }
 
     /** Updates the navigation screen with the next instruction. */
@@ -138,7 +141,28 @@ public final class NavigationScreen extends Screen {
 
         // Set the action strip.
         ActionStrip.Builder actionStripBuilder = new ActionStrip.Builder();
+        if (mIsNavigating) {
+            actionStripBuilder.addAction(
+                    new Action.Builder()
+                            .setIcon(
+                                    new CarIcon.Builder(
+                                            IconCompat.createWithResource(
+                                                    getCarContext(),
+                                                    R.drawable.ic_add_stop))
+                                            .build())
+                            .setOnClickListener(this::openFavorites)
+                            .build());
+        }
+
         actionStripBuilder.addAction(mSettingsAction);
+        actionStripBuilder.addAction(
+                new Action.Builder()
+                        .setTitle("Voice")
+                        .setIcon(new CarIcon.Builder(
+                            IconCompat.createWithResource(getCarContext(),
+                                    R.drawable.ic_mic)).build()).setOnClickListener(
+                            mMicrophoneRecorder::record)
+                        .build());
         if (mIsNavigating) {
             actionStripBuilder.addAction(
                     new Action.Builder()
@@ -148,6 +172,7 @@ public final class NavigationScreen extends Screen {
         } else {
             actionStripBuilder.addAction(
                     new Action.Builder()
+                            .setTitle("Search")
                             .setIcon(
                                     new CarIcon.Builder(
                                             IconCompat.createWithResource(
@@ -159,6 +184,12 @@ public final class NavigationScreen extends Screen {
             actionStripBuilder.addAction(
                     new Action.Builder()
                             .setTitle("Favorites")
+                            .setIcon(
+                                    new CarIcon.Builder(
+                                            IconCompat.createWithResource(
+                                                    getCarContext(),
+                                                    R.drawable.ic_favorite_white_24dp))
+                                            .build())
                             .setOnClickListener(this::openFavorites)
                             .build());
         }
@@ -280,15 +311,16 @@ public final class NavigationScreen extends Screen {
                 .pushForResult(
                         new FavoritesScreen(getCarContext(), mSettingsAction, mSurfaceRenderer),
                         (obj) -> {
-                            if (obj != null) {
-                                // Need to copy over each element to satisfy Java type safety.
-                                List<?> results = (List<?>) obj;
-                                List<Instruction> instructions = new ArrayList<Instruction>();
-                                for (Object result : results) {
-                                    instructions.add((Instruction) result);
-                                }
-                                mListener.executeScript(instructions);
+                            if (obj == null || mIsNavigating) {
+                                return;
                             }
+                            // Need to copy over each element to satisfy Java type safety.
+                            List<?> results = (List<?>) obj;
+                            List<Instruction> instructions = new ArrayList<Instruction>();
+                            for (Object result : results) {
+                                instructions.add((Instruction) result);
+                            }
+                            mListener.executeScript(instructions);
                         });
     }
 

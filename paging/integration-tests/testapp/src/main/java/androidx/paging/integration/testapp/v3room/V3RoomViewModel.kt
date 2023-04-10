@@ -31,8 +31,8 @@ import androidx.paging.insertSeparators
 import androidx.paging.integration.testapp.room.Customer
 import androidx.paging.integration.testapp.room.SampleDatabase
 import androidx.room.Room
-import kotlinx.coroutines.flow.map
 import java.util.UUID
+import kotlinx.coroutines.flow.map
 
 class V3RoomViewModel(application: Application) : AndroidViewModel(application) {
     val database = Room.databaseBuilder(
@@ -56,8 +56,12 @@ class V3RoomViewModel(application: Application) : AndroidViewModel(application) 
 
     @SuppressLint("RestrictedApi")
     internal fun clearAllCustomers() {
-        ArchTaskExecutor.getInstance()
-            .executeOnDiskIO { database.customerDao.removeAll() }
+        ArchTaskExecutor.getInstance().executeOnDiskIO {
+            database.runInTransaction {
+                database.remoteKeyDao.delete()
+                database.customerDao.removeAll()
+            }
+        }
     }
 
     @OptIn(ExperimentalPagingApi::class)

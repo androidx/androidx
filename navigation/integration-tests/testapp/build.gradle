@@ -37,4 +37,8 @@ dependencies {
     })
 }
 
+android {
+    namespace "androidx.navigation.testapp"
+}
+
 tasks["check"].dependsOn(tasks["connectedCheck"])

@@ -19,11 +19,14 @@ package androidx.core.os;
 import android.os.Build;
 import android.os.LocaleList;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.Size;
+import androidx.core.text.ICUCompat;
 
 import java.util.Locale;
 
@@ -33,7 +36,7 @@ import java.util.Locale;
 public final class LocaleListCompat {
     private static final LocaleListCompat sEmptyLocaleList = create();
 
-    private LocaleListInterface mImpl;
+    private final LocaleListInterface mImpl;
 
     private LocaleListCompat(LocaleListInterface impl) {
         mImpl = impl;
@@ -71,7 +74,7 @@ public final class LocaleListCompat {
     @NonNull
     public static LocaleListCompat create(@NonNull Locale... localeList) {
         if (Build.VERSION.SDK_INT >= 24) {
-            return wrap(new LocaleList(localeList));
+            return wrap(Api24Impl.createLocaleList(localeList));
         }
         return new LocaleListCompat(new LocaleListCompatWrapper(localeList));
     }
@@ -82,6 +85,7 @@ public final class LocaleListCompat {
      * @param index The position to retrieve.
      * @return The {@link Locale} in the given index
      */
+    @Nullable
     public Locale get(int index) {
         return mImpl.get(index);
     }
@@ -113,7 +117,7 @@ public final class LocaleListCompat {
      *         wasn't found
      */
     @IntRange(from = -1)
-    public int indexOf(Locale locale) {
+    public int indexOf(@Nullable Locale locale) {
         return mImpl.indexOf(locale);
     }
 
@@ -162,7 +166,7 @@ public final class LocaleListCompat {
             final Locale[] localeArray = new Locale[tags.length];
             for (int i = 0; i < localeArray.length; i++) {
                 localeArray[i] = Build.VERSION.SDK_INT >= 21
-                        ? Locale.forLanguageTag(tags[i])
+                        ? Api21Impl.forLanguageTag(tags[i])
                         : forLanguageTagCompat(tags[i]);
             }
             return create(localeArray);
@@ -203,7 +207,7 @@ public final class LocaleListCompat {
     @NonNull @Size(min = 1)
     public static LocaleListCompat getAdjustedDefault() {
         if (Build.VERSION.SDK_INT >= 24) {
-            return LocaleListCompat.wrap(LocaleList.getAdjustedDefault());
+            return LocaleListCompat.wrap(Api24Impl.getAdjustedDefault());
         } else {
             return LocaleListCompat.create(Locale.getDefault());
         }
@@ -223,9 +227,90 @@ public final class LocaleListCompat {
     @NonNull @Size(min = 1)
     public static LocaleListCompat getDefault() {
         if (Build.VERSION.SDK_INT >= 24) {
-            return LocaleListCompat.wrap(LocaleList.getDefault());
+            return LocaleListCompat.wrap(Api24Impl.getDefault());
         } else {
             return LocaleListCompat.create(Locale.getDefault());
+        }
+    }
+
+    /**
+     * Determine whether two locales are considered a match, even if they are not exactly equal.
+     * They are considered as a match when both of their languages and scripts
+     * (explicit or inferred) are identical. This means that a user would be able to understand
+     * the content written in the supported locale even if they say they prefer the desired locale.
+     *
+     * E.g. [zh-HK] matches [zh-Hant]; [en-US] matches [en-CA].
+     *
+     * @param supported The supported {@link Locale} to be compared.
+     * @param desired   The desired {@link Locale} to be compared.
+     * @return True if they match, false otherwise.
+     */
+    @RequiresApi(21)
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
+    public static boolean matchesLanguageAndScript(@NonNull Locale supported,
+            @NonNull Locale desired) {
+        if (BuildCompat.isAtLeastT()) {
+            return LocaleList.matchesLanguageAndScript(supported, desired);
+        } else if (Build.VERSION.SDK_INT >= 21) {
+            return Api21Impl.matchesLanguageAndScript(supported, desired);
+        } else {
+            throw new UnsupportedOperationException(
+                    "This method is only supported on API level 21+");
+        }
+    }
+
+    @RequiresApi(21)
+    static class Api21Impl {
+        private Api21Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean matchesLanguageAndScript(@NonNull Locale supported,
+                @NonNull Locale desired) {
+            if (supported.equals(desired)) {
+                return true;  // return early so we don't do unnecessary computation
+            }
+            if (!supported.getLanguage().equals(desired.getLanguage())) {
+                return false;
+            }
+            if (isPseudoLocale(supported) || isPseudoLocale(desired)) {
+                // The locales are not the same, but the languages are the same, and one of the
+                // locales
+                // is a pseudo-locale. So this is not a match.
+                return false;
+            }
+            final String supportedScr = ICUCompat.maximizeAndGetScript(supported);
+            if (supportedScr.isEmpty()) {
+                // If we can't guess a script, we don't know enough about the locales' language
+                // to find
+                // if the locales match. So we fall back to old behavior of matching, which
+                // considered
+                // locales with different regions different.
+                final String supportedRegion = supported.getCountry();
+                return supportedRegion.isEmpty() || supportedRegion.equals(desired.getCountry());
+            }
+            final String desiredScr = ICUCompat.maximizeAndGetScript(desired);
+            // There is no match if the two locales use different scripts. This will most imporantly
+            // take care of traditional vs simplified Chinese.
+            return supportedScr.equals(desiredScr);
+        }
+
+        private static final Locale[] PSEUDO_LOCALE = {
+                new Locale("en", "XA"), new Locale("ar", "XB")};
+
+        private static boolean isPseudoLocale(Locale locale) {
+            for (Locale pseudoLocale : PSEUDO_LOCALE) {
+                if (pseudoLocale.equals(locale)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @DoNotInline
+        static Locale forLanguageTag(String languageTag) {
+            return Locale.forLanguageTag(languageTag);
         }
     }
 
@@ -239,8 +324,31 @@ public final class LocaleListCompat {
         return mImpl.hashCode();
     }
 
+    @NonNull
     @Override
     public String toString() {
         return mImpl.toString();
+    }
+
+    @RequiresApi(24)
+    static class Api24Impl {
+        private Api24Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static LocaleList createLocaleList(Locale... list) {
+            return new LocaleList(list);
+        }
+
+        @DoNotInline
+        static LocaleList getAdjustedDefault() {
+            return LocaleList.getAdjustedDefault();
+        }
+
+        @DoNotInline
+        static LocaleList getDefault() {
+            return LocaleList.getDefault();
+        }
     }
 }

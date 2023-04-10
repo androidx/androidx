@@ -43,7 +43,7 @@ public class AnnotationProcessorKtTest {
     @Before
     public fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        session = LocalStorage.createSearchSession(
+        session = LocalStorage.createSearchSessionAsync(
             LocalStorage.SearchContext.Builder(context, DB_NAME).build()
         ).get()
 
@@ -59,7 +59,7 @@ public class AnnotationProcessorKtTest {
     }
 
     private fun cleanup() {
-        session.setSchema(SetSchemaRequest.Builder().setForceOverride(true).build()).get()
+        session.setSchemaAsync(SetSchemaRequest.Builder().setForceOverride(true).build()).get()
     }
 
     @Document
@@ -250,7 +250,7 @@ public class AnnotationProcessorKtTest {
 
     @Test
     fun testAnnotationProcessor() {
-        session.setSchema(
+        session.setSchemaAsync(
             SetSchemaRequest.Builder()
                 .addDocumentClasses(Card::class.java, Gift::class.java).build()
         ).get()
@@ -260,7 +260,7 @@ public class AnnotationProcessorKtTest {
 
         // Index the Gift document and query it.
         checkIsBatchResultSuccess(
-            session.put(
+            session.putAsync(
                 PutDocumentsRequest.Builder().addDocuments(inputDocument).build()
             )
         )

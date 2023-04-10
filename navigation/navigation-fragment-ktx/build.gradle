@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -33,8 +32,11 @@ dependencies {
 androidx {
     name = "Android Navigation Fragment Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2018"
     description = "Android Navigation-Fragment-Ktx"
+}
+
+android {
+    namespace "androidx.navigation.fragment.ktx"
 }
 

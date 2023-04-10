@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -40,7 +38,10 @@ dependencies {
 androidx {
     name = 'AndroidX AppSearch - Kotlin Extensions'
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.APPSEARCH
     inceptionYear = '2021'
     description = 'AndroidX AppSearch - Kotlin Extensions'
+}
+
+android {
+    namespace "androidx.appsearch.ktx"
 }

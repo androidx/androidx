@@ -16,6 +16,8 @@ package androidx.leanback.widget;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.leanback.app.HeadersFragment;
 import androidx.leanback.graphics.ColorOverlayDimmer;
 
@@ -295,6 +297,7 @@ public abstract class RowPresenter extends Presenter {
          * Return {@link ViewHolder} of currently selected item inside a row ViewHolder.
          * @return The selected item's ViewHolder.
          */
+        @Nullable
         public Presenter.ViewHolder getSelectedItemViewHolder() {
             return null;
         }
@@ -303,6 +306,7 @@ public abstract class RowPresenter extends Presenter {
          * Return currently selected item inside a row ViewHolder.
          * @return The selected item.
          */
+        @Nullable
         public Object getSelectedItem() {
             return null;
         }
@@ -350,7 +354,8 @@ public abstract class RowPresenter extends Presenter {
      * @param parent The parent View for the Row's view holder.
      * @return A ViewHolder for the Row's View.
      */
-    protected abstract ViewHolder createRowViewHolder(ViewGroup parent);
+    @NonNull
+    protected abstract ViewHolder createRowViewHolder(@NonNull ViewGroup parent);
 
     /**
      * Returns true if the Row view should clip its children.  The clipChildren
@@ -512,7 +517,7 @@ public abstract class RowPresenter extends Presenter {
      * respond to selected state changes of a Row.  A subclass may make visual changes to Row view
      * but must not create animation on the Row view.
      */
-    protected void onRowViewSelected(ViewHolder vh, boolean selected) {
+    protected void onRowViewSelected(@NonNull ViewHolder vh, boolean selected) {
         dispatchItemSelectedListener(vh, selected);
         updateHeaderViewVisibility(vh);
         updateActivateStatus(vh, vh.view);
@@ -601,7 +606,10 @@ public abstract class RowPresenter extends Presenter {
     }
 
     @Override
-    public final void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
+    public final void onBindViewHolder(
+            @NonNull Presenter.ViewHolder viewHolder,
+            @Nullable Object item
+    ) {
         onBindRowViewHolder(getRowViewHolder(viewHolder), item);
     }
 
@@ -611,7 +619,7 @@ public abstract class RowPresenter extends Presenter {
      * {@link #onBindRowViewHolder(ViewHolder, Object)} must call through the super class's
      * implementation of this method.
      */
-    protected void onBindRowViewHolder(ViewHolder vh, Object item) {
+    protected void onBindRowViewHolder(@NonNull ViewHolder vh, @NonNull Object item) {
         vh.mRowObject = item;
         vh.mRow = item instanceof Row ? (Row) item : null;
         if (vh.mHeaderViewHolder != null && vh.getRow() != null) {
@@ -620,7 +628,7 @@ public abstract class RowPresenter extends Presenter {
     }
 
     @Override
-    public final void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
+    public final void onUnbindViewHolder(@NonNull Presenter.ViewHolder viewHolder) {
         onUnbindRowViewHolder(getRowViewHolder(viewHolder));
     }
 
@@ -629,7 +637,7 @@ public abstract class RowPresenter extends Presenter {
      * Derived classes of {@link RowPresenter} overriding {@link #onUnbindRowViewHolder(ViewHolder)}
      * must call through the super class's implementation of this method.
      */
-    protected void onUnbindRowViewHolder(ViewHolder vh) {
+    protected void onUnbindRowViewHolder(@NonNull ViewHolder vh) {
         if (vh.mHeaderViewHolder != null) {
             mHeaderPresenter.onUnbindViewHolder(vh.mHeaderViewHolder);
         }
@@ -638,28 +646,28 @@ public abstract class RowPresenter extends Presenter {
     }
 
     @Override
-    public final void onViewAttachedToWindow(Presenter.ViewHolder holder) {
+    public final void onViewAttachedToWindow(@NonNull Presenter.ViewHolder holder) {
         onRowViewAttachedToWindow(getRowViewHolder(holder));
     }
 
     /**
      * Invoked when the row view is attached to the window.
      */
-    protected void onRowViewAttachedToWindow(ViewHolder vh) {
+    protected void onRowViewAttachedToWindow(@NonNull ViewHolder vh) {
         if (vh.mHeaderViewHolder != null) {
             mHeaderPresenter.onViewAttachedToWindow(vh.mHeaderViewHolder);
         }
     }
 
     @Override
-    public final void onViewDetachedFromWindow(Presenter.ViewHolder holder) {
+    public final void onViewDetachedFromWindow(@NonNull Presenter.ViewHolder holder) {
         onRowViewDetachedFromWindow(getRowViewHolder(holder));
     }
 
     /**
      * Invoked when the row view is detached from the window.
      */
-    protected void onRowViewDetachedFromWindow(ViewHolder vh) {
+    protected void onRowViewDetachedFromWindow(@NonNull ViewHolder vh) {
         if (vh.mHeaderViewHolder != null) {
             mHeaderPresenter.onViewDetachedFromWindow(vh.mHeaderViewHolder);
         }
@@ -670,7 +678,7 @@ public abstract class RowPresenter extends Presenter {
      * Freezes/unfreezes the row, typically used when a transition starts/ends.
      * This method is called by the fragment, it should not call it directly by the application.
      */
-    public void freeze(ViewHolder holder, boolean freeze) {
+    public void freeze(@NonNull ViewHolder holder, boolean freeze) {
     }
 
     /**
@@ -683,7 +691,7 @@ public abstract class RowPresenter extends Presenter {
      * @param afterEntrance  true if children of row participating in entrance transition
      *                       should be set to visible, false otherwise.
      */
-    public void setEntranceTransitionState(ViewHolder holder, boolean afterEntrance) {
+    public void setEntranceTransitionState(@NonNull ViewHolder holder, boolean afterEntrance) {
         if (holder.mHeaderViewHolder != null
                 && holder.mHeaderViewHolder.view.getVisibility() != View.GONE) {
             holder.mHeaderViewHolder.view.setVisibility(afterEntrance

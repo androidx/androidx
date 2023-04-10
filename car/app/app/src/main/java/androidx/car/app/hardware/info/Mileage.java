@@ -19,25 +19,24 @@ import static androidx.car.app.hardware.common.CarUnit.CarDistanceUnit;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarUnit;
 import androidx.car.app.hardware.common.CarValue;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Objects;
 
 /** Information about car mileage. */
 @CarProtocol
 @RequiresCarApi(3)
+@KeepFields
 public final class Mileage {
-    @Keep
     @Nullable
     private final CarValue<Float> mOdometerMeters;
 
-    @Keep
     @NonNull
     private final CarValue<@CarDistanceUnit Integer> mDistanceDisplayUnit;
 
@@ -93,15 +92,15 @@ public final class Mileage {
 
     /** Constructs an empty instance, used by serialization code. */
     private Mileage() {
-        mOdometerMeters = CarValue.UNIMPLEMENTED_FLOAT;
-        mDistanceDisplayUnit = CarValue.UNIMPLEMENTED_INTEGER;
+        mOdometerMeters = CarValue.UNKNOWN_FLOAT;
+        mDistanceDisplayUnit = CarValue.UNKNOWN_INTEGER;
     }
 
     /** A builder of {@link Mileage}. */
     public static final class Builder {
-        CarValue<Float> mOdometerMeters = CarValue.UNIMPLEMENTED_FLOAT;
+        CarValue<Float> mOdometerMeters = CarValue.UNKNOWN_FLOAT;
         CarValue<@CarDistanceUnit Integer> mDistanceDisplayUnit =
-                CarValue.UNIMPLEMENTED_INTEGER;
+                CarValue.UNKNOWN_INTEGER;
 
         /**
          * Sets the odometer value in meters.

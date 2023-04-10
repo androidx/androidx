@@ -691,7 +691,7 @@ public class ItemAnimatorV2ApiTest extends BaseRecyclerViewAnimationsTest {
         }
 
         @Override
-        public void endAnimation(RecyclerView.ViewHolder item) {
+        public void endAnimation(@NonNull RecyclerView.ViewHolder item) {
         }
 
         @Override

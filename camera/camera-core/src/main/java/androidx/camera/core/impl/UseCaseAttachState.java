@@ -54,9 +54,12 @@ public final class UseCaseAttachState {
      *
      * <p>Adds the use case to the collection if not already in it.
      */
-    public void setUseCaseActive(@NonNull String useCaseId, @NonNull SessionConfig sessionConfig) {
+    public void setUseCaseActive(
+            @NonNull String useCaseId,
+            @NonNull SessionConfig sessionConfig,
+            @NonNull UseCaseConfig<?> useCaseConfig) {
         UseCaseAttachInfo useCaseAttachInfo = getOrCreateUseCaseAttachInfo(useCaseId,
-                sessionConfig);
+                sessionConfig, useCaseConfig);
         useCaseAttachInfo.setActive(true);
     }
 
@@ -83,9 +86,10 @@ public final class UseCaseAttachState {
      * <p>Adds the use case to the collection if not already in it.
      */
     public void setUseCaseAttached(@NonNull String useCaseId,
-            @NonNull SessionConfig sessionConfig) {
+            @NonNull SessionConfig sessionConfig,
+            @NonNull UseCaseConfig<?> userCaseConfig) {
         UseCaseAttachInfo useCaseAttachInfo = getOrCreateUseCaseAttachInfo(useCaseId,
-                sessionConfig);
+                sessionConfig, userCaseConfig);
         useCaseAttachInfo.setAttached(true);
     }
 
@@ -116,6 +120,12 @@ public final class UseCaseAttachState {
     }
 
     @NonNull
+    public Collection<UseCaseConfig<?>> getAttachedUseCaseConfigs() {
+        return Collections.unmodifiableCollection(
+                getUseCaseConfigs((useCaseAttachInfo) -> useCaseAttachInfo.getAttached()));
+    }
+
+    @NonNull
     public Collection<SessionConfig> getAttachedSessionConfigs() {
         return Collections.unmodifiableCollection(
                 getSessionConfigs((useCaseAttachInfo) -> useCaseAttachInfo.getAttached()));
@@ -133,14 +143,17 @@ public final class UseCaseAttachState {
      *
      * <p>If the use case is not already in the collection, nothing is done.
      */
-    public void updateUseCase(@NonNull String useCaseId, @NonNull SessionConfig sessionConfig) {
+    public void updateUseCase(
+            @NonNull String useCaseId,
+            @NonNull SessionConfig sessionConfig,
+            @NonNull UseCaseConfig<?> useCaseConfig) {
         if (!mAttachedUseCasesToInfoMap.containsKey(useCaseId)) {
             return;
         }
 
         // Rebuild the attach info from scratch to get the updated SessionConfig.
         UseCaseAttachInfo newUseCaseAttachInfo =
-                new UseCaseAttachInfo(sessionConfig);
+                new UseCaseAttachInfo(sessionConfig, useCaseConfig);
 
         // Retain the attached and active flags.
         UseCaseAttachInfo oldUseCaseAttachInfo = mAttachedUseCasesToInfoMap.get(useCaseId);
@@ -193,11 +206,13 @@ public final class UseCaseAttachState {
         return validatingBuilder;
     }
 
-    private UseCaseAttachInfo getOrCreateUseCaseAttachInfo(@NonNull String useCaseId,
-            @NonNull SessionConfig sessionConfig) {
+    private UseCaseAttachInfo getOrCreateUseCaseAttachInfo(
+            @NonNull String useCaseId,
+            @NonNull SessionConfig sessionConfig,
+            @NonNull UseCaseConfig<?> useCaseConfig) {
         UseCaseAttachInfo useCaseAttachInfo = mAttachedUseCasesToInfoMap.get(useCaseId);
         if (useCaseAttachInfo == null) {
-            useCaseAttachInfo = new UseCaseAttachInfo(sessionConfig);
+            useCaseAttachInfo = new UseCaseAttachInfo(sessionConfig, useCaseConfig);
             mAttachedUseCasesToInfoMap.put(useCaseId, useCaseAttachInfo);
         }
         return useCaseAttachInfo;
@@ -214,15 +229,31 @@ public final class UseCaseAttachState {
         return sessionConfigs;
     }
 
+    private Collection<UseCaseConfig<?>> getUseCaseConfigs(AttachStateFilter attachStateFilter) {
+        List<UseCaseConfig<?>> useCaseConfigs = new ArrayList<>();
+        for (Map.Entry<String, UseCaseAttachInfo> attachedUseCase :
+                mAttachedUseCasesToInfoMap.entrySet()) {
+            if (attachStateFilter == null || attachStateFilter.filter(attachedUseCase.getValue())) {
+                useCaseConfigs.add(attachedUseCase.getValue().getUseCaseConfig());
+            }
+        }
+        return useCaseConfigs;
+    }
+
     private interface AttachStateFilter {
         boolean filter(UseCaseAttachInfo attachInfo);
     }
 
     /** The set of state and configuration information for an attached use case. */
     private static final class UseCaseAttachInfo {
+
         /** The configurations required of the camera for the use case. */
         @NonNull
         private final SessionConfig mSessionConfig;
+
+        @NonNull
+        private final UseCaseConfig<?> mUseCaseConfig;
+
         /**
          * True if the use case is currently attached (i.e. camera should have a capture session
          * configured for it).
@@ -235,8 +266,15 @@ public final class UseCaseAttachState {
          */
         private boolean mActive = false;
 
-        UseCaseAttachInfo(@NonNull SessionConfig sessionConfig) {
+        UseCaseAttachInfo(@NonNull SessionConfig sessionConfig,
+                @NonNull UseCaseConfig<?> useCaseConfig) {
             mSessionConfig = sessionConfig;
+            mUseCaseConfig = useCaseConfig;
+        }
+
+        @NonNull
+        UseCaseConfig<?> getUseCaseConfig() {
+            return mUseCaseConfig;
         }
 
         @NonNull

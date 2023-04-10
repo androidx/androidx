@@ -16,22 +16,19 @@
 
 package androidx.room.solver.types
 
-import androidx.annotation.VisibleForTesting
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
-import androidx.room.ext.L
-import androidx.room.ext.S
-import androidx.room.ext.T
 import androidx.room.solver.CodeGenScope
-import java.lang.IllegalStateException
 
 /**
  * A type converter that checks if the input is null and returns null instead of calling the
  * [delegate].
  */
 class NullSafeTypeConverter(
-    @VisibleForTesting
-    internal val delegate: TypeConverter
+    val delegate: TypeConverter
 ) : TypeConverter(
     from = delegate.from.makeNullable(),
     to = delegate.to.makeNullable(),
@@ -44,11 +41,13 @@ class NullSafeTypeConverter(
     }
 
     override fun doConvert(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
-        scope.builder().apply {
-            beginControlFlow("if($L == null)", inputVarName)
-            addStatement("$L = null", outputVarName)
-            nextControlFlow("else")
-            delegate.convert(inputVarName, outputVarName, scope)
+        scope.builder.apply {
+            beginControlFlow("if (%L == null)", inputVarName).apply {
+                addStatement("%L = null", outputVarName)
+            }
+            nextControlFlow("else").apply {
+                delegate.convert(inputVarName, outputVarName, scope)
+            }
             endControlFlow()
         }
     }
@@ -71,28 +70,49 @@ class RequireNotNullTypeConverter(
     }
 
     override fun doConvert(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
-        scope.builder().apply {
-            beginControlFlow("if($L == null)", inputVarName)
-            addStatement(
-                "throw new $T($S)", IllegalStateException::class.java,
-                "Expected non-null ${from.typeName}, but it was null."
-            )
+        scope.builder.apply {
+            beginControlFlow("if (%L == null)", inputVarName).apply {
+                addIllegalStateException()
+            }
             nextControlFlow("else").apply {
-                addStatement("$L = $L", outputVarName, inputVarName)
+                addStatement("%L = %L", outputVarName, inputVarName)
             }
             endControlFlow()
         }
     }
 
     override fun doConvert(inputVarName: String, scope: CodeGenScope): String {
-        scope.builder().apply {
-            beginControlFlow("if($L == null)", inputVarName)
-            addStatement(
-                "throw new $T($S)", IllegalStateException::class.java,
-                "Expected non-null ${from.typeName}, but it was null."
-            )
+        scope.builder.apply {
+            beginControlFlow("if (%L == null)", inputVarName).apply {
+                addIllegalStateException()
+            }
             endControlFlow()
         }
         return inputVarName
+    }
+
+    private fun XCodeBlock.Builder.addIllegalStateException() {
+        val typeName = from.asTypeName().copy(nullable = false).toString(language)
+        val message = "Expected non-null $typeName, but it was null."
+        when (language) {
+            CodeLanguage.JAVA -> {
+                addStatement(
+                    "throw %L",
+                    XCodeBlock.ofNewInstance(
+                        language,
+                        ILLEGAL_STATE_EXCEPTION,
+                        "%S",
+                        message
+                    )
+                )
+            }
+            CodeLanguage.KOTLIN -> {
+                addStatement("error(%S)", message)
+            }
+        }
+    }
+
+    companion object {
+        private val ILLEGAL_STATE_EXCEPTION = IllegalStateException::class.asClassName()
     }
 }

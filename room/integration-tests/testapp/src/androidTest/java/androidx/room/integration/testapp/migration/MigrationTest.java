@@ -38,6 +38,7 @@ import androidx.room.testing.MigrationTestHelper;
 import androidx.room.util.TableInfo;
 import androidx.room.util.ViewInfo;
 import androidx.sqlite.db.SupportSQLiteDatabase;
+import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -69,11 +70,14 @@ public class MigrationTest {
     public MigrationTestHelper helper;
 
     public MigrationTest() {
-        helper = new MigrationTestHelper(InstrumentationRegistry.getInstrumentation(),
-                MigrationDb.class.getCanonicalName());
+        helper = new MigrationTestHelper(
+                InstrumentationRegistry.getInstrumentation(),
+                MigrationDb.class.getCanonicalName()
+        );
     }
 
     @Test
+    @SuppressWarnings("deprecation") // This test is for verifying the old deprecated constructor
     public void giveBadResource() throws IOException {
         MigrationTestHelper helper = new MigrationTestHelper(
                 InstrumentationRegistry.getInstrumentation(),
@@ -215,8 +219,8 @@ public class MigrationTest {
             helper.runMigrationsAndValidate(TEST_DB,
                     7, false, new Migration(6, 7) {
                         @Override
-                        public void migrate(@NonNull SupportSQLiteDatabase database) {
-                            database.execSQL("CREATE TABLE Entity4 (`id` INTEGER NOT NULL,"
+                        public void migrate(@NonNull SupportSQLiteDatabase db) {
+                            db.execSQL("CREATE TABLE Entity4 (`id` INTEGER NOT NULL,"
                                     + " `name` TEXT, PRIMARY KEY(`id`))");
                         }
                     });
@@ -562,6 +566,62 @@ public class MigrationTest {
         }
     }
 
+    // Verifies that even with allowDataLossOnRecovery, bad migrations are propagated and the DB
+    // is not silently deleted.
+    @Test
+    public void badMigration_allowDataLossOnRecovery() throws IOException {
+        // Create DB at version 1
+        helper.createDatabase(TEST_DB, 1).close();
+
+        // Create DB at latest version, but no migrations and with allowDataLossOnRecovery, it
+        // should fail to open.
+        Context targetContext = ApplicationProvider.getApplicationContext();
+        MigrationDb db = Room.databaseBuilder(targetContext, MigrationDb.class, TEST_DB)
+                .openHelperFactory(configuration -> {
+                    SupportSQLiteOpenHelper.Configuration config =
+                            SupportSQLiteOpenHelper.Configuration.builder(targetContext)
+                                    .name(configuration.name)
+                                    .callback(configuration.callback)
+                                    .allowDataLossOnRecovery(true)
+                                    .build();
+                    return new FrameworkSQLiteOpenHelperFactory().create(config);
+                })
+                .build();
+        try {
+            db.getOpenHelper().getWritableDatabase();
+            Assert.fail("Expected a missing migration exception");
+        } catch (IllegalStateException ex) {
+            // Verifies exception is not wrapped
+            Truth.assertThat(ex).hasMessageThat()
+                    .containsMatch("A migration from \\d+ to \\d+ was required but not found.");
+        }
+    }
+
+    @Test
+    public void invalid_hash() throws IOException {
+        // Create DB at version 1
+        SupportSQLiteDatabase db = helper.createDatabase(TEST_DB, 1);
+        // Set its version to 2
+        db.setVersion(2);
+        db.close();
+
+        // Open the database again at version 2 and it should fail identity, replicating the
+        // scenario of 1. bumping version code without schema changes, 2. making schema changes and
+        // 3. opening the DB again.
+        try {
+            helper.runMigrationsAndValidate(TEST_DB, 2, false);
+            Assert.fail("Expected a room cannot verify the data integrity exception");
+        } catch (IllegalStateException ex) {
+            Truth.assertThat(ex).hasMessageThat().contains(
+                    "Room cannot verify the data integrity"
+            );
+            Truth.assertThat(ex).hasMessageThat().contains(
+                    "Expected identity hash: aee9a6eed720c059df0f2ee0d6e96d89, "
+                            + "found: 2f3557e56d7f665363f3e20d14787a59"
+            );
+        }
+    }
+
     private void testFailure(int startVersion, int endVersion) throws IOException {
         final SupportSQLiteDatabase db = helper.createDatabase(TEST_DB, startVersion);
         db.close();
@@ -579,8 +639,8 @@ public class MigrationTest {
 
     private static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
-            database.execSQL("CREATE TABLE IF NOT EXISTS `Entity2` ("
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS `Entity2` ("
                     + "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
                     + " `name` TEXT)");
         }
@@ -588,55 +648,55 @@ public class MigrationTest {
 
     private static final Migration MIGRATION_2_3 = new Migration(2, 3) {
         @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
-            database.execSQL("ALTER TABLE " + MigrationDb.Entity2.TABLE_NAME
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("ALTER TABLE " + MigrationDb.Entity2.TABLE_NAME
                     + " ADD COLUMN addedInV3 TEXT");
         }
     };
 
     private static final Migration MIGRATION_3_4 = new Migration(3, 4) {
         @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
-            database.execSQL("CREATE TABLE IF NOT EXISTS `Entity3` (`id` INTEGER NOT NULL,"
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS `Entity3` (`id` INTEGER NOT NULL,"
                     + " `removedInV5` TEXT, `name` TEXT, PRIMARY KEY(`id`))");
         }
     };
 
     private static final Migration MIGRATION_4_5 = new Migration(4, 5) {
         @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
-            database.execSQL("CREATE TABLE IF NOT EXISTS `Entity3_New` (`id` INTEGER NOT NULL,"
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS `Entity3_New` (`id` INTEGER NOT NULL,"
                     + " `name` TEXT, PRIMARY KEY(`id`))");
-            database.execSQL("INSERT INTO Entity3_New(`id`, `name`) "
+            db.execSQL("INSERT INTO Entity3_New(`id`, `name`) "
                     + "SELECT `id`, `name` FROM Entity3");
-            database.execSQL("DROP TABLE Entity3");
-            database.execSQL("ALTER TABLE Entity3_New RENAME TO Entity3");
+            db.execSQL("DROP TABLE Entity3");
+            db.execSQL("ALTER TABLE Entity3_New RENAME TO Entity3");
         }
     };
 
     private static final Migration MIGRATION_5_6 = new Migration(5, 6) {
         @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
-            database.execSQL("DROP TABLE " + MigrationDb.Entity3.TABLE_NAME);
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("DROP TABLE " + MigrationDb.Entity3.TABLE_NAME);
         }
     };
 
     private static final Migration MIGRATION_6_7 = new Migration(6, 7) {
         @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
-            database.execSQL("CREATE TABLE IF NOT EXISTS " + MigrationDb.Entity4.TABLE_NAME
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS " + MigrationDb.Entity4.TABLE_NAME
                     + " (`id` INTEGER NOT NULL, `name` TEXT COLLATE NOCASE, PRIMARY KEY(`id`),"
                     + " FOREIGN KEY(`name`) REFERENCES `Entity1`(`name`)"
                     + " ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED)");
-            database.execSQL("CREATE UNIQUE INDEX `index_entity1` ON "
+            db.execSQL("CREATE UNIQUE INDEX `index_entity1` ON "
                     + MigrationDb.Entity1.TABLE_NAME + " (`name`)");
         }
     };
 
     private static final Migration MIGRATION_7_8 = new Migration(7, 8) {
         @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
-            database.execSQL("CREATE VIEW IF NOT EXISTS `" + MigrationDb.View1.VIEW_NAME
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("CREATE VIEW IF NOT EXISTS `" + MigrationDb.View1.VIEW_NAME
                     + "` AS SELECT Entity4.id, Entity4.name, Entity1.id AS entity1Id"
                     + " FROM Entity4 INNER JOIN Entity1 ON Entity4.name = Entity1.name");
         }
@@ -644,46 +704,46 @@ public class MigrationTest {
 
     private static final Migration MIGRATION_8_9 = new Migration(8, 9) {
         @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
             // Add a column along with a DEFAULT unknown to Room
-            database.execSQL("ALTER TABLE Entity2 ADD COLUMN `addedInV9` TEXT DEFAULT ''");
+            db.execSQL("ALTER TABLE Entity2 ADD COLUMN `addedInV9` TEXT DEFAULT ''");
         }
     };
 
     private static final Migration MIGRATION_9_10 = new Migration(9, 10) {
         @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
-            database.execSQL("ALTER TABLE Entity1 "
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("ALTER TABLE Entity1 "
                     + "ADD COLUMN addedInV10 INTEGER NOT NULL DEFAULT 0");
         }
     };
 
     private static final Migration MIGRATION_10_11 = new Migration(10, 11) {
         @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
             // Add DEFAULT constraint to Entity2.name.
-            database.execSQL("ALTER TABLE Entity2 RENAME TO save_Entity2");
-            database.execSQL("CREATE TABLE IF NOT EXISTS Entity2 "
+            db.execSQL("ALTER TABLE Entity2 RENAME TO save_Entity2");
+            db.execSQL("CREATE TABLE IF NOT EXISTS Entity2 "
                     + "(`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
                     + "`addedInV3` TEXT, `name` TEXT DEFAULT 'Unknown', `addedInV9` TEXT)");
-            database.execSQL("INSERT INTO Entity2 (id, addedInV3, name, addedInV9) "
+            db.execSQL("INSERT INTO Entity2 (id, addedInV3, name, addedInV9) "
                     + "SELECT id, addedInV3, name, addedInV9 FROM save_Entity2");
-            database.execSQL("DROP TABLE save_Entity2");
+            db.execSQL("DROP TABLE save_Entity2");
         }
     };
 
     private static final Migration MIGRATION_11_12 = new Migration(11, 12) {
         @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
-            database.execSQL("CREATE INDEX IF NOT EXISTS `index_Entity1_addedInV10` "
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_Entity1_addedInV10` "
                     + "ON `Entity1` (`addedInV10`)");
         }
     };
 
     private static final Migration MIGRATION_12_13 = new Migration(12, 13) {
         @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
-            database.execSQL("ALTER TABLE Entity1 "
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("ALTER TABLE Entity1 "
                     + "ADD COLUMN added1InV13 INTEGER NOT NULL DEFAULT (0)");
         }
     };
@@ -702,9 +762,9 @@ public class MigrationTest {
     private static final Migration MIGRATION_MAX_LATEST = new Migration(
             MigrationDb.MAX_VERSION, MigrationDb.LATEST_VERSION) {
         @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
             // Drop Entity1 since its possible that LATEST_VERSION schema defines it differently.
-            database.execSQL("DROP TABLE IF EXISTS " + MigrationDb.Entity1.TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + MigrationDb.Entity1.TABLE_NAME);
 
             try {
                 Context testContext = InstrumentationRegistry.getInstrumentation().getContext();
@@ -712,17 +772,17 @@ public class MigrationTest {
                         + "/" + MigrationDb.LATEST_VERSION + ".json");
                 SchemaBundle schemaBundle = SchemaBundle.deserialize(input);
                 for (String query : schemaBundle.getDatabase().buildCreateQueries()) {
-                    database.execSQL(query);
+                    db.execSQL(query);
                 }
             } catch (IOException e) {
                 // Re-throw as a runtime exception so test fails if something goes wrong.
                 throw new RuntimeException(e);
             }
 
-            database.execSQL("CREATE TABLE IF NOT EXISTS `NoOp` (`id` INTEGER NOT NULL,"
+            db.execSQL("CREATE TABLE IF NOT EXISTS `NoOp` (`id` INTEGER NOT NULL,"
                     + " PRIMARY KEY(`id`))");
-            database.execSQL("INSERT INTO `NoOp` (`id`) VALUES (1)");
-            database.execSQL("INSERT INTO `NoOp` (`id`) VALUES (2)");
+            db.execSQL("INSERT INTO `NoOp` (`id`) VALUES (1)");
+            db.execSQL("INSERT INTO `NoOp` (`id`) VALUES (2)");
         }
     };
 
@@ -737,7 +797,7 @@ public class MigrationTest {
         }
 
         @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
             // do nothing
         }
     }

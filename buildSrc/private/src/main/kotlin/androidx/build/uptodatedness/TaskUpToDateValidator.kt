@@ -36,7 +36,7 @@ import org.gradle.tooling.events.task.TaskExecutionResult
  * inputs/outputs declared and are running more often than necessary.
  */
 
-const val DISALLOW_TASK_EXECUTION_FLAG_NAME = "disallowExecution"
+const val DISALLOW_TASK_EXECUTION_VAR_NAME = "DISALLOW_TASK_EXECUTION"
 
 private const val ENABLE_FLAG_NAME = VERIFY_UP_TO_DATE
 
@@ -48,70 +48,20 @@ private const val ENABLE_FLAG_NAME = VERIFY_UP_TO_DATE
 val ALLOW_RERUNNING_TASKS = setOf(
     "buildOnServer",
     "checkExternalLicenses",
-    "createArchive",
+    // https://youtrack.jetbrains.com/issue/KT-52632
+    "commonizeNativeDistribution",
     "createDiffArchiveForAll",
-    "createProjectZip",
     "externalNativeBuildDebug",
     "externalNativeBuildRelease",
     "generateDebugUnitTestConfig",
     "generateJsonModelDebug",
     "generateJsonModelRelease",
-    "generateMetadataFileForAndroidDebugPublication",
-    "generateMetadataFileForAndroidReleasePublication",
-    "generateMetadataFileForDesktopPublication",
-    "generateMetadataFileForJvmPublication",
-    "generateMetadataFileForJvmlinux-x64Publication",
-    "generateMetadataFileForJvmlinux-arm64Publication",
-    "generateMetadataFileForJvmmacos-x64Publication",
-    "generateMetadataFileForJvmmacos-arm64Publication",
-    "generateMetadataFileForJvmwindows-x64Publication",
-    "generateMetadataFileForJvmallPublication",
-    "generateMetadataFileForMavenPublication",
-    "generateMetadataFileForMetadataPublication",
-    "generateMetadataFileForKotlinMultiplatformPublication",
-    "generateMetadataFileForPluginMavenPublication",
-    "generatePomFileForBenchmarkPluginMarkerMavenPublication",
-    "generatePomFileForAndroidDebugPublication",
-    "generatePomFileForAndroidReleasePublication",
-    "generatePomFileForDesktopPublication",
-    "generatePomFileForJvmlinux-x64Publication",
-    "generatePomFileForJvmlinux-arm64Publication",
-    "generatePomFileForJvmmacos-x64Publication",
-    "generatePomFileForJvmmacos-arm64Publication",
-    "generatePomFileForJvmwindows-x64Publication",
-    "generatePomFileForJvmallPublication",
-    "generatePomFileForJvmPublication",
-    "generatePomFileForKotlinMultiplatformPublication",
-    "generatePomFileForMavenPublication",
-    "generatePomFileForPluginMavenPublication",
-    "generatePomFileForMetadataPublication",
-    "generatePomFileForSafeargsJavaPluginMarkerMavenPublication",
-    "generatePomFileForSafeargsKotlinPluginMarkerMavenPublication",
-    "partiallyDejetifyArchive",
-    "publishBenchmarkPluginMarkerMavenPublicationToMavenRepository",
-    "publishAndroidDebugPublicationToMavenRepository",
-    "publishAndroidReleasePublicationToMavenRepository",
-    "publishDesktopPublicationToMavenRepository",
-    "publishJvmPublicationToMavenRepository",
-    "publishJvmlinux-x64PublicationToMavenRepository",
-    "publishJvmlinux-arm64PublicationToMavenRepository",
-    "publishJvmmacos-x64PublicationToMavenRepository",
-    "publishJvmmacos-arm64PublicationToMavenRepository",
-    "publishJvmwindows-x64PublicationToMavenRepository",
-    "publishJvmallPublicationToMavenRepository",
-    "publishKotlinMultiplatformPublicationToMavenRepository",
-    "publishMavenPublicationToMavenRepository",
-    "publishMetadataPublicationToMavenRepository",
-    "publishPluginMavenPublicationToMavenRepository",
-    "publishSafeargsJavaPluginMarkerMavenPublicationToMavenRepository",
-    "publishSafeargsKotlinPluginMarkerMavenPublicationToMavenRepository",
     /**
      * relocateShadowJar is used to configure the ShadowJar hence it does not have any outputs.
      * https://github.com/johnrengelman/shadow/issues/561
      */
     "relocateShadowJar",
     "testDebugUnitTest",
-    "stripArchiveForPartialDejetification",
     "verifyDependencyVersions",
     "zipConstrainedTestConfigsWithApks",
     "zipTestConfigsWithApks",
@@ -167,10 +117,17 @@ val ALLOW_RERUNNING_TASKS = setOf(
     ":hilt:hilt-navigation-compose:kaptGenerateStubsReleaseKotlin",
     ":lint-checks:integration-tests:copyDebugAndroidLintReports",
 
-    // https://github.com/gradle/gradle/issues/17262
-    ":doclava:compileJava",
-    ":doclava:processResources",
-    ":doclava:jar"
+    // https://youtrack.jetbrains.com/issue/KT-49933
+    "generateProjectStructureMetadata",
+
+    // https://github.com/google/protobuf-gradle-plugin/issues/667
+    ":datastore:datastore-preferences-proto:extractIncludeTestProto",
+    ":glance:glance-appwidget-proto:extractIncludeTestProto",
+    ":health:connect:connect-client-proto:extractIncludeTestProto",
+    ":privacysandbox:tools:tools-core:extractIncludeTestProto",
+    ":test:screenshot:screenshot-proto:extractIncludeTestProto",
+    ":wear:protolayout:protolayout-proto:extractIncludeTestProto",
+    ":wear:tiles:tiles-proto:extractIncludeTestProto"
 )
 
 // Additional tasks that are expected to be temporarily out-of-date after running once
@@ -178,30 +135,34 @@ val ALLOW_RERUNNING_TASKS = setOf(
 val DONT_TRY_RERUNNING_TASKS = setOf(
     ":buildSrc-tests:project-subsets:test",
     "listTaskOutputs",
-    "validateProperties",
     "tasks",
 
-    // More information about the fact that these dokka tasks rerun can be found at b/167569304
-    "dokkaKotlinDocs",
-    "zipDokkaDocs",
-    "dackkaDocs",
+    // More information about the fact that these dackka tasks rerun can be found at b/167569304
+    "docs",
 
-    // Flakily not up-to-date, b/176120659
-    "doclavaDocs",
+    // We know that these tasks are never up to date due to maven-metadata.xml changing
+    // https://github.com/gradle/gradle/issues/11203
+    "partiallyDejetifyArchive",
+    "stripArchiveForPartialDejetification",
+    "createArchive"
+)
 
-    // We should be able to remove these entries when b/160392650 is fixed
-    "lint",
-    "lintAnalyzeDebug",
-    "lintDebug",
-    "lintVitalDebug",
-    "lintWithExpandProjectionDebug",
-    "lintWithoutExpandProjectionDebug",
-    "lintWithNullAwareTypeConverterDebug",
-    "lintWithKaptDebug",
-    "lintWithKspDebug",
-    "lintTargetSdk29Debug",
-    "lintTargetSdk30Debug",
-    "lintTargetSdkLatestDebug"
+val DONT_TRY_RERUNNING_TASK_TYPES = setOf(
+    // TODO(aurimas): add back when upgrading to AGP 8.0.0-beta01
+    "com.android.build.gradle.internal.tasks.BundleLibraryJavaRes_Decorated",
+    "com.android.build.gradle.internal.lint.AndroidLintTextOutputTask_Decorated",
+    // lint report tasks
+    "com.android.build.gradle.internal.lint.AndroidLintTask_Decorated",
+    // lint analysis tasks b/223287425
+    "com.android.build.gradle.internal.lint.AndroidLintAnalysisTask_Decorated",
+    // https://github.com/gradle/gradle/issues/11717
+    "org.gradle.api.publish.tasks.GenerateModuleMetadata_Decorated",
+    "org.gradle.api.publish.maven.tasks.GenerateMavenPom_Decorated",
+    // due to GenerateModuleMetadata re-running
+    "androidx.build.GMavenZipTask_Decorated",
+    "org.gradle.api.publish.maven.tasks.PublishToMavenRepository_Decorated",
+    // This task is not cacheable by design due to large number of inputs
+    "androidx.build.license.CheckExternalDependencyLicensesTask_Decorated",
 )
 
 @Suppress("UnstableApiUsage") // usage of BuildService that's incubating
@@ -228,6 +189,11 @@ abstract class TaskUpToDateValidator :
                 // null list means the task already failed, so we'll skip emitting our error
                 return
             }
+            if (isCausedByAKlibChange(result)) {
+                // ignore these until this bug in the KMP plugin is fixed.
+                // see the method for details.
+                return
+            }
             if (!isAllowedToRerunTask(name)) {
                 throw GradleException(
                     "Ran two consecutive builds of the same tasks, and in the " +
@@ -242,22 +208,38 @@ abstract class TaskUpToDateValidator :
     companion object {
         // Tells whether to create a TaskUpToDateValidator listener
         private fun shouldEnable(project: Project): Boolean {
-            // forUseAtConfigurationTime() is deprecated in Gradle 7.4, but we still use 7.3
-            @Suppress("DEPRECATION")
-            return project.providers.gradleProperty(ENABLE_FLAG_NAME)
-                .forUseAtConfigurationTime().isPresent
+            return project.providers.gradleProperty(ENABLE_FLAG_NAME).isPresent
+        }
+
+        /**
+         * Currently, klibs are not reproducible, which means any task that depends on them
+         * might get invalidated at no fault of their own.
+         *
+         * https://youtrack.jetbrains.com/issue/KT-52741
+         */
+        private fun isCausedByAKlibChange(result: TaskExecutionResult): Boolean {
+            // the actual message looks something like:
+            // Input property 'rootSpec$1$3' file <some-path>.klib has changed
+            return result.executionReasons.orEmpty().any {
+                it.contains(".klib has changed")
+            }
         }
 
         private fun isAllowedToRerunTask(taskPath: String): Boolean {
             if (ALLOW_RERUNNING_TASKS.contains(taskPath)) {
                 return true
             }
-            val colonIndex = taskPath.lastIndexOf(":")
-            if (colonIndex >= 0) {
-                val taskName = taskPath.substring(colonIndex + 1)
-                if (ALLOW_RERUNNING_TASKS.contains(taskName)) {
-                    return true
-                }
+            val taskName = taskPath.substringAfterLast(":")
+            if (ALLOW_RERUNNING_TASKS.contains(taskName)) {
+                return true
+            }
+            if (taskName.startsWith("compile") && taskName.endsWith("KotlinMetadata")) {
+                // these tasks' up-to-date checks might flake.
+                // https://youtrack.jetbrains.com/issue/KT-52675
+                // We are not adding the task type to the DONT_TRY_RERUNNING_TASKS list because it
+                // is a common compilation task that is shared w/ other kotlin native compilations.
+                // (e.g. similar to the Exec task in Gradle)
+                return true
             }
             return false
         }
@@ -265,7 +247,8 @@ abstract class TaskUpToDateValidator :
         private fun shouldTryRerunningTask(task: Task): Boolean {
             return !(
                 DONT_TRY_RERUNNING_TASKS.contains(task.name) ||
-                    DONT_TRY_RERUNNING_TASKS.contains(task.path)
+                    DONT_TRY_RERUNNING_TASKS.contains(task.path) ||
+                    DONT_TRY_RERUNNING_TASK_TYPES.contains(task::class.qualifiedName)
                 )
         }
 
@@ -273,8 +256,8 @@ abstract class TaskUpToDateValidator :
             if (!shouldEnable(rootProject)) {
                 return
             }
-            val validate = rootProject.providers.gradleProperty(DISALLOW_TASK_EXECUTION_FLAG_NAME)
-                .map { true }.orElse(false)
+            val validate = rootProject.providers
+                .environmentVariable(DISALLOW_TASK_EXECUTION_VAR_NAME).map { true }.orElse(false)
             // create listener for validating that any task that reran was expected to rerun
             val validatorProvider = rootProject.gradle.sharedServices
                 .registerIfAbsent(

@@ -23,7 +23,6 @@ import static androidx.car.app.model.constraints.CarTextConstraints.CLICKABLE_TE
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
@@ -36,6 +35,7 @@ import androidx.car.app.model.DurationSpan;
 import androidx.car.app.model.ForegroundCarColorSpan;
 import androidx.car.app.model.Template;
 import androidx.car.app.model.constraints.CarTextConstraints;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -54,6 +54,7 @@ import java.util.Objects;
  * @see Screen#onGetTemplate()
  */
 @RequiresCarApi(2)
+@KeepFields
 public final class SignInTemplate implements Template {
     /**
      * One of the possible sign in methods that can be set on a {@link SignInTemplate}.
@@ -61,26 +62,18 @@ public final class SignInTemplate implements Template {
     public interface SignInMethod {
     }
 
-    @Keep
     private final boolean mIsLoading;
-    @Keep
     @Nullable
     private final Action mHeaderAction;
-    @Keep
     @Nullable
     private final CarText mTitle;
-    @Keep
     @Nullable
     private final CarText mInstructions;
-    @Keep
     @Nullable
     private final CarText mAdditionalText;
-    @Keep
     @Nullable
     private final ActionStrip mActionStrip;
-    @Keep
     private final List<Action> mActionList;
-    @Keep
     @Nullable
     private final SignInMethod mSignInMethod;
 
@@ -394,16 +387,14 @@ public final class SignInTemplate implements Template {
          *
          * <h4>Requirements</h4>
          *
-         * Either a header {@link Action} or the title must be set.
+         * <p>If none of the header {@link Action}, the header title or the action strip have been
+         * set on the template, the header is hidden.
          *
          * @throws IllegalStateException if the template does not have either a title or header
          *                               {@link Action} set
          */
         @NonNull
         public SignInTemplate build() {
-            if (CarText.isNullOrEmpty(mTitle) && mHeaderAction == null) {
-                throw new IllegalStateException("Either the title or header action must be set");
-            }
             return new SignInTemplate(this);
         }
 

@@ -474,7 +474,12 @@ public abstract class FragmentStateAdapter extends
         }
 
         if (fragment.isAdded() && containsItem(itemId)) {
-            mSavedStates.put(itemId, mFragmentManager.saveFragmentInstanceState(fragment));
+            List<OnPostEventListener> onPost =
+                    mFragmentEventDispatcher.dispatchPreSavedInstanceState(fragment);
+            Fragment.SavedState savedState = mFragmentManager.saveFragmentInstanceState(fragment);
+            mFragmentEventDispatcher.dispatchPostEvents(onPost);
+
+            mSavedStates.put(itemId, savedState);
         }
         List<OnPostEventListener> onPost =
                 mFragmentEventDispatcher.dispatchPreRemoved(fragment);
@@ -552,6 +557,7 @@ public abstract class FragmentStateAdapter extends
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public final void restoreState(@NonNull Parcelable savedState) {
         if (!mSavedStates.isEmpty() || !mFragments.isEmpty()) {
             throw new IllegalStateException(
@@ -836,6 +842,14 @@ public abstract class FragmentStateAdapter extends
             return result;
         }
 
+        public List<OnPostEventListener> dispatchPreSavedInstanceState(Fragment fragment) {
+            List<OnPostEventListener> result = new ArrayList<>();
+            for (FragmentTransactionCallback callback : mCallbacks) {
+                result.add(callback.onFragmentPreSavedInstanceState(fragment));
+            }
+            return result;
+        }
+
         public List<OnPostEventListener> dispatchPreRemoved(Fragment fragment) {
             List<OnPostEventListener> result = new ArrayList<>();
             for (FragmentTransactionCallback callback : mCallbacks) {
@@ -865,6 +879,18 @@ public abstract class FragmentStateAdapter extends
          */
         @NonNull
         public OnPostEventListener onFragmentPreAdded(@NonNull Fragment fragment) {
+            return NO_OP;
+        }
+
+        /**
+         * Called right before Fragment's state is being saved through a
+         * {@link FragmentManager#saveFragmentInstanceState} call.
+         *
+         * @param fragment Fragment which state is being saved
+         * @return Listener called after the operation
+         */
+        @NonNull
+        public OnPostEventListener onFragmentPreSavedInstanceState(@NonNull Fragment fragment) {
             return NO_OP;
         }
 

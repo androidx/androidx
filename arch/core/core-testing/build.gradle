@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -40,7 +39,10 @@ dependencies {
 androidx {
     name = "Android Core-Testing"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.ARCH_CORE
     inceptionYear = "2017"
     description = "Android Core-Testing"
+}
+
+android {
+    namespace "androidx.arch.core.testing"
 }

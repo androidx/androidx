@@ -17,7 +17,6 @@
 package androidx.compose.ui.platform
 
 import android.content.ClipData
-import android.content.ClipDescription.MIMETYPE_TEXT_PLAIN
 import android.content.Context
 import android.os.Parcel
 import android.text.Annotation
@@ -47,9 +46,13 @@ private const val PLAIN_TEXT_LABEL = "plain text"
 /**
  * Android implementation for [ClipboardManager].
  */
-internal class AndroidClipboardManager(context: Context) : ClipboardManager {
-    private val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as
-        android.content.ClipboardManager
+internal class AndroidClipboardManager internal constructor(
+    private val clipboardManager: android.content.ClipboardManager
+) : ClipboardManager {
+
+    internal constructor(context: Context) : this(
+        context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+    )
 
     override fun setText(annotatedString: AnnotatedString) {
         clipboardManager.setPrimaryClip(
@@ -61,15 +64,18 @@ internal class AndroidClipboardManager(context: Context) : ClipboardManager {
     }
 
     override fun getText(): AnnotatedString? {
-        return if (clipboardManager.hasPrimaryClip()) {
-            clipboardManager.primaryClip!!.getItemAt(0).text.convertToAnnotatedString()
-        } else {
-            null
+        return clipboardManager.primaryClip?.let { primaryClip ->
+            if (primaryClip.itemCount > 0) {
+                // note: text may be null, ensure this is null-safe
+                primaryClip.getItemAt(0)?.text.convertToAnnotatedString()
+            } else {
+                null
+            }
         }
     }
 
-    fun hasText() =
-        clipboardManager.primaryClipDescription?.hasMimeType(MIMETYPE_TEXT_PLAIN) ?: false
+    override fun hasText() =
+        clipboardManager.primaryClipDescription?.hasMimeType("text/*") ?: false
 }
 
 internal fun CharSequence?.convertToAnnotatedString(): AnnotatedString? {

@@ -14,15 +14,14 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.glance.appwidget" >
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application>
         <activity
-            android:name=".ListAdapterTrampolineActivity"
+            android:name=".action.ActionTrampolineActivity"
             android:exported="false"
             android:enabled="true" />
         <activity
-            android:name=".ListAdapterInvisibleTrampolineActivity"
+            android:name=".action.InvisibleActionTrampolineActivity"
             android:exported="false"
             android:taskAffinity="androidx.glance.appwidget.ListAdapterCallbackTrampoline"
             android:theme="@style/Widget.Glance.AppWidget.CallbackTrampoline"
@@ -30,13 +29,9 @@
             android:noHistory="true"
             android:enabled="true" />
         <receiver
-            android:name=".ActionCallbackBroadcastReceiver"
+            android:name=".action.ActionCallbackBroadcastReceiver"
             android:exported="false"
-            android:enabled="true">
-            <intent-filter>
-                <data android:scheme="remoteAction" />
-            </intent-filter>
-        </receiver>
+            android:enabled="true" />
 
         <receiver
             android:name=".MyPackageReplacedReceiver"

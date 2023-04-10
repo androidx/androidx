@@ -20,16 +20,16 @@ import static android.graphics.Paint.ANTI_ALIAS_FLAG;
 import static android.graphics.Paint.DITHER_FLAG;
 import static android.graphics.Paint.FILTER_BITMAP_FLAG;
 
+import static androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED;
+import static androidx.camera.core.impl.utils.CameraOrientationUtil.surfaceRotationToDegrees;
+import static androidx.camera.core.impl.utils.TransformUtils.getRectToRect;
+import static androidx.camera.core.impl.utils.TransformUtils.is90or270;
+import static androidx.camera.core.impl.utils.TransformUtils.isAspectRatioMatchingWithRoundingError;
 import static androidx.camera.view.PreviewView.ScaleType.FILL_CENTER;
 import static androidx.camera.view.PreviewView.ScaleType.FIT_CENTER;
 import static androidx.camera.view.PreviewView.ScaleType.FIT_END;
 import static androidx.camera.view.PreviewView.ScaleType.FIT_START;
-import static androidx.camera.view.TransformUtils.getRectToRect;
-import static androidx.camera.view.TransformUtils.is90or270;
-import static androidx.camera.view.TransformUtils.isAspectRatioMatchingWithRoundingError;
-import static androidx.camera.view.TransformUtils.surfaceRotationToRotationDegrees;
 
-import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -51,9 +51,6 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.ViewPort;
-import androidx.camera.view.internal.compat.quirk.DeviceQuirks;
-import androidx.camera.view.internal.compat.quirk.PreviewOneThirdWiderQuirk;
-import androidx.camera.view.internal.compat.quirk.TextureViewRotationQuirk;
 import androidx.core.util.Preconditions;
 
 /**
@@ -103,18 +100,17 @@ final class PreviewTransformation {
 
     // SurfaceRequest.getResolution().
     private Size mResolution;
-    // This represents the area of the Surface that should be visible to end users. The value
-    // is based on TransformationInfo.getCropRect() with possible corrections due to device quirks.
+    // This represents the area of the Surface that should be visible to end users. The area is
+    // defined by the Viewport class.
     private Rect mSurfaceCropRect;
-    // This rect represents the size of the viewport in preview. It's always the same as
-    // TransformationInfo.getCropRect().
-    private Rect mViewportRect;
     // TransformationInfo.getRotationDegrees().
     private int mPreviewRotationDegrees;
     // TransformationInfo.getTargetRotation.
     private int mTargetRotation;
     // Whether the preview is using front camera.
     private boolean mIsFrontCamera;
+    // Whether the Surface contains camera transform.
+    private boolean mHasCameraTransform;
 
     private PreviewView.ScaleType mScaleType = DEFAULT_SCALE_TYPE;
 
@@ -126,18 +122,32 @@ final class PreviewTransformation {
      *
      * <p> All the values originally come from a {@link SurfaceRequest}.
      */
-    // TODO(b/185869869) Remove the UnsafeOptInUsageError once view's version matches core's.
-    @SuppressLint("UnsafeOptInUsageError")
     void setTransformationInfo(@NonNull SurfaceRequest.TransformationInfo transformationInfo,
             Size resolution, boolean isFrontCamera) {
         Logger.d(TAG, "Transformation info set: " + transformationInfo + " " + resolution + " "
                 + isFrontCamera);
-        mSurfaceCropRect = getCorrectedCropRect(transformationInfo.getCropRect());
-        mViewportRect = transformationInfo.getCropRect();
+        mSurfaceCropRect = transformationInfo.getCropRect();
         mPreviewRotationDegrees = transformationInfo.getRotationDegrees();
         mTargetRotation = transformationInfo.getTargetRotation();
         mResolution = resolution;
         mIsFrontCamera = isFrontCamera;
+        mHasCameraTransform = transformationInfo.hasCameraTransform();
+    }
+
+    /**
+     * Override with display rotation when Preview does not have a target rotation set.
+     *
+     * TODO: move the PreviewView#updateDisplayRotationIfNeeded logic into PreviewTransformation
+     *  so all the transformation logic will be in one place.
+     */
+    void overrideWithDisplayRotation(int rotationDegrees, int displayRotation) {
+        if (!mHasCameraTransform) {
+            // When the Surface doesn't have the camera transform, we use mPreviewRotationDegrees
+            // from the core directly. There is no need to override the values.
+            return;
+        }
+        mPreviewRotationDegrees = rotationDegrees;
+        mTargetRotation = displayRotation;
     }
 
     /**
@@ -155,14 +165,33 @@ final class PreviewTransformation {
     Matrix getTextureViewCorrectionMatrix() {
         Preconditions.checkState(isTransformationInfoReady());
         RectF surfaceRect = new RectF(0, 0, mResolution.getWidth(), mResolution.getHeight());
-        int rotationDegrees = -surfaceRotationToRotationDegrees(mTargetRotation);
-
-        TextureViewRotationQuirk textureViewRotationQuirk =
-                DeviceQuirks.get(TextureViewRotationQuirk.class);
-        if (textureViewRotationQuirk != null) {
-            rotationDegrees += textureViewRotationQuirk.getCorrectionRotation(mIsFrontCamera);
-        }
+        int rotationDegrees = getRemainingRotationDegrees();
         return getRectToRect(surfaceRect, surfaceRect, rotationDegrees);
+    }
+
+
+    /**
+     * Gets the remaining rotation degrees after the preview is transformed by Android Views.
+     *
+     * <p>Both {@link TextureView} or {@link SurfaceView} uses the camera transform encoded in
+     * the {@link Surface} to correct the output. The remaining rotation degrees depends on
+     * whether the camera transform is present.
+     */
+    private int getRemainingRotationDegrees() {
+        if (mTargetRotation == ROTATION_NOT_SPECIFIED && !mHasCameraTransform) {
+            // If the Surface is not connected to the camera, then the SurfaceView/TextureView will
+            // not apply any transformation. In that case, we need to apply the rotation
+            // calculated by CameraX.
+            return mPreviewRotationDegrees;
+        } else if (mHasCameraTransform && mTargetRotation != ROTATION_NOT_SPECIFIED) {
+            // If the Surface is connected to the camera, then the SurfaceView/TextureView
+            // will be the one to apply the camera orientation. In that case, only the Surface
+            // rotation needs to be applied by PreviewView.
+            return -surfaceRotationToDegrees(mTargetRotation);
+        } else {
+            throw new IllegalStateException("Target rotation must be specified. Target rotation: "
+                    + mTargetRotation + " hasCameraTransform " + mHasCameraTransform);
+        }
     }
 
     /**
@@ -187,9 +216,12 @@ final class PreviewTransformation {
         } else {
             // Logs an error if non-display rotation is used with SurfaceView.
             Display display = preview.getDisplay();
-            if (display != null && display.getRotation() != mTargetRotation) {
-                Logger.e(TAG, "Non-display rotation not supported with SurfaceView / PERFORMANCE "
-                        + "mode.");
+            boolean mismatchedDisplayRotation = mHasCameraTransform && display != null
+                    && display.getRotation() != mTargetRotation;
+            boolean hasRemainingRotation =
+                    !mHasCameraTransform && getRemainingRotationDegrees() != 0;
+            if (mismatchedDisplayRotation || hasRemainingRotation) {
+                Logger.e(TAG, "Custom rotation not supported with SurfaceView/PERFORMANCE mode.");
             }
         }
 
@@ -279,28 +311,6 @@ final class PreviewTransformation {
     }
 
     /**
-     * Gets the vertices of the crop rect in Surface.
-     */
-    private Rect getCorrectedCropRect(Rect surfaceCropRect) {
-        PreviewOneThirdWiderQuirk quirk = DeviceQuirks.get(PreviewOneThirdWiderQuirk.class);
-        if (quirk != null) {
-            // Correct crop rect if the device has a quirk.
-            RectF cropRectF = new RectF(surfaceCropRect);
-            Matrix correction = new Matrix();
-            correction.setScale(
-                    quirk.getCropRectScaleX(),
-                    1f,
-                    surfaceCropRect.centerX(),
-                    surfaceCropRect.centerY());
-            correction.mapRect(cropRectF);
-            Rect correctRect = new Rect();
-            cropRectF.round(correctRect);
-            return correctRect;
-        }
-        return surfaceCropRect;
-    }
-
-    /**
      * Gets the viewport rect in {@link PreviewView} coordinates for the case where viewport's
      * aspect ratio doesn't match {@link PreviewView}'s aspect ratio.
      *
@@ -380,9 +390,9 @@ final class PreviewTransformation {
      */
     private Size getRotatedViewportSize() {
         if (is90or270(mPreviewRotationDegrees)) {
-            return new Size(mViewportRect.height(), mViewportRect.width());
+            return new Size(mSurfaceCropRect.height(), mSurfaceCropRect.width());
         }
-        return new Size(mViewportRect.width(), mViewportRect.height());
+        return new Size(mSurfaceCropRect.width(), mSurfaceCropRect.height());
     }
 
     /**
@@ -470,6 +480,10 @@ final class PreviewTransformation {
     }
 
     private boolean isTransformationInfoReady() {
-        return mSurfaceCropRect != null && mResolution != null;
+        // Ignore target rotation if Surface doesn't have camera transform.
+        boolean isTargetRotationSpecified =
+                !mHasCameraTransform || (mTargetRotation != ROTATION_NOT_SPECIFIED);
+        return mSurfaceCropRect != null && mResolution != null
+                && isTargetRotationSpecified;
     }
 }

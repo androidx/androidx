@@ -15,7 +15,6 @@
  */
 
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -29,15 +28,19 @@ dependencies {
 
 android {
     defaultConfig {
-        versionCode 1
         multiDexEnabled true
     }
+
+    lintOptions {
+        enable 'CameraXQuirksClassDetector'
+    }
+
+    namespace "androidx.camera.extensions.impl"
 }
 
 androidx {
     name = "Jetpack Camera Extensions Example Library"
     publish = Publish.NONE
-    mavenGroup = LibraryGroups.CAMERA
     inceptionYear = "2019"
     description = "Example extension implementation for the Jetpack Camera Library, a library providing a " +
             "consistent and reliable camera foundation that enables great camera driven " +

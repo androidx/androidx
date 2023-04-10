@@ -17,6 +17,7 @@
 package androidx.work;
 
 import static androidx.work.impl.Scheduler.MAX_SCHEDULER_LIMIT;
+import static androidx.work.impl.utils.IdGeneratorKt.INITIAL_ID;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -27,9 +28,9 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.core.util.Consumer;
 import androidx.work.impl.DefaultRunnableScheduler;
 import androidx.work.impl.Scheduler;
-import androidx.work.impl.utils.IdGenerator;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -66,7 +67,9 @@ public final class Configuration {
     @SuppressWarnings("WeakerAccess")
     final @NonNull RunnableScheduler mRunnableScheduler;
     @SuppressWarnings("WeakerAccess")
-    final @Nullable InitializationExceptionHandler mExceptionHandler;
+    final @Nullable Consumer<Throwable> mExceptionHandler;
+    @SuppressWarnings("WeakerAccess")
+    final @Nullable Consumer<Throwable> mSchedulingExceptionHandler;
     @SuppressWarnings("WeakerAccess")
     final @Nullable String mDefaultProcessName;
     @SuppressWarnings("WeakerAccess")
@@ -104,7 +107,7 @@ public final class Configuration {
         }
 
         if (builder.mInputMergerFactory == null) {
-            mInputMergerFactory = InputMergerFactory.getDefaultInputMergerFactory();
+            mInputMergerFactory = NoOpInputMergerFactory.INSTANCE;
         } else {
             mInputMergerFactory = builder.mInputMergerFactory;
         }
@@ -120,6 +123,7 @@ public final class Configuration {
         mMaxJobSchedulerId = builder.mMaxJobSchedulerId;
         mMaxSchedulerLimit = builder.mMaxSchedulerLimit;
         mExceptionHandler = builder.mExceptionHandler;
+        mSchedulingExceptionHandler = builder.mSchedulingExceptionHandler;
         mDefaultProcessName = builder.mDefaultProcessName;
     }
 
@@ -247,14 +251,21 @@ public final class Configuration {
     }
 
     /**
-     * @return the {@link InitializationExceptionHandler} that can be used to intercept
+     * @return the {@link Consumer<Throwable>} that is used to intercept
      * exceptions caused when trying to initialize {@link WorkManager}.
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Nullable
-    public InitializationExceptionHandler getExceptionHandler() {
+    public Consumer<Throwable> getInitializationExceptionHandler() {
         return mExceptionHandler;
+    }
+
+    /**
+     * @return the {@link SchedulingExceptionHandler} that can be used to intercept exceptions
+     * caused when trying to schedule {@link WorkRequest}s.
+     */
+    @Nullable
+    public Consumer<Throwable> getSchedulingExceptionHandler() {
+        return mSchedulingExceptionHandler;
     }
 
     private @NonNull Executor createDefaultExecutor(boolean isTaskExecutor) {
@@ -288,7 +299,8 @@ public final class Configuration {
         InputMergerFactory mInputMergerFactory;
         Executor mTaskExecutor;
         RunnableScheduler mRunnableScheduler;
-        @Nullable InitializationExceptionHandler mExceptionHandler;
+        @Nullable Consumer<Throwable> mExceptionHandler;
+        @Nullable Consumer<Throwable> mSchedulingExceptionHandler;
         @Nullable String mDefaultProcessName;
 
         int mLoggingLevel;
@@ -301,7 +313,7 @@ public final class Configuration {
          */
         public Builder() {
             mLoggingLevel = Log.INFO;
-            mMinJobSchedulerId = IdGenerator.INITIAL_ID;
+            mMinJobSchedulerId = INITIAL_ID;
             mMaxJobSchedulerId = Integer.MAX_VALUE;
             mMaxSchedulerLimit = MIN_SCHEDULER_LIMIT;
         }
@@ -327,6 +339,7 @@ public final class Configuration {
             mMaxSchedulerLimit = configuration.mMaxSchedulerLimit;
             mRunnableScheduler = configuration.mRunnableScheduler;
             mExceptionHandler = configuration.mExceptionHandler;
+            mSchedulingExceptionHandler = configuration.mSchedulingExceptionHandler;
             mDefaultProcessName = configuration.mDefaultProcessName;
         }
 
@@ -474,17 +487,56 @@ public final class Configuration {
 
         /**
          * Specifies the {@link InitializationExceptionHandler} that can be used to intercept
-         * exceptions caused when trying to initialize  {@link WorkManager}.
+         * exceptions caused when trying to initialize {@link WorkManager}.
          *
          * @param exceptionHandler The {@link InitializationExceptionHandler} instance.
          * @return This {@link Builder} instance
-         * @hide
+         *
+         * @hide kept around for migration period
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @NonNull
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public Builder setInitializationExceptionHandler(
                 @NonNull InitializationExceptionHandler exceptionHandler) {
+            mExceptionHandler = exceptionHandler::handleException;
+            return this;
+        }
+
+        /**
+         * Specifies a {@code Consumer<Throwable>} that can be used to intercept
+         * exceptions caused when trying to initialize {@link WorkManager}, that usually happens
+         * when WorkManager cannot access its internal datastore.
+         * <p>
+         * This exception handler will be invoked on a thread bound to
+         * {@link Configuration#getTaskExecutor()}.
+         *
+         * @param exceptionHandler an instance to handle exceptions
+         * @return This {@link Builder} instance
+         */
+        @NonNull
+        public Builder setInitializationExceptionHandler(
+                @NonNull Consumer<Throwable> exceptionHandler) {
             mExceptionHandler = exceptionHandler;
+            return this;
+        }
+
+        /**
+         * Specifies a {@code Consumer<Throwable>} that can be used to intercept
+         * exceptions caused when trying to schedule {@link WorkRequest}s.
+         *
+         * It allows the application to handle a {@link Throwable} throwable typically
+         * caused when trying to schedule {@link WorkRequest}s.
+         * <p>
+         * This exception handler will be invoked on a thread bound to
+         * {@link Configuration#getTaskExecutor()}.
+         *
+         * @param schedulingExceptionHandler an instance to handle exceptions
+         * @return This {@link Builder} instance
+         */
+        @NonNull
+        public Builder setSchedulingExceptionHandler(
+                @NonNull Consumer<Throwable> schedulingExceptionHandler) {
+            mSchedulingExceptionHandler = schedulingExceptionHandler;
             return this;
         }
 

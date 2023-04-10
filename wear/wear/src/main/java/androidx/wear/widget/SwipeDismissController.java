@@ -24,8 +24,6 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -41,41 +39,26 @@ import androidx.annotation.UiThread;
 @UiThread
 class SwipeDismissController extends DismissController {
     private static final String TAG = "SwipeDismissController";
-
     public static final float DEFAULT_DISMISS_DRAG_WIDTH_RATIO = .33f;
+    private float mDismissMinDragWidthRatio = DEFAULT_DISMISS_DRAG_WIDTH_RATIO;
     // A value between 0.0 and 1.0 determining the percentage of the screen on the left-hand-side
     // where edge swipe gestures are permitted to begin.
     private static final float EDGE_SWIPE_THRESHOLD = 0.1f;
-    private static final float TRANSLATION_MIN_ALPHA = 0.5f;
-    private static final float DEFAULT_INTERPOLATION_FACTOR = 1.5f;
-
+    private static final int VELOCITY_UNIT = 1000;
     // Cached ViewConfiguration and system-wide constant value
-    private int mSlop;
-    private int mMinFlingVelocity;
-    private float mGestureThresholdPx;
-
-    // Transient properties
+    private final int mSlop;
+    private final int mMinFlingVelocity;
+    private final float mGestureThresholdPx;
+    private final SwipeDismissTransitionHelper mSwipeDismissTransitionHelper;
     private int mActiveTouchId;
     private float mDownX;
     private float mDownY;
+    private float mLastX;
     private boolean mSwiping;
-    // This variable holds information about whether the initial move of a longer swipe
-    // (consisting of multiple move events) has conformed to the definition of a horizontal
-    // swipe-to-dismiss. A swipe gesture is only ever allowed to be recognized if this variable is
-    // set to true. Otherwise, the motion events will be allowed to propagate to the children.
-    private boolean mCanStartSwipe = true;
     private boolean mDismissed;
     private boolean mDiscardIntercept;
-    private VelocityTracker mVelocityTracker;
-    private float mTranslationX;
-    private float mLastX;
-    private float mDismissMinDragWidthRatio = DEFAULT_DISMISS_DRAG_WIDTH_RATIO;
-    boolean mStarted;
-    final int mAnimationTime;
 
-    final DecelerateInterpolator mCancelInterpolator;
-    final AccelerateInterpolator mDismissInterpolator;
-    final DecelerateInterpolator mCompleteDismissGestureInterpolator;
+    private boolean mBlockGesture = false;
 
     SwipeDismissController(Context context, DismissibleFrameLayout layout) {
         super(context, layout);
@@ -85,12 +68,8 @@ class SwipeDismissController extends DismissController {
         mMinFlingVelocity = vc.getScaledMinimumFlingVelocity();
         mGestureThresholdPx =
                 Resources.getSystem().getDisplayMetrics().widthPixels * EDGE_SWIPE_THRESHOLD;
-        mAnimationTime = context.getResources().getInteger(
-                android.R.integer.config_shortAnimTime);
-        mCancelInterpolator = new DecelerateInterpolator(DEFAULT_INTERPOLATION_FACTOR);
-        mDismissInterpolator = new AccelerateInterpolator(DEFAULT_INTERPOLATION_FACTOR);
-        mCompleteDismissGestureInterpolator = new DecelerateInterpolator(
-                DEFAULT_INTERPOLATION_FACTOR);
+
+        mSwipeDismissTransitionHelper = new SwipeDismissTransitionHelper(context, layout);
     }
 
     public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
@@ -108,8 +87,16 @@ class SwipeDismissController extends DismissController {
     }
 
     boolean onInterceptTouchEvent(MotionEvent ev) {
-        // offset because the view is translated during swipe
-        ev.offsetLocation(mTranslationX, 0);
+        checkGesture(ev);
+        if (mBlockGesture) {
+            return true;
+        }
+        // Offset because the view is translated during swipe, match X with raw X. Active touch
+        // coordinates are mostly used by the velocity tracker, so offset it to match the raw
+        // coordinates which is what is primarily used elsewhere.
+        float offsetX = ev.getRawX() - ev.getX();
+        float offsetY = 0.0f;
+        ev.offsetLocation(offsetX, offsetY);
 
         switch (ev.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
@@ -117,8 +104,8 @@ class SwipeDismissController extends DismissController {
                 mDownX = ev.getRawX();
                 mDownY = ev.getRawY();
                 mActiveTouchId = ev.getPointerId(0);
-                mVelocityTracker = VelocityTracker.obtain();
-                mVelocityTracker.addMovement(ev);
+                mSwipeDismissTransitionHelper.obtainVelocityTracker();
+                mSwipeDismissTransitionHelper.getVelocityTracker().addMovement(ev);
                 break;
 
             case MotionEvent.ACTION_POINTER_DOWN:
@@ -141,7 +128,8 @@ class SwipeDismissController extends DismissController {
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                if (mVelocityTracker == null || mDiscardIntercept) {
+                if (mSwipeDismissTransitionHelper.getVelocityTracker() == null
+                        || mDiscardIntercept) {
                     break;
                 }
 
@@ -155,15 +143,15 @@ class SwipeDismissController extends DismissController {
                 float x = ev.getX(pointerIndex);
                 float y = ev.getY(pointerIndex);
 
-                if (dx != 0 && mDownX >= mGestureThresholdPx
-                        && canScroll(mLayout, false, dx, x, y)) {
+                if (dx != 0 && mDownX >= mGestureThresholdPx && canScroll(mLayout, false, dx, x,
+                        y)) {
                     mDiscardIntercept = true;
                     break;
                 }
                 updateSwiping(ev);
                 break;
         }
-
+        ev.offsetLocation(-offsetX, -offsetY);
         return (!mDiscardIntercept && mSwiping);
     }
 
@@ -187,114 +175,61 @@ class SwipeDismissController extends DismissController {
     }
 
     public boolean onTouchEvent(@NonNull MotionEvent ev) {
-        if (mVelocityTracker == null) {
+        checkGesture(ev);
+        if (mBlockGesture) {
+            return true;
+        }
+
+        if (mSwipeDismissTransitionHelper.getVelocityTracker() == null) {
             return false;
         }
 
-        // offset because the view is translated during swipe
-        ev.offsetLocation(mTranslationX, 0);
+        // Offset because the view is translated during swipe, match X with raw X. Active touch
+        // coordinates are mostly used by the velocity tracker, so offset it to match the raw
+        // coordinates which is what is primarily used elsewhere.
+        float offsetX = ev.getRawX() - ev.getX();
+        float offsetY = 0.0f;
+        ev.offsetLocation(offsetX, offsetY);
         switch (ev.getActionMasked()) {
             case MotionEvent.ACTION_UP:
                 updateDismiss(ev);
+                // Fall through, don't update gesture tracker with the event for ACTION_CANCEL
+            case MotionEvent.ACTION_CANCEL:
                 if (mDismissed) {
-                    dismiss();
-                } else if (mSwiping) {
-                    cancel();
+                    mSwipeDismissTransitionHelper.animateDismissal(mDismissListener);
+                } else if (mSwiping
+                        // Only trigger animation if we had a MOVE event that would shift the
+                        // underlying view, otherwise the animation would be janky.
+                        && mLastX != Integer.MIN_VALUE) {
+                    mSwipeDismissTransitionHelper.animateRecovery(mDismissListener);
                 }
                 resetSwipeDetectMembers();
                 break;
-
-            case MotionEvent.ACTION_CANCEL:
-                cancel();
-                resetSwipeDetectMembers();
-                break;
-
             case MotionEvent.ACTION_MOVE:
-                mVelocityTracker.addMovement(ev);
+                mSwipeDismissTransitionHelper.getVelocityTracker().addMovement(ev);
                 mLastX = ev.getRawX();
                 updateSwiping(ev);
                 if (mSwiping) {
-                    setProgress(ev.getRawX() - mDownX);
+                    mSwipeDismissTransitionHelper.onSwipeProgressChanged(ev.getRawX() - mDownX, ev);
                     break;
                 }
         }
+        ev.offsetLocation(-offsetX, -offsetY);
         return true;
-    }
-
-    private void setProgress(float deltaX) {
-        mTranslationX = deltaX;
-        mLayout.setTranslationX(deltaX);
-        mLayout.setAlpha(1 - (deltaX / mLayout.getWidth() * TRANSLATION_MIN_ALPHA));
-        mStarted = true;
-
-        if (mDismissListener != null && deltaX >= 0) {
-            mDismissListener.onDismissStarted();
-        }
-    }
-
-    void dismiss() {
-        mLayout.animate()
-                .translationX(mLayout.getWidth())
-                .alpha(0)
-                .setDuration(mAnimationTime)
-                .setInterpolator(
-                        mStarted ? mCompleteDismissGestureInterpolator
-                                : mDismissInterpolator)
-                .withEndAction(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                if (mDismissListener != null) {
-                                    mDismissListener.onDismissed();
-                                }
-                                resetTranslationAndAlpha();
-                            }
-                        });
-    }
-
-    void cancel() {
-        mStarted = false;
-        mLayout.animate()
-                .translationX(0)
-                .alpha(1)
-                .setDuration(mAnimationTime)
-                .setInterpolator(mCancelInterpolator)
-                .withEndAction(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                if (mDismissListener != null) {
-                                    mDismissListener.onDismissCanceled();
-                                }
-                                resetTranslationAndAlpha();
-                            }
-                        });
-    }
-
-    /**
-     * Resets this view to the original state. This method cancels any pending animations on this
-     * view and resets the alpha as well as x translation values.
-     */
-    void resetTranslationAndAlpha() {
-        mLayout.animate().cancel();
-        mLayout.setTranslationX(0);
-        mLayout.setAlpha(1);
-        mStarted = false;
     }
 
     /** Resets internal members when canceling or finishing a given gesture. */
     private void resetSwipeDetectMembers() {
-        if (mVelocityTracker != null) {
-            mVelocityTracker.recycle();
+        if (mSwipeDismissTransitionHelper.getVelocityTracker() != null) {
+            mSwipeDismissTransitionHelper.getVelocityTracker().recycle();
         }
-        mVelocityTracker = null;
-        mTranslationX = 0;
+        mSwipeDismissTransitionHelper.resetVelocityTracker();
         mDownX = 0;
         mDownY = 0;
         mSwiping = false;
+        mLastX = Integer.MIN_VALUE;
         mDismissed = false;
         mDiscardIntercept = false;
-        mCanStartSwipe = true;
     }
 
     private void updateSwiping(MotionEvent ev) {
@@ -302,33 +237,40 @@ class SwipeDismissController extends DismissController {
             float deltaX = ev.getRawX() - mDownX;
             float deltaY = ev.getRawY() - mDownY;
             if (isPotentialSwipe(deltaX, deltaY)) {
-                // There are three conditions on which we want want to start swiping:
-                // 1. The swipe is from left to right AND
-                // 2. It is horizontal AND
-                // 3. We actually can start swiping
-                mSwiping = mCanStartSwipe && Math.abs(deltaY) < Math.abs(deltaX) && deltaX > 0;
-                mCanStartSwipe = mSwiping;
+                mSwiping = deltaX > mSlop * 2
+                        && Math.abs(deltaY) < Math.abs(deltaX);
+            } else {
+                mSwiping = false;
             }
         }
     }
 
     private void updateDismiss(@NonNull MotionEvent ev) {
         float deltaX = ev.getRawX() - mDownX;
-        mVelocityTracker.addMovement(ev);
-        mVelocityTracker.computeCurrentVelocity(1000);
+        // Don't add the motion event as an UP event would clear the velocity tracker
+        VelocityTracker velocityTracker = mSwipeDismissTransitionHelper.getVelocityTracker();
+        velocityTracker.computeCurrentVelocity(VELOCITY_UNIT);
+        float xVelocity = velocityTracker.getXVelocity();
+        float yVelocity = velocityTracker.getYVelocity();
+        if (mLastX == Integer.MIN_VALUE) {
+            // If there's no changes to mLastX, we have only one point of data, and therefore no
+            // velocity. Estimate velocity from just the up and down event in that case.
+            xVelocity = deltaX / ((ev.getEventTime() - ev.getDownTime()) / 1000f);
+        }
+
         if (!mDismissed) {
             if ((deltaX > (mLayout.getWidth() * mDismissMinDragWidthRatio)
                     && ev.getRawX() >= mLastX)
-                    || (mVelocityTracker.getXVelocity() >= mMinFlingVelocity
-                    && mVelocityTracker.getXVelocity() > Math.abs(
-                    mVelocityTracker.getYVelocity()))) {
+                    || (xVelocity >= mMinFlingVelocity
+                    && xVelocity > Math.abs(
+                    yVelocity)))  {
                 mDismissed = true;
             }
         }
         // Check if the user tried to undo this.
         if (mDismissed && mSwiping) {
             // Check if the user's finger is actually flinging back to left
-            if (mVelocityTracker.getXVelocity() < -mMinFlingVelocity) {
+            if (xVelocity < -mMinFlingVelocity) {
                 mDismissed = false;
             }
         }
@@ -366,5 +308,11 @@ class SwipeDismissController extends DismissController {
         }
 
         return checkV && v.canScrollHorizontally((int) -dx);
+    }
+
+    private void checkGesture(MotionEvent ev) {
+        if (ev.getActionMasked() == MotionEvent.ACTION_DOWN) {
+            mBlockGesture = mSwipeDismissTransitionHelper.isAnimating();
+        }
     }
 }

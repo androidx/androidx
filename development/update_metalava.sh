@@ -11,6 +11,7 @@ if [ -z "$METALAVA_VERSION" ]; then
     exit 1
 fi
 
-python "$SCRIPT_PATH"/importMaven/import_maven_artifacts.py -n com.android.tools.metalava:metalava:"$METALAVA_VERSION" -mb "$METALAVA_BUILD_ID"
+python3 "$SCRIPT_PATH"/importMaven/import_maven_artifacts.py -n com.android.tools.metalava:metalava:"$METALAVA_VERSION" -mb "$METALAVA_BUILD_ID"
 sed -i "s/\(androidx\.playground\.metalavaBuildId=\)[0-9]*/\1$METALAVA_BUILD_ID/g" "$SCRIPT_PATH"/../playground-common/playground.properties
+sed -i "s/^\\(metalava\\s*=.*version\\s*=\\s*\"\\)[^\"]*/\\1$METALAVA_VERSION/" "$SCRIPT_PATH/../gradle/libs.versions.toml"
 

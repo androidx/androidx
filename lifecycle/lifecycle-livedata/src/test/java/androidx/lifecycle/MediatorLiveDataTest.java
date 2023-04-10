@@ -16,6 +16,8 @@
 
 package androidx.lifecycle;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -23,6 +25,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
+
+import static kotlinx.coroutines.test.TestCoroutineDispatchersKt.UnconfinedTestDispatcher;
 
 import androidx.annotation.Nullable;
 import androidx.arch.core.executor.ArchTaskExecutor;
@@ -33,10 +37,9 @@ import androidx.lifecycle.util.InstantTaskExecutor;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
-import kotlinx.coroutines.test.TestCoroutineDispatcher;
 
 @SuppressWarnings("unchecked")
 @RunWith(JUnit4.class)
@@ -44,6 +47,9 @@ public class MediatorLiveDataTest {
 
     @Rule
     public InstantTaskExecutorRule mInstantTaskExecutorRule = new InstantTaskExecutorRule();
+    @Rule
+    @SuppressWarnings("deprecation")
+    public ExpectedException exception = ExpectedException.none();
 
     private TestLifecycleOwner mOwner;
     private MediatorLiveData<String> mMediator;
@@ -53,7 +59,7 @@ public class MediatorLiveDataTest {
     @Before
     public void setup() {
         mOwner = new TestLifecycleOwner(Lifecycle.State.STARTED,
-                new TestCoroutineDispatcher());
+                UnconfinedTestDispatcher(null, null));
         mMediator = new MediatorLiveData<>();
         mSource = new LiveData<String>() {
             @Override
@@ -73,6 +79,12 @@ public class MediatorLiveDataTest {
     @Before
     public void swapExecutorDelegate() {
         ArchTaskExecutor.getInstance().setDelegate(new InstantTaskExecutor());
+    }
+
+    @Test
+    public void testHasInitialValue() {
+        MediatorLiveData<String> mediator = new MediatorLiveData<>("value");
+        assertThat(mediator.getValue()).isEqualTo("value");
     }
 
     @Test
@@ -237,6 +249,16 @@ public class MediatorLiveDataTest {
         });
         mOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
         assertThat(mMediator.getValue(), is("c"));
+    }
+
+    @Test
+    public void addNullSource() {
+        Observer observer = mock(Observer.class);
+        exception.expect(NullPointerException.class);
+        exception.expectMessage("source cannot be null");
+
+        mMediator.addSource(null, observer);
+
     }
 
 }

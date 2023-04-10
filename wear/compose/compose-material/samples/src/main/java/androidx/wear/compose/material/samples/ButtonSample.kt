@@ -23,11 +23,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.CompactButton
 import androidx.wear.compose.material.Icon
+import androidx.wear.compose.material.OutlinedButton
+import androidx.wear.compose.material.OutlinedCompactButton
 import androidx.wear.compose.material.Text
 
 @Sampled
@@ -40,7 +41,41 @@ fun ButtonWithIcon() {
         Icon(
             painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
             contentDescription = "airplane",
-            modifier = Modifier.size(24.dp).wrapContentSize(align = Alignment.Center),
+            modifier = Modifier
+                .size(ButtonDefaults.DefaultIconSize).wrapContentSize(align = Alignment.Center),
+        )
+    }
+}
+
+@Sampled
+@Composable
+fun OutlinedButtonWithIcon() {
+    OutlinedButton(
+        onClick = { /* Do something */ },
+        enabled = true,
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
+            contentDescription = "airplane",
+            modifier = Modifier
+                .size(ButtonDefaults.DefaultIconSize).wrapContentSize(align = Alignment.Center),
+        )
+    }
+}
+
+@Sampled
+@Composable
+fun LargeButtonWithIcon() {
+    Button(
+        onClick = { /* Do something */ },
+        enabled = true,
+        modifier = Modifier.size(ButtonDefaults.LargeButtonSize)
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
+            contentDescription = "airplane",
+            modifier = Modifier
+                .size(ButtonDefaults.LargeIconSize).wrapContentSize(align = Alignment.Center),
         )
     }
 }
@@ -67,7 +102,24 @@ fun CompactButtonWithIcon() {
         Icon(
             painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
             contentDescription = "airplane",
-            modifier = Modifier.size(24.dp).wrapContentSize(align = Alignment.Center),
+            modifier = Modifier
+                .size(ButtonDefaults.SmallIconSize).wrapContentSize(align = Alignment.Center),
+        )
+    }
+}
+
+@Sampled
+@Composable
+fun OutlinedCompactButtonWithIcon() {
+    OutlinedCompactButton(
+        onClick = { /* Do something */ },
+        enabled = true,
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
+            contentDescription = "airplane",
+            modifier = Modifier
+                .size(ButtonDefaults.SmallIconSize).wrapContentSize(align = Alignment.Center),
         )
     }
 }

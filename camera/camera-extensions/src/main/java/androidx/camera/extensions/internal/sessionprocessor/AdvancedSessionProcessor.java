@@ -28,10 +28,12 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2CameraCaptureResultConverter;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.interop.CaptureRequestOptions;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.impl.CameraCaptureFailure;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.Config;
@@ -59,6 +61,7 @@ import java.util.Map;
 public class AdvancedSessionProcessor extends SessionProcessorBase {
     private final SessionProcessorImpl mImpl;
     private final Context mContext;
+
     public AdvancedSessionProcessor(@NonNull SessionProcessorImpl impl, @NonNull Context context) {
         mImpl = impl;
         mContext = context;
@@ -90,9 +93,9 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
             @NonNull Camera2SessionConfigImpl sessionConfigImpl) {
         Camera2SessionConfigBuilder camera2SessionConfigBuilder = new Camera2SessionConfigBuilder();
         for (Camera2OutputConfigImpl outputConfigImpl : sessionConfigImpl.getOutputConfigs()) {
-            Camera2OutputConfigBuilder outputConfigBuilder =
-                    Camera2OutputConfigBuilder.fromImpl(outputConfigImpl);
-            camera2SessionConfigBuilder.addOutputConfig(outputConfigBuilder.build());
+            Camera2OutputConfig outputConfig =
+                    Camera2OutputConfigConverter.fromImpl(outputConfigImpl);
+            camera2SessionConfigBuilder.addOutputConfig(outputConfig);
         }
 
         for (CaptureRequest.Key<?> key : sessionConfigImpl.getSessionParameters().keySet()) {
@@ -114,6 +117,14 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
     @Override
     public void setParameters(
             @NonNull Config parameters) {
+        HashMap<CaptureRequest.Key<?>, Object> map = convertConfigToMap(parameters);
+        mImpl.setParameters(map);
+    }
+
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
+    @NonNull
+    private static HashMap<CaptureRequest.Key<?>, Object> convertConfigToMap(
+            @NonNull Config parameters) {
         HashMap<CaptureRequest.Key<?>, Object> map = new HashMap<>();
 
         CaptureRequestOptions options =
@@ -124,7 +135,7 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
             CaptureRequest.Key<Object> key = (CaptureRequest.Key<Object>) option.getToken();
             map.put(key, options.retrieveOption(option));
         }
-        mImpl.setParameters(map);
+        return map;
     }
 
     @Override
@@ -150,6 +161,12 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
     }
 
     @Override
+    public int startTrigger(@NonNull Config config, @NonNull CaptureCallback callback) {
+        HashMap<CaptureRequest.Key<?>, Object> map = convertConfigToMap(config);
+        return mImpl.startTrigger(map, new SessionProcessorImplCaptureCallbackAdapter(callback));
+    }
+
+    @Override
     public void stopRepeating() {
         mImpl.stopRepeating();
     }
@@ -169,6 +186,7 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
         OutputSurfaceImplAdapter(OutputSurface outputSurface) {
             mOutputSurface = outputSurface;
         }
+
         @NonNull
         @Override
         public Surface getSurface() {
@@ -251,6 +269,7 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
         private final int mTemplateId;
 
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+        @OptIn(markerClass = ExperimentalCamera2Interop.class)
         RequestAdapter(@NonNull RequestProcessorImpl.Request implRequest) {
             mImplRequest = implRequest;
 
@@ -300,6 +319,7 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
      */
     private static class ImageProcessorAdapter implements ImageProcessor {
         private final ImageProcessorImpl mImpl;
+
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
         ImageProcessorAdapter(ImageProcessorImpl impl) {
             mImpl = impl;
@@ -318,6 +338,7 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
      */
     private static class ImageReferenceImplAdapter implements ImageReferenceImpl {
         private final ImageReference mImageReference;
+
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
         ImageReferenceImplAdapter(ImageReference imageReference) {
             mImageReference = imageReference;
@@ -461,6 +482,12 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
         @Override
         public void onCaptureSequenceAborted(int captureSequenceId) {
             mCaptureCallback.onCaptureSequenceAborted(captureSequenceId);
+        }
+
+        @Override
+        public void onCaptureCompleted(long timestamp, int captureSequenceId,
+                Map<CaptureResult.Key, Object> result) {
+            mCaptureCallback.onCaptureCompleted(timestamp, captureSequenceId, result);
         }
     }
 }

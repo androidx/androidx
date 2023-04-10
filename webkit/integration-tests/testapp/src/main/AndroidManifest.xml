@@ -16,7 +16,6 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.androidx.webkit"
     tools:ignore="GoogleAppIndexingWarning">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -107,6 +106,9 @@
             android:name=".JsJavaInteractionActivity"
             android:exported="true" />
         <activity
+            android:name=".WebMessageCompatActivity"
+            android:exported="true" />
+        <activity
             android:name=".WebMessageListenerActivity"
             android:exported="true" />
         <activity
@@ -118,5 +120,27 @@
         <activity
             android:name=".ForceDarkStrategyActivity"
             android:exported="true" />
+        <activity
+            android:name=".GetVariationsHeaderActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ProcessGlobalConfigActivity"
+            android:process=":processGlobalConfigTest"
+            android:exported="true" />
+        <activity
+            android:name=".RequestedWithHeaderActivity"
+            android:exported="true" />
+        <activity android:name=".CookieManagerActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ImageDragActivity"
+            android:exported="false" />
+
+        <provider
+            android:authorities="com.example.androidx.webkit.DropDataProvider"
+            android:name="androidx.webkit.DropDataContentProvider"
+            android:exported="false"
+            android:grantUriPermissions="true"/>
+
     </application>
 </manifest>

@@ -20,8 +20,11 @@ import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Looper;
 import android.os.Message;
+import android.view.View;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 /**
  * Helper for accessing features in {@link Message}.
@@ -45,7 +48,7 @@ public final class MessageCompat {
      * Certain operations, such as view invalidation, may introduce synchronization
      * barriers into the {@link Looper}'s message queue to prevent subsequent messages
      * from being delivered until some condition is met.  In the case of view invalidation,
-     * messages which are posted after a call to {@link android.view.View#invalidate}
+     * messages which are posted after a call to {@link View#invalidate}
      * are suspended by means of a synchronization barrier until the next frame is
      * ready to be drawn.  The synchronization barrier ensures that the invalidation
      * request is completely handled before resuming.
@@ -69,14 +72,14 @@ public final class MessageCompat {
     @SuppressLint("NewApi")
     public static void setAsynchronous(@NonNull Message message, boolean async) {
         if (Build.VERSION.SDK_INT >= 22) {
-            message.setAsynchronous(async);
+            Api22Impl.setAsynchronous(message, async);
             return;
         }
         if (sTrySetAsynchronous && Build.VERSION.SDK_INT >= 16) {
             // Since this was an @hide method made public, we can link directly against it with a
             // try/catch for its absence instead of doing the same dance through reflection.
             try {
-                message.setAsynchronous(async);
+                Api22Impl.setAsynchronous(message, async);
             } catch (NoSuchMethodError e) {
                 sTrySetAsynchronous = false;
             }
@@ -95,13 +98,13 @@ public final class MessageCompat {
     @SuppressLint("NewApi")
     public static boolean isAsynchronous(@NonNull Message message) {
         if (Build.VERSION.SDK_INT >= 22) {
-            return message.isAsynchronous();
+            return Api22Impl.isAsynchronous(message);
         }
         if (sTryIsAsynchronous && Build.VERSION.SDK_INT >= 16) {
             // Since this was an @hide method made public, we can link directly against it with a
             // try/catch for its absence instead of doing the same dance through reflection.
             try {
-                return message.isAsynchronous();
+                return Api22Impl.isAsynchronous(message);
             } catch (NoSuchMethodError e) {
                 sTryIsAsynchronous = false;
             }
@@ -110,5 +113,22 @@ public final class MessageCompat {
     }
 
     private MessageCompat() {
+    }
+
+    @RequiresApi(22)
+    static class Api22Impl {
+        private Api22Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean isAsynchronous(Message message) {
+            return message.isAsynchronous();
+        }
+
+        @DoNotInline
+        static void setAsynchronous(Message message, boolean async) {
+            message.setAsynchronous(async);
+        }
     }
 }

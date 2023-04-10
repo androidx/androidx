@@ -6,18 +6,19 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(project(":compose:compiler:compiler"))
 
     implementation(project(":compose:animation:animation:integration-tests:animation-demos"))
     implementation(project(":compose:foundation:foundation-layout:integration-tests:foundation-layout-demos"))
     implementation(project(":compose:foundation:foundation:integration-tests:foundation-demos"))
     implementation(project(":compose:material:material:integration-tests:material-demos"))
+    implementation(project(":compose:material3:material3:integration-tests:material3-demos"))
     implementation(project(":navigation:navigation-compose:integration-tests:navigation-demos"))
     implementation(project(":compose:ui:ui:integration-tests:ui-demos"))
 
     implementation(libs.kotlinReflect)
     implementation(libs.kotlinStdlib)
 
+    implementation(project(":core:core-ktx"))
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:foundation:foundation-layout"))
     implementation(project(":compose:integration-tests:demos:common"))
@@ -27,14 +28,6 @@ dependencies {
     implementation(project(":compose:ui:ui"))
 
     implementation("androidx.preference:preference-ktx:1.1.1")
-
-    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.espressoCore)
-    androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.truth)
 }
 
 android {
@@ -44,4 +37,5 @@ android {
         // part of CI.
         archivesBaseName = "compose-demos-testapp"
     }
+    namespace "androidx.compose.integration.demos"
 }

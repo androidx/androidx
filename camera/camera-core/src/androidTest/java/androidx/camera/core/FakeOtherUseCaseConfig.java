@@ -184,5 +184,23 @@ public class FakeOtherUseCaseConfig implements UseCaseConfig<FakeOtherUseCase> {
             getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, eventCallback);
             return this;
         }
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setZslDisabled(boolean disabled) {
+            getMutableConfig().insertOption(OPTION_ZSL_DISABLED, disabled);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setHighResolutionDisabled(boolean disabled) {
+            getMutableConfig().insertOption(OPTION_HIGH_RESOLUTION_DISABLED, disabled);
+            return this;
+        }
     }
 }

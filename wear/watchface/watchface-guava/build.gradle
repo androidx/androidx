@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -49,7 +47,6 @@ dependencies {
 androidx {
     name = "AndroidX Wear Watchface Guava"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.WEAR_WATCHFACE
     inceptionYear = "2021"
     description = "Guava wrappers for the Androidx Wear Watchface library"
 }
@@ -61,4 +58,5 @@ android {
 
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.wear.watchface.guava"
 }

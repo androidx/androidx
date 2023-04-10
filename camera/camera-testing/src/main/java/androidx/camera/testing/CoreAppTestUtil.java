@@ -24,6 +24,8 @@ import android.app.Instrumentation;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 import android.os.RemoteException;
 import android.util.Log;
@@ -80,6 +82,38 @@ public final class CoreAppTestUtil {
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.M
                 && (Build.MODEL.contains("Nexus 5") || Build.MODEL.contains("Pixel C"))) {
             throw new AssumptionViolatedException("Known issue, b/141656413.");
+        }
+    }
+
+    /**
+     * Throws the Exception for devices whose front camera is not testable.
+     *
+     * Vivo 1805 will popup dialog to ask permission for accessing its front camera and then break
+     * the test. This function is used for switching camera tests that the tests should be
+     * skipped no matter the tests are started from the back or front camera.
+     */
+    public static void assumeCanTestFrontCamera() throws CameraAccessException {
+        if ("vivo 1805".equals(Build.MODEL)) {
+            throw new AssumptionViolatedException("Vivo 1805 will popup dialog to ask permission "
+                    + "to access the front camera.");
+        }
+    }
+
+    /**
+     * Throws the Exception for devices which the specified camera id is front camera and is not
+     * testable.
+     *
+     * Vivo 1805 will popup dialog to ask permission for accessing its front camera and then break
+     * the test.
+     */
+    public static void assumeNotUntestableFrontCamera(@NonNull String cameraId)
+            throws CameraAccessException {
+        CameraCharacteristics characteristics =
+                CameraUtil.getCameraManager().getCameraCharacteristics(cameraId);
+        if ("vivo 1805".equals(Build.MODEL) && characteristics.get(
+                CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT) {
+            throw new AssumptionViolatedException("Vivo 1805 will popup dialog to ask permission "
+                    + "to access the front camera.");
         }
     }
 

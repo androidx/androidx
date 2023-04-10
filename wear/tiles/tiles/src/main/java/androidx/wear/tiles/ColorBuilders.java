@@ -20,7 +20,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.wear.tiles.proto.ColorProto;
+import androidx.wear.protolayout.proto.ColorProto;
 
 /** Builders for color utilities for layout elements. */
 public final class ColorBuilders {

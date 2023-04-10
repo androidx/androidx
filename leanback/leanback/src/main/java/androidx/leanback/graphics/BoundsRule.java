@@ -17,6 +17,9 @@ package androidx.leanback.graphics;
 
 import android.graphics.Rect;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * This class contains the rules for updating the bounds of a
  * {@link CompositeDrawable.ChildDrawable}. It contains four rules, one for each value of the
@@ -37,6 +40,7 @@ public class BoundsRule {
          * @param fraction Percentage of parent.
          * @return Newly created ValueRule.
          */
+        @NonNull
         public static ValueRule inheritFromParent(float fraction) {
             return new ValueRule(0, fraction);
         }
@@ -47,6 +51,7 @@ public class BoundsRule {
          * @param absoluteValue Absolute value.
          * @return Newly created ValueRule.
          */
+        @NonNull
         public static ValueRule absoluteValue(int absoluteValue) {
             return new ValueRule(absoluteValue, 0);
         }
@@ -58,6 +63,7 @@ public class BoundsRule {
          * @param value    Offset
          * @return Newly created ValueRule.
          */
+        @NonNull
         public static ValueRule inheritFromParentWithOffset(float fraction, int value) {
             return new ValueRule(value, fraction);
         }
@@ -113,7 +119,7 @@ public class BoundsRule {
      * @param rect Represents the current bounds.
      * @param result Represents the final bounds.
      */
-    public void calculateBounds(Rect rect, Rect result) {
+    public void calculateBounds(@NonNull Rect rect, @NonNull Rect result) {
         if (left == null) {
             result.left = rect.left;
         } else {
@@ -141,7 +147,7 @@ public class BoundsRule {
 
     public BoundsRule() {}
 
-    public BoundsRule(BoundsRule boundsRule) {
+    public BoundsRule(@NonNull BoundsRule boundsRule) {
         this.left = boundsRule.left != null ? new ValueRule(boundsRule.left) : null;
         this.right = boundsRule.right != null ? new ValueRule(boundsRule.right) : null;
         this.top = boundsRule.top != null ? new ValueRule(boundsRule.top) : null;
@@ -153,14 +159,18 @@ public class BoundsRule {
     }
 
     /** {@link ValueRule} for left attribute of {@link BoundsRule} */
+    @Nullable
     public ValueRule left;
 
     /** {@link ValueRule} for top attribute of {@link BoundsRule} */
+    @Nullable
     public ValueRule top;
 
     /** {@link ValueRule} for right attribute of {@link BoundsRule} */
+    @Nullable
     public ValueRule right;
 
     /** {@link ValueRule} for bottom attribute of {@link BoundsRule} */
+    @Nullable
     public ValueRule bottom;
 }

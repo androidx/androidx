@@ -63,9 +63,7 @@ import java.util.List;
  */
 @RestrictTo(LIBRARY)
 public class MediaRouteDynamicChooserDialog extends AppCompatDialog {
-    private static final String TAG = "MediaRouteChooserDialog";
 
-    private static final int ITEM_TYPE_NONE = 0;
     private static final int ITEM_TYPE_HEADER = 1;
     private static final int ITEM_TYPE_ROUTE = 2;
 
@@ -264,22 +262,25 @@ public class MediaRouteDynamicChooserDialog extends AppCompatDialog {
         }
 
         @Override
-        public void onRouteAdded(MediaRouter router, MediaRouter.RouteInfo info) {
+        public void onRouteAdded(@NonNull MediaRouter router, @NonNull MediaRouter.RouteInfo info) {
             refreshRoutes();
         }
 
         @Override
-        public void onRouteRemoved(MediaRouter router, MediaRouter.RouteInfo info) {
+        public void onRouteRemoved(@NonNull MediaRouter router,
+                @NonNull MediaRouter.RouteInfo info) {
             refreshRoutes();
         }
 
         @Override
-        public void onRouteChanged(MediaRouter router, MediaRouter.RouteInfo info) {
+        public void onRouteChanged(@NonNull MediaRouter router,
+                @NonNull MediaRouter.RouteInfo info) {
             refreshRoutes();
         }
 
         @Override
-        public void onRouteSelected(MediaRouter router, MediaRouter.RouteInfo route) {
+        public void onRouteSelected(@NonNull MediaRouter router,
+                @NonNull MediaRouter.RouteInfo route) {
             dismiss();
         }
     }
@@ -331,7 +332,8 @@ public class MediaRouteDynamicChooserDialog extends AppCompatDialog {
         }
 
         @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        @NonNull
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view;
 
             switch (viewType) {
@@ -342,13 +344,13 @@ public class MediaRouteDynamicChooserDialog extends AppCompatDialog {
                     view = mInflater.inflate(R.layout.mr_picker_route_item, parent, false);
                     return new RouteViewHolder(view);
                 default:
-                    Log.w(TAG, "Cannot create ViewHolder because of wrong view type");
-                    return null;
+                    // Never happens.
+                    throw new IllegalStateException();
             }
         }
 
         @Override
-        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
             int viewType = getItemViewType(position);
             Item item = getItem(position);
 
@@ -428,8 +430,8 @@ public class MediaRouteDynamicChooserDialog extends AppCompatDialog {
                 } else if (data instanceof MediaRouter.RouteInfo) {
                     mType = ITEM_TYPE_ROUTE;
                 } else {
-                    mType = ITEM_TYPE_NONE;
-                    Log.w(TAG, "Wrong type of data passed to Item constructor");
+                    // Never happens.
+                    throw new IllegalArgumentException();
                 }
             }
 

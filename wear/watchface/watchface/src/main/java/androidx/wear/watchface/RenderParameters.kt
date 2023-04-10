@@ -97,6 +97,16 @@ public class RenderParameters @JvmOverloads constructor(
     public val highlightLayer: HighlightLayer? = null,
     public val lastComplicationTapDownEvents: Map<Int, TapEvent> = emptyMap()
 ) {
+    /**
+     * Whether or not we're rendering for a screenshot. Some watch faces with animations may need to
+     * make adjustments when a screen shot is taken to achieve the best result.
+     *
+     * Note [Renderer.CanvasRenderer2] and [Renderer.CanvasRenderer] always use software rendering
+     * for screenshots.
+     */
+    public var isForScreenshot: Boolean = false
+      internal set
+
     init {
         require(watchFaceLayers.isNotEmpty() || highlightLayer != null) {
             "Either watchFaceLayers must be non empty or " +
@@ -210,7 +220,7 @@ public class RenderParameters @JvmOverloads constructor(
     }
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(wireFormat: RenderParametersWireFormat) : this(
         DrawMode.values()[wireFormat.drawMode],
         HashSet<WatchFaceLayer>().apply {
@@ -257,7 +267,7 @@ public class RenderParameters @JvmOverloads constructor(
     )
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toWireFormat(): RenderParametersWireFormat {
         val idAndTapEventWireFormats = lastComplicationTapDownEvents.map {
             IdAndTapEventWireFormat(
@@ -374,6 +384,7 @@ public class RenderParameters @JvmOverloads constructor(
         if (watchFaceLayers != other.watchFaceLayers) return false
         if (highlightLayer != other.highlightLayer) return false
         if (lastComplicationTapDownEvents != other.lastComplicationTapDownEvents) return false
+        if (isForScreenshot != other.isForScreenshot) return false
 
         return true
     }
@@ -383,6 +394,7 @@ public class RenderParameters @JvmOverloads constructor(
         result = 31 * result + watchFaceLayers.hashCode()
         result = 31 * result + (highlightLayer?.hashCode() ?: 0)
         result = 31 * result + lastComplicationTapDownEvents.hashCode()
+        result = 31 * result + isForScreenshot.hashCode()
         return result
     }
 }

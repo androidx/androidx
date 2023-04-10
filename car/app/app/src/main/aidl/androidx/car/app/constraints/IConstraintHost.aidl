@@ -24,4 +24,9 @@ interface IConstraintHost {
   * Queries the host for the limit for a content type.
   */
   int getContentLimit(int contentType) = 1;
+
+  /**
+   * Queries the host for the ability to support App Driven Refresh.
+   */
+  boolean isAppDrivenRefreshEnabled() = 2;
 }

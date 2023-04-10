@@ -32,6 +32,7 @@ import androidx.camera.camera2.internal.CameraCaptureSessionStateCallbacks;
 import androidx.camera.camera2.internal.CameraDeviceStateCallbacks;
 import androidx.camera.core.impl.Config;
 import androidx.camera.testing.fakes.FakeConfig;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,6 +52,7 @@ public final class Camera2InteropTest {
             CameraCaptureSessionStateCallbacks.createNoOpCallback();
     private static final CameraDevice.StateCallback DEVICE_STATE_CALLBACK =
             CameraDeviceStateCallbacks.createNoOpCallback();
+    private static final String PHYSICAL_CAMERA_ID = "0";
 
     @Test
     public void canExtendWithTemplateType() {
@@ -63,6 +65,20 @@ public final class Camera2InteropTest {
 
         assertThat(config.getCaptureRequestTemplate(INVALID_TEMPLATE_TYPE))
                 .isEqualTo(CameraDevice.TEMPLATE_PREVIEW);
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    public void canExtendWithTStreamUseCase() {
+        FakeConfig.Builder builder = new FakeConfig.Builder();
+
+        new Camera2Interop.Extender<>(builder)
+                .setStreamUseCase(3);
+
+        Camera2ImplConfig config = new Camera2ImplConfig(builder.build());
+
+        assertThat(config.getStreamUseCase(-1))
+                .isEqualTo(3);
     }
 
     @Test
@@ -170,5 +186,16 @@ public final class Camera2InteropTest {
                             .isEqualTo(Config.OptionPriority.ALWAYS_OVERRIDE);
                     return true;
                 });
+    }
+
+    @Test
+    public void canExtendWithPhysicalCameraId() {
+        FakeConfig.Builder builder = new FakeConfig.Builder();
+
+        new Camera2Interop.Extender<>(builder).setPhysicalCameraId(PHYSICAL_CAMERA_ID);
+
+        Camera2ImplConfig config = new Camera2ImplConfig(builder.build());
+
+        assertThat(config.getPhysicalCameraId(null)).isEqualTo(PHYSICAL_CAMERA_ID);
     }
 }

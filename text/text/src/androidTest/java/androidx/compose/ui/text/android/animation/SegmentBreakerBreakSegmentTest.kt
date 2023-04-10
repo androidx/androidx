@@ -22,10 +22,10 @@ import android.text.TextPaint
 import androidx.compose.ui.text.android.InternalPlatformTextApi
 import androidx.compose.ui.text.android.LayoutHelper
 import androidx.compose.ui.text.android.StaticLayoutFactory
-import androidx.compose.ui.text.font.test.R
 import androidx.core.content.res.ResourcesCompat
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.testutils.fonts.R
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -83,7 +83,7 @@ class SegmentBreakerBreakSegmentTest {
 
     // sample_font.ttf has ascent=1000 and descent=-200, hence the line height is 1.2em.
     private val TEXT_SIZE = 10f
-    private val LINE_HEIGHT = (1.2f * TEXT_SIZE).toInt()
+    private val LINE_HEIGHT = TEXT_SIZE.toInt()
 
     private fun getLayout(
         text: String,

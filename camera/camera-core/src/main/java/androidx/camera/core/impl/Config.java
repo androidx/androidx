@@ -57,7 +57,7 @@ public interface Config {
      *
      * @param id       The {@link Option} to search for in this configuration.
      * @param <ValueT> The type for the value associated with the supplied {@link Option}.
-     * @return The value stored in this configuration, or <code>null</code> if it does not exist.
+     * @return The value stored in this configuration.
      * @throws IllegalArgumentException if the given option does not exist in this configuration.
      */
     @Nullable
@@ -74,7 +74,8 @@ public interface Config {
      * @param valueIfMissing The value to return if the specified {@link Option} does not exist in
      *                       this configuration.
      * @param <ValueT>       The type for the value associated with the supplied {@link Option}.
-     * @return The value stored in this configuration, or <code>null</code> if it does not exist.
+     * @return The value stored in this configuration, or <code>valueIfMissing</code> if it does
+     * not exist.
      */
     @Nullable
     <ValueT> ValueT retrieveOption(@NonNull Option<ValueT> id, @Nullable ValueT valueIfMissing);

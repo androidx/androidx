@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+ChangedType: androidx.work.WorkInfo#getTags():
+    Method androidx.work.WorkInfo.getTags has changed return type from java.util.Set<java.lang.String!> to java.util.Set<java.lang.String>

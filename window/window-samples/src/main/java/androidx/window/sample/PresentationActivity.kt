@@ -35,7 +35,6 @@ import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 /**
@@ -68,7 +67,7 @@ class PresentationActivity : AppCompatActivity() {
         }
     }
 
-    internal fun startPresentation(context: Context) {
+    private fun startPresentation(context: Context) {
         if (presentation != null) {
             val message = "Trying to show presentation that's already showing"
             Toast.makeText(context, message, Toast.LENGTH_LONG).show()
@@ -148,7 +147,7 @@ class PresentationActivity : AppCompatActivity() {
     /**
      * Updates the display of the current fold feature state.
      */
-    internal fun updateCurrentState(info: WindowLayoutInfo) {
+    private fun updateCurrentState(info: WindowLayoutInfo) {
         val stateStringBuilder = StringBuilder()
 
         stateStringBuilder.append(getString(R.string.deviceState))

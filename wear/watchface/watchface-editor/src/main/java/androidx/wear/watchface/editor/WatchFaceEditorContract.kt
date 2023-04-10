@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.editor
 
+import androidx.wear.watchface.data.DeviceConfig as WireDeviceConfig
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ComponentName
@@ -46,8 +47,6 @@ internal const val RENDER_PARAMETERS_KEY: String = "RENDER_PARAMETERS_KEY"
 internal const val RENDER_TIME_MILLIS_KEY: String = "RENDER_TIME_MILLIS_KEY"
 internal const val USER_STYLE_KEY: String = "USER_STYLE_KEY"
 internal const val USER_STYLE_VALUES: String = "USER_STYLE_VALUES"
-
-typealias WireDeviceConfig = androidx.wear.watchface.data.DeviceConfig
 
 /**
  * Parameters for an optional final screenshot taken by [EditorSession] upon exit and reported via
@@ -138,6 +137,7 @@ public class EditorRequest @RequiresApi(Build.VERSION_CODES.R) constructor(
          * if there is one or `null` otherwise. Intended for use by the watch face editor activity.
          * @throws [TimeoutCancellationException] in case of en error.
          */
+        @Suppress("DEPRECATION")
         @SuppressLint("NewApi")
         @JvmStatic
         @Throws(TimeoutCancellationException::class)
@@ -185,6 +185,7 @@ public class EditorRequest @RequiresApi(Build.VERSION_CODES.R) constructor(
          */
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @Suppress("DEPRECATION")
         @Throws(PackageManager.NameNotFoundException::class)
         public fun supportsWatchFaceHeadlessEditing(
             packageManager: PackageManager,

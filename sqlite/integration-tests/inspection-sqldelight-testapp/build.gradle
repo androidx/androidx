@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -31,7 +32,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(project(":sqlite:sqlite-inspection"))
     androidTestImplementation(project(":inspection:inspection-testing"))
-    androidTestImplementation("com.google.protobuf:protobuf-javalite:3.10.0")
+    androidTestImplementation(libs.protobufLite)
 }
 
 android {
@@ -42,4 +43,5 @@ android {
         // studio pipeline works only starting with Android O
         minSdkVersion 26
     }
+    namespace "androidx.sqlite.inspection.sqldeligttestapp"
 }

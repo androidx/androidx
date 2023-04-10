@@ -25,6 +25,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.OpenComposeView
 import androidx.compose.ui.platform.AndroidComposeView
@@ -33,6 +34,7 @@ import androidx.compose.ui.platform.accessibility.hasCollectionInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.CollectionInfo
 import androidx.compose.ui.semantics.CollectionItemInfo
+import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.collectionInfo
 import androidx.compose.ui.semantics.collectionItemInfo
 import androidx.compose.ui.semantics.semantics
@@ -41,10 +43,10 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
@@ -57,12 +59,13 @@ class CollectionInfoTest {
     @get:Rule
     val rule = createAndroidComposeRule<TestActivity>()
 
+    private lateinit var container: OpenComposeView
     private lateinit var accessibilityDelegate: AndroidComposeViewAccessibilityDelegateCompat
     private lateinit var info: AccessibilityNodeInfoCompat
 
     @Before
     fun setup() {
-        val container = OpenComposeView(rule.activity)
+        container = OpenComposeView(rule.activity)
 
         rule.runOnUiThread {
             rule.activity.setContentView(
@@ -81,23 +84,17 @@ class CollectionInfoTest {
         info = AccessibilityNodeInfoCompat.obtain()
     }
 
-    @After
-    fun cleanup() {
-        info.recycle()
-    }
-
     // Collection Info tests
     @Test
     fun testCollectionInfo_withSelectableGroup() {
-        rule.setContent {
+        setContent {
             Column(Modifier.selectableGroup().testTag("collection")) {
                 Box(Modifier.size(50.dp).selectable(selected = true, onClick = {}))
                 Box(Modifier.size(50.dp).selectable(selected = false, onClick = {}))
             }
         }
         val collectionNode = rule.onNodeWithTag("collection").fetchSemanticsNode()
-        accessibilityDelegate
-            .populateAccessibilityNodeInfoProperties(collectionNode.id, info, collectionNode)
+        populateAccessibilityNodeInfoProperties(collectionNode)
 
         val resultCollectionInfo = info.collectionInfo
         Assert.assertEquals(2, resultCollectionInfo.rowCount)
@@ -108,14 +105,14 @@ class CollectionInfoTest {
     @Test
     fun testDefaultCollectionInfo_lazyList() {
         val tag = "LazyColumn"
-        rule.setContent {
+        setContent {
             LazyColumn(Modifier.testTag(tag)) {
                 items(2) { BasicText("Text") }
             }
         }
 
         val itemNode = rule.onNodeWithTag(tag).fetchSemanticsNode()
-        accessibilityDelegate.populateAccessibilityNodeInfoProperties(itemNode.id, info, itemNode)
+        populateAccessibilityNodeInfoProperties(itemNode)
 
         val resultCollectionInfo = info.collectionInfo
         Assert.assertEquals(-1, resultCollectionInfo.rowCount)
@@ -126,7 +123,7 @@ class CollectionInfoTest {
     @Test
     fun testCollectionInfo_lazyList() {
         val tag = "LazyColumn"
-        rule.setContent {
+        setContent {
             LazyColumn(
                 Modifier
                     .testTag(tag)
@@ -137,7 +134,7 @@ class CollectionInfoTest {
         }
 
         val itemNode = rule.onNodeWithTag(tag).fetchSemanticsNode()
-        accessibilityDelegate.populateAccessibilityNodeInfoProperties(itemNode.id, info, itemNode)
+        populateAccessibilityNodeInfoProperties(itemNode)
 
         val resultCollectionInfo = info.collectionInfo
         Assert.assertEquals(2, resultCollectionInfo.rowCount)
@@ -148,14 +145,14 @@ class CollectionInfoTest {
     @Test
     fun testCollectionInfo_withSelectableGroup_andDefaultLazyListSemantics() {
         val tag = "LazyColumn"
-        rule.setContent {
+        setContent {
             LazyColumn(Modifier.testTag(tag).selectableGroup()) {
                 items(2) { BasicText("Text") }
             }
         }
 
         val itemNode = rule.onNodeWithTag(tag).fetchSemanticsNode()
-        accessibilityDelegate.populateAccessibilityNodeInfoProperties(itemNode.id, info, itemNode)
+        populateAccessibilityNodeInfoProperties(itemNode)
 
         val resultCollectionInfo = info.collectionInfo
         Assert.assertEquals(-1, resultCollectionInfo.rowCount)
@@ -166,7 +163,7 @@ class CollectionInfoTest {
     @Test
     fun testCollectionInfo_withSelectableGroup_andLazyListSemantics() {
         val tag = "LazyColumn"
-        rule.setContent {
+        setContent {
             LazyColumn(
                 Modifier
                     .testTag(tag)
@@ -178,7 +175,7 @@ class CollectionInfoTest {
         }
 
         val itemNode = rule.onNodeWithTag(tag).fetchSemanticsNode()
-        accessibilityDelegate.populateAccessibilityNodeInfoProperties(itemNode.id, info, itemNode)
+        populateAccessibilityNodeInfoProperties(itemNode)
 
         val resultCollectionInfo = info.collectionInfo
         Assert.assertEquals(2, resultCollectionInfo.rowCount)
@@ -189,7 +186,7 @@ class CollectionInfoTest {
     // Collection Item Info tests
     @Test
     fun testCollectionItemInfo_withSelectableGroup() {
-        rule.setContent {
+        setContent {
             Column(Modifier.selectableGroup()) {
                 Box(Modifier.selectable(selected = true, onClick = {}).testTag("item"))
                 Box(Modifier.selectable(selected = false, onClick = {}))
@@ -197,7 +194,7 @@ class CollectionInfoTest {
         }
 
         val itemNode = rule.onNodeWithTag("item").fetchSemanticsNode()
-        accessibilityDelegate.populateAccessibilityNodeInfoProperties(itemNode.id, info, itemNode)
+        populateAccessibilityNodeInfoProperties(itemNode)
 
         val resultCollectionItemInfo = info.collectionItemInfo
         Assert.assertEquals(0, resultCollectionItemInfo.rowIndex)
@@ -209,21 +206,21 @@ class CollectionInfoTest {
 
     @Test
     fun testNoCollectionItemInfo_lazyList() {
-        rule.setContent {
+        setContent {
             LazyColumn {
                 itemsIndexed(listOf("Text", "Text")) { index, item -> BasicText(item + index) }
             }
         }
 
         val itemNode = rule.onNodeWithText("Text0").fetchSemanticsNode()
-        accessibilityDelegate.populateAccessibilityNodeInfoProperties(itemNode.id, info, itemNode)
+        populateAccessibilityNodeInfoProperties(itemNode)
 
         Assert.assertNull(info.collectionItemInfo)
     }
 
     @Test
     fun testCollectionItemInfo_defaultLazyListSemantics() {
-        rule.setContent {
+        setContent {
             LazyColumn {
                 itemsIndexed(listOf("Text", "Text")) { index, item ->
                     BasicText(
@@ -237,7 +234,7 @@ class CollectionInfoTest {
         }
 
         val itemNode = rule.onNodeWithText("Text0").fetchSemanticsNode()
-        accessibilityDelegate.populateAccessibilityNodeInfoProperties(itemNode.id, info, itemNode)
+        populateAccessibilityNodeInfoProperties(itemNode)
 
         val resultCollectionItemInfo = info.collectionItemInfo
         Assert.assertEquals(0, resultCollectionItemInfo.rowIndex)
@@ -248,7 +245,7 @@ class CollectionInfoTest {
 
     @Test
     fun testCollectionItemInfo_lazyList() {
-        rule.setContent {
+        setContent {
             LazyColumn(Modifier.semantics { collectionInfo = CollectionInfo(2, 1) }) {
                 itemsIndexed(listOf("Text", "Text")) { index, item ->
                     BasicText(
@@ -262,7 +259,7 @@ class CollectionInfoTest {
         }
 
         val itemNode = rule.onNodeWithText("Text0").fetchSemanticsNode()
-        accessibilityDelegate.populateAccessibilityNodeInfoProperties(itemNode.id, info, itemNode)
+        populateAccessibilityNodeInfoProperties(itemNode)
 
         val resultCollectionItemInfo = info.collectionItemInfo
         Assert.assertEquals(0, resultCollectionItemInfo.rowIndex)
@@ -273,7 +270,7 @@ class CollectionInfoTest {
 
     @Test
     fun testCollectionItemInfo_withSelectableGroup_andDefaultLazyListSemantics() {
-        rule.setContent {
+        setContent {
             LazyColumn(Modifier.selectableGroup()) {
                 itemsIndexed(listOf("Text", "Text")) { index, item ->
                     BasicText(
@@ -287,7 +284,7 @@ class CollectionInfoTest {
         }
 
         val itemNode = rule.onNodeWithText("Text0").fetchSemanticsNode()
-        accessibilityDelegate.populateAccessibilityNodeInfoProperties(itemNode.id, info, itemNode)
+        populateAccessibilityNodeInfoProperties(itemNode)
 
         val resultCollectionItemInfo = info.collectionItemInfo
         Assert.assertEquals(0, resultCollectionItemInfo.rowIndex)
@@ -299,7 +296,7 @@ class CollectionInfoTest {
     @Test
     fun testSemanticsNodeHasCollectionInfo_whenProvidedDirectly() {
         val tag = "column"
-        rule.setContent {
+        setContent {
             Column(Modifier.testTag(tag).semantics { collectionInfo = CollectionInfo(1, 1) }) {
                 // items
             }
@@ -312,7 +309,7 @@ class CollectionInfoTest {
     @Test
     fun testSemanticsNodeHasCollectionInfo_whenProvidedViaSelectableGroup() {
         val tag = "column"
-        rule.setContent {
+        setContent {
             Column(Modifier.testTag(tag).selectableGroup()) {
                 // items
             }
@@ -325,7 +322,7 @@ class CollectionInfoTest {
     @Test
     fun testSemanticsNodeHasCollectionInfo_falseWhenNotProvided() {
         val tag = "column"
-        rule.setContent {
+        setContent {
             Column(Modifier.testTag(tag)) {
                 // items
             }
@@ -333,5 +330,52 @@ class CollectionInfoTest {
 
         val semanticsNode = rule.onNodeWithTag(tag).fetchSemanticsNode()
         Assert.assertFalse(semanticsNode.hasCollectionInfo())
+    }
+
+    @Test
+    fun testCollectionInfo_withSelectableGroup_zOrder() {
+        setContent {
+            Column(Modifier.selectableGroup()) {
+                Box(
+                    Modifier
+                        .size(50.dp)
+                        .selectable(selected = true, onClick = {})
+                        .zIndex(3f)
+                        .testTag("item0")
+                )
+                Box(
+                    Modifier
+                        .size(50.dp)
+                        .selectable(selected = false, onClick = {})
+                        .zIndex(2f)
+                        .testTag("item1")
+                )
+                Box(
+                    Modifier
+                        .size(50.dp)
+                        .selectable(selected = false, onClick = {})
+                        .zIndex(1f)
+                        .testTag("item2")
+                )
+            }
+        }
+
+        for (index in 0..2) {
+            val itemNode = rule.onNodeWithTag("item$index").fetchSemanticsNode()
+            populateAccessibilityNodeInfoProperties(itemNode)
+            Assert.assertEquals(index, info.collectionItemInfo.rowIndex)
+        }
+    }
+
+    private fun setContent(content: @Composable () -> Unit) {
+        rule.runOnIdle {
+            container.setContent(content)
+        }
+    }
+
+    private fun populateAccessibilityNodeInfoProperties(node: SemanticsNode) {
+        rule.runOnIdle {
+            accessibilityDelegate.populateAccessibilityNodeInfoProperties(node.id, info, node)
+        }
     }
 }

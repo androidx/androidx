@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -41,17 +39,9 @@ dependencies {
     androidTestImplementation(libs.truth)
 }
 
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
-    }
-}
-
 androidx {
     name = "Android Wear Watchface Client Guava"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.WEAR_WATCHFACE
     inceptionYear = "2021"
     description = "Guava wrappers for the Androidx Wear Watchface library"
 }
@@ -60,4 +50,5 @@ android {
     defaultConfig {
         minSdkVersion 26
     }
+    namespace "androidx.wear.watchface.client.guava"
 }

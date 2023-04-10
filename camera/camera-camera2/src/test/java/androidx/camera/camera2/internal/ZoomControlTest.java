@@ -60,8 +60,7 @@ import java.util.concurrent.ExecutionException;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-// Not able to write test for Robolectric API 30 because it is not added yet.
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP, maxSdk = Build.VERSION_CODES.Q)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class ZoomControlTest {
     private static final String CAMERA0_ID = "0";
     private static final String CAMERA1_ID = "1";
@@ -179,6 +178,16 @@ public class ZoomControlTest {
         assertThat(listenableFuture.isDone()).isTrue();
         // Future should have succeeded. Should not throw.
         listenableFuture.get();
+    }
+
+    @Test
+    @Config(minSdk = 30)
+    public void isAndroidRZoomSupported_canHandleAssertionError() {
+        CameraCharacteristicsCompat cameraCharacteristics = mock(CameraCharacteristicsCompat.class);
+        when(cameraCharacteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE))
+                .thenThrow(new AssertionError());
+
+        assertThat(ZoomControl.isAndroidRZoomSupported(cameraCharacteristics)).isEqualTo(false);
     }
 
     @Test

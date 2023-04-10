@@ -1,0 +1,26 @@
+// To trigger the baseline profile generation using the different modules the test will call
+// the base generation task `generateBaselineProfiles`. The `AssertEqualsAndCleanUpTask` asserts
+// that the final output is the expected one and if there are no failures cleans up the
+// generated baseline-prof.txt.
+@CacheableTask
+abstract class AssertEqualsAndCleanUpTask extends DefaultTask {
+    @InputFile
+    @PathSensitive(PathSensitivity.NONE)
+    abstract RegularFileProperty getExpectedFile()
+
+    @InputFile
+    @PathSensitive(PathSensitivity.NONE)
+    abstract RegularFileProperty getActualFile()
+
+    @TaskAction
+    void exec() {
+        assert getExpectedFile().get().asFile.text == getActualFile().get().asFile.text
+
+        // This deletes the actual file since it's a test artifact
+        getActualFile().get().asFile.delete()
+    }
+}
+tasks.register("testBaselineProfilesGeneration", AssertEqualsAndCleanUpTask).configure {
+    it.expectedFile.set(project.layout.projectDirectory.file("src/main/expected-baseline-prof.txt"))
+    it.actualFile.set(tasks.named("generateBaselineProfiles").flatMap { it.baselineProfileFile })
+}

@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -71,7 +72,7 @@ public final class ForwardingImageProxyTest {
         mImageProxy.addOnImageCloseListener(
                 new ForwardingImageProxy.OnImageCloseListener() {
                     @Override
-                    public void onImageClose(ImageProxy image) {
+                    public void onImageClose(@NonNull ImageProxy image) {
                         closedImage.set(image);
                         closedImageSemaphore.release();
                     }

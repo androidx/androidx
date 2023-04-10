@@ -20,8 +20,8 @@ import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.drag
-import androidx.compose.foundation.gestures.forEachGesture
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
@@ -33,7 +33,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.findAndroidComposeView
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -247,15 +246,13 @@ class PositionInWindowTest {
                             .background(Color.Black)
                             .testTag(smallBoxTag)
                             .pointerInput(Unit) {
-                                forEachGesture {
-                                    awaitPointerEventScope {
-                                        val down = awaitFirstDown()
-                                        var previous = down.position
-                                        drag(down.id) {
-                                            it.consumeAllChanges()
-                                            offset += it.position - previous
-                                            previous = it.position
-                                        }
+                                awaitEachGesture {
+                                    val down = awaitFirstDown()
+                                    var previous = down.position
+                                    drag(down.id) {
+                                        it.consume()
+                                        offset += it.position - previous
+                                        previous = it.position
                                     }
                                 }
                             }

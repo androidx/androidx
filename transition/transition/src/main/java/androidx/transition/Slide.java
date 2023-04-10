@@ -247,8 +247,8 @@ public class Slide extends Visibility {
 
     @Nullable
     @Override
-    public Animator onAppear(ViewGroup sceneRoot, View view,
-            TransitionValues startValues, TransitionValues endValues) {
+    public Animator onAppear(@NonNull ViewGroup sceneRoot, @NonNull View view,
+            @Nullable TransitionValues startValues, @Nullable TransitionValues endValues) {
         if (endValues == null) {
             return null;
         }
@@ -264,8 +264,8 @@ public class Slide extends Visibility {
 
     @Nullable
     @Override
-    public Animator onDisappear(ViewGroup sceneRoot, View view,
-            TransitionValues startValues, TransitionValues endValues) {
+    public Animator onDisappear(@NonNull ViewGroup sceneRoot, @NonNull View view,
+            @Nullable TransitionValues startValues, @Nullable TransitionValues endValues) {
         if (startValues == null) {
             return null;
         }

@@ -94,10 +94,10 @@ object UserspaceTracing {
         return Trace(capturedEvents)
     }
 
-    fun startSection(label: String) {
+    fun beginSection(label: String, nanoTime: Long = System.nanoTime()) {
         events.add(
             TracePacket(
-                timestamp = System.nanoTime(),
+                timestamp = nanoTime,
                 timestamp_clock_id = CLOCK_ID,
                 trusted_packet_sequence_id = TRUSTED_PACKET_SEQUENCE_ID,
                 track_event = TrackEvent(
@@ -110,10 +110,10 @@ object UserspaceTracing {
         )
     }
 
-    fun endSection() {
+    fun endSection(nanoTime: Long = System.nanoTime()) {
         events.add(
             TracePacket(
-                timestamp = System.nanoTime(),
+                timestamp = nanoTime,
                 timestamp_clock_id = CLOCK_ID,
                 trusted_packet_sequence_id = TRUSTED_PACKET_SEQUENCE_ID,
                 track_event = TrackEvent(
@@ -128,7 +128,7 @@ object UserspaceTracing {
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 inline fun <T> userspaceTrace(label: String, block: () -> T): T {
-    UserspaceTracing.startSection(label)
+    UserspaceTracing.beginSection(label)
     return try {
         block()
     } finally {

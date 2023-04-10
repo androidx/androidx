@@ -16,16 +16,16 @@
 
 package androidx.camera.camera2.internal.compat.quirk;
 
-import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.CamcorderProfile;
-import android.os.Build;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.camera2.internal.compat.StreamConfigurationMapCompat;
+import androidx.camera.camera2.internal.compat.workaround.CamcorderProfileResolutionValidator;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.Quirk;
@@ -36,23 +36,23 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Quirk that should validate the video resolution of {@link CamcorderProfile} on legacy camera.
- *
- * <p>
- * When using the Camera 2 API in {@code LEGACY} mode (i.e. when
- * {@link android.hardware.camera2.CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL} is set
- * to
- * {@link android.hardware.camera2.CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY}),
- * {@link CamcorderProfile#hasProfile} may return {@code true} for unsupported resolutions. To
- * ensure a given resolution is supported in LEGACY mode, the configuration given in
- * {@link android.hardware.camera2.CameraCharacteristics#SCALER_STREAM_CONFIGURATION_MAP}
- * must contain the resolution in the supported output sizes. The recommended way to check this
- * is with {@link android.hardware.camera2.params.StreamConfigurationMap#getOutputSizes(Class)}
- * with the class of the desired recording endpoint, and check that the desired resolution is
- * contained in the list returned.
- * </p>
- *
- * @see CamcorderProfile#hasProfile
+ * <p>QuirkSummary
+ *     Bug Id: 180819729
+ *     Description: Quirk that should validate the video resolution of {@link CamcorderProfile}
+ *                  on legacy camera. When using the Camera 2 API in {@code LEGACY} mode (i.e.
+ *                  when {@link CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL} is set to
+ *                  {@link CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY}),
+ *                  {@link CamcorderProfile#hasProfile} may return {@code true} for unsupported
+ *                  resolutions. To ensure a given resolution is supported in LEGACY mode, the
+ *                  configuration given in
+ *                  {@link CameraCharacteristics#SCALER_STREAM_CONFIGURATION_MAP} must contain
+ *                  the resolution in the supported output sizes. The recommended way to check
+ *                  this is with {@link StreamConfigurationMap#getOutputSizes(Class)} with the
+ *                  class of the desired recording endpoint, and check that the desired
+ *                  resolution is contained in the list returned.
+ *     Device(s): All legacy devices
+ *     @see CamcorderProfile#hasProfile
+ *     @see CamcorderProfileResolutionValidator
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class CamcorderProfileResolutionQuirk implements Quirk {
@@ -68,21 +68,17 @@ public class CamcorderProfileResolutionQuirk implements Quirk {
 
     public CamcorderProfileResolutionQuirk(
             @NonNull CameraCharacteristicsCompat characteristicsCompat) {
+        Size[] sizes = null;
         StreamConfigurationMap map =
                 characteristicsCompat.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-        if (map == null) {
+        if (map != null) {
+            StreamConfigurationMapCompat mapCompat =
+                    StreamConfigurationMapCompat.toStreamConfigurationMapCompat(map);
+            sizes = mapCompat.getOutputSizes(
+                    ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
+        } else {
             Logger.e(TAG, "StreamConfigurationMap is null");
         }
-        Size[] sizes;
-        // Before Android 23, use {@link SurfaceTexture} will finally mapped to 0x22 in
-        // StreamConfigurationMap to retrieve the output sizes information.
-        if (Build.VERSION.SDK_INT < 23) {
-            sizes = map != null ? map.getOutputSizes(SurfaceTexture.class) : null;
-        } else {
-            sizes = map != null ? map.getOutputSizes(
-                    ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE) : null;
-        }
-
         mSupportedResolutions = sizes != null ? Arrays.asList(sizes.clone())
                 : Collections.emptyList();
 

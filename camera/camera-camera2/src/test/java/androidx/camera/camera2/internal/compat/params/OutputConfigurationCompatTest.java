@@ -69,6 +69,18 @@ public final class OutputConfigurationCompatTest {
                 OutputConfigurationCompat.SURFACE_GROUP_ID_NONE);
     }
 
+    @Config(minSdk = 24)  // surfaceGroupId supported since api level 24
+    @Test
+    public void canSetSurfaceGroupId() {
+        Surface surface = mock(Surface.class);
+        int surfaceGroupId = 1;
+        OutputConfigurationCompat outputConfigCompat =
+                new OutputConfigurationCompat(surfaceGroupId, surface);
+
+        assertThat(outputConfigCompat.getSurfaceGroupId()).isEqualTo(surfaceGroupId);
+        assertThat(outputConfigCompat.getSurface()).isSameInstanceAs(surface);
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void addSurfaceThrows_whenAddingMoreThanMax() {
         Surface surface = mock(Surface.class);

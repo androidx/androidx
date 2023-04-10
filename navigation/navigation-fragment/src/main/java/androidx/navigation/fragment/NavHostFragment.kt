@@ -16,6 +16,7 @@
 package androidx.navigation.fragment
 
 import android.content.Context
+import android.content.ContextWrapper
 import android.os.Bundle
 import android.util.AttributeSet
 import android.view.LayoutInflater
@@ -112,15 +113,19 @@ public open class NavHostFragment : Fragment(), NavHost {
 
     @CallSuper
     public override fun onCreate(savedInstanceState: Bundle?) {
-        val context = requireContext()
+        var context = requireContext()
         navHostController = NavHostController(context)
         navHostController!!.setLifecycleOwner(this)
-        if (context is OnBackPressedDispatcherOwner) {
-            navHostController!!.setOnBackPressedDispatcher(
-                (context as OnBackPressedDispatcherOwner).onBackPressedDispatcher
-            )
-            // Otherwise, caller must register a dispatcher on the controller explicitly
-            // by overriding onCreateNavHostController()
+        while (context is ContextWrapper) {
+            if (context is OnBackPressedDispatcherOwner) {
+                navHostController!!.setOnBackPressedDispatcher(
+                    (context as OnBackPressedDispatcherOwner).onBackPressedDispatcher
+                )
+                // Otherwise, caller must register a dispatcher on the controller explicitly
+                // by overriding onCreateNavHostController()
+                break
+            }
+            context = context.baseContext
         }
         // Set the default state - this will be updated whenever
         // onPrimaryNavigationFragmentChanged() is called

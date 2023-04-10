@@ -360,6 +360,7 @@ public class ViewDragHelper {
      * @param cb Callback to provide information and receive events
      * @return a new ViewDragHelper instance
      */
+    @NonNull
     public static ViewDragHelper create(@NonNull ViewGroup forParent, @NonNull Callback cb) {
         return new ViewDragHelper(forParent.getContext(), forParent, cb);
     }
@@ -373,6 +374,7 @@ public class ViewDragHelper {
      * @param cb Callback to provide information and receive events
      * @return a new ViewDragHelper instance
      */
+    @NonNull
     public static ViewDragHelper create(@NonNull ViewGroup forParent, float sensitivity,
             @NonNull Callback cb) {
         final ViewDragHelper helper = create(forParent, cb);

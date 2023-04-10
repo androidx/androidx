@@ -1,0 +1,4 @@
+LIBNAME {
+    local:
+        *;
+};

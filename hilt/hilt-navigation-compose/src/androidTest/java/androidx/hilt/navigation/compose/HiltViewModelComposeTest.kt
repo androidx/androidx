@@ -16,6 +16,7 @@
 
 package androidx.hilt.navigation.compose
 
+import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.compose.material.Button
 import androidx.compose.material.Text
@@ -34,6 +35,7 @@ import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Rule
@@ -134,6 +136,30 @@ class HiltViewModelComposeTest {
         assertThat(firstViewModel).isSameInstanceAs(secondViewModel)
     }
 
+    @Test
+    fun keyedViewModel() {
+        lateinit var firstViewModel: SimpleViewModel
+        lateinit var secondViewModel: SimpleViewModel
+        lateinit var thirdViewModel: SimpleViewModel
+        composeTestRule.setContent {
+            val navController = rememberNavController()
+            NavHost(navController, startDestination = "Main") {
+                composable("Main") {
+                    firstViewModel = hiltViewModel(key = "One")
+                    secondViewModel = hiltViewModel(key = "One")
+                    thirdViewModel = hiltViewModel(key = "Two")
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+
+        assertThat(firstViewModel).isNotNull()
+        assertThat(secondViewModel).isNotNull()
+        assertThat(thirdViewModel).isNotNull()
+        assertThat(firstViewModel).isSameInstanceAs(secondViewModel)
+        assertThat(firstViewModel).isNotSameInstanceAs(thirdViewModel)
+    }
+
     @Composable
     private fun NavigateButton(text: String, listener: () -> Unit = { }) {
         Button(onClick = listener) {
@@ -147,7 +173,10 @@ class HiltViewModelComposeTest {
     @HiltViewModel
     class SimpleViewModel @Inject constructor(
         val handle: SavedStateHandle,
-        val logger: MyLogger
+        val logger: MyLogger,
+        // TODO(kuanyingchou) Remove this after https://github.com/google/dagger/issues/3601 is
+        //  resolved.
+        @ApplicationContext val context: Context
     ) : ViewModel()
 
     class MyLogger @Inject constructor()

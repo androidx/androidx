@@ -24,7 +24,6 @@ import android.annotation.SuppressLint;
 import android.os.Looper;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -32,6 +31,7 @@ import androidx.car.app.Screen;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
+import androidx.car.app.annotations.KeepFields;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -41,6 +41,7 @@ import java.util.Objects;
  * Represents a grid item with an image and an optional title.
  */
 @CarProtocol
+@KeepFields
 public final class GridItem implements Item {
     /**
      * The type of images supported within grid items.
@@ -74,21 +75,15 @@ public final class GridItem implements Item {
      */
     public static final int IMAGE_TYPE_LARGE = (1 << 1);
 
-    @Keep
     private final boolean mIsLoading;
-    @Keep
     @Nullable
     private final CarText mTitle;
-    @Keep
     @Nullable
     private final CarText mText;
-    @Keep
     @Nullable
     private final CarIcon mImage;
-    @Keep
     @GridItemImageType
     private final int mImageType;
-    @Keep
     @Nullable
     private final OnClickDelegate mOnClickDelegate;
 
@@ -307,7 +302,7 @@ public final class GridItem implements Item {
          *
          * This text is truncated at the end to fit in a single line below the title
          *
-         * @throws NullPointerException if {@code text} is {@code null}
+         * @throws NullPointerException     if {@code text} is {@code null}
          * @throws IllegalArgumentException if {@code text} contains unsupported spans
          */
         @NonNull

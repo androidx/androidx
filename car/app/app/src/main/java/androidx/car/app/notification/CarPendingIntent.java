@@ -119,6 +119,7 @@ public final class CarPendingIntent {
      * @see CarContext#startCarApp(Intent)
      */
     @VisibleForTesting
+    @SuppressWarnings("deprecation")
     static void validateIntent(Context context, Intent intent) {
         String packageName = context.getPackageName();
         String action = intent.getAction();

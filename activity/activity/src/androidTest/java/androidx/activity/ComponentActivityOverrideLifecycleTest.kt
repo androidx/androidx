@@ -23,14 +23,20 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
+import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Assert.fail
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ComponentActivityOverrideLifecycleTest {
+
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
 
     @UiThreadTest
     @Test
@@ -45,7 +51,7 @@ class ComponentActivityOverrideLifecycleTest {
 
     @Test
     fun testOverrideLifecycle() {
-        with(ActivityScenario.launch(LazyOverrideLifecycleComponentActivity::class.java)) {
+       withUse(ActivityScenario.launch(LazyOverrideLifecycleComponentActivity::class.java)) {
             assertThat(withActivity { lifecycle.currentState })
                 .isEqualTo(Lifecycle.State.RESUMED)
         }

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+
+    <issue
+        id="BanInlineOptIn"
+        message="Inline functions cannot opt into experimental APIs."
+        errorLine1="inline fun ConstraintLayout("
+        errorLine2="           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/ConstraintLayout.kt"/>
+    </issue>
+
+    <issue
+        id="BanInlineOptIn"
+        message="Inline functions cannot opt into experimental APIs."
+        errorLine1="inline fun &lt;T> MotionCarouselScope.itemsWithProperties("
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/MotionCarousel.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(ExperimentalComposeUiApi::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/Motion.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(ExperimentalComposeUiApi::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/Motion.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(ExperimentalComposeApi::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/TransitionHandler.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableLambdaParameterNaming"
+        message="Composable lambda parameter should be named `content`"
+        errorLine1="fun ItemHolder(i: Int, slotPrefix: String, showSlot: Boolean, function: @Composable () -> Unit) {"
+        errorLine2="                                                              ~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/MotionCarousel.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    fun BoxScope.drawDebugBounds(forcedScaleFactor: Float) {"
+        errorLine2="                 ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/ConstraintLayout.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    fun createDesignElements() {"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/ConstraintLayout.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions with a return type should start with a lowercase letter"
+        errorLine1="fun MotionScene("
+        errorLine2="    ~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/MotionSceneScope.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions with a return type should start with a lowercase letter"
+        errorLine1="fun Transition("
+        errorLine2="    ~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/TransitionScope.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierInspectorInfo"
+        message="Expected name of the modifier: `&quot;name&quot; = &quot;carouselSwipeable&quot;`"
+        errorLine1="        name = &quot;swipeable&quot;"
+        errorLine2="                ~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/carousel/CarouselSwipeable.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierInspectorInfo"
+        message="Modifier missing inspectorInfo"
+        errorLine1="    ) = this.then(ConstrainAsModifier(ref, constrainBlock))"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/ConstraintLayout.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierInspectorInfo"
+        message="Expected name of the modifier: `&quot;name&quot; = &quot;layoutId&quot;`"
+        errorLine1="                    name = &quot;constraintLayoutId&quot;"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/ConstraintLayoutTag.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierInspectorInfo"
+        message="Modifier missing inspectorInfo"
+        errorLine1="    ): Modifier = composed {"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/Motion.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierInspectorInfo"
+        message="These lambda arguments are missing in the InspectorInfo: `motionProgress`"
+        errorLine1="    inspectorInfo = debugInspectorInfo {"
+        errorLine2="                                       ^">
+        <location
+            file="src/androidMain/kotlin/androidx/constraintlayout/compose/MotionDragHandler.kt"/>
+    </issue>
+
+</issues>

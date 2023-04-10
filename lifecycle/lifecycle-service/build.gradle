@@ -15,15 +15,16 @@
  */
 
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
+    api(libs.kotlinStdlib)
     api(project(":lifecycle:lifecycle-runtime"))
 
     androidTestImplementation(libs.testExtJunit)
@@ -35,7 +36,10 @@ dependencies {
 androidx {
     name = "Android Lifecycle Service"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2018"
     description = "Android Lifecycle Service"
+}
+
+android {
+    namespace "androidx.lifecycle.service"
 }

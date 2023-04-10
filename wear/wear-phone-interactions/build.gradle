@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -31,13 +29,12 @@ dependencies {
     api(libs.kotlinStdlib)
 
     // Needed for Assert.assertThrows
-    testImplementation("junit:junit:4.13")
+    testImplementation(libs.junit)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.testRules)
     testImplementation(libs.robolectric)
-    testImplementation(libs.mockitoCore)
-    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.truth)
 }
 
@@ -52,12 +49,12 @@ android {
     buildFeatures {
         aidl = true
     }
+    namespace "androidx.wear.phone.interactions"
 }
 
 androidx {
     name = "Android Wear Phone Interactions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WEAR
     mavenVersion = LibraryVersions.WEAR_PHONE_INTERACTIONS
     inceptionYear = "2021"
     description = "Android Wear Phone Interactions"

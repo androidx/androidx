@@ -200,7 +200,7 @@ public abstract class TwoStatePreference extends Preference {
     }
 
     @Override
-    protected void onSetInitialValue(Object defaultValue) {
+    protected void onSetInitialValue(@Nullable Object defaultValue) {
         if (defaultValue == null) {
             defaultValue = false;
         }
@@ -222,7 +222,7 @@ public abstract class TwoStatePreference extends Preference {
      * @hide
      */
     @RestrictTo(LIBRARY)
-    protected void syncSummaryView(View view) {
+    protected void syncSummaryView(@NonNull View view) {
         if (!(view instanceof TextView)) {
             return;
         }

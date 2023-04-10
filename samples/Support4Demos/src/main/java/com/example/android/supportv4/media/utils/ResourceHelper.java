@@ -33,7 +33,7 @@ public class ResourceHelper {
      * @param defaultColor default to use.
      * @return color value
      */
-    @SuppressWarnings("CatchAndPrintStackTrace")
+    @SuppressWarnings({"CatchAndPrintStackTrace", "deprecation"})
     public static int getThemeColor(Context context, int attribute, int defaultColor) {
         int themeColor = 0;
         String packageName = context.getPackageName();

@@ -19,6 +19,7 @@ package androidx.compose.foundation.text
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -93,11 +94,12 @@ import androidx.compose.ui.text.input.VisualTransformation
  * [KeyboardOptions.imeAction].
  * @param singleLine when set to true, this text field becomes a single horizontally scrolling
  * text field instead of wrapping onto multiple lines. The keyboard will be informed to not show
- * the return key as the [ImeAction]. Note that [maxLines] parameter will be ignored as the
- * maxLines attribute will be automatically set to 1.
- * @param maxLines the maximum height in terms of maximum number of visible lines. Should be
- * equal or greater than 1. Note that this parameter will be ignored and instead maxLines will be
- * set to 1 if [singleLine] is set to true.
+ * the return key as the [ImeAction]. [maxLines] and [minLines] are ignored as both are
+ * automatically set to 1.
+ * @param maxLines the maximum height in terms of maximum number of visible lines. It is required
+ * that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
+ * @param minLines the minimum height in terms of minimum number of visible lines. It is required
+ * that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
  * @param visualTransformation The visual transformation filter for changing the visual
  * representation of the input. By default no visual transformation is applied.
  * @param onTextLayout Callback that is executed when a new text layout is calculated. A
@@ -128,7 +130,8 @@ fun BasicTextField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     singleLine: Boolean = false,
-    maxLines: Int = Int.MAX_VALUE,
+    maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
+    minLines: Int = 1,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
@@ -136,15 +139,35 @@ fun BasicTextField(
     decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit =
         @Composable { innerTextField -> innerTextField() }
 ) {
+    // Holds the latest internal TextFieldValue state. We need to keep it to have the correct value
+    // of the composition.
     var textFieldValueState by remember { mutableStateOf(TextFieldValue(text = value)) }
+    // Holds the latest TextFieldValue that BasicTextField was recomposed with. We couldn't simply
+    // pass `TextFieldValue(text = value)` to the CoreTextField because we need to preserve the
+    // composition.
     val textFieldValue = textFieldValueState.copy(text = value)
+
+    SideEffect {
+        if (textFieldValue.selection != textFieldValueState.selection ||
+            textFieldValue.composition != textFieldValueState.composition) {
+            textFieldValueState = textFieldValue
+        }
+    }
+    // Last String value that either text field was recomposed with or updated in the onValueChange
+    // callback. We keep track of it to prevent calling onValueChange(String) for same String when
+    // CoreTextField's onValueChange is called multiple times without recomposition in between.
+    var lastTextValue by remember(value) { mutableStateOf(value) }
 
     CoreTextField(
         value = textFieldValue,
-        onValueChange = {
-            textFieldValueState = it
-            if (value != it.text) {
-                onValueChange(it.text)
+        onValueChange = { newTextFieldValueState ->
+            textFieldValueState = newTextFieldValueState
+
+            val stringChangedSinceLastInvocation = lastTextValue != newTextFieldValueState.text
+            lastTextValue = newTextFieldValueState.text
+
+            if (stringChangedSinceLastInvocation) {
+                onValueChange(newTextFieldValueState.text)
             }
         },
         modifier = modifier,
@@ -156,6 +179,7 @@ fun BasicTextField(
         imeOptions = keyboardOptions.toImeOptions(singleLine = singleLine),
         keyboardActions = keyboardActions,
         softWrap = !singleLine,
+        minLines = if (singleLine) 1 else minLines,
         maxLines = if (singleLine) 1 else maxLines,
         decorationBox = decorationBox,
         enabled = enabled,
@@ -216,11 +240,12 @@ fun BasicTextField(
  * [KeyboardOptions.imeAction].
  * @param singleLine when set to true, this text field becomes a single horizontally scrolling
  * text field instead of wrapping onto multiple lines. The keyboard will be informed to not show
- * the return key as the [ImeAction]. Note that [maxLines] parameter will be ignored as the
- * maxLines attribute will be automatically set to 1.
- * @param maxLines the maximum height in terms of maximum number of visible lines. Should be
- * equal or greater than 1. Note that this parameter will be ignored and instead maxLines will be
- * set to 1 if [singleLine] is set to true.
+ * the return key as the [ImeAction]. [maxLines] and [minLines] are ignored as both are
+ * automatically set to 1.
+ * @param maxLines the maximum height in terms of maximum number of visible lines. It is required
+ * that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
+ * @param minLines the minimum height in terms of minimum number of visible lines. It is required
+ * that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
  * @param visualTransformation The visual transformation filter for changing the visual
  * representation of the input. By default no visual transformation is applied.
  * @param onTextLayout Callback that is executed when a new text layout is calculated. A
@@ -251,7 +276,8 @@ fun BasicTextField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     singleLine: Boolean = false,
-    maxLines: Int = Int.MAX_VALUE,
+    maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
+    minLines: Int = 1,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
@@ -275,9 +301,90 @@ fun BasicTextField(
         imeOptions = keyboardOptions.toImeOptions(singleLine = singleLine),
         keyboardActions = keyboardActions,
         softWrap = !singleLine,
+        minLines = if (singleLine) 1 else minLines,
         maxLines = if (singleLine) 1 else maxLines,
         decorationBox = decorationBox,
         enabled = enabled,
         readOnly = readOnly
+    )
+}
+
+@Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+@Composable
+fun BasicTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
+    textStyle: TextStyle = TextStyle.Default,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    singleLine: Boolean = false,
+    maxLines: Int = Int.MAX_VALUE,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    onTextLayout: (TextLayoutResult) -> Unit = {},
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    cursorBrush: Brush = SolidColor(Color.Black),
+    decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit =
+        @Composable { innerTextField -> innerTextField() }
+) {
+    BasicTextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier,
+        enabled = enabled,
+        readOnly = readOnly,
+        textStyle = textStyle,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
+        singleLine = singleLine,
+        minLines = 1,
+        maxLines = maxLines,
+        visualTransformation = visualTransformation,
+        onTextLayout = onTextLayout,
+        interactionSource = interactionSource,
+        cursorBrush = cursorBrush,
+        decorationBox = decorationBox
+    )
+}
+
+@Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+@Composable
+fun BasicTextField(
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
+    textStyle: TextStyle = TextStyle.Default,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    singleLine: Boolean = false,
+    maxLines: Int = Int.MAX_VALUE,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    onTextLayout: (TextLayoutResult) -> Unit = {},
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    cursorBrush: Brush = SolidColor(Color.Black),
+    decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit =
+        @Composable { innerTextField -> innerTextField() }
+) {
+    BasicTextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier,
+        enabled = enabled,
+        readOnly = readOnly,
+        textStyle = textStyle,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
+        singleLine = singleLine,
+        minLines = 1,
+        maxLines = maxLines,
+        visualTransformation = visualTransformation,
+        onTextLayout = onTextLayout,
+        interactionSource = interactionSource,
+        cursorBrush = cursorBrush,
+        decorationBox = decorationBox
     )
 }

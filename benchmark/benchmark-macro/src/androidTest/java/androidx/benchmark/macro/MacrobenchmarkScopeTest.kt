@@ -19,30 +19,35 @@ package androidx.benchmark.macro
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Shell
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.RequiresDevice
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import org.junit.Assert.fail
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.test.assertFailsWith
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class MacrobenchmarkScopeTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
-    private val device = UiDevice.getInstance(instrumentation)
 
     @Before
+    @Suppress("DEPRECATION")
     fun setup() {
         // validate target is installed with clear error message,
         // since error messages from e.g. startActivityAndWait may be less clear
@@ -66,14 +71,21 @@ class MacrobenchmarkScopeTest {
         assertFalse(Shell.isPackageAlive(Packages.TARGET))
     }
 
-    @SdkSuppress(minSdkVersion = 24) // TODO: define behavior for older platforms
+    @RequiresDevice // b/264938965
+    @SdkSuppress(minSdkVersion = 24)
     @Test
     fun compile_speedProfile() {
         val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
         val iterations = 1
         var executions = 0
-        val compilation = CompilationMode.SpeedProfile(warmupIterations = iterations)
-        compilation.compile(Packages.TARGET) {
+        val compilation = CompilationMode.Partial(
+            baselineProfileMode = BaselineProfileMode.Disable,
+            warmupIterations = iterations
+        )
+        compilation.resetAndCompile(
+            Packages.TARGET,
+            killProcessBlock = scope::killProcess
+        ) {
             executions += 1
             scope.pressHome()
             scope.startActivityAndWait()
@@ -81,11 +93,15 @@ class MacrobenchmarkScopeTest {
         assertEquals(iterations, executions)
     }
 
-    @SdkSuppress(minSdkVersion = 24) // TODO: define behavior for older platforms
+    @RequiresDevice // b/264938965
     @Test
-    fun compile_speed() {
-        val compilation = CompilationMode.Speed
-        compilation.compile(Packages.TARGET) {
+    fun compile_full() {
+        val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
+        val compilation = CompilationMode.Full()
+        compilation.resetAndCompile(
+            Packages.TARGET,
+            killProcessBlock = scope::killProcess
+        ) {
             fail("Should never be called for $compilation")
         }
     }
@@ -99,10 +115,11 @@ class MacrobenchmarkScopeTest {
         intent.setPackage(Packages.TARGET)
         intent.action = "${Packages.TARGET}.NOT_EXPORTED_ACTIVITY"
 
-        if (Shell.isSessionRooted() || Build.VERSION.SDK_INT <= 23) {
+        // Workaround b/227512788 - isSessionRooted isn't reliable below API 24 on rooted devices
+        assumeTrue(Build.VERSION.SDK_INT > 23 || !DeviceInfo.isRooted)
+
+        if (Shell.isSessionRooted()) {
             // while device and adb session are both rooted, doesn't throw
-            // TODO: verify whether pre-23 behavior requires userdebug device, only tested with
-            //  emulator so far
             scope.startActivityAndWait(intent)
             val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
             assertTrue(device.hasObject(By.text("NOT EXPORTED ACTIVITY")))
@@ -119,6 +136,9 @@ class MacrobenchmarkScopeTest {
         }
     }
 
+    // Note: Test flakes locally on API 23, appears to be UI automation issue. In API 23 CI running
+    // MRA58K crashes, but haven't repro'd locally, so just skip on API 23.
+    @SdkSuppress(minSdkVersion = 24)
     @Test
     fun startActivityAndWait_invalidActivity() {
         val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
@@ -159,5 +179,107 @@ class MacrobenchmarkScopeTest {
             )
         )
         assertTrue(device.hasObject(By.text("UpdatedText")))
+    }
+
+    private fun validateLaunchAndFrameStats(pressHome: Boolean) {
+        val scope = MacrobenchmarkScope(
+            Packages.TEST, // self-instrumenting macrobench, so don't kill the process!
+            launchWithClearTask = false
+        )
+        // check that initial launch (home -> activity) is detected
+        scope.pressHome()
+        scope.startActivityAndWait(ConfigurableActivity.createIntent("InitialText"))
+        val initialFrameStats = scope.getFrameStats()
+            .sortedBy { it.lastFrameNs }
+            .first()
+        assertTrue(initialFrameStats.uniqueName.contains("ConfigurableActivity"))
+
+        if (pressHome) {
+            scope.pressHome()
+        }
+
+        // check that hot startup is detected
+        scope.startActivityAndWait(ConfigurableActivity.createIntent("InitialText"))
+        val secondFrameStats = scope.getFrameStats()
+            .sortedBy { it.lastFrameNs }
+            .first()
+        assertTrue(secondFrameStats.uniqueName.contains("ConfigurableActivity"))
+
+        if (pressHome) {
+            assertTrue(secondFrameStats.lastFrameNs!! > initialFrameStats.lastFrameNs!!)
+        }
+    }
+
+    /** Tests getFrameStats after launch which resumes app */
+    @Test
+    fun getFrameStats_home() = validateLaunchAndFrameStats(pressHome = true)
+
+    /** Tests getFrameStats after launch which does nothing, as Activity already visible */
+    @Test
+    fun getFrameStats_noop() = validateLaunchAndFrameStats(pressHome = false)
+
+    private fun validateShaderCache(empty: Boolean, packageName: String) {
+        val path = MacrobenchmarkScope.getShaderCachePath(packageName)
+        println("validating shader path $path")
+        val fileCount = Shell.executeScriptCaptureStdout("find $path -type f | wc -l")
+            .trim()
+            .toInt()
+        if (empty) {
+            assertEquals(0, fileCount)
+        } else {
+            assertNotEquals(0, fileCount)
+        }
+    }
+
+    private fun validateDropShaderCacheWithRoot(
+        dropShaderCacheBlock: MacrobenchmarkScope.() -> Unit
+    ) {
+        // need root to inspect target app's code cache dir, and emulators
+        // don't seem to store shaders
+        assumeTrue(Shell.isSessionRooted() && !DeviceInfo.isEmulator)
+
+        val scope = MacrobenchmarkScope(
+            Packages.TARGET,
+            launchWithClearTask = false
+        )
+        // reset to empty to begin with
+        scope.killProcess()
+        scope.dropShaderCacheBlock()
+        validateShaderCache(empty = true, scope.packageName)
+
+        // start an activity, expecting shader compilation
+        scope.pressHome()
+        // NOTE: if platform fixes default activity to not compile shaders,
+        //   may need to update this test UI to trigger shader creation
+        scope.startActivityAndWait()
+        Thread.sleep(5000) // sleep to await flushing cache to disk
+        scope.killProcess()
+        validateShaderCache(empty = false, scope.packageName)
+
+        // verify deletion
+        scope.killProcess()
+        scope.dropShaderCacheBlock()
+        validateShaderCache(empty = true, scope.packageName)
+    }
+
+    @Test
+    fun dropShaderCacheBroadcast() = validateDropShaderCacheWithRoot {
+        // since this test runs on root and the public api falls back to
+        // a root impl, test the broadcast directly
+        assertNull(ProfileInstallBroadcast.dropShaderCache(packageName))
+    }
+
+    @Test
+    fun dropShaderCachePublicApi() = validateDropShaderCacheWithRoot {
+        dropShaderCache()
+    }
+
+    @Test
+    fun dropKernelPageCache() {
+        val scope = MacrobenchmarkScope(
+            Packages.TARGET,
+            launchWithClearTask = false
+        )
+        scope.dropKernelPageCache() // shouldn't crash
     }
 }

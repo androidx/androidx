@@ -68,6 +68,7 @@ public final class ImageViewStyle extends ViewStyle {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @SuppressWarnings("deprecation")
     public void applyStyleOnImageViewIfValid(@NonNull ImageView imageView) {
         if (!isValid()) {
             return;

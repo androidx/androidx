@@ -17,11 +17,17 @@
 package androidx.webkit;
 
 import android.webkit.WebSettings;
+import android.webkit.WebView;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
+import androidx.webkit.internal.ApiFeature;
+import androidx.webkit.internal.ApiHelperForM;
+import androidx.webkit.internal.ApiHelperForN;
+import androidx.webkit.internal.ApiHelperForO;
+import androidx.webkit.internal.ApiHelperForQ;
 import androidx.webkit.internal.WebSettingsAdapter;
 import androidx.webkit.internal.WebViewFeatureInternal;
 import androidx.webkit.internal.WebViewGlueCommunicator;
@@ -32,6 +38,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Set;
 
 /**
  * Compatibility version of {@link android.webkit.WebSettings}
@@ -60,9 +67,9 @@ public class WebSettingsCompat {
     @RequiresFeature(name = WebViewFeature.OFF_SCREEN_PRERASTER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setOffscreenPreRaster(@NonNull WebSettings settings, boolean enabled) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.OFF_SCREEN_PRERASTER;
+        ApiFeature.M feature = WebViewFeatureInternal.OFF_SCREEN_PRERASTER;
         if (feature.isSupportedByFramework()) {
-            settings.setOffscreenPreRaster(enabled);
+            ApiHelperForM.setOffscreenPreRaster(settings, enabled);
         } else if (feature.isSupportedByWebView()) {
             getAdapter(settings).setOffscreenPreRaster(enabled);
         } else {
@@ -85,9 +92,9 @@ public class WebSettingsCompat {
     @RequiresFeature(name = WebViewFeature.OFF_SCREEN_PRERASTER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static boolean getOffscreenPreRaster(@NonNull WebSettings settings) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.OFF_SCREEN_PRERASTER;
+        ApiFeature.M feature = WebViewFeatureInternal.OFF_SCREEN_PRERASTER;
         if (feature.isSupportedByFramework()) {
-            return settings.getOffscreenPreRaster();
+            return ApiHelperForM.getOffscreenPreRaster(settings);
         } else if (feature.isSupportedByWebView()) {
             return getAdapter(settings).getOffscreenPreRaster();
         } else {
@@ -117,9 +124,9 @@ public class WebSettingsCompat {
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_ENABLE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setSafeBrowsingEnabled(@NonNull WebSettings settings, boolean enabled) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.SAFE_BROWSING_ENABLE;
+        ApiFeature.O feature = WebViewFeatureInternal.SAFE_BROWSING_ENABLE;
         if (feature.isSupportedByFramework()) {
-            settings.setSafeBrowsingEnabled(enabled);
+            ApiHelperForO.setSafeBrowsingEnabled(settings, enabled);
         } else if (feature.isSupportedByWebView()) {
             getAdapter(settings).setSafeBrowsingEnabled(enabled);
         } else {
@@ -141,9 +148,9 @@ public class WebSettingsCompat {
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_ENABLE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static boolean getSafeBrowsingEnabled(@NonNull WebSettings settings) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.SAFE_BROWSING_ENABLE;
+        ApiFeature.O feature = WebViewFeatureInternal.SAFE_BROWSING_ENABLE;
         if (feature.isSupportedByFramework()) {
-            return settings.getSafeBrowsingEnabled();
+            return ApiHelperForO.getSafeBrowsingEnabled(settings);
         } else if (feature.isSupportedByWebView()) {
             return getAdapter(settings).getSafeBrowsingEnabled();
         } else {
@@ -179,10 +186,9 @@ public class WebSettingsCompat {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setDisabledActionModeMenuItems(@NonNull WebSettings settings,
             @MenuItemFlags int menuItems) {
-        WebViewFeatureInternal feature =
-                WebViewFeatureInternal.DISABLED_ACTION_MODE_MENU_ITEMS;
+        ApiFeature.N feature = WebViewFeatureInternal.DISABLED_ACTION_MODE_MENU_ITEMS;
         if (feature.isSupportedByFramework()) {
-            settings.setDisabledActionModeMenuItems(menuItems);
+            ApiHelperForN.setDisabledActionModeMenuItems(settings, menuItems);
         } else if (feature.isSupportedByWebView()) {
             getAdapter(settings).setDisabledActionModeMenuItems(menuItems);
         } else {
@@ -204,10 +210,9 @@ public class WebSettingsCompat {
     @RequiresFeature(name = WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @MenuItemFlags int getDisabledActionModeMenuItems(@NonNull WebSettings settings) {
-        WebViewFeatureInternal feature =
-                WebViewFeatureInternal.DISABLED_ACTION_MODE_MENU_ITEMS;
+        ApiFeature.N feature = WebViewFeatureInternal.DISABLED_ACTION_MODE_MENU_ITEMS;
         if (feature.isSupportedByFramework()) {
-            return settings.getDisabledActionModeMenuItems();
+            return ApiHelperForN.getDisabledActionModeMenuItems(settings);
         } else if (feature.isSupportedByWebView()) {
             return getAdapter(settings).getDisabledActionModeMenuItems();
         } else {
@@ -236,7 +241,7 @@ public class WebSettingsCompat {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setWillSuppressErrorPage(@NonNull WebSettings settings,
             boolean suppressed) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.SUPPRESS_ERROR_PAGE;
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.SUPPRESS_ERROR_PAGE;
         if (feature.isSupportedByWebView()) {
             getAdapter(settings).setWillSuppressErrorPage(suppressed);
         } else {
@@ -263,7 +268,7 @@ public class WebSettingsCompat {
     @RequiresFeature(name = WebViewFeature.SUPPRESS_ERROR_PAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static boolean willSuppressErrorPage(@NonNull WebSettings settings) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.SUPPRESS_ERROR_PAGE;
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.SUPPRESS_ERROR_PAGE;
         if (feature.isSupportedByWebView()) {
             return getAdapter(settings).willSuppressErrorPage();
         } else {
@@ -277,7 +282,9 @@ public class WebSettingsCompat {
      * automatically darkened.
      *
      * @see #setForceDark
+     * @deprecated refer to {@link #setForceDark}
      */
+    @Deprecated
     public static final int FORCE_DARK_OFF = WebSettings.FORCE_DARK_OFF;
 
     /**
@@ -296,7 +303,9 @@ public class WebSettingsCompat {
      * Force Dark documentation</a> for more information.
      *
      * @see #setForceDark
+     * @deprecated refer to {@link #setForceDark}
      */
+    @Deprecated
     public static final int FORCE_DARK_AUTO = WebSettings.FORCE_DARK_AUTO;
 
     /**
@@ -304,7 +313,9 @@ public class WebSettingsCompat {
      * as to emulate a dark theme.
      *
      * @see #setForceDark
+     * @deprecated refer to {@link #setForceDark}
      */
+    @Deprecated
     public static final int FORCE_DARK_ON = WebSettings.FORCE_DARK_ON;
 
     /**
@@ -334,14 +345,22 @@ public class WebSettingsCompat {
      *
      * @param forceDarkMode the force dark mode to set.
      * @see #getForceDark
+     * @deprecated The "force dark" model previously implemented by WebView was complex
+     * and didn't interoperate well with current Web standards for
+     * {@code prefers-color-scheme} and {@code color-scheme}. In apps with
+     * {@code targetSdkVersion} &ge; {@link android.os.Build.VERSION_CODES#TIRAMISU}
+     * this API is a no-op and WebView will always use the dark style defined by web content
+     * authors if the app's theme is dark. To customize the behavior, refer to
+     * {@link #setAlgorithmicDarkeningAllowed}.
      */
+    @Deprecated
     @RequiresFeature(name = WebViewFeature.FORCE_DARK,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setForceDark(@NonNull WebSettings settings,
             @ForceDark int forceDarkMode) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.FORCE_DARK;
+        ApiFeature.Q feature = WebViewFeatureInternal.FORCE_DARK;
         if (feature.isSupportedByFramework()) {
-            settings.setForceDark(forceDarkMode);
+            ApiHelperForQ.setForceDark(settings, forceDarkMode);
         } else if (feature.isSupportedByWebView()) {
             getAdapter(settings).setForceDark(forceDarkMode);
         } else {
@@ -362,15 +381,136 @@ public class WebSettingsCompat {
      *
      * @return the currently set force dark mode.
      * @see #setForceDark
+     * @deprecated refer to {@link #setForceDark}
      */
+    @Deprecated
     @RequiresFeature(name = WebViewFeature.FORCE_DARK,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @ForceDark int getForceDark(@NonNull WebSettings settings) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.FORCE_DARK;
+        ApiFeature.Q feature = WebViewFeatureInternal.FORCE_DARK;
         if (feature.isSupportedByFramework()) {
-            return settings.getForceDark();
+            return ApiHelperForQ.getForceDark(settings);
         } else if (feature.isSupportedByWebView()) {
             return getAdapter(settings).getForceDark();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Control whether algorithmic darkening is allowed.
+     *
+     * <p class="note">
+     * <b>Note:</b> This API and the behaviour described only apply to apps with
+     * {@code targetSdkVersion} &ge; {@link android.os.Build.VERSION_CODES#TIRAMISU}.
+     *
+     * <p>
+     * WebView always sets the media query {@code prefers-color-scheme} according to the app's
+     * theme attribute {@link android.R.styleable#Theme_isLightTheme isLightTheme}, i.e.
+     * {@code prefers-color-scheme} is {@code light} if isLightTheme is true or not specified,
+     * otherwise it is {@code dark}. This means that the web content's light or dark style will
+     * be applied automatically to match the app's theme if the content supports it.
+     *
+     * <p>
+     * Algorithmic darkening is disallowed by default.
+     * <p>
+     * If the app's theme is dark and it allows algorithmic darkening, WebView will attempt to
+     * darken web content using an algorithm, if the content doesn't define its own dark styles
+     * and doesn't explicitly disable darkening.
+     *
+     * <p>
+     * If Android is applying Force Dark to WebView then WebView will ignore the value of
+     * this setting and behave as if it were set to true.
+     *
+     * <p>
+     * The deprecated {@link #setForceDark} and related API are no-ops in apps with
+     * {@code targetSdkVersion} &ge; {@link android.os.Build.VERSION_CODES#TIRAMISU},
+     * but they still apply to apps with
+     * {@code targetSdkVersion} &lt; {@link android.os.Build.VERSION_CODES#TIRAMISU}.
+     *
+     * <p>
+     * The below table summarizes how APIs work with different apps.
+     *
+     * <table border="2" width="85%" align="center" cellpadding="5">
+     *     <thead>
+     *         <tr>
+     *             <th>App</th>
+     *             <th>Web content which uses prefers-color-scheme</th>
+     *             <th>Web content which does not use prefers-color-scheme</th>
+     *         </tr>
+     *     </thead>
+     *     <tbody>
+     *     <tr>
+     *         <td>App with {@code isLightTheme} True or not set</td>
+     *         <td>Renders with the light theme defined by the content author.</td>
+     *         <td>Renders with the default styling defined by the content author.</td>
+     *     </tr>
+     *     <tr>
+     *         <td>App with Android forceDark in effect</td>
+     *         <td>Renders with the dark theme defined by the content author.</td>
+     *         <td>Renders with the styling modified to dark colors by an algorithm
+     *             if allowed by the content author.</td>
+     *     </tr>
+     *     <tr>
+     *         <td>App with {@code isLightTheme} False,
+     *            {@code targetSdkVersion} &lt; {@link android.os.Build.VERSION_CODES#TIRAMISU},
+     *             and has {@code FORCE_DARK_AUTO}</td>
+     *         <td>Renders with the dark theme defined by the content author.</td>
+     *         <td>Renders with the default styling defined by the content author.</td>
+     *     </tr>
+     *     <tr>
+     *         <td>App with {@code isLightTheme} False,
+     *            {@code targetSdkVersion} &ge; {@link android.os.Build.VERSION_CODES#TIRAMISU},
+     *             and {@code setAlgorithmicDarkening(false)}</td>
+     *         <td>Renders with the dark theme defined by the content author.</td>
+     *         <td>Renders with the default styling defined by the content author.</td>
+     *     </tr>
+     *     <tr>
+     *         <td>App with {@code isLightTheme} False,
+     *            {@code targetSdkVersion} &ge; {@link android.os.Build.VERSION_CODES#TIRAMISU},
+     *             and {@code setAlgorithmicDarkening(true)}</td>
+     *         <td>Renders with the dark theme defined by the content author.</td>
+     *         <td>Renders with the styling modified to dark colors by an algorithm if allowed
+     *             by the content author.</td>
+     *     </tr>
+     *     </tbody>
+     * </table>
+     * </p>
+     *
+     * <p>
+     * To check if {@code  WebViewFeature.ALGORITHMIC_DARKENING} is supported,
+     * {@link androidx.webkit.WebViewFeature#isFeatureSupported} should be called after WebView
+     * is created.
+     *
+     * <p>
+     * @param allow allow algorithmic darkening or not.
+     *
+     */
+    @RequiresFeature(name = WebViewFeature.ALGORITHMIC_DARKENING,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static void setAlgorithmicDarkeningAllowed(@NonNull WebSettings settings,
+            boolean allow) {
+        ApiFeature.T feature = WebViewFeatureInternal.ALGORITHMIC_DARKENING;
+        if (feature.isSupportedByWebView()) {
+            getAdapter(settings).setAlgorithmicDarkeningAllowed(allow);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Get if algorithmic darkening is allowed or not for this WebView.
+     * The default is false.
+     *
+     * @return if the algorithmic darkening is allowed or not.
+     * @see #setAlgorithmicDarkeningAllowed
+     */
+    @RequiresFeature(name = WebViewFeature.ALGORITHMIC_DARKENING,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static boolean isAlgorithmicDarkeningAllowed(@NonNull WebSettings settings) {
+        ApiFeature.T feature = WebViewFeatureInternal.ALGORITHMIC_DARKENING;
+        if (feature.isSupportedByWebView()) {
+            return getAdapter(settings).isAlgorithmicDarkeningAllowed();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
@@ -385,7 +525,9 @@ public class WebSettingsCompat {
      * for more information.
      *
      * @see #setForceDarkStrategy
+     * @deprecated refer to {@link #setForceDark}
      */
+    @Deprecated
     public static final int DARK_STRATEGY_USER_AGENT_DARKENING_ONLY =
             WebSettingsBoundaryInterface.ForceDarkBehavior.FORCE_DARK_ONLY;
 
@@ -398,7 +540,9 @@ public class WebSettingsCompat {
      * for more information.
      *
      * @see #setForceDarkStrategy
+     * @deprecated refer to {@link #setForceDark}
      */
+    @Deprecated
     public static final int DARK_STRATEGY_WEB_THEME_DARKENING_ONLY =
             WebSettingsBoundaryInterface.ForceDarkBehavior.MEDIA_QUERY_ONLY;
 
@@ -414,7 +558,9 @@ public class WebSettingsCompat {
      * for more information.
      *
      * @see #setForceDarkStrategy
+     * @deprecated refer to {@link #setForceDark}
      */
+    @Deprecated
     public static final int DARK_STRATEGY_PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING =
             WebSettingsBoundaryInterface.ForceDarkBehavior.PREFER_MEDIA_QUERY_OVER_FORCE_DARK;
 
@@ -445,12 +591,14 @@ public class WebSettingsCompat {
      *
      * @param forceDarkBehavior the force dark strategy to set.
      * @see #getForceDarkStrategy
+     * @deprecated refer to {@link #setForceDark}
      */
     @RequiresFeature(name = WebViewFeature.FORCE_DARK_STRATEGY,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @Deprecated
     public static void setForceDarkStrategy(@NonNull WebSettings settings,
             @ForceDarkStrategy int forceDarkBehavior) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.FORCE_DARK_STRATEGY;
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.FORCE_DARK_STRATEGY;
         if (feature.isSupportedByWebView()) {
             getAdapter(settings).setForceDarkStrategy(forceDarkBehavior);
         } else {
@@ -472,13 +620,137 @@ public class WebSettingsCompat {
      *
      * @return the currently set force dark strategy.
      * @see #setForceDarkStrategy
+     * @deprecated refer to {@link #setForceDark}
      */
     @RequiresFeature(name = WebViewFeature.FORCE_DARK_STRATEGY,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @Deprecated
     public static @ForceDarkStrategy int getForceDarkStrategy(@NonNull WebSettings settings) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.FORCE_DARK_STRATEGY;
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.FORCE_DARK_STRATEGY;
         if (feature.isSupportedByWebView()) {
             return getAdapter(settings).getForceDark();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Sets whether EnterpriseAuthenticationAppLinkPolicy if set by admin is allowed to have any
+     * effect on WebView.
+     * <p>
+     * EnterpriseAuthenticationAppLinkPolicy in WebView allows admins to specify authentication
+     * urls. When WebView is redirected to authentication url, and an app on the device has
+     * registered as the default handler for the url, that app is launched.
+     * <p>
+     * EnterpriseAuthenticationAppLinkPolicy is enabled by default.
+     *
+     * <p> See <a href="https://source.chromium.org/chromium/chromium/src/+/main:components/policy/resources/policy_templates.json;l=32321?q=EnterpriseAuthenticationAppLinkPolicy%20file:policy_templates.json">
+     * this</a> for more information on EnterpriseAuthenticationAppLinkPolicy.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY}.
+     *
+     * @param enabled Whether EnterpriseAuthenticationAppLinkPolicy should be enabled.
+     */
+    @RequiresFeature(name = WebViewFeature.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static void setEnterpriseAuthenticationAppLinkPolicyEnabled(
+            @NonNull WebSettings settings,
+            boolean enabled) {
+        ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY;
+        if (feature.isSupportedByWebView()) {
+            getAdapter(settings).setEnterpriseAuthenticationAppLinkPolicyEnabled(enabled);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Gets whether EnterpriseAuthenticationAppLinkPolicy is allowed to have any effect on WebView.
+     *
+     * <p> See <a href="https://source.chromium.org/chromium/chromium/src/+/main:components/policy/resources/policy_templates.json;l=32321?q=EnterpriseAuthenticationAppLinkPolicy%20file:policy_templates.json">
+     * this</a> for more information on EnterpriseAuthenticationAppLinkPolicy.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY}.
+     *
+     * @return {@code true} if EnterpriseAuthenticationAppLinkPolicy is enabled and {@code false}
+     * otherwise.
+     */
+    @RequiresFeature(name = WebViewFeature.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static boolean getEnterpriseAuthenticationAppLinkPolicyEnabled(
+            @NonNull WebSettings settings) {
+        ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY;
+        if (feature.isSupportedByWebView()) {
+            return getAdapter(settings).getEnterpriseAuthenticationAppLinkPolicyEnabled();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Get the currently configured allow-list of origins, which is guaranteed to receive the
+     * {@code X-Requested-With} HTTP header on requests from the {@link WebView} owning the passed
+     * {@link WebSettings}.
+     * <p>
+     * Any origin <em>not</em> on this allow-list may not receive the header, depending on the
+     * current installed WebView provider.
+     * <p>
+     * The format of the strings in the allow-list follows the origin rules of
+     * {@link WebViewCompat#addWebMessageListener(WebView, String, Set, WebViewCompat.WebMessageListener)}.
+     *
+     * @param settings Settings retrieved from {@link WebView#getSettings()}.
+     * @return The configured set of allow-listed origins.
+     * @see #setRequestedWithHeaderOriginAllowList(WebSettings, Set)
+     */
+    @RequiresFeature(name = WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @NonNull
+    public static Set<String> getRequestedWithHeaderOriginAllowList(@NonNull WebSettings settings) {
+        final ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.REQUESTED_WITH_HEADER_ALLOW_LIST;
+        if (feature.isSupportedByWebView()) {
+            return getAdapter(settings).getRequestedWithHeaderOriginAllowList();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Set an allow-list of origins to receive the {@code X-Requested-With} HTTP header from the
+     * WebView owning the passed {@link WebSettings}.
+     * <p>
+     * Historically, this header was sent on all requests from WebView, containing the
+     * app package name of the embedding app. Depending on the version of installed WebView, this
+     * may no longer be the case, as the header was deprecated in late 2022, and its use
+     * discontinued.
+     * <p>
+     * Apps can use this method to restore the legacy behavior for servers that still rely on
+     * the deprecated header, but it should not be used to identify the webview to first-party
+     * servers under the control of the app developer.
+     * <p>
+     * The format of the strings in the allow-list follows the origin rules of
+     * {@link WebViewCompat#addWebMessageListener(WebView, String, Set, WebViewCompat.WebMessageListener)}.
+     *
+     * @param settings Settings retrieved from {@link WebView#getSettings()}.
+     * @param allowList Set of origins to allow-list.
+     * @throws IllegalArgumentException if the allow-list contains a malformed origin.
+     */
+    @RequiresFeature(name = WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static void setRequestedWithHeaderOriginAllowList(@NonNull WebSettings settings,
+            @NonNull Set<String> allowList) {
+        final ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.REQUESTED_WITH_HEADER_ALLOW_LIST;
+        if (feature.isSupportedByWebView()) {
+            getAdapter(settings).setRequestedWithHeaderOriginAllowList(allowList);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }

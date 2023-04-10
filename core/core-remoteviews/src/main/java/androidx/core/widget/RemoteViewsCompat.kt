@@ -64,6 +64,7 @@ public object RemoteViewsCompat {
      * @param items       The items to display in the [android.widget.AdapterView].
      */
     @JvmStatic
+    @Suppress("DEPRECATION")
     public fun setRemoteAdapter(
         context: Context,
         remoteViews: RemoteViews,

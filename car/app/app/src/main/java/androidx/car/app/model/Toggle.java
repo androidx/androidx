@@ -21,13 +21,22 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.Looper;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.annotations.KeepFields;
 
-/** Represents a toggle that can have either a checked or unchecked state. */
+import java.util.Objects;
+
+/**
+ * Represents a toggle that can have either a checked or unchecked state.
+ *
+ * <p>Toggles are allowed in Map and Pane templates from API >= 6.
+ * Old hosts may render bad UI if the toggles are added to hosts that don't support them.
+ */
 @CarProtocol
+@KeepFields
 public final class Toggle {
     /** A listener for handling checked state change events. */
     public interface OnCheckedChangeListener {
@@ -35,17 +44,24 @@ public final class Toggle {
         void onCheckedChange(boolean isChecked);
     }
 
-    @Keep
     @Nullable
     private final OnCheckedChangeDelegate mOnCheckedChangeDelegate;
-    @Keep
     private final boolean mIsChecked;
+    private final boolean mIsEnabled;
 
     /**
      * Returns {@code true} if the toggle is checked.
      */
     public boolean isChecked() {
         return mIsChecked;
+    }
+
+    /**
+     * Returns {@code true} if the toggle is enabled.
+     */
+    @RequiresCarApi(5)
+    public boolean isEnabled() {
+        return mIsEnabled;
     }
 
     /**
@@ -60,12 +76,12 @@ public final class Toggle {
     @Override
     @NonNull
     public String toString() {
-        return "[ isChecked: " + mIsChecked + "]";
+        return "[ isChecked: " + mIsChecked + ", isEnabled: " + mIsEnabled + "]";
     }
 
     @Override
     public int hashCode() {
-        return Boolean.valueOf(mIsChecked).hashCode();
+        return Objects.hash(mIsChecked, mIsEnabled);
     }
 
     @Override
@@ -79,11 +95,12 @@ public final class Toggle {
         Toggle otherToggle = (Toggle) other;
 
         // Don't compare listener.
-        return mIsChecked == otherToggle.mIsChecked;
+        return mIsChecked == otherToggle.mIsChecked && mIsEnabled == otherToggle.mIsEnabled;
     }
 
     Toggle(Builder builder) {
         mIsChecked = builder.mIsChecked;
+        mIsEnabled = builder.mIsEnabled;
         mOnCheckedChangeDelegate = builder.mOnCheckedChangeDelegate;
     }
 
@@ -91,12 +108,14 @@ public final class Toggle {
     private Toggle() {
         mOnCheckedChangeDelegate = null;
         mIsChecked = false;
+        mIsEnabled = true;
     }
 
     /** A builder of {@link Toggle}. */
     public static final class Builder {
         OnCheckedChangeDelegate mOnCheckedChangeDelegate;
         boolean mIsChecked;
+        boolean mIsEnabled = true;
 
         /**
          * Sets the initial checked state for {@link Toggle}.
@@ -106,6 +125,18 @@ public final class Toggle {
         @NonNull
         public Builder setChecked(boolean checked) {
             mIsChecked = checked;
+            return this;
+        }
+
+        /**
+         * Sets the initial enabled state for {@link Toggle}.
+         *
+         * <p>The default state of a {@link Toggle} is enabled.
+         */
+        @NonNull
+        @RequiresCarApi(5)
+        public Builder setEnabled(boolean enabled) {
+            mIsEnabled = enabled;
             return this;
         }
 

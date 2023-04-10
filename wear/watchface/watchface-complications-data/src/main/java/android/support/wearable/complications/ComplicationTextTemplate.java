@@ -35,6 +35,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
+import java.io.IOException;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,7 +80,7 @@ public final class ComplicationTextTemplate implements Parcelable, TimeDependent
     /** The time-dependent parts of the complication text. */
     private final ComplicationText[] mComplicationTexts;
 
-    private ComplicationTextTemplate(
+    ComplicationTextTemplate(
             @Nullable CharSequence surroundingText,
             @NonNull ComplicationText[] complicationTexts) {
         mSurroundingText = surroundingText;
@@ -87,6 +92,7 @@ public final class ComplicationTextTemplate implements Parcelable, TimeDependent
         this(in.readBundle(ComplicationTextTemplate.class.getClassLoader()));
     }
 
+    @SuppressWarnings("deprecation")
     private ComplicationTextTemplate(@NonNull Bundle rootBundle) {
         mSurroundingText = rootBundle.getCharSequence(KEY_SURROUNDING_STRING);
 
@@ -98,6 +104,40 @@ public final class ComplicationTextTemplate implements Parcelable, TimeDependent
         }
 
         checkFields();
+    }
+
+    private static class SerializedForm implements Serializable {
+        @Nullable CharSequence mSurroundingText;
+        @NonNull ComplicationText[] mComplicationTexts;
+
+        SerializedForm(
+                @Nullable CharSequence surroundingText,
+                @NonNull ComplicationText[] complicationTexts) {
+            mSurroundingText = surroundingText;
+            mComplicationTexts = complicationTexts;
+        }
+
+        private void writeObject(ObjectOutputStream oos) throws IOException {
+            CharSequenceSerializableHelper.writeToStream(mSurroundingText, oos);
+            oos.writeObject(mComplicationTexts);
+        }
+
+        private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+            mSurroundingText = CharSequenceSerializableHelper.readFromStream(ois);
+            mComplicationTexts = (ComplicationText[]) ois.readObject();
+        }
+
+        Object readResolve() {
+            return new ComplicationTextTemplate(mSurroundingText, mComplicationTexts);
+        }
+    }
+
+    Object writeReplace() {
+        return new SerializedForm(mSurroundingText, mComplicationTexts);
+    }
+
+    private void readObject(ObjectInputStream stream) throws InvalidObjectException {
+        throw new InvalidObjectException("Use SerializedForm");
     }
 
     private void checkFields() {

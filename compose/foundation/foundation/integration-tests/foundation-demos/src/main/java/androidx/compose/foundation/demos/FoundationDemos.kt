@@ -16,10 +16,17 @@
 
 package androidx.compose.foundation.demos
 
+import androidx.compose.foundation.demos.pager.PagerDemos
+import androidx.compose.foundation.demos.relocation.BringIntoViewAndroidInteropDemo
 import androidx.compose.foundation.demos.relocation.BringIntoViewDemo
+import androidx.compose.foundation.demos.relocation.BringIntoViewResponderDemo
+import androidx.compose.foundation.demos.relocation.BringNestedIntoViewDemo
 import androidx.compose.foundation.demos.relocation.BringRectangleIntoViewDemo
 import androidx.compose.foundation.demos.relocation.RequestRectangleOnScreenDemo
+import androidx.compose.foundation.demos.snapping.SnappingDemos
+import androidx.compose.foundation.samples.CanScrollSample
 import androidx.compose.foundation.samples.ControlledScrollableRowSample
+import androidx.compose.foundation.samples.CustomTouchSlopSample
 import androidx.compose.foundation.samples.InteractionSourceFlowSample
 import androidx.compose.foundation.samples.SimpleInteractionSourceSample
 import androidx.compose.foundation.samples.VerticalScrollExample
@@ -29,22 +36,39 @@ import androidx.compose.integration.demos.common.DemoCategory
 private val RelocationDemos = listOf(
     ComposableDemo("Bring Into View") { BringIntoViewDemo() },
     ComposableDemo("Bring Rectangle Into View") { BringRectangleIntoViewDemo() },
-    ComposableDemo("Request Rectangle On Screen") { RequestRectangleOnScreenDemo() }
+    ComposableDemo("Custom responder") { BringIntoViewResponderDemo() },
+    ComposableDemo("Request Rectangle On Screen") { RequestRectangleOnScreenDemo() },
+    ComposableDemo("Android view interop") { BringIntoViewAndroidInteropDemo() },
+    ComposableDemo("Nested scrollables") { BringNestedIntoViewDemo() },
+)
+
+private val FocusDemos = listOf(
+    ComposableDemo("Focus Group") { FocusGroupDemo() },
 )
 
 val FoundationDemos = DemoCategory(
     "Foundation",
     listOf(
         ComposableDemo("Draggable, Scrollable, Zoomable, Focusable") { HighLevelGesturesDemo() },
+        ComposableDemo("Overscroll") { OverscrollDemo() },
+        ComposableDemo("Can scroll forward / backward") { CanScrollSample() },
         ComposableDemo("Vertical scroll") { VerticalScrollExample() },
         ComposableDemo("Controlled Scrollable Row") { ControlledScrollableRowSample() },
         ComposableDemo("Draw Modifiers") { DrawModifiersDemo() },
         DemoCategory("Lazy lists", LazyListDemos),
+        DemoCategory("Snapping", SnappingDemos),
+        DemoCategory("Pagers", PagerDemos),
         ComposableDemo("Simple InteractionSource") { SimpleInteractionSourceSample() },
         ComposableDemo("Flow InteractionSource") { InteractionSourceFlowSample() },
         DemoCategory("Suspending Gesture Detectors", CoroutineGestureDemos),
         ComposableDemo("NestedScroll") { NestedScrollDemo() },
         DemoCategory("Relocation Demos", RelocationDemos),
+        DemoCategory("Focus Demos", FocusDemos),
         DemoCategory("Magnifier Demos", MagnifierDemos),
+        ComposableDemo("Custom Touch Slop Demo - Composition Locals") { CustomTouchSlopSample() },
+        ComposableDemo("Focused bounds") { FocusedBoundsDemo() },
+        ComposableDemo("Scrollable with focused child") { ScrollableFocusedChildDemo() },
+        ComposableDemo("Window insets") { WindowInsetsDemo() },
+        ComposableDemo("Marquee") { BasicMarqueeDemo() },
     )
 )

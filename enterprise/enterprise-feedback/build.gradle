@@ -1,4 +1,3 @@
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -21,12 +20,12 @@ android {
     }
 
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.enterprise.feedback"
 }
 
 androidx {
     name = "Enterprise Feedback"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.ENTERPRISE
     inceptionYear = "2019"
     description = "A channel to enable communication between an app and an EMM (enterprise " +
             "mobility management)"
