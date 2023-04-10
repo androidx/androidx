@@ -17,7 +17,7 @@
 package androidx.appactions.interaction.capabilities.core
 
 /**
- * [SessionContext] contains data passed to {@code BaseSession#onCreate}.
+ * [SessionContext] contains data passed to [BaseExecutionSession.onCreate].
  */
 class SessionContext internal constructor() {
     override fun toString() =

@@ -16,7 +16,7 @@
 package androidx.appactions.interaction.capabilities.core.impl.task
 
 import androidx.annotation.GuardedBy
-import androidx.appactions.interaction.capabilities.core.BaseSession
+import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.ConfirmationOutput
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.SessionContext
@@ -59,7 +59,7 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
     private val actionSpec: ActionSpec<*, ArgumentsT, OutputT>,
     private val appAction: AppActionsContext.AppAction,
     private val taskHandler: TaskHandler<ConfirmationT>,
-    private val externalSession: BaseSession<ArgumentsT, OutputT>,
+    private val externalSession: BaseExecutionSession<ArgumentsT, OutputT>,
 ) {
     /**
      * A [reader-writer lock](https://en.wikipedia.org/wiki/Readers%E2%80%93writer_lock) to protect
@@ -216,7 +216,7 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
                     )
                 processFulfillmentValues(fulfillmentValuesMap)
             }
-            val fulfillmentResponse = maybeConfirmOrFinish()
+            val fulfillmentResponse = maybeConfirmOrExecute()
             LoggerInternal.log(CapabilityLogger.LogLevel.INFO, LOG_TAG, "Manual input success")
             if (mTouchEventCallback != null) {
                 mTouchEventCallback!!.onSuccess(
@@ -256,7 +256,7 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
      * Otherwise, the future contains a FulfillmentResponse containing BIC or BIO data.
      */
     @Throws(StructConversionException::class, MissingRequiredArgException::class)
-    private suspend fun maybeConfirmOrFinish(): FulfillmentResponse {
+    private suspend fun maybeConfirmOrExecute(): FulfillmentResponse {
         val finalArguments = getCurrentAcceptedArguments()
         if (
             anyParamsOfStatus(CurrentValue.Status.REJECTED) ||
@@ -289,7 +289,7 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
         clearMissingArgs(argumentsWrapper)
         return try {
             processFulfillmentValues(argumentsWrapper.paramValues)
-            val fulfillmentResponse = maybeConfirmOrFinish()
+            val fulfillmentResponse = maybeConfirmOrExecute()
             LoggerInternal.log(CapabilityLogger.LogLevel.INFO, LOG_TAG, "Task sync success")
             FulfillmentResult(fulfillmentResponse)
         } catch (t: Throwable) {
@@ -449,7 +449,7 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
     private suspend fun getFulfillmentResponseForExecution(
         finalArguments: Map<String, List<ParamValue>>,
     ): FulfillmentResponse {
-        val result = externalSession.onFinish(actionSpec.buildArguments(finalArguments))
+        val result = externalSession.onExecute(actionSpec.buildArguments(finalArguments))
         status = CapabilitySession.Status.COMPLETED
         val fulfillmentResponse =
             FulfillmentResponse.newBuilder().setStartDictation(result.shouldStartDictation)

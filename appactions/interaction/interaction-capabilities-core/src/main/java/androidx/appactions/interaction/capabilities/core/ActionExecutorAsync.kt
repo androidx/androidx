@@ -32,18 +32,18 @@ fun interface ActionExecutorAsync<ArgumentsT, OutputT> {
      * @param arguments the argument for this action.
      * @return A ListenableFuture containing the ExecutionResult
      */
-    fun execute(arguments: ArgumentsT): ListenableFuture<ExecutionResult<OutputT>>
+    fun onExecute(arguments: ArgumentsT): ListenableFuture<ExecutionResult<OutputT>>
 
     companion object {
         fun <ArgumentsT, OutputT> ActionExecutor<ArgumentsT, OutputT>.toActionExecutorAsync():
             ActionExecutorAsync<ArgumentsT, OutputT> =
             object : ActionExecutorAsync<ArgumentsT, OutputT> {
                 override val uiHandle = this@toActionExecutorAsync
-                override fun execute(
+                override fun onExecute(
                     arguments: ArgumentsT,
                 ): ListenableFuture<ExecutionResult<OutputT>> =
                     convertToListenableFuture("ActionExecutor#execute") {
-                        this@toActionExecutorAsync.execute(arguments)
+                        this@toActionExecutorAsync.onExecute(arguments)
                     }
             }
     }

@@ -17,8 +17,8 @@
 package androidx.appactions.interaction.capabilities.productivity
 
 import androidx.appactions.interaction.capabilities.core.Capability
-import androidx.appactions.interaction.capabilities.core.BaseSession
-import androidx.appactions.interaction.capabilities.core.SessionFactory
+import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
+import androidx.appactions.interaction.capabilities.core.ExecutionSessionFactory
 import androidx.appactions.interaction.capabilities.core.ValueListener
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
@@ -71,7 +71,7 @@ private val ACTION_SPEC =
         )
         .build()
 
-private val SESSION_BRIDGE = SessionBridge<StartTimer.Session, StartTimer.Confirmation> {
+private val SESSION_BRIDGE = SessionBridge<StartTimer.ExecutionSession, StartTimer.Confirmation> {
         session ->
     val taskHandlerBuilder = TaskHandler.Builder<StartTimer.Confirmation>()
     session.nameListener?.let {
@@ -96,14 +96,14 @@ class StartTimer private constructor() {
 
     class CapabilityBuilder :
         Capability.Builder<
-            CapabilityBuilder, Properties, Arguments, Output, Confirmation, Session,
+            CapabilityBuilder, Properties, Arguments, Output, Confirmation, ExecutionSession,
             >(ACTION_SPEC) {
 
-        override val sessionBridge: SessionBridge<Session, Confirmation> = SESSION_BRIDGE
+        override val sessionBridge: SessionBridge<ExecutionSession, Confirmation> = SESSION_BRIDGE
 
-        public override fun setSessionFactory(
-            sessionFactory: SessionFactory<Session>,
-        ): CapabilityBuilder = super.setSessionFactory(sessionFactory)
+        public override fun setExecutionSessionFactory(
+            sessionFactory: ExecutionSessionFactory<ExecutionSession>,
+        ): CapabilityBuilder = super.setExecutionSessionFactory(sessionFactory)
 
         override fun build(): Capability {
             super.setProperty(Properties.Builder().build())
@@ -111,7 +111,7 @@ class StartTimer private constructor() {
         }
     }
 
-    interface Session : BaseSession<Arguments, Output> {
+    interface ExecutionSession : BaseExecutionSession<Arguments, Output> {
         val nameListener: ValueListener<String>?
             get() = null
         val durationListener: ValueListener<Duration>?

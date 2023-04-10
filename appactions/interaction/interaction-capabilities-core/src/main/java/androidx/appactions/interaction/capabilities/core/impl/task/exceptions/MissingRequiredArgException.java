@@ -19,7 +19,7 @@ package androidx.appactions.interaction.capabilities.core.impl.task.exceptions;
 import androidx.annotation.NonNull;
 
 /**
- * During the onFinishListener handling, all required params should be present in the Map sent to
+ * During the onExecuteListener handling, all required params should be present in the Map sent to
  * the listener. If they are not for some reason, this is an internal error.
  */
 public final class MissingRequiredArgException extends Exception {

@@ -16,10 +16,10 @@
 
 package androidx.appactions.interaction.capabilities.core.impl.task
 
-import androidx.appactions.interaction.capabilities.core.BaseSession
+import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.HostProperties
-import androidx.appactions.interaction.capabilities.core.SessionFactory
+import androidx.appactions.interaction.capabilities.core.ExecutionSessionFactory
 import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
@@ -29,25 +29,26 @@ import java.util.function.Supplier
 /**
  * @param id a unique id for this capability, can be null
  * @param actionSpec the ActionSpec for this capability
- * @param sessionFactory the SessionFactory provided by the library user
- * @param sessionBridge a SessionBridge object that converts SessionT into TaskHandler instance
+ * @param sessionFactory the ExecutionSessionFactory provided by the library user
+ * @param sessionBridge a SessionBridge object that converts ExecutionSessionT into TaskHandler
+ *           instance
  * @param sessionUpdaterSupplier a Supplier of SessionUpdaterT instances
  */
 internal class TaskCapabilityImpl<
     PropertyT,
     ArgumentsT,
     OutputT,
-    SessionT : BaseSession<ArgumentsT, OutputT>,
+    ExecutionSessionT : BaseExecutionSession<ArgumentsT, OutputT>,
     ConfirmationT,
-    SessionUpdaterT,
->
+    SessionUpdaterT
+    >
 constructor(
     id: String,
     private val actionSpec: ActionSpec<PropertyT, ArgumentsT, OutputT>,
     private val property: PropertyT,
-    private val sessionFactory: SessionFactory<SessionT>,
-    private val sessionBridge: SessionBridge<SessionT, ConfirmationT>,
-    private val sessionUpdaterSupplier: Supplier<SessionUpdaterT>,
+    private val sessionFactory: ExecutionSessionFactory<ExecutionSessionT>,
+    private val sessionBridge: SessionBridge<ExecutionSessionT, ConfirmationT>,
+    private val sessionUpdaterSupplier: Supplier<SessionUpdaterT>
 ) : Capability(id) {
 
     override val appAction: AppAction =
@@ -60,18 +61,18 @@ constructor(
 
     override fun createSession(
         sessionId: String,
-        hostProperties: HostProperties,
+        hostProperties: HostProperties
     ): CapabilitySession {
         val externalSession =
             sessionFactory.createSession(
-                hostProperties,
+                hostProperties
             )
         return TaskCapabilitySession(
             sessionId,
             actionSpec,
             appAction,
             sessionBridge.createTaskHandler(externalSession),
-            externalSession,
+            externalSession
         )
     }
 }

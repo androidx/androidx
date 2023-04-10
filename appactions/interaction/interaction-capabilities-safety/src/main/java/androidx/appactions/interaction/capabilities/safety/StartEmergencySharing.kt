@@ -17,7 +17,7 @@
 package androidx.appactions.interaction.capabilities.safety
 
 import androidx.appactions.interaction.capabilities.core.Capability
-import androidx.appactions.interaction.capabilities.core.BaseSession
+import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
@@ -55,7 +55,7 @@ class StartEmergencySharing private constructor() {
     // TODO(b/267805819): Update to include the SessionFactory once Session API is ready.
     class CapabilityBuilder :
         Capability.Builder<
-            CapabilityBuilder, Properties, Arguments, Output, Confirmation, Session,
+            CapabilityBuilder, Properties, Arguments, Output, Confirmation, ExecutionSession,
             >(ACTION_SPEC) {
         override fun build(): Capability {
             super.setProperty(Properties())
@@ -167,5 +167,5 @@ class StartEmergencySharing private constructor() {
 
     class Confirmation internal constructor()
 
-    sealed interface Session : BaseSession<Arguments, Output>
+    sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 }

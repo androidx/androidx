@@ -29,5 +29,5 @@ fun interface ActionExecutor<ArgumentsT, OutputT> {
      * @param arguments the argument for this action.
      * @return the ExecutionResult
      */
-    suspend fun execute(arguments: ArgumentsT): ExecutionResult<OutputT>
+    suspend fun onExecute(arguments: ArgumentsT): ExecutionResult<OutputT>
 }
