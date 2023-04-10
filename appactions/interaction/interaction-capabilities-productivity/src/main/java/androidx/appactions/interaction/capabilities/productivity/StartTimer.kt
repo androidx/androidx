@@ -24,7 +24,7 @@ import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
-import androidx.appactions.interaction.capabilities.core.properties.ParamProperty
+import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.impl.task.SessionBridge
 import androidx.appactions.interaction.capabilities.core.impl.task.TaskHandler
 import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
@@ -40,7 +40,7 @@ private const val CAPABILITY_NAME = "actions.intent.START_TIMER"
 
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setDescriptor(StartTimer.Property::class.java)
+        .setDescriptor(StartTimer.Properties::class.java)
         .setArguments(StartTimer.Arguments::class.java, StartTimer.Arguments::Builder)
         .setOutput(StartTimer.Output::class.java)
         .bindOptionalParameter(
@@ -96,7 +96,7 @@ class StartTimer private constructor() {
 
     class CapabilityBuilder :
         Capability.Builder<
-            CapabilityBuilder, Property, Arguments, Output, Confirmation, Session,
+            CapabilityBuilder, Properties, Arguments, Output, Confirmation, Session,
             >(ACTION_SPEC) {
 
         override val sessionBridge: SessionBridge<Session, Confirmation> = SESSION_BRIDGE
@@ -106,7 +106,7 @@ class StartTimer private constructor() {
         ): CapabilityBuilder = super.setSessionFactory(sessionFactory)
 
         override fun build(): Capability {
-            super.setProperty(Property.Builder().build())
+            super.setProperty(Properties.Builder().build())
             return super.build()
         }
     }
@@ -119,11 +119,11 @@ class StartTimer private constructor() {
     }
 
     // TODO(b/268369632): Remove Property from public capability APIs.
-    class Property
+    class Properties
     internal constructor(
-        val identifier: ParamProperty<StringValue>?,
-        val name: ParamProperty<StringValue>?,
-        val duration: ParamProperty<Duration>?,
+        val identifier: Property<StringValue>?,
+        val name: Property<StringValue>?,
+        val duration: Property<Duration>?,
     ) {
         override fun toString(): String {
             return "Property(identifier=$identifier,name=$name,duration=$duration}"
@@ -133,7 +133,7 @@ class StartTimer private constructor() {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
 
-            other as Property
+            other as Properties
 
             if (identifier != other.identifier) return false
             if (name != other.name) return false
@@ -150,21 +150,21 @@ class StartTimer private constructor() {
         }
 
         class Builder {
-            private var identifier: ParamProperty<StringValue>? = null
-            private var name: ParamProperty<StringValue>? = null
-            private var duration: ParamProperty<Duration>? = null
+            private var identifier: Property<StringValue>? = null
+            private var name: Property<StringValue>? = null
+            private var duration: Property<Duration>? = null
 
-            fun setIdentifier(identifier: ParamProperty<StringValue>): Builder = apply {
+            fun setIdentifier(identifier: Property<StringValue>): Builder = apply {
                 this.identifier = identifier
             }
 
-            fun setName(name: ParamProperty<StringValue>): Builder = apply { this.name = name }
+            fun setName(name: Property<StringValue>): Builder = apply { this.name = name }
 
-            fun setDuration(duration: ParamProperty<Duration>): Builder = apply {
+            fun setDuration(duration: Property<Duration>): Builder = apply {
                 this.duration = duration
             }
 
-            fun build(): Property = Property(identifier, name, duration)
+            fun build(): Properties = Properties(identifier, name, duration)
         }
     }
 

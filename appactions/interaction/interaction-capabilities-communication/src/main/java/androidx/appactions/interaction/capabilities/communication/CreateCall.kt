@@ -26,7 +26,7 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.CALL_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.PARTICIPANT_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.ParamProperty
+import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.values.Call
 import androidx.appactions.interaction.capabilities.core.values.Call.CallFormat
 import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
@@ -41,7 +41,7 @@ private const val CAPABILITY_NAME: String = "actions.intent.CREATE_CALL"
 
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setDescriptor(CreateCall.Property::class.java)
+        .setDescriptor(CreateCall.Properties::class.java)
         .setArguments(CreateCall.Arguments::class.java, CreateCall.Arguments::Builder)
         .setOutput(CreateCall.Output::class.java)
         .bindOptionalParameter(
@@ -74,21 +74,21 @@ private val ACTION_SPEC =
 class CreateCall private constructor() {
     class CapabilityBuilder :
         Capability.Builder<
-            CapabilityBuilder, Property, Arguments, Output, Confirmation, Session
+            CapabilityBuilder, Properties, Arguments, Output, Confirmation, Session
             >(ACTION_SPEC) {
         override fun build(): Capability {
-            super.setProperty(Property.Builder().build())
+            super.setProperty(Properties.Builder().build())
             // TODO(b/268369632): No-op remove empty property builder after Property is removed.
-            super.setProperty(Property.Builder().build())
+            super.setProperty(Properties.Builder().build())
             return super.build()
         }
     }
 
     // TODO(b/268369632): Remove Property from public capability APIs.
-    class Property
+    class Properties
     internal constructor(
-        val callFormat: ParamProperty<CallFormat>?,
-        val participant: ParamProperty<Participant>?
+        val callFormat: Property<CallFormat>?,
+        val participant: Property<Participant>?
     ) {
         override fun toString(): String {
             return "Property(callFormat=$callFormat, participant=$participant)"
@@ -98,7 +98,7 @@ class CreateCall private constructor() {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
 
-            other as Property
+            other as Properties
 
             if (callFormat != other.callFormat) return false
             if (participant != other.participant) return false
@@ -113,15 +113,15 @@ class CreateCall private constructor() {
         }
 
         class Builder {
-            private var callFormat: ParamProperty<CallFormat>? = null
+            private var callFormat: Property<CallFormat>? = null
 
-            private var participant: ParamProperty<Participant>? = null
+            private var participant: Property<Participant>? = null
 
-            fun setCallFormat(callFormat: ParamProperty<CallFormat>): Builder = apply {
+            fun setCallFormat(callFormat: Property<CallFormat>): Builder = apply {
                 this.callFormat = callFormat
             }
 
-            fun build(): Property = Property(callFormat, participant)
+            fun build(): Properties = Properties(callFormat, participant)
         }
     }
 

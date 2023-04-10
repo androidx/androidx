@@ -24,7 +24,7 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.EntityC
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.SlotTypeConverter;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ParamBinding.ArgumentSetter;
-import androidx.appactions.interaction.capabilities.core.properties.ParamProperty;
+import androidx.appactions.interaction.capabilities.core.properties.Property;
 import androidx.appactions.interaction.proto.AppActionsContext.IntentParameter;
 import androidx.appactions.interaction.proto.ParamValue;
 
@@ -115,13 +115,13 @@ public final class ActionSpecBuilder<
     }
 
     /**
-     * Binds the parameter name, getter, and setter for a {@link ParamProperty}.
+     * Binds the parameter name, getter, and setter for a {@link Property}.
      *
      * <p>This parameter is required for any capability built from the generated {@link ActionSpec}.
      *
      * @param paramName the name of this action' parameter.
-     * @param propertyGetter a getter of the ParamProperty from the property, which must be able to
-     *     fetch a non-null {@code ParamProperty} from {@code PropertyT}.
+     * @param propertyGetter a getter of the Property from the property, which must be able to
+     *     fetch a non-null {@code Property} from {@code PropertyT}.
      * @param paramConsumer a setter to set the string value in the argument builder.
      * @param paramValueConverter converter FROM assistant ParamValue proto
      * @param entityConverter converter TO assistant Entity proto
@@ -132,7 +132,7 @@ public final class ActionSpecBuilder<
             ActionSpecBuilder<PropertyT, ArgumentsT, ArgumentsBuilderT, OutputT> bindParameter(
                     @NonNull String paramName,
                     @NonNull
-                            Function<? super PropertyT, ParamProperty<PossibleValueT>>
+                            Function<? super PropertyT, Property<PossibleValueT>>
                                     propertyGetter,
                     @NonNull BiConsumer<? super ArgumentsBuilderT, T> paramConsumer,
                     @NonNull ParamValueConverter<T> paramValueConverter,
@@ -146,15 +146,15 @@ public final class ActionSpecBuilder<
     }
 
     /**
-     * Binds the parameter name, getter, and setter for a {@link ParamProperty}.
+     * Binds the parameter name, getter, and setter for a {@link Property}.
      *
      * <p>This parameter is optional for any capability built from the generated {@link ActionSpec}.
      * If the Property Optional is not set, this parameter will not exist in the parameter
      * definition of the capability.
      *
      * @param paramName the name of this action' parameter.
-     * @param optionalPropertyGetter an optional getter of the ParamProperty from the property,
-     *     which may be able to fetch a non-null {@code ParamProperty} from {@code PropertyT},
+     * @param optionalPropertyGetter an optional getter of the Property from the property,
+     *     which may be able to fetch a non-null {@code Property} from {@code PropertyT},
      *     or get {@link Optional#empty}.
      * @param paramConsumer a setter to set the string value in the argument builder.
      * @param paramValueConverter converter FROM assistant ParamValue proto
@@ -169,7 +169,7 @@ public final class ActionSpecBuilder<
                             @NonNull
                                     Function<
                                                     ? super PropertyT,
-                                                    Optional<ParamProperty<PossibleValueT>>>
+                                                    Optional<Property<PossibleValueT>>>
                                             optionalPropertyGetter,
                             @NonNull BiConsumer<? super ArgumentsBuilderT, T> paramConsumer,
                             @NonNull ParamValueConverter<T> paramValueConverter,
@@ -206,7 +206,7 @@ public final class ActionSpecBuilder<
                             @NonNull
                                     Function<
                                                     ? super PropertyT,
-                                                    Optional<ParamProperty<PossibleValueT>>>
+                                                    Optional<Property<PossibleValueT>>>
                                             optionalPropertyGetter,
                             @NonNull BiConsumer<? super ArgumentsBuilderT, List<T>> paramConsumer,
                             @NonNull ParamValueConverter<T> paramValueConverter,
@@ -284,11 +284,11 @@ public final class ActionSpecBuilder<
                 mOutputBindings);
     }
 
-    /** Create IntentParameter proto from a ParamProperty. */
+    /** Create IntentParameter proto from a Property. */
     @NonNull
     private static <T> IntentParameter buildIntentParameter(
             @NonNull String paramName,
-            @NonNull ParamProperty<T> property,
+            @NonNull Property<T> property,
             @NonNull EntityConverter<T> entityConverter) {
         IntentParameter.Builder builder = IntentParameter.newBuilder()
                 .setName(paramName)

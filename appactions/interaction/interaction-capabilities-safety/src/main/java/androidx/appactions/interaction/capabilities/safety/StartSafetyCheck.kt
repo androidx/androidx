@@ -23,7 +23,7 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.ParamVa
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.SAFETY_CHECK_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.ParamProperty
+import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
 import androidx.appactions.interaction.capabilities.core.values.SafetyCheck
 import androidx.appactions.interaction.capabilities.core.values.SuccessStatus
@@ -44,7 +44,7 @@ private const val CAPABILITY_NAME = "actions.intent.START_SAFETY_CHECK"
 
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setDescriptor(StartSafetyCheck.Property::class.java)
+        .setDescriptor(StartSafetyCheck.Properties::class.java)
         .setArguments(StartSafetyCheck.Arguments::class.java, StartSafetyCheck.Arguments::Builder)
         .setOutput(StartSafetyCheck.Output::class.java)
         .bindOptionalParameter(
@@ -78,19 +78,19 @@ class StartSafetyCheck private constructor() {
     // TODO(b/267805819): Update to include the SessionFactory once Session API is ready.
     class CapabilityBuilder :
         Capability.Builder<
-            CapabilityBuilder, Property, Arguments, Output, Confirmation, Session
+            CapabilityBuilder, Properties, Arguments, Output, Confirmation, Session
             >(ACTION_SPEC) {
         override fun build(): Capability {
             // TODO(b/268369632): No-op remove empty property builder after Property od removed
-            super.setProperty(Property.Builder().build())
+            super.setProperty(Properties.Builder().build())
             return super.build()
         }
     }
 
     // TODO(b/268369632): Remove Property from public capability APIs.
-    class Property internal constructor(
-        val duration: ParamProperty<Duration>?,
-        val checkInTime: ParamProperty<ZonedDateTime>?
+    class Properties internal constructor(
+        val duration: Property<Duration>?,
+        val checkInTime: Property<ZonedDateTime>?
     ) {
         override fun toString(): String {
             return "Property(duration=$duration, checkInTime=$checkInTime)"
@@ -100,7 +100,7 @@ class StartSafetyCheck private constructor() {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
 
-            other as Property
+            other as Properties
 
             if (duration != other.duration) return false
             if (checkInTime != other.checkInTime) return false
@@ -115,17 +115,17 @@ class StartSafetyCheck private constructor() {
         }
 
         class Builder {
-            private var duration: ParamProperty<Duration>? = null
+            private var duration: Property<Duration>? = null
 
-            private var checkInTime: ParamProperty<ZonedDateTime>? = null
+            private var checkInTime: Property<ZonedDateTime>? = null
 
-            fun setDuration(duration: ParamProperty<Duration>): Builder =
+            fun setDuration(duration: Property<Duration>): Builder =
                 apply { this.duration = duration }
 
-            fun setCheckInTime(checkInTime: ParamProperty<ZonedDateTime>): Builder =
+            fun setCheckInTime(checkInTime: Property<ZonedDateTime>): Builder =
                 apply { this.checkInTime = checkInTime }
 
-            fun build(): Property = Property(duration, checkInTime)
+            fun build(): Properties = Properties(duration, checkInTime)
         }
     }
 

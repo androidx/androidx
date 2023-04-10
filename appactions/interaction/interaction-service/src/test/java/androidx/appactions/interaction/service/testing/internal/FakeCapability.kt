@@ -24,14 +24,14 @@ import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
-import androidx.appactions.interaction.capabilities.core.properties.ParamProperty
+import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.impl.task.SessionBridge
 import androidx.appactions.interaction.capabilities.core.impl.task.TaskHandler
 import java.util.Optional
 
 private const val CAPABILITY_NAME = "actions.intent.FAKE_CAPABILITY"
 private val ACTION_SPEC = ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-    .setDescriptor(FakeCapability.Property::class.java)
+    .setDescriptor(FakeCapability.Properties::class.java)
     .setArguments(FakeCapability.Arguments::class.java, FakeCapability.Arguments::Builder)
     .setOutput(FakeCapability.Output::class.java).bindOptionalParameter(
         "fieldOne",
@@ -42,8 +42,8 @@ private val ACTION_SPEC = ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
     ).build()
 
 class FakeCapability private constructor() {
-    class Property(
-        val fieldOne: ParamProperty<StringValue>? = null,
+    class Properties(
+        val fieldOne: Property<StringValue>? = null,
     )
 
     class Arguments internal constructor(
@@ -69,7 +69,7 @@ class FakeCapability private constructor() {
 
     class CapabilityBuilder : Capability.Builder<
         CapabilityBuilder,
-        Property,
+        Properties,
         Arguments,
         Output,
         Confirmation,
@@ -88,9 +88,9 @@ class FakeCapability private constructor() {
             builder.build()
         }
 
-        private var fieldOne: ParamProperty<StringValue>? = null
+        private var fieldOne: Property<StringValue>? = null
 
-        fun setFieldOne(fieldOne: ParamProperty<StringValue>) = apply {
+        fun setFieldOne(fieldOne: Property<StringValue>) = apply {
             this.fieldOne = fieldOne
         }
 
@@ -99,7 +99,7 @@ class FakeCapability private constructor() {
         ) = super.setSessionFactory(sessionFactory)
 
         override fun build(): Capability {
-            super.setProperty(Property(fieldOne))
+            super.setProperty(Properties(fieldOne))
             return super.build()
         }
     }

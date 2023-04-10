@@ -27,7 +27,7 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.ParamVa
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder;
-import androidx.appactions.interaction.capabilities.core.properties.ParamProperty;
+import androidx.appactions.interaction.capabilities.core.properties.Property;
 import androidx.appactions.interaction.capabilities.core.properties.StringValue;
 import androidx.appactions.interaction.capabilities.core.values.ListItem;
 
@@ -39,19 +39,19 @@ import java.util.Optional;
 public final class CapabilityStructFill {
 
     private static final String CAPABILITY_NAME = "actions.intent.TEST";
-    public static final ActionSpec<Property, Arguments, Void> ACTION_SPEC =
+    public static final ActionSpec<Properties, Arguments, Void> ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-                    .setDescriptor(Property.class)
+                    .setDescriptor(Properties.class)
                     .setArguments(Arguments.class, Arguments::newBuilder)
                     .bindOptionalParameter(
                             "listItem",
-                            Property::listItem,
+                            Properties::listItem,
                             Arguments.Builder::setListItem,
                             ParamValueConverter.Companion.of(LIST_ITEM_TYPE_SPEC),
                             EntityConverter.Companion.of(LIST_ITEM_TYPE_SPEC)::convert)
                     .bindOptionalParameter(
                             "string",
-                            Property::anyString,
+                            Properties::anyString,
                             Arguments.Builder::setAnyString,
                             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                             TypeConverters.STRING_VALUE_ENTITY_CONVERTER)
@@ -86,28 +86,28 @@ public final class CapabilityStructFill {
 
     /** Two required strings */
     @AutoValue
-    public abstract static class Property {
+    public abstract static class Properties {
         @NonNull
         public static Builder newBuilder() {
-            return new AutoValue_CapabilityStructFill_Property.Builder();
+            return new AutoValue_CapabilityStructFill_Properties.Builder();
         }
 
-        public abstract Optional<ParamProperty<ListItem>> listItem();
+        public abstract Optional<Property<ListItem>> listItem();
 
-        public abstract Optional<ParamProperty<StringValue>> anyString();
+        public abstract Optional<Property<StringValue>> anyString();
 
         /** Builder for {@link Property} */
         @AutoValue.Builder
         public abstract static class Builder {
 
             @NonNull
-            public abstract Builder setListItem(@NonNull ParamProperty<ListItem> value);
+            public abstract Builder setListItem(@NonNull Property<ListItem> value);
 
             @NonNull
-            public abstract Builder setAnyString(@NonNull ParamProperty<StringValue> value);
+            public abstract Builder setAnyString(@NonNull Property<StringValue> value);
 
             @NonNull
-            public abstract Property build();
+            public abstract Properties build();
         }
     }
 

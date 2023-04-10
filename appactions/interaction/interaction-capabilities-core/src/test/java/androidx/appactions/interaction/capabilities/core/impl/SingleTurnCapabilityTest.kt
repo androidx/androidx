@@ -28,14 +28,14 @@ import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.Entity
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
-import androidx.appactions.interaction.capabilities.core.properties.ParamProperty
+import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils
 import androidx.appactions.interaction.capabilities.testing.internal.FakeCallbackInternal
 import androidx.appactions.interaction.capabilities.testing.internal.TestingUtils.CB_TIMEOUT
 import androidx.appactions.interaction.capabilities.testing.internal.TestingUtils.BLOCKING_TIMEOUT
 import androidx.appactions.interaction.capabilities.core.testing.spec.Arguments
 import androidx.appactions.interaction.capabilities.core.testing.spec.Output
-import androidx.appactions.interaction.capabilities.core.testing.spec.Property
+import androidx.appactions.interaction.capabilities.core.testing.spec.Properties
 import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput.OutputValue
@@ -70,12 +70,12 @@ class SingleTurnCapabilityTest {
                 id = "capabilityId",
                 actionSpec = ACTION_SPEC,
                 property =
-                    Property.newBuilder()
+                Properties.newBuilder()
                         .setRequiredEntityField(
-                            ParamProperty.Builder<Entity>().build(),
+                            Property.Builder<Entity>().build(),
                         )
                         .setOptionalStringField(
-                            ParamProperty.Builder<StringValue>().setProhibited(true).build(),
+                            Property.Builder<StringValue>().setProhibited(true).build(),
                         )
                         .build(),
                 actionExecutorAsync = actionExecutor.toActionExecutorAsync(),
@@ -126,12 +126,12 @@ class SingleTurnCapabilityTest {
                 id = "capabilityId",
                 actionSpec = ACTION_SPEC,
                 property =
-                    Property.newBuilder()
+                Properties.newBuilder()
                         .setRequiredEntityField(
-                            ParamProperty.Builder<Entity>().build(),
+                            Property.Builder<Entity>().build(),
                         )
                         .setOptionalStringField(
-                            ParamProperty.Builder<StringValue>().setProhibited(true).build(),
+                            Property.Builder<StringValue>().setProhibited(true).build(),
                         )
                         .build(),
                 actionExecutorAsync = actionExecutor.toActionExecutorAsync(),
@@ -163,9 +163,9 @@ class SingleTurnCapabilityTest {
                 id = "capabilityId",
                 actionSpec = ACTION_SPEC,
                 property =
-                Property.newBuilder()
+                Properties.newBuilder()
                     .setRequiredEntityField(
-                        ParamProperty.Builder<Entity>().build(),
+                        Property.Builder<Entity>().build(),
                     )
                     .build(),
                 actionExecutorAsync = actionExecutor.toActionExecutorAsync(),
@@ -185,9 +185,9 @@ class SingleTurnCapabilityTest {
                 id = "capabilityId",
                 actionSpec = ACTION_SPEC,
                 property =
-                Property.newBuilder()
+                Properties.newBuilder()
                     .setRequiredEntityField(
-                        ParamProperty.Builder<Entity>().build(),
+                        Property.Builder<Entity>().build(),
                     )
                     .build(),
                 actionExecutorAsync = actionExecutorAsync,
@@ -209,8 +209,8 @@ class SingleTurnCapabilityTest {
         val capability = SingleTurnCapabilityImpl(
             id = "capabilityId",
             actionSpec = ACTION_SPEC,
-            property = Property.newBuilder().setRequiredEntityField(
-                ParamProperty.Builder<Entity>().build(),
+            property = Properties.newBuilder().setRequiredEntityField(
+                Property.Builder<Entity>().build(),
             ).build(),
             actionExecutorAsync = actionExecutor.toActionExecutorAsync(),
         )
@@ -262,16 +262,16 @@ class SingleTurnCapabilityTest {
     }
 
     companion object {
-        val ACTION_SPEC: ActionSpec<Property, Arguments, Output> =
+        val ACTION_SPEC: ActionSpec<Properties, Arguments, Output> =
             ActionSpecBuilder.ofCapabilityNamed(
                 "actions.intent.TEST",
             )
-                .setDescriptor(Property::class.java)
+                .setDescriptor(Properties::class.java)
                 .setArguments(Arguments::class.java, Arguments::newBuilder)
                 .setOutput(Output::class.java)
                 .bindOptionalParameter(
                     "optionalString",
-                    Property::optionalStringField,
+                    Properties::optionalStringField,
                     Arguments.Builder::setOptionalStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
                     TypeConverters.STRING_VALUE_ENTITY_CONVERTER
