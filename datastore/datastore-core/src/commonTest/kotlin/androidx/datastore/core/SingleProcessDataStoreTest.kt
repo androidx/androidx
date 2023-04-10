@@ -68,7 +68,11 @@ abstract class SingleProcessDataStoreTest<F : TestFile>(private val testIO: Test
         tempFolder = testIO.tempDir()
         testFile = testIO.newTempFile(tempFolder)
         dataStoreScope = TestScope(UnconfinedTestDispatcher())
-        store = testIO.getStore(serializerConfig, dataStoreScope) { testFile }
+        store = testIO.getStore(
+            serializerConfig,
+            dataStoreScope,
+            { createSingleProcessCoordinator() }
+        ) { testFile }
     }
 
     fun doTest(initDataStore: Boolean = false, test: suspend TestScope.() -> Unit) {
@@ -102,7 +106,10 @@ abstract class SingleProcessDataStoreTest<F : TestFile>(private val testIO: Test
     @Test
     fun testScopeCancelledWithActiveFlow() = doTest {
         val storeScope = CoroutineScope(Job())
-        val store = testIO.getStore(serializerConfig, storeScope) { testFile }
+        val store = testIO.getStore(
+            serializerConfig,
+            storeScope,
+            { createSingleProcessCoordinator() }) { testFile }
 
         val collection = async {
             store.data.take(2).collect {
@@ -175,7 +182,8 @@ abstract class SingleProcessDataStoreTest<F : TestFile>(private val testIO: Test
     @Test
     fun testWriteToNonExistentDir() = doTest {
         val fileInNonExistentDir = testIO.newTempFile(
-            testIO.tempDir("/this/does/not/exist", makeDirs = false))
+            testIO.tempDir("/this/does/not/exist", makeDirs = false)
+        )
 
         coroutineScope {
             val newStore = newDataStore(fileInNonExistentDir, scope = this)
@@ -219,7 +227,12 @@ abstract class SingleProcessDataStoreTest<F : TestFile>(private val testIO: Test
             }
             testFile
         }
-        val newStore = testIO.getStore(serializerConfig, dataStoreScope, fileProducer)
+        val newStore = testIO.getStore(
+            serializerConfig,
+            dataStoreScope,
+            { createSingleProcessCoordinator() },
+            fileProducer
+        )
 
         assertThrows<IOException> { newStore.data.first() }.hasMessageThat().isEqualTo(
             "Exception when producing file"
@@ -693,7 +706,9 @@ abstract class SingleProcessDataStoreTest<F : TestFile>(private val testIO: Test
         testFile.deleteIfExists()
         val dataStore = newDataStore(
             serializerConfig = TestingSerializerConfig(defaultValue = 99),
-            scope = dataStoreScope)
+            scope = dataStoreScope
+        )
+
         assertThat(dataStore.data.first()).isEqualTo(99)
     }
 
@@ -877,6 +892,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile>(private val testIO: Test
             file = testIO.newTempFile(),
             scope = datastoreScope.backgroundScope
         )
+
         suspend fun <R> runAndPumpInStore(block: suspend () -> R): R {
             val async = datastoreScope.async { block() }
             datastoreScope.runCurrent()
@@ -958,7 +974,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile>(private val testIO: Test
         corruptionHandler: CorruptionHandler<Byte> = NoOpCorruptionHandler<Byte>()
     ): DataStore<Byte> {
         return DataStoreImpl(
-            testIO.getStorage(serializerConfig) { file },
+            testIO.getStorage(serializerConfig, { createSingleProcessCoordinator() }) { file },
             scope = scope,
             initTasksList = initTasksList,
             corruptionHandler = corruptionHandler

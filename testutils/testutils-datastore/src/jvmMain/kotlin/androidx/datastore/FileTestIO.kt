@@ -17,6 +17,7 @@
 package androidx.datastore
 
 import androidx.datastore.core.FileStorage
+import androidx.datastore.core.InterProcessCoordinator
 import androidx.datastore.core.Storage
 import androidx.datastore.core.TestingSerializer
 import java.io.File
@@ -26,16 +27,36 @@ import kotlin.reflect.KClass
 
 class FileTestIO(dirName: String = "test-dir") : TestIO<JavaIOFile, IOException>(dirName) {
 
-    override fun tempDir(directoryPath: String?, makeDirs: Boolean): JavaIOFile {
-        return if (directoryPath != null) {
-            val tempRoot = File.createTempFile("placeholder", "placeholder").parentFile
-            val tempPath = File(tempRoot, directoryPath)
-            if (makeDirs) {
-                tempPath.mkdirs()
+    override fun tempDir(
+        directoryPath: String?,
+        makeDirs: Boolean,
+        parentDir: JavaIOFile?
+    ): JavaIOFile {
+        return if (parentDir != null) {
+            if (directoryPath != null) {
+                val tempPath = File(parentDir.file, directoryPath)
+                if (makeDirs) {
+                    tempPath.mkdirs()
+                }
+                tempPath.toJavaFile()
+            } else {
+                val tempPath = File(parentDir.file, "tempPath")
+                if (makeDirs) {
+                    tempPath.mkdirs()
+                }
+                tempPath.toJavaFile()
             }
-            tempPath.toJavaFile()
         } else {
-            File.createTempFile("temp", "tmp").parentFile.toJavaFile()
+            if (directoryPath != null) {
+                val tempRoot = File.createTempFile("placeholder", "placeholder").parentFile
+                val tempPath = File(tempRoot, directoryPath)
+                if (makeDirs) {
+                    tempPath.mkdirs()
+                }
+                tempPath.toJavaFile()
+            } else {
+                File.createTempFile("temp", "tmp").parentFile!!.toJavaFile()
+            }
         }
     }
 
@@ -59,9 +80,10 @@ class FileTestIO(dirName: String = "test-dir") : TestIO<JavaIOFile, IOException>
 
     override fun getStorage(
         serializerConfig: TestingSerializerConfig,
+        coordinatorProducer: () -> InterProcessCoordinator,
         futureFile: () -> TestFile
     ): Storage<Byte> {
-        return FileStorage(TestingSerializer(serializerConfig)) {
+        return FileStorage(TestingSerializer(serializerConfig), { coordinatorProducer() }) {
             (futureFile() as JavaIOFile).file
         }
     }
@@ -89,6 +111,12 @@ class JavaIOFile(val file: File) : TestFile() {
 
     override fun exists(): Boolean {
         return file.exists()
+    }
+
+    override fun createIfNotExists(): Boolean {
+        if (exists()) return false
+        file.createNewFile()
+        return true
     }
 }
 

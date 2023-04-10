@@ -20,6 +20,8 @@ import android.content.Context
 import android.os.Bundle
 import androidx.datastore.core.handlers.NoOpCorruptionHandler
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
+import androidx.datastore.core.okio.OkioSerializer
+import androidx.datastore.core.okio.OkioStorage
 import androidx.test.core.app.ApplicationProvider
 import androidx.testing.TestMessageProto.FooProto
 import com.google.common.truth.Truth.assertThat
@@ -42,6 +44,8 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import okio.FileSystem
+import okio.Path.Companion.toPath
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -50,7 +54,14 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 private const val PATH_BUNDLE_KEY: String = "path"
+private const val STORAGE_BUNDLE_KEY: String = "storage"
+private const val STORAGE_FILE: String = "FILE"
+private const val STORAGE_OKIO: String = "OKIO"
 private val PROTO_SERIALIZER: Serializer<FooProto> = ProtoSerializer<FooProto>(
+    FooProto.getDefaultInstance(),
+    ExtensionRegistryLite.getEmptyRegistry()
+)
+private val PROTO_OKIO_SERIALIZER: OkioSerializer<FooProto> = ProtoOkioSerializer<FooProto>(
     FooProto.getDefaultInstance(),
     ExtensionRegistryLite.getEmptyRegistry()
 )
@@ -62,7 +73,7 @@ private val WRITE_BOOLEAN: (FooProto) -> FooProto = { f: FooProto ->
     f.toBuilder().setBoolean(true).build()
 }
 private val INCREMENT_INTEGER: (FooProto) -> FooProto = { f: FooProto ->
-    f.toBuilder().setInteger(f.getInteger() + 1).build()
+    f.toBuilder().setInteger(f.integer + 1).build()
 }
 
 private val DEFAULT_FOO: FooProto = FooProto.getDefaultInstance()
@@ -71,23 +82,41 @@ private val FOO_WITH_TEXT: FooProto =
 private val FOO_WITH_TEXT_AND_BOOLEAN: FooProto =
     FooProto.newBuilder().setText(TEST_TEXT).setBoolean(true).build()
 
+private val FILESYSTEM = FileSystem.SYSTEM
+
 @ExperimentalCoroutinesApi
 private fun createDataStore(
     bundle: Bundle,
     scope: TestScope,
-    corruptionHandler: CorruptionHandler<FooProto> = NoOpCorruptionHandler<FooProto>()
-): DataStoreImpl<FooProto> {
+    corruptionHandler: CorruptionHandler<FooProto> = NoOpCorruptionHandler<FooProto>(),
+    context: CoroutineContext = UnconfinedTestDispatcher()
+): DataStore<FooProto> {
     val file = File(bundle.getString(PATH_BUNDLE_KEY)!!)
     val produceFile = { file }
-    return DataStoreImpl<FooProto>(
-        storage = FileStorage(
+    val variant = StorageVariant.valueOf(bundle.getString(STORAGE_BUNDLE_KEY)!!)
+    val storage = if (variant == StorageVariant.FILE) {
+        FileStorage(
             PROTO_SERIALIZER,
-            { MultiProcessCoordinator(UnconfinedTestDispatcher(), it) },
+            { MultiProcessCoordinator(context, it) },
             produceFile
-        ),
+        )
+    } else {
+        OkioStorage(
+            FILESYSTEM,
+            PROTO_OKIO_SERIALIZER,
+            { _, _ -> MultiProcessCoordinator(context, file) },
+            { file.absolutePath.toPath() }
+        )
+    }
+    return DataStoreImpl(
+        storage = storage,
         scope = scope,
         corruptionHandler = corruptionHandler
     )
+}
+
+internal enum class StorageVariant(val storage: String) {
+    FILE(STORAGE_FILE), OKIO(STORAGE_OKIO)
 }
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -101,32 +130,13 @@ class MultiProcessDataStoreMultiProcessTest {
     private lateinit var dataStoreContext: CoroutineContext
     private lateinit var dataStoreScope: TestScope
 
-    private val protoSerializer: Serializer<FooProto> = ProtoSerializer<FooProto>(
-        FooProto.getDefaultInstance(),
-        ExtensionRegistryLite.getEmptyRegistry()
-    )
     private val mainContext: Context = ApplicationProvider.getApplicationContext()
 
-    private fun createDataStoreBundle(path: String): Bundle {
+    private fun createDataStoreBundle(path: String, variant: StorageVariant): Bundle {
         val data = Bundle()
         data.putString(PATH_BUNDLE_KEY, path)
+        data.putString(STORAGE_BUNDLE_KEY, variant.storage)
         return data
-    }
-
-    private fun createDataStore(
-        bundle: Bundle,
-        scope: TestScope
-    ): DataStoreImpl<FooProto> {
-        val file = File(bundle.getString(PATH_BUNDLE_KEY)!!)
-        val produceFile = { file }
-        return DataStoreImpl<FooProto>(
-            storage = FileStorage(
-                protoSerializer,
-                { MultiProcessCoordinator(dataStoreContext, it) },
-                produceFile
-            ),
-            scope = scope
-        )
     }
 
     @Before
@@ -137,22 +147,32 @@ class MultiProcessDataStoreMultiProcessTest {
     }
 
     @Test
-    fun testSimpleUpdateData() = runTest {
-        val testData: Bundle = createDataStoreBundle(testFile.absolutePath)
-        val dataStore: DataStoreImpl<FooProto> =
-            createDataStore(testData, dataStoreScope)
-        val connection: BlockingServiceConnection =
-            setUpService(mainContext, SimpleUpdateService::class.java, testData)
+    fun testSimpleUpdateData_file() = testSimpleUpdateData_runner(StorageVariant.FILE)
 
-        assertThat(dataStore.data.first()).isEqualTo(DEFAULT_FOO)
+    @Test
+    fun testSimpleUpdateData_okio() = testSimpleUpdateData_runner(StorageVariant.OKIO)
 
-        // Other proc commits TEST_TEXT update
-        signalService(connection)
+    private fun testSimpleUpdateData_runner(variant: StorageVariant) =
+        runTest(dispatchTimeoutMs = 10000) {
+            val testData: Bundle = createDataStoreBundle(testFile.absolutePath, variant)
+            val dataStore: DataStore<FooProto> =
+                createDataStore(testData, dataStoreScope, context = dataStoreContext)
+            val serviceClasses = mapOf(
+                StorageVariant.FILE to SimpleUpdateFileService::class,
+                StorageVariant.OKIO to SimpleUpdateOkioService::class
+            )
+            val connection: BlockingServiceConnection =
+                setUpService(mainContext, serviceClasses[variant]!!.java, testData)
 
-        assertThat(dataStore.data.first()).isEqualTo(FOO_WITH_TEXT)
-    }
+            assertThat(dataStore.data.first()).isEqualTo(DEFAULT_FOO)
 
-    class SimpleUpdateService(
+            // Other proc commits TEST_TEXT update
+            signalService(connection)
+
+            assertThat(dataStore.data.first()).isEqualTo(FOO_WITH_TEXT)
+        }
+
+    open class SimpleUpdateFileService(
         private val scope: TestScope = TestScope(UnconfinedTestDispatcher() + Job())
     ) : DirectTestService() {
         override fun beforeTest(testData: Bundle) {
@@ -166,37 +186,53 @@ class MultiProcessDataStoreMultiProcessTest {
         }
     }
 
+    class SimpleUpdateOkioService : SimpleUpdateFileService()
+
     @Test
-    fun testConcurrentReadUpdate() = runTest {
-        val testData: Bundle = createDataStoreBundle(testFile.absolutePath)
-        val dataStore: DataStoreImpl<FooProto> =
-            createDataStore(testData, dataStoreScope)
-        val writerConnection: BlockingServiceConnection =
-            setUpService(mainContext, ConcurrentReadUpdateWriterService::class.java, testData)
+    fun testConcurrentReadUpdate_file() = testConcurrentReadUpdate_runner(StorageVariant.FILE)
 
-        // Start with TEST_TEXT
-        dataStore.updateData { f: FooProto -> WRITE_TEXT(f) }
-        assertThat(dataStore.data.first()).isEqualTo(FOO_WITH_TEXT)
+    @Test
+    fun testConcurrentReadUpdate_okio() = testConcurrentReadUpdate_runner(StorageVariant.OKIO)
 
-        // Writer process starts (but does not yet commit) "true"
-        signalService(writerConnection)
+    private fun testConcurrentReadUpdate_runner(variant: StorageVariant) =
+        runTest(dispatchTimeoutMs = 10000) {
+            val testData: Bundle = createDataStoreBundle(testFile.absolutePath, variant)
+            val dataStore: DataStore<FooProto> =
+                createDataStore(testData, dataStoreScope, context = dataStoreContext)
+            val writerServiceClasses = mapOf(
+                StorageVariant.FILE to ConcurrentReadUpdateWriterFileService::class,
+                StorageVariant.OKIO to ConcurrentReadUpdateWriterOkioService::class
+            )
+            val writerConnection: BlockingServiceConnection =
+                setUpService(mainContext, writerServiceClasses[variant]!!.java, testData)
 
-        // We can continue reading datastore while the writer process is mid-write
-        assertThat(dataStore.data.first()).isEqualTo(FOO_WITH_TEXT)
+            // Start with TEST_TEXT
+            dataStore.updateData { f: FooProto -> WRITE_TEXT(f) }
+            assertThat(dataStore.data.first()).isEqualTo(FOO_WITH_TEXT)
 
-        // New processes that start in the meantime can also read
-        val readerConnection: BlockingServiceConnection =
-            setUpService(mainContext, ConcurrentReadUpdateReaderService::class.java, testData)
-        signalService(readerConnection)
+            // Writer process starts (but does not yet commit) "true"
+            signalService(writerConnection)
 
-        // The other process finishes writing "true"; we (and other readers) should pick up the new data
-        signalService(writerConnection)
+            // We can continue reading datastore while the writer process is mid-write
+            assertThat(dataStore.data.first()).isEqualTo(FOO_WITH_TEXT)
 
-        assertThat(dataStore.data.first()).isEqualTo(FOO_WITH_TEXT_AND_BOOLEAN)
-        signalService(readerConnection)
-    }
+            val readerServiceClasses = mapOf(
+                StorageVariant.FILE to ConcurrentReadUpdateReaderFileService::class,
+                StorageVariant.OKIO to ConcurrentReadUpdateReaderOkioService::class
+            )
+            // New processes that start in the meantime can also read
+            val readerConnection: BlockingServiceConnection =
+                setUpService(mainContext, readerServiceClasses[variant]!!.java, testData)
+            signalService(readerConnection)
 
-    class ConcurrentReadUpdateWriterService(
+            // The other process finishes writing "true"; we (and other readers) should pick up the new data
+            signalService(writerConnection)
+
+            assertThat(dataStore.data.first()).isEqualTo(FOO_WITH_TEXT_AND_BOOLEAN)
+            signalService(readerConnection)
+        }
+
+    open class ConcurrentReadUpdateWriterFileService(
         private val scope: TestScope = TestScope(UnconfinedTestDispatcher() + Job())
     ) : DirectTestService() {
         override fun beforeTest(testData: Bundle) {
@@ -211,7 +247,9 @@ class MultiProcessDataStoreMultiProcessTest {
         }
     }
 
-    class ConcurrentReadUpdateReaderService(
+    class ConcurrentReadUpdateWriterOkioService : ConcurrentReadUpdateWriterFileService()
+
+    open class ConcurrentReadUpdateReaderFileService(
         private val scope: TestScope = TestScope(UnconfinedTestDispatcher() + Job())
     ) : DirectTestService() {
         override fun beforeTest(testData: Bundle) {
@@ -225,40 +263,52 @@ class MultiProcessDataStoreMultiProcessTest {
         }
     }
 
+    class ConcurrentReadUpdateReaderOkioService : ConcurrentReadUpdateReaderFileService()
+
     @Test
-    fun testInterleavedUpdateData() = runTest(UnconfinedTestDispatcher()) {
-        val testData: Bundle = createDataStoreBundle(testFile.absolutePath)
-        val dataStore: DataStoreImpl<FooProto> =
-            createDataStore(testData, dataStoreScope)
-        val connection: BlockingServiceConnection =
-            setUpService(mainContext, InterleavedUpdateDataService::class.java, testData)
+    fun testInterleavedUpdateData_file() = testInterleavedUpdateData_runner(StorageVariant.FILE)
 
-        // Other proc starts TEST_TEXT update, then waits for signal
-        signalService(connection)
+    @Test
+    fun testInterleavedUpdateData_okio() = testInterleavedUpdateData_runner(StorageVariant.OKIO)
 
-        // We start "true" update, then wait for condition
-        val condition = CompletableDeferred<Unit>()
-        val write = async(newSingleThreadContext("blockedWriter")) {
-            dataStore.updateData {
-                condition.await()
-                WRITE_BOOLEAN(it)
-            }
-        }
+    private fun testInterleavedUpdateData_runner(variant: StorageVariant) =
+        runTest(UnconfinedTestDispatcher(), dispatchTimeoutMs = 10000) {
+            val testData: Bundle = createDataStoreBundle(testFile.absolutePath, variant)
+            val dataStore: DataStore<FooProto> =
+                createDataStore(testData, dataStoreScope, context = dataStoreContext)
+            val serviceClasses = mapOf(
+                StorageVariant.FILE to InterleavedUpdateDataFileService::class,
+                StorageVariant.OKIO to InterleavedUpdateDataOkioService::class
+            )
+            val connection: BlockingServiceConnection =
+                setUpService(mainContext, serviceClasses[variant]!!.java, testData)
 
-        // Allow the other proc's update to run to completion, then allow ours to run to completion
-        val unblockOurUpdate = async {
-            delay(100)
+            // Other proc starts TEST_TEXT update, then waits for signal
             signalService(connection)
-            condition.complete(Unit)
+
+            // We start "true" update, then wait for condition
+            val condition = CompletableDeferred<Unit>()
+            val write = async(newSingleThreadContext("blockedWriter")) {
+                dataStore.updateData {
+                    condition.await()
+                    WRITE_BOOLEAN(it)
+                }
+            }
+
+            // Allow the other proc's update to run to completion, then allow ours to run to completion
+            val unblockOurUpdate = async {
+                delay(100)
+                signalService(connection)
+                condition.complete(Unit)
+            }
+
+            unblockOurUpdate.await()
+            write.await()
+
+            assertThat(dataStore.data.first()).isEqualTo(FOO_WITH_TEXT_AND_BOOLEAN)
         }
 
-        unblockOurUpdate.await()
-        write.await()
-
-        assertThat(dataStore.data.first()).isEqualTo(FOO_WITH_TEXT_AND_BOOLEAN)
-    }
-
-    class InterleavedUpdateDataService(
+    open class InterleavedUpdateDataFileService(
         private val scope: TestScope = TestScope(UnconfinedTestDispatcher() + Job())
     ) : DirectTestService() {
         override fun beforeTest(testData: Bundle) {
@@ -273,55 +323,75 @@ class MultiProcessDataStoreMultiProcessTest {
         }
     }
 
+    class InterleavedUpdateDataOkioService : InterleavedUpdateDataFileService()
+
     @Test
-    fun testInterleavedUpdateDataWithLocalRead() = runTest(UnconfinedTestDispatcher()) {
-        val testData: Bundle = createDataStoreBundle(testFile.absolutePath)
-        val dataStore: DataStoreImpl<FooProto> =
-            createDataStore(testData, dataStoreScope)
-        val connection: BlockingServiceConnection =
-            setUpService(mainContext, InterleavedUpdateDataWithReadService::class.java, testData)
+    fun testInterleavedUpdateDataWithLocalRead_file() =
+        testInterleavedUpdateDataWithLocalRead_runner(StorageVariant.FILE)
 
-        // Invalidate any local cache
-        assertThat(dataStore.data.first()).isEqualTo(DEFAULT_FOO)
-        signalService(connection)
+    @Test
+    fun testInterleavedUpdateDataWithLocalRead_okio() =
+        testInterleavedUpdateDataWithLocalRead_runner(StorageVariant.OKIO)
 
-        // Queue and start local write
-        val writeStarted = CompletableDeferred<Unit>()
-        val finishWrite = CompletableDeferred<Unit>()
+    private fun testInterleavedUpdateDataWithLocalRead_runner(variant: StorageVariant) =
+        runTest(UnconfinedTestDispatcher(), dispatchTimeoutMs = 10000) {
+            val testData: Bundle = createDataStoreBundle(testFile.absolutePath, variant)
+            val dataStore: DataStore<FooProto> =
+                createDataStore(testData, dataStoreScope, context = dataStoreContext)
+            val serviceClasses = mapOf(
+                StorageVariant.FILE to InterleavedUpdateDataWithReadFileService::class,
+                StorageVariant.OKIO to InterleavedUpdateDataWithReadOkioService::class
+            )
+            val connection: BlockingServiceConnection =
+                setUpService(
+                    mainContext,
+                    serviceClasses[variant]!!.java,
+                    testData
+                )
 
-        val write = async {
-            dataStore.updateData {
-                writeStarted.complete(Unit)
-                finishWrite.await()
-                FOO_WITH_TEXT
-            }
-        }
-        writeStarted.await()
-
-        // Queue remote write
-        signalService(connection)
-
-        // Local uncached read; this should see data initially written remotely.
-        assertThat(dataStore.data.first()).isEqualTo(FooProto.newBuilder().setInteger(1).build())
-
-        // Unblock writes; the local write is delayed to ensure the remote write remains blocked.
-        val remoteWrite = async(newSingleThreadContext("blockedWriter")) {
+            // Invalidate any local cache
+            assertThat(dataStore.data.first()).isEqualTo(DEFAULT_FOO)
             signalService(connection)
+
+            // Queue and start local write
+            val writeStarted = CompletableDeferred<Unit>()
+            val finishWrite = CompletableDeferred<Unit>()
+
+            val write = async {
+                dataStore.updateData {
+                    writeStarted.complete(Unit)
+                    finishWrite.await()
+                    FOO_WITH_TEXT
+                }
+            }
+            writeStarted.await()
+
+            // Queue remote write
+            signalService(connection)
+
+            // Local uncached read; this should see data initially written remotely.
+            assertThat(dataStore.data.first()).isEqualTo(
+                FooProto.newBuilder().setInteger(1).build()
+            )
+
+            // Unblock writes; the local write is delayed to ensure the remote write remains blocked.
+            val remoteWrite = async(newSingleThreadContext("blockedWriter")) {
+                signalService(connection)
+            }
+
+            val localWrite = async(newSingleThreadContext("unblockLocalWrite")) {
+                delay(500)
+                finishWrite.complete(Unit)
+                write.await()
+            }
+
+            localWrite.await()
+            remoteWrite.await()
+
+            assertThat(dataStore.data.first()).isEqualTo(FOO_WITH_TEXT_AND_BOOLEAN)
         }
 
-        val localWrite = async(newSingleThreadContext("unblockLocalWrite")) {
-            delay(500)
-            finishWrite.complete(Unit)
-            write.await()
-        }
-
-        localWrite.await()
-        remoteWrite.await()
-
-        assertThat(dataStore.data.first()).isEqualTo(FOO_WITH_TEXT_AND_BOOLEAN)
-    }
-
-    class InterleavedUpdateDataWithReadService(
+    open class InterleavedUpdateDataWithReadFileService(
         private val scope: TestScope = TestScope(UnconfinedTestDispatcher() + Job())
     ) : DirectTestService() {
         override fun beforeTest(testData: Bundle) {
@@ -345,13 +415,28 @@ class MultiProcessDataStoreMultiProcessTest {
         }
     }
 
+    class InterleavedUpdateDataWithReadOkioService : InterleavedUpdateDataWithReadFileService()
+
     @Test
-    fun testUpdateDataExceptionUnblocksOtherProcessFromWriting() = runTest {
-        val testData: Bundle = createDataStoreBundle(testFile.absolutePath)
-        val dataStore: DataStoreImpl<FooProto> =
-            createDataStore(testData, dataStoreScope)
+    fun testUpdateDataExceptionUnblocksOtherProcessFromWriting_file() =
+        testUpdateDataExceptionUnblocksOtherProcessFromWriting_runner(StorageVariant.FILE)
+
+    @Test
+    fun testUpdateDataExceptionUnblocksOtherProcessFromWriting_okio() =
+        testUpdateDataExceptionUnblocksOtherProcessFromWriting_runner(StorageVariant.OKIO)
+
+    private fun testUpdateDataExceptionUnblocksOtherProcessFromWriting_runner(
+        variant: StorageVariant
+    ) = runTest(dispatchTimeoutMs = 10000) {
+        val testData: Bundle = createDataStoreBundle(testFile.absolutePath, variant)
+        val dataStore: DataStore<FooProto> =
+            createDataStore(testData, dataStoreScope, context = dataStoreContext)
+        val serviceClasses = mapOf(
+            StorageVariant.FILE to FailedUpdateDataFileService::class,
+            StorageVariant.OKIO to FailedUpdateDataOkioService::class
+        )
         val connection: BlockingServiceConnection =
-            setUpService(mainContext, FailedUpdateDataService::class.java, testData)
+            setUpService(mainContext, serviceClasses[variant]!!.java, testData)
 
         val blockWrite = CompletableDeferred<Unit>()
         val waitForWrite = CompletableDeferred<Unit>()
@@ -381,7 +466,7 @@ class MultiProcessDataStoreMultiProcessTest {
         assertThat(dataStore.data.first()).isEqualTo(FOO_WITH_TEXT)
     }
 
-    class FailedUpdateDataService(
+    open class FailedUpdateDataFileService(
         private val scope: TestScope = TestScope(UnconfinedTestDispatcher() + Job())
     ) : DirectTestService() {
         override fun beforeTest(testData: Bundle) {
@@ -395,16 +480,29 @@ class MultiProcessDataStoreMultiProcessTest {
         }
     }
 
+    class FailedUpdateDataOkioService : FailedUpdateDataFileService()
+
     @Test
-    fun testUpdateDataCancellationUnblocksOtherProcessFromWriting() = runTest(
-        UnconfinedTestDispatcher()
-    ) {
+    fun testUpdateDataCancellationUnblocksOtherProcessFromWriting_file() =
+        testUpdateDataCancellationUnblocksOtherProcessFromWriting_runner(StorageVariant.FILE)
+
+    @Test
+    fun testUpdateDataCancellationUnblocksOtherProcessFromWriting_okio() =
+        testUpdateDataCancellationUnblocksOtherProcessFromWriting_runner(StorageVariant.OKIO)
+
+    private fun testUpdateDataCancellationUnblocksOtherProcessFromWriting_runner(
+        variant: StorageVariant
+    ) = runTest(UnconfinedTestDispatcher(), dispatchTimeoutMs = 10000) {
         val localScope = TestScope(UnconfinedTestDispatcher() + Job())
-        val testData: Bundle = createDataStoreBundle(testFile.absolutePath)
-        val dataStore: DataStoreImpl<FooProto> =
-            createDataStore(testData, localScope)
+        val testData: Bundle = createDataStoreBundle(testFile.absolutePath, variant)
+        val dataStore: DataStore<FooProto> =
+            createDataStore(testData, localScope, context = dataStoreContext)
+        val serviceClasses = mapOf(
+            StorageVariant.FILE to CancelledUpdateDataFileService::class,
+            StorageVariant.OKIO to CancelledUpdateDataOkioService::class
+        )
         val connection: BlockingServiceConnection =
-            setUpService(mainContext, CancelledUpdateDataService::class.java, testData)
+            setUpService(mainContext, serviceClasses[variant]!!.java, testData)
 
         val blockWrite = CompletableDeferred<Unit>()
 
@@ -433,7 +531,7 @@ class MultiProcessDataStoreMultiProcessTest {
     // A duplicate from CancelledUpdateDataService to make sure Android framework would create a
     // new process for this test. Otherwise the test would hang infinitely because the tests bind
     // to an existing service created by the previous test.
-    class CancelledUpdateDataService(
+    open class CancelledUpdateDataFileService(
         private val scope: TestScope = TestScope(UnconfinedTestDispatcher() + Job())
     ) : DirectTestService() {
         override fun beforeTest(testData: Bundle) {
@@ -447,35 +545,47 @@ class MultiProcessDataStoreMultiProcessTest {
         }
     }
 
+    class CancelledUpdateDataOkioService : CancelledUpdateDataFileService()
+
     @Test
-    fun testReadUpdateCorrupt() = runTest {
-        FileOutputStream(testFile).use {
-            OutputStreamWriter(it).write("garbage")
-        }
-        val testData: Bundle = createDataStoreBundle(testFile.absolutePath)
-        val connection: BlockingServiceConnection =
-            setUpService(mainContext, InterleavedHandlerUpdateDataService::class.java, testData)
-        val corruptionHandler = ReplaceFileCorruptionHandler<FooProto> {
+    fun testReadUpdateCorrupt_file() = testReadUpdateCorrupt_runner(StorageVariant.FILE)
+
+    @Test
+    fun testReadUpdateCorrupt_okio() = testReadUpdateCorrupt_runner(StorageVariant.OKIO)
+
+    private fun testReadUpdateCorrupt_runner(variant: StorageVariant) =
+        runTest(dispatchTimeoutMs = 10000) {
+            FileOutputStream(testFile).use {
+                OutputStreamWriter(it).write("garbage")
+            }
+            val testData: Bundle = createDataStoreBundle(testFile.absolutePath, variant)
+            val serviceClasses = mapOf(
+                StorageVariant.FILE to InterleavedHandlerUpdateDataFileService::class,
+                StorageVariant.OKIO to InterleavedHandlerUpdateDataOkioService::class
+            )
+            val connection: BlockingServiceConnection =
+                setUpService(mainContext, serviceClasses[variant]!!.java, testData)
+            val corruptionHandler = ReplaceFileCorruptionHandler<FooProto> {
+                signalService(connection)
+                FOO_WITH_TEXT_AND_BOOLEAN
+            }
+            val dataStore: DataStore<FooProto> =
+                createDataStore(testData, dataStoreScope, corruptionHandler, dataStoreContext)
+
+            // Other proc starts TEST_TEXT then waits for signal within handler
             signalService(connection)
-            FOO_WITH_TEXT_AND_BOOLEAN
+
+            assertThat(dataStore.data.first()).isEqualTo(FOO_WITH_TEXT)
+
+            // version file should be ready at this point
+            val sharedCounter = SharedCounter.create {
+                File(testFile.absolutePath + ".version")
+            }
+            // only 1 write should be done to handle the corruption, so version is incremented by 1
+            assertThat(sharedCounter.getValue()).isEqualTo(1)
         }
-        val dataStore: DataStoreImpl<FooProto> =
-            createDataStore(testData, dataStoreScope, corruptionHandler)
 
-        // Other proc starts TEST_TEXT then waits for signal within handler
-        signalService(connection)
-
-        assertThat(dataStore.data.first()).isEqualTo(FOO_WITH_TEXT)
-
-        // version file should be ready at this point
-        val sharedCounter = SharedCounter.create {
-            File(testFile.absolutePath + ".version")
-        }
-        // only 1 write should be done to handle the corruption, so version is incremented by 1
-        assertThat(sharedCounter.getValue()).isEqualTo(1)
-    }
-
-    class InterleavedHandlerUpdateDataService(
+    open class InterleavedHandlerUpdateDataFileService(
         private val scope: TestScope = TestScope(UnconfinedTestDispatcher() + Job())
     ) : DirectTestService() {
         override fun beforeTest(testData: Bundle) {
@@ -493,4 +603,6 @@ class MultiProcessDataStoreMultiProcessTest {
             }
         }
     }
+
+    class InterleavedHandlerUpdateDataOkioService : InterleavedHandlerUpdateDataFileService()
 }
