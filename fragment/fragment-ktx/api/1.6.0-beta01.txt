@@ -1,0 +1,37 @@
+// Signature format: 4.0
+package androidx.fragment.app {
+
+  public final class FragmentKt {
+    method public static void clearFragmentResult(androidx.fragment.app.Fragment, String requestKey);
+    method public static void clearFragmentResultListener(androidx.fragment.app.Fragment, String requestKey);
+    method public static void setFragmentResult(androidx.fragment.app.Fragment, String requestKey, android.os.Bundle result);
+    method public static void setFragmentResultListener(androidx.fragment.app.Fragment, String requestKey, kotlin.jvm.functions.Function2<? super java.lang.String,? super android.os.Bundle,kotlin.Unit> listener);
+  }
+
+  public final class FragmentManagerKt {
+    method public static inline void commit(androidx.fragment.app.FragmentManager, optional boolean allowStateLoss, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);
+    method @MainThread public static inline void commitNow(androidx.fragment.app.FragmentManager, optional boolean allowStateLoss, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);
+    method @Deprecated public static inline void transaction(androidx.fragment.app.FragmentManager, optional boolean now, optional boolean allowStateLoss, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);
+  }
+
+  public final class FragmentTransactionKt {
+    method public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.FragmentTransaction add(androidx.fragment.app.FragmentTransaction, @IdRes int containerViewId, optional String? tag, optional android.os.Bundle? args);
+    method public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.FragmentTransaction add(androidx.fragment.app.FragmentTransaction, String tag, optional android.os.Bundle? args);
+    method public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.FragmentTransaction replace(androidx.fragment.app.FragmentTransaction, @IdRes int containerViewId, optional String? tag, optional android.os.Bundle? args);
+  }
+
+  public final class FragmentViewModelLazyKt {
+    method @Deprecated @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<? extends VM> activityViewModels(androidx.fragment.app.Fragment, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer);
+    method @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<? extends VM> activityViewModels(androidx.fragment.app.Fragment, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.viewmodel.CreationExtras>? extrasProducer, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer);
+    method @MainThread public static <VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<VM> createViewModelLazy(androidx.fragment.app.Fragment, kotlin.reflect.KClass<VM> viewModelClass, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelStore> storeProducer, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.viewmodel.CreationExtras> extrasProducer, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer);
+    method @Deprecated @MainThread public static <VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<? extends VM> createViewModelLazy(androidx.fragment.app.Fragment, kotlin.reflect.KClass<VM> viewModelClass, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelStore> storeProducer, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer);
+    method @Deprecated @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<? extends VM> viewModels(androidx.fragment.app.Fragment, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelStoreOwner> ownerProducer, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer);
+    method @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<? extends VM> viewModels(androidx.fragment.app.Fragment, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelStoreOwner> ownerProducer, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.viewmodel.CreationExtras>? extrasProducer, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer);
+  }
+
+  public final class ViewKt {
+    method public static <F extends androidx.fragment.app.Fragment> F findFragment(android.view.View);
+  }
+
+}
+
