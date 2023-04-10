@@ -488,6 +488,7 @@ value class TimePickerLayoutType internal constructor(internal val value: Int) {
  *  or `true` for 24 hour format without toggle.
  */
 @Stable
+@ExperimentalMaterial3Api
 class TimePickerState(
     initialHour: Int,
     initialMinute: Int,

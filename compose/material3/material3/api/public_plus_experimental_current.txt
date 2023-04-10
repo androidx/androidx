@@ -1229,7 +1229,7 @@ package androidx.compose.material3 {
     property public final int Vertical;
   }
 
-  @androidx.compose.runtime.Stable public final class TimePickerState {
+  @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public final class TimePickerState {
     ctor public TimePickerState(int initialHour, int initialMinute, boolean is24Hour);
     method public int getHour();
     method public int getMinute();
