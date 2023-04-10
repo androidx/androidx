@@ -20,15 +20,26 @@ import androidx.annotation.FloatRange
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 
 /**
@@ -82,14 +93,326 @@ fun Card(
 }
 
 /**
+ * [ClassicCard] is an opinionated TV Material card that offers a 4 slot layout to show
+ * information about a subject.
+ *
+ * This card has a vertical layout with the interactive surface [Surface], which provides the image
+ * slot at the top, followed by the title, subtitle, and description slots.
+ *
+ * This Card handles click events, calling its [onClick] lambda.
+ *
+ * @param onClick called when this card is clicked
+ * @param image defines the [Composable] image to be displayed on top of the Card.
+ * @param title defines the [Composable] title placed below the image in the Card.
+ * @param modifier the [Modifier] to be applied to this card.
+ * @param subtitle defines the [Composable] supporting text placed below the title of the Card.
+ * @param description defines the [Composable] description placed below the subtitle of the Card.
+ * @param shape [CardShape] defines the shape of this card's container in different interaction
+ * states. See [CardDefaults.shape].
+ * @param colors [CardColors] defines the background & content colors used in this card for
+ * different interaction states. See [CardDefaults.colors].
+ * @param scale [CardScale] defines size of the card relative to its original size for different
+ * interaction states. See [CardDefaults.scale].
+ * @param border [CardBorder] defines a border around the card for different interaction states.
+ * See [CardDefaults.border].
+ * @param glow [CardGlow] defines a shadow to be shown behind the card for different interaction
+ * states. See [CardDefaults.glow].
+ * @param contentPadding [PaddingValues] defines the inner padding applied to the card's content.
+ * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
+ * for this card. You can create and pass in your own `remember`ed instance to observe
+ * [Interaction]s and customize the appearance / behavior of this card in different states.
+ */
+@ExperimentalTvMaterial3Api
+@Composable
+fun ClassicCard(
+    onClick: () -> Unit,
+    image: @Composable BoxScope.() -> Unit,
+    title: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    subtitle: @Composable () -> Unit = {},
+    description: @Composable () -> Unit = {},
+    shape: CardShape = CardDefaults.shape(),
+    colors: CardColors = CardDefaults.colors(),
+    scale: CardScale = CardDefaults.scale(),
+    border: CardBorder = CardDefaults.border(),
+    glow: CardGlow = CardDefaults.glow(),
+    contentPadding: PaddingValues = PaddingValues(),
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+) {
+    Card(
+        onClick = onClick,
+        modifier = modifier,
+        interactionSource = interactionSource,
+        shape = shape,
+        colors = colors,
+        scale = scale,
+        border = border,
+        glow = glow
+    ) {
+        Column(
+            modifier = Modifier.padding(contentPadding)
+        ) {
+            Box(
+                contentAlignment = CardDefaults.ContentImageAlignment,
+                content = image
+            )
+            Column {
+                CardContent(
+                    title = title,
+                    subtitle = subtitle,
+                    description = description
+                )
+            }
+        }
+    }
+}
+
+/**
+ * [CompactCard] is an opinionated TV Material card that offers a 4 slot layout to show
+ * information about a subject.
+ *
+ * This card provides the interactive surface [Surface] with the image slot as the background
+ * (with an overlay scrim gradient). Other slots for the title, subtitle, and description are
+ * placed over it.
+ *
+ * This Card handles click events, calling its [onClick] lambda.
+ *
+ * @param onClick called when this card is clicked
+ * @param image defines the [Composable] image to be displayed on top of the Card.
+ * @param title defines the [Composable] title placed below the image in the Card.
+ * @param modifier the [Modifier] to be applied to this card.
+ * @param subtitle defines the [Composable] supporting text placed below the title of the Card.
+ * @param description defines the [Composable] description placed below the subtitle of the Card.
+ * @param shape [CardShape] defines the shape of this card's container in different interaction
+ * states. See [CardDefaults.shape].
+ * @param colors [CardColors] defines the background & content colors used in this card for
+ * different interaction states. See [CardDefaults.compactCardColors].
+ * @param scale [CardScale] defines size of the card relative to its original size for different
+ * interaction states. See [CardDefaults.scale].
+ * @param border [CardBorder] defines a border around the card for different interaction states.
+ * See [CardDefaults.border].
+ * @param glow [CardGlow] defines a shadow to be shown behind the card for different interaction
+ * states. See [CardDefaults.glow].
+ * @param scrimBrush [Brush] defines a brush/gradient to be used to draw the scrim over the image
+ * in the background. See [CardDefaults.ContainerGradient].
+ * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
+ * for this card. You can create and pass in your own `remember`ed instance to observe
+ * [Interaction]s and customize the appearance / behavior of this card in different states.
+ */
+@ExperimentalTvMaterial3Api
+@Composable
+fun CompactCard(
+    onClick: () -> Unit,
+    image: @Composable BoxScope.() -> Unit,
+    title: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    subtitle: @Composable () -> Unit = {},
+    description: @Composable () -> Unit = {},
+    shape: CardShape = CardDefaults.shape(),
+    colors: CardColors = CardDefaults.compactCardColors(),
+    scale: CardScale = CardDefaults.scale(),
+    border: CardBorder = CardDefaults.border(),
+    glow: CardGlow = CardDefaults.glow(),
+    scrimBrush: Brush = CardDefaults.ContainerGradient,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+) {
+    Card(
+        onClick = onClick,
+        modifier = modifier,
+        interactionSource = interactionSource,
+        shape = shape,
+        colors = colors,
+        scale = scale,
+        border = border,
+        glow = glow
+    ) {
+        Box(contentAlignment = Alignment.BottomStart) {
+            Box(
+                modifier = Modifier
+                    .drawWithCache {
+                        onDrawWithContent {
+                            drawContent()
+                            drawRect(brush = scrimBrush)
+                        }
+                    },
+                contentAlignment = CardDefaults.ContentImageAlignment,
+                content = image
+            )
+            Column {
+                CardContent(
+                    title = title,
+                    subtitle = subtitle,
+                    description = description
+                )
+            }
+        }
+    }
+}
+
+/**
+ * [WideClassicCard] is an opinionated TV Material card that offers a 4 slot layout to show
+ * information about a subject.
+ *
+ * This card has a horizontal layout with the interactive surface [Surface], which provides the
+ * image slot at the start, followed by the title, subtitle, and description slots at the end.
+ *
+ * This Card handles click events, calling its [onClick] lambda.
+ *
+ * @param onClick called when this card is clicked
+ * @param image defines the [Composable] image to be displayed on top of the Card.
+ * @param title defines the [Composable] title placed below the image in the Card.
+ * @param modifier the [Modifier] to be applied to this card.
+ * @param subtitle defines the [Composable] supporting text placed below the title of the Card.
+ * @param description defines the [Composable] description placed below the subtitle of the Card.
+ * @param shape [CardShape] defines the shape of this card's container in different interaction
+ * states. See [CardDefaults.shape].
+ * @param colors [CardColors] defines the background & content colors used in this card for
+ * different interaction states. See [CardDefaults.colors].
+ * @param scale [CardScale] defines size of the card relative to its original size for different
+ * interaction states. See [CardDefaults.scale].
+ * @param border [CardBorder] defines a border around the card for different interaction states.
+ * See [CardDefaults.border].
+ * @param glow [CardGlow] defines a shadow to be shown behind the card for different interaction
+ * states. See [CardDefaults.glow].
+ * @param contentPadding [PaddingValues] defines the inner padding applied to the card's content.
+ * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
+ * for this card. You can create and pass in your own `remember`ed instance to observe
+ * [Interaction]s and customize the appearance / behavior of this card in different states.
+ */
+@ExperimentalTvMaterial3Api
+@Composable
+fun WideClassicCard(
+    onClick: () -> Unit,
+    image: @Composable BoxScope.() -> Unit,
+    title: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    subtitle: @Composable () -> Unit = {},
+    description: @Composable () -> Unit = {},
+    shape: CardShape = CardDefaults.shape(),
+    colors: CardColors = CardDefaults.colors(),
+    scale: CardScale = CardDefaults.scale(),
+    border: CardBorder = CardDefaults.border(),
+    glow: CardGlow = CardDefaults.glow(),
+    contentPadding: PaddingValues = PaddingValues(),
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+) {
+    Card(
+        onClick = onClick,
+        modifier = modifier,
+        interactionSource = interactionSource,
+        shape = shape,
+        colors = colors,
+        scale = scale,
+        border = border,
+        glow = glow
+    ) {
+        Row(
+            modifier = Modifier.padding(contentPadding)
+        ) {
+            Box(
+                contentAlignment = CardDefaults.ContentImageAlignment,
+                content = image
+            )
+            Column {
+                CardContent(
+                    title = title,
+                    subtitle = subtitle,
+                    description = description
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun CardContent(
+    title: @Composable () -> Unit,
+    subtitle: @Composable () -> Unit = {},
+    description: @Composable () -> Unit = {},
+    contentColor: Color
+) {
+    CompositionLocalProvider(LocalContentColor provides contentColor) {
+        CardContent(title, subtitle, description)
+    }
+}
+
+@Composable
+private fun CardContent(
+    title: @Composable () -> Unit,
+    subtitle: @Composable () -> Unit = {},
+    description: @Composable () -> Unit = {}
+) {
+    ProvideTextStyle(MaterialTheme.typography.titleMedium) {
+        title.invoke()
+    }
+    ProvideTextStyle(MaterialTheme.typography.bodySmall) {
+        Box(Modifier.graphicsLayer { alpha = SubtitleAlpha }) {
+            subtitle.invoke()
+        }
+    }
+    ProvideTextStyle(MaterialTheme.typography.bodySmall) {
+        Box(Modifier.graphicsLayer { alpha = DescriptionAlpha }) {
+            description.invoke()
+        }
+    }
+}
+
+/**
  * Contains the default values used by all card types.
  */
 @ExperimentalTvMaterial3Api
 object CardDefaults {
+    internal val ContentImageAlignment = Alignment.Center
+
     /**
-    * The default [Shape] used by Cards.
-    */
+     * The default [Shape] used by Cards.
+     */
     private val ContainerShape = RoundedCornerShape(8.dp)
+
+    /**
+     * Recommended aspect ratio [Float] to get square images, can be applied using the modifier
+     * [Modifier.aspectRatio].
+     */
+    const val SquareImageAspectRatio = 1f
+
+    /**
+     * Recommended aspect ratio [Float] for vertical images, can be applied using the modifier
+     * [Modifier.aspectRatio].
+     */
+    const val VerticalImageAspectRatio = 2f / 3
+
+    /**
+     * Recommended aspect ratio [Float] for horizontal images, can be applied using the modifier
+     * [Modifier.aspectRatio].
+     */
+    const val HorizontalImageAspectRatio = 16f / 9
+
+    /**
+     * Gradient used in cards to give more emphasis to the textual content that is generally
+     * displayed above an image.
+     */
+    val ContainerGradient = Brush.verticalGradient(
+        listOf(
+            Color(red = 28, green = 27, blue = 31, alpha = 0),
+            Color(red = 28, green = 27, blue = 31, alpha = 204)
+        )
+    )
+
+    /**
+     * Returns the content color [Color] from the colors [CardColors] for different
+     * interaction states.
+     */
+    internal fun contentColor(
+        focused: Boolean,
+        pressed: Boolean,
+        colors: CardColors
+    ): Color {
+        return when {
+            focused -> colors.focusedContentColor
+            pressed -> colors.pressedContentColor
+            else -> colors.contentColor
+        }
+    }
 
     /**
      * Creates a [CardShape] that represents the default container shapes used in a Card.
@@ -121,12 +444,40 @@ object CardDefaults {
     @ReadOnlyComposable
     @Composable
     fun colors(
-        containerColor: Color = MaterialTheme.colorScheme.surface,
+        containerColor: Color = MaterialTheme.colorScheme.surfaceVariant,
         contentColor: Color = contentColorFor(containerColor),
         focusedContainerColor: Color = containerColor,
         focusedContentColor: Color = contentColorFor(focusedContainerColor),
         pressedContainerColor: Color = focusedContainerColor,
         pressedContentColor: Color = contentColorFor(pressedContainerColor)
+    ) = CardColors(
+        containerColor = containerColor,
+        contentColor = contentColor,
+        focusedContainerColor = focusedContainerColor,
+        focusedContentColor = focusedContentColor,
+        pressedContainerColor = pressedContainerColor,
+        pressedContentColor = pressedContentColor
+    )
+
+    /**
+     * Creates [CardColors] that represents the default colors used in a Compact Card.
+     *
+     * @param containerColor the default container color of this Card.
+     * @param contentColor the default content color of this Card.
+     * @param focusedContainerColor the container color of this Card when focused.
+     * @param focusedContentColor the content color of this Card when focused.
+     * @param pressedContainerColor the container color of this Card when pressed.
+     * @param pressedContentColor the content color of this Card when pressed.
+     */
+    @ReadOnlyComposable
+    @Composable
+    fun compactCardColors(
+        containerColor: Color = MaterialTheme.colorScheme.surfaceVariant,
+        contentColor: Color = Color.White,
+        focusedContainerColor: Color = containerColor,
+        focusedContentColor: Color = contentColor,
+        pressedContainerColor: Color = focusedContainerColor,
+        pressedContentColor: Color = focusedContentColor
     ) = CardColors(
         containerColor = containerColor,
         contentColor = contentColor,
@@ -199,6 +550,9 @@ object CardDefaults {
         pressedGlow = pressedGlow
     )
 }
+
+private const val SubtitleAlpha = 0.6f
+private const val DescriptionAlpha = 0.8f
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 private fun CardColors.toClickableSurfaceContainerColor() =
