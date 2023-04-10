@@ -17,7 +17,7 @@
 package androidx.appactions.interaction.capabilities.core.impl.task
 
 import androidx.annotation.GuardedBy
-import androidx.appactions.interaction.capabilities.core.BaseSession
+import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.ArgumentsWrapper
 import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal
@@ -41,7 +41,7 @@ internal class TaskCapabilitySession<
     actionSpec: ActionSpec<*, ArgumentsT, OutputT>,
     appAction: AppAction,
     taskHandler: TaskHandler<ConfirmationT>,
-    externalSession: BaseSession<ArgumentsT, OutputT>,
+    externalSession: BaseExecutionSession<ArgumentsT, OutputT>,
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
 ) : CapabilitySession, TaskUpdateHandler {
     override val state: AppDialogState
