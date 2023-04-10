@@ -471,10 +471,8 @@ class CardTest {
 }
 
 private const val CardTag = "card"
-private const val StandardCardTag = "standard-card"
 private const val CompactCardTag = "compact-card"
 private const val ClassicCardTag = "classic-card"
-private const val WideCardTag = "wide-card"
 private const val WideClassicCardTag = "wide-classic-card"
 
 private const val SampleImageTag = "sample-image"
