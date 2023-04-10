@@ -37,7 +37,7 @@ class DataMigrationInitializerTestFileTest :
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @InternalCoroutinesApi
-class SingleProcessDatastoreJavaTest : SingleProcessDataStoreTest<JavaIOFile>(FileTestIO()) {
+class SingleProcessDataStoreJavaTest : SingleProcessDataStoreTest<JavaIOFile>(FileTestIO()) {
 
     @Test
     fun testMutatingDataStoreFails() = doTest {

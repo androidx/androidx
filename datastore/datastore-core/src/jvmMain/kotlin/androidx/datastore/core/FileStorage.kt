@@ -32,6 +32,9 @@ import kotlinx.coroutines.sync.withLock
  * file location.
  *
  * @param serializer The serializer that can write <T> to and from a byte array.
+ * @param coordinatorProducer The producer to provide [InterProcessCoordinator] that coordinates IO
+ * operations across processes if needed. By default it provides single process coordinator, which
+ * doesn't support cross process use cases.
  * @param produceFile The file producer that returns the file that will be read and written.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
