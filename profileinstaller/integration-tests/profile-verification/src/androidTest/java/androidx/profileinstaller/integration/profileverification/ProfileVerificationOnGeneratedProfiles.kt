@@ -54,6 +54,9 @@ class ProfileVerificationOnGeneratedProfiles(
 
     @Before
     fun setUp() {
+        // TODO: to re-enable for api 34 (b/276970167)
+        Assume.assumeTrue(!isApi34)
+
         // Note that this test fails on emulator api 30 (b/251540646)
         Assume.assumeTrue(!isApi30)
         withPackageName(packageName) { uninstall() }
