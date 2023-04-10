@@ -54,6 +54,7 @@ object SupportConfig {
      *
      * Note that the value might be different between the internal and external (github) builds.
      */
+    @JvmStatic
     fun buildToolsVersion(project: Project): String {
         return if (ProjectLayoutType.isPlayground(project)) {
             PUBLIC_BUILD_TOOLS_VERSION
