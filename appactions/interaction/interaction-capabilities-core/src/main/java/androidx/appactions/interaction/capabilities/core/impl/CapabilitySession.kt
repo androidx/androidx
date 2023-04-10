@@ -37,7 +37,7 @@ interface CapabilitySession {
      */
     fun execute(
         argumentsWrapper: ArgumentsWrapper,
-        callback: CallbackInternal,
+        callback: CallbackInternal
     )
 
     /**
@@ -61,7 +61,8 @@ interface CapabilitySession {
     val status: Status
 
     /**
-     * The developer-provided external object (either a BaseSession instance or an ActionExecutor instance).
+     * The developer-provided external object (either a BaseExecutionSession instance or an
+     * ActionExecutor instance).
      */
     val uiHandle: Any
 
@@ -70,6 +71,6 @@ interface CapabilitySession {
         UNINITIATED,
         IN_PROGRESS,
         COMPLETED,
-        DESTROYED,
+        DESTROYED
     }
 }

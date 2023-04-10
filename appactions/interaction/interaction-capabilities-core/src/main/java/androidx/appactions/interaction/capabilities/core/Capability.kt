@@ -66,19 +66,19 @@ abstract class Capability internal constructor(
             ArgumentsT,
             OutputT,
             ConfirmationT,
-            SessionT,>,
+            ExecutionSessionT,>,
         PropertyT,
         ArgumentsT,
         OutputT,
         ConfirmationT,
-        SessionT : BaseSession<ArgumentsT, OutputT>,
+        ExecutionSessionT : BaseExecutionSession<ArgumentsT, OutputT>,
         > protected constructor(
         private val actionSpec: ActionSpec<PropertyT, ArgumentsT, OutputT>,
     ) {
         private var id: String? = null
         private var property: PropertyT? = null
         private var actionExecutorAsync: ActionExecutorAsync<ArgumentsT, OutputT>? = null
-        private var sessionFactory: SessionFactory<SessionT>? = null
+        private var sessionFactory: ExecutionSessionFactory<ExecutionSessionT>? = null
 
         /**
          * The SessionBridge object, which is used to normalize Session instances to TaskHandler.
@@ -87,7 +87,7 @@ abstract class Capability internal constructor(
          * @suppress
          */
         @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        protected open val sessionBridge: SessionBridge<SessionT, ConfirmationT>? = null
+        protected open val sessionBridge: SessionBridge<ExecutionSessionT, ConfirmationT>? = null
 
         @Suppress("UNCHECKED_CAST")
         fun asBuilder(): BuilderT {
@@ -113,8 +113,8 @@ abstract class Capability internal constructor(
         /**
          * Sets the ActionExecutor for this capability.
          *
-         * setSessionFactory and setExecutor are mutually exclusive, so calling one will nullify
-         * the other.
+         * setExecutionSessionFactory and setExecutor are mutually exclusive, so calling one will
+         * nullify the other.
          *
          * This method accepts a coroutine-based ActionExecutor instance. There is also an overload
          * which accepts the ActionExecutorAsync instead.
@@ -126,8 +126,8 @@ abstract class Capability internal constructor(
         /**
          * Sets the ActionExecutorAsync for this capability.
          *
-         * setSessionFactory and setExecutor are mutually exclusive, so calling one will nullify
-         * the other.
+         * setExecutionSessionFactory and setExecutor are mutually exclusive, so calling one will
+         * nullify the other.
          *
          * This method accepts the ActionExecutorAsync interface which returns a ListenableFuture.
          */
@@ -141,19 +141,19 @@ abstract class Capability internal constructor(
          * Sets the SessionBuilder instance which is used to create Session instaces for this
          * capability.
          *
-         * [setSessionFactory] and [setExecutor] are mutually exclusive, so calling one will nullify
-         * the other.
+         * [setExecutionSessionFactory] and [setExecutor] are mutually exclusive, so calling one
+         * will nullify the other.
          */
-        protected open fun setSessionFactory(
-            sessionFactory: SessionFactory<SessionT>,
+        protected open fun setExecutionSessionFactory(
+            sessionFactory: ExecutionSessionFactory<ExecutionSessionT>,
         ): BuilderT = asBuilder().apply {
             this.sessionFactory = sessionFactory
         }
 
         /** Builds and returns this Capability. */
         open fun build(): Capability {
-            val checkedId = requireNotNull(id, { "setId must be called before build" })
-            val checkedProperty = requireNotNull(property, { "property must not be null." })
+            val checkedId = requireNotNull(id) { "setId must be called before build" }
+            val checkedProperty = requireNotNull(property) { "property must not be null." }
             if (actionExecutorAsync != null) {
                 return SingleTurnCapabilityImpl(
                     checkedId,
@@ -162,14 +162,14 @@ abstract class Capability internal constructor(
                     actionExecutorAsync!!,
                 )
             } else {
+                val checkedSessionFactory = requireNotNull(sessionFactory) {
+                    "either setExecutor or setExecutionSessionFactory must be called before build"
+                }
                 return TaskCapabilityImpl(
                     checkedId,
                     actionSpec,
                     checkedProperty,
-                    requireNotNull(
-                        sessionFactory,
-                        { "either setExecutor or setSessionFactory must be called before build" },
-                    ),
+                    checkedSessionFactory,
                     sessionBridge!!,
                     ::EmptyTaskUpdater,
                 )

@@ -17,7 +17,7 @@ b * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 package androidx.appactions.interaction.capabilities.productivity
 
 import androidx.appactions.interaction.capabilities.core.Capability
-import androidx.appactions.interaction.capabilities.core.BaseSession
+import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
@@ -61,7 +61,7 @@ class PauseTimer private constructor() {
             Arguments,
             Output,
             Confirmation,
-            Session,
+            ExecutionSession,
         >(ACTION_SPEC) {
         override fun build(): Capability {
             super.setProperty(Properties.Builder().build())
@@ -200,5 +200,5 @@ class PauseTimer private constructor() {
 
     class Confirmation internal constructor()
 
-    sealed interface Session : BaseSession<Arguments, Output>
+    sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 }

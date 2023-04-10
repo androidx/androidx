@@ -17,8 +17,8 @@
 package androidx.appactions.interaction.service.testing.internal
 
 import androidx.appactions.interaction.capabilities.core.Capability
-import androidx.appactions.interaction.capabilities.core.BaseSession
-import androidx.appactions.interaction.capabilities.core.SessionFactory
+import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
+import androidx.appactions.interaction.capabilities.core.ExecutionSessionFactory
 import androidx.appactions.interaction.capabilities.core.ValueListener
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
@@ -62,7 +62,7 @@ class FakeCapability private constructor() {
 
     class Confirmation internal constructor()
 
-    interface Session : BaseSession<Arguments, Output> {
+    interface ExecutionSession : BaseExecutionSession<Arguments, Output> {
         val fieldOneListener: ValueListener<String>?
             get() = null
     }
@@ -73,9 +73,9 @@ class FakeCapability private constructor() {
         Arguments,
         Output,
         Confirmation,
-        Session,
+        ExecutionSession,
         >(ACTION_SPEC) {
-        override val sessionBridge = SessionBridge<Session, Confirmation> {
+        override val sessionBridge = SessionBridge<ExecutionSession, Confirmation> {
                 session ->
             val builder = TaskHandler.Builder<Confirmation>()
             session.fieldOneListener?.let {
@@ -94,9 +94,9 @@ class FakeCapability private constructor() {
             this.fieldOne = fieldOne
         }
 
-        public override fun setSessionFactory(
-            sessionFactory: SessionFactory<Session>,
-        ) = super.setSessionFactory(sessionFactory)
+        public override fun setExecutionSessionFactory(
+            sessionFactory: ExecutionSessionFactory<ExecutionSession>,
+        ) = super.setExecutionSessionFactory(sessionFactory)
 
         override fun build(): Capability {
             super.setProperty(Properties(fieldOne))

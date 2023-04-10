@@ -20,8 +20,8 @@ import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.concurrent.futures.await
 import com.google.common.util.concurrent.ListenableFuture
 
-/** Base interface for Session of all verticals. */
-interface BaseSession<ArgumentsT, OutputT> {
+/** Base interface for ExecutionSession of all verticals. */
+interface BaseExecutionSession<ArgumentsT, OutputT> {
     /**
      * Implement any initialization logic.
      *
@@ -35,8 +35,8 @@ interface BaseSession<ArgumentsT, OutputT> {
      * @param arguments the [ArgumentsT] instance containing data for fulfillment.
      * @return an [ExecutionResult] instance.
      */
-    suspend fun onFinish(arguments: ArgumentsT): ExecutionResult<OutputT> {
-        return onFinishAsync(arguments).await()
+    suspend fun onExecute(arguments: ArgumentsT): ExecutionResult<OutputT> {
+        return onExecuteAsync(arguments).await()
     }
 
     /**
@@ -45,7 +45,7 @@ interface BaseSession<ArgumentsT, OutputT> {
      * @param arguments the Argument instance containing data for fulfillment.
      * @return a [ListenableFuture] containing an [ExecutionResult] instance.
      */
-    fun onFinishAsync(arguments: ArgumentsT): ListenableFuture<ExecutionResult<OutputT>> {
+    fun onExecuteAsync(arguments: ArgumentsT): ListenableFuture<ExecutionResult<OutputT>> {
         return Futures.immediateFuture(ExecutionResult.Builder<OutputT>().build())
     }
 

@@ -75,7 +75,7 @@ internal class SingleTurnCapabilitySession<
             try {
                 mutex.lock(owner = this@SingleTurnCapabilitySession)
                 UiHandleRegistry.registerUiHandle(uiHandle, sessionId)
-                val output = actionExecutorAsync.execute(arguments).await()
+                val output = actionExecutorAsync.onExecute(arguments).await()
                 callback.onSuccess(convertToFulfillmentResponse(output))
             } catch (t: Throwable) {
                 callback.onError(ErrorStatusInternal.CANCELLED)

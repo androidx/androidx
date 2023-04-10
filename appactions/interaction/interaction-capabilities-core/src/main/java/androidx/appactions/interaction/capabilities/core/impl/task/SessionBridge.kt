@@ -25,8 +25,8 @@ import androidx.annotation.RestrictTo
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun interface SessionBridge<
-    SessionT,
+    ExecutionSessionT,
     ConfirmationT
 > {
-    fun createTaskHandler(externalSession: SessionT): TaskHandler<ConfirmationT>
+    fun createTaskHandler(externalSession: ExecutionSessionT): TaskHandler<ConfirmationT>
 }

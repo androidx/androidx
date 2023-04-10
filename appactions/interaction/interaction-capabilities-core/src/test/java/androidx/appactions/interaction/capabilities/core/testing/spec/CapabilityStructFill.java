@@ -20,7 +20,7 @@ import static androidx.appactions.interaction.capabilities.core.impl.converters.
 
 import androidx.annotation.NonNull;
 import androidx.appactions.interaction.capabilities.core.AppEntityListener;
-import androidx.appactions.interaction.capabilities.core.BaseSession;
+import androidx.appactions.interaction.capabilities.core.BaseExecutionSession;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter;
@@ -111,7 +111,7 @@ public final class CapabilityStructFill {
         }
     }
 
-    public interface Session extends BaseSession<Arguments, Void> {
+    public interface ExecutionSession extends BaseExecutionSession<Arguments, Void> {
         @NonNull
         AppEntityListener<ListItem> getListItemListener();
     }

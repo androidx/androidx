@@ -19,7 +19,7 @@ package androidx.appactions.interaction.service
 import android.content.Context
 import android.util.SizeF
 import android.widget.RemoteViews
-import androidx.appactions.interaction.capabilities.core.BaseSession
+import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.service.test.R
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -29,7 +29,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class UiCacheTest {
-    private val capabilitySession = object : BaseSession<String, String> {}
+    private val capabilitySession = object : BaseExecutionSession<String, String> {}
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val remoteViewsFactoryId = 123
     private val changeViewId = 111

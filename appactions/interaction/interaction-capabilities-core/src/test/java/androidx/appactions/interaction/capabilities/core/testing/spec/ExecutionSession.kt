@@ -17,19 +17,19 @@
 package androidx.appactions.interaction.capabilities.core.testing.spec
 
 import androidx.appactions.interaction.capabilities.core.AppEntityListener
-import androidx.appactions.interaction.capabilities.core.BaseSession
+import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.appactions.interaction.capabilities.core.values.EntityValue
 
-interface Session : BaseSession<Arguments, Output> {
+interface ExecutionSession : BaseExecutionSession<Arguments, Output> {
 
     fun getRequiredEntityListener(): AppEntityListener<EntityValue>? = null
 
     companion object {
         @JvmStatic
-        val DEFAULT: Session = object : Session {
-            override fun onFinishAsync(arguments: Arguments) =
+        val DEFAULT = object : ExecutionSession {
+            override fun onExecuteAsync(arguments: Arguments) =
                 Futures.immediateFuture(
                     ExecutionResult.Builder<Output>().build(),
                 )

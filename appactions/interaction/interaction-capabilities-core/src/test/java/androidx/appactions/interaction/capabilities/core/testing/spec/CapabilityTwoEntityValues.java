@@ -17,7 +17,7 @@
 package androidx.appactions.interaction.capabilities.core.testing.spec;
 
 import androidx.annotation.NonNull;
-import androidx.appactions.interaction.capabilities.core.BaseSession;
+import androidx.appactions.interaction.capabilities.core.BaseExecutionSession;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec;
@@ -104,5 +104,5 @@ public final class CapabilityTwoEntityValues {
         }
     }
 
-    public interface Session extends BaseSession<Arguments, Void> {}
+    public interface ExecutionSession extends BaseExecutionSession<Arguments, Void> {}
 }
