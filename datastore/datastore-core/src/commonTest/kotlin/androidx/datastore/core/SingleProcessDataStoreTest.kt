@@ -193,6 +193,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile>(private val testIO: Test
 
     @Test
     fun testReadFromNonExistentFile() = doTest {
+        // TODO remove deleteIfExists after b/276983736
         testFile.deleteIfExists()
         val newStore = newDataStore(testFile)
         assertThat(newStore.data.first()).isEqualTo(0)
