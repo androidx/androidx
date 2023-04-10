@@ -20,13 +20,18 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import android.content.ComponentName;
 import android.os.Bundle;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
+import com.google.common.collect.ImmutableSet;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.Set;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -74,12 +79,17 @@ public class GetCustomCredentialOptionJavaTest {
         expectedCandidateQueryDataBundle.putBoolean("key", true);
         boolean expectedSystemProvider = true;
         boolean expectedAutoSelectAllowed = false;
+        Set<ComponentName> expectedAllowedProviders = ImmutableSet.of(
+                new ComponentName("pkg", "cls"),
+                new ComponentName("pkg2", "cls2")
+        );
 
         GetCustomCredentialOption option = new GetCustomCredentialOption(expectedType,
                 expectedBundle,
                 expectedCandidateQueryDataBundle,
                 expectedSystemProvider,
-                expectedAutoSelectAllowed);
+                expectedAutoSelectAllowed,
+                expectedAllowedProviders);
 
         assertThat(option.getType()).isEqualTo(expectedType);
         assertThat(option.getCustomRequestType()).isEqualTo(expectedType);
@@ -91,6 +101,8 @@ public class GetCustomCredentialOptionJavaTest {
                 expectedCandidateQueryDataBundle)).isTrue();
         assertThat(option.isAutoSelectAllowed()).isEqualTo(expectedAutoSelectAllowed);
         assertThat(option.isSystemProviderRequired()).isEqualTo(expectedSystemProvider);
+        assertThat(option.getAllowedProviders())
+                .containsAtLeastElementsIn(expectedAllowedProviders);
     }
 
     @Test
@@ -102,15 +114,20 @@ public class GetCustomCredentialOptionJavaTest {
         expectedCandidateQueryDataBundle.putBoolean("key", true);
         boolean expectedSystemProvider = true;
         boolean expectedAutoSelectAllowed = false;
+        Set<ComponentName> expectedAllowedProviders = ImmutableSet.of(
+                new ComponentName("pkg", "cls"),
+                new ComponentName("pkg2", "cls2")
+        );
         GetCustomCredentialOption option = new GetCustomCredentialOption(expectedType,
                 expectedBundle,
                 expectedCandidateQueryDataBundle,
                 expectedSystemProvider,
-                expectedAutoSelectAllowed);
+                expectedAutoSelectAllowed,
+                expectedAllowedProviders);
 
         CredentialOption convertedOption = CredentialOption.createFrom(
                 option.getType(), option.getRequestData(), option.getCandidateQueryData(),
-                option.isSystemProviderRequired());
+                option.isSystemProviderRequired(), option.getAllowedProviders());
 
         assertThat(convertedOption).isInstanceOf(GetCustomCredentialOption.class);
         GetCustomCredentialOption actualOption = (GetCustomCredentialOption) convertedOption;
@@ -125,5 +142,7 @@ public class GetCustomCredentialOptionJavaTest {
                 expectedCandidateQueryDataBundle)).isTrue();
         assertThat(actualOption.isAutoSelectAllowed()).isEqualTo(expectedAutoSelectAllowed);
         assertThat(actualOption.isSystemProviderRequired()).isEqualTo(expectedSystemProvider);
+        assertThat(actualOption.getAllowedProviders())
+                .containsAtLeastElementsIn(expectedAllowedProviders);
     }
 }

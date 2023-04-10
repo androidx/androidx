@@ -241,7 +241,9 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
             builder.addCredentialOption(
                 android.credentials.CredentialOption.Builder(
                     it.type, it.requestData, it.candidateQueryData
-                ).setIsSystemProviderRequired(it.isSystemProviderRequired).build()
+                ).setIsSystemProviderRequired(
+                    it.isSystemProviderRequired
+                ).setAllowedProviders(it.allowedProviders).build()
             )
         }
         setOriginForGetRequest(request, builder)

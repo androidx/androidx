@@ -16,6 +16,7 @@
 
 package androidx.credentials
 
+import android.content.ComponentName
 import android.os.Bundle
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
@@ -26,6 +27,12 @@ import androidx.credentials.internal.FrameworkClassParsingException
  *
  * [GetCredentialRequest] will be composed of a list of [CredentialOption] subclasses to indicate
  * the specific credential types and configurations that your app accepts.
+ *
+ * @property allowedProviders a set of provider service [ComponentName] allowed to receive this
+ * option. This property will only be honored at API level >= 34; also a [SecurityException] will
+ * be thrown if it is set as non-empty but your app does not have
+ * android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS. For API level < 34, control the
+ * allowed provider via [library dependencies](https://developer.android.com/training/sign-in/passkeys#add-dependencies).
  */
 abstract class CredentialOption internal constructor(
     /** @hide */
@@ -43,6 +50,7 @@ abstract class CredentialOption internal constructor(
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val isAutoSelectAllowed: Boolean,
+    val allowedProviders: Set<ComponentName>,
 ) {
 
     init {
@@ -67,17 +75,19 @@ abstract class CredentialOption internal constructor(
             type: String,
             requestData: Bundle,
             candidateQueryData: Bundle,
-            requireSystemProvider: Boolean
+            requireSystemProvider: Boolean,
+            allowedProviders: Set<ComponentName>,
         ): CredentialOption {
             return try {
                 when (type) {
                     PasswordCredential.TYPE_PASSWORD_CREDENTIAL ->
-                        GetPasswordOption.createFrom(requestData)
+                        GetPasswordOption.createFrom(requestData, allowedProviders)
                     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL ->
                         when (requestData.getString(PublicKeyCredential.BUNDLE_KEY_SUBTYPE)) {
                             GetPublicKeyCredentialOption
                                 .BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION ->
-                                GetPublicKeyCredentialOption.createFrom(requestData)
+                                GetPublicKeyCredentialOption.createFrom(
+                                    requestData, allowedProviders)
                             else -> throw FrameworkClassParsingException()
                         }
                     else -> throw FrameworkClassParsingException()
@@ -91,7 +101,8 @@ abstract class CredentialOption internal constructor(
                     candidateQueryData = candidateQueryData,
                     isSystemProviderRequired = requireSystemProvider,
                     isAutoSelectAllowed = requestData.getBoolean(
-                        BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false)
+                        BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false),
+                    allowedProviders = allowedProviders,
                 )
             }
         }

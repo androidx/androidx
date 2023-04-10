@@ -16,6 +16,7 @@
 
 package androidx.credentials.provider
 
+import android.content.ComponentName
 import android.content.pm.SigningInfo
 import android.os.Bundle
 import android.service.credentials.CallingAppInfo
@@ -43,7 +44,8 @@ class ProviderGetCredentialRequestTest {
             listOf(
                 createFrom(
                     "type", Bundle(),
-                    Bundle(), true
+                    Bundle(), true,
+                    emptySet()
                 )
             ), CallingAppInfo(
                 "name",
@@ -69,6 +71,10 @@ class ProviderGetCredentialRequestTest {
         val expectedRequestData = Bundle()
         expectedRequestData.putString(expectedRequestKey, expectedRequestValue)
         val expectedRequireSystemProvider = true
+        val expectedAllowedProviders: Set<ComponentName> = setOf(
+            ComponentName("pkg", "cls"),
+            ComponentName("pkg2", "cls2")
+        )
 
         val providerGetCredentialRequest = ProviderGetCredentialRequest(
             listOf(
@@ -76,7 +82,8 @@ class ProviderGetCredentialRequestTest {
                     expectedType,
                     expectedRequestData,
                     expectedCandidateQueryData,
-                    expectedRequireSystemProvider
+                    expectedRequireSystemProvider,
+                    expectedAllowedProviders
                 )
             ),
             CallingAppInfo(
@@ -97,6 +104,8 @@ class ProviderGetCredentialRequestTest {
         assertThat(actualRequestValue).isEqualTo(expectedRequestValue)
         assertThat(actualQueryValue).isEqualTo(expectedQueryValue)
         assertThat(actualRequireSystemProvider).isEqualTo(expectedRequireSystemProvider)
+        assertThat(actualCredentialOptionsList[0].allowedProviders)
+            .containsAtLeastElementsIn(expectedAllowedProviders)
     }
 
     @Test
@@ -110,7 +119,7 @@ class ProviderGetCredentialRequestTest {
             listOf(
                 createFrom(
                     "type", Bundle(),
-                    Bundle(), true
+                    Bundle(), true, emptySet()
                 )
             ), CallingAppInfo(
                 expectedPackageName,

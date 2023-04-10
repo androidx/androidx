@@ -16,6 +16,7 @@
 
 package androidx.credentials
 
+import android.content.ComponentName
 import android.os.Bundle
 import androidx.credentials.CredentialOption.Companion.createFrom
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -45,17 +46,23 @@ class GetPasswordOptionTest {
 
     @Test
     fun getter_frameworkProperties() {
-        val option = GetPasswordOption()
+        val expectedAllowedProviders: Set<ComponentName> = setOf(
+            ComponentName("pkg", "cls"),
+            ComponentName("pkg2", "cls2")
+        )
+        val expectedIsAutoSelectAllowed = true
         val expectedRequestDataBundle = Bundle()
         expectedRequestDataBundle.putBoolean(
             CredentialOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
-            false
+            expectedIsAutoSelectAllowed
         )
         val expectedCandidateData = Bundle()
         expectedCandidateData.putBoolean(
             CredentialOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
-            false
+            expectedIsAutoSelectAllowed
         )
+
+        val option = GetPasswordOption(expectedIsAutoSelectAllowed, expectedAllowedProviders)
 
         assertThat(option.type).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL)
         assertThat(equals(option.requestData, expectedRequestDataBundle)).isTrue()
@@ -66,16 +73,26 @@ class GetPasswordOptionTest {
     @Test
     fun frameworkConversion_success() {
         val expectedAutoSelectAllowed = true
-        val option = GetPasswordOption(isAutoSelectAllowed = expectedAutoSelectAllowed)
+        val expectedAllowedProviders: Set<ComponentName> = setOf(
+            ComponentName("pkg", "cls"),
+            ComponentName("pkg2", "cls2")
+        )
+        val option = GetPasswordOption(
+            isAutoSelectAllowed = expectedAutoSelectAllowed,
+            allowedProviders = expectedAllowedProviders,
+        )
 
         val convertedOption = createFrom(
             option.type,
             option.requestData,
             option.candidateQueryData,
-            option.isSystemProviderRequired
+            option.isSystemProviderRequired,
+            option.allowedProviders
         )
 
         assertThat(convertedOption).isInstanceOf(GetPasswordOption::class.java)
         assertThat(convertedOption.isAutoSelectAllowed).isEqualTo(expectedAutoSelectAllowed)
+        assertThat(convertedOption.allowedProviders)
+            .containsAtLeastElementsIn(expectedAllowedProviders)
     }
 }

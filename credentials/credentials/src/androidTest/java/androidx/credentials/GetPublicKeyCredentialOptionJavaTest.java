@@ -24,13 +24,18 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import android.content.ComponentName;
 import android.os.Bundle;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
+import com.google.common.collect.ImmutableSet;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.Set;
 
 
 @RunWith(AndroidJUnit4.class)
@@ -93,6 +98,10 @@ public class GetPublicKeyCredentialOptionJavaTest {
 
     @Test
     public void getter_frameworkProperties_success() {
+        Set<ComponentName> expectedAllowedProviders = ImmutableSet.of(
+                new ComponentName("pkg", "cls"),
+                new ComponentName("pkg2", "cls2")
+        );
         String requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
         boolean preferImmediatelyAvailableCredentialsExpected = false;
         boolean expectedIsAutoSelect = true;
@@ -110,23 +119,31 @@ public class GetPublicKeyCredentialOptionJavaTest {
         expectedData.putBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, expectedIsAutoSelect);
 
         GetPublicKeyCredentialOption option = new GetPublicKeyCredentialOption(
-                requestJsonExpected, clientDataHash, preferImmediatelyAvailableCredentialsExpected);
+                requestJsonExpected, clientDataHash,
+                preferImmediatelyAvailableCredentialsExpected, expectedAllowedProviders);
 
         assertThat(option.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
         assertThat(TestUtilsKt.equals(option.getRequestData(), expectedData)).isTrue();
         assertThat(TestUtilsKt.equals(option.getCandidateQueryData(), expectedData)).isTrue();
         assertThat(option.isSystemProviderRequired()).isFalse();
+        assertThat(option.getAllowedProviders())
+                .containsAtLeastElementsIn(expectedAllowedProviders);
     }
 
     @Test
     public void frameworkConversion_success() {
         String clientDataHash = "hash";
-        GetPublicKeyCredentialOption option =
-                new GetPublicKeyCredentialOption("json", clientDataHash, true);
+        Set<ComponentName> expectedAllowedProviders = ImmutableSet.of(
+                new ComponentName("pkg", "cls"),
+                new ComponentName("pkg2", "cls2")
+        );
+        GetPublicKeyCredentialOption option = new GetPublicKeyCredentialOption(
+                "json", clientDataHash, true, expectedAllowedProviders);
 
         CredentialOption convertedOption = CredentialOption.createFrom(
                 option.getType(), option.getRequestData(),
-                option.getCandidateQueryData(), option.isSystemProviderRequired());
+                option.getCandidateQueryData(), option.isSystemProviderRequired(),
+                option.getAllowedProviders());
 
         assertThat(convertedOption).isInstanceOf(GetPublicKeyCredentialOption.class);
         GetPublicKeyCredentialOption convertedSubclassOption =
@@ -134,5 +151,7 @@ public class GetPublicKeyCredentialOptionJavaTest {
         assertThat(convertedSubclassOption.getRequestJson()).isEqualTo(option.getRequestJson());
         assertThat(convertedSubclassOption.preferImmediatelyAvailableCredentials()).isEqualTo(
                 option.preferImmediatelyAvailableCredentials());
+        assertThat(convertedSubclassOption.getAllowedProviders())
+                .containsAtLeastElementsIn(expectedAllowedProviders);
     }
 }

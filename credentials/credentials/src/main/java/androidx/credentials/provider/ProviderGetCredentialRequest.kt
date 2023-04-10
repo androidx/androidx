@@ -66,7 +66,8 @@ class ProviderGetCredentialRequest constructor(
                             option.type,
                             option.credentialRetrievalData,
                             option.candidateQueryData,
-                            option.isSystemProviderRequired
+                            option.isSystemProviderRequired,
+                            option.allowedProviders,
                         )
                     }
                     .collect(Collectors.toList()),

@@ -16,6 +16,7 @@
 
 package androidx.credentials
 
+import android.content.ComponentName
 import android.os.Bundle
 
 /**
@@ -23,24 +24,36 @@ import android.os.Bundle
  *
  * @param isAutoSelectAllowed false by default, allows auto selecting a password if there is
  * only one available
+ * @param allowedProviders a set of provider service [ComponentName] allowed to receive this
+ * option. This property will only be honored at API level >= 34; also a [SecurityException] will
+ * be thrown if it
+ * is set as non-empty but your app does not have
+ * android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS. For API level < 34, control the
+ * allowed provider via [library dependencies](https://developer.android.com/training/sign-in/passkeys#add-dependencies).
  */
 class GetPasswordOption @JvmOverloads constructor(
-    isAutoSelectAllowed: Boolean = false
+    isAutoSelectAllowed: Boolean = false,
+    allowedProviders: Set<ComponentName> = emptySet(),
 ) : CredentialOption(
     type = PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
     requestData = Bundle(),
     candidateQueryData = Bundle(),
     isSystemProviderRequired = false,
     isAutoSelectAllowed = isAutoSelectAllowed,
+    allowedProviders,
 ) {
 
     /** @hide */
     companion object {
         @Suppress("UNUSED_PARAMETER")
         @JvmStatic
-        internal fun createFrom(data: Bundle): GetPasswordOption {
+        internal fun createFrom(
+            data: Bundle,
+            allowedProviders: Set<ComponentName>,
+        ): GetPasswordOption {
             return GetPasswordOption(
-                data.getBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false)
+                data.getBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false),
+                allowedProviders
             )
         }
     }
