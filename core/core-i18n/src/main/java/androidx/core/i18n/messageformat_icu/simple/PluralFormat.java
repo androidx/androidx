@@ -128,7 +128,6 @@ import androidx.core.i18n.messageformat_icu.text.MessagePattern;
  *
  * @author tschumann (Tim Schumann)
  * icu_annot::stable ICU 3.8
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PluralFormat /* extends UFormat */ {

@@ -19,16 +19,18 @@ package androidx.credentials.exceptions
 import androidx.credentials.CredentialManager
 
 /**
- * Represents a custom error thrown during a clear flow with Credential Manager. See
- * [CredentialManager] for more details on how Exceptions work for Credential Manager flows.
+ * Represents a custom error thrown during a clear flow with [CredentialManager].
  *
- * @see CredentialManager
+ * If you get this custom exception, you should match its [type] against exception constants
+ * defined in any third-party sdk with which you used to make the
+ * [androidx.credentials.ClearCredentialStateRequest], and then handle it according to the sdk
+ * recommendation.
  *
  * @property type a string that indicates the type of the credential exception
  * @throws IllegalArgumentException If [type] is empty
  * @throws NullPointerException If [type] is null
  */
-open class ClearCustomCredentialException @JvmOverloads constructor(
+class ClearCustomCredentialException @JvmOverloads constructor(
     override val type: String,
     errorMessage: CharSequence? = null
 ) : ClearCredentialException(type, errorMessage) {

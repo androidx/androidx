@@ -17,23 +17,22 @@
 package androidx.tv.foundation.lazy.grid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.lazy.layout.DelegatingLazyLayoutItemProvider
-import androidx.compose.foundation.lazy.layout.IntervalList
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
-import androidx.compose.foundation.lazy.layout.rememberLazyNearestItemsRangeState
+import androidx.compose.foundation.lazy.layout.PinnableItem
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.tv.foundation.lazy.layout.LazyLayoutKeyIndexMap
+import androidx.tv.foundation.lazy.layout.NearestRangeKeyIndexMapState
 
 @Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
 @ExperimentalFoundationApi
 internal interface LazyGridItemProvider : LazyLayoutItemProvider {
     val spanLayoutProvider: LazyGridSpanLayoutProvider
-    val hasCustomSpans: Boolean
-
-    fun TvLazyGridItemSpanScope.getSpan(index: Int): TvGridItemSpan
+    val keyToIndexMap: LazyLayoutKeyIndexMap
 }
 
 @ExperimentalFoundationApi
@@ -43,60 +42,49 @@ internal fun rememberLazyGridItemProvider(
     content: TvLazyGridScope.() -> Unit,
 ): LazyGridItemProvider {
     val latestContent = rememberUpdatedState(content)
-    val nearestItemsRangeState = rememberLazyNearestItemsRangeState(
-        firstVisibleItemIndex = remember(state) {
-            { state.firstVisibleItemIndex }
-        },
-        slidingWindowSize = { NearestItemsSlidingWindowSize },
-        extraItemCount = { NearestItemsExtraItemCount }
-    )
-
-    return remember(nearestItemsRangeState) {
-        val itemProviderState: State<LazyGridItemProvider> = derivedStateOf {
-            val gridScope = TvLazyGridScopeImpl().apply(latestContent.value)
-            LazyGridItemProviderImpl(
-                gridScope.intervals,
-                gridScope.hasCustomSpans,
-                nearestItemsRangeState.value
-            )
-        }
-
-        object : LazyGridItemProvider,
-            LazyLayoutItemProvider by DelegatingLazyLayoutItemProvider(itemProviderState) {
-            override val spanLayoutProvider: LazyGridSpanLayoutProvider
-                get() = itemProviderState.value.spanLayoutProvider
-
-            override val hasCustomSpans: Boolean
-                get() = itemProviderState.value.hasCustomSpans
-
-            override fun TvLazyGridItemSpanScope.getSpan(index: Int): TvGridItemSpan =
-                with(itemProviderState.value) {
-                    getSpan(index)
-                }
-        }
+    return remember(state) {
+        LazyGridItemProviderImpl(
+            state,
+            { latestContent.value },
+        )
     }
 }
 
 @ExperimentalFoundationApi
 private class LazyGridItemProviderImpl(
-    private val intervals: IntervalList<LazyGridIntervalContent>,
-    override val hasCustomSpans: Boolean,
-    nearestItemsRange: IntRange
-) : LazyGridItemProvider, LazyLayoutItemProvider by LazyLayoutItemProvider(
-    intervals = intervals,
-    nearestItemsRange = nearestItemsRange,
-    itemContent = { interval, index ->
-        interval.value.item.invoke(TvLazyGridItemScopeImpl, index - interval.startIndex)
+    private val state: TvLazyGridState,
+    private val latestContent: () -> (TvLazyGridScope.() -> Unit)
+) : LazyGridItemProvider {
+    private val gridContent by derivedStateOf(referentialEqualityPolicy()) {
+        LazyGridIntervalContent(latestContent())
     }
-) {
-    override val spanLayoutProvider: LazyGridSpanLayoutProvider =
-        LazyGridSpanLayoutProvider(this)
 
-    override fun TvLazyGridItemSpanScope.getSpan(index: Int): TvGridItemSpan {
-        val interval = intervals[index]
-        val localIntervalIndex = index - interval.startIndex
-        return interval.value.span.invoke(this, localIntervalIndex)
+    override val itemCount: Int get() = gridContent.itemCount
+
+    override fun getKey(index: Int): Any = gridContent.getKey(index)
+
+    override fun getContentType(index: Int): Any? = gridContent.getContentType(index)
+
+    @Composable
+    override fun Item(index: Int) {
+        gridContent.PinnableItem(index, state.pinnedItems) { localIndex ->
+            with(TvLazyGridItemScopeImpl) {
+                item(localIndex)
+            }
+        }
     }
+
+    override val spanLayoutProvider: LazyGridSpanLayoutProvider
+        get() = gridContent.spanLayoutProvider
+
+    override val keyToIndexMap: LazyLayoutKeyIndexMap by NearestRangeKeyIndexMapState(
+        firstVisibleItemIndex = { state.firstVisibleItemIndex },
+        slidingWindowSize = { NearestItemsSlidingWindowSize },
+        extraItemCount = { NearestItemsExtraItemCount },
+        content = { gridContent }
+    )
+
+    override fun getIndex(key: Any): Int = keyToIndexMap[key]
 }
 
 /**

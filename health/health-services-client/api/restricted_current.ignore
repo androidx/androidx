@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-AddedAbstractMethod: androidx.health.services.client.ExerciseClient#overrideBatchingModesForActiveExerciseAsync(java.util.Set<androidx.health.services.client.data.BatchingMode>):
-    Added method androidx.health.services.client.ExerciseClient.overrideBatchingModesForActiveExerciseAsync(java.util.Set<androidx.health.services.client.data.BatchingMode>)

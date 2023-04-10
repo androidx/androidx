@@ -16,15 +16,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void draw(Canvas canvas) {"
-        errorLine2="                     ~~~~~~">
-        <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/CircularProgressDrawable.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setColorFilter(ColorFilter colorFilter) {"
         errorLine2="                               ~~~~~~~~~~~">
         <location
@@ -34,7 +25,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {"
+        errorLine1="    public boolean onStartNestedScroll(View child, View target, int axes) {"
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
@@ -43,7 +34,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {"
+        errorLine1="    public boolean onStartNestedScroll(View child, View target, int axes) {"
         errorLine2="                                                   ~~~~">
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>

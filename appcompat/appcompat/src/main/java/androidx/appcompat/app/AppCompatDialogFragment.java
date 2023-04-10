@@ -54,7 +54,6 @@ public class AppCompatDialogFragment extends DialogFragment {
         return new AppCompatDialog(getContext(), getTheme());
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void setupDialog(@NonNull Dialog dialog, int style) {

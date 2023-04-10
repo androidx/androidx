@@ -29,7 +29,6 @@ import androidx.core.widget.TextViewCompat;
 /**
  * Support library implementation for ExtractButton. Used by {@link EmojiExtractViewHelper} while
  * inflating {@link EmojiExtractEditText} for keyboard use.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ExtractButtonCompat extends Button {

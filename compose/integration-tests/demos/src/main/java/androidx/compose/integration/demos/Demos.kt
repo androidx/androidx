@@ -24,7 +24,9 @@ import androidx.compose.foundation.demos.text.TextDemos
 import androidx.compose.material.demos.MaterialDemos
 import androidx.compose.material3.demos.Material3Demos
 import androidx.compose.ui.demos.CoreDemos
+import androidx.compose.ui.demos.AccessibilityDemos
 import androidx.navigation.compose.demos.NavigationDemos
+import androidx.paging.compose.demos.PagingFoundationDemos
 
 /**
  * [DemoCategory] containing all the top level demo categories.
@@ -39,6 +41,8 @@ val AllDemosCategory = DemoCategory(
         MaterialDemos,
         Material3Demos,
         NavigationDemos,
-        TextDemos
+        PagingFoundationDemos,
+        TextDemos,
+        AccessibilityDemos
     )
 )

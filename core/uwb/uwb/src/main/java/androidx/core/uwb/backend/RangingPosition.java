@@ -22,11 +22,12 @@ import android.os.Parcel;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 /** Gms Reference: com.google.android.gms.nearby.uwb.RangingPosition
  *
- * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint({"ParcelNotFinal", "BanParcelableUsage"})
 public class RangingPosition implements android.os.Parcelable
 {

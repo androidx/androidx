@@ -33,7 +33,6 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Audio specification that is options to config audio source and encoding.
- * @hide
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(Scope.LIBRARY)
@@ -71,7 +70,6 @@ public abstract class AudioSpec {
      */
     public static final int CHANNEL_COUNT_STEREO = 2;
 
-    /** @hide */
     @IntDef(open = true,
             value = {CHANNEL_COUNT_AUTO, CHANNEL_COUNT_NONE, CHANNEL_COUNT_MONO,
                     CHANNEL_COUNT_STEREO})
@@ -90,7 +88,6 @@ public abstract class AudioSpec {
      */
     public static final int SOURCE_CAMCORDER = MediaRecorder.AudioSource.CAMCORDER;
 
-    /** @hide */
     @IntDef({SOURCE_AUTO, SOURCE_CAMCORDER})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -165,7 +162,6 @@ public abstract class AudioSpec {
 
     /**
      * The builder of the {@link AudioSpec}.
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     @SuppressWarnings("StaticFinalBuilder")

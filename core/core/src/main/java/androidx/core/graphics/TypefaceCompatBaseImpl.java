@@ -39,7 +39,6 @@ import java.lang.reflect.Field;
 
 /**
  * Implementation of the Typeface compat methods for API 14 and above.
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 class TypefaceCompatBaseImpl {

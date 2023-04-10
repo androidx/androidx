@@ -580,7 +580,6 @@ public class Toolbar extends ViewGroup implements MenuHost {
         setLogo(AppCompatResources.getDrawable(getContext(), resId));
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public boolean canShowOverflowMenu() {
         return getVisibility() == VISIBLE && mMenuView != null && mMenuView.isOverflowReserved();
@@ -596,7 +595,6 @@ public class Toolbar extends ViewGroup implements MenuHost {
         return mMenuView != null && mMenuView.isOverflowMenuShowing();
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public boolean isOverflowMenuShowPending() {
         return mMenuView != null && mMenuView.isOverflowMenuShowPending();
@@ -620,7 +618,6 @@ public class Toolbar extends ViewGroup implements MenuHost {
         return mMenuView != null && mMenuView.hideOverflowMenu();
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     public void setMenu(MenuBuilder menu, ActionMenuPresenter outerPresenter) {
         if (menu == null && mMenuView == null) {
@@ -669,7 +666,6 @@ public class Toolbar extends ViewGroup implements MenuHost {
         }
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public boolean isTitleTruncated() {
         if (mTitleTextView == null) {
@@ -1610,7 +1606,6 @@ public class Toolbar extends ViewGroup implements MenuHost {
     /**
      * Returns the navigation button view.
      *
-     * @hide Only for use in tests.
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
     @Nullable
@@ -2359,7 +2354,6 @@ public class Toolbar extends ViewGroup implements MenuHost {
         return super.checkLayoutParams(p) && p instanceof LayoutParams;
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public DecorToolbar getWrapper() {
         if (mWrapper == null) {
@@ -2397,7 +2391,6 @@ public class Toolbar extends ViewGroup implements MenuHost {
     /**
      * Force the toolbar to collapse to zero-height during measurement if
      * it could be considered "empty" (no visible elements with nonzero measured size)
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setCollapsible(boolean collapsible) {
@@ -2407,7 +2400,6 @@ public class Toolbar extends ViewGroup implements MenuHost {
 
     /**
      * Must be called before the menu is accessed
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setMenuCallbacks(MenuPresenter.Callback pcb, MenuBuilder.Callback mcb) {
@@ -2425,7 +2417,6 @@ public class Toolbar extends ViewGroup implements MenuHost {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(TESTS)
     @Nullable
@@ -2434,7 +2425,6 @@ public class Toolbar extends ViewGroup implements MenuHost {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(TESTS)
     @Nullable

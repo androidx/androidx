@@ -98,17 +98,17 @@ public final class PathInterpolatorCompat {
         }
 
         @DoNotInline
-        static PathInterpolator createPathInterpolator(Path path) {
+        static Interpolator createPathInterpolator(Path path) {
             return new PathInterpolator(path);
         }
 
         @DoNotInline
-        static PathInterpolator createPathInterpolator(float controlX, float controlY) {
+        static Interpolator createPathInterpolator(float controlX, float controlY) {
             return new PathInterpolator(controlX, controlY);
         }
 
         @DoNotInline
-        static PathInterpolator createPathInterpolator(float controlX1, float controlY1,
+        static Interpolator createPathInterpolator(float controlX1, float controlY1,
                 float controlX2, float controlY2) {
             return new PathInterpolator(controlX1, controlY1, controlX2, controlY2);
         }

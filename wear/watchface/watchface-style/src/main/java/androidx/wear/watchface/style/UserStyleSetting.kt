@@ -49,7 +49,9 @@ import androidx.wear.watchface.style.data.BooleanUserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.ComplicationOverlayWireFormat
 import androidx.wear.watchface.style.data.ComplicationsOptionWireFormat
 import androidx.wear.watchface.style.data.ComplicationsUserStyleSettingWireFormat
+import androidx.wear.watchface.style.data.CustomValueOption2WireFormat
 import androidx.wear.watchface.style.data.CustomValueOptionWireFormat
+import androidx.wear.watchface.style.data.CustomValueUserStyleSetting2WireFormat
 import androidx.wear.watchface.style.data.CustomValueUserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.DoubleRangeOptionWireFormat
 import androidx.wear.watchface.style.data.DoubleRangeUserStyleSettingWireFormat
@@ -129,21 +131,23 @@ internal sealed class DisplayText {
  * [UserStyleSchema.findComplicationSlotsOptionForUserStyle].
  *
  * @property id Identifier for the element, must be unique. Styling data gets shared with the
- * companion (typically via bluetooth) so size is a consideration and short ids are encouraged.
- * There is a maximum length see [UserStyleSetting.Id.MAX_LENGTH].
+ *   companion (typically via bluetooth) so size is a consideration and short ids are encouraged.
+ *   There is a maximum length see [UserStyleSetting.Id.MAX_LENGTH].
  * @property icon [Icon] for use in the companion editor style selection UI.
  * @property watchFaceEditorData Optional data for an on watch face editor, this will not be sent to
- * the companion and its contents may be used in preference to other fields by an on watch face
- * editor.
+ *   the companion and its contents may be used in preference to other fields by an on watch face
+ *   editor.
  * @property options List of options for this UserStyleSetting. Depending on the type of
- * UserStyleSetting this may be an exhaustive list, or just examples to populate a ListView in case
- * the UserStyleSetting isn't supported by the UI (e.g. a new WatchFace with an old companion).
+ *   UserStyleSetting this may be an exhaustive list, or just examples to populate a ListView in
+ *   case the UserStyleSetting isn't supported by the UI (e.g. a new WatchFace with an old
+ *   companion).
  * @property defaultOptionIndex The default option index, used if nothing has been selected within
- * the [options] list.
+ *   the [options] list.
  * @property affectedWatchFaceLayers Used by the style configuration UI. Describes which rendering
- * layers this style affects.
+ *   layers this style affects.
  */
-public sealed class UserStyleSetting private constructor(
+public sealed class UserStyleSetting
+private constructor(
     public val id: Id,
     private val displayNameInternal: DisplayText,
     private val descriptionInternal: DisplayText,
@@ -191,17 +195,15 @@ public sealed class UserStyleSetting private constructor(
      * Optional data for an on watch face editor (not the companion editor).
      *
      * @property icon The icon to use on the watch face editor in preference to
-     * [UserStyleSetting.icon], [ListUserStyleSetting.ListOption.icon] and
-     * [ComplicationSlotsOption.icon]. This Icon should be smaller than the one used by the
-     * companion due to the watches smaller screen size.
+     *   [UserStyleSetting.icon], [ListUserStyleSetting.ListOption.icon] and
+     *   [ComplicationSlotsOption.icon]. This Icon should be smaller than the one used by the
+     *   companion due to the watches smaller screen size.
      */
     public class WatchFaceEditorData(public val icon: Icon?) {
         @Suppress("DEPRECATION")
         internal constructor(wireFormat: Bundle) : this(wireFormat.getParcelable(ICON_KEY))
 
-        internal fun toWireFormat() = Bundle().apply {
-            icon?.let { putParcelable(ICON_KEY, it) }
-        }
+        internal fun toWireFormat() = Bundle().apply { icon?.let { putParcelable(ICON_KEY, it) } }
 
         internal fun write(dos: DataOutputStream) {
             icon?.write(dos)
@@ -212,10 +214,7 @@ public sealed class UserStyleSetting private constructor(
 
             @SuppressLint("ResourceType")
             fun inflate(resources: Resources, parser: XmlResourceParser): WatchFaceEditorData {
-                val icon = createIcon(
-                    resources,
-                    parser
-                )
+                val icon = createIcon(resources, parser)
                 return WatchFaceEditorData(icon)
             }
         }
@@ -239,11 +238,11 @@ public sealed class UserStyleSetting private constructor(
     /**
      * Estimates the wire size of the UserStyleSetting in bytes. This does not account for the
      * overhead of the serialization method. Where possible the exact wire size for any referenced
-     * [Icon]s is used but this isn't possible in all cases and as a fallback width x height x 4
-     * is used.
+     * [Icon]s is used but this isn't possible in all cases and as a fallback width x height x 4 is
+     * used.
      *
      * Note this method can be slow.
-     * @hide
+     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun estimateWireSizeInBytesAndValidateIconDimensions(
@@ -251,12 +250,15 @@ public sealed class UserStyleSetting private constructor(
         @Px maxWidth: Int,
         @Px maxHeight: Int
     ): Int {
-        var sizeEstimate = id.value.length + displayName.length + description.length +
-            4 /** [defaultOptionIndex] */ + affectedWatchFaceLayers.size * 4
+        var sizeEstimate =
+            id.value.length +
+                displayName.length +
+                description.length +
+                4 +
+                /** [defaultOptionIndex] */
+                affectedWatchFaceLayers.size * 4
         icon?.getWireSizeAndDimensions(context)?.let { wireSizeAndDimensions ->
-            wireSizeAndDimensions.wireSizeBytes?.let {
-                sizeEstimate += it
-            }
+            wireSizeAndDimensions.wireSizeBytes?.let { sizeEstimate += it }
             require(
                 wireSizeAndDimensions.width <= maxWidth && wireSizeAndDimensions.height <= maxHeight
             ) {
@@ -266,11 +268,12 @@ public sealed class UserStyleSetting private constructor(
             }
         }
         for (option in options) {
-            sizeEstimate += option.estimateWireSizeInBytesAndValidateIconDimensions(
-                context,
-                maxWidth,
-                maxHeight
-            )
+            sizeEstimate +=
+                option.estimateWireSizeInBytesAndValidateIconDimensions(
+                    context,
+                    maxWidth,
+                    maxHeight
+                )
         }
         return sizeEstimate
     }
@@ -309,40 +312,38 @@ public sealed class UserStyleSetting private constructor(
     }
 
     public companion object {
+        @Suppress("NewApi") // LargeCustomValueUserStyleSetting
         internal fun createFromWireFormat(
             wireFormat: UserStyleSettingWireFormat
-        ): UserStyleSetting = when (wireFormat) {
-            is BooleanUserStyleSettingWireFormat -> BooleanUserStyleSetting(wireFormat)
-
-            is ComplicationsUserStyleSettingWireFormat ->
-                ComplicationSlotsUserStyleSetting(wireFormat)
-
-            is CustomValueUserStyleSettingWireFormat -> CustomValueUserStyleSetting(wireFormat)
-
-            is DoubleRangeUserStyleSettingWireFormat -> DoubleRangeUserStyleSetting(wireFormat)
-
-            is ListUserStyleSettingWireFormat -> ListUserStyleSetting(wireFormat)
-
-            is LongRangeUserStyleSettingWireFormat -> LongRangeUserStyleSetting(wireFormat)
-
-            else -> throw IllegalArgumentException(
-                "Unknown UserStyleSettingWireFormat " + wireFormat::javaClass.name
-            )
-        }
-
-        internal fun affectsWatchFaceLayersFlagsToSet(
-            affectsWatchFaceLayers: Int
-        ) = HashSet<WatchFaceLayer>().apply {
-            if ((affectsWatchFaceLayers and 0x1) != 0) {
-                add(WatchFaceLayer.BASE)
+        ): UserStyleSetting =
+            when (wireFormat) {
+                is BooleanUserStyleSettingWireFormat -> BooleanUserStyleSetting(wireFormat)
+                is ComplicationsUserStyleSettingWireFormat ->
+                    ComplicationSlotsUserStyleSetting(wireFormat)
+                is CustomValueUserStyleSettingWireFormat -> CustomValueUserStyleSetting(wireFormat)
+                is CustomValueUserStyleSetting2WireFormat ->
+                    LargeCustomValueUserStyleSetting(wireFormat)
+                is DoubleRangeUserStyleSettingWireFormat -> DoubleRangeUserStyleSetting(wireFormat)
+                is ListUserStyleSettingWireFormat -> ListUserStyleSetting(wireFormat)
+                is LongRangeUserStyleSettingWireFormat -> LongRangeUserStyleSetting(wireFormat)
+                else ->
+                    throw IllegalArgumentException(
+                        "Unknown UserStyleSettingWireFormat " + wireFormat::javaClass.name
+                    )
             }
-            if ((affectsWatchFaceLayers and 0x2) != 0) {
-                add(WatchFaceLayer.COMPLICATIONS)
+
+        internal fun affectsWatchFaceLayersFlagsToSet(affectsWatchFaceLayers: Int) =
+            HashSet<WatchFaceLayer>().apply {
+                if ((affectsWatchFaceLayers and 0x1) != 0) {
+                    add(WatchFaceLayer.BASE)
+                }
+                if ((affectsWatchFaceLayers and 0x2) != 0) {
+                    add(WatchFaceLayer.COMPLICATIONS)
+                }
+                if ((affectsWatchFaceLayers and 0x4) != 0) {
+                    add(WatchFaceLayer.COMPLICATIONS_OVERLAY)
+                }
             }
-            if ((affectsWatchFaceLayers and 0x4) != 0) {
-                add(WatchFaceLayer.COMPLICATIONS_OVERLAY)
-            }
-        }
 
         internal fun createDisplayText(
             resources: Resources,
@@ -360,16 +361,14 @@ public sealed class UserStyleSetting private constructor(
                 }
             } else if (parser.hasValue(attributeId) || defaultValue == null) {
                 DisplayText.CharSequenceDisplayText(
-                    parser.getAttributeValue(NAMESPACE_APP, attributeId) ?: "")
+                    parser.getAttributeValue(NAMESPACE_APP, attributeId) ?: ""
+                )
             } else {
                 defaultValue
             }
         }
 
-        internal fun createIcon(
-            resources: Resources,
-            parser: XmlResourceParser
-        ): Icon? {
+        internal fun createIcon(resources: Resources, parser: XmlResourceParser): Icon? {
             val iconId = parser.getAttributeResourceValue(NAMESPACE_ANDROID, "icon", -1)
             return if (iconId != -1) {
                 Icon.createWithResource(resources.getResourcePackageName(iconId), iconId)
@@ -378,9 +377,7 @@ public sealed class UserStyleSetting private constructor(
             }
         }
 
-        /**
-         * Creates appropriate UserStyleSetting base on parent="@xml/..." resource reference.
-         */
+        /** Creates appropriate UserStyleSetting base on parent="@xml/..." resource reference. */
         internal fun <T> createParent(
             resources: Resources,
             parser: XmlResourceParser,
@@ -418,37 +415,30 @@ public sealed class UserStyleSetting private constructor(
             parent: UserStyleSetting?,
             inflateDefault: Boolean,
             optionInflater:
-                Pair<String, ((resources: Resources, parser: XmlResourceParser) -> Option)>? = null
+                Pair<String, ((resources: Resources, parser: XmlResourceParser) -> Option)>? =
+                null
         ): Params {
             val settingType = "UserStyleSetting"
-            val id = getStringRefAttribute(resources, parser, "id") ?: parent?.id?.value
-                ?: throw IllegalArgumentException("$settingType must have id")
-            val displayName = createDisplayText(
-                resources,
-                parser,
-                "displayName",
-                parent?.displayNameInternal
-            )
-            val description = createDisplayText(
-                resources,
-                parser,
-                "description",
-                parent?.descriptionInternal
-            )
-            val icon = createIcon(
-                resources,
-                parser
-            ) ?: parent?.icon
+            val id =
+                getStringRefAttribute(resources, parser, "id")
+                    ?: parent?.id?.value
+                        ?: throw IllegalArgumentException("$settingType must have id")
+            val displayName =
+                createDisplayText(resources, parser, "displayName", parent?.displayNameInternal)
+            val description =
+                createDisplayText(resources, parser, "description", parent?.descriptionInternal)
+            val icon = createIcon(resources, parser) ?: parent?.icon
 
-            val defaultOptionIndex = if (inflateDefault) {
-                getAttributeChecked(
-                    parser,
-                    "defaultOptionIndex",
-                    String::toInt,
-                    parent?.defaultOptionIndex ?: 0,
-                    settingType
-                )
-            } else null
+            val defaultOptionIndex =
+                if (inflateDefault) {
+                    getAttributeChecked(
+                        parser,
+                        "defaultOptionIndex",
+                        String::toInt,
+                        parent?.defaultOptionIndex ?: 0,
+                        settingType
+                    )
+                } else null
 
             val affectsWatchFaceLayers =
                 getAttributeChecked(
@@ -464,8 +454,7 @@ public sealed class UserStyleSetting private constructor(
             parser.iterate {
                 if (parser.name == "OnWatchEditorData") {
                     if (watchFaceEditorData == null) {
-                        watchFaceEditorData =
-                            WatchFaceEditorData.inflate(resources, parser)
+                        watchFaceEditorData = WatchFaceEditorData.inflate(resources, parser)
                     } else {
                         throw IllegalNodeException(parser)
                     }
@@ -496,7 +485,9 @@ public sealed class UserStyleSetting private constructor(
             getOptionForId(Option.Id(id))
         }
 
-    private constructor(wireFormat: UserStyleSettingWireFormat) : this(
+    private constructor(
+        wireFormat: UserStyleSettingWireFormat
+    ) : this(
         Id(wireFormat.mId),
         DisplayText.CharSequenceDisplayText(wireFormat.mDisplayName),
         DisplayText.CharSequenceDisplayText(wireFormat.mDescription),
@@ -507,11 +498,9 @@ public sealed class UserStyleSetting private constructor(
         wireFormat.mAffectsLayers.map { WatchFaceLayer.values()[it] }
     )
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public abstract fun toWireFormat(): UserStyleSettingWireFormat
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun getWireFormatOptionsList(): List<OptionWireFormat> =
         options.map { it.toWireFormat() }
@@ -551,23 +540,24 @@ public sealed class UserStyleSetting private constructor(
         return id.hashCode()
     }
 
-    override fun toString(): String = "{${id.value} : " +
-        options.joinToString(transform = { it.toString() }) + "}"
+    override fun toString(): String =
+        "{${id.value} : " + options.joinToString(transform = { it.toString() }) + "}"
 
     /**
      * Represents a choice within a style setting which can either be an option from the list or a
      * an arbitrary value depending on the nature of the style setting.
      *
      * @property id Machine readable [Id] for the style setting. Identifier for the option (or the
-     * option itself for [CustomValueUserStyleSetting.CustomValueOption]), must be unique within
-     * the UserStyleSetting. Short ids are encouraged.
+     *   option itself for [CustomValueUserStyleSetting.CustomValueOption]), must be unique within
+     *   the UserStyleSetting. Short ids are encouraged.
      * @property childSettings The list of child [UserStyleSetting]s, if any, forming a hierarchy of
-     * [UserStyleSetting]s. These must be in [UserStyleSchema.userStyleSettings]. Child
-     * [UserStyleSetting]s are deemed to be active if the [Option] is selected by the [UserStyle].
-     * This is particularly important is there are multiple [ComplicationSlotsUserStyleSetting]s,
-     * only one of which is allowed to be active at any time.
+     *   [UserStyleSetting]s. These must be in [UserStyleSchema.userStyleSettings]. Child
+     *   [UserStyleSetting]s are deemed to be active if the [Option] is selected by the [UserStyle].
+     *   This is particularly important is there are multiple [ComplicationSlotsUserStyleSetting]s,
+     *   only one of which is allowed to be active at any time.
      */
-    public abstract class Option internal constructor(
+    public abstract class Option
+    internal constructor(
         public val id: Id,
         public val childSettings: Collection<UserStyleSetting>
     ) {
@@ -577,9 +567,17 @@ public sealed class UserStyleSetting private constructor(
          */
         constructor(id: Id) : this(id, emptyList())
 
+        /** Returns the maximum allowed size for IDs for this Option in bytes. */
+        internal open fun getMaxIdSizeBytes(): Int = Id.MAX_LENGTH
+
         init {
             for (child in childSettings) {
                 child.hasParent = true
+            }
+
+            require(id.value.size <= getMaxIdSizeBytes()) {
+                "Option.Id.value.size (${id.value.size}) must be less than MAX_LENGTH " +
+                    getMaxIdSizeBytes()
             }
         }
 
@@ -617,15 +615,17 @@ public sealed class UserStyleSetting private constructor(
             public constructor(value: String) : this(value.encodeToByteArray())
 
             public companion object {
-                /** Maximum length of the [value] field. */
+                /**
+                 * Maximum length of the [value] field to ensure acceptable companion editing
+                 * latency. Please note the [UserStyleSchema] and the [UserStyleSetting] are sent
+                 * over bluetooth to the companion phone when editing, and that bandwidth is limited
+                 * (2mbps is common). Best practice is to keep these Ids short, ideally under 10
+                 * bytes.
+                 *
+                 * Note the [UserStyle] has a maximum size ([UserStyle.MAXIMUM_SIZE_BYTES]) and that
+                 * Option Ids are a significant contributor to the overall size of a UserStyle.
+                 */
                 public const val MAX_LENGTH: Int = 1024
-            }
-
-            init {
-                require(value.size <= MAX_LENGTH) {
-                    "Option.Id.value.size (${value.size}) must be less than MAX_LENGTH " +
-                        "($MAX_LENGTH)"
-                }
             }
 
             override fun equals(other: Any?): Boolean {
@@ -648,38 +648,31 @@ public sealed class UserStyleSetting private constructor(
         }
 
         public companion object {
-            /** @hide */
+            @Suppress("NewApi")
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-            public fun createFromWireFormat(
-                wireFormat: OptionWireFormat
-            ): Option =
+            public fun createFromWireFormat(wireFormat: OptionWireFormat): Option =
                 when (wireFormat) {
                     is BooleanOptionWireFormat ->
                         BooleanUserStyleSetting.BooleanOption.fromWireFormat(wireFormat)
-
                     is ComplicationsOptionWireFormat ->
                         ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(wireFormat)
-
                     is CustomValueOptionWireFormat ->
                         CustomValueUserStyleSetting.CustomValueOption(wireFormat)
-
+                    is CustomValueOption2WireFormat ->
+                        LargeCustomValueUserStyleSetting.CustomValueOption(wireFormat)
                     is DoubleRangeOptionWireFormat ->
                         DoubleRangeUserStyleSetting.DoubleRangeOption(wireFormat)
-
-                    is ListOptionWireFormat ->
-                        ListUserStyleSetting.ListOption(wireFormat)
-
+                    is ListOptionWireFormat -> ListUserStyleSetting.ListOption(wireFormat)
                     is LongRangeOptionWireFormat ->
                         LongRangeUserStyleSetting.LongRangeOption(wireFormat)
-
-                    else -> throw IllegalArgumentException(
-                        "Unknown UserStyleSettingWireFormat.OptionWireFormat " +
-                            wireFormat::javaClass.name
-                    )
+                    else ->
+                        throw IllegalArgumentException(
+                            "Unknown UserStyleSettingWireFormat.OptionWireFormat " +
+                                wireFormat::javaClass.name
+                        )
                 }
         }
 
-        /** @hide */
         @Suppress("HiddenAbstractMethod")
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public abstract fun toWireFormat(): OptionWireFormat
@@ -715,9 +708,9 @@ public sealed class UserStyleSetting private constructor(
      *
      * @param optionId The [Option.Id] of the option
      * @return An [Option] corresponding to the name. This could either be one of the options from
-     * [UserStyleSetting]s or a newly constructed Option depending on the nature of the
-     * UserStyleSetting. If optionName is unrecognized then the default value for the setting should
-     * be returned.
+     *   [UserStyleSetting]s or a newly constructed Option depending on the nature of the
+     *   UserStyleSetting. If optionName is unrecognized then the default value for the setting
+     *   should be returned.
      */
     public open fun getOptionForId(optionId: Option.Id): Option =
         options.find { it.id.value.contentEquals(optionId.value) } ?: options[defaultOptionIndex]
@@ -730,21 +723,20 @@ public sealed class UserStyleSetting private constructor(
          *
          * @param id [Id] for the element, must be unique.
          * @param displayName Localized human readable name for the element, used in the userStyle
-         * selection UI.
+         *   selection UI.
          * @param description Localized description string displayed under the displayName.
          * @param icon [Icon] for use in the companion userStyle selection UI. This gets sent to the
-         * companion over bluetooth and should be small (ideally a few kb in size).
+         *   companion over bluetooth and should be small (ideally a few kb in size).
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
-         * face rendering layers this style affects.
+         *   face rendering layers this style affects.
          * @param defaultValue The default value for this BooleanUserStyleSetting.
-         * @param watchFaceEditorData Optional data for an on watch face editor, this will not be sent
-         * to the companion and its contents may be used in preference to other fields by an on
-         * watch face editor.
-         * @hide
+         * @param watchFaceEditorData Optional data for an on watch face editor, this will not be
+         *   sent to the companion and its contents may be used in preference to other fields by an
+         *   on watch face editor.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmOverloads
-        public constructor (
+        public constructor(
             id: Id,
             displayName: CharSequence,
             description: CharSequence,
@@ -772,19 +764,19 @@ public sealed class UserStyleSetting private constructor(
          *
          * @param id [Id] for the element, must be unique.
          * @param resources The [Resources] from which [displayNameResourceId] and
-         * [descriptionResourceId] are loaded.
-         * @param displayNameResourceId String resource id for a human readable name for the element,
-         * used in the userStyle selection UI.
+         *   [descriptionResourceId] are loaded.
+         * @param displayNameResourceId String resource id for a human readable name for the
+         *   element, used in the userStyle selection UI.
          * @param descriptionResourceId String resource id for a human readable description string
-         * displayed under the displayName.
+         *   displayed under the displayName.
          * @param icon [Icon] for use in the companion userStyle selection UI. This gets sent to the
-         * companion over bluetooth and should be small (ideally a few kb in size).
+         *   companion over bluetooth and should be small (ideally a few kb in size).
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
-         * face rendering layers this style affects.
+         *   face rendering layers this style affects.
          * @param defaultValue The default value for this BooleanUserStyleSetting.
-         * @param watchFaceEditorData Optional data for an on watch face editor, this will not be sent
-         * to the companion and its contents may be used in preference to other fields by an on
-         * watch face editor.
+         * @param watchFaceEditorData Optional data for an on watch face editor, this will not be
+         *   sent to the companion and its contents may be used in preference to other fields by an
+         *   on watch face editor.
          */
         @JvmOverloads
         public constructor(
@@ -810,7 +802,7 @@ public sealed class UserStyleSetting private constructor(
             affectsWatchFaceLayers
         )
 
-        internal constructor (
+        internal constructor(
             id: Id,
             displayName: DisplayText,
             description: DisplayText,
@@ -834,7 +826,6 @@ public sealed class UserStyleSetting private constructor(
 
         internal constructor(wireFormat: BooleanUserStyleSettingWireFormat) : super(wireFormat)
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toWireFormat(): BooleanUserStyleSettingWireFormat =
             BooleanUserStyleSettingWireFormat(
@@ -856,21 +847,16 @@ public sealed class UserStyleSetting private constructor(
             @SuppressLint("ResourceType")
             fun inflate(resources: Resources, parser: XmlResourceParser): BooleanUserStyleSetting {
                 val settingType = "BooleanUserStyleSetting"
-                val parent =
-                    createParent(resources, parser, settingType, ::inflate)
-                val defaultValue = getAttributeChecked(
-                    parser,
-                    "defaultBoolean",
-                    String::toBoolean,
-                    parent?.getDefaultValue(),
-                    settingType
-                )
-                val params = createBaseWithParent(
-                    resources,
-                    parser,
-                    parent,
-                    inflateDefault = false
-                )
+                val parent = createParent(resources, parser, settingType, ::inflate)
+                val defaultValue =
+                    getAttributeChecked(
+                        parser,
+                        "defaultBoolean",
+                        String::toBoolean,
+                        parent?.getDefaultValue(),
+                        settingType
+                    )
+                val params = createBaseWithParent(resources, parser, parent, inflateDefault = false)
                 return BooleanUserStyleSetting(
                     params.id,
                     params.displayName,
@@ -885,18 +871,13 @@ public sealed class UserStyleSetting private constructor(
 
         /**
          * Represents a true or false option in the [BooleanUserStyleSetting].
+         *
          * @param value The boolean value this instance represents.
          */
-        public class BooleanOption private constructor(
-            public val value: Boolean
-        ) : Option(
-            Id(ByteArray(1).apply { this[0] = if (value) 1 else 0 }),
-            emptyList()
-        ) {
-            /** @hide */
+        public class BooleanOption private constructor(public val value: Boolean) :
+            Option(Id(ByteArray(1).apply { this[0] = if (value) 1 else 0 }), emptyList()) {
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-            override fun toWireFormat(): BooleanOptionWireFormat =
-                BooleanOptionWireFormat(id.value)
+            override fun toWireFormat(): BooleanOptionWireFormat = BooleanOptionWireFormat(id.value)
 
             internal override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
                 BooleanUserStyleSetting::class.java
@@ -909,11 +890,9 @@ public sealed class UserStyleSetting private constructor(
             }
 
             public companion object {
-                @JvmField
-                public val TRUE = BooleanOption(true)
+                @JvmField public val TRUE = BooleanOption(true)
 
-                @JvmField
-                public val FALSE = BooleanOption(false)
+                @JvmField public val FALSE = BooleanOption(false)
 
                 @JvmStatic
                 public fun from(value: Boolean): BooleanOption {
@@ -921,9 +900,7 @@ public sealed class UserStyleSetting private constructor(
                 }
 
                 @JvmStatic
-                internal fun fromWireFormat(
-                    wireFormat: BooleanOptionWireFormat
-                ): BooleanOption {
+                internal fun fromWireFormat(wireFormat: BooleanOptionWireFormat): BooleanOption {
                     return from(wireFormat.mId[0] == 1.toByte())
                 }
             }
@@ -939,11 +916,11 @@ public sealed class UserStyleSetting private constructor(
      *
      * The ComplicationsManager listens for style changes with this setting and when a
      * [ComplicationSlotsOption] is selected the overrides are automatically applied. Note its
-     * suggested that the default [ComplicationSlotOverlay] (the first entry in the list) does
-     * not apply any overrides.
+     * suggested that the default [ComplicationSlotOverlay] (the first entry in the list) does not
+     * apply any overrides.
      *
      * From android T multiple [ComplicationSlotsUserStyleSetting] are allowed in a style hierarchy
-     * as long as at  most one is active for any permutation of [UserStyle]. Prior to android T only
+     * as long as at most one is active for any permutation of [UserStyle]. Prior to android T only
      * a single ComplicationSlotsUserStyleSetting was allowed.
      *
      * Not to be confused with complication data source selection.
@@ -978,25 +955,25 @@ public sealed class UserStyleSetting private constructor(
          * initial config (as specified in it's constructor) when the setting is selected.
          *
          * @param complicationSlotId The id of the [androidx.wear.watchface.ComplicationSlot] to
-         * configure.
+         *   configure.
          * @param enabled If non null, whether the complication should be enabled for this
-         * configuration. If null then no changes are made.
+         *   configuration. If null then no changes are made.
          * @param complicationSlotBounds If non null, the [ComplicationSlotBounds] for this
-         * configuration. If null then no changes are made.
-         * @param accessibilityTraversalIndex If non null the accessibility traversal index
-         * for this configuration. This is used to determine the order in which accessibility labels
-         * for the watch face are read to the user.
+         *   configuration. If null then no changes are made.
+         * @param accessibilityTraversalIndex If non null the accessibility traversal index for this
+         *   configuration. This is used to determine the order in which accessibility labels for
+         *   the watch face are read to the user.
          * @param nameResourceId If non null, the string resource identifier for name of the
-         * complication slot, for this configuration. These strings should be short (perhaps 10
-         * characters max) E.g. complication slots named 'left' and 'right' might be shown by the
-         * editor in a list from which the user selects a complication slot for editing.
-         * @param screenReaderNameResourceId If non null, the string resource identifier for
-         * the screen reader name of the complication slot, for this configuration. While similar to
-         * [nameResourceId] this string can be longer and should be more descriptive. E.g. saying
-         * 'left complication' rather than just 'left'.
+         *   complication slot, for this configuration. These strings should be short (perhaps 10
+         *   characters max) E.g. complication slots named 'left' and 'right' might be shown by the
+         *   editor in a list from which the user selects a complication slot for editing.
+         * @param screenReaderNameResourceId If non null, the string resource identifier for the
+         *   screen reader name of the complication slot, for this configuration. While similar to
+         *   [nameResourceId] this string can be longer and should be more descriptive. E.g. saying
+         *   'left complication' rather than just 'left'.
          */
-
-        public class ComplicationSlotOverlay constructor(
+        public class ComplicationSlotOverlay
+        constructor(
             public val complicationSlotId: Int,
             @Suppress("AutoBoxing")
             @get:Suppress("AutoBoxing")
@@ -1020,20 +997,20 @@ public sealed class UserStyleSetting private constructor(
 
             /**
              * @deprecated This constructor is deprecated in favour of the one that specifies
-             * optional parameters nameResourceId and screenReaderNameResourceId
-             * [ComplicationSlotOverlay(Int, Boolean?, ComplicationSlotBounds?, Int?, Int?, Int?]
+             *   optional parameters nameResourceId and screenReaderNameResourceId
+             *   [ComplicationSlotOverlay(Int, Boolean?, ComplicationSlotBounds?, Int?, Int?, Int?]
              */
             @Deprecated(
-                message = "This constructor is deprecated in favour of the one that specifies " +
-                    "optional parameters nameResourceId and screenReaderNameResourceId",
-                level = DeprecationLevel.WARNING)
+                message =
+                    "This constructor is deprecated in favour of the one that specifies " +
+                        "optional parameters nameResourceId and screenReaderNameResourceId",
+                level = DeprecationLevel.WARNING
+            )
             public constructor(
                 complicationSlotId: Int,
-                @Suppress("AutoBoxing")
-                enabled: Boolean? = null,
+                @Suppress("AutoBoxing") enabled: Boolean? = null,
                 complicationSlotBounds: ComplicationSlotBounds? = null,
-                @SuppressWarnings("AutoBoxing")
-                accessibilityTraversalIndex: Int? = null
+                @SuppressWarnings("AutoBoxing") accessibilityTraversalIndex: Int? = null
             ) : this(
                 complicationSlotId,
                 enabled,
@@ -1054,12 +1031,10 @@ public sealed class UserStyleSetting private constructor(
             /**
              * Constructs a [ComplicationSlotOverlay].Builder.
              *
-             * @param complicationSlotId The id of the [androidx.wear.watchface.ComplicationSlot]
-             * to configure.
+             * @param complicationSlotId The id of the [androidx.wear.watchface.ComplicationSlot] to
+             *   configure.
              */
-            public class Builder(
-                private val complicationSlotId: Int
-            ) {
+            public class Builder(private val complicationSlotId: Int) {
                 private var enabled: Boolean? = null
                 private var complicationSlotBounds: ComplicationSlotBounds? = null
                 private var accessibilityTraversalIndex: Int? = null
@@ -1068,26 +1043,23 @@ public sealed class UserStyleSetting private constructor(
 
                 /** Overrides the complication's enabled flag. */
                 @Suppress("MissingGetterMatchingBuilder")
-                public fun setEnabled(enabled: Boolean): Builder = apply {
-                    this.enabled = enabled
-                }
+                public fun setEnabled(enabled: Boolean): Builder = apply { this.enabled = enabled }
 
                 /** Overrides the complication's per [ComplicationSlotBounds]. */
                 public fun setComplicationSlotBounds(
                     complicationSlotBounds: ComplicationSlotBounds
-                ): Builder = apply {
-                    this.complicationSlotBounds = complicationSlotBounds
-                }
+                ): Builder = apply { this.complicationSlotBounds = complicationSlotBounds }
 
                 /**
                  * Overrides the [androidx.wear.watchface.ComplicationSlot]'s accessibility
                  * traversal index. This is used to sort
                  * [androidx.wear.watchface.ContentDescriptionLabel]s. If unset we will order the
-                 * complications by their initial accessibilityTraversalIndex (usually the same
-                 * as their id).
+                 * complications by their initial accessibilityTraversalIndex (usually the same as
+                 * their id).
                  */
-                public fun setAccessibilityTraversalIndex(accessibilityTraversalIndex: Int):
-                    Builder = apply {
+                public fun setAccessibilityTraversalIndex(
+                    accessibilityTraversalIndex: Int
+                ): Builder = apply {
                     this.accessibilityTraversalIndex = accessibilityTraversalIndex
                 }
 
@@ -1105,10 +1077,10 @@ public sealed class UserStyleSetting private constructor(
                  * slot, for use by a screen reader. This resource should be a short sentence. E.g.
                  * "Left complication" for the left complication.
                  */
-                public fun setScreenReaderNameResourceId(screenReaderNameResourceId: Int):
-                    Builder = apply {
-                    this.screenReaderNameResourceId = screenReaderNameResourceId
-                }
+                public fun setScreenReaderNameResourceId(screenReaderNameResourceId: Int): Builder =
+                    apply {
+                        this.screenReaderNameResourceId = screenReaderNameResourceId
+                    }
 
                 public fun build(): ComplicationSlotOverlay =
                     ComplicationSlotOverlay(
@@ -1132,20 +1104,18 @@ public sealed class UserStyleSetting private constructor(
                     ComplicationOverlayWireFormat.ENABLED_UNKNOWN -> null
                     ComplicationOverlayWireFormat.ENABLED_YES -> true
                     ComplicationOverlayWireFormat.ENABLED_NO -> false
-                    else -> throw InvalidParameterException(
-                        "Unrecognised wireFormat.mEnabled " + wireFormat.mEnabled
-                    )
+                    else ->
+                        throw InvalidParameterException(
+                            "Unrecognised wireFormat.mEnabled " + wireFormat.mEnabled
+                        )
                 },
                 wireFormat.mPerComplicationTypeBounds?.let { perComplicationTypeBounds ->
                     ComplicationSlotBounds.createFromPartialMap(
-                        perComplicationTypeBounds.mapKeys {
-                            ComplicationType.fromWireType(it.key)
-                        },
+                        perComplicationTypeBounds.mapKeys { ComplicationType.fromWireType(it.key) },
                         perComplicationTypeMargins?.let { margins ->
-                            margins.mapKeys {
-                                ComplicationType.fromWireType(it.key)
-                            }
-                        } ?: emptyMap()
+                            margins.mapKeys { ComplicationType.fromWireType(it.key) }
+                        }
+                            ?: emptyMap()
                     )
                 },
                 wireFormat.accessibilityTraversalIndex,
@@ -1217,19 +1187,14 @@ public sealed class UserStyleSetting private constructor(
                     complicationScaleX: Float,
                     complicationScaleY: Float
                 ): ComplicationSlotOverlay {
-                    val complicationSlotId = getIntRefAttribute(
-                        resources, parser, "complicationSlotId"
-                    )
+                    val complicationSlotId =
+                        getIntRefAttribute(resources, parser, "complicationSlotId")
                     require(complicationSlotId != null) {
                         "ComplicationSlotOverlay missing complicationSlotId"
                     }
                     val enabled =
                         if (parser.hasValue("enabled")) {
-                            parser.getAttributeBooleanValue(
-                                NAMESPACE_APP,
-                                "enabled",
-                                true
-                            )
+                            parser.getAttributeBooleanValue(NAMESPACE_APP, "enabled", true)
                         } else {
                             null
                         }
@@ -1245,30 +1210,23 @@ public sealed class UserStyleSetting private constructor(
                         }
                     val nameResourceId =
                         if (parser.hasValue("name")) {
-                            parser.getAttributeResourceValue(
-                                NAMESPACE_APP,
-                                "name",
-                                0
-                            )
+                            parser.getAttributeResourceValue(NAMESPACE_APP, "name", 0)
                         } else {
                             null
                         }
                     val screenReaderNameResourceId =
                         if (parser.hasValue("screenReaderName")) {
-                            parser.getAttributeResourceValue(
-                                NAMESPACE_APP,
-                                "screenReaderName",
-                                0
-                            )
+                            parser.getAttributeResourceValue(NAMESPACE_APP, "screenReaderName", 0)
                         } else {
                             null
                         }
-                    val bounds = ComplicationSlotBounds.inflate(
-                        resources,
-                        parser,
-                        complicationScaleX,
-                        complicationScaleY
-                    )
+                    val bounds =
+                        ComplicationSlotBounds.inflate(
+                            resources,
+                            parser,
+                            complicationScaleX,
+                            complicationScaleY
+                        )
 
                     return ComplicationSlotOverlay(
                         complicationSlotId,
@@ -1287,24 +1245,22 @@ public sealed class UserStyleSetting private constructor(
          *
          * @param id [Id] for the element, must be unique.
          * @param displayName Localized human readable name for the element, used in the userStyle
-         * selection UI.
+         *   selection UI.
          * @param description Localized description string displayed under the displayName.
          * @param icon [Icon] for use in the companion userStyle selection UI. This gets sent to the
-         * companion over bluetooth and should be small (ideally a few kb in size).
+         *   companion over bluetooth and should be small (ideally a few kb in size).
          * @param complicationConfig The configuration for affected complications.
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
-         * face rendering layers this style affects, must include
-         * [WatchFaceLayer.COMPLICATIONS].
+         *   face rendering layers this style affects, must include [WatchFaceLayer.COMPLICATIONS].
          * @param defaultOption The default option, used when data isn't persisted. Optional
-         * parameter which defaults to the first element of [complicationConfig].
+         *   parameter which defaults to the first element of [complicationConfig].
          * @param watchFaceEditorData Optional data for an on watch face editor, this will not be
-         * sent to the companion and its contents may be used in preference to other fields by an on
-         * watch face editor.
-         * @hide
+         *   sent to the companion and its contents may be used in preference to other fields by an
+         *   on watch face editor.
          */
         @JvmOverloads
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public constructor (
+        public constructor(
             id: Id,
             displayName: CharSequence,
             description: CharSequence,
@@ -1331,25 +1287,24 @@ public sealed class UserStyleSetting private constructor(
          *
          * @param id [Id] for the element, must be unique.
          * @param resources The [Resources] from which [displayNameResourceId] and
-         * [descriptionResourceId] are loaded.
-         * @param displayNameResourceId String resource id for a human readable name for the element,
-         * used in the userStyle selection UI.
+         *   [descriptionResourceId] are loaded.
+         * @param displayNameResourceId String resource id for a human readable name for the
+         *   element, used in the userStyle selection UI.
          * @param descriptionResourceId String resource id for a human readable description string
-         * displayed under the displayName.
+         *   displayed under the displayName.
          * @param icon [Icon] for use in the companion userStyle selection UI. This gets sent to the
-         * companion over bluetooth and should be small (ideally a few kb in size).
+         *   companion over bluetooth and should be small (ideally a few kb in size).
          * @param complicationConfig The configuration for affected complications.
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
-         * face rendering layers this style affects, must include
-         * [WatchFaceLayer.COMPLICATIONS].
+         *   face rendering layers this style affects, must include [WatchFaceLayer.COMPLICATIONS].
          * @param defaultOption The default option, used when data isn't persisted. Optional
-         * parameter which defaults to the first element of [complicationConfig].
+         *   parameter which defaults to the first element of [complicationConfig].
          * @param watchFaceEditorData Optional data for an on watch face editor, this will not be
-         * sent to the companion and its contents may be used in preference to other fields by an on
-         * watch face editor.
+         *   sent to the companion and its contents may be used in preference to other fields by an
+         *   on watch face editor.
          */
         @JvmOverloads
-        public constructor (
+        public constructor(
             id: Id,
             resources: Resources,
             @StringRes displayNameResourceId: Int,
@@ -1370,7 +1325,7 @@ public sealed class UserStyleSetting private constructor(
             affectsWatchFaceLayers
         )
 
-        internal constructor (
+        internal constructor(
             id: Id,
             displayName: DisplayText,
             description: DisplayText,
@@ -1397,9 +1352,7 @@ public sealed class UserStyleSetting private constructor(
                 val optionsIterator = options.iterator()
                 for (bundle in optionsOnWatchFaceEditorIcons) {
                     val option = optionsIterator.next() as ComplicationSlotsOption
-                    bundle?.let {
-                        option.watchFaceEditorData = WatchFaceEditorData(it)
-                    }
+                    bundle?.let { option.watchFaceEditorData = WatchFaceEditorData(it) }
                 }
             }
             wireFormat.mPerOptionScreenReaderNames?.let { perOptionScreenReaderNames ->
@@ -1414,7 +1367,6 @@ public sealed class UserStyleSetting private constructor(
             }
         }
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toWireFormat(): ComplicationsUserStyleSettingWireFormat =
             ComplicationsUserStyleSettingWireFormat(
@@ -1437,12 +1389,13 @@ public sealed class UserStyleSetting private constructor(
 
         internal companion object {
             private fun <T> bindScale(
-                function: (
-                    resources: Resources,
-                    parser: XmlResourceParser,
-                    complicationScaleX: Float,
-                    complicationScaleY: Float
-                ) -> T,
+                function:
+                    ( // ktlint-disable parameter-list-wrapping
+                        resources: Resources,
+                        parser: XmlResourceParser,
+                        complicationScaleX: Float,
+                        complicationScaleY: Float
+                    ) -> T,
                 complicationScaleX: Float,
                 complicationScaleY: Float
             ): (resources: Resources, parser: XmlResourceParser) -> T {
@@ -1459,22 +1412,25 @@ public sealed class UserStyleSetting private constructor(
                 complicationScaleX: Float,
                 complicationScaleY: Float
             ): ComplicationSlotsUserStyleSetting {
-                val params = createBaseWithParent(
-                    resources,
-                    parser,
-                    createParent(
+                val params =
+                    createBaseWithParent(
                         resources,
                         parser,
-                        "ComplicationSlotsUserStyleSetting",
-                        bindScale(::inflate, complicationScaleX, complicationScaleY)
-                    ),
-                    inflateDefault = true,
-                    optionInflater = "ComplicationSlotsOption" to bindScale(
-                        ComplicationSlotsOption::inflate,
-                        complicationScaleX,
-                        complicationScaleY
+                        createParent(
+                            resources,
+                            parser,
+                            "ComplicationSlotsUserStyleSetting",
+                            bindScale(::inflate, complicationScaleX, complicationScaleY)
+                        ),
+                        inflateDefault = true,
+                        optionInflater =
+                            "ComplicationSlotsOption" to
+                                bindScale(
+                                    ComplicationSlotsOption::inflate,
+                                    complicationScaleX,
+                                    complicationScaleY
+                                )
                     )
-                )
                 return ComplicationSlotsUserStyleSetting(
                     params.id,
                     params.displayName,
@@ -1524,9 +1480,8 @@ public sealed class UserStyleSetting private constructor(
             public val icon: Icon?
 
             /**
-             * Optional data for an on watch face editor, this will not be sent to the companion
-             * and its contents may be used in preference to other fields by an on watch face
-             * editor.
+             * Optional data for an on watch face editor, this will not be sent to the companion and
+             * its contents may be used in preference to other fields by an on watch face editor.
              */
             public var watchFaceEditorData: WatchFaceEditorData?
                 internal set
@@ -1536,18 +1491,17 @@ public sealed class UserStyleSetting private constructor(
              *
              * @param id [Id] for the element, must be unique.
              * @param displayName Localized human readable name for the element, used in the
-             * userStyle selection UI. This should be short, ideally < 20 characters.
-             * @param screenReaderName Localized human readable name for the element, used by
-             * screen readers. This should be more descriptive than [displayName].
+             *   userStyle selection UI. This should be short, ideally < 20 characters.
+             * @param screenReaderName Localized human readable name for the element, used by screen
+             *   readers. This should be more descriptive than [displayName].
              * @param icon [Icon] for use in the companion style selection UI. This gets sent to the
-             * companion over bluetooth and should be small (ideally a few kb in size).
+             *   companion over bluetooth and should be small (ideally a few kb in size).
              * @param complicationSlotOverlays Overlays to be applied when this
-             * ComplicationSlotsOption is selected. If this is empty then the net result is the
-             * initial complication configuration.
+             *   ComplicationSlotsOption is selected. If this is empty then the net result is the
+             *   initial complication configuration.
              * @param watchFaceEditorData Optional data for an on watch face editor, this will not
-             * be sent to the companion and its contents may be used in preference to other fields
-             * by an on watch face editor.
-             * @hide
+             *   be sent to the companion and its contents may be used in preference to other fields
+             *   by an on watch face editor.
              */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             @JvmOverloads
@@ -1561,8 +1515,7 @@ public sealed class UserStyleSetting private constructor(
             ) : super(id, emptyList()) {
                 this.complicationSlotOverlays = complicationSlotOverlays
                 displayNameInternal = DisplayText.CharSequenceDisplayText(displayName)
-                screenReaderNameInternal =
-                    DisplayText.CharSequenceDisplayText(screenReaderName)
+                screenReaderNameInternal = DisplayText.CharSequenceDisplayText(screenReaderName)
                 this.icon = icon
                 this.watchFaceEditorData = watchFaceEditorData
             }
@@ -1574,18 +1527,18 @@ public sealed class UserStyleSetting private constructor(
              * @param id [Id] for the element, must be unique.
              * @param resources The [Resources] from which [displayNameResourceId] is load.
              * @param displayNameResourceId String resource id for a human readable name for the
-             * element, used in the userStyle selection UI. This should be short, ideally < 20
-             * characters. Note if the resource string contains `%1$s` that will get replaced with
-             * the 1-based ordinal (1st, 2nd, 3rd etc...) of the ComplicationSlotsOption in the list
-             * of ComplicationSlotsOptions.
+             *   element, used in the userStyle selection UI. This should be short, ideally < 20
+             *   characters. Note if the resource string contains `%1$s` that will get replaced with
+             *   the 1-based ordinal (1st, 2nd, 3rd etc...) of the ComplicationSlotsOption in the
+             *   list of ComplicationSlotsOptions.
              * @param icon [Icon] for use in the companion style selection UI. This gets sent to the
-             * companion over bluetooth and should be small (ideally a few kb in size).
+             *   companion over bluetooth and should be small (ideally a few kb in size).
              * @param complicationSlotOverlays Overlays to be applied when this
-             * ComplicationSlotsOption is selected. If this is empty then the net result is the
-             * initial complication configuration.
+             *   ComplicationSlotsOption is selected. If this is empty then the net result is the
+             *   initial complication configuration.
              * @param watchFaceEditorData Optional data for an on watch face editor, this will not
-             * be sent to the companion and its contents may be used in preference to other fields
-             * by an on watch face editor.
+             *   be sent to the companion and its contents may be used in preference to other fields
+             *   by an on watch face editor.
              */
             @Deprecated("Use a constructor that sets the screenReaderNameResourceId")
             @JvmOverloads
@@ -1612,24 +1565,24 @@ public sealed class UserStyleSetting private constructor(
              * @param id [Id] for the element, must be unique.
              * @param resources The [Resources] from which [displayNameResourceId] is load.
              * @param displayNameResourceId String resource id for a human readable name for the
-             * element, used in the userStyle selection UI. This should be short, ideally < 20
-             * characters.  Note if the resource string contains `%1$s` that will get replaced with
-             * the 1-based ordinal (1st, 2nd, 3rd etc...) of the ComplicationSlotsOption in the list
-             * of ComplicationSlotsOptions.
+             *   element, used in the userStyle selection UI. This should be short, ideally < 20
+             *   characters. Note if the resource string contains `%1$s` that will get replaced with
+             *   the 1-based ordinal (1st, 2nd, 3rd etc...) of the ComplicationSlotsOption in the
+             *   list of ComplicationSlotsOptions.
              * @param screenReaderNameResourceId String resource id for a human readable name for
-             * the element, used by screen readers. This should be more descriptive than
-             * [displayNameResourceId]. Note if the resource string contains `%1$s` that will get
-             * replaced with the 1-based ordinal (1st, 2nd, 3rd etc...) of the
-             * ComplicationSlotsOption in the list of ComplicationSlotsOptions. Note prior to
-             * android T this is ignored by companion editors.
+             *   the element, used by screen readers. This should be more descriptive than
+             *   [displayNameResourceId]. Note if the resource string contains `%1$s` that will get
+             *   replaced with the 1-based ordinal (1st, 2nd, 3rd etc...) of the
+             *   ComplicationSlotsOption in the list of ComplicationSlotsOptions. Note prior to
+             *   android T this is ignored by companion editors.
              * @param icon [Icon] for use in the companion style selection UI. This gets sent to the
-             * companion over bluetooth and should be small (ideally a few kb in size).
+             *   companion over bluetooth and should be small (ideally a few kb in size).
              * @param complicationSlotOverlays Overlays to be applied when this
-             * ComplicationSlotsOption is selected. If this is empty then the net result is the
-             * initial complication configuration.
+             *   ComplicationSlotsOption is selected. If this is empty then the net result is the
+             *   initial complication configuration.
              * @param watchFaceEditorData Optional data for an on watch face editor, this will not
-             * be sent to the companion and its contents may be used in preference to other fields
-             * by an on watch face editor.
+             *   be sent to the companion and its contents may be used in preference to other fields
+             *   by an on watch face editor.
              */
             @JvmOverloads
             public constructor(
@@ -1672,10 +1625,12 @@ public sealed class UserStyleSetting private constructor(
                     wireFormat.mComplicationOverlays.mapIndexed { index, value ->
                         ComplicationSlotOverlay(
                             value,
-                            wireFormat.mComplicationOverlaysMargins?.get(index)
+                            wireFormat.mComplicationOverlaysMargins
+                                ?.get(index)
                                 ?.mPerComplicationTypeMargins,
                             wireFormat.mComplicationNameResourceIds?.get(index)?.asResourceId(),
-                            wireFormat.mComplicationScreenReaderNameResourceIds?.get(index)
+                            wireFormat.mComplicationScreenReaderNameResourceIds
+                                ?.get(index)
                                 ?.asResourceId()
                         )
                     }
@@ -1694,16 +1649,12 @@ public sealed class UserStyleSetting private constructor(
                 @Px maxHeight: Int
             ): Int {
                 var sizeEstimate = id.value.size + displayName.length
-                screenReaderName?.let {
-                    sizeEstimate + it.length
-                }
+                screenReaderName?.let { sizeEstimate + it.length }
                 for (overlay in complicationSlotOverlays) {
                     sizeEstimate += overlay.estimateWireSizeInBytes()
                 }
                 icon?.getWireSizeAndDimensions(context)?.let { wireSizeAndDimensions ->
-                    wireSizeAndDimensions.wireSizeBytes?.let {
-                        sizeEstimate += it
-                    }
+                    wireSizeAndDimensions.wireSizeBytes?.let { sizeEstimate += it }
                     require(
                         wireSizeAndDimensions.width <= maxWidth &&
                             wireSizeAndDimensions.height <= maxHeight
@@ -1716,10 +1667,8 @@ public sealed class UserStyleSetting private constructor(
                 return sizeEstimate
             }
 
-            /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-            override fun toWireFormat():
-                ComplicationsOptionWireFormat =
+            override fun toWireFormat(): ComplicationsOptionWireFormat =
                 ComplicationsOptionWireFormat(
                     id.value,
                     displayName,
@@ -1727,10 +1676,10 @@ public sealed class UserStyleSetting private constructor(
                     complicationSlotOverlays.map { it.toWireFormat() }.toTypedArray(),
                     complicationSlotOverlays.map { overlay ->
                         PerComplicationTypeMargins(
-                            overlay.complicationSlotBounds
-                                ?.perComplicationTypeMargins?.mapKeys {
-                                    it.key.toWireComplicationType()
-                                } ?: emptyMap()
+                            overlay.complicationSlotBounds?.perComplicationTypeMargins?.mapKeys {
+                                it.key.toWireComplicationType()
+                            }
+                                ?: emptyMap()
                         )
                     },
                     complicationSlotOverlays.map { it.nameResourceId ?: 0 },
@@ -1758,37 +1707,36 @@ public sealed class UserStyleSetting private constructor(
                 ): ComplicationSlotsOption {
                     val id = getStringRefAttribute(resources, parser, "id")
                     require(id != null) { "ComplicationSlotsOption must have an id" }
-                    val displayName = createDisplayText(
-                        resources,
-                        parser,
-                        "displayName",
-                        indexedResourceNamesSupported = true
-                    )
-                    val screenReaderName = createDisplayText(
-                        resources,
-                        parser,
-                        "nameForScreenReaders",
-                        defaultValue = displayName,
-                        indexedResourceNamesSupported = true
-                    )
-                    val icon = createIcon(
-                        resources,
-                        parser
-                    )
+                    val displayName =
+                        createDisplayText(
+                            resources,
+                            parser,
+                            "displayName",
+                            indexedResourceNamesSupported = true
+                        )
+                    val screenReaderName =
+                        createDisplayText(
+                            resources,
+                            parser,
+                            "nameForScreenReaders",
+                            defaultValue = displayName,
+                            indexedResourceNamesSupported = true
+                        )
+                    val icon = createIcon(resources, parser)
 
                     var watchFaceEditorData: WatchFaceEditorData? = null
                     val complicationSlotOverlays = ArrayList<ComplicationSlotOverlay>()
                     parser.iterate {
                         when (parser.name) {
-                            "ComplicationSlotOverlay" -> complicationSlotOverlays.add(
-                                ComplicationSlotOverlay.inflate(
-                                    resources,
-                                    parser,
-                                    complicationScaleX,
-                                    complicationScaleY
+                            "ComplicationSlotOverlay" ->
+                                complicationSlotOverlays.add(
+                                    ComplicationSlotOverlay.inflate(
+                                        resources,
+                                        parser,
+                                        complicationScaleX,
+                                        complicationScaleY
+                                    )
                                 )
-                            )
-
                             "OnWatchEditorData" -> {
                                 if (watchFaceEditorData == null) {
                                     watchFaceEditorData =
@@ -1797,7 +1745,6 @@ public sealed class UserStyleSetting private constructor(
                                     throw IllegalNodeException(parser)
                                 }
                             }
-
                             else -> throw IllegalNodeException(parser)
                         }
                     }
@@ -1848,23 +1795,32 @@ public sealed class UserStyleSetting private constructor(
                 parser: XmlResourceParser
             ): DoubleRangeUserStyleSetting {
                 val settingType = "DoubleRangeUserStyleSetting"
-                val parent =
-                    createParent(resources, parser, settingType, ::inflate)
-                val maxDouble = getAttributeChecked(
-                    parser, "maxDouble", String::toDouble, parent?.maximumValue, settingType
-                )
-                val minDouble = getAttributeChecked(
-                    parser, "minDouble", String::toDouble, parent?.minimumValue, settingType
-                )
-                val defaultDouble = getAttributeChecked(
-                    parser, "defaultDouble", String::toDouble, parent?.defaultValue, settingType
-                )
-                val params = createBaseWithParent(
-                    resources,
-                    parser,
-                    parent,
-                    inflateDefault = false
-                )
+                val parent = createParent(resources, parser, settingType, ::inflate)
+                val maxDouble =
+                    getAttributeChecked(
+                        parser,
+                        "maxDouble",
+                        String::toDouble,
+                        parent?.maximumValue,
+                        settingType
+                    )
+                val minDouble =
+                    getAttributeChecked(
+                        parser,
+                        "minDouble",
+                        String::toDouble,
+                        parent?.minimumValue,
+                        settingType
+                    )
+                val defaultDouble =
+                    getAttributeChecked(
+                        parser,
+                        "defaultDouble",
+                        String::toDouble,
+                        parent?.defaultValue,
+                        settingType
+                    )
+                val params = createBaseWithParent(resources, parser, parent, inflateDefault = false)
                 return DoubleRangeUserStyleSetting(
                     params.id,
                     params.displayName,
@@ -1884,23 +1840,22 @@ public sealed class UserStyleSetting private constructor(
          *
          * @param id [Id] for the element, must be unique.
          * @param displayName Localized human readable name for the element, used in the user style
-         * selection UI.
+         *   selection UI.
          * @param description Localized description string displayed under the displayName.
          * @param icon [Icon] for use in the companion style selection UI. This gets sent to the
-         * companion over bluetooth and should be small (ideally a few kb in size).
+         *   companion over bluetooth and should be small (ideally a few kb in size).
          * @param minimumValue Minimum value (inclusive).
          * @param maximumValue Maximum value (inclusive).
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
-         * face rendering layers this style affects.
+         *   face rendering layers this style affects.
          * @param defaultValue The default value for this DoubleRangeUserStyleSetting.
-         * @param watchFaceEditorData Optional data for an on watch face editor, this will not be sent
-         * to the companion and its contents may be used in preference to other fields by an on
-         * watch face editor.
-         * @hide
+         * @param watchFaceEditorData Optional data for an on watch face editor, this will not be
+         *   sent to the companion and its contents may be used in preference to other fields by an
+         *   on watch face editor.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmOverloads
-        public constructor (
+        public constructor(
             id: Id,
             displayName: CharSequence,
             description: CharSequence,
@@ -1926,30 +1881,29 @@ public sealed class UserStyleSetting private constructor(
         )
 
         /**
-         * Constructs a DoubleRangeUserStyleSetting where
-         * [DoubleRangeUserStyleSetting.displayName] and
-         * [DoubleRangeUserStyleSetting.description] are specified as resources.
+         * Constructs a DoubleRangeUserStyleSetting where [DoubleRangeUserStyleSetting.displayName]
+         * and [DoubleRangeUserStyleSetting.description] are specified as resources.
          *
          * @param id [Id] for the element, must be unique.
          * @param resources The [Resources] from which [displayNameResourceId] and
-         * [descriptionResourceId] are loaded.
-         * @param displayNameResourceId String resource id for a human readable name for the element,
-         * used in the userStyle selection UI.
+         *   [descriptionResourceId] are loaded.
+         * @param displayNameResourceId String resource id for a human readable name for the
+         *   element, used in the userStyle selection UI.
          * @param descriptionResourceId String resource id for a human readable description string
-         * displayed under the displayName.
+         *   displayed under the displayName.
          * @param icon [Icon] for use in the companion userStyle selection UI. This gets sent to the
-         * companion over bluetooth and should be small (ideally a few kb in size).
+         *   companion over bluetooth and should be small (ideally a few kb in size).
          * @param minimumValue Minimum value (inclusive).
          * @param maximumValue Maximum value (inclusive).
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
-         * face rendering layers this style affects.
+         *   face rendering layers this style affects.
          * @param defaultValue The default value for this DoubleRangeUserStyleSetting.
-         * @param watchFaceEditorData Optional data for an on watch face editor, this will not be sent
-         * to the companion and its contents may be used in preference to other fields by an on
-         * watch face editor.
+         * @param watchFaceEditorData Optional data for an on watch face editor, this will not be
+         *   sent to the companion and its contents may be used in preference to other fields by an
+         *   on watch face editor.
          */
         @JvmOverloads
-        public constructor (
+        public constructor(
             id: Id,
             resources: Resources,
             @StringRes displayNameResourceId: Int,
@@ -1975,7 +1929,7 @@ public sealed class UserStyleSetting private constructor(
             affectsWatchFaceLayers
         )
 
-        internal constructor (
+        internal constructor(
             id: Id,
             displayName: DisplayText,
             description: DisplayText,
@@ -2002,7 +1956,6 @@ public sealed class UserStyleSetting private constructor(
 
         internal constructor(wireFormat: DoubleRangeUserStyleSettingWireFormat) : super(wireFormat)
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toWireFormat(): DoubleRangeUserStyleSettingWireFormat =
             DoubleRangeUserStyleSettingWireFormat(
@@ -2014,7 +1967,7 @@ public sealed class UserStyleSetting private constructor(
                 defaultOptionIndex,
                 affectedWatchFaceLayers.map { it.ordinal },
                 watchFaceEditorData?.toWireFormat(),
-                /* optionsOnWatchFaceEditorIcons = */null
+                /* optionsOnWatchFaceEditorIcons = */ null
             )
 
         /** Represents an option as a [Double] in the range [minimumValue .. maximumValue]. */
@@ -2027,7 +1980,9 @@ public sealed class UserStyleSetting private constructor(
              *
              * @param value The value of this DoubleRangeOption
              */
-            public constructor(value: Double) : super(
+            public constructor(
+                value: Double
+            ) : super(
                 Id(ByteArray(8).apply { ByteBuffer.wrap(this).putDouble(value) }),
                 emptyList()
             ) {
@@ -2043,7 +1998,6 @@ public sealed class UserStyleSetting private constructor(
             internal override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
                 DoubleRangeUserStyleSetting::class.java
 
-            /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             override fun toWireFormat(): DoubleRangeOptionWireFormat =
                 DoubleRangeOptionWireFormat(id.value)
@@ -2070,9 +2024,8 @@ public sealed class UserStyleSetting private constructor(
 
         /** We support all values in the range [min ... max] not just min & max. */
         override fun getOptionForId(optionId: Option.Id): Option =
-            options.find { it.id.value.contentEquals(optionId.value) } ?: checkedOptionForId(
-                optionId.value
-            )
+            options.find { it.id.value.contentEquals(optionId.value) }
+                ?: checkedOptionForId(optionId.value)
 
         private fun checkedOptionForId(optionId: ByteArray): DoubleRangeOption {
             return try {
@@ -2096,18 +2049,17 @@ public sealed class UserStyleSetting private constructor(
          *
          * @param id [Id] for the element, must be unique.
          * @param displayName Localized human readable name for the element, used in the userStyle
-         * selection UI.
+         *   selection UI.
          * @param description Localized description string displayed under the displayName.
          * @param icon [Icon] for use in the companion userStyle selection UI. This gets sent to the
-         * companion over bluetooth and should be small (ideally a few kb in size).
+         *   companion over bluetooth and should be small (ideally a few kb in size).
          * @param options List of all options for this ListUserStyleSetting.
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
-         * face rendering layers this style affects.
+         *   face rendering layers this style affects.
          * @param defaultOption The default option, used when data isn't persisted.
-         * @param watchFaceEditorData Optional data for an on watch face editor, this will not be sent
-         * to the companion and its contents may be used in preference to other fields by an on
-         * watch face editor.
-         * @hide
+         * @param watchFaceEditorData Optional data for an on watch face editor, this will not be
+         *   sent to the companion and its contents may be used in preference to other fields by an
+         *   on watch face editor.
          */
         @JvmOverloads
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -2137,23 +2089,23 @@ public sealed class UserStyleSetting private constructor(
          *
          * @param id [Id] for the element, must be unique.
          * @param resources The [Resources] from which [displayNameResourceId] and
-         * [descriptionResourceId] are loaded.
-         * @param displayNameResourceId String resource id for a human readable name for the element,
-         * used in the userStyle selection UI.
+         *   [descriptionResourceId] are loaded.
+         * @param displayNameResourceId String resource id for a human readable name for the
+         *   element, used in the userStyle selection UI.
          * @param descriptionResourceId String resource id for a human readable description string
-         * displayed under the displayName.
+         *   displayed under the displayName.
          * @param icon [Icon] for use in the companion userStyle selection UI. This gets sent to the
-         * companion over bluetooth and should be small (ideally a few kb in size).
+         *   companion over bluetooth and should be small (ideally a few kb in size).
          * @param options List of all options for this ListUserStyleSetting.
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
-         * face rendering layers this style affects.
+         *   face rendering layers this style affects.
          * @param defaultOption The default option, used when data isn't persisted.
-         * @param watchFaceEditorData Optional data for an on watch face editor, this will not be sent
-         * to the companion and its contents may be used in preference to other fields by an on
-         * watch face editor.
+         * @param watchFaceEditorData Optional data for an on watch face editor, this will not be
+         *   sent to the companion and its contents may be used in preference to other fields by an
+         *   on watch face editor.
          */
         @JvmOverloads
-        public constructor (
+        public constructor(
             id: Id,
             resources: Resources,
             @StringRes displayNameResourceId: Int,
@@ -2174,7 +2126,7 @@ public sealed class UserStyleSetting private constructor(
             affectsWatchFaceLayers
         )
 
-        internal constructor (
+        internal constructor(
             id: Id,
             displayName: DisplayText,
             description: DisplayText,
@@ -2199,9 +2151,7 @@ public sealed class UserStyleSetting private constructor(
                 val optionsIterator = options.iterator()
                 for (bundle in optionsOnWatchFaceEditorIcons) {
                     val option = optionsIterator.next() as ListOption
-                    bundle?.let {
-                        option.watchFaceEditorData = WatchFaceEditorData(it)
-                    }
+                    bundle?.let { option.watchFaceEditorData = WatchFaceEditorData(it) }
                 }
             }
             wireFormat.mPerOptionScreenReaderNames?.let { perOptionScreenReaderNames ->
@@ -2216,7 +2166,6 @@ public sealed class UserStyleSetting private constructor(
             }
         }
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toWireFormat(): ListUserStyleSettingWireFormat =
             ListUserStyleSettingWireFormat(
@@ -2237,11 +2186,12 @@ public sealed class UserStyleSetting private constructor(
 
         internal companion object {
             private fun <T> bindIdToSetting(
-                function: (
-                    resources: Resources,
-                    parser: XmlResourceParser,
-                    idToSetting: Map<String, UserStyleSetting>
-                ) -> T,
+                function:
+                    ( // ktlint-disable parameter-list-wrapping
+                        resources: Resources,
+                        parser: XmlResourceParser,
+                        idToSetting: Map<String, UserStyleSetting>
+                    ) -> T,
                 idToSetting: Map<String, UserStyleSetting>
             ): (resources: Resources, parser: XmlResourceParser) -> T {
                 return { resources: Resources, parser: XmlResourceParser ->
@@ -2256,18 +2206,19 @@ public sealed class UserStyleSetting private constructor(
                 parser: XmlResourceParser,
                 idToSetting: Map<String, UserStyleSetting>
             ): ListUserStyleSetting {
-                val params = createBaseWithParent(
-                    resources,
-                    parser,
-                    createParent(
+                val params =
+                    createBaseWithParent(
                         resources,
                         parser,
-                        "ListUserStyleSetting",
-                        bindIdToSetting(::inflate, idToSetting)
-                    ),
-                    inflateDefault = true,
-                    "ListOption" to bindIdToSetting(ListOption::inflate, idToSetting)
-                )
+                        createParent(
+                            resources,
+                            parser,
+                            "ListUserStyleSetting",
+                            bindIdToSetting(::inflate, idToSetting)
+                        ),
+                        inflateDefault = true,
+                        "ListOption" to bindIdToSetting(ListOption::inflate, idToSetting)
+                    )
                 return ListUserStyleSetting(
                     params.id,
                     params.displayName,
@@ -2303,7 +2254,7 @@ public sealed class UserStyleSetting private constructor(
 
             /**
              * Optional localized human readable name for the setting, used by screen readers. This
-             * should be more descriptive than [displayName].  Note prior to android T this is
+             * should be more descriptive than [displayName]. Note prior to android T this is
              * ignored by companion editors.
              */
             public val screenReaderName: CharSequence?
@@ -2313,9 +2264,8 @@ public sealed class UserStyleSetting private constructor(
             public val icon: Icon?
 
             /**
-             * Optional data for an on watch face editor, this will not be sent to the companion
-             * and its contents may be used in preference to other fields by an on watch face
-             * editor.
+             * Optional data for an on watch face editor, this will not be sent to the companion and
+             * its contents may be used in preference to other fields by an on watch face editor.
              */
             public var watchFaceEditorData: WatchFaceEditorData?
                 internal set
@@ -2324,19 +2274,19 @@ public sealed class UserStyleSetting private constructor(
              * Constructs a ListOption.
              *
              * @param id The [Id] of this ListOption, must be unique within the
-             * [ListUserStyleSetting].
-             ** @param displayName Localized human readable name for the element, used in the
-             * userStyle selection UI. This should be short, ideally < 20 characters.
-             * @param screenReaderName Localized human readable name for the element, used by
-             * screen readers. This should be more descriptive than [displayName].
+             *   [ListUserStyleSetting].
+             * * @param displayName Localized human readable name for the element, used in the
+             *   userStyle selection UI. This should be short, ideally < 20 characters.
+             *
+             * @param screenReaderName Localized human readable name for the element, used by screen
+             *   readers. This should be more descriptive than [displayName].
              * @param icon [Icon] for use in the companion style selection UI. This gets sent to the
-             * companion over bluetooth and should be small (ideally a few kb in size).
+             *   companion over bluetooth and should be small (ideally a few kb in size).
              * @param childSettings The list of child [UserStyleSetting]s, which may be empty. Any
-             * child settings must be listed in [UserStyleSchema.userStyleSettings].
-             * @param watchFaceEditorData Optional data for an on watch face editor, this will not be
-             * sent to the companion and its contents may be used in preference to other fields by
-             * an on watch face editor.
-             * @hide
+             *   child settings must be listed in [UserStyleSchema.userStyleSettings].
+             * @param watchFaceEditorData Optional data for an on watch face editor, this will not
+             *   be sent to the companion and its contents may be used in preference to other fields
+             *   by an on watch face editor.
              */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             constructor(
@@ -2348,8 +2298,7 @@ public sealed class UserStyleSetting private constructor(
                 watchFaceEditorData: WatchFaceEditorData? = null
             ) : super(id, childSettings) {
                 displayNameInternal = DisplayText.CharSequenceDisplayText(displayName)
-                screenReaderNameInternal =
-                    DisplayText.CharSequenceDisplayText(screenReaderName)
+                screenReaderNameInternal = DisplayText.CharSequenceDisplayText(screenReaderName)
                 this.icon = icon
                 this.watchFaceEditorData = watchFaceEditorData
             }
@@ -2358,18 +2307,18 @@ public sealed class UserStyleSetting private constructor(
              * Constructs a ListOption.
              *
              * @param id The [Id] of this ListOption, must be unique within the
-             * [ListUserStyleSetting].
+             *   [ListUserStyleSetting].
              * @param resources The [Resources] used to load [displayNameResourceId].
              * @param displayNameResourceId String resource id for a human readable name for the
-             * element, used in the userStyle selection UI. This should be short, ideally < 20
-             * characters. Note if the resource string contains `%1$s` that will get replaced with
-             * the 1-based ordinal (1st, 2nd, 3rd etc...) of the ListOption in the list of
-             * ListOptions.
+             *   element, used in the userStyle selection UI. This should be short, ideally < 20
+             *   characters. Note if the resource string contains `%1$s` that will get replaced with
+             *   the 1-based ordinal (1st, 2nd, 3rd etc...) of the ListOption in the list of
+             *   ListOptions.
              * @param icon [Icon] for use in the companion style selection UI. This gets sent to the
-             * companion over bluetooth and should be small (ideally a few kb in size)
+             *   companion over bluetooth and should be small (ideally a few kb in size)
              * @param watchFaceEditorData Optional data for an on watch face editor, this will not
-             * be sent to the companion and its contents may be used in preference to other fields
-             * by an on watch face editor.
+             *   be sent to the companion and its contents may be used in preference to other fields
+             *   by an on watch face editor.
              */
             @JvmOverloads
             @Deprecated("Use a constructor that sets the screenReaderNameResourceId")
@@ -2391,18 +2340,18 @@ public sealed class UserStyleSetting private constructor(
              * Constructs a ListOption.
              *
              * @param id The [Id] of this ListOption, must be unique within the
-             * [ListUserStyleSetting].
+             *   [ListUserStyleSetting].
              * @param resources The [Resources] used to load [displayNameResourceId].
              * @param displayNameResourceId String resource id for a human readable name for the
-             * element, used in the userStyle selection UI. This should be short, ideally < 20
-             * characters.
-             * @param icon [Icon] for use in the style selection UI. This gets sent to the
-             * companion over bluetooth and should be small (ideally a few kb in size).
+             *   element, used in the userStyle selection UI. This should be short, ideally < 20
+             *   characters.
+             * @param icon [Icon] for use in the style selection UI. This gets sent to the companion
+             *   over bluetooth and should be small (ideally a few kb in size).
              * @param childSettings The list of child [UserStyleSetting]s, which may be empty. Any
-             * child settings must be listed in [UserStyleSchema.userStyleSettings].
+             *   child settings must be listed in [UserStyleSchema.userStyleSettings].
              * @param watchFaceEditorData Optional data for an on watch face editor, this will not
-             * be sent to the companion and its contents may be used in preference to other fields
-             * by an on watch face editor.
+             *   be sent to the companion and its contents may be used in preference to other fields
+             *   by an on watch face editor.
              */
             @Deprecated("Use a constructor that sets the screenReaderNameResourceId")
             constructor(
@@ -2424,25 +2373,25 @@ public sealed class UserStyleSetting private constructor(
              * Constructs a ListOption.
              *
              * @param id The [Id] of this ListOption, must be unique within the
-             * [ListUserStyleSetting].
+             *   [ListUserStyleSetting].
              * @param resources The [Resources] used to load [displayNameResourceId].
              * @param displayNameResourceId String resource id for a human readable name for the
-             * element, used in the userStyle selection UI. This should be short, ideally < 20
-             * characters. Note if the resource string contains `%1$s` that will get replaced with
-             * the 1-based ordinal (1st, 2nd, 3rd etc...) of the ListOption in the list of
-             * ListOptions.
+             *   element, used in the userStyle selection UI. This should be short, ideally < 20
+             *   characters. Note if the resource string contains `%1$s` that will get replaced with
+             *   the 1-based ordinal (1st, 2nd, 3rd etc...) of the ListOption in the list of
+             *   ListOptions.
              * @param screenReaderNameResourceId String resource id for a human readable name for
-             * the element, used by screen readers. This should be more descriptive than
-             * [displayNameResourceId]. Note if the resource string contains `%1$s` that will get
-             * replaced with the 1-based ordinal (1st, 2nd, 3rd etc...) of the ListOption in the
-             * list of ListOptions. Note prior to android T this is ignored by companion editors.
-             * @param icon [Icon] for use in the style selection UI. This gets sent to the
-             * companion over bluetooth and should be small (ideally a few kb in size).
+             *   the element, used by screen readers. This should be more descriptive than
+             *   [displayNameResourceId]. Note if the resource string contains `%1$s` that will get
+             *   replaced with the 1-based ordinal (1st, 2nd, 3rd etc...) of the ListOption in the
+             *   list of ListOptions. Note prior to android T this is ignored by companion editors.
+             * @param icon [Icon] for use in the style selection UI. This gets sent to the companion
+             *   over bluetooth and should be small (ideally a few kb in size).
              * @param childSettings The list of child [UserStyleSetting]s, which may be empty. Any
-             * child settings must be listed in [UserStyleSchema.userStyleSettings].
+             *   child settings must be listed in [UserStyleSchema.userStyleSettings].
              * @param watchFaceEditorData Optional data for an on watch face editor, this will not
-             * be sent to the companion and its contents may be used in preference to other fields
-             * by an on watch face editor.
+             *   be sent to the companion and its contents may be used in preference to other fields
+             *   by an on watch face editor.
              */
             @JvmOverloads
             constructor(
@@ -2494,13 +2443,9 @@ public sealed class UserStyleSetting private constructor(
                 @Px maxHeight: Int
             ): Int {
                 var sizeEstimate = id.value.size + displayName.length
-                screenReaderName?.let {
-                    sizeEstimate + it.length
-                }
+                screenReaderName?.let { sizeEstimate + it.length }
                 icon?.getWireSizeAndDimensions(context)?.let { wireSizeAndDimensions ->
-                    wireSizeAndDimensions.wireSizeBytes?.let {
-                        sizeEstimate += it
-                    }
+                    wireSizeAndDimensions.wireSizeBytes?.let { sizeEstimate += it }
                     require(
                         wireSizeAndDimensions.width <= maxWidth &&
                             wireSizeAndDimensions.height <= maxHeight
@@ -2513,14 +2458,9 @@ public sealed class UserStyleSetting private constructor(
                 return sizeEstimate
             }
 
-            /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             override fun toWireFormat(): ListOptionWireFormat =
-                ListOptionWireFormat(
-                    id.value,
-                    displayName,
-                    icon
-                )
+                ListOptionWireFormat(id.value, displayName, icon)
 
             override fun write(dos: DataOutputStream) {
                 dos.write(id.value)
@@ -2539,23 +2479,22 @@ public sealed class UserStyleSetting private constructor(
                 ): ListOption {
                     val id = getStringRefAttribute(resources, parser, "id")
                     require(id != null) { "ListOption must have an id" }
-                    val displayName = createDisplayText(
-                        resources,
-                        parser,
-                        "displayName",
-                        indexedResourceNamesSupported = true
-                    )
-                    val screenReaderName = createDisplayText(
-                        resources,
-                        parser,
-                        "nameForScreenReaders",
-                        defaultValue = displayName,
-                        indexedResourceNamesSupported = true
-                    )
-                    val icon = createIcon(
-                        resources,
-                        parser
-                    )
+                    val displayName =
+                        createDisplayText(
+                            resources,
+                            parser,
+                            "displayName",
+                            indexedResourceNamesSupported = true
+                        )
+                    val screenReaderName =
+                        createDisplayText(
+                            resources,
+                            parser,
+                            "nameForScreenReaders",
+                            defaultValue = displayName,
+                            indexedResourceNamesSupported = true
+                        )
+                    val icon = createIcon(resources, parser)
 
                     var watchFaceEditorData: WatchFaceEditorData? = null
                     val childSettings = ArrayList<UserStyleSetting>()
@@ -2563,9 +2502,7 @@ public sealed class UserStyleSetting private constructor(
                         when (parser.name) {
                             "ChildSetting" -> {
                                 val childId = getStringRefAttribute(resources, parser, "id")
-                                require(childId != null) {
-                                    "ChildSetting must have an id"
-                                }
+                                require(childId != null) { "ChildSetting must have an id" }
                                 val setting = idToSetting[childId]
                                 require(setting != null) {
                                     "Unknown ChildSetting id $childId, note only backward " +
@@ -2573,7 +2510,6 @@ public sealed class UserStyleSetting private constructor(
                                 }
                                 childSettings.add(setting)
                             }
-
                             "OnWatchEditorData" -> {
                                 if (watchFaceEditorData == null) {
                                     watchFaceEditorData =
@@ -2582,7 +2518,6 @@ public sealed class UserStyleSetting private constructor(
                                     throw IllegalNodeException(parser)
                                 }
                             }
-
                             else -> throw IllegalNodeException(parser)
                         }
                     }
@@ -2623,10 +2558,7 @@ public sealed class UserStyleSetting private constructor(
                         LongRangeOption(maximumValue)
                     )
                 } else {
-                    listOf(
-                        LongRangeOption(minimumValue),
-                        LongRangeOption(maximumValue)
-                    )
+                    listOf(LongRangeOption(minimumValue), LongRangeOption(maximumValue))
                 }
             }
 
@@ -2636,23 +2568,32 @@ public sealed class UserStyleSetting private constructor(
                 parser: XmlResourceParser
             ): LongRangeUserStyleSetting {
                 val settingType = "LongRangeUserStyleSetting"
-                val parent =
-                    createParent(resources, parser, settingType, ::inflate)
-                val maxInteger = getAttributeChecked(
-                    parser, "maxLong", String::toLong, parent?.maximumValue, settingType
-                )
-                val minInteger = getAttributeChecked(
-                    parser, "minLong", String::toLong, parent?.minimumValue, settingType
-                )
-                val defaultInteger = getAttributeChecked(
-                    parser, "defaultLong", String::toLong, parent?.defaultValue, settingType
-                )
-                val params = createBaseWithParent(
-                    resources,
-                    parser,
-                    parent,
-                    inflateDefault = false
-                )
+                val parent = createParent(resources, parser, settingType, ::inflate)
+                val maxInteger =
+                    getAttributeChecked(
+                        parser,
+                        "maxLong",
+                        String::toLong,
+                        parent?.maximumValue,
+                        settingType
+                    )
+                val minInteger =
+                    getAttributeChecked(
+                        parser,
+                        "minLong",
+                        String::toLong,
+                        parent?.minimumValue,
+                        settingType
+                    )
+                val defaultInteger =
+                    getAttributeChecked(
+                        parser,
+                        "defaultLong",
+                        String::toLong,
+                        parent?.defaultValue,
+                        settingType
+                    )
+                val params = createBaseWithParent(resources, parser, parent, inflateDefault = false)
                 return LongRangeUserStyleSetting(
                     params.id,
                     params.displayName,
@@ -2672,23 +2613,22 @@ public sealed class UserStyleSetting private constructor(
          *
          * @param id [Id] for the element, must be unique.
          * @param displayName Localized human readable name for the element, used in the userStyle
-         * selection UI.
+         *   selection UI.
          * @param description Localized description string displayed under the displayName.
          * @param icon [Icon] for use in the companion userStyle selection UI. This gets sent to the
-         * companion over bluetooth and should be small (ideally a few kb in size).
+         *   companion over bluetooth and should be small (ideally a few kb in size).
          * @param minimumValue Minimum value (inclusive).
          * @param maximumValue Maximum value (inclusive).
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
-         * face rendering layers this style affects.
+         *   face rendering layers this style affects.
          * @param defaultValue The default value for this LongRangeUserStyleSetting.
-         * @param watchFaceEditorData Optional data for an on watch face editor, this will not be sent
-         * to the companion and its contents may be used in preference to other fields by an on
-         * watch face editor.
-         * @hide
+         * @param watchFaceEditorData Optional data for an on watch face editor, this will not be
+         *   sent to the companion and its contents may be used in preference to other fields by an
+         *   on watch face editor.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmOverloads
-        public constructor (
+        public constructor(
             id: Id,
             displayName: CharSequence,
             description: CharSequence,
@@ -2719,24 +2659,24 @@ public sealed class UserStyleSetting private constructor(
          *
          * @param id [Id] for the element, must be unique.
          * @param resources The [Resources] from which [displayNameResourceId] and
-         * [descriptionResourceId] are loaded.
-         * @param displayNameResourceId String resource id for a human readable name for the element,
-         * used in the userStyle selection UI.
+         *   [descriptionResourceId] are loaded.
+         * @param displayNameResourceId String resource id for a human readable name for the
+         *   element, used in the userStyle selection UI.
          * @param descriptionResourceId String resource id for a human readable description string
-         * displayed under the displayName.
+         *   displayed under the displayName.
          * @param icon [Icon] for use in the companion userStyle selection UI. This gets sent to the
-         * companion over bluetooth and should be small (ideally a few kb in size).
+         *   companion over bluetooth and should be small (ideally a few kb in size).
          * @param minimumValue Minimum value (inclusive).
          * @param maximumValue Maximum value (inclusive).
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
-         * face rendering layers this style affects.
+         *   face rendering layers this style affects.
          * @param defaultValue The default value for this LongRangeUserStyleSetting.
-         * @param watchFaceEditorData Optional data for an on watch face editor, this will not be sent
-         * to the companion and its contents may be used in preference to other fields by an on
-         * watch face editor.
+         * @param watchFaceEditorData Optional data for an on watch face editor, this will not be
+         *   sent to the companion and its contents may be used in preference to other fields by an
+         *   on watch face editor.
          */
         @JvmOverloads
-        public constructor (
+        public constructor(
             id: Id,
             resources: Resources,
             @StringRes displayNameResourceId: Int,
@@ -2762,7 +2702,7 @@ public sealed class UserStyleSetting private constructor(
             affectsWatchFaceLayers
         )
 
-        internal constructor (
+        internal constructor(
             id: Id,
             displayName: DisplayText,
             description: DisplayText,
@@ -2789,7 +2729,6 @@ public sealed class UserStyleSetting private constructor(
 
         internal constructor(wireFormat: LongRangeUserStyleSettingWireFormat) : super(wireFormat)
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toWireFormat(): LongRangeUserStyleSettingWireFormat =
             LongRangeUserStyleSettingWireFormat(
@@ -2801,12 +2740,10 @@ public sealed class UserStyleSetting private constructor(
                 defaultOptionIndex,
                 affectedWatchFaceLayers.map { it.ordinal },
                 watchFaceEditorData?.toWireFormat(),
-                /* optionsOnWatchFaceEditorIcons = */null
+                /* optionsOnWatchFaceEditorIcons = */ null
             )
 
-        /**
-         * Represents an option a [Long] in the range [minimumValue .. maximumValue].
-         */
+        /** Represents an option a [Long] in the range [minimumValue .. maximumValue]. */
         public class LongRangeOption : Option {
             /* The value for this option. Must be within the range [minimumValue..maximumValue]. */
             public val value: Long
@@ -2816,7 +2753,9 @@ public sealed class UserStyleSetting private constructor(
              *
              * @param value The value of this LongRangeOption
              */
-            public constructor(value: Long) : super(
+            public constructor(
+                value: Long
+            ) : super(
                 Id(ByteArray(8).apply { ByteBuffer.wrap(this).putLong(value) }),
                 emptyList()
             ) {
@@ -2832,7 +2771,6 @@ public sealed class UserStyleSetting private constructor(
             internal override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
                 LongRangeUserStyleSetting::class.java
 
-            /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             override fun toWireFormat(): LongRangeOptionWireFormat =
                 LongRangeOptionWireFormat(id.value)
@@ -2857,13 +2795,10 @@ public sealed class UserStyleSetting private constructor(
         public val defaultValue: Long
             get() = (options[defaultOptionIndex] as LongRangeOption).value
 
-        /**
-         * We support all values in the range [min ... max] not just min & max.
-         */
+        /** We support all values in the range [min ... max] not just min & max. */
         override fun getOptionForId(optionId: Option.Id): Option =
-            options.find { it.id.value.contentEquals(optionId.value) } ?: checkedOptionForId(
-                optionId.value
-            )
+            options.find { it.id.value.contentEquals(optionId.value) }
+                ?: checkedOptionForId(optionId.value)
 
         private fun checkedOptionForId(optionId: ByteArray): LongRangeOption {
             return try {
@@ -2882,7 +2817,11 @@ public sealed class UserStyleSetting private constructor(
     /**
      * An application specific style setting. This style is ignored by the system editor. This is
      * expected to be used in conjunction with an on watch face editor. Only a single
-     * [ComplicationSlotsUserStyleSetting] is permitted in the [UserStyleSchema].
+     * [ComplicationSlotsUserStyleSetting] or [LargeCustomValueUserStyleSetting] is permitted in the
+     * [UserStyleSchema].
+     *
+     * The [CustomValueOption] can store at most [Option.Id.MAX_LENGTH] bytes. If you need more
+     * storage, consider using [LargeCustomValueUserStyleSetting].
      */
     public class CustomValueUserStyleSetting : UserStyleSetting {
         internal companion object {
@@ -2893,10 +2832,10 @@ public sealed class UserStyleSetting private constructor(
          * Constructs a CustomValueUserStyleSetting.
          *
          * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
-         * face rendering layers this style affects.
+         *   face rendering layers this style affects.
          * @param defaultValue The default value [ByteArray].
          */
-        public constructor (
+        public constructor(
             affectsWatchFaceLayers: Collection<WatchFaceLayer>,
             defaultValue: ByteArray
         ) : super(
@@ -2912,7 +2851,6 @@ public sealed class UserStyleSetting private constructor(
 
         internal constructor(wireFormat: CustomValueUserStyleSettingWireFormat) : super(wireFormat)
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toWireFormat(): CustomValueUserStyleSettingWireFormat =
             CustomValueUserStyleSettingWireFormat(
@@ -2923,7 +2861,7 @@ public sealed class UserStyleSetting private constructor(
                 getWireFormatOptionsList(),
                 affectedWatchFaceLayers.map { it.ordinal },
                 watchFaceEditorData?.toWireFormat(),
-                /* optionsOnWatchFaceEditorIcons = */null
+                /* optionsOnWatchFaceEditorIcons = */ null
             )
 
         /**
@@ -2931,15 +2869,18 @@ public sealed class UserStyleSetting private constructor(
          * as the [CustomValueOption.id].
          */
         public class CustomValueOption : Option {
-            /* The [ByteArray] value for this option which is the same as the [id]. */
+            /**
+             * The [ByteArray] value for this option which is the same as the [id]. Note the maximum
+             * size in bytes is [Option.Id.MAX_LENGTH].
+             */
             public val customValue: ByteArray
                 get() = id.value
 
             /**
              * Constructs a CustomValueOption.
              *
-             * @param customValue The [ByteArray] [id] and value of this CustomValueOption. This
-             * may not exceed [Id.MAX_LENGTH].
+             * @param customValue The [ByteArray] [id] and value of this CustomValueOption. This may
+             *   not exceed [Option.Id.MAX_LENGTH].
              */
             public constructor(customValue: ByteArray) : super(Id(customValue), emptyList())
 
@@ -2950,7 +2891,6 @@ public sealed class UserStyleSetting private constructor(
             internal override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
                 CustomValueUserStyleSetting::class.java
 
-            /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             override fun toWireFormat(): CustomValueOptionWireFormat =
                 CustomValueOptionWireFormat(id.value)
@@ -2961,9 +2901,111 @@ public sealed class UserStyleSetting private constructor(
         }
 
         override fun getOptionForId(optionId: Option.Id): Option =
-            options.find { it.id.value.contentEquals(optionId.value) } ?: CustomValueOption(
-                optionId.value
+            options.find { it.id.value.contentEquals(optionId.value) }
+                ?: CustomValueOption(optionId.value)
+    }
+
+    /**
+     * An application specific style setting which supports a larger maximum size than
+     * [CustomValueUserStyleSetting]. This style is ignored by the system editor. This is expected
+     * to be used in conjunction with an on watch face editor. Only a single
+     * [ComplicationSlotsUserStyleSetting] or [LargeCustomValueUserStyleSetting] is permitted in the
+     * [UserStyleSchema].
+     *
+     * The [CustomValueOption] can store at most [Option.Id.MAX_LENGTH] bytes.
+     */
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    public class LargeCustomValueUserStyleSetting : UserStyleSetting {
+        internal companion object {
+            internal const val CUSTOM_VALUE_USER_STYLE_SETTING_ID = "CustomValue"
+        }
+
+        /**
+         * Constructs a LargeCustomValueUserStyleSetting.
+         *
+         * @param affectsWatchFaceLayers Used by the style configuration UI. Describes which watch
+         *   face rendering layers this style affects.
+         * @param defaultValue The default value [ByteArray].
+         */
+        public constructor(
+            affectsWatchFaceLayers: Collection<WatchFaceLayer>,
+            defaultValue: ByteArray
+        ) : super(
+            Id(CUSTOM_VALUE_USER_STYLE_SETTING_ID),
+            DisplayText.CharSequenceDisplayText(""),
+            DisplayText.CharSequenceDisplayText(""),
+            null,
+            null,
+            listOf(CustomValueOption(defaultValue)),
+            0,
+            affectsWatchFaceLayers
+        )
+
+        internal constructor(wireFormat: CustomValueUserStyleSetting2WireFormat) : super(wireFormat)
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        override fun toWireFormat(): CustomValueUserStyleSetting2WireFormat =
+            CustomValueUserStyleSetting2WireFormat(
+                id.value,
+                displayName,
+                description,
+                icon,
+                getWireFormatOptionsList(),
+                affectedWatchFaceLayers.map { it.ordinal },
+                watchFaceEditorData?.toWireFormat(),
+                /* optionsOnWatchFaceEditorIcons = */ null
             )
+
+        /**
+         * An application specific custom value. NB the [CustomValueOption.customValue] is the same
+         * as the [CustomValueOption.id].
+         */
+        public class CustomValueOption : Option {
+            /**
+             * The [ByteArray] value for this option which is the same as the [id]. Note the maximum
+             * size in bytes is [MAX_SIZE].
+             */
+            public val customValue: ByteArray
+                get() = id.value
+
+            /**
+             * Constructs a CustomValueOption.
+             *
+             * @param customValue The [ByteArray] [id] and value of this CustomValueOption. This may
+             *   not exceed [Option.Id.MAX_LENGTH].
+             */
+            public constructor(customValue: ByteArray) : super(Id(customValue), emptyList())
+
+            internal constructor(
+                wireFormat: CustomValueOption2WireFormat
+            ) : super(Id(wireFormat.mId), emptyList())
+
+            internal override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
+                LargeCustomValueUserStyleSetting::class.java
+
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+            override fun toWireFormat(): CustomValueOption2WireFormat =
+                CustomValueOption2WireFormat(id.value)
+
+            override fun write(dos: DataOutputStream) {
+                dos.write(id.value)
+            }
+
+            public companion object {
+                /**
+                 * The maximum size of [customValue] in bytes. This is based on the following
+                 * assumptions: 2mbps bluetooth bandwidth and a 50 millisecond transfer time (above
+                 * 50ms delays become quite noticeable).
+                 */
+                public const val MAX_SIZE: Int = 125000
+            }
+
+            override fun getMaxIdSizeBytes(): Int = CustomValueOption.MAX_SIZE
+        }
+
+        override fun getOptionForId(optionId: Option.Id): Option =
+            options.find { it.id.value.contentEquals(optionId.value) }
+                ?: CustomValueOption(optionId.value)
     }
 }
 
@@ -2973,17 +3015,11 @@ internal fun requireUniqueOptionIds(
 ) {
     val uniqueIds = HashSet<UserStyleSetting.Option.Id>()
     for (option in options) {
-        require(uniqueIds.add(option.id)) {
-            "duplicated option id: ${option.id} in $setting"
-        }
+        require(uniqueIds.add(option.id)) { "duplicated option id: ${option.id} in $setting" }
     }
 }
 
-internal class WireSizeAndDimensions(
-    val wireSizeBytes: Int?,
-    val width: Int,
-    val height: Int
-)
+internal class WireSizeAndDimensions(val wireSizeBytes: Int?, val width: Int, val height: Int)
 
 @RequiresApi(Build.VERSION_CODES.P)
 internal class IconHelper {
@@ -2997,7 +3033,6 @@ internal class IconHelper {
                         context.resources
                     )
                 }
-
                 Icon.TYPE_URI -> {
                     if (icon.uri.scheme == ContentResolver.SCHEME_CONTENT) {
                         context.contentResolver.openInputStream(icon.uri)?.let {
@@ -3005,7 +3040,6 @@ internal class IconHelper {
                         }
                     }
                 }
-
                 Icon.TYPE_URI_ADAPTIVE_BITMAP -> {
                     if (icon.uri.scheme == ContentResolver.SCHEME_CONTENT) {
                         context.contentResolver.openInputStream(icon.uri)?.let {
@@ -3024,9 +3058,7 @@ internal class IconHelper {
                     dos.writeInt(icon.resId)
                     dos.writeUTF(icon.resPackage)
                 }
-
                 Icon.TYPE_URI -> dos.writeUTF(icon.uri.toString())
-
                 Icon.TYPE_URI_ADAPTIVE_BITMAP -> dos.writeUTF(icon.uri.toString())
             }
 
@@ -3065,13 +3097,7 @@ private fun getWireSizeAndDimensionsFromStream(
     try {
         val wireSize = stream.available()
         val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-        BitmapFactory.decodeResourceStream(
-            resources,
-            TypedValue(),
-            stream,
-            null,
-            options
-        )
+        BitmapFactory.decodeResourceStream(resources, TypedValue(), stream, null, options)
         return WireSizeAndDimensions(wireSize, options.outWidth, options.outHeight)
     } finally {
         stream.close()
@@ -3079,8 +3105,8 @@ private fun getWireSizeAndDimensionsFromStream(
 }
 
 /**
- * Gets the attribute specified by name. If there is no such attribute, applies defaultValue.
- * Throws exception if calculated result is null.
+ * Gets the attribute specified by name. If there is no such attribute, applies defaultValue. Throws
+ * exception if calculated result is null.
  */
 private fun <T> getAttributeChecked(
     parser: XmlResourceParser,
@@ -3092,18 +3118,12 @@ private fun <T> getAttributeChecked(
     return if (parser.hasValue(name)) {
         converter(parser.getAttributeValue(NAMESPACE_APP, name)!!)
     } else {
-        defaultValue ?: throw IllegalArgumentException(
-            "$name is required for $settingType")
+        defaultValue ?: throw IllegalArgumentException("$name is required for $settingType")
     }
 }
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun getStringRefAttribute(
-    resources: Resources,
-    parser: XmlResourceParser,
-    name: String
-): String? {
+fun getStringRefAttribute(resources: Resources, parser: XmlResourceParser, name: String): String? {
     return if (parser.hasValue(name)) {
         val resId = parser.getAttributeResourceValue(NAMESPACE_APP, name, 0)
         if (resId == 0) {
@@ -3114,13 +3134,8 @@ fun getStringRefAttribute(
     } else null
 }
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun getIntRefAttribute(
-    resources: Resources,
-    parser: XmlResourceParser,
-    name: String
-): Int? {
+fun getIntRefAttribute(resources: Resources, parser: XmlResourceParser, name: String): Int? {
     return if (parser.hasValue(name)) {
         val resId = parser.getAttributeResourceValue(NAMESPACE_APP, name, 0)
         if (resId == 0) {
@@ -3131,7 +3146,6 @@ fun getIntRefAttribute(
     } else null
 }
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun XmlPullParser.moveToStart(expectedNode: String) {
     var type: Int
@@ -3139,9 +3153,7 @@ fun XmlPullParser.moveToStart(expectedNode: String) {
         type = next()
     } while (type != XmlPullParser.END_DOCUMENT && type != XmlPullParser.START_TAG)
 
-    require(name == expectedNode) {
-        "Expected a $expectedNode node but is $name"
-    }
+    require(name == expectedNode) { "Expected a $expectedNode node but is $name" }
 }
 
 /** Converts 0 to null. Since 0 is never a valid resource id. */

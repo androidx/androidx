@@ -36,7 +36,6 @@ import java.util.List;
  * the children part should be considered different when compared with other instances of this
  * class.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class Fingerprint {

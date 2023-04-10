@@ -62,7 +62,6 @@ public class Person {
      * can be created from a {@link Person} using {@link #toPersistableBundle()}. The Icon of the
      * Person will not be extracted from the PersistableBundle.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @NonNull
@@ -74,7 +73,6 @@ public class Person {
     /**
      * Converts an Android framework {@link android.app.Person} to a compat {@link Person}.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @RequiresApi(28)
@@ -127,7 +125,6 @@ public class Person {
      * bundle can be converted back by using {@link #fromPersistableBundle(PersistableBundle)}. The
      * Icon of the Person will not be included in the resulting PersistableBundle.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @NonNull
@@ -145,7 +142,6 @@ public class Person {
     /**
      * Converts this compat {@link Person} to the base Android framework {@link android.app.Person}.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @NonNull
@@ -214,7 +210,6 @@ public class Person {
 
     /**
      * @return the URI associated with this person, or "name:mName" otherwise
-     * @hide
      */
     @NonNull
     @RestrictTo(LIBRARY_GROUP_PREFIX)

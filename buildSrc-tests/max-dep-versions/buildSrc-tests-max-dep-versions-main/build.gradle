@@ -6,7 +6,7 @@ plugins {
 }
 
 dependencies {
-    implementation("androidx.buildSrc-tests:buildSrc-tests-max-dep-versions-dep:1.0.0")
+    implementation("androidx.buildSrc-tests-max-dep-versions-dep:buildSrc-tests-max-dep-versions-dep:1.0.0")
 }
 
 android {

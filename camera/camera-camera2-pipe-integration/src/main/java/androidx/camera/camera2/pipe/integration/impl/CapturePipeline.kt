@@ -47,6 +47,9 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.integration.compat.workaround.isFlashAvailable
+import androidx.camera.camera2.pipe.integration.compat.workaround.shouldStopRepeatingBeforeCapture
+import androidx.camera.camera2.pipe.integration.compat.workaround.UseTorchAsFlash
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
@@ -60,14 +63,12 @@ import androidx.camera.core.ImageCapture.FlashMode
 import androidx.camera.core.ImageCapture.FlashType
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.TorchState
-import dagger.Binds
-import dagger.Module
+import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
 private val CHECK_3A_TIMEOUT_IN_NS = TimeUnit.SECONDS.toNanos(1)
 private val CHECK_3A_WITH_FLASH_TIMEOUT_IN_NS = TimeUnit.SECONDS.toNanos(5)
@@ -92,9 +93,15 @@ class CapturePipelineImpl @Inject constructor(
     private val torchControl: TorchControl,
     private val threads: UseCaseThreads,
     private val requestListener: ComboRequestListener,
+    private val useTorchAsFlash: UseTorchAsFlash,
+    cameraProperties: CameraProperties,
+    private val useCaseCameraState: UseCaseCameraState,
     useCaseGraphConfig: UseCaseGraphConfig,
 ) : CapturePipeline {
     private val graph = useCaseGraphConfig.graph
+
+    // If there is no flash unit, skip the flash related task instead of failing the pipeline.
+    private val hasFlashUnit = cameraProperties.isFlashAvailable()
 
     override var template = CameraDevice.TEMPLATE_PREVIEW
 
@@ -114,21 +121,10 @@ class CapturePipelineImpl @Inject constructor(
         captureMode: Int,
         flashMode: Int,
     ): List<Deferred<Void?>> =
-        if (isFlashRequired(flashMode)) {
+        if (hasFlashUnit && isFlashRequired(flashMode)) {
             torchApplyCapture(requests, captureMode, CHECK_3A_WITH_FLASH_TIMEOUT_IN_NS)
         } else {
-            val lock3ARequired = captureMode == CAPTURE_MODE_MAXIMIZE_QUALITY
-            if (lock3ARequired) {
-                lock3A(CHECK_3A_TIMEOUT_IN_NS)
-            }
-            submitRequestInternal(requests).also { captureSignal ->
-                if (lock3ARequired) {
-                    threads.sequentialScope.launch {
-                        captureSignal.joinAll()
-                        unlock3A()
-                    }
-                }
-            }
+            defaultNoFlashCapture(requests, captureMode)
         }
 
     private suspend fun defaultCapture(
@@ -136,14 +132,36 @@ class CapturePipelineImpl @Inject constructor(
         captureMode: Int,
         flashMode: Int,
     ): List<Deferred<Void?>> {
-        val isFlashRequired = isFlashRequired(flashMode)
-        val timeout =
-            if (isFlashRequired) CHECK_3A_WITH_FLASH_TIMEOUT_IN_NS else CHECK_3A_TIMEOUT_IN_NS
+        return if (hasFlashUnit) {
+            val isFlashRequired = isFlashRequired(flashMode)
+            val timeout =
+                if (isFlashRequired) CHECK_3A_WITH_FLASH_TIMEOUT_IN_NS else CHECK_3A_TIMEOUT_IN_NS
 
-        return if (isFlashRequired || captureMode == CAPTURE_MODE_MAXIMIZE_QUALITY) {
-            aePreCaptureApplyCapture(requests, timeout)
+            if (isFlashRequired || captureMode == CAPTURE_MODE_MAXIMIZE_QUALITY) {
+                aePreCaptureApplyCapture(requests, timeout)
+            } else {
+                defaultNoFlashCapture(requests, captureMode)
+            }
         } else {
-            submitRequestInternal(requests)
+            defaultNoFlashCapture(requests, captureMode)
+        }
+    }
+
+    private suspend fun defaultNoFlashCapture(
+        requests: List<Request>,
+        captureMode: Int
+    ): List<Deferred<Void?>> {
+        val lock3ARequired = captureMode == CAPTURE_MODE_MAXIMIZE_QUALITY
+        if (lock3ARequired) {
+            lock3A(CHECK_3A_TIMEOUT_IN_NS)
+        }
+        return submitRequestInternal(requests).also { captureSignal ->
+            if (lock3ARequired) {
+                threads.sequentialScope.launch {
+                    captureSignal.joinAll()
+                    unlock3A()
+                }
+            }
         }
     }
 
@@ -256,7 +274,17 @@ class CapturePipelineImpl @Inject constructor(
 
         threads.sequentialScope.launch {
             graph.acquireSession().use {
+                val requiresStopRepeating = requestsToSubmit.shouldStopRepeatingBeforeCapture()
+                if (requiresStopRepeating) {
+                    it.stopRepeating()
+                }
+
                 it.submit(requestsToSubmit)
+
+                if (requiresStopRepeating) {
+                    deferredList.joinAll()
+                    useCaseCameraState.tryStartRepeating()
+                }
             }
         }
 
@@ -286,18 +314,10 @@ class CapturePipelineImpl @Inject constructor(
         }
     }.result.await()
 
-    // TODO(b/209383160): Sync TorchAsFlash Quirk
     private fun isTorchAsFlash(@FlashType flashType: Int): Boolean {
         return template == CameraDevice.TEMPLATE_RECORD ||
-            flashType == FLASH_TYPE_USE_TORCH_AS_FLASH /* ||
-            mUseTorchAsFlash.shouldUseTorchAsFlash() */
-    }
-
-    @Module
-    abstract class Bindings {
-        @UseCaseCameraScope
-        @Binds
-        abstract fun provideCapturePipeline(capturePipeline: CapturePipelineImpl): CapturePipeline
+            flashType == FLASH_TYPE_USE_TORCH_AS_FLASH ||
+            useTorchAsFlash.shouldUseTorchAsFlash()
     }
 }
 

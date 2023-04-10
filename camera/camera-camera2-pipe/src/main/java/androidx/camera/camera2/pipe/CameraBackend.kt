@@ -17,9 +17,26 @@ package androidx.camera.camera2.pipe
 
 import androidx.camera.camera2.pipe.graph.GraphListener
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.flow.Flow
 
 /** This is used to uniquely identify a specific backend implementation. */
-@JvmInline value class CameraBackendId(public val value: String)
+@JvmInline
+value class CameraBackendId(val value: String)
+
+/**
+ * A CameraStatusMonitors monitors the status of the cameras, and emits updates when the status of
+ * cameras changes, for instance when the camera access priorities have changed or when a particular
+ * camera has become available.
+ */
+interface CameraStatusMonitor {
+    val cameraStatus: Flow<CameraStatus>
+
+    abstract class CameraStatus internal constructor() {
+        object CameraPrioritiesChanged : CameraStatus()
+
+        class CameraAvailable(val cameraId: CameraId) : CameraStatus()
+    }
+}
 
 /**
  * A CameraBackend is used by [CameraPipe] to abstract out the lifecycle, state, and interactions
@@ -35,6 +52,12 @@ import kotlinx.coroutines.Deferred
  */
 interface CameraBackend {
     val id: CameraBackendId
+
+    /**
+     * A flow of camera statuses that provide camera status updates such as when the camera access
+     * priorities have changed, or a certain camera has become available.
+     */
+    val cameraStatus: Flow<CameraStatusMonitor.CameraStatus>
 
     /**
      * Read out a list of _openable_ [CameraId]s for this backend. The backend may be able to report

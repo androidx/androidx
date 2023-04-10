@@ -24,10 +24,11 @@ import androidx.benchmark.Outputs
 import androidx.benchmark.Outputs.dateToFileName
 import androidx.benchmark.PropOverride
 import androidx.benchmark.Shell
+import androidx.benchmark.perfetto.PerfettoHelper.Companion.LOG_TAG
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 
 /**
- * Wrapper for [PerfettoCapture] which does nothing below L.
+ * Wrapper for [PerfettoCapture] which does nothing below API 23.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class PerfettoCaptureWrapper {
@@ -35,7 +36,7 @@ class PerfettoCaptureWrapper {
     private val TRACE_ENABLE_PROP = "persist.traced.enable"
 
     init {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= 23) {
             capture = PerfettoCapture()
         }
     }
@@ -51,21 +52,22 @@ class PerfettoCaptureWrapper {
         var inUse = false
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    @RequiresApi(23)
     private fun start(
         appTagPackages: List<String>,
         userspaceTracingPackage: String?
     ): Boolean {
         capture?.apply {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                Log.d(PerfettoHelper.LOG_TAG, "Recording perfetto trace")
+            if (Build.VERSION.SDK_INT >= 23) {
+                Log.d(LOG_TAG, "Recording perfetto trace")
                 if (userspaceTracingPackage != null &&
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                    Build.VERSION.SDK_INT >= 30
                 ) {
-                    enableAndroidxTracingPerfetto(
+                    val result = enableAndroidxTracingPerfetto(
                         targetPackage = userspaceTracingPackage,
                         provideBinariesIfMissing = true
-                    )
+                    ) ?: "Success"
+                    Log.d(LOG_TAG, "Enable full tracing result=$result")
                 }
                 start(appTagPackages)
             }
@@ -74,7 +76,7 @@ class PerfettoCaptureWrapper {
         return true
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    @RequiresApi(23)
     private fun stop(traceLabel: String): String {
         return Outputs.writeFile(
             fileName = "${traceLabel}_${dateToFileName()}.perfetto-trace",
@@ -98,7 +100,7 @@ class PerfettoCaptureWrapper {
         block: () -> Unit
     ): String? {
         // skip if Perfetto not supported, or on Cuttlefish (where tracing doesn't work)
-        if (Build.VERSION.SDK_INT < 21 || !isAbiSupported()) {
+        if (Build.VERSION.SDK_INT < 23 || !isAbiSupported()) {
             block()
             return null
         }

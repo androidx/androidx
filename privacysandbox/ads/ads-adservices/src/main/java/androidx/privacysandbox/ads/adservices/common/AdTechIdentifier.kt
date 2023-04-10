@@ -55,6 +55,6 @@ class AdTechIdentifier public constructor(val identifier: String) {
     /** @return The identifier in String form.
      */
     override fun toString(): String {
-        return "AdTechIdentifier: $identifier"
+        return "$identifier"
     }
 }

@@ -18,7 +18,6 @@ package androidx.compose.ui.graphics
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
@@ -26,9 +25,8 @@ import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.Nodes
-import androidx.compose.ui.node.modifierElementOf
 import androidx.compose.ui.node.requireCoordinator
-import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.unit.Constraints
 
@@ -242,7 +240,6 @@ fun Modifier.graphicsLayer(
  * @param ambientShadowColor see [GraphicsLayerScope.ambientShadowColor]
  * @param spotShadowColor see [GraphicsLayerScope.spotShadowColor]
  */
-@OptIn(ExperimentalComposeUiApi::class)
 @Deprecated(
     "Replace with graphicsLayer that consumes a compositing strategy",
     replaceWith = ReplaceWith(
@@ -344,7 +341,6 @@ fun Modifier.graphicsLayer(
  * @param spotShadowColor see [GraphicsLayerScope.spotShadowColor]
  * @param compositingStrategy see [GraphicsLayerScope.compositingStrategy]
  */
-@OptIn(ExperimentalComposeUiApi::class)
 @Stable
 fun Modifier.graphicsLayer(
     scaleX: Float = 1f,
@@ -384,8 +380,7 @@ fun Modifier.graphicsLayer(
     compositingStrategy
 )
 
-@ExperimentalComposeUiApi
-private class GraphicsLayerModifierNodeElement(
+private data class GraphicsLayerModifierNodeElement(
     val scaleX: Float,
     val scaleY: Float,
     val alpha: Float,
@@ -403,28 +398,13 @@ private class GraphicsLayerModifierNodeElement(
     val ambientShadowColor: Color,
     val spotShadowColor: Color,
     val compositingStrategy: CompositingStrategy
-) : ModifierNodeElement<SimpleGraphicsLayerModifier>(
-    inspectorInfo = debugInspectorInfo {
-        name = "graphicsLayer"
-        properties["scaleX"] = scaleX
-        properties["scaleY"] = scaleY
-        properties["alpha"] = alpha
-        properties["translationX"] = translationX
-        properties["translationY"] = translationY
-        properties["shadowElevation"] = shadowElevation
-        properties["rotationX"] = rotationX
-        properties["rotationY"] = rotationY
-        properties["rotationZ"] = rotationZ
-        properties["cameraDistance"] = cameraDistance
-        properties["transformOrigin"] = transformOrigin
-        properties["shape"] = shape
-        properties["clip"] = clip
-        properties["renderEffect"] = renderEffect
-        properties["ambientShadowColor"] = ambientShadowColor
-        properties["spotShadowColor"] = spotShadowColor
-        properties["compositingStrategy"] = compositingStrategy
-    }
-) {
+) : ModifierNodeElement<SimpleGraphicsLayerModifier>() {
+
+    /**
+     * [SimpleGraphicsLayerModifier.invalidateLayerBlock] is doing the manual invalidation.
+     */
+    override val autoInvalidate = false
+
     override fun create(): SimpleGraphicsLayerModifier {
         return SimpleGraphicsLayerModifier(
             scaleX = scaleX,
@@ -469,49 +449,26 @@ private class GraphicsLayerModifierNodeElement(
 
         return node
     }
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is ModifierNodeElement<*>) return false
-        if (other !is GraphicsLayerModifierNodeElement) return false
 
-        return this.scaleX == other.scaleX &&
-            this.scaleY == other.scaleY &&
-            this.alpha == other.alpha &&
-            this.translationX == other.translationX &&
-            this.translationY == other.translationY &&
-            this.shadowElevation == other.shadowElevation &&
-            this.rotationX == other.rotationX &&
-            this.rotationY == other.rotationY &&
-            this.rotationZ == other.rotationZ &&
-            this.cameraDistance == other.cameraDistance &&
-            this.transformOrigin == other.transformOrigin &&
-            this.shape == other.shape &&
-            this.clip == other.clip &&
-            this.renderEffect == other.renderEffect &&
-            this.ambientShadowColor == other.ambientShadowColor &&
-            this.spotShadowColor == other.spotShadowColor &&
-            this.compositingStrategy == other.compositingStrategy
-    }
-
-    override fun hashCode(): Int {
-        var result = scaleX.hashCode()
-        result = 31 * result + scaleY.hashCode()
-        result = 31 * result + alpha.hashCode()
-        result = 31 * result + translationX.hashCode()
-        result = 31 * result + translationY.hashCode()
-        result = 31 * result + shadowElevation.hashCode()
-        result = 31 * result + rotationX.hashCode()
-        result = 31 * result + rotationY.hashCode()
-        result = 31 * result + rotationZ.hashCode()
-        result = 31 * result + cameraDistance.hashCode()
-        result = 31 * result + transformOrigin.hashCode()
-        result = 31 * result + shape.hashCode()
-        result = 31 * result + clip.hashCode()
-        result = 31 * result + renderEffect.hashCode()
-        result = 31 * result + ambientShadowColor.hashCode()
-        result = 31 * result + spotShadowColor.hashCode()
-        result = 31 * result + compositingStrategy.hashCode()
-        return result
+    override fun InspectorInfo.inspectableProperties() {
+        name = "graphicsLayer"
+        properties["scaleX"] = scaleX
+        properties["scaleY"] = scaleY
+        properties["alpha"] = alpha
+        properties["translationX"] = translationX
+        properties["translationY"] = translationY
+        properties["shadowElevation"] = shadowElevation
+        properties["rotationX"] = rotationX
+        properties["rotationY"] = rotationY
+        properties["rotationZ"] = rotationZ
+        properties["cameraDistance"] = cameraDistance
+        properties["transformOrigin"] = transformOrigin
+        properties["shape"] = shape
+        properties["clip"] = clip
+        properties["renderEffect"] = renderEffect
+        properties["ambientShadowColor"] = ambientShadowColor
+        properties["spotShadowColor"] = spotShadowColor
+        properties["compositingStrategy"] = compositingStrategy
     }
 }
 
@@ -530,18 +487,9 @@ private class GraphicsLayerModifierNodeElement(
  *
  * @param block block on [GraphicsLayerScope] where you define the layer properties.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 @Stable
 fun Modifier.graphicsLayer(block: GraphicsLayerScope.() -> Unit): Modifier =
-    this then modifierElementOf(
-        key = block,
-        create = { BlockGraphicsLayerModifier(block) },
-        definitions = debugInspectorInfo {
-            name = "graphicsLayer"
-            properties["block"] = block
-        },
-        update = { it.layerBlock = block }
-    )
+    this then BlockGraphicsLayerElement(block)
 
 /**
  * Determines when to render the contents of a layer into an offscreen buffer before
@@ -598,10 +546,39 @@ value class CompositingStrategy internal constructor(
 fun Modifier.toolingGraphicsLayer() =
     if (isDebugInspectorInfoEnabled) this.then(Modifier.graphicsLayer()) else this
 
-@OptIn(ExperimentalComposeUiApi::class)
+private data class BlockGraphicsLayerElement(
+    val block: GraphicsLayerScope.() -> Unit
+) : ModifierNodeElement<BlockGraphicsLayerModifier>() {
+
+    /**
+     * We can skip remeasuring as we only need to rerun the placement block. we request it
+     * manually in the [update] block.
+     */
+    override val autoInvalidate = false
+
+    override fun create() = BlockGraphicsLayerModifier(block)
+
+    override fun update(node: BlockGraphicsLayerModifier) = node.apply {
+        layerBlock = block
+        invalidateLayerBlock()
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "graphicsLayer"
+        properties["block"] = block
+    }
+}
+
 private class BlockGraphicsLayerModifier(
     var layerBlock: GraphicsLayerScope.() -> Unit,
 ) : LayoutModifierNode, Modifier.Node() {
+
+    fun invalidateLayerBlock() {
+        requireCoordinator(Nodes.Layout).wrapped?.updateLayerBlock(
+            layerBlock,
+            forceUpdateLayerParameters = true
+        )
+    }
 
     override fun MeasureScope.measure(
         measurable: Measurable,
@@ -618,7 +595,6 @@ private class BlockGraphicsLayerModifier(
             "block=$layerBlock)"
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 private class SimpleGraphicsLayerModifier(
     var scaleX: Float,
     var scaleY: Float,
@@ -662,7 +638,7 @@ private class SimpleGraphicsLayerModifier(
     fun invalidateLayerBlock() {
         requireCoordinator(Nodes.Layout).wrapped?.updateLayerBlock(
             this.layerBlock,
-            forceLayerInvalidated = true
+            forceUpdateLayerParameters = true
         )
     }
 

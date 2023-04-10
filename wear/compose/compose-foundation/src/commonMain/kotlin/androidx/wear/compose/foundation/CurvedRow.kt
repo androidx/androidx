@@ -21,7 +21,7 @@ import androidx.compose.ui.geometry.Offset
 
 /**
  * A layout composable that places its children in an arc, rotating them as needed. This is
- * similar to a [Row] layout, that it's curved into a segment of an annulus.
+ * similar to a [Row] layout, but curved into a segment of an annulus.
  *
  * The thickness of the layout (the difference between the outer and inner radius) will be the
  * same as the thickest child, and the total angle taken is the sum of the children's angles.
@@ -31,8 +31,9 @@ import androidx.compose.ui.geometry.Offset
  *
  * @param modifier The [CurvedModifier] to apply to this curved row.
  * @param radialAlignment Radial alignment specifies where to lay down children that are thinner
- * than the CurvedRow, either closer to the center (INNER), apart from the center (OUTER) or in the
- * middle point (CENTER). If unspecified, they can choose for themselves.
+ * than the CurvedRow, either closer to the center [CurvedAlignment.Radial.Inner], apart from
+ * the center [CurvedAlignment.Radial.Outer] or in the
+ * middle point [CurvedAlignment.Radial.Center]. If unspecified, they can choose for themselves.
  * @param angularDirection Specify if the children are laid out clockwise or anti-clockwise,
  * and if those needs to be reversed in a Rtl layout.
  * If not specified, it will be inherited from the enclosing [curvedRow] or [CurvedLayout]

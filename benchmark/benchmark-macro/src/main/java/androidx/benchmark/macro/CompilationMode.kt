@@ -29,6 +29,7 @@ import androidx.benchmark.macro.CompilationMode.Ignore
 import androidx.benchmark.macro.CompilationMode.None
 import androidx.benchmark.macro.CompilationMode.Partial
 import androidx.benchmark.userspaceTrace
+import androidx.core.os.BuildCompat
 import androidx.profileinstaller.ProfileInstallReceiver
 import org.junit.AssumptionViolatedException
 
@@ -72,13 +73,15 @@ import org.junit.AssumptionViolatedException
  * to compile the target app).
  */
 sealed class CompilationMode {
+    @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
     internal fun resetAndCompile(
         packageName: String,
+        allowCompilationSkipping: Boolean = true,
         killProcessBlock: () -> Unit,
         warmupBlock: () -> Unit
     ) {
         if (Build.VERSION.SDK_INT >= 24) {
-            if (Arguments.enableCompilation) {
+            if (Arguments.enableCompilation || !allowCompilationSkipping) {
                 Log.d(TAG, "Resetting $packageName")
                 // The compilation mode chooses whether a reset is required or not.
                 // Currently the only compilation mode that does not perform a reset is
@@ -88,7 +91,7 @@ sealed class CompilationMode {
                     // The flag `enablePackageReset` can be set to `true` on `userdebug` builds in
                     // order to speed-up the profile reset. When set to false, reset is performed
                     // uninstalling and reinstalling the app.
-                    if (Shell.isSessionRooted()) {
+                    if (BuildCompat.isAtLeastU() || Shell.isSessionRooted()) {
                         // Package reset enabled
                         Log.d(TAG, "Re-compiling $packageName")
                         // cmd package compile --reset returns a "Success" or a "Failure" to stdout.
@@ -102,7 +105,7 @@ sealed class CompilationMode {
                             "Unable to recompile $packageName ($output)"
                         }
                     } else {
-                        // User builds. Kick off a full uninstall-reinstall
+                        // User builds pre-U. Kick off a full uninstall-reinstall
                         Log.d(TAG, "Reinstalling $packageName")
                         reinstallPackage(packageName)
                     }
@@ -116,38 +119,48 @@ sealed class CompilationMode {
         }
     }
 
-    // This is a more expensive when compared to `compile --reset`.
+    /**
+     * A more expensive alternative to `compile --reset` which doesn't preserve app data, but
+     * does work on older APIs without root
+     */
     private fun reinstallPackage(packageName: String) {
         userspaceTrace("reinstallPackage") {
-            val packagePath = Shell.executeScriptCaptureStdout("pm path $packageName")
-            // The result looks like: `package: <result>`
-            val apkPath = packagePath.substringAfter("package:").trim()
-            // Copy the APK to /data/local/temp
-            val tempApkPath = "/data/local/tmp/$packageName-${System.currentTimeMillis()}.apk"
-            Log.d(TAG, "Copying APK to $tempApkPath")
-            val result = Shell.executeScriptCaptureStdout(
-                "cp $apkPath $tempApkPath"
-            )
+
+            // Copy APKs to /data/local/temp
+            val apkPaths = Shell.pmPath(packageName)
+
+            val tempApkPaths: List<String> = apkPaths.mapIndexed { index, apkPath ->
+                val tempApkPath =
+                    "/data/local/tmp/$packageName-$index-${System.currentTimeMillis()}.apk"
+                Log.d(TAG, "Copying APK $apkPath to $tempApkPath")
+                Shell.executeScriptSilent(
+                    "cp $apkPath $tempApkPath"
+                )
+                tempApkPath
+            }
+            val tempApkPathsString = tempApkPaths.joinToString(" ")
+
             try {
                 // Uninstall package
                 // This is what effectively clears the ART profiles
                 Log.d(TAG, "Uninstalling $packageName")
                 var output = Shell.executeScriptCaptureStdout("pm uninstall $packageName")
                 check(output.trim() == "Success") {
-                    "Unable to uninstall $packageName ($result)"
+                    "Unable to uninstall $packageName ($output)"
                 }
                 // Install the APK from /data/local/tmp
                 Log.d(TAG, "Installing $packageName")
                 // Provide a `-t` argument to `pm install` to ensure test packages are
                 // correctly installed. (b/231294733)
-                output = Shell.executeScriptCaptureStdout("pm install -t $tempApkPath")
+                output = Shell.executeScriptCaptureStdout("pm install -t $tempApkPathsString")
+
                 check(output.trim() == "Success") {
-                    "Unable to install $packageName ($result)"
+                    "Unable to install $packageName ($output)"
                 }
             } finally {
                 // Cleanup the temporary APK
-                Log.d(TAG, "Deleting $tempApkPath")
-                Shell.executeScriptSilent("rm $tempApkPath")
+                Log.d(TAG, "Deleting $tempApkPathsString")
+                Shell.executeScriptSilent("rm $tempApkPathsString")
             }
         }
     }

@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.input.rotary
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.DelegatableNode
 
@@ -28,7 +27,6 @@ import androidx.compose.ui.node.DelegatableNode
  * consume the event, [onPreRotaryScrollEvent]() is called for the focused item. If the event is
  * still not consumed, [onRotaryScrollEvent]() is called on the focused item's parents.
  */
-@ExperimentalComposeUiApi
 interface RotaryInputModifierNode : DelegatableNode {
     /**
      * This function is called when a [RotaryScrollEvent] is received by this node during the upward
@@ -45,17 +43,4 @@ interface RotaryInputModifierNode : DelegatableNode {
      * it will be sent back up to the root using the [onRotaryScrollEvent] function.
      */
     fun onPreRotaryScrollEvent(event: RotaryScrollEvent): Boolean
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
-internal class RotaryInputModifierNodeImpl(
-    var onEvent: ((RotaryScrollEvent) -> Boolean)?,
-    var onPreEvent: ((RotaryScrollEvent) -> Boolean)?
-) : RotaryInputModifierNode, Modifier.Node() {
-    override fun onRotaryScrollEvent(event: RotaryScrollEvent): Boolean {
-        return onEvent?.invoke(event) ?: false
-    }
-    override fun onPreRotaryScrollEvent(event: RotaryScrollEvent): Boolean {
-        return onPreEvent?.invoke(event) ?: false
-    }
 }

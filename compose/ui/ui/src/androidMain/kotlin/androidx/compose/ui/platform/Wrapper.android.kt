@@ -77,7 +77,9 @@ internal fun AbstractComposeView.setContent(
             getChildAt(0) as? AndroidComposeView
         } else {
             removeAllViews(); null
-        } ?: AndroidComposeView(context).also { addView(it.view, DefaultLayoutParams) }
+        } ?: AndroidComposeView(context, parent.effectCoroutineContext).also {
+            addView(it.view, DefaultLayoutParams)
+        }
     return doSetContent(composeView, parent, content)
 }
 
@@ -150,7 +152,6 @@ private class WrappedComposition(
                             currentComposer.collectParameterInformation()
                         }
 
-                        LaunchedEffect(owner) { owner.keyboardVisibilityEventLoop() }
                         LaunchedEffect(owner) { owner.boundsUpdatesEventLoop() }
 
                         CompositionLocalProvider(LocalInspectionTables provides inspectionTable) {

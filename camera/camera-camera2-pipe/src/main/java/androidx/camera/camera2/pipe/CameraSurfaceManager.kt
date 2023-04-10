@@ -45,13 +45,15 @@ import kotlinx.atomicfu.atomic
  */
 @Singleton
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public class CameraSurfaceManager @Inject constructor() {
+class CameraSurfaceManager @Inject constructor() {
 
     private val lock = Any()
 
-    @GuardedBy("lock") private val useCountMap: MutableMap<Surface, Int> = mutableMapOf()
+    @GuardedBy("lock")
+    private val useCountMap: MutableMap<Surface, Int> = mutableMapOf()
 
-    @GuardedBy("lock") private val listeners: MutableSet<SurfaceListener> = mutableSetOf()
+    @GuardedBy("lock")
+    private val listeners: MutableSet<SurfaceListener> = mutableSetOf()
 
     /**
      * A new [SurfaceToken] is issued when a [Surface] is registered in CameraSurfaceManager. When
@@ -93,7 +95,7 @@ public class CameraSurfaceManager @Inject constructor() {
      * Adds a [SurfaceListener] to receive [Surface] lifetime updates. When a listener is added, it
      * will receive [SurfaceListener.onSurfaceActive] for all active Surfaces.
      */
-    public fun addListener(listener: SurfaceListener) {
+    fun addListener(listener: SurfaceListener) {
         val activeSurfaces =
             synchronized(lock) {
                 listeners.add(listener)
@@ -104,7 +106,7 @@ public class CameraSurfaceManager @Inject constructor() {
     }
 
     /** Removes a [SurfaceListener] to stop receiving [Surface] lifetime updates. */
-    public fun removeListener(listener: SurfaceListener) {
+    fun removeListener(listener: SurfaceListener) {
         synchronized(lock) { listeners.remove(listener) }
     }
 

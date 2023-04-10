@@ -19,59 +19,60 @@ package androidx.credentials
 /**
  * Encapsulates a request to get a user credential.
  *
- * An application can construct such a request by adding one or more types of [GetCredentialOption],
- * and then call [CredentialManager.executeGetCredential] to launch framework UI flows to allow the user
+ * An application can construct such a request by adding one or more types of [CredentialOption],
+ * and then call [CredentialManager.getCredential] to launch framework UI flows to allow the user
  * to consent to using a previously saved credential for the given application.
  *
- * @property getCredentialOptions the list of [GetCredentialOption] from which the user can choose
+ * @property credentialOptions the list of [CredentialOption] from which the user can choose
  * one to authenticate to the app
- * @property isAutoSelectAllowed defines if a credential entry will be automatically chosen if it is
- * the only one, false by default
- * @throws IllegalArgumentException If [getCredentialOptions] is empty
+ * @property origin the origin of a different application if the request is being made on behalf of
+ * that application. For API level >=34, setting a non-null value for this parameter, will throw
+ * a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present.
+ * @throws IllegalArgumentException If [credentialOptions] is empty
  */
-class GetCredentialRequest @JvmOverloads constructor(
-    val getCredentialOptions: List<GetCredentialOption>,
-    val isAutoSelectAllowed: Boolean = false,
+class GetCredentialRequest
+@JvmOverloads constructor(
+    val credentialOptions: List<CredentialOption>,
+    val origin: String? = null,
 ) {
 
     init {
-        require(getCredentialOptions.isNotEmpty()) { "credentialRequests should not be empty" }
+        require(credentialOptions.isNotEmpty()) { "credentialOptions should not be empty" }
     }
 
     /** A builder for [GetCredentialRequest]. */
     class Builder {
-        private var getCredentialOptions: MutableList<GetCredentialOption> = mutableListOf()
-        private var autoSelectAllowed: Boolean = false
+        private var credentialOptions: MutableList<CredentialOption> = mutableListOf()
+        private var origin: String? = null
 
-        /** Adds a specific type of [GetCredentialOption]. */
-        fun addGetCredentialOption(getCredentialOption: GetCredentialOption): Builder {
-            getCredentialOptions.add(getCredentialOption)
+        /** Adds a specific type of [CredentialOption]. */
+        fun addCredentialOption(credentialOption: CredentialOption): Builder {
+            credentialOptions.add(credentialOption)
             return this
         }
 
-        /** Sets the list of [GetCredentialOption]. */
-        fun setGetCredentialOptions(getCredentialOptions: List<GetCredentialOption>): Builder {
-            this.getCredentialOptions = getCredentialOptions.toMutableList()
+        /** Sets the list of [CredentialOption]. */
+        fun setCredentialOptions(credentialOptions: List<CredentialOption>): Builder {
+            this.credentialOptions = credentialOptions.toMutableList()
             return this
         }
 
-        /**
-         * Sets [autoSelectAllowed], which by default, is false.
-         */
-        @Suppress("MissingGetterMatchingBuilder")
-        fun setAutoSelectAllowed(autoSelectAllowed: Boolean): Builder {
-            this.autoSelectAllowed = autoSelectAllowed
+        /** Sets the [origin] of a different application if the request is being made on behalf of
+         * that application. For API level >=34, setting a non-null value for this parameter, will
+         * throw a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not
+         * present. */
+        fun setOrigin(origin: String): Builder {
+            this.origin = origin
             return this
         }
 
         /**
          * Builds a [GetCredentialRequest].
          *
-         * @throws IllegalArgumentException If [getCredentialOptions] is empty
+         * @throws IllegalArgumentException If [credentialOptions] is empty
          */
         fun build(): GetCredentialRequest {
-            return GetCredentialRequest(getCredentialOptions.toList(),
-                autoSelectAllowed)
+            return GetCredentialRequest(credentialOptions.toList(), origin)
         }
     }
 }

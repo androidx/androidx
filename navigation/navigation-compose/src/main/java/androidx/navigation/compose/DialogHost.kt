@@ -23,6 +23,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -66,9 +68,14 @@ public fun DialogHost(dialogNavigator: DialogNavigator) {
 internal fun MutableList<NavBackStackEntry>.PopulateVisibleList(
     transitionsInProgress: Collection<NavBackStackEntry>
 ) {
+    val isInspecting = LocalInspectionMode.current
     transitionsInProgress.forEach { entry ->
         DisposableEffect(entry.lifecycle) {
             val observer = LifecycleEventObserver { _, event ->
+                // show dialog in preview
+                if (isInspecting && !contains(entry)) {
+                    add(entry)
+                }
                 // ON_START -> add to visibleBackStack, ON_STOP -> remove from visibleBackStack
                 if (event == Lifecycle.Event.ON_START) {
                     // We want to treat the visible lists as Sets but we want to keep
@@ -91,13 +98,22 @@ internal fun MutableList<NavBackStackEntry>.PopulateVisibleList(
 }
 
 @Composable
-internal fun rememberVisibleList(transitionsInProgress: Collection<NavBackStackEntry>) =
-    remember(transitionsInProgress) {
+internal fun rememberVisibleList(
+    transitionsInProgress: Collection<NavBackStackEntry>
+): SnapshotStateList<NavBackStackEntry> {
+    // show dialog in preview
+    val isInspecting = LocalInspectionMode.current
+    return remember(transitionsInProgress) {
         mutableStateListOf<NavBackStackEntry>().also {
             it.addAll(
                 transitionsInProgress.filter { entry ->
-                    entry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+                    if (isInspecting) {
+                        true
+                    } else {
+                        entry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+                    }
                 }
             )
         }
     }
+}

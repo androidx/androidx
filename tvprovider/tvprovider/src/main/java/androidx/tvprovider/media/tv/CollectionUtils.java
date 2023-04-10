@@ -23,7 +23,6 @@ import java.util.Arrays;
 
 /**
  * Static utilities for collections
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class CollectionUtils {

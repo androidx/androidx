@@ -44,12 +44,14 @@ constructor(
 ) {
     private val lock = Any()
 
-    @GuardedBy("lock") private val surfaceMap: MutableMap<StreamId, Surface> = mutableMapOf()
+    @GuardedBy("lock")
+    private val surfaceMap: MutableMap<StreamId, Surface> = mutableMapOf()
 
     @GuardedBy("lock")
     private val surfaceUsageMap: MutableMap<Surface, AutoCloseable> = mutableMapOf()
 
-    @GuardedBy("lock") private val closed: Boolean = false
+    @GuardedBy("lock")
+    private val closed: Boolean = false
 
     operator fun set(streamId: StreamId, surface: Surface?) {
         val closeable =

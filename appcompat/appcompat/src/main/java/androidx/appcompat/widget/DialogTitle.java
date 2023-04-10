@@ -33,7 +33,6 @@ import androidx.appcompat.R;
  * Used by dialogs to change the font size and number of lines to try to fit
  * the text to the available space.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class DialogTitle extends AppCompatTextView {

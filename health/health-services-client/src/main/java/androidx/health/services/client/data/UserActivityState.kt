@@ -34,7 +34,6 @@ public class UserActivityState(public val id: Int, public val name: String) {
 
     override fun toString(): String = name
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     internal fun toProto(): UserActivityStateProto =
         UserActivityStateProto.forNumber(id) ?: UserActivityStateProto.USER_ACTIVITY_STATE_UNKNOWN
@@ -63,7 +62,6 @@ public class UserActivityState(public val id: Int, public val name: String) {
         public val USER_ACTIVITY_ASLEEP: UserActivityState =
             UserActivityState(3, "USER_ACTIVITY_ASLEEP")
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
         public val VALUES: List<UserActivityState> =
@@ -74,7 +72,6 @@ public class UserActivityState(public val id: Int, public val name: String) {
                 USER_ACTIVITY_ASLEEP,
             )
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         public fun fromProto(proto: UserActivityStateProto): UserActivityState =
             VALUES.firstOrNull { it.id == proto.number } ?: USER_ACTIVITY_UNKNOWN

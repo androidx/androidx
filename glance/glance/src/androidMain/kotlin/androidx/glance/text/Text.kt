@@ -70,7 +70,7 @@ class EmittableText : Emittable {
         it.modifier = modifier
         it.text = text
         it.style = style
-        it.maxLines = it.maxLines
+        it.maxLines = maxLines
     }
 
     override fun toString(): String =

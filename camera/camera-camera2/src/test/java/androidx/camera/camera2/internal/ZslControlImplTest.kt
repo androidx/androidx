@@ -43,6 +43,7 @@ import org.robolectric.util.ReflectionHelpers
 
 val YUV_REPROCESSING_MAXIMUM_SIZE = Size(4000, 3000)
 val PRIVATE_REPROCESSING_MAXIMUM_SIZE = Size(3000, 2000)
+private const val CAMERA_ID_0 = "0"
 
 /**
  * Unit tests for [ZslControlImpl].
@@ -293,6 +294,9 @@ class ZslControlImplTest {
                 CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP, streamConfigurationMap)
         }
 
-        return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics)
+        return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
+            characteristics,
+            CAMERA_ID_0
+        )
     }
 }

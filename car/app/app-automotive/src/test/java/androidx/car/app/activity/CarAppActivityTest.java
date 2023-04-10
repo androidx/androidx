@@ -117,7 +117,7 @@ public class CarAppActivityTest {
             ShadowApplication sa = shadowOf(app);
             sa.setComponentNameAndServiceForBindService(mRendererComponent, mRenderServiceDelegate);
 
-        } catch (PackageManager.NameNotFoundException | RemoteException e) {
+        } catch (RemoteException e) {
             fail(Log.getStackTraceString(e));
         }
     }

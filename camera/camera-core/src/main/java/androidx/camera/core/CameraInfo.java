@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import android.graphics.ImageFormat;
+import android.util.Range;
 import android.view.Surface;
 
 import androidx.annotation.FloatRange;
@@ -32,6 +33,8 @@ import androidx.lifecycle.Observer;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * An interface for retrieving camera information.
@@ -45,7 +48,6 @@ public interface CameraInfo {
      * An unknown intrinsic zoom ratio. Usually to indicate the camera is unable to provide
      * necessary information to resolve its intrinsic zoom ratio.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     float INTRINSIC_ZOOM_RATIO_UNKNOWN = 1.0F;
@@ -53,7 +55,6 @@ public interface CameraInfo {
     /**
      * An unknown camera implementation type.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -68,7 +69,6 @@ public interface CameraInfo {
      * {@link android.hardware.camera2.CameraMetadata#INFO_SUPPORTED_HARDWARE_LEVEL_EXTERNAL
      * EXTRERNAL}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -78,7 +78,6 @@ public interface CameraInfo {
      * A Camera2 API implementation type where the camera support level is
      * {@link android.hardware.camera2.CameraMetadata#INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY LEGACY}.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -87,7 +86,6 @@ public interface CameraInfo {
     /**
      * A fake camera implementation type.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -180,7 +178,6 @@ public interface CameraInfo {
      * @return the implementation type of the camera, which can be one of the following:
      * {@link #IMPLEMENTATION_TYPE_UNKNOWN}, {@link #IMPLEMENTATION_TYPE_CAMERA2_LEGACY},
      * {@link #IMPLEMENTATION_TYPE_CAMERA2}, {@link #IMPLEMENTATION_TYPE_FAKE}.
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -274,19 +271,39 @@ public interface CameraInfo {
     }
 
     /**
+     * Returns a list of the frame rate ranges, in frames per second, supported by this device's
+     * AE algorithm.
+     *
+     * <p>These are the frame rate ranges that the AE algorithm on the device can support. When
+     * CameraX is configured to run with the camera2 implementation, this list will be derived
+     * from {@link android.hardware.camera2.CameraCharacteristics
+     * #CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES}, though ranges may be added or removed for
+     * compatibility reasons.
+     *
+     * <p>There is no guarantee that these ranges can be used for every size surface or
+     * combination of use cases. If attempting to run the device using an unsupported range, there
+     * may be stability issues or the device may quietly choose another frame rate operating range.
+     *
+     * @return The list of FPS ranges supported by the device's AE algorithm
+     * @see androidx.camera.video.VideoCapture.Builder#setTargetFrameRate(Range)
+     */
+    @NonNull
+    default List<Range<Integer>> getSupportedFrameRateRanges() {
+        return Collections.emptyList();
+    }
+
+    /**
      * Returns if {@link ImageFormat#PRIVATE} reprocessing is supported on the device.
      *
      * @return true if supported, otherwise false.
      * @see android.hardware.camera2.CameraMetadata
      * #REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     default boolean isPrivateReprocessingSupported() {
         return false;
     }
 
-    /** @hide */
     @StringDef(open = true, value = {IMPLEMENTATION_TYPE_UNKNOWN,
             IMPLEMENTATION_TYPE_CAMERA2_LEGACY, IMPLEMENTATION_TYPE_CAMERA2,
             IMPLEMENTATION_TYPE_FAKE})

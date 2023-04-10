@@ -27,9 +27,11 @@ import kotlin.contracts.contract
 @OptIn(ExperimentalContracts::class)
 internal class IdentityArraySet<T : Any> : Set<T> {
     override var size = 0
+        private set
 
     @PublishedApi
     internal var values: Array<Any?> = arrayOfNulls(16)
+        private set
 
     /**
      * Returns true if the set contains [element]
@@ -51,6 +53,9 @@ internal class IdentityArraySet<T : Any> : Set<T> {
      */
     fun add(value: T): Boolean {
         val index: Int
+        val size = size
+        val values = values
+
         if (size > 0) {
             index = find(value)
 
@@ -75,7 +80,7 @@ internal class IdentityArraySet<T : Any> : Set<T> {
                 destination = newSorted,
                 endIndex = insertIndex
             )
-            values = newSorted
+            this.values = newSorted
         } else {
             values.copyInto(
                 destination = values,
@@ -84,8 +89,8 @@ internal class IdentityArraySet<T : Any> : Set<T> {
                 endIndex = size
             )
         }
-        values[insertIndex] = value
-        size++
+        this.values[insertIndex] = value
+        this.size++
         return true
     }
 
@@ -94,7 +99,6 @@ internal class IdentityArraySet<T : Any> : Set<T> {
      */
     fun clear() {
         values.fill(null)
-
         size = 0
     }
 
@@ -103,8 +107,125 @@ internal class IdentityArraySet<T : Any> : Set<T> {
      */
     inline fun fastForEach(block: (T) -> Unit) {
         contract { callsInPlace(block) }
+        val values = values
         for (i in 0 until size) {
-            block(this[i])
+            @Suppress("UNCHECKED_CAST")
+            block(values[i] as T)
+        }
+    }
+
+    fun addAll(collection: Collection<T>) {
+        if (collection.isEmpty()) return
+
+        if (collection !is IdentityArraySet<T>) {
+            // Unknown collection, just add repeatedly
+            for (value in collection) {
+                add(value)
+            }
+        } else {
+            // Identity set, merge sorted arrays
+            val thisValues = values
+            val otherValues = collection.values
+            val thisSize = size
+            val otherSize = collection.size
+            val combinedSize = thisSize + otherSize
+
+            val needsResize = values.size < combinedSize
+            val elementsInOrder = thisSize == 0 ||
+                identityHashCode(thisValues[thisSize - 1]) < identityHashCode(otherValues[0])
+
+            if (!needsResize && elementsInOrder) {
+                // fast path, just copy target values
+                otherValues.copyInto(
+                    destination = thisValues,
+                    destinationOffset = thisSize,
+                    startIndex = 0,
+                    endIndex = otherSize
+                )
+                size += otherSize
+            } else {
+                // slow path, merge this and other values
+                val newArray = if (needsResize) {
+                    arrayOfNulls(if (thisSize > otherSize) thisSize * 2 else otherSize * 2)
+                } else {
+                    thisValues
+                }
+                var thisIndex = thisSize - 1
+                var otherIndex = otherSize - 1
+                var nextInsertIndex = combinedSize - 1
+                while (thisIndex >= 0 || otherIndex >= 0) {
+                    val nextValue = when {
+                        thisIndex < 0 -> otherValues[otherIndex--]
+                        otherIndex < 0 -> thisValues[thisIndex--]
+                        else -> {
+                            val thisValue = thisValues[thisIndex]
+                            val otherValue = otherValues[otherIndex]
+
+                            val thisHash = identityHashCode(thisValue)
+                            val otherHash = identityHashCode(otherValue)
+                            when {
+                                thisHash > otherHash -> {
+                                    thisIndex--
+                                    thisValue
+                                }
+                                thisHash < otherHash -> {
+                                    otherIndex--
+                                    otherValue
+                                }
+                                thisValue === otherValue -> {
+                                    // hash and the value are the same, advance both pointers
+                                    thisIndex--
+                                    otherIndex--
+                                    thisValue
+                                }
+                                else -> {
+                                    // collision, lookup if the same item is in the array
+                                    var i = thisIndex - 1
+                                    var foundDuplicate = false
+                                    while (i >= 0) {
+                                        val value = thisValues[i--]
+                                        if (identityHashCode(value) != otherHash) break
+                                        if (otherValue === value) {
+                                            foundDuplicate = true
+                                            break
+                                        }
+                                    }
+
+                                    if (foundDuplicate) {
+                                        // advance pointer and continue next iteration of outer
+                                        // merge loop.
+                                        otherIndex--
+                                        continue
+                                    } else {
+                                        // didn't find the duplicate, put other item in array.
+                                        otherIndex--
+                                        otherValue
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // insert value and continue
+                    newArray[nextInsertIndex--] = nextValue
+                }
+
+                if (nextInsertIndex >= 0) {
+                    // some values were duplicated, copy the merged part
+                    newArray.copyInto(
+                        newArray,
+                        destinationOffset = 0,
+                        startIndex = nextInsertIndex + 1,
+                        endIndex = combinedSize
+                    )
+                }
+                // newSize = endOffset - startOffset of copy above
+                val newSize = combinedSize - (nextInsertIndex + 1)
+                newArray.fill(null, fromIndex = newSize, toIndex = combinedSize)
+
+                values = newArray
+                size = newSize
+            }
         }
     }
 
@@ -123,6 +244,9 @@ internal class IdentityArraySet<T : Any> : Set<T> {
      */
     fun remove(value: T): Boolean {
         val index = find(value)
+        val values = values
+        val size = size
+
         if (index >= 0) {
             if (index < size - 1) {
                 values.copyInto(
@@ -132,8 +256,8 @@ internal class IdentityArraySet<T : Any> : Set<T> {
                     endIndex = size
                 )
             }
-            size--
-            values[size] = null
+            values[size - 1] = null
+            this.size--
             return true
         }
         return false
@@ -143,6 +267,9 @@ internal class IdentityArraySet<T : Any> : Set<T> {
      * Removes all values that match [predicate].
      */
     inline fun removeValueIf(predicate: (T) -> Boolean) {
+        val values = values
+        val size = size
+
         var destinationIndex = 0
         for (i in 0 until size) {
             @Suppress("UNCHECKED_CAST")
@@ -157,7 +284,7 @@ internal class IdentityArraySet<T : Any> : Set<T> {
         for (i in destinationIndex until size) {
             values[i] = null
         }
-        size = destinationIndex
+        this.size = destinationIndex
     }
 
     /**
@@ -168,10 +295,11 @@ internal class IdentityArraySet<T : Any> : Set<T> {
         var low = 0
         var high = size - 1
         val valueIdentity = identityHashCode(value)
+        val values = values
 
         while (low <= high) {
             val mid = (low + high).ushr(1)
-            val midVal = get(mid)
+            val midVal = values[mid]
             val midIdentity = identityHashCode(midVal)
             when {
                 midIdentity < valueIdentity -> low = mid + 1
@@ -190,7 +318,14 @@ internal class IdentityArraySet<T : Any> : Set<T> {
      * If no match is found, the negative index - 1 of the position in which it would be will
      * be returned, which is always after the last item with the same [identityHashCode].
      */
-    private fun findExactIndex(midIndex: Int, value: Any?, valueHash: Int): Int {
+    private fun findExactIndex(
+        midIndex: Int,
+        value: Any?,
+        valueHash: Int
+    ): Int {
+        val values = values
+        val size = size
+
         // hunt down first
         for (i in midIndex - 1 downTo 0) {
             val v = values[i]
@@ -239,5 +374,17 @@ internal class IdentityArraySet<T : Any> : Set<T> {
         var index = 0
         override fun hasNext(): Boolean = index < size
         override fun next(): T = this@IdentityArraySet.values[index++] as T
+    }
+
+    override fun toString(): String {
+        return joinToString(prefix = "[", postfix = "]") { it.toString() }
+    }
+}
+
+internal inline fun <T : Any> Set<T>.fastForEach(block: (T) -> Unit) {
+    if (this is IdentityArraySet<T>) {
+        fastForEach(block)
+    } else {
+        forEach(block)
     }
 }

@@ -48,7 +48,7 @@ class TestUwbClient(
     private var startedRanging = false
     companion object {
         val rangingPosition = RangingPosition(
-            RangingMeasurement(1, 1.0F), null, null, 20)
+            RangingMeasurement(1, 1.0F), null, null, 20, -50)
     }
     override fun getApiKey(): ApiKey<zze> {
         TODO("Not yet implemented")

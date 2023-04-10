@@ -40,7 +40,6 @@ import java.util.UUID
 /**
  * Stores information about a logical unit of work.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Entity(indices = [Index(value = ["schedule_requested_at"]), Index(value = ["last_enqueue_time"])])
@@ -273,44 +272,18 @@ data class WorkSpec(
      * @return UTC time at which this [WorkSpec] should be allowed to run.
      */
     fun calculateNextRunTime(): Long {
-        return if (isBackedOff) {
-            val isLinearBackoff = backoffPolicy == BackoffPolicy.LINEAR
-            val delay = if (isLinearBackoff) backoffDelayDuration * runAttemptCount else Math.scalb(
-                backoffDelayDuration.toFloat(),
-                runAttemptCount - 1
-            )
-                .toLong()
-            lastEnqueueTime + delay.coerceAtMost(WorkRequest.MAX_BACKOFF_MILLIS)
-        } else if (isPeriodic) {
-            val start = if (periodCount == 0) lastEnqueueTime + initialDelay else lastEnqueueTime
-            val isFlexApplicable = flexDuration != intervalDuration
-            if (isFlexApplicable) {
-                // To correctly emulate flex, we need to set it
-                // to now, so the PeriodicWorkRequest has an initial delay of
-                // initialDelay + (interval - flex).
-
-                // The subsequent runs will only add the interval duration and no flex.
-                // This gives us the following behavior:
-                // 1 => now + (interval - flex) + initialDelay = firstRunTime
-                // 2 => firstRunTime + 2 * interval - flex
-                // 3 => firstRunTime + 3 * interval - flex
-                val offset = if (periodCount == 0) -1 * flexDuration else 0
-                start + intervalDuration + offset
-            } else {
-                // Don't use flexDuration for determining next run time for PeriodicWork
-                // This is because intervalDuration could equal flexDuration.
-
-                // The first run of a periodic work request is immediate in JobScheduler, and we
-                // need to emulate this behavior.
-                val offset = if (periodCount == 0) 0 else intervalDuration
-                start + offset
-            }
-        } else {
-            // We are checking for (periodStartTime == 0) to support our testing use case.
-            // For newly created WorkSpecs periodStartTime will always be 0.
-            val start = if (lastEnqueueTime == 0L) System.currentTimeMillis() else lastEnqueueTime
-            start + initialDelay
-        }
+        return calculateNextRunTime(
+            isBackedOff = isBackedOff,
+            runAttemptCount = runAttemptCount,
+            backoffPolicy = backoffPolicy,
+            backoffDelayDuration = backoffDelayDuration,
+            lastEnqueueTime = lastEnqueueTime,
+            periodCount = periodCount,
+            isPeriodic = isPeriodic,
+            initialDelay = initialDelay,
+            flexDuration = flexDuration,
+            intervalDuration = intervalDuration
+        )
     }
 
     /**
@@ -337,20 +310,44 @@ data class WorkSpec(
     )
 
     /**
-     * A POJO containing the ID, state, output, tags, and run attempt count of a WorkSpec.
+     * A POJO containing externally queryable info for the WorkSpec.
      */
     data class WorkInfoPojo(
         @ColumnInfo(name = "id")
-        var id: String,
+        val id: String,
 
         @ColumnInfo(name = "state")
-        var state: WorkInfo.State,
+        val state: WorkInfo.State,
 
         @ColumnInfo(name = "output")
-        var output: Data,
+        val output: Data,
+
+        @ColumnInfo(name = "initial_delay")
+        val initialDelay: Long = 0,
+
+        @ColumnInfo(name = "interval_duration")
+        val intervalDuration: Long = 0,
+
+        @ColumnInfo(name = "flex_duration")
+        val flexDuration: Long = 0,
+
+        @Embedded
+        val constraints: Constraints,
 
         @ColumnInfo(name = "run_attempt_count")
-        var runAttemptCount: Int,
+        val runAttemptCount: Int,
+
+        @ColumnInfo(name = "backoff_policy")
+        var backoffPolicy: BackoffPolicy = BackoffPolicy.EXPONENTIAL,
+
+        @ColumnInfo(name = "backoff_delay_duration")
+        var backoffDelayDuration: Long = WorkRequest.DEFAULT_BACKOFF_DELAY_MILLIS,
+
+        @ColumnInfo(name = "last_enqueue_time")
+        var lastEnqueueTime: Long = 0,
+
+        @ColumnInfo(name = "period_count", defaultValue = "0")
+        var periodCount: Int = 0,
 
         @ColumnInfo(name = "generation")
         val generation: Int,
@@ -361,7 +358,7 @@ data class WorkSpec(
             entity = WorkTag::class,
             projection = ["tag"]
         )
-        var tags: List<String>,
+        val tags: List<String>,
 
         // This is actually a 1-1 relationship. However Room 2.1 models the type as a List.
         // This will change in Room 2.2
@@ -371,8 +368,13 @@ data class WorkSpec(
             entity = WorkProgress::class,
             projection = ["progress"]
         )
-        var progress: List<Data>,
+        val progress: List<Data>,
     ) {
+        val isPeriodic: Boolean
+            get() = intervalDuration != 0L
+        val isBackedOff: Boolean
+            get() = state == WorkInfo.State.ENQUEUED && runAttemptCount > 0
+
         /**
          * Converts this POJO to a [WorkInfo].
          *
@@ -387,8 +389,35 @@ data class WorkSpec(
                 output,
                 progress,
                 runAttemptCount,
-                generation
+                generation,
+                constraints,
+                initialDelay,
+                getPeriodicityOrNull(),
+                calculateNextRunTimeMillis()
             )
+        }
+
+        private fun getPeriodicityOrNull() = if (intervalDuration != 0L)
+            WorkInfo.PeriodicityInfo(
+                intervalDuration,
+                flexDuration
+            ) else null
+
+        private fun calculateNextRunTimeMillis(): Long {
+            return if (state == WorkInfo.State.ENQUEUED)
+                calculateNextRunTime(
+                    isBackedOff = isBackedOff,
+                    runAttemptCount = runAttemptCount,
+                    backoffPolicy = backoffPolicy,
+                    backoffDelayDuration = backoffDelayDuration,
+                    lastEnqueueTime = lastEnqueueTime,
+                    periodCount = periodCount,
+                    isPeriodic = isPeriodic,
+                    initialDelay = initialDelay,
+                    flexDuration = flexDuration,
+                    intervalDuration = intervalDuration
+                )
+            else Long.MAX_VALUE
         }
     }
 
@@ -399,6 +428,52 @@ data class WorkSpec(
         @JvmField
         val WORK_INFO_MAPPER: Function<List<WorkInfoPojo>, List<WorkInfo>> = Function { input ->
             input?.map { it.toWorkInfo() }
+        }
+
+        fun calculateNextRunTime(
+            isBackedOff: Boolean,
+            runAttemptCount: Int,
+            backoffPolicy: BackoffPolicy,
+            backoffDelayDuration: Long,
+            lastEnqueueTime: Long,
+            periodCount: Int,
+            isPeriodic: Boolean,
+            initialDelay: Long,
+            flexDuration: Long,
+            intervalDuration: Long
+        ): Long {
+            return if (isBackedOff) {
+                val isLinearBackoff = backoffPolicy == BackoffPolicy.LINEAR
+                val delay =
+                    if (isLinearBackoff) backoffDelayDuration * runAttemptCount else Math.scalb(
+                        backoffDelayDuration.toFloat(),
+                        runAttemptCount - 1
+                    )
+                        .toLong()
+                lastEnqueueTime + delay.coerceAtMost(WorkRequest.MAX_BACKOFF_MILLIS)
+            } else if (isPeriodic) {
+                // The first run of a periodic work request is immediate in JobScheduler, so
+                // don't apply intervalDuration to the first run.
+                var schedule =
+                    if (periodCount == 0) lastEnqueueTime + initialDelay
+                    else lastEnqueueTime + intervalDuration
+
+                val isFlexApplicable = flexDuration != intervalDuration
+                // Flex only applies to the first run of a Periodic worker, to avoid
+                // repeatedly pushing the schedule forward on every period.
+                if (isFlexApplicable && periodCount == 0) {
+                    // With flex, the first run does not run immediately, but instead respects
+                    // the first interval duration.
+                    schedule += (intervalDuration - flexDuration)
+                }
+
+                schedule
+            } else if (lastEnqueueTime == 0L) {
+                // If never enqueued, we aren't scheduled to run.
+                Long.MAX_VALUE // 200 million years.
+            } else {
+                lastEnqueueTime + initialDelay
+            }
         }
     }
 }

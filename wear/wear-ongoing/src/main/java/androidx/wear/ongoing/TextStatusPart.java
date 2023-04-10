@@ -29,7 +29,6 @@ import java.util.Objects;
  * Implementation and internal representation of {@link Status.TextPart}.
  * <p>
  * Available since wear-ongoing:1.0.0
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @VersionedParcelize

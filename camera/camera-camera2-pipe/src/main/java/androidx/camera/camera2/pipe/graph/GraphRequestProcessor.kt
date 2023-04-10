@@ -37,7 +37,7 @@ internal val graphRequestProcessorIds = atomic(0)
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Suppress("NOTHING_TO_INLINE")
-public class GraphRequestProcessor
+class GraphRequestProcessor
 private constructor(
     private val captureSequenceProcessor: CaptureSequenceProcessor<Any, CaptureSequence<Any>>
 ) {
@@ -46,12 +46,14 @@ private constructor(
         fun from(captureSequenceProcessor: CaptureSequenceProcessor<*, *>): GraphRequestProcessor {
             @Suppress("UNCHECKED_CAST")
             return GraphRequestProcessor(
-                captureSequenceProcessor as CaptureSequenceProcessor<Any, CaptureSequence<Any>>)
+                captureSequenceProcessor as CaptureSequenceProcessor<Any, CaptureSequence<Any>>
+            )
         }
     }
 
     private val debugId = graphRequestProcessorIds.incrementAndGet()
     private val closed = atomic(false)
+
     @GuardedBy("activeCaptureSequences")
     private val activeCaptureSequences = mutableListOf<CaptureSequence<*>>()
     private val activeBurstListener =
@@ -131,7 +133,8 @@ private constructor(
                 defaultParameters,
                 requiredParameters,
                 listeners,
-                activeBurstListener)
+                activeBurstListener
+            )
 
         // Reject incoming requests if this instance has been stopped or closed.
         if (captureSequence == null) {
@@ -176,7 +179,7 @@ private constructor(
                         Log.warn { "Did not submit $captureSequence, $this was closed!" }
                         return false
                     }
-                    val sequenceNumber = captureSequenceProcessor.submit(captureSequence)
+                    val sequenceNumber = captureSequenceProcessor.submit(captureSequence) ?: -1
                     captureSequence.sequenceNumber = sequenceNumber
                     sequenceNumber
                 }

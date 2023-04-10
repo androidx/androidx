@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 
@@ -34,7 +33,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
  *
  * @see LayoutCoordinates
  */
-@ExperimentalComposeUiApi
 interface GlobalPositionAwareModifierNode : DelegatableNode {
     /**
      * Called with the final LayoutCoordinates of the Layout after measuring.

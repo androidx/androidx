@@ -35,30 +35,32 @@ class WeightedElementDataSourceService : ComplicationDataSourceService() {
     ) {
         listener.onComplicationData(
             WeightedElementsComplicationData.Builder(
-                listOf(
-                    WeightedElementsComplicationData.Element(1.0f, Color.RED),
-                    WeightedElementsComplicationData.Element(1.0f, Color.GREEN),
-                    WeightedElementsComplicationData.Element(2.0f, Color.BLUE),
-                    WeightedElementsComplicationData.Element(3.0f, Color.YELLOW)
-                ),
-                plainText("Example weighted elements")
-            ).setText(plainText("Calories"))
+                    listOf(
+                        WeightedElementsComplicationData.Element(1.0f, Color.RED),
+                        WeightedElementsComplicationData.Element(1.0f, Color.GREEN),
+                        WeightedElementsComplicationData.Element(2.0f, Color.BLUE),
+                        WeightedElementsComplicationData.Element(3.0f, Color.YELLOW)
+                    ),
+                    plainText("Example weighted elements")
+                )
+                .setText(plainText("Calories"))
                 .build()
         )
     }
 
-    override fun getPreviewData(type: ComplicationType): ComplicationData? = when (type) {
-        ComplicationType.WEIGHTED_ELEMENTS ->
-            WeightedElementsComplicationData.Builder(
-                listOf(
-                    WeightedElementsComplicationData.Element(1.0f, Color.RED),
-                    WeightedElementsComplicationData.Element(2.0f, Color.GREEN),
-                    WeightedElementsComplicationData.Element(3.0f, Color.BLUE),
-                ),
-                plainText("Example weighted elements")
-            ).setText(plainText("Calories"))
-                .build()
-
-        else -> null
-    }
+    override fun getPreviewData(type: ComplicationType): ComplicationData? =
+        when (type) {
+            ComplicationType.WEIGHTED_ELEMENTS ->
+                WeightedElementsComplicationData.Builder(
+                        listOf(
+                            WeightedElementsComplicationData.Element(1.0f, Color.RED),
+                            WeightedElementsComplicationData.Element(2.0f, Color.GREEN),
+                            WeightedElementsComplicationData.Element(3.0f, Color.BLUE),
+                        ),
+                        plainText("Example weighted elements")
+                    )
+                    .setText(plainText("Calories"))
+                    .build()
+            else -> null
+        }
 }

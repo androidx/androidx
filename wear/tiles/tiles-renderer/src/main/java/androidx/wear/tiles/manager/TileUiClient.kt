@@ -31,10 +31,10 @@ import androidx.annotation.MainThread
 import androidx.concurrent.futures.await
 import androidx.core.content.ContextCompat
 import androidx.wear.tiles.DeviceParametersBuilders
-import androidx.wear.tiles.LayoutElementBuilders
+import androidx.wear.protolayout.LayoutElementBuilders
+import androidx.wear.protolayout.ResourceBuilders
+import androidx.wear.protolayout.StateBuilders
 import androidx.wear.tiles.RequestBuilders
-import androidx.wear.tiles.ResourceBuilders
-import androidx.wear.tiles.StateBuilders
 import androidx.wear.tiles.TimelineBuilders
 import androidx.wear.tiles.checkers.TimelineChecker
 import androidx.wear.tiles.connection.DefaultTileClient
@@ -140,7 +140,7 @@ public class TileUiClient(
         withContext(Dispatchers.Main) {
             val tileRequest = RequestBuilders.TileRequest
                 .Builder()
-                .setState(state)
+                .setState(androidx.wear.tiles.StateBuilders.State.fromProto(state.toProto()))
                 .setDeviceParameters(buildDeviceParameters())
                 .build()
 
@@ -155,7 +155,9 @@ public class TileUiClient(
                     .setDeviceParameters(buildDeviceParameters())
                     .build()
 
-                tileResources = tilesConnection.requestResources(resourcesRequest).await()
+                tileResources = ResourceBuilders.Resources.fromProto(
+                    tilesConnection.requestResources(resourcesRequest).await().toProto()
+                )
             }
 
             timelineManager?.apply {
@@ -189,17 +191,19 @@ public class TileUiClient(
         }
     }
 
-    private fun updateContents(layout: LayoutElementBuilders.Layout) {
+    private fun updateContents(layout: androidx.wear.tiles.LayoutElementBuilders.Layout) {
         parentView.removeAllViews()
 
         val renderer = TileRenderer(
             context,
-            layout,
-            tileResources!!,
             ContextCompat.getMainExecutor(context),
             { state -> coroutineScope.launch { requestTile(state) } }
         )
-        renderer.inflate(parentView)?.apply {
+        renderer.inflate(
+            LayoutElementBuilders.Layout.fromProto(layout.toProto()),
+            tileResources!!,
+            parentView
+        )?.apply {
             (layoutParams as FrameLayout.LayoutParams).gravity = Gravity.CENTER
         }
     }

@@ -20,13 +20,18 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraStatusMonitor
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.compat.Camera2Backend
 import androidx.camera.camera2.pipe.compat.Camera2CameraAvailabilityMonitor
 import androidx.camera.camera2.pipe.compat.Camera2CameraController
 import androidx.camera.camera2.pipe.compat.Camera2CameraOpener
+import androidx.camera.camera2.pipe.compat.Camera2CameraStatusMonitor
 import androidx.camera.camera2.pipe.compat.Camera2CaptureSequenceProcessorFactory
 import androidx.camera.camera2.pipe.compat.Camera2CaptureSessionsModule
+import androidx.camera.camera2.pipe.compat.Camera2DeviceCloser
+import androidx.camera.camera2.pipe.compat.Camera2DeviceCloserImpl
+import androidx.camera.camera2.pipe.compat.Camera2ErrorProcessor
 import androidx.camera.camera2.pipe.compat.Camera2MetadataCache
 import androidx.camera.camera2.pipe.compat.Camera2MetadataProvider
 import androidx.camera.camera2.pipe.compat.CameraAvailabilityMonitor
@@ -35,6 +40,7 @@ import androidx.camera.camera2.pipe.compat.StandardCamera2CaptureSequenceProcess
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
+import androidx.camera.camera2.pipe.internal.CameraErrorListener
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -50,7 +56,8 @@ internal abstract class Camera2Module {
     @DefaultCameraBackend
     abstract fun bindCameraPipeCameraBackend(camera2Backend: Camera2Backend): CameraBackend
 
-    @Binds abstract fun bindCameraOpener(camera2CameraOpener: Camera2CameraOpener): CameraOpener
+    @Binds
+    abstract fun bindCameraOpener(camera2CameraOpener: Camera2CameraOpener): CameraOpener
 
     @Binds
     abstract fun bindCameraMetadataProvider(
@@ -58,21 +65,38 @@ internal abstract class Camera2Module {
     ): Camera2MetadataProvider
 
     @Binds
+    abstract fun bindCameraErrorListener(
+        camera2ErrorProcessor: Camera2ErrorProcessor
+    ): CameraErrorListener
+
+    @Binds
     abstract fun bindCameraAvailabilityMonitor(
         camera2CameraAvailabilityMonitor: Camera2CameraAvailabilityMonitor
     ): CameraAvailabilityMonitor
+
+    @Binds
+    abstract fun bindCameraStatusMonitor(
+        camera2CameraStatusMonitor: Camera2CameraStatusMonitor
+    ): CameraStatusMonitor
+
+    @Binds
+    abstract fun bindCamera2DeviceCloser(
+        camera2CameraDeviceCloser: Camera2DeviceCloserImpl
+    ): Camera2DeviceCloser
 }
 
-@Scope internal annotation class Camera2ControllerScope
+@Scope
+internal annotation class Camera2ControllerScope
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Camera2ControllerScope
 @Subcomponent(
     modules =
-        [
-            Camera2ControllerConfig::class,
-            Camera2ControllerModule::class,
-            Camera2CaptureSessionsModule::class])
+    [
+        Camera2ControllerConfig::class,
+        Camera2ControllerModule::class,
+        Camera2CaptureSessionsModule::class]
+)
 internal interface Camera2ControllerComponent {
     fun cameraController(): CameraController
 
@@ -90,13 +114,17 @@ internal class Camera2ControllerConfig(
     private val graphListener: GraphListener,
     private val streamGraph: StreamGraph,
 ) {
-    @Provides fun provideCameraGraphConfig() = graphConfig
+    @Provides
+    fun provideCameraGraphConfig() = graphConfig
 
-    @Provides fun provideCameraBackend() = cameraBackend
+    @Provides
+    fun provideCameraBackend() = cameraBackend
 
-    @Provides fun provideStreamGraph() = streamGraph as StreamGraphImpl
+    @Provides
+    fun provideStreamGraph() = streamGraph as StreamGraphImpl
 
-    @Provides fun provideGraphListener() = graphListener
+    @Provides
+    fun provideGraphListener() = graphListener
 }
 
 @Module
@@ -116,7 +144,8 @@ internal abstract class Camera2ControllerModule {
         @Provides
         fun provideCoroutineScope(threads: Threads): CoroutineScope {
             return CoroutineScope(
-                threads.lightweightDispatcher.plus(CoroutineName("CXCP-Camera2Controller")))
+                threads.lightweightDispatcher.plus(CoroutineName("CXCP-Camera2Controller"))
+            )
         }
     }
 }

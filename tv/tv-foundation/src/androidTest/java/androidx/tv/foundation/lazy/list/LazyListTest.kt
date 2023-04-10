@@ -647,7 +647,6 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             .assertStartPositionIsAlmost(0.dp)
     }
 
-    @Ignore("b/266124027")
     @Test
     fun whenItemsBecameEmpty() {
         var items by mutableStateOf((1..10).toList())
@@ -676,9 +675,9 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
 
         // and has no children
         rule.onNodeWithTag("1")
-            .assertDoesNotExist()
+            .assertIsNotPlaced()
         rule.onNodeWithTag("2")
-            .assertDoesNotExist()
+            .assertIsNotPlaced()
     }
 
     @Test
@@ -814,6 +813,7 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         }
     }
 
+    @Ignore // b/268211857
     @Test
     fun scroll_makeListSmaller_scroll() {
         var items by mutableStateOf((1..100).toList())

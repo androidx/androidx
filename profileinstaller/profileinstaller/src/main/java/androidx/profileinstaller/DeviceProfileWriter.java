@@ -55,7 +55,6 @@ import java.util.concurrent.Executor;
  *     .writeIfNeeded(skipStrategy);
  * </pre>
  *
- * @hide
  */
 @RequiresApi(19)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -88,7 +87,6 @@ public class DeviceProfileWriter {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public DeviceProfileWriter(
@@ -111,7 +109,6 @@ public class DeviceProfileWriter {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public boolean deviceAllowsProfileInstallerAotWrites() {
@@ -150,7 +147,6 @@ public class DeviceProfileWriter {
      *         .write()
      * </pre>
      *
-     * @hide
      * @return this to chain call to transcodeIfNeeded
      */
     @NonNull
@@ -287,7 +283,6 @@ public class DeviceProfileWriter {
      * This method will always clear the profile read by copyProfileOrRead and may only be called
      * once.
      *
-     * @hide
      * @return this to chain call call writeIfNeeded()
      */
     @NonNull
@@ -331,7 +326,6 @@ public class DeviceProfileWriter {
      *
      * This method will always clear the profile, and may only be called once.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public boolean write() {

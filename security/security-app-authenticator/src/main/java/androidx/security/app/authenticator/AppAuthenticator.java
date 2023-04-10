@@ -92,7 +92,6 @@ public class AppAuthenticator {
      * Values returned when checking that a specified package has the expected signing identity
      * for a particular permission.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(value = {
@@ -124,7 +123,6 @@ public class AppAuthenticator {
      * Values returned when checking that a specified package has the expected signing identity
      * on the device.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(value = {

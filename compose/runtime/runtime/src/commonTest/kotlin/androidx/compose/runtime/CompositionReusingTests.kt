@@ -292,6 +292,72 @@ class CompositionReusingTests {
     }
 
     @Test
+    fun reusableContentHost_deactivates_whenRecomposedWithOtherContent() = compositionTest {
+        var reuseKey by mutableStateOf(0)
+        var active by mutableStateOf(true)
+
+        val rememberedState = object : RememberObserver {
+            var currentlyRemembered = false
+
+            override fun toString(): String = "Some text"
+
+            override fun onRemembered() {
+                currentlyRemembered = true
+            }
+
+            override fun onForgotten() {
+                currentlyRemembered = false
+            }
+
+            override fun onAbandoned() {
+                currentlyRemembered = false
+            }
+        }
+
+        compose {
+            if (!active) {
+                Text("Not active")
+            }
+
+            ReusableContentHost(active) {
+                ReusableContent(reuseKey) {
+                    Linear {
+                        val state = remember { rememberedState }
+                        Text(state.toString())
+                    }
+                }
+            }
+        }
+
+        validate {
+            if (!active) {
+                Text("Not active")
+            }
+
+            Linear {
+                Text(rememberedState.toString())
+            }
+        }
+
+        assertTrue(rememberedState.currentlyRemembered)
+
+        active = false
+        expectChanges()
+        revalidate()
+        assertFalse(rememberedState.currentlyRemembered)
+
+        active = true
+        expectChanges()
+        revalidate()
+        assertTrue(rememberedState.currentlyRemembered)
+
+        reuseKey++
+        expectChanges()
+        revalidate()
+        assertTrue(rememberedState.currentlyRemembered)
+    }
+
+    @Test
     fun reusableContentHostCanDisableRecompose() = compositionTest {
         var active by mutableStateOf(true)
         var outer by mutableStateOf("Outer")
@@ -345,6 +411,349 @@ class CompositionReusingTests {
         name = "New new value"
         expectChanges()
         revalidate()
+    }
+
+    @Test
+    fun onReuseIsCalledWhenReusableContentKeyChanges() = compositionTest {
+        var reuseKey by mutableStateOf(0)
+        var onReuseCalls = 0
+        val onReuse: () -> Unit = {
+            onReuseCalls++
+        }
+
+        compose {
+            ReusableContent(reuseKey) {
+                Linear(onReuse = onReuse) { }
+            }
+        }
+
+        validate {
+            Linear {
+            }
+        }
+
+        assertEquals(0, onReuseCalls)
+
+        reuseKey++
+        expectChanges()
+        revalidate()
+
+        assertEquals(1, onReuseCalls)
+
+        reuseKey++
+        expectChanges()
+        revalidate()
+
+        assertEquals(2, onReuseCalls)
+    }
+
+    @Test
+    fun onReuseIsCalledBeforeSetter() = compositionTest {
+        var reuseKey by mutableStateOf(0)
+        var onReuseCalls = 0
+        val onReuseCallsWhenSetCalled = mutableListOf<Int>()
+        val onReuse: () -> Unit = {
+            onReuseCalls++
+        }
+        val onSet: () -> Unit = {
+            onReuseCallsWhenSetCalled.add(onReuseCalls)
+        }
+
+        compose {
+            ReusableContent(reuseKey) {
+                Linear(onReuse = onReuse, onSet = onSet) { }
+            }
+        }
+
+        validate {
+            Linear {
+            }
+        }
+
+        assertEquals(listOf(0), onReuseCallsWhenSetCalled)
+        onReuseCallsWhenSetCalled.clear()
+
+        reuseKey++
+        expectChanges()
+        revalidate()
+
+        assertEquals(listOf(1), onReuseCallsWhenSetCalled)
+    }
+
+    @Test
+    fun onReuseIsCalledInApplyStage() = compositionTest {
+        var reuseKey by mutableStateOf(0)
+        var compositionFinished = false
+        val onReuseCalls = mutableListOf<Boolean>()
+        val onReuse: () -> Unit = {
+            onReuseCalls.add(compositionFinished)
+        }
+
+        compose {
+            ReusableContent(reuseKey) {
+                Linear(onReuse = onReuse) { }
+            }
+            compositionFinished = true
+        }
+
+        validate {
+            Linear {
+            }
+        }
+
+        assertEquals(emptyList(), onReuseCalls)
+        compositionFinished = false
+
+        reuseKey++
+        expectChanges()
+        revalidate()
+
+        assertEquals(listOf(true), onReuseCalls)
+    }
+
+    @Test
+    fun onDeactivateIsCalledWhenReusableContentDeactivated() = compositionTest {
+        var active by mutableStateOf(true)
+        var onDeactivateCalls = 0
+        val onDeactivate: () -> Unit = {
+            onDeactivateCalls++
+        }
+
+        compose {
+            ReusableContentHost(active) {
+                ReusableContent(0) {
+                    Linear(onDeactivate = onDeactivate) { }
+                }
+            }
+        }
+
+        validate {
+            Linear {
+            }
+        }
+
+        assertEquals(0, onDeactivateCalls)
+
+        active = false
+        expectChanges()
+        revalidate()
+
+        assertEquals(1, onDeactivateCalls)
+
+        active = true
+        expectChanges()
+        revalidate()
+
+        assertEquals(1, onDeactivateCalls)
+    }
+
+    @Test
+    fun onReuseIsCalledBeforeSetterAfterDeactivation() = compositionTest {
+        var active by mutableStateOf(true)
+        var onReuseCalls = 0
+        val onReuseCallsWhenSetCalled = mutableListOf<Int>()
+        val onReuse: () -> Unit = {
+            onReuseCalls++
+        }
+        val onSet: () -> Unit = {
+            onReuseCallsWhenSetCalled.add(onReuseCalls)
+        }
+
+        compose {
+            ReusableContentHost(active) {
+                ReusableContent(0) {
+                    Linear(onReuse = onReuse, onSet = onSet) { }
+                }
+            }
+        }
+
+        validate {
+            Linear {
+            }
+        }
+
+        active = false
+
+        expectChanges()
+        revalidate()
+
+        active = true
+
+        expectChanges()
+        revalidate()
+
+        assertEquals(listOf(0, 1), onReuseCallsWhenSetCalled)
+    }
+
+    @Test
+    fun onReuseIsNotCalledWhenDisposed() = compositionTest {
+        var emit by mutableStateOf(true)
+        var onReuseCalls = 0
+        val onReuse: () -> Unit = {
+            onReuseCalls++
+        }
+
+        compose {
+            if (emit) {
+                ReusableContent(0) {
+                    Linear(onReuse = onReuse) { }
+                }
+            }
+        }
+
+        emit = false
+        expectChanges()
+
+        assertEquals(0, onReuseCalls)
+    }
+
+    @Test
+    fun onDeactivateIsCalledInApplyStage() = compositionTest {
+        var active by mutableStateOf(true)
+        var compositionFinished = false
+        val onDeactivateCalls = mutableListOf<Boolean>()
+        val onDeactivate: () -> Unit = {
+            onDeactivateCalls.add(compositionFinished)
+        }
+
+        compose {
+            ReusableContentHost(active) {
+                ReusableContent(0) {
+                    Linear(onDeactivate = onDeactivate) { }
+                }
+            }
+            if (!active) {
+                compositionFinished = true
+            }
+        }
+
+        active = false
+        expectChanges()
+
+        assertEquals(listOf(true), onDeactivateCalls)
+    }
+
+    @Test
+    fun onReleaseIsCalledWhenNodeIsRemoved() = compositionTest {
+        var emit by mutableStateOf(true)
+        var onReleaseCalls = 0
+        val onRelease: () -> Unit = {
+            onReleaseCalls++
+        }
+
+        compose {
+            if (emit) {
+                ReusableContent(0) {
+                    Linear(onRelease = onRelease) { }
+                }
+            }
+        }
+
+        emit = false
+        expectChanges()
+
+        assertEquals(1, onReleaseCalls)
+    }
+
+    @Test
+    fun onReleaseIsNotCalledOnReuse() = compositionTest {
+        var key by mutableStateOf(0)
+        var onReleaseCalls = 0
+        val onRelease: () -> Unit = {
+            onReleaseCalls++
+        }
+
+        compose {
+            ReusableContent(key) {
+                Linear(onRelease = onRelease) { }
+            }
+        }
+
+        key++
+        expectChanges()
+
+        assertEquals(0, onReleaseCalls)
+    }
+
+    @Test
+    fun onReleaseIsNotCalledWithReusableContentHost() = compositionTest {
+        var active by mutableStateOf(true)
+        var emit by mutableStateOf(true)
+        var onReleaseCalls = 0
+        val onRelease: () -> Unit = {
+            onReleaseCalls++
+        }
+
+        compose {
+            if (emit) {
+                ReusableContentHost(active) {
+                    Linear(onRelease = onRelease) { }
+                }
+            }
+        }
+
+        active = false
+        expectChanges()
+
+        assertEquals(0, onReleaseCalls)
+
+        emit = false
+        expectChanges()
+
+        assertEquals(1, onReleaseCalls)
+    }
+
+    @Test
+    fun onReleaseIsNotCalledWithMovableContentMovement() = compositionTest {
+        var wrap by mutableStateOf(true)
+        var onReleaseCalls = 0
+        val onRelease: () -> Unit = {
+            onReleaseCalls++
+        }
+
+        val movableContent = movableContentOf {
+            Linear(onRelease = onRelease) { }
+        }
+
+        compose {
+            if (wrap) {
+                ReusableContent(0) {
+                    movableContent()
+                }
+            } else {
+                movableContent()
+            }
+        }
+
+        wrap = false
+        expectChanges()
+
+        assertEquals(0, onReleaseCalls)
+    }
+
+    @Test
+    fun onReleaseIsCalledInApplyStage() = compositionTest {
+        var emit by mutableStateOf(true)
+        var compositionFinished = false
+        val onReleaseCalls = mutableListOf<Boolean>()
+        val onRelease: () -> Unit = {
+            onReleaseCalls.add(compositionFinished)
+        }
+
+        compose {
+            if (emit) {
+                ReusableContent(0) {
+                    Linear(onRelease = onRelease) { }
+                }
+            } else {
+                compositionFinished = true
+            }
+        }
+
+        emit = false
+        expectChanges()
+
+        assertEquals(listOf(true), onReleaseCalls)
     }
 }
 

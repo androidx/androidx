@@ -31,7 +31,6 @@ import java.lang.annotation.Retention;
  * on it. So as a workaround, we temporarily put the transform API in the view artifact as an
  * experimental API until the versions are in sync.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Retention(CLASS)

@@ -46,7 +46,6 @@ import java.util.UUID;
  */
 public abstract class RemoteWorkManager {
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected RemoteWorkManager() {
@@ -255,7 +254,6 @@ public abstract class RemoteWorkManager {
      *
      * @return A {@link ListenableFuture} that can be used to determine when the enqueue has
      * completed
-     * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -329,7 +327,6 @@ public abstract class RemoteWorkManager {
      * @param data The progress {@link Data}
      * @return A {@link ListenableFuture} that can be used to determine when the setProgress
      * has completed.
-     * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -343,7 +340,6 @@ public abstract class RemoteWorkManager {
      * @param foregroundInfo THe {@link ForegroundInfo} instance
      * @return A {@link ListenableFuture} that can be used to determine when the setForeground
      * has completed.
-     * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

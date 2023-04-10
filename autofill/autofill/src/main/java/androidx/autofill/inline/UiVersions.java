@@ -39,7 +39,6 @@ import java.util.Set;
  */
 @RequiresApi(api = Build.VERSION_CODES.R)
 public final class UiVersions {
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @StringDef({INLINE_UI_VERSION_1})
     @Retention(RetentionPolicy.SOURCE)
@@ -59,7 +58,6 @@ public final class UiVersions {
     private static final Set<String> UI_VERSIONS =
             new HashSet<String>(Arrays.asList(INLINE_UI_VERSION_1));
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull
     public static Set<String> getUiVersions() {
@@ -103,7 +101,6 @@ public final class UiVersions {
         /**
          * Returns the style represented as a {@link Bundle} so it can be transported through IPC.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull
@@ -112,7 +109,6 @@ public final class UiVersions {
         /**
          * Returns the {@link InlineUiVersion} the style corresponds to.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull

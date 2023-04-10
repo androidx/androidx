@@ -49,7 +49,6 @@ public class RowHeaderPresenter extends Presenter {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public RowHeaderPresenter(int layoutResourceId) {
@@ -57,7 +56,6 @@ public class RowHeaderPresenter extends Presenter {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public RowHeaderPresenter(int layoutResourceId, boolean animateSelect) {
@@ -103,7 +101,6 @@ public class RowHeaderPresenter extends Presenter {
         /**
          * Uses a single {@link RowHeaderView} for creating a new ViewHolder.
          * @param view The single RowHeaderView.
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public ViewHolder(@NonNull RowHeaderView view) {

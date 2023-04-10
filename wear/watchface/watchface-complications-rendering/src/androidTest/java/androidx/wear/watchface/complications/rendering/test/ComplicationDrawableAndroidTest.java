@@ -45,8 +45,9 @@ public class ComplicationDrawableAndroidTest {
     public void defaultValuesAreLoadedAfterLoadingFromResource() {
         ComplicationDrawable drawable =
                 (ComplicationDrawable)
-                        ApplicationProvider.getApplicationContext().getResources().getDrawable(
-                                R.drawable.default_complication_drawable, null);
+                        ApplicationProvider.getApplicationContext()
+                                .getResources()
+                                .getDrawable(R.drawable.default_complication_drawable, null);
         int textSizeFromResources = drawable.getActiveStyle().getTextSize();
         assertThat(textSizeFromResources).isEqualTo(mDefaultTextSize);
     }
@@ -55,8 +56,9 @@ public class ComplicationDrawableAndroidTest {
     public void inflateFromEmptyTag() {
         ComplicationDrawable drawable =
                 (ComplicationDrawable)
-                        ApplicationProvider.getApplicationContext().getResources().getDrawable(
-                                R.drawable.default_complication_drawable, null);
+                        ApplicationProvider.getApplicationContext()
+                                .getResources()
+                                .getDrawable(R.drawable.default_complication_drawable, null);
         assertThat(drawable).isNotNull();
     }
 }

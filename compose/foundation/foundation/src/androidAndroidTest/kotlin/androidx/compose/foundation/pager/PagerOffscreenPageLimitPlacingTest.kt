@@ -29,7 +29,7 @@ import org.junit.runners.Parameterized
 @OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
-internal class PagerOffscreenPageLimitPlacingTest(
+class PagerOffscreenPageLimitPlacingTest(
     val config: ParamConfig
 ) : BasePagerTest(config) {
 
@@ -67,8 +67,8 @@ internal class PagerOffscreenPageLimitPlacingTest(
 
         // Act
         createPager(state = state, modifier = Modifier.fillMaxSize(), offscreenPageLimit = 2)
-        val firstVisible = state.layoutInfo.visibleItemsInfo.first().index
-        val lastVisible = state.layoutInfo.visibleItemsInfo.last().index
+        val firstVisible = state.layoutInfo.visiblePagesInfo.first().index
+        val lastVisible = state.layoutInfo.visiblePagesInfo.last().index
         // Assert
         rule.runOnIdle {
             Truth.assertThat(placed).contains(firstVisible - 2)
@@ -92,8 +92,8 @@ internal class PagerOffscreenPageLimitPlacingTest(
 
         // Assert
         rule.waitForIdle()
-        val firstVisible = state.layoutInfo.visibleItemsInfo.first().index
-        val lastVisible = state.layoutInfo.visibleItemsInfo.last().index
+        val firstVisible = state.layoutInfo.visiblePagesInfo.first().index
+        val lastVisible = state.layoutInfo.visiblePagesInfo.last().index
         Truth.assertThat(placed).doesNotContain(firstVisible - 1)
         Truth.assertThat(placed).contains(5)
         Truth.assertThat(placed).doesNotContain(lastVisible + 1)

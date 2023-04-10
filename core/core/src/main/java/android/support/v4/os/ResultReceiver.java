@@ -35,12 +35,11 @@ import androidx.annotation.RestrictTo;
  * supply with {@link #send}.
  *
  * <p>Note: the implementation underneath is just a simple wrapper around
- * a {@link Binder} that is used to perform the communication.  This means
+ * a {@link android.os.Binder} that is used to perform the communication.  This means
  * semantically you should treat it as such: this class does not impact process
  * lifecycle management (you must be using some higher-level component to tell
  * the system that your process needs to continue running), the connection will
  * break if your process goes away for any reason, etc.</p>
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 @SuppressLint("BanParcelableUsage")
@@ -128,18 +127,23 @@ public class ResultReceiver implements Parcelable {
 
     @Override
     public void writeToParcel(@NonNull Parcel out, int flags) {
+        // Begin AIDL parceling code: DO NOT MODIFY!
         synchronized (this) {
             if (mReceiver == null) {
                 mReceiver = new MyResultReceiver();
             }
             out.writeStrongBinder(mReceiver.asBinder());
         }
+        // End AIDL parceling code.
     }
 
     ResultReceiver(Parcel in) {
         mLocal = false;
         mHandler = null;
+
+        // Begin AIDL unparceling code: DO NOT MODIFY!
         mReceiver = IResultReceiver.Stub.asInterface(in.readStrongBinder());
+        // End AIDL parceling code.
     }
 
     public static final Creator<ResultReceiver> CREATOR

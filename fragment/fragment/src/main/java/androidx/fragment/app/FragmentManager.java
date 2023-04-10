@@ -86,6 +86,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -111,7 +112,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
     private static boolean DEBUG = false;
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final String TAG = "FragmentManager";
 
@@ -128,7 +128,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
         FragmentManager.DEBUG = enabled;
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static boolean isLoggingEnabled(int level) {
         return DEBUG || Log.isLoggable(TAG, level);
@@ -221,6 +220,25 @@ public abstract class FragmentManager implements FragmentResultOwner {
          */
         @MainThread
         void onBackStackChanged();
+
+        /**
+         * Called whenever the contents of the back stack are starting to be changed, before
+         * fragments being to move to their target states.
+         *
+         * @param fragment that is affected by the starting back stack change
+         * @param pop whether this back stack change is a pop
+         */
+        @MainThread
+        default void onBackStackChangeStarted(@NonNull Fragment fragment, boolean pop) { }
+
+        /**
+         * Called whenever the contents of a back stack change is committed.
+         *
+         * @param fragment that is affected by the committed back stack change
+         * @param pop whether this back stack change is a pop
+         */
+        @MainThread
+        default void onBackStackChangeCommitted(@NonNull Fragment fragment, boolean pop) { }
     }
 
     /**
@@ -570,7 +588,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
     }
 
     /**
-     * @hide -- remove once prebuilts are in.
      * @deprecated Use {@link #beginTransaction()}.
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -619,6 +636,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * @return Returns true if there were any pending transactions to be
      * executed.
      */
+    @MainThread
     public boolean executePendingTransactions() {
         boolean updates = execPendingActions(true);
         forcePostponedTransactions();
@@ -774,6 +792,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * afterwards without forcing the start of postponed Transactions.
      * @return Returns true if there was something popped, else false.
      */
+    @MainThread
     public boolean popBackStackImmediate() {
         return popBackStackImmediate(null, -1, 0);
     }
@@ -801,6 +820,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * afterwards without forcing the start of postponed Transactions.
      * @return Returns true if there was something popped, else false.
      */
+    @MainThread
     public boolean popBackStackImmediate(@Nullable String name, int flags) {
         return popBackStackImmediate(name, -1, flags);
     }
@@ -972,7 +992,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
                 }
             }
         };
-        lifecycle.addObserver(observer);
         LifecycleAwareResultListener storedListener = mResultListeners.put(requestKey,
                 new LifecycleAwareResultListener(lifecycle, listener, observer));
         if (storedListener != null) {
@@ -982,6 +1001,9 @@ public abstract class FragmentManager implements FragmentResultOwner {
             Log.v(FragmentManager.TAG, "Setting FragmentResultListener with key " + requestKey
                     + " lifecycleOwner " + lifecycle + " and listener " + listener);
         }
+        // Only add the observer after we've added the listener to the map
+        // to ensure that re-entrant removals actually have a registered listener to remove
+        lifecycle.addObserver(observer);
     }
 
     @Override
@@ -1875,6 +1897,28 @@ public abstract class FragmentManager implements FragmentResultOwner {
         // The last operation determines the overall direction, this ensures that operations
         // such as push, push, pop, push are correctly considered a push
         boolean isPop = isRecordPop.get(endIndex - 1);
+
+        if (addToBackStack && mBackStackChangeListeners != null
+                && !mBackStackChangeListeners.isEmpty()) {
+            Set<Fragment> fragments = new LinkedHashSet<>();
+            // Build a list of fragments based on the records
+            for (BackStackRecord record : records) {
+                fragments.addAll(fragmentsFromRecord(record));
+            }
+            // Dispatch to all of the fragments in the list
+            for (OnBackStackChangedListener listener : mBackStackChangeListeners) {
+                // We give all fragment the back stack changed started signal first
+                for (Fragment fragment: fragments) {
+                    listener.onBackStackChangeStarted(fragment, isPop);
+                }
+            }
+            for (OnBackStackChangedListener listener : mBackStackChangeListeners) {
+                // Then we give them all the committed signal
+                for (Fragment fragment: fragments) {
+                    listener.onBackStackChangeCommitted(fragment, isPop);
+                }
+            }
+        }
         // Ensure that Fragments directly affected by operations
         // are moved to their expected state in operation order
         for (int index = startIndex; index < endIndex; index++) {
@@ -2089,6 +2133,17 @@ public abstract class FragmentManager implements FragmentResultOwner {
                 mBackStackChangeListeners.get(i).onBackStackChanged();
             }
         }
+    }
+
+    private Set<Fragment> fragmentsFromRecord(@NonNull BackStackRecord record) {
+        Set<Fragment> fragments = new HashSet<>();
+        for (int i = 0; i < record.mOps.size(); i++) {
+            Fragment f = record.mOps.get(i).mFragment;
+            if (f != null) {
+                fragments.add(f);
+            }
+        }
+        return fragments;
     }
 
     void addBackStackState(BackStackRecord state) {
@@ -2581,7 +2636,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
         mLaunchedFragments = new ArrayDeque<>(fms.mLaunchedFragments);
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull
     public FragmentHostCallback<?> getHost() {
@@ -2954,7 +3008,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
             onPictureInPictureModeChangedProvider.removeOnPictureInPictureModeChangedListener(
                     mOnPictureInPictureModeChangedListener);
         }
-        if (mHost instanceof MenuHost) {
+        if (mHost instanceof MenuHost && mParent == null) {
             ((MenuHost) mHost).removeMenuProvider(mMenuProvider);
         }
         mHost = null;

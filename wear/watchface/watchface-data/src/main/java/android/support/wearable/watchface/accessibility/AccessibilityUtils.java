@@ -30,7 +30,6 @@ import androidx.wear.watchface.data.R;
 /**
  * Utilities for making watch faces and complications accessible.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AccessibilityUtils {
@@ -91,28 +90,30 @@ public class AccessibilityUtils {
             switch (data.getType()) {
                 case ComplicationData.TYPE_NO_PERMISSION:
                     typeSpecificText =
-                        ComplicationText.plainText(context.getString(R.string.a11y_no_permission));
+                            ComplicationText.plainText(
+                                    context.getString(R.string.a11y_no_permission));
                     break;
                 case ComplicationData.TYPE_NO_DATA:
                     typeSpecificText =
-                        ComplicationText.plainText(context.getString(R.string.a11y_no_data));
+                            ComplicationText.plainText(context.getString(R.string.a11y_no_data));
                     break;
-                case ComplicationData.TYPE_RANGED_VALUE: {
-                    // Most likely the range info is already in the short text.
-                    if (hasTextOrTitle) {
-                        typeSpecificText = null;
-                    } else {
-                        float value = data.getRangedValue();
-                        float max = data.getRangedMaxValue();
-                        // TODO(fuego): what do do with min? should we even say max? should it
-                        // be a percentage?
-                        typeSpecificText =
-                                ComplicationText.plainText(
-                                        context.getString(
-                                                R.string.a11y_template_range, value, max));
+                case ComplicationData.TYPE_RANGED_VALUE:
+                    {
+                        // Most likely the range info is already in the short text.
+                        if (hasTextOrTitle) {
+                            typeSpecificText = null;
+                        } else {
+                            float value = data.getRangedValue();
+                            float max = data.getRangedMaxValue();
+                            // TODO(fuego): what do do with min? should we even say max? should it
+                            // be a percentage?
+                            typeSpecificText =
+                                    ComplicationText.plainText(
+                                            context.getString(
+                                                    R.string.a11y_template_range, value, max));
+                        }
                     }
-                }
-                break;
+                    break;
                 default:
                     typeSpecificText = null;
             }

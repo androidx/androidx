@@ -122,9 +122,11 @@ internal class TokenLockImpl(override val capacity: Long) : TokenLock {
 
     private val pending = ArrayDeque<TokenRequest>()
 
-    @GuardedBy("pending") private var closed = false
+    @GuardedBy("pending")
+    private var closed = false
 
-    @GuardedBy("pending") private var _available: Long = capacity
+    @GuardedBy("pending")
+    private var _available: Long = capacity
 
     override val available: Long
         get() =
@@ -167,7 +169,8 @@ internal class TokenLockImpl(override val capacity: Long) : TokenLock {
         suspendCancellableCoroutine { continuation ->
             if (min > capacity) {
                 continuation.resumeWithException(
-                    IllegalArgumentException("Attempted to acquire $min / $capacity"))
+                    IllegalArgumentException("Attempted to acquire $min / $capacity")
+                )
                 return@suspendCancellableCoroutine
             }
 

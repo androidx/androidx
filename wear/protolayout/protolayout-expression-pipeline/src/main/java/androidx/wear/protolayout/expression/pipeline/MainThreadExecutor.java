@@ -35,6 +35,10 @@ class MainThreadExecutor implements Executor {
 
     @Override
     public void execute(Runnable r) {
-        mHandler.post(r);
+        if (mHandler.getLooper().isCurrentThread()) {
+            r.run();
+        } else {
+            mHandler.post(r);
+        }
     }
 }

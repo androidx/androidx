@@ -43,7 +43,7 @@ internal class RoomTrackingLiveData<T> (
     val database: RoomDatabase,
     private val container: InvalidationLiveDataContainer,
     val inTransaction: Boolean,
-    val computeFunction: Callable<T>,
+    val computeFunction: Callable<T?>,
     tableNames: Array<out String>
 ) : LiveData<T>() {
     val observer: InvalidationTracker.Observer = object : InvalidationTracker.Observer(tableNames) {

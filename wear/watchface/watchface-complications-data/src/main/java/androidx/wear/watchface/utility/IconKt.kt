@@ -27,7 +27,6 @@ import java.util.Objects
 /**
  * Returns true if the [Icon]s are equal.
  *
- * @hide
  */
 infix fun Icon?.iconEquals(other: Icon?): Boolean =
     this === other ||
@@ -40,7 +39,6 @@ infix fun Icon?.iconEquals(other: Icon?): Boolean =
 /**
  * Creates a hash code for the [Icon].
  *
- * @hide
  */
 fun Icon.iconHashCode(): Int =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -58,7 +56,6 @@ private object IconP {
                 when (icon.type) {
                     Icon.TYPE_RESOURCE ->
                         icon.resId == other.resId && icon.resPackage == other.resPackage
-
                     Icon.TYPE_URI -> icon.uri == other.uri
                     else -> icon == other
                 })

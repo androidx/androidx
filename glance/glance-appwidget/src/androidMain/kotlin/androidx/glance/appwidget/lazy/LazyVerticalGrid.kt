@@ -23,6 +23,7 @@ import androidx.glance.EmittableWithChildren
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.wrapContentHeight
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.key
 import androidx.compose.ui.unit.Dp
 import androidx.glance.Emittable
 
@@ -33,8 +34,9 @@ import androidx.glance.Emittable
  * @param modifier the modifier to apply to this layout
  * @param horizontalAlignment the horizontal alignment applied to the items.
  * @param content a block which describes the content. Inside this block you can use methods like
- * [LazyVerticalGridScope.item] to add a single item or
- * [LazyVerticalGridScope.items] to add a list of items.
+ * [LazyVerticalGridScope.item] to add a single item or [LazyVerticalGridScope.items] to add a list
+ * of items. If the item has more than one top-level child, they will be automatically wrapped in a
+ * Box.
  */
 @Composable
 fun LazyVerticalGrid(
@@ -105,14 +107,18 @@ private fun LazyVerticalGridItem(
     alignment: Alignment,
     content: @Composable () -> Unit
 ) {
-    GlanceNode(
-        factory = ::EmittableLazyVerticalGridListItem,
-        update = {
-            this.set(itemId) { this.itemId = it }
-            this.set(alignment) { this.alignment = it }
-        },
-        content = content
-    )
+    // We wrap LazyVerticalGridItem in the key composable to ensure that lambda actions declared
+    // within each item's scope will get a unique ID based on the currentCompositeKeyHash.
+    key(itemId) {
+        GlanceNode(
+            factory = ::EmittableLazyVerticalGridListItem,
+            update = {
+                this.set(itemId) { this.itemId = it }
+                this.set(alignment) { this.alignment = it }
+            },
+            content = content
+        )
+    }
 }
 
 @JvmDefaultWithCompatibility

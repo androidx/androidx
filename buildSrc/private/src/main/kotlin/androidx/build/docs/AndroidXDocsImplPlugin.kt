@@ -25,6 +25,7 @@ import androidx.build.dependencies.KOTLIN_VERSION
 import androidx.build.enforceKtlintVersion
 import androidx.build.getAndroidJar
 import androidx.build.getBuildId
+import androidx.build.getCheckoutRoot
 import androidx.build.getDistributionDirectory
 import androidx.build.getKeystore
 import androidx.build.getLibraryByName
@@ -56,10 +57,10 @@ import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.file.RegularFile
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.JavaBasePlugin
-import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputFile
@@ -225,12 +226,16 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
             task.into(destinationDirectory)
             task.from(
                 sources.elements.map { jars ->
-                    jars.map {
-                        localVar.zipTree(it)
+                    jars.map { jar ->
+                        localVar.zipTree(jar).matching {
+                            it.exclude("**/META-INF/MANIFEST.MF")
+                        }
                     }
                 }
             )
-            task.duplicatesStrategy = DuplicatesStrategy.INCLUDE
+            // Files with the same path in different source jars of the same library will lead to
+            // some classes/methods not appearing in the docs.
+            task.duplicatesStrategy = DuplicatesStrategy.WARN
         }
     }
 
@@ -461,7 +466,9 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                 jvmSourcesDir = unzippedJvmSourcesDirectory
                 multiplatformSourcesDir = unzippedMultiplatformSourcesDirectory
                 docsProjectDir = File(project.rootDir, "docs-public")
-                dependenciesClasspath = project.getAndroidJar() + dependencyClasspath
+                dependenciesClasspath = dependencyClasspath +
+                    project.getAndroidJar() +
+                    project.getExtraCommonDependencies()
                 excludedPackages = hiddenPackages.toSet()
                 excludedPackagesForJava = hiddenPackagesJava
                 excludedPackagesForKotlin = emptySet()
@@ -469,7 +476,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                 projectStructureMetadataFile = mergedProjectMetadata
                 // See go/dackka-source-link for details on this link.
                 baseSourceLink = "https://cs.android.com/search?" +
-                    "q=file:%s+class:%s&ss=androidx/platform/frameworks/support"
+                    "q=file:%s+class:%s"
                 annotationsNotToDisplay = hiddenAnnotations
                 annotationsNotToDisplayJava = hiddenAnnotationsJava
                 annotationsNotToDisplayKotlin = hiddenAnnotationsKotlin
@@ -663,8 +670,8 @@ data class SourceSetMetadata(
 @CacheableTask
 abstract class UnzipMultiplatformSourcesTask() : DefaultTask() {
 
-    @get:Input
-    abstract val inputJars: ListProperty<File>
+    @get:Classpath
+    abstract val inputJars: Property<FileCollection>
 
     @OutputDirectory
     lateinit var metadataOutput: File
@@ -741,3 +748,31 @@ abstract class MergeMultiplatformMetadataTask() : DefaultTask() {
         }
     }
 }
+
+private fun Project.getPrebuiltsExternalPath() =
+    File(project.getCheckoutRoot(), "prebuilts/androidx/external/")
+
+private val PLATFORMS =
+    listOf("linuxx64", "macosarm64", "macosx64", "iosx64", "iossimulatorarm64", "iosarm64")
+
+private fun Project.getExtraCommonDependencies(): FileCollection = files(
+    arrayOf(
+        File(
+            getPrebuiltsExternalPath(),
+            "org/jetbrains/kotlinx/kotlinx-coroutines-core/1.6.4/kotlinx-coroutines-core-1.6.4.jar"
+        ),
+        File(
+            getPrebuiltsExternalPath(),
+            "org/jetbrains/kotlinx/atomicfu/0.17.0/atomicfu-0.17.0.jar"
+        ),
+        File(
+            getPrebuiltsExternalPath(),
+            "com/squareup/okio/okio-jvm/3.1.0/okio-jvm-3.1.0.jar"
+        )
+    ) + PLATFORMS.map {
+        File(
+            getPrebuiltsExternalPath(),
+            "com/squareup/okio/okio-$it/3.1.0/okio-$it-3.1.0.klib"
+        )
+    }
+)

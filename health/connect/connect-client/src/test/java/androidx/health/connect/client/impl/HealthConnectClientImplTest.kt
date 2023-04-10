@@ -24,8 +24,6 @@ import android.content.pm.PackageInfo
 import android.os.Looper
 import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
-import androidx.health.connect.client.impl.converters.datatype.toDataType
-import androidx.health.connect.client.permission.HealthPermission.Companion.createReadPermissionLegacy
 import androidx.health.connect.client.permission.HealthPermission.Companion.getReadPermission
 import androidx.health.connect.client.permission.HealthPermission.Companion.getWritePermission
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
@@ -88,7 +86,6 @@ private const val PROVIDER_PACKAGE_NAME = "com.google.fake.provider"
 
 private val API_METHOD_LIST =
     listOf<suspend HealthConnectClientImpl.() -> Unit>(
-        { getGrantedPermissionsLegacy(setOf()) },
         { revokeAllPermissions() },
         { insertRecords(listOf()) },
         { updateRecords(listOf()) },
@@ -119,13 +116,6 @@ private val API_METHOD_LIST =
         },
         { getChanges("token") },
         { getChangesToken(ChangesTokenRequest(recordTypes = setOf(StepsRecord::class))) },
-        {
-            registerForDataNotifications(
-                notificationIntentAction = "action",
-                recordTypes = emptyList(),
-            )
-        },
-        { unregisterFromDataNotifications(notificationIntentAction = "action") }
     )
 
 @Suppress("GoodTime") // Safe to use in test setup
@@ -143,7 +133,6 @@ class HealthConnectClientImplTest {
 
         healthConnectClient =
             HealthConnectClientImpl(
-                PROVIDER_PACKAGE_NAME,
                 ServiceBackedHealthDataClient(
                     ApplicationProvider.getApplicationContext(),
                     clientConfig,
@@ -188,36 +177,6 @@ class HealthConnectClientImplTest {
                 response.await()
             }
         }
-    }
-
-    @Test
-    fun getGrantedPermissionsLegacy_none() = runTest {
-        val response = testBlocking {
-            healthConnectClient.getGrantedPermissionsLegacy(
-                setOf(createReadPermissionLegacy(StepsRecord::class))
-            )
-        }
-
-        assertThat(response).isEmpty()
-    }
-
-    @Test
-    fun getGrantedPermissionsLegacy_steps() = runTest {
-        fakeAhpServiceStub.addGrantedPermission(
-            androidx.health.platform.client.permission.Permission(
-                PermissionProto.Permission.newBuilder()
-                    .setDataType(DataProto.DataType.newBuilder().setName("Steps"))
-                    .setAccessType(PermissionProto.AccessType.ACCESS_TYPE_READ)
-                    .build()
-            )
-        )
-        val response = testBlocking {
-            healthConnectClient.getGrantedPermissionsLegacy(
-                setOf(createReadPermissionLegacy(StepsRecord::class))
-            )
-        }
-
-        assertThat(response).containsExactly(createReadPermissionLegacy(StepsRecord::class))
     }
 
     @Test
@@ -772,39 +731,6 @@ class HealthConnectClientImplTest {
             .isEqualTo(
                 RequestProto.GetChangesRequest.newBuilder()
                     .setChangesToken("steps_changes_token")
-                    .build()
-            )
-    }
-
-    @Test
-    fun registerForDataNotifications() = runTest {
-        testBlocking {
-            healthConnectClient.registerForDataNotifications(
-                notificationIntentAction = "action",
-                recordTypes = listOf(HeartRateRecord::class, StepsRecord::class),
-            )
-        }
-
-        assertThat(fakeAhpServiceStub.lastRegisterForDataNotificationsRequest?.proto)
-            .isEqualTo(
-                RequestProto.RegisterForDataNotificationsRequest.newBuilder()
-                    .setNotificationIntentAction("action")
-                    .addDataTypes(HeartRateRecord::class.toDataType())
-                    .addDataTypes(StepsRecord::class.toDataType())
-                    .build()
-            )
-    }
-
-    @Test
-    fun unregisterFromDataNotifications() = runTest {
-        testBlocking {
-            healthConnectClient.unregisterFromDataNotifications(notificationIntentAction = "action")
-        }
-
-        assertThat(fakeAhpServiceStub.lastUnregisterFromDataNotificationsRequest?.proto)
-            .isEqualTo(
-                RequestProto.UnregisterFromDataNotificationsRequest.newBuilder()
-                    .setNotificationIntentAction("action")
                     .build()
             )
     }

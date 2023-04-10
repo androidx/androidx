@@ -38,7 +38,6 @@ import java.nio.charset.Charset;
 import java.util.Set;
 
 /**
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class VersionedParcelStream extends VersionedParcel {

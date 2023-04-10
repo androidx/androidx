@@ -29,7 +29,7 @@ class AdTechIdentifierTest {
 
     @Test
     fun testToString() {
-        val result = "AdTechIdentifier: $identifier"
+        val result = "$identifier"
         val request = AdTechIdentifier(identifier)
         Truth.assertThat(request.toString()).isEqualTo(result)
     }

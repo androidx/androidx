@@ -20,8 +20,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
 
 /**
- * Factory for creating a CanvasComplication. This decouples construction of Complications and
- * their CanvasComplication renderers.
+ * Factory for creating a CanvasComplication. This decouples construction of Complications and their
+ * CanvasComplication renderers.
  */
 // TODO(b/188035300): Put links into the comments.
 public interface CanvasComplicationFactory {
@@ -34,9 +34,9 @@ public interface CanvasComplicationFactory {
      *
      * @param watchState The current WatchState
      * @param invalidateCallback The CanvasComplication.InvalidateCallback the constructed
-     * CanvasComplication can use to request redrawing. This is typically used in
-     * conjunction with asynchronous loading of Drawables to update the watch face once the
-     * drawable has loaded.
+     *     CanvasComplication can use to request redrawing. This is typically used in conjunction
+     *     with asynchronous loading of Drawables to update the watch face once the drawable has
+     *     loaded.
      * @return The constructed CanvasComplication.
      */
     @NonNull

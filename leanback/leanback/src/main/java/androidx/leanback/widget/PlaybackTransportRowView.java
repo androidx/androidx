@@ -32,13 +32,11 @@ import androidx.leanback.R;
 
 /**
  * View for PlaybackTransportRowPresenter that has a custom focusSearch.
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class PlaybackTransportRowView extends LinearLayout {
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public interface OnUnhandledKeyListener {

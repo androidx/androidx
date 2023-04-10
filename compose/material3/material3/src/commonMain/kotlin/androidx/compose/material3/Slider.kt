@@ -88,6 +88,7 @@ import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.offset
 import androidx.compose.ui.util.lerp
 import kotlin.math.abs
 import kotlin.math.floor
@@ -142,12 +143,6 @@ import kotlinx.coroutines.launch
  * for this slider. You can create and pass in your own `remember`ed instance to observe
  * [Interaction]s and customize the appearance / behavior of this slider in different states.
  */
-// TODO(b/229979132): Add m.io link
-@Deprecated(
-    message = "Maintained for binary compatibility. " +
-        "Please use the non-experimental API that allows for custom thumb and tracks.",
-    level = DeprecationLevel.HIDDEN
-)
 @Composable
 fun Slider(
     value: Float,
@@ -186,172 +181,6 @@ fun Slider(
                 sliderPositions = sliderPositions
             )
         }
-    )
-}
-
-/**
- * <a href="https://m3.material.io/components/sliders/overview" class="external" target="_blank">Material Design slider</a>.
- *
- * Sliders allow users to make selections from a range of values.
- *
- * This uses the provided thumb and [SliderDefaults.Track] as the thumb and track.
- *
- * Sliders reflect a range of values along a bar, from which users may select a single value.
- * They are ideal for adjusting settings such as volume, brightness, or applying image filters.
- *
- * ![Sliders image](https://developer.android.com/images/reference/androidx/compose/material3/sliders.png)
- *
- * Slider using a custom thumb:
- *
- * @sample androidx.compose.material3.samples.SliderWithCustomThumbSample
- *
- * @param value current value of the slider. If outside of [valueRange] provided, value will be
- * coerced to this range.
- * @param onValueChange callback in which value should be updated
- * @param modifier the [Modifier] to be applied to this slider
- * @param enabled controls the enabled state of this slider. When `false`, this component will not
- * respond to user input, and it will appear visually disabled and disabled to accessibility
- * services.
- * @param valueRange range of values that this slider can take. The passed [value] will be coerced
- * to this range.
- * @param steps if greater than 0, specifies the amount of discrete allowable values, evenly
- * distributed across the whole value range. If 0, the slider will behave continuously and allow any
- * value from the range specified. Must not be negative.
- * @param onValueChangeFinished called when value change has ended. This should not be used to
- * update the slider value (use [onValueChange] instead), but rather to know when the user has
- * completed selecting a new value by ending a drag or a click.
- * @param colors [SliderColors] that will be used to resolve the colors used for this slider in
- * different states. See [SliderDefaults.colors].
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this slider. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this slider in different states.
- * @param thumb the thumb to be displayed on the slider, it is placed on top of the track. The lambda
- * receives a [SliderPositions] which is used to obtain the current active track and the tick positions
- * if the slider is discrete.
- */
-@Deprecated(
-    message = "Maintained for binary compatibility. " +
-        "Please use the non-experimental API that allows for custom thumb and tracks.",
-    level = DeprecationLevel.HIDDEN
-)
-@Composable
-@ExperimentalMaterial3Api
-fun Slider(
-    value: Float,
-    onValueChange: (Float) -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
-    /*@IntRange(from = 0)*/
-    steps: Int = 0,
-    onValueChangeFinished: (() -> Unit)? = null,
-    colors: SliderColors = SliderDefaults.colors(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    thumb: @Composable (SliderPositions) -> Unit
-) {
-    require(steps >= 0) { "steps should be >= 0" }
-
-    SliderImpl(
-        modifier = modifier,
-        enabled = enabled,
-        interactionSource = interactionSource,
-        onValueChange = onValueChange,
-        onValueChangeFinished = onValueChangeFinished,
-        steps = steps,
-        value = value,
-        valueRange = valueRange,
-        thumb = thumb,
-        track = { sliderPositions ->
-            SliderDefaults.Track(
-                colors = colors,
-                enabled = enabled,
-                sliderPositions = sliderPositions
-            )
-        }
-    )
-}
-
-/**
- * <a href="https://m3.material.io/components/sliders/overview" class="external" target="_blank">Material Design slider</a>.
- *
- * Sliders allow users to make selections from a range of values.
- *
- * Sliders reflect a range of values along a bar, from which users may select a single value.
- * They are ideal for adjusting settings such as volume, brightness, or applying image filters.
- *
- * ![Sliders image](https://developer.android.com/images/reference/androidx/compose/material3/sliders.png)
- *
- * Slider using custom track and thumb:
- *
- * @sample androidx.compose.material3.samples.SliderWithCustomTrackAndThumb
- *
- * @param value current value of the slider. If outside of [valueRange] provided, value will be
- * coerced to this range.
- * @param onValueChange callback in which value should be updated
- * @param track the track to be displayed on the slider, it is placed underneath the thumb. The lambda
- * receives a [SliderPositions] which is used to obtain the current active track and the tick positions
- * if the slider is discrete.
- * @param modifier the [Modifier] to be applied to this slider
- * @param enabled controls the enabled state of this slider. When `false`, this component will not
- * respond to user input, and it will appear visually disabled and disabled to accessibility
- * services.
- * @param valueRange range of values that this slider can take. The passed [value] will be coerced
- * to this range.
- * @param steps if greater than 0, specifies the amount of discrete allowable values, evenly
- * distributed across the whole value range. If 0, the slider will behave continuously and allow any
- * value from the range specified. Must not be negative.
- * @param onValueChangeFinished called when value change has ended. This should not be used to
- * update the slider value (use [onValueChange] instead), but rather to know when the user has
- * completed selecting a new value by ending a drag or a click.
- * @param colors [SliderColors] that will be used to resolve the colors used for this slider in
- * different states. See [SliderDefaults.colors].
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this slider. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this slider in different states.
- * @param thumb the thumb to be displayed on the slider, it is placed on top of the track. The lambda
- * receives a [SliderPositions] which is used to obtain the current active track and the tick positions
- * if the slider is discrete.
- */
-@Deprecated(
-    message = "Maintained for binary compatibility. " +
-        "Please use the non-experimental API that allows for custom thumb and tracks.",
-    level = DeprecationLevel.HIDDEN
-)
-@Composable
-@ExperimentalMaterial3Api
-fun Slider(
-    value: Float,
-    onValueChange: (Float) -> Unit,
-    track: @Composable (SliderPositions) -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
-    /*@IntRange(from = 0)*/
-    steps: Int = 0,
-    onValueChangeFinished: (() -> Unit)? = null,
-    colors: SliderColors = SliderDefaults.colors(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    thumb: @Composable (SliderPositions) -> Unit = {
-        SliderDefaults.Thumb(
-            interactionSource = interactionSource,
-            colors = colors,
-            enabled = enabled
-        )
-    }
-) {
-    require(steps >= 0) { "steps should be >= 0" }
-
-    SliderImpl(
-        modifier = modifier,
-        enabled = enabled,
-        interactionSource = interactionSource,
-        onValueChange = onValueChange,
-        onValueChangeFinished = onValueChangeFinished,
-        steps = steps,
-        value = value,
-        valueRange = valueRange,
-        thumb = thumb,
-        track = track
     )
 }
 
@@ -411,6 +240,7 @@ fun Slider(
  * value from the range specified. Must not be negative.
  */
 @Composable
+@ExperimentalMaterial3Api
 fun Slider(
     value: Float,
     onValueChange: (Float) -> Unit,
@@ -486,13 +316,7 @@ fun Slider(
  * @param colors [SliderColors] that will be used to determine the color of the Range Slider
  * parts in different state. See [SliderDefaults.colors] to customize.
  */
-@Deprecated(
-    message = "Maintained for binary compatibility. " +
-        "Please use the non-experimental API that allows for custom thumbs and tracks.",
-    level = DeprecationLevel.HIDDEN
-)
 @Composable
-@ExperimentalMaterial3Api
 fun RangeSlider(
     value: ClosedFloatingPointRange<Float>,
     onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
@@ -601,6 +425,7 @@ fun RangeSlider(
  * tick positions if the range slider is discrete.
  */
 @Composable
+@ExperimentalMaterial3Api
 fun RangeSlider(
     value: ClosedFloatingPointRange<Float>,
     onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
@@ -764,15 +589,12 @@ private fun SliderImpl(
             it.layoutId == SliderComponents.THUMB
         }.measure(constraints)
 
-        val maxTrackWidth = constraints.maxWidth - thumbPlaceable.width
         val trackPlaceable = measurables.first {
             it.layoutId == SliderComponents.TRACK
         }.measure(
-            constraints.copy(
-                minWidth = 0,
-                maxWidth = maxTrackWidth,
-                minHeight = 0
-            )
+            constraints.offset(
+                horizontal = - thumbPlaceable.width
+            ).copy(minHeight = 0)
         )
 
         val sliderWidth = thumbPlaceable.width + trackPlaceable.width
@@ -968,16 +790,12 @@ private fun RangeSliderImpl(
             constraints
         )
 
-        val maxTrackWidth =
-            constraints.maxWidth - (startThumbPlaceable.width + endThumbPlaceable.width) / 2
         val trackPlaceable = measurables.first {
             it.layoutId == RangeSliderComponents.TRACK
         }.measure(
-            constraints.copy(
-                minWidth = 0,
-                maxWidth = maxTrackWidth,
-                minHeight = 0
-            )
+            constraints.offset(
+                horizontal = - (startThumbPlaceable.width + endThumbPlaceable.width) / 2
+            ).copy(minHeight = 0)
         )
 
         val sliderWidth = trackPlaceable.width +

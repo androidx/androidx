@@ -26,10 +26,24 @@ import java.time.ZoneOffset
 public class HeartRateVariabilityRmssdRecord(
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
-    /** Heart rate variability in milliseconds. Required field. */
+    /** Heart rate variability in milliseconds. Required field. Valid Range: 1-200. */
     public val heartRateVariabilityMillis: Double,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
+
+    init {
+        heartRateVariabilityMillis.requireInRange(
+            min = MIN_HRV_RMSSD,
+            max = MAX_HRV_RMSSD,
+            name = "heartRateVariabilityMillis"
+        )
+    }
+
+    internal companion object {
+        internal const val MIN_HRV_RMSSD = 1.0
+        internal const val MAX_HRV_RMSSD = 200.0
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is HeartRateVariabilityRmssdRecord) return false

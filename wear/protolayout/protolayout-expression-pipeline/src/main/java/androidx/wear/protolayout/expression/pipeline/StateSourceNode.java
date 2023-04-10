@@ -16,25 +16,26 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.annotation.UiThread;
 import androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue;
 
 import java.util.function.Function;
 
 class StateSourceNode<T>
-        implements DynamicDataSourceNode<T>, DynamicTypeValueReceiver<StateEntryValue> {
-    private final ObservableStateStore mObservableStateStore;
+        implements DynamicDataSourceNode<T>,
+        DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> {
+    private final StateStore mStateStore;
     private final String mBindKey;
     private final Function<StateEntryValue, T> mStateExtractor;
-    private final DynamicTypeValueReceiver<T> mDownstream;
+    private final DynamicTypeValueReceiverWithPreUpdate<T> mDownstream;
 
     StateSourceNode(
-            ObservableStateStore observableStateStore,
+            StateStore stateStore,
             String bindKey,
             Function<StateEntryValue, T> stateExtractor,
-            DynamicTypeValueReceiver<T> downstream) {
-        this.mObservableStateStore = observableStateStore;
+            DynamicTypeValueReceiverWithPreUpdate<T> downstream) {
+        this.mStateStore = stateStore;
         this.mBindKey = bindKey;
         this.mStateExtractor = stateExtractor;
         this.mDownstream = downstream;
@@ -49,8 +50,8 @@ class StateSourceNode<T>
     @Override
     @UiThread
     public void init() {
-        mObservableStateStore.registerCallback(mBindKey, this);
-        StateEntryValue item = mObservableStateStore.getStateEntryValues(mBindKey);
+        mStateStore.registerCallback(mBindKey, this);
+        StateEntryValue item = mStateStore.getStateEntryValuesProto(mBindKey);
 
         if (item != null) {
             this.onData(item);
@@ -62,7 +63,7 @@ class StateSourceNode<T>
     @Override
     @UiThread
     public void destroy() {
-        mObservableStateStore.unregisterCallback(mBindKey, this);
+        mStateStore.unregisterCallback(mBindKey, this);
     }
 
     @Override
@@ -71,7 +72,7 @@ class StateSourceNode<T>
     }
 
     @Override
-    public void onData(@Nullable StateEntryValue newData) {
+    public void onData(@NonNull StateEntryValue newData) {
         T actualValue = mStateExtractor.apply(newData);
         mDownstream.onData(actualValue);
     }

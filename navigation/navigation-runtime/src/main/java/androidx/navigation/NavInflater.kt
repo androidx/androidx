@@ -330,7 +330,6 @@ public class NavInflater(
         private const val TAG_INCLUDE = "include"
 
         /**
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val APPLICATION_ID_PLACEHOLDER: String = "\${applicationId}"

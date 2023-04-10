@@ -16,16 +16,15 @@
 
 package androidx.tv.material3
 
-import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.with
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
@@ -156,16 +155,14 @@ by boxScope {
      * @link androidx.compose.animation.AnimatedContent
      * @see androidx.compose.animation.AnimatedContent
      * @see ContentTransform
-     * @see AnimatedContentScope
+     * @see AnimatedContentTransitionScope
      */
-    @Suppress("IllegalExperimentalApiUsage")
-    @ExperimentalAnimationApi
     @Composable
     fun AnimatedContent(
         targetState: Int,
         modifier: Modifier = Modifier,
-        transitionSpec: AnimatedContentScope<Int>.() -> ContentTransform = {
-            ImmersiveListDefaults.EnterTransition.with(ImmersiveListDefaults.ExitTransition)
+        transitionSpec: AnimatedContentTransitionScope<Int>.() -> ContentTransform = {
+            ImmersiveListDefaults.EnterTransition.togetherWith(ImmersiveListDefaults.ExitTransition)
         },
         contentAlignment: Alignment = Alignment.TopStart,
         content: @Composable AnimatedVisibilityScope.(targetState: Int) -> Unit

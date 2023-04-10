@@ -87,7 +87,6 @@ class Camera2Interop private constructor() {
          *
          * @param templateType The template type to set.
          * @return The current Extender.
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         fun setCaptureRequestTemplate(templateType: Int): Extender<T> {

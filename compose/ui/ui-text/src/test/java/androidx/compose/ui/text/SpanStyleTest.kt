@@ -42,9 +42,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@OptIn(ExperimentalTextApi::class)
 @RunWith(JUnit4::class)
 class SpanStyleTest {
+    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `constructor with default values`() {
         val style = SpanStyle()
@@ -112,6 +112,7 @@ class SpanStyleTest {
         assertThat(style.color).isEqualTo(color)
     }
 
+    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `constructor with half-transparent color`() {
         val color = Color.Red.copy(alpha = 0.5f)
@@ -203,6 +204,7 @@ class SpanStyleTest {
         assertThat(style.fontFamily).isEqualTo(fontFamily)
     }
 
+    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `constructor with customized drawStyle`() {
         val stroke = Stroke(width = 4f)
@@ -449,7 +451,6 @@ class SpanStyleTest {
         assertThat(newSpanStyle.localeList).isEqualTo(otherStyle.localeList)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `merge with null platformStyles has null platformStyle`() {
         val style = SpanStyle(platformStyle = null)
@@ -518,6 +519,7 @@ class SpanStyleTest {
         assertThat(mergedStyle.alpha).isEqualTo(0.3f)
     }
 
+    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `merge with other's drawStyle is null should use this' drawStyle`() {
         val drawStyle1 = Stroke(cap = StrokeCap.Butt)
@@ -528,6 +530,7 @@ class SpanStyleTest {
         assertThat(newSpanStyle.drawStyle).isEqualTo(drawStyle1)
     }
 
+    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `merge with other's drawStyle is set should use other's drawStyle`() {
         val drawStyle1 = Stroke(cap = StrokeCap.Butt)
@@ -877,7 +880,6 @@ class SpanStyleTest {
         assertThat(newSpanStyle.textDecoration).isEqualTo(decoration2)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `lerp with null platformStyles have null platformStyle`() {
         val style = SpanStyle(platformStyle = null)

@@ -29,7 +29,6 @@ import androidx.work.impl.model.WorkSpecDao;
  * - Is finished (succeeded, failed, or cancelled)
  * - Has zero unfinished dependents
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PruneWorkRunnable implements Runnable {

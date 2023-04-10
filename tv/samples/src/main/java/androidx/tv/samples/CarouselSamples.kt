@@ -39,11 +39,10 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Carousel
 import androidx.tv.material3.CarouselDefaults
-import androidx.tv.material3.CarouselItem
 import androidx.tv.material3.CarouselState
+import androidx.tv.material3.ExperimentalTvMaterial3Api
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Sampled
@@ -56,13 +55,12 @@ fun SimpleCarousel() {
     )
 
     Carousel(
-        slideCount = backgrounds.size,
+        itemCount = backgrounds.size,
         modifier = Modifier
             .height(300.dp)
             .fillMaxWidth(),
     ) { itemIndex ->
         CarouselItem(
-            overlayEnterTransitionStartDelayMillis = 0,
             background = {
                 Box(
                     modifier = Modifier
@@ -104,15 +102,15 @@ fun CarouselIndicatorWithRectangleShape() {
     val carouselState = remember { CarouselState() }
 
     Carousel(
-        slideCount = backgrounds.size,
+        itemCount = backgrounds.size,
         modifier = Modifier
             .height(300.dp)
             .fillMaxWidth(),
         carouselState = carouselState,
         carouselIndicator = {
             CarouselDefaults.IndicatorRow(
-                slideCount = backgrounds.size,
-                activeSlideIndex = carouselState.activeSlideIndex,
+                itemCount = backgrounds.size,
+                activeItemIndex = carouselState.activeItemIndex,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp),
@@ -132,7 +130,6 @@ fun CarouselIndicatorWithRectangleShape() {
         }
     ) { itemIndex ->
         CarouselItem(
-            overlayEnterTransitionStartDelayMillis = 0,
             background = {
                 Box(
                     modifier = Modifier

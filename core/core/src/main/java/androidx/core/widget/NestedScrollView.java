@@ -124,13 +124,11 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     private final Rect mTempRect = new Rect();
     private OverScroller mScroller;
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     @VisibleForTesting
     @NonNull
     public EdgeEffect mEdgeGlowTop;
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     @VisibleForTesting
     @NonNull
@@ -706,21 +704,33 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
             switch (event.getKeyCode()) {
                 case KeyEvent.KEYCODE_DPAD_UP:
-                    if (!event.isAltPressed()) {
-                        handled = arrowScroll(View.FOCUS_UP);
-                    } else {
+                    if (event.isAltPressed()) {
                         handled = fullScroll(View.FOCUS_UP);
+                    } else {
+                        handled = arrowScroll(View.FOCUS_UP);
                     }
                     break;
                 case KeyEvent.KEYCODE_DPAD_DOWN:
-                    if (!event.isAltPressed()) {
-                        handled = arrowScroll(View.FOCUS_DOWN);
-                    } else {
+                    if (event.isAltPressed()) {
                         handled = fullScroll(View.FOCUS_DOWN);
+                    } else {
+                        handled = arrowScroll(View.FOCUS_DOWN);
                     }
+                    break;
+                case KeyEvent.KEYCODE_PAGE_UP:
+                    handled = fullScroll(View.FOCUS_UP);
+                    break;
+                case KeyEvent.KEYCODE_PAGE_DOWN:
+                    handled = fullScroll(View.FOCUS_DOWN);
                     break;
                 case KeyEvent.KEYCODE_SPACE:
                     pageScroll(event.isShiftPressed() ? View.FOCUS_UP : View.FOCUS_DOWN);
+                    break;
+                case KeyEvent.KEYCODE_MOVE_HOME:
+                    pageScroll(View.FOCUS_UP);
+                    break;
+                case KeyEvent.KEYCODE_MOVE_END:
+                    pageScroll(View.FOCUS_DOWN);
                     break;
             }
         }
@@ -1827,7 +1837,6 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     /**
      * <p>The scroll range of a scroll view is the overall height of all of its
      * children.</p>
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -1852,35 +1861,30 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         return scrollRange;
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int computeVerticalScrollOffset() {
         return Math.max(0, super.computeVerticalScrollOffset());
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int computeVerticalScrollExtent() {
         return super.computeVerticalScrollExtent();
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int computeHorizontalScrollRange() {
         return super.computeHorizontalScrollRange();
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int computeHorizontalScrollOffset() {
         return super.computeHorizontalScrollOffset();
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int computeHorizontalScrollExtent() {

@@ -21,7 +21,6 @@ import android.graphics.Color
 import android.opengl.GLES20
 import android.opengl.Matrix
 import android.os.Build
-import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
@@ -91,7 +90,7 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
             }
         }
 
-        override fun onDrawDoubleBufferedLayer(
+        override fun onDrawMultiBufferedLayer(
             eglManager: EGLManager,
             bufferInfo: BufferInfo,
             transform: FloatArray,
@@ -121,12 +120,10 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
     val renderCount = AtomicInteger(0)
 
     init {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            requestUnbufferedDispatch(InputDevice.SOURCE_CLASS_POINTER)
-        }
         setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
+                    requestUnbufferedDispatch(event)
                     mCurrentX = event.x
                     mCurrentY = event.y
                     renderCount.set(0)

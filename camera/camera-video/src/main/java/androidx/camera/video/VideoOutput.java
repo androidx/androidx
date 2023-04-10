@@ -47,7 +47,6 @@ public interface VideoOutput {
      * A state which represents whether the video frame producer is producing frames to the
      * provided {@link Surface}.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     enum SourceState {
@@ -95,7 +94,6 @@ public interface VideoOutput {
      * Called when a new {@link Surface} has been requested by a video frame producer.
      *
      * @param timebase the video source timebase
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     default void onSurfaceRequested(@NonNull SurfaceRequest request, @NonNull Timebase timebase) {
@@ -106,7 +104,6 @@ public interface VideoOutput {
      * Returns an observable {@link StreamInfo} which contains the information of the
      * {@link VideoOutput}.
      *
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY)
@@ -128,7 +125,6 @@ public interface VideoOutput {
      * changes may not come for free and may require the video frame producer to re-initialize,
      * which could cause a new {@link SurfaceRequest} to be sent to
      * {@link #onSurfaceRequested(SurfaceRequest)}.
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     @NonNull
@@ -139,7 +135,6 @@ public interface VideoOutput {
     /**
      * Called when the state of the video frame producer is changed.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     default void onSourceStateChanged(@NonNull SourceState sourceState) {

@@ -16,7 +16,6 @@
 
 package androidx.room
 
-import androidx.room.DatabaseProcessingStep.Companion.ENV_CONFIG
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XRoundEnv
 import androidx.room.compiler.processing.ksp.KspBasicAnnotationProcessor
@@ -33,7 +32,10 @@ import javax.tools.Diagnostic
  */
 class RoomKspProcessor(
     environment: SymbolProcessorEnvironment
-) : KspBasicAnnotationProcessor(environment, ENV_CONFIG) {
+) : KspBasicAnnotationProcessor(
+    symbolProcessorEnvironment = environment,
+    config = DatabaseProcessingStep.getEnvConfig(environment.options)
+) {
     init {
         // print a warning if null aware converter is disabled because we'll remove that ability
         // soon.

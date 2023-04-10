@@ -17,6 +17,7 @@ package androidx.glance.appwidget
 
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RemoteViews
@@ -370,10 +371,18 @@ internal fun RemoteViews.insertContainerView(
     horizontalAlignment: Alignment.Horizontal?,
     verticalAlignment: Alignment.Vertical?,
 ): InsertedViewInfo {
+    if (numChildren > 10) {
+        Log.e(
+            GlanceAppWidgetTag,
+            "Truncated $type container from $numChildren to 10 elements",
+            IllegalArgumentException("$type container cannot have more than 10 elements")
+        )
+    }
+    val children = numChildren.coerceAtMost(10)
     val childLayout = selectLayout33(type, modifier)
         ?: generatedContainers[ContainerSelector(
             type,
-            numChildren,
+            children,
             horizontalAlignment,
             verticalAlignment
         )]?.layoutId

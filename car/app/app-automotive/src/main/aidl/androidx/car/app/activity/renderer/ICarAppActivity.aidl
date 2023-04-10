@@ -53,4 +53,7 @@ oneway interface ICarAppActivity {
 
     /** Registers the listener to get insets updates. */
     void setInsetsListener(IInsetsListener listener) = 9;
+
+    /** Entrypoint for host to call assistant */
+    void showAssist(in Bundle args) = 10;
 }

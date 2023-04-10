@@ -33,7 +33,6 @@ import androidx.camera.core.impl.utils.Threads;
 /**
  * {@link MeteringPointFactory} for {@link PreviewView}.
  *
- * @hide
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

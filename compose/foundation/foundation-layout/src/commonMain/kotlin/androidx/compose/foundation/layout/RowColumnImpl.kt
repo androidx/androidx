@@ -312,12 +312,29 @@ internal sealed class CrossAxisAlignment {
 /**
  * Box [Constraints], but which abstract away width and height in favor of main axis and cross axis.
  */
-internal data class OrientationIndependentConstraints(
-    val mainAxisMin: Int,
-    val mainAxisMax: Int,
-    val crossAxisMin: Int,
-    val crossAxisMax: Int
+@JvmInline
+internal value class OrientationIndependentConstraints private constructor(
+    private val value: Constraints
 ) {
+    inline val mainAxisMin: Int get() = value.minWidth
+    inline val mainAxisMax: Int get() = value.maxWidth
+    inline val crossAxisMin: Int get() = value.minHeight
+    inline val crossAxisMax: Int get() = value.maxHeight
+
+    constructor(
+        mainAxisMin: Int,
+        mainAxisMax: Int,
+        crossAxisMin: Int,
+        crossAxisMax: Int
+    ) : this(
+        Constraints(
+            minWidth = mainAxisMin,
+            maxWidth = mainAxisMax,
+            minHeight = crossAxisMin,
+            maxHeight = crossAxisMax
+        )
+    )
+
     constructor(c: Constraints, orientation: LayoutOrientation) : this(
         if (orientation === LayoutOrientation.Horizontal) c.minWidth else c.minHeight,
         if (orientation === LayoutOrientation.Horizontal) c.maxWidth else c.maxHeight,
@@ -356,6 +373,19 @@ internal data class OrientationIndependentConstraints(
         } else {
             mainAxisMax
         }
+
+    fun copy(
+        mainAxisMin: Int = this.mainAxisMin,
+        mainAxisMax: Int = this.mainAxisMax,
+        crossAxisMin: Int = this.crossAxisMin,
+        crossAxisMax: Int = this.crossAxisMax
+    ): OrientationIndependentConstraints =
+        OrientationIndependentConstraints(
+            mainAxisMin,
+            mainAxisMax,
+            crossAxisMin,
+            crossAxisMax
+        )
 }
 
 internal val IntrinsicMeasurable.rowColumnParentData: RowColumnParentData?

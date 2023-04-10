@@ -17,10 +17,12 @@
 package androidx.wear.protolayout.expression.pipeline.sensor;
 
 import android.Manifest;
+import android.os.Build.VERSION_CODES;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -47,13 +49,10 @@ import java.util.concurrent.Executor;
  */
 public interface SensorGateway extends Closeable {
 
-    /**
-     * Sensor data types that can be subscribed to from {@link SensorGateway}.
-     *
-     * @hide
-     */
+    /** Sensor data types that can be subscribed to from {@link SensorGateway}. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
+    @RequiresApi(VERSION_CODES.Q)
     @IntDef({
         SENSOR_DATA_TYPE_INVALID,
         SENSOR_DATA_TYPE_HEART_RATE,
@@ -77,6 +76,7 @@ public interface SensorGateway extends Closeable {
      * each day, and any subscriptions to this data type will log the number of steps the user has
      * done since 12:00AM local time.
      */
+    @RequiresApi(VERSION_CODES.Q)
     @RequiresPermission(Manifest.permission.ACTIVITY_RECOGNITION)
     int SENSOR_DATA_TYPE_DAILY_STEP_COUNT = 1;
 
@@ -134,17 +134,11 @@ public interface SensorGateway extends Closeable {
          */
         @AnyThread
         default void onInvalidated() {}
-
-        /** The sensor data type to be consumed. */
-        @SensorDataType
-        int getRequestedDataType();
     }
 
     /**
      * Enables/unpauses sending updates to the consumers. All cached updates (while updates were
      * paused) for data types will be delivered by sending the latest data.
-     *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
     void enableUpdates();
@@ -152,34 +146,33 @@ public interface SensorGateway extends Closeable {
     /**
      * Disables/pauses sending updates to the consumers. While paused, updates will be cached to be
      * delivered after unpausing.
-     *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
     void disableUpdates();
 
     /**
-     * Register for updates for {@link Consumer#getRequestedDataType()} data type. This may cause
-     * {@link Consumer} to immediately fire if there is suitable cached data, otherwise {@link
-     * Consumer} will fire when there is appropriate updates to the requested sensor data.
+     * Register for updates for the given data type. This may cause {@link Consumer} to immediately
+     * fire if there is suitable cached data, otherwise {@link Consumer} will fire when there is
+     * appropriate updates to the requested sensor data.
      *
      * <p>Implementations should check if the provider has permission to provide the requested data
      * type.
      *
      * <p>Note that the callback will be executed on the single background thread (implementation
-     * dependent). To specify the execution thread, use {@link
-     * #registerSensorGatewayConsumer(Executor, Consumer)}.
+     * dependent). To specify the execution thread, use {@link #registerSensorGatewayConsumer(int,
+     * Executor, Consumer)}.
      *
      * @throws SecurityException if the provider does not have permission to provide requested data
      *     type.
      */
     @UiThread
-    void registerSensorGatewayConsumer(@NonNull Consumer consumer);
+    void registerSensorGatewayConsumer(
+            @SensorDataType int requestedDataType, @NonNull Consumer consumer);
 
     /**
-     * Register for updates for {@link Consumer#getRequestedDataType()} data type. This may cause
-     * {@link Consumer} to immediately fire if there is suitable cached data, otherwise {@link
-     * Consumer} will fire when there is appropriate updates to the requested sensor data.
+     * Register for updates for the given data type. This may cause {@link Consumer} to immediately
+     * fire if there is suitable cached data, otherwise {@link Consumer} will fire when there is
+     * appropriate updates to the requested sensor data.
      *
      * <p>Implementations should check if the provider has permission to provide the requested data
      * type.
@@ -191,11 +184,14 @@ public interface SensorGateway extends Closeable {
      */
     @UiThread
     void registerSensorGatewayConsumer(
-            @NonNull /* @CallbackExecutor */ Executor executor, @NonNull Consumer consumer);
+            @SensorDataType int requestedDataType,
+            @NonNull /* @CallbackExecutor */ Executor executor,
+            @NonNull Consumer consumer);
 
-    /** Unregister for updates for {@link Consumer#getRequestedDataType()} data type. */
+    /** Unregister for updates for the given data type. */
     @UiThread
-    void unregisterSensorGatewayConsumer(@NonNull Consumer consumer);
+    void unregisterSensorGatewayConsumer(
+            @SensorDataType int requestedDataType, @NonNull Consumer consumer);
 
     /** See {@link Closeable#close()}. */
     @Override

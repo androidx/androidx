@@ -65,7 +65,6 @@ import java.lang.reflect.Method
  * The fix for this is to add the missing onStop() call, by using reflection to call into
  * ActivityThread.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal object ActivityRecreatorKtChecked {

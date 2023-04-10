@@ -32,9 +32,9 @@ android {
 dependencies {
     api project(":work:work-runtime")
     implementation(libs.gcmNetworkManager)
-    annotationProcessor("androidx.room:room-compiler:2.5.0-beta01")
-    implementation("androidx.room:room-runtime:2.5.0-beta01")
-    androidTestImplementation("androidx.room:room-testing:2.5.0-beta01")
+    annotationProcessor("androidx.room:room-compiler:2.5.0")
+    implementation("androidx.room:room-runtime:2.5.0")
+    androidTestImplementation("androidx.room:room-testing:2.5.0")
 
     androidTestImplementation(project(":work:work-runtime-ktx"))
     androidTestImplementation(libs.testExtJunit)

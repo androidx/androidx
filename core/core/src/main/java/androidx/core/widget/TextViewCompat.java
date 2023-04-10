@@ -92,7 +92,6 @@ public final class TextViewCompat {
      */
     public static final int AUTO_SIZE_TEXT_TYPE_UNIFORM = TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM;
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({AUTO_SIZE_TEXT_TYPE_NONE, AUTO_SIZE_TEXT_TYPE_UNIFORM})
     @Retention(RetentionPolicy.SOURCE)
@@ -514,7 +513,6 @@ public final class TextViewCompat {
 
     /**
      * @see #setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Nullable
@@ -537,7 +535,6 @@ public final class TextViewCompat {
 
     /**
      * @see #setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Nullable
@@ -910,7 +907,7 @@ public final class TextViewCompat {
         if (Build.VERSION.SDK_INT >= 29) {
             // Framework can not understand PrecomptedTextCompat. Pass underlying PrecomputedText.
             // Parameter check is also done by framework.
-            textView.setText(precomputed.getPrecomputedText());
+            textView.setText(Api28Impl.castToCharSequence(precomputed.getPrecomputedText()));
         } else {
             PrecomputedTextCompat.Params param = TextViewCompat.getTextMetricsParams(textView);
             if (!param.equalsWithoutTextDirection(precomputed.getParams())) {
@@ -1219,6 +1216,11 @@ public final class TextViewCompat {
         @DoNotInline
         static String[] getDigitStrings(DecimalFormatSymbols decimalFormatSymbols) {
             return decimalFormatSymbols.getDigitStrings();
+        }
+
+        @DoNotInline
+        static CharSequence castToCharSequence(PrecomputedText precomputedText) {
+            return precomputedText;
         }
     }
 

@@ -20,16 +20,9 @@ function fn_update_metalava {
   fn_sed_inplace "s/androidx.playground.metalavaBuildId=.*/androidx.playground.metalavaBuildId=$BUILDID_METALAVA/g" playground-common/playground.properties
 }
 
-function fn_update_dokka {
-  BUILDID_DOKKA=`curl -s https://androidx.dev/dokka/builds | sed -nr 's|.*dokka/builds/([0-9]*).*|\1|gp' | head -n 1`
-  echo "Updating dokka id: $BUILDID_DOKKA"
-  fn_sed_inplace "s/androidx.playground.dokkaBuildId=.*/androidx.playground.dokkaBuildId=$BUILDID_DOKKA/g" playground-common/playground.properties
-}
-
 if [ "$MODE" == "s" ]; then
   fn_update_snapshot
 elif [ "$MODE" == "a" ]; then
   fn_update_snapshot
   fn_update_metalava
-  fn_update_dokka
 fi

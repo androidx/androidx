@@ -202,6 +202,9 @@ public abstract class NavigatorState {
      * [pushWithTransition] and [popWithTransition] as those call are responsible for adding
      * entries to [transitionsInProgress].
      *
+     * This should also always be called in conjunction with [prepareForTransition] to ensure all
+     * [NavBackStackEntries][NavBackStackEntry] settle into the proper state.
+     *
      * Failing to call this method could result in entries being prevented from reaching their
      * final [Lifecycle.State]}.
      *
@@ -210,5 +213,17 @@ public abstract class NavigatorState {
      */
     public open fun markTransitionComplete(entry: NavBackStackEntry) {
         _transitionsInProgress.value = _transitionsInProgress.value - entry
+    }
+
+    /**
+     * This prepares the given [NavBackStackEntry] for transition. This should be called in
+     * conjunction with [markTransitionComplete] as that is responsible for settling the
+     * [NavBackStackEntry] into its final state.
+     *
+     * @see markTransitionComplete
+     */
+    @CallSuper
+    public open fun prepareForTransition(entry: NavBackStackEntry) {
+        _transitionsInProgress.value = _transitionsInProgress.value + entry
     }
 }

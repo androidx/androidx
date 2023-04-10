@@ -17,6 +17,8 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.integration.internal.ZoomMath.getLinearZoomFromZoomRatio
+import androidx.camera.camera2.pipe.integration.internal.ZoomMath.getZoomRatioFromLinearZoom
 import androidx.camera.core.ZoomState
 
 /**
@@ -26,16 +28,39 @@ import androidx.camera.core.ZoomState
 data class ZoomValue(
     private val zoomRatio: Float,
     private val minZoomRatio: Float,
-    private val maxZoomRatio: Float
+    private val maxZoomRatio: Float,
 ) : ZoomState {
+    private var linearZoom: Float? = null
+
+    /**
+     * ZoomValue should be created with either zoomRatio or linearZoom and the other value should
+     * be calculated. If both are allowed to be set from outside, it becomes confusing regarding
+     * which value to use if the values don't align with conversion values.
+     * Secondary constructor with a LinearZoom value wrapper class is used for this purpose.
+     */
+    data class LinearZoom(val value: Float)
+    constructor(
+        linearZoom: LinearZoom,
+        minZoomRatio: Float,
+        maxZoomRatio: Float,
+    ) : this(
+        getZoomRatioFromLinearZoom(
+            linearZoom = linearZoom.value,
+            minZoomRatio = minZoomRatio,
+            maxZoomRatio = maxZoomRatio
+        ),
+        minZoomRatio,
+        maxZoomRatio
+    ) {
+        this.linearZoom = linearZoom.value
+    }
+
     override fun getZoomRatio(): Float = zoomRatio
     override fun getMaxZoomRatio(): Float = maxZoomRatio
     override fun getMinZoomRatio(): Float = minZoomRatio
-    override fun getLinearZoom(): Float {
-        val range = maxZoomRatio - minZoomRatio
-        if (range > 0) {
-            return (zoomRatio - minZoomRatio) / range
-        }
-        return 1.0f
-    }
+    override fun getLinearZoom() = linearZoom ?: getLinearZoomFromZoomRatio(
+        zoomRatio = zoomRatio,
+        minZoomRatio = minZoomRatio,
+        maxZoomRatio = maxZoomRatio
+    )
 }

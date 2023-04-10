@@ -19,7 +19,7 @@ import kotlin.collections.List
 import kotlin.jvm.JvmStatic
 
 @Generated(value = ["androidx.room.RoomProcessor"])
-@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION"])
+@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION"])
 public class MyDao_Impl(
     __db: RoomDatabase,
 ) : MyDao {
@@ -35,10 +35,11 @@ public class MyDao_Impl(
             public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
                 statement.bindLong(1, entity.pk.toLong())
                 statement.bindBlob(2, convertUUIDToByte(entity.uuid))
-                if (entity.nullableUuid == null) {
+                val _tmpNullableUuid: UUID? = entity.nullableUuid
+                if (_tmpNullableUuid == null) {
                     statement.bindNull(3)
                 } else {
-                    statement.bindBlob(3, convertUUIDToByte(entity.nullableUuid))
+                    statement.bindBlob(3, convertUUIDToByte(_tmpNullableUuid))
                 }
             }
         }

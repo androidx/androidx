@@ -24,6 +24,7 @@ import static org.mockito.Mockito.mock;
 
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
+import android.util.Range;
 import android.view.Surface;
 
 import androidx.camera.camera2.impl.Camera2ImplConfig;
@@ -54,7 +55,6 @@ public class SessionConfigTest {
             "camerax.test.option_0", Integer.class);
     private static final Option<String> OPTION_1 = Option.create(
             "camerax.test.option_1", String.class);
-
     private DeferrableSurface mMockSurface0;
     private DeferrableSurface mMockSurface1;
 
@@ -281,6 +281,86 @@ public class SessionConfigTest {
 
         assertThat(validatingBuilder.build().getTemplateType()).isEqualTo(
                 CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG);
+    }
+
+    @Test
+    public void setAndVerifyExpectedFrameRateRange_nullValue() {
+        SessionConfig.Builder builderPreview = new SessionConfig.Builder();
+        builderPreview.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+        SessionConfig sessionConfigPreview = builderPreview.build();
+
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
+
+        validatingBuilder.add(sessionConfigPreview);
+
+        assertThat(validatingBuilder.isValid()).isTrue();
+
+        assertThat(validatingBuilder.build().getExpectedFrameRateRange()).isEqualTo(
+                StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED);
+    }
+
+    @Test
+    public void setAndVerifyExpectedFrameRateRange_initialValue() {
+        Range<Integer> fpsRangeLow = new Range<>(30, 45);
+        SessionConfig.Builder builderPreview = new SessionConfig.Builder();
+        builderPreview.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+        builderPreview.setExpectedFrameRateRange(fpsRangeLow);
+        SessionConfig sessionConfigPreview = builderPreview.build();
+
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
+
+        validatingBuilder.add(sessionConfigPreview);
+
+        assertThat(validatingBuilder.isValid()).isTrue();
+
+        assertThat(validatingBuilder.build().getExpectedFrameRateRange()).isEqualTo(
+                fpsRangeLow);
+    }
+
+    @Test
+    public void setAndVerifyExpectedFrameRateRange_sameValues() {
+        Range<Integer> fpsRangeLow = new Range<>(30, 45);
+        SessionConfig.Builder builderZsl = new SessionConfig.Builder();
+        builderZsl.setTemplateType(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG);
+        builderZsl.setExpectedFrameRateRange(fpsRangeLow);
+        SessionConfig sessionConfigZsl = builderZsl.build();
+
+        SessionConfig.Builder builderPreview = new SessionConfig.Builder();
+        builderPreview.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+        builderPreview.setExpectedFrameRateRange(fpsRangeLow);
+        SessionConfig sessionConfigPreview = builderPreview.build();
+
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
+
+        validatingBuilder.add(sessionConfigPreview);
+        validatingBuilder.add(sessionConfigZsl);
+
+        assertThat(validatingBuilder.isValid()).isTrue();
+
+        assertThat(validatingBuilder.build().getExpectedFrameRateRange()).isEqualTo(
+                fpsRangeLow);
+    }
+
+    @Test
+    public void setAndVerifyExpectedFrameRateRange_differentValues() {
+        Range<Integer> fpsRangeLow = new Range<>(30, 45);
+        Range<Integer> fpsRangeHigh = new Range<>(45, 60);
+        SessionConfig.Builder builderZsl = new SessionConfig.Builder();
+        builderZsl.setTemplateType(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG);
+        builderZsl.setExpectedFrameRateRange(fpsRangeLow);
+        SessionConfig sessionConfigZsl = builderZsl.build();
+
+        SessionConfig.Builder builderPreview = new SessionConfig.Builder();
+        builderPreview.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+        builderPreview.setExpectedFrameRateRange(fpsRangeHigh);
+        SessionConfig sessionConfigPreview = builderPreview.build();
+
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
+
+        validatingBuilder.add(sessionConfigPreview);
+        validatingBuilder.add(sessionConfigZsl);
+
+        assertThat(validatingBuilder.isValid()).isFalse();
     }
 
     @Test

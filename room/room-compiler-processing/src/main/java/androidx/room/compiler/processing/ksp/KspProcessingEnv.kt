@@ -28,9 +28,9 @@ import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.javac.XTypeElementStore
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.getClassDeclarationByName
-import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
+import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSType
@@ -42,12 +42,13 @@ import com.google.devtools.ksp.symbol.Nullability
 import com.google.devtools.ksp.symbol.Variance
 
 internal class KspProcessingEnv(
-    override val options: Map<String, String>,
-    codeGenerator: CodeGenerator,
-    logger: KSPLogger,
+    val delegate: SymbolProcessorEnvironment,
     override val config: XProcessingEnvConfig,
 ) : XProcessingEnv {
     override val backend: XProcessingEnv.Backend = XProcessingEnv.Backend.KSP
+    override val options = delegate.options
+    private val logger = delegate.logger
+    private val codeGenerator = delegate.codeGenerator
 
     // No API to get this but Kotlin's default is 8, so go with it for now.
     // TODO: https://github.com/google/ksp/issues/810
@@ -115,6 +116,7 @@ internal class KspProcessingEnv(
     override fun getTypeElementsFromPackage(packageName: String): List<XTypeElement> {
         return resolver.getDeclarationsFromPackage(packageName)
             .filterIsInstance<KSClassDeclaration>()
+            .filterNot { it.classKind == ClassKind.ENUM_ENTRY }
             .map { KspTypeElement.create(this, it) }
             .toList()
     }

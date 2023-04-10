@@ -21,6 +21,7 @@ package androidx.camera.camera2.pipe.compat
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Permissions
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.core.WakeLock
@@ -49,7 +50,10 @@ internal data class RequestClose(val activeCamera: VirtualCameraManager.ActiveCa
 
 internal object RequestCloseAll : CameraRequest()
 
-private const val requestQueueDepth = 8
+// A queue depth of 32 was deemed necessary in b/276051078 where a flood of requests can cause the
+// queue depth to go over 8. In the long run, we can perhaps look into refactoring and
+// reimplementing the request queue in a more robust way.
+private const val requestQueueDepth = 32
 
 @Suppress("EXPERIMENTAL_API_USAGE")
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
@@ -59,6 +63,7 @@ internal class VirtualCameraManager
 constructor(
     private val permissions: Permissions,
     private val retryingCameraStateOpener: RetryingCameraStateOpener,
+    private val camera2ErrorProcessor: Camera2ErrorProcessor,
     private val threads: Threads
 ) {
     // TODO: Consider rewriting this as a MutableSharedFlow
@@ -74,7 +79,7 @@ constructor(
         share: Boolean = false,
         graphListener: GraphListener
     ): VirtualCamera {
-        val result = VirtualCameraState(cameraId)
+        val result = VirtualCameraState(cameraId, graphListener)
         offerChecked(RequestOpen(result, share, graphListener))
         return result
     }
@@ -177,10 +182,11 @@ constructor(
             }
 
             // Stage 3: Open or select an active camera device.
+            camera2ErrorProcessor.setActiveVirtualCamera(cameraIdToOpen, request.virtualCamera)
             var realCamera = activeCameras.firstOrNull { it.cameraId == cameraIdToOpen }
             if (realCamera == null) {
                 val openResult =
-                    openCameraWithRetry(cameraIdToOpen, request.graphListener, scope = this)
+                    openCameraWithRetry(cameraIdToOpen, scope = this)
                 if (openResult.activeCamera != null) {
                     realCamera = openResult.activeCamera
                     activeCameras.add(realCamera)
@@ -199,21 +205,24 @@ constructor(
 
     private suspend fun openCameraWithRetry(
         cameraId: CameraId,
-        graphListener: GraphListener,
         scope: CoroutineScope
     ): OpenVirtualCameraResult {
         // TODO: Figure out how 1-time permissions work, and see if they can be reset without
         //   causing the application process to restart.
         check(permissions.hasCameraPermission) { "Missing camera permissions!" }
 
-        val result = retryingCameraStateOpener.openCameraWithRetry(cameraId, graphListener)
+        Log.debug { "Opening $cameraId with retries..." }
+        val result = retryingCameraStateOpener.openCameraWithRetry(cameraId)
         if (result.cameraState == null) {
             return OpenVirtualCameraResult(lastCameraError = result.errorCode)
         }
         return OpenVirtualCameraResult(
             activeCamera =
-                ActiveCamera(
-                    androidCameraState = result.cameraState, scope = scope, channel = requestQueue))
+            ActiveCamera(
+                androidCameraState = result.cameraState,
+                scope = scope, channel = requestQueue
+            )
+        )
     }
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
@@ -251,7 +260,8 @@ constructor(
                 // A notable bug is b/264396089 where, because camera opens took too long, we didn't
                 // acquire a WakeLockToken, and thereby not issuing the request to close camera
                 // eventually.
-                startTimeoutOnCreation = true)
+                startTimeoutOnCreation = true
+            )
 
         init {
             listenerJob =

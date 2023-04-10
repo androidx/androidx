@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.mapNotNull
  * * Sending duplicate values is allowed
  */
 internal class ConflatedEventBus<T : Any>(initialValue: T? = null) {
-    private val state = MutableStateFlow(Pair(Integer.MIN_VALUE, initialValue))
+    private val state = MutableStateFlow(Pair(Int.MIN_VALUE, initialValue))
 
     val flow = state.mapNotNull { it.second }
 

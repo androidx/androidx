@@ -25,6 +25,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
+import android.graphics.Rect
 import android.os.Bundle
 import android.os.LocaleList
 import android.util.Log
@@ -41,6 +42,8 @@ import org.junit.Assert.fail
 import java.util.Locale
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+
+private const val TAG = "AppWidgetHostTestActivity"
 
 @RequiresApi(26)
 class AppWidgetHostTestActivity : Activity() {
@@ -65,12 +68,12 @@ class AppWidgetHostTestActivity : Activity() {
         try {
             mHost?.stopListening()
         } catch (ex: Throwable) {
-            Log.w("AppWidgetHostTestActivity", "Error stopping listening", ex)
+            Log.w(TAG, "Error stopping listening", ex)
         }
         try {
             mHost?.deleteHost()
         } catch (t: Throwable) {
-            Log.w("AppWidgetHostTestActivity", "Error deleting Host", t)
+            Log.w(TAG, "Error deleting Host", t)
         }
         mHost = null
         super.onDestroy()
@@ -100,7 +103,6 @@ class AppWidgetHostTestActivity : Activity() {
         val context = this.createConfigurationContext(config)
 
         val hostView = host.createView(context, appWidgetId, info) as TestAppWidgetHostView
-        hostView.setPadding(0, 0, 0, 0)
         val contentFrame = findViewById<FrameLayout>(R.id.content)
         contentFrame.addView(hostView)
         hostView.setSizes(portraitSize, landscapeSize)
@@ -151,6 +153,16 @@ class TestAppWidgetHost(context: Context, hostId: Int) : AppWidgetHost(context, 
         appWidgetId: Int,
         appWidget: AppWidgetProviderInfo?
     ): AppWidgetHostView = TestAppWidgetHostView(context)
+
+    override fun onProviderChanged(appWidgetId: Int, appWidget: AppWidgetProviderInfo?) {
+        // In tests, we aren't testing anything specific to how widget behaves on PACKAGE_CHANGED.
+        // In a few SDK versions (http://shortn/_PpxiDuRnvb, http://shortn/_TysXctaGMI),
+        // onProviderChange resets the widget with null value - which happens in middle of test
+        // in-deterministically. For example, in local emulators it doesn't get called sometimes.
+        // So we override this method to prevent reset.
+        // TODO: Make this conditional or find a way to avoid PACKAGE_CHANGED in middle of the test.
+        Log.w(TAG, "Ignoring onProviderChanged for $appWidgetId.")
+    }
 }
 
 @RequiresApi(26)
@@ -181,6 +193,10 @@ class TestAppWidgetHostView(context: Context) : AppWidgetHostView(context) {
     }
 
     override fun updateAppWidget(remoteViews: RemoteViews?) {
+        if (VERBOSE_LOG) {
+            Log.d(RECEIVER_TEST_TAG, "updateAppWidget() called with: $remoteViews")
+        }
+
         super.updateAppWidget(remoteViews)
         synchronized(this) {
             mRemoteViews = remoteViews
@@ -188,6 +204,14 @@ class TestAppWidgetHostView(context: Context) : AppWidgetHostView(context) {
                 mLatch?.countDown()
             }
         }
+    }
+
+    override fun prepareView(view: View?) {
+        if (VERBOSE_LOG) {
+            Log.d(RECEIVER_TEST_TAG, "prepareView() called with: view = $view")
+        }
+
+        super.prepareView(view)
     }
 
     /** Reset the latch used to detect the arrival of a new RemoteViews. */
@@ -213,7 +237,18 @@ class TestAppWidgetHostView(context: Context) : AppWidgetHostView(context) {
         val displayMetrics = resources.displayMetrics
         val width = size.width.toPixels(displayMetrics)
         val height = size.height.toPixels(displayMetrics)
-        layoutParams = LayoutParams(width, height, Gravity.CENTER)
+
+        // The widget host applies a default padding that is difficult to remove. Make the outer
+        // host view bigger by the default padding amount, so that the inner view that we care about
+        // matches the provided size.
+        val hostViewPadding = Rect()
+        val testComponent =
+            ComponentName(context.applicationContext, TestGlanceAppWidgetReceiver::class.java)
+        getDefaultPaddingForWidget(context, testComponent, hostViewPadding)
+        val paddedWidth = width + hostViewPadding.left + hostViewPadding.right
+        val paddedHeight = height + hostViewPadding.top + hostViewPadding.bottom
+
+        layoutParams = LayoutParams(paddedWidth, paddedHeight, Gravity.CENTER)
         requestLayout()
     }
 

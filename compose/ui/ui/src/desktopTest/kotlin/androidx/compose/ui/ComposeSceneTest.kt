@@ -75,6 +75,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Rule
 import org.junit.Test
 import java.awt.event.KeyEvent
+import org.junit.Ignore
 
 @OptIn(InternalTestApi::class, ExperimentalComposeUiApi::class)
 class ComposeSceneTest {
@@ -274,6 +275,7 @@ class ComposeSceneTest {
     }
 
     @Test(timeout = 5000)
+    @Ignore("b/271123970 Fails in AOSP. Will be fixed after upstreaming Compose for Desktop")
     fun `rendering of clickable`() = renderingTest(width = 40, height = 40) {
         setContent {
             Box(Modifier.size(20.dp).background(Color.Blue).clickable {})
@@ -302,6 +304,7 @@ class ComposeSceneTest {
     }
 
     @Test(timeout = 5000)
+    @Ignore("b/271123970 Fails in AOSP. Will be fixed after upstreaming Compose for Desktop")
     fun `rendering of LazyColumn`() = renderingTest(
         width = 40,
         height = 40

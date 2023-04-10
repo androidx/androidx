@@ -19,14 +19,10 @@ package androidx.emoji2.emojipicker
 import android.content.Context
 import android.view.Gravity
 import android.view.LayoutInflater
-import android.view.View.GONE
 import android.view.View.OnLongClickListener
-import android.view.View.VISIBLE
-import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.view.accessibility.AccessibilityEvent
 import android.widget.GridLayout
-import android.widget.ImageView
 import android.widget.PopupWindow
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import kotlin.math.roundToInt
@@ -34,22 +30,17 @@ import kotlin.math.roundToInt
 /** A [ViewHolder] containing an emoji view and emoji data.  */
 internal class EmojiViewHolder(
     context: Context,
-    parent: ViewGroup,
     width: Int,
     height: Int,
     private val layoutInflater: LayoutInflater,
     private val stickyVariantProvider: StickyVariantProvider,
     private val onEmojiPickedListener: EmojiViewHolder.(EmojiViewItem) -> Unit,
     private val onEmojiPickedFromPopupListener: EmojiViewHolder.(String) -> Unit
-) : ViewHolder(
-    layoutInflater
-        .inflate(R.layout.emoji_view_holder, parent, /* attachToRoot = */false)
-) {
+) : ViewHolder(EmojiView(context)) {
     private val onEmojiLongClickListener: OnLongClickListener = OnLongClickListener {
         showPopupWindow(context) {
             PopupViewHelper(context).fillPopupView(
                 it,
-                layoutInflater,
                 emojiView.measuredWidth,
                 emojiView.measuredHeight,
                 emojiViewItem.variants,
@@ -68,17 +59,15 @@ internal class EmojiViewHolder(
         true
     }
 
-    private val emojiView: EmojiView
-    private val indicator: ImageView
-    private lateinit var emojiViewItem: EmojiViewItem
-
-    init {
-        itemView.layoutParams = LayoutParams(width, height)
-        emojiView = itemView.findViewById(R.id.emoji_view)
-        emojiView.isClickable = true
-        emojiView.setOnClickListener { onEmojiPickedListener(emojiViewItem) }
-        indicator = itemView.findViewById(R.id.variant_availability_indicator)
+    private val emojiView: EmojiView = (itemView as EmojiView).apply {
+        layoutParams = LayoutParams(width, height)
+        isClickable = true
+        setOnClickListener {
+            it.sendAccessibilityEvent(AccessibilityEvent.TYPE_ANNOUNCEMENT)
+            onEmojiPickedListener(emojiViewItem)
+        }
     }
+    private lateinit var emojiViewItem: EmojiViewItem
 
     fun bindEmoji(
         emoji: String,
@@ -87,11 +76,9 @@ internal class EmojiViewHolder(
         emojiViewItem = makeEmojiViewItem(emoji)
 
         if (emojiViewItem.variants.isNotEmpty()) {
-            indicator.visibility = VISIBLE
             emojiView.setOnLongClickListener(onEmojiLongClickListener)
             emojiView.isLongClickable = true
         } else {
-            indicator.visibility = GONE
             emojiView.setOnLongClickListener(null)
             emojiView.isLongClickable = false
         }

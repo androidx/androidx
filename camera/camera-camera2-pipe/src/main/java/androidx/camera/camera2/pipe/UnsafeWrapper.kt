@@ -28,7 +28,7 @@ import kotlin.reflect.KClass
  * of the object is managed by CameraPipe.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public interface UnsafeWrapper {
+interface UnsafeWrapper {
     /**
      * Attempt to unwrap this object into an underlying type.
      *
@@ -39,5 +39,5 @@ public interface UnsafeWrapper {
      *
      * @return unwrapped object matching T or null
      */
-    public fun <T : Any> unwrapAs(type: KClass<T>): T?
+    fun <T : Any> unwrapAs(type: KClass<T>): T?
 }

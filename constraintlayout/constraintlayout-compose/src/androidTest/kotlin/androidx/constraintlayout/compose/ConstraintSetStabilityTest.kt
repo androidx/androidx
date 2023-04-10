@@ -128,6 +128,10 @@ class ConstraintSetStabilityTest {
                 width = Dimension.fillToConstraints
                 height = Dimension.value(20.dp)
                 centerVerticallyTo(parent)
+
+                alpha = 0f
+                horizontalBias = 0f
+                verticalBias = 0f
             }
             constrain(box1) {
                 width = Dimension.fillToConstraints
@@ -155,6 +159,14 @@ class ConstraintSetStabilityTest {
 
             // Chain params set chain declarations should have no effect
             box0.withChainParams(1.dp, 2.dp, 3.dp, 4.dp)
+
+            constrain(box0) {
+                // Set values back to default, the set should not be ignored, otherwise they would
+                // stay at 0f
+                alpha = 1f
+                horizontalBias = 0.5f
+                verticalBias = 0.5f
+            }
         }
 
         // ConstraintSetB should internally reflect the inherited constraints, and so, should be
@@ -170,6 +182,12 @@ class ConstraintSetStabilityTest {
                     width = Dimension.fillToConstraints
                     height = Dimension.value(20.dp)
                     centerVerticallyTo(parent)
+
+                    // We also need to re-set the values here, its absence in the underlying
+                    // structure will cause a failure, we are checking for equality, not equivalency
+                    alpha = 1f
+                    horizontalBias = 0.5f
+                    verticalBias = 0.5f
                 }
                 constrain(box1) {
                     width = Dimension.fillToConstraints

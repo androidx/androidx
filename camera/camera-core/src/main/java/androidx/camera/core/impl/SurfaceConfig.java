@@ -103,13 +103,17 @@ public abstract class SurfaceConfig {
     /**
      * Transform to a SurfaceConfig object with image format and size info
      *
+     * @param cameraMode            the working camera mode.
      * @param imageFormat           the image format info for the surface configuration object
      * @param size                  the size info for the surface configuration object
      * @param surfaceSizeDefinition the surface definition for the surface configuration object
      * @return new {@link SurfaceConfig} object
      */
     @NonNull
-    public static SurfaceConfig transformSurfaceConfig(int imageFormat, @NonNull Size size,
+    public static SurfaceConfig transformSurfaceConfig(
+            @CameraMode.Mode int cameraMode,
+            int imageFormat,
+            @NonNull Size size,
             @NonNull SurfaceSizeDefinition surfaceSizeDefinition) {
         ConfigType configType =
                 SurfaceConfig.getConfigType(imageFormat);
@@ -117,16 +121,30 @@ public abstract class SurfaceConfig {
 
         // Compare with surface size definition to determine the surface configuration size
         int sizeArea = SizeUtil.getArea(size);
-        if (sizeArea <= SizeUtil.getArea(surfaceSizeDefinition.getAnalysisSize())) {
-            configSize = ConfigSize.VGA;
-        } else if (sizeArea
-                <= SizeUtil.getArea(surfaceSizeDefinition.getPreviewSize())) {
-            configSize = ConfigSize.PREVIEW;
-        } else if (sizeArea
-                <= SizeUtil.getArea(surfaceSizeDefinition.getRecordSize())) {
-            configSize = ConfigSize.RECORD;
+
+        if (cameraMode == CameraMode.CONCURRENT_CAMERA) {
+            if (sizeArea <= SizeUtil.getArea(surfaceSizeDefinition.getS720pSize(imageFormat))) {
+                configSize = ConfigSize.s720p;
+            } else if (sizeArea <= SizeUtil.getArea(surfaceSizeDefinition.getS1440pSize(
+                    imageFormat))) {
+                configSize = ConfigSize.s1440p;
+            }
         } else {
-            configSize = ConfigSize.MAXIMUM;
+            if (sizeArea <= SizeUtil.getArea(surfaceSizeDefinition.getAnalysisSize())) {
+                configSize = ConfigSize.VGA;
+            } else if (sizeArea <= SizeUtil.getArea(surfaceSizeDefinition.getPreviewSize())) {
+                configSize = ConfigSize.PREVIEW;
+            } else if (sizeArea <= SizeUtil.getArea(surfaceSizeDefinition.getRecordSize())) {
+                configSize = ConfigSize.RECORD;
+            } else if (sizeArea <= SizeUtil.getArea(
+                    surfaceSizeDefinition.getMaximumSize(imageFormat))) {
+                configSize = ConfigSize.MAXIMUM;
+            } else {
+                Size ultraMaximumSize = surfaceSizeDefinition.getUltraMaximumSize(imageFormat);
+                if (ultraMaximumSize != null && sizeArea <= SizeUtil.getArea(ultraMaximumSize)) {
+                    configSize = ConfigSize.ULTRA_MAXIMUM;
+                }
+            }
         }
 
         return SurfaceConfig.create(configType, configSize);
@@ -155,22 +173,39 @@ public abstract class SurfaceConfig {
         /** Default VGA size is 640x480, which is the default size of Image Analysis. */
         VGA(0),
         /**
+         * s720p refers to the best size match to the device's screen resolution, or to 720p
+         * (1280x720), whichever is smaller.
+         */
+        s720p(1),
+        /**
          * PREVIEW refers to the best size match to the device's screen resolution, or to 1080p
          * (1920x1080), whichever is smaller.
          */
-        PREVIEW(1),
+        PREVIEW(2),
+        /**
+         * s1440p refers to the best size match to the device's screen resolution, or to 1440p
+         * (1920x1440), whichever is smaller.
+         */
+        s1440p(3),
         /**
          * RECORD refers to the camera device's maximum supported recording resolution, as
          * determined by CamcorderProfile.
          */
-        RECORD(2),
+        RECORD(4),
         /**
-         * MAXIMUM refers to the camera device's maximum output resolution for that format or target
-         * from StreamConfigurationMap.getOutputSizes(int)
+         * MAXIMUM refers to the camera device's maximum output resolution for that format or
+         * target from StreamConfigurationMap.getOutputSizes() or getHighResolutionOutputSizes()
+         * in the default sensor pixel mode.
          */
-        MAXIMUM(3),
+        MAXIMUM(5),
+        /**
+         * ULTRA_MAXIMUM refers to the camera device's maximum output resolution for that format or
+         * target from StreamConfigurationMap.getOutputSizes() or getHighResolutionOutputSizes()
+         * in the maximum resolution sensor pixel mode.
+         */
+        ULTRA_MAXIMUM(6),
         /** NOT_SUPPORT is for the size larger than MAXIMUM */
-        NOT_SUPPORT(4);
+        NOT_SUPPORT(7);
 
         final int mId;
 

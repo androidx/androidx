@@ -37,7 +37,6 @@ public class TimedMetaData {
     private byte[] mMetaData;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public TimedMetaData(long timestampUs, byte[] metaData) {

@@ -35,7 +35,7 @@ dependencies {
          */
 
         api("androidx.annotation:annotation:1.1.0")
-        api("androidx.compose.ui:ui:1.2.1")
+        api(project(":compose:ui:ui"))
         api("androidx.compose.ui:ui-unit:1.2.1")
 
         implementation("androidx.compose.runtime:runtime:1.2.1")

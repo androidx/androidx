@@ -28,6 +28,7 @@ import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
@@ -65,14 +66,55 @@ class CredentialProviderBeginSignInControllerTest {
                 .convertRequestToPlayServices(
                     GetCredentialRequest(
                         listOf(
-                            GetPasswordOption()
-                        ), true
+                            GetPasswordOption(true)
+                        )
                     )
                 )
             assertThat(
                 actualResponse.passwordRequestOptions.isSupported
             ).isTrue()
             assertThat(actualResponse.isAutoSelectEnabled).isTrue()
+        }
+    }
+
+    @Test
+    fun convertRequestToPlayServices_setGoogleIdOptionRequest_success() {
+        val activityScenario = ActivityScenario.launch(
+            TestCredentialsActivity::class.java
+        )
+
+        val option = GetGoogleIdOption.Builder()
+            .setServerClientId("server_client_id")
+            .setNonce("nonce")
+            .setFilterByAuthorizedAccounts(true)
+            .setRequestVerifiedPhoneNumber(false)
+            .associateLinkedAccounts("link_service_id", listOf("a", "b", "c"))
+            .setAutoSelectEnabled(true)
+            .build()
+
+        activityScenario.onActivity { activity: TestCredentialsActivity? ->
+            val actualRequest = getInstance(activity!!)
+                .convertRequestToPlayServices(
+                    GetCredentialRequest(
+                        listOf(
+                            option
+                        )
+                    )
+                )
+            assertThat(
+                actualRequest.googleIdTokenRequestOptions.isSupported
+            ).isTrue()
+            assertThat(actualRequest.isAutoSelectEnabled).isTrue()
+            val actualOption = actualRequest.googleIdTokenRequestOptions
+            assertThat(actualOption.serverClientId).isEqualTo(option.serverClientId)
+            assertThat(actualOption.nonce).isEqualTo(option.nonce)
+            assertThat(actualOption.filterByAuthorizedAccounts())
+                .isEqualTo(option.filterByAuthorizedAccounts)
+            assertThat(actualOption.requestVerifiedPhoneNumber())
+                .isEqualTo(option.requestVerifiedPhoneNumber)
+            assertThat(actualOption.linkedServiceId).isEqualTo(option.linkedServiceId)
+            assertThat(actualOption.idTokenDepositionScopes)
+                .isEqualTo(option.idTokenDepositionScopes)
         }
     }
 }

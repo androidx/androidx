@@ -17,15 +17,25 @@
 package androidx.hilt.navigation.compose
 
 import android.content.Context
-import androidx.activity.ComponentActivity
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentContainerView
+import androidx.hilt.navigation.HiltViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -160,6 +170,86 @@ class HiltViewModelComposeTest {
         assertThat(firstViewModel).isNotSameInstanceAs(thirdViewModel)
     }
 
+    @Test
+    fun hiltViewModelScopes() {
+        lateinit var navBackStackEntryScopedVM: SimpleViewModel
+        lateinit var anotherNavBackStackEntryScopedVM: SimpleViewModel
+        lateinit var fragmentScopedVM: SimpleViewModel
+        lateinit var activityScopedVM: SimpleViewModel
+        lateinit var anotherActivityScopedVM: SimpleViewModel
+
+        val fragment = TestFragment { fragment ->
+            val navController = rememberNavController()
+            NavHost(navController, startDestination = "One") {
+                composable("One") { navBackStackEntry ->
+                    navBackStackEntryScopedVM = hiltViewModel()
+                    anotherNavBackStackEntryScopedVM = hiltViewModel(navBackStackEntry)
+                    fragmentScopedVM = hiltViewModel(fragment)
+                    activityScopedVM = hiltViewModel(composeTestRule.activity)
+                    anotherActivityScopedVM = hiltViewModel(composeTestRule.activity)
+                }
+            }
+        }
+
+        composeTestRule.runOnUiThread {
+            val view = FragmentContainerView(composeTestRule.activity)
+            view.id = 100
+            composeTestRule.activity.setContentView(view)
+            composeTestRule.activity.supportFragmentManager.beginTransaction()
+                .replace(100, fragment)
+                .commit()
+        }
+
+        composeTestRule.waitForIdle()
+
+        assertThat(navBackStackEntryScopedVM).isNotNull()
+        assertThat(navBackStackEntryScopedVM.handle).isNotNull()
+        assertThat(navBackStackEntryScopedVM.logger).isNotNull()
+
+        assertThat(anotherNavBackStackEntryScopedVM).isNotNull()
+        assertThat(anotherNavBackStackEntryScopedVM.handle).isNotNull()
+        assertThat(anotherNavBackStackEntryScopedVM.logger).isNotNull()
+        assertThat(anotherNavBackStackEntryScopedVM).isSameInstanceAs(navBackStackEntryScopedVM)
+
+        assertThat(fragmentScopedVM).isNotNull()
+        assertThat(fragmentScopedVM.handle).isNotNull()
+        assertThat(fragmentScopedVM.logger).isNotNull()
+        assertThat(navBackStackEntryScopedVM).isNotSameInstanceAs(fragmentScopedVM)
+
+        assertThat(activityScopedVM).isNotNull()
+        assertThat(activityScopedVM.handle).isNotNull()
+        assertThat(activityScopedVM.logger).isNotNull()
+        assertThat(activityScopedVM).isNotSameInstanceAs(navBackStackEntryScopedVM)
+        assertThat(activityScopedVM).isNotSameInstanceAs(fragmentScopedVM)
+
+        assertThat(anotherActivityScopedVM).isNotNull()
+        assertThat(anotherActivityScopedVM.handle).isNotNull()
+        assertThat(anotherActivityScopedVM.logger).isNotNull()
+        assertThat(anotherActivityScopedVM).isSameInstanceAs(activityScopedVM)
+    }
+
+    @Test
+    fun hiltViewModelFactory() {
+        lateinit var firstFactory: ViewModelProvider.Factory
+        lateinit var secondFactory: ViewModelProvider.Factory
+        composeTestRule.setContent {
+            val navController = rememberNavController()
+            NavHost(navController, startDestination = "Main") {
+                composable("Main") { navBackStackEntry ->
+                    firstFactory = HiltViewModelFactory(LocalContext.current,
+                        navBackStackEntry)
+                    secondFactory = HiltViewModelFactory(LocalContext.current,
+                        navBackStackEntry.defaultViewModelProviderFactory)
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+
+        assertThat(firstFactory).isNotNull()
+        assertThat(secondFactory).isNotNull()
+        assertThat(firstFactory).isNotSameInstanceAs(secondFactory)
+    }
+
     @Composable
     private fun NavigateButton(text: String, listener: () -> Unit = { }) {
         Button(onClick = listener) {
@@ -168,7 +258,7 @@ class HiltViewModelComposeTest {
     }
 
     @AndroidEntryPoint
-    class TestActivity : ComponentActivity()
+    class TestActivity : FragmentActivity()
 
     @HiltViewModel
     class SimpleViewModel @Inject constructor(
@@ -178,6 +268,18 @@ class HiltViewModelComposeTest {
         //  resolved.
         @ApplicationContext val context: Context
     ) : ViewModel()
+
+    class TestFragment(val composable: @Composable (Fragment) -> Unit) : Fragment() {
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View? {
+            return ComposeView(requireContext()).apply {
+                setContent { composable(this@TestFragment) }
+            }
+        }
+    }
 
     class MyLogger @Inject constructor()
 }

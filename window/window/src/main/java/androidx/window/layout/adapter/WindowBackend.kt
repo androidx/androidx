@@ -16,27 +16,32 @@
 package androidx.window.layout.adapter
 
 import android.app.Activity
+import android.content.Context
 import androidx.core.util.Consumer
 import androidx.window.layout.WindowLayoutInfo
 import java.util.concurrent.Executor
+import androidx.annotation.UiContext
 
 /**
  * Backing interface for [androidx.window.layout.WindowInfoTracker] instances that serve as the
  * default information supplier.
  */
 internal interface WindowBackend {
+
     /**
-     * Registers a callback for layout changes of the window for the supplied [Activity].
+     * Registers a callback for layout changes of the window for the supplied [UiContext].
      * Must be called only after the it is attached to the window.
+     * The supplied [UiContext] should correspond to a window or an area on the screen. It must be
+     * either an [Activity] or a [UiContext] created with [Context#createWindowContext].
      */
     fun registerLayoutChangeCallback(
-        activity: Activity,
+        @UiContext context: Context,
         executor: Executor,
         callback: Consumer<WindowLayoutInfo>
     )
 
     /**
-     * Unregisters a callback for window layout changes of the [Activity] window.
+     * Unregisters a callback for window layout changes.
      */
     fun unregisterLayoutChangeCallback(callback: Consumer<WindowLayoutInfo>)
 }

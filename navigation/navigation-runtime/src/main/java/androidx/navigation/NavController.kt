@@ -113,7 +113,6 @@ public open class NavController(
      * Retrieve the current back stack.
      *
      * @return The current back stack.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -240,7 +239,6 @@ public open class NavController(
     public open var navigatorProvider: NavigatorProvider
         get() = _navigatorProvider
         /**
-         * @hide
          */
         set(navigatorProvider) {
             check(backQueue.isEmpty()) { "NavigatorProvider must be set before setGraph call" }
@@ -371,6 +369,15 @@ public open class NavController(
             }
             // else, updateBackStackLifecycle() will be called after any ongoing navigate() call
             // completes
+        }
+
+        override fun prepareForTransition(entry: NavBackStackEntry) {
+            super.prepareForTransition(entry)
+            if (backQueue.contains(entry)) {
+                entry.maxLifecycle = Lifecycle.State.STARTED
+            } else {
+                throw IllegalStateException("Cannot transition entry that is not in the back stack")
+            }
         }
     }
 
@@ -798,7 +805,8 @@ public open class NavController(
         navigatorState.values.forEach { state ->
             state.isNavigating = true
         }
-        val restored = restoreStateInternal(destinationId, null, null, null)
+        val restored = restoreStateInternal(destinationId, null,
+            navOptions { restoreState = true }, null)
         navigatorState.values.forEach { state ->
             state.isNavigating = false
         }
@@ -1177,17 +1185,30 @@ public open class NavController(
             _graph = graph
             onGraphCreated(startDestinationArgs)
         } else {
+            // first we update _graph with new instances from graph
             for (i in 0 until graph.nodes.size()) {
                 val newDestination = graph.nodes.valueAt(i)
-                _graph!!.nodes.replace(i, newDestination)
-                backQueue.filter { currentEntry ->
-                    // Necessary since CI builds against ToT, can be removed once
-                    // androidx.collection is updated to >= 1.3.*
-                    @Suppress("UNNECESSARY_SAFE_CALL", "SAFE_CALL_WILL_CHANGE_NULLABILITY")
-                    currentEntry.destination.id == newDestination?.id
-                }.forEach { entry ->
-                    entry.destination = newDestination
+                val key = _graph!!.nodes.keyAt(i)
+                _graph!!.nodes.replace(key, newDestination)
+            }
+            // then we update backstack with the new instances
+            backQueue.forEach { entry ->
+                // we will trace this hierarchy in new graph to get new destination instance
+                val hierarchy = entry.destination.hierarchy.toList().asReversed()
+                val newDestination = hierarchy.fold(_graph!!) {
+                        newDest: NavDestination, oldDest: NavDestination ->
+                    if (oldDest == _graph && newDest == graph) {
+                        // if root graph, it is already the node that matches with oldDest
+                        newDest
+                    } else if (newDest is NavGraph) {
+                        // otherwise we walk down the hierarchy to the next child
+                        newDest.findNode(oldDest.id)!!
+                    } else {
+                        // final leaf node found
+                        newDest
+                    }
                 }
+                entry.destination = newDestination
             }
         }
     }
@@ -2037,10 +2058,11 @@ public open class NavController(
         while (destination != null && findDestination(destination.id) !== destination) {
             val parent = destination.parent
             if (parent != null) {
+                val args = if (finalArgs?.isEmpty == true) null else finalArgs
                 val entry = restoredEntries.lastOrNull { restoredEntry ->
                     restoredEntry.destination == parent
                 } ?: NavBackStackEntry.create(
-                    context, parent, parent.addInDefaultArgs(finalArgs), hostLifecycleState,
+                    context, parent, parent.addInDefaultArgs(args), hostLifecycleState,
                     viewModel
                 )
                 hierarchy.addFirst(entry)
@@ -2139,6 +2161,7 @@ public open class NavController(
      *
      * @throws IllegalArgumentException if the given route is invalid
      */
+    @MainThread
     public fun navigate(route: String, builder: NavOptionsBuilder.() -> Unit) {
         navigate(route, navOptions(builder))
     }
@@ -2153,6 +2176,7 @@ public open class NavController(
      *
      * @throws IllegalArgumentException if the given route is invalid
      */
+    @MainThread
     @JvmOverloads
     public fun navigate(
         route: String,

@@ -87,7 +87,6 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class MediaUtils {

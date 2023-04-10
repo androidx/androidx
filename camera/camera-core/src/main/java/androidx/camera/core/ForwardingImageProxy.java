@@ -37,7 +37,6 @@ import java.util.Set;
  * <p>Listeners for the image close call can be added. When the image is closed, the listeners will
  * be notified.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java

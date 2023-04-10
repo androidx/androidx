@@ -19,7 +19,7 @@ dependencies {
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.truth)
     androidTestImplementation(project(':internal-testutils-runtime'))
-    androidTestImplementation(project(":window:window-testing"))
+    androidTestImplementation("androidx.window:window-testing:1.0.0")
 }
 
 androidx {

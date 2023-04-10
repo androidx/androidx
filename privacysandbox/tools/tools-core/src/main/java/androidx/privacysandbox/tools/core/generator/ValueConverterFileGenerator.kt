@@ -16,11 +16,16 @@
 
 package androidx.privacysandbox.tools.core.generator
 
+import androidx.privacysandbox.tools.core.generator.SpecNames.contextClass
+import androidx.privacysandbox.tools.core.generator.SpecNames.contextPropertyName
+import androidx.privacysandbox.tools.core.generator.GenerationTarget.SERVER
 import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.ValueProperty
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.joinToCode
 
@@ -28,7 +33,14 @@ import com.squareup.kotlinpoet.joinToCode
  * Generates a file that defines a converter for an SDK defined value and its AIDL parcelable
  * counterpart.
  */
-class ValueConverterFileGenerator(private val binderConverter: BinderCodeConverter) {
+class ValueConverterFileGenerator(
+    private val binderConverter: BinderCodeConverter,
+    private val target: GenerationTarget,
+) {
+    companion object {
+        const val toParcelableMethodName = "toParcelable"
+        const val fromParcelableMethodName = "fromParcelable"
+    }
 
     fun generate(value: AnnotatedValue) =
         FileSpec.builder(
@@ -39,14 +51,27 @@ class ValueConverterFileGenerator(private val binderConverter: BinderCodeConvert
             addType(generateConverter(value))
         }
 
-    private fun generateConverter(value: AnnotatedValue) =
-        TypeSpec.objectBuilder(value.converterNameSpec()).build {
+    private fun generateConverter(value: AnnotatedValue): TypeSpec {
+        if (target == SERVER) {
+            return TypeSpec.classBuilder(value.converterNameSpec()).build {
+                primaryConstructor(
+                    listOf(
+                        PropertySpec.builder(contextPropertyName, contextClass)
+                            .addModifiers(KModifier.PUBLIC).build()
+                    )
+                )
+                addFunction(generateFromParcelable(value))
+                addFunction(generateToParcelable(value))
+            }
+        }
+        return TypeSpec.objectBuilder(value.converterNameSpec()).build() {
             addFunction(generateFromParcelable(value))
             addFunction(generateToParcelable(value))
         }
+    }
 
     private fun generateToParcelable(value: AnnotatedValue) =
-        FunSpec.builder(value.toParcelableNameSpec().simpleName).build {
+        FunSpec.builder(toParcelableMethodName).build {
             addParameter("annotatedValue", value.type.poetTypeName())
             returns(value.parcelableNameSpec())
             addStatement("val parcelable = %T()", value.parcelableNameSpec())
@@ -66,7 +91,7 @@ class ValueConverterFileGenerator(private val binderConverter: BinderCodeConvert
         }
 
     private fun generateFromParcelable(value: AnnotatedValue) =
-        FunSpec.builder(value.fromParcelableNameSpec().simpleName).build {
+        FunSpec.builder(fromParcelableMethodName).build {
             addParameter("parcelable", value.parcelableNameSpec())
             returns(value.type.poetTypeName())
             val parameters = value.properties.map(::generateFromParcelablePropertyConversion)

@@ -19,14 +19,18 @@ dependencies {
     implementation(gradleApi())
     compileOnly(findGradleKotlinDsl())
 
+    // Android Gradle Plugin APIs used by Stable AIDL
+    implementation(libs.androidGradlePluginApi)
+
     // Plugins we use and configure
     implementation(libs.androidGradlePluginz)
     implementation(libs.androidToolsCommon) // for com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
+    implementation(libs.androidToolsRepository) // com.android.repository for Stable AIDL plugin
+    implementation(libs.androidToolsSdkCommon) // com.android.ide.common for Stable AIDL plugin
     implementation(libs.kotlinGradlePluginz)
 
     // variety of json parsers
     implementation(libs.gson)
-    implementation(libs.json) // b/241475613
     implementation(libs.jsonSimple)
 
     // XML parsers used in MavenUploadHelper.kt

@@ -32,14 +32,14 @@ package androidx.wear.protolayout.expression.pipeline;
  *   private final DynamicTypeValueReceiver<Integer> myNode =
  *     new DynamicTypeValueReceiver<Integer>() {
  *       @Override
- *       public void onPreStateUpdate() {
+ *       public void onPreUpdate() {
  *         // Don't need to do anything here; just relay.
- *         downstreamNode.onPreStateUpdate();
+ *         downstreamNode.onPreUpdate();
  *       }
  *
  *       @Override
- *       public void onStateUpdate(Integer newData) {
- *         downstreamNode.onStateUpdate(newData.toString());
+ *       public void onData(Integer newData) {
+ *         downstreamNode.onData(newData.toString());
  *       }
  *     };
  *

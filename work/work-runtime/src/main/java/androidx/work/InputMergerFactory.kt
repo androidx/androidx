@@ -46,7 +46,6 @@ abstract class InputMergerFactory {
      * @param className The fully qualified class name for the [InputMerger]
      * @return an instance of [InputMerger]
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun createInputMergerWithDefaultFallback(className: String): InputMerger? {
@@ -57,11 +56,7 @@ abstract class InputMergerFactory {
         return inputMerger
     }
 }
-/**
- * A default [InputMergerFactory] with no custom behavior.
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-object NoOpInputMergerFactory : InputMergerFactory() {
+
+internal object NoOpInputMergerFactory : InputMergerFactory() {
     override fun createInputMerger(className: String) = null
 }

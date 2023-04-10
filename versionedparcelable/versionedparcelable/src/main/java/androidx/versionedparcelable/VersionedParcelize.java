@@ -35,7 +35,6 @@ import java.lang.annotation.Target;
 /**
  * Tags implementations of {@link VersionedParcelable} for code generation.
  *
- * @hide
  */
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.TYPE)

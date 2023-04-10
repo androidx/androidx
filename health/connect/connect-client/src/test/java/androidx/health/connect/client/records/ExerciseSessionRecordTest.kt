@@ -16,6 +16,11 @@
 
 package androidx.health.connect.client.records
 
+import androidx.health.connect.client.records.ExerciseSessionRecord.Companion.EXERCISE_TYPE_CALISTHENICS
+import androidx.health.connect.client.records.ExerciseSessionRecord.Companion.EXERCISE_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING
+import androidx.health.connect.client.records.ExerciseSessionRecord.Companion.EXERCISE_TYPE_INT_TO_STRING_MAP
+import androidx.health.connect.client.records.ExerciseSessionRecord.Companion.EXERCISE_TYPE_STRENGTH_TRAINING
+import androidx.health.connect.client.records.ExerciseSessionRecord.Companion.EXERCISE_TYPE_STRING_TO_INT_MAP
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
@@ -79,9 +84,20 @@ class ExerciseSessionRecordTest {
                 .map { it -> it.call(ExerciseSessionRecord.Companion) }
                 .toHashSet()
 
-        assertThat(ExerciseSessionRecord.EXERCISE_TYPE_STRING_TO_INT_MAP.values)
+        assertThat(EXERCISE_TYPE_STRING_TO_INT_MAP.values.toSet())
             .containsExactlyElementsIn(allEnums)
-        assertThat(ExerciseSessionRecord.EXERCISE_TYPE_INT_TO_STRING_MAP.keys)
-            .containsExactlyElementsIn(allEnums)
+        assertThat(EXERCISE_TYPE_INT_TO_STRING_MAP.keys).containsExactlyElementsIn(allEnums)
+    }
+
+    @Test
+    fun legacyTypesMapToRightValues() {
+        assertThat(EXERCISE_TYPE_INT_TO_STRING_MAP[EXERCISE_TYPE_STRENGTH_TRAINING])
+            .isEqualTo("strength_training")
+
+        assertThat(EXERCISE_TYPE_INT_TO_STRING_MAP[EXERCISE_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING])
+            .isEqualTo("high_intensity_interval_training")
+
+        assertThat(EXERCISE_TYPE_INT_TO_STRING_MAP[EXERCISE_TYPE_CALISTHENICS])
+            .isEqualTo("calisthenics")
     }
 }

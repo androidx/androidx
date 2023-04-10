@@ -1,24 +1,9 @@
 // Signature format: 4.0
 package androidx.tv.material3 {
 
-  public final class BringIntoViewIfChildrenAreFocusedKt {
-  }
-
-  public final class CarouselItemKt {
-  }
-
-  public final class CarouselKt {
-  }
-
-  public final class ColorSchemeKt {
-  }
-
   public final class ContentColorKt {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> getLocalContentColor();
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> LocalContentColor;
-  }
-
-  public final class ImmersiveListKt {
   }
 
   public final class MaterialTheme {
@@ -28,9 +13,6 @@ package androidx.tv.material3 {
     property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final androidx.tv.material3.Shapes shapes;
     property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final androidx.tv.material3.Typography typography;
     field public static final androidx.tv.material3.MaterialTheme INSTANCE;
-  }
-
-  public final class MaterialThemeKt {
   }
 
   public final class ShapeDefaults {
@@ -62,18 +44,9 @@ package androidx.tv.material3 {
     property public final androidx.compose.foundation.shape.CornerBasedShape small;
   }
 
-  public final class ShapesKt {
-  }
-
   public final class SurfaceKt {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.Dp> getLocalAbsoluteTonalElevation();
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.Dp> LocalAbsoluteTonalElevation;
-  }
-
-  public final class TabKt {
-  }
-
-  public final class TabRowKt {
   }
 
   public final class TextKt {
@@ -117,9 +90,6 @@ package androidx.tv.material3 {
     property public final androidx.compose.ui.text.TextStyle titleLarge;
     property public final androidx.compose.ui.text.TextStyle titleMedium;
     property public final androidx.compose.ui.text.TextStyle titleSmall;
-  }
-
-  public final class TypographyKt {
   }
 
 }

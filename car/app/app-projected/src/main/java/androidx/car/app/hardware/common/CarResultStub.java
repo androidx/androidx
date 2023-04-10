@@ -40,7 +40,6 @@ import java.util.concurrent.Executor;
  *
  * @param <T> represents the result data type which this stub is returning
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
 public class CarResultStub<T> extends ICarHardwareResult.Stub {

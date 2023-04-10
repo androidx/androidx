@@ -16,18 +16,17 @@
 
 package androidx.glance.appwidget.macrobenchmark.target
 
-import androidx.compose.runtime.Composable
-import androidx.datastore.preferences.core.Preferences
+import android.content.Context
+import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.LocalSize
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.Tracing
-import androidx.glance.currentState
+import androidx.glance.appwidget.provideContent
 import androidx.glance.layout.Column
 import androidx.glance.layout.fillMaxSize
-import androidx.glance.session.GlanceSessionManager
 import androidx.glance.text.Text
 import kotlin.math.roundToInt
 
@@ -38,26 +37,23 @@ open class BasicAppWidget : GlanceAppWidget() {
     }
     override val sizeMode: SizeMode = SizeMode.Single
 
-    @Composable
-    override fun Content() {
-        val size = LocalSize.current
-        // Even though this widget does not use it, accessing state will ensure that this
-        // is recomposed every time state updates, which is useful for testing.
-        currentState<Preferences>()
-        Column(
-            modifier = GlanceModifier.fillMaxSize(),
-        ) {
-            Text(
-                " Current size: ${size.width.value.roundToInt()} dp x " +
-                    "${size.height.value.roundToInt()} dp"
-            )
+    override suspend fun provideGlance(
+        context: Context,
+        id: GlanceId,
+    ) {
+        provideContent {
+            Column(GlanceModifier.fillMaxSize()) {
+                val size = LocalSize.current
+                Text(
+                    " Current size: ${size.width.value.roundToInt()} dp x " +
+                        "${size.height.value.roundToInt()} dp"
+                )
+            }
         }
     }
 }
 
-class BasicAppWidgetWithSession : BasicAppWidget() {
-    override val sessionManager = GlanceSessionManager
-}
+class BasicAppWidgetWithSession : BasicAppWidget()
 
 class BasicAppWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = BasicAppWidget()

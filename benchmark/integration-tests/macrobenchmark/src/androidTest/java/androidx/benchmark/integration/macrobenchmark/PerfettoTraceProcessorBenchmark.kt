@@ -20,8 +20,11 @@ import androidx.benchmark.Outputs
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.TraceSectionMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
-import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
+import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
+import androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi
 import androidx.benchmark.perfetto.PerfettoHelper
+import androidx.benchmark.perfetto.PerfettoTrace
+import androidx.benchmark.perfetto.PerfettoTraceProcessor
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -34,7 +37,11 @@ import org.junit.Test
 
 @SmallTest
 @SdkSuppress(minSdkVersion = 29)
-@OptIn(ExperimentalMetricApi::class)
+@OptIn(
+    ExperimentalMetricApi::class,
+    ExperimentalPerfettoTraceProcessorApi::class,
+    ExperimentalPerfettoCaptureApi::class
+)
 class PerfettoTraceProcessorBenchmark {
 
     @get:Rule
@@ -44,6 +51,44 @@ class PerfettoTraceProcessorBenchmark {
 
     @Before
     fun setUp() = Assume.assumeTrue(PerfettoHelper.isAbiSupported())
+
+    @Test
+    fun loadServer() = benchmarkRule.measureRepeated(
+        packageName = PACKAGE_NAME,
+        metrics = listOf(TraceSectionMetric("PerfettoTraceProcessorBenchmark")),
+        iterations = 5,
+    ) {
+        trace("PerfettoTraceProcessorBenchmark") {
+            PerfettoTraceProcessor.runServer {}
+        }
+    }
+
+    @Test
+    fun singleTrace() = benchmarkRule.measureRepeated(
+        packageName = PACKAGE_NAME,
+        metrics = listOf(TraceSectionMetric("PerfettoTraceProcessorBenchmark")),
+        iterations = 5,
+    ) {
+        trace("PerfettoTraceProcessorBenchmark") {
+            PerfettoTraceProcessor.runServer {
+                loadTrace(PerfettoTrace(traceFile.absolutePath)) {}
+            }
+        }
+    }
+
+    @Test
+    fun doubleTrace() = benchmarkRule.measureRepeated(
+        packageName = PACKAGE_NAME,
+        metrics = listOf(TraceSectionMetric("PerfettoTraceProcessorBenchmark")),
+        iterations = 5,
+    ) {
+        trace("PerfettoTraceProcessorBenchmark") {
+            PerfettoTraceProcessor.runServer {
+                loadTrace(PerfettoTrace(traceFile.absolutePath)) {}
+                loadTrace(PerfettoTrace(traceFile.absolutePath)) {}
+            }
+        }
+    }
 
     @Test
     fun computeSingleMetric() = benchmarkWithTrace {
@@ -70,30 +115,29 @@ class PerfettoTraceProcessorBenchmark {
         runProcessQuery()
     }
 
-    private fun benchmarkWithTrace(block: PerfettoTraceProcessor.() -> Unit) =
+    private fun benchmarkWithTrace(block: PerfettoTraceProcessor.Session.() -> Unit) =
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
             metrics = listOf(TraceSectionMetric("PerfettoTraceProcessorBenchmark")),
             iterations = 5,
         ) {
             trace("PerfettoTraceProcessorBenchmark") {
-
                 // This will run perfetto trace processor http server on the specified port 10555.
                 // Note that this is an arbitrary number and the default cannot be used because
                 // the macrobenchmark instance of the server is running at the same time.
-                PerfettoTraceProcessor.runServer(
+                PerfettoTraceProcessor.runSingleSessionServer(
                     absoluteTracePath = traceFile.absolutePath,
                     block = block
                 )
             }
         }
 
-    private fun PerfettoTraceProcessor.runComputeStartupMetric() {
+    private fun PerfettoTraceProcessor.Session.runComputeStartupMetric() {
         getTraceMetrics("android_startup")
     }
 
-    private fun PerfettoTraceProcessor.runSlicesQuery() {
-        rawQuery(
+    private fun PerfettoTraceProcessor.Session.runSlicesQuery() {
+        query(
             """
                 SELECT slice.name, slice.ts, slice.dur, thread_track.id, thread_track.name
                 FROM slice
@@ -104,8 +148,8 @@ class PerfettoTraceProcessorBenchmark {
         )
     }
 
-    private fun PerfettoTraceProcessor.runCounterQuery() {
-        rawQuery(
+    private fun PerfettoTraceProcessor.Session.runCounterQuery() {
+        query(
             """
                 SELECT track.name, counter.value, counter.ts
                 FROM track
@@ -114,8 +158,8 @@ class PerfettoTraceProcessorBenchmark {
         )
     }
 
-    private fun PerfettoTraceProcessor.runProcessQuery() {
-        rawQuery(
+    private fun PerfettoTraceProcessor.Session.runProcessQuery() {
+        query(
             """
                 SELECT upid
                 FROM counter

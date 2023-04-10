@@ -36,11 +36,12 @@ class ColorRampDataSourceService : ComplicationDataSourceService() {
     ) {
         listener.onComplicationData(
             RangedValueComplicationData.Builder(
-                value = 75f,
-                min = 0.0f,
-                max = 100.0f,
-                plainText("Many colors")
-            ).setText(plainText("Colors"))
+                    value = 75f,
+                    min = 0.0f,
+                    max = 100.0f,
+                    plainText("Many colors")
+                )
+                .setText(plainText("Colors"))
                 .setValueType(RangedValueComplicationData.TYPE_RATING)
                 .setColorRamp(
                     ColorRamp(
@@ -59,30 +60,31 @@ class ColorRampDataSourceService : ComplicationDataSourceService() {
         )
     }
 
-    override fun getPreviewData(type: ComplicationType): ComplicationData? = when (type) {
-        ComplicationType.RANGED_VALUE ->
-            RangedValueComplicationData.Builder(
-                value = 10f,
-                min = 0.0f,
-                max = 100.0f,
-                plainText("Many colors")
-            ).setText(plainText("Colors"))
-                .setValueType(RangedValueComplicationData.TYPE_RATING)
-                .setColorRamp(
-                    ColorRamp(
-                        intArrayOf(
-                            Color.GREEN,
-                            Color.YELLOW,
-                            Color.argb(255, 255, 255, 0),
-                            Color.RED,
-                            Color.argb(255, 255, 0, 255),
-                            Color.argb(255, 92, 64, 51)
-                        ),
-                        interpolated = true
+    override fun getPreviewData(type: ComplicationType): ComplicationData? =
+        when (type) {
+            ComplicationType.RANGED_VALUE ->
+                RangedValueComplicationData.Builder(
+                        value = 10f,
+                        min = 0.0f,
+                        max = 100.0f,
+                        plainText("Many colors")
                     )
-                )
-                .build()
-
-        else -> null
-    }
+                    .setText(plainText("Colors"))
+                    .setValueType(RangedValueComplicationData.TYPE_RATING)
+                    .setColorRamp(
+                        ColorRamp(
+                            intArrayOf(
+                                Color.GREEN,
+                                Color.YELLOW,
+                                Color.argb(255, 255, 255, 0),
+                                Color.RED,
+                                Color.argb(255, 255, 0, 255),
+                                Color.argb(255, 92, 64, 51)
+                            ),
+                            interpolated = true
+                        )
+                    )
+                    .build()
+            else -> null
+        }
 }

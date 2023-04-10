@@ -51,7 +51,9 @@ internal class TvLazyGridMeasureResult(
     /** see [TvLazyGridLayoutInfo.orientation] */
     override val orientation: Orientation,
     /** see [TvLazyGridLayoutInfo.afterContentPadding] */
-    override val afterContentPadding: Int
+    override val afterContentPadding: Int,
+    /** see [TvLazyGridLayoutInfo.mainAxisItemSpacing] */
+    override val mainAxisItemSpacing: Int
 ) : TvLazyGridLayoutInfo, MeasureResult by measureResult {
     override val viewportSize: IntSize
         get() = IntSize(width, height)

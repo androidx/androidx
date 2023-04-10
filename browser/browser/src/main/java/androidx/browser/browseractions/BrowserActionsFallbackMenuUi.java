@@ -52,7 +52,6 @@ import java.util.List;
  */
 @Deprecated
 class BrowserActionsFallbackMenuUi implements AdapterView.OnItemClickListener {
-    /** @hide */
     @VisibleForTesting
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     interface BrowserActionsFallMenuUiListener {
@@ -87,7 +86,6 @@ class BrowserActionsFallbackMenuUi implements AdapterView.OnItemClickListener {
         mMenuItems = buildFallbackMenuItemList(customItems);
     }
 
-    /** @hide */
     @VisibleForTesting
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     void setMenuUiListener(@Nullable BrowserActionsFallMenuUiListener menuUiListener) {

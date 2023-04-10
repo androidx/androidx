@@ -18,14 +18,9 @@ package androidx.window.embedding
 
 import android.app.Activity
 import android.content.Context
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
-/** A singleton controller that allows checking the current [Activity] embedding status. */
-class ActivityEmbeddingController private constructor(applicationContext: Context) {
-    private val embeddingBackend: EmbeddingBackend = ExtensionEmbeddingBackend
-        .getInstance(applicationContext)
-
+/** The controller that allows checking the current [Activity] embedding status. */
+class ActivityEmbeddingController internal constructor(private val backend: EmbeddingBackend) {
     /**
      * Checks if the [activity] is embedded and its presentation may be customized by the host
      * process of the task this [activity] is associated with.
@@ -33,28 +28,19 @@ class ActivityEmbeddingController private constructor(applicationContext: Contex
      * @param activity the [Activity] to check.
      */
     // TODO(b/204399167) Migrate to a Flow
-    fun isActivityEmbedded(activity: Activity): Boolean {
-        return embeddingBackend.isActivityEmbedded(activity)
-    }
+    fun isActivityEmbedded(activity: Activity): Boolean =
+        backend.isActivityEmbedded(activity)
 
     companion object {
-        @Volatile
-        private var globalInstance: ActivityEmbeddingController? = null
-        private val globalLock = ReentrantLock()
-
         /**
-         * Obtains the singleton instance of [ActivityEmbeddingController].
+         * Obtains an instance of [ActivityEmbeddingController].
          *
          * @param context the [Context] to initialize the controller with
          */
         @JvmStatic
         fun getInstance(context: Context): ActivityEmbeddingController {
-            globalLock.withLock {
-                if (globalInstance == null) {
-                    globalInstance = ActivityEmbeddingController(context.applicationContext)
-                }
-                return globalInstance!!
-            }
+            val backend = EmbeddingBackend.getInstance(context)
+            return ActivityEmbeddingController(backend)
         }
     }
 }

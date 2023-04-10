@@ -20,7 +20,6 @@ import android.view.KeyEvent
 import android.view.KeyEvent.META_ALT_ON
 import android.view.KeyEvent.META_CTRL_ON
 import android.view.KeyEvent.META_SHIFT_ON
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.text.BasicTextField
@@ -28,17 +27,18 @@ import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.nativeKeyCode
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.performKeyPress
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
@@ -48,14 +48,13 @@ import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.mock
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 class HardwareKeyboardTest {
     @get:Rule
     val rule = createComposeRule()
@@ -78,6 +77,30 @@ class HardwareKeyboardTest {
             Key.Spacebar.downAndUp()
             Key.V.downAndUp(META_CTRL_ON)
             expectedText("hello hello")
+        }
+    }
+
+    @Test
+    fun textField_directCopyPaste() {
+        keysSequenceTest(initText = "hello") {
+            Key.A.downAndUp(META_CTRL_ON)
+            Key.Copy.downAndUp()
+            expectedText("hello")
+            Key.DirectionRight.downAndUp()
+            Key.Spacebar.downAndUp()
+            Key.Paste.downAndUp()
+            expectedText("hello hello")
+        }
+    }
+
+    @Test
+    fun textField_directCutPaste() {
+        keysSequenceTest(initText = "hello") {
+            Key.A.downAndUp(META_CTRL_ON)
+            Key.Cut.downAndUp()
+            expectedText("")
+            Key.Paste.downAndUp()
+            expectedText("hello")
         }
     }
 
@@ -217,16 +240,77 @@ class HardwareKeyboardTest {
 
     @Test
     fun textField_lineEndStart() {
-        keysSequenceTest(initText = "hello world\nhi") {
+        keysSequenceTest(initText = "hi\nhello world\nhi") {
+            Key.MoveEnd.downAndUp()
+            Key.DirectionRight.downAndUp()
+            Key.Zero.downAndUp()
+            expectedText("hi\n0hello world\nhi")
             Key.MoveEnd.downAndUp()
             Key.Zero.downAndUp()
-            expectedText("hello world0\nhi")
-            Key.MoveEnd.downAndUp()
+            expectedText("hi\n0hello world0\nhi")
+            Key.MoveHome.downAndUp(META_SHIFT_ON)
+            expectedSelection(TextRange(16, 3))
             Key.MoveHome.downAndUp()
-            Key.Zero.downAndUp()
-            expectedText("0hello world0\nhi")
+            Key.DirectionRight.downAndUp()
             Key.MoveEnd.downAndUp(META_SHIFT_ON)
-            expectedSelection(TextRange(1, 16))
+            expectedSelection(TextRange(4, 16))
+            expectedText("hi\n0hello world0\nhi")
+        }
+    }
+
+    @Test
+    fun textField_altLineLeftRight() {
+        keysSequenceTest(initText = "hi\nhello world\nhi") {
+            Key.DirectionRight.downAndUp(META_ALT_ON)
+            Key.DirectionRight.downAndUp()
+            Key.Zero.downAndUp()
+            expectedText("hi\n0hello world\nhi")
+            Key.DirectionRight.downAndUp(META_ALT_ON)
+            Key.Zero.downAndUp()
+            expectedText("hi\n0hello world0\nhi")
+            Key.DirectionLeft.downAndUp(META_ALT_ON or META_SHIFT_ON)
+            expectedSelection(TextRange(16, 3))
+            Key.DirectionLeft.downAndUp(META_ALT_ON)
+            Key.DirectionRight.downAndUp()
+            Key.DirectionRight.downAndUp(META_ALT_ON or META_SHIFT_ON)
+            expectedSelection(TextRange(4, 16))
+            expectedText("hi\n0hello world0\nhi")
+        }
+    }
+
+    @Test
+    fun textField_altTop() {
+        keysSequenceTest(initText = "hi\nhello world\nhi") {
+            Key.MoveEnd.downAndUp()
+            repeat(3) { Key.DirectionRight.downAndUp() }
+            Key.Zero.downAndUp()
+            expectedText("hi\nhe0llo world\nhi")
+            Key.DirectionUp.downAndUp(META_ALT_ON)
+            Key.Zero.downAndUp()
+            expectedText("0hi\nhe0llo world\nhi")
+            Key.MoveEnd.downAndUp()
+            repeat(3) { Key.DirectionRight.downAndUp() }
+            Key.DirectionUp.downAndUp(META_ALT_ON or META_SHIFT_ON)
+            expectedSelection(TextRange(6, 0))
+            expectedText("0hi\nhe0llo world\nhi")
+        }
+    }
+
+    @Test
+    fun textField_altBottom() {
+        keysSequenceTest(initText = "hi\nhello world\nhi") {
+            Key.MoveEnd.downAndUp()
+            repeat(3) { Key.DirectionRight.downAndUp() }
+            Key.Zero.downAndUp()
+            expectedText("hi\nhe0llo world\nhi")
+            Key.DirectionDown.downAndUp(META_ALT_ON or META_SHIFT_ON)
+            expectedSelection(TextRange(6, 18))
+            Key.DirectionLeft.downAndUp()
+            Key.Zero.downAndUp()
+            expectedText("hi\nhe00llo world\nhi")
+            Key.DirectionDown.downAndUp(META_ALT_ON)
+            Key.Zero.downAndUp()
+            expectedText("hi\nhe00llo world\nhi0")
         }
     }
 
@@ -346,6 +430,101 @@ class HardwareKeyboardTest {
         }
     }
 
+    @Test
+    fun textField_tabSingleLine() {
+        keysSequenceTest(initText = "text", singleLine = true) {
+            Key.Tab.downAndUp()
+            expectedText("text") // no change, should try focus change instead
+        }
+    }
+
+    @Test
+    fun textField_tabMultiLine() {
+        keysSequenceTest(initText = "text") {
+            Key.Tab.downAndUp()
+            expectedText("\ttext")
+        }
+    }
+
+    @Test
+    fun textField_shiftTabSingleLine() {
+        keysSequenceTest(initText = "text", singleLine = true) {
+            Key.Tab.downAndUp(metaState = META_SHIFT_ON)
+            expectedText("text") // no change, should try focus change instead
+        }
+    }
+
+    @Test
+    fun textField_enterSingleLine() {
+        keysSequenceTest(initText = "text", singleLine = true) {
+            Key.Enter.downAndUp()
+            expectedText("text") // no change, should do ime action instead
+        }
+    }
+
+    @Test
+    fun textField_enterMultiLine() {
+        keysSequenceTest(initText = "text") {
+            Key.Enter.downAndUp()
+            expectedText("\ntext")
+        }
+    }
+
+    @Test
+    fun textField_withActiveSelection_tabSingleLine() {
+        keysSequenceTest(initText = "text", singleLine = true) {
+            Key.DirectionRight.downAndUp()
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.Tab.downAndUp()
+            expectedText("text") // no change, should try focus change instead
+        }
+    }
+
+    @Test
+    fun textField_withActiveSelection_tabMultiLine() {
+        keysSequenceTest(initText = "text") {
+            Key.DirectionRight.downAndUp()
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.Tab.downAndUp()
+            expectedText("t\tt")
+        }
+    }
+
+    @Test
+    fun textField_withActiveSelection_shiftTabSingleLine() {
+        keysSequenceTest(initText = "text", singleLine = true) {
+            Key.DirectionRight.downAndUp()
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.Tab.downAndUp(metaState = META_SHIFT_ON)
+            expectedText("text") // no change, should try focus change instead
+        }
+    }
+
+    @Test
+    fun textField_withActiveSelection_enterSingleLine() {
+        keysSequenceTest(initText = "text", singleLine = true) {
+            Key.DirectionRight.downAndUp()
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.Enter.downAndUp()
+            expectedText("text") // no change, should do ime action instead
+        }
+    }
+
+    @Test
+    fun textField_withActiveSelection_enterMultiLine() {
+        keysSequenceTest(initText = "text") {
+            Key.DirectionRight.downAndUp()
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.Enter.downAndUp()
+            expectedText("t\nt")
+        }
+    }
+
     private inner class SequenceScope(
         val state: MutableState<TextFieldValue>,
         val nodeGetter: () -> SemanticsNodeInteraction
@@ -379,21 +558,29 @@ class HardwareKeyboardTest {
     private fun keysSequenceTest(
         initText: String = "",
         modifier: Modifier = Modifier.fillMaxSize(),
+        singleLine: Boolean = false,
         sequence: SequenceScope.() -> Unit,
     ) {
         val value = mutableStateOf(TextFieldValue(initText))
-        keysSequenceTest(value = value, modifier = modifier, sequence = sequence)
+        keysSequenceTest(
+            value = value,
+            modifier = modifier,
+            singleLine = singleLine,
+            sequence = sequence
+        )
     }
 
     private fun keysSequenceTest(
         value: MutableState<TextFieldValue>,
         modifier: Modifier = Modifier.fillMaxSize(),
         onValueChange: (TextFieldValue) -> Unit = { value.value = it },
+        singleLine: Boolean = false,
         sequence: SequenceScope.() -> Unit,
     ) {
         val inputService = TextInputService(mock())
         val focusRequester = FocusRequester()
         rule.setContent {
+            LocalClipboardManager.current.setText(AnnotatedString("InitialTestText"))
             CompositionLocalProvider(
                 LocalTextInputService provides inputService
             ) {
@@ -404,7 +591,8 @@ class HardwareKeyboardTest {
                         fontSize = 10.sp
                     ),
                     modifier = modifier.focusRequester(focusRequester),
-                    onValueChange = onValueChange
+                    onValueChange = onValueChange,
+                    singleLine = singleLine,
                 )
             }
         }

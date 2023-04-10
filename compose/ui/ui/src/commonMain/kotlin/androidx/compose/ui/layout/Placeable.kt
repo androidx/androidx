@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.layout
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.node.LayoutNodeLayoutDelegate
 import androidx.compose.ui.node.NodeCoordinator
@@ -161,9 +160,6 @@ abstract class Placeable : Measured {
          *
          * @sample androidx.compose.ui.samples.PlacementScopeCoordinatesSample
          */
-        @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-        @ExperimentalComposeUiApi
-        @get:ExperimentalComposeUiApi
         open val coordinates: LayoutCoordinates?
             get() = null
 
@@ -342,7 +338,6 @@ abstract class Placeable : Measured {
                 private set
             private var _coordinates: LayoutCoordinates? = null
 
-            @ExperimentalComposeUiApi
             override val coordinates: LayoutCoordinates?
                 get() {
                     layoutDelegate?.coordinatesAccessedDuringPlacement = true

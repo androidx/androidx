@@ -28,7 +28,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.AspectRatio;
-import androidx.camera.core.ResolutionSelector;
+import androidx.camera.core.MirrorMode;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -70,6 +71,12 @@ public interface ImageOutputConfig extends ReadableConfig {
      */
     Option<Integer> OPTION_APP_TARGET_ROTATION =
             Option.create("camerax.core.imageOutput.appTargetRotation", int.class);
+
+    /**
+     * Option: camerax.core.imageOutput.mirrorMode
+     */
+    Option<Integer> OPTION_MIRROR_MODE =
+            Option.create("camerax.core.imageOutput.mirrorMode", int.class);
 
     /**
      * Option: camerax.core.imageOutput.targetResolution
@@ -180,6 +187,18 @@ public interface ImageOutputConfig extends ReadableConfig {
     @Nullable
     default Size getTargetResolution(@Nullable Size valueIfMissing) {
         return retrieveOption(ImageOutputConfig.OPTION_TARGET_RESOLUTION, valueIfMissing);
+    }
+
+    /**
+     * Retrieves the mirror mode of the target intending to use from this configuration.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in
+     * this configuration.
+     */
+    @MirrorMode.Mirror
+    default int getMirrorMode(int valueIfMissing) {
+        return retrieveOption(ImageOutputConfig.OPTION_MIRROR_MODE, valueIfMissing);
     }
 
     /**
@@ -390,6 +409,18 @@ public interface ImageOutputConfig extends ReadableConfig {
          */
         @NonNull
         B setTargetRotation(@RotationValue int rotation);
+
+        /**
+         * Sets the mirror mode of the intended target for images from this configuration.
+         *
+         * <p>Valid values include: {@link MirrorMode#MIRROR_MODE_OFF},
+         * {@link MirrorMode#MIRROR_MODE_ON} and {@link MirrorMode#MIRROR_MODE_ON_FRONT_ONLY}.
+         *
+         * @param mirrorMode The mirror mode of the intended target.
+         * @return The current Builder.
+         */
+        @NonNull
+        B setMirrorMode(@MirrorMode.Mirror int mirrorMode);
 
         /**
          * Sets the resolution of the intended target from this configuration.

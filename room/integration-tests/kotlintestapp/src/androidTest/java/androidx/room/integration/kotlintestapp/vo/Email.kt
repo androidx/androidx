@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
-package androidx.room.androidx.room.integration.kotlintestapp.vo
+package androidx.room.integration.kotlintestapp.vo
 
 data class Email(var id: String?, var address: String?)

@@ -145,5 +145,9 @@ Using custom version .* of metalava due to METALAVA_VERSION being set\.
 Publishing build scan\.\.\.
 https://ge\.androidx\.dev/s/.*
 # androidx-demos:compileReleaseJavaWithJavac
-Note: \$SUPPORT/samples/Support[0-9]+Demos/src/main/java/com/example/android/supportv[0-9]+/util/DiffUtilActivity\.java uses unchecked or unsafe operations\.
+Note: \$SUPPORT/samples/AndroidXDemos/src/main/java/com/example/androidx/util/DiffUtilActivity\.java uses unchecked or unsafe operations\.
 Calculating task graph as configuration cache cannot be reused because JVM has changed\.
+# b/270412262
+Failed to compile with Kotlin daemon: java\.lang\.RuntimeException: Could not connect to Kotlin compile daemon
+Using fallback strategy: Compile without Kotlin daemon
+Try \./gradlew \-\-stop if this issue persists\.

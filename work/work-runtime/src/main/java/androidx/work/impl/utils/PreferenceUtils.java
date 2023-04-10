@@ -33,7 +33,6 @@ import androidx.work.impl.model.Preference;
 /**
  * Preference Utils for WorkManager.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PreferenceUtils {

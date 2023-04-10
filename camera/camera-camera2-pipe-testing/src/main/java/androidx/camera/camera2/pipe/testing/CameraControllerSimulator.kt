@@ -21,6 +21,8 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraContext
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.CameraStatusMonitor
 import androidx.camera.camera2.pipe.GraphState.GraphStateError
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
@@ -45,6 +47,9 @@ class CameraControllerSimulator(
     private val graphListener: GraphListener,
     private val streamGraph: StreamGraph
 ) : CameraController {
+    override val cameraId: CameraId
+        get() = graphConfig.camera
+
     private val lock = Any()
     private var currentSurfaceMap: Map<StreamId, Surface> = emptyMap()
     private var currentGraphRequestProcessor: GraphRequestProcessor? = null
@@ -152,7 +157,20 @@ class CameraControllerSimulator(
 
     override fun stop() {
         synchronized(lock) {
+            check(!closed) {
+                "Attempted to invoke stop after close."
+            }
             started = false
+        }
+    }
+
+    override fun tryRestart(cameraStatus: CameraStatusMonitor.CameraStatus) {
+        synchronized(lock) {
+            check(!closed) {
+                "Attempted to invoke restart after close."
+            }
+            stop()
+            start()
         }
     }
 

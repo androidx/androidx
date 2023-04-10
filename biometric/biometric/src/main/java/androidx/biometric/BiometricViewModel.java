@@ -38,7 +38,6 @@ import java.util.concurrent.Executor;
  * <p>This model and all of its data is persisted over the lifetime of the client activity that
  * hosts the {@link BiometricPrompt}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class BiometricViewModel extends ViewModel {

@@ -22,7 +22,6 @@ import androidx.work.impl.model.WorkSpec;
 /**
  * An interface for classes responsible for scheduling background work.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface Scheduler {

@@ -445,7 +445,6 @@ internal class DefaultScalingLazyListItemInfo(
     }
 }
 
-/** @hide **/
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
 public data class ScaleAndAlpha(
@@ -509,7 +508,6 @@ internal fun ScalingLazyListItemInfo.unadjustedStartOffset(anchorType: ScalingLa
 /**
  * Inverse linearly interpolate, return what fraction (0f..1f) that [value] is between [start] and
  * [stop]. Returns 0f if value =< start and 1f if value >= stop.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun inverseLerp(start: Float, stop: Float, value: Float): Float {

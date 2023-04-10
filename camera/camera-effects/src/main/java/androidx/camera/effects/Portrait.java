@@ -21,7 +21,6 @@ import androidx.annotation.RestrictTo;
 /**
  * Provides a portrait post-processing effect.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Portrait {

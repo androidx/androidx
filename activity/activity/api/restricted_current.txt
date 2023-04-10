@@ -20,9 +20,9 @@ package androidx.activity {
     method public final androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
     method public final androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
+    method @CallSuper public void initializeViewTreeOwners();
     method public void invalidateMenu();
     method @Deprecated @CallSuper protected void onActivityResult(int, int, android.content.Intent?);
-    method @MainThread public void onBackPressed();
     method @CallSuper public void onMultiWindowModeChanged(boolean);
     method @CallSuper public void onPictureInPictureModeChanged(boolean);
     method @Deprecated @CallSuper public void onRequestPermissionsResult(int, String![], int[]);
@@ -47,11 +47,20 @@ package androidx.activity {
   public class ComponentDialog extends android.app.Dialog implements androidx.lifecycle.LifecycleOwner androidx.activity.OnBackPressedDispatcherOwner androidx.savedstate.SavedStateRegistryOwner {
     ctor public ComponentDialog(android.content.Context context, optional @StyleRes int themeResId);
     ctor public ComponentDialog(android.content.Context context);
-    method public final androidx.lifecycle.Lifecycle getLifecycle();
+    method public androidx.lifecycle.Lifecycle getLifecycle();
     method public final androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
     method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
+    method @CallSuper public void initializeViewTreeOwners();
     method @CallSuper public void onBackPressed();
+    property public androidx.lifecycle.Lifecycle lifecycle;
+    property public final androidx.activity.OnBackPressedDispatcher onBackPressedDispatcher;
     property public androidx.savedstate.SavedStateRegistry savedStateRegistry;
+  }
+
+  public final class EdgeToEdge {
+    method public static void enable(androidx.activity.ComponentActivity, optional androidx.activity.SystemBarStyle statusBarStyle, optional androidx.activity.SystemBarStyle navigationBarStyle);
+    method public static void enable(androidx.activity.ComponentActivity, optional androidx.activity.SystemBarStyle statusBarStyle);
+    method public static void enable(androidx.activity.ComponentActivity);
   }
 
   public final class FullyDrawnReporter {
@@ -98,6 +107,20 @@ package androidx.activity {
 
   public interface OnBackPressedDispatcherOwner extends androidx.lifecycle.LifecycleOwner {
     method public androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
+    property public abstract androidx.activity.OnBackPressedDispatcher onBackPressedDispatcher;
+  }
+
+  public final class SystemBarStyle {
+    method public static androidx.activity.SystemBarStyle auto(@ColorInt int lightScrim, @ColorInt int darkScrim);
+    method public static androidx.activity.SystemBarStyle dark(@ColorInt int scrim);
+    method public static androidx.activity.SystemBarStyle light(@ColorInt int scrim, @ColorInt int darkScrim);
+    field public static final androidx.activity.SystemBarStyle.Companion Companion;
+  }
+
+  public static final class SystemBarStyle.Companion {
+    method public androidx.activity.SystemBarStyle auto(@ColorInt int lightScrim, @ColorInt int darkScrim);
+    method public androidx.activity.SystemBarStyle dark(@ColorInt int scrim);
+    method public androidx.activity.SystemBarStyle light(@ColorInt int scrim, @ColorInt int darkScrim);
   }
 
   public final class ViewTreeFullyDrawnReporterOwner {
@@ -115,22 +138,26 @@ package androidx.activity {
 package androidx.activity.contextaware {
 
   public interface ContextAware {
-    method public void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+    method public void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener listener);
     method public android.content.Context? peekAvailableContext();
-    method public void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+    method public void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener listener);
   }
 
   public final class ContextAwareHelper {
     ctor public ContextAwareHelper();
-    method public void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+    method public void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener listener);
     method public void clearAvailableContext();
-    method public void dispatchOnContextAvailable(android.content.Context);
+    method public void dispatchOnContextAvailable(android.content.Context context);
     method public android.content.Context? peekAvailableContext();
-    method public void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+    method public void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener listener);
   }
 
-  public interface OnContextAvailableListener {
-    method public void onContextAvailable(android.content.Context);
+  public final class ContextAwareKt {
+    method public static suspend inline <R> Object? withContextAvailable(androidx.activity.contextaware.ContextAware, kotlin.jvm.functions.Function1<android.content.Context,R> onContextAvailable, kotlin.coroutines.Continuation<R>);
+  }
+
+  public fun interface OnContextAvailableListener {
+    method public void onContextAvailable(android.content.Context context);
   }
 
 }
@@ -177,6 +204,7 @@ package androidx.activity.result {
 
   public interface ActivityResultRegistryOwner {
     method public androidx.activity.result.ActivityResultRegistry getActivityResultRegistry();
+    property public abstract androidx.activity.result.ActivityResultRegistry activityResultRegistry;
   }
 
   public final class IntentSenderRequest implements android.os.Parcelable {
@@ -185,16 +213,24 @@ package androidx.activity.result {
     method public int getFlagsMask();
     method public int getFlagsValues();
     method public android.content.IntentSender getIntentSender();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<androidx.activity.result.IntentSenderRequest!> CREATOR;
+    method public void writeToParcel(android.os.Parcel dest, int flags);
+    property public final android.content.Intent? fillInIntent;
+    property public final int flagsMask;
+    property public final int flagsValues;
+    property public final android.content.IntentSender intentSender;
+    field public static final android.os.Parcelable.Creator<androidx.activity.result.IntentSenderRequest> CREATOR;
+    field public static final androidx.activity.result.IntentSenderRequest.Companion Companion;
   }
 
   public static final class IntentSenderRequest.Builder {
-    ctor public IntentSenderRequest.Builder(android.content.IntentSender);
-    ctor public IntentSenderRequest.Builder(android.app.PendingIntent);
+    ctor public IntentSenderRequest.Builder(android.content.IntentSender intentSender);
+    ctor public IntentSenderRequest.Builder(android.app.PendingIntent pendingIntent);
     method public androidx.activity.result.IntentSenderRequest build();
-    method public androidx.activity.result.IntentSenderRequest.Builder setFillInIntent(android.content.Intent?);
-    method public androidx.activity.result.IntentSenderRequest.Builder setFlags(int, int);
+    method public androidx.activity.result.IntentSenderRequest.Builder setFillInIntent(android.content.Intent? fillInIntent);
+    method public androidx.activity.result.IntentSenderRequest.Builder setFlags(int values, int mask);
+  }
+
+  public static final class IntentSenderRequest.Companion {
   }
 
   public final class PickVisualMediaRequest {
@@ -302,7 +338,9 @@ package androidx.activity.result.contract {
     method @Deprecated public static final boolean isPhotoPickerAvailable();
     method public static final boolean isPhotoPickerAvailable(android.content.Context context);
     method public final android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);
+    field public static final String ACTION_SYSTEM_FALLBACK_PICK_IMAGES = "androidx.activity.result.contract.action.PICK_IMAGES";
     field public static final androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.Companion Companion;
+    field public static final String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_MAX = "androidx.activity.result.contract.extra.PICK_IMAGES_MAX";
   }
 
   public static final class ActivityResultContracts.PickVisualMedia.Companion {

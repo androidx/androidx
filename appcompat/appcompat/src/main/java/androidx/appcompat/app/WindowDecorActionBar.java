@@ -74,7 +74,6 @@ import java.util.ArrayList;
  * WindowDecorActionBar is the ActionBar implementation used
  * by devices of all screen sizes as part of the window decor layout.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class WindowDecorActionBar extends ActionBar implements
@@ -181,7 +180,6 @@ public class WindowDecorActionBar extends ActionBar implements
 
     /**
      * Only for edit mode.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public WindowDecorActionBar(View layout) {
@@ -976,7 +974,6 @@ public class WindowDecorActionBar extends ActionBar implements
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public class ActionModeImpl extends ActionMode implements MenuBuilder.Callback {
@@ -1150,7 +1147,6 @@ public class WindowDecorActionBar extends ActionBar implements
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public class TabImpl extends ActionBar.Tab {

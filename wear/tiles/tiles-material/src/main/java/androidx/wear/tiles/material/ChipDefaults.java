@@ -23,14 +23,20 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
 
-/** Contains the default values used by chip Tiles components. */
+/**
+ * Contains the default values used by chip Tiles components.
+ *
+ * @deprecated Use the new class {@link androidx.wear.protolayout.material.ChipDefaults} which
+ *     provides the same API and functionality.
+ */
+@Deprecated
+@SuppressWarnings("deprecation")
 public class ChipDefaults {
     private ChipDefaults() {}
 
     /**
      * The default height for standard {@link Chip}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -39,7 +45,6 @@ public class ChipDefaults {
     /**
      * The default height for standard {@link CompactChip}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -48,7 +53,6 @@ public class ChipDefaults {
     /**
      * The default height of tappable area for standard {@link CompactChip}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -57,7 +61,6 @@ public class ChipDefaults {
     /**
      * The default height for standard {@link TitleChip}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -66,7 +69,6 @@ public class ChipDefaults {
     /**
      * The recommended horizontal margin used for width for standard {@link Chip}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final float DEFAULT_MARGIN_PERCENT = 5.2f;
@@ -74,7 +76,6 @@ public class ChipDefaults {
     /**
      * The recommended horizontal padding for standard {@link Chip}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -83,7 +84,6 @@ public class ChipDefaults {
     /**
      * The recommended horizontal padding for standard {@link CompactChip}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -92,7 +92,6 @@ public class ChipDefaults {
     /**
      * The recommended horizontal padding for standard {@link TitleChip}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -101,7 +100,6 @@ public class ChipDefaults {
     /**
      * The recommended vertical space between icon and text in standard {@link Chip}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -110,7 +108,6 @@ public class ChipDefaults {
     /**
      * The icon size used in standard {@link Chip}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull

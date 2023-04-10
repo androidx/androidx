@@ -52,7 +52,8 @@ class WithPackageBlock internal constructor(private val packageName: String) {
                 InstrumentationRegistry.getInstrumentation().context.cacheDir
             }
             else -> InstrumentationRegistry.getInstrumentation().context.externalCacheDir
-        } ?: throw IllegalStateException("Unable to select a directory for writing files.")
+        }
+            ?: throw IllegalStateException("Unable to select a directory for writing files.")
     }
 
     public fun uninstall() = executeCommand("pm uninstall $packageName")
@@ -63,12 +64,15 @@ class WithPackageBlock internal constructor(private val packageName: String) {
 
         try {
             // First writes in a temp file the apk from the assets
-            val tmpApkFile = File(dirUsableByAppAndShell, "tmp_$apkName").also { file ->
-                file.delete()
-                file.createNewFile()
-                file.deleteOnExit()
-                file.outputStream().use { instrumentation.context.assets.open(apkName).copyTo(it) }
-            }
+            val tmpApkFile =
+                File(dirUsableByAppAndShell, "tmp_$apkName").also { file ->
+                    file.delete()
+                    file.createNewFile()
+                    file.deleteOnExit()
+                    file.outputStream().use {
+                        instrumentation.context.assets.open(apkName).copyTo(it)
+                    }
+                }
             cleanUpBlocks.add { tmpApkFile.delete() }
 
             // Then moves it to a destination that can be used to install it
@@ -82,11 +86,7 @@ class WithPackageBlock internal constructor(private val packageName: String) {
 
             // Creates an install session
             val installCreateOutput = executeCommand("pm install-create -t").first().trim()
-            val sessionId = REGEX_SESSION_ID
-                .find(installCreateOutput)!!
-                .groups[1]!!
-                .value
-                .toLong()
+            val sessionId = REGEX_SESSION_ID.find(installCreateOutput)!!.groups[1]!!.value.toLong()
 
             // Adds the base apk to the install session
             val successBaseApk =

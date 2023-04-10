@@ -65,7 +65,11 @@ public class FakeCamera implements CameraInternal {
     private Set<UseCase> mAttachedUseCases = new HashSet<>();
     private State mState = State.CLOSED;
     private int mAvailableCameraCount = 1;
-    private List<UseCase> mUseCaseResetHistory = new ArrayList<>();
+    private final List<UseCase> mUseCaseActiveHistory = new ArrayList<>();
+    private final List<UseCase> mUseCaseInactiveHistory = new ArrayList<>();
+    private final List<UseCase> mUseCaseUpdateHistory = new ArrayList<>();
+    private final List<UseCase> mUseCaseResetHistory = new ArrayList<>();
+    private boolean mHasTransform = true;
 
     @Nullable
     private SessionConfig mSessionConfig;
@@ -198,7 +202,7 @@ public class FakeCamera implements CameraInternal {
     @Override
     public void onUseCaseActive(@NonNull UseCase useCase) {
         Logger.d(TAG, "Use case " + useCase + " ACTIVE for camera " + mCameraId);
-
+        mUseCaseActiveHistory.add(useCase);
         mUseCaseAttachState.setUseCaseActive(useCase.getName() + useCase.hashCode(),
                 useCase.getSessionConfig(), useCase.getCurrentConfig());
         updateCaptureSessionConfig();
@@ -208,7 +212,7 @@ public class FakeCamera implements CameraInternal {
     @Override
     public void onUseCaseInactive(@NonNull UseCase useCase) {
         Logger.d(TAG, "Use case " + useCase + " INACTIVE for camera " + mCameraId);
-
+        mUseCaseInactiveHistory.add(useCase);
         mUseCaseAttachState.setUseCaseInactive(useCase.getName() + useCase.hashCode());
         updateCaptureSessionConfig();
     }
@@ -217,7 +221,7 @@ public class FakeCamera implements CameraInternal {
     @Override
     public void onUseCaseUpdated(@NonNull UseCase useCase) {
         Logger.d(TAG, "Use case " + useCase + " UPDATED for camera " + mCameraId);
-
+        mUseCaseUpdateHistory.add(useCase);
         mUseCaseAttachState.updateUseCase(useCase.getName() + useCase.hashCode(),
                 useCase.getSessionConfig(), useCase.getCurrentConfig());
         updateCaptureSessionConfig();
@@ -306,8 +310,35 @@ public class FakeCamera implements CameraInternal {
     }
 
     @NonNull
+    public List<UseCase> getUseCaseActiveHistory() {
+        return mUseCaseActiveHistory;
+    }
+
+    @NonNull
+    public List<UseCase> getUseCaseInactiveHistory() {
+        return mUseCaseInactiveHistory;
+    }
+
+    @NonNull
+    public List<UseCase> getUseCaseUpdateHistory() {
+        return mUseCaseUpdateHistory;
+    }
+
+    @NonNull
     public List<UseCase> getUseCaseResetHistory() {
         return mUseCaseResetHistory;
+    }
+
+    @Override
+    public boolean getHasTransform() {
+        return mHasTransform;
+    }
+
+    /**
+     * Sets whether the camera has a transform.
+     */
+    public void setHasTransform(boolean hasCameraTransform) {
+        mHasTransform = hasCameraTransform;
     }
 
     private void checkNotReleased() {

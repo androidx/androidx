@@ -193,6 +193,19 @@ public class TransformationsTest {
     }
 
     @Test
+    public void testDistinctUntilChanged_initialValueIsSet() {
+        MutableLiveData<String> originalLiveData = new MutableLiveData<>("value");
+
+        LiveData<String> dedupedLiveData = Transformations.distinctUntilChanged(originalLiveData);
+        assertThat(dedupedLiveData.getValue(), is("value"));
+
+        CountingObserver<String> observer = new CountingObserver<>();
+        dedupedLiveData.observe(mOwner, observer);
+        assertThat(observer.mTimesUpdated, is(1));
+        assertThat(dedupedLiveData.getValue(), is("value"));
+    }
+
+    @Test
     public void testDistinctUntilChanged_triggersOnInitialNullValue() {
         MutableLiveData<String> originalLiveData = new MutableLiveData<>();
         originalLiveData.setValue(null);

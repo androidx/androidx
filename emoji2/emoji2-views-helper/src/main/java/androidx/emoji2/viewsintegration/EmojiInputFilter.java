@@ -38,7 +38,6 @@ import java.lang.ref.WeakReference;
  * depending on the CharSequence provided, adding a TextWatcher might have performance side
  * effects.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)

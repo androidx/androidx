@@ -191,8 +191,6 @@ public abstract class CameraController {
 
     /**
      * Bitmask options to enable/disable use cases.
-     *
-     * @hide
      */
     @OptIn(markerClass = ExperimentalVideo.class)
     @Retention(RetentionPolicy.SOURCE)
@@ -703,8 +701,6 @@ public abstract class CameraController {
      *
      * <p> Mirror the output image if front camera is used and if the flag is not set explicitly by
      * the app.
-     *
-     * @hide
      */
     @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -1435,6 +1431,7 @@ public abstract class CameraController {
             return;
         }
         mVideoCaptureQuality = targetQuality;
+        unbindVideoAndRecreate();
         startCameraAndTrackStates();
     }
 
@@ -1448,6 +1445,16 @@ public abstract class CameraController {
     public Quality getVideoCaptureTargetQuality() {
         checkMainThread();
         return mVideoCaptureQuality;
+    }
+
+    /**
+     * Unbinds VideoCapture and recreate with the latest parameters.
+     */
+    private void unbindVideoAndRecreate() {
+        if (isCameraInitialized()) {
+            mCameraProvider.unbind(mVideoCapture);
+        }
+        mVideoCapture = createNewVideoCapture();
     }
 
     private VideoCapture<Recorder> createNewVideoCapture() {
@@ -1897,9 +1904,6 @@ public abstract class CameraController {
      * {@link IllegalArgumentException}. Once called, CameraX will rebind the {@link UseCase}
      * with the effects applied. Effects not in the list are automatically removed.
      *
-     * <p>To remove an effect, call this method with a list without the effect. To remove all
-     * effects, call this method with {@code null} value or a empty set.
-     *
      * <p>The method throws {@link IllegalArgumentException} if the effects combination is not
      * supported by CameraX. Please see the Javadoc of {@link UseCaseGroup.Builder#addEffect} to
      * see the supported effects combinations.
@@ -1909,7 +1913,7 @@ public abstract class CameraController {
      * @see UseCaseGroup.Builder#addEffect
      */
     @MainThread
-    public void setEffects(@Nullable Set<CameraEffect> effects) {
+    public void setEffects(@NonNull Set<CameraEffect> effects) {
         checkMainThread();
         if (Objects.equals(mEffects, effects)) {
             // Same effect. No change needed.
@@ -1919,12 +1923,24 @@ public abstract class CameraController {
             // Unbind to make sure the pipelines will be recreated.
             mCameraProvider.unbindAll();
         }
-        if (effects == null) {
-            mEffects.clear();
-        } else {
-            mEffects.clear();
-            mEffects.addAll(effects);
+        mEffects.clear();
+        mEffects.addAll(effects);
+        startCameraAndTrackStates();
+    }
+
+    /**
+     * Removes all effects.
+     *
+     * <p>Once called, CameraX will remove all the effects and rebind the {@link UseCase}.
+     */
+    @MainThread
+    public void clearEffects() {
+        checkMainThread();
+        if (mCameraProvider != null) {
+            // Unbind to make sure the pipelines will be recreated.
+            mCameraProvider.unbindAll();
         }
+        mEffects.clear();
         startCameraAndTrackStates();
     }
 
@@ -1971,8 +1987,6 @@ public abstract class CameraController {
      *
      * <p> Preview is required. If it is null, then controller is not ready. Return null and ignore
      * other use cases.
-     *
-     * @hide
      */
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -2002,11 +2016,10 @@ public abstract class CameraController {
             mCameraProvider.unbind(mImageAnalysis);
         }
 
-        // TODO: revert aosp/2280599 to reuse VideoCapture when VideoCapture supports reuse.
-        mCameraProvider.unbind(mVideoCapture);
         if (isVideoCaptureEnabled()) {
-            mVideoCapture = createNewVideoCapture();
             builder.addUseCase(mVideoCapture);
+        } else {
+            mCameraProvider.unbind(mVideoCapture);
         }
 
         builder.setViewPort(mViewPort);
@@ -2059,8 +2072,6 @@ public abstract class CameraController {
 
         /**
          * Possible value for {@link #getAspectRatio()}
-         *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(RetentionPolicy.SOURCE)

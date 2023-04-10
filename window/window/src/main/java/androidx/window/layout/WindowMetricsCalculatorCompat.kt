@@ -21,19 +21,24 @@ import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Point
 import android.graphics.Rect
+import android.inputmethodservice.InputMethodService
 import android.os.Build
 import android.os.Build.VERSION_CODES
 import android.util.Log
 import android.view.Display
 import android.view.DisplayCutout
+import android.view.WindowManager
 import androidx.annotation.RequiresApi
+import androidx.annotation.UiContext
 import androidx.annotation.VisibleForTesting
 import androidx.core.view.WindowInsetsCompat
 import androidx.window.core.Bounds
 import androidx.window.layout.util.ActivityCompatHelperApi24.isInMultiWindowMode
-import androidx.window.layout.util.ActivityCompatHelperApi30.currentWindowBounds
-import androidx.window.layout.util.ActivityCompatHelperApi30.currentWindowInsets
-import androidx.window.layout.util.ActivityCompatHelperApi30.maximumWindowBounds
+import androidx.window.layout.util.ContextCompatHelperApi30.currentWindowBounds
+import androidx.window.layout.util.ContextCompatHelperApi30.currentWindowInsets
+import androidx.window.layout.util.ContextCompatHelperApi30.currentWindowMetrics
+import androidx.window.layout.util.ContextCompatHelperApi30.maximumWindowBounds
+import androidx.window.layout.util.ContextUtils.unwrapUiContext
 import androidx.window.layout.util.DisplayCompatHelperApi17.getRealSize
 import androidx.window.layout.util.DisplayCompatHelperApi28.safeInsetBottom
 import androidx.window.layout.util.DisplayCompatHelperApi28.safeInsetLeft
@@ -47,6 +52,42 @@ import java.lang.reflect.InvocationTargetException
 internal object WindowMetricsCalculatorCompat : WindowMetricsCalculator {
 
     private val TAG: String = WindowMetricsCalculatorCompat::class.java.simpleName
+
+    /**
+     * Computes the current [WindowMetrics] for a given [Context]. The context can be either
+     * an [Activity], a Context created with [Context#createWindowContext], or an
+     * [InputMethodService].
+     * @see WindowMetricsCalculator.computeCurrentWindowMetrics
+     */
+    override fun computeCurrentWindowMetrics(@UiContext context: Context): WindowMetrics {
+        // TODO(b/259148796): Make WindowMetricsCalculatorCompat more testable
+        if (Build.VERSION.SDK_INT >= VERSION_CODES.R) {
+            return currentWindowMetrics(context)
+        } else {
+            when (unwrapUiContext(context)) {
+                is Activity -> {
+                    return computeCurrentWindowMetrics(context as Activity)
+                }
+                is InputMethodService -> {
+                    val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+
+                    // On older SDK levels, the app and IME could show up on different displays.
+                    // However, there isn't a way for us to figure this out from the application
+                    // layer. But, this should be good enough for now given the small likelihood of
+                    // IMEs showing up on non-primary displays on these SDK levels.
+                    @Suppress("DEPRECATION")
+                    val displaySize = getRealSizeForDisplay(wm.defaultDisplay)
+
+                    // IME occupies the whole display bounds.
+                    val imeBounds = Rect(0, 0, displaySize.x, displaySize.y)
+                    return WindowMetrics(imeBounds)
+                }
+                else -> {
+                    throw IllegalArgumentException("$context is not a UiContext")
+                }
+            }
+        }
+    }
 
     /**
      * Computes the current [WindowMetrics] for a given [Activity]
@@ -78,19 +119,30 @@ internal object WindowMetricsCalculatorCompat : WindowMetricsCalculator {
      * @see WindowMetricsCalculator.computeMaximumWindowMetrics
      */
     override fun computeMaximumWindowMetrics(activity: Activity): WindowMetrics {
+        return computeMaximumWindowMetrics(activity as Context)
+    }
+
+    /**
+     * Computes the maximum [WindowMetrics] for a given [UiContext]
+     * @See WindowMetricsCalculator.computeMaximumWindowMetrics
+     */
+    override fun computeMaximumWindowMetrics(@UiContext context: Context): WindowMetrics {
+        // TODO(b/259148796): Make WindowMetricsCalculatorCompat more testable
         val bounds = if (Build.VERSION.SDK_INT >= VERSION_CODES.R) {
-            maximumWindowBounds(activity)
+            maximumWindowBounds(context)
         } else {
+            val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
             // [WindowManager#getDefaultDisplay] is deprecated but we have this for
-            // compatibility with older versions
+            // compatibility with older versions, as we can't reliably get the display associated
+            // with a Context through public APIs either.
             @Suppress("DEPRECATION")
-            val display = activity.windowManager.defaultDisplay
+            val display = wm.defaultDisplay
             val displaySize = getRealSizeForDisplay(display)
             Rect(0, 0, displaySize.x, displaySize.y)
         }
         // TODO (b/233899790): compute insets for other platform versions below R
         val windowInsetsCompat = if (Build.VERSION.SDK_INT >= VERSION_CODES.R) {
-            computeWindowInsetsCompat(activity)
+            computeWindowInsetsCompat(context)
         } else {
             WindowInsetsCompat.Builder().build()
         }
@@ -408,13 +460,13 @@ internal object WindowMetricsCalculatorCompat : WindowMetricsCalculator {
     )
 
     /**
-     * Computes the current [WindowInsetsCompat] for a given [Activity].
+     * Computes the current [WindowInsetsCompat] for a given [Context].
      */
     @RequiresApi(VERSION_CODES.R)
-    internal fun computeWindowInsetsCompat(activity: Activity): WindowInsetsCompat {
+    internal fun computeWindowInsetsCompat(@UiContext context: Context): WindowInsetsCompat {
         val build = Build.VERSION.SDK_INT
         val windowInsetsCompat = if (build >= VERSION_CODES.R) {
-            currentWindowInsets(activity)
+            currentWindowInsets(context)
         } else {
             throw Exception("Incompatible SDK version")
         }

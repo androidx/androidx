@@ -26,6 +26,7 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.os.ResultReceiver;
 import android.text.TextUtils;
 import android.util.Log;
@@ -374,8 +375,8 @@ public final class InputConnectionCompat {
                 // this from happening prematurely (before the receiving app has had a chance
                 // to process the content), we set the InputContentInfo object into the
                 // extras of the payload passed to OnReceiveContentListener.
-                InputContentInfo inputContentInfoFmk =
-                        (InputContentInfo) inputContentInfo.unwrap();
+                Parcelable inputContentInfoFmk =
+                        (Parcelable) inputContentInfo.unwrap();
                 extras = (opts == null) ? new Bundle() : new Bundle(opts);
                 extras.putParcelable(EXTRA_INPUT_CONTENT_INFO, inputContentInfoFmk);
             }

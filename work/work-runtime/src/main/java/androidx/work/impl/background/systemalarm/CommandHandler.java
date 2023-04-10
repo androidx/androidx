@@ -42,7 +42,6 @@ import java.util.Map;
 /**
  * The command handler used by {@link SystemAlarmDispatcher}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CommandHandler implements ExecutionListener {
@@ -316,7 +315,7 @@ public class CommandHandler implements ExecutionListener {
         }
         for (StartStopToken token: tokens) {
             Logger.get().debug(TAG, "Handing stopWork work for " + workSpecId);
-            dispatcher.getWorkManager().stopWork(token);
+            dispatcher.getWorkerLauncher().stopWork(token);
             Alarms.cancelAlarm(mContext,
                     dispatcher.getWorkManager().getWorkDatabase(), token.getId());
 

@@ -36,7 +36,6 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LookaheadLayoutCoordinatesImpl
-import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
@@ -83,6 +82,8 @@ internal abstract class NodeCoordinator(
 
     override val coordinates: LayoutCoordinates
         get() = this
+
+    private var released = false
 
     private fun headNode(includeTail: Boolean): Modifier.Node? {
         return if (layoutNode.outerCoordinator === this) {
@@ -158,7 +159,7 @@ internal abstract class NodeCoordinator(
         get() = _measureResult != null
 
     override val isAttached: Boolean
-        get() = tail.isAttached
+        get() = !released && layoutNode.isAttached
 
     private var _measureResult: MeasureResult? = null
     override var measureResult: MeasureResult
@@ -185,31 +186,12 @@ internal abstract class NodeCoordinator(
             }
         }
 
-    internal var lookaheadDelegate: LookaheadDelegate? = null
-        private set
+    abstract var lookaheadDelegate: LookaheadDelegate?
+        protected set
 
     private var oldAlignmentLines: MutableMap<AlignmentLine, Int>? = null
 
-    /**
-     * Creates a new lookaheadDelegate instance when the scope changes. If the provided scope is
-     * null, it means the lookahead root does not exit (or no longer exists), set
-     * the [lookaheadDelegate] to null.
-     */
-    internal fun updateLookaheadScope(scope: LookaheadScope?) {
-        lookaheadDelegate = scope?.let {
-            if (it != lookaheadDelegate?.lookaheadScope) {
-                createLookaheadDelegate(it)
-            } else {
-                lookaheadDelegate
-            }
-        }
-    }
-
-    protected fun updateLookaheadDelegate(lookaheadDelegate: LookaheadDelegate) {
-        this.lookaheadDelegate = lookaheadDelegate
-    }
-
-    abstract fun createLookaheadDelegate(scope: LookaheadScope): LookaheadDelegate
+    abstract fun ensureLookaheadDelegateCreated()
 
     override val providedAlignmentLines: Set<AlignmentLine>
         get() {
@@ -239,12 +221,12 @@ internal abstract class NodeCoordinator(
         } else {
             wrappedBy?.invalidateLayer()
         }
-        layoutNode.owner?.onLayoutChange(layoutNode)
         measuredSize = IntSize(width, height)
-        graphicsLayerScope.size = measuredSize.toSize()
+        updateLayerParameters(invokeOnLayoutChange = false)
         visitNodes(Nodes.Draw) {
             it.onMeasureResultChanged()
         }
+        layoutNode.owner?.onLayoutChange(layoutNode)
     }
 
     override var position: IntOffset = IntOffset.Zero
@@ -260,10 +242,10 @@ internal abstract class NodeCoordinator(
             if (layoutNode.nodes.has(Nodes.ParentData)) {
                 with(layoutNode.density) {
                     layoutNode.nodes.tailToHead {
-                        if (it === thisNode) return@tailToHead
                         if (it.isKind(Nodes.ParentData) && it is ParentDataModifierNode) {
                             data = with(it) { modifyParentData(data) }
                         }
+                        if (it === thisNode) return@tailToHead
                     }
                 }
             }
@@ -299,12 +281,10 @@ internal abstract class NodeCoordinator(
 
     protected inline fun performingMeasure(
         constraints: Constraints,
-        block: () -> Placeable
+        crossinline block: () -> Placeable
     ): Placeable {
         measurementConstraints = constraints
-        val result = block()
-        layer?.resize(measuredSize)
-        return result
+        return block()
     }
 
     fun onMeasured() {
@@ -326,7 +306,7 @@ internal abstract class NodeCoordinator(
         zIndex: Float,
         layerBlock: (GraphicsLayerScope.() -> Unit)?
     ) {
-        onLayerBlockUpdated(layerBlock)
+        updateLayerBlock(layerBlock)
         if (this.position != position) {
             this.position = position
             layoutNode.layoutDelegate.measurePassDelegate
@@ -375,12 +355,6 @@ internal abstract class NodeCoordinator(
 
     @OptIn(ExperimentalComposeUiApi::class)
     fun onPlaced() {
-        val lookahead = lookaheadDelegate
-        if (lookahead != null) {
-            visitNodes(Nodes.LayoutAware) {
-                it.onLookaheadPlaced(lookahead.lookaheadLayoutCoordinates)
-            }
-        }
         visitNodes(Nodes.LayoutAware) {
             it.onPlaced(this)
         }
@@ -404,20 +378,11 @@ internal abstract class NodeCoordinator(
 
     fun updateLayerBlock(
         layerBlock: (GraphicsLayerScope.() -> Unit)?,
-        forceLayerInvalidated: Boolean = false
+        forceUpdateLayerParameters: Boolean = false
     ) {
-        val layerInvalidated = this.layerBlock !== layerBlock || forceLayerInvalidated
-        this.layerBlock = layerBlock
-        onLayerBlockUpdated(layerBlock, forceLayerInvalidated = layerInvalidated)
-    }
-
-    private fun onLayerBlockUpdated(
-        layerBlock: (GraphicsLayerScope.() -> Unit)?,
-        forceLayerInvalidated: Boolean = false
-    ) {
-        val layerInvalidated = this.layerBlock !== layerBlock || layerDensity != layoutNode
+        val updateParameters = this.layerBlock !== layerBlock || layerDensity != layoutNode
             .density || layerLayoutDirection != layoutNode.layoutDirection ||
-            forceLayerInvalidated
+            forceUpdateLayerParameters
         this.layerBlock = layerBlock
         this.layerDensity = layoutNode.density
         this.layerLayoutDirection = layoutNode.layoutDirection
@@ -434,7 +399,7 @@ internal abstract class NodeCoordinator(
                 updateLayerParameters()
                 layoutNode.innerLayerCoordinatorIsDirty = true
                 invalidateParentLayer()
-            } else if (layerInvalidated) {
+            } else if (updateParameters) {
                 updateLayerParameters()
             }
         } else {
@@ -451,7 +416,7 @@ internal abstract class NodeCoordinator(
         }
     }
 
-    private fun updateLayerParameters() {
+    private fun updateLayerParameters(invokeOnLayoutChange: Boolean = true) {
         val layer = layer
         if (layer != null) {
             val layerBlock = requireNotNull(layerBlock)
@@ -486,11 +451,13 @@ internal abstract class NodeCoordinator(
                 density = layoutNode.density
             )
             isClipping = graphicsLayerScope.clip
+            lastLayerAlpha = graphicsLayerScope.alpha
+            if (invokeOnLayoutChange) {
+                layoutNode.owner?.onLayoutChange(layoutNode)
+            }
         } else {
             require(layerBlock == null)
         }
-        lastLayerAlpha = graphicsLayerScope.alpha
-        layoutNode.owner?.onLayoutChange(layoutNode)
     }
 
     private val invalidateParentLayer: () -> Unit = {
@@ -926,32 +893,24 @@ internal abstract class NodeCoordinator(
     }
 
     /**
-     * Attaches the [NodeCoordinator] and its wrapped [NodeCoordinator] to an active
-     * LayoutNode.
-     *
      * This will be called when the [LayoutNode] associated with this [NodeCoordinator] is
      * attached to the [Owner].
-     *
-     * It is also called whenever the modifier chain is replaced and the [NodeCoordinator]s are
-     * recreated.
      */
-    open fun attach() {
-        onLayerBlockUpdated(layerBlock)
+    fun onLayoutNodeAttach() {
+        // this call will update the parameters of the layer (alpha, scale, etc)
+        updateLayerBlock(layerBlock, forceUpdateLayerParameters = true)
+        // this call will invalidate the content of the layer
+        layer?.invalidate()
     }
 
     /**
-     * Detaches the [NodeCoordinator] and its wrapped [NodeCoordinator] from an active
-     * LayoutNode.
-     *
      * This will be called when the [LayoutNode] associated with this [NodeCoordinator] is
-     * detached from the [Owner].
-     *
-     * It is also called whenever the modifier chain is replaced and the [NodeCoordinator]s are
-     * recreated.
+     * released or when the [NodeCoordinator] is released (will not be used anymore).
      */
-    open fun detach() {
+    fun onRelease() {
+        released = true
         if (layer != null) {
-            onLayerBlockUpdated(null)
+            updateLayerBlock(null)
         }
     }
 

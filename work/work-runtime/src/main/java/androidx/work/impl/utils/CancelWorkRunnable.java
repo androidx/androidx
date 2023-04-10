@@ -41,7 +41,6 @@ import java.util.UUID;
 /**
  * A {@link Runnable} to cancel work.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class CancelWorkRunnable implements Runnable {

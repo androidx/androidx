@@ -23,7 +23,6 @@ import java.util.List;
 
 /**
  * Default implementation of [ArtTooling]
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DefaultArtTooling implements ArtTooling {

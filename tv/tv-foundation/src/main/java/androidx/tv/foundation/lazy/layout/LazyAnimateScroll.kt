@@ -23,8 +23,8 @@ import androidx.compose.animation.core.copy
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
-import java.lang.Math.abs
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.math.abs
 
 private class ItemFoundInScroll(
     val itemOffset: Int,
@@ -120,7 +120,7 @@ internal suspend fun LazyAnimateScrollScope.animateScrollToItem(
             while (loop && itemCount > 0) {
                 val expectedDistance = expectedDistanceTo(index, scrollOffset)
                 val target = if (abs(expectedDistance) < targetDistancePx) {
-                    val absTargetPx = maxOf(kotlin.math.abs(expectedDistance), minDistancePx)
+                    val absTargetPx = maxOf(abs(expectedDistance), minDistancePx)
                     if (forward) absTargetPx else -absTargetPx
                 } else {
                     if (forward) targetDistancePx else -targetDistancePx

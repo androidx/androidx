@@ -30,7 +30,6 @@ import com.google.gson.annotations.SerializedName
  * @property columns           The list of columns in the current table
  * @property referencedColumns The list of columns in the referenced table
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public open class ForeignKeyBundle(

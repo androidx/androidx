@@ -95,7 +95,7 @@ interface Font {
          *
          * This timeout is not configurable, and timers are maintained globally.
          */
-        const val MaximumAsyncTimeout = 15_000L
+        const val MaximumAsyncTimeoutMillis = 15_000L
     }
 }
 
@@ -283,7 +283,6 @@ fun Font(
  *
  * @see FontFamily
  */
-@OptIn(ExperimentalTextApi::class)
 @Stable
 fun Font(
     resId: Int,

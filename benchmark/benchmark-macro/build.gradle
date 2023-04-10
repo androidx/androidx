@@ -59,7 +59,8 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
 
     implementation(project(":benchmark:benchmark-common"))
-    implementation("androidx.profileinstaller:profileinstaller:1.0.3")
+    implementation("androidx.core:core:1.9.0")
+    implementation("androidx.profileinstaller:profileinstaller:1.3.0")
     implementation("androidx.tracing:tracing-ktx:1.1.0-rc01")
     implementation(libs.testCore)
     implementation(libs.testUiautomator)
@@ -85,10 +86,14 @@ androidx {
     description = "Android Benchmark - Macrobenchmark"
 }
 
-// Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += ['-opt-in=kotlin.RequiresOptIn']
+        // Enable using experimental APIs from within same version group
+        freeCompilerArgs += [
+                "-opt-in=androidx.benchmark.macro.ExperimentalMetricApi",
+                "-opt-in=androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi",
+                "-opt-in=androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi"
+        ]
     }
 }
 

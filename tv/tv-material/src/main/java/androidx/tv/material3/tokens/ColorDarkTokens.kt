@@ -35,8 +35,8 @@ internal object ColorDarkTokens {
     val OnSurfaceVariant = PaletteTokens.NeutralVariant80
     val OnTertiary = PaletteTokens.Tertiary20
     val OnTertiaryContainer = PaletteTokens.Tertiary90
-    val Outline = PaletteTokens.NeutralVariant60
-    val OutlineVariant = PaletteTokens.NeutralVariant30
+    val Border = PaletteTokens.NeutralVariant60
+    val BorderVariant = PaletteTokens.NeutralVariant30
     val Primary = PaletteTokens.Primary80
     val PrimaryContainer = PaletteTokens.Primary30
     val Scrim = PaletteTokens.Neutral0

@@ -119,7 +119,6 @@ public final class TrustedWebActivityServiceConnection {
      * @throws SecurityException If verification with the TrustedWebActivityService fails.
      * @throws IllegalStateException If called on Android pre-M.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresApi(Build.VERSION_CODES.M)

@@ -113,7 +113,6 @@ public final class ProfileVerifier {
      *                                  {@link ProfileInstallReceiver}.
      * @return the {@link CompilationStatus} of the app profile. Note that this is the same
      * {@link CompilationStatus} obtained through {@link #getCompilationStatusAsync()}.
-     * @hide
      */
     @NonNull
     @WorkerThread
@@ -320,7 +319,6 @@ public final class ProfileVerifier {
         return sFuture;
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     static class Cache {
         private static final int SCHEMA = 1;
@@ -393,7 +391,6 @@ public final class ProfileVerifier {
      */
     public static class CompilationStatus {
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(RetentionPolicy.SOURCE)
         @IntDef({

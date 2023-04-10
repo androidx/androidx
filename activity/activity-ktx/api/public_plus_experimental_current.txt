@@ -7,15 +7,7 @@ package androidx.activity {
   }
 
   public final class PipHintTrackerKt {
-    method @RequiresApi(android.os.Build.VERSION_CODES.O) @kotlinx.coroutines.ExperimentalCoroutinesApi public static suspend Object? trackPipAnimationHintView(android.app.Activity, android.view.View view, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-  }
-
-}
-
-package androidx.activity.contextaware {
-
-  public final class ContextAwareKt {
-    method public static suspend inline <R> Object? withContextAvailable(androidx.activity.contextaware.ContextAware, kotlin.jvm.functions.Function1<? super android.content.Context,? extends R> onContextAvailable, kotlin.coroutines.Continuation<? super R>);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static suspend Object? trackPipAnimationHintView(android.app.Activity, android.view.View view, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
 }

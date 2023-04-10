@@ -659,7 +659,6 @@ public class AccessibilityNodeInfoCompat {
         private final Class<? extends CommandArguments> mViewCommandArgumentClass;
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         protected final AccessibilityViewCommand mCommand;
@@ -680,7 +679,6 @@ public class AccessibilityNodeInfoCompat {
          * @param actionId The action id.
          * @param label The action label.
          * @param command The command performed when the service requests the action
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public AccessibilityActionCompat(int actionId, CharSequence label,
@@ -742,7 +740,6 @@ public class AccessibilityNodeInfoCompat {
          * @return If the action was handled.
          * @param view View to act upon.
          * @param arguments Optional action arguments.
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public boolean perform(View view, Bundle arguments) {
@@ -766,7 +763,6 @@ public class AccessibilityNodeInfoCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public AccessibilityActionCompat createReplacementAction(CharSequence label,
@@ -1314,9 +1310,9 @@ public class AccessibilityNodeInfoCompat {
     private static final String UNIQUE_ID_KEY =
             "androidx.view.accessibility.AccessibilityNodeInfoCompat.UNIQUE_ID_KEY";
 
-    private static final String MIN_MILLIS_BETWEEN_CONTENT_CHANGES_KEY =
+    private static final String MIN_DURATION_BETWEEN_CONTENT_CHANGES_KEY =
             "androidx.view.accessibility.AccessibilityNodeInfoCompat."
-                    + "MIN_MILLIS_BETWEEN_CONTENT_CHANGES_KEY";
+                    + "MIN_DURATION_BETWEEN_CONTENT_CHANGES_KEY";
 
     // These don't line up with the internal framework constants, since they are independent
     // and we might as well get all 32 bits of utility here.
@@ -1330,8 +1326,6 @@ public class AccessibilityNodeInfoCompat {
 
     /**
      *  androidx.customview.widget.ExploreByTouchHelper.HOST_ID = -1;
-     *
-     *  @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public int mParentVirtualDescendantId = NO_ID;
@@ -2743,9 +2737,9 @@ public class AccessibilityNodeInfoCompat {
     /**
      * Gets the minimum time duration between two content change events.
      */
-    public int getMinMillisBetweenContentChanges() {
+    public long getMinDurationBetweenContentChangesMillis() {
         if (Build.VERSION.SDK_INT >= 19) {
-            return Api19Impl.getExtras(mInfo).getInt(MIN_MILLIS_BETWEEN_CONTENT_CHANGES_KEY);
+            return Api19Impl.getExtras(mInfo).getLong(MIN_DURATION_BETWEEN_CONTENT_CHANGES_KEY);
         }
         return 0;
     }
@@ -2755,19 +2749,18 @@ public class AccessibilityNodeInfoCompat {
      * content change events in accessibility services.
      *
      * <p>
-     * Example: An app can set MinMillisBetweenContentChanges as 1 min for a view which sends
+     * Example: An app can set MinDurationBetweenContentChanges as 1 min for a view which sends
      * content change events to accessibility services one event per second.
      * Accessibility service will throttle those content change events and only handle one event
      * per minute for that view.
      * </p>
      *
      * @see AccessibilityEventCompat#getContentChangeTypes for all content change types.
-     * @param minMillisBetweenContentChanges the minimum duration between content change events.
+     * @param duration the minimum duration between content change events.
      */
-    public void setMinMillisBetweenContentChanges(int minMillisBetweenContentChanges) {
+    public void setMinDurationBetweenContentChangesMillis(long duration) {
         if (Build.VERSION.SDK_INT >= 19) {
-            Api19Impl.getExtras(mInfo).putInt(MIN_MILLIS_BETWEEN_CONTENT_CHANGES_KEY,
-                    minMillisBetweenContentChanges);
+            Api19Impl.getExtras(mInfo).putLong(MIN_DURATION_BETWEEN_CONTENT_CHANGES_KEY, duration);
         }
     }
 
@@ -2892,7 +2885,6 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void addSpansToExtras(CharSequence text, View view) {
@@ -2929,7 +2921,6 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static ClickableSpan[] getClickableSpans(CharSequence text) {

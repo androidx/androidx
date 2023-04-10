@@ -208,7 +208,7 @@ class ComposeComponentRegistrar :
     companion object {
         fun checkCompilerVersion(configuration: CompilerConfiguration): Boolean {
             try {
-                val KOTLIN_VERSION_EXPECTATION = "1.8.0"
+                val KOTLIN_VERSION_EXPECTATION = "1.8.20"
                 KotlinCompilerVersion.getVersion()?.let { version ->
                     val msgCollector = configuration.get(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY)
                     val suppressKotlinVersionCheck = configuration.get(
@@ -329,7 +329,7 @@ class ComposeComponentRegistrar :
             )
             val intrinsicRememberEnabled = configuration.get(
                 ComposeConfiguration.INTRINSIC_REMEMBER_OPTIMIZATION_ENABLED_KEY,
-                true
+                false
             )
             val decoysEnabled = configuration.getBoolean(
                 ComposeConfiguration.DECOYS_ENABLED_KEY,

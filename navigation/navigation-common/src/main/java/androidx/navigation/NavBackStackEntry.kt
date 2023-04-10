@@ -107,7 +107,7 @@ public class NavBackStackEntry private constructor(
         )
     }
 
-    private var lifecycle = LifecycleRegistry(this)
+    private var _lifecycle = LifecycleRegistry(this)
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
     private var savedStateRegistryAttached = false
     private val defaultFactory by lazy {
@@ -154,9 +154,8 @@ public class NavBackStackEntry private constructor(
      * [androidx.navigation.NavHostController.setLifecycleOwner], the
      * Lifecycle will be capped at [Lifecycle.State.CREATED].
      */
-    public override fun getLifecycle(): Lifecycle {
-        return lifecycle
-    }
+    override val lifecycle: Lifecycle
+        get() = _lifecycle
 
     /** @suppress */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -191,9 +190,9 @@ public class NavBackStackEntry private constructor(
             savedStateRegistryController.performRestore(savedState)
         }
         if (hostLifecycleState.ordinal < maxLifecycle.ordinal) {
-            lifecycle.currentState = hostLifecycleState
+            _lifecycle.currentState = hostLifecycleState
         } else {
-            lifecycle.currentState = maxLifecycle
+            _lifecycle.currentState = maxLifecycle
         }
     }
 
@@ -251,7 +250,8 @@ public class NavBackStackEntry private constructor(
     override fun equals(other: Any?): Boolean {
         if (other == null || other !is NavBackStackEntry) return false
         return id == other.id && destination == other.destination &&
-            lifecycle == other.lifecycle && savedStateRegistry == other.savedStateRegistry &&
+            lifecycle == other.lifecycle &&
+            savedStateRegistry == other.savedStateRegistry &&
             (
                 immutableArgs == other.immutableArgs ||
                     immutableArgs?.keySet()
@@ -269,6 +269,15 @@ public class NavBackStackEntry private constructor(
         result = 31 * result + lifecycle.hashCode()
         result = 31 * result + savedStateRegistry.hashCode()
         return result
+    }
+
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append(javaClass.simpleName)
+        sb.append("($id)")
+        sb.append(" destination=")
+        sb.append(destination)
+        return sb.toString()
     }
 
     /**

@@ -33,7 +33,6 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * A TaskExecutor that has a real thread for main thread operations and can wait for execution etc.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @SuppressLint("SyntheticAccessor")

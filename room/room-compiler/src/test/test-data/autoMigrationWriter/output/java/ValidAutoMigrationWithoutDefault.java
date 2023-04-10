@@ -18,8 +18,8 @@ final class MyDatabase_AutoMigration_1_2_Impl extends Migration {
     }
 
     @Override
-    public void migrate(@NonNull final SupportSQLiteDatabase database) {
-        database.execSQL("ALTER TABLE `Song` ADD COLUMN `artistId` INTEGER DEFAULT NULL");
-        callback.onPostMigrate(database);
+    public void migrate(@NonNull final SupportSQLiteDatabase db) {
+        db.execSQL("ALTER TABLE `Song` ADD COLUMN `artistId` INTEGER DEFAULT NULL");
+        callback.onPostMigrate(db);
     }
 }

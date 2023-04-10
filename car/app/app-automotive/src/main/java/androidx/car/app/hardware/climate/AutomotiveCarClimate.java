@@ -83,7 +83,6 @@ import java.util.concurrent.Executor;
 /**
  * Manages access to car climate system such as cabin temperatures, fan speeds and fan directions.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 @ExperimentalCarApi

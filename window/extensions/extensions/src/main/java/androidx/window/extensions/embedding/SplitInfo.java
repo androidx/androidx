@@ -17,20 +17,37 @@
 package androidx.window.extensions.embedding;
 
 import androidx.annotation.NonNull;
+import androidx.window.extensions.WindowExtensions;
+import androidx.window.extensions.embedding.SplitAttributes.SplitType;
+
+import java.util.Objects;
 
 /** Describes a split of two containers with activities. */
 public class SplitInfo {
+
     @NonNull
     private final ActivityStack mPrimaryActivityStack;
     @NonNull
     private final ActivityStack mSecondaryActivityStack;
-    private final float mSplitRatio;
+    @NonNull
+    private final SplitAttributes mSplitAttributes;
 
-    public SplitInfo(@NonNull ActivityStack primaryActivityStack,
-            @NonNull ActivityStack secondaryActivityStack, float splitRatio) {
+    /**
+     * The {@code SplitInfo} constructor.
+     *
+     * @param primaryActivityStack The primary {@link ActivityStack}.
+     * @param secondaryActivityStack The secondary {@link ActivityStack}.
+     * @param splitAttributes The current {@link SplitAttributes} of this split pair.
+     */
+    SplitInfo(@NonNull ActivityStack primaryActivityStack,
+            @NonNull ActivityStack secondaryActivityStack,
+            @NonNull SplitAttributes splitAttributes) {
+        Objects.requireNonNull(primaryActivityStack);
+        Objects.requireNonNull(secondaryActivityStack);
+        Objects.requireNonNull(splitAttributes);
         mPrimaryActivityStack = primaryActivityStack;
         mSecondaryActivityStack = secondaryActivityStack;
-        mSplitRatio = splitRatio;
+        mSplitAttributes = splitAttributes;
     }
 
     @NonNull
@@ -43,8 +60,28 @@ public class SplitInfo {
         return mSecondaryActivityStack;
     }
 
+    /**
+     * @deprecated Use {@link #getSplitAttributes()} starting with
+     * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if {@link #getSplitAttributes()}
+     * can't be called on {@link WindowExtensions#VENDOR_API_LEVEL_1}.
+     */
+    @Deprecated
     public float getSplitRatio() {
-        return mSplitRatio;
+        final SplitType splitType = mSplitAttributes.getSplitType();
+        if (splitType instanceof SplitType.RatioSplitType) {
+            return ((SplitType.RatioSplitType) splitType).getRatio();
+        } else { // Fallback to use 0.0 because the WM Jetpack may not support HingeSplitType.
+            return 0.0f;
+        }
+    }
+
+    /**
+     * Returns the {@link SplitAttributes} of this split.
+     * Since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
+     */
+    @NonNull
+    public SplitAttributes getSplitAttributes() {
+        return mSplitAttributes;
     }
 
     @Override
@@ -52,7 +89,7 @@ public class SplitInfo {
         if (this == o) return true;
         if (!(o instanceof SplitInfo)) return false;
         SplitInfo that = (SplitInfo) o;
-        return Float.compare(that.mSplitRatio, mSplitRatio) == 0 && mPrimaryActivityStack.equals(
+        return mSplitAttributes.equals(that.mSplitAttributes) && mPrimaryActivityStack.equals(
                 that.mPrimaryActivityStack) && mSecondaryActivityStack.equals(
                 that.mSecondaryActivityStack);
     }
@@ -61,7 +98,7 @@ public class SplitInfo {
     public int hashCode() {
         int result = mPrimaryActivityStack.hashCode();
         result = result * 31 + mSecondaryActivityStack.hashCode();
-        result = result * 31 + (int) (mSplitRatio * 17);
+        result = result * 31 + mSplitAttributes.hashCode();
         return result;
     }
 
@@ -71,7 +108,7 @@ public class SplitInfo {
         return "SplitInfo{"
                 + "mPrimaryActivityStack=" + mPrimaryActivityStack
                 + ", mSecondaryActivityStack=" + mSecondaryActivityStack
-                + ", mSplitRatio=" + mSplitRatio
+                + ", mSplitAttributes=" + mSplitAttributes
                 + '}';
     }
 }

@@ -19,15 +19,19 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.annotation.SuppressLint
-import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraMetadata
+import android.hardware.camera2.params.DynamicRangeProfiles
 import android.os.Build
+import android.util.Range
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
+import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
+import androidx.camera.camera2.pipe.integration.compat.workaround.isFlashAvailable
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
@@ -37,21 +41,25 @@ import androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
+import androidx.camera.core.DynamicRange
+import androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT
+import androidx.camera.core.DynamicRange.BIT_DEPTH_8_BIT
+import androidx.camera.core.DynamicRange.FORMAT_DOLBY_VISION
+import androidx.camera.core.DynamicRange.FORMAT_HDR10
+import androidx.camera.core.DynamicRange.FORMAT_HDR10_PLUS
+import androidx.camera.core.DynamicRange.FORMAT_HLG
 import androidx.camera.core.ExposureState
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ZoomState
-import androidx.camera.core.impl.CamcorderProfileProvider
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraInfoInternal
-import androidx.camera.core.impl.ImageFormatConstants
+import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.Timebase
 import androidx.camera.core.impl.utils.CameraOrientationUtil
 import androidx.lifecycle.LiveData
 import java.util.concurrent.Executor
 import javax.inject.Inject
-
-internal val defaultQuirks = Quirks(emptyList())
 
 /**
  * Adapt the [CameraInfoInternal] interface to [CameraPipe].
@@ -66,9 +74,11 @@ class CameraInfoAdapter @Inject constructor(
     private val cameraStateAdapter: CameraStateAdapter,
     private val cameraControlStateAdapter: CameraControlStateAdapter,
     private val cameraCallbackMap: CameraCallbackMap,
-    private val focusMeteringControl: FocusMeteringControl
+    private val focusMeteringControl: FocusMeteringControl,
+    private val cameraQuirks: CameraQuirks,
+    private val encoderProfilesProviderAdapter: EncoderProfilesProviderAdapter,
+    private val streamConfigurationMapCompat: StreamConfigurationMapCompat,
 ) : CameraInfoInternal {
-    private lateinit var camcorderProfileProviderAdapter: CamcorderProfileProviderAdapter
     @OptIn(ExperimentalCamera2Interop::class)
     internal val camera2CameraInfo: Camera2CameraInfo by lazy {
         Camera2CameraInfo.create(cameraProperties)
@@ -91,8 +101,7 @@ class CameraInfoAdapter @Inject constructor(
     }
 
     override fun getSensorRotationDegrees(): Int = getSensorRotationDegrees(Surface.ROTATION_0)
-    override fun hasFlashUnit(): Boolean =
-        cameraProperties.metadata[CameraCharacteristics.FLASH_INFO_AVAILABLE]!!
+    override fun hasFlashUnit(): Boolean = cameraProperties.isFlashAvailable()
 
     override fun getSensorRotationDegrees(relativeRotation: Int): Int {
         val sensorOrientation: Int =
@@ -127,11 +136,8 @@ class CameraInfoAdapter @Inject constructor(
 
     override fun getImplementationType(): String = "CameraPipe"
 
-    override fun getCamcorderProfileProvider(): CamcorderProfileProvider {
-        if (!::camcorderProfileProviderAdapter.isInitialized) {
-            camcorderProfileProviderAdapter = CamcorderProfileProviderAdapter(cameraId)
-        }
-        return camcorderProfileProviderAdapter
+    override fun getEncoderProfilesProvider(): EncoderProfilesProvider {
+        return encoderProfilesProviderAdapter
     }
 
     override fun getTimebase(): Timebase {
@@ -147,26 +153,29 @@ class CameraInfoAdapter @Inject constructor(
 
     @SuppressLint("ClassVerificationFailure")
     override fun getSupportedResolutions(format: Int): List<Size> {
-        val streamConfigurationMap =
-            cameraProperties.metadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!
-        return if (Build.VERSION.SDK_INT < 23 &&
-            format == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
-        ) {
-            streamConfigurationMap.getOutputSizes(SurfaceTexture::class.java)
-        } else {
-            streamConfigurationMap.getOutputSizes(format)
-        }?.toList() ?: emptyList()
+        return streamConfigurationMapCompat.getOutputSizes(format)?.toList() ?: emptyList()
+    }
+
+    @SuppressLint("ClassVerificationFailure")
+    override fun getSupportedHighResolutions(format: Int): List<Size> {
+        return streamConfigurationMapCompat.getHighResolutionOutputSizes(format)?.toList()
+            ?: emptyList()
     }
 
     override fun toString(): String = "CameraInfoAdapter<$cameraConfig.cameraId>"
 
     override fun getCameraQuirks(): Quirks {
-        Log.warn { "TODO: Quirks are not yet supported." }
-        return defaultQuirks
+        return cameraQuirks.quirks
     }
 
     override fun isFocusMeteringSupported(action: FocusMeteringAction) =
         focusMeteringControl.isFocusMeteringSupported(action)
+
+    override fun getSupportedFrameRateRanges(): List<Range<Int>> {
+        return cameraProperties
+            .metadata[CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES]?.toList()
+            ?: listOf()
+    }
 
     override fun isZslSupported(): Boolean {
         Log.warn { "TODO: isZslSupported are not yet supported." }
@@ -176,5 +185,48 @@ class CameraInfoAdapter @Inject constructor(
     override fun isPrivateReprocessingSupported(): Boolean {
         Log.warn { "TODO: isPrivateReprocessingSupported are not yet supported." }
         return false
+    }
+
+    @SuppressLint("ClassVerificationFailure")
+    override fun getSupportedDynamicRanges(): Set<DynamicRange> {
+        // TODO: use DynamicRangesCompat instead after it is migrates from camera-camera2.
+        if (Build.VERSION.SDK_INT >= 33) {
+            val availableProfiles = cameraProperties.metadata[
+                CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES]!!
+            return profileSetToDynamicRangeSet(availableProfiles.supportedProfiles)
+        }
+        return setOf(DynamicRange.SDR)
+    }
+
+    private fun profileSetToDynamicRangeSet(profileSet: Set<Long>): Set<DynamicRange> {
+        return profileSet.map { profileToDynamicRange(it) }.toSet()
+    }
+
+    private fun profileToDynamicRange(profile: Long): DynamicRange {
+        return checkNotNull(PROFILE_TO_DR_MAP[profile]) {
+            "Dynamic range profile cannot be converted to a DynamicRange object: $profile"
+        }
+    }
+
+    companion object {
+        private val DR_HLG10 = DynamicRange(FORMAT_HLG, BIT_DEPTH_10_BIT)
+        private val DR_HDR10 = DynamicRange(FORMAT_HDR10, BIT_DEPTH_10_BIT)
+        private val DR_HDR10_PLUS = DynamicRange(FORMAT_HDR10_PLUS, BIT_DEPTH_10_BIT)
+        private val DR_DOLBY_VISION_10_BIT = DynamicRange(FORMAT_DOLBY_VISION, BIT_DEPTH_10_BIT)
+        private val DR_DOLBY_VISION_8_BIT = DynamicRange(FORMAT_DOLBY_VISION, BIT_DEPTH_8_BIT)
+        private val PROFILE_TO_DR_MAP: Map<Long, DynamicRange> = mapOf(
+            DynamicRangeProfiles.STANDARD to DynamicRange.SDR,
+            DynamicRangeProfiles.HLG10 to DR_HLG10,
+            DynamicRangeProfiles.HDR10 to DR_HDR10,
+            DynamicRangeProfiles.HDR10_PLUS to DR_HDR10_PLUS,
+            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_OEM to DR_DOLBY_VISION_10_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_OEM_PO to DR_DOLBY_VISION_10_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_REF to DR_DOLBY_VISION_10_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_REF_PO to DR_DOLBY_VISION_10_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_OEM to DR_DOLBY_VISION_8_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_OEM_PO to DR_DOLBY_VISION_8_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_REF to DR_DOLBY_VISION_8_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_REF_PO to DR_DOLBY_VISION_8_BIT,
+        )
     }
 }

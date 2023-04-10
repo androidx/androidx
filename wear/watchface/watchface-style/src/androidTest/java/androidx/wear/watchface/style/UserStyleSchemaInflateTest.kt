@@ -27,8 +27,8 @@ import androidx.wear.watchface.complications.IllegalNodeException
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.iterate
 import androidx.wear.watchface.complications.moveToStart
-import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
+import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption
 import androidx.wear.watchface.style.test.R
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -56,11 +56,12 @@ class UserStyleSchemaInflateTest {
         assertThat(setting0.displayName).isEqualTo("Colors")
         assertThat(setting0.description).isEqualTo("Watchface colorization")
         assertThat(setting0.defaultOptionIndex).isEqualTo(1)
-        assertThat(setting0.affectedWatchFaceLayers).containsExactly(
-            WatchFaceLayer.BASE,
-            WatchFaceLayer.COMPLICATIONS,
-            WatchFaceLayer.COMPLICATIONS_OVERLAY
-        )
+        assertThat(setting0.affectedWatchFaceLayers)
+            .containsExactly(
+                WatchFaceLayer.BASE,
+                WatchFaceLayer.COMPLICATIONS,
+                WatchFaceLayer.COMPLICATIONS_OVERLAY
+            )
         assertThat(setting0.icon!!.resId).isEqualTo(R.drawable.color_style_icon)
         assertThat(setting0.watchFaceEditorData!!.icon!!.resId)
             .isEqualTo(R.drawable.color_style_icon_wf)
@@ -85,9 +86,8 @@ class UserStyleSchemaInflateTest {
         assertThat(setting1.displayName).isEqualTo("thing2")
         assertThat(setting1.description).isEqualTo("description2")
         assertThat(setting1.defaultOptionIndex).isEqualTo(0)
-        assertThat(setting1.affectedWatchFaceLayers).containsExactly(
-            WatchFaceLayer.COMPLICATIONS_OVERLAY
-        )
+        assertThat(setting1.affectedWatchFaceLayers)
+            .containsExactly(WatchFaceLayer.COMPLICATIONS_OVERLAY)
         assertThat(setting1.icon).isNull()
         assertThat(setting1.watchFaceEditorData).isNull()
         assertThat(setting1.options.size).isEqualTo(2)
@@ -111,11 +111,12 @@ class UserStyleSchemaInflateTest {
         assertThat(setting2.displayName).isEqualTo("A or B")
         assertThat(setting2.description).isEqualTo("Choose one")
         assertThat(setting2.defaultOptionIndex).isEqualTo(0)
-        assertThat(setting2.affectedWatchFaceLayers).containsExactly(
-            WatchFaceLayer.BASE,
-            WatchFaceLayer.COMPLICATIONS,
-            WatchFaceLayer.COMPLICATIONS_OVERLAY
-        )
+        assertThat(setting2.affectedWatchFaceLayers)
+            .containsExactly(
+                WatchFaceLayer.BASE,
+                WatchFaceLayer.COMPLICATIONS,
+                WatchFaceLayer.COMPLICATIONS_OVERLAY
+            )
         assertThat(setting1.icon).isNull()
         assertThat(setting1.options.size).isEqualTo(2)
         val option20 = (setting2.options[0] as ListOption)
@@ -157,9 +158,7 @@ class UserStyleSchemaInflateTest {
         assertThat(setting1.id.value).isEqualTo("ComplicationsId")
         assertThat(setting1.displayName).isEqualTo("Complications")
         assertThat(setting1.description).isEqualTo("Controls complication layout")
-        assertThat(setting1.affectedWatchFaceLayers).containsExactly(
-            WatchFaceLayer.COMPLICATIONS
-        )
+        assertThat(setting1.affectedWatchFaceLayers).containsExactly(WatchFaceLayer.COMPLICATIONS)
         assertThat(setting1.icon).isNull()
         assertThat(setting1.options.size).isEqualTo(4)
         val option10 = (setting1.options[0] as ComplicationSlotsOption)
@@ -170,9 +169,8 @@ class UserStyleSchemaInflateTest {
         val overlays10 = option10.complicationSlotOverlays.toTypedArray()
         assertThat(overlays10.size).isEqualTo(3)
         assertThat(overlays10[0].complicationSlotId).isEqualTo(1)
-        assertThat(overlays10[0].complicationSlotId).isEqualTo(context.resources.getInteger(
-            R.integer.complication_slot_id1
-        ))
+        assertThat(overlays10[0].complicationSlotId)
+            .isEqualTo(context.resources.getInteger(R.integer.complication_slot_id1))
         assertThat(overlays10[0].enabled).isFalse()
         assertThat(overlays10[0].accessibilityTraversalIndex).isNull()
         assertThat(overlays10[0].complicationSlotBounds).isNull()
@@ -194,10 +192,11 @@ class UserStyleSchemaInflateTest {
         assertThat(overlays11[0].enabled).isNull()
         assertThat(overlays11[0].accessibilityTraversalIndex).isNull()
         assertThat(
-            overlays11[0].complicationSlotBounds!!.perComplicationTypeBounds[
-                ComplicationType.LONG_TEXT
-            ]
-        ).isEqualTo(RectF(0.2f, 0.4f, 0.3f, 0.1f))
+                overlays11[0]
+                    .complicationSlotBounds!!
+                    .perComplicationTypeBounds[ComplicationType.LONG_TEXT]
+            )
+            .isEqualTo(RectF(0.2f, 0.4f, 0.3f, 0.1f))
 
         val option12 = (setting1.options[2] as ComplicationSlotsOption)
         assertThat(option12.id).isEqualTo(UserStyleSetting.Option.Id("three"))
@@ -206,15 +205,17 @@ class UserStyleSchemaInflateTest {
         assertThat(option12.complicationSlotOverlays.size).isEqualTo(1)
         val overlays12 = option12.complicationSlotOverlays.toTypedArray()
         assertThat(
-            overlays12[0].complicationSlotBounds!!.perComplicationTypeBounds[
-                ComplicationType.SHORT_TEXT
-            ]
-        ).isEqualTo(RectF(0.2f, 0.4f, 0.3f, 0.1f))
+                overlays12[0]
+                    .complicationSlotBounds!!
+                    .perComplicationTypeBounds[ComplicationType.SHORT_TEXT]
+            )
+            .isEqualTo(RectF(0.2f, 0.4f, 0.3f, 0.1f))
         assertThat(
-            overlays12[0].complicationSlotBounds!!.perComplicationTypeBounds[
-                ComplicationType.LONG_TEXT
-            ]
-        ).isEqualTo(RectF(0.6f, 0.8f, 0.7f, 0.5f))
+                overlays12[0]
+                    .complicationSlotBounds!!
+                    .perComplicationTypeBounds[ComplicationType.LONG_TEXT]
+            )
+            .isEqualTo(RectF(0.6f, 0.8f, 0.7f, 0.5f))
 
         val option13 = (setting1.options[3] as ComplicationSlotsOption)
         assertThat(option13.id).isEqualTo(UserStyleSetting.Option.Id("four"))
@@ -232,10 +233,8 @@ class UserStyleSchemaInflateTest {
         assertThat(setting2.defaultValue).isEqualTo(2.5)
         assertThat(setting2.minimumValue).isEqualTo(-1.5)
         assertThat(setting2.maximumValue).isEqualTo(10.5)
-        assertThat(setting2.affectedWatchFaceLayers).containsExactly(
-            WatchFaceLayer.BASE,
-            WatchFaceLayer.COMPLICATIONS
-        )
+        assertThat(setting2.affectedWatchFaceLayers)
+            .containsExactly(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS)
         assertThat(setting2.icon).isNull()
 
         val setting3 = schema.userStyleSettings[3] as UserStyleSetting.LongRangeUserStyleSetting
@@ -245,10 +244,8 @@ class UserStyleSchemaInflateTest {
         assertThat(setting3.defaultValue).isEqualTo(2)
         assertThat(setting3.minimumValue).isEqualTo(-1)
         assertThat(setting3.maximumValue).isEqualTo(10)
-        assertThat(setting3.affectedWatchFaceLayers).containsExactly(
-            WatchFaceLayer.COMPLICATIONS,
-            WatchFaceLayer.COMPLICATIONS_OVERLAY
-        )
+        assertThat(setting3.affectedWatchFaceLayers)
+            .containsExactly(WatchFaceLayer.COMPLICATIONS, WatchFaceLayer.COMPLICATIONS_OVERLAY)
         assertThat(setting3.icon).isNull()
 
         parser.close()
@@ -270,30 +267,26 @@ class UserStyleSchemaInflateTest {
         assertThat(schema2.userStyleSettings.size).isEqualTo(2)
 
         // List
-        val simpleListWithParent1 = schema1.userStyleSettings[0]
-            as UserStyleSetting.ListUserStyleSetting
-        val simpleListWithParent2 = schema2.userStyleSettings[0]
-            as UserStyleSetting.ListUserStyleSetting
+        val simpleListWithParent1 =
+            schema1.userStyleSettings[0] as UserStyleSetting.ListUserStyleSetting
+        val simpleListWithParent2 =
+            schema2.userStyleSettings[0] as UserStyleSetting.ListUserStyleSetting
 
         assertThat(simpleListWithParent1).isEqualTo(simpleListWithParent2)
 
         val listParser = context.resources.getXml(R.xml.list_setting_common)
         listParser.moveToStart("ListUserStyleSetting")
 
-        val simpleListSetting = UserStyleSetting.ListUserStyleSetting.inflate(
-            context.resources, listParser, emptyMap()
-        )
+        val simpleListSetting =
+            UserStyleSetting.ListUserStyleSetting.inflate(context.resources, listParser, emptyMap())
 
         assertThat(simpleListWithParent1).isEqualTo(simpleListSetting)
-        assertThat(simpleListSetting.id.value).isEqualTo(
-            context.resources.getString(R.string.list_setting_common_id)
-        )
-        assertThat(simpleListSetting.options[0].id.toString()).isEqualTo(
-            context.resources.getString(R.string.list_setting_common_option_red_id)
-        )
-        assertThat(simpleListSetting.options[1].id.toString()).isEqualTo(
-            context.resources.getString(R.string.list_setting_common_option_green_id)
-        )
+        assertThat(simpleListSetting.id.value)
+            .isEqualTo(context.resources.getString(R.string.list_setting_common_id))
+        assertThat(simpleListSetting.options[0].id.toString())
+            .isEqualTo(context.resources.getString(R.string.list_setting_common_option_red_id))
+        assertThat(simpleListSetting.options[1].id.toString())
+            .isEqualTo(context.resources.getString(R.string.list_setting_common_option_green_id))
 
         // Check override
         val listSetting1 = schema1.userStyleSettings[1] as UserStyleSetting.ListUserStyleSetting
@@ -312,25 +305,24 @@ class UserStyleSchemaInflateTest {
         assertThat(listSetting1.defaultOptionIndex).isEqualTo(simpleListSetting.defaultOptionIndex)
 
         // Double
-        val simpleDoubleWithParent1 = schema1.userStyleSettings[4]
-            as UserStyleSetting.DoubleRangeUserStyleSetting
-        val simpleDoubleWithParent2 = schema2.userStyleSettings[1]
-            as UserStyleSetting.DoubleRangeUserStyleSetting
+        val simpleDoubleWithParent1 =
+            schema1.userStyleSettings[4] as UserStyleSetting.DoubleRangeUserStyleSetting
+        val simpleDoubleWithParent2 =
+            schema2.userStyleSettings[1] as UserStyleSetting.DoubleRangeUserStyleSetting
 
         assertThat(simpleDoubleWithParent1).isEqualTo(simpleDoubleWithParent2)
 
         val doubleParser = context.resources.getXml(R.xml.double_setting_common)
         doubleParser.moveToStart("DoubleRangeUserStyleSetting")
 
-        val simpleDoubleSetting = UserStyleSetting.DoubleRangeUserStyleSetting.inflate(
-            context.resources, doubleParser
-        )
+        val simpleDoubleSetting =
+            UserStyleSetting.DoubleRangeUserStyleSetting.inflate(context.resources, doubleParser)
 
         assertThat(simpleDoubleWithParent1).isEqualTo(simpleDoubleSetting)
 
         // Check override
-        val doubleSetting1 = schema1.userStyleSettings[5]
-            as UserStyleSetting.DoubleRangeUserStyleSetting
+        val doubleSetting1 =
+            schema1.userStyleSettings[5] as UserStyleSetting.DoubleRangeUserStyleSetting
 
         assertThat(doubleSetting1.id.value).isEqualTo("double_id0")
         assertThat(doubleSetting1.defaultValue).isEqualTo(0.0)
@@ -338,9 +330,8 @@ class UserStyleSchemaInflateTest {
         assertThat(doubleSetting1.minimumValue).isEqualTo(-1.0)
 
         assertThat(doubleSetting1.displayName).isEqualTo(simpleDoubleSetting.displayName)
-        assertThat(doubleSetting1.affectedWatchFaceLayers).isEqualTo(
-            simpleDoubleSetting.affectedWatchFaceLayers
-        )
+        assertThat(doubleSetting1.affectedWatchFaceLayers)
+            .isEqualTo(simpleDoubleSetting.affectedWatchFaceLayers)
 
         doubleParser.close()
         listParser.close()
@@ -370,8 +361,7 @@ class UserStyleSchemaInflateTest {
         }
 
         assertThat(flavors!!.flavors.size).isEqualTo(2)
-        assertThat(flavors!!.flavors[0].style.userStyleMap.keys).containsExactly(
-            context.getString(R.string.list_setting_common_id)
-        )
+        assertThat(flavors!!.flavors[0].style.userStyleMap.keys)
+            .containsExactly(context.getString(R.string.list_setting_common_id))
     }
 }

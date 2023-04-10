@@ -88,7 +88,7 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
         }
         goAsync {
             updateManager(context)
-            appWidgetIds.map { async { glanceAppWidget.update(context, appWidgetManager, it) } }
+            appWidgetIds.map { async { glanceAppWidget.update(context, it) } }
                 .awaitAll()
         }
     }
@@ -102,7 +102,7 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
     ) {
         goAsync {
             updateManager(context)
-            glanceAppWidget.resize(context, appWidgetManager, appWidgetId, newOptions)
+            glanceAppWidget.resize(context, appWidgetId, newOptions)
         }
     }
 

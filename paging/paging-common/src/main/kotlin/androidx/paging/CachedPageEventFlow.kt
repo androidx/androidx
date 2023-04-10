@@ -94,7 +94,7 @@ internal class CachedPageEventFlow<T : Any>(
     val downstreamFlow = flow {
         // track max event index we've seen to avoid race condition between history and the shared
         // stream
-        var maxEventIndex = Integer.MIN_VALUE
+        var maxEventIndex = Int.MIN_VALUE
         sharedForDownstream
             .takeWhile {
                 // shared flow cannot finish hence we have a special marker to finish it

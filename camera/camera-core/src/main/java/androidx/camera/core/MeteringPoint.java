@@ -83,7 +83,6 @@ public class MeteringPoint {
      * center X of the region in current normalized surface coordinate system. (ranging from 0 to
      * 1).
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public float getX() {
@@ -94,7 +93,6 @@ public class MeteringPoint {
      * center Y of the region in current normalized surface coordinate system. (ranging from 0 to
      * 1).
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public float getY() {
@@ -134,7 +132,6 @@ public class MeteringPoint {
      * in {@link ImageAnalysis}. If surfaceAspectRatio is null, then Preview aspect ratio will be
      * used. Otherwise, use the specified surfaceAspectRatio.
      *
-     * @hide
      */
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

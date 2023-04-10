@@ -17,6 +17,7 @@
 package androidx.compose.material3
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import java.util.Locale
 
@@ -24,7 +25,7 @@ import java.util.Locale
  * Creates a [CalendarModel] to be used by the date picker.
  */
 @ExperimentalMaterial3Api
-internal expect fun createCalendarModel(): CalendarModel
+internal expect fun CalendarModel(): CalendarModel
 
 /**
  * Formats a UTC timestamp into a string with a given date format skeleton.
@@ -285,6 +286,7 @@ internal data class CalendarMonth(
  * in a short format, as well as a date pattern with and without a delimiter.
  */
 @ExperimentalMaterial3Api
+@Immutable
 internal data class DateInputFormat(
     val patternWithDelimiters: String,
     val delimiter: Char

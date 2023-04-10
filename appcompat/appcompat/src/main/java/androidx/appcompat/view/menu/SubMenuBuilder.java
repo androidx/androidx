@@ -32,7 +32,6 @@ import androidx.annotation.RestrictTo;
  * The model for a sub menu, which is an extension of the menu.  Most methods are proxied to the
  * parent menu.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class SubMenuBuilder extends MenuBuilder implements SubMenu {

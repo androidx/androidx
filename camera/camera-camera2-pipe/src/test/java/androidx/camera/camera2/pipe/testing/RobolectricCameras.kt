@@ -106,7 +106,8 @@ public object RobolectricCameras {
                 characteristics,
                 FakeCameraMetadataProvider(),
                 emptyMap(),
-                emptySet())
+                emptySet()
+            )
 
         @Suppress("SyntheticAccessor") val callback = CameraStateCallback(cameraId)
         cameraManager.openCamera(cameraId.value, callback, Handler())
@@ -150,7 +151,8 @@ public object RobolectricCameras {
 
         override fun onDisconnected(camera: CameraDevice) {
             throw UnsupportedOperationException(
-                "onDisconnected is not expected for Robolectric Camera")
+                "onDisconnected is not expected for Robolectric Camera"
+            )
         }
 
         override fun onError(camera: CameraDevice, error: Int) {
@@ -169,7 +171,8 @@ class RobolectricCamerasTest {
     fun fakeCamerasCanBeOpened() {
         val fakeCameraId =
             RobolectricCameras.create(
-                mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK))
+                mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK)
+            )
         val fakeCamera = RobolectricCameras.open(fakeCameraId)
 
         Truth.assertThat(fakeCamera).isNotNull()

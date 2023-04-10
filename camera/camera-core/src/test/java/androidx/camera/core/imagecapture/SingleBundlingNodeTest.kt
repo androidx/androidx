@@ -44,7 +44,7 @@ class SingleBundlingNodeTest {
 
     @Before
     fun setUp() {
-        captureNodeOut = CaptureNode.Out.of(ImageFormat.JPEG)
+        captureNodeOut = CaptureNode.Out.of(ImageFormat.JPEG, false)
         matchingNodeOut = node.transform(captureNodeOut)
         matchingNodeOut.edge.setListener {
             packetPropagated.add(it)

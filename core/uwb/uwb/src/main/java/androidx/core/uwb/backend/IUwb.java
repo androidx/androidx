@@ -23,10 +23,11 @@ import android.os.Parcel;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
- /**
-  * @hide
+/**
  */
+ @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint({"MutableBareField", "ParcelNotFinal"})
 public interface IUwb extends android.os.IInterface
 {

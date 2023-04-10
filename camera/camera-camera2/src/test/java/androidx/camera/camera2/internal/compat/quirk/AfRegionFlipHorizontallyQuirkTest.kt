@@ -60,9 +60,10 @@ class AfRegionFlipHorizontallyQuirkTest(
             CameraCharacteristics.LENS_FACING,
             lensFacing
         )
+        val cameraId = "0" /* don't care */
         val characteristicsCompat =
-            CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics)
-        return CameraQuirks.get("0" /* don't care */, characteristicsCompat)
+            CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics, cameraId)
+        return CameraQuirks.get(cameraId, characteristicsCompat)
     }
 
     @Test

@@ -27,10 +27,7 @@ import java.time.Instant
  * @param start The [Instant] when this TimeInterval becomes valid
  * @param end The [Instant] when this TimeInterval becomes invalid, must be after [start]
  */
-public class TimeInterval(
-    public var start: Instant,
-    public var end: Instant
-) {
+public class TimeInterval(public var start: Instant, public var end: Instant) {
     init {
         require(start < end) { "start must be before end" }
     }
@@ -100,7 +97,7 @@ public class TimelineEntry(
  *
  * In the case where the validity periods of TimelineEntry items overlap, the item with the
  * *shortest* validity period will be shown. If none are valid then the [defaultComplicationData]
- * will be shown.  This allows a complication datasource to show a "default", and override it at set
+ * will be shown. This allows a complication datasource to show a "default", and override it at set
  * points without having to explicitly insert the default [ComplicationData] between the each
  * "override".
  *
@@ -123,17 +120,16 @@ public class ComplicationDataTimeline(
         for (entry in timelineEntries) {
             val complicationData = entry.complicationData
             if (complicationData is NoDataComplicationData) {
-                require(complicationData.placeholder == null ||
-                    complicationData.placeholder!!.type == defaultComplicationData.type
+                require(
+                    complicationData.placeholder == null ||
+                        complicationData.placeholder!!.type == defaultComplicationData.type
                 ) {
                     "TimelineEntry's placeholder types must match the defaultComplicationData. " +
                         "Found ${complicationData.placeholder!!.type} expected " +
                         "${defaultComplicationData.type}."
                 }
             } else {
-                require(
-                    complicationData.type == defaultComplicationData.type
-                ) {
+                require(complicationData.type == defaultComplicationData.type) {
                     "TimelineEntry's complicationData must have the same type as the " +
                         "defaultComplicationData or be NoDataComplicationData. Found " +
                         "${complicationData.type} expected ${defaultComplicationData.type}."
@@ -148,12 +144,13 @@ public class ComplicationDataTimeline(
     }
 
     internal fun asWireComplicationData(): WireComplicationData {
-        val wireTimelineEntries = timelineEntries.map { timelineEntry ->
-            timelineEntry.complicationData.asWireComplicationData().apply {
-                timelineStartEpochSecond = timelineEntry.validity.start.epochSecond
-                timelineEndEpochSecond = timelineEntry.validity.end.epochSecond
+        val wireTimelineEntries =
+            timelineEntries.map { timelineEntry ->
+                timelineEntry.complicationData.asWireComplicationData().apply {
+                    timelineStartEpochSecond = timelineEntry.validity.start.epochSecond
+                    timelineEndEpochSecond = timelineEntry.validity.end.epochSecond
+                }
             }
-        }
         return defaultComplicationData.asWireComplicationData().apply {
             setTimelineEntryCollection(wireTimelineEntries)
         }

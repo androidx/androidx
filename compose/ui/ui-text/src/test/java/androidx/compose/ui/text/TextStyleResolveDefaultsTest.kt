@@ -92,7 +92,6 @@ class TextStyleResolveDefaultsTest {
         ).isEqualTo(brush)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun test_use_provided_values_hyphens() {
         assertThat(
@@ -286,7 +285,6 @@ class TextStyleResolveDefaultsTest {
         ).isEqualTo(TextIndent(12.sp, 13.sp))
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun test_use_provided_values_lineBreak() {
         assertThat(

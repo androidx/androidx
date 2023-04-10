@@ -273,6 +273,16 @@ object SemanticsActions {
     val SetText = ActionPropertyKey<(AnnotatedString) -> Boolean>("SetText")
 
     /**
+     * @see SemanticsPropertyReceiver.insertTextAtCursor
+     */
+    val InsertTextAtCursor = ActionPropertyKey<(AnnotatedString) -> Boolean>("InsertTextAtCursor")
+
+    /**
+     * @see SemanticsPropertyReceiver.performImeAction
+     */
+    val PerformImeAction = ActionPropertyKey<() -> Boolean>("PerformImeAction")
+
+    /**
      * @see SemanticsPropertyReceiver.copyText
      */
     val CopyText = ActionPropertyKey<() -> Boolean>("CopyText")
@@ -587,6 +597,7 @@ value class Role private constructor(@Suppress("unused") private val value: Int)
          * [SemanticsProperties.Disabled], [SemanticsActions.OnClick]
          */
         val Button = Role(0)
+
         /**
          * This element is a Checkbox which is a component that represents two states (checked /
          * unchecked). Associated semantics properties for accessibility:
@@ -594,6 +605,7 @@ value class Role private constructor(@Suppress("unused") private val value: Int)
          * [SemanticsActions.OnClick]
          */
         val Checkbox = Role(1)
+
         /**
          * This element is a Switch which is a two state toggleable component that provides on/off
          * like options. Associated semantics properties for accessibility:
@@ -601,12 +613,14 @@ value class Role private constructor(@Suppress("unused") private val value: Int)
          * [SemanticsActions.OnClick]
          */
         val Switch = Role(2)
+
         /**
          * This element is a RadioButton which is a component to represent two states, selected and not
          * selected. Associated semantics properties for accessibility: [SemanticsProperties.Disabled],
          * [SemanticsProperties.StateDescription], [SemanticsActions.OnClick]
          */
         val RadioButton = Role(3)
+
         /**
          * This element is a Tab which represents a single page of content using a text label and/or
          * icon. A Tab also has two states: selected and not selected. Associated semantics properties
@@ -614,11 +628,13 @@ value class Role private constructor(@Suppress("unused") private val value: Int)
          * [SemanticsActions.OnClick]
          */
         val Tab = Role(4)
+
         /**
          * This element is an image. Associated semantics properties for accessibility:
          * [SemanticsProperties.ContentDescription]
          */
         val Image = Role(5)
+
         /**
          * This element is associated with a drop down menu.
          * Associated semantics properties for accessibility:
@@ -653,6 +669,7 @@ value class LiveRegionMode private constructor(@Suppress("unused") private val v
          * changes to this node.
          */
         val Polite = LiveRegionMode(0)
+
         /**
          * Live region mode specifying that accessibility services should interrupt
          * ongoing speech to immediately announce changes to this node.
@@ -688,7 +705,9 @@ interface SemanticsPropertyReceiver {
  */
 var SemanticsPropertyReceiver.contentDescription: String
     get() = throwSemanticsGetNotSupported()
-    set(value) { set(SemanticsProperties.ContentDescription, listOf(value)) }
+    set(value) {
+        set(SemanticsProperties.ContentDescription, listOf(value))
+    }
 
 /**
  * Developer-set state description of the semantics node.
@@ -786,13 +805,13 @@ fun SemanticsPropertyReceiver.invisibleToUser() {
  * The horizontal scroll state of this node if this node is scrollable.
  */
 var SemanticsPropertyReceiver.horizontalScrollAxisRange
-by SemanticsProperties.HorizontalScrollAxisRange
+    by SemanticsProperties.HorizontalScrollAxisRange
 
 /**
  * The vertical scroll state of this node if this node is scrollable.
  */
 var SemanticsPropertyReceiver.verticalScrollAxisRange
-by SemanticsProperties.VerticalScrollAxisRange
+    by SemanticsProperties.VerticalScrollAxisRange
 
 /**
  * Whether this semantics node represents a Popup. Not to be confused with if this node is
@@ -838,7 +857,9 @@ var SemanticsPropertyReceiver.testTag by SemanticsProperties.TestTag
  */
 var SemanticsPropertyReceiver.text: AnnotatedString
     get() = throwSemanticsGetNotSupported()
-    set(value) { set(SemanticsProperties.Text, listOf(value)) }
+    set(value) {
+        set(SemanticsProperties.Text, listOf(value))
+    }
 
 /**
  * Input text of the text field with visual transformation applied to it. It must be a real text
@@ -856,6 +877,9 @@ var SemanticsPropertyReceiver.textSelectionRange by SemanticsProperties.TextSele
  * Contains the IME action provided by the node.
  *
  * For example, "go to next form field" or "submit".
+ *
+ * A node that specifies an action should also specify a callback to perform the action via
+ * [performImeAction].
  */
 var SemanticsPropertyReceiver.imeAction by SemanticsProperties.ImeAction
 
@@ -921,7 +945,7 @@ fun SemanticsPropertyReceiver.indexForKey(mapping: (Any) -> Int) {
  * with lazy collections, it won't get the number of elements in the collection.
  *
  * @see SemanticsPropertyReceiver.selected
-*/
+ */
 fun SemanticsPropertyReceiver.selectableGroup() {
     this[SemanticsProperties.SelectableGroup] = Unit
 }
@@ -1010,7 +1034,7 @@ fun SemanticsPropertyReceiver.setProgress(label: String? = null, action: ((Float
  * Expected to be used on editable text fields.
  *
  * @param label Optional label for this action.
- * @param action Action to be performed when the [SemanticsActions.SetText] is called.
+ * @param action Action to be performed when [SemanticsActions.SetText] is called.
  */
 fun SemanticsPropertyReceiver.setText(
     label: String? = null,
@@ -1020,17 +1044,53 @@ fun SemanticsPropertyReceiver.setText(
 }
 
 /**
+ * Action to insert text into this node at the current cursor position, or replacing the selection
+ * if text is selected.
+ *
+ * Expected to be used on editable text fields.
+ *
+ * @param label Optional label for this action.
+ * @param action Action to be performed when [SemanticsActions.InsertTextAtCursor] is called.
+ */
+fun SemanticsPropertyReceiver.insertTextAtCursor(
+    label: String? = null,
+    action: ((AnnotatedString) -> Boolean)?
+) {
+    this[SemanticsActions.InsertTextAtCursor] = AccessibilityAction(label, action)
+}
+
+/**
+ * Action to invoke the IME action handler configured on the node.
+ *
+ * Expected to be used on editable text fields.
+ *
+ * A node that specifies an action callback should also report what IME action it will perform via
+ * the [imeAction] property.
+ *
+ * @param label Optional label for this action.
+ * @param action Action to be performed when [SemanticsActions.PerformImeAction] is called.
+ */
+fun SemanticsPropertyReceiver.performImeAction(
+    label: String? = null,
+    action: (() -> Boolean)?
+) {
+    this[SemanticsActions.PerformImeAction] = AccessibilityAction(label, action)
+}
+
+/**
  * Action to set text selection by character index range.
  *
  * If this action is provided, the selection data must be provided
  * using [textSelectionRange].
  *
  * @param label Optional label for this action.
- * @param action Action to be performed when the [SemanticsActions.SetSelection] is called.
+ * @param action Action to be performed when the [SemanticsActions.SetSelection] is called. The
+ * parameters to the action are: `startIndex`, `endIndex`, and whether the indices are relative
+ * to the original text or the transformed text (when a `VisualTransformation` is applied).
  */
 fun SemanticsPropertyReceiver.setSelection(
     label: String? = null,
-    action: ((startIndex: Int, endIndex: Int, traversalMode: Boolean) -> Boolean)?
+    action: ((startIndex: Int, endIndex: Int, relativeToOriginalText: Boolean) -> Boolean)?
 ) {
     this[SemanticsActions.SetSelection] = AccessibilityAction(label, action)
 }

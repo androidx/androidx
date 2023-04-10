@@ -29,7 +29,6 @@ import androidx.annotation.RestrictTo;
  * elements added in later versions of the framework, are available for all platforms.
  *
  * @see android.view.Menu
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public interface SupportMenu extends android.view.Menu {

@@ -114,12 +114,10 @@ class ConstrainScope internal constructor(
     @FloatRange(from = 0.0, to = 1.0)
     var alpha: Float = 1.0f
         set(value) {
-            // Not using delegate to support FloatRange annotation
-            if (value != field) {
-                field = value
-                if (!value.isNaN()) {
-                    containerObject.putNumber("alpha", value)
-                }
+            // FloatRange annotation doesn't work with delegate objects
+            field = value
+            if (!value.isNaN()) {
+                containerObject.putNumber("alpha", value)
             }
         }
 
@@ -207,12 +205,10 @@ class ConstrainScope internal constructor(
     @FloatRange(from = 0.0, to = 1.0)
     var horizontalBias: Float = 0.5f
         set(value) {
-            // Not using delegate to support FloatRange annotation
-            if (value != field) {
-                field = value
-                if (!value.isNaN()) {
-                    containerObject.putNumber("hBias", value)
-                }
+            // FloatRange annotation doesn't work with delegate objects
+            field = value
+            if (!value.isNaN()) {
+                containerObject.putNumber("hBias", value)
             }
         }
 
@@ -224,12 +220,10 @@ class ConstrainScope internal constructor(
     @FloatRange(from = 0.0, to = 1.0)
     var verticalBias: Float = 0.5f
         set(value) {
-            // Not using delegate to support FloatRange annotation
-            if (value != field) {
-                field = value
-                if (!value.isNaN()) {
-                    containerObject.putNumber("vBias", value)
-                }
+            // FloatRange annotation doesn't work with delegate objects
+            field = value
+            if (!value.isNaN()) {
+                containerObject.putNumber("vBias", value)
             }
         }
 
@@ -454,8 +448,16 @@ class ConstrainScope internal constructor(
      *
      * @see Dimension.value
      */
+    @Deprecated("Prefer `Dp.asDimension()`.", ReplaceWith("this.asDimension()"))
     val Dp.asDimension: Dimension
         get() = Dimension.value(this)
+
+    /**
+     * Convenience extension method to parse a [Dp] as a [Dimension] object.
+     *
+     * @see Dimension.value
+     */
+    fun Dp.asDimension(): Dimension = Dimension.value(this)
 
     private inner class DimensionProperty(initialValue: Dimension) :
         ObservableProperty<Dimension>(initialValue) {

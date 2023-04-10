@@ -26,4 +26,6 @@ data class AnnotatedInterface(
      */
     val superTypes: List<Type> = emptyList(),
     val methods: List<Method> = emptyList(),
-)
+) {
+    val inheritsSandboxedUiAdapter = superTypes.contains(Types.sandboxedUiAdapter)
+}

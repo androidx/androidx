@@ -32,7 +32,6 @@ import java.util.List;
 public abstract class RemoteWorkContinuation {
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected RemoteWorkContinuation() {
@@ -87,7 +86,6 @@ public abstract class RemoteWorkContinuation {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull

@@ -60,16 +60,16 @@ class MeasurementManagerTest {
     fun testMeasurementOlderVersions() {
         val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
 
-        Assume.assumeTrue("maxSdkVersion = API 33 ext 3", sdkExtVersion < 4)
+        Assume.assumeTrue("maxSdkVersion = API 33 ext 4", sdkExtVersion < 5)
         assertThat(obtain(mContext)).isEqualTo(null)
     }
 
     @Test
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
     fun testDeleteRegistrations() {
         val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
 
-        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
+        Assume.assumeTrue("minSdkVersion = API 33 ext 5", sdkExtVersion >= 5)
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = obtain(mContext)
 
@@ -105,11 +105,11 @@ class MeasurementManagerTest {
     }
 
     @Test
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
     fun testRegisterSource() {
         val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
 
-        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
+        Assume.assumeTrue("minSdkVersion = API 33 ext 5", sdkExtVersion >= 5)
         val inputEvent = mock(InputEvent::class.java)
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = obtain(mContext)
@@ -140,11 +140,11 @@ class MeasurementManagerTest {
     }
 
     @Test
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
     fun testRegisterTrigger() {
         val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
 
-        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
+        Assume.assumeTrue("minSdkVersion = API 33 ext 5", sdkExtVersion >= 5)
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = obtain(mContext)
         val answer = { args: InvocationOnMock ->
@@ -171,11 +171,11 @@ class MeasurementManagerTest {
     }
 
     @Test
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
     fun testRegisterWebSource() {
         val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
 
-        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
+        Assume.assumeTrue("minSdkVersion = API 33 ext 5", sdkExtVersion >= 5)
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = obtain(mContext)
         val answer = { args: InvocationOnMock ->
@@ -212,11 +212,11 @@ class MeasurementManagerTest {
     }
 
     @Test
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
     fun testRegisterWebTrigger() {
         val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
 
-        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
+        Assume.assumeTrue("minSdkVersion = API 33 ext 5", sdkExtVersion >= 5)
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = obtain(mContext)
         val answer = { args: InvocationOnMock ->
@@ -251,11 +251,11 @@ class MeasurementManagerTest {
     }
 
     @Test
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
     fun testMeasurementApiStatus() {
         val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
 
-        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
+        Assume.assumeTrue("minSdkVersion = API 33 ext 5", sdkExtVersion >= 5)
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = obtain(mContext)
         val state = MeasurementManager.MEASUREMENT_API_STATE_ENABLED
@@ -279,16 +279,16 @@ class MeasurementManagerTest {
     }
 
     @Test
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
     fun testMeasurementApiStatusUnknown() {
         val sdkExtVersion = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
 
-        Assume.assumeTrue("minSdkVersion = API 33 ext 4", sdkExtVersion >= 4)
+        Assume.assumeTrue("minSdkVersion = API 33 ext 5", sdkExtVersion >= 5)
         val measurementManager = mockMeasurementManager(mContext)
         val managerCompat = obtain(mContext)
         val answer = { args: InvocationOnMock ->
             val receiver = args.getArgument<OutcomeReceiver<Int, Exception>>(1)
-            receiver.onResult(5 /* Greater than values returned in SdkExtensions.AD_SERVICES = 4 */)
+            receiver.onResult(6 /* Greater than values returned in SdkExtensions.AD_SERVICES = 5 */)
             null
         }
         doAnswer(answer).`when`(measurementManager).getMeasurementApiStatus(any(), any())
@@ -307,7 +307,7 @@ class MeasurementManagerTest {
     }
 
     @SdkSuppress(minSdkVersion = 30)
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
     companion object {
 
         private val uri1: Uri = Uri.parse("www.abc.com")

@@ -16,6 +16,10 @@
 
 package androidx.privacysandbox.tools.apicompiler.generator
 
+import androidx.privacysandbox.tools.core.generator.SpecNames.bundleClass
+import androidx.privacysandbox.tools.core.generator.SpecNames.contextClass
+import androidx.privacysandbox.tools.core.generator.SpecNames.contextPropertyName
+import androidx.privacysandbox.tools.core.generator.SpecNames.viewClass
 import androidx.privacysandbox.tools.core.generator.build
 import androidx.privacysandbox.tools.core.generator.poetTypeName
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
@@ -29,12 +33,6 @@ import com.squareup.kotlinpoet.TypeSpec
 
 /** Generates an SDK provider that delegates calls to SDK defined classes. */
 internal abstract class AbstractSdkProviderGenerator(protected val api: ParsedApi) {
-
-    companion object {
-        val contextClass = ClassName("android.content", "Context")
-        val bundleClass = ClassName("android.os", "Bundle")
-        private val viewClass = ClassName("android.view", "View")
-    }
 
     fun generate(): FileSpec? {
         if (api.services.isEmpty()) {
@@ -69,14 +67,17 @@ internal abstract class AbstractSdkProviderGenerator(protected val api: ParsedAp
             addParameter("width", Int::class)
             addParameter("height", Int::class)
             returns(viewClass)
-            addStatement("TODO(\"Implement\")")
+            addStatement(
+                "throw UnsupportedOperationException(%S)",
+                "This SDK doesn't support explicit SurfaceView requests."
+            )
         }
     }
 
     private fun generateCreateServiceFunction(service: AnnotatedInterface): FunSpec {
         return FunSpec.builder(createServiceFunctionName(service))
             .addModifiers(KModifier.ABSTRACT, KModifier.PROTECTED)
-            .addParameter("context", contextClass)
+            .addParameter(contextPropertyName, contextClass)
             .returns(service.type.poetTypeName())
             .build()
     }

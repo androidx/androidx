@@ -32,20 +32,23 @@ public class GetPasswordOptionJavaTest {
     @Test
     public void getter_frameworkProperties() {
         GetPasswordOption option = new GetPasswordOption();
+        Bundle expectedRequestDataBundle = new Bundle();
+        expectedRequestDataBundle.putBoolean(GetPasswordOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
+                false);
 
         assertThat(option.getType()).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL);
-        assertThat(TestUtilsKt.equals(option.getRequestData(), Bundle.EMPTY)).isTrue();
-        assertThat(TestUtilsKt.equals(option.getRequestData(), Bundle.EMPTY)).isTrue();
-        assertThat(option.getRequireSystemProvider()).isFalse();
+        assertThat(TestUtilsKt.equals(option.getRequestData(), expectedRequestDataBundle)).isTrue();
+        assertThat(TestUtilsKt.equals(option.getCandidateQueryData(), Bundle.EMPTY)).isTrue();
+        assertThat(option.isSystemProviderRequired()).isFalse();
     }
 
     @Test
     public void frameworkConversion_success() {
         GetPasswordOption option = new GetPasswordOption();
 
-        GetCredentialOption convertedOption = GetCredentialOption.createFrom(
+        CredentialOption convertedOption = CredentialOption.createFrom(
                 option.getType(), option.getRequestData(), option.getCandidateQueryData(),
-                option.getRequireSystemProvider());
+                option.isSystemProviderRequired());
 
         assertThat(convertedOption).isInstanceOf(GetPasswordOption.class);
     }

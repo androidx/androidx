@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.integration.interop
 import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
+import android.util.Range
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
@@ -26,11 +27,12 @@ import androidx.camera.camera2.pipe.integration.testing.FakeCameraInfoAdapterCre
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.core.CameraState
+import androidx.camera.core.DynamicRange
 import androidx.camera.core.ExposureState
 import androidx.camera.core.ZoomState
-import androidx.camera.core.impl.CamcorderProfileProvider
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraInfoInternal
+import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.Timebase
 import androidx.lifecycle.LiveData
@@ -153,7 +155,11 @@ class Camera2CameraInfoTest {
                 throw NotImplementedError("Not used in testing")
             }
 
-            override fun getCamcorderProfileProvider(): CamcorderProfileProvider {
+            override fun getSupportedFrameRateRanges(): MutableList<Range<Int>> {
+                throw NotImplementedError("Not used in testing")
+            }
+
+            override fun getEncoderProfilesProvider(): EncoderProfilesProvider {
                 throw NotImplementedError("Not used in testing")
             }
 
@@ -162,6 +168,14 @@ class Camera2CameraInfoTest {
             }
 
             override fun getSupportedResolutions(format: Int): MutableList<Size> {
+                throw NotImplementedError("Not used in testing")
+            }
+
+            override fun getSupportedHighResolutions(format: Int): MutableList<Size> {
+                throw NotImplementedError("Not used in testing")
+            }
+
+            override fun getSupportedDynamicRanges(): MutableSet<DynamicRange> {
                 throw NotImplementedError("Not used in testing")
             }
         }

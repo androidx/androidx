@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.text.font.testutils
 
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.AndroidFontLoader
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -35,7 +34,6 @@ import com.google.common.truth.Truth.assertThat
  *
  * @return null if cache miss, otherwise result if [TypefaceResult.Immutable]
  */
-@OptIn(ExperimentalTextApi::class)
 internal fun TypefaceRequestCache.getImmutableResultFor(
     fontFamily: FontFamily,
     fontWeight: FontWeight = FontWeight.Normal,

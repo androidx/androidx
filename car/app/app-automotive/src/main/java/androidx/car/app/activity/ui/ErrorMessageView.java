@@ -49,7 +49,6 @@ import java.util.List;
 /**
  * A {@link Fragment} to show error message on {@link CarAppActivity}
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public final class ErrorMessageView extends LinearLayout {

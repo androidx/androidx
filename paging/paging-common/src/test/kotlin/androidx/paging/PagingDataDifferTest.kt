@@ -2054,7 +2054,7 @@ class PagingDataDifferTest(
                 pagingSourceFactory = {
                     TestPagingSource(
                         loadDelay = 0,
-                        loadDispatcher = loadDispatcher,
+                        loadContext = loadDispatcher,
                     ).also { pagingSources.add(it) }
                 }
             ),
@@ -2090,12 +2090,10 @@ class PagingDataDifferTest(
             }
         }
 
-        scope.run {
-            try {
-                block(differ, loadDispatcher, pagingSources, uiReceivers, hintReceivers)
-            } finally {
-                collection.cancel()
-            }
+        try {
+            block(differ, loadDispatcher, pagingSources, uiReceivers, hintReceivers)
+        } finally {
+            collection.cancel()
         }
     }
 

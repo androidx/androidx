@@ -16,14 +16,13 @@
 
 package androidx.compose.ui.text.style
 
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalTextApi::class)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class LineBreakTest : TextLineBreaker() {
@@ -216,6 +215,7 @@ class LineBreakTest : TextLineBreaker() {
         assertThat(brokenLines).isEqualTo(expectedBrokenLines)
     }
 
+    @SdkSuppress(minSdkVersion = 23) // b/269193836
     @Test
     fun correct_lineBreak_paragraph_result() {
         val expectedBrokenLines = listOf(
@@ -233,6 +233,7 @@ class LineBreakTest : TextLineBreaker() {
         assertThat(brokenLines).isEqualTo(expectedBrokenLines)
     }
 
+    @SdkSuppress(minSdkVersion = 23) // b/269193836
     @Test
     fun correct_lineBreak_heading_result() {
         val expectedBrokenLines = listOf(

@@ -93,7 +93,6 @@ import java.lang.annotation.Target;
  * method that contains object parameters, an object return value, or a non-static.
  * </p>
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @Retention(RetentionPolicy.CLASS)  // Save memory, don't instantiate as an object at runtime.

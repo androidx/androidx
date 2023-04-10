@@ -407,7 +407,6 @@ public abstract class PreferenceGroup extends Preference {
     /**
      * Returns true if we're between {@link #onAttached()} and {@link #onPrepareForRemoval()}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public boolean isAttached() {
@@ -421,7 +420,6 @@ public abstract class PreferenceGroup extends Preference {
      *
      * @param onExpandButtonClickListener The callback to be invoked
      * @see #setInitialExpandedChildrenCount(int)
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setOnExpandButtonClickListener(
@@ -435,7 +433,6 @@ public abstract class PreferenceGroup extends Preference {
      * Used by Settings.
      *
      * @return The callback to be invoked when the expand button is clicked.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Nullable
@@ -564,7 +561,6 @@ public abstract class PreferenceGroup extends Preference {
      * Used by Settings.
      *
      * @see #setInitialExpandedChildrenCount(int)
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public interface OnExpandButtonClickListener {

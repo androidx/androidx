@@ -41,7 +41,6 @@ import androidx.work.impl.model.WorkSpec;
 /**
  * Converts a {@link WorkSpec} into a JobInfo.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(api = WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)

@@ -42,13 +42,13 @@ import java.io.StringReader
  * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(21)
+@RequiresApi(23)
 public class PerfettoCapture(
     /**
      * Bundled is available above API 28, but we default to using unbundled as well on API 29, as
      * ProcessStatsConfig.scan_all_processes_on_start isn't supported on the bundled version.
      */
-    unbundled: Boolean = Build.VERSION.SDK_INT in 21..29
+    unbundled: Boolean = Build.VERSION.SDK_INT <= 29
 ) {
 
     private val helper: PerfettoHelper = PerfettoHelper(unbundled)
@@ -98,7 +98,7 @@ public class PerfettoCapture(
      * Enables Perfetto SDK tracing in an app if present. Provides required binary dependencies to
      * the app if they're missing and the [provideBinariesIfMissing] parameter is set to `true`.
      */
-    @RequiresApi(Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
+    @RequiresApi(30) // TODO(234351579): Support API < 30
     fun enableAndroidxTracingPerfetto(
         targetPackage: String,
         provideBinariesIfMissing: Boolean

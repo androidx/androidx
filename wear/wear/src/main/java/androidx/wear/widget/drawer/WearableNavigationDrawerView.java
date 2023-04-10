@@ -75,7 +75,6 @@ public class WearableNavigationDrawerView extends WearableDrawerView {
 
     /**
      * Enumeration of possible drawer styles.
-     * @hide
      */
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(Scope.LIBRARY)
@@ -283,7 +282,6 @@ public class WearableNavigationDrawerView extends WearableDrawerView {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY)
         public void setPresenter(WearableNavigationDrawerPresenter presenter) {

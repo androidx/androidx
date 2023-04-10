@@ -122,7 +122,6 @@ public class FakeHost {
     /**
      * Returns whether library has told host to stop recording.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public boolean hasToldHostToStopRecording() {

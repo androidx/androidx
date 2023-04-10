@@ -20,6 +20,7 @@ import android.media.MediaCodec
 import android.os.Build
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
@@ -31,8 +32,6 @@ import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Inter
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig.ValidatingBuilder
-import androidx.camera.core.impl.utils.Threads
-import androidx.lifecycle.MutableLiveData
 import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.joinAll
@@ -73,6 +72,7 @@ class UseCaseManager @Inject constructor(
     private val controls: java.util.Set<UseCaseCameraControl>,
     private val camera2CameraControl: Camera2CameraControl,
     private val cameraStateAdapter: CameraStateAdapter,
+    private val cameraGraphFlags: CameraGraph.Flags,
     cameraProperties: CameraProperties,
     displayInfoManager: DisplayInfoManager,
 ) {
@@ -225,7 +225,7 @@ class UseCaseManager @Inject constructor(
         when {
             shouldAddRepeatingUseCase(runningUseCases) -> addRepeatingUseCase()
             shouldRemoveRepeatingUseCase(runningUseCases) -> removeRepeatingUseCase()
-            else -> camera?.runningUseCasesLiveData?.setLiveDataValue(runningUseCases)
+            else -> camera?.runningUseCases = runningUseCases
         }
     }
 
@@ -256,7 +256,9 @@ class UseCaseManager @Inject constructor(
         }
 
         // Create and configure the new camera component.
-        _activeComponent = builder.config(UseCaseCameraConfig(useCases, cameraStateAdapter)).build()
+        _activeComponent =
+            builder.config(UseCaseCameraConfig(useCases, cameraStateAdapter, cameraGraphFlags))
+                .build()
         for (control in allControls) {
             control.useCaseCamera = camera
         }
@@ -279,6 +281,7 @@ class UseCaseManager @Inject constructor(
 
         return !meteringRepeatingEnabled && (onlyVideoCapture || requireMeteringRepeating)
     }
+
     @GuardedBy("lock")
     private fun addRepeatingUseCase() {
         meteringRepeating.setupSession()
@@ -330,13 +333,5 @@ class UseCaseManager @Inject constructor(
         val sessionConfig = validatingBuilder.build()
         val captureConfig = sessionConfig.repeatingCaptureConfig
         return predicate(captureConfig.surfaces, sessionConfig.surfaces)
-    }
-
-    private fun <T> MutableLiveData<T>.setLiveDataValue(value: T?) {
-        if (Threads.isMainThread()) {
-            this.value = value
-        } else {
-            this.postValue(value)
-        }
     }
 }

@@ -26,11 +26,13 @@ import android.text.TextPaint
 import androidx.annotation.RequiresApi
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
+import androidx.compose.foundation.benchmark.text.DoFullBenchmark
 import androidx.compose.foundation.benchmark.text.empirical.AllApps
 import androidx.compose.foundation.benchmark.text.empirical.ChatApps
 import androidx.compose.foundation.benchmark.text.empirical.generateCacheableStringOf
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import org.junit.Assume
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -70,6 +72,9 @@ open class StaticLayoutBaseline(private val size: Int) {
                 isEmpty = !isEmpty
                 if (isEmpty) "" else text
             }
+            // measure requires this in typical cases
+            Layout.getDesiredWidth(measureText, textPaint)
+            // paint requires this in all cases
             val layout = makeStaticLayout(measureText, textPaint)
             layout.draw(canvas)
         }
@@ -93,6 +98,11 @@ class ChatAppsStaticLayoutBaseline(size: Int) : StaticLayoutBaseline(size) {
         @JvmStatic
         @Parameterized.Parameters(name = "size={0}")
         fun initParameters(): Array<Any> = ChatApps.TextLengths
+    }
+
+    init {
+        // we only need this for full reporting
+        Assume.assumeTrue(DoFullBenchmark)
     }
 }
 

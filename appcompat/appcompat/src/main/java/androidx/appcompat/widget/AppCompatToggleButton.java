@@ -105,7 +105,6 @@ public class AppCompatToggleButton extends ToggleButton implements TintableBackg
      * This should be accessed via
      * {@link ViewCompat#setBackgroundTintList(android.view.View, ColorStateList)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -119,7 +118,6 @@ public class AppCompatToggleButton extends ToggleButton implements TintableBackg
      * This should be accessed via
      * {@link ViewCompat#getBackgroundTintList(android.view.View)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -133,7 +131,6 @@ public class AppCompatToggleButton extends ToggleButton implements TintableBackg
      * This should be accessed via
      * {@link ViewCompat#setBackgroundTintMode(android.view.View, PorterDuff.Mode)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -147,7 +144,6 @@ public class AppCompatToggleButton extends ToggleButton implements TintableBackg
      * This should be accessed via
      * {@link ViewCompat#getBackgroundTintMode(android.view.View)}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -229,7 +225,6 @@ public class AppCompatToggleButton extends ToggleButton implements TintableBackg
      * @attr ref androidx.appcompat.R.styleable#AppCompatTextView_drawableTint
      * @see #setSupportCompoundDrawablesTintList(ColorStateList)
      *
-     * @hide
      */
     @Nullable
     @Override
@@ -253,7 +248,6 @@ public class AppCompatToggleButton extends ToggleButton implements TintableBackg
      * @attr ref androidx.appcompat.R.styleable#AppCompatTextView_drawableTint
      * @see #getSupportCompoundDrawablesTintList()
      *
-     * @hide
      */
     @Override
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -272,7 +266,6 @@ public class AppCompatToggleButton extends ToggleButton implements TintableBackg
      * @attr ref androidx.appcompat.R.styleable#AppCompatTextView_drawableTintMode
      * @see #setSupportCompoundDrawablesTintMode(PorterDuff.Mode)
      *
-     * @hide
      */
     @Nullable
     @Override
@@ -293,7 +286,6 @@ public class AppCompatToggleButton extends ToggleButton implements TintableBackg
      * @attr ref androidx.appcompat.R.styleable#AppCompatTextView_drawableTintMode
      * @see #setSupportCompoundDrawablesTintList(ColorStateList)
      *
-     * @hide
      */
     @Override
     @RestrictTo(LIBRARY_GROUP_PREFIX)

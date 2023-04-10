@@ -19,6 +19,7 @@ package androidx.datastore.core
 import android.content.Context
 import android.os.Bundle
 import androidx.datastore.core.handlers.NoOpCorruptionHandler
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.test.core.app.ApplicationProvider
 import androidx.testing.TestMessageProto.FooProto
 import com.google.common.truth.Truth.assertThat
@@ -27,7 +28,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStreamWriter
-import kotlin.jvm.Throws
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -42,7 +43,6 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -76,13 +76,17 @@ private fun createDataStore(
     bundle: Bundle,
     scope: TestScope,
     corruptionHandler: CorruptionHandler<FooProto> = NoOpCorruptionHandler<FooProto>()
-): MultiProcessDataStore<FooProto> {
-    val produceFile = { File(bundle.getString(PATH_BUNDLE_KEY)!!) }
-    return MultiProcessDataStore<FooProto>(
-        storage = FileStorage(PROTO_SERIALIZER, produceFile),
+): DataStoreImpl<FooProto> {
+    val file = File(bundle.getString(PATH_BUNDLE_KEY)!!)
+    val produceFile = { file }
+    return DataStoreImpl<FooProto>(
+        storage = FileStorage(
+            PROTO_SERIALIZER,
+            { MultiProcessCoordinator(UnconfinedTestDispatcher(), it) },
+            produceFile
+        ),
         scope = scope,
-        corruptionHandler = corruptionHandler,
-        produceFile = produceFile
+        corruptionHandler = corruptionHandler
     )
 }
 
@@ -94,9 +98,8 @@ class MultiProcessDataStoreMultiProcessTest {
     val tempFolder = TemporaryFolder()
 
     private lateinit var testFile: File
+    private lateinit var dataStoreContext: CoroutineContext
     private lateinit var dataStoreScope: TestScope
-
-    private val TAG = "MPDS test"
 
     private val protoSerializer: Serializer<FooProto> = ProtoSerializer<FooProto>(
         FooProto.getDefaultInstance(),
@@ -110,28 +113,33 @@ class MultiProcessDataStoreMultiProcessTest {
         return data
     }
 
-    internal fun createDataStore(
+    private fun createDataStore(
         bundle: Bundle,
         scope: TestScope
-    ): MultiProcessDataStore<FooProto> {
-        val produceFile = { File(bundle.getString(PATH_BUNDLE_KEY)!!) }
-        return MultiProcessDataStore<FooProto>(
-            storage = FileStorage(protoSerializer, produceFile),
-            scope = scope,
-            produceFile = produceFile
+    ): DataStoreImpl<FooProto> {
+        val file = File(bundle.getString(PATH_BUNDLE_KEY)!!)
+        val produceFile = { file }
+        return DataStoreImpl<FooProto>(
+            storage = FileStorage(
+                protoSerializer,
+                { MultiProcessCoordinator(dataStoreContext, it) },
+                produceFile
+            ),
+            scope = scope
         )
     }
 
     @Before
     fun setUp() {
         testFile = tempFolder.newFile()
-        dataStoreScope = TestScope(UnconfinedTestDispatcher() + Job())
+        dataStoreContext = UnconfinedTestDispatcher()
+        dataStoreScope = TestScope(dataStoreContext + Job())
     }
 
     @Test
     fun testSimpleUpdateData() = runTest {
         val testData: Bundle = createDataStoreBundle(testFile.absolutePath)
-        val dataStore: MultiProcessDataStore<FooProto> =
+        val dataStore: DataStoreImpl<FooProto> =
             createDataStore(testData, dataStoreScope)
         val connection: BlockingServiceConnection =
             setUpService(mainContext, SimpleUpdateService::class.java, testData)
@@ -153,7 +161,7 @@ class MultiProcessDataStoreMultiProcessTest {
 
         override fun runTest() = runBlocking<Unit> {
             store.updateData {
-                it.let { WRITE_TEXT(it) }
+                WRITE_TEXT(it)
             }
         }
     }
@@ -161,7 +169,7 @@ class MultiProcessDataStoreMultiProcessTest {
     @Test
     fun testConcurrentReadUpdate() = runTest {
         val testData: Bundle = createDataStoreBundle(testFile.absolutePath)
-        val dataStore: MultiProcessDataStore<FooProto> =
+        val dataStore: DataStoreImpl<FooProto> =
             createDataStore(testData, dataStoreScope)
         val writerConnection: BlockingServiceConnection =
             setUpService(mainContext, ConcurrentReadUpdateWriterService::class.java, testData)
@@ -198,7 +206,7 @@ class MultiProcessDataStoreMultiProcessTest {
         override fun runTest() = runBlocking<Unit> {
             store.updateData {
                 waitForSignal()
-                it.let { WRITE_BOOLEAN(it) }
+                WRITE_BOOLEAN(it)
             }
         }
     }
@@ -220,7 +228,7 @@ class MultiProcessDataStoreMultiProcessTest {
     @Test
     fun testInterleavedUpdateData() = runTest(UnconfinedTestDispatcher()) {
         val testData: Bundle = createDataStoreBundle(testFile.absolutePath)
-        val dataStore: MultiProcessDataStore<FooProto> =
+        val dataStore: DataStoreImpl<FooProto> =
             createDataStore(testData, dataStoreScope)
         val connection: BlockingServiceConnection =
             setUpService(mainContext, InterleavedUpdateDataService::class.java, testData)
@@ -233,7 +241,7 @@ class MultiProcessDataStoreMultiProcessTest {
         val write = async(newSingleThreadContext("blockedWriter")) {
             dataStore.updateData {
                 condition.await()
-                it.let { WRITE_BOOLEAN(it) }
+                WRITE_BOOLEAN(it)
             }
         }
 
@@ -260,16 +268,15 @@ class MultiProcessDataStoreMultiProcessTest {
         override fun runTest() = runBlocking<Unit> {
             store.updateData {
                 waitForSignal()
-                it.let { WRITE_TEXT(it) }
+                WRITE_TEXT(it)
             }
         }
     }
 
-    @Ignore // b/242765757
     @Test
     fun testInterleavedUpdateDataWithLocalRead() = runTest(UnconfinedTestDispatcher()) {
         val testData: Bundle = createDataStoreBundle(testFile.absolutePath)
-        val dataStore: MultiProcessDataStore<FooProto> =
+        val dataStore: DataStoreImpl<FooProto> =
             createDataStore(testData, dataStoreScope)
         val connection: BlockingServiceConnection =
             setUpService(mainContext, InterleavedUpdateDataWithReadService::class.java, testData)
@@ -323,14 +330,14 @@ class MultiProcessDataStoreMultiProcessTest {
 
         override fun runTest() = runBlocking<Unit> {
             store.updateData {
-                it.let { INCREMENT_INTEGER(it) }
+                INCREMENT_INTEGER(it)
             }
 
             waitForSignal()
 
             val write = async {
                 store.updateData {
-                    it.let { WRITE_BOOLEAN(it) }
+                    WRITE_BOOLEAN(it)
                 }
             }
             waitForSignal()
@@ -341,7 +348,7 @@ class MultiProcessDataStoreMultiProcessTest {
     @Test
     fun testUpdateDataExceptionUnblocksOtherProcessFromWriting() = runTest {
         val testData: Bundle = createDataStoreBundle(testFile.absolutePath)
-        val dataStore: MultiProcessDataStore<FooProto> =
+        val dataStore: DataStoreImpl<FooProto> =
             createDataStore(testData, dataStoreScope)
         val connection: BlockingServiceConnection =
             setUpService(mainContext, FailedUpdateDataService::class.java, testData)
@@ -383,7 +390,7 @@ class MultiProcessDataStoreMultiProcessTest {
 
         override fun runTest() = runBlocking<Unit> {
             store.updateData {
-                it.let { WRITE_TEXT(it) }
+                WRITE_TEXT(it)
             }
         }
     }
@@ -394,7 +401,7 @@ class MultiProcessDataStoreMultiProcessTest {
     ) {
         val localScope = TestScope(UnconfinedTestDispatcher() + Job())
         val testData: Bundle = createDataStoreBundle(testFile.absolutePath)
-        val dataStore: MultiProcessDataStore<FooProto> =
+        val dataStore: DataStoreImpl<FooProto> =
             createDataStore(testData, localScope)
         val connection: BlockingServiceConnection =
             setUpService(mainContext, CancelledUpdateDataService::class.java, testData)
@@ -404,7 +411,7 @@ class MultiProcessDataStoreMultiProcessTest {
         val write = localScope.async {
             dataStore.updateData {
                 blockWrite.await()
-                it.let { WRITE_BOOLEAN(it) }
+                WRITE_BOOLEAN(it)
             }
         }
 
@@ -435,7 +442,7 @@ class MultiProcessDataStoreMultiProcessTest {
 
         override fun runTest() = runBlocking<Unit> {
             store.updateData {
-                it.let { WRITE_TEXT(it) }
+                WRITE_TEXT(it)
             }
         }
     }
@@ -452,7 +459,7 @@ class MultiProcessDataStoreMultiProcessTest {
             signalService(connection)
             FOO_WITH_TEXT_AND_BOOLEAN
         }
-        val dataStore: MultiProcessDataStore<FooProto> =
+        val dataStore: DataStoreImpl<FooProto> =
             createDataStore(testData, dataStoreScope, corruptionHandler)
 
         // Other proc starts TEST_TEXT then waits for signal within handler
@@ -482,23 +489,8 @@ class MultiProcessDataStoreMultiProcessTest {
 
         override fun runTest() = runBlocking<Unit> {
             store.updateData {
-                it.let { WRITE_TEXT(it) }
+                WRITE_TEXT(it)
             }
-        }
-    }
-
-    /**
-     * A corruption handler that attempts to replace the on-disk data with data from produceNewData.
-     *
-     * TODO(zhiyuanwang): replace with androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
-     */
-    private class ReplaceFileCorruptionHandler<T>(
-        private val produceNewData: (CorruptionException) -> T
-    ) : CorruptionHandler<T> {
-
-        @Throws(IOException::class)
-        override suspend fun handleCorruption(ex: CorruptionException): T {
-            return produceNewData(ex)
         }
     }
 }

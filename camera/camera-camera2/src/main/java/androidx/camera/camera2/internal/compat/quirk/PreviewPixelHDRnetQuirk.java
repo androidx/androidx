@@ -35,6 +35,8 @@ import java.util.Locale;
  *                  image quality than the viewfinder output. To align the viewfinder quality
  *                  with the final photo, we need to set TONEMAP_MODE to HIGH_QUALITY (the
  *                  default is FAST) on the viewfinder stream to enable the WYSIWYG preview.
+ *                  This quirk will not be applied when preview resolution is 16:9, more details in
+ *                  b/266459202.
  *     Device(s): Pixel 4a, Pixel 4a (5G), Pixel 5, Pixel 5a (5G)
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java

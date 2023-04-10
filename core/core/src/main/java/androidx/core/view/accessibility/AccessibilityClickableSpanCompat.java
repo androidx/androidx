@@ -40,7 +40,6 @@ public final class AccessibilityClickableSpanCompat extends ClickableSpan {
     private final int mClickableSpanActionId;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String SPAN_ID = "ACCESSIBILITY_CLICKABLE_SPAN_ID";
@@ -48,7 +47,6 @@ public final class AccessibilityClickableSpanCompat extends ClickableSpan {
     /**
      * @param originalClickableSpanId The id of the span this one replaces
      * @param nodeInfoCompat The nodeInfoCompat to be associated with this span.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public AccessibilityClickableSpanCompat(int originalClickableSpanId,

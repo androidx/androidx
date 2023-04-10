@@ -457,7 +457,6 @@ public final class MediaBrowserCompat {
      *
      * @return A bundle which is passed to {@link MediaBrowserServiceCompat#notifyChildrenChanged(
      *         String, Bundle)}
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
     @Nullable

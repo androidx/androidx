@@ -16,11 +16,6 @@
 
 package com.example.androidx.webkit;
 
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
-
 import static org.junit.Assert.assertTrue;
 
 import androidx.core.content.ContextCompat;
@@ -30,7 +25,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.webkit.WebViewFeature;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,20 +38,16 @@ import java.io.File;
 @LargeTest
 public class ProcessGlobalConfigActivityTestAppTest {
     @Rule
-    public ActivityScenarioRule<MainActivity> mRule =
-            new ActivityScenarioRule<>(MainActivity.class);
-
-    @Before
-    public void setUp() {
-        WebkitTestHelpers.assumeStartupFeature(
-                WebViewFeature.STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX,
-                ApplicationProvider.getApplicationContext());
-    }
+    public ActivityScenarioRule<ProcessGlobalConfigActivity> mRule =
+            new ActivityScenarioRule<>(ProcessGlobalConfigActivity.class);
 
     @Test
     public void testSetDataDirectorySuffix() throws Throwable {
+        WebkitTestHelpers.assumeStartupFeature(
+                WebViewFeature.STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX,
+                ApplicationProvider.getApplicationContext());
         final String dataDirPrefix = "app_webview_";
-        final String dataDirSuffix = "per_process_webview_data_test";
+        final String dataDirSuffix = "data_directory_suffix_activity_suffix";
         File file = new File(ContextCompat.getDataDir(ApplicationProvider.getApplicationContext()),
                 dataDirPrefix + dataDirSuffix);
 
@@ -70,10 +60,45 @@ public class ProcessGlobalConfigActivityTestAppTest {
                     + "delete it");
         }
         WebkitTestHelpers.clickMenuListItemWithString(
-                R.string.process_global_config_activity_title);
-        onView(withId(R.id.process_global_textview)).check(matches(withText("WebView Loaded!")));
+                R.string.data_directory_suffix_activity_title);
+        // We need to wait for the WebView to finish loading on a different process.
+        Thread.sleep(5000);
 
         assertTrue(file.exists());
+    }
+
+    @Test
+    public void testSetDirectoryBasePaths() throws Throwable {
+        WebkitTestHelpers.assumeStartupFeature(
+                WebViewFeature.STARTUP_FEATURE_SET_DIRECTORY_BASE_PATHS,
+                ApplicationProvider.getApplicationContext());
+        final String dataDirPrefix = "webview_";
+        final String dataDirSuffix = "directory_base_path_activity_suffix";
+        File dataBasePath =
+                new File(ContextCompat.getDataDir(ApplicationProvider.getApplicationContext()),
+                        "data_dir");
+        File cacheBasePath =
+                new File(ContextCompat.getDataDir(ApplicationProvider.getApplicationContext()),
+                "cache_dir");
+        File dataSuffixedPath = new File(dataBasePath, dataDirPrefix + dataDirSuffix);
+
+        // Ensures WebView directory created during earlier tests runs are purged.
+        deleteDirectory(dataBasePath);
+        deleteDirectory(cacheBasePath);
+        // This should ideally be an assumption, but we want a stronger signal to ensure the test
+        // does not silently stop working.
+        if (dataBasePath.exists() || cacheBasePath.exists() || dataSuffixedPath.exists()) {
+            throw new RuntimeException("WebView Directory exists before test despite attempt to "
+                    + "delete it");
+        }
+        WebkitTestHelpers.clickMenuListItemWithString(
+                R.string.directory_base_path_activity_title);
+        // We need to wait for the WebView to finish loading on a different process.
+        Thread.sleep(5000);
+
+        assertTrue(dataBasePath.exists());
+        assertTrue(cacheBasePath.exists());
+        assertTrue(dataSuffixedPath.exists());
     }
 
     private static boolean deleteDirectory(File directoryToBeDeleted) {

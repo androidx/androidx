@@ -42,7 +42,6 @@ import java.util.concurrent.Executor;
 /***
  * A client for {@link IListenableWorkerImpl}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ListenableWorkerImplClient {
@@ -171,7 +170,6 @@ public class ListenableWorkerImplClient {
     /**
      * The implementation of {@link ServiceConnection} that handles changes in the connection.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static class Connection implements ServiceConnection {

@@ -26,7 +26,6 @@ import androidx.car.app.managers.ResultManager;
 /**
  * Automotive implementation of {@link ResultManager}
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ResultManagerAutomotive implements ResultManager {

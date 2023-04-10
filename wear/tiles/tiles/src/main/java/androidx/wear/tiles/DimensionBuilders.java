@@ -98,21 +98,18 @@ public final class DimensionBuilders {
             return mImpl.getValue();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static DpProp fromProto(@NonNull DimensionProto.DpProp proto) {
             return new DpProp(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         DimensionProto.DpProp toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -120,7 +117,6 @@ public final class DimensionBuilders {
             return DimensionProto.ContainerDimension.newBuilder().setLinearDimension(mImpl).build();
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -128,7 +124,6 @@ public final class DimensionBuilders {
             return DimensionProto.ImageDimension.newBuilder().setLinearDimension(mImpl).build();
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -174,14 +169,12 @@ public final class DimensionBuilders {
             return mImpl.getValue();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static SpProp fromProto(@NonNull DimensionProto.SpProp proto) {
             return new SpProp(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public DimensionProto.SpProp toProto() {
@@ -222,14 +215,12 @@ public final class DimensionBuilders {
             return mImpl.getValue();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static EmProp fromProto(@NonNull DimensionProto.EmProp proto) {
             return new EmProp(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public DimensionProto.EmProp toProto() {
@@ -270,14 +261,12 @@ public final class DimensionBuilders {
             return mImpl.getValue();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static DegreesProp fromProto(@NonNull DimensionProto.DegreesProp proto) {
             return new DegreesProp(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public DimensionProto.DegreesProp toProto() {
@@ -317,7 +306,6 @@ public final class DimensionBuilders {
             this.mImpl = impl;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static ExpandedDimensionProp fromProto(
@@ -325,14 +313,12 @@ public final class DimensionBuilders {
             return new ExpandedDimensionProp(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         DimensionProto.ExpandedDimensionProp toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -342,7 +328,6 @@ public final class DimensionBuilders {
                     .build();
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -377,7 +362,6 @@ public final class DimensionBuilders {
             this.mImpl = impl;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static WrappedDimensionProp fromProto(
@@ -385,14 +369,12 @@ public final class DimensionBuilders {
             return new WrappedDimensionProp(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         DimensionProto.WrappedDimensionProp toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -451,7 +433,6 @@ public final class DimensionBuilders {
             return mImpl.getAspectRatioHeight();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static ProportionalDimensionProp fromProto(
@@ -459,14 +440,12 @@ public final class DimensionBuilders {
             return new ProportionalDimensionProp(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         DimensionProto.ProportionalDimensionProp toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -510,7 +489,6 @@ public final class DimensionBuilders {
         /**
          * Get the protocol buffer representation of this object.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -520,7 +498,6 @@ public final class DimensionBuilders {
          * Return an instance of one of this object's subtypes, from the protocol buffer
          * representation.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -554,7 +531,6 @@ public final class DimensionBuilders {
         /**
          * Get the protocol buffer representation of this object.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -564,7 +540,6 @@ public final class DimensionBuilders {
          * Return an instance of one of this object's subtypes, from the protocol buffer
          * representation.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -598,7 +573,6 @@ public final class DimensionBuilders {
         /**
          * Get the protocol buffer representation of this object.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -608,7 +582,6 @@ public final class DimensionBuilders {
          * Return an instance of one of this object's subtypes, from the protocol buffer
          * representation.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull

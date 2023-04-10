@@ -38,7 +38,11 @@ fun ColorProvider(color: Color): ColorProvider {
     return FixedColorProvider(color)
 }
 
-/** Returns a [ColorProvider] that resolves to the color resource. */
+/** Returns a [ColorProvider] that resolves to the color resource. This should
+ * not be used outside of the Glance Libraries due to inconsistencies with regards
+ * to what process (app vs launcher) colors are resolved in
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun ColorProvider(@ColorRes resId: Int): ColorProvider {
     return ResourceColorProvider(resId)
 }

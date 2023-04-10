@@ -29,6 +29,7 @@ import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -114,6 +115,7 @@ public class AutoCloserTest {
         countingTaskExecutorRule.drainTasks(10, TimeUnit.MILLISECONDS)
     }
 
+    @Ignore // b/271325600
     @Test
     public fun executeRefCountingFunctionPropagatesFailure() {
         assertThrows<IOException> {

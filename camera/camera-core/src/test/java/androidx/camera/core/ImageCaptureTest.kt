@@ -25,10 +25,16 @@ import android.os.HandlerThread
 import android.os.Looper.getMainLooper
 import android.util.Pair
 import android.util.Rational
+import android.util.Size
 import android.view.Surface
+import androidx.camera.core.CameraEffect.IMAGE_CAPTURE
+import androidx.camera.core.CameraEffect.PREVIEW
+import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.ImageCapture.ImageCaptureRequest
 import androidx.camera.core.ImageCapture.ImageCaptureRequestProcessor
 import androidx.camera.core.ImageCapture.ImageCaptureRequestProcessor.ImageCaptor
+import androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY
+import androidx.camera.core.MirrorMode.MIRROR_MODE_OFF
 import androidx.camera.core.impl.CameraConfig
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CaptureConfig
@@ -42,6 +48,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.core.internal.utils.SizeUtil
+import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.fakes.FakeAppConfig
@@ -90,6 +97,9 @@ private const val MAX_IMAGES = 3
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class ImageCaptureTest {
+
+    private val resolution = Size(640, 480)
+
     private lateinit var callbackHandler: Handler
     private lateinit var callbackThread: HandlerThread
     private lateinit var executor: Executor
@@ -143,6 +153,61 @@ class ImageCaptureTest {
         CameraXUtil.shutdown().get()
         fakeImageReaderProxy = null
         callbackThread.quitSafely()
+    }
+
+    @Test
+    fun virtualCamera_imagePipelineExpectsNoMetadata() {
+        // Arrange.
+        camera.hasTransform = false
+
+        // Act.
+        val imageCapture = bindImageCapture(
+            bufferFormat = ImageFormat.JPEG,
+        )
+
+        // Assert.
+        assertThat(imageCapture.imagePipeline!!.expectsMetadata()).isFalse()
+    }
+
+    @Test
+    fun verifySupportedEffects() {
+        val imageCapture = ImageCapture.Builder().build()
+        assertThat(imageCapture.isEffectTargetsSupported(IMAGE_CAPTURE)).isTrue()
+        assertThat(imageCapture.isEffectTargetsSupported(PREVIEW or IMAGE_CAPTURE)).isTrue()
+        assertThat(
+            imageCapture.isEffectTargetsSupported(PREVIEW or VIDEO_CAPTURE or IMAGE_CAPTURE)
+        ).isTrue()
+        assertThat(imageCapture.isEffectTargetsSupported(PREVIEW)).isFalse()
+        assertThat(imageCapture.isEffectTargetsSupported(VIDEO_CAPTURE)).isFalse()
+        assertThat(imageCapture.isEffectTargetsSupported(PREVIEW or VIDEO_CAPTURE)).isFalse()
+    }
+
+    @Test
+    fun setTargetRotationDegrees() {
+        val imageCapture = ImageCapture.Builder().build()
+        imageCapture.setTargetRotationDegrees(45)
+        assertThat(imageCapture.targetRotation).isEqualTo(Surface.ROTATION_270)
+        imageCapture.setTargetRotationDegrees(135)
+        assertThat(imageCapture.targetRotation).isEqualTo(Surface.ROTATION_180)
+        imageCapture.setTargetRotationDegrees(225)
+        assertThat(imageCapture.targetRotation).isEqualTo(Surface.ROTATION_90)
+        imageCapture.setTargetRotationDegrees(315)
+        assertThat(imageCapture.targetRotation).isEqualTo(Surface.ROTATION_0)
+        imageCapture.setTargetRotationDegrees(405)
+        assertThat(imageCapture.targetRotation).isEqualTo(Surface.ROTATION_270)
+        imageCapture.setTargetRotationDegrees(-45)
+        assertThat(imageCapture.targetRotation).isEqualTo(Surface.ROTATION_0)
+    }
+
+    @Test
+    fun defaultMirrorModeIsOff() {
+        val imageCapture = ImageCapture.Builder().build()
+        assertThat(imageCapture.mirrorModeInternal).isEqualTo(MIRROR_MODE_OFF)
+    }
+
+    @Test(expected = UnsupportedOperationException::class)
+    fun setMirrorMode_throwException() {
+        ImageCapture.Builder().setMirrorMode(MIRROR_MODE_ON_FRONT_ONLY)
     }
 
     @Test
@@ -218,8 +283,9 @@ class ImageCaptureTest {
 
     private fun assertTakePictureManagerHasTheSameSurface(imageCapture: ImageCapture) {
         val takePictureManagerSurface =
-            imageCapture.takePictureManager.imagePipeline.createSessionConfigBuilder()
-                .build().surfaces.single().surface.get()
+            imageCapture.takePictureManager.imagePipeline.createSessionConfigBuilder(
+                resolution
+            ).build().surfaces.single().surface.get()
         val useCaseSurface = imageCapture.sessionConfig.surfaces.single().surface.get()
         assertThat(takePictureManagerSurface).isEqualTo(useCaseSurface)
     }
@@ -578,6 +644,7 @@ class ImageCaptureTest {
         assertThat(cameraControl.isZslConfigAdded).isTrue()
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun throwException_whenSetBothTargetResolutionAndAspectRatio() {
         assertThrows(IllegalArgumentException::class.java) {
@@ -586,6 +653,7 @@ class ImageCaptureTest {
         }
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun throwException_whenSetTargetResolutionWithResolutionSelector() {
         assertThrows(IllegalArgumentException::class.java) {
@@ -595,6 +663,7 @@ class ImageCaptureTest {
         }
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun throwException_whenSetTargetAspectRatioWithResolutionSelector() {
         assertThrows(IllegalArgumentException::class.java) {
@@ -624,8 +693,7 @@ class ImageCaptureTest {
         }
 
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
-            ApplicationProvider
-                .getApplicationContext<Context>(),
+            ApplicationProvider.getApplicationContext(),
             CameraSelector.DEFAULT_BACK_CAMERA
         )
 
@@ -667,7 +735,9 @@ class ImageCaptureTest {
             .setCaptureMode(captureMode)
             .setFlashMode(ImageCapture.FLASH_MODE_OFF)
             .setCaptureOptionUnpacker { _: UseCaseConfig<*>?, _: CaptureConfig.Builder? -> }
-            .setSessionOptionUnpacker { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
+            .setSessionOptionUnpacker { _: Size, _: UseCaseConfig<*>?,
+                _: SessionConfig.Builder? ->
+            }
 
         builder.setBufferFormat(bufferFormat)
         if (imageReaderProxyProvider != null) {

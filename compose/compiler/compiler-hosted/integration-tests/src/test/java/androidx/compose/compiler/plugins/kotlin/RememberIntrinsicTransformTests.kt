@@ -17,9 +17,15 @@
 package androidx.compose.compiler.plugins.kotlin
 
 import org.intellij.lang.annotations.Language
+import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.junit.Test
 
 class RememberIntrinsicTransformTests : AbstractIrTransformTest() {
+    override fun CompilerConfiguration.updateConfiguration() {
+        put(ComposeConfiguration.SOURCE_INFORMATION_ENABLED_KEY, true)
+        put(ComposeConfiguration.INTRINSIC_REMEMBER_OPTIMIZATION_ENABLED_KEY, true)
+    }
+
     private fun comparisonPropagation(
         @Language("kotlin")
         unchecked: String,
@@ -495,7 +501,7 @@ class RememberIntrinsicTransformTests : AbstractIrTransformTest() {
                 if (isTraceInProgress()) {
                   traceEventStart(<>, %changed, -1, <>)
                 }
-                val bar = compositionLocalBar.current
+                val bar = compositionLocalBar.<get-current>(%composer, 0b0110)
                 val foo = remember(bar, {
                   Foo()
                 }, %composer, 0)
@@ -536,7 +542,7 @@ class RememberIntrinsicTransformTests : AbstractIrTransformTest() {
                 if (isTraceInProgress()) {
                   traceEventStart(<>, %changed, -1, <>)
                 }
-                val foo = remember(compositionLocalBar.current, {
+                val foo = remember(compositionLocalBar.<get-current>(%composer, 0b0110), {
                   Foo()
                 }, %composer, 0)
                 if (isTraceInProgress()) {
@@ -1744,6 +1750,94 @@ class RememberIntrinsicTransformTests : AbstractIrTransformTest() {
               }
               %composer.endRestartGroup()?.updateScope { %composer: Composer?, %force: Int ->
                 Test(*strings, %composer, updateChangedFlags(%changed or 0b0001))
+              }
+            }
+        """
+    )
+
+    @Test // regression test for b/267586102
+    fun testRememberInALoop() = verifyComposeIrTransform(
+        source = """
+            import androidx.compose.runtime.*
+
+            val content: @Composable (a: SomeUnstableClass) -> Unit = {
+                for (index in 0 until count) {
+                    val i = remember { index }
+                }
+                val a = remember { 1 }
+            }
+        """,
+        extra = """
+            import androidx.compose.runtime.*
+
+            val count = 0
+            class SomeUnstableClass(val a: Any = "abc")
+        """,
+        expectedTransformed = """
+            val content: Function3<@[ParameterName(name = 'a')] SomeUnstableClass, Composer, Int, Unit> = ComposableSingletons%TestKt.lambda-1
+            internal object ComposableSingletons%TestKt {
+              val lambda-1: Function3<SomeUnstableClass, Composer, Int, Unit> = composableLambdaInstance(<>, false) { it: SomeUnstableClass, %composer: Composer?, %changed: Int ->
+                sourceInformation(%composer, "C<rememb...>:Test.kt")
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
+                %composer.startReplaceableGroup(<>)
+                sourceInformation(%composer, "*<rememb...>")
+                val tmp0_iterator = 0 until count.iterator()
+                while (tmp0_iterator.hasNext()) {
+                  val index = tmp0_iterator.next()
+                  val i = remember({
+                    index
+                  }, %composer, 0)
+                }
+                %composer.endReplaceableGroup()
+                val a = remember({
+                  1
+                }, %composer, 0)
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
+              }
+            }
+
+        """
+    )
+
+    @Test // Regression test for b/267586102 to ensure the fix doesn't insert unnecessary groups
+    fun testRememberInALoop_NoTrailingRemember() = verifyComposeIrTransform(
+        source = """
+            import androidx.compose.runtime.*
+
+            val content: @Composable (a: SomeUnstableClass) -> Unit = {
+                for (index in 0 until count) {
+                    val i = remember { index }
+                }
+            }
+        """,
+        extra = """
+                import androidx.compose.runtime.*
+
+                val count = 0
+                class SomeUnstableClass(val a: Any = "abc")
+            """,
+        expectedTransformed = """
+            val content: Function3<@[ParameterName(name = 'a')] SomeUnstableClass, Composer, Int, Unit> = ComposableSingletons%TestKt.lambda-1
+            internal object ComposableSingletons%TestKt {
+              val lambda-1: Function3<SomeUnstableClass, Composer, Int, Unit> = composableLambdaInstance(<>, false) { it: SomeUnstableClass, %composer: Composer?, %changed: Int ->
+                sourceInformation(%composer, "C*<rememb...>:Test.kt")
+                if (isTraceInProgress()) {
+                  traceEventStart(<>, %changed, -1, <>)
+                }
+                val tmp0_iterator = 0 until count.iterator()
+                while (tmp0_iterator.hasNext()) {
+                  val index = tmp0_iterator.next()
+                  val i = remember({
+                    index
+                  }, %composer, 0)
+                }
+                if (isTraceInProgress()) {
+                  traceEventEnd()
+                }
               }
             }
         """

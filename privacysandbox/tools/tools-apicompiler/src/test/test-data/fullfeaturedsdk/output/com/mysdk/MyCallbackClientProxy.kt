@@ -1,12 +1,13 @@
 package com.mysdk
 
-import com.mysdk.ResponseConverter.toParcelable
+import android.content.Context
 
 public class MyCallbackClientProxy(
     public val remote: IMyCallback,
+    public val context: Context,
 ) : MyCallback {
     public override fun onComplete(response: Response): Unit {
-        remote.onComplete(toParcelable(response))
+        remote.onComplete(ResponseConverter(context).toParcelable(response))
     }
 
     public override fun onClick(x: Int, y: Int): Unit {
@@ -14,6 +15,6 @@ public class MyCallbackClientProxy(
     }
 
     public override fun onCompleteInterface(myInterface: MyInterface): Unit {
-        remote.onCompleteInterface(MyInterfaceStubDelegate(myInterface))
+        remote.onCompleteInterface(MyInterfaceStubDelegate(myInterface, context))
     }
 }

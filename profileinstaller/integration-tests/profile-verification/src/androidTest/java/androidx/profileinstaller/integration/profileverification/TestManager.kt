@@ -21,6 +21,7 @@ import android.os.Environment
 import android.os.ParcelFileDescriptor
 import android.util.Log
 import androidx.concurrent.futures.DirectExecutor
+import androidx.core.os.BuildCompat
 import androidx.profileinstaller.DeviceProfileWriter
 import androidx.profileinstaller.ProfileInstaller
 import androidx.test.platform.app.InstrumentationRegistry
@@ -300,6 +301,7 @@ private val EMPTY_DIAGNOSTICS: ProfileInstaller.DiagnosticsCallback =
 private fun <T> T?.throwIfNull(message: String): T = this ?: throw Exception(message)
 
 val isApi30 by lazy { Build.VERSION.SDK_INT == Build.VERSION_CODES.R }
+val isApi34 by lazy { BuildCompat.isAtLeastU() }
 
 const val PACKAGE_NAME_WITH_INITIALIZER =
     "androidx.profileinstaller.integration.profileverification.target"

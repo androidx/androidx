@@ -27,7 +27,6 @@ import androidx.camera.core.impl.CaptureStage;
 /**
  * A fake {@link CaptureStage} where the values can be set.
  *
- * @hide
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(Scope.LIBRARY_GROUP)

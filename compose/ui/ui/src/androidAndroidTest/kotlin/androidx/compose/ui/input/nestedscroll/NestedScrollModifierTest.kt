@@ -1114,7 +1114,6 @@ class NestedScrollModifierTest {
             val res =
                 childDispatcher.dispatchPreScroll(preScrollOffset, NestedScrollSource.Drag)
             assertThat(res).isEqualTo(rootParentPreConsumed + parentToRemovePreConsumed)
-
             emitNewParent.value = false
         }
 

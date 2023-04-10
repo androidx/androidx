@@ -17,6 +17,7 @@
 package androidx.build.buildInfo
 
 import org.gradle.api.artifacts.Dependency
+import org.gradle.api.artifacts.DependencyConstraint
 import org.gradle.api.provider.Provider
 
 /**
@@ -30,5 +31,6 @@ import org.gradle.api.provider.Provider
 data class VariantPublishPlan(
     val artifactId: String,
     val taskSuffix: String = "",
-    val dependencies: Provider<List<Dependency>>
+    val dependencies: Provider<List<Dependency>>,
+    val dependencyConstraints: Provider<List<DependencyConstraint>>
 )

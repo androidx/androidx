@@ -34,8 +34,7 @@ import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
-import androidx.paging.compose.itemsIndexed
+import androidx.paging.compose.itemKey
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlin.math.ceil
@@ -129,7 +128,8 @@ fun PagingBackendSample() {
             }
         }
 
-        itemsIndexed(lazyPagingItems) { index, item ->
+        items(count = lazyPagingItems.itemCount) { index ->
+            val item = lazyPagingItems[index]
             Text("Index=$index: $item", fontSize = 20.sp)
         }
 
@@ -149,8 +149,12 @@ fun PagingBackendSample() {
 fun ItemsDemo(flow: Flow<PagingData<String>>) {
     val lazyPagingItems = flow.collectAsLazyPagingItems()
     LazyColumn {
-        items(lazyPagingItems) {
-            Text("Item is $it")
+        items(
+            count = lazyPagingItems.itemCount,
+            key = lazyPagingItems.itemKey()
+        ) { index ->
+            val item = lazyPagingItems[index]
+            Text("Item is $item")
         }
     }
 }
@@ -160,7 +164,8 @@ fun ItemsDemo(flow: Flow<PagingData<String>>) {
 fun ItemsIndexedDemo(flow: Flow<PagingData<String>>) {
     val lazyPagingItems = flow.collectAsLazyPagingItems()
     LazyColumn {
-        itemsIndexed(lazyPagingItems) { index, item ->
+        items(count = lazyPagingItems.itemCount) { index ->
+            val item = lazyPagingItems[index]
             Text("Item at index $index is $item")
         }
     }

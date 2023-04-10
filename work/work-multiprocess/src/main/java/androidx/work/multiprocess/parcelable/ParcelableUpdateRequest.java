@@ -30,7 +30,6 @@ import java.util.UUID;
  * A {@link android.os.Parcelable} which has the necessary context to update progress for a
  * {@link androidx.work.ListenableWorker}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressLint("BanParcelableUsage")

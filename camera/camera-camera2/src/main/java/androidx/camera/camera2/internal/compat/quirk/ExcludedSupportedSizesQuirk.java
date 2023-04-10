@@ -21,6 +21,7 @@ import android.os.Build;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.ImageFormatConstants;
@@ -50,6 +51,7 @@ import java.util.Locale;
 public class ExcludedSupportedSizesQuirk implements Quirk {
 
     private static final String TAG = "ExcludedSupportedSizesQuirk";
+    private static final int UNKNOWN_IMAGE_FORMAT = -1;
 
     static boolean load() {
         return isOnePlus6() || isOnePlus6T() || isHuaweiP20Lite() || isSamsungJ7PrimeApi27Above()
@@ -94,13 +96,32 @@ public class ExcludedSupportedSizesQuirk implements Quirk {
             return getOnePlus6TExcludedSizes(cameraId, imageFormat);
         }
         if (isHuaweiP20Lite()) {
-            return getHuaweiP20LiteExcludedSizes(cameraId, imageFormat);
+            return getHuaweiP20LiteExcludedSizes(cameraId, imageFormat, null);
         }
         if (isSamsungJ7PrimeApi27Above()) {
-            return getSamsungJ7PrimeApi27AboveExcludedSizes(cameraId, imageFormat);
+            return getSamsungJ7PrimeApi27AboveExcludedSizes(cameraId, imageFormat, null);
         }
         if (isSamsungJ7Api27Above()) {
-            return getSamsungJ7Api27AboveExcludedSizes(cameraId, imageFormat);
+            return getSamsungJ7Api27AboveExcludedSizes(cameraId, imageFormat, null);
+        }
+        Logger.w(TAG, "Cannot retrieve list of supported sizes to exclude on this device.");
+        return Collections.emptyList();
+    }
+
+    /**
+     * Retrieves problematic supported surface sizes that have to be excluded on the current
+     * device, for the given camera id and class type.
+     */
+    @NonNull
+    public List<Size> getExcludedSizes(@NonNull String cameraId, @NonNull Class<?> klass) {
+        if (isHuaweiP20Lite()) {
+            return getHuaweiP20LiteExcludedSizes(cameraId, UNKNOWN_IMAGE_FORMAT, klass);
+        }
+        if (isSamsungJ7PrimeApi27Above()) {
+            return getSamsungJ7PrimeApi27AboveExcludedSizes(cameraId, UNKNOWN_IMAGE_FORMAT, klass);
+        }
+        if (isSamsungJ7Api27Above()) {
+            return getSamsungJ7Api27AboveExcludedSizes(cameraId, UNKNOWN_IMAGE_FORMAT, klass);
         }
         Logger.w(TAG, "Cannot retrieve list of supported sizes to exclude on this device.");
         return Collections.emptyList();
@@ -127,11 +148,13 @@ public class ExcludedSupportedSizesQuirk implements Quirk {
     }
 
     @NonNull
-    private List<Size> getHuaweiP20LiteExcludedSizes(@NonNull String cameraId, int imageFormat) {
+    private List<Size> getHuaweiP20LiteExcludedSizes(@NonNull String cameraId, int imageFormat,
+            @Nullable Class<?> klass) {
         final List<Size> sizes = new ArrayList<>();
-        if (cameraId.equals("0")
-                && (imageFormat == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
-                || imageFormat == ImageFormat.YUV_420_888)) {
+        // When klass is not null, the list for PRIVATE format should be returned.
+        if (cameraId.equals("0") && (
+                imageFormat == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+                        || imageFormat == ImageFormat.YUV_420_888 || klass != null)) {
             sizes.add(new Size(720, 720));
             sizes.add(new Size(400, 400));
         }
@@ -140,34 +163,33 @@ public class ExcludedSupportedSizesQuirk implements Quirk {
 
     @NonNull
     private List<Size> getSamsungJ7PrimeApi27AboveExcludedSizes(@NonNull String cameraId,
-            int imageFormat) {
+            int imageFormat, @Nullable Class<?> klass) {
         final List<Size> sizes = new ArrayList<>();
 
+        // When klass is not null, the list for PRIVATE format should be returned.
         if (cameraId.equals("0")) {
-            switch (imageFormat) {
-                case ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE:
-                    sizes.add(new Size(4128, 3096));
-                    sizes.add(new Size(4128, 2322));
-                    sizes.add(new Size(3088, 3088));
-                    sizes.add(new Size(3264, 2448));
-                    sizes.add(new Size(3264, 1836));
-                    sizes.add(new Size(2048, 1536));
-                    sizes.add(new Size(2048, 1152));
-                    sizes.add(new Size(1920, 1080));
-                    break;
-                case ImageFormat.YUV_420_888:
-                    sizes.add(new Size(4128, 2322));
-                    sizes.add(new Size(3088, 3088));
-                    sizes.add(new Size(3264, 2448));
-                    sizes.add(new Size(3264, 1836));
-                    sizes.add(new Size(2048, 1536));
-                    sizes.add(new Size(2048, 1152));
-                    sizes.add(new Size(1920, 1080));
-                    break;
+            if (imageFormat == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+                    || klass != null) {
+                sizes.add(new Size(4128, 3096));
+                sizes.add(new Size(4128, 2322));
+                sizes.add(new Size(3088, 3088));
+                sizes.add(new Size(3264, 2448));
+                sizes.add(new Size(3264, 1836));
+                sizes.add(new Size(2048, 1536));
+                sizes.add(new Size(2048, 1152));
+                sizes.add(new Size(1920, 1080));
+            } else if (imageFormat == ImageFormat.YUV_420_888) {
+                sizes.add(new Size(4128, 2322));
+                sizes.add(new Size(3088, 3088));
+                sizes.add(new Size(3264, 2448));
+                sizes.add(new Size(3264, 1836));
+                sizes.add(new Size(2048, 1536));
+                sizes.add(new Size(2048, 1152));
+                sizes.add(new Size(1920, 1080));
             }
         } else if (cameraId.equals("1")) {
             if (imageFormat == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
-                    || imageFormat == ImageFormat.YUV_420_888) {
+                    || imageFormat == ImageFormat.YUV_420_888 || klass != null) {
                 sizes.add(new Size(3264, 2448));
                 sizes.add(new Size(3264, 1836));
                 sizes.add(new Size(2448, 2448));
@@ -183,30 +205,29 @@ public class ExcludedSupportedSizesQuirk implements Quirk {
 
     @NonNull
     private List<Size> getSamsungJ7Api27AboveExcludedSizes(@NonNull String cameraId,
-            int imageFormat) {
+            int imageFormat, @Nullable Class<?> klass) {
         final List<Size> sizes = new ArrayList<>();
 
+        // When klass is not null, the list for PRIVATE format should be returned.
         if (cameraId.equals("0")) {
-            switch (imageFormat) {
-                case ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE:
-                    sizes.add(new Size(4128, 3096));
-                    sizes.add(new Size(4128, 2322));
-                    sizes.add(new Size(3088, 3088));
-                    sizes.add(new Size(3264, 2448));
-                    sizes.add(new Size(3264, 1836));
-                    sizes.add(new Size(2048, 1536));
-                    sizes.add(new Size(2048, 1152));
-                    sizes.add(new Size(1920, 1080));
-                    break;
-                case ImageFormat.YUV_420_888:
-                    sizes.add(new Size(2048, 1536));
-                    sizes.add(new Size(2048, 1152));
-                    sizes.add(new Size(1920, 1080));
-                    break;
+            if (imageFormat == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+                    || klass != null) {
+                sizes.add(new Size(4128, 3096));
+                sizes.add(new Size(4128, 2322));
+                sizes.add(new Size(3088, 3088));
+                sizes.add(new Size(3264, 2448));
+                sizes.add(new Size(3264, 1836));
+                sizes.add(new Size(2048, 1536));
+                sizes.add(new Size(2048, 1152));
+                sizes.add(new Size(1920, 1080));
+            } else if (imageFormat == ImageFormat.YUV_420_888) {
+                sizes.add(new Size(2048, 1536));
+                sizes.add(new Size(2048, 1152));
+                sizes.add(new Size(1920, 1080));
             }
         } else if (cameraId.equals("1")) {
             if (imageFormat == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
-                    || imageFormat == ImageFormat.YUV_420_888) {
+                    || imageFormat == ImageFormat.YUV_420_888 || klass != null) {
                 sizes.add(new Size(2576, 1932));
                 sizes.add(new Size(2560, 1440));
                 sizes.add(new Size(1920, 1920));

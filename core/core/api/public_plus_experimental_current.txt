@@ -118,9 +118,9 @@ package androidx.core.app {
     field public static final int MODE_IGNORED = 1; // 0x1
   }
 
-  public final class BundleCompat {
-    method public static android.os.IBinder? getBinder(android.os.Bundle, String?);
-    method public static void putBinder(android.os.Bundle, String?, android.os.IBinder?);
+  @Deprecated public final class BundleCompat {
+    method @Deprecated public static android.os.IBinder? getBinder(android.os.Bundle, String?);
+    method @Deprecated public static void putBinder(android.os.Bundle, String?, android.os.IBinder?);
   }
 
   public class DialogCompat {
@@ -278,6 +278,7 @@ package androidx.core.app {
     method @RequiresApi(19) public static boolean getUsesChronometer(android.app.Notification);
     method public static int getVisibility(android.app.Notification);
     method public static boolean isGroupSummary(android.app.Notification);
+    method public static android.graphics.Bitmap? reduceLargeIconSize(android.content.Context, android.graphics.Bitmap?);
     field public static final int BADGE_ICON_LARGE = 2; // 0x2
     field public static final int BADGE_ICON_NONE = 0; // 0x0
     field public static final int BADGE_ICON_SMALL = 1; // 0x1
@@ -467,6 +468,7 @@ package androidx.core.app {
     ctor public NotificationCompat.BigPictureStyle();
     ctor public NotificationCompat.BigPictureStyle(androidx.core.app.NotificationCompat.Builder?);
     method public androidx.core.app.NotificationCompat.BigPictureStyle bigLargeIcon(android.graphics.Bitmap?);
+    method @RequiresApi(23) public androidx.core.app.NotificationCompat.BigPictureStyle bigLargeIcon(android.graphics.drawable.Icon?);
     method public androidx.core.app.NotificationCompat.BigPictureStyle bigPicture(android.graphics.Bitmap?);
     method @RequiresApi(31) public androidx.core.app.NotificationCompat.BigPictureStyle bigPicture(android.graphics.drawable.Icon?);
     method public androidx.core.app.NotificationCompat.BigPictureStyle setBigContentTitle(CharSequence?);
@@ -558,6 +560,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder setGroupAlertBehavior(int);
     method public androidx.core.app.NotificationCompat.Builder setGroupSummary(boolean);
     method public androidx.core.app.NotificationCompat.Builder setLargeIcon(android.graphics.Bitmap?);
+    method @RequiresApi(23) public androidx.core.app.NotificationCompat.Builder setLargeIcon(android.graphics.drawable.Icon?);
     method public androidx.core.app.NotificationCompat.Builder setLights(@ColorInt int, int, int);
     method public androidx.core.app.NotificationCompat.Builder setLocalOnly(boolean);
     method public androidx.core.app.NotificationCompat.Builder setLocusId(androidx.core.content.LocusIdCompat?);
@@ -696,6 +699,21 @@ package androidx.core.app {
     method public void setBuilder(androidx.core.app.NotificationCompat.Builder?);
   }
 
+  public static final class NotificationCompat.TvExtender implements androidx.core.app.NotificationCompat.Extender {
+    ctor public NotificationCompat.TvExtender();
+    ctor public NotificationCompat.TvExtender(android.app.Notification);
+    method public androidx.core.app.NotificationCompat.Builder extend(androidx.core.app.NotificationCompat.Builder);
+    method public String? getChannelId();
+    method public android.app.PendingIntent? getContentIntent();
+    method public android.app.PendingIntent? getDeleteIntent();
+    method public boolean isAvailableOnTv();
+    method public boolean isSuppressShowOverApps();
+    method public androidx.core.app.NotificationCompat.TvExtender setChannelId(String?);
+    method public androidx.core.app.NotificationCompat.TvExtender setContentIntent(android.app.PendingIntent?);
+    method public androidx.core.app.NotificationCompat.TvExtender setDeleteIntent(android.app.PendingIntent?);
+    method public androidx.core.app.NotificationCompat.TvExtender setSuppressShowOverApps(boolean);
+  }
+
   public static final class NotificationCompat.WearableExtender implements androidx.core.app.NotificationCompat.Extender {
     ctor public NotificationCompat.WearableExtender();
     ctor public NotificationCompat.WearableExtender(android.app.Notification);
@@ -790,6 +808,8 @@ package androidx.core.app {
     method public void deleteNotificationChannelGroup(String);
     method public void deleteUnlistedNotificationChannels(java.util.Collection<java.lang.String!>);
     method public static androidx.core.app.NotificationManagerCompat from(android.content.Context);
+    method public java.util.List<android.service.notification.StatusBarNotification!> getActiveNotifications();
+    method public int getCurrentInterruptionFilter();
     method public static java.util.Set<java.lang.String!> getEnabledListenerPackages(android.content.Context);
     method public int getImportance();
     method public android.app.NotificationChannel? getNotificationChannel(String);
@@ -804,6 +824,7 @@ package androidx.core.app {
     method public java.util.List<androidx.core.app.NotificationChannelCompat!> getNotificationChannelsCompat();
     method @RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS) public void notify(int, android.app.Notification);
     method @RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS) public void notify(String?, int, android.app.Notification);
+    method @RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS) public void notify(java.util.List<androidx.core.app.NotificationManagerCompat.NotificationWithIdAndTag!>);
     field public static final String ACTION_BIND_SIDE_CHANNEL = "android.support.BIND_NOTIFICATION_SIDE_CHANNEL";
     field public static final String EXTRA_USE_SIDE_CHANNEL = "android.support.useSideChannel";
     field public static final int IMPORTANCE_DEFAULT = 3; // 0x3
@@ -813,6 +834,16 @@ package androidx.core.app {
     field public static final int IMPORTANCE_MIN = 1; // 0x1
     field public static final int IMPORTANCE_NONE = 0; // 0x0
     field public static final int IMPORTANCE_UNSPECIFIED = -1000; // 0xfffffc18
+    field public static final int INTERRUPTION_FILTER_ALARMS = 4; // 0x4
+    field public static final int INTERRUPTION_FILTER_ALL = 1; // 0x1
+    field public static final int INTERRUPTION_FILTER_NONE = 3; // 0x3
+    field public static final int INTERRUPTION_FILTER_PRIORITY = 2; // 0x2
+    field public static final int INTERRUPTION_FILTER_UNKNOWN = 0; // 0x0
+  }
+
+  public static class NotificationManagerCompat.NotificationWithIdAndTag {
+    ctor public NotificationManagerCompat.NotificationWithIdAndTag(String?, int, android.app.Notification);
+    ctor public NotificationManagerCompat.NotificationWithIdAndTag(int, android.app.Notification);
   }
 
   public interface OnMultiWindowModeChangedProvider {
@@ -1072,6 +1103,7 @@ package androidx.core.content {
     ctor protected FileProvider(@XmlRes int);
     method public int delete(android.net.Uri, String?, String![]?);
     method public String? getType(android.net.Uri);
+    method public String? getTypeAnonymous(android.net.Uri);
     method public static android.net.Uri! getUriForFile(android.content.Context, String, java.io.File);
     method public static android.net.Uri getUriForFile(android.content.Context, String, java.io.File, String);
     method public android.net.Uri! insert(android.net.Uri, android.content.ContentValues);
@@ -1410,6 +1442,7 @@ package androidx.core.graphics {
     method @ColorInt public static int HSLToColor(float[]);
     method @ColorInt public static int LABToColor(@FloatRange(from=0.0f, to=100) double, @FloatRange(from=0xffffff80, to=127) double, @FloatRange(from=0xffffff80, to=127) double);
     method public static void LABToXYZ(@FloatRange(from=0.0f, to=100) double, @FloatRange(from=0xffffff80, to=127) double, @FloatRange(from=0xffffff80, to=127) double, double[]);
+    method @ColorInt public static int M3HCTtoColor(float, float, float);
     method public static void RGBToHSL(@IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, float[]);
     method public static void RGBToLAB(@IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, double[]);
     method public static void RGBToXYZ(@IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, double[]);
@@ -1423,6 +1456,7 @@ package androidx.core.graphics {
     method public static int calculateMinimumAlpha(@ColorInt int, @ColorInt int, float);
     method public static void colorToHSL(@ColorInt int, float[]);
     method public static void colorToLAB(@ColorInt int, double[]);
+    method public static void colorToM3HCT(@ColorInt int, float[]);
     method public static void colorToXYZ(@ColorInt int, double[]);
     method public static int compositeColors(@ColorInt int, @ColorInt int);
     method @RequiresApi(26) public static android.graphics.Color compositeColors(android.graphics.Color, android.graphics.Color);
@@ -1680,7 +1714,7 @@ package androidx.core.location {
     method public static boolean hasProvider(android.location.LocationManager, String);
     method public static boolean isLocationEnabled(android.location.LocationManager);
     method @RequiresApi(android.os.Build.VERSION_CODES.N) @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssMeasurementsCallback(android.location.LocationManager, android.location.GnssMeasurementsEvent.Callback, android.os.Handler);
-    method @RequiresApi(android.os.Build.VERSION_CODES.R) @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssMeasurementsCallback(android.location.LocationManager, java.util.concurrent.Executor, android.location.GnssMeasurementsEvent.Callback);
+    method @RequiresApi(android.os.Build.VERSION_CODES.N) @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssMeasurementsCallback(android.location.LocationManager, java.util.concurrent.Executor, android.location.GnssMeasurementsEvent.Callback);
     method @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssStatusCallback(android.location.LocationManager, androidx.core.location.GnssStatusCompat.Callback, android.os.Handler);
     method @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssStatusCallback(android.location.LocationManager, java.util.concurrent.Executor, androidx.core.location.GnssStatusCompat.Callback);
     method @RequiresPermission(anyOf={android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}) public static void removeUpdates(android.location.LocationManager, androidx.core.location.LocationListenerCompat);
@@ -1805,8 +1839,9 @@ package androidx.core.os {
     method @Deprecated @ChecksSdkIntAtLeast(api=android.os.Build.VERSION_CODES.R) public static boolean isAtLeastR();
     method @Deprecated @ChecksSdkIntAtLeast(api=31, codename="S") public static boolean isAtLeastS();
     method @Deprecated @ChecksSdkIntAtLeast(api=32, codename="Sv2") @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static boolean isAtLeastSv2();
-    method @ChecksSdkIntAtLeast(api=33, codename="Tiramisu") @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static boolean isAtLeastT();
-    method @ChecksSdkIntAtLeast(codename="UpsideDownCake") @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static boolean isAtLeastU();
+    method @Deprecated @ChecksSdkIntAtLeast(api=33, codename="Tiramisu") @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static boolean isAtLeastT();
+    method @ChecksSdkIntAtLeast(api=34, codename="UpsideDownCake") @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static boolean isAtLeastU();
+    method @ChecksSdkIntAtLeast(codename="VanillaIceCream") @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static boolean isAtLeastV();
     field @ChecksSdkIntAtLeast(extension=android.os.ext.SdkExtensions.AD_SERVICES) public static final int AD_SERVICES_EXTENSION_INT;
     field @ChecksSdkIntAtLeast(extension=android.os.Build.VERSION_CODES.R) public static final int R_EXTENSION_INT;
     field @ChecksSdkIntAtLeast(extension=android.os.Build.VERSION_CODES.S) public static final int S_EXTENSION_INT;
@@ -1817,10 +1852,12 @@ package androidx.core.os {
   }
 
   public final class BundleCompat {
+    method public static android.os.IBinder? getBinder(android.os.Bundle, String?);
     method public static <T> T? getParcelable(android.os.Bundle, String?, Class<T!>);
     method public static android.os.Parcelable![]? getParcelableArray(android.os.Bundle, String?, Class<? extends android.os.Parcelable>);
     method public static <T> java.util.ArrayList<T!>? getParcelableArrayList(android.os.Bundle, String?, Class<? extends T>);
     method public static <T> android.util.SparseArray<T!>? getSparseParcelableArray(android.os.Bundle, String?, Class<? extends T>);
+    method public static void putBinder(android.os.Bundle, String?, android.os.IBinder?);
   }
 
   public final class CancellationSignal {
@@ -2726,14 +2763,17 @@ package androidx.core.view {
     method public static androidx.core.view.accessibility.AccessibilityNodeProviderCompat? getAccessibilityNodeProvider(android.view.View);
     method @UiThread public static CharSequence? getAccessibilityPaneTitle(android.view.View);
     method @Deprecated public static float getAlpha(android.view.View!);
+    method public static androidx.core.view.autofill.AutofillIdCompat? getAutofillId(android.view.View);
     method public static android.content.res.ColorStateList? getBackgroundTintList(android.view.View);
     method public static android.graphics.PorterDuff.Mode? getBackgroundTintMode(android.view.View);
     method public static android.graphics.Rect? getClipBounds(android.view.View);
+    method public static androidx.core.view.contentcapture.ContentCaptureSessionCompat? getContentCaptureSession(android.view.View);
     method public static android.view.Display? getDisplay(android.view.View);
     method public static float getElevation(android.view.View);
     method public static boolean getFitsSystemWindows(android.view.View);
     method public static int getImportantForAccessibility(android.view.View);
     method public static int getImportantForAutofill(android.view.View);
+    method public static int getImportantForContentCapture(android.view.View);
     method public static int getLabelFor(android.view.View);
     method @Deprecated public static int getLayerType(android.view.View!);
     method public static int getLayoutDirection(android.view.View);
@@ -2781,6 +2821,7 @@ package androidx.core.view {
     method public static boolean isFocusedByDefault(android.view.View);
     method public static boolean isImportantForAccessibility(android.view.View);
     method public static boolean isImportantForAutofill(android.view.View);
+    method public static boolean isImportantForContentCapture(android.view.View);
     method public static boolean isInLayout(android.view.View);
     method public static boolean isKeyboardNavigationCluster(android.view.View);
     method public static boolean isLaidOut(android.view.View);
@@ -2818,17 +2859,20 @@ package androidx.core.view {
     method @Deprecated public static void setActivated(android.view.View!, boolean);
     method @Deprecated public static void setAlpha(android.view.View!, @FloatRange(from=0.0, to=1.0) float);
     method public static void setAutofillHints(android.view.View, java.lang.String!...);
+    method public static void setAutofillId(android.view.View, androidx.core.view.autofill.AutofillIdCompat?);
     method public static void setBackground(android.view.View, android.graphics.drawable.Drawable?);
     method public static void setBackgroundTintList(android.view.View, android.content.res.ColorStateList?);
     method public static void setBackgroundTintMode(android.view.View, android.graphics.PorterDuff.Mode?);
     method @Deprecated public static void setChildrenDrawingOrderEnabled(android.view.ViewGroup!, boolean);
     method public static void setClipBounds(android.view.View, android.graphics.Rect?);
+    method public static void setContentCaptureSession(android.view.View, androidx.core.view.contentcapture.ContentCaptureSessionCompat?);
     method public static void setElevation(android.view.View, float);
     method @Deprecated public static void setFitsSystemWindows(android.view.View!, boolean);
     method public static void setFocusedByDefault(android.view.View, boolean);
     method public static void setHasTransientState(android.view.View, boolean);
     method @UiThread public static void setImportantForAccessibility(android.view.View, int);
     method public static void setImportantForAutofill(android.view.View, int);
+    method public static void setImportantForContentCapture(android.view.View, int);
     method public static void setKeyboardNavigationCluster(android.view.View, boolean);
     method public static void setLabelFor(android.view.View, @IdRes int);
     method public static void setLayerPaint(android.view.View, android.graphics.Paint?);
@@ -2876,6 +2920,11 @@ package androidx.core.view {
     field public static final int IMPORTANT_FOR_ACCESSIBILITY_NO = 2; // 0x2
     field public static final int IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS = 4; // 0x4
     field public static final int IMPORTANT_FOR_ACCESSIBILITY_YES = 1; // 0x1
+    field public static final int IMPORTANT_FOR_CONTENT_CAPTURE_AUTO = 0; // 0x0
+    field public static final int IMPORTANT_FOR_CONTENT_CAPTURE_NO = 2; // 0x2
+    field public static final int IMPORTANT_FOR_CONTENT_CAPTURE_NO_EXCLUDE_DESCENDANTS = 8; // 0x8
+    field public static final int IMPORTANT_FOR_CONTENT_CAPTURE_YES = 1; // 0x1
+    field public static final int IMPORTANT_FOR_CONTENT_CAPTURE_YES_EXCLUDE_DESCENDANTS = 4; // 0x4
     field @Deprecated public static final int LAYER_TYPE_HARDWARE = 2; // 0x2
     field @Deprecated public static final int LAYER_TYPE_NONE = 0; // 0x0
     field @Deprecated public static final int LAYER_TYPE_SOFTWARE = 1; // 0x1
@@ -3001,6 +3050,15 @@ package androidx.core.view {
 
   public interface ViewPropertyAnimatorUpdateListener {
     method public void onAnimationUpdate(android.view.View);
+  }
+
+  public class ViewStructureCompat {
+    method public void setClassName(String);
+    method public void setContentDescription(CharSequence);
+    method public void setDimens(int, int, int, int, int, int);
+    method public void setText(CharSequence);
+    method @RequiresApi(23) public android.view.ViewStructure toViewStructure();
+    method @RequiresApi(23) public static androidx.core.view.ViewStructureCompat toViewStructureCompat(android.view.ViewStructure);
   }
 
   public final class WindowCompat {
@@ -3258,7 +3316,7 @@ package androidx.core.view.accessibility {
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat! getLabeledBy();
     method public int getLiveRegion();
     method public int getMaxTextLength();
-    method public int getMinMillisBetweenContentChanges();
+    method public long getMinDurationBetweenContentChangesMillis();
     method public int getMovementGranularities();
     method public CharSequence! getPackageName();
     method public CharSequence? getPaneTitle();
@@ -3344,7 +3402,7 @@ package androidx.core.view.accessibility {
     method public void setLiveRegion(int);
     method public void setLongClickable(boolean);
     method public void setMaxTextLength(int);
-    method public void setMinMillisBetweenContentChanges(int);
+    method public void setMinDurationBetweenContentChangesMillis(long);
     method public void setMovementGranularities(int);
     method public void setMultiLine(boolean);
     method public void setPackageName(CharSequence!);
@@ -3667,6 +3725,29 @@ package androidx.core.view.animation {
     method public static android.view.animation.Interpolator create(android.graphics.Path);
     method public static android.view.animation.Interpolator create(float, float);
     method public static android.view.animation.Interpolator create(float, float, float, float);
+  }
+
+}
+
+package androidx.core.view.autofill {
+
+  public class AutofillIdCompat {
+    method @RequiresApi(26) public android.view.autofill.AutofillId toAutofillId();
+    method @RequiresApi(26) public static androidx.core.view.autofill.AutofillIdCompat toAutofillIdCompat(android.view.autofill.AutofillId);
+  }
+
+}
+
+package androidx.core.view.contentcapture {
+
+  public class ContentCaptureSessionCompat {
+    method public android.view.autofill.AutofillId? newAutofillId(long);
+    method public androidx.core.view.ViewStructureCompat? newVirtualViewStructure(android.view.autofill.AutofillId, long);
+    method public void notifyViewTextChanged(android.view.autofill.AutofillId, CharSequence?);
+    method public void notifyViewsAppeared(java.util.List<android.view.ViewStructure!>);
+    method public void notifyViewsDisappeared(long[]);
+    method @RequiresApi(29) public android.view.contentcapture.ContentCaptureSession toContentCaptureSession();
+    method @RequiresApi(29) public static androidx.core.view.contentcapture.ContentCaptureSessionCompat toContentCaptureSessionCompat(android.view.contentcapture.ContentCaptureSession, android.view.View);
   }
 
 }

@@ -22,7 +22,6 @@ import androidx.annotation.RestrictTo;
 
 import java.util.Arrays;
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ProfileVersion {
     private ProfileVersion() {}

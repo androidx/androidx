@@ -40,6 +40,9 @@ internal abstract class KspExecutableElement(
         filter = NO_USE_SITE
     ) {
 
+    override val jvmDescriptor: String
+        get() = this.jvmDescriptor()
+
     override val enclosingElement: KspMemberContainer by lazy {
         declaration.requireEnclosingMemberContainer(env)
     }

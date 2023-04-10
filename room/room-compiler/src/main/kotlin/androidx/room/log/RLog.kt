@@ -74,6 +74,10 @@ class RLog(
         printToMessager(messager, WARNING, msg.safeFormat(args), defaultElement)
     }
 
+    fun w(msg: String, vararg args: Any) {
+        printToMessager(messager, WARNING, msg.safeFormat(args), defaultElement)
+    }
+
     private data class DiagnosticMessage(
         val msg: String,
         val element: XElement?,

@@ -16,6 +16,7 @@
 
 package androidx.build
 
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create
@@ -55,6 +56,24 @@ class LibraryVersionsServiceTest {
             LibraryGroup(
                 group = "g.g2", atomicGroupVersion = null
             )
+        )
+    }
+
+    @Test
+    fun invalidToml() {
+        val service = createLibraryVersionsService(
+            """
+            [versions]
+            V1 = "1.2.3"
+            [groups]
+            G1 = { group = "g.g1", atomicGroupVersion = "versions.V1" }
+            G1 = { group = "g.g1"}
+        """.trimIndent()
+        )
+        assertThrows<Exception> {
+            service.libraryGroups["G1"]
+        }.hasMessageThat().contains(
+            "libraryversions.toml:line 5, column 1: G1 previously defined at line 4, column 1"
         )
     }
 
@@ -240,6 +259,46 @@ class LibraryVersionsServiceTest {
     }
 
     @Test
+    fun duplicateGroupIdsWithoutOverrideInclude() {
+        val service = createLibraryVersionsService(
+            """
+            [versions]
+            V1 = "1.2.3"
+            [groups]
+            G1 = { group = "g.g1", atomicGroupVersion = "versions.V1" }
+            G2 = { group = "g.g1", atomicGroupVersion = "versions.V1" }
+            """
+        )
+
+        assertThrows<Exception> {
+            service.libraryGroupsByGroupId["g.g1"]
+        }.hasMessageThat().contains(
+            "Duplicate library group g.g1 defined in G2 does not set overrideInclude. Declarations beyond the first can only have an effect if they set overrideInclude"
+        )
+    }
+
+    @Test
+    fun duplicateGroupIdsWithOverrideInclude() {
+        val service = createLibraryVersionsService(
+            """
+            [versions]
+            V1 = "1.2.3"
+            [groups]
+            G1 = { group = "g.g1", atomicGroupVersion = "versions.V1" }
+            G2 = { group = "g.g1", atomicGroupVersion = "versions.V1", overrideInclude = ["sample"] }
+            """
+        )
+
+        assertThat(
+            service.libraryGroupsByGroupId["g.g1"]
+        ).isEqualTo(
+            LibraryGroup(
+                group = "g.g1", atomicGroupVersion = Version("1.2.3")
+            )
+        )
+    }
+
+    @Test
     fun androidxExtension_noAtomicGroup() {
         runAndroidExtensionTest(
             projectPath = "myGroup:project1",
@@ -369,7 +428,7 @@ class LibraryVersionsServiceTest {
             // create the service before extensions are created so that they'll use the test service
             // we've created.
             createLibraryVersionsService(
-                tomlFile = tomlFile,
+                tomlFileContents = tomlFile,
                 project = rootProject,
                 useMultiplatformGroupVersions = useKmpVersions
             )
@@ -387,7 +446,8 @@ class LibraryVersionsServiceTest {
     }
 
     private fun createLibraryVersionsService(
-        tomlFile: String,
+        tomlFileContents: String,
+        tomlFileName: String = "libraryversions.toml",
         composeCustomVersion: String? = null,
         composeCustomGroup: String? = null,
         useMultiplatformGroupVersions: Boolean = false,
@@ -396,9 +456,10 @@ class LibraryVersionsServiceTest {
         val serviceProvider = project.gradle.sharedServices.registerIfAbsent(
             "libraryVersionsService", LibraryVersionsService::class.java
         ) { spec ->
-            spec.parameters.tomlFile = project.provider {
-                tomlFile
+            spec.parameters.tomlFileContents = project.provider {
+                tomlFileContents
             }
+            spec.parameters.tomlFileName = tomlFileName
             spec.parameters.composeCustomVersion = project.provider {
                 composeCustomVersion
             }

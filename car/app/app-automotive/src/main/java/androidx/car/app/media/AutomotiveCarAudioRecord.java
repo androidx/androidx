@@ -34,7 +34,6 @@ import androidx.car.app.annotations.KeepFields;
 /**
  * A {@link CarAudioRecord} for automotive OS.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
 @KeepFields

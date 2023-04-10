@@ -30,7 +30,6 @@ import java.util.List;
 /**
  * Wire format for {@link androidx.wear.watchface.style.ListUserStyleSetting}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
@@ -53,8 +52,16 @@ public class ListUserStyleSettingWireFormat extends UserStyleSettingWireFormat {
             @Nullable Bundle onWatchFaceEditorBundle,
             @Nullable List<Bundle> perOptionOnWatchFaceEditorBundles,
             @Nullable List<CharSequence> perOptionScreenReaderNames) {
-        super(id, displayName, description, icon, options, defaultOptionIndex, affectsLayers,
-                onWatchFaceEditorBundle, perOptionOnWatchFaceEditorBundles);
+        super(
+                id,
+                displayName,
+                description,
+                icon,
+                options,
+                defaultOptionIndex,
+                affectsLayers,
+                onWatchFaceEditorBundle,
+                perOptionOnWatchFaceEditorBundles);
         mPerOptionScreenReaderNames = perOptionScreenReaderNames;
     }
 }

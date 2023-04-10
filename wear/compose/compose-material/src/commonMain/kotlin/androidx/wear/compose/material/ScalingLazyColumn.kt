@@ -31,7 +31,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
@@ -46,12 +45,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import androidx.wear.compose.foundation.lazy.CombinedPaddingValues
@@ -434,7 +435,11 @@ public fun ScalingLazyColumn(
                 if (autoCentering != null) {
                     item {
                         Spacer(
-                            modifier = Modifier.height(state.topAutoCenteringItemSizePx.toDp())
+                            modifier = remember(state) {
+                                Modifier.autoCenteringHeight {
+                                    state.topAutoCenteringItemSizePx
+                                }
+                            }
                         )
                     }
                 }
@@ -442,7 +447,11 @@ public fun ScalingLazyColumn(
                 if (autoCentering != null) {
                     item {
                         Spacer(
-                            modifier = Modifier.height(state.bottomAutoCenteringItemSizePx.toDp())
+                            modifier = remember(state) {
+                                Modifier.autoCenteringHeight {
+                                    state.bottomAutoCenteringItemSizePx
+                                }
+                            }
                         )
                     }
                 }
@@ -689,3 +698,15 @@ private fun ScalingLazyColumnItemWrapper(
         itemScope.content()
     }
 }
+
+private fun Modifier.autoCenteringHeight(getHeight: () -> Int) =
+    layout { measurable, constraints ->
+        val height = getHeight()
+        val placeable = measurable.measure(
+            constraints.copy(minHeight = height, maxHeight = height)
+        )
+
+        layout(placeable.width, placeable.height) {
+            placeable.place(IntOffset.Zero)
+        }
+    }

@@ -1176,7 +1176,6 @@ public class Preference implements Comparable<Preference> {
 
     /**
      * Used by Settings.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     protected void performClick(@NonNull View view) {
@@ -1187,7 +1186,6 @@ public class Preference implements Comparable<Preference> {
      * Called when a click should be performed.
      *
      * Used by Settings.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void performClick() {
@@ -1336,7 +1334,6 @@ public class Preference implements Comparable<Preference> {
      *
      * Used by Settings.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     protected void onAttachedToHierarchy(@NonNull PreferenceManager preferenceManager, long id) {

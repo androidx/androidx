@@ -83,7 +83,7 @@ public final class ProcessCompat {
 }
 ```
 
-### Wrapper (ex. [AccessibilityNodeInfoCompat](https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo)) {#wrapper}
+### Wrapper (ex. [AccessibilityNodeInfoCompat](https://developer.android.com/reference/androidx/core/view/accessibility/AccessibilityNodeInfoCompat)) {#wrapper}
 
 When to use?
 

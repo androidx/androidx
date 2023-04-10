@@ -19,7 +19,6 @@ package androidx.compose.ui.text.font
 import android.content.Context
 import android.graphics.Typeface
 import android.os.ParcelFileDescriptor
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.UncachedFontFamilyResolver
 import androidx.compose.ui.text.matchers.assertThat
 import androidx.compose.ui.text.platform.bitmap
@@ -35,7 +34,6 @@ import java.io.File
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
-@OptIn(ExperimentalTextApi::class)
 class FontFamilyResolverFileTest {
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val assetFontPath = "subdirectory/asset_font.ttf"

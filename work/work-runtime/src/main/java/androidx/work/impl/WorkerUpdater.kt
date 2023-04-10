@@ -64,6 +64,7 @@ private fun updateWorkImpl(
             runAttemptCount = oldWorkSpec.runAttemptCount,
             lastEnqueueTime = oldWorkSpec.lastEnqueueTime,
             generation = oldWorkSpec.generation + 1,
+            periodCount = oldWorkSpec.periodCount
         )
 
         workSpecDao.updateWorkSpec(wrapInConstraintTrackingWorkerIfNeeded(schedulers, updatedSpec))
@@ -100,7 +101,6 @@ internal fun WorkManagerImpl.updateWorkImpl(
 /**
  * Enqueue or update the work.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun WorkManagerImpl.enqueueUniquelyNamedPeriodic(

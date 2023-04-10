@@ -33,7 +33,6 @@ import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
  * Can keep track of WorkManager configuration and schedulers without having to fully
  * initialize {@link androidx.work.WorkManager} in a remote process.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class RemoteWorkManagerInfo {

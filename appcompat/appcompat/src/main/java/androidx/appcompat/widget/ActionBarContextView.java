@@ -36,7 +36,6 @@ import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.core.view.ViewCompat;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class ActionBarContextView extends AbsActionBarView {

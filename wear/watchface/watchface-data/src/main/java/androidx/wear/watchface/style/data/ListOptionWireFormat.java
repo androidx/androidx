@@ -25,10 +25,8 @@ import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelize;
 
 /**
- * Wire format for
- * {@link androidx.wear.watchface.style.ListUserStyleSetting.ListOption}.
+ * Wire format for {@link androidx.wear.watchface.style.ListUserStyleSetting.ListOption}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
@@ -45,14 +43,10 @@ public class ListOptionWireFormat extends OptionWireFormat {
 
     // WARNING: This class is held in a list and can't change due to flaws in VersionedParcelable.
 
-    ListOptionWireFormat() {
-    }
+    ListOptionWireFormat() {}
 
     public ListOptionWireFormat(
-            @NonNull byte[] id,
-            @NonNull CharSequence displayName,
-            @Nullable Icon icon
-    ) {
+            @NonNull byte[] id, @NonNull CharSequence displayName, @Nullable Icon icon) {
         super(id);
         this.mDisplayName = displayName;
         this.mIcon = icon;

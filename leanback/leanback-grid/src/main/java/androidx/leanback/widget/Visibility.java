@@ -26,7 +26,6 @@ import androidx.annotation.RestrictTo;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/** @hide */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 @IntDef({View.VISIBLE, View.INVISIBLE, View.GONE})
 @Retention(RetentionPolicy.SOURCE)

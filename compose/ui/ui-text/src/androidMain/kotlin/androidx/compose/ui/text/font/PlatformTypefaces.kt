@@ -58,7 +58,6 @@ internal interface PlatformTypefaces {
      * @return typeface from system cache if available, or null if the system doesn't know this font
      * name
      */
-    @OptIn(ExperimentalTextApi::class)
     fun optionalOnDeviceFontFamilyByName(
         familyName: String,
         weight: FontWeight,

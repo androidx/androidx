@@ -19,11 +19,11 @@ package androidx.room.solver.types
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec
-import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XEnumTypeElement
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.CommonTypeNames
+import androidx.room.ext.ExceptionTypeNames
 import androidx.room.parser.SQLTypeAffinity.TEXT
 import androidx.room.solver.CodeGenScope
 import androidx.room.writer.TypeWriter
@@ -119,7 +119,7 @@ class EnumColumnTypeAdapter(
                             }
                             addStatement(
                                 "default: throw new %T(%S + %L)",
-                                ILLEGAL_ARG_EXCEPTION,
+                                ExceptionTypeNames.ILLEGAL_ARG_EXCEPTION,
                                 ENUM_TO_STRING_ERROR_MSG,
                                 paramName
                             )
@@ -184,7 +184,7 @@ class EnumColumnTypeAdapter(
                             }
                             addStatement(
                                 "default: throw new %T(%S + %L)",
-                                ILLEGAL_ARG_EXCEPTION,
+                                ExceptionTypeNames.ILLEGAL_ARG_EXCEPTION,
                                 STRING_TO_ENUM_ERROR_MSG,
                                 paramName
                             )
@@ -203,7 +203,7 @@ class EnumColumnTypeAdapter(
                             }
                             addStatement(
                                 "else -> throw %T(%S + %L)",
-                                ILLEGAL_ARG_EXCEPTION,
+                                ExceptionTypeNames.ILLEGAL_ARG_EXCEPTION,
                                 STRING_TO_ENUM_ERROR_MSG,
                                 paramName
                             )
@@ -225,7 +225,6 @@ class EnumColumnTypeAdapter(
     }
 
     companion object {
-        private val ILLEGAL_ARG_EXCEPTION = IllegalArgumentException::class.asClassName()
         private const val ENUM_TO_STRING_ERROR_MSG =
             "Can't convert enum to string, unknown enum value: "
         private const val STRING_TO_ENUM_ERROR_MSG =

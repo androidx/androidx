@@ -39,7 +39,6 @@ abstract class WorkRequest internal constructor(
     /**
      * The [WorkSpec] associated with this unit of work.
      *
-     * @hide
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val workSpec: WorkSpec,
@@ -55,7 +54,6 @@ abstract class WorkRequest internal constructor(
      * Gets the string for the unique identifier associated with this unit of work.
      *
      * @return The string identifier for this unit of work
-     * @hide
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val stringId: String
@@ -286,7 +284,6 @@ abstract class WorkRequest internal constructor(
          *
          * @param state The [WorkInfo.State] to set
          * @return The current [Builder]
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @VisibleForTesting
@@ -300,7 +297,6 @@ abstract class WorkRequest internal constructor(
          *
          * @param runAttemptCount The initial run attempt count
          * @return The current [Builder]
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @VisibleForTesting
@@ -310,17 +306,16 @@ abstract class WorkRequest internal constructor(
         }
 
         /**
-         * Sets the period start time for this work. Used in testing only.
+         * Sets the enqueue time for this work. Used in testing only.
          *
-         * @param periodStartTime the period start time in `timeUnit` units
+         * @param lastEnqueueTime The enqueue time in `timeUnit` units
          * @param timeUnit The [TimeUnit] for `periodStartTime`
          * @return The current [Builder]
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @VisibleForTesting
-        fun setLastEnqueueTime(periodStartTime: Long, timeUnit: TimeUnit): B {
-            workSpec.lastEnqueueTime = timeUnit.toMillis(periodStartTime)
+        fun setLastEnqueueTime(lastEnqueueTime: Long, timeUnit: TimeUnit): B {
+            workSpec.lastEnqueueTime = timeUnit.toMillis(lastEnqueueTime)
             return thisObject
         }
 
@@ -330,7 +325,6 @@ abstract class WorkRequest internal constructor(
          * @param scheduleRequestedAt The time at which the scheduler scheduled a worker.
          * @param timeUnit The [TimeUnit] for `scheduleRequestedAt`
          * @return The current [Builder]
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @VisibleForTesting

@@ -19,6 +19,8 @@ package androidx.wear.protolayout;
 import static androidx.wear.protolayout.expression.Preconditions.checkNotNull;
 
 import android.annotation.SuppressLint;
+
+import android.content.ComponentName;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -67,6 +69,36 @@ public final class ActionBuilders {
     return new AndroidBooleanExtra.Builder().setValue(value).build();
   }
 
+  /** Shortcut for building a {@link LaunchAction}. */
+  @NonNull
+  public static LaunchAction launchAction(@NonNull ComponentName activityComponentName) {
+    return new LaunchAction.Builder()
+        .setAndroidActivity(
+            new AndroidActivity.Builder()
+                .setClassName(activityComponentName.getClassName())
+                .setPackageName(activityComponentName.getPackageName())
+                .build())
+        .build();
+  }
+
+  /** Shortcut for building a {@link LaunchAction} with extras in the launch intent. */
+  @NonNull
+  public static LaunchAction launchAction(
+          @NonNull ComponentName activityComponentName,
+          @NonNull Map<String, AndroidExtra> intentExtras) {
+    AndroidActivity.Builder builder = new AndroidActivity.Builder();
+    for (Map.Entry<String, AndroidExtra> intentExtra : intentExtras.entrySet()) {
+      builder.addKeyToExtraMapping(intentExtra.getKey(), intentExtra.getValue());
+    }
+    return new LaunchAction.Builder()
+            .setAndroidActivity(
+                    builder
+                            .setClassName(activityComponentName.getClassName())
+                            .setPackageName(activityComponentName.getPackageName())
+                            .build())
+            .build();
+  }
+
   /**
    * A string value that can be added to an Android intent's extras.
    *
@@ -91,7 +123,6 @@ public final class ActionBuilders {
       return mImpl.getValue();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -109,7 +140,6 @@ public final class ActionBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -168,7 +198,6 @@ public final class ActionBuilders {
       return mImpl.getValue();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -186,7 +215,6 @@ public final class ActionBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -245,7 +273,6 @@ public final class ActionBuilders {
       return mImpl.getValue();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -263,7 +290,6 @@ public final class ActionBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -322,7 +348,6 @@ public final class ActionBuilders {
       return mImpl.getValue();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -340,7 +365,6 @@ public final class ActionBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -399,7 +423,6 @@ public final class ActionBuilders {
       return mImpl.getValue();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -417,7 +440,6 @@ public final class ActionBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -464,7 +486,6 @@ public final class ActionBuilders {
     /**
      * Get the protocol buffer representation of this object.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -473,7 +494,6 @@ public final class ActionBuilders {
     /**
      * Get the fingerprint for this object or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -561,7 +581,6 @@ public final class ActionBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -664,7 +683,6 @@ public final class ActionBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -682,7 +700,6 @@ public final class ActionBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -748,7 +765,6 @@ public final class ActionBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -766,7 +782,6 @@ public final class ActionBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -813,7 +828,6 @@ public final class ActionBuilders {
     /**
      * Get the protocol buffer representation of this object.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -822,7 +836,6 @@ public final class ActionBuilders {
     /**
      * Get the fingerprint for this object or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -859,7 +872,6 @@ public final class ActionBuilders {
     /**
      * Get the protocol buffer representation of this object.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -868,7 +880,6 @@ public final class ActionBuilders {
     /**
      * Get the fingerprint for this object or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -930,7 +941,6 @@ public final class ActionBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -948,7 +958,6 @@ public final class ActionBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull

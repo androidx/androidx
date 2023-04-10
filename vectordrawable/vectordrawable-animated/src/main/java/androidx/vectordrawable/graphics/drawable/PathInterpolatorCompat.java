@@ -50,7 +50,6 @@ import org.xmlpull.v1.XmlPullParser;
  *     path.moveTo(0.25f, 0.5f);
  *     path.lineTo(1f, 1f);
  * </pre></blockquote></p>
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class PathInterpolatorCompat implements Interpolator {

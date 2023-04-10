@@ -17,11 +17,14 @@ package androidx.compose.ui.text
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.ImageBitmapConfig
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.Shadow
@@ -452,6 +455,78 @@ class ParagraphIntegrationTest {
             position = -1 * lineHeight.sp.toPx()
             line = paragraph.getLineForVerticalPosition(position)
             assertThat(line).isZero()
+        }
+    }
+
+    @Test
+    fun getLineForVerticalPosition_ltr_lineTopCenterBottom_paddingFalse() {
+        val text = "ab\ncde\n\nfg"
+        // default density for the pixel 2 XL where test fails.
+        val density = Density(3.5f, 1.0f)
+        // font size where test fails
+        val fontSize = 14.sp
+
+        @Suppress("DEPRECATION") val paragraph = simpleParagraph(
+            text = text,
+            style = TextStyle(
+                fontSize = fontSize,
+                platformStyle = PlatformTextStyle(includeFontPadding = false)
+            ),
+            density = density
+        )
+
+        assertThat(paragraph.lineCount).isEqualTo(4)
+
+        for (index in 0 until paragraph.lineCount) {
+            assertThat(
+                paragraph.getLineForVerticalPosition(paragraph.getLineTop(index))
+            ).isEqualTo(index)
+
+            assertThat(
+                paragraph.getLineForVerticalPosition(
+                    (paragraph.getLineTop(index) + paragraph.getLineBottom(index)) / 2f
+                )
+            ).isEqualTo(index)
+
+            assertThat(
+                paragraph.getLineForVerticalPosition(paragraph.getLineBottom(index) - 1f)
+            ).isEqualTo(index)
+        }
+    }
+
+    @Test
+    fun getLineForVerticalPosition_ltr_lineTopCenterBottom_paddingTrue() {
+        val text = "ab\ncde\n\nfg"
+        // default density for the pixel 2 XL where test fails.
+        val density = Density(3.5f, 1.0f)
+        // font size where test fails
+        val fontSize = 14.sp
+
+        @Suppress("DEPRECATION") val paragraph = simpleParagraph(
+            text = text,
+            style = TextStyle(
+                fontSize = fontSize,
+                platformStyle = PlatformTextStyle(includeFontPadding = true)
+            ),
+            density = density
+        )
+
+        assertThat(paragraph.lineCount).isEqualTo(4)
+
+        for (index in 0 until paragraph.lineCount) {
+            assertThat(
+                paragraph.getLineForVerticalPosition(paragraph.getLineTop(index))
+            ).isEqualTo(index)
+
+            assertThat(
+                paragraph.getLineForVerticalPosition(
+                    (paragraph.getLineTop(index) + paragraph.getLineBottom(index)) / 2f
+                )
+            ).isEqualTo(index)
+
+            assertThat(
+                paragraph.getLineForVerticalPosition(paragraph.getLineBottom(index) - 1f)
+            ).isEqualTo(index)
         }
     }
 
@@ -2830,7 +2905,6 @@ class ParagraphIntegrationTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun lineHeight_InEm_when_includeFontPadding_is_false() {
         val text = "abcdefgh"
@@ -2864,7 +2938,6 @@ class ParagraphIntegrationTest {
     }
 
     @Suppress("DEPRECATION")
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun lineHeight_IsAppliedToFirstLine_when_includeFontPadding_is_true() {
         // values such as text or TextStyle attributes are from the b/227095468
@@ -4442,6 +4515,78 @@ class ParagraphIntegrationTest {
             val secondBitmap = baseParagraph.bitmap(drawStyle = null)
 
             assertThat(firstBitmap).isEqualToBitmap(secondBitmap)
+        }
+    }
+
+    @OptIn(ExperimentalTextApi::class)
+    @Test
+    fun paint_withBlendMode_changesVisual() {
+        with(defaultDensity) {
+            val text = "aaa"
+            // FontSize doesn't matter here, but it should be big enough for bitmap comparison.
+            val fontSize = 100.sp
+            val fontSizeInPx = fontSize.toPx()
+            val paragraphWidth = fontSizeInPx * text.length
+
+            val baseParagraph = simpleParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize, color = Color.Green),
+                width = paragraphWidth
+            )
+
+            val bitmapDefault = baseParagraph.onCanvas { canvas ->
+                // first draw a Red background
+                val paint = Paint().apply { color = Color.Red }
+                canvas.drawRect(Rect(Offset.Zero, Size(width, height)), paint)
+                // draw the paragraph as usual
+                baseParagraph.paint(canvas)
+            }
+
+            val bitmapPlus = baseParagraph.onCanvas { canvas ->
+                // first draw a Red background
+                val paint = Paint().apply { color = Color.Red }
+                canvas.drawRect(Rect(Offset.Zero, Size(width, height)), paint)
+                // draw the paragraph as usual
+                this.paint(canvas, blendMode = BlendMode.Plus)
+            }
+
+            assertThat(bitmapDefault).isNotEqualToBitmap(bitmapPlus)
+        }
+    }
+
+    @OptIn(ExperimentalTextApi::class)
+    @Test
+    fun paint_withBlendMode_sameResult() {
+        with(defaultDensity) {
+            val text = "aaa"
+            // FontSize doesn't matter here, but it should be big enough for bitmap comparison.
+            val fontSize = 100.sp
+            val fontSizeInPx = fontSize.toPx()
+            val paragraphWidth = fontSizeInPx * text.length
+
+            val baseParagraph = simpleParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize),
+                width = paragraphWidth
+            )
+
+            val bitmapSrc = baseParagraph.onCanvas { canvas ->
+                // first draw a Red background
+                val paint = Paint().apply { color = Color.Red }
+                canvas.drawRect(Rect(Offset.Zero, Size(width, height)), paint)
+                // draw the paragraph as usual
+                baseParagraph.paint(canvas, blendMode = BlendMode.Src)
+            }
+
+            val bitmapSrcOver = baseParagraph.onCanvas { canvas ->
+                // first draw a Red background
+                val paint = Paint().apply { color = Color.Red }
+                canvas.drawRect(Rect(Offset.Zero, Size(width, height)), paint)
+                // draw the paragraph as usual
+                this.paint(canvas, blendMode = BlendMode.SrcOver)
+            }
+
+            assertThat(bitmapSrc).isEqualToBitmap(bitmapSrcOver)
         }
     }
 

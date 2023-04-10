@@ -16,16 +16,21 @@
 
 package androidx.camera.video
 
+import android.media.CamcorderProfile.QUALITY_1080P
+import android.media.CamcorderProfile.QUALITY_2160P
+import android.media.CamcorderProfile.QUALITY_480P
+import android.media.CamcorderProfile.QUALITY_720P
+import android.media.CamcorderProfile.QUALITY_HIGH
+import android.media.CamcorderProfile.QUALITY_LOW
 import android.os.Build
-import androidx.camera.testing.CamcorderProfileUtil
-import androidx.camera.testing.CamcorderProfileUtil.PROFILE_1080P
-import androidx.camera.testing.CamcorderProfileUtil.PROFILE_2160P
-import androidx.camera.testing.CamcorderProfileUtil.PROFILE_480P
-import androidx.camera.testing.CamcorderProfileUtil.PROFILE_720P
-import androidx.camera.testing.CamcorderProfileUtil.RESOLUTION_2160P
-import androidx.camera.testing.CamcorderProfileUtil.RESOLUTION_720P
-import androidx.camera.testing.fakes.FakeCamcorderProfileProvider
+import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_2160P
+import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_720P
+import androidx.camera.testing.EncoderProfilesUtil.PROFILES_1080P
+import androidx.camera.testing.EncoderProfilesUtil.PROFILES_2160P
+import androidx.camera.testing.EncoderProfilesUtil.PROFILES_480P
+import androidx.camera.testing.EncoderProfilesUtil.PROFILES_720P
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
+import androidx.camera.testing.fakes.FakeEncoderProfilesProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -36,10 +41,6 @@ import org.robolectric.annotation.internal.DoNotInstrument
 
 private const val CAMERA_ID_0 = "0"
 private const val CAMERA_ID_1 = "1"
-private val CAMERA_0_PROFILE_HIGH = CamcorderProfileUtil.asHighQuality(PROFILE_2160P)
-private val CAMERA_0_PROFILE_LOW = CamcorderProfileUtil.asLowQuality(PROFILE_720P)
-private val CAMERA_1_PROFILE_HIGH = CamcorderProfileUtil.asHighQuality(PROFILE_1080P)
-private val CAMERA_1_PROFILE_LOW = CamcorderProfileUtil.asLowQuality(PROFILE_480P)
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
@@ -47,22 +48,20 @@ private val CAMERA_1_PROFILE_LOW = CamcorderProfileUtil.asLowQuality(PROFILE_480
 class QualitySelectorTest {
 
     private val cameraInfo0 = FakeCameraInfoInternal(CAMERA_ID_0).apply {
-        camcorderProfileProvider = FakeCamcorderProfileProvider.Builder()
-            .addProfile(
-                CAMERA_0_PROFILE_HIGH,
-                PROFILE_2160P,
-                PROFILE_720P,
-                CAMERA_0_PROFILE_LOW
-            ).build()
+        encoderProfilesProvider = FakeEncoderProfilesProvider.Builder()
+            .add(QUALITY_HIGH, PROFILES_2160P)
+            .add(QUALITY_2160P, PROFILES_2160P)
+            .add(QUALITY_720P, PROFILES_720P)
+            .add(QUALITY_LOW, PROFILES_720P)
+            .build()
     }
     private val cameraInfo1 = FakeCameraInfoInternal(CAMERA_ID_1).apply {
-        camcorderProfileProvider = FakeCamcorderProfileProvider.Builder()
-            .addProfile(
-                CAMERA_1_PROFILE_HIGH,
-                PROFILE_1080P,
-                PROFILE_480P,
-                CAMERA_1_PROFILE_LOW
-            ).build()
+        encoderProfilesProvider = FakeEncoderProfilesProvider.Builder()
+            .add(QUALITY_HIGH, PROFILES_1080P)
+            .add(QUALITY_1080P, PROFILES_1080P)
+            .add(QUALITY_480P, PROFILES_480P)
+            .add(QUALITY_LOW, PROFILES_480P)
+            .build()
     }
 
     @Test

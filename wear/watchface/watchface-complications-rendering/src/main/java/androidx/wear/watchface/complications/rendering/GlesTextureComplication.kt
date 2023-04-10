@@ -28,8 +28,8 @@ import androidx.wear.watchface.RenderParameters
 import java.time.ZonedDateTime
 
 /**
- * Helper for rendering a [ComplicationSlot] to a GLES20 texture. To use call [renderToTexture]
- * and then [bind] before drawing.
+ * Helper for rendering a [ComplicationSlot] to a GLES20 texture. To use call [renderToTexture] and
+ * then [bind] before drawing.
  *
  * @param complicationSlot The [ComplicationSlot] to render to texture.
  * @param textureWidth The width of the texture in pixels to create.
@@ -43,11 +43,7 @@ public class GlesTextureComplication(
     private val textureType: Int
 ) {
     private val texture = createTexture(textureType)
-    private val bitmap = Bitmap.createBitmap(
-        textureWidth,
-        textureHeight,
-        Bitmap.Config.ARGB_8888
-    )
+    private val bitmap = Bitmap.createBitmap(textureWidth, textureHeight, Bitmap.Config.ARGB_8888)
     private val canvas = Canvas(bitmap)
     private val bounds = Rect(0, 0, textureWidth, textureHeight)
 
@@ -79,26 +75,10 @@ public class GlesTextureComplication(
         val handle = IntArray(1)
         GLES20.glGenTextures(1, handle, 0)
         GLES20.glBindTexture(textureType, handle[0])
-        GLES20.glTexParameteri(
-            textureType,
-            GLES20.GL_TEXTURE_WRAP_S,
-            GLES20.GL_CLAMP_TO_EDGE
-        )
-        GLES20.glTexParameteri(
-            textureType,
-            GLES20.GL_TEXTURE_WRAP_T,
-            GLES20.GL_CLAMP_TO_EDGE
-        )
-        GLES20.glTexParameteri(
-            textureType,
-            GLES20.GL_TEXTURE_MAG_FILTER,
-            GLES20.GL_LINEAR
-        )
-        GLES20.glTexParameteri(
-            textureType,
-            GLES20.GL_TEXTURE_MIN_FILTER,
-            GLES20.GL_LINEAR
-        )
+        GLES20.glTexParameteri(textureType, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE)
+        GLES20.glTexParameteri(textureType, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE)
+        GLES20.glTexParameteri(textureType, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR)
+        GLES20.glTexParameteri(textureType, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR)
         return handle[0]
     }
 }

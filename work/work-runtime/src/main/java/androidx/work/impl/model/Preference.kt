@@ -21,7 +21,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 /**
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Entity

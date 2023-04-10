@@ -246,4 +246,66 @@ class DeleteSurroundingTextInCodePointsCommandTest {
         }
         assertThat(error).hasMessageThat().contains("-42")
     }
+
+    @Test
+    fun deletes_whenLengthAfterCursorOverflows_withMaxValue() {
+        val text = "abcde"
+        val textAfterDelete = "abcd"
+        val selection = TextRange(textAfterDelete.length)
+        val eb = EditingBuffer(text, selection)
+
+        DeleteSurroundingTextInCodePointsCommand(
+            lengthBeforeCursor = 0,
+            lengthAfterCursor = Int.MAX_VALUE
+        ).applyTo(eb)
+
+        assertThat(eb.toString()).isEqualTo(textAfterDelete)
+        assertThat(eb.cursor).isEqualTo(textAfterDelete.length)
+    }
+
+    @Test
+    fun deletes_whenLengthBeforeCursorOverflows_withMaxValue() {
+        val text = "abcde"
+        val selection = TextRange(1)
+        val eb = EditingBuffer(text, selection)
+
+        DeleteSurroundingTextInCodePointsCommand(
+            lengthBeforeCursor = Int.MAX_VALUE,
+            lengthAfterCursor = 0
+        ).applyTo(eb)
+
+        assertThat(eb.toString()).isEqualTo("bcde")
+        assertThat(eb.cursor).isEqualTo(0)
+    }
+
+    @Test
+    fun deletes_whenLengthAfterCursorOverflows() {
+        val text = "abcde"
+        val textAfterDelete = "abcd"
+        val selection = TextRange(textAfterDelete.length)
+        val eb = EditingBuffer(text, selection)
+
+        DeleteSurroundingTextInCodePointsCommand(
+            lengthBeforeCursor = 0,
+            lengthAfterCursor = Int.MAX_VALUE - 1
+        ).applyTo(eb)
+
+        assertThat(eb.toString()).isEqualTo(textAfterDelete)
+        assertThat(eb.cursor).isEqualTo(textAfterDelete.length)
+    }
+
+    @Test
+    fun deletes_whenLengthBeforeCursorOverflows() {
+        val text = "abcde"
+        val selection = TextRange(1)
+        val eb = EditingBuffer(text, selection)
+
+        DeleteSurroundingTextInCodePointsCommand(
+            lengthBeforeCursor = Int.MAX_VALUE - 1,
+            lengthAfterCursor = 0
+        ).applyTo(eb)
+
+        assertThat(eb.toString()).isEqualTo("bcde")
+        assertThat(eb.cursor).isEqualTo(0)
+    }
 }

@@ -24,9 +24,6 @@ package androidx.room {
     field public final java.util.List<java.lang.Object> typeConverters;
   }
 
-  public final class EntityUpsertionAdapterKt {
-  }
-
   public class InvalidationTracker {
     method @WorkerThread public void addObserver(androidx.room.InvalidationTracker.Observer observer);
     method public void refreshVersionsAsync();
@@ -118,7 +115,7 @@ package androidx.room {
   }
 
   public enum RoomDatabase.JournalMode {
-    method public static androidx.room.RoomDatabase.JournalMode valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.room.RoomDatabase.JournalMode valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.room.RoomDatabase.JournalMode[] values();
     enum_constant public static final androidx.room.RoomDatabase.JournalMode AUTOMATIC;
     enum_constant public static final androidx.room.RoomDatabase.JournalMode TRUNCATE;
@@ -156,13 +153,6 @@ package androidx.room.migration {
     method public abstract void migrate(androidx.sqlite.db.SupportSQLiteDatabase db);
     field public final int endVersion;
     field public final int startVersion;
-  }
-
-}
-
-package androidx.room.util {
-
-  public final class TableInfoKt {
   }
 
 }

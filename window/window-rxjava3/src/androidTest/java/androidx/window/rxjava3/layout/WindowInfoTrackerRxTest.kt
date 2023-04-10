@@ -17,11 +17,13 @@
 package androidx.window.rxjava3.layout
 
 import android.app.Activity
+import android.content.Context
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 import kotlinx.coroutines.flow.flowOf
 import org.junit.Test
 
@@ -30,10 +32,11 @@ import org.junit.Test
  * [io.reactivex.rxjava3.core.Flowable] and ensure that data is forwarded appropriately.
  * @see WindowInfoTracker
  */
-public class WindowInfoTrackerRxTest {
+@OptIn(ExperimentalWindowApi::class)
+class WindowInfoTrackerRxTest {
 
     @Test
-    public fun testWindowLayoutInfoObservable() {
+    fun testWindowLayoutInfoObservable() {
         val activity = mock<Activity>()
         val feature = mock<FoldingFeature>()
         val expected = WindowLayoutInfo(listOf(feature))
@@ -46,8 +49,34 @@ public class WindowInfoTrackerRxTest {
     }
 
     @Test
-    public fun testWindowLayoutInfoFlowable() {
+    fun testWindowLayoutInfoFlowable() {
         val activity = mock<Activity>()
+        val feature = mock<FoldingFeature>()
+        val expected = WindowLayoutInfo(listOf(feature))
+        val mockTracker = mock<WindowInfoTracker>()
+        whenever(mockTracker.windowLayoutInfo(activity)).thenReturn(flowOf(expected))
+
+        val testSubscriber = mockTracker.windowLayoutInfoFlowable(activity).test()
+
+        testSubscriber.assertValue(expected)
+    }
+
+    @Test
+    fun testWindowLayoutInfoObservable_context() {
+        val activity = mock<Context>()
+        val feature = mock<FoldingFeature>()
+        val expected = WindowLayoutInfo(listOf(feature))
+        val mockTracker = mock<WindowInfoTracker>()
+        whenever(mockTracker.windowLayoutInfo(activity)).thenReturn(flowOf(expected))
+
+        val testSubscriber = mockTracker.windowLayoutInfoObservable(activity).test()
+
+        testSubscriber.assertValue(expected)
+    }
+
+    @Test
+    fun testWindowLayoutInfoFlowable_context() {
+        val activity = mock<Context>()
         val feature = mock<FoldingFeature>()
         val expected = WindowLayoutInfo(listOf(feature))
         val mockTracker = mock<WindowInfoTracker>()

@@ -29,7 +29,6 @@ import androidx.annotation.RestrictTo;
 import java.util.Locale;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class MultiPointerPredictor implements KalmanPredictor {
@@ -37,27 +36,9 @@ public class MultiPointerPredictor implements KalmanPredictor {
     private static final boolean DEBUG_PREDICTION = Log.isLoggable(TAG, Log.DEBUG);
 
     private final SparseArray<SinglePointerPredictor> mPredictorMap = new SparseArray<>();
-    private int mPredictionTargetMs = 0;
     private int mReportRateMs = 0;
 
     public MultiPointerPredictor() {}
-
-    @Override
-    public int getPredictionTarget() {
-        return mPredictionTargetMs;
-    }
-
-    @Override
-    public void setPredictionTarget(int predictionTargetMillis) {
-        if (predictionTargetMillis < 0) {
-            predictionTargetMillis = 0;
-        }
-        mPredictionTargetMs = predictionTargetMillis;
-
-        for (int i = 0; i < mPredictorMap.size(); ++i) {
-            mPredictorMap.valueAt(i).setPredictionTarget(predictionTargetMillis);
-        }
-    }
 
     @Override
     public void setReportRate(int reportRateMs) {
@@ -75,14 +56,14 @@ public class MultiPointerPredictor implements KalmanPredictor {
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
         int action = event.getActionMasked();
-        int pointerId = event.getPointerId(event.getActionIndex());
+        int actionIndex = event.getActionIndex();
+        int pointerId = event.getPointerId(actionIndex);
         if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_POINTER_DOWN) {
             SinglePointerPredictor predictor = new SinglePointerPredictor();
-            predictor.setPredictionTarget(mPredictionTargetMs);
             if (mReportRateMs > 0) {
                 predictor.setReportRate(mReportRateMs);
             }
-            predictor.initStrokePrediction(pointerId);
+            predictor.initStrokePrediction(pointerId, event.getToolType(actionIndex));
             predictor.onTouchEvent(event);
             mPredictorMap.put(pointerId, predictor);
         } else if (action == MotionEvent.ACTION_UP) {
@@ -113,7 +94,7 @@ public class MultiPointerPredictor implements KalmanPredictor {
 
     /** Support eventTime */
     @Override
-    public @Nullable MotionEvent predict() {
+    public @Nullable MotionEvent predict(int predictionTargetMs) {
         final int pointerCount = mPredictorMap.size();
         // Shortcut for likely case where only zero or one pointer is on the screen
         // this logic exists only to make sure logic when one pointer is on screen then
@@ -128,7 +109,7 @@ public class MultiPointerPredictor implements KalmanPredictor {
         }
         if (pointerCount == 1) {
             SinglePointerPredictor predictor = mPredictorMap.valueAt(0);
-            MotionEvent predictedEv = predictor.predict();
+            MotionEvent predictedEv = predictor.predict(predictionTargetMs);
             if (DEBUG_PREDICTION) {
                 Log.d(TAG, "predict() -> MotionEvent: " + predictedEv);
             }
@@ -141,7 +122,7 @@ public class MultiPointerPredictor implements KalmanPredictor {
         for (int i = 0; i < pointerCount; ++i) {
             pointerIds[i] = mPredictorMap.keyAt(i);
             SinglePointerPredictor predictor = mPredictorMap.valueAt(i);
-            singlePointerEvents[i] = predictor.predict();
+            singlePointerEvents[i] = predictor.predict(predictionTargetMs);
             // If predictor consumer expect more sample, generate sample where position and
             // pressure are constant
             singlePointerEvents[i] = predictor.appendPredictedEvent(singlePointerEvents[i]);

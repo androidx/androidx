@@ -38,7 +38,6 @@ import java.util.List;
 /**
  * Parameters for {@link IWatchFaceControlService#createPendingInteractiveWatchFace}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize(allowSerialization = true)
@@ -82,8 +81,7 @@ public class WallpaperInteractiveWatchFaceInstanceParams
     String mAuxiliaryComponentPackageName;
 
     /** Used by VersionedParcelable. */
-    WallpaperInteractiveWatchFaceInstanceParams() {
-    }
+    WallpaperInteractiveWatchFaceInstanceParams() {}
 
     public WallpaperInteractiveWatchFaceInstanceParams(
             @NonNull String instanceId,
@@ -132,8 +130,7 @@ public class WallpaperInteractiveWatchFaceInstanceParams
     }
 
     public void setIdAndComplicationDataWireFormats(
-            @Nullable List<IdAndComplicationDataWireFormat> idAndComplicationDataWireFormats
-    ) {
+            @Nullable List<IdAndComplicationDataWireFormat> idAndComplicationDataWireFormats) {
         mIdAndComplicationDataWireFormats = idAndComplicationDataWireFormats;
     }
 

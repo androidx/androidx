@@ -39,7 +39,6 @@ public final class HiltWorkerFactory extends androidx.work.WorkerFactory {
     private final Map<String,
             Provider<WorkerAssistedFactory<? extends ListenableWorker>>> mWorkerFactories;
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     HiltWorkerFactory(@NonNull Map<String,
             Provider<WorkerAssistedFactory<? extends ListenableWorker>>> workerFactories) {

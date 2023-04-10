@@ -61,7 +61,6 @@ public abstract class BroadcastReceiverWithCallbacks<T extends CallbackReceiver>
     }
 
     /**
-     * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)

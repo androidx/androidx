@@ -20,10 +20,11 @@ import android.content.ComponentName
 import android.content.Intent
 import android.util.Log
 import androidx.window.core.ActivityComponentInfo
-import androidx.window.embedding.MatcherUtils.isActivityOrIntentMatching
+import androidx.window.embedding.MatcherUtils.isActivityMatching
 import androidx.window.embedding.MatcherUtils.isIntentMatching
 import androidx.window.embedding.MatcherUtils.sDebugMatchers
 import androidx.window.embedding.MatcherUtils.sMatchersTag
+import androidx.window.embedding.MatcherUtils.validateComponentName
 
 /**
  * Filter for [ActivityRule] and [SplitPlaceholderRule] that checks for component name match when
@@ -69,26 +70,7 @@ class ActivityFilter internal constructor(
     )
 
     init {
-        val packageName = activityComponentInfo.packageName
-        val className = activityComponentInfo.className
-        require(
-            packageName.isNotEmpty()
-        ) { "Package name must not be empty" }
-        require(
-            className.isNotEmpty()
-        ) { "Activity class name must not be empty." }
-        require(
-            !(
-                packageName.contains("*") &&
-                    packageName.indexOf("*") != packageName.length - 1
-                )
-        ) { "Wildcard in package name is only allowed at the end." }
-        require(
-            !(
-                className.contains("*") &&
-                    className.indexOf("*") != className.length - 1
-                )
-        ) { "Wildcard in class name is only allowed at the end." }
+        validateComponentName(activityComponentInfo.packageName, activityComponentInfo.className)
     }
 
     /**
@@ -122,9 +104,8 @@ class ActivityFilter internal constructor(
      * @param activity the [Activity] to test against.
      */
     fun matchesActivity(activity: Activity): Boolean {
-        val match =
-            isActivityOrIntentMatching(activity, activityComponentInfo) &&
-                (intentAction == null || intentAction == activity.intent?.action)
+        val match = isActivityMatching(activity, activityComponentInfo) &&
+            (intentAction == null || intentAction == activity.intent?.action)
         if (sDebugMatchers) {
             val matchString = if (match) "MATCH" else "NO MATCH"
             Log.w(

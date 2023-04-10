@@ -18,21 +18,31 @@ package androidx.window.embedding
 
 import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
+import androidx.annotation.DoNotInline
 import androidx.annotation.GuardedBy
+import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
+import androidx.collection.ArraySet
 import androidx.core.util.Consumer
+import androidx.window.WindowProperties
+import androidx.window.core.BuildConfig
 import androidx.window.core.ConsumerAdapter
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.ExtensionsUtil
 import androidx.window.core.PredicateAdapter
+import androidx.window.core.VerificationMode
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
+import androidx.window.embedding.ExtensionEmbeddingBackend.Api31Impl.isSplitPropertyEnabled
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
+    private val applicationContext: Context,
     @field:VisibleForTesting @field:GuardedBy(
         "globalLock"
     ) var embeddingExtension: EmbeddingInterfaceCompat?
@@ -53,12 +63,16 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         private val globalLock = ReentrantLock()
         private const val TAG = "EmbeddingBackend"
 
-        fun getInstance(applicationContext: Context): ExtensionEmbeddingBackend {
+        fun getInstance(context: Context): EmbeddingBackend {
             if (globalInstance == null) {
                 globalLock.withLock {
                     if (globalInstance == null) {
+                        val applicationContext = context.applicationContext
                         val embeddingExtension = initAndVerifyEmbeddingExtension(applicationContext)
-                        globalInstance = ExtensionEmbeddingBackend(embeddingExtension)
+                        globalInstance = ExtensionEmbeddingBackend(
+                            applicationContext,
+                            embeddingExtension
+                        )
                     }
                 }
             }
@@ -116,30 +130,111 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         }
     }
 
-    private val rules: CopyOnWriteArraySet<EmbeddingRule> =
-        CopyOnWriteArraySet<EmbeddingRule>()
+    @GuardedBy("globalLock")
+    private val ruleTracker = RuleTracker()
 
+    @GuardedBy("globalLock")
     override fun getRules(): Set<EmbeddingRule> {
-        return rules
+        globalLock.withLock { return ruleTracker.splitRules }
     }
 
+    @GuardedBy("globalLock")
     override fun setRules(rules: Set<EmbeddingRule>) {
-        this.rules.clear()
-        this.rules.addAll(rules)
-        embeddingExtension?.setRules(this.rules)
-    }
-
-    override fun addRule(rule: EmbeddingRule) {
-        if (!rules.contains(rule)) {
-            rules.add(rule)
-            embeddingExtension?.setRules(rules)
+        globalLock.withLock {
+            ruleTracker.setRules(rules)
+            embeddingExtension?.setRules(getRules())
         }
     }
 
+    @GuardedBy("globalLock")
+    override fun addRule(rule: EmbeddingRule) {
+        globalLock.withLock {
+            if (rule !in ruleTracker) {
+                ruleTracker.addOrUpdateRule(rule)
+                embeddingExtension?.setRules(getRules())
+            }
+        }
+    }
+
+    @GuardedBy("globalLock")
     override fun removeRule(rule: EmbeddingRule) {
-        if (rules.contains(rule)) {
-            rules.remove(rule)
-            embeddingExtension?.setRules(rules)
+        globalLock.withLock {
+            if (rule in ruleTracker) {
+                ruleTracker.removeRule(rule)
+                embeddingExtension?.setRules(getRules())
+            }
+        }
+    }
+
+    /**
+     * A helper class to manage the registered [tags][EmbeddingRule.tag] and [rules][EmbeddingRule]
+     * It supports:
+     *   - Add a set of [rules][EmbeddingRule] and verify if there's duplicated [EmbeddingRule.tag]
+     *     if needed.
+     *   - Clears all registered [rules][EmbeddingRule]
+     *   - Add a runtime [rule][EmbeddingRule] or update an existing [rule][EmbeddingRule] by
+     *   [tag][EmbeddingRule.tag] if the tag has been registered.
+     *   - Remove a runtime [rule][EmbeddingRule]
+     */
+    private class RuleTracker {
+        val splitRules = ArraySet<EmbeddingRule>()
+        private val tagRuleMap = HashMap<String, EmbeddingRule>()
+
+        fun setRules(rules: Set<EmbeddingRule>) {
+            clearRules()
+            rules.forEach { rule -> addOrUpdateRule(rule, throwOnDuplicateTag = true) }
+        }
+
+        fun clearRules() {
+            splitRules.clear()
+            tagRuleMap.clear()
+        }
+
+        /**
+         * Adds a rule to [RuleTracker] or update an existing rule if the [tag][EmbeddingRule.tag]
+         * has been registered and `throwOnDuplicateTag` is `false`
+         * @throws IllegalArgumentException if `throwOnDuplicateTag` is `true` and the
+         * [tag][EmbeddingRule.tag] has been registered.
+         */
+        fun addOrUpdateRule(rule: EmbeddingRule, throwOnDuplicateTag: Boolean = false) {
+            if (rule in splitRules) {
+                return
+            }
+            val tag = rule.tag
+            if (tag == null) {
+                splitRules.add(rule)
+            } else if (tagRuleMap.containsKey(tag)) {
+                if (throwOnDuplicateTag) {
+                    throw IllegalArgumentException(
+                        "Duplicated tag: $tag. Tag must be unique " +
+                            "among all registered rules"
+                    )
+                } else {
+                    // Update the rule if throwOnDuplicateTag = false
+                    val oldRule = tagRuleMap[tag]
+                    splitRules.remove(oldRule)
+                    tagRuleMap[tag] = rule
+                    splitRules.add(rule)
+                }
+            } else {
+                tagRuleMap[tag] = rule
+                splitRules.add(rule)
+            }
+        }
+
+        fun removeRule(rule: EmbeddingRule) {
+            if (rule !in splitRules) {
+                return
+            }
+            splitRules.remove(rule)
+            val tag = rule.tag
+            if (tag != null) {
+                tagRuleMap.remove(rule.tag)
+            }
+        }
+
+        operator fun contains(rule: EmbeddingRule): Boolean {
+            return splitRules.contains(rule)
         }
     }
 
@@ -216,11 +311,85 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         }
     }
 
-    override fun isSplitSupported(): Boolean {
+    private fun areExtensionsAvailable(): Boolean {
         return embeddingExtension != null
+    }
+
+    override val splitSupportStatus: SplitController.SplitSupportStatus by lazy {
+        when {
+            !areExtensionsAvailable() -> {
+                SplitController.SplitSupportStatus.SPLIT_UNAVAILABLE
+            }
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                isSplitPropertyEnabled(applicationContext)
+            }
+            else -> {
+                // The PackageManager#getProperty API is not supported before S, assuming
+                // the property is enabled to keep the same behavior on earlier platforms.
+                SplitController.SplitSupportStatus.SPLIT_AVAILABLE
+            }
+        }
     }
 
     override fun isActivityEmbedded(activity: Activity): Boolean {
         return embeddingExtension?.isActivityEmbedded(activity) ?: false
+    }
+
+    @ExperimentalWindowApi
+    override fun setSplitAttributesCalculator(
+        calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
+    ) {
+        globalLock.withLock {
+            embeddingExtension?.setSplitAttributesCalculator(calculator)
+        }
+    }
+
+    override fun clearSplitAttributesCalculator() {
+        globalLock.withLock {
+            embeddingExtension?.clearSplitAttributesCalculator()
+        }
+    }
+
+    override fun isSplitAttributesCalculatorSupported(): Boolean =
+        embeddingExtension?.isSplitAttributesCalculatorSupported() ?: false
+
+    @RequiresApi(31)
+    private object Api31Impl {
+        @DoNotInline
+        fun isSplitPropertyEnabled(context: Context): SplitController.SplitSupportStatus {
+            val property = try {
+                context.packageManager.getProperty(
+                    WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED,
+                    context.packageName
+                )
+            } catch (e: PackageManager.NameNotFoundException) {
+                if (BuildConfig.verificationMode == VerificationMode.LOG) {
+                    Log.w(TAG, WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED +
+                            " must be set and enabled in AndroidManifest.xml to use splits APIs."
+                    )
+                }
+                return SplitController.SplitSupportStatus.SPLIT_ERROR_PROPERTY_NOT_DECLARED
+            } catch (e: Exception) {
+                if (BuildConfig.verificationMode == VerificationMode.LOG) {
+                    // This can happen when it is a test environment that doesn't support
+                    // getProperty.
+                    Log.e(TAG, "PackageManager.getProperty is not supported", e)
+                }
+                return SplitController.SplitSupportStatus.SPLIT_ERROR_PROPERTY_NOT_DECLARED
+            }
+            if (!property.isBoolean) {
+                if (BuildConfig.verificationMode == VerificationMode.LOG) {
+                    Log.w(TAG, WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED +
+                            " must have a boolean value"
+                    )
+                }
+                return SplitController.SplitSupportStatus.SPLIT_ERROR_PROPERTY_NOT_DECLARED
+            }
+            return if (property.boolean) {
+                SplitController.SplitSupportStatus.SPLIT_AVAILABLE
+            } else {
+                SplitController.SplitSupportStatus.SPLIT_UNAVAILABLE
+            }
+        }
     }
 }

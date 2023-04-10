@@ -219,7 +219,6 @@ public class CustomTabsSessionToken {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public boolean hasCallback() {
@@ -227,7 +226,6 @@ public class CustomTabsSessionToken {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public boolean hasId() {

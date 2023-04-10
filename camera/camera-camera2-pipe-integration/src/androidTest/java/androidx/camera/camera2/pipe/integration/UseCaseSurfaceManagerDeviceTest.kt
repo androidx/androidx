@@ -18,6 +18,7 @@
 
 package androidx.camera.camera2.pipe.integration
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraDevice
@@ -27,8 +28,11 @@ import android.os.Build
 import android.os.HandlerThread
 import android.view.Surface
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraSurfaceManager
+import androidx.camera.camera2.pipe.integration.compat.workaround.InactiveSurfaceCloserImpl
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
+import androidx.camera.camera2.pipe.integration.impl.UseCaseSurfaceManager
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.testing.TestUseCaseCamera
 import androidx.camera.core.impl.DeferrableSurface
@@ -41,11 +45,9 @@ import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.activity.Camera2TestActivity
 import androidx.camera.testing.fakes.FakeUseCase
 import androidx.camera.testing.fakes.FakeUseCaseConfig
-import androidx.camera.testing.waitForIdle
 import androidx.core.os.HandlerCompat
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.IdlingResource
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -149,8 +151,15 @@ class UseCaseSurfaceManagerDeviceTest {
         assertThat(cameraClosedUsageCount).isEqualTo(1)
     }
 
+    /**
+     * This test launches another (test) Activity with the intention of taking away camera from the
+     * test itself. On Android T and above, we listen to onCameraAccessPrioritiesChanged() and
+     * retries opening the camera when the camera is disconnected. That means the test activity will
+     * no longer deterministically get the final camera access on Android T and above. As such, we
+     * set the maximum SDK version to S_V2.
+     */
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M, maxSdkVersion = Build.VERSION_CODES.S_V2)
     fun disconnectOpenedCameraGraph_deferrableSurfaceUsageCountTest() = runBlocking {
         CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
 
@@ -194,9 +203,13 @@ class UseCaseSurfaceManagerDeviceTest {
                 putExtra(Camera2TestActivity.EXTRA_CAMERA_ID, cameraId)
             }
         ).use {
-            lateinit var previewReady: IdlingResource
-            it.onActivity { activity -> previewReady = activity.mPreviewReady!! }
-            previewReady.waitForIdle()
+            // TODO(b/268768235): Under some conditions, it is possible that the camera gets
+            //  disconnected for both the foreground and test activity, before the preview has a
+            //  chance to be ready. Fix it with follow-up changes to change this test by using a
+            //  CameraGraphSimulator rather than a real CameraGraph.
+            // lateinit var previewReady: IdlingResource
+            // it.onActivity { activity -> previewReady = activity.mPreviewReady!! }
+            // previewReady.waitForIdle()
 
             cameraDisconnectedUsageCount = testSessionParameters.deferrableSurface.useCount
         }
@@ -210,6 +223,35 @@ class UseCaseSurfaceManagerDeviceTest {
         assertThat(cameraOpenedUsageCount).isEqualTo(2)
         assertThat(cameraDisconnectedUsageCount).isEqualTo(2)
         assertThat(cameraClosedUsageCount).isEqualTo(1)
+    }
+
+    @Test
+    fun closingUseCaseSurfaceManagerClosesDeferrableSurface() = runBlocking {
+        // Arrange.
+        testSessionParameters = TestSessionParameters()
+        val useCases = listOf(createFakeUseCase().apply {
+            setupSessionConfig(testSessionParameters.sessionConfig)
+        })
+
+        val context: Context = ApplicationProvider.getApplicationContext()
+        val cameraPipe = CameraPipe(CameraPipe.Config(context))
+        testUseCaseCamera = TestUseCaseCamera(
+            context = context,
+            cameraId = cameraId,
+            useCases = useCases,
+            threads = useCaseThreads,
+            cameraPipe = cameraPipe,
+            useCaseSurfaceManager = UseCaseSurfaceManager(
+                useCaseThreads, cameraPipe, InactiveSurfaceCloserImpl(),
+            )
+        )
+
+        // Act.
+        testUseCaseCamera.useCaseCameraGraphConfig.graph.close()
+        testUseCaseCamera.useCaseSurfaceManager.stopAsync().awaitWithTimeout()
+
+        // Assert, verify the DeferrableSurface is closed.
+        assertThat(testSessionParameters.deferrableSurface.isClosed).isTrue()
     }
 
     private fun createFakeUseCase() = object : FakeUseCase(

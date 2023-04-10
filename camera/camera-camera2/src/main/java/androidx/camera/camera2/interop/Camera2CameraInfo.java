@@ -41,7 +41,6 @@ public final class Camera2CameraInfo {
     /**
      * Creates a new camera information with Camera2 implementation.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     public Camera2CameraInfo(@NonNull Camera2CameraInfoImpl camera2CameraInfoImpl) {
@@ -114,7 +113,6 @@ public final class Camera2CameraInfo {
      * @throws IllegalStateException if the camera info does not contain the camera 2
      *                               characteristics(e.g., if CameraX was not initialized with a
      *                               {@link androidx.camera.camera2.Camera2Config}).
-     * @hide
      */
     // TODO: Hidden until new extensions API released.
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -134,7 +132,6 @@ public final class Camera2CameraInfo {
      * If the camera is logical camera, it will also contain associated physical camera ids and
      * their CameraCharacteristics.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull

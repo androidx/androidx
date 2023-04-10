@@ -19,12 +19,11 @@ package androidx.benchmark.macro
 import androidx.benchmark.MetricResult
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import org.junit.Test
-import org.junit.runner.RunWith
-import java.lang.IllegalStateException
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import org.junit.Test
+import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
@@ -128,5 +127,26 @@ class MetricResultExtensionsTest {
             ).mergeToSampledMetricResults()
         }
         assertTrue(exception.message!!.contains("Iteration 1 didn't capture metric bar"))
+    }
+
+    @Test
+    fun mergeMeasurements() {
+        val first = listOf(Metric.Measurement("foo", 1.0))
+        val second = listOf(Metric.Measurement("bar", 1.0))
+        assertEquals(first.merge(second), first + second)
+    }
+
+    @Test
+    fun mergeMeasurementsOverlappingKeys() {
+        val exception = assertFailsWith<IllegalStateException> {
+            val first = listOf(Metric.Measurement("foo", 1.0))
+            val second = listOf(Metric.Measurement("foo", 1.0))
+            first.merge(second)
+        }
+        assertTrue(
+            exception.message!!.contains(
+                "Multiple metrics produced measurements with overlapping names: [foo]"
+            )
+        )
     }
 }

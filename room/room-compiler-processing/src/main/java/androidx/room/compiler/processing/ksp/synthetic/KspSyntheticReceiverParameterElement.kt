@@ -42,6 +42,12 @@ internal class KspSyntheticReceiverParameterElement(
         filter = KspAnnotated.UseSiteFilter.NO_USE_SITE
     ) {
 
+    override fun isContinuationParam() = false
+
+    override fun isReceiverParam() = true
+
+    override fun isKotlinPropertyParam() = false
+
     override val name: String by lazy {
         // KAPT uses `$this$<functionName>`
         "$" + "this" + "$" + enclosingElement.name

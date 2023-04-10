@@ -171,7 +171,6 @@ public final class Insets {
     }
 
     /**
-     * @hide
      * @deprecated Use {@link #toCompatInsets(android.graphics.Insets)} instead.
      */
     @RequiresApi(api = 29)

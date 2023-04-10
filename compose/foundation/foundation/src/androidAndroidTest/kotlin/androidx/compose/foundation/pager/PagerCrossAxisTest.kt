@@ -46,7 +46,7 @@ import org.junit.runners.Parameterized
 @OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
-internal class PagerCrossAxisTest(val config: ParamConfig) : BasePagerTest(config) {
+class PagerCrossAxisTest(val config: ParamConfig) : BasePagerTest(config) {
 
     @Test
     fun pagerOnInfiniteCrossAxisLayout_shouldWrapContentSize() {
@@ -61,7 +61,7 @@ internal class PagerCrossAxisTest(val config: ParamConfig) : BasePagerTest(confi
                         .fillMaxWidth()
                         .testTag(PagerTestTag),
                 ) {
-                    val fillModifier = if (isVertical) {
+                    val fillModifier = if (vertical) {
                         Modifier
                             .fillMaxHeight()
                             .width(200.dp)
@@ -79,7 +79,7 @@ internal class PagerCrossAxisTest(val config: ParamConfig) : BasePagerTest(confi
         val rootBounds = rule.onRoot().getUnclippedBoundsInRoot()
 
         // Assert: Max Cross Axis size is handled well by wrapping content
-        if (isVertical) {
+        if (vertical) {
             rule.onNodeWithTag(PagerTestTag)
                 .assertHeightIsEqualTo(rootBounds.height)
                 .assertWidthIsEqualTo(200.dp)
@@ -92,7 +92,7 @@ internal class PagerCrossAxisTest(val config: ParamConfig) : BasePagerTest(confi
 
     @Composable
     private fun InfiniteAxisRootComposable(content: @Composable () -> Unit) {
-        if (isVertical) {
+        if (vertical) {
             Row(Modifier.horizontalScroll(rememberScrollState())) {
                 content()
             }
@@ -106,10 +106,6 @@ internal class PagerCrossAxisTest(val config: ParamConfig) : BasePagerTest(confi
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun params() = mutableListOf<ParamConfig>().apply {
-            for (orientation in TestOrientation) {
-                add(ParamConfig(orientation = orientation))
-            }
-        }
+        fun params() = AllOrientationsParams
     }
 }

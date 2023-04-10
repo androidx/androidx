@@ -23,6 +23,7 @@ import android.hardware.camera2.CaptureRequest
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
+import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
@@ -30,12 +31,12 @@ import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.SessionConfig
-import androidx.lifecycle.MutableLiveData
 import dagger.Binds
 import dagger.Module
 import javax.inject.Inject
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -47,7 +48,14 @@ internal const val defaultTemplate = CameraDevice.TEMPLATE_PREVIEW
 
 interface UseCaseCamera {
     // UseCases
-    val runningUseCasesLiveData: MutableLiveData<Set<UseCase>>
+    var runningUseCases: Set<UseCase>
+
+    interface RunningUseCasesChangeListener {
+        /**
+         * Invoked when value of [UseCaseCamera.runningUseCases] has been changed.
+         */
+        fun onRunningUseCasesChanged()
+    }
 
     // RequestControl of the UseCaseCamera
     val requestControl: UseCaseCameraRequestControl
@@ -73,7 +81,9 @@ interface UseCaseCamera {
  */
 @RequiresApi(21)
 @UseCaseCameraScope
+@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // Java version required for Dagger
 class UseCaseCameraImpl @Inject constructor(
+    private val controls: java.util.Set<UseCaseCameraControl>,
     private val useCaseGraphConfig: UseCaseGraphConfig,
     private val useCases: java.util.ArrayList<UseCase>,
     private val useCaseSurfaceManager: UseCaseSurfaceManager,
@@ -83,8 +93,9 @@ class UseCaseCameraImpl @Inject constructor(
     private val debugId = useCaseCameraIds.incrementAndGet()
     private val closed = atomic(false)
 
-    override val runningUseCasesLiveData = MutableLiveData<Set<UseCase>>(emptySet()).apply {
-        observeForever { value ->
+    override var runningUseCases = setOf<UseCase>()
+        set(value) {
+            field = value
             // Note: This may be called with the same set of values that was previously set. This
             // is used as a signal to indicate the properties of the UseCase may have changed.
             SessionConfigAdapter(value).getValidSessionConfigOrNull()?.let {
@@ -97,8 +108,13 @@ class UseCaseCameraImpl @Inject constructor(
                     }.build()
                 )
             }
+
+            controls.forEach { control ->
+                if (control is UseCaseCamera.RunningUseCasesChangeListener) {
+                    control.onRunningUseCasesChanged()
+                }
+            }
         }
-    }
 
     init {
         debug { "Configured $this for $useCases" }
@@ -119,7 +135,7 @@ class UseCaseCameraImpl @Inject constructor(
 
     override fun close(): Job {
         return if (closed.compareAndSet(expect = false, update = true)) {
-            threads.scope.launch {
+            threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
                 debug { "Closing $this" }
                 useCaseGraphConfig.graph.close()
                 useCaseSurfaceManager.stopAsync().await()
@@ -141,6 +157,24 @@ class UseCaseCameraImpl @Inject constructor(
     ): Deferred<Unit> = requestControl.addParametersAsync(
         values = values,
         optionPriority = priority
+    )
+
+    private fun UseCaseCameraRequestControl.setSessionConfigAsync(
+        sessionConfig: SessionConfig
+    ): Deferred<Unit> = setConfigAsync(
+        type = UseCaseCameraRequestControl.Type.SESSION_CONFIG,
+        config = sessionConfig.implementationOptions,
+        tags = sessionConfig.repeatingCaptureConfig.tagBundle.toMap(),
+        listeners = setOf(
+            CameraCallbackMap.createFor(
+                sessionConfig.repeatingCameraCaptureCallbacks,
+                threads.backgroundExecutor
+            )
+        ),
+        template = RequestTemplate(sessionConfig.repeatingCaptureConfig.templateType),
+        streams = useCaseGraphConfig.getStreamIdsFromSurfaces(
+            sessionConfig.repeatingCaptureConfig.surfaces
+        ),
     )
 
     override fun toString(): String = "UseCaseCamera-$debugId"

@@ -43,7 +43,7 @@ import java.lang.annotation.ElementType.TYPE
 )
 // Needed due to Kotlin's lack of PACKAGE annotation target
 // https://youtrack.jetbrains.com/issue/KT-45921
-@Suppress("DEPRECATED_JAVA_ANNOTATION")
+@Suppress("DEPRECATED_JAVA_ANNOTATION", "SupportAnnotationUsage")
 @java.lang.annotation.Target(TYPE, METHOD, CONSTRUCTOR, FIELD, PACKAGE)
 public annotation class RequiresApi(
     /**

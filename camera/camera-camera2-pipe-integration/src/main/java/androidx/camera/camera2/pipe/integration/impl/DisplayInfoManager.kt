@@ -25,6 +25,7 @@ import android.os.Looper
 import android.util.Size
 import android.view.Display
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.integration.compat.workaround.MaxPreviewSize
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -33,6 +34,7 @@ import javax.inject.Singleton
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class DisplayInfoManager @Inject constructor(context: Context) {
     private val MAX_PREVIEW_SIZE = Size(1920, 1080)
+    private val maxPreviewSize: MaxPreviewSize = MaxPreviewSize()
 
     companion object {
         private var lazyMaxDisplay: Display? = null
@@ -69,8 +71,27 @@ class DisplayInfoManager @Inject constructor(context: Context) {
     val defaultDisplay: Display
         get() = getMaxSizeDisplay()
 
-    val previewSize: Size
-        get() = calculatePreviewSize()
+    private var previewSize: Size? = null
+
+    /**
+     * Update the preview size according to current display size.
+     */
+    fun refresh() {
+        previewSize = calculatePreviewSize()
+    }
+
+    /**
+     * PREVIEW refers to the best size match to the device's screen resolution, or to 1080p
+     * (1920x1080), whichever is smaller.
+     */
+    fun getPreviewSize(): Size {
+        // Use cached value to speed up since this would be called multiple times.
+        if (previewSize != null) {
+            return previewSize as Size
+        }
+        previewSize = calculatePreviewSize()
+        return previewSize as Size
+    }
 
     private fun getMaxSizeDisplay(): Display {
         lazyMaxDisplay?.let { return it }
@@ -130,7 +151,7 @@ class DisplayInfoManager @Inject constructor(context: Context) {
         ) {
             displayViewSize = MAX_PREVIEW_SIZE
         }
-        // TODO(b/230402463): Migrate extra cropping quirk from CameraX.
+        displayViewSize = maxPreviewSize.getMaxPreviewResolution(displayViewSize)
 
         return displayViewSize.also { lazyPreviewSize = displayViewSize }
     }

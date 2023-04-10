@@ -41,7 +41,7 @@ import org.jetbrains.kotlin.backend.common.serialization.signature.PublicIdSigna
 import org.jetbrains.kotlin.ir.backend.js.lower.serialization.ir.JsGlobalDeclarationTable
 import org.jetbrains.kotlin.ir.backend.js.lower.serialization.ir.JsManglerIr
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
-import org.jetbrains.kotlin.platform.js.isJs
+import org.jetbrains.kotlin.platform.isJs
 import org.jetbrains.kotlin.platform.jvm.isJvm
 
 class ComposeIrGenerationExtension(
@@ -108,7 +108,7 @@ class ComposeIrGenerationExtension(
             metrics
         ).lower(moduleFragment)
 
-        CopyDefaultValuesFromExpectLowering().lower(moduleFragment)
+        CopyDefaultValuesFromExpectLowering(pluginContext).lower(moduleFragment)
 
         val mangler = when {
             pluginContext.platform.isJs() -> JsManglerIr

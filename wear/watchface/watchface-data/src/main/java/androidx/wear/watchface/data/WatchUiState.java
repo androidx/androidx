@@ -30,7 +30,6 @@ import androidx.versionedparcelable.VersionedParcelize;
 /**
  * Data sent over AIDL for {@link IWatchFaceCommand#setWatchUiState}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize(allowSerialization = true)
@@ -45,9 +44,7 @@ public final class WatchUiState implements VersionedParcelable, Parcelable {
     /** Used by VersionedParcelable. */
     WatchUiState() {}
 
-    public WatchUiState(
-            boolean inAmbientMode,
-            int interruptionFilter) {
+    public WatchUiState(boolean inAmbientMode, int interruptionFilter) {
         mInAmbientMode = inAmbientMode;
         mInterruptionFilter = interruptionFilter;
     }

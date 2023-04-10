@@ -32,10 +32,12 @@ import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelStore
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.waitForExecution
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Rule
@@ -682,38 +684,44 @@ class FragmentAnimationTest {
 
     @Test
     fun animationListenersAreCalled() {
-        waitForAnimationReady()
-        val fm = activityRule.activity.supportFragmentManager
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                setContentView(R.layout.simple_container)
+                supportFragmentManager
+            }
 
-        // Add first fragment
-        val fragment1 = AnimationListenerFragment()
-        fragment1.forceRunOnHwLayer = false
-        fragment1.repeat = true
-        fm.beginTransaction()
-            .add(R.id.fragmentContainer, fragment1)
-            .commit()
-        activityRule.waitForExecution()
+            // Add first fragment
+            val fragment1 = AnimationListenerFragment()
+            fragment1.forceRunOnHwLayer = false
+            fragment1.repeat = true
+            withActivity {
+                fm.beginTransaction()
+                    .add(R.id.fragmentContainer, fragment1)
+                    .commit()
+                fm.executePendingTransactions()
+            }
 
-        // Replace first fragment with second fragment with a fade in/out animation
-        val fragment2 = AnimationListenerFragment()
-        fragment2.forceRunOnHwLayer = true
-        fragment2.repeat = false
-        fm.beginTransaction()
-            .setCustomAnimations(
-                android.R.anim.fade_in, android.R.anim.fade_out,
-                android.R.anim.fade_in, android.R.anim.fade_out
-            )
-            .replace(R.id.fragmentContainer, fragment2)
-            .addToBackStack(null)
-            .commit()
-        activityRule.waitForExecution()
+            // Replace first fragment with second fragment with a fade in/out animation
+            val fragment2 = AnimationListenerFragment()
+            fragment2.forceRunOnHwLayer = true
+            fragment2.repeat = false
+            withActivity {
+                fm.beginTransaction()
+                    .setCustomAnimations(
+                        android.R.anim.fade_in, android.R.anim.fade_out,
+                        android.R.anim.fade_in, android.R.anim.fade_out
+                    )
+                    .replace(R.id.fragmentContainer, fragment2)
+                    .addToBackStack(null)
+                    .commit()
+                fm.executePendingTransactions()
+            }
 
-        // Wait for animation to finish
-        assertThat(fragment1.exitLatch.await(2, TimeUnit.SECONDS)).isTrue()
-        assertThat(fragment2.enterLatch.await(2, TimeUnit.SECONDS)).isTrue()
+            // Wait for animation to finish
+            assertThat(fragment1.exitLatch.await(2, TimeUnit.SECONDS)).isTrue()
+            assertThat(fragment2.enterLatch.await(2, TimeUnit.SECONDS)).isTrue()
 
-        // Check if all animation listener callbacks have been called
-        activityRule.runOnUiThread {
+            // Check if all animation listener callbacks have been called
             assertThat(fragment1.exitStartCount).isEqualTo(1)
             assertThat(fragment1.exitRepeatCount).isEqualTo(1)
             assertThat(fragment1.exitEndCount).isEqualTo(1)
@@ -729,17 +737,16 @@ class FragmentAnimationTest {
             assertThat(fragment2.exitStartCount).isEqualTo(0)
             assertThat(fragment2.exitRepeatCount).isEqualTo(0)
             assertThat(fragment2.exitEndCount).isEqualTo(0)
-        }
-        fragment1.resetCounts()
-        fragment2.resetCounts()
 
-        // Now pop the transaction
-        activityRule.popBackStackImmediate()
+            fragment1.resetCounts()
+            fragment2.resetCounts()
 
-        assertThat(fragment2.exitLatch.await(2, TimeUnit.SECONDS)).isTrue()
-        assertThat(fragment1.enterLatch.await(2, TimeUnit.SECONDS)).isTrue()
+            // Now pop the transaction
+            withActivity { fm.popBackStackImmediate() }
 
-        activityRule.runOnUiThread {
+            assertThat(fragment2.exitLatch.await(2, TimeUnit.SECONDS)).isTrue()
+            assertThat(fragment1.enterLatch.await(2, TimeUnit.SECONDS)).isTrue()
+
             assertThat(fragment2.exitStartCount).isEqualTo(1)
             assertThat(fragment2.exitRepeatCount).isEqualTo(0)
             assertThat(fragment2.exitEndCount).isEqualTo(1)

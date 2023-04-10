@@ -55,8 +55,10 @@ internal class UwbClientSessionScopeImpl(
         }
 
         val configId = when (parameters.uwbConfigType) {
-            RangingParameters.UWB_CONFIG_ID_1 ->
+            RangingParameters.CONFIG_UNICAST_DS_TWR ->
                 com.google.android.gms.nearby.uwb.RangingParameters.UwbConfigId.CONFIG_ID_1
+            RangingParameters.CONFIG_MULTICAST_DS_TWR ->
+                com.google.android.gms.nearby.uwb.RangingParameters.UwbConfigId.CONFIG_ID_2
             RangingParameters.UWB_CONFIG_ID_3 ->
                 com.google.android.gms.nearby.uwb.RangingParameters.UwbConfigId.CONFIG_ID_3
             else ->
@@ -77,8 +79,6 @@ internal class UwbClientSessionScopeImpl(
             .setSessionId(parameters.sessionId)
             .setUwbConfigId(configId)
             .setRangingUpdateRate(updateRate)
-            .setSessionKeyInfo(parameters.sessionKeyInfo)
-            .setUwbConfigId(parameters.uwbConfigType)
             .setComplexChannel(
                 parameters.complexChannel?.let {
                     UwbComplexChannel.Builder()
@@ -86,6 +86,9 @@ internal class UwbClientSessionScopeImpl(
                         .setPreambleIndex(it.preambleIndex)
                         .build()
                 })
+        if (parameters.sessionKeyInfo != null) {
+            parametersBuilder.setSessionKeyInfo(parameters.sessionKeyInfo)
+        }
         for (peer in parameters.peerDevices) {
             parametersBuilder.addPeerDevice(UwbDevice.createForAddress(peer.address.address))
         }

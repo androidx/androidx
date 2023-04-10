@@ -1,11 +1,9 @@
 // Baseline format: 1.0
-AddedAbstractMethod: androidx.compose.runtime.Composer#disableSourceInformation():
-    Added method androidx.compose.runtime.Composer.disableSourceInformation()
-AddedAbstractMethod: androidx.compose.runtime.Composer#endToMarker(int):
-    Added method androidx.compose.runtime.Composer.endToMarker(int)
-AddedAbstractMethod: androidx.compose.runtime.Composer#getCurrentMarker():
-    Added method androidx.compose.runtime.Composer.getCurrentMarker()
+AddedAbstractMethod: androidx.compose.runtime.Composer#getCurrentCompositionLocalMap():
+    Added method androidx.compose.runtime.Composer.getCurrentCompositionLocalMap()
+AddedAbstractMethod: androidx.compose.runtime.CompositionContext#getEffectCoroutineContext():
+    Added method androidx.compose.runtime.CompositionContext.getEffectCoroutineContext()
 
 
-RemovedMethod: androidx.compose.runtime.collection.MutableVectorKt#mutableVectorOf(T):
-    Removed method androidx.compose.runtime.collection.MutableVectorKt.mutableVectorOf(T)
+RemovedClass: androidx.compose.runtime.SnapshotStateKt:
+    Removed class androidx.compose.runtime.SnapshotStateKt

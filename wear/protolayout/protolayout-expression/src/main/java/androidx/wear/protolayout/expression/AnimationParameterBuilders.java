@@ -27,6 +27,7 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto;
 import androidx.wear.protolayout.protobuf.ExtensionRegistryLite;
 import androidx.wear.protolayout.protobuf.InvalidProtocolBufferException;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -58,7 +59,7 @@ public final class AnimationParameterBuilders {
 
     /**
      * Incoming elements are animated using deceleration easing, which starts a transition at peak
-     * velocity (the fastest point of an element's movement) and ends at rest.
+     * velocity (the fastest point of an element’s movement) and ends at rest.
      *
      * <p>This is equivalent to the Compose {@code LinearOutSlowInEasing}.
      */
@@ -81,7 +82,6 @@ public final class AnimationParameterBuilders {
    * The repeat mode to specify how animation will behave when repeated.
    *
    * @since 1.2
-   * @hide
    */
   @RestrictTo(RestrictTo.Scope.LIBRARY)
   @IntDef({REPEAT_MODE_UNKNOWN, REPEAT_MODE_RESTART, REPEAT_MODE_REVERSE})
@@ -124,32 +124,14 @@ public final class AnimationParameterBuilders {
     }
 
     /**
-     * Gets the duration of the animation in milliseconds.
-     *
-     * @since 1.2
-     */
-    public int getDurationMillis() {
-      return mImpl.getDurationMillis();
-    }
-
-    /**
-     * Gets the delay to start the animation in milliseconds.
-     *
-     * @since 1.2
-     */
-    public int getDelayMillis() {
-      return mImpl.getDelayMillis();
-    }
-
-    /**
-     * Gets the easing to be used for adjusting an animation's fraction.
+     * Gets animation parameters including duration, easing and repeat delay.
      *
      * @since 1.2
      */
     @Nullable
-    public Easing getEasing() {
-      if (mImpl.hasEasing()) {
-        return AnimationParameterBuilders.easingFromProto(mImpl.getEasing());
+    public AnimationParameters getAnimationParameters() {
+      if (mImpl.hasAnimationParameters()) {
+        return AnimationParameters.fromProto(mImpl.getAnimationParameters());
       } else {
         return null;
       }
@@ -157,7 +139,6 @@ public final class AnimationParameterBuilders {
 
     /**
      * Gets the repeatable mode to be used for specifying repetition parameters for the animation.
-     * If not set, animation won't be repeated.
      *
      * @since 1.2
      */
@@ -173,7 +154,6 @@ public final class AnimationParameterBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -182,21 +162,30 @@ public final class AnimationParameterBuilders {
     }
 
     /**
+     * Creates a new wrapper instance from the proto.
+     *
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static AnimationSpec fromProto(
+        @NonNull AnimationParameterProto.AnimationSpec proto, @Nullable Fingerprint fingerprint) {
+      return new AnimationSpec(proto, fingerprint);
+    }
+
+    /**
      * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
      * created using this method can't be added to any other wrapper.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static AnimationSpec fromProto(@NonNull AnimationParameterProto.AnimationSpec proto) {
-      return new AnimationSpec(proto, null);
+      return fromProto(proto, null);
     }
 
     /**
      * Returns the internal proto instance.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -208,12 +197,8 @@ public final class AnimationParameterBuilders {
     @NonNull
     public String toString() {
       return "AnimationSpec{"
-          + "durationMillis="
-          + getDurationMillis()
-          + ", delayMillis="
-          + getDelayMillis()
-          + ", easing="
-          + getEasing()
+          + "animationParameters="
+          + getAnimationParameters()
           + ", repeatable="
           + getRepeatable()
           + "}";
@@ -228,40 +213,15 @@ public final class AnimationParameterBuilders {
       public Builder() {}
 
       /**
-       * Sets the duration of the animation in milliseconds. If not set, defaults to 300ms.
+       * Sets animation parameters including duration, easing and repeat delay.
        *
        * @since 1.2
        */
       @NonNull
-      public Builder setDurationMillis(int durationMillis) {
-        mImpl.setDurationMillis(durationMillis);
-        mFingerprint.recordPropertyUpdate(1, durationMillis);
-        return this;
-      }
-
-      /**
-       * Sets the delay to start the animation in milliseconds. If not set, defaults to 0.
-       *
-       * @since 1.2
-       */
-      @NonNull
-      public Builder setDelayMillis(int delayMillis) {
-        mImpl.setDelayMillis(delayMillis);
-        mFingerprint.recordPropertyUpdate(2, delayMillis);
-        return this;
-      }
-
-      /**
-       * Sets the easing to be used for adjusting an animation's fraction. If not set, defaults to
-       * Linear Interpolator.
-       *
-       * @since 1.2
-       */
-      @NonNull
-      public Builder setEasing(@NonNull Easing easing) {
-        mImpl.setEasing(easing.toEasingProto());
+      public Builder setAnimationParameters(@NonNull AnimationParameters animationParameters) {
+        mImpl.setAnimationParameters(animationParameters.toProto());
         mFingerprint.recordPropertyUpdate(
-            3, checkNotNull(easing.getFingerprint()).aggregateValueAsInt());
+            4, checkNotNull(animationParameters.getFingerprint()).aggregateValueAsInt());
         return this;
       }
 
@@ -284,7 +244,7 @@ public final class AnimationParameterBuilders {
       @SuppressWarnings("MissingGetterMatchingBuilder")
       public Builder setInfiniteRepeatable(@RepeatMode int mode) {
         Repeatable repeatable =
-                new Repeatable.Builder().setRepeatMode(mode).build();
+            new Repeatable.Builder().setRepeatMode(mode).build();
         return this.setRepeatable(repeatable);
       }
 
@@ -292,6 +252,153 @@ public final class AnimationParameterBuilders {
       @NonNull
       public AnimationSpec build() {
         return new AnimationSpec(mImpl.build(), mFingerprint);
+      }
+    }
+  }
+
+  /**
+   * Animation specs of duration, easing and repeat delay.
+   *
+   * @since 1.2
+   */
+  public static final class AnimationParameters {
+    private final AnimationParameterProto.AnimationParameters mImpl;
+    @Nullable private final Fingerprint mFingerprint;
+
+    AnimationParameters(
+        AnimationParameterProto.AnimationParameters impl, @Nullable Fingerprint fingerprint) {
+      this.mImpl = impl;
+      this.mFingerprint = fingerprint;
+    }
+
+    /**
+     * Gets the duration of the animation in milliseconds.
+     *
+     * @since 1.2
+     */
+    public int getDurationMillis() {
+      return mImpl.getDurationMillis();
+    }
+
+    /**
+     * Gets the easing to be used for adjusting an animation's fraction.
+     *
+     * @since 1.2
+     */
+    @Nullable
+    public Easing getEasing() {
+      if (mImpl.hasEasing()) {
+        return AnimationParameterBuilders.easingFromProto(mImpl.getEasing());
+      } else {
+        return null;
+      }
+    }
+
+    /**
+     * Gets animation delay in millis. When used outside repeatable, this is the delay to start the
+     * animation in milliseconds. When set inside repeatable, this is the delay before repeating
+     * animation in milliseconds.
+     *
+     * @since 1.2
+     */
+    public int getDelayMillis() {
+      return mImpl.getDelayMillis();
+    }
+
+    /** Get the fingerprint for this object, or null if unknown. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Fingerprint getFingerprint() {
+      return mFingerprint;
+    }
+
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static AnimationParameters fromProto(
+        @NonNull AnimationParameterProto.AnimationParameters proto,
+        @Nullable Fingerprint fingerprint) {
+      return new AnimationParameters(proto, fingerprint);
+    }
+
+    @NonNull
+    static AnimationParameters fromProto(
+        @NonNull AnimationParameterProto.AnimationParameters proto) {
+      return fromProto(proto, null);
+    }
+
+    /** Returns the internal proto instance. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public AnimationParameterProto.AnimationParameters toProto() {
+      return mImpl;
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "AnimationParameters{"
+          + "durationMillis="
+          + getDurationMillis()
+          + ", easing="
+          + getEasing()
+          + ", delayMillis="
+          + getDelayMillis()
+          + "}";
+    }
+
+    /** Builder for {@link AnimationParameters} */
+    public static final class Builder {
+      private final AnimationParameterProto.AnimationParameters.Builder mImpl =
+          AnimationParameterProto.AnimationParameters.newBuilder();
+      private final Fingerprint mFingerprint = new Fingerprint(-1301308590);
+
+      public Builder() {}
+
+      /**
+       * Sets the duration of the animation in milliseconds. If not set, defaults to 300ms.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setDurationMillis(int durationMillis) {
+        mImpl.setDurationMillis(durationMillis);
+        mFingerprint.recordPropertyUpdate(1, durationMillis);
+        return this;
+      }
+
+      /**
+       * Sets the easing to be used for adjusting an animation's fraction. If not set, defaults to
+       * Linear Interpolator.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setEasing(@NonNull Easing easing) {
+        mImpl.setEasing(easing.toEasingProto());
+        mFingerprint.recordPropertyUpdate(
+            2, checkNotNull(easing.getFingerprint()).aggregateValueAsInt());
+        return this;
+      }
+
+      /**
+       * Sets animation delay in millis. When used outside repeatable, this is the delay to start
+       * the animation in milliseconds. When set inside repeatable, this is the delay before
+       * repeating animation in milliseconds. If not set, no delay will be applied.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setDelayMillis(int delayMillis) {
+        mImpl.setDelayMillis(delayMillis);
+        mFingerprint.recordPropertyUpdate(3, delayMillis);
+        return this;
+      }
+
+      /** Builds an instance from accumulated values. */
+      @NonNull
+      public AnimationParameters build() {
+        return new AnimationParameters(mImpl.build(), mFingerprint);
       }
     }
   }
@@ -307,7 +414,6 @@ public final class AnimationParameterBuilders {
     /**
      * Get the protocol buffer representation of this object.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -318,8 +424,8 @@ public final class AnimationParameterBuilders {
     static Easing fromByteArray(@NonNull byte[] byteArray) {
       try {
         return easingFromProto(
-            AnimationParameterProto.Easing.parseFrom(
-                byteArray, ExtensionRegistryLite.getEmptyRegistry()));
+                AnimationParameterProto.Easing.parseFrom(
+                        byteArray, ExtensionRegistryLite.getEmptyRegistry()));
       } catch (InvalidProtocolBufferException e) {
         throw new IllegalArgumentException("Byte array could not be parsed into Easing", e);
       }
@@ -334,7 +440,6 @@ public final class AnimationParameterBuilders {
     /**
      * Get the fingerprint for this object or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -343,7 +448,6 @@ public final class AnimationParameterBuilders {
     /**
      * Builder to create {@link Easing} objects.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     interface Builder {
@@ -354,12 +458,23 @@ public final class AnimationParameterBuilders {
     }
   }
 
+  /**
+   * Creates a new wrapper instance from the proto.
+   *
+   */
+  @RestrictTo(Scope.LIBRARY_GROUP)
   @NonNull
-  static Easing easingFromProto(@NonNull AnimationParameterProto.Easing proto) {
+  public static Easing easingFromProto(
+      @NonNull AnimationParameterProto.Easing proto, @Nullable Fingerprint fingerprint) {
     if (proto.hasCubicBezier()) {
-      return CubicBezierEasing.fromProto(proto.getCubicBezier());
+      return CubicBezierEasing.fromProto(proto.getCubicBezier(), fingerprint);
     }
     throw new IllegalStateException("Proto was not a recognised instance of Easing");
+  }
+
+  @NonNull
+  static Easing easingFromProto(@NonNull AnimationParameterProto.Easing proto) {
+    return easingFromProto(proto, null);
   }
 
   /**
@@ -418,7 +533,6 @@ public final class AnimationParameterBuilders {
       return mImpl.getY2();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -426,17 +540,33 @@ public final class AnimationParameterBuilders {
       return mFingerprint;
     }
 
+    /**
+     * Creates a new wrapper instance from the proto.
+     *
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    static CubicBezierEasing fromProto(@NonNull AnimationParameterProto.CubicBezierEasing proto) {
-      return new CubicBezierEasing(proto, null);
+    public static CubicBezierEasing fromProto(
+        @NonNull AnimationParameterProto.CubicBezierEasing proto,
+        @Nullable Fingerprint fingerprint) {
+      return new CubicBezierEasing(proto, fingerprint);
     }
 
+    @NonNull
+    static CubicBezierEasing fromProto(@NonNull AnimationParameterProto.CubicBezierEasing proto) {
+      return fromProto(proto, null);
+    }
+
+    /**
+     * Returns the internal proto instance.
+     *
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     AnimationParameterProto.CubicBezierEasing toProto() {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -569,23 +699,63 @@ public final class AnimationParameterBuilders {
     }
 
     /**
-     * Get the fingerprint for this object, or null if unknown.
+     * Gets optional custom parameters for the forward passes of animation.
      *
-     * @hide
+     * @since 1.2
      */
+    @Nullable
+    public AnimationParameters getForwardRepeatOverride() {
+      if (mImpl.hasForwardRepeatOverride()) {
+        return AnimationParameters.fromProto(mImpl.getForwardRepeatOverride());
+      } else {
+        return null;
+      }
+    }
+
+    /**
+     * Gets optional custom parameters for the reverse passes of animation.
+     *
+     * @since 1.2
+     */
+    @Nullable
+    public AnimationParameters getReverseRepeatOverride() {
+      if (mImpl.hasReverseRepeatOverride()) {
+        return AnimationParameters.fromProto(mImpl.getReverseRepeatOverride());
+      } else {
+        return null;
+      }
+    }
+
+    /** Get the fingerprint for this object, or null if unknown. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public Fingerprint getFingerprint() {
       return mFingerprint;
     }
 
+    /**
+     * Creates a new wrapper instance from the proto.
+     *
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    static Repeatable fromProto(@NonNull AnimationParameterProto.Repeatable proto) {
-      return new Repeatable(proto, null);
+    public static Repeatable fromProto(
+        @NonNull AnimationParameterProto.Repeatable proto, @Nullable Fingerprint fingerprint) {
+      return new Repeatable(proto, fingerprint);
     }
 
     @NonNull
-    AnimationParameterProto.Repeatable toProto() {
+    static Repeatable fromProto(@NonNull AnimationParameterProto.Repeatable proto) {
+      return fromProto(proto, null);
+    }
+
+    /**
+     * Returns the internal proto instance.
+     *
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public AnimationParameterProto.Repeatable toProto() {
       return mImpl;
     }
 
@@ -601,6 +771,10 @@ public final class AnimationParameterBuilders {
           + getIterations()
           + ", repeatMode="
           + getRepeatMode()
+          + ", forwardRepeatOverride="
+          + getForwardRepeatOverride()
+          + ", reverseRepeatOverride="
+          + getReverseRepeatOverride()
           + "}";
     }
 
@@ -635,6 +809,36 @@ public final class AnimationParameterBuilders {
       public Builder setRepeatMode(@RepeatMode int repeatMode) {
         mImpl.setRepeatMode(AnimationParameterProto.RepeatMode.forNumber(repeatMode));
         mFingerprint.recordPropertyUpdate(2, repeatMode);
+        return this;
+      }
+
+      /**
+       * Sets optional custom parameters for the forward passes of animation. If not set, use the
+       * main animation parameters set outside of {@link Repeatable}.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setForwardRepeatOverride(
+          @NonNull AnimationParameters forwardRepeatOverride) {
+        mImpl.setForwardRepeatOverride(forwardRepeatOverride.toProto());
+        mFingerprint.recordPropertyUpdate(
+            6, checkNotNull(forwardRepeatOverride.getFingerprint()).aggregateValueAsInt());
+        return this;
+      }
+
+      /**
+       * Sets optional custom parameters for the reverse passes of animation. If not set, use the
+       * main animation parameters set outside of {@link Repeatable}.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setReverseRepeatOverride(
+          @NonNull AnimationParameters reverseRepeatOverride) {
+        mImpl.setReverseRepeatOverride(reverseRepeatOverride.toProto());
+        mFingerprint.recordPropertyUpdate(
+            7, checkNotNull(reverseRepeatOverride.getFingerprint()).aggregateValueAsInt());
         return this;
       }
 

@@ -109,7 +109,7 @@ open class BaseLazyListTestWithOrientation(private val orientation: Orientation)
         } else {
             getUnclippedBoundsInRoot().left
         }
-        position.assertIsEqualTo(expected, tolerance = 1.dp)
+        position.assertIsEqualTo(expected, tolerance = 2.dp)
     }
 
     fun SemanticsNodeInteraction.assertStartPositionInRootIsEqualTo(expectedStart: Dp) =

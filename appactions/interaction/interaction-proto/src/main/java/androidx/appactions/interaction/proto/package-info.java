@@ -15,7 +15,4 @@
  */
 
 /** @hide */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 package androidx.appactions.interaction.proto;
-
-import androidx.annotation.RestrictTo;

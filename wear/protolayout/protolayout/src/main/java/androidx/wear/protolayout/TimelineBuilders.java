@@ -62,14 +62,23 @@ public final class TimelineBuilders {
     public long getEndMillis() {
       return mImpl.getEndMillis();
     }
-
+    /**
+     * Creates a new wrapper instance from the proto.
+     *
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    static TimeInterval fromProto(@NonNull TimelineProto.TimeInterval proto) {
+    public static TimeInterval fromProto(@NonNull TimelineProto.TimeInterval proto) {
       return new TimeInterval(proto);
     }
 
+    /**
+     * Returns the internal proto instance.
+     *
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    TimelineProto.TimeInterval toProto() {
+    public TimelineProto.TimeInterval toProto() {
       return mImpl;
     }
 
@@ -157,13 +166,23 @@ public final class TimelineBuilders {
       return new Builder().setLayout(Layout.fromLayoutElement(layoutElement)).build();
     }
 
+    /**
+     * Creates a new wrapper instance from the proto.
+     *
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    static TimelineEntry fromProto(@NonNull TimelineProto.TimelineEntry proto) {
+    public static TimelineEntry fromProto(@NonNull TimelineProto.TimelineEntry proto) {
       return new TimelineEntry(proto);
     }
 
+    /**
+     * Returns the internal proto instance.
+     *
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    TimelineProto.TimelineEntry toProto() {
+    public TimelineProto.TimelineEntry toProto() {
       return mImpl;
     }
 
@@ -248,10 +267,8 @@ public final class TimelineBuilders {
     }
 
     /**
-     * Creates a new wrapper instance from the proto. An object created using this method can't
-     * be added to any other wrapper.
+     * Creates a new wrapper instance from the proto.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -262,12 +279,17 @@ public final class TimelineBuilders {
     /**
      * Returns the internal proto instance.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public TimelineProto.Timeline toProto() {
       return mImpl;
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "Timeline{" + "timelineEntries=" + getTimelineEntries() + "}";
     }
 
     /** Builder for {@link Timeline} */

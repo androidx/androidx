@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInRoot
@@ -31,7 +30,6 @@ import androidx.compose.ui.semantics.getOrNull
  * This is the [androidx.compose.ui.Modifier.Node] equivalent of
  * [androidx.compose.ui.semantics.SemanticsModifier]
  */
-@ExperimentalComposeUiApi
 interface SemanticsModifierNode : DelegatableNode {
     /**
      * The SemanticsConfiguration holds substantive data, especially a list of key/value pairs
@@ -40,10 +38,8 @@ interface SemanticsModifierNode : DelegatableNode {
     val semanticsConfiguration: SemanticsConfiguration
 }
 
-@ExperimentalComposeUiApi
 fun SemanticsModifierNode.invalidateSemantics() = requireOwner().onSemanticsChange()
 
-@ExperimentalComposeUiApi
 fun SemanticsModifierNode.collapsedSemanticsConfiguration(): SemanticsConfiguration {
     val next = localChild(Nodes.Semantics)
     if (next == null || semanticsConfiguration.isClearingSemantics) {
@@ -55,11 +51,9 @@ fun SemanticsModifierNode.collapsedSemanticsConfiguration(): SemanticsConfigurat
     return config
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal val SemanticsModifierNode.useMinimumTouchTarget: Boolean
     get() = semanticsConfiguration.getOrNull(SemanticsActions.OnClick) != null
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal fun SemanticsModifierNode.touchBoundsInRoot(): Rect {
     if (!node.isAttached) {
         return Rect.Zero

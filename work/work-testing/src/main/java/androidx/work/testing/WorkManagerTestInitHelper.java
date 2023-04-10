@@ -16,6 +16,8 @@
 
 package androidx.work.testing;
 
+import static androidx.work.testing.TestWorkManagerImplKt.createTestWorkManagerImpl;
+
 import android.content.Context;
 
 import androidx.annotation.NonNull;
@@ -46,7 +48,8 @@ public final class WorkManagerTestInitHelper {
 
     /**
      * Initializes a test {@link androidx.work.WorkManager} with a user-specified
-     * {@link androidx.work.Configuration}.
+     * {@link androidx.work.Configuration}, but using
+     * {@link SynchronousExecutor} instead of main thread.
      *
      * @param context The application {@link Context}
      * @param configuration The {@link androidx.work.Configuration}
@@ -68,8 +71,34 @@ public final class WorkManagerTestInitHelper {
         }
 
         WorkManagerImpl.setDelegate(
-                new TestWorkManagerImpl(context, configuration, serialExecutor)
+                createTestWorkManagerImpl(context, configuration, serialExecutor)
         );
+    }
+
+    /**
+     * Initializes a test {@link androidx.work.WorkManager} with a default configuration and
+     * real threading unlike {@link #initializeTestWorkManager(Context)} that uses a
+     * {@link SynchronousExecutor} as main thread and both executors
+     * (see {@link Configuration#getTaskExecutor()} and {@link Configuration#getExecutor()}).
+     *
+     * @param context The application {@link Context}
+     */
+    public static void initializeTestWorkManagerWithRealExecutors(@NonNull Context context) {
+        Configuration configuration = new Configuration.Builder().build();
+        WorkManagerImpl.setDelegate(createTestWorkManagerImpl(context, configuration));
+    }
+
+    /**
+     * Initializes a test {@link androidx.work.WorkManager} with a default configuration and
+     * real threading unlike {@link #initializeTestWorkManager(Context, Configuration)} that uses a
+     * {@link SynchronousExecutor} as main thread.
+     *
+     * @param context The application {@link Context}
+     * @param configuration The {@link androidx.work.Configuration}
+     */
+    public static void initializeTestWorkManagerWithRealExecutors(
+            @NonNull Context context, @NonNull Configuration configuration) {
+        WorkManagerImpl.setDelegate(createTestWorkManagerImpl(context, configuration));
     }
 
     /**
@@ -83,7 +112,7 @@ public final class WorkManagerTestInitHelper {
         if (workManager == null) {
             return null;
         } else {
-            return (TestWorkManagerImpl) workManager;
+            return TestWorkManagerImplKt.getTestDriver(workManager);
         }
     }
 
@@ -93,7 +122,7 @@ public final class WorkManagerTestInitHelper {
      */
     public static @Nullable TestDriver getTestDriver(@NonNull Context context) {
         try {
-            return (TestWorkManagerImpl) WorkManagerImpl.getInstance(context);
+            return TestWorkManagerImplKt.getTestDriver(WorkManagerImpl.getInstance(context));
         } catch (IllegalStateException e) {
             return null;
         }

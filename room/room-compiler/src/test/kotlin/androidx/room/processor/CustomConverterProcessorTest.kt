@@ -16,7 +16,6 @@
 
 package androidx.room.processor
 
-import androidx.room.TypeConverter
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.VisibilityModifier
 import androidx.room.compiler.codegen.XAnnotationSpec
@@ -26,13 +25,13 @@ import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.XTypeSpec.Builder.Companion.apply
-import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.CommonTypeNames.MUTABLE_LIST
 import androidx.room.ext.CommonTypeNames.STRING
+import androidx.room.ext.RoomAnnotationTypeNames
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_EMPTY_CLASS
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MUST_BE_PUBLIC
@@ -41,7 +40,6 @@ import androidx.room.testing.context
 import androidx.room.vo.CustomTypeConverter
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.TypeVariableName
-import java.util.Date
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -117,7 +115,7 @@ class CustomConverterProcessorTest {
 
     @Test
     fun nonNullButNotBoxed() {
-        val date = Date::class.asClassName()
+        val date = CommonTypeNames.DATE
         singleClass(createConverter(STRING, date)) { converter, _ ->
             assertThat(converter?.fromTypeName).isEqualTo(STRING)
             assertThat(converter?.toTypeName).isEqualTo(date)
@@ -143,7 +141,7 @@ class CustomConverterProcessorTest {
 
     @Test
     fun parametrizedTypeSpecific() {
-        val date = Date::class.asClassName()
+        val date = CommonTypeNames.DATE
         val list = CommonTypeNames.MUTABLE_LIST.parametrizedBy(STRING)
         val map = CommonTypeNames.MUTABLE_MAP.parametrizedBy(STRING, date)
         singleClass(createConverter(list, map)) { converter, _ ->
@@ -387,7 +385,7 @@ class CustomConverterProcessorTest {
                 addAnnotation(
                     XAnnotationSpec.builder(
                         CodeLanguage.JAVA,
-                        TypeConverter::class.asClassName()
+                        RoomAnnotationTypeNames.TYPE_CONVERTER
                     ).build()
                 )
                 returns(to)

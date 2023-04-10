@@ -40,6 +40,8 @@ class BaselineProfileRuleTest {
     @get:Rule
     val baselineRule = BaselineProfileRule()
 
+    private val filterRegex = "^.*L${PACKAGE_NAME.replace(".", "/")}".toRegex()
+
     @Test
     fun appNotInstalled() {
         val error = assertFailsWith<AssertionError> {
@@ -64,9 +66,7 @@ class BaselineProfileRuleTest {
         // Collects the baseline profile
         baselineRule.collectBaselineProfile(
             packageName = PACKAGE_NAME,
-            filterPredicate = {
-                it.contains("^.*L${PACKAGE_NAME.replace(".", "/")}".toRegex())
-            },
+            filterPredicate = { it.contains(filterRegex) },
             profileBlock = {
                 assertEquals(expectedIteration++, iteration)
                 startActivityAndWait(Intent(ACTION))
@@ -75,8 +75,13 @@ class BaselineProfileRuleTest {
         )
         assertEquals(3, expectedIteration)
 
+        // Note: this name is automatically generated starting from class and method name,
+        // according to the patter `<class>_<method>-baseline-prof.txt`. Changes for class and
+        // method names should be reflected here in order for the test to succeed.
+        val baselineProfileOutputFileName = "BaselineProfileRuleTest_filter-baseline-prof.txt"
+
         // Asserts the output of the baseline profile
-        val lines = File(Outputs.outputDirectory, BASELINE_PROFILE_OUTPUT_FILE_NAME).readLines()
+        val lines = File(Outputs.outputDirectory, baselineProfileOutputFileName).readLines()
         assertThat(lines).containsExactly(
             "HSPLandroidx/benchmark/integration/macrobenchmark/target/EmptyActivity;" +
                 "-><init>()V",
@@ -86,16 +91,44 @@ class BaselineProfileRuleTest {
         )
     }
 
+    @Test
+    fun profileType() {
+        assumeTrue(Build.VERSION.SDK_INT >= 33 || Shell.isSessionRooted())
+
+        data class TestConfig(val includeInStartupProfile: Boolean, val outputFileName: String)
+
+        arrayOf(
+            TestConfig(true, "BaselineProfileRuleTest_profileType-startup-prof.txt"),
+            TestConfig(false, "BaselineProfileRuleTest_profileType-baseline-prof.txt"),
+        ).forEach { (includeInStartupProfile, outputFilename) ->
+
+            // Collects the baseline profile
+            baselineRule.collectBaselineProfile(
+                packageName = PACKAGE_NAME,
+                filterPredicate = { it.contains(filterRegex) },
+                includeInStartupProfile = includeInStartupProfile,
+                profileBlock = {
+                    startActivityAndWait(Intent(ACTION))
+                    device.waitForIdle()
+                }
+            )
+
+            // Asserts the output of the baseline profile
+            val lines = File(Outputs.outputDirectory, outputFilename).readLines()
+            assertThat(lines).containsExactly(
+                "HSPLandroidx/benchmark/integration/macrobenchmark/target/EmptyActivity;" +
+                    "-><init>()V",
+                "HSPLandroidx/benchmark/integration/macrobenchmark/target/EmptyActivity;" +
+                    "->onCreate(Landroid/os/Bundle;)V",
+                "Landroidx/benchmark/integration/macrobenchmark/target/EmptyActivity;",
+            )
+        }
+    }
+
     companion object {
         private const val PACKAGE_NAME =
             "androidx.benchmark.integration.macrobenchmark.target"
         private const val ACTION =
             "androidx.benchmark.integration.macrobenchmark.target.EMPTY_ACTIVITY"
-
-        // Note: this name is automatically generated starting from class and method name,
-        // according to the patter `<class>_<method>-baseline-prof.txt`. Changes for class and
-        // method names should be reflected here in order for the test to succeed.
-        private const val BASELINE_PROFILE_OUTPUT_FILE_NAME =
-            "BaselineProfileRuleTest_filter-baseline-prof.txt"
     }
 }

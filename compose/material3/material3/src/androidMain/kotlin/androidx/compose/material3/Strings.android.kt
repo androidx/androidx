@@ -82,11 +82,22 @@ internal actual fun getString(string: Strings): String {
         Strings.DatePickerNavigateToYearDescription -> resources.getString(
             androidx.compose.material3.R.string.date_picker_navigate_to_year_description
         )
+
         Strings.DatePickerHeadlineDescription -> resources.getString(
             androidx.compose.material3.R.string.date_picker_headline_description
         )
+
         Strings.DatePickerNoSelectionDescription -> resources.getString(
             androidx.compose.material3.R.string.date_picker_no_selection_description
+        )
+        Strings.DatePickerTodayDescription -> resources.getString(
+            androidx.compose.material3.R.string.date_picker_today_description
+        )
+        Strings.DatePickerScrollToShowLaterYears -> resources.getString(
+            androidx.compose.material3.R.string.date_picker_scroll_to_later_years
+        )
+        Strings.DatePickerScrollToShowEarlierYears -> resources.getString(
+            androidx.compose.material3.R.string.date_picker_scroll_to_earlier_years
         )
         Strings.DateInputTitle -> resources.getString(
             androidx.compose.material3.R.string.date_input_title
@@ -100,7 +111,7 @@ internal actual fun getString(string: Strings): String {
         Strings.DateInputHeadlineDescription -> resources.getString(
             androidx.compose.material3.R.string.date_input_headline_description
         )
-        Strings.DateInputNoInputHeadlineDescription -> resources.getString(
+        Strings.DateInputNoInputDescription -> resources.getString(
             androidx.compose.material3.R.string.date_input_no_input_description
         )
         Strings.DateInputInvalidNotAllowed -> resources.getString(
@@ -112,9 +123,77 @@ internal actual fun getString(string: Strings): String {
         Strings.DateInputInvalidYearRange -> resources.getString(
             androidx.compose.material3.R.string.date_input_invalid_year_range
         )
+        Strings.DatePickerSwitchToCalendarMode -> resources.getString(
+            androidx.compose.material3.R.string.date_picker_switch_to_calendar_mode
+        )
+        Strings.DatePickerSwitchToInputMode -> resources.getString(
+            androidx.compose.material3.R.string.date_picker_switch_to_input_mode
+        )
+        Strings.DateRangePickerTitle -> resources.getString(
+            androidx.compose.material3.R.string.date_range_picker_title
+        )
+        Strings.DateRangePickerStartHeadline -> resources.getString(
+            androidx.compose.material3.R.string.date_range_picker_start_headline
+        )
+        Strings.DateRangePickerEndHeadline -> resources.getString(
+            androidx.compose.material3.R.string.date_range_picker_end_headline
+        )
+        Strings.DateRangePickerScrollToShowNextMonth -> resources.getString(
+            androidx.compose.material3.R.string.date_range_picker_scroll_to_next_month
+        )
+        Strings.DateRangePickerScrollToShowPreviousMonth -> resources.getString(
+            androidx.compose.material3.R.string.date_range_picker_scroll_to_previous_month
+        )
+        Strings.DateRangePickerDayInRange -> resources.getString(
+            androidx.compose.material3.R.string.date_range_picker_day_in_range
+        )
+        Strings.DateRangeInputTitle -> resources.getString(
+            androidx.compose.material3.R.string.date_range_input_title
+        )
+        Strings.DateRangeInputInvalidRangeInput -> resources.getString(
+            androidx.compose.material3.R.string.date_range_input_invalid_range_input
+        )
+        Strings.BottomSheetDragHandleDescription -> resources.getString(
+            androidx.compose.material3.R.string.bottom_sheet_drag_handle_description
+        )
+        Strings.BottomSheetPartialExpandDescription -> resources.getString(
+            androidx.compose.material3.R.string.bottom_sheet_collapse_description
+        )
+        Strings.BottomSheetDismissDescription -> resources.getString(
+            androidx.compose.material3.R.string.bottom_sheet_dismiss_description
+        )
+        Strings.BottomSheetExpandDescription -> resources.getString(
+            androidx.compose.material3.R.string.bottom_sheet_expand_description
+        )
         Strings.TooltipLongPressLabel -> resources.getString(
             androidx.compose.material3.R.string.tooltip_long_press_label
         )
+        Strings.TimePickerAM -> resources.getString(
+            androidx.compose.material3.R.string.time_picker_am)
+        Strings.TimePickerPM -> resources.getString(
+            androidx.compose.material3.R.string.time_picker_pm)
+        Strings.TimePickerPeriodToggle -> resources.getString(
+                androidx.compose.material3.R.string.time_picker_period_toggle_description)
+        Strings.TimePickerMinuteSelection -> resources.getString(
+            androidx.compose.material3.R.string.time_picker_minute_selection)
+        Strings.TimePickerHourSelection -> resources.getString(
+            androidx.compose.material3.R.string.time_picker_hour_selection)
+        Strings.TimePickerHourSuffix -> resources.getString(
+            androidx.compose.material3.R.string.time_picker_hour_suffix)
+        Strings.TimePickerMinuteSuffix -> resources.getString(
+            androidx.compose.material3.R.string.time_picker_minute_suffix)
+        Strings.TimePicker24HourSuffix -> resources.getString(
+            androidx.compose.material3.R.string.time_picker_hour_24h_suffix)
+        Strings.TimePickerHour -> resources.getString(
+            androidx.compose.material3.R.string.time_picker_hour)
+        Strings.TimePickerMinute -> resources.getString(
+            androidx.compose.material3.R.string.time_picker_minute)
+        Strings.TimePickerHourTextField -> resources.getString(
+            androidx.compose.material3.R.string.time_picker_hour_text_field)
+        Strings.TimePickerMinuteTextField -> resources.getString(
+            androidx.compose.material3.R.string.time_picker_minute_text_field)
+        Strings.TooltipPaneDescription -> resources.getString(
+            androidx.compose.material3.R.string.tooltip_pane_description)
         else -> ""
     }
 }
@@ -124,5 +203,5 @@ internal actual fun getString(string: Strings, vararg formatArgs: Any): String {
     val raw = getString(string)
     val locale =
         ConfigurationCompat.getLocales(LocalConfiguration.current).get(0) ?: Locale.getDefault()
-    return String.format(raw, locale, *formatArgs)
+    return String.format(locale, raw, *formatArgs)
 }

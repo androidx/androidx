@@ -20,7 +20,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.visitAncestors
@@ -30,14 +29,12 @@ import androidx.compose.ui.node.visitAncestors
  *
  * @see modifierLocalMapOf
  */
-@ExperimentalComposeUiApi
 sealed class ModifierLocalMap() {
     internal abstract operator fun <T> set(key: ModifierLocal<T>, value: T)
     internal abstract operator fun <T> get(key: ModifierLocal<T>): T?
     internal abstract operator fun contains(key: ModifierLocal<*>): Boolean
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal class SingleLocalMap(
     private val key: ModifierLocal<*>
 ) : ModifierLocalMap() {
@@ -60,7 +57,6 @@ internal class SingleLocalMap(
     override operator fun contains(key: ModifierLocal<*>): Boolean = key === this.key
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal class BackwardsCompatLocalMap(
     var element: ModifierLocalProvider<*>
 ) : ModifierLocalMap() {
@@ -77,7 +73,6 @@ internal class BackwardsCompatLocalMap(
     override operator fun contains(key: ModifierLocal<*>): Boolean = key === element.key
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal class MultiLocalMap(
     vararg entries: Pair<ModifierLocal<*>, Any?>
 ) : ModifierLocalMap() {
@@ -99,7 +94,6 @@ internal class MultiLocalMap(
     override operator fun contains(key: ModifierLocal<*>): Boolean = map.containsKey(key)
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal object EmptyMap : ModifierLocalMap() {
     override fun <T> set(key: ModifierLocal<T>, value: T) = error("")
     override fun <T> get(key: ModifierLocal<T>): T? = error("")
@@ -119,7 +113,6 @@ internal object EmptyMap : ModifierLocalMap() {
  * @see ModifierLocal
  * @see androidx.compose.runtime.CompositionLocal
  */
-@ExperimentalComposeUiApi
 interface ModifierLocalNode : ModifierLocalReadScope, DelegatableNode {
     /**
      * The map of provided ModifierLocal <-> value pairs that this node is providing. This value
@@ -180,13 +173,11 @@ interface ModifierLocalNode : ModifierLocalReadScope, DelegatableNode {
 /**
  * Creates an empty [ModifierLocalMap]
  */
-@ExperimentalComposeUiApi
 fun modifierLocalMapOf(): ModifierLocalMap = EmptyMap
 
 /**
  * Creates a [ModifierLocalMap] with a single key and value initialized to null.
  */
-@ExperimentalComposeUiApi
 fun <T> modifierLocalMapOf(
     key: ModifierLocal<T>
 ): ModifierLocalMap = SingleLocalMap(key)
@@ -195,7 +186,6 @@ fun <T> modifierLocalMapOf(
  * Creates a [ModifierLocalMap] with a single key and value. The provided [entry] should have
  * [Pair::first] be the [ModifierLocal] key, and the [Pair::second] be the corresponding value.
  */
-@ExperimentalComposeUiApi
 fun <T> modifierLocalMapOf(
     entry: Pair<ModifierLocal<T>, T>
 ): ModifierLocalMap = SingleLocalMap(entry.first).also { it[entry.first] = entry.second }
@@ -203,7 +193,6 @@ fun <T> modifierLocalMapOf(
 /**
  * Creates a [ModifierLocalMap] with several keys, all initialized with values of null
  */
-@ExperimentalComposeUiApi
 fun modifierLocalMapOf(
     vararg keys: ModifierLocal<*>
 ): ModifierLocalMap = MultiLocalMap(*keys.map { it to null }.toTypedArray())
@@ -213,7 +202,6 @@ fun modifierLocalMapOf(
  * each item's [Pair::first] be the [ModifierLocal] key, and the [Pair::second] be the
  * corresponding value.
  */
-@ExperimentalComposeUiApi
 fun modifierLocalMapOf(
     vararg entries: Pair<ModifierLocal<*>, Any>
 ): ModifierLocalMap = MultiLocalMap(*entries)

@@ -29,7 +29,6 @@ import java.util.List;
 /**
  * Wire format for {@link androidx.wear.watchface.style.DoubleRangeUserStyleSetting}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
@@ -37,7 +36,9 @@ public class DoubleRangeUserStyleSettingWireFormat extends UserStyleSettingWireF
 
     DoubleRangeUserStyleSettingWireFormat() {}
 
-    /** @deprecated use a constructor with List<Bundle> perOptionOnWatchFaceEditorBundles. */
+    /**
+     * @deprecated use a constructor with List<Bundle> perOptionOnWatchFaceEditorBundles.
+     */
     @Deprecated
     public DoubleRangeUserStyleSettingWireFormat(
             @NonNull String id,
@@ -46,7 +47,7 @@ public class DoubleRangeUserStyleSettingWireFormat extends UserStyleSettingWireF
             @Nullable Icon icon,
             @NonNull List<OptionWireFormat> options,
             int defaultOptionIndex,
-            @NonNull List<Integer> affectsLayers)  {
+            @NonNull List<Integer> affectsLayers) {
         super(id, displayName, description, icon, options, defaultOptionIndex, affectsLayers);
     }
 
@@ -59,8 +60,16 @@ public class DoubleRangeUserStyleSettingWireFormat extends UserStyleSettingWireF
             int defaultOptionIndex,
             @NonNull List<Integer> affectsLayers,
             @Nullable Bundle onWatchFaceEditorBundle,
-            @Nullable List<Bundle> perOptionOnWatchFaceEditorBundles)  {
-        super(id, displayName, description, icon, options, defaultOptionIndex, affectsLayers,
-                onWatchFaceEditorBundle, perOptionOnWatchFaceEditorBundles);
+            @Nullable List<Bundle> perOptionOnWatchFaceEditorBundles) {
+        super(
+                id,
+                displayName,
+                description,
+                icon,
+                options,
+                defaultOptionIndex,
+                affectsLayers,
+                onWatchFaceEditorBundle,
+                perOptionOnWatchFaceEditorBundles);
     }
 }

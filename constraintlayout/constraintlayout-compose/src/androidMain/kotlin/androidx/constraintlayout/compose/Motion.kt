@@ -36,9 +36,11 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.layout.LookaheadLayout
-import androidx.compose.ui.layout.LookaheadLayoutScope
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.layout.intermediateLayout
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Constraints
@@ -110,18 +112,20 @@ private fun Motion(
             }
         }
     }
-    LookaheadLayout(
-        modifier = modifier,
-        content = {
-            val scope = remember {
-                MotionScope(
-                    lookaheadLayoutScope = this
-                )
-            }
-            scope.content()
-        },
-        measurePolicy = policy
-    )
+    LookaheadScope {
+        Layout(
+            content = {
+                val scope = remember {
+                    MotionScope(
+                        lookaheadScope = this
+                    )
+                }
+                scope.content()
+            },
+            modifier = modifier,
+            measurePolicy = policy
+        )
+    }
 }
 
 @DslMarker
@@ -137,8 +141,8 @@ private annotation class MotionDslScope
 @MotionDslScope
 @OptIn(ExperimentalComposeUiApi::class)
 private class MotionScope(
-    lookaheadLayoutScope: LookaheadLayoutScope
-) : LookaheadLayoutScope by lookaheadLayoutScope {
+    lookaheadScope: LookaheadScope
+) : LookaheadScope by lookaheadScope {
     private var nextId: Int = 1000
     private var lastId: Int = nextId
 
@@ -240,6 +244,23 @@ private class MotionScope(
             remember { Ref<IntSize>().apply { value = IntSize.Zero } }
         val lastPosition: Ref<IntOffset> = remember { Ref<IntOffset>().apply { value = null } }
 
+        fun Placeable.PlacementScope.onPlaced(scope: LookaheadScope) {
+            coordinates?.let {
+                with(scope) {
+                    parentSize.value = lookaheadScopeCoordinates.toLookaheadCoordinates().size
+                    val localPosition = lookaheadScopeCoordinates
+                        .localPositionOf(it, Offset.Zero)
+                        .round()
+                    val lookAheadPosition = lookaheadScopeCoordinates
+                        .localLookaheadPositionOf(it)
+                        .round()
+                    targetOffset = lookAheadPosition
+                    placementOffset = localPosition
+                    commitLookAheadChanges(targetOffset!!, targetSize!!)
+                }
+            }
+        }
+
         LaunchedEffect(Unit) {
             launch {
                 snapshotFlow {
@@ -277,73 +298,57 @@ private class MotionScope(
                 }
             }
         }
-        this
-            .onPlaced { lookaheadScopeCoordinates, layoutCoordinates ->
-                parentSize.value = lookaheadScopeCoordinates.size
-                val localPosition = lookaheadScopeCoordinates
-                    .localPositionOf(
-                        layoutCoordinates,
-                        Offset.Zero
+        this.intermediateLayout { measurable, _ ->
+            targetSize = lookaheadSize
+            if (targetBounds == IntRect.Zero) {
+                // Unset, this is first measure
+                val newConstraints =
+                    Constraints.fixed(lookaheadSize.width, lookaheadSize.height)
+                val placeable = measurable.measure(newConstraints)
+                layout(placeable.width, placeable.height) {
+                    onPlaced(this@intermediateLayout)
+                    placeable.place(targetOffset!! - placementOffset)
+                }
+            } else {
+                // Following measures
+                val width: Int
+                val height: Int
+                if (progressAnimation.isRunning) {
+                    val fraction =
+                        1.0f - abs(progressAnimation.value - progressAnimation.targetValue)
+                    widgetState.interpolate(
+                        parentSize.value!!.width,
+                        parentSize.value!!.height,
+                        fraction,
+                        transitionState
                     )
-                    .round()
-                val lookAheadPosition = lookaheadScopeCoordinates
-                    .localLookaheadPositionOf(
-                        layoutCoordinates
-                    )
-                    .round()
-                targetOffset = lookAheadPosition
-                placementOffset = localPosition
-                commitLookAheadChanges(targetOffset!!, targetSize!!)
-            }
-            .intermediateLayout { measurable, _, lookaheadSize ->
-                targetSize = lookaheadSize
-                if (targetBounds == IntRect.Zero) {
-                    // Unset, this is first measure
-                    val newConstraints =
-                        Constraints.fixed(lookaheadSize.width, lookaheadSize.height)
-                    val placeable = measurable.measure(newConstraints)
-                    layout(placeable.width, placeable.height) {
-                        placeable.place(targetOffset!! - placementOffset)
-                    }
+                    width = widgetState
+                        .getFrame(2)
+                        .width()
+                    height = widgetState
+                        .getFrame(2)
+                        .height()
                 } else {
-                    // Following measures
-                    val width: Int
-                    val height: Int
+                    width = lastSize.value?.width ?: targetBounds.width
+                    height = lastSize.value?.height ?: targetBounds.height
+                }
+                val animatedConstraints = Constraints.fixed(width, height)
+                val placeable = measurable.measure(animatedConstraints)
+                layout(placeable.width, placeable.height) {
+                    onPlaced(this@intermediateLayout)
                     if (progressAnimation.isRunning) {
-                        val fraction =
-                            1.0f - abs(progressAnimation.value - progressAnimation.targetValue)
-                        widgetState.interpolate(
-                            parentSize.value!!.width,
-                            parentSize.value!!.height,
-                            fraction,
-                            transitionState
+                        placeWithFrameTransform(
+                            placeable,
+                            widgetState.getFrame(2),
+                            placementOffset
                         )
-                        width = widgetState
-                            .getFrame(2)
-                            .width()
-                        height = widgetState
-                            .getFrame(2)
-                            .height()
                     } else {
-                        width = lastSize.value?.width ?: targetBounds.width
-                        height = lastSize.value?.height ?: targetBounds.height
-                    }
-                    val animatedConstraints = Constraints.fixed(width, height)
-                    val placeable = measurable.measure(animatedConstraints)
-                    layout(placeable.width, placeable.height) {
-                        if (progressAnimation.isRunning) {
-                            placeWithFrameTransform(
-                                placeable,
-                                widgetState.getFrame(2),
-                                placementOffset
-                            )
-                        } else {
-                            val (x, y) = (lastPosition.value ?: IntOffset.Zero) - placementOffset
-                            placeable.place(x, y)
-                        }
+                        val (x, y) = (lastPosition.value ?: IntOffset.Zero) - placementOffset
+                        placeable.place(x, y)
                     }
                 }
             }
+        }
     }
 
     private fun ConstraintWidget.applyBounds(rect: IntRect) {

@@ -24,7 +24,6 @@ import androidx.room.Index
 /**
  * Database entity that defines a dependency between two [WorkSpec]s.
  *
- * @hide
  */
 @Entity(
     foreignKeys = [ForeignKey(

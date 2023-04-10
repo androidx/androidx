@@ -74,6 +74,7 @@ object StressTestUtil {
             .getLaunchIntentForPackage(CORE_TEST_APP_PACKAGE)!!.apply {
                 putExtra(INTENT_EXTRA_CAMERA_ID, cameraId)
                 putExtra(INTENT_EXTRA_USE_CASE_COMBINATION, useCaseCombination)
+                setClassName(CORE_TEST_APP_PACKAGE, CameraXActivity::class.java.name)
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
 

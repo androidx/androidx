@@ -703,6 +703,8 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *      val weights = intArrayOf(3, 3, 2, 2, 1)
      *      val g1 = createRow(
      *          a, b, c, d, e,
+     *          skips = arrayOf(Skip(1, 1), Skip(3, 2)),
+     *          spans = arrayOf(Span(1, 2)),
      *          horizontalGap = 10.dp,
      *          columnWeights = weights,
      *          padding = 10.dp,
@@ -725,12 +727,16 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *    }
      *
      * @param elements [LayoutReference]s to be laid out by the Grid helper
+     * @param skips specify area(s) in a Row to be skipped - format: Skip(index, size)
+     * @param spans specify area(s) in a Row to be spanned - format: Span(index, size)
      * @param horizontalGap defines the gap between views in the x axis
      * @param columnWeights defines the weight of each column
      * @param padding sets padding around the content
      */
     fun createRow(
         vararg elements: LayoutReference,
+        skips: Array<Skip> = arrayOf(),
+        spans: Array<Span> = arrayOf(),
         horizontalGap: Dp = 0.dp,
         columnWeights: IntArray = intArrayOf(),
         padding: Dp = 0.dp,
@@ -738,11 +744,13 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
         return createGrid(
             elements = elements,
             rows = 1,
+            skips = skips,
+            spans = spans,
             horizontalGap = horizontalGap,
             columnWeights = columnWeights,
-            paddingLeft = padding,
+            paddingStart = padding,
             paddingTop = padding,
-            paddingRight = padding,
+            paddingEnd = padding,
             paddingBottom = padding,
         )
     }
@@ -760,6 +768,8 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *      val weights = intArrayOf(3, 3, 2, 2, 1)
      *      val g1 = createRow(
      *          a, b, c, d, e,
+     *          skips = arrayOf(Skip(1, 1), Skip(3, 2)),
+     *          spans = arrayOf(Span(1, 2)),
      *          horizontalGap = 10.dp,
      *          columnWeights = weights,
      *          paddingHorizontal = 10.dp,
@@ -783,13 +793,17 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *   }
      *
      * @param elements [LayoutReference]s to be laid out by the Grid helper
+     * @param skips specify area(s) in a Row to be skipped - format: Skip(index, size)
+     * @param spans specify area(s) in a Row to be spanned - format: Span(index, size)
      * @param horizontalGap defines the gap between views in the y axis
      * @param columnWeights defines the weight of each column
-     * @param paddingHorizontal sets paddingLeft and paddingRight of the content
+     * @param paddingHorizontal sets paddingStart and paddingEnd of the content
      * @param paddingVertical sets paddingTop and paddingBottom of the content
      */
     fun createRow(
         vararg elements: LayoutReference,
+        skips: Array<Skip> = arrayOf(),
+        spans: Array<Span> = arrayOf(),
         horizontalGap: Dp = 0.dp,
         columnWeights: IntArray = intArrayOf(),
         paddingHorizontal: Dp = 0.dp,
@@ -798,11 +812,13 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
         return createGrid(
             elements = elements,
             rows = 1,
+            skips = skips,
+            spans = spans,
             horizontalGap = horizontalGap,
             columnWeights = columnWeights,
-            paddingLeft = paddingHorizontal,
+            paddingStart = paddingHorizontal,
             paddingTop = paddingVertical,
-            paddingRight = paddingHorizontal,
+            paddingEnd = paddingHorizontal,
             paddingBottom = paddingVertical,
         )
     }
@@ -820,6 +836,8 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *      val weights = intArrayOf(3, 3, 2, 2, 1)
      *      val g1 = createColumn(
      *          a, b, c, d, e,
+     *          skips = arrayOf(Skip(1, 1), Skip(3, 2)),
+     *          spans = arrayOf(Span(1, 2)),
      *          verticalGap = 10.dp,
      *          rowWeights = weights,
      *          padding = 10.dp,
@@ -842,12 +860,16 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *    }
      *
      * @param elements [LayoutReference]s to be laid out by the Grid helper
+     * @param spans specify area(s) in a Column to be spanned - format: Span(index, size)
+     * @param skips specify area(s) in a Column to be skipped - format: Skip(index, size)
      * @param verticalGap defines the gap between views in the y axis
      * @param rowWeights defines the weight of each row
      * @param padding sets padding around the content
      */
     fun createColumn(
         vararg elements: LayoutReference,
+        skips: Array<Skip> = arrayOf(),
+        spans: Array<Span> = arrayOf(),
         rowWeights: IntArray = intArrayOf(),
         verticalGap: Dp = 0.dp,
         padding: Dp = 0.dp,
@@ -855,11 +877,13 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
         return createGrid(
             elements = elements,
             columns = 1,
+            skips = skips,
+            spans = spans,
             verticalGap = verticalGap,
             rowWeights = rowWeights,
-            paddingLeft = padding,
+            paddingStart = padding,
             paddingTop = padding,
-            paddingRight = padding,
+            paddingEnd = padding,
             paddingBottom = padding,
         )
     }
@@ -877,6 +901,8 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *      val weights = intArrayOf(3, 3, 2, 2, 1)
      *      val g1 = createColumn(
      *          a, b, c, d, e,
+     *          skips = arrayOf(Skip(1, 1), Skip(3, 2)),
+     *          spans = arrayOf(Span(1, 2)),
      *          verticalGap = 10.dp,
      *          rowWeights = weights,
      *          padding = 10.dp,
@@ -899,13 +925,17 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *    }
      *
      * @param elements [LayoutReference]s to be laid out by the Grid helper
+     * @param skips specify area(s) in a Column to be skipped - format: Skip(index, size)
+     * @param spans specify area(s) in a Column to be spanned - format: Span(index, size)
      * @param verticalGap defines the gap between views in the y axis
      * @param rowWeights defines the weight of each row
-     * @param paddingHorizontal sets paddingLeft and paddingRight of the content
+     * @param paddingHorizontal sets paddingStart and paddingEnd of the content
      * @param paddingVertical sets paddingTop and paddingBottom of the content
      */
     fun createColumn(
         vararg elements: LayoutReference,
+        skips: Array<Skip> = arrayOf(),
+        spans: Array<Span> = arrayOf(),
         verticalGap: Dp = 0.dp,
         rowWeights: IntArray = intArrayOf(),
         paddingHorizontal: Dp = 0.dp,
@@ -914,11 +944,13 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
         return createGrid(
             elements = elements,
             columns = 1,
+            skips = skips,
+            spans = spans,
             verticalGap = verticalGap,
             rowWeights = rowWeights,
-            paddingLeft = paddingHorizontal,
+            paddingStart = paddingHorizontal,
             paddingTop = paddingVertical,
-            paddingRight = paddingHorizontal,
+            paddingEnd = paddingHorizontal,
             paddingBottom = paddingVertical,
         )
     }
@@ -940,17 +972,19 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *      val j = createRefFor("0")
      *      val k = createRefFor("box")
      *      val weights = intArrayOf(3, 3, 2, 2)
+     *      val flags = arrayOf("SubGridByColRow", "SpansRespectWidgetOrder")
      *      val g1 = createGrid(
      *          k, a, b, c, d, e, f, g, h, i, j, k,
      *          rows = 5,
      *          columns = 3,
      *          verticalGap = 25.dp,
      *          horizontalGap = 25.dp,
-     *          spans = "0:1x3",
-     *          skips = "12:1x1",
+     *          skips = arrayOf(Skip(12, 1, 1)),
+     *          spans = arrayOf(Span(0, 1, 3)),
      *          rowWeights = weights,
      *          paddingHorizontal = 10.dp,
      *          paddingVertical = 10.dp,
+     *          flags = flags,
      *      )
      *      constrain(g1) {
      *          width = Dimension.matchParent
@@ -984,16 +1018,27 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      * @param rowWeights defines the weight of each row
      * @param columnWeights defines the weight of each column
      * @param skips defines the positions in a Grid to be skipped
-     *        the format of the input string is "index:rowxcol"
-     *        index - the index of the starting position
-     *        row - the number of rows to skip
-     *        col- the number of columns to skip
+     *        the format: Skip(position, rows, columns)
+     *        position - the index of the starting position
+     *        rows - the number of rows to skip
+     *        coloumns - the number of columns to skip
      * @param spans defines the spanned area(s) in Grid
-     *        the format of the input string is "index:rowxcol"
-     *        index - the index of the starting position
-     *        row - the number of rows to span
-     *        col- the number of columns to span
+     *        the format: Span(position, rows, columns)
+     *        position - the index of the starting position
+     *        rows - the number of rows to span
+     *        coloumns - the number of columns to span
      * @param padding sets padding around the content
+     * @param flags set different flags to be enabled (not case-sensitive), including
+     *          SubGridByColRow: reverse the width and height specification for spans/skips.
+     *              Original - Position:HeightxWidth; with the flag - Position:WidthxHeight
+     *          SpansRespectWidgetOrder: spans would respect the order of the widgets.
+     *              Original - the widgets in the front of the widget list would be
+     *              assigned to the spanned area; with the flag - all the widges will be arranged
+     *              based on the given order. For example, for a layout with 1 row and 3 columns.
+     *              If we have two widgets: w1, w2 with a span as 1:1x2, the original layout would
+     *              be [w2 w1 w1]. Since w1 is in the front of the list, it would be assigned to
+     *              the spanned area. With the flag, the layout would be [w1 w2 w2] that respects
+     *              the order of the widget list.
      */
     fun createGrid(
         vararg elements: LayoutReference,
@@ -1004,9 +1049,10 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
         horizontalGap: Dp = 0.dp,
         rowWeights: IntArray = intArrayOf(),
         columnWeights: IntArray = intArrayOf(),
-        skips: String = "",
-        spans: String = "",
+        skips: Array<Skip> = arrayOf(),
+        spans: Array<Span> = arrayOf(),
         padding: Dp = 0.dp,
+        flags: Array<GridFlag> = arrayOf(),
     ): ConstrainedLayoutReference {
         return createGrid(
             elements = elements,
@@ -1019,10 +1065,11 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
             columnWeights = columnWeights,
             skips = skips,
             spans = spans,
-            paddingLeft = padding,
+            paddingStart = padding,
             paddingTop = padding,
-            paddingRight = padding,
+            paddingEnd = padding,
             paddingBottom = padding,
+            flags = flags,
         )
     }
 
@@ -1043,17 +1090,19 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *      val j = createRefFor("0")
      *      val k = createRefFor("box")
      *      val weights = intArrayOf(3, 3, 2, 2)
+     *      val flags = arrayOf("SubGridByColRow", "SpansRespectWidgetOrder")
      *      val g1 = createGrid(
      *          k, a, b, c, d, e, f, g, h, i, j, k,
      *          rows = 5,
      *          columns = 3,
      *          verticalGap = 25.dp,
      *          horizontalGap = 25.dp,
-     *          spans = "0:1x3",
-     *          skips = "12:1x1",
+     *          skips = arrayOf(Skip(12, 1, 1)),
+     *          spans = arrayOf(Span(0, 1, 3)),
      *          rowWeights = weights,
      *          paddingHorizontal = 10.dp,
      *          paddingVertical = 10.dp,
+     *          flags = flags,
      *      )
      *      constrain(g1) {
      *          width = Dimension.matchParent
@@ -1087,17 +1136,28 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      * @param columnWeights defines the weight of each column
      * @param orientation 0 if horizontal and 1 if vertical
      * @param skips defines the positions in a Grid to be skipped
-     *        the format of the input string is "index:rowxcol"
-     *        index - the index of the starting position
-     *        row - the number of rows to skip
-     *        col- the number of columns to skip
+     *        the format: Skip(position, rows, columns)
+     *        position - the index of the starting position
+     *        rows - the number of rows to skip
+     *        coloumns - the number of columns to skip
      * @param spans defines the spanned area(s) in Grid
-     *        the format of the input string is "index:rowxcol"
-     *        index - the index of the starting position
-     *        row - the number of rows to span
-     *        col- the number of columns to span
-     * @param paddingHorizontal sets paddingLeft and paddingRight of the content
+     *        the format: Span(position, rows, columns)
+     *        position - the index of the starting position
+     *        rows - the number of rows to span
+     *        coloumns - the number of columns to span
+     * @param paddingHorizontal sets paddingStart and paddingEnd of the content
      * @param paddingVertical sets paddingTop and paddingBottom of the content
+     * @param flags set different flags to be enabled (not case-sensitive), including
+     *          SubGridByColRow: reverse the width and height specification for spans/skips.
+     *              Original - Position:HeightxWidth; with the flag - Position:WidthxHeight
+     *          SpansRespectWidgetOrder: spans would respect the order of the widgets.
+     *              Original - the widgets in the front of the widget list would be
+     *              assigned to the spanned area; with the flag - all the widges will be arranged
+     *              based on the given order. For example, for a layout with 1 row and 3 columns.
+     *              If we have two widgets: w1, w2 with a span as 1:1x2, the original layout would
+     *              be [w2 w1 w1]. Since w1 is in the front of the list, it would be assigned to
+     *              the spanned area. With the flag, the layout would be [w1 w2 w2] that respects
+     *              the order of the widget list.
      */
     fun createGrid(
         vararg elements: LayoutReference,
@@ -1108,10 +1168,11 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
         horizontalGap: Dp = 0.dp,
         rowWeights: IntArray = intArrayOf(),
         columnWeights: IntArray = intArrayOf(),
-        skips: String = "",
-        spans: String = "",
+        skips: Array<Skip> = arrayOf(),
+        spans: Array<Span> = arrayOf(),
         paddingHorizontal: Dp = 0.dp,
         paddingVertical: Dp = 0.dp,
+        flags: Array<GridFlag> = arrayOf(),
     ): ConstrainedLayoutReference {
         return createGrid(
             elements = elements,
@@ -1124,10 +1185,11 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
             verticalGap = verticalGap,
             skips = skips,
             spans = spans,
-            paddingLeft = paddingHorizontal,
+            paddingStart = paddingHorizontal,
             paddingTop = paddingVertical,
-            paddingRight = paddingHorizontal,
+            paddingEnd = paddingHorizontal,
             paddingBottom = paddingVertical,
+            flags = flags
         )
     }
 
@@ -1148,19 +1210,21 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *      val j = createRefFor("0")
      *      val k = createRefFor("box")
      *      val weights = intArrayOf(3, 3, 2, 2)
+     *      val flags = arrayOf("SubGridByColRow", "SpansRespectWidgetOrder")
      *      val g1 = createGrid(
      *          k, a, b, c, d, e, f, g, h, i, j, k,
      *          rows = 5,
      *          columns = 3,
      *          verticalGap = 25.dp,
      *          horizontalGap = 25.dp,
-     *          spans = "0:1x3",
-     *          skips = "12:1x1",
+     *          skips = arrayOf(Skip(12, 1, 1)),
+     *          spans = arrayOf(Span(0, 1, 3)),
      *          rowWeights = weights,
-     *          paddingLeft = 10.dp,
+     *          paddingStart = 10.dp,
      *          paddingTop = 10.dp,
-     *          paddingRight = 10.dp,
+     *          paddingEnd = 10.dp,
      *          paddingBottom = 10.dp,
+     *          flags = flags,
      *      )
      *      constrain(g1) {
      *          width = Dimension.matchParent
@@ -1194,19 +1258,30 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      * @param rowWeights defines the weight of each row
      * @param columnWeights defines the weight of each column
      * @param skips defines the positions in a Grid to be skipped
-     *        the format of the input string is "index:rowxcol"
-     *        index - the index of the starting position
-     *        row - the number of rows to skip
-     *        col- the number of columns to skip
+     *        the format: Skip(position, rows, columns)
+     *        position - the index of the starting position
+     *        rows - the number of rows to skip
+     *        coloumns - the number of columns to skip
      * @param spans defines the spanned area(s) in Grid
-     *        the format of the input string is "index:rowxcol"
-     *        index - the index of the starting position
-     *        row - the number of rows to span
-     *        col- the number of columns to span
-     * @param paddingLeft sets paddingLeft of the content
+     *        the format: Span(position, rows, columns)
+     *        position - the index of the starting position
+     *        rows - the number of rows to span
+     *        coloumns - the number of columns to span
+     * @param paddingStart sets paddingStart of the content
      * @param paddingTop sets paddingTop of the content
-     * @param paddingRight sets paddingRight of the content
+     * @param paddingEnd sets paddingEnd of the content
      * @param paddingBottom sets paddingBottom of the content
+     * @param flags set different flags to be enabled (not case-sensitive), including
+     *          SubGridByColRow: reverse the width and height specification for spans/skips.
+     *              Original - Position:HeightxWidth; with the flag - Position:WidthxHeight
+     *          SpansRespectWidgetOrder: spans would respect the order of the widgets.
+     *              Original - the widgets in the front of the widget list would be
+     *              assigned to the spanned area; with the flag - all the widges will be arranged
+     *              based on the given order. For example, for a layout with 1 row and 3 columns.
+     *              If we have two widgets: w1, w2 with a span as 1:1x2, the original layout would
+     *              be [w2 w1 w1]. Since w1 is in the front of the list, it would be assigned to
+     *              the spanned area. With the flag, the layout would be [w1 w2 w2] that respects
+     *              the order of the widget list.
      */
     fun createGrid(
         vararg elements: LayoutReference,
@@ -1217,23 +1292,28 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
         horizontalGap: Dp = 0.dp,
         rowWeights: IntArray = intArrayOf(),
         columnWeights: IntArray = intArrayOf(),
-        skips: String = "",
-        spans: String = "",
-        paddingLeft: Dp = 0.dp,
+        skips: Array<Skip> = arrayOf(),
+        spans: Array<Span> = arrayOf(),
+        paddingStart: Dp = 0.dp,
         paddingTop: Dp = 0.dp,
-        paddingRight: Dp = 0.dp,
+        paddingEnd: Dp = 0.dp,
         paddingBottom: Dp = 0.dp,
+        flags: Array<GridFlag> = arrayOf(),
     ): ConstrainedLayoutReference {
         val ref = ConstrainedLayoutReference(createHelperId())
         val elementArray = CLArray(charArrayOf())
+        val flagArray = CLArray(charArrayOf())
         elements.forEach {
             elementArray.add(CLString.from(it.id.toString()))
         }
         val paddingArray = CLArray(charArrayOf()).apply {
-            add(CLNumber(paddingLeft.value))
+            add(CLNumber(paddingStart.value))
             add(CLNumber(paddingTop.value))
-            add(CLNumber(paddingRight.value))
+            add(CLNumber(paddingEnd.value))
             add(CLNumber(paddingBottom.value))
+        }
+        flags.forEach {
+            flagArray.add(CLString.from(it.name))
         }
         var strRowWeights = ""
         var strColumnWeights = ""
@@ -1242,6 +1322,15 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
         }
         if (columnWeights.size > 1) {
             strColumnWeights = columnWeights.joinToString(",")
+        }
+
+        var strSkips = ""
+        var strSpans = ""
+        if (skips.isNotEmpty()) {
+            strSkips = skips.joinToString(",") { it.description }
+        }
+        if (spans.isNotEmpty()) {
+            strSpans = spans.joinToString(",") { it.description }
         }
 
         ref.asCLContainer().apply {
@@ -1255,8 +1344,9 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
             put("padding", paddingArray)
             putString("rowWeights", strRowWeights)
             putString("columnWeights", strColumnWeights)
-            putString("skips", skips)
-            putString("spans", spans)
+            putString("skips", strSkips)
+            putString("spans", strSpans)
+            put("flags", flagArray)
         }
 
         return ref
@@ -1780,6 +1870,29 @@ class Visibility internal constructor(
 }
 
 /**
+ * GridFlag defines the available flags of Grid
+ * SubGridByColRow: reverse the width and height specification for spans/skips.
+ *   Original - Position:HeightxWidth; with the flag - Position:WidthxHeight
+ * SpansRespectWidgetOrder: spans would respect the order of the widgets.
+ *   Original - the widgets in the front of the widget list would be
+ *              assigned to the spanned area; with the flag - all the widges will be arranged
+ *              based on the given order. For example, for a layout with 1 row and 3 columns.
+ *              If we have two widgets: w1, w2 with a span as 1:1x2, the original layout would
+ *              be [w2 w1 w1]. Since w1 is in the front of the list, it would be assigned to
+ *              the spanned area. With the flag, the layout would be [w1 w2 w2] that respects
+ *              the order of the widget list.
+ */
+@Immutable
+class GridFlag internal constructor(
+    internal val name: String
+) {
+    companion object {
+        val SpansRespectWidgetOrder = GridFlag("spansrespectwidgetorder")
+        val SubGridByColRow = GridFlag("subgridbycolrow")
+    }
+}
+
+/**
  * Wrap defines the type of chain
  */
 @Immutable
@@ -1834,4 +1947,35 @@ class FlowStyle internal constructor(
         val SpreadInside = FlowStyle("spread_inside")
         val Packed = FlowStyle("packed")
     }
+}
+
+/**
+ * Defines how many rows and/or columns to skip, starting from the given position.
+ * For Grid, specify the Skip with Skip(position, rows, columns)
+ * For Row/Column, specify the Skip with Skip(position, size)
+ *
+ * @constructor create a new Skip containing the position and size information of the skipped area
+ * @param description string to specify span. For Grid: "position:rowsxcolumns";
+ *                    For Row/Columns: "position:size"
+ */
+@JvmInline
+value class Skip(val description: String) {
+    constructor(position: Int, rows: Int, columns: Int) : this("$position:${rows}x$columns")
+    constructor(position: Int, size: Int) : this("$position:$size")
+}
+
+/**
+ * Defines the spanned area (that crosses multiple columns and/or rows) that a widget will take
+ * when placed at the given position.
+ * For Grid, specify the Span with Span(position, rows, columns)
+ * For Row/Column, specify the Span with Span(position, size)
+ *
+ * @constructor create a new Span containing the position and size information of the spanned area
+ * @param description string to specify skip. For Grid: "position:rowsxcolumns";
+ *                    For Row/Columns: "position:size"
+ */
+@JvmInline
+value class Span(val description: String) {
+    constructor(position: Int, rows: Int, columns: Int) : this("$position:${rows}x$columns")
+    constructor(position: Int, size: Int) : this("$position:$size")
 }

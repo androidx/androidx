@@ -25,6 +25,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.work.Configuration
 import androidx.work.OneTimeWorkRequest
+import androidx.work.impl.TestWorkManagerImpl
 import androidx.work.impl.model.WorkGenerationalId
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.utils.SerialExecutorImpl
@@ -92,7 +93,7 @@ class WorkManagerGcmDispatcherTest {
             .setExecutor(mExecutor)
             .build()
 
-        mWorkManager = WorkManagerImpl(mContext, configuration, workTaskExecutor, true)
+        mWorkManager = TestWorkManagerImpl(mContext, configuration, workTaskExecutor)
         WorkManagerImpl.setDelegate(mWorkManager)
         mWorkTimer = spy(WorkTimer(configuration.runnableScheduler))
         mDispatcher = WorkManagerGcmDispatcher(mWorkManager, mWorkTimer)

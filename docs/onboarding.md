@@ -97,7 +97,7 @@ much as possible. All feature development occurs in the public
 [androidx-main](https://android.googlesource.com/platform/frameworks/support/+/androidx-main)
 branch of the Android Open Source Project.
 
-As of 2020/03/20, you will need about 38 GB for a fully-built checkout.
+As of 2023/03/30, you will need about 42 GB for a fully-built checkout.
 
 ### Synchronize the branch {#source-checkout}
 
@@ -676,14 +676,17 @@ the latest API changes.
 
 #### Missing external dependency
 
-If Gradle cannot resolve a dependency listed in your `build.gradle`, you may
-need to import the corresponding artifact into one of the prebuilts
-repositories. These repositories are located under `prebuilts/androidx`. Our
-workflow does not automatically download artifacts from the internet to
-facilitate reproducible builds even if remote artifacts are changed.
+If Gradle cannot resolve a dependency listed in your `build.gradle`:
 
-We use a script to download dependencies, you can learn more about it
-[here](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:development/importMaven/README.md).
+*   You will probably want to import the missing artifact via
+    [importMaven.sh](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:development/importMaven/README.md)
+
+    *   We store artifacts in the prebuilts repositories under
+        `prebuilts/androidx` to facilitate reproducible builds even if remote
+        artifacts are changed.
+
+*   You may need to [establish trust for](#dependency-verification) the new
+    artifact
 
 ##### Importing dependencies in `libs.versions.toml`
 
@@ -733,12 +736,10 @@ Please remember to commit changes in the `prebuilts/androidx/konan` repository.
 
 #### Dependency verification
 
-If the new dependency you are importing is unsigned, or is signed with a new,
+If you import a new dependency that is either unsigned or is signed with a new,
 unrecognized key, then you will need to add new dependency verification metadata
-to indicate to Gradle that this new dependency is trusted. Instructions for how
-to do this are currently in the
-[README](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/gradle/README.md)
-in the development subfolder
+to indicate to Gradle that this new dependency is trusted. See the instructions
+[here](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/gradle/README.md)
 
 #### Updating an existing dependency
 

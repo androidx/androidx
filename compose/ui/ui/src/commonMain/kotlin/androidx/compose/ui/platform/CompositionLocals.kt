@@ -31,6 +31,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.PlatformTextInputPluginRegistry
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -136,6 +137,18 @@ val LocalLayoutDirection = staticCompositionLocalOf<LayoutDirection> {
 val LocalTextInputService = staticCompositionLocalOf<TextInputService?> { null }
 
 /**
+ * The CompositionLocal to provide platform text input services.
+ *
+ * This is a low-level API for code that talks directly to the platform input method framework.
+ * Higher-level text input APIs in the Foundation library are more appropriate for most cases.
+ */
+// Experimental in desktop.
+val LocalPlatformTextInputPluginRegistry =
+    staticCompositionLocalOf<PlatformTextInputPluginRegistry> {
+        error("No PlatformTextInputPluginRegistry provided")
+    }
+
+/**
  * The CompositionLocal to provide text-related toolbar.
  */
 val LocalTextToolbar = staticCompositionLocalOf<TextToolbar> {
@@ -188,6 +201,7 @@ internal fun ProvideCommonCompositionLocals(
         LocalInputModeManager provides owner.inputModeManager,
         LocalLayoutDirection provides owner.layoutDirection,
         LocalTextInputService provides owner.textInputService,
+        LocalPlatformTextInputPluginRegistry provides owner.platformTextInputPluginRegistry,
         LocalTextToolbar provides owner.textToolbar,
         LocalUriHandler provides uriHandler,
         LocalViewConfiguration provides owner.viewConfiguration,

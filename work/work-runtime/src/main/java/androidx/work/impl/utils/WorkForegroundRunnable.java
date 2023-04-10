@@ -33,7 +33,6 @@ import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import com.google.common.util.concurrent.ListenableFuture;
 
 /**
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkForegroundRunnable implements Runnable {

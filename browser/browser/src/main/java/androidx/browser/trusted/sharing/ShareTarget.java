@@ -56,7 +56,6 @@ public final class ShareTarget  {
     /** Bundle key for {@link #params}. */
     public static final String KEY_PARAMS = "androidx.browser.trusted.sharing.KEY_PARAMS";
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @StringDef({METHOD_GET, METHOD_POST})
     @Retention(RetentionPolicy.SOURCE)
@@ -68,7 +67,6 @@ public final class ShareTarget  {
     /** See {@link #method}. */
     public static final String METHOD_POST = "POST";
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @StringDef({ENCODING_TYPE_URL_ENCODED, ENCODING_TYPE_MULTIPART})
     @Retention(RetentionPolicy.SOURCE)

@@ -9,6 +9,7 @@ dependencies {
     implementation("androidx.annotation:annotation:1.2.0")
 
     androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testExtTruth)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)

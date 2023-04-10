@@ -23,11 +23,12 @@ import android.os.Parcel;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 /** Gms Reference: com.google.android.gms.nearby.uwb.RangingSessionCallback
  *
- * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint({"MutableBareField", "ParcelNotFinal", "CallbackMethodName"})
 public interface IRangingSessionCallback extends android.os.IInterface
 {

@@ -75,8 +75,11 @@ abstract class DexInspectorTask : DefaultTask() {
         val output = outputFile.get().asFile
         output.parentFile.mkdirs()
         val errorStream = ByteArrayOutputStream()
-        val executionResult = execOperations.exec {
-            it.executable = d8Executable.get().asFile.absolutePath
+        val executionResult = execOperations.javaexec {
+            it.classpath(File(File(d8Executable.get().asFile.parentFile, "lib"), "d8.jar"))
+            it.mainClass.set("com.android.tools.r8.D8")
+            it.allJvmArgs.add("-Xmx2G")
+
             val filesToDex = jars.map { file -> file.absolutePath }
 
             // All runtime dependencies of the inspector are already jarjar-ed and packed in

@@ -23,10 +23,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -51,8 +53,16 @@ data class ComposeDemo(val title: String, val content: @Composable () -> Unit)
 val AllComposeConstraintLayoutDemos: List<ComposeDemo> =
     listOf(
         ComposeDemo("CustomColorInKeyAttributes") { CustomColorInKeyAttributesDemo() },
-        ComposeDemo("SimpleOnSwipe") { SimpleOnSwipe() },
-        ComposeDemo("AnimatedChainOrientation") { ChainsAnimatedOrientationDemo() }
+        ComposeDemo("Simple OnSwipe") { SimpleOnSwipe() },
+        ComposeDemo("Multiple OnSwipe") { MultiSwipeDsl() },
+        ComposeDemo("AnimatedChainOrientation") { ChainsAnimatedOrientationDemo() },
+        ComposeDemo("CollapsibleToolbar w/ Column") { ToolBarDslDemo() },
+        ComposeDemo("CollapsibleToolbar w/ LazyColumn") { ToolBarLazyDslDemo() },
+        ComposeDemo("MotionLayout in LazyList") { MotionInLazyColumnDslDemo() },
+        ComposeDemo("Animated Graphs") { AnimateGraphsOnRevealDemo() },
+        ComposeDemo("Animated Reactions Selector") { ReactionSelectorDemo() },
+        ComposeDemo("Animated Puzzle Pieces") { AnimatedPuzzlePiecesDemo() },
+        ComposeDemo("Simple Staggered") { SimpleStaggeredDemo() }
     )
 
 /**
@@ -61,43 +71,81 @@ val AllComposeConstraintLayoutDemos: List<ComposeDemo> =
 @Preview
 @Composable
 fun ComposeConstraintLayoutDemos() {
-    var displayedDemo by remember { mutableStateOf<ComposeDemo?>(null) }
+    var displayedDemoIndex by remember { mutableStateOf(-1) }
+    val maxIndex = AllComposeConstraintLayoutDemos.size - 1
     Column {
         Column {
-            displayedDemo?.let {
-                // Header with back button
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp)
-                        .background(Color.White)
-                        .graphicsLayer(shadowElevation = 2f)
-                        .clickable { displayedDemo = null }, // Return to list of demos
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
-                    Text(text = it.title)
+            when (displayedDemoIndex) {
+                -1 -> {
+                    // Main Title
+                    Text(text = "ComposeConstraintLayoutDemos", style = MaterialTheme.typography.h6)
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
-            } ?: kotlin.run {
-                // Main Title
-                Text(text = "ComposeConstraintLayoutDemos", style = MaterialTheme.typography.h6)
-                Spacer(modifier = Modifier.height(8.dp))
+
+                else -> {
+                    // Header with back button
+                    val composeDemo = AllComposeConstraintLayoutDemos[displayedDemoIndex]
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp)
+                            .background(Color.White)
+                            .graphicsLayer(shadowElevation = 2f),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .weight(1f, true)
+                                .clickable { displayedDemoIndex = -1 },
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                            Text(text = composeDemo.title)
+                        }
+                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Button(onClick = {
+                                displayedDemoIndex = if (displayedDemoIndex == 0) {
+                                    maxIndex
+                                } else {
+                                    displayedDemoIndex - 1
+                                }
+                            }) {
+                                Text("Prev")
+                            }
+                            Button(onClick = {
+                                displayedDemoIndex = if (displayedDemoIndex == maxIndex) {
+                                    0
+                                } else {
+                                    displayedDemoIndex + 1
+                                }
+                            }) {
+                                Text("Next")
+                            }
+                        }
+                    }
+                }
             }
         }
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            displayedDemo?.let { demo ->
-                // Display selected demo
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .weight(1.0f, true)
-                ) {
-                    demo.content()
+            when (displayedDemoIndex) {
+                -1 -> {
+                    // Display list of demos
+                    AllComposeConstraintLayoutDemos.forEachIndexed { index, composeDemo ->
+                        ComposeDemoItem(composeDemo.title) { displayedDemoIndex = index }
+                    }
                 }
-            } ?: kotlin.run {
-                // Display list of demos
-                AllComposeConstraintLayoutDemos.forEach {
-                    ComposeDemoItem(it.title) { displayedDemo = it }
+
+                else -> {
+                    // Display selected demo
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .weight(1.0f, true)
+                    ) {
+                        AllComposeConstraintLayoutDemos[displayedDemoIndex].content()
+                    }
                 }
             }
         }

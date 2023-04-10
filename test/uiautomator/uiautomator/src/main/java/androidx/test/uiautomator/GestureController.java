@@ -146,8 +146,8 @@ class GestureController {
 
         // Loop
         MotionEvent event;
-        for (long elapsedTime = 0; !pending.isEmpty() || !active.isEmpty();
-                elapsedTime = SystemClock.uptimeMillis() - startTime) {
+        long elapsedTime = 0;
+        for (; !pending.isEmpty() || !active.isEmpty(); elapsedTime += injectionDelay) {
 
             // Touch up any completed pointers
             while (!active.isEmpty()
@@ -214,6 +214,12 @@ class GestureController {
             }
 
             SystemClock.sleep(injectionDelay);
+        }
+
+        long upTime = SystemClock.uptimeMillis() - startTime;
+        if (upTime >= 2 * elapsedTime) {
+            Log.w(TAG, String.format("Gestures took longer than expected (%dms vs %dms), device "
+                    + "might be in a busy state.", upTime, 2 * elapsedTime));
         }
     }
 

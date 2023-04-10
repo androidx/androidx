@@ -56,7 +56,7 @@ class PostponedTransitionTest() {
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
 
-    private fun setupContainer(beginningFragment: PostponedFragment1 = PostponedFragment1()) {
+    private fun setupContainer(beginningFragment: TransitionFragment = PostponedFragment1()) {
         activityRule.setContentView(R.layout.simple_container)
         val fm = activityRule.activity.supportFragmentManager
 
@@ -1012,6 +1012,84 @@ class PostponedTransitionTest() {
         assertThat(fragment.startPostponedCountDownLatch.count).isEqualTo(0)
     }
 
+    @Test
+    fun testTimedPostponeNoLeak() {
+        val beginningFragment = PostponedFragment3(100000)
+        setupContainer(beginningFragment)
+
+        val fm = activityRule.activity.supportFragmentManager
+        val startBlue = activityRule.findBlue()
+
+        val fragment = TransitionFragment()
+        fm.beginTransaction()
+            .addSharedElement(startBlue, "blueSquare")
+            .replace(R.id.fragmentContainer, fragment)
+            .setReorderingAllowed(true)
+            .commit()
+
+        activityRule.waitForExecution()
+    }
+
+    @Test
+    fun testTimedPostponeBeforeAttachedNoLeak() {
+        val beginningFragment = PostponedConstructorFragment(100000)
+        setupContainer(beginningFragment)
+
+        val fm = activityRule.activity.supportFragmentManager
+        val startBlue = activityRule.findBlue()
+
+        val fragment = TransitionFragment()
+        fm.beginTransaction()
+            .addSharedElement(startBlue, "blueSquare")
+            .replace(R.id.fragmentContainer, fragment)
+            .setReorderingAllowed(true)
+            .commit()
+
+        activityRule.waitForExecution()
+    }
+
+    @Test
+    fun testTimedPostponeStartOnTestThreadNoLeak() {
+        val beginningFragment = PostponedFragment3(100000)
+        setupContainer(beginningFragment)
+
+        val fm = activityRule.activity.supportFragmentManager
+        val startBlue = activityRule.findBlue()
+
+        val fragment = TransitionFragment()
+        fm.beginTransaction()
+            .addSharedElement(startBlue, "blueSquare")
+            .replace(R.id.fragmentContainer, fragment)
+            .setReorderingAllowed(true)
+            .commit()
+
+        activityRule.waitForExecution()
+
+        beginningFragment.startPostponedEnterTransition()
+    }
+
+    @Test
+    fun testTimedPostponeStartOnMainThreadNoLeak() {
+        val beginningFragment = PostponedFragment3(100000)
+        setupContainer(beginningFragment)
+
+        val fm = activityRule.activity.supportFragmentManager
+        val startBlue = activityRule.findBlue()
+
+        val fragment = TransitionFragment()
+        fm.beginTransaction()
+            .addSharedElement(startBlue, "blueSquare")
+            .replace(R.id.fragmentContainer, fragment)
+            .setReorderingAllowed(true)
+            .commit()
+
+        activityRule.waitForExecution()
+
+        activityRule.runOnUiThread {
+            beginningFragment.startPostponedEnterTransition()
+        }
+    }
+
     // Ensure that if startPostponedEnterTransaction is called before the timeout, there is no crash
     @Test
     fun testTimedPostponeStartPostponedCalledTwice() {
@@ -1327,10 +1405,11 @@ class PostponedTransitionTest() {
         }
     }
 
-    class PostponedConstructorFragment : TransitionFragment(R.layout.scene2) {
+    class PostponedConstructorFragment(duration: Long = 1000) :
+        TransitionFragment(R.layout.scene2) {
 
         init {
-            postponeEnterTransition(1000, TimeUnit.MILLISECONDS)
+            postponeEnterTransition(duration, TimeUnit.MILLISECONDS)
         }
 
         val startPostponedCountDownLatch = CountDownLatch(1)

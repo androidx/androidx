@@ -189,7 +189,6 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
 
     /**
      * Internal api to allow hinting for the best button panel layout.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     void setButtonPanelLayoutHint(int layoutHint) {
@@ -925,7 +924,6 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
          *
          * This is currently hidden because it seems like people should just
          * be able to put padding around the view.
-         * @hide
          * @deprecated This method has been deprecated.
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -959,7 +957,6 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public Builder setRecycleOnMeasureEnabled(boolean enabled) {

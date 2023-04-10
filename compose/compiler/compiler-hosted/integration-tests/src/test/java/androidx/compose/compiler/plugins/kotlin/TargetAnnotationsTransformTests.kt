@@ -911,7 +911,7 @@ class TargetAnnotationsTransformTests : AbstractIrTransformTest() {
           val tmp0_measurePolicy = localBoxMeasurePolicy
           Layout({ %composer: Composer?, %changed: Int ->
             sourceInformationMarkerStart(%composer, <>, "C<conten...>:Test.kt")
-            content(LocalBoxScopeInstance, %composer, 0b0110 or 0b01110000 and %changed)
+            content(LocalBoxScopeInstance, %composer, 0b0110 or 0b01110000 and %changed@LocalBox)
             sourceInformationMarkerEnd(%composer)
           }, modifier, tmp0_measurePolicy, %composer, 0b000110000000 or 0b01110000 and %changed shl 0b0011, 0)
           %composer.endReplaceableGroup()
@@ -1264,7 +1264,12 @@ class TargetAnnotationsTransformTests : AbstractIrTransformTest() {
             if (isTraceInProgress()) {
               traceEventStart(<>, %dirty, -1, <>)
             }
-            <<LOCALDELPROP>>
+            val updatedContent by {
+              val updatedContent%delegate = rememberUpdatedState(content, %composer, 0b1110 and %dirty)
+              get() {
+                return updatedContent%delegate.getValue(null, ::updatedContent%delegate)
+              }
+            }
             Defer(composableLambda(%composer, <>, true) { %composer: Composer?, %changed: Int ->
               sourceInformation(%composer, "C:Test.kt")
               if (%changed and 0b1011 !== 0b0010 || !%composer.skipping) {

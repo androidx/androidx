@@ -20,7 +20,7 @@ import androidx.annotation.RequiresApi
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 
-@RequiresApi(21)
+@RequiresApi(23)
 @ExperimentalPerfettoCaptureApi
 class PerfettoTrace(
     /**

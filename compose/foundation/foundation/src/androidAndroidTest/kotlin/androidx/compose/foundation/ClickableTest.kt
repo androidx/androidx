@@ -16,7 +16,7 @@
 
 package androidx.compose.foundation
 
-import android.os.Build
+import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.draggable
@@ -44,14 +44,17 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.InputMode.Companion.Keyboard
+import androidx.compose.ui.input.InputMode.Companion.Touch
+import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
@@ -64,22 +67,18 @@ import androidx.compose.ui.test.assertTouchHeightIsEqualTo
 import androidx.compose.ui.test.assertTouchWidthIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.click
-import androidx.compose.ui.test.doubleClick
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performMouseInput
-import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
@@ -92,7 +91,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalFoundationApi::class)
 class ClickableTest {
 
     @get:Rule
@@ -106,11 +104,16 @@ class ClickableTest {
     @After
     fun after() {
         isDebugInspectorInfoEnabled = false
-        InstrumentationRegistry.getInstrumentation().setInTouchMode(true)
+    }
+
+    // TODO(b/267253920): Add a compose test API to set/reset InputMode.
+    @After
+    fun resetTouchMode() = with(InstrumentationRegistry.getInstrumentation()) {
+        if (SDK_INT < 33) setInTouchMode(true) else resetInTouchMode()
     }
 
     @Test
-    fun clickableTest_defaultSemantics() {
+    fun defaultSemantics() {
         rule.setContent {
             Box {
                 BasicText(
@@ -127,7 +130,7 @@ class ClickableTest {
     }
 
     @Test
-    fun clickableTest_disabledSemantics() {
+    fun disabledSemantics() {
         rule.setContent {
             Box {
                 BasicText(
@@ -144,39 +147,7 @@ class ClickableTest {
     }
 
     @Test
-    fun clickableTest_longClickSemantics() {
-        var counter = 0
-        val onClick: () -> Unit = { ++counter }
-
-        rule.setContent {
-            Box {
-                BasicText(
-                    "ClickableText",
-                    modifier = Modifier
-                        .testTag("myClickable")
-                        .combinedClickable(onLongClick = onClick) {}
-                )
-            }
-        }
-
-        rule.onNodeWithTag("myClickable")
-            .assertIsEnabled()
-            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick))
-
-        rule.runOnIdle {
-            assertThat(counter).isEqualTo(0)
-        }
-
-        rule.onNodeWithTag("myClickable")
-            .performSemanticsAction(SemanticsActions.OnLongClick)
-
-        rule.runOnIdle {
-            assertThat(counter).isEqualTo(1)
-        }
-    }
-
-    @Test
-    fun clickableTest_click() {
+    fun click() {
         var counter = 0
         val onClick: () -> Unit = {
             ++counter
@@ -208,16 +179,12 @@ class ClickableTest {
 
     @Test
     @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
-    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
-    fun clickableTest_clickWithEnterKey() {
-        if (Build.VERSION.SDK_INT == 33 && Build.VERSION.CODENAME != "REL") {
-            return // b/262909049: Do not run this test on pre-release Android U.
-        }
-
-        InstrumentationRegistry.getInstrumentation().setInTouchMode(false)
+    fun clickWithEnterKey() {
         var counter = 0
         val focusRequester = FocusRequester()
+        lateinit var inputModeManager: InputModeManager
         rule.setContent {
+            inputModeManager = LocalInputModeManager.current
             BasicText(
                     "ClickableText",
                     modifier = Modifier
@@ -226,8 +193,10 @@ class ClickableTest {
                         .clickable { counter++ }
             )
         }
-
-        rule.runOnIdle { focusRequester.requestFocus() }
+        rule.runOnIdle {
+            inputModeManager.requestInputMode(Keyboard)
+            focusRequester.requestFocus()
+        }
 
         rule.onNodeWithTag("myClickable").performKeyInput { keyDown(Key.Enter) }
 
@@ -240,16 +209,12 @@ class ClickableTest {
 
     @Test
     @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
-    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
-    fun clickableTest_clickWithNumPadEnterKey() {
-        if (Build.VERSION.SDK_INT == 33 && Build.VERSION.CODENAME != "REL") {
-            return // b/262909049: Do not run this test on pre-release Android U.
-        }
-
-        InstrumentationRegistry.getInstrumentation().setInTouchMode(false)
+    fun clickWithNumPadEnterKey() {
         var counter = 0
         val focusRequester = FocusRequester()
+        lateinit var inputModeManager: InputModeManager
         rule.setContent {
+            inputModeManager = LocalInputModeManager.current
             BasicText(
                 "ClickableText",
                 modifier = Modifier
@@ -258,8 +223,10 @@ class ClickableTest {
                     .clickable { counter++ }
             )
         }
-
-        rule.runOnIdle { focusRequester.requestFocus() }
+        rule.runOnIdle {
+            inputModeManager.requestInputMode(Keyboard)
+            focusRequester.requestFocus()
+        }
 
         rule.onNodeWithTag("myClickable").performKeyInput { keyDown(Key.NumPadEnter) }
 
@@ -272,16 +239,12 @@ class ClickableTest {
 
     @Test
     @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
-    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
-    fun clickableTest_clickWithDPadCenter() {
-        if (Build.VERSION.SDK_INT == 33 && Build.VERSION.CODENAME != "REL") {
-            return // b/262909049: Do not run this test on pre-release Android U.
-        }
-
-        InstrumentationRegistry.getInstrumentation().setInTouchMode(false)
+    fun clickWithDPadCenter() {
         var counter = 0
         val focusRequester = FocusRequester()
+        lateinit var inputModeManager: InputModeManager
         rule.setContent {
+            inputModeManager = LocalInputModeManager.current
             BasicText(
                 "ClickableText",
                 modifier = Modifier
@@ -290,8 +253,10 @@ class ClickableTest {
                     .clickable { counter++ }
             )
         }
-
-        rule.runOnIdle { focusRequester.requestFocus() }
+        rule.runOnIdle {
+            inputModeManager.requestInputMode(Keyboard)
+            focusRequester.requestFocus()
+        }
 
         rule.onNodeWithTag("myClickable").performKeyInput { keyDown(Key.DirectionCenter) }
 
@@ -303,7 +268,7 @@ class ClickableTest {
     }
 
     @Test
-    fun clickableTest_clickOnChildBasicText() {
+    fun clickOnChildBasicText() {
         var counter = 0
         val onClick: () -> Unit = { ++counter }
 
@@ -331,217 +296,7 @@ class ClickableTest {
     }
 
     @Test
-    @LargeTest
-    fun clickableTest_longClick() {
-        var counter = 0
-        val onClick: () -> Unit = { ++counter }
-
-        rule.setContent {
-            Box {
-                BasicText(
-                    "ClickableText",
-                    modifier = Modifier
-                        .testTag("myClickable")
-                        .combinedClickable(onLongClick = onClick) {}
-                )
-            }
-        }
-
-        rule.onNodeWithTag("myClickable")
-            .performTouchInput {
-                longClick()
-            }
-
-        rule.runOnIdle {
-            assertThat(counter).isEqualTo(1)
-        }
-
-        rule.onNodeWithTag("myClickable")
-            .performTouchInput {
-                longClick()
-            }
-
-        rule.runOnIdle {
-            assertThat(counter).isEqualTo(2)
-        }
-    }
-
-    @Test
-    fun clickableTest_click_withLongClick() {
-        var clickCounter = 0
-        var longClickCounter = 0
-        val onClick: () -> Unit = { ++clickCounter }
-        val onLongClick: () -> Unit = { ++longClickCounter }
-
-        rule.setContent {
-            Box {
-                BasicText(
-                    "ClickableText",
-                    modifier = Modifier
-                        .testTag("myClickable")
-                        .combinedClickable(
-                            onLongClick = onLongClick,
-                            onClick = onClick
-                        )
-                )
-            }
-        }
-
-        rule.onNodeWithTag("myClickable")
-            .performTouchInput {
-                click()
-            }
-
-        rule.runOnIdle {
-            assertThat(clickCounter).isEqualTo(1)
-            assertThat(longClickCounter).isEqualTo(0)
-        }
-
-        rule.onNodeWithTag("myClickable")
-            .performTouchInput {
-                longClick()
-            }
-
-        rule.runOnIdle {
-            assertThat(clickCounter).isEqualTo(1)
-            assertThat(longClickCounter).isEqualTo(1)
-        }
-    }
-
-    @Test
-    fun clickableTest_click_withDoubleClick() {
-        var clickCounter = 0
-        var doubleClickCounter = 0
-        val onClick: () -> Unit = { ++clickCounter }
-        val onDoubleClick: () -> Unit = { ++doubleClickCounter }
-
-        rule.setContent {
-            Box {
-                BasicText(
-                    "ClickableText",
-                    modifier = Modifier
-                        .testTag("myClickable")
-                        .combinedClickable(
-                            onDoubleClick = onDoubleClick,
-                            onClick = onClick
-                        )
-                )
-            }
-        }
-
-        rule.onNodeWithTag("myClickable")
-            .performClick()
-
-        rule.mainClock.advanceTimeUntil { clickCounter == 1 }
-        rule.runOnIdle {
-            assertThat(clickCounter).isEqualTo(1)
-            assertThat(doubleClickCounter).isEqualTo(0)
-        }
-
-        rule.onNodeWithTag("myClickable")
-            .performTouchInput {
-                doubleClick()
-            }
-
-        rule.runOnIdle {
-            assertThat(doubleClickCounter).isEqualTo(1)
-            assertThat(clickCounter).isEqualTo(1)
-        }
-    }
-
-    @Test
-    @LargeTest
-    fun clickableTest_click_withDoubleClick_andLongClick() {
-        var clickCounter = 0
-        var doubleClickCounter = 0
-        var longClickCounter = 0
-        val onClick: () -> Unit = { ++clickCounter }
-        val onDoubleClick: () -> Unit = { ++doubleClickCounter }
-        val onLongClick: () -> Unit = { ++longClickCounter }
-
-        rule.setContent {
-            Box {
-                BasicText(
-                    "ClickableText",
-                    modifier = Modifier
-                        .testTag("myClickable")
-                        .combinedClickable(
-                            onDoubleClick = onDoubleClick,
-                            onLongClick = onLongClick,
-                            onClick = onClick
-                        )
-                )
-            }
-        }
-
-        rule.onNodeWithTag("myClickable")
-            .performClick()
-
-        rule.mainClock.advanceTimeUntil { clickCounter == 1 }
-        rule.runOnIdle {
-            assertThat(doubleClickCounter).isEqualTo(0)
-            assertThat(longClickCounter).isEqualTo(0)
-            assertThat(clickCounter).isEqualTo(1)
-        }
-
-        rule.onNodeWithTag("myClickable")
-            .performTouchInput {
-                doubleClick()
-            }
-
-        rule.mainClock.advanceTimeUntil { doubleClickCounter == 1 }
-        rule.runOnIdle {
-            assertThat(doubleClickCounter).isEqualTo(1)
-            assertThat(longClickCounter).isEqualTo(0)
-            assertThat(clickCounter).isEqualTo(1)
-        }
-
-        rule.onNodeWithTag("myClickable")
-            .performTouchInput {
-                longClick()
-            }
-
-        rule.mainClock.advanceTimeUntil { longClickCounter == 1 }
-        rule.runOnIdle {
-            assertThat(doubleClickCounter).isEqualTo(1)
-            assertThat(longClickCounter).isEqualTo(1)
-            assertThat(clickCounter).isEqualTo(1)
-        }
-    }
-
-    @Test
-    fun clickableTest_doubleClick() {
-        var counter = 0
-        val onClick: () -> Unit = { ++counter }
-
-        rule.setContent {
-            Box {
-                BasicText(
-                    "ClickableText",
-                    modifier = Modifier
-                        .testTag("myClickable")
-                        .combinedClickable(onDoubleClick = onClick) {}
-                )
-            }
-        }
-
-        rule.onNodeWithTag("myClickable")
-            .performTouchInput {
-                doubleClick()
-            }
-
-        rule.mainClock.advanceTimeUntil { counter == 1 }
-
-        rule.onNodeWithTag("myClickable")
-            .performTouchInput {
-                doubleClick()
-            }
-
-        rule.mainClock.advanceTimeUntil { counter == 2 }
-    }
-
-    @Test
-    fun clickableTest_interactionSource_noScrollableContainer() {
+    fun interactionSource_noScrollableContainer() {
         val interactionSource = MutableInteractionSource()
 
         lateinit var scope: CoroutineScope
@@ -555,7 +310,7 @@ class ClickableTest {
                     "ClickableText",
                     modifier = Modifier
                         .testTag("myClickable")
-                        .combinedClickable(
+                        .clickable(
                             interactionSource = interactionSource,
                             indication = null
                         ) {}
@@ -596,7 +351,7 @@ class ClickableTest {
     }
 
     @Test
-    fun clickableTest_interactionSource_immediateRelease_noScrollableContainer() {
+    fun interactionSource_immediateRelease_noScrollableContainer() {
         val interactionSource = MutableInteractionSource()
 
         lateinit var scope: CoroutineScope
@@ -610,7 +365,7 @@ class ClickableTest {
                     "ClickableText",
                     modifier = Modifier
                         .testTag("myClickable")
-                        .combinedClickable(
+                        .clickable(
                             interactionSource = interactionSource,
                             indication = null
                         ) {}
@@ -645,7 +400,7 @@ class ClickableTest {
     }
 
     @Test
-    fun clickableTest_interactionSource_immediateCancel_noScrollableContainer() {
+    fun interactionSource_immediateCancel_noScrollableContainer() {
         val interactionSource = MutableInteractionSource()
 
         lateinit var scope: CoroutineScope
@@ -659,7 +414,7 @@ class ClickableTest {
                     "ClickableText",
                     modifier = Modifier
                         .testTag("myClickable")
-                        .combinedClickable(
+                        .clickable(
                             interactionSource = interactionSource,
                             indication = null
                         ) {}
@@ -694,7 +449,7 @@ class ClickableTest {
     }
 
     @Test
-    fun clickableTest_interactionSource_immediateDrag_noScrollableContainer() {
+    fun interactionSource_immediateDrag_noScrollableContainer() {
         val interactionSource = MutableInteractionSource()
 
         lateinit var scope: CoroutineScope
@@ -712,7 +467,7 @@ class ClickableTest {
                             state = rememberDraggableState {},
                             orientation = Orientation.Horizontal
                         )
-                        .combinedClickable(
+                        .clickable(
                             interactionSource = interactionSource,
                             indication = null
                         ) {}
@@ -747,7 +502,7 @@ class ClickableTest {
     }
 
     @Test
-    fun clickableTest_interactionSource_scrollableContainer() {
+    fun interactionSource_scrollableContainer() {
         val interactionSource = MutableInteractionSource()
 
         lateinit var scope: CoroutineScope
@@ -761,7 +516,7 @@ class ClickableTest {
                     "ClickableText",
                     modifier = Modifier
                         .testTag("myClickable")
-                        .combinedClickable(
+                        .clickable(
                             interactionSource = interactionSource,
                             indication = null
                         ) {}
@@ -812,7 +567,7 @@ class ClickableTest {
     }
 
     @Test
-    fun clickableTest_interactionSource_immediateRelease_scrollableContainer() {
+    fun interactionSource_immediateRelease_scrollableContainer() {
         val interactionSource = MutableInteractionSource()
 
         lateinit var scope: CoroutineScope
@@ -826,7 +581,7 @@ class ClickableTest {
                     "ClickableText",
                     modifier = Modifier
                         .testTag("myClickable")
-                        .combinedClickable(
+                        .clickable(
                             interactionSource = interactionSource,
                             indication = null
                         ) {}
@@ -862,7 +617,7 @@ class ClickableTest {
     }
 
     @Test
-    fun clickableTest_interactionSource_immediateCancel_scrollableContainer() {
+    fun interactionSource_immediateCancel_scrollableContainer() {
         val interactionSource = MutableInteractionSource()
 
         lateinit var scope: CoroutineScope
@@ -876,7 +631,7 @@ class ClickableTest {
                     "ClickableText",
                     modifier = Modifier
                         .testTag("myClickable")
-                        .combinedClickable(
+                        .clickable(
                             interactionSource = interactionSource,
                             indication = null
                         ) {}
@@ -908,7 +663,7 @@ class ClickableTest {
     }
 
     @Test
-    fun clickableTest_interactionSource_immediateDrag_scrollableContainer() {
+    fun interactionSource_immediateDrag_scrollableContainer() {
         val interactionSource = MutableInteractionSource()
 
         lateinit var scope: CoroutineScope
@@ -926,7 +681,7 @@ class ClickableTest {
                             state = rememberDraggableState {},
                             orientation = Orientation.Horizontal
                         )
-                        .combinedClickable(
+                        .clickable(
                             interactionSource = interactionSource,
                             indication = null
                         ) {}
@@ -959,7 +714,7 @@ class ClickableTest {
     }
 
     @Test
-    fun clickableTest_interactionSource_dragAfterTimeout_scrollableContainer() {
+    fun interactionSource_dragAfterTimeout_scrollableContainer() {
         val interactionSource = MutableInteractionSource()
 
         lateinit var scope: CoroutineScope
@@ -977,7 +732,7 @@ class ClickableTest {
                             state = rememberDraggableState {},
                             orientation = Orientation.Horizontal
                         )
-                        .combinedClickable(
+                        .clickable(
                             interactionSource = interactionSource,
                             indication = null
                         ) {}
@@ -1023,7 +778,7 @@ class ClickableTest {
     }
 
     @Test
-    fun clickableTest_interactionSource_cancelledGesture_scrollableContainer() {
+    fun interactionSource_cancelledGesture_scrollableContainer() {
         val interactionSource = MutableInteractionSource()
 
         lateinit var scope: CoroutineScope
@@ -1037,7 +792,7 @@ class ClickableTest {
                     "ClickableText",
                     modifier = Modifier
                         .testTag("myClickable")
-                        .combinedClickable(
+                        .clickable(
                             interactionSource = interactionSource,
                             indication = null
                         ) {}
@@ -1078,7 +833,7 @@ class ClickableTest {
     }
 
     @Test
-    fun clickableTest_interactionSource_resetWhenDisposed() {
+    fun interactionSource_resetWhenDisposed() {
         val interactionSource = MutableInteractionSource()
         var emitClickableText by mutableStateOf(true)
 
@@ -1094,7 +849,7 @@ class ClickableTest {
                         "ClickableText",
                         modifier = Modifier
                             .testTag("myClickable")
-                            .combinedClickable(
+                            .clickable(
                                 interactionSource = interactionSource,
                                 indication = null
                             ) {}
@@ -1141,7 +896,7 @@ class ClickableTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun clickableTest_interactionSource_hover() {
+    fun interactionSource_hover() {
         val interactionSource = MutableInteractionSource()
 
         lateinit var scope: CoroutineScope
@@ -1153,7 +908,7 @@ class ClickableTest {
                     "ClickableText",
                     modifier = Modifier
                         .testTag("myClickable")
-                        .combinedClickable(
+                        .clickable(
                             interactionSource = interactionSource,
                             indication = null
                         ) {}
@@ -1194,7 +949,7 @@ class ClickableTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun clickableTest_interactionSource_hover_and_press() {
+    fun interactionSource_hover_and_press() {
         val interactionSource = MutableInteractionSource()
 
         lateinit var scope: CoroutineScope
@@ -1206,7 +961,7 @@ class ClickableTest {
                     "ClickableText",
                     modifier = Modifier
                         .testTag("myClickable")
-                        .combinedClickable(
+                        .clickable(
                             interactionSource = interactionSource,
                             indication = null
                         ) {}
@@ -1245,26 +1000,30 @@ class ClickableTest {
     }
 
     @Test
-    fun clickableTest_interactionSource_focus_inTouchMode() {
-        InstrumentationRegistry.getInstrumentation().setInTouchMode(true)
+    fun interactionSource_focus_inTouchMode() {
         val interactionSource = MutableInteractionSource()
         lateinit var scope: CoroutineScope
         val focusRequester = FocusRequester()
-
+        lateinit var inputModeManager: InputModeManager
         rule.setContent {
             scope = rememberCoroutineScope()
+            inputModeManager = LocalInputModeManager.current
             Box {
                 BasicText(
                     "ClickableText",
                     modifier = Modifier
                         .testTag("myClickable")
                         .focusRequester(focusRequester)
-                        .combinedClickable(
+                        .clickable(
                             interactionSource = interactionSource,
                             indication = null
                         ) {}
                 )
             }
+        }
+        rule.runOnIdle {
+            @OptIn(ExperimentalComposeUiApi::class)
+            inputModeManager.requestInputMode(Touch)
         }
 
         val interactions = mutableListOf<Interaction>()
@@ -1288,33 +1047,32 @@ class ClickableTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
-    fun clickableTest_interactionSource_focus_inKeyboardMode() {
-        if (Build.VERSION.SDK_INT == 33 && Build.VERSION.CODENAME != "REL") {
-            return // b/262909049: Do not run this test on pre-release Android U.
-        }
-
-        InstrumentationRegistry.getInstrumentation().setInTouchMode(false)
+    fun interactionSource_focus_inKeyboardMode() {
         val interactionSource = MutableInteractionSource()
         lateinit var scope: CoroutineScope
         val focusRequester = FocusRequester()
         lateinit var focusManager: FocusManager
-
+        lateinit var inputModeManager: InputModeManager
         rule.setContent {
             scope = rememberCoroutineScope()
             focusManager = LocalFocusManager.current
+            inputModeManager = LocalInputModeManager.current
                 Box {
                     BasicText(
                         "ClickableText",
                         modifier = Modifier
                             .testTag("myClickable")
                             .focusRequester(focusRequester)
-                            .combinedClickable(
+                            .clickable(
                                 interactionSource = interactionSource,
                                 indication = null
                             ) {}
                     )
                 }
+        }
+        rule.runOnIdle {
+            @OptIn(ExperimentalComposeUiApi::class)
+            inputModeManager.requestInputMode(Keyboard)
         }
 
         val interactions = mutableListOf<Interaction>()
@@ -1351,406 +1109,9 @@ class ClickableTest {
         }
     }
 
-    // TODO: b/202871171 - add test for changing between keyboard mode and touch mode, making sure
-    // it resets existing focus
-
-    /**
-     * Regression test for b/186223077
-     *
-     * Tests that if a long click causes the long click lambda to change instances, we will still
-     * correctly wait for the up event and emit [PressInteraction.Release].
-     */
     @Test
     @LargeTest
-    fun clickableTest_longClick_interactionSource_continuesTrackingPressAfterLambdasChange() {
-        val interactionSource = MutableInteractionSource()
-
-        var onLongClick by mutableStateOf({})
-        val finalLongClick = {}
-        val initialLongClick = { onLongClick = finalLongClick }
-        // Simulate the long click causing a recomposition, and changing the lambda instance
-        onLongClick = initialLongClick
-
-        lateinit var scope: CoroutineScope
-
-        rule.mainClock.autoAdvance = false
-
-        rule.setContent {
-            scope = rememberCoroutineScope()
-            Box {
-                BasicText(
-                    "ClickableText",
-                    modifier = Modifier
-                        .testTag("myClickable")
-                        .combinedClickable(
-                            onLongClick = onLongClick,
-                            interactionSource = interactionSource,
-                            indication = null
-                        ) {}
-                )
-            }
-        }
-
-        val interactions = mutableListOf<Interaction>()
-
-        scope.launch {
-            interactionSource.interactions.collect { interactions.add(it) }
-        }
-
-        rule.runOnIdle {
-            assertThat(interactions).isEmpty()
-            assertThat(onLongClick).isEqualTo(initialLongClick)
-        }
-
-        rule.onNodeWithTag("myClickable")
-            .performTouchInput { down(center) }
-
-        // Simulate a long click
-        rule.mainClock.advanceTimeBy(1000)
-        // Run another frame to trigger recomposition caused by the long click
-        rule.mainClock.advanceTimeByFrame()
-
-        // We should have a press interaction, with no release, even though the lambda instance
-        // has changed
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(1)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-            assertThat(onLongClick).isEqualTo(finalLongClick)
-        }
-
-        rule.onNodeWithTag("myClickable")
-            .performTouchInput { up() }
-
-        // The up should now cause a release
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(2)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-            assertThat(interactions[1]).isInstanceOf(PressInteraction.Release::class.java)
-            assertThat((interactions[1] as PressInteraction.Release).press)
-                .isEqualTo(interactions[0])
-        }
-    }
-
-    /**
-     * Regression test for b/186223077
-     *
-     * Tests that if a long click causes the long click lambda to become null, we will emit
-     * [PressInteraction.Cancel].
-     */
-    @Test
-    @LargeTest
-    fun clickableTest_longClick_interactionSource_cancelsIfLongClickBecomesNull() {
-        val interactionSource = MutableInteractionSource()
-
-        var onLongClick: (() -> Unit)? by mutableStateOf(null)
-        val initialLongClick = { onLongClick = null }
-        // Simulate the long click causing a recomposition, and changing the lambda to be null
-        onLongClick = initialLongClick
-
-        lateinit var scope: CoroutineScope
-
-        rule.mainClock.autoAdvance = false
-
-        rule.setContent {
-            scope = rememberCoroutineScope()
-            Box {
-                BasicText(
-                    "ClickableText",
-                    modifier = Modifier
-                        .testTag("myClickable")
-                        .combinedClickable(
-                            onLongClick = onLongClick,
-                            interactionSource = interactionSource,
-                            indication = null
-                        ) {}
-                )
-            }
-        }
-
-        val interactions = mutableListOf<Interaction>()
-
-        scope.launch {
-            interactionSource.interactions.collect { interactions.add(it) }
-        }
-
-        rule.runOnIdle {
-            assertThat(interactions).isEmpty()
-            assertThat(onLongClick).isEqualTo(initialLongClick)
-        }
-
-        rule.onNodeWithTag("myClickable")
-            .performTouchInput { down(center) }
-
-        // Initial press
-        rule.mainClock.advanceTimeBy(100)
-
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(1)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-            assertThat(onLongClick).isEqualTo(initialLongClick)
-        }
-
-        // Long click
-        rule.mainClock.advanceTimeBy(1000)
-        // Run another frame to trigger recomposition caused by the long click
-        rule.mainClock.advanceTimeByFrame()
-
-        // The new onLongClick lambda should be null, and so we should cancel the existing press.
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(2)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-            assertThat(interactions[1]).isInstanceOf(PressInteraction.Cancel::class.java)
-            assertThat((interactions[1] as PressInteraction.Cancel).press)
-                .isEqualTo(interactions[0])
-            assertThat(onLongClick).isNull()
-        }
-    }
-
-    @Test
-    @LargeTest
-    fun clickableTest_click_withDoubleClick_andLongClick_disabled() {
-        val enabled = mutableStateOf(false)
-        var clickCounter = 0
-        var doubleClickCounter = 0
-        var longClickCounter = 0
-        val onClick: () -> Unit = { ++clickCounter }
-        val onDoubleClick: () -> Unit = { ++doubleClickCounter }
-        val onLongClick: () -> Unit = { ++longClickCounter }
-
-        rule.setContent {
-            Box {
-                BasicText(
-                    "ClickableText",
-                    modifier = Modifier
-                        .testTag("myClickable")
-                        .combinedClickable(
-                            enabled = enabled.value,
-                            onDoubleClick = onDoubleClick,
-                            onLongClick = onLongClick,
-                            onClick = onClick
-                        )
-                )
-            }
-        }
-
-        rule.onNodeWithTag("myClickable")
-            .performClick()
-
-        // Process gestures
-        rule.mainClock.advanceTimeBy(1000)
-
-        rule.runOnIdle {
-            assertThat(doubleClickCounter).isEqualTo(0)
-            assertThat(longClickCounter).isEqualTo(0)
-            assertThat(clickCounter).isEqualTo(0)
-        }
-
-        rule.onNodeWithTag("myClickable")
-            .performTouchInput {
-                doubleClick()
-            }
-
-        // Process gestures
-        rule.mainClock.advanceTimeBy(1000)
-
-        rule.runOnIdle {
-            assertThat(doubleClickCounter).isEqualTo(0)
-            assertThat(longClickCounter).isEqualTo(0)
-            assertThat(clickCounter).isEqualTo(0)
-        }
-
-        rule.onNodeWithTag("myClickable")
-            .performTouchInput {
-                longClick()
-            }
-
-        // Process gestures
-        rule.mainClock.advanceTimeBy(1000)
-
-        rule.runOnIdle {
-            assertThat(doubleClickCounter).isEqualTo(0)
-            assertThat(longClickCounter).isEqualTo(0)
-            assertThat(clickCounter).isEqualTo(0)
-            enabled.value = true
-        }
-
-        rule.onNodeWithTag("myClickable")
-            .performClick()
-
-        rule.mainClock.advanceTimeUntil { clickCounter == 1 }
-
-        rule.runOnIdle {
-            assertThat(doubleClickCounter).isEqualTo(0)
-            assertThat(longClickCounter).isEqualTo(0)
-            assertThat(clickCounter).isEqualTo(1)
-        }
-
-        rule.onNodeWithTag("myClickable")
-            .performTouchInput {
-                doubleClick()
-            }
-
-        rule.mainClock.advanceTimeUntil { doubleClickCounter == 1 }
-
-        rule.runOnIdle {
-            assertThat(doubleClickCounter).isEqualTo(1)
-            assertThat(longClickCounter).isEqualTo(0)
-            assertThat(clickCounter).isEqualTo(1)
-        }
-
-        rule.onNodeWithTag("myClickable")
-            .performTouchInput {
-                longClick()
-            }
-
-        rule.mainClock.advanceTimeUntil { longClickCounter == 1 }
-
-        rule.runOnIdle {
-            assertThat(doubleClickCounter).isEqualTo(1)
-            assertThat(longClickCounter).isEqualTo(1)
-            assertThat(clickCounter).isEqualTo(1)
-        }
-    }
-
-    @Test
-    @LargeTest
-    fun combinedClickableTest_clicks_consumedWhenDisabled() {
-        val enabled = mutableStateOf(false)
-        var clickCounter = 0
-        var doubleClickCounter = 0
-        var longClickCounter = 0
-        val onClick: () -> Unit = { ++clickCounter }
-        val onDoubleClick: () -> Unit = { ++doubleClickCounter }
-        val onLongClick: () -> Unit = { ++longClickCounter }
-        var outerClickCounter = 0
-        var outerDoubleClickCounter = 0
-        var outerLongClickCounter = 0
-        val outerOnClick: () -> Unit = { ++outerClickCounter }
-        val outerOnDoubleClick: () -> Unit = { ++outerDoubleClickCounter }
-        val outerOnLongClick: () -> Unit = { ++outerLongClickCounter }
-
-        rule.setContent {
-            Box(
-                Modifier.combinedClickable(
-                    onDoubleClick = outerOnDoubleClick,
-                    onLongClick = outerOnLongClick,
-                    onClick = outerOnClick
-                )
-            ) {
-                BasicText(
-                    "ClickableText",
-                    modifier = Modifier
-                        .testTag("myClickable")
-                        .combinedClickable(
-                            enabled = enabled.value,
-                            onDoubleClick = onDoubleClick,
-                            onLongClick = onLongClick,
-                            onClick = onClick
-                        )
-                )
-            }
-        }
-
-        rule.onNodeWithTag("myClickable")
-            .performClick()
-
-        // Process gestures
-        rule.mainClock.advanceTimeBy(1000)
-
-        rule.runOnIdle {
-            assertThat(doubleClickCounter).isEqualTo(0)
-            assertThat(longClickCounter).isEqualTo(0)
-            assertThat(clickCounter).isEqualTo(0)
-            assertThat(outerDoubleClickCounter).isEqualTo(0)
-            assertThat(outerLongClickCounter).isEqualTo(0)
-            assertThat(outerClickCounter).isEqualTo(0)
-        }
-
-        rule.onNodeWithTag("myClickable")
-            .performTouchInput {
-                doubleClick()
-            }
-
-        // Process gestures
-        rule.mainClock.advanceTimeBy(1000)
-
-        rule.runOnIdle {
-            assertThat(doubleClickCounter).isEqualTo(0)
-            assertThat(longClickCounter).isEqualTo(0)
-            assertThat(clickCounter).isEqualTo(0)
-            assertThat(outerDoubleClickCounter).isEqualTo(0)
-            assertThat(outerLongClickCounter).isEqualTo(0)
-            assertThat(outerClickCounter).isEqualTo(0)
-        }
-
-        rule.onNodeWithTag("myClickable")
-            .performTouchInput {
-                longClick()
-            }
-
-        // Process gestures
-        rule.mainClock.advanceTimeBy(1000)
-
-        rule.runOnIdle {
-            assertThat(doubleClickCounter).isEqualTo(0)
-            assertThat(longClickCounter).isEqualTo(0)
-            assertThat(clickCounter).isEqualTo(0)
-            assertThat(outerDoubleClickCounter).isEqualTo(0)
-            assertThat(outerLongClickCounter).isEqualTo(0)
-            assertThat(outerClickCounter).isEqualTo(0)
-            enabled.value = true
-        }
-
-        rule.onNodeWithTag("myClickable")
-            .performClick()
-
-        rule.mainClock.advanceTimeUntil { clickCounter == 1 }
-
-        rule.runOnIdle {
-            assertThat(doubleClickCounter).isEqualTo(0)
-            assertThat(longClickCounter).isEqualTo(0)
-            assertThat(clickCounter).isEqualTo(1)
-            assertThat(outerDoubleClickCounter).isEqualTo(0)
-            assertThat(outerLongClickCounter).isEqualTo(0)
-            assertThat(outerClickCounter).isEqualTo(0)
-        }
-
-        rule.onNodeWithTag("myClickable")
-            .performTouchInput {
-                doubleClick()
-            }
-
-        rule.mainClock.advanceTimeUntil { doubleClickCounter == 1 }
-
-        rule.runOnIdle {
-            assertThat(doubleClickCounter).isEqualTo(1)
-            assertThat(longClickCounter).isEqualTo(0)
-            assertThat(clickCounter).isEqualTo(1)
-            assertThat(outerDoubleClickCounter).isEqualTo(0)
-            assertThat(outerLongClickCounter).isEqualTo(0)
-            assertThat(outerClickCounter).isEqualTo(0)
-        }
-
-        rule.onNodeWithTag("myClickable")
-            .performTouchInput {
-                longClick()
-            }
-
-        rule.mainClock.advanceTimeUntil { longClickCounter == 1 }
-
-        rule.runOnIdle {
-            assertThat(doubleClickCounter).isEqualTo(1)
-            assertThat(longClickCounter).isEqualTo(1)
-            assertThat(clickCounter).isEqualTo(1)
-            assertThat(outerDoubleClickCounter).isEqualTo(0)
-            assertThat(outerLongClickCounter).isEqualTo(0)
-            assertThat(outerClickCounter).isEqualTo(0)
-        }
-    }
-
-    @Test
-    @LargeTest
-    fun clickableTest_click_consumedWhenDisabled() {
+    fun click_consumedWhenDisabled() {
         val enabled = mutableStateOf(false)
         var clickCounter = 0
         var outerCounter = 0
@@ -1787,43 +1148,37 @@ class ClickableTest {
     }
 
     @Test
-    fun clickable_testInspectorValue_noIndicationOverload() {
+    fun testInspectorValue_noIndicationOverload() {
         val onClick: () -> Unit = { }
         rule.setContent {
-            val modifier = Modifier.combinedClickable(onClick = onClick) as InspectableValue
-            assertThat(modifier.nameFallback).isEqualTo("combinedClickable")
+            val modifier = Modifier.clickable(onClick = onClick) as InspectableValue
+            assertThat(modifier.nameFallback).isEqualTo("clickable")
             assertThat(modifier.valueOverride).isNull()
             assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
                 "enabled",
                 "onClickLabel",
                 "role",
-                "onClick",
-                "onDoubleClick",
-                "onLongClick",
-                "onLongClickLabel"
+                "onClick"
             )
         }
     }
 
     @Test
-    fun clickable_testInspectorValue_fullParamsOverload() {
+    fun testInspectorValue_fullParamsOverload() {
         val onClick: () -> Unit = { }
         rule.setContent {
-            val modifier = Modifier.combinedClickable(
+            val modifier = Modifier.clickable(
                 onClick = onClick,
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) as InspectableValue
-            assertThat(modifier.nameFallback).isEqualTo("combinedClickable")
+            assertThat(modifier.nameFallback).isEqualTo("clickable")
             assertThat(modifier.valueOverride).isNull()
             assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
                 "enabled",
                 "onClickLabel",
                 "onClick",
                 "role",
-                "onDoubleClick",
-                "onLongClick",
-                "onLongClickLabel",
                 "indication",
                 "interactionSource"
             )
@@ -1941,18 +1296,14 @@ class ClickableTest {
 
     @Test
     @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
-    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
-    fun clickableTest_enterKey_emitsIndication() {
-        if (Build.VERSION.SDK_INT == 33 && Build.VERSION.CODENAME != "REL") {
-            return // b/262909049: Do not run this test on pre-release Android U.
-        }
-
-        InstrumentationRegistry.getInstrumentation().setInTouchMode(false)
+    fun enterKey_emitsIndication() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
         lateinit var scope: CoroutineScope
+        lateinit var inputModeManager: InputModeManager
         rule.setContent {
             scope = rememberCoroutineScope()
+            inputModeManager = LocalInputModeManager.current
             Box(Modifier.padding(10.dp)) {
                 BasicText("ClickableText",
                     modifier = Modifier
@@ -1965,8 +1316,10 @@ class ClickableTest {
                 )
             }
         }
-
-        rule.runOnIdle { focusRequester.requestFocus() }
+        rule.runOnIdle {
+            inputModeManager.requestInputMode(Keyboard)
+            focusRequester.requestFocus()
+        }
 
         val interactions = mutableListOf<Interaction>()
         scope.launch {
@@ -1991,18 +1344,14 @@ class ClickableTest {
 
     @Test
     @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
-    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
-    fun clickableTest_numPadEnterKey_emitsIndication() {
-        if (Build.VERSION.SDK_INT == 33 && Build.VERSION.CODENAME != "REL") {
-            return // b/262909049: Do not run this test on pre-release Android U.
-        }
-
-        InstrumentationRegistry.getInstrumentation().setInTouchMode(false)
+    fun numPadEnterKey_emitsIndication() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
         lateinit var scope: CoroutineScope
+        lateinit var inputModeManager: InputModeManager
         rule.setContent {
             scope = rememberCoroutineScope()
+            inputModeManager = LocalInputModeManager.current
             Box(Modifier.padding(10.dp)) {
                 BasicText("ClickableText",
                     modifier = Modifier
@@ -2015,8 +1364,10 @@ class ClickableTest {
                 )
             }
         }
-
-        rule.runOnIdle { focusRequester.requestFocus() }
+        rule.runOnIdle {
+            inputModeManager.requestInputMode(Keyboard)
+            focusRequester.requestFocus()
+        }
 
         val interactions = mutableListOf<Interaction>()
         scope.launch {
@@ -2041,18 +1392,14 @@ class ClickableTest {
 
     @Test
     @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
-    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
-    fun clickableTest_dpadCenter_emitsIndication() {
-        if (Build.VERSION.SDK_INT == 33 && Build.VERSION.CODENAME != "REL") {
-            return // b/262909049: Do not run this test on pre-release Android U.
-        }
-
-        InstrumentationRegistry.getInstrumentation().setInTouchMode(false)
+    fun dpadCenter_emitsIndication() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
         lateinit var scope: CoroutineScope
+        lateinit var inputModeManager: InputModeManager
         rule.setContent {
             scope = rememberCoroutineScope()
+            inputModeManager = LocalInputModeManager.current
             Box(Modifier.padding(10.dp)) {
                 BasicText("ClickableText",
                     modifier = Modifier
@@ -2065,8 +1412,10 @@ class ClickableTest {
                 )
             }
         }
-
-        rule.runOnIdle { focusRequester.requestFocus() }
+        rule.runOnIdle {
+            inputModeManager.requestInputMode(Keyboard)
+            focusRequester.requestFocus()
+        }
         rule.waitForIdle()
 
         val interactions = mutableListOf<Interaction>()
@@ -2092,13 +1441,14 @@ class ClickableTest {
 
     @Test
     @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
-    fun clickableTest_otherKey_doesNotEmitIndication() {
-        InstrumentationRegistry.getInstrumentation().setInTouchMode(false)
+    fun otherKey_doesNotEmitIndication() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
         lateinit var scope: CoroutineScope
+        lateinit var inputModeManager: InputModeManager
         rule.setContent {
             scope = rememberCoroutineScope()
+            inputModeManager = LocalInputModeManager.current
             Box(Modifier.padding(10.dp)) {
                 BasicText("ClickableText",
                     modifier = Modifier
@@ -2111,8 +1461,10 @@ class ClickableTest {
                 )
             }
         }
-
-        rule.runOnIdle { focusRequester.requestFocus() }
+        rule.runOnIdle {
+            inputModeManager.requestInputMode(Keyboard)
+            focusRequester.requestFocus()
+        }
 
         val interactions = mutableListOf<Interaction>()
         scope.launch {
@@ -2127,18 +1479,14 @@ class ClickableTest {
 
     @Test
     @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
-    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
-    fun clickableTest_doubleEnterKey_emitsFurtherInteractions() {
-        if (Build.VERSION.SDK_INT == 33 && Build.VERSION.CODENAME != "REL") {
-            return // b/262909049: Do not run this test on pre-release Android U.
-        }
-
-        InstrumentationRegistry.getInstrumentation().setInTouchMode(false)
+    fun doubleEnterKey_emitsFurtherInteractions() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
         lateinit var scope: CoroutineScope
+        lateinit var inputModeManager: InputModeManager
         rule.setContent {
             scope = rememberCoroutineScope()
+            inputModeManager = LocalInputModeManager.current
             Box(Modifier.padding(10.dp)) {
                 BasicText("ClickableText",
                     modifier = Modifier
@@ -2151,8 +1499,10 @@ class ClickableTest {
                 )
             }
         }
-
-        rule.runOnIdle { focusRequester.requestFocus() }
+        rule.runOnIdle {
+            inputModeManager.requestInputMode(Keyboard)
+            focusRequester.requestFocus()
+        }
 
         val interactions = mutableListOf<Interaction>()
         scope.launch {
@@ -2191,19 +1541,15 @@ class ClickableTest {
 
     @Test
     @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
-    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
-    fun clickableTest_repeatKeyEvents_doNotEmitFurtherInteractions() {
-        if (Build.VERSION.SDK_INT == 33 && Build.VERSION.CODENAME != "REL") {
-            return // b/262909049: Do not run this test on pre-release Android U.
-        }
-
-        InstrumentationRegistry.getInstrumentation().setInTouchMode(false)
+    fun repeatKeyEvents_doNotEmitFurtherInteractions() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
         lateinit var scope: CoroutineScope
+        lateinit var inputModeManager: InputModeManager
         var repeatCounter = 0
         rule.setContent {
             scope = rememberCoroutineScope()
+            inputModeManager = LocalInputModeManager.current
             Box(Modifier.padding(10.dp)) {
                 BasicText("ClickableText",
                     modifier = Modifier
@@ -2221,8 +1567,10 @@ class ClickableTest {
                 )
             }
         }
-
-        rule.runOnIdle { focusRequester.requestFocus() }
+        rule.runOnIdle {
+            inputModeManager.requestInputMode(Keyboard)
+            focusRequester.requestFocus()
+        }
 
         val interactions = mutableListOf<Interaction>()
         scope.launch {
@@ -2254,20 +1602,15 @@ class ClickableTest {
 
     @Test
     @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
-    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
-    fun clickableTest_interruptedClick_emitsCancelIndication() {
-        if (Build.VERSION.SDK_INT == 33 && Build.VERSION.CODENAME != "REL") {
-            return // b/262909049: Do not run this test on pre-release Android U.
-        }
-
-        InstrumentationRegistry.getInstrumentation().setInTouchMode(false)
+    fun interruptedClick_emitsCancelIndication() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
         val enabled = mutableStateOf(true)
         lateinit var scope: CoroutineScope
-
+        lateinit var inputModeManager: InputModeManager
         rule.setContent {
             scope = rememberCoroutineScope()
+            inputModeManager = LocalInputModeManager.current
             Box(Modifier.padding(10.dp)) {
                 BasicText("ClickableText",
                     modifier = Modifier
@@ -2281,8 +1624,10 @@ class ClickableTest {
                 )
             }
         }
-
-        rule.runOnIdle { focusRequester.requestFocus() }
+        rule.runOnIdle {
+            inputModeManager.requestInputMode(Keyboard)
+            focusRequester.requestFocus()
+        }
 
         val interactions = mutableListOf<Interaction>()
         scope.launch {

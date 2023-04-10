@@ -890,7 +890,7 @@ public class WearableDrawerLayout extends FrameLayout
 
     @Override // NestedScrollingParent
     public boolean onStartNestedScroll(@NonNull View child, @NonNull View target,
-            int nestedScrollAxes) {
+            int axes) {
         mCurrentNestedScrollSlopTracker = 0;
         return true;
     }

@@ -40,7 +40,6 @@ import java.lang.annotation.RetentionPolicy;
 public abstract class VolumeProviderCompat {
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX) // used by mediarouter
     @IntDef({VOLUME_CONTROL_FIXED, VOLUME_CONTROL_RELATIVE, VOLUME_CONTROL_ABSOLUTE})
@@ -96,7 +95,6 @@ public abstract class VolumeProviderCompat {
      * @param maxVolume The maximum allowed volume.
      * @param currentVolume The current volume.
      * @param volumeControlId The volume control ID of this provider.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public VolumeProviderCompat(@ControlType int volumeControl, int maxVolume, int currentVolume,
@@ -157,7 +155,6 @@ public abstract class VolumeProviderCompat {
      * used by the session.
      *
      * @return the volume control ID or {@code null} if it isn't set.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Nullable

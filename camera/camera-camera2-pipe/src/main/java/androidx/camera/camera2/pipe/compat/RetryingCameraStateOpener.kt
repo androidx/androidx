@@ -25,7 +25,6 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
-import androidx.camera.camera2.pipe.GraphState.GraphStateError
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.DurationNs
 import androidx.camera.camera2.pipe.core.Log
@@ -35,7 +34,7 @@ import androidx.camera.camera2.pipe.core.TimeSource
 import androidx.camera.camera2.pipe.core.TimestampNs
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
-import androidx.camera.camera2.pipe.graph.GraphListener
+import androidx.camera.camera2.pipe.internal.CameraErrorListener
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.coroutines.resume
@@ -73,7 +72,8 @@ constructor(private val cameraManager: Provider<CameraManager>, private val thre
         Debug.trace("CameraDevice-${cameraId.value}#openCamera") {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 Api28Compat.openCamera(
-                    instance, cameraId.value, threads.camera2Executor, stateCallback)
+                    instance, cameraId.value, threads.camera2Executor, stateCallback
+                )
             } else {
                 instance.openCamera(cameraId.value, stateCallback, threads.camera2Handler)
             }
@@ -116,7 +116,8 @@ constructor(private val cameraManager: Provider<CameraManager>, private val thre
             val manager = cameraManager.get()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 Api28Compat.registerAvailabilityCallback(
-                    manager, threads.camera2Executor, availabilityCallback)
+                    manager, threads.camera2Executor, availabilityCallback
+                )
             } else {
                 manager.registerAvailabilityCallback(availabilityCallback, threads.camera2Handler)
             }
@@ -149,6 +150,8 @@ internal class CameraStateOpener
 constructor(
     private val cameraOpener: CameraOpener,
     private val camera2MetadataProvider: Camera2MetadataProvider,
+    private val cameraErrorListener: CameraErrorListener,
+    private val camera2DeviceCloser: Camera2DeviceCloser,
     private val timeSource: TimeSource,
     private val cameraInteropConfig: CameraPipe.CameraInteropConfig?
 ) {
@@ -165,8 +168,11 @@ constructor(
                 attempts,
                 requestTimestamp,
                 timeSource,
+                cameraErrorListener,
+                camera2DeviceCloser,
                 cameraInteropConfig?.cameraDeviceStateCallback,
-                cameraInteropConfig?.cameraSessionStateCallback)
+                cameraInteropConfig?.cameraSessionStateCallback
+            )
 
         try {
             cameraOpener.openCamera(cameraId, cameraState)
@@ -179,10 +185,12 @@ constructor(
                     cameraState.close()
                     return OpenCameraResult(errorCode = result.cameraErrorCode)
                 }
+
                 is CameraStateClosed -> {
                     cameraState.close()
                     return OpenCameraResult(errorCode = result.cameraErrorCode)
                 }
+
                 is CameraStateUnopened -> {
                     cameraState.close()
                     throw IllegalStateException("Unexpected CameraState: $result")
@@ -201,13 +209,13 @@ internal class RetryingCameraStateOpener
 @Inject
 constructor(
     private val cameraStateOpener: CameraStateOpener,
+    private val cameraErrorListener: CameraErrorListener,
     private val cameraAvailabilityMonitor: CameraAvailabilityMonitor,
     private val timeSource: TimeSource,
     private val devicePolicyManager: DevicePolicyManagerWrapper
 ) {
     internal suspend fun openCameraWithRetry(
         cameraId: CameraId,
-        graphListener: GraphListener
     ): OpenCameraResult {
         val requestTimestamp = Timestamps.now(timeSource)
         var attempts = 0
@@ -215,7 +223,12 @@ constructor(
         while (true) {
             attempts++
 
-            val result = cameraStateOpener.tryOpenCamera(cameraId, attempts, requestTimestamp)
+            val result =
+                cameraStateOpener.tryOpenCamera(
+                    cameraId,
+                    attempts,
+                    requestTimestamp,
+                )
             with(result) {
                 if (cameraState != null) {
                     return result
@@ -239,12 +252,13 @@ constructor(
                         attempts,
                         requestTimestamp,
                         timeSource,
-                        devicePolicyManager.camerasDisabled)
+                        devicePolicyManager.camerasDisabled
+                    )
                 // Always notify if the decision is to not retry the camera open, otherwise allow
                 // 1 open call to happen silently without generating an error, and notify about each
                 // error after that point.
                 if (!willRetry || attempts > 1) {
-                    graphListener.onGraphError(GraphStateError(errorCode, willRetry))
+                    cameraErrorListener.onCameraError(cameraId, errorCode, willRetry)
                 }
                 if (!willRetry) {
                     Log.error {
@@ -294,6 +308,7 @@ constructor(
                     } else {
                         true
                     }
+
                 CameraError.ERROR_CAMERA_LIMIT_EXCEEDED -> true
                 CameraError.ERROR_CAMERA_DISABLED ->
                     // The error indicates indicates that the current camera is currently disabled,
@@ -314,11 +329,21 @@ constructor(
                     } else {
                         true
                     }
+
                 CameraError.ERROR_CAMERA_DEVICE -> true
                 CameraError.ERROR_CAMERA_SERVICE -> true
                 CameraError.ERROR_CAMERA_DISCONNECTED -> true
                 CameraError.ERROR_ILLEGAL_ARGUMENT_EXCEPTION -> true
                 CameraError.ERROR_SECURITY_EXCEPTION -> attempts <= 1
+                CameraError.ERROR_DO_NOT_DISTURB_ENABLED ->
+                    // The error indicates that a RuntimeException was encountered when opening the
+                    // camera while Do Not Disturb mode is on. This can happen on legacy devices on
+                    // API level 28 [1]. Retries will always fail and should not be attempted.
+                    //
+                    // [1] b/149413835 - Crash during CameraX initialization when Do Not Disturb
+                    //                   is on.
+                    false
+
                 else -> {
                     Log.error { "Unexpected CameraError: $this" }
                     false

@@ -35,23 +35,24 @@ import androidx.work.WorkInfo
 import androidx.work.WorkerParameters
 import androidx.work.impl.Processor
 import androidx.work.impl.Scheduler
-import androidx.work.impl.WorkDatabase
-import androidx.work.impl.model.WorkGenerationalId
-import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.StartStopToken
+import androidx.work.impl.WorkDatabase
+import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.constraints.WorkConstraintsCallback
 import androidx.work.impl.constraints.WorkConstraintsTracker
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createCancelWorkIntent
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createNotifyIntent
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createStartForegroundIntent
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createStopForegroundIntent
-import androidx.work.impl.utils.StopWorkRunnable
+import androidx.work.impl.model.WorkGenerationalId
+import androidx.work.impl.schedulers
 import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.worker.TestWorker
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.UUID
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
@@ -59,14 +60,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.eq
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.reset
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyZeroInteractions
-import java.util.UUID
+import org.mockito.Mockito.`when`
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
@@ -92,16 +92,17 @@ class SystemForegroundDispatcherTest {
             .build()
         taskExecutor = InstantWorkTaskExecutor()
         val scheduler = mock(Scheduler::class.java)
-        workDatabase = WorkDatabase.create(context, taskExecutor.serialTaskExecutor, true)
+        workDatabase = WorkDatabase.create(
+            context, taskExecutor.serialTaskExecutor, config.clock, true)
         processor = spy(Processor(context, config, taskExecutor, workDatabase))
         workManager = spy(
             WorkManagerImpl(
-                context,
-                config,
-                taskExecutor,
-                workDatabase,
-                listOf(scheduler),
-                processor
+                context = context,
+                configuration = config,
+                workTaskExecutor = taskExecutor,
+                workDatabase = workDatabase,
+                processor = processor,
+                schedulersCreator = schedulers(scheduler),
             )
         )
         workDatabase = workManager.workDatabase
@@ -303,6 +304,43 @@ class SystemForegroundDispatcherTest {
     }
 
     @Test
+    fun testRestartFromEmpty() {
+        val firstWorkSpecId = WorkGenerationalId("first", 0)
+        val firstId = 1
+        val notification = mock(Notification::class.java)
+        val firstInfo = ForegroundInfo(firstId, notification)
+        val firstIntent = createNotifyIntent(context, firstWorkSpecId, firstInfo)
+
+        val secondWorkSpecId = WorkGenerationalId("second", 0)
+        val secondId = 2
+        val secondInfo = ForegroundInfo(secondId, notification)
+        val secondIntent = createNotifyIntent(context, secondWorkSpecId, secondInfo)
+
+        dispatcher.onStartCommand(firstIntent)
+        assertThat(dispatcher.mCurrentForegroundId, `is`(firstWorkSpecId))
+        verify(dispatcherCallback, times(1))
+            .startForeground(eq(firstId), eq(0), any<Notification>())
+
+        dispatcher.onExecuted(firstWorkSpecId, false)
+
+        verify(dispatcherCallback, times(1))
+            .cancelNotification(firstId)
+
+        assertThat(dispatcher.mForegroundInfoById.count(), `is`(0))
+        reset(dispatcherCallback)
+
+        dispatcher.onStartCommand(secondIntent)
+        assertThat(dispatcher.mCurrentForegroundId, `is`(secondWorkSpecId))
+        verify(dispatcherCallback, times(1))
+            .startForeground(eq(secondId), eq(0), any<Notification>())
+
+        dispatcher.onExecuted(secondWorkSpecId, false)
+        verify(dispatcherCallback, times(1))
+            .cancelNotification(secondId)
+        assertThat(dispatcher.mForegroundInfoById.count(), `is`(0))
+    }
+
+    @Test
     @SdkSuppress(minSdkVersion = 29)
     fun testUpdateNotificationWithDifferentForegroundServiceType() {
         val firstWorkSpecId = WorkGenerationalId("first", 0)
@@ -397,10 +435,7 @@ class SystemForegroundDispatcherTest {
         val intent = createStartForegroundIntent(context,
             WorkGenerationalId(request.stringId, 0), metadata)
         dispatcher.onStartCommand(intent)
-        val stopWorkRunnable = StopWorkRunnable(
-            workManager, StartStopToken(WorkGenerationalId(request.stringId, 0)), false
-        )
-        stopWorkRunnable.run()
+        processor.stopWork(StartStopToken(WorkGenerationalId(request.stringId, 0)))
         val state = workDatabase.workSpecDao().getState(request.stringId)
         assertThat(state, `is`(WorkInfo.State.RUNNING))
         val stopAndCancelIntent = createCancelWorkIntent(context, request.stringId)

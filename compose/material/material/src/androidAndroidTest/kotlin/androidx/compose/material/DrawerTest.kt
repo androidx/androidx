@@ -20,10 +20,14 @@ import android.os.SystemClock.sleep
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -44,8 +48,8 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onParent
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
@@ -57,8 +61,9 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.junit.Ignore
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -85,7 +90,11 @@ class DrawerTest {
             ModalDrawer(
                 drawerState = drawerState,
                 drawerContent = {
-                    Box(Modifier.fillMaxSize().testTag("content"))
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag("content")
+                    )
                 },
                 content = {}
             )
@@ -102,7 +111,11 @@ class DrawerTest {
             ModalDrawer(
                 drawerState = drawerState,
                 drawerContent = {
-                    Box(Modifier.fillMaxSize().testTag("content"))
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag("content")
+                    )
                 },
                 content = {}
             )
@@ -120,7 +133,11 @@ class DrawerTest {
             ModalDrawer(
                 drawerState = drawerState,
                 drawerContent = {
-                    Box(Modifier.fillMaxSize().testTag("content"))
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag("content")
+                    )
                 },
                 content = {}
             )
@@ -138,9 +155,13 @@ class DrawerTest {
             BottomDrawer(
                 drawerState = drawerState,
                 drawerContent = {
-                    Box(Modifier.fillMaxSize().testTag(bottomDrawerTag))
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(bottomDrawerTag)
+                    )
                 },
-                content = {}
+                content = { }
             )
         }
 
@@ -152,12 +173,17 @@ class DrawerTest {
     @OptIn(ExperimentalMaterialApi::class)
     @Test
     fun bottomDrawer_testOffset_shortDrawer_whenExpanded() {
+        lateinit var drawerState: BottomDrawerState
         rule.setMaterialContent {
-            val drawerState = rememberBottomDrawerState(BottomDrawerValue.Expanded)
+            drawerState = rememberBottomDrawerState(BottomDrawerValue.Expanded)
             BottomDrawer(
                 drawerState = drawerState,
                 drawerContent = {
-                    Box(Modifier.height(shortBottomDrawerHeight).testTag(bottomDrawerTag))
+                    Box(
+                        Modifier
+                            .height(shortBottomDrawerHeight)
+                            .testTag(bottomDrawerTag)
+                    )
                 },
                 content = {}
             )
@@ -177,7 +203,11 @@ class DrawerTest {
             BottomDrawer(
                 drawerState = drawerState,
                 drawerContent = {
-                    Box(Modifier.fillMaxSize().testTag(bottomDrawerTag))
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(bottomDrawerTag)
+                    )
                 },
                 content = {}
             )
@@ -191,14 +221,17 @@ class DrawerTest {
 
     @OptIn(ExperimentalMaterialApi::class)
     @Test
-    @Ignore // Disabled until b/178529942 is fixed
     fun bottomDrawer_testOffset_tallDrawer_whenOpen() {
         rule.setMaterialContent {
             val drawerState = rememberBottomDrawerState(BottomDrawerValue.Open)
             BottomDrawer(
                 drawerState = drawerState,
                 drawerContent = {
-                    Box(Modifier.fillMaxSize().testTag(bottomDrawerTag))
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(bottomDrawerTag)
+                    )
                 },
                 content = {}
             )
@@ -219,7 +252,11 @@ class DrawerTest {
             BottomDrawer(
                 drawerState = drawerState,
                 drawerContent = {
-                    Box(Modifier.fillMaxSize().testTag(bottomDrawerTag))
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(bottomDrawerTag)
+                    )
                 },
                 content = {}
             )
@@ -239,7 +276,11 @@ class DrawerTest {
             BottomDrawer(
                 drawerState = rememberBottomDrawerState(BottomDrawerValue.Open),
                 drawerContent = {
-                    Box(Modifier.fillMaxSize().testTag(bottomDrawerTag))
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(bottomDrawerTag)
+                    )
                 },
                 content = {}
             )
@@ -259,7 +300,11 @@ class DrawerTest {
             ModalDrawer(
                 drawerState = rememberDrawerState(DrawerValue.Open),
                 drawerContent = {
-                    Box(Modifier.fillMaxSize().testTag("modalDrawerTag"))
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag("modalDrawerTag")
+                    )
                 },
                 content = {}
             )
@@ -280,7 +325,11 @@ class DrawerTest {
             ModalDrawer(
                 drawerState = drawerState,
                 drawerContent = {
-                    Box(Modifier.fillMaxSize().testTag("drawer"))
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag("drawer")
+                    )
                 },
                 content = {}
             )
@@ -311,7 +360,11 @@ class DrawerTest {
             ModalDrawer(
                 drawerState = drawerState,
                 drawerContent = {
-                    Box(Modifier.fillMaxSize().testTag("drawer"))
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag("drawer")
+                    )
                 },
                 content = {}
             )
@@ -342,7 +395,11 @@ class DrawerTest {
             ModalDrawer(
                 drawerState = drawerState,
                 drawerContent = {
-                    Box(Modifier.fillMaxSize().testTag("drawer"))
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag("drawer")
+                    )
                 },
                 content = {}
             )
@@ -373,7 +430,11 @@ class DrawerTest {
             ModalDrawer(
                 drawerState = drawerState,
                 drawerContent = {
-                    Box(Modifier.fillMaxSize().testTag("drawer"))
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag("drawer")
+                    )
                 },
                 content = {}
             )
@@ -405,10 +466,17 @@ class DrawerTest {
             ModalDrawer(
                 drawerState = drawerState,
                 drawerContent = {
-                    Box(Modifier.fillMaxSize().clickable { drawerClicks += 1 })
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .clickable { drawerClicks += 1 })
                 },
                 content = {
-                    Box(Modifier.testTag("Drawer").fillMaxSize().clickable { bodyClicks += 1 })
+                    Box(
+                        Modifier
+                            .testTag("Drawer")
+                            .fillMaxSize()
+                            .clickable { bodyClicks += 1 })
                 }
             )
         }
@@ -445,10 +513,17 @@ class DrawerTest {
             ModalDrawer(
                 drawerState = drawerState,
                 drawerContent = {
-                    Box(Modifier.fillMaxSize().testTag("Drawer"))
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag("Drawer")
+                    )
                 },
                 content = {
-                    Box(Modifier.fillMaxSize().clickable { bodyClicks += 1 })
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .clickable { bodyClicks += 1 })
                 }
             )
         }
@@ -481,10 +556,18 @@ class DrawerTest {
                 ModalDrawer(
                     drawerState = drawerState,
                     drawerContent = {
-                        Box(Modifier.fillMaxSize().background(color = Color.Magenta))
+                        Box(
+                            Modifier
+                                .fillMaxSize()
+                                .background(color = Color.Magenta)
+                        )
                     },
                     content = {
-                        Box(Modifier.fillMaxSize().background(color = Color.Red))
+                        Box(
+                            Modifier
+                                .fillMaxSize()
+                                .background(color = Color.Red)
+                        )
                     }
                 )
             }
@@ -521,13 +604,18 @@ class DrawerTest {
                     drawerState = drawerState,
                     drawerContent = {
                         Box(
-                            Modifier.fillMaxSize()
+                            Modifier
+                                .fillMaxSize()
                                 .testTag("content")
                                 .background(color = Color.Magenta)
                         )
                     },
                     content = {
-                        Box(Modifier.fillMaxSize().background(color = Color.Red))
+                        Box(
+                            Modifier
+                                .fillMaxSize()
+                                .background(color = Color.Red)
+                        )
                     }
                 )
             }
@@ -562,10 +650,18 @@ class DrawerTest {
                     ModalDrawer(
                         drawerState = drawerState,
                         drawerContent = {
-                            Box(Modifier.fillMaxSize().background(color = Color.Magenta))
+                            Box(
+                                Modifier
+                                    .fillMaxSize()
+                                    .background(color = Color.Magenta)
+                            )
                         },
                         content = {
-                            Box(Modifier.fillMaxSize().background(color = Color.Red))
+                            Box(
+                                Modifier
+                                    .fillMaxSize()
+                                    .background(color = Color.Red)
+                            )
                         }
                     )
                 }
@@ -598,7 +694,11 @@ class DrawerTest {
             ModalDrawer(
                 drawerState = drawerState,
                 drawerContent = {
-                    Box(Modifier.fillMaxSize().testTag("drawer"))
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag("drawer")
+                    )
                 },
                 content = {}
             )
@@ -638,7 +738,10 @@ class DrawerTest {
             BottomDrawer(
                 drawerState = drawerState,
                 drawerContent = {
-                    Box(Modifier.fillMaxSize().clickable { drawerClicks += 1 })
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .clickable { drawerClicks += 1 })
                 },
                 content = {
                     Box(
@@ -684,10 +787,17 @@ class DrawerTest {
             BottomDrawer(
                 drawerState = drawerState,
                 drawerContent = {
-                    Box(Modifier.fillMaxSize().testTag(bottomDrawerTag))
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(bottomDrawerTag)
+                    )
                 },
                 content = {
-                    Box(Modifier.fillMaxSize().clickable { bodyClicks += 1 })
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .clickable { bodyClicks += 1 })
                 }
             )
         }
@@ -732,10 +842,18 @@ class DrawerTest {
                 drawerState = drawerState,
                 drawerContent = {
                     Box(
-                        Modifier.height(shortBottomDrawerHeight).testTag(bottomDrawerTag)
+                        Modifier
+                            .height(shortBottomDrawerHeight)
+                            .testTag(bottomDrawerTag)
                     )
                 },
-                content = { Box(Modifier.fillMaxSize().testTag(contentTag)) }
+                content = {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(contentTag)
+                    )
+                }
             )
         }
 
@@ -774,10 +892,18 @@ class DrawerTest {
                 scrimColor = scrimColor.value,
                 drawerState = rememberBottomDrawerState(BottomDrawerValue.Open),
                 drawerContent = {
-                    Box(Modifier.height(shortBottomDrawerHeight).testTag(bottomDrawerTag))
+                    Box(
+                        Modifier
+                            .height(shortBottomDrawerHeight)
+                            .testTag(bottomDrawerTag)
+                    )
                 },
                 content = {
-                    Box(Modifier.fillMaxSize().testTag("body"))
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag("body")
+                    )
                 }
             )
             closeDrawer = getString(Strings.CloseDrawer)
@@ -816,10 +942,18 @@ class DrawerTest {
                 drawerState = rememberBottomDrawerState(BottomDrawerValue.Open),
                 gesturesEnabled = false,
                 drawerContent = {
-                    Box(Modifier.height(shortBottomDrawerHeight).testTag(bottomDrawerTag))
+                    Box(
+                        Modifier
+                            .height(shortBottomDrawerHeight)
+                            .testTag(bottomDrawerTag)
+                    )
                 },
                 content = {
-                    Box(Modifier.fillMaxSize().testTag("body"))
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag("body")
+                    )
                 }
             )
         }
@@ -855,10 +989,18 @@ class DrawerTest {
                 drawerState = drawerState,
                 drawerContent = {
                     Box(
-                        Modifier.height(shortBottomDrawerHeight).testTag(bottomDrawerTag)
+                        Modifier
+                            .height(shortBottomDrawerHeight)
+                            .testTag(bottomDrawerTag)
                     )
                 },
-                content = { Box(Modifier.fillMaxSize().testTag(contentTag)) }
+                content = {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(contentTag)
+                    )
+                }
             )
         }
 
@@ -898,10 +1040,18 @@ class DrawerTest {
                 drawerState = drawerState,
                 drawerContent = {
                     Box(
-                        Modifier.fillMaxSize().testTag(bottomDrawerTag)
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(bottomDrawerTag)
                     )
                 },
-                content = { Box(Modifier.fillMaxSize().testTag(contentTag)) }
+                content = {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(contentTag)
+                    )
+                }
             )
         }
 
@@ -965,7 +1115,13 @@ class DrawerTest {
             BottomDrawer(
                 drawerState = drawerState,
                 drawerContent = { Box(Modifier.height(shortBottomDrawerHeight)) },
-                content = { Box(Modifier.fillMaxSize().testTag(contentTag)) }
+                content = {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(contentTag)
+                    )
+                }
             )
         }
 
@@ -992,7 +1148,11 @@ class DrawerTest {
             BottomDrawer(
                 drawerState = drawerState,
                 drawerContent = {
-                    Box(Modifier.fillMaxSize().testTag(bottomDrawerTag))
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(bottomDrawerTag)
+                    )
                 },
                 content = {}
             )
@@ -1021,7 +1181,11 @@ class DrawerTest {
             BottomDrawer(
                 drawerState = drawerState,
                 drawerContent = {
-                    Box(Modifier.fillMaxSize().testTag(bottomDrawerTag))
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(bottomDrawerTag)
+                    )
                 },
                 content = {}
             )
@@ -1062,7 +1226,11 @@ class DrawerTest {
             BottomDrawer(
                 drawerState = drawerState,
                 drawerContent = {
-                    Box(Modifier.height(shortBottomDrawerHeight).testTag(bottomDrawerTag))
+                    Box(
+                        Modifier
+                            .height(shortBottomDrawerHeight)
+                            .testTag(bottomDrawerTag)
+                    )
                 },
                 content = {}
             )
@@ -1102,7 +1270,11 @@ class DrawerTest {
             BottomDrawer(
                 drawerState = drawerState,
                 drawerContent = {
-                    Box(Modifier.fillMaxSize().testTag(bottomDrawerTag))
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(bottomDrawerTag)
+                    )
                 },
                 content = {}
             )
@@ -1142,10 +1314,18 @@ class DrawerTest {
                 modifier = Modifier.testTag(topTag),
                 drawerState = rememberDrawerState(DrawerValue.Open),
                 drawerContent = {
-                    Box(Modifier.fillMaxSize().testTag("drawer"))
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag("drawer")
+                    )
                 },
                 content = {
-                    Box(Modifier.fillMaxSize().testTag("body"))
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag("body")
+                    )
                 }
             )
             closeDrawer = getString(Strings.CloseDrawer)
@@ -1176,10 +1356,18 @@ class DrawerTest {
                 modifier = Modifier.testTag(topTag),
                 drawerState = rememberBottomDrawerState(BottomDrawerValue.Open),
                 drawerContent = {
-                    Box(Modifier.height(shortBottomDrawerHeight).testTag(bottomDrawerTag))
+                    Box(
+                        Modifier
+                            .height(shortBottomDrawerHeight)
+                            .testTag(bottomDrawerTag)
+                    )
                 },
                 content = {
-                    Box(Modifier.fillMaxSize().testTag("body"))
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag("body")
+                    )
                 }
             )
         }
@@ -1202,5 +1390,107 @@ class DrawerTest {
 
         topNode = rule.onNodeWithTag(topTag).fetchSemanticsNode()
         assertEquals(2, topNode.children.size)
+    }
+
+    @OptIn(ExperimentalMaterialApi::class)
+    @Test
+    fun bottomDrawer_shortSheet_sizeChanges_snapsToNewTarget() {
+        var size by mutableStateOf(56.dp)
+
+        val state = BottomDrawerState(BottomDrawerValue.Expanded)
+        rule.setMaterialContent {
+            BottomDrawer(
+                drawerState = state,
+                drawerContent = {
+                    Box(Modifier.height(size))
+                },
+                content = { Box(Modifier.fillMaxSize()) },
+            )
+        }
+        val rootHeight = rule.rootHeight()
+        assertThat(state.requireOffset()).isWithin(0.5f)
+            .of(with(rule.density) { (rootHeight - size).toPx() })
+
+        size = 100.dp
+        rule.waitForIdle()
+        assertThat(state.requireOffset()).isWithin(0.5f)
+            .of(with(rule.density) { (rootHeight - size).toPx() })
+
+        size = 30.dp
+        rule.waitForIdle()
+        assertThat(state.requireOffset()).isWithin(0.5f)
+            .of(with(rule.density) { (rootHeight - size).toPx() })
+    }
+
+    @OptIn(ExperimentalMaterialApi::class)
+    @Test
+    fun bottomDrawer_shortDrawer_anchorChangeHandler_previousTargetNotInAnchors_reconciles() {
+        val drawerState = BottomDrawerState(BottomDrawerValue.Closed)
+        var hasDrawerContent by mutableStateOf(false) // Start out with empty drawer content
+        lateinit var scope: CoroutineScope
+        rule.setMaterialContent {
+            scope = rememberCoroutineScope()
+            BottomDrawer(
+                drawerState = drawerState,
+                drawerContent = {
+                    if (hasDrawerContent) {
+                        Box(Modifier.fillMaxHeight(0.4f))
+                    }
+                },
+                content = {}
+            )
+        }
+
+        assertThat(drawerState.currentValue).isEqualTo(BottomDrawerValue.Closed)
+        assertThat(drawerState.swipeableState.hasAnchorForValue(BottomDrawerValue.Open))
+            .isFalse()
+        assertThat(drawerState.swipeableState.hasAnchorForValue(BottomDrawerValue.Expanded))
+            .isFalse()
+
+        scope.launch { drawerState.open() }
+        rule.waitForIdle()
+
+        assertThat(drawerState.isOpen).isTrue()
+        assertThat(drawerState.currentValue).isEqualTo(drawerState.targetValue)
+
+        hasDrawerContent = true // Recompose with drawer content
+        rule.waitForIdle()
+        assertThat(drawerState.currentValue).isEqualTo(BottomDrawerValue.Expanded)
+    }
+
+    @OptIn(ExperimentalMaterialApi::class)
+    @Test
+    fun bottomDrawer_tallDrawer_anchorChangeHandler_previousTargetNotInAnchors_reconciles() {
+        val drawerState = BottomDrawerState(BottomDrawerValue.Closed)
+        var hasDrawerContent by mutableStateOf(false) // Start out with empty drawer content
+        lateinit var scope: CoroutineScope
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            BottomDrawer(
+                drawerState = drawerState,
+                drawerContent = {
+                    if (hasDrawerContent) {
+                        Box(Modifier.fillMaxHeight(0.6f))
+                    }
+                },
+                content = {}
+            )
+        }
+
+        assertThat(drawerState.currentValue).isEqualTo(BottomDrawerValue.Closed)
+        assertThat(drawerState.swipeableState.hasAnchorForValue(BottomDrawerValue.Open))
+            .isFalse()
+        assertThat(drawerState.swipeableState.hasAnchorForValue(BottomDrawerValue.Expanded))
+            .isFalse()
+
+        scope.launch { drawerState.open() }
+        rule.waitForIdle()
+
+        assertThat(drawerState.isOpen).isTrue()
+        assertThat(drawerState.currentValue).isEqualTo(drawerState.targetValue)
+
+        hasDrawerContent = true // Recompose with drawer content
+        rule.waitForIdle()
+        assertThat(drawerState.currentValue).isEqualTo(BottomDrawerValue.Open)
     }
 }

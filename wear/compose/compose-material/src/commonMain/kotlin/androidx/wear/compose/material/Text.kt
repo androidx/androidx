@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.material
 
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -304,29 +303,25 @@ public fun Text(
             LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
         }
     }
-    val mergedStyle = style.merge(
-        TextStyle(
-            color = textColor,
-            fontSize = fontSize,
-            fontWeight = fontWeight,
-            textAlign = textAlign,
-            lineHeight = lineHeight,
-            fontFamily = fontFamily,
-            textDecoration = textDecoration,
-            fontStyle = fontStyle,
-            letterSpacing = letterSpacing
-        )
-    )
-    BasicText(
+    androidx.wear.compose.materialcore.Text(
         text = text,
         modifier = modifier,
-        style = mergedStyle,
-        onTextLayout = onTextLayout,
+        color = textColor,
+        fontSize = fontSize,
+        fontStyle = fontStyle,
+        fontWeight = fontWeight,
+        fontFamily = fontFamily,
+        letterSpacing = letterSpacing,
+        textDecoration = textDecoration,
+        textAlign = textAlign,
+        lineHeight = lineHeight,
         overflow = overflow,
         softWrap = softWrap,
         maxLines = maxLines,
         minLines = minLines,
-        inlineContent = inlineContent
+        inlineContent = inlineContent,
+        onTextLayout = onTextLayout,
+        style = style
     )
 }
 
@@ -434,7 +429,7 @@ fun Text(
  * @see ProvideTextStyle
  */
 public val LocalTextStyle: ProvidableCompositionLocal<TextStyle> =
-    compositionLocalOf(structuralEqualityPolicy()) { TextStyle.Default }
+    compositionLocalOf(structuralEqualityPolicy()) { DefaultTextStyle }
 
 // TODO: b/156598010 remove this and replace with fold definition on the backing CompositionLocal
 /**

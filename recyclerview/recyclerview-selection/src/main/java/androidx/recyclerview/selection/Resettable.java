@@ -28,7 +28,6 @@ import androidx.annotation.RestrictTo;
  * should always return false when called immediately after {@link #reset()}
  * has been called.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public interface Resettable {

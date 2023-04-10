@@ -30,7 +30,6 @@ import androidx.health.services.client.proto.ResponsesProto.PermissionLostRespon
 /**
  * An event representing a [PassiveListenerCallback] or [PassiveListenerService] invocation.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class PassiveListenerEvent(public override val proto: EventProto) :

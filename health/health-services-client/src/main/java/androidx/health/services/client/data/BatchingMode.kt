@@ -42,7 +42,8 @@ internal constructor(
          * Note: This mode will cause significantly increased power consumption compared to the
          * default batching mode, while still being more power efficient than streaming when in
          * non-interactive state. The exact power/performance tradeoff of this mode is device
-         * implementation dependent but aims for roughly five second updates.
+         * implementation dependent and batched updates may be aligned with other wake ups but
+         * target five second updates.
          */
         @JvmField public val HEART_RATE_5_SECONDS: BatchingMode = BatchingMode(1)
 

@@ -24,6 +24,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.CameraStatusMonitor
 import androidx.camera.camera2.pipe.CaptureSequence
 import androidx.camera.camera2.pipe.CaptureSequenceProcessor
 import androidx.camera.camera2.pipe.Metadata
@@ -50,6 +51,9 @@ class ExternalCameraController(
         GraphRequestProcessor.from(sequenceProcessor)
     private var started = atomic(false)
 
+    override val cameraId: CameraId
+        get() = graphConfig.camera
+
     override fun start() {
         if (started.compareAndSet(expect = false, update = true)) {
             graphListener.onGraphStarted(graphProcessor)
@@ -60,6 +64,11 @@ class ExternalCameraController(
         if (started.compareAndSet(expect = true, update = false)) {
             graphListener.onGraphStopped(graphProcessor)
         }
+    }
+
+    override fun tryRestart(cameraStatus: CameraStatusMonitor.CameraStatus) {
+        // This is intentionally made a no-op for now as CameraPipe external doesn't support
+        // camera status monitoring and camera controller restart.
     }
 
     override fun close() {
@@ -112,7 +121,8 @@ internal class ExternalCaptureSequenceProcessor(
                     parameters,
                     isRepeating,
                     request,
-                    RequestNumber(internalRequestNumbers.incrementAndGet()))
+                    RequestNumber(internalRequestNumbers.incrementAndGet())
+                )
             }
 
         return ExternalCaptureSequence(
@@ -123,7 +133,8 @@ internal class ExternalCaptureSequenceProcessor(
             defaultParameters,
             requiredParameters,
             listeners,
-            sequenceListener)
+            sequenceListener
+        )
     }
 
     override fun submit(captureSequence: ExternalCaptureSequence): Int {
@@ -136,20 +147,23 @@ internal class ExternalCaptureSequenceProcessor(
                 captureSequence.captureRequestList.single(),
                 captureSequence.defaultParameters,
                 captureSequence.requiredParameters,
-                captureSequence.listeners)
+                captureSequence.listeners
+            )
         } else {
             if (captureSequence.captureRequestList.size == 1) {
                 processor.submit(
                     captureSequence.captureRequestList.single(),
                     captureSequence.defaultParameters,
                     captureSequence.requiredParameters,
-                    captureSequence.listeners)
+                    captureSequence.listeners
+                )
             } else {
                 processor.submit(
                     captureSequence.captureRequestList,
                     captureSequence.defaultParameters,
                     captureSequence.requiredParameters,
-                    captureSequence.listeners)
+                    captureSequence.listeners
+                )
             }
         }
         return internalSequenceNumbers.incrementAndGet()
@@ -179,7 +193,8 @@ internal class ExternalCaptureSequenceProcessor(
         override val listeners: List<Request.Listener>,
         override val sequenceListener: CaptureSequence.CaptureSequenceListener,
     ) : CaptureSequence<Request> {
-        @Volatile private var _sequenceNumber: Int? = null
+        @Volatile
+        private var _sequenceNumber: Int? = null
         override var sequenceNumber: Int
             get() {
                 if (_sequenceNumber == null) {

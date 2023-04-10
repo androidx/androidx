@@ -25,13 +25,17 @@ import kotlinx.coroutines.Deferred
 class FakeEvCompCompat constructor(
     override val supported: Boolean = false,
     override val range: Range<Int> = Range(0, 0),
-    override val step: Rational = Rational.ZERO
+    override val step: Rational = Rational.ZERO,
 ) : EvCompCompat {
-    override fun stopRunningTask() {
+    override fun stopRunningTask(throwable: Throwable) {
         TODO("Not yet implemented")
     }
 
-    override fun applyAsync(evCompIndex: Int, camera: UseCaseCamera): Deferred<Int> {
+    override fun applyAsync(
+        evCompIndex: Int,
+        camera: UseCaseCamera,
+        cancelPreviousTask: Boolean,
+    ): Deferred<Int> {
         TODO("Not yet implemented")
     }
 }

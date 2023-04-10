@@ -19,6 +19,7 @@
 package androidx.graphics.shapes
 
 import android.graphics.PointF
+import android.util.Log
 import androidx.core.graphics.div
 import androidx.core.graphics.plus
 import androidx.core.graphics.times
@@ -55,6 +56,13 @@ internal fun PointF.getDistance() = sqrt(x * x + y * y)
 internal fun PointF.dotProduct(other: PointF) = x * other.x + y * other.y
 
 /**
+ * Compute the Z coordinate of the cross product of two vectors, to check if the second vector is
+ * going clockwise ( > 0 ) or counterclockwise (< 0) compared with the first one.
+ * It could also be 0, if the vectors are co-linear.
+ */
+internal fun PointF.clockwise(other: PointF) = x * other.y - y * other.x > 0
+
+/**
  * Returns unit vector representing the direction to this point from (0, 0)
  */
 internal fun PointF.getDirection() = run {
@@ -63,9 +71,11 @@ internal fun PointF.getDirection() = run {
     this / d
 }
 
-// These epsilon values are used internally to determine when two points are the same, within
-// some reasonable roundoff error. The distance episilon is smaller, with the intention that the
-// roundoff should not be larger than a pixel on any reasonable sized display.
+/**
+ * These epsilon values are used internally to determine when two points are the same, within
+ * some reasonable roundoff error. The distance epsilon is smaller, with the intention that the
+ * roundoff should not be larger than a pixel on any reasonable sized display.
+ */
 internal const val DistanceEpsilon = 1e-4f
 internal const val AngleEpsilon = 1e-6f
 
@@ -92,3 +102,41 @@ internal fun PointF.angle() = ((atan2(y, x) + TwoPi) % TwoPi)
 
 internal fun radialToCartesian(radius: Float, angleRadians: Float, center: PointF = Zero) =
     directionVector(angleRadians) * radius + center
+
+internal fun <T> Iterable<T>.sumOf(f: (T) -> Float) = map(f).sum()
+
+internal fun positiveModule(num: Float, mod: Float) = (num % mod + mod) % mod
+
+/*
+ * Does a ternary search in [v0..v1] to find the parameter that minimizes the given function.
+ * Stops when the search space size is reduced below the given tolerance.
+ *
+ * NTS: Does it make sense to split the function f in 2, one to generate a candidate, of a custom
+ * type T (i.e. (Float) -> T), and one to evaluate it ( (T) -> Float )?
+ */
+internal fun findMinimum(
+    v0: Float,
+    v1: Float,
+    tolerance: Float = 1e-3f,
+    f: (Float) -> Float
+): Float {
+    var a = v0
+    var b = v1
+    while (b - a > tolerance) {
+        val c1 = (2 * a + b) / 3
+        val c2 = (2 * b + a) / 3
+        if (f(c1) < f(c2)) {
+            b = c2
+        } else {
+            a = c1
+        }
+    }
+    return (a + b) / 2
+}
+
+// Used to enable debug logging in the library
+internal val DEBUG = true
+
+internal inline fun debugLog(tag: String, messageFactory: () -> String) {
+    if (DEBUG) messageFactory().split("\n").forEach { Log.d(tag, it) }
+}

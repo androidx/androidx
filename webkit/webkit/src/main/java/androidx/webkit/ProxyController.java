@@ -51,7 +51,6 @@ import java.util.concurrent.Executor;
  */
 public abstract class ProxyController {
     /**
-     * @hide Don't allow apps to sub-class this class.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ProxyController() {}

@@ -48,19 +48,25 @@ import javax.inject.Provider
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
-@Qualifier internal annotation class DefaultCameraBackend
+@Qualifier
+internal annotation class DefaultCameraBackend
 
 /** Qualifier for requesting the CameraPipe scoped Context object */
-@Qualifier internal annotation class CameraPipeContext
+@Qualifier
+internal annotation class CameraPipeContext
+
+@Qualifier
+internal annotation class ForGraphLifecycleManager
 
 @Singleton
 @Component(
     modules =
-        [
-            CameraPipeConfigModule::class,
-            CameraPipeModules::class,
-            Camera2Module::class,
-        ])
+    [
+        CameraPipeConfigModule::class,
+        CameraPipeModules::class,
+        Camera2Module::class,
+    ]
+)
 internal interface CameraPipeComponent {
     fun cameraGraphComponentBuilder(): CameraGraphComponent.Builder
     fun cameras(): CameraDevices
@@ -69,7 +75,8 @@ internal interface CameraPipeComponent {
 
 @Module(includes = [ThreadConfigModule::class], subcomponents = [CameraGraphComponent::class])
 internal class CameraPipeConfigModule(private val config: CameraPipe.Config) {
-    @Provides fun provideCameraPipeConfig(): CameraPipe.Config = config
+    @Provides
+    fun provideCameraPipeConfig(): CameraPipe.Config = config
 
     @Provides
     fun provideCameraInteropConfig(
@@ -81,9 +88,11 @@ internal class CameraPipeConfigModule(private val config: CameraPipe.Config) {
 
 @Module
 internal abstract class CameraPipeModules {
-    @Binds abstract fun bindCameras(impl: CameraDevicesImpl): CameraDevices
+    @Binds
+    abstract fun bindCameras(impl: CameraDevicesImpl): CameraDevices
 
-    @Binds abstract fun bindTimeSource(timeSource: SystemTimeSource): TimeSource
+    @Binds
+    abstract fun bindTimeSource(timeSource: SystemTimeSource): TimeSource
 
     companion object {
         @Provides

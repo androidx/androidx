@@ -32,7 +32,6 @@ import androidx.autofill.inline.UiVersions;
  * Base class representing a type that encodes the content information, and can be
  * exported to a Slice.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(api = Build.VERSION_CODES.R)
@@ -41,14 +40,12 @@ public abstract class SlicedContent implements UiVersions.Content {
     static final Uri INLINE_SLICE_URI = Uri.parse("inline.slice");
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull
     protected final Slice mSlice;
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected SlicedContent(@NonNull Slice slice) {
@@ -65,7 +62,6 @@ public abstract class SlicedContent implements UiVersions.Content {
     }
 
     /**
-     * @hide
      * @see androidx.autofill.inline.Renderer#getAttributionIntent(Slice)
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -75,7 +71,6 @@ public abstract class SlicedContent implements UiVersions.Content {
     /**
      * Returns true if the wrapped slice is valid according to the slice version.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public abstract boolean isValid();
@@ -83,7 +78,6 @@ public abstract class SlicedContent implements UiVersions.Content {
     /**
      * Returns the version of the {@code slice}.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull
@@ -95,7 +89,6 @@ public abstract class SlicedContent implements UiVersions.Content {
      * Base builder class for the {@link SlicedContent}.
      *
      * @param <T> represents the type that this builder can build.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public abstract static class Builder<T extends SlicedContent> {

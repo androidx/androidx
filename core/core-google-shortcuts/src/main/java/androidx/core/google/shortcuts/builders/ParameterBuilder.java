@@ -29,7 +29,6 @@ import com.google.android.gms.appindex.builders.IndexableBuilder;
 /**
  * Builder for the Parameter section in the Shortcut Corpus.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class ParameterBuilder

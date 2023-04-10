@@ -91,8 +91,6 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         )
         buildOnServerTask.cacheEvenIfNoOutputs()
         buildOnServerTask.distributionDirectory = getDistributionDirectory()
-        buildOnServerTask.repositoryDirectory = getRepositoryDirectory()
-        buildOnServerTask.buildId = getBuildId()
         buildOnServerTask.dependsOn(
             tasks.register(
                 CREATE_AGGREGATE_BUILD_INFO_FILES_TASK,
@@ -106,9 +104,6 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         VerifyPlaygroundGradleConfigurationTask.createIfNecessary(project)?.let {
             buildOnServerTask.dependsOn(it)
         }
-
-        val createArchiveTask = Release.getGlobalFullZipTask(this)
-        buildOnServerTask.dependsOn(createArchiveTask)
 
         extra.set("projects", ConcurrentHashMap<String, String>())
         subprojects { project ->
@@ -140,7 +135,6 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
                 buildOnServerTask.dependsOn("${project.path}:jar")
             }
         }
-        project.configureRootProjectForLint()
 
         tasks.register(AndroidXImplPlugin.BUILD_TEST_APKS_TASK)
 

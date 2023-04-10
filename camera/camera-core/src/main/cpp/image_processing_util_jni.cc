@@ -400,6 +400,67 @@ JNIEXPORT jint Java_androidx_camera_core_ImageProcessingUtil_nativeConvertAndroi
     return result;
 }
 
+JNIEXPORT jint
+Java_androidx_camera_core_ImageProcessingUtil_nativeConvertAndroid420ToBitmap(
+        JNIEnv* env,
+        jclass,
+        jobject src_y,
+        jint src_stride_y,
+        jobject src_u,
+        jint src_stride_u,
+        jobject src_v,
+        jint src_stride_v,
+        jint src_pixel_stride_y,
+        jint src_pixel_stride_uv,
+        jobject bitmap,
+        jint bitmap_stride,
+        jint width,
+        jint height) {
+
+    void* bitmapAddress = nullptr;
+
+    // get bitmap address
+    int lockResult =  AndroidBitmap_lockPixels(env, bitmap, &bitmapAddress);
+    if (lockResult != 0) {
+        return -1;
+    }
+
+    uint8_t* src_y_ptr =
+            static_cast<uint8_t*>(env->GetDirectBufferAddress(src_y));
+    uint8_t* src_u_ptr =
+            static_cast<uint8_t*>(env->GetDirectBufferAddress(src_u));
+    uint8_t* src_v_ptr =
+            static_cast<uint8_t*>(env->GetDirectBufferAddress(src_v));
+
+    int dst_stride_y = bitmap_stride;
+
+    int result = Android420ToABGR(
+            src_y_ptr ,
+            src_stride_y,
+            src_u_ptr,
+            src_stride_u,
+            src_v_ptr,
+            src_stride_v,
+            src_pixel_stride_uv,
+            reinterpret_cast<uint8_t *> (bitmapAddress),
+            dst_stride_y,
+            /* is_full_swing = */true,
+            width,
+            height);
+
+    if (result != 0) {
+        return -1;
+    }
+
+    // balance call to AndroidBitmap_lockPixels
+    int unlockResult = AndroidBitmap_unlockPixels(env,bitmap);
+    if (unlockResult != 0) {
+        return -1;
+    }
+
+    return 0;
+}
+
 JNIEXPORT jint Java_androidx_camera_core_ImageProcessingUtil_nativeRotateYUV(
         JNIEnv* env,
         jclass,

@@ -250,7 +250,6 @@ public class MediaSessionCompat {
     /**
      * Custom action to invoke playFromUri() for the forward compatibility.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String ACTION_PLAY_FROM_URI =
@@ -259,7 +258,6 @@ public class MediaSessionCompat {
     /**
      * Custom action to invoke prepare() for the forward compatibility.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String ACTION_PREPARE = "android.support.v4.media.session.action.PREPARE";
@@ -267,7 +265,6 @@ public class MediaSessionCompat {
     /**
      * Custom action to invoke prepareFromMediaId() for the forward compatibility.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String ACTION_PREPARE_FROM_MEDIA_ID =
@@ -276,7 +273,6 @@ public class MediaSessionCompat {
     /**
      * Custom action to invoke prepareFromSearch() for the forward compatibility.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String ACTION_PREPARE_FROM_SEARCH =
@@ -285,7 +281,6 @@ public class MediaSessionCompat {
     /**
      * Custom action to invoke prepareFromUri() for the forward compatibility.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String ACTION_PREPARE_FROM_URI =
@@ -294,7 +289,6 @@ public class MediaSessionCompat {
     /**
      * Custom action to invoke setCaptioningEnabled() for the forward compatibility.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String ACTION_SET_CAPTIONING_ENABLED =
@@ -303,7 +297,6 @@ public class MediaSessionCompat {
     /**
      * Custom action to invoke setRepeatMode() for the forward compatibility.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String ACTION_SET_REPEAT_MODE =
@@ -312,7 +305,6 @@ public class MediaSessionCompat {
     /**
      * Custom action to invoke setShuffleMode() for the forward compatibility.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String ACTION_SET_SHUFFLE_MODE =
@@ -321,7 +313,6 @@ public class MediaSessionCompat {
     /**
      * Custom action to invoke setRating() with extra fields.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String ACTION_SET_RATING =
@@ -330,7 +321,6 @@ public class MediaSessionCompat {
     /**
      * Custom action to invoke setPlaybackSpeed() with extra fields.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String ACTION_SET_PLAYBACK_SPEED =
@@ -339,7 +329,6 @@ public class MediaSessionCompat {
     /**
      * Argument for use with {@link #ACTION_PREPARE_FROM_MEDIA_ID} indicating media id to play.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String ACTION_ARGUMENT_MEDIA_ID =
@@ -348,7 +337,6 @@ public class MediaSessionCompat {
     /**
      * Argument for use with {@link #ACTION_PREPARE_FROM_SEARCH} indicating search query.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String ACTION_ARGUMENT_QUERY =
@@ -358,7 +346,6 @@ public class MediaSessionCompat {
      * Argument for use with {@link #ACTION_PREPARE_FROM_URI} and {@link #ACTION_PLAY_FROM_URI}
      * indicating URI to play.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String ACTION_ARGUMENT_URI =
@@ -367,7 +354,6 @@ public class MediaSessionCompat {
     /**
      * Argument for use with {@link #ACTION_SET_RATING} indicating the rate to be set.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String ACTION_ARGUMENT_RATING =
@@ -376,7 +362,6 @@ public class MediaSessionCompat {
     /**
      * Argument for use with {@link #ACTION_SET_PLAYBACK_SPEED} indicating the speed to be set.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String ACTION_ARGUMENT_PLAYBACK_SPEED =
@@ -385,7 +370,6 @@ public class MediaSessionCompat {
     /**
      * Argument for use with various actions indicating extra bundle.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String ACTION_ARGUMENT_EXTRAS =
@@ -395,7 +379,6 @@ public class MediaSessionCompat {
      * Argument for use with {@link #ACTION_SET_CAPTIONING_ENABLED} indicating whether captioning is
      * enabled.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String ACTION_ARGUMENT_CAPTIONING_ENABLED =
@@ -404,7 +387,6 @@ public class MediaSessionCompat {
     /**
      * Argument for use with {@link #ACTION_SET_REPEAT_MODE} indicating repeat mode.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String ACTION_ARGUMENT_REPEAT_MODE =
@@ -413,27 +395,23 @@ public class MediaSessionCompat {
     /**
      * Argument for use with {@link #ACTION_SET_SHUFFLE_MODE} indicating shuffle mode.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String ACTION_ARGUMENT_SHUFFLE_MODE =
             "android.support.v4.media.session.action.ARGUMENT_SHUFFLE_MODE";
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String KEY_TOKEN = "android.support.v4.media.session.TOKEN";
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String KEY_EXTRA_BINDER =
             "android.support.v4.media.session.EXTRA_BINDER";
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String KEY_SESSION2_TOKEN =
@@ -531,7 +509,6 @@ public class MediaSessionCompat {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
     public MediaSessionCompat(@NonNull Context context, @NonNull String tag,
@@ -638,7 +615,6 @@ public class MediaSessionCompat {
      *
      * @param callback callback to listener callback registration. Can be null to stop.
      * @param handler handler
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media3-session
     public void setRegistrationCallback(
@@ -988,7 +964,6 @@ public class MediaSessionCompat {
      * command from controllers and the system. This is only valid while in a request callback, such
      * as {@link Callback#onPlay}. This method is not available and returns null on pre-N devices.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public String getCallingPackage() {
@@ -1057,7 +1032,6 @@ public class MediaSessionCompat {
     /**
      * A helper method for setting the application class loader to the given {@link Bundle}.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static void ensureClassLoader(@Nullable Bundle bundle) {
@@ -1071,7 +1045,6 @@ public class MediaSessionCompat {
      * returns {@code null} if a {@link BadParcelableException} is thrown while unparcelling,
      * otherwise the given bundle in which the application class loader is set.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @Nullable
@@ -1917,7 +1890,6 @@ public class MediaSessionCompat {
 
     /**
      * Callback to be called when a controller has registered or unregistered controller callback.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
     public interface RegistrationCallback {
@@ -1993,7 +1965,6 @@ public class MediaSessionCompat {
          * @param token The framework token object.
          * @param extraBinder The extra binder.
          * @return A compat Token for use with {@link MediaControllerCompat}.
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public static Token fromToken(Object token, IMediaSession extraBinder) {
@@ -2062,7 +2033,6 @@ public class MediaSessionCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public IMediaSession getExtraBinder() {
@@ -2072,7 +2042,6 @@ public class MediaSessionCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public void setExtraBinder(IMediaSession extraBinder) {
@@ -2082,7 +2051,6 @@ public class MediaSessionCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
         public VersionedParcelable getSession2Token() {
@@ -2092,7 +2060,6 @@ public class MediaSessionCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
         public void setSession2Token(VersionedParcelable session2Token) {
@@ -2102,7 +2069,6 @@ public class MediaSessionCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
         public Bundle toBundle() {
@@ -2124,7 +2090,6 @@ public class MediaSessionCompat {
          *
          * @param tokenBundle
          * @return A compat Token for use with {@link MediaControllerCompat}.
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
         @SuppressWarnings("deprecation")

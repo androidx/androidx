@@ -417,6 +417,115 @@ class RecomposerTests {
         @Suppress("RemoveExplicitTypeArguments")
         assertEquals<List<Set<Any>>>(listOf(setOf(countFromEffect)), applications)
     }
+
+    @Test
+    fun pausingTheFrameClockStopShouldBlockWithFrameNanos() {
+        val dispatcher = StandardTestDispatcher()
+        runTest(dispatcher) {
+            val testClock = TestMonotonicFrameClock(this)
+            withContext(testClock) {
+                val recomposer = Recomposer(coroutineContext)
+
+                var launched = false
+                val runner = launch {
+                    launched = true
+                    recomposer.runRecomposeAndApplyChanges()
+                }
+                val composition = Composition(UnitApplier(), recomposer)
+
+                var state by mutableStateOf(0)
+                var lastNanosSeen = -1L
+                var lastStateSeen = -1
+
+                composition.setContent {
+                    lastStateSeen = state
+
+                    LaunchedEffect(Unit) {
+                        while (true) {
+                            withFrameNanos { nanos ->
+                                lastNanosSeen = nanos
+                            }
+                        }
+                    }
+                }
+
+                dispatcher.scheduler.runCurrent()
+                assertEquals(state, lastStateSeen, "assume composition would have happened")
+                dispatcher.scheduler.advanceTimeBy(1_000)
+                assertTrue(
+                    lastNanosSeen > 0,
+                    "expected first withFramesNanos call didn't occur"
+                )
+                val nanosAfterInitialComposition = lastNanosSeen
+
+                // Force a recompose and test assumptions of the test
+                Snapshot.withMutableSnapshot { state++ }
+                dispatcher.scheduler.advanceTimeBy(1_000)
+                assertTrue(launched, "assumed recomposer was running")
+                assertEquals(state, lastStateSeen, "assume composition would have happened")
+                assertTrue(
+                    lastNanosSeen > nanosAfterInitialComposition,
+                    "assumed launched effect and first frame would have run by now"
+                )
+
+                // Pause the frame clock
+                recomposer.pauseCompositionFrameClock()
+                val nanosAfterPause = lastNanosSeen
+
+                // Force a recompose
+                Snapshot.withMutableSnapshot { state++ }
+                dispatcher.scheduler.advanceTimeBy(1_000)
+                assertEquals(state, lastStateSeen, "expected composition didn't occur")
+                assertEquals(
+                    nanosAfterPause,
+                    lastNanosSeen,
+                    "unexpected call to withFrameNanos"
+                )
+
+                // Force another recompose
+                Snapshot.withMutableSnapshot { state++ }
+                dispatcher.scheduler.advanceTimeBy(1_000)
+                assertEquals(state, lastStateSeen, "expected composition didn't occur")
+                assertEquals(
+                    nanosAfterPause,
+                    lastNanosSeen,
+                    "unexpected call to withFrameNanos"
+                )
+
+                // Resume the frame clock
+                recomposer.resumeCompositionFrameClock()
+                dispatcher.scheduler.advanceTimeBy(1_000)
+                assertTrue(
+                    lastNanosSeen > nanosAfterPause,
+                    "Expected call to withFrameNanos after resume didn't occur"
+                )
+                val nanosAfterResume = lastNanosSeen
+
+                // Force another recompose
+                Snapshot.withMutableSnapshot { state++ }
+                dispatcher.scheduler.advanceTimeBy(1_000)
+                assertEquals(state, lastStateSeen, "expected composition didn't occur")
+                assertTrue(
+                    lastNanosSeen > nanosAfterResume,
+                    "Expected withFrameNanos in recompose after resume didn't occur"
+                )
+
+                // Cleanup after the test
+                composition.dispose()
+                recomposer.cancel()
+
+                assertNotNull(
+                    withTimeoutOrNull(3_000) { recomposer.awaitIdle() },
+                    "timed out waiting for recomposer idle for recomposition"
+                )
+
+                assertNotNull(
+                    withTimeoutOrNull(3_000) { runner.join() },
+                    "timed out waiting for recomposer runner job"
+                )
+            }
+        }
+    }
 }
 
 class UnitApplier : Applier<Unit> {

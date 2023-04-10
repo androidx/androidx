@@ -26,7 +26,6 @@ import java.util.List;
 /**
  * Registers this listener to get property updates by {@link CarPropertyResponse}.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public interface OnCarPropertyResponseListener {

@@ -36,7 +36,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 public interface Operation {
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressWarnings("VariableNameSameAsType")
@@ -44,7 +43,6 @@ public interface Operation {
     State.SUCCESS SUCCESS = new State.SUCCESS();
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressWarnings("VariableNameSameAsType")
@@ -81,7 +79,6 @@ public interface Operation {
     abstract class State {
 
         /**
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         State() {

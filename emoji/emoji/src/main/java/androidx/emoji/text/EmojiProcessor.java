@@ -47,7 +47,6 @@ import java.util.List;
 /**
  * Processes the CharSequence and adds the emojis.
  *
- * @hide
  */
 @AnyThread
 @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -773,7 +772,6 @@ final class EmojiProcessor {
     /**
      * Utility class that checks if the system can render a given glyph.
      *
-     * @hide
      */
     @AnyThread
     @RestrictTo(LIBRARY_GROUP_PREFIX)

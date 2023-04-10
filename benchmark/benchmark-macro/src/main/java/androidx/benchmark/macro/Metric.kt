@@ -28,16 +28,17 @@ import androidx.benchmark.macro.perfetto.AudioUnderrunQuery
 import androidx.benchmark.macro.perfetto.BatteryDischargeQuery
 import androidx.benchmark.macro.perfetto.FrameTimingQuery
 import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric
-import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
+import androidx.benchmark.macro.perfetto.MemoryCountersQuery
 import androidx.benchmark.macro.perfetto.PowerQuery
-import androidx.benchmark.macro.perfetto.Slice
 import androidx.benchmark.macro.perfetto.StartupTimingQuery
 import androidx.benchmark.macro.perfetto.camelCase
+import androidx.benchmark.perfetto.PerfettoTraceProcessor
+import androidx.benchmark.perfetto.Slice
 
 /**
  * Metric interface.
  */
-public sealed class Metric {
+sealed class Metric {
 
     internal abstract fun configure(packageName: String)
 
@@ -51,17 +52,76 @@ public sealed class Metric {
      * TODO: takes package for package level filtering, but probably want a
      *  general config object coming into [start].
      */
-    internal abstract fun getMetrics(
+    internal abstract fun getResult(
         captureInfo: CaptureInfo,
-        perfettoTraceProcessor: PerfettoTraceProcessor
-    ): IterationResult
+        traceSession: PerfettoTraceProcessor.Session
+    ): List<Measurement>
 
-    internal data class CaptureInfo(
+    @ExperimentalMetricApi
+    data class CaptureInfo(
         val apiLevel: Int,
         val targetPackageName: String,
         val testPackageName: String,
         val startupMode: StartupMode?
     )
+
+    /**
+     * Represents a Metric's measurement of a single iteration.
+     *
+     * To validate results in tests, use [assertEqualMeasurements]
+     */
+    @ExperimentalMetricApi
+    data class Measurement internal constructor(
+        /**
+         * Unique name of the metric, should be camel case with abbreviated suffix,
+         * e.g. `startTimeNs`
+         */
+        val name: String,
+        /**
+         * Measurement values captured by the metric, length constraints defined by
+         * [requireSingleValue].
+         */
+        val data: List<Double>,
+        /**
+         * True if the [data] param is a single value per measurement, false if it contains an
+         * arbitrary number of samples.
+         */
+        val requireSingleValue: Boolean
+    ) {
+
+        /**
+         * Represents a measurement with a single value captured per iteration.
+         *
+         * For example, in a startup Macrobenchmark, [StartupTimingMetric] returns a single
+         * measurement for `timeToInitialDisplayMs`.
+         */
+        constructor(name: String, data: Double) : this(
+            name,
+            listOf(data),
+            requireSingleValue = true
+        )
+
+        /**
+         * Represents a measurement with a value sampled an arbitrary number of times per iteration.
+         *
+         * For example, in a jank Macrobenchmark, [FrameTimingMetric] can return multiple
+         * measurements for `frameOverrunMs` - one for each observed frame.
+         *
+         * When measurements are merged across multiple iterations, percentiles are extracted from
+         * the total pool of samples: P50, P90, P95, and P99.
+         */
+        constructor(name: String, dataSamples: List<Double>) : this(
+            name,
+            dataSamples,
+            requireSingleValue = false
+        )
+
+        init {
+            require(!requireSingleValue || data.size == 1) {
+                "Metric.Measurement must be in multi-sample mode, or include only one data item"
+            }
+        }
+    }
 }
 
 private fun Long.nsToDoubleMs(): Double = this / 1_000_000.0
@@ -86,29 +146,25 @@ private fun Long.nsToDoubleMs(): Double = this / 1_000_000.0
  */
 @ExperimentalMetricApi
 @Suppress("CanSealedSubClassBeObject")
-public class AudioUnderrunMetric : Metric() {
-    internal override fun configure(packageName: String) {
+class AudioUnderrunMetric : Metric() {
+    override fun configure(packageName: String) {
     }
 
-    internal override fun start() {
+    override fun start() {
     }
 
-    internal override fun stop() {
+    override fun stop() {
     }
 
-    internal override fun getMetrics(
+    override fun getResult(
         captureInfo: CaptureInfo,
-        perfettoTraceProcessor: PerfettoTraceProcessor
-    ): IterationResult {
-        val subMetrics = AudioUnderrunQuery.getSubMetrics(perfettoTraceProcessor)
+        traceSession: PerfettoTraceProcessor.Session
+    ): List<Measurement> {
+        val subMetrics = AudioUnderrunQuery.getSubMetrics(traceSession)
 
-        return IterationResult(
-            singleMetrics = mapOf(
-                "audioTotalMs" to subMetrics.totalMs.toDouble(),
-                "audioUnderrunMs" to subMetrics.zeroMs.toDouble()
-            ),
-            sampledMetrics = emptyMap(),
-            timelineRangeNs = null
+        return listOf(
+            Measurement("audioTotalMs", subMetrics.totalMs.toDouble()),
+            Measurement("audioUnderrunMs", subMetrics.zeroMs.toDouble())
         )
     }
 }
@@ -127,37 +183,32 @@ public class AudioUnderrunMetric : Metric() {
  * Thread, and RenderThread.
  */
 @Suppress("CanSealedSubClassBeObject")
-public class FrameTimingMetric : Metric() {
-    internal override fun configure(packageName: String) {}
-    internal override fun start() {}
-    internal override fun stop() {}
+class FrameTimingMetric : Metric() {
+    override fun configure(packageName: String) {}
+    override fun start() {}
+    override fun stop() {}
 
     @SuppressLint("SyntheticAccessor")
-    internal override fun getMetrics(
+    override fun getResult(
         captureInfo: CaptureInfo,
-        perfettoTraceProcessor: PerfettoTraceProcessor
-    ): IterationResult {
-        val subMetricsMsMap = FrameTimingQuery.getFrameSubMetrics(
-            perfettoTraceProcessor = perfettoTraceProcessor,
+        traceSession: PerfettoTraceProcessor.Session
+    ): List<Measurement> {
+        return FrameTimingQuery.getFrameSubMetrics(
+            session = traceSession,
             captureApiLevel = Build.VERSION.SDK_INT,
             packageName = captureInfo.targetPackageName
         )
             .filterKeys { it == SubMetric.FrameDurationCpuNs || it == SubMetric.FrameOverrunNs }
-            .mapKeys {
-                if (it.key == SubMetric.FrameDurationCpuNs) {
-                    "frameDurationCpuMs"
-                } else {
-                    "frameOverrunMs"
-                }
+            .map {
+                Measurement(
+                    name = if (it.key == SubMetric.FrameDurationCpuNs) {
+                        "frameDurationCpuMs"
+                    } else {
+                        "frameOverrunMs"
+                    },
+                    dataSamples = it.value.map { timeNs -> timeNs.nsToDoubleMs() }
+                )
             }
-            .mapValues { entry ->
-                entry.value.map { timeNs -> timeNs.nsToDoubleMs() }
-            }
-        return IterationResult(
-            singleMetrics = emptyMap(),
-            sampledMetrics = subMetricsMsMap,
-            timelineRangeNs = null
-        )
     }
 }
 
@@ -175,23 +226,23 @@ public class FrameTimingMetric : Metric() {
  * measurement may not be available prior to API 29.
  */
 @Suppress("CanSealedSubClassBeObject")
-public class StartupTimingMetric : Metric() {
-    internal override fun configure(packageName: String) {
+class StartupTimingMetric : Metric() {
+    override fun configure(packageName: String) {
     }
 
-    internal override fun start() {
+    override fun start() {
     }
 
-    internal override fun stop() {
+    override fun stop() {
     }
 
     @SuppressLint("SyntheticAccessor")
-    internal override fun getMetrics(
+    override fun getResult(
         captureInfo: CaptureInfo,
-        perfettoTraceProcessor: PerfettoTraceProcessor
-    ): IterationResult {
+        traceSession: PerfettoTraceProcessor.Session
+    ): List<Measurement> {
         return StartupTimingQuery.getFrameSubMetrics(
-            perfettoTraceProcessor = perfettoTraceProcessor,
+            session = traceSession,
             captureApiLevel = captureInfo.apiLevel,
             targetPackageName = captureInfo.targetPackageName,
 
@@ -199,16 +250,14 @@ public class StartupTimingMetric : Metric() {
             // error if startup mode not defined
             startupMode = captureInfo.startupMode ?: StartupMode.COLD
         )?.run {
-            @Suppress("UNCHECKED_CAST")
-            IterationResult(
-                singleMetrics = mapOf(
-                    "timeToInitialDisplayMs" to timeToInitialDisplayNs.nsToDoubleMs(),
-                    "timeToFullDisplayMs" to timeToFullDisplayNs?.nsToDoubleMs()
-                ).filterValues { it != null } as Map<String, Double>,
-                sampledMetrics = emptyMap(),
-                timelineRangeNs = timelineRangeNs
-            )
-        } ?: IterationResult.EMPTY
+            mapOf(
+                "timeToInitialDisplayMs" to timeToInitialDisplayNs.nsToDoubleMs(),
+                "timeToFullDisplayMs" to timeToFullDisplayNs?.nsToDoubleMs()
+            ).filterValues { it != null }
+                .map {
+                    Measurement(it.key, it.value!!)
+                }
+        } ?: emptyList()
     }
 }
 
@@ -218,54 +267,112 @@ public class StartupTimingMetric : Metric() {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @Suppress("CanSealedSubClassBeObject")
 @RequiresApi(29)
-public class StartupTimingLegacyMetric : Metric() {
-    internal override fun configure(packageName: String) {
+class StartupTimingLegacyMetric : Metric() {
+    override fun configure(packageName: String) {
     }
 
-    internal override fun start() {
+    override fun start() {
     }
 
-    internal override fun stop() {
+    override fun stop() {
     }
 
-    internal override fun getMetrics(
+    override fun getResult(
         captureInfo: CaptureInfo,
-        perfettoTraceProcessor: PerfettoTraceProcessor
-    ): IterationResult {
-
+        traceSession: PerfettoTraceProcessor.Session
+    ): List<Measurement> {
         // Acquires perfetto metrics
-        val traceMetrics = perfettoTraceProcessor.getTraceMetrics("android_startup")
+        val traceMetrics = traceSession.getTraceMetrics("android_startup")
         val androidStartup = traceMetrics.android_startup
             ?: throw IllegalStateException("No android_startup metric found.")
         val appStartup =
-            androidStartup.startup.first { it.package_name == captureInfo.targetPackageName }
+            androidStartup.startup.firstOrNull { it.package_name == captureInfo.targetPackageName }
+                ?: throw IllegalStateException(
+                    "Didn't find startup for pkg " +
+                        "${captureInfo.targetPackageName}, found startups for pkgs: " +
+                        "${androidStartup.startup.map { it.package_name }}"
+                )
 
         // Extract app startup
-        val metricMap = mutableMapOf<String, Double>()
+        val measurements = mutableListOf<Measurement>()
 
         val durMs = appStartup.to_first_frame?.dur_ms
         if (durMs != null) {
-            metricMap["startupMs"] = durMs
+            measurements.add(Measurement("startupMs", durMs))
         }
 
         val fullyDrawnMs = appStartup.report_fully_drawn?.dur_ms
         if (fullyDrawnMs != null) {
-            metricMap["fullyDrawnMs"] = fullyDrawnMs
+            measurements.add(Measurement("fullyDrawnMs", fullyDrawnMs))
         }
 
-        val timelineStart = appStartup.event_timestamps?.intent_received
-        val timelineEnd = appStartup.event_timestamps?.first_frame
-
-        return IterationResult(
-            singleMetrics = metricMap,
-            sampledMetrics = emptyMap(),
-            timelineRangeNs = if (timelineStart != null && timelineEnd != null) {
-                timelineStart..timelineEnd
-            } else {
-                null
-            }
-        )
+        return measurements
     }
+}
+
+/**
+ * Metric which captures results from a Perfetto trace with custom [PerfettoTraceProcessor] queries.
+ *
+ * This is a more customizable version of [TraceSectionMetric] which can perform arbitrary queries
+ * against the captured PerfettoTrace.
+ *
+ * Sample metric which finds the duration of the first "activityResume" trace section for the traced
+ * package:
+ * ```
+ * class ActivityResumeMetric : TraceMetric() {
+ *     override fun getResult(
+ *         captureInfo: CaptureInfo,
+ *         traceSession: PerfettoTraceProcessor.Session
+ *     ): Result {
+ *         val rowSequence = traceSession.query(
+ *             """
+ *             SELECT
+ *                 slice.name as name,
+ *                 slice.ts as ts,
+ *                 slice.dur as dur
+ *             FROM slice
+ *                 INNER JOIN thread_track on slice.track_id = thread_track.id
+ *                 INNER JOIN thread USING(utid)
+ *                 INNER JOIN process USING(upid)
+ *             WHERE
+ *                 process.name LIKE ${captureInfo.targetPackageName}
+ *                     AND slice.name LIKE "activityResume"
+ *             """.trimIndent()
+ *         )
+ *         // this metric queries a single slice type to produce submetrics, but could be extended
+ *         // to capture timing of every component of activity lifecycle
+ *         val activityResultNs = rowSequence.firstOrNull()?.double("dur")
+ *         return if (activityResultMs != null) {
+ *             Result("activityResumeMs", activityResultNs / 1_000_000.0)
+ *         } else {
+ *             Result()
+ *         }
+ *     }
+ * }
+ * ```
+ *
+ * @see PerfettoTraceProcessor
+ * @see PerfettoTraceProcessor.Session
+ * @see PerfettoTraceProcessor.Session.query
+ */
+@ExperimentalMetricApi
+abstract class TraceMetric : Metric() {
+    override fun configure(packageName: String) {
+    }
+
+    override fun start() {
+    }
+
+    override fun stop() {
+    }
+
+    /**
+     * Get the metric result for a given iteration given information about the target process and a TraceProcessor session
+     */
+    public abstract override fun getResult(
+        captureInfo: CaptureInfo,
+        traceSession: PerfettoTraceProcessor.Session
+    ): List<Measurement>
 }
 
 /**
@@ -279,7 +386,7 @@ public class StartupTimingLegacyMetric : Metric() {
  * @see androidx.tracing.trace
  */
 @ExperimentalMetricApi
-public class TraceSectionMetric(
+class TraceSectionMetric(
     private val sectionName: String,
     private val mode: Mode = Mode.First
 ) : Metric() {
@@ -301,47 +408,42 @@ public class TraceSectionMetric(
         Sum
     }
 
-    internal override fun configure(packageName: String) {
+    override fun configure(packageName: String) {
     }
 
-    internal override fun start() {
+    override fun start() {
     }
 
-    internal override fun stop() {
+    override fun stop() {
     }
 
     @SuppressLint("SyntheticAccessor")
-    internal override fun getMetrics(
+    override fun getResult(
         captureInfo: CaptureInfo,
-        perfettoTraceProcessor: PerfettoTraceProcessor
-    ): IterationResult {
-        val slices = perfettoTraceProcessor.querySlices(sectionName)
+        traceSession: PerfettoTraceProcessor.Session
+    ): List<Measurement> {
+        val slices = traceSession.querySlices(sectionName)
 
         return when (mode) {
             Mode.First -> {
                 val slice = slices.firstOrNull()
                 if (slice == null) {
-                    IterationResult.EMPTY
-                } else IterationResult(
-                    singleMetrics = mapOf(
-                        sectionName + "Ms" to slice.dur / 1_000_000.0
-                    ),
-                    sampledMetrics = emptyMap(),
-                    timelineRangeNs = slice.ts..slice.endTs
+                    emptyList()
+                } else listOf(
+                    Measurement(
+                        name = sectionName + "Ms",
+                        data = slice.dur / 1_000_000.0
+                    )
                 )
             }
+
             Mode.Sum -> {
-                // note, this duration assumes non-reentrant slices
-                val durMs = slices.sumOf { it.dur } / 1_000_000.0
-                IterationResult(
-                    singleMetrics = mapOf(sectionName + "Ms" to durMs),
-                    sampledMetrics = emptyMap(),
-                    timelineRangeNs = if (slices.isEmpty()) {
-                        null
-                    } else {
-                        // parens added to make ktlint happy
-                        (slices.minOf { it.ts })..(slices.maxOf { it.endTs })
-                    }
+                listOf(
+                    Measurement(
+                        name = sectionName + "Ms",
+                        // note, this duration assumes non-reentrant slices
+                        data = slices.sumOf { it.dur } / 1_000_000.0
+                    )
                 )
             }
         }
@@ -401,18 +503,20 @@ public class TraceSectionMetric(
  */
 @RequiresApi(29)
 @ExperimentalMetricApi
-public class PowerMetric(
+class PowerMetric(
     private val type: Type
 ) : Metric() {
 
     companion object {
         internal const val MEASURE_BLOCK_SECTION_NAME = "measureBlock"
 
+        @Suppress("FunctionName")
         @JvmStatic
         fun Battery(): Type.Battery {
             return Type.Battery()
         }
 
+        @Suppress("FunctionName")
         @JvmStatic
         fun Energy(
             categories: Map<PowerCategory, PowerCategoryDisplayLevel> = emptyMap()
@@ -420,6 +524,7 @@ public class PowerMetric(
             return Type.Energy(categories)
         }
 
+        @Suppress("FunctionName")
         @JvmStatic
         fun Power(
             categories: Map<PowerCategory, PowerCategoryDisplayLevel> = emptyMap()
@@ -449,7 +554,7 @@ public class PowerMetric(
         class Battery : Type()
     }
 
-    internal override fun configure(packageName: String) {
+    override fun configure(packageName: String) {
         if (type is Type.Energy || type is Type.Power) {
             hasMetrics(throwOnMissingMetrics = true)
         } else {
@@ -457,73 +562,63 @@ public class PowerMetric(
         }
     }
 
-    internal override fun start() {
+    override fun start() {
         if (type is Type.Battery) {
             Shell.executeScriptSilent("setprop power.battery_input.suspended true")
         }
     }
 
-    internal override fun stop() {
+    override fun stop() {
         if (type is Type.Battery) {
             Shell.executeScriptSilent("setprop power.battery_input.suspended false")
         }
     }
 
-    internal override fun getMetrics(
+    override fun getResult(
         captureInfo: CaptureInfo,
-        perfettoTraceProcessor: PerfettoTraceProcessor
-    ): IterationResult {
+        traceSession: PerfettoTraceProcessor.Session
+    ): List<Measurement> {
         // collect metrics between trace point flags
-        val slice = perfettoTraceProcessor.querySlices(MEASURE_BLOCK_SECTION_NAME)
+        val slice = traceSession.querySlices(MEASURE_BLOCK_SECTION_NAME)
             .firstOrNull()
-            ?: return IterationResult.EMPTY
+            ?: return emptyList()
 
         if (type is Type.Battery) {
-            return getBatteryDischargeMetrics(perfettoTraceProcessor, slice)
+            return getBatteryDischargeMetrics(traceSession, slice)
         }
 
-        return getPowerMetrics(perfettoTraceProcessor, slice)
+        return getPowerMetrics(traceSession, slice)
     }
 
     private fun getBatteryDischargeMetrics(
-        perfettoTraceProcessor: PerfettoTraceProcessor,
+        session: PerfettoTraceProcessor.Session,
         slice: Slice
-    ): IterationResult {
+    ): List<Measurement> {
         val metrics = BatteryDischargeQuery.getBatteryDischargeMetrics(
-            perfettoTraceProcessor,
+            session,
             slice
         )
-
-        val metricMap: Map<String, Double> = metrics.associate { measurement ->
-            getLabel(measurement.name) to measurement.chargeMah
+        return metrics.map { measurement ->
+            Measurement(getLabel(measurement.name), measurement.chargeMah)
         }
-
-        return IterationResult(
-            singleMetrics = metricMap,
-            sampledMetrics = emptyMap()
-        )
     }
 
     private fun getPowerMetrics(
-        perfettoTraceProcessor: PerfettoTraceProcessor,
+        session: PerfettoTraceProcessor.Session,
         slice: Slice
-    ): IterationResult {
-        val metrics = PowerQuery.getPowerMetrics(perfettoTraceProcessor, slice)
+    ): List<Measurement> {
+        val metrics = PowerQuery.getPowerMetrics(session, slice)
 
         val metricMap: Map<String, Double> = getSpecifiedMetrics(metrics)
         if (metricMap.isEmpty()) {
-            return IterationResult(
-                singleMetrics = emptyMap(),
-                sampledMetrics = emptyMap()
-            )
+            return emptyList()
         }
 
         val extraMetrics: Map<String, Double> = getTotalAndUnselectedMetrics(metrics)
 
-        return IterationResult(
-            singleMetrics = metricMap + extraMetrics,
-            sampledMetrics = emptyMap()
-        )
+        return (metricMap + extraMetrics).map {
+            Measurement(it.key, it.value)
+        }
     }
 
     private fun getLabel(metricName: String, displayType: String = ""): String {
@@ -577,5 +672,30 @@ public class PowerMetric(
                 }
             }
         }.flatten().associate { pair -> Pair(pair.first, pair.second) }
+    }
+}
+
+/**
+ * Captures the number of page faults over time for a target package name.
+ */
+@ExperimentalMetricApi
+class MemoryCountersMetric : TraceMetric() {
+    override fun getResult(
+        captureInfo: CaptureInfo,
+        traceSession: PerfettoTraceProcessor.Session
+    ): List<Measurement> {
+        val metrics = MemoryCountersQuery.getMemoryCounters(
+            session = traceSession,
+            targetPackageName = captureInfo.targetPackageName
+        ) ?: return listOf()
+
+        return listOf(
+            Measurement("minorPageFaults", metrics.minorPageFaults),
+            Measurement("majorPageFaults", metrics.majorPageFaults),
+            Measurement("pageFaultsBackedBySwapCache", metrics.pageFaultsBackedBySwapCache),
+            Measurement("pageFaultsBackedByReadIO", metrics.pageFaultsBackedByReadIO),
+            Measurement("memoryCompactionEvents", metrics.memoryCompactionEvents),
+            Measurement("memoryReclaimEvents", metrics.memoryReclaimEvents),
+        )
     }
 }

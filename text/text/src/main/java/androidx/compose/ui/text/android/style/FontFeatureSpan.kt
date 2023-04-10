@@ -26,7 +26,7 @@ import androidx.compose.ui.text.android.InternalPlatformTextApi
  * @suppress
  */
 @InternalPlatformTextApi
-class FontFeatureSpan(val fontFeatureSettings: String) : MetricAffectingSpan() {
+internal class FontFeatureSpan(val fontFeatureSettings: String) : MetricAffectingSpan() {
     override fun updateMeasureState(textPaint: TextPaint) {
         textPaint.fontFeatureSettings = fontFeatureSettings
     }

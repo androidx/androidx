@@ -34,7 +34,6 @@ import androidx.annotation.RestrictTo;
 /**
  * Layout helper for {@link ComplicationData#TYPE_SHORT_TEXT}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ShortTextLayoutHelper extends LayoutHelper {

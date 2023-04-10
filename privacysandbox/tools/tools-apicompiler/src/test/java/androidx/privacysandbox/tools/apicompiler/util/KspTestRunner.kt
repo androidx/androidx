@@ -20,7 +20,6 @@ import androidx.privacysandbox.tools.apicompiler.parser.ApiParser
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.testing.CompilationResultSubject
 import androidx.privacysandbox.tools.testing.CompilationTestHelper.assertThat
-import androidx.privacysandbox.tools.testing.allTestLibraryStubs
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.compile
@@ -41,7 +40,7 @@ fun parseSources(vararg sources: Source): ParsedApi {
         compile(
             Files.createTempDirectory("test").toFile(),
             TestCompilationArguments(
-                sources = sources.toList() + allTestLibraryStubs,
+                sources = sources.toList(),
                 symbolProcessorProviders = listOf(provider),
             )
         )

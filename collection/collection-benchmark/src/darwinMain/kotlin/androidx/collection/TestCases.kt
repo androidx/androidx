@@ -143,7 +143,7 @@ private class CollectionTestCase(
     override fun benchmark(context: TestCaseContext) {
         val options = XCTMeasureOptions.defaultOptions()
         // A single iteration
-        options.iterationCount = 1.toULong()
+        options.iterationCount = 5.toULong()
         context.measureWithMetrics(
             listOf(
                 XCTCPUMetric(), XCTMemoryMetric(), XCTClockMetric()

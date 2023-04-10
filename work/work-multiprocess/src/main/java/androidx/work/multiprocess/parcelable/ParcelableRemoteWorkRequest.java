@@ -27,7 +27,6 @@ import androidx.work.WorkerParameters;
 /**
  * Everything you need to run a {@link androidx.work.multiprocess.RemoteListenableWorker}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressLint("BanParcelableUsage")

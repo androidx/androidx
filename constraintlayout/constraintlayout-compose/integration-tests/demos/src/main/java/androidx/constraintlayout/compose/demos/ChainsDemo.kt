@@ -35,9 +35,17 @@ import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.ConstraintLayoutBaseScope
 import androidx.constraintlayout.compose.ConstraintSet
+import androidx.constraintlayout.compose.ConstraintSetScope
 import androidx.constraintlayout.compose.Dimension
 
+/**
+ * Shows the usage of `animateChanges = true` with a chain that changes orientation.
+ *
+ * Also shown here, usage of [ConstraintLayoutBaseScope.withChainParams], [Dimension.ratio] and
+ * [ConstraintSetScope.createRefsFor].
+ */
 @Preview
 @Composable
 fun ChainsAnimatedOrientationDemo() {
@@ -47,9 +55,14 @@ fun ChainsAnimatedOrientationDemo() {
     Column(Modifier.fillMaxSize()) {
         ConstraintLayout(
             constraintSet = ConstraintSet {
+                // Create multiple references using destructuring declaration
                 val (box0, box1, box2) = createRefsFor("box0", "box1", "box2")
+
+                // Assign Chain element margins with `withChainParams`
                 box1.withChainParams(8.dp, 8.dp, 8.dp, 8.dp)
 
+                // When State value of `isHorizontal` changes, ConstraintLayout will automatically
+                // animate ot the resulting ConstraintSet
                 if (isHorizontal) {
                     constrain(box0, box1, box2) {
                         width = Dimension.fillToConstraints
@@ -76,7 +89,7 @@ fun ChainsAnimatedOrientationDemo() {
                     createVerticalChain(box0, box1, box2)
                 }
             },
-            animateChanges = true,
+            animateChanges = true, // Set to true, to automatically animate on ConstraintSet changes
             animationSpec = tween(800),
             modifier = Modifier
                 .fillMaxWidth()

@@ -33,7 +33,6 @@ import kotlin.coroutines.resumeWithException
  *
  * @return R The result from the [ListenableFuture]
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public suspend inline fun <R> ListenableFuture<R>.await(): R {

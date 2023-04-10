@@ -31,11 +31,12 @@ package androidx.core.uwb {
     property public final byte[]? sessionKeyInfo;
     property public final int updateRateType;
     property public final int uwbConfigType;
+    field public static final int CONFIG_MULTICAST_DS_TWR;
+    field public static final int CONFIG_UNICAST_DS_TWR;
     field public static final androidx.core.uwb.RangingParameters.Companion Companion;
     field public static final int RANGING_UPDATE_RATE_AUTOMATIC;
     field public static final int RANGING_UPDATE_RATE_FREQUENT;
     field public static final int RANGING_UPDATE_RATE_INFREQUENT;
-    field public static final int UWB_CONFIG_ID_1;
   }
 
   public static final class RangingParameters.Companion {
@@ -153,13 +154,6 @@ package androidx.core.uwb.exceptions {
 
   public final class UwbSystemCallbackException extends androidx.core.uwb.exceptions.UwbApiException {
     ctor public UwbSystemCallbackException(String message);
-  }
-
-}
-
-package androidx.core.uwb.helper {
-
-  public final class UwbHelperKt {
   }
 
 }

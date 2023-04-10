@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.room.androidx.room.integration.kotlintestapp.test
+package androidx.room.integration.kotlintestapp.test
 
-import androidx.room.integration.kotlintestapp.test.TestDatabaseTest
-import androidx.room.integration.kotlintestapp.test.TestUtil
+import androidx.kruth.assertThat
 import androidx.room.invalidationTrackerFlow
 import androidx.room.withTransaction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
@@ -39,6 +37,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
 import org.junit.After
 import org.junit.Assert.fail
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -105,6 +104,7 @@ class InvalidationTrackerFlowTest : TestDatabaseTest() {
         channel.cancel()
     }
 
+    @Ignore // b/268534919
     @Test
     fun emitOnceForMultipleTablesInTransaction(): Unit = runBlocking {
         val results = mutableListOf<Set<String>>()

@@ -19,6 +19,7 @@ package androidx.room.compiler.processing.javac
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.javac.kotlin.KmPropertyContainer
 import androidx.room.compiler.processing.javac.kotlin.KmTypeContainer
+import androidx.room.compiler.processing.javac.kotlin.descriptor
 import javax.lang.model.element.VariableElement
 
 internal class JavacFieldElement(
@@ -39,4 +40,7 @@ internal class JavacFieldElement(
 
     override val closestMemberContainer: JavacTypeElement
         get() = enclosingElement
+
+    override val jvmDescriptor: String
+        get() = element.descriptor()
 }

@@ -19,11 +19,15 @@ package androidx.benchmark.macro.perfetto
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.PowerCategory
 import androidx.benchmark.macro.PowerMetric
+import androidx.benchmark.perfetto.PerfettoTraceProcessor
+import androidx.benchmark.perfetto.Slice
+import org.intellij.lang.annotations.Language
 
 // We want to use android_powrails.sql, but cannot as they do not split into sections with slice
 
 @OptIn(ExperimentalMetricApi::class)
 internal object PowerQuery {
+    @Language("sql")
     private fun getFullQuery(slice: Slice) = """
         SELECT
             t.name,
@@ -94,11 +98,11 @@ internal object PowerQuery {
     }
 
     fun getPowerMetrics(
-        perfettoTraceProcessor: PerfettoTraceProcessor,
+        session: PerfettoTraceProcessor.Session,
         slice: Slice
     ): Map<PowerCategory, CategoryMeasurement> {
         // gather all recorded rails
-        val railMetrics: List<ComponentMeasurement> = getRailMetrics(perfettoTraceProcessor, slice)
+        val railMetrics: List<ComponentMeasurement> = getRailMetrics(session, slice)
         railMetrics.ifEmpty { return emptyMap() }
 
         // sort ComponentMeasurements into CategoryMeasurements
@@ -135,20 +139,17 @@ internal object PowerQuery {
     }
 
     private fun getRailMetrics(
-        perfettoTraceProcessor: PerfettoTraceProcessor,
+        session: PerfettoTraceProcessor.Session,
         slice: Slice
     ): List<ComponentMeasurement> {
-
         val query = getFullQuery(slice)
-        val queryResult = perfettoTraceProcessor.rawQuery(query)
-
-        return queryResult.toList {
+        return session.query(query).map {
             ComponentMeasurement(
                 name = (it["name"] as String).camelCase(),
                 energyUws = it["energyUws"] as Double,
                 powerUw = it["powerUs"] as Double,
             )
-        }
+        }.toList()
     }
 
     /**

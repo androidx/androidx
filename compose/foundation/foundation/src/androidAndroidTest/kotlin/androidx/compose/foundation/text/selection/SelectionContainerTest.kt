@@ -79,9 +79,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
 import java.util.concurrent.CountDownLatch
 import kotlin.math.max
 import kotlin.math.sign
@@ -180,15 +180,14 @@ class SelectionContainerTest {
                     )
                 }
 
+            rule.mainClock.advanceTimeByFrame()
             // Assert. Should select "Demo".
-            rule.runOnIdle {
-                assertThat(selection.value!!.start.offset).isEqualTo(textContent.indexOf('D'))
-                assertThat(selection.value!!.end.offset).isEqualTo(textContent.indexOf('o') + 1)
-                verify(
-                    hapticFeedback,
-                    times(1)
-                ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
-            }
+            assertThat(selection.value!!.start.offset).isEqualTo(textContent.indexOf('D'))
+            assertThat(selection.value!!.end.offset).isEqualTo(textContent.indexOf('o') + 1)
+            verify(
+                hapticFeedback,
+                times(1)
+            ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
 
             // Check the position of the anchors of the selection handles. We don't need to compare
             // to the absolute position since the semantics report selection relative to the
@@ -200,7 +199,6 @@ class SelectionContainerTest {
         }
     }
 
-    //    @Ignore("b/230622412")
     @Test
     fun long_press_select_a_word_rtl_layout() {
         with(rule.density) {
@@ -225,15 +223,15 @@ class SelectionContainerTest {
                     )
                 }
 
+            rule.mainClock.advanceTimeByFrame()
+
             // Assert. Should select "Demo".
-            rule.runOnIdle {
-                assertThat(selection.value!!.start.offset).isEqualTo(textContent.indexOf('T'))
-                assertThat(selection.value!!.end.offset).isEqualTo(textContent.indexOf('t') + 1)
-                verify(
-                    hapticFeedback,
-                    times(1)
-                ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
-            }
+            assertThat(selection.value!!.start.offset).isEqualTo(textContent.indexOf('T'))
+            assertThat(selection.value!!.end.offset).isEqualTo(textContent.indexOf('t') + 1)
+            verify(
+                hapticFeedback,
+                times(1)
+            ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
 
             // Check the position of the anchors of the selection handles. We don't need to compare
             // to the absolute position since the semantics report selection relative to the

@@ -399,6 +399,7 @@ class ScreenshotTests {
                 CompositionResult(errorUiLayout(), ResourceBuilders.Resources.Builder())
             }
 
+        @Suppress("DEPRECATION")
         val renderer = TileRenderer(
             context,
             LayoutElementBuilders.Layout.Builder().setRoot(translatedComposition.layout).build(),
@@ -407,6 +408,7 @@ class ScreenshotTests {
         ) {}
 
         val frame = FrameLayout(getApplicationContext())
+        @Suppress("DEPRECATION")
         val firstChild = renderer.inflate(frame)
 
         requireNotNull(firstChild) {

@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2022 The Android Open Source Project
  *
@@ -123,15 +124,14 @@ private class ScrollingLogic(
     val reverseDirection: Boolean,
     val scrollableState: ScrollableState,
 ) {
-    private fun Float.toOffset(): Offset = when {
+    fun Float.toOffset(): Offset = when {
         this == 0f -> Offset.Zero
         orientation == Horizontal -> Offset(this, 0f)
         else -> Offset(0f, this)
     }
 
-    private fun Offset.toFloat(): Float =
-        if (orientation == Horizontal) this.x else this.y
-    private fun Float.reverseIfNeeded(): Float = if (reverseDirection) this * -1 else this
+    fun Offset.toFloat(): Float = if (orientation == Horizontal) this.x else this.y
+    fun Float.reverseIfNeeded(): Float = if (reverseDirection) this * -1 else this
 
     fun performRawScroll(scroll: Offset): Offset {
         return if (scrollableState.isScrollInProgress) {

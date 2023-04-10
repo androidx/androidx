@@ -33,7 +33,6 @@ import java.util.Objects;
 /**
  * Wire format to encode a pair of id to {@link ComplicationData}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
@@ -49,8 +48,7 @@ public final class IdAndComplicationDataWireFormat implements VersionedParcelabl
     ComplicationData mComplicationData;
 
     /** Used by VersionedParcelable. */
-    IdAndComplicationDataWireFormat() {
-    }
+    IdAndComplicationDataWireFormat() {}
 
     public IdAndComplicationDataWireFormat(int id, @NonNull ComplicationData complicationData) {
         mId = id;
@@ -109,6 +107,10 @@ public final class IdAndComplicationDataWireFormat implements VersionedParcelabl
     @Override
     public String toString() {
         return "IdAndComplicationDataWireFormat{"
-                + "mId=" + mId + ", mComplicationData=" + mComplicationData + '}';
+                + "mId="
+                + mId
+                + ", mComplicationData="
+                + mComplicationData
+                + '}';
     }
 }

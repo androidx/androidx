@@ -35,7 +35,6 @@ import java.lang.reflect.Field;
 /**
  * Helper for creating {@link Typeface}s with exact weight on API 14-20.
  * May be used on newer platforms as a fallback method in case private API isn't available.
- * @hide
  */
 @RestrictTo(LIBRARY)
 final class WeightTypefaceApi14 {

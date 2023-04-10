@@ -46,7 +46,6 @@ import java.util.concurrent.ExecutionException;
 /**
  * An implementation of ListenableWorker that can be executed in a remote process.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {

@@ -26,7 +26,6 @@ import androidx.versionedparcelable.VersionedParcelize;
 
 import java.util.Map;
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 public class PerComplicationTypeMargins implements VersionedParcelable {
@@ -34,12 +33,9 @@ public class PerComplicationTypeMargins implements VersionedParcelable {
     @NonNull
     public Map<Integer, RectF> mPerComplicationTypeMargins;
 
-    PerComplicationTypeMargins() {
-    }
+    PerComplicationTypeMargins() {}
 
-    public PerComplicationTypeMargins(
-            @NonNull Map<Integer, RectF> perComplicationTypeMargins
-    ) {
+    public PerComplicationTypeMargins(@NonNull Map<Integer, RectF> perComplicationTypeMargins) {
         mPerComplicationTypeMargins = perComplicationTypeMargins;
     }
 }

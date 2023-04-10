@@ -28,6 +28,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -277,7 +278,229 @@ public class NestedScrollViewWithCollapsingToolbarTest {
         // Assert
         // Should trigger a scroll event in parent. Note: OnStartNestedScroll is triggered on
         // key action down only, not key action up, so that is why the count is one.
-        // Should trigger in parent of scroll event.
+        assertEquals(1, mParentNestedScrollView.getOnStartNestedScrollCount());
+        // Should not trigger in child (because child doesn't have its own inner NestedScrollView).
+        assertEquals(0, mChildNestedScrollView.getOnStartNestedScrollCount());
+    }
+
+    @Test
+    public void isOnStartNestedScrollCalled_keyboardPageDownInChild_calledInParent() {
+        // Arrange
+        setupNestedScrollViewInNestedScrollView(
+                ApplicationProvider.getApplicationContext(),
+                100,
+                600);
+
+        // Act
+        mChildNestedScrollView.requestFocus();
+        KeyEvent keyEventPressDown = new KeyEvent(
+                0,
+                0,
+                KeyEvent.ACTION_DOWN,
+                KeyEvent.KEYCODE_PAGE_DOWN,
+                0);
+        mChildNestedScrollView.executeKeyEvent(keyEventPressDown);
+
+        KeyEvent keyEventPressUp = new KeyEvent(
+                0,
+                0,
+                KeyEvent.ACTION_UP,
+                KeyEvent.KEYCODE_PAGE_DOWN,
+                0);
+        mChildNestedScrollView.executeKeyEvent(keyEventPressUp);
+
+        // Assert
+        // Should trigger a scroll event in parent. Note: OnStartNestedScroll is triggered on
+        // key action down only, not key action up, so that is why the count is one.
+        assertEquals(1, mParentNestedScrollView.getOnStartNestedScrollCount());
+        // Should not trigger in child (because child doesn't have its own inner NestedScrollView).
+        assertEquals(0, mChildNestedScrollView.getOnStartNestedScrollCount());
+    }
+
+    @Test
+    public void isOnStartNestedScrollCalled_keyboardPageUpInChild_calledInParent() {
+        // Arrange
+        setupNestedScrollViewInNestedScrollView(
+                ApplicationProvider.getApplicationContext(),
+                100,
+                600);
+
+        // Move to bottom of the child NestedScrollView, so we can scroll up and not go past child.
+        int scrollRange = mChildNestedScrollView.getScrollRange();
+        mChildNestedScrollView.scrollTo(0, scrollRange);
+
+        // Act
+        mChildNestedScrollView.requestFocus();
+        KeyEvent keyEventPressDown = new KeyEvent(
+                0,
+                0,
+                KeyEvent.ACTION_DOWN,
+                KeyEvent.KEYCODE_PAGE_UP,
+                0);
+        mChildNestedScrollView.executeKeyEvent(keyEventPressDown);
+
+        KeyEvent keyEventPressUp = new KeyEvent(
+                0,
+                0,
+                KeyEvent.ACTION_UP,
+                KeyEvent.KEYCODE_PAGE_UP,
+                0);
+        mChildNestedScrollView.executeKeyEvent(keyEventPressUp);
+
+        // Assert
+        // Should trigger a scroll event in parent. Note: OnStartNestedScroll is triggered on
+        // key action down only, not key action up, so that is why the count is one.
+        assertEquals(1, mParentNestedScrollView.getOnStartNestedScrollCount());
+        // Should not trigger in child (because child doesn't have its own inner NestedScrollView).
+        assertEquals(0, mChildNestedScrollView.getOnStartNestedScrollCount());
+    }
+
+    @Test
+    public void isOnStartNestedScrollCalled_keyboardMoveEndInChild_calledInParent() {
+        // Arrange
+        setupNestedScrollViewInNestedScrollView(
+                ApplicationProvider.getApplicationContext(),
+                100,
+                600);
+
+        // Act
+        mChildNestedScrollView.requestFocus();
+        KeyEvent keyEventPressDown = new KeyEvent(
+                0,
+                0,
+                KeyEvent.ACTION_DOWN,
+                KeyEvent.KEYCODE_MOVE_END,
+                0);
+        mChildNestedScrollView.executeKeyEvent(keyEventPressDown);
+
+        KeyEvent keyEventPressUp = new KeyEvent(
+                0,
+                0,
+                KeyEvent.ACTION_UP,
+                KeyEvent.KEYCODE_MOVE_END,
+                0);
+        mChildNestedScrollView.executeKeyEvent(keyEventPressUp);
+
+        // Assert
+        // Should trigger a scroll event in parent. Note: OnStartNestedScroll is triggered on
+        // key action down only, not key action up, so that is why the count is one.
+        assertEquals(1, mParentNestedScrollView.getOnStartNestedScrollCount());
+        // Should not trigger in child (because child doesn't have its own inner NestedScrollView).
+        assertEquals(0, mChildNestedScrollView.getOnStartNestedScrollCount());
+    }
+
+
+    @Test
+    public void isOnStartNestedScrollCalled_keyboardMoveHomeInChild_calledInParent() {
+        // Arrange
+        setupNestedScrollViewInNestedScrollView(
+                ApplicationProvider.getApplicationContext(),
+                100,
+                600);
+
+        // Move to bottom of the child NestedScrollView, so we can scroll up and not go past child.
+        int scrollRange = mChildNestedScrollView.getScrollRange();
+        mChildNestedScrollView.scrollTo(0, scrollRange);
+
+        // Act
+        mChildNestedScrollView.requestFocus();
+        KeyEvent keyEventPressDown = new KeyEvent(
+                0,
+                0,
+                KeyEvent.ACTION_DOWN,
+                KeyEvent.KEYCODE_MOVE_HOME,
+                0);
+        mChildNestedScrollView.executeKeyEvent(keyEventPressDown);
+
+        KeyEvent keyEventPressUp = new KeyEvent(
+                0,
+                0,
+                KeyEvent.ACTION_UP,
+                KeyEvent.KEYCODE_MOVE_HOME,
+                0);
+        mChildNestedScrollView.executeKeyEvent(keyEventPressUp);
+
+        // Assert
+        // Should trigger a scroll event in parent. Note: OnStartNestedScroll is triggered on
+        // key action down only, not key action up, so that is why the count is one.
+        assertEquals(1, mParentNestedScrollView.getOnStartNestedScrollCount());
+        // Should not trigger in child (because child doesn't have its own inner NestedScrollView).
+        assertEquals(0, mChildNestedScrollView.getOnStartNestedScrollCount());
+    }
+
+
+    @Test
+    public void isOnStartNestedScrollCalled_keyboardSpaceBarInChild_calledInParent() {
+        // Arrange
+        setupNestedScrollViewInNestedScrollView(
+                ApplicationProvider.getApplicationContext(),
+                100,
+                600);
+
+        // Act
+        mChildNestedScrollView.requestFocus();
+        KeyEvent keyEventPressDown = new KeyEvent(
+                0,
+                0,
+                KeyEvent.ACTION_DOWN,
+                KeyEvent.KEYCODE_SPACE,
+                0);
+        mChildNestedScrollView.executeKeyEvent(keyEventPressDown);
+
+        KeyEvent keyEventPressUp = new KeyEvent(
+                0,
+                0,
+                KeyEvent.ACTION_UP,
+                KeyEvent.KEYCODE_SPACE,
+                0);
+        mChildNestedScrollView.executeKeyEvent(keyEventPressUp);
+
+        // Assert
+        // Should trigger a scroll event in parent. Note: OnStartNestedScroll is triggered on
+        // key action down only, not key action up, so that is why the count is one.
+        assertEquals(1, mParentNestedScrollView.getOnStartNestedScrollCount());
+        // Should not trigger in child (because child doesn't have its own inner NestedScrollView).
+        assertEquals(0, mChildNestedScrollView.getOnStartNestedScrollCount());
+    }
+
+
+    @Test
+    public void isOnStartNestedScrollCalled_keyboardShiftSpaceBarInChild_calledInParent() {
+        // Arrange
+        setupNestedScrollViewInNestedScrollView(
+                ApplicationProvider.getApplicationContext(),
+                100,
+                600);
+
+        // Move to bottom of the child NestedScrollView, so we can scroll up and not go past child.
+        int scrollRange = mChildNestedScrollView.getScrollRange();
+        mChildNestedScrollView.scrollTo(0, scrollRange);
+
+        // Act
+        mChildNestedScrollView.requestFocus();
+        KeyEvent keyEventPressDown = new KeyEvent(
+                0,
+                0,
+                KeyEvent.ACTION_DOWN,
+                KeyEvent.KEYCODE_SPACE,
+                0,
+                KeyEvent.META_SHIFT_ON | KeyEvent.META_SHIFT_LEFT_ON
+        );
+        mChildNestedScrollView.executeKeyEvent(keyEventPressDown);
+
+        KeyEvent keyEventPressUp = new KeyEvent(
+                0,
+                0,
+                KeyEvent.ACTION_UP,
+                KeyEvent.KEYCODE_SPACE,
+                0,
+                KeyEvent.META_SHIFT_ON | KeyEvent.META_SHIFT_LEFT_ON
+        );
+        mChildNestedScrollView.executeKeyEvent(keyEventPressUp);
+
+        // Assert
+        // Should trigger a scroll event in parent. Note: OnStartNestedScroll is triggered on
+        // key action down only, not key action up, so that is why the count is one.
         assertEquals(1, mParentNestedScrollView.getOnStartNestedScrollCount());
         // Should not trigger in child (because child doesn't have its own inner NestedScrollView).
         assertEquals(0, mChildNestedScrollView.getOnStartNestedScrollCount());
@@ -321,8 +544,6 @@ public class NestedScrollViewWithCollapsingToolbarTest {
         mChildNestedScrollView.executeKeyEvent(keyEventPressUp);
 
         // Assert
-        // Should trigger in parent of scroll event. Note: OnStartNestedScroll is triggered on
-        // key action down only, not key action up, so that is why the count is one.
         assertEquals(0, mParentNestedScrollView.getOnStartNestedScrollCount());
         // Should not trigger in child (because child doesn't have its own inner NestedScrollView).
         assertEquals(0, mChildNestedScrollView.getOnStartNestedScrollCount());
@@ -358,9 +579,6 @@ public class NestedScrollViewWithCollapsingToolbarTest {
         mChildNestedScrollView.executeKeyEvent(keyEventPressUp);
 
         // Assert
-        // Should trigger in parent of scroll event. Note: OnStartNestedScroll is triggered on
-        // key action down only, not key action up, so that is why the count is one.
-        // Should trigger in parent of scroll event.
         assertEquals(0, mParentNestedScrollView.getOnStartNestedScrollCount());
         // Should not trigger in child (because child doesn't have its own inner NestedScrollView).
         assertEquals(0, mChildNestedScrollView.getOnStartNestedScrollCount());
@@ -397,9 +615,6 @@ public class NestedScrollViewWithCollapsingToolbarTest {
         mChildNestedScrollView.executeKeyEvent(keyEventPressUp);
 
         // Assert
-        // Should trigger in parent of scroll event. Note: OnStartNestedScroll is triggered on
-        // key action down only, not key action up, so that is why the count is one.
-        // Should trigger in parent of scroll event.
         assertEquals(0, mParentNestedScrollView.getOnStartNestedScrollCount());
         // Should not trigger in child (because child doesn't have its own inner NestedScrollView).
         assertEquals(0, mChildNestedScrollView.getOnStartNestedScrollCount());
@@ -438,9 +653,77 @@ public class NestedScrollViewWithCollapsingToolbarTest {
         mChildNestedScrollView.executeKeyEvent(keyEventPressUp);
 
         // Assert
-        // Should trigger in parent of scroll event. Note: OnStartNestedScroll is triggered on
-        // key action down only, not key action up, so that is why the count is one.
-        // Should trigger in parent of scroll event.
+        assertEquals(0, mParentNestedScrollView.getOnStartNestedScrollCount());
+        // Should not trigger in child (because child doesn't have its own inner NestedScrollView).
+        assertEquals(0, mChildNestedScrollView.getOnStartNestedScrollCount());
+    }
+
+
+    @Test
+    public void isOnStartNestedScrollCalled_keyboardPageUpInChildPastTop_notCalledInParent() {
+        // Arrange
+        setupNestedScrollViewInNestedScrollView(
+                ApplicationProvider.getApplicationContext(),
+                100,
+                600);
+
+        // Act
+        mChildNestedScrollView.requestFocus();
+        KeyEvent keyEventPressPageDown = new KeyEvent(
+                0,
+                0,
+                KeyEvent.ACTION_DOWN,
+                KeyEvent.KEYCODE_PAGE_UP,
+                0
+        );
+        mChildNestedScrollView.executeKeyEvent(keyEventPressPageDown);
+
+        KeyEvent keyEventPressPageUp = new KeyEvent(
+                0,
+                0,
+                KeyEvent.ACTION_UP,
+                KeyEvent.KEYCODE_PAGE_UP,
+                0
+        );
+        mChildNestedScrollView.executeKeyEvent(keyEventPressPageUp);
+
+        // Assert
+        assertEquals(0, mParentNestedScrollView.getOnStartNestedScrollCount());
+        // Should not trigger in child (because child doesn't have its own inner NestedScrollView).
+        assertEquals(0, mChildNestedScrollView.getOnStartNestedScrollCount());
+    }
+
+    @Test
+    public void isOnStartNestedScrollCalled_keyboardPageDownInChildPastBottom_notCalledInParent() {
+        // Arrange
+        setupNestedScrollViewInNestedScrollView(
+                ApplicationProvider.getApplicationContext(),
+                100,
+                600);
+        // Move to bottom of the child NestedScrollView, so we can try scrolling past it.
+        int scrollRange = mChildNestedScrollView.getScrollRange();
+        mChildNestedScrollView.scrollTo(0, scrollRange);
+
+        mChildNestedScrollView.requestFocus();
+        KeyEvent keyEventPressDown = new KeyEvent(
+                0,
+                0,
+                KeyEvent.ACTION_DOWN,
+                KeyEvent.KEYCODE_PAGE_DOWN,
+                0
+        );
+        mChildNestedScrollView.executeKeyEvent(keyEventPressDown);
+
+        KeyEvent keyEventPressUp = new KeyEvent(
+                0,
+                0,
+                KeyEvent.ACTION_UP,
+                KeyEvent.KEYCODE_PAGE_DOWN,
+                0
+        );
+        mChildNestedScrollView.executeKeyEvent(keyEventPressUp);
+
+        // Assert
         assertEquals(0, mParentNestedScrollView.getOnStartNestedScrollCount());
         // Should not trigger in child (because child doesn't have its own inner NestedScrollView).
         assertEquals(0, mChildNestedScrollView.getOnStartNestedScrollCount());
@@ -475,9 +758,6 @@ public class NestedScrollViewWithCollapsingToolbarTest {
         mChildNestedScrollView.executeKeyEvent(keyEventPressUp);
 
         // Assert
-        // Should trigger in parent of scroll event. Note: OnStartNestedScroll is triggered on
-        // key action down only, not key action up, so that is why the count is one.
-        // Should trigger in parent of scroll event.
         assertEquals(0, mParentNestedScrollView.getOnStartNestedScrollCount());
         // Should not trigger in child (because child doesn't have its own inner NestedScrollView).
         assertEquals(0, mChildNestedScrollView.getOnStartNestedScrollCount());
@@ -513,9 +793,6 @@ public class NestedScrollViewWithCollapsingToolbarTest {
         mChildNestedScrollView.executeKeyEvent(keyEventPressUp);
 
         // Assert
-        // Should trigger in parent of scroll event. Note: OnStartNestedScroll is triggered on
-        // key action down only, not key action up, so that is why the count is one.
-        // Should trigger in parent of scroll event.
         assertEquals(0, mParentNestedScrollView.getOnStartNestedScrollCount());
         // Should not trigger in child (because child doesn't have its own inner NestedScrollView).
         assertEquals(0, mChildNestedScrollView.getOnStartNestedScrollCount());
@@ -701,7 +978,12 @@ public class NestedScrollViewWithCollapsingToolbarTest {
         }
 
         @Override
-        public boolean onStartNestedScroll(View child, View target, int axes, int type) {
+        public boolean onStartNestedScroll(
+                @NonNull View child,
+                @NonNull View target,
+                int axes,
+                int type
+        ) {
             mOnStartNestedScrollCount++;
             return super.onStartNestedScroll(child, target, axes, type);
         }

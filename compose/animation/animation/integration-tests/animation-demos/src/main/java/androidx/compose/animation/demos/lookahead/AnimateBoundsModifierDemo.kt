@@ -35,10 +35,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.LookaheadLayout
-import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.unit.dp
-import java.lang.Integer.max
 import kotlin.random.Random
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -63,71 +61,57 @@ fun AnimateBoundsModifierDemo() {
         mutableStateOf(2f)
     }
 
-    LookaheadLayout(
-        modifier = Modifier
-            .fillMaxSize()
-            .clickable {
-                height = Random.nextInt(10, 300)
-                weight = Random
-                    .nextDouble(0.5, 4.5)
-                    .toFloat()
+    LookaheadScope {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .clickable {
+                    height = Random.nextInt(10, 300)
+                    weight = Random
+                        .nextDouble(0.5, 4.5)
+                        .toFloat()
 
-                left = Random.nextInt(0, 200)
-                top = Random.nextInt(0, 100)
-                right = Random.nextInt(0, 200)
-                bottom = Random.nextInt(0, 100)
-            },
-        content = {
-            Column {
+                    left = Random.nextInt(0, 200)
+                    top = Random.nextInt(0, 100)
+                    right = Random.nextInt(0, 200)
+                    bottom = Random.nextInt(0, 100)
+                }
+        ) {
+            Box(
+                Modifier
+                    .fillMaxHeight(0.5f)
+                    .fillMaxSize()
+            ) {
                 Box(
                     Modifier
-                        .fillMaxHeight(0.5f)
+                        .background(Color.Gray)
+                        .animateBounds(
+                            Modifier.padding(left.dp, top.dp, right.dp, bottom.dp)
+                        )
+                        .background(Color.Red)
                         .fillMaxSize()
-                ) {
-                    Box(
-                        Modifier
-                            .background(Color.Gray)
-                            .animateBounds(
-                                Modifier.padding(left.dp, top.dp, right.dp, bottom.dp)
-                            )
-                            .background(Color.Red)
-                            .fillMaxSize()
-                    )
-                }
-                Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        Modifier
-                            .animateBounds(
-                                Modifier
-                                    .weight(weight)
-                                    .height(height.dp)
-                            )
-                            .background(Color(0xffa2d2ff), RoundedCornerShape(5.dp))
-                    )
-                    Box(
-                        Modifier
-                            .animateBounds(
-                                Modifier
-                                    .weight(1f)
-                                    .height(height.dp)
-                            )
-                            .background(Color(0xfffff3b0))
-                    )
-                }
+                )
             }
-        }, measurePolicy = lookaheadMeasurePolicy
-    )
-}
-
-internal val lookaheadMeasurePolicy = MeasurePolicy { measurables, constraints ->
-    val contentConstraints = constraints.copy(minWidth = 0, minHeight = 0)
-    val placeables = measurables.map { it.measure(contentConstraints) }
-    val maxWidth: Int = max(placeables.maxOf { it.width }, constraints.minWidth)
-    val maxHeight = max(placeables.maxOf { it.height }, constraints.minHeight)
-    // Position the children.
-    layout(maxWidth, maxHeight) {
-        placeables.forEach {
-            it.place(0, 0)
+            Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    Modifier
+                        .animateBounds(
+                            Modifier
+                                .weight(weight)
+                                .height(height.dp)
+                        )
+                        .background(Color(0xffa2d2ff), RoundedCornerShape(5.dp))
+                )
+                Box(
+                    Modifier
+                        .animateBounds(
+                            Modifier
+                                .weight(1f)
+                                .height(height.dp)
+                        )
+                        .background(Color(0xfffff3b0))
+                )
+            }
         }
     }
 }

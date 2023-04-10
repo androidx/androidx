@@ -155,7 +155,10 @@ class DarwinBenchmarkPlugin : Plugin<Project> {
         // We want to write metrics to library metrics specific location
         // Context: b/257326666
         return providers.environmentVariable(DIST_DIR).map { value ->
-            File(value, LIBRARY_METRICS)
+            val parent = value.ifBlank {
+                project.buildDir.absolutePath
+            }
+            File(parent, LIBRARY_METRICS)
         }
     }
 

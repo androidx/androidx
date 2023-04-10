@@ -78,21 +78,18 @@ public final class ActionBuilders {
             return mImpl.getValue();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static AndroidStringExtra fromProto(@NonNull ActionProto.AndroidStringExtra proto) {
             return new AndroidStringExtra(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         ActionProto.AndroidStringExtra toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -135,21 +132,18 @@ public final class ActionBuilders {
             return mImpl.getValue();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static AndroidIntExtra fromProto(@NonNull ActionProto.AndroidIntExtra proto) {
             return new AndroidIntExtra(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         ActionProto.AndroidIntExtra toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -192,21 +186,18 @@ public final class ActionBuilders {
             return mImpl.getValue();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static AndroidLongExtra fromProto(@NonNull ActionProto.AndroidLongExtra proto) {
             return new AndroidLongExtra(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         ActionProto.AndroidLongExtra toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -249,21 +240,18 @@ public final class ActionBuilders {
             return mImpl.getValue();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static AndroidDoubleExtra fromProto(@NonNull ActionProto.AndroidDoubleExtra proto) {
             return new AndroidDoubleExtra(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         ActionProto.AndroidDoubleExtra toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -306,7 +294,6 @@ public final class ActionBuilders {
             return mImpl.getValue();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static AndroidBooleanExtra fromProto(
@@ -314,14 +301,12 @@ public final class ActionBuilders {
             return new AndroidBooleanExtra(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         ActionProto.AndroidBooleanExtra toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -360,7 +345,6 @@ public final class ActionBuilders {
         /**
          * Get the protocol buffer representation of this object.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -370,7 +354,6 @@ public final class ActionBuilders {
          * Return an instance of one of this object's subtypes, from the protocol buffer
          * representation.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -443,14 +426,12 @@ public final class ActionBuilders {
                                                             f.getValue()))));
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static AndroidActivity fromProto(@NonNull ActionProto.AndroidActivity proto) {
             return new AndroidActivity(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ActionProto.AndroidActivity toProto() {
@@ -519,21 +500,18 @@ public final class ActionBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static LaunchAction fromProto(@NonNull ActionProto.LaunchAction proto) {
             return new LaunchAction(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         ActionProto.LaunchAction toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -586,21 +564,18 @@ public final class ActionBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static LoadAction fromProto(@NonNull ActionProto.LoadAction proto) {
             return new LoadAction(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         ActionProto.LoadAction toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -639,7 +614,6 @@ public final class ActionBuilders {
         /**
          * Get the protocol buffer representation of this object.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -649,7 +623,6 @@ public final class ActionBuilders {
          * Return an instance of one of this object's subtypes, from the protocol buffer
          * representation.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull

@@ -74,7 +74,6 @@ class PassiveGoal private constructor(
     /**
      * The frequency at which passive goals should be triggered.
      *
-     * @hide
      */
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(
@@ -96,14 +95,12 @@ class PassiveGoal private constructor(
              */
             const val REPEATED: Int = 2
 
-            /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY)
             internal fun @receiver:TriggerFrequency
             Int.toProto(): PassiveGoalProto.TriggerFrequency =
                 PassiveGoalProto.TriggerFrequency.forNumber(this)
                     ?: PassiveGoalProto.TriggerFrequency.TRIGGER_FREQUENCY_UNKNOWN
 
-            /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY)
             @TriggerFrequency
             @Suppress("WrongConstant")

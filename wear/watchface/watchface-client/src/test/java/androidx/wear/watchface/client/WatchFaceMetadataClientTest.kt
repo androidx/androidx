@@ -28,11 +28,11 @@ import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.control.IWatchFaceControlService
 import androidx.wear.watchface.data.ComplicationSlotMetadataWireFormat
 import com.google.common.truth.Truth.assertThat
-import org.mockito.kotlin.any
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.mock
 import org.mockito.Mockito.`when`
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
 
 @RunWith(ClientTestRunner::class)
 class WatchFaceMetadataClientTest {
@@ -49,47 +49,47 @@ class WatchFaceMetadataClientTest {
         val longTextBounds = RectF(0.1f, 0.3f, 0.9f, 0.5f)
 
         // Return a ComplicationSlotMetadataWireFormat with partial complicationBounds
-        `when`(mockService.getComplicationSlotMetadata(any())).thenReturn(
-            arrayOf(
-                ComplicationSlotMetadataWireFormat(
-                    id,
-                    intArrayOf(
+        `when`(mockService.getComplicationSlotMetadata(any()))
+            .thenReturn(
+                arrayOf(
+                    ComplicationSlotMetadataWireFormat(
+                        id,
+                        intArrayOf(
+                            ComplicationType.SHORT_TEXT.toWireComplicationType(),
+                            ComplicationType.LONG_TEXT.toWireComplicationType()
+                        ),
+                        arrayOf(shortTextBounds, longTextBounds),
+                        ComplicationSlotBoundsType.ROUND_RECT,
+                        intArrayOf(ComplicationType.SHORT_TEXT.toWireComplicationType()),
+                        emptyList(),
+                        SystemDataSources.DATA_SOURCE_DATE,
                         ComplicationType.SHORT_TEXT.toWireComplicationType(),
-                        ComplicationType.LONG_TEXT.toWireComplicationType()
-                    ),
-                    arrayOf(shortTextBounds, longTextBounds),
-                    ComplicationSlotBoundsType.ROUND_RECT,
-                    intArrayOf(ComplicationType.SHORT_TEXT.toWireComplicationType()),
-                    emptyList(),
-                    SystemDataSources.DATA_SOURCE_DATE,
-                    ComplicationType.SHORT_TEXT.toWireComplicationType(),
-                    ComplicationType.SHORT_TEXT.toWireComplicationType(),
-                    ComplicationType.SHORT_TEXT.toWireComplicationType(),
-                    false,
-                    false,
-                    Bundle()
+                        ComplicationType.SHORT_TEXT.toWireComplicationType(),
+                        ComplicationType.SHORT_TEXT.toWireComplicationType(),
+                        false,
+                        false,
+                        Bundle()
+                    )
                 )
             )
-        )
 
-        val client = WatchFaceMetadataClientImpl(
-            ApplicationProvider.getApplicationContext<Context>(),
-            mockService,
-            mockServiceConnection,
-            watchFaceName
-        )
+        val client =
+            WatchFaceMetadataClientImpl(
+                ApplicationProvider.getApplicationContext<Context>(),
+                mockService,
+                mockServiceConnection,
+                watchFaceName
+            )
 
         // This should not crash.
         val map = client.getComplicationSlotMetadataMap()
 
         // SHORT_TEXT and LONG_TEXT should match the input
-        assertThat(
-            map[id]!!.bounds!!.perComplicationTypeBounds[ComplicationType.SHORT_TEXT]
-        ).isEqualTo(shortTextBounds)
+        assertThat(map[id]!!.bounds!!.perComplicationTypeBounds[ComplicationType.SHORT_TEXT])
+            .isEqualTo(shortTextBounds)
 
-        assertThat(
-            map[id]!!.bounds!!.perComplicationTypeBounds[ComplicationType.LONG_TEXT]
-        ).isEqualTo(longTextBounds)
+        assertThat(map[id]!!.bounds!!.perComplicationTypeBounds[ComplicationType.LONG_TEXT])
+            .isEqualTo(longTextBounds)
 
         // All other types should have been backfilled with an empty rect.
         for (type in ComplicationType.values()) {

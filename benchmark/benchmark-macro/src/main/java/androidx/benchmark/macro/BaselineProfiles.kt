@@ -41,12 +41,14 @@ fun collectBaselineProfile(
     uniqueName: String,
     packageName: String,
     iterations: Int = 3,
+    includeInStartupProfile: Boolean,
     filterPredicate: ((String) -> Boolean)?,
     profileBlock: MacrobenchmarkScope.() -> Unit,
 ) {
     val scope = buildMacrobenchmarkScope(packageName)
     val startTime = System.nanoTime()
     val killProcessBlock = scope.killProcessBlock()
+    val finalIterations = if (Arguments.dryRunMode) 1 else iterations
 
     // always kill the process at beginning of a collection.
     killProcessBlock.invoke()
@@ -56,9 +58,10 @@ fun collectBaselineProfile(
             // Disable because we're *creating* a baseline profile, not using it yet
             CompilationMode.Partial(
                 baselineProfileMode = BaselineProfileMode.Disable,
-                warmupIterations = iterations
+                warmupIterations = finalIterations
             ).resetAndCompile(
                 packageName = packageName,
+                allowCompilationSkipping = false,
                 killProcessBlock = killProcessBlock
             ) {
                 scope.iteration = iteration++
@@ -82,7 +85,13 @@ fun collectBaselineProfile(
         // Filter
         val profile = filterProfileRulesToTargetP(unfilteredProfile, sortRules = true)
         // Report
-        reportResults(profile, filterPredicate, uniqueName, startTime)
+        reportResults(
+            profile = profile,
+            filterPredicate = filterPredicate,
+            uniqueFilePrefix = uniqueName,
+            startTime = startTime,
+            includeInStartupProfile = includeInStartupProfile
+        )
     } finally {
         killProcessBlock.invoke()
     }
@@ -102,6 +111,7 @@ fun collectStableBaselineProfile(
     stableIterations: Int,
     maxIterations: Int,
     strictStability: Boolean = false,
+    includeInStartupProfile: Boolean,
     filterPredicate: ((String) -> Boolean)?,
     profileBlock: MacrobenchmarkScope.() -> Unit
 ) {
@@ -115,8 +125,9 @@ fun collectStableBaselineProfile(
         var stableCount = 1
         var lastProfile: String? = null
         var iteration = 1
+        val finalMaxIterations = if (Arguments.dryRunMode) 1 else maxIterations
 
-        while (iteration <= maxIterations) {
+        while (iteration <= finalMaxIterations) {
             userspaceTrace("generate profile for $packageName ($iteration)") {
                 val mode = CompilationMode.Partial(
                     baselineProfileMode = BaselineProfileMode.Disable,
@@ -126,6 +137,7 @@ fun collectStableBaselineProfile(
                     Log.d(TAG, "Resetting compiled state for $packageName for stable profiles.")
                     mode.resetAndCompile(
                         packageName = packageName,
+                        allowCompilationSkipping = false,
                         killProcessBlock = killProcessBlock
                     ) {
                         scope.iteration = iteration
@@ -172,7 +184,7 @@ fun collectStableBaselineProfile(
             iteration += 1
         }
 
-        if (strictStability) {
+        if (strictStability && !Arguments.dryRunMode) {
             check(stableCount == stableIterations) {
                 "Baseline profiles for $packageName are not stable after $maxIterations."
             }
@@ -184,7 +196,13 @@ fun collectStableBaselineProfile(
         }
 
         val profile = filterProfileRulesToTargetP(lastProfile, sortRules = true)
-        reportResults(profile, filterPredicate, uniqueName, startTime)
+        reportResults(
+            profile = profile,
+            filterPredicate = filterPredicate,
+            uniqueFilePrefix = uniqueName,
+            startTime = startTime,
+            includeInStartupProfile = includeInStartupProfile
+        )
     } finally {
         killProcessBlock.invoke()
     }
@@ -227,53 +245,41 @@ private fun reportResults(
     profile: String,
     filterPredicate: ((String) -> Boolean)?,
     uniqueFilePrefix: String,
-    startTime: Long
+    startTime: Long,
+    includeInStartupProfile: Boolean
 ) {
-    // Build a startup profile
-    var startupProfile: String? = null
-    if (Arguments.enableStartupProfiles) {
-        startupProfile =
-            startupProfile(profile, includeStartupOnly = Arguments.strictStartupProfiles)
-    }
-
     // Filter profile if necessary based on filters
     val filteredProfile = applyPackageFilters(profile, filterPredicate)
 
     // Write a file with a timestamp to be able to disambiguate between runs with the same
     // unique name.
 
-    val fileName = "$uniqueFilePrefix-baseline-prof.txt"
-    val absolutePath = Outputs.writeFile(fileName, "baseline-profile") {
-        it.writeText(filteredProfile)
-    }
-    var startupProfilePath: String? = null
-    if (startupProfile != null) {
-        val startupProfileFileName = "$uniqueFilePrefix-startup-prof.txt"
-        startupProfilePath = Outputs.writeFile(startupProfileFileName, "startup-profile") {
-            it.writeText(startupProfile)
+    val (fileName, reportKey, tsFileName) =
+        if (includeInStartupProfile && Arguments.enableStartupProfiles) {
+            arrayOf(
+                "$uniqueFilePrefix-startup-prof.txt",
+                "startup-profile",
+                "$uniqueFilePrefix-startup-prof-${Outputs.dateToFileName()}.txt"
+            )
+        } else {
+            arrayOf(
+                "$uniqueFilePrefix-baseline-prof.txt",
+                "baseline-profile",
+                "$uniqueFilePrefix-baseline-prof-${Outputs.dateToFileName()}.txt"
+            )
         }
-    }
-    val tsFileName = "$uniqueFilePrefix-baseline-prof-${Outputs.dateToFileName()}.txt"
+
+    val absolutePath = Outputs.writeFile(fileName, reportKey) { it.writeText(filteredProfile) }
     val tsAbsolutePath = Outputs.writeFile(tsFileName, "baseline-profile-ts") {
         Log.d(TAG, "Pull Baseline Profile with: `adb pull \"${it.absolutePath}\" .`")
         it.writeText(filteredProfile)
-    }
-    var tsStartupAbsolutePath: String? = null
-    if (startupProfile != null) {
-        val tsStartupFileName = "$uniqueFilePrefix-startup-prof-${Outputs.dateToFileName()}.txt"
-        tsStartupAbsolutePath = Outputs.writeFile(tsStartupFileName, "startup-profile-ts") {
-            Log.d(TAG, "Pull Startup Profile with: `adb pull \"${it.absolutePath}\" .`")
-            it.writeText(startupProfile)
-        }
     }
 
     val totalRunTime = System.nanoTime() - startTime
     val results = Summary(
         totalRunTime = totalRunTime,
         profilePath = absolutePath,
-        profileTsPath = tsAbsolutePath,
-        startupProfilePath = startupProfilePath,
-        startupTsProfilePath = tsStartupAbsolutePath
+        profileTsPath = tsAbsolutePath
     )
     InstrumentationResults.instrumentationReport {
         val summary = summaryRecord(results)
@@ -317,14 +323,20 @@ private fun extractProfileRooted(packageName: String): String {
     // The path to the primary profile
     val currentProfile = "/data/misc/profiles/cur/0/$packageName/primary.prof"
     Log.d(TAG, "Reference profile location: $referenceProfile")
-    val pathResult = Shell.executeScriptCaptureStdout("pm path $packageName")
-    // The result looks like: `package: <result>`
-    val apkPath = pathResult.substringAfter("package:").trim()
-    Log.d(TAG, "APK Path: $apkPath")
-    // Convert to HRF
-    Log.d(TAG, "Converting to human readable profile format")
-    // Look at reference profile first, and then fallback to current profile
-    return profmanGetProfileRules(apkPath, listOf(referenceProfile, currentProfile))
+
+    @Suppress("SimplifiableCallChain") // join+block makes ordering unclear
+    val mergedProfile = Shell.pmPath(packageName).map { apkPath ->
+        Log.d(TAG, "APK Path: $apkPath")
+        // Convert to HRF
+        Log.d(TAG, "Converting to human readable profile format")
+        // Look at reference profile first, and then fallback to current profile
+        profmanGetProfileRules(apkPath, listOf(referenceProfile, currentProfile))
+    }.joinToString(separator = "\n")
+    if (mergedProfile.isBlank()) {
+        throw IllegalStateException("No profiles found for all apks in app")
+    }
+
+    return mergedProfile
 }
 
 private fun profmanGetProfileRules(apkPath: String, pathOptions: List<String>): String {
@@ -339,8 +351,10 @@ private fun profmanGetProfileRules(apkPath: String, pathOptions: List<String>): 
         profile.ifBlank { null }
     }
     if (profiles.isEmpty()) {
-        throw IllegalStateException("The profile is empty.")
+        Log.d(TAG, "No profiles found for $apkPath")
+        return ""
     }
+
     // Merge rules
     val rules = mutableSetOf<String>()
     profiles.forEach { profile ->
@@ -399,21 +413,7 @@ private fun summaryRecord(record: Summary): String {
         """.trimIndent()
     )
 
-    // Link to a path with timestamp to prevent studio from caching the file
-    val startupTsProfilePath = record.startupTsProfilePath
-    if (!startupTsProfilePath.isNullOrBlank()) {
-        val startupRelativePath = Outputs.relativePathFor(startupTsProfilePath)
-            .replace("(", "\\(")
-            .replace(")", "\\)")
-        summary.append("\n").append(
-            """
-                Startup profile [results](file://$startupRelativePath)
-            """.trimIndent()
-        )
-    }
-
     // Add commands that can be used to pull these files.
-
     summary.append("\n")
         .append("\n")
         .append(
@@ -422,18 +422,6 @@ private fun summaryRecord(record: Summary): String {
                 adb ${deviceSpecifier}pull "${record.profilePath}" .
             """.trimIndent()
         )
-
-    val startupProfilePath = record.startupProfilePath
-    if (!startupProfilePath.isNullOrBlank()) {
-        summary.append("\n")
-            .append("\n")
-            .append(
-                """
-                    To copy the startup profile use:
-                    adb ${deviceSpecifier}pull "${record.startupProfilePath}" .
-                """.trimIndent()
-            )
-    }
     return summary.toString()
 }
 
@@ -459,14 +447,4 @@ private data class Summary(
     val totalRunTime: Long,
     val profilePath: String,
     val profileTsPath: String,
-    val startupProfilePath: String? = null,
-    val startupTsProfilePath: String? = null
-) {
-    init {
-        if (startupProfilePath.isNullOrBlank()) {
-            require(startupTsProfilePath.isNullOrBlank())
-        } else {
-            require(!startupTsProfilePath.isNullOrBlank())
-        }
-    }
-}
+)

@@ -113,7 +113,6 @@ public final class Checksum {
      */
     public static final int TYPE_PARTIAL_MERKLE_ROOT_1M_SHA512 = 0x00000040;
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     @IntDef(flag = true, value = {
             TYPE_WHOLE_MERKLE_ROOT_4K_SHA256,

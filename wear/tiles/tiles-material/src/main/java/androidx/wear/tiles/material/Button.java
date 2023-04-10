@@ -37,6 +37,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.proto.LayoutElementProto;
 import androidx.wear.tiles.ColorBuilders.ColorProp;
 import androidx.wear.tiles.DimensionBuilders.ContainerDimension;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
@@ -52,7 +53,6 @@ import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.ModifiersBuilders.Semantics;
 import androidx.wear.tiles.material.Typography.TypographyName;
-import androidx.wear.protolayout.proto.LayoutElementProto;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -86,7 +86,12 @@ import java.util.Map;
  * <pre>{@code
  * Button myButton = Button.fromLayoutElement(box.getContents().get(0));
  * }</pre>
+ *
+ * @deprecated Use the new class {@link androidx.wear.protolayout.material.Button} which provides
+ *     the same API and functionality.
  */
+@Deprecated
+@SuppressWarnings("deprecation")
 public class Button implements LayoutElement {
     /** Tool tag for Metadata in Modifiers, so we know that Box is actually a Button with text. */
     static final String METADATA_TAG_TEXT = "TXTBTN";
@@ -116,7 +121,6 @@ public class Button implements LayoutElement {
 
         @NonNull static final Map<Integer, String> TYPE_TO_TAG = new HashMap<>();
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(RetentionPolicy.SOURCE)
         @IntDef({NOT_SET, ICON, TEXT, IMAGE, CUSTOM_CONTENT})
@@ -549,7 +553,6 @@ public class Button implements LayoutElement {
         return new Button(boxElement);
     }
 
-    /** @hide */
     @NonNull
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)

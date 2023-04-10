@@ -44,7 +44,6 @@ import java.util.List;
  *
  * Used by Settings.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewHolder>

@@ -19,6 +19,7 @@
 package androidx.privacysandbox.ui.provider
 
 import android.content.Context
+import android.content.res.Configuration
 import android.hardware.display.DisplayManager
 import android.os.Build
 import android.os.Bundle
@@ -124,11 +125,26 @@ private class BinderAdapterDelegate(
             remoteSessionClient.onRemoteSessionError(throwable.message)
         }
 
+        override fun onResizeRequested(width: Int, height: Int) {
+            remoteSessionClient.onResizeRequested(width, height)
+        }
+
         @VisibleForTesting
         private inner class RemoteSessionController(
             val surfaceControlViewHost: SurfaceControlViewHost,
             val session: SandboxedUiAdapter.Session
         ) : IRemoteSessionController.Stub() {
+
+            override fun notifyConfigurationChanged(configuration: Configuration) {
+                surfaceControlViewHost.surfacePackage?.notifyConfigurationChanged(configuration)
+                session.notifyConfigurationChanged(configuration)
+            }
+
+            override fun notifyResized(width: Int, height: Int) {
+                surfaceControlViewHost.relayout(width, height)
+                session.notifyResized(width, height)
+            }
+
             override fun close() {
                 session.close()
                 surfaceControlViewHost.release()

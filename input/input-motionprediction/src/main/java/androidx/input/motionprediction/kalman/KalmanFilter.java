@@ -31,7 +31,6 @@ import androidx.input.motionprediction.kalman.matrix.Matrix;
  * <p>To improve performance, this filter is specialized to use a 4 dimensional state, with single
  * dimension measurements.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class KalmanFilter {

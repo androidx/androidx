@@ -29,7 +29,7 @@ import kotlin.reflect.KClass
  * @see javax.lang.model.type.TypeMirror
  * @see [XArrayType]
  */
-interface XType {
+interface XType : XAnnotated {
     /**
      * The Javapoet [TypeName] representation of the type
      */

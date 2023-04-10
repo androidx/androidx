@@ -22,7 +22,6 @@ import androidx.annotation.RestrictTo;
 /**
  * Class to detect and replace emoji in CharSequences.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 final class EmojiHelper {

@@ -920,7 +920,6 @@ public final class AnimatorSet extends Animator implements AnimationHandler.Anim
      * @param frameTime The frame start time, in the {@link android.os.SystemClock#uptimeMillis()}
      *                 time base.
      * @return
-     * @hide
      */
     @Override
     @RestrictTo(RestrictTo.Scope.LIBRARY)

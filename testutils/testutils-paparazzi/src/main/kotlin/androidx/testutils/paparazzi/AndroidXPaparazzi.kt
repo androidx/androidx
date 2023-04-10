@@ -38,7 +38,7 @@ fun androidxPaparazzi(
     deviceConfig: DeviceConfig = DeviceConfig.PIXEL_6.copy(softButtons = false),
     theme: String = "android:Theme.Material.NoActionBar.Fullscreen",
     renderingMode: RenderingMode = RenderingMode.SHRINK,
-    imageDiffer: ImageDiffer = ImageDiffer.PixelPerfect
+    imageDiffer: ImageDiffer = ImageDiffer.MSSIMMatcher
 ) = Paparazzi(
     deviceConfig = deviceConfig,
     theme = theme,

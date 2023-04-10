@@ -78,8 +78,7 @@ internal fun LazyList(
     content: TvLazyListScope.() -> Unit
 ) {
     val itemProvider = rememberLazyListItemProvider(state, content)
-    val semanticState =
-        rememberLazyListSemanticState(state, itemProvider, reverseLayout, isVertical)
+    val semanticState = rememberLazyListSemanticState(state, isVertical)
     val beyondBoundsInfo = remember { LazyListBeyondBoundsInfo() }
     val scope = rememberCoroutineScope()
     val placementAnimator = remember(state, isVertical) {
@@ -114,7 +113,8 @@ internal fun LazyList(
                 itemProvider = itemProvider,
                 state = semanticState,
                 orientation = orientation,
-                userScrollEnabled = userScrollEnabled
+                userScrollEnabled = userScrollEnabled,
+                reverseScrolling = reverseLayout
             )
             .clipScrollableContainer(orientation)
             .lazyListBeyondBoundsModifier(state, beyondBoundsInfo, reverseLayout, orientation)
@@ -299,7 +299,8 @@ private fun rememberLazyListMeasurePolicy(
 
         measureLazyList(
             itemsCount = itemsCount,
-            itemProvider = measuredItemProvider,
+            itemProvider = itemProvider,
+            measuredItemProvider = measuredItemProvider,
             mainAxisAvailableSize = mainAxisAvailableSize,
             beforeContentPadding = beforeContentPadding,
             afterContentPadding = afterContentPadding,
@@ -326,6 +327,6 @@ private fun rememberLazyListMeasurePolicy(
                     placement
                 )
             }
-        ).also { state.applyMeasureResult(it) }
+        ).also(state::applyMeasureResult)
     }
 }

@@ -36,7 +36,6 @@ import kotlin.math.ceil
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@OptIn(ExperimentalTextApi::class)
 class ParagraphIntegrationLineHeightStyleTest {
     private val fontFamilyMeasureFont = FontTestData.BASIC_MEASURE_FONT.toFontFamily()
     private val context = InstrumentationRegistry.getInstrumentation().context

@@ -282,7 +282,6 @@ public final class AccessibilityEventCompat {
      */
     public static final int TYPES_ALL_MASK = 0xFFFFFFFF;
 
-    /** @hide */
     @IntDef(
             flag = true,
             value = {

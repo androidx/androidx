@@ -44,7 +44,6 @@ import java.util.UUID;
 /**
  * {@link WorkRequest}, but parcelable.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressLint("BanParcelableUsage")

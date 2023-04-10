@@ -45,8 +45,7 @@ public final class BoundingArcWireFormat implements VersionedParcelable, Parcela
     float mArcThickness = 0.0f;
 
     /** Used by VersionedParcelable. */
-    BoundingArcWireFormat() {
-    }
+    BoundingArcWireFormat() {}
 
     public BoundingArcWireFormat(float arcStartAngle, float totalArcAngle, float arcThickness) {
         mArcStartAngle = arcStartAngle;

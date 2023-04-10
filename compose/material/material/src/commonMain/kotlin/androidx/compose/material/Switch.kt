@@ -16,6 +16,7 @@
 
 package androidx.compose.material
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -40,12 +41,16 @@ import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -61,6 +66,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
+import kotlinx.coroutines.flow.collectLatest
 
 /**
  * <a href="https://material.io/components/switches" class="external" target="_blank">Material Design switch</a>.
@@ -96,7 +102,42 @@ fun Switch(
 ) {
     val minBound = 0f
     val maxBound = with(LocalDensity.current) { ThumbPathLength.toPx() }
-    val swipeableState = rememberSwipeableStateFor(checked, onCheckedChange ?: {}, AnimationSpec)
+    // If we reach a bound and settle, we invoke onCheckedChange with the new value. If the user
+    // does not update `checked`, we would now be in an invalid state. We keep track of the
+    // the animation state through this, animating back to the previous value if we don't receive
+    // a new checked value.
+    var forceAnimationCheck by remember { mutableStateOf(false) }
+    val swipeableState = remember {
+        SwipeableV2State(
+            initialValue = checked,
+            positionalThreshold = SwitchThreshold,
+            animationSpec = AnimationSpec
+        )
+    }
+    val currentOnCheckedChange by rememberUpdatedState(onCheckedChange)
+    val currentChecked by rememberUpdatedState(checked)
+
+    // Todo: Offer static anchors Modifier.swipeable overload b/265435207
+    val density = LocalDensity.current
+    SideEffect {
+        swipeableState.density = density
+        val anchors = mapOf(false to minBound, true to maxBound)
+        swipeableState.updateAnchors(anchors)
+    }
+    LaunchedEffect(swipeableState) {
+        snapshotFlow { swipeableState.currentValue }
+            .collectLatest { newValue ->
+                if (currentChecked != newValue) {
+                    currentOnCheckedChange?.invoke(newValue)
+                    forceAnimationCheck = !forceAnimationCheck
+                }
+            }
+    }
+    LaunchedEffect(checked, forceAnimationCheck) {
+        if (checked != swipeableState.currentValue) {
+            swipeableState.animateTo(checked)
+        }
+    }
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val toggleableModifier =
         if (onCheckedChange != null) {
@@ -122,25 +163,22 @@ fun Switch(
                 }
             )
             .then(toggleableModifier)
-            .swipeable(
+            .swipeableV2(
                 state = swipeableState,
-                anchors = mapOf(minBound to false, maxBound to true),
-                thresholds = { _, _ -> FractionalThreshold(0.5f) },
                 orientation = Orientation.Horizontal,
                 enabled = enabled && onCheckedChange != null,
                 reverseDirection = isRtl,
-                interactionSource = interactionSource,
-                resistance = null
+                interactionSource = interactionSource
             )
             .wrapContentSize(Alignment.Center)
             .padding(DefaultSwitchPadding)
             .requiredSize(SwitchWidth, SwitchHeight)
     ) {
         SwitchImpl(
-            checked = checked,
+            checked = swipeableState.targetValue,
             enabled = enabled,
             colors = colors,
-            thumbValue = swipeableState.offset,
+            thumbValue = { swipeableState.requireOffset() },
             interactionSource = interactionSource
         )
     }
@@ -179,7 +217,7 @@ private fun BoxScope.SwitchImpl(
     checked: Boolean,
     enabled: Boolean,
     colors: SwitchColors,
-    thumbValue: State<Float>,
+    thumbValue: () -> Float,
     interactionSource: InteractionSource
 ) {
     val interactions = remember { mutableStateListOf<Interaction>() }
@@ -205,22 +243,25 @@ private fun BoxScope.SwitchImpl(
     }
     val trackColor by colors.trackColor(enabled, checked)
     Canvas(
-        Modifier.align(Alignment.Center).fillMaxSize()) {
+        Modifier
+            .align(Alignment.Center)
+            .fillMaxSize()) {
         drawTrack(trackColor, TrackWidth.toPx(), TrackStrokeWidth.toPx())
     }
     val thumbColor by colors.thumbColor(enabled, checked)
     val elevationOverlay = LocalElevationOverlay.current
     val absoluteElevation = LocalAbsoluteElevation.current + elevation
-    val resolvedThumbColor =
+    val resolvedThumbColor by animateColorAsState(
         if (thumbColor == MaterialTheme.colors.surface && elevationOverlay != null) {
             elevationOverlay.apply(thumbColor, absoluteElevation)
         } else {
             thumbColor
         }
+    )
     Spacer(
         Modifier
             .align(Alignment.CenterStart)
-            .offset { IntOffset(thumbValue.value.roundToInt(), 0) }
+            .offset { IntOffset(thumbValue().roundToInt(), 0) }
             .indication(
                 interactionSource = interactionSource,
                 indication = rememberRipple(bounded = false, radius = ThumbRippleRadius)
@@ -377,3 +418,6 @@ private class DefaultSwitchColors(
         return result
     }
 }
+
+@OptIn(ExperimentalMaterialApi::class)
+private val SwitchThreshold = fractionalPositionalThreshold(0.7f)

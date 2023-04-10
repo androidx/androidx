@@ -25,7 +25,6 @@ import androidx.annotation.RestrictTo;
  * It holds a collection a executors for each group of task.
  * <p>
  * TODO: Don't use this from outside, we don't know what the API will look like yet.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public abstract class TaskExecutor {

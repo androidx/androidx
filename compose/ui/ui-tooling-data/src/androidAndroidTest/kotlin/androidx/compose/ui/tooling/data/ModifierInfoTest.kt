@@ -22,11 +22,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.GraphicLayerInfo
-import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -47,20 +45,27 @@ class ModifierInfoTest : ToolingTest() {
     fun testBounds() {
         val slotTableRecord = CompositionDataRecord.create()
         val graphicsLayer = Modifier.graphicsLayer()
+        val backgroundModifier = Modifier.background(color = Color.Blue)
+        lateinit var columnPaddingModifier: Modifier
+        lateinit var boxPaddingModifier: Modifier
+        lateinit var boxSizeModifier: Modifier
 
         show {
             Inspectable(slotTableRecord) {
                 with(LocalDensity.current) {
                     val px10 = 10f.toDp()
                     val px5 = 5f.toDp()
+                    columnPaddingModifier = Modifier.padding(px10)
+                    boxPaddingModifier = Modifier.padding(px5)
+                    boxSizeModifier = Modifier.size(px5)
                     Box {
                         Column(
                             Modifier
-                                .padding(px10)
+                                .then(columnPaddingModifier)
                                 .then(graphicsLayer)
-                                .background(color = Color.Blue)
+                                .then(backgroundModifier)
                         ) {
-                            Box(Modifier.padding(px5).size(px5))
+                            Box(Modifier.then(boxPaddingModifier).then(boxSizeModifier))
                         }
                     }
                 }
@@ -84,26 +89,26 @@ class ModifierInfoTest : ToolingTest() {
 
             val boxModifierInfo = modifierInfo[0]
             assertEquals(2, boxModifierInfo.size)
-            assertTrue(
+            assertEquals(
                 "Box should only have LayoutModifiers, but the first was " +
                     "${boxModifierInfo[0].modifier}",
-                boxModifierInfo[0].modifier is LayoutModifier
+                boxPaddingModifier, boxModifierInfo[0].modifier
             )
             assertEquals(10f, boxModifierInfo[0].coordinates.positionInRoot().x)
 
-            assertTrue(
+            assertEquals(
                 "Box should only have LayoutModifiers, but the second was " +
                     "${boxModifierInfo[1].modifier}",
-                boxModifierInfo[1].modifier is LayoutModifier
+                boxSizeModifier, boxModifierInfo[1].modifier
             )
             assertEquals(15f, boxModifierInfo[1].coordinates.positionInRoot().x)
 
             val columnModifierInfo = modifierInfo[1]
             assertEquals(3, columnModifierInfo.size)
-            assertTrue(
+            assertEquals(
                 "The first modifier in the column should be a LayoutModifier" +
                     "but was ${columnModifierInfo[0].modifier}",
-                columnModifierInfo[0].modifier is LayoutModifier
+                columnPaddingModifier, columnModifierInfo[0].modifier
             )
             assertEquals(0f, columnModifierInfo[0].coordinates.positionInRoot().x)
             assertEquals(
@@ -113,10 +118,10 @@ class ModifierInfoTest : ToolingTest() {
             )
             assertTrue(columnModifierInfo[2].extra is GraphicLayerInfo)
             assertEquals(10f, columnModifierInfo[1].coordinates.positionInRoot().x)
-            assertTrue(
+            assertEquals(
                 "The third modifier in the column should be a DrawModifier" +
                     "but was ${columnModifierInfo[2].modifier}",
-                columnModifierInfo[2].modifier is DrawModifier
+                backgroundModifier, columnModifierInfo[2].modifier
             )
             assertEquals(10f, columnModifierInfo[2].coordinates.positionInRoot().x)
         }

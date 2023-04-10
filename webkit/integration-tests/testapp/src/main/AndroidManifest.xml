@@ -125,7 +125,14 @@
             android:exported="true" />
         <activity
             android:name=".ProcessGlobalConfigActivity"
-            android:process=":processGlobalConfigTest"
+            android:exported="true" />
+        <activity
+            android:name=".DataDirectorySuffixActivity"
+            android:process=":dataDirectorySuffixActivity"
+            android:exported="true" />
+        <activity
+            android:name=".DirectoryBasePathsActivity"
+            android:process=":directoryBasePathActivity"
             android:exported="true" />
         <activity
             android:name=".RequestedWithHeaderActivity"

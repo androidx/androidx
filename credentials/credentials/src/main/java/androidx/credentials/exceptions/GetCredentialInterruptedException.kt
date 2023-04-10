@@ -30,6 +30,6 @@ class GetCredentialInterruptedException @JvmOverloads constructor(
     /** @hide */
     companion object {
         internal const val TYPE_GET_CREDENTIAL_INTERRUPTED_EXCEPTION =
-            "androidx.credentials.TYPE_GET_CREDENTIAL_INTERRUPTED_EXCEPTION"
+            "android.credentials.GetCredentialException.TYPE_INTERRUPTED"
     }
 }

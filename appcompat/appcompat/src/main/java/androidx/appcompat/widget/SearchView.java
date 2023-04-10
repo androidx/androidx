@@ -429,7 +429,6 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
     /**
      * Sets the APP_DATA for legacy SearchDialog use.
      * @param appSearchData bundle provided by the app when launching the search dialog
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setAppSearchData(Bundle appSearchData) {
@@ -1839,7 +1838,6 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
 
     /**
      * Local subclass for AutoCompleteTextView.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static class SearchAutoComplete extends AppCompatAutoCompleteTextView {

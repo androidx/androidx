@@ -23,7 +23,6 @@ import androidx.benchmark.junit4.measureRepeated
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.ParagraphIntrinsics
 import androidx.compose.ui.text.SpanStyle
@@ -111,7 +110,6 @@ class ParagraphBenchmark(
         )
     }
 
-    @OptIn(ExperimentalTextApi::class)
     private fun paragraphIntrinsics(
         text: String,
         spanStyles: List<AnnotatedString.Range<SpanStyle>>

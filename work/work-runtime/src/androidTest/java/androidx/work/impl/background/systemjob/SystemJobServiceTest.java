@@ -17,6 +17,8 @@
 package androidx.work.impl.background.systemjob;
 
 import static androidx.test.espresso.matcher.ViewMatchers.assertThat;
+import static androidx.work.impl.WorkManagerImplExtKt.createWorkManager;
+import static androidx.work.impl.WorkManagerImplExtKt.schedulers;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -54,6 +56,7 @@ import androidx.work.impl.Processor;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
 import androidx.work.worker.InfiniteTestWorker;
@@ -63,7 +66,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 
@@ -102,21 +104,21 @@ public class SystemJobServiceTest extends WorkManagerTest {
         });
 
         Context context = ApplicationProvider.getApplicationContext();
-        mDatabase = WorkDatabase.create(context, Executors.newCachedThreadPool(), true);
-        InstantWorkTaskExecutor taskExecutor = new InstantWorkTaskExecutor();
         Configuration configuration = new Configuration.Builder()
                 .setExecutor(Executors.newSingleThreadExecutor())
                 .build();
+        mDatabase = WorkDatabase.create(
+                context, Executors.newCachedThreadPool(), configuration.getClock(), true);
+        InstantWorkTaskExecutor taskExecutor = new InstantWorkTaskExecutor();
         mScheduler = mock(Scheduler.class);
-        List<Scheduler> schedulers = Collections.singletonList(mScheduler);
         mProcessor = new Processor(
                 context,
                 configuration,
                 taskExecutor,
                 mDatabase);
 
-        mWorkManagerImpl = new WorkManagerImpl(
-                context, configuration, taskExecutor, mDatabase, schedulers, mProcessor);
+        mWorkManagerImpl = createWorkManager(context, configuration, taskExecutor,
+                mDatabase, new Trackers(context, taskExecutor), mProcessor, schedulers(mScheduler));
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
         mSystemJobServiceSpy = spy(new SystemJobService());
         doReturn(context).when(mSystemJobServiceSpy).getApplicationContext();

@@ -27,7 +27,6 @@ import androidx.work.WorkerParameters;
  * Factory interface to be implemented by generated code.
  *
  * @param <T> The Worker type.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface WorkerAssistedFactory<T extends ListenableWorker> {

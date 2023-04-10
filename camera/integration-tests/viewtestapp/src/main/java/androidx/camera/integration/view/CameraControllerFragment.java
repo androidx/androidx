@@ -150,7 +150,7 @@ public class CameraControllerFragment extends Fragment {
     private ImageAnalysis.Analyzer mWrappedAnalyzer;
 
     @VisibleForTesting
-    ToneMappingPreviewEffect mToneMappingPreviewEffect;
+    ToneMappingSurfaceEffect mToneMappingSurfaceEffect;
     ToneMappingImageEffect mToneMappingImageEffect;
 
     private final ImageAnalysis.Analyzer mAnalyzer = image -> {
@@ -222,7 +222,7 @@ public class CameraControllerFragment extends Fragment {
         });
 
         // Set up post-processing effects.
-        mToneMappingPreviewEffect = new ToneMappingPreviewEffect();
+        mToneMappingSurfaceEffect = new ToneMappingSurfaceEffect();
         mToneMappingImageEffect = new ToneMappingImageEffect();
         mEffectToggle = view.findViewById(R.id.effect_toggle);
         mEffectToggle.setOnCheckedChangeListener((compoundButton, isChecked) -> onEffectsToggled());
@@ -370,15 +370,15 @@ public class CameraControllerFragment extends Fragment {
             mExecutorService.shutdown();
         }
         mRotationProvider.removeListener(mRotationListener);
-        mToneMappingPreviewEffect.release();
+        mToneMappingSurfaceEffect.release();
     }
 
     private void onEffectsToggled() {
         if (mEffectToggle.isChecked()) {
             mCameraController.setEffects(
-                    new HashSet<>(asList(mToneMappingPreviewEffect, mToneMappingImageEffect)));
+                    new HashSet<>(asList(mToneMappingSurfaceEffect, mToneMappingImageEffect)));
         } else {
-            mCameraController.setEffects(null);
+            mCameraController.clearEffects();
         }
     }
 
@@ -611,7 +611,6 @@ public class CameraControllerFragment extends Fragment {
     // -----------------
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
     LifecycleCameraController getCameraController() {
@@ -619,7 +618,6 @@ public class CameraControllerFragment extends Fragment {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
     void setWrappedAnalyzer(@Nullable ImageAnalysis.Analyzer analyzer) {
@@ -627,7 +625,6 @@ public class CameraControllerFragment extends Fragment {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
     PreviewView getPreviewView() {
@@ -635,7 +632,6 @@ public class CameraControllerFragment extends Fragment {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
     int getSensorRotation() {

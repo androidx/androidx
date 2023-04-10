@@ -27,7 +27,6 @@ import androidx.work.impl.utils.taskexecutor.TaskExecutor
  * A [ConstraintTracker] with a [BroadcastReceiver] for monitoring constraint changes.
  *
  * @param T the constraint data type observed by this tracker
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 abstract class BroadcastReceiverConstraintTracker<T>(

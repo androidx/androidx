@@ -23,6 +23,7 @@ import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.testing.AndroidUtil.isEmulatorAndAPI21
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
@@ -53,7 +54,7 @@ class VideoCapabilityTest(
     private val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
     private lateinit var cameraUseCaseAdapter: CameraUseCaseAdapter
-    private lateinit var videoCapabilities: VideoCapabilities
+    private lateinit var videoCapabilities: LegacyVideoCapabilities
 
     @get:Rule
     val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
@@ -72,7 +73,7 @@ class VideoCapabilityTest(
         CameraXUtil.initialize(context, cameraConfig).get()
 
         val cameraInfo = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector).cameraInfo
-        videoCapabilities = VideoCapabilities.from(cameraInfo)
+        videoCapabilities = LegacyVideoCapabilities.from(cameraInfo)
     }
 
     @After
@@ -89,6 +90,7 @@ class VideoCapabilityTest(
     @Test
     fun supportedQualitiesIsNotEmpty() {
         Assume.assumeFalse(isSpecificSkippedDevice())
+        Assume.assumeFalse(isEmulatorAndAPI21())
         Truth.assertThat(videoCapabilities.supportedQualities).isNotEmpty()
     }
 

@@ -25,7 +25,6 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.camera.core.impl.CamcorderProfileProvider;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.video.Quality;
 
@@ -33,7 +32,7 @@ import java.util.Arrays;
 import java.util.Locale;
 
 /**
- * Quirk where qualities reported as available by {@link CamcorderProfileProvider#hasProfile(int)}
+ * Quirk where qualities reported as available by {@link CamcorderProfile#hasProfile(int)}
  * does not work on the device, and should not be used.
  *
  * <p>QuirkSummary
