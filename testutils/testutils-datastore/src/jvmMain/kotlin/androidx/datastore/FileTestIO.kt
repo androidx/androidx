@@ -44,6 +44,9 @@ class FileTestIO(dirName: String = "test-dir") : TestIO<JavaIOFile, IOException>
          * We need to create a new temp file without creating it so we use a UUID to decide the
          * file name but also try 100 times in case a collision happens.
          */
+        // TODO use a consistent naming scheme (e.g. incrementing counter) when b/276983736 is
+        //  fixed. We'll need these TestIO classes to do proper cleanup after themselves to be able
+        //  do that.
         repeat(100) {
             val randName = UUID.randomUUID().toString().take(10)
             val tmpFile = File(tempFolder.file, "temp-$randName-temp")
