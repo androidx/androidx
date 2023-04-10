@@ -18,6 +18,8 @@
     <string name="app_name">AndroidX Bluetooth Test App</string>
 
     <string name="title_home">AndroidX Bluetooth</string>
+    <string name="title_scanner">Scanner</string>
+    <string name="title_advertiser">Advertiser</string>
 
     <string name="scan_using_androidx_bluetooth">Scan using AndroidX Bluetooth APIs</string>
     <string name="scan_start_message">Scan started. Results are in Logcat</string>
