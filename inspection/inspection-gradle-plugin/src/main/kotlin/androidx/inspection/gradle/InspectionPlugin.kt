@@ -25,6 +25,7 @@ import com.google.protobuf.gradle.ProtobufPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.type.ArtifactTypeDefinition
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.tasks.StopExecutionException
 import org.gradle.kotlin.dsl.apply
@@ -64,6 +65,7 @@ class InspectionPlugin : Plugin<Project> {
             it.isCanBeConsumed = true
             it.isCanBeResolved = false
             it.extendsFrom(project.configurations.getByName("implementation"))
+            it.setupReleaseAttribute()
         }
 
         project.pluginManager.withPlugin("com.android.library") {
@@ -199,7 +201,9 @@ fun packageInspector(libraryProject: Project, inspectorProjectPath: String) {
         }
     }
 
-    libraryProject.configurations.create(IMPORT_INSPECTOR_DEPENDENCIES)
+    libraryProject.configurations.create(IMPORT_INSPECTOR_DEPENDENCIES) {
+        it.setupReleaseAttribute()
+    }
     libraryProject.dependencies.add(IMPORT_INSPECTOR_DEPENDENCIES,
         libraryProject.dependencies.project(
             mapOf(
@@ -229,6 +233,25 @@ fun Project.createConsumeNonDexedInspectionConfiguration(): Configuration =
 private fun Configuration.setupNonDexedInspectorAttribute() {
     attributes {
         it.attribute(Attribute.of("inspector-undexed", String::class.java), "inspectorUndexedJar")
+    }
+}
+
+private fun Configuration.setupReleaseAttribute() {
+    attributes {
+        it.attribute(
+            Attribute.of(
+                "com.android.build.api.attributes.BuildTypeAttr",
+                String::class.java
+            ),
+            "release"
+        )
+        it.attribute(
+            Attribute.of(
+                "artifactType",
+                String::class.java
+            ),
+            ArtifactTypeDefinition.JAR_TYPE
+        )
     }
 }
 
