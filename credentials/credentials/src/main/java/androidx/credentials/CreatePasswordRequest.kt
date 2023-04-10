@@ -73,21 +73,27 @@ class CreatePasswordRequest private constructor(
      * @param origin the origin of a different application if the request is being made on behalf of
      * that application. For API level >=34, setting a non-null value for this parameter, will throw
      * a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present.
-     * @param defaultProvider the preferred default provider component name to prioritize in the
+     * @param preferDefaultProvider the preferred default provider component name to prioritize in the
      * selection UI flows. Your app must have the permission
-     * android.permission.CREDENTIAL_MANAGER_QUERY_CANDIDATE_CREDENTIALS to specify this, or it
-     * would not take effect. Also this bit will not take effect for Android API level 33 and below.
+     * android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS to specify this, or it
+     * would not take effect. Also this bit may not take effect for Android API level 33 and below,
+     * depending on the pre-34 provider(s) you have chosen.
      * @throws NullPointerException If [id] is null
      * @throws NullPointerException If [password] is null
      * @throws IllegalArgumentException If [password] is empty
      * @throws SecurityException if [origin] is set but
      * android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present
      */
-    constructor(id: String, password: String, origin: String?, defaultProvider: String?) : this(
+    constructor(
+        id: String,
+        password: String,
+        origin: String?,
+        preferDefaultProvider: String?
+    ) : this(
         id, password, DisplayInfo(
             userId = id,
             userDisplayName = null,
-            preferDefaultProvider = defaultProvider,
+            preferDefaultProvider = preferDefaultProvider,
         ), origin,
     )
 

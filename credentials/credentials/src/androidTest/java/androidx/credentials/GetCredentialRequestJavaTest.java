@@ -20,6 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import android.content.ComponentName;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -52,6 +54,20 @@ public class GetCredentialRequestJavaTest {
                     expectedCredentialOptions.get(i));
         }
         assertThat(request.getPreferIdentityDocUi()).isFalse();
+        assertThat(request.getPreferUiBrandingComponentName()).isNull();
+    }
+
+    @Test
+    public void constructor_nonDefaultPreferUiBrandingComponentName() {
+        ArrayList<CredentialOption> options = new ArrayList<>();
+        options.add(new GetPasswordOption());
+        ComponentName expectedComponentName = new ComponentName("test pkg", "test cls");
+
+        GetCredentialRequest request = new GetCredentialRequest(
+                options, /*origin=*/ null, /*preferIdentityDocUi=*/false, expectedComponentName);
+
+        assertThat(request.getCredentialOptions().get(0).isAutoSelectAllowed()).isFalse();
+        assertThat(request.getPreferUiBrandingComponentName()).isEqualTo(expectedComponentName);
     }
 
     @Test
@@ -117,6 +133,26 @@ public class GetCredentialRequestJavaTest {
                     expectedCredentialOptions.get(i));
         }
         assertThat(request.getPreferIdentityDocUi()).isTrue();
+    }
+
+    @Test
+    public void builder_setPreferUiBrandingComponentName() {
+        ArrayList<CredentialOption> expectedCredentialOptions = new ArrayList<>();
+        expectedCredentialOptions.add(new GetPasswordOption());
+        expectedCredentialOptions.add(new GetPublicKeyCredentialOption("json"));
+        ComponentName expectedComponentName = new ComponentName("test pkg", "test cls");
+
+        GetCredentialRequest request = new GetCredentialRequest.Builder()
+                .setCredentialOptions(expectedCredentialOptions)
+                .setPreferUiBrandingComponentName(expectedComponentName)
+                .build();
+
+        assertThat(request.getCredentialOptions()).hasSize(expectedCredentialOptions.size());
+        for (int i = 0; i < expectedCredentialOptions.size(); i++) {
+            assertThat(request.getCredentialOptions().get(i)).isEqualTo(
+                    expectedCredentialOptions.get(i));
+        }
+        assertThat(request.getPreferUiBrandingComponentName()).isEqualTo(expectedComponentName);
     }
 
     @Test
