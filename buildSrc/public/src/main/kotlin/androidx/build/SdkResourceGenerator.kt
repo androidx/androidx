@@ -28,6 +28,7 @@ import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputDirectory
@@ -57,7 +58,7 @@ abstract class SdkResourceGenerator : DefaultTask() {
     val compileSdkVersion: String = SupportConfig.COMPILE_SDK_VERSION
 
     @get:Input
-    val buildToolsVersion: String = SupportConfig.BUILD_TOOLS_VERSION
+    abstract val buildToolsVersion: Property<String>
 
     @get:Input
     val minSdkVersion: Int = SupportConfig.DEFAULT_MIN_SDK_VERSION
@@ -109,7 +110,7 @@ abstract class SdkResourceGenerator : DefaultTask() {
             writer.write("navigationRuntime=$navigationRuntime\n")
             writer.write("kotlinStdlib=$kotlinStdlib\n")
             writer.write("compileSdkVersion=$compileSdkVersion\n")
-            writer.write("buildToolsVersion=$buildToolsVersion\n")
+            writer.write("buildToolsVersion=${buildToolsVersion.get()}\n")
             writer.write("minSdkVersion=$minSdkVersion\n")
             writer.write("kotlinVersion=$kotlinVersion\n")
             writer.write("kspVersion=$kspVersion\n")
@@ -136,6 +137,11 @@ abstract class SdkResourceGenerator : DefaultTask() {
                     project.getRepositoryDirectory().toRelativeString(project.projectDir)
                 it.debugKeystore.set(project.getKeystore())
                 it.outputDir.set(generatedDirectory)
+                it.buildToolsVersion.set(
+                    project.provider {
+                        SupportConfig.buildToolsVersion(project)
+                    }
+                )
                 it.buildSrcOutRelativePath =
                     (project.properties["buildSrcOut"] as File).toRelativeString(project.projectDir)
                 // Copy repositories used for the library project so that it can replicate the same
