@@ -46,7 +46,7 @@ dependencies {
             include: "android.jar"
     ))
     // Get AIDL compiler path and framework.aidl path and pass to tests for code generation.
-    def aidlCompilerPath = "${SdkHelperKt.getSdkPath(project)}/build-tools/${SupportConfig.BUILD_TOOLS_VERSION}/aidl"
+    def aidlCompilerPath = "${SdkHelperKt.getSdkPath(project)}/build-tools/${SupportConfig.buildToolsVersion(project)}/aidl"
     def frameworkAidlPath = "${SdkHelperKt.getSdkPath(project)}/platforms/${SupportConfig.COMPILE_SDK_VERSION}/framework.aidl"
     test {
         inputs.files(aidlCompilerPath)
