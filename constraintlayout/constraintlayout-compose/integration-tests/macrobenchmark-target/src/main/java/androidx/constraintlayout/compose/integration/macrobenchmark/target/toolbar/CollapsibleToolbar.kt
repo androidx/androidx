@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.integration.macrobenchmark.target.motionlayout.toolbar
+package androidx.constraintlayout.compose.integration.macrobenchmark.target.toolbar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

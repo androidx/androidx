@@ -67,10 +67,12 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.unit.size
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.width
 import androidx.constraintlayout.compose.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -599,6 +601,64 @@ internal class MotionLayoutTest {
         }
     }
 
+    @Test
+    fun testRemeasureOnContentChanged() {
+        val progress = mutableStateOf(0f)
+        val textContent = mutableStateOf("Foo")
+
+        rule.setContent {
+            WithConsistentTextStyle {
+                MotionLayout(
+                    modifier = Modifier
+                        .size(300.dp)
+                        .background(Color.LightGray),
+                    motionScene = MotionScene {
+                        // Text at wrap_content, animated from top of the layout to the bottom
+                        val textRef = createRefFor("text")
+                        defaultTransition(
+                            from = constraintSet {
+                                constrain(textRef) {
+                                    centerHorizontallyTo(parent)
+                                    centerVerticallyTo(parent, 0f)
+                                }
+                            },
+                            to = constraintSet {
+                                constrain(textRef) {
+                                    centerHorizontallyTo(parent)
+                                    centerVerticallyTo(parent, 1f)
+                                }
+                            }
+                        )
+                    },
+                    progress = progress.value
+                ) {
+                    Text(
+                        text = textContent.value,
+                        fontSize = 10.sp,
+                        modifier = Modifier.layoutTestId("text")
+                    )
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        var actualTextSize = rule.onNodeWithTag("text").getUnclippedBoundsInRoot()
+        assertEquals(18, actualTextSize.width.value.roundToInt())
+        assertEquals(14, actualTextSize.height.value.roundToInt())
+
+        progress.value = 0.5f
+        rule.waitForIdle()
+        actualTextSize = rule.onNodeWithTag("text").getUnclippedBoundsInRoot()
+        assertEquals(18, actualTextSize.width.value.roundToInt())
+        assertEquals(14, actualTextSize.height.value.roundToInt())
+
+        textContent.value = "FooBar"
+        rule.waitForIdle()
+        actualTextSize = rule.onNodeWithTag("text").getUnclippedBoundsInRoot()
+        assertEquals(36, actualTextSize.width.value.roundToInt())
+        assertEquals(14, actualTextSize.height.value.roundToInt())
+    }
+
     private fun Color.toHexString(): String = toArgb().toUInt().toString(16)
 }
 
@@ -606,15 +666,7 @@ internal class MotionLayoutTest {
 @Composable
 private fun CustomTextSize(modifier: Modifier, progress: Float) {
     val context = LocalContext.current
-    @Suppress("DEPRECATION")
-    CompositionLocalProvider(
-        LocalDensity provides Density(1f, 1f),
-        LocalTextStyle provides TextStyle(
-            fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.Normal,
-            platformStyle = PlatformTextStyle(includeFontPadding = true)
-        )
-    ) {
+    WithConsistentTextStyle {
         MotionLayout(
             motionScene = MotionScene(
                 content = context
@@ -652,4 +704,27 @@ private fun CustomTextSize(modifier: Modifier, progress: Float) {
             )
         }
     }
+}
+
+/**
+ * Provides composition locals that help making Text produce consistent measurements across multiple
+ * devices.
+ *
+ * Be aware that this makes it so that 1.dp = 1px. So the layout will look significantly different
+ * than expected.
+ */
+@Composable
+private fun WithConsistentTextStyle(
+    content: @Composable () -> Unit
+) {
+    @Suppress("DEPRECATION")
+    CompositionLocalProvider(
+        LocalDensity provides Density(1f, 1f),
+        LocalTextStyle provides TextStyle(
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.Normal,
+            platformStyle = PlatformTextStyle(includeFontPadding = true)
+        ),
+        content = content
+    )
 }

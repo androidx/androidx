@@ -16,7 +16,7 @@
 
 @file:OptIn(ExperimentalMotionApi::class)
 
-package androidx.compose.integration.macrobenchmark.target.motionlayout.newmessage
+package androidx.constraintlayout.compose.integration.macrobenchmark.target.newmessage
 
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement

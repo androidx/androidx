@@ -24,6 +24,8 @@ import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
 import androidx.test.uiautomator.By
+import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.Until
 import kotlin.math.roundToInt
 import org.junit.Rule
 import org.junit.Test
@@ -55,10 +57,49 @@ class MotionLayoutBenchmark {
     fun messageJson() = benchmarkRule.testNewMessage(NewMessageMode.Json)
 
     @Test
-    fun collapsibleToolbar() = benchmarkRule.testCollapsibleToolbar()
+    fun collapsibleToolbar() = benchmarkRule.motionBenchmark("CollapsibleToolbar") {
+        val column = device.findObject(By.res("LazyColumn"))
+        val bounds = column.visibleBounds
+
+        // Margin to reduce the amount of pixels scrolled and avoid the navigation pill
+        val vMargin = (bounds.height() * 0.2f).roundToInt()
+        val x = (bounds.width() * 0.5f).roundToInt()
+        val y1 = bounds.bottom - vMargin
+        val y2 = bounds.top + vMargin
+
+        // Scroll down
+        device.swipe(x, y1, x, y2, 50)
+        device.waitForIdle()
+
+        // Scroll up
+        device.swipe(x, y2, x, y1, 50)
+        device.waitForIdle()
+    }
 
     /**
-     * The base method to benchmark FrameTimings of a Composable from the macrobenchmark-app module.
+     * LazyList based layout, where every item is a MotionLayout Composable and are animated as they
+     * are revealed.
+     */
+    @Test
+    fun dynamicGraphs() = benchmarkRule.motionBenchmark("DynamicGraphs") {
+        val column = device.findObject(By.res("LazyColumn"))
+        val bounds = column.visibleBounds
+
+        // Margin to avoid swiping the navigation pill
+        val vMargin = (bounds.height() * 0.1f).roundToInt()
+        val x = (bounds.width() * 0.5f).roundToInt()
+        val y1 = bounds.bottom - vMargin
+        val y2 = bounds.top + vMargin
+
+        repeat(5) {
+            // Fast swipe upwards, to scroll down through multiple animated items at a time
+            device.swipe(x, y1, x, y2, 6)
+            device.waitForComposeIdle()
+        }
+    }
+
+    /**
+     * The base method to benchmark FrameTimings of a Composable from the macrobenchmark-target module.
      *
      * [composableName] should be a registered Composable in **MotionLayoutBenchmarkActivity**
      *
@@ -87,31 +128,12 @@ class MotionLayoutBenchmark {
                 intent.putExtra("ComposableName", composableName)
                 startActivityAndWait(intent)
                 device.waitForIdle()
+                device.waitForComposeIdle()
                 setupBlock()
             },
             measureBlock = measureBlock
         )
     }
-
-    private fun MacrobenchmarkRule.testCollapsibleToolbar() =
-        motionBenchmark("CollapsibleToolbar") {
-            val column = device.findObject(By.res("LazyColumn"))
-            val bounds = column.visibleBounds
-
-            // Margin to reduce the amount of pixels scrolled
-            val vMargin = (bounds.height() * 0.2f).roundToInt()
-            val x = (bounds.width() * 0.5f).roundToInt()
-            val y1 = bounds.bottom - vMargin
-            val y2 = bounds.top + vMargin
-
-            // Swipe down
-            device.swipe(x, y1, x, y2, 50)
-            device.waitForIdle()
-
-            // Swipe up
-            device.swipe(x, y2, x, y1, 50)
-            device.waitForIdle()
-        }
 
     private fun MacrobenchmarkRule.testNewMessage(
         mode: NewMessageMode
@@ -137,5 +159,9 @@ class MotionLayoutBenchmark {
     internal enum class NewMessageMode(val composableName: String) {
         Json("NewMessageJson"),
         Dsl("NewMessageDsl")
+    }
+
+    private fun UiDevice.waitForComposeIdle(timeoutMs: Long = 3000) {
+        wait(Until.findObject(By.desc("COMPOSE-IDLE")), timeoutMs)
     }
 }
