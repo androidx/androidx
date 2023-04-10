@@ -40,7 +40,7 @@ internal constructor(
      * assistant.
      */
     @get:JvmName("isProhibited")
-    val isProhibited: Boolean,
+    val isProhibited: Boolean
 ) {
     /** The current list of possible values for this parameter, can change over time. */
     val possibleValues: List<T>
@@ -48,10 +48,9 @@ internal constructor(
 
     /** Builder for {@link Property}. */
     class Builder<T> {
-        private var possibleValueSupplier: () -> List<T> = { emptyList<T>() }
+        private var possibleValueSupplier: () -> List<T> = { emptyList() }
         private var isRequired = false
         private var isValueMatchRequired = false
-        private var isProhibited = false
 
         /**
          * Sets one or more possible values for this parameter.
@@ -82,20 +81,25 @@ internal constructor(
             this.isValueMatchRequired = valueMatchRequired
         }
 
-        /**
-         * Sets whether this property is prohibited in the response.
-         *
-         * @param prohibited Whether this property is prohibited in the response.
-         */
-        fun setProhibited(prohibited: Boolean) = apply { this.isProhibited = prohibited }
-
         /** Builds the property for this entity parameter. */
         fun build() =
             Property(
                 this.possibleValueSupplier,
                 this.isRequired,
                 this.isValueMatchRequired,
-                this.isProhibited,
+                isProhibited = false,
             )
+    }
+
+    companion object {
+        @JvmStatic
+        fun <T> prohibited(): Property<T> {
+            return Property(
+                possibleValueSupplier = { emptyList() },
+                isRequired = false,
+                isValueMatchRequired = false,
+                isProhibited = true,
+            )
+        }
     }
 }

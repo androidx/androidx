@@ -275,10 +275,7 @@ public final class ActionSpecTest {
                                         .setValueMatchRequired(true)
                                         .setRequired(true)
                                         .build()),
-                        Optional.of(
-                                new Property.Builder<StringValue>()
-                                        .setProhibited(true)
-                                        .build()));
+                        Optional.of(Property.prohibited()));
 
         assertThat(ACTION_SPEC.convertPropertyToProto(property))
                 .isEqualTo(
