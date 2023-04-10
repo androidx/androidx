@@ -16,6 +16,7 @@
 
 package androidx.credentials
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -88,6 +89,8 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  *
  *
  */
+@RequiresApi(16)
+@SuppressLint("ObsoleteSdkInt")
 @Suppress("UNUSED_PARAMETER")
 class CredentialManager private constructor(private val context: Context) {
     companion object {
