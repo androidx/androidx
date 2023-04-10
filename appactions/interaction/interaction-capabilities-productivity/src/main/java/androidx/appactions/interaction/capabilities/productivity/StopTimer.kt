@@ -18,7 +18,6 @@ package androidx.appactions.interaction.capabilities.productivity
 
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.BaseSession
-import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
@@ -56,9 +55,9 @@ private val ACTION_SPEC =
 class StopTimer private constructor() {
 
     class CapabilityBuilder :
-        CapabilityBuilderBase<
+        Capability.Builder<
             CapabilityBuilder, Property, Arguments, Output, Confirmation, Session
-        >(ACTION_SPEC) {
+            >(ACTION_SPEC) {
         override fun build(): Capability {
             super.setProperty(Property.Builder().build())
             return super.build()

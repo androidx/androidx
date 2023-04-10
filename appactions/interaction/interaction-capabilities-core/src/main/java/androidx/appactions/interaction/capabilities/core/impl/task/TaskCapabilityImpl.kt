@@ -42,22 +42,21 @@ internal class TaskCapabilityImpl<
     SessionUpdaterT,
 >
 constructor(
-    override val id: String,
+    id: String,
     private val actionSpec: ActionSpec<PropertyT, ArgumentsT, OutputT>,
     private val property: PropertyT,
     private val sessionFactory: SessionFactory<SessionT>,
     private val sessionBridge: SessionBridge<SessionT, ConfirmationT>,
     private val sessionUpdaterSupplier: Supplier<SessionUpdaterT>,
-) : Capability {
+) : Capability(id) {
 
-    override fun getAppAction(): AppAction {
-        return actionSpec
+    override val appAction: AppAction =
+        actionSpec
             .convertPropertyToProto(property)
             .toBuilder()
             .setTaskInfo(TaskInfo.newBuilder().setSupportsPartialFulfillment(true))
             .setIdentifier(id)
             .build()
-    }
 
     override fun createSession(
         sessionId: String,
@@ -70,7 +69,7 @@ constructor(
         return TaskCapabilitySession(
             sessionId,
             actionSpec,
-            getAppAction(),
+            appAction,
             sessionBridge.createTaskHandler(externalSession),
             externalSession,
         )

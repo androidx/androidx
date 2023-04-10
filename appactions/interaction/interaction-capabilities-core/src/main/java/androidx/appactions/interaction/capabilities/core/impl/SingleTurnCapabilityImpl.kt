@@ -32,19 +32,18 @@ internal class SingleTurnCapabilityImpl<
     ArgumentsT,
     OutputT,
     > constructor(
-    override val id: String,
+    id: String,
     val actionSpec: ActionSpec<PropertyT, ArgumentsT, OutputT>,
     val property: PropertyT,
     val actionExecutorAsync: ActionExecutorAsync<ArgumentsT, OutputT>,
-) : Capability {
+) : Capability(id) {
     private val mutex = Mutex()
 
-    override fun getAppAction(): AppAction {
-        return actionSpec.convertPropertyToProto(property).toBuilder()
+    override val appAction: AppAction =
+        actionSpec.convertPropertyToProto(property).toBuilder()
             .setTaskInfo(TaskInfo.newBuilder().setSupportsPartialFulfillment(false))
             .setIdentifier(id)
             .build()
-    }
 
     override fun createSession(
         sessionId: String,
