@@ -108,7 +108,7 @@ class AppInteractionServiceGrpcImplTest {
     fun before() {
         capability1 = mock()
         whenever(capability1.id).thenReturn(capabilityId)
-        whenever(capability1.getAppAction()).thenReturn(AppAction.getDefaultInstance())
+        whenever(capability1.appAction).thenReturn(AppAction.getDefaultInstance())
         val mockCapabilitySession = createMockSession()
         whenever(capability1.createSession(any(), any())).thenReturn(mockCapabilitySession)
     }

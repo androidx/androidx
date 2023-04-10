@@ -18,7 +18,6 @@ package androidx.appactions.interaction.capabilities.core.impl.task
 import android.util.SizeF
 import androidx.appactions.interaction.capabilities.core.AppEntityListener
 import androidx.appactions.interaction.capabilities.core.Capability
-import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
 import androidx.appactions.interaction.capabilities.core.EntitySearchResult
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.HostProperties
@@ -106,7 +105,7 @@ class TaskCapabilityImplTest {
 
     @Test
     fun getAppAction_smokeTest() {
-        assertThat(capability.getAppAction())
+        assertThat(capability.appAction)
             .isEqualTo(
                 AppAction.newBuilder()
                     .setName("actions.intent.TEST")
@@ -274,7 +273,7 @@ class TaskCapabilityImplTest {
             )
         val session = capability.createSession(fakeSessionId, hostProperties)
 
-        assertThat(capability.getAppAction())
+        assertThat(capability.appAction)
             .isEqualTo(
                 AppAction.newBuilder()
                     .setName("actions.intent.TEST")
@@ -935,11 +934,11 @@ class TaskCapabilityImplTest {
     }
 
     /**
-     * an implementation of CapabilityBuilderBase using Argument. Output, etc. defined under
+     * an implementation of Capability.Builder using Argument. Output, etc. defined under
      * testing/spec
      */
     class CapabilityBuilder :
-        CapabilityBuilderBase<
+        Capability.Builder<
             CapabilityBuilder,
             Property,
             Arguments,
