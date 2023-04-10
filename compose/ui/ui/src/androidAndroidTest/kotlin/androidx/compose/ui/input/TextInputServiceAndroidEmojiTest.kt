@@ -16,19 +16,22 @@
 
 package androidx.compose.ui.input
 
+import android.view.Choreographer
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.InputMethodManager
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TextInputServiceAndroid
+import androidx.compose.ui.text.input.asExecutor
 import androidx.emoji2.text.EmojiCompat
+import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -47,7 +50,13 @@ class TextInputServiceAndroidEmojiTest {
         EmojiCompat.reset(e2)
         val view = View(InstrumentationRegistry.getInstrumentation().context)
         val inputMethodManager = mock<InputMethodManager>()
-        val textInputService = TextInputServiceAndroid(view, inputMethodManager)
+        // Choreographer must be retrieved on main thread.
+        val choreographer = Espresso.onIdle { Choreographer.getInstance() }
+        val textInputService = TextInputServiceAndroid(
+            view,
+            inputMethodManager,
+            inputCommandProcessorExecutor = choreographer.asExecutor()
+        )
 
         textInputService.startInput(TextFieldValue(""), ImeOptions.Default, {}, {})
 

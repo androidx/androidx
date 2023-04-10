@@ -70,7 +70,6 @@ public abstract class ItemDetailsLookup<K> {
 
     /**
      * @return true if there is an item w/ a stable ID at the event coordinates.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     protected boolean overItemWithSelectionKey(@NonNull MotionEvent e) {

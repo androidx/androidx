@@ -34,25 +34,27 @@ class GoalProgressDataSourceService : ComplicationDataSourceService() {
     ) {
         listener.onComplicationData(
             GoalProgressComplicationData.Builder(
-                value = 12345.0f,
-                targetValue = 10000.0f,
-                plainText("12345 steps")
-            ).setText(plainText("12345"))
+                    value = 12345.0f,
+                    targetValue = 10000.0f,
+                    plainText("12345 steps")
+                )
+                .setText(plainText("12345"))
                 .setTitle(plainText("Steps"))
                 .build()
         )
     }
 
-    override fun getPreviewData(type: ComplicationType): ComplicationData? = when (type) {
-        ComplicationType.GOAL_PROGRESS ->
-            GoalProgressComplicationData.Builder(
-                value = 1024.0f,
-                targetValue = 10000.0f,
-                plainText("Steps complication")
-            ).setText(plainText("1024"))
-                .setTitle(plainText("Steps"))
-                .build()
-
-        else -> null
-    }
+    override fun getPreviewData(type: ComplicationType): ComplicationData? =
+        when (type) {
+            ComplicationType.GOAL_PROGRESS ->
+                GoalProgressComplicationData.Builder(
+                        value = 1024.0f,
+                        targetValue = 10000.0f,
+                        plainText("Steps complication")
+                    )
+                    .setText(plainText("1024"))
+                    .setTitle(plainText("Steps"))
+                    .build()
+            else -> null
+        }
 }

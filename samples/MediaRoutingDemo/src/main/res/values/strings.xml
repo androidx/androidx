@@ -15,23 +15,15 @@
 -->
 
 <resources>
-    <string name="activity_sample_code">Media Routing Demo</string>
+    <string name="media_router_app_name">Media Routing Demo</string>
 
     <!-- MediaRouter -->
+    <string name="main_activity_label">Media Routing</string>
+    <string name="settings_activity_label">Settings</string>
+    <string name="add_edit_route_activity_label">Enter Route Details</string>
 
-    <string name="sample_media_router_activity_dark">MediaRouter/Dark Theme</string>
-    <string name="sample_media_router_activity_light">MediaRouter/Light Theme</string>
-    <string name="sample_media_router_activity_light_with_dark_action_bar">MediaRouter/Light Theme, Dark Action Bar</string>
-    <string name="sample_media_router_activity_dynamic_group">MediaRouter/Dynamic Group
-        Dialog</string>
-    <string name="sample_media_router_activity_output_switcher">MediaRouter/Output Switcher</string>
-    <string name="sample_media_router_activity_legacy">MediaRouter/Disable MediaRouter2</string>
-    <string name="sample_media_router_text">This activity demonstrates how to
-            use MediaRouter from the support library.  Select a route from the action bar.</string>
     <string name="media_route_menu_title">Play on...</string>
     <string name="settings_menu_item">Settings</string>
-
-    <string name="sample_media_route_settings_activity">Sample route settings</string>
 
     <string name="use_default_media_control">Use default media control</string>
     <string name="my_media_control_text">My Media Control</string>
@@ -61,5 +53,6 @@
     <string name="sample_media_route_activity_local">Local Playback</string>
     <string name="sample_media_route_activity_presentation">Local Playback on Presentation Display</string>
 
-    <string name="action_mode_done_content_description">Cancel</string>
+    <string name="delete_route_alert_dialog_title">Delete this route?</string>
+    <string name="delete_route_alert_dialog_message">Are you sure you want to delete this route?</string>
 </resources>

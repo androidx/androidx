@@ -32,7 +32,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalPerfettoCaptureApi::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 21)
+@SdkSuppress(minSdkVersion = 23)
 class PerfettoTraceTest {
     @Test
     fun record_basic() {

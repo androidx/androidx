@@ -34,7 +34,6 @@ import androidx.annotation.RestrictTo;
  * implies that AppCompat shadows the platform's check mark tint attributes. See
  * {@link androidx.resourceinspection.processor} for more details and a full mapping of attributes.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public interface TintableCheckedTextView {

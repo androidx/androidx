@@ -68,6 +68,9 @@ import kotlin.math.min
  * of the [SnackbarHost] to the [Scaffold]:
  * @sample androidx.compose.material3.samples.ScaffoldWithCustomSnackbar
  *
+ * For a multiline sample following the Material recommended spec of a maximum of 2 lines, see:
+ * @sample androidx.compose.material3.samples.ScaffoldWithMultilineSnackbar
+ *
  * @param modifier the [Modifier] to be applied to this snackbar
  * @param action action / button component to add as an action to the snackbar. Consider using
  * [ColorScheme.inversePrimary] as the color for the action, if you do not have a predefined color

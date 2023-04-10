@@ -41,7 +41,6 @@ public class AspectRatio {
     }
 
     /**
-     * @hide
      */
     @IntDef({RATIO_DEFAULT, RATIO_4_3, RATIO_16_9})
     @Retention(RetentionPolicy.SOURCE)

@@ -206,7 +206,7 @@ fun <T> staticCompositionLocalOf(defaultFactory: () -> T): ProvidableComposition
  */
 @Stable
 class CompositionLocalContext internal constructor(
-    internal val compositionLocals: CompositionLocalMap
+    internal val compositionLocals: PersistentCompositionLocalMap
 )
 
 /**

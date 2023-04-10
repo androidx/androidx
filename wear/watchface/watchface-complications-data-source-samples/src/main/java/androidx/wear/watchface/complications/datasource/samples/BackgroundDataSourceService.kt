@@ -20,13 +20,13 @@ import android.content.ComponentName
 import android.os.Handler
 import android.os.Looper
 import androidx.wear.watchface.complications.data.ComplicationData
-import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService
-import androidx.wear.watchface.complications.datasource.ComplicationRequest
-import androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester
 import androidx.wear.watchface.complications.data.ComplicationText
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.LongTextComplicationData
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
+import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService
+import androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester
+import androidx.wear.watchface.complications.datasource.ComplicationRequest
 
 const val UPDATE_CADEANCE_MS = 10000L
 
@@ -40,10 +40,11 @@ class BackgroundDataSourceService : ComplicationDataSourceService() {
 
     override fun onCreate() {
         if (updateRequester == null) {
-            updateRequester = ComplicationDataSourceUpdateRequester.create(
-                this,
-                ComponentName(this, BackgroundDataSourceService::class.java)
-            )
+            updateRequester =
+                ComplicationDataSourceUpdateRequester.create(
+                    this,
+                    ComponentName(this, BackgroundDataSourceService::class.java)
+                )
         }
     }
 
@@ -66,34 +67,29 @@ class BackgroundDataSourceService : ComplicationDataSourceService() {
             when (request.complicationType) {
                 ComplicationType.SHORT_TEXT ->
                     ShortTextComplicationData.Builder(
-                        plainText("# $counter"),
-                        ComplicationText.EMPTY
-                    ).build()
-
+                            plainText("# $counter"),
+                            ComplicationText.EMPTY
+                        )
+                        .build()
                 ComplicationType.LONG_TEXT ->
                     LongTextComplicationData.Builder(
-                        plainText("Count $counter"),
-                        ComplicationText.EMPTY
-                    ).build()
-
+                            plainText("Count $counter"),
+                            ComplicationText.EMPTY
+                        )
+                        .build()
                 else -> null
             }
         )
     }
 
-    override fun getPreviewData(type: ComplicationType): ComplicationData? = when (type) {
-        ComplicationType.SHORT_TEXT ->
-            ShortTextComplicationData.Builder(
-                plainText("# 123"),
-                ComplicationText.EMPTY
-            ).build()
-
-        ComplicationType.LONG_TEXT ->
-            LongTextComplicationData.Builder(
-                plainText("Count 123"),
-                ComplicationText.EMPTY
-            ).build()
-
-        else -> null
-    }
+    override fun getPreviewData(type: ComplicationType): ComplicationData? =
+        when (type) {
+            ComplicationType.SHORT_TEXT ->
+                ShortTextComplicationData.Builder(plainText("# 123"), ComplicationText.EMPTY)
+                    .build()
+            ComplicationType.LONG_TEXT ->
+                LongTextComplicationData.Builder(plainText("Count 123"), ComplicationText.EMPTY)
+                    .build()
+            else -> null
+        }
 }

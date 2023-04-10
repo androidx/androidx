@@ -26,9 +26,10 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
     implementation("androidx.core:core:1.3.2")
     api("androidx.fragment:fragment:1.1.0")
-    api("androidx.recyclerview:recyclerview:1.2.0")
+    api(project(":recyclerview:recyclerview"))
     implementation("androidx.collection:collection:1.1.0")
 
+    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -58,4 +59,7 @@ androidx {
 
 android {
     namespace "androidx.viewpager2"
+    defaultConfig {
+        multiDexEnabled = true
+    }
 }

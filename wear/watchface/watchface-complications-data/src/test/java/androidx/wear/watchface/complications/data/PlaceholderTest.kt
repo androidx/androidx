@@ -41,13 +41,19 @@ class PlaceholderTest {
 
     @Test
     fun placeholder_shortText() {
-        val placeholderShortText = NoDataComplicationData(
-            ShortTextComplicationData.Builder(ComplicationText.PLACEHOLDER, contentDescription)
-                .setTitle(ComplicationText.PLACEHOLDER)
-                .setMonochromaticImage(MonochromaticImage.PLACEHOLDER)
-                .setSmallImage(SmallImage.PLACEHOLDER)
-                .build()
-        ).toWireFormatRoundTrip().placeholder as ShortTextComplicationData
+        val placeholderShortText =
+            NoDataComplicationData(
+                    ShortTextComplicationData.Builder(
+                            ComplicationText.PLACEHOLDER,
+                            contentDescription
+                        )
+                        .setTitle(ComplicationText.PLACEHOLDER)
+                        .setMonochromaticImage(MonochromaticImage.PLACEHOLDER)
+                        .setSmallImage(SmallImage.PLACEHOLDER)
+                        .build()
+                )
+                .toWireFormatRoundTrip()
+                .placeholder as ShortTextComplicationData
 
         assertThat(placeholderShortText.text).isEqualTo(ComplicationText.PLACEHOLDER)
         assertThat(placeholderShortText.title).isEqualTo(ComplicationText.PLACEHOLDER)
@@ -61,20 +67,21 @@ class PlaceholderTest {
 
     @Test
     fun normal_shortText() {
-        val placeholderShortText = NoDataComplicationData(
-            ShortTextComplicationData.Builder(text, contentDescription)
-                .setTitle(title)
-                .setMonochromaticImage(monochromaticImage)
-                .setSmallImage(smallImage)
-                .build()
-        ).toWireFormatRoundTrip().placeholder as ShortTextComplicationData
+        val placeholderShortText =
+            NoDataComplicationData(
+                    ShortTextComplicationData.Builder(text, contentDescription)
+                        .setTitle(title)
+                        .setMonochromaticImage(monochromaticImage)
+                        .setSmallImage(smallImage)
+                        .build()
+                )
+                .toWireFormatRoundTrip()
+                .placeholder as ShortTextComplicationData
 
-        assertThat(placeholderShortText.text.getTextAt(resources, Instant.EPOCH)).isEqualTo(
-            text.getTextAt(resources, Instant.EPOCH)
-        )
-        assertThat(placeholderShortText.title!!.getTextAt(resources, Instant.EPOCH)).isEqualTo(
-            title.getTextAt(resources, Instant.EPOCH)
-        )
+        assertThat(placeholderShortText.text.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo(text.getTextAt(resources, Instant.EPOCH))
+        assertThat(placeholderShortText.title!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo(title.getTextAt(resources, Instant.EPOCH))
         assertThat(placeholderShortText.monochromaticImage).isEqualTo(monochromaticImage)
         assertThat(placeholderShortText.smallImage).isEqualTo(smallImage)
         assertThat(placeholderShortText.hasPlaceholderFields()).isFalse()
@@ -82,10 +89,16 @@ class PlaceholderTest {
 
     @Test
     fun absent_shortText() {
-        val placeholderShortText = NoDataComplicationData(
-            ShortTextComplicationData.Builder(ComplicationText.PLACEHOLDER, contentDescription)
-                .build()
-        ).toWireFormatRoundTrip().placeholder as ShortTextComplicationData
+        val placeholderShortText =
+            NoDataComplicationData(
+                    ShortTextComplicationData.Builder(
+                            ComplicationText.PLACEHOLDER,
+                            contentDescription
+                        )
+                        .build()
+                )
+                .toWireFormatRoundTrip()
+                .placeholder as ShortTextComplicationData
 
         assertThat(placeholderShortText.title).isNull()
         assertThat(placeholderShortText.monochromaticImage).isNull()
@@ -94,18 +107,23 @@ class PlaceholderTest {
 
     @Test
     fun placeholder_longText() {
-        val placeholderLongText = NoDataComplicationData(
-            LongTextComplicationData.Builder(ComplicationText.PLACEHOLDER, contentDescription)
-                .setTitle(ComplicationText.PLACEHOLDER)
-                .setMonochromaticImage(MonochromaticImage.PLACEHOLDER)
-                .setSmallImage(SmallImage.PLACEHOLDER)
-                .build()
-        ).toWireFormatRoundTrip().placeholder as LongTextComplicationData
+        val placeholderLongText =
+            NoDataComplicationData(
+                    LongTextComplicationData.Builder(
+                            ComplicationText.PLACEHOLDER,
+                            contentDescription
+                        )
+                        .setTitle(ComplicationText.PLACEHOLDER)
+                        .setMonochromaticImage(MonochromaticImage.PLACEHOLDER)
+                        .setSmallImage(SmallImage.PLACEHOLDER)
+                        .build()
+                )
+                .toWireFormatRoundTrip()
+                .placeholder as LongTextComplicationData
 
         assertThat(placeholderLongText.text).isEqualTo(ComplicationText.PLACEHOLDER)
         assertThat(placeholderLongText.title).isEqualTo(ComplicationText.PLACEHOLDER)
-        assertThat(placeholderLongText.monochromaticImage)
-            .isEqualTo(MonochromaticImage.PLACEHOLDER)
+        assertThat(placeholderLongText.monochromaticImage).isEqualTo(MonochromaticImage.PLACEHOLDER)
         assertThat(placeholderLongText.smallImage).isEqualTo(SmallImage.PLACEHOLDER)
         assertThat(placeholderLongText.contentDescription!!.getTextAt(resources, Instant.EPOCH))
             .isEqualTo("description")
@@ -114,20 +132,21 @@ class PlaceholderTest {
 
     @Test
     fun normal_longText() {
-        val placeholderLongText = NoDataComplicationData(
-            LongTextComplicationData.Builder(text, contentDescription)
-                .setTitle(title)
-                .setMonochromaticImage(monochromaticImage)
-                .setSmallImage(smallImage)
-                .build()
-        ).toWireFormatRoundTrip().placeholder as LongTextComplicationData
+        val placeholderLongText =
+            NoDataComplicationData(
+                    LongTextComplicationData.Builder(text, contentDescription)
+                        .setTitle(title)
+                        .setMonochromaticImage(monochromaticImage)
+                        .setSmallImage(smallImage)
+                        .build()
+                )
+                .toWireFormatRoundTrip()
+                .placeholder as LongTextComplicationData
 
-        assertThat(placeholderLongText.text.getTextAt(resources, Instant.EPOCH)).isEqualTo(
-            text.getTextAt(resources, Instant.EPOCH)
-        )
-        assertThat(placeholderLongText.title!!.getTextAt(resources, Instant.EPOCH)).isEqualTo(
-            title.getTextAt(resources, Instant.EPOCH)
-        )
+        assertThat(placeholderLongText.text.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo(text.getTextAt(resources, Instant.EPOCH))
+        assertThat(placeholderLongText.title!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo(title.getTextAt(resources, Instant.EPOCH))
         assertThat(placeholderLongText.monochromaticImage).isEqualTo(monochromaticImage)
         assertThat(placeholderLongText.smallImage).isEqualTo(smallImage)
         assertThat(placeholderLongText.hasPlaceholderFields()).isFalse()
@@ -135,10 +154,16 @@ class PlaceholderTest {
 
     @Test
     fun absent_longText() {
-        val placeholderLongText = NoDataComplicationData(
-            LongTextComplicationData.Builder(ComplicationText.PLACEHOLDER, contentDescription)
-                .build()
-        ).toWireFormatRoundTrip().placeholder as LongTextComplicationData
+        val placeholderLongText =
+            NoDataComplicationData(
+                    LongTextComplicationData.Builder(
+                            ComplicationText.PLACEHOLDER,
+                            contentDescription
+                        )
+                        .build()
+                )
+                .toWireFormatRoundTrip()
+                .placeholder as LongTextComplicationData
 
         assertThat(placeholderLongText.title).isNull()
         assertThat(placeholderLongText.monochromaticImage).isNull()
@@ -147,19 +172,22 @@ class PlaceholderTest {
 
     @Test
     fun placeholder_rangedValue() {
-        val placeholderRangedValue = NoDataComplicationData(
-            RangedValueComplicationData.Builder(
-                value = RangedValueComplicationData.PLACEHOLDER,
-                min = 1f,
-                max = 10f,
-                contentDescription
-            )
-                .setText(ComplicationText.PLACEHOLDER)
-                .setTitle(ComplicationText.PLACEHOLDER)
-                .setMonochromaticImage(MonochromaticImage.PLACEHOLDER)
-                .setSmallImage(SmallImage.PLACEHOLDER)
-                .build()
-        ).toWireFormatRoundTrip().placeholder as RangedValueComplicationData
+        val placeholderRangedValue =
+            NoDataComplicationData(
+                    RangedValueComplicationData.Builder(
+                            value = RangedValueComplicationData.PLACEHOLDER,
+                            min = 1f,
+                            max = 10f,
+                            contentDescription
+                        )
+                        .setText(ComplicationText.PLACEHOLDER)
+                        .setTitle(ComplicationText.PLACEHOLDER)
+                        .setMonochromaticImage(MonochromaticImage.PLACEHOLDER)
+                        .setSmallImage(SmallImage.PLACEHOLDER)
+                        .build()
+                )
+                .toWireFormatRoundTrip()
+                .placeholder as RangedValueComplicationData
 
         assertThat(placeholderRangedValue.value).isEqualTo(RangedValueComplicationData.PLACEHOLDER)
         assertThat(placeholderRangedValue.text).isEqualTo(ComplicationText.PLACEHOLDER)
@@ -174,21 +202,27 @@ class PlaceholderTest {
 
     @Test
     fun normal_rangedValue() {
-        val placeholderRangedValue = NoDataComplicationData(
-            RangedValueComplicationData.Builder(value = 7f, min = 1f, max = 10f, contentDescription)
-                .setText(text)
-                .setTitle(title)
-                .setMonochromaticImage(monochromaticImage)
-                .setSmallImage(smallImage)
-                .build()
-        ).toWireFormatRoundTrip().placeholder as RangedValueComplicationData
+        val placeholderRangedValue =
+            NoDataComplicationData(
+                    RangedValueComplicationData.Builder(
+                            value = 7f,
+                            min = 1f,
+                            max = 10f,
+                            contentDescription
+                        )
+                        .setText(text)
+                        .setTitle(title)
+                        .setMonochromaticImage(monochromaticImage)
+                        .setSmallImage(smallImage)
+                        .build()
+                )
+                .toWireFormatRoundTrip()
+                .placeholder as RangedValueComplicationData
 
-        assertThat(placeholderRangedValue.text!!.getTextAt(resources, Instant.EPOCH)).isEqualTo(
-            text.getTextAt(resources, Instant.EPOCH)
-        )
-        assertThat(placeholderRangedValue.title!!.getTextAt(resources, Instant.EPOCH)).isEqualTo(
-            title.getTextAt(resources, Instant.EPOCH)
-        )
+        assertThat(placeholderRangedValue.text!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo(text.getTextAt(resources, Instant.EPOCH))
+        assertThat(placeholderRangedValue.title!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo(title.getTextAt(resources, Instant.EPOCH))
         assertThat(placeholderRangedValue.monochromaticImage).isEqualTo(monochromaticImage)
         assertThat(placeholderRangedValue.smallImage).isEqualTo(smallImage)
         assertThat(placeholderRangedValue.value).isEqualTo(7f)
@@ -199,16 +233,19 @@ class PlaceholderTest {
 
     @Test
     fun titleAbsent_rangedValue() {
-        val placeholderRangedValue = NoDataComplicationData(
-            RangedValueComplicationData.Builder(
-                value = RangedValueComplicationData.PLACEHOLDER,
-                min = 1f,
-                max = 10f,
-                contentDescription
-            )
-                .setText(ComplicationText.PLACEHOLDER)
-                .build()
-        ).toWireFormatRoundTrip().placeholder as RangedValueComplicationData
+        val placeholderRangedValue =
+            NoDataComplicationData(
+                    RangedValueComplicationData.Builder(
+                            value = RangedValueComplicationData.PLACEHOLDER,
+                            min = 1f,
+                            max = 10f,
+                            contentDescription
+                        )
+                        .setText(ComplicationText.PLACEHOLDER)
+                        .build()
+                )
+                .toWireFormatRoundTrip()
+                .placeholder as RangedValueComplicationData
 
         assertThat(placeholderRangedValue.text).isEqualTo(ComplicationText.PLACEHOLDER)
         assertThat(placeholderRangedValue.title).isNull()
@@ -219,18 +256,21 @@ class PlaceholderTest {
     @OptIn(ComplicationExperimental::class)
     @Test
     fun placeholder_goalProgress() {
-        val placeholderGoalProgress = NoDataComplicationData(
-            GoalProgressComplicationData.Builder(
-                value = GoalProgressComplicationData.PLACEHOLDER,
-                targetValue = 10000f,
-                contentDescription
-            )
-                .setText(ComplicationText.PLACEHOLDER)
-                .setTitle(ComplicationText.PLACEHOLDER)
-                .setMonochromaticImage(MonochromaticImage.PLACEHOLDER)
-                .setSmallImage(SmallImage.PLACEHOLDER)
-                .build()
-        ).toWireFormatRoundTrip().placeholder as GoalProgressComplicationData
+        val placeholderGoalProgress =
+            NoDataComplicationData(
+                    GoalProgressComplicationData.Builder(
+                            value = GoalProgressComplicationData.PLACEHOLDER,
+                            targetValue = 10000f,
+                            contentDescription
+                        )
+                        .setText(ComplicationText.PLACEHOLDER)
+                        .setTitle(ComplicationText.PLACEHOLDER)
+                        .setMonochromaticImage(MonochromaticImage.PLACEHOLDER)
+                        .setSmallImage(SmallImage.PLACEHOLDER)
+                        .build()
+                )
+                .toWireFormatRoundTrip()
+                .placeholder as GoalProgressComplicationData
 
         assertThat(placeholderGoalProgress.value).isEqualTo(RangedValueComplicationData.PLACEHOLDER)
         assertThat(placeholderGoalProgress.text).isEqualTo(ComplicationText.PLACEHOLDER)
@@ -246,25 +286,26 @@ class PlaceholderTest {
     @OptIn(ComplicationExperimental::class)
     @Test
     fun normal_goalProgress() {
-        val placeholderGoalProgress = NoDataComplicationData(
-            GoalProgressComplicationData.Builder(
-                value = 1200f,
-                targetValue = 10000f,
-                contentDescription
-            )
-                .setText(text)
-                .setTitle(title)
-                .setMonochromaticImage(monochromaticImage)
-                .setSmallImage(smallImage)
-                .build()
-        ).toWireFormatRoundTrip().placeholder as GoalProgressComplicationData
+        val placeholderGoalProgress =
+            NoDataComplicationData(
+                    GoalProgressComplicationData.Builder(
+                            value = 1200f,
+                            targetValue = 10000f,
+                            contentDescription
+                        )
+                        .setText(text)
+                        .setTitle(title)
+                        .setMonochromaticImage(monochromaticImage)
+                        .setSmallImage(smallImage)
+                        .build()
+                )
+                .toWireFormatRoundTrip()
+                .placeholder as GoalProgressComplicationData
 
-        assertThat(placeholderGoalProgress.text!!.getTextAt(resources, Instant.EPOCH)).isEqualTo(
-            text.getTextAt(resources, Instant.EPOCH)
-        )
-        assertThat(placeholderGoalProgress.title!!.getTextAt(resources, Instant.EPOCH)).isEqualTo(
-            title.getTextAt(resources, Instant.EPOCH)
-        )
+        assertThat(placeholderGoalProgress.text!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo(text.getTextAt(resources, Instant.EPOCH))
+        assertThat(placeholderGoalProgress.title!!.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo(title.getTextAt(resources, Instant.EPOCH))
         assertThat(placeholderGoalProgress.monochromaticImage).isEqualTo(monochromaticImage)
         assertThat(placeholderGoalProgress.smallImage).isEqualTo(smallImage)
         assertThat(placeholderGoalProgress.value).isEqualTo(1200f)
@@ -275,17 +316,20 @@ class PlaceholderTest {
     @OptIn(ComplicationExperimental::class)
     @Test
     fun placeholder_weightedElements() {
-        val placeholderWeightedElements = NoDataComplicationData(
-            WeightedElementsComplicationData.Builder(
-                elements = WeightedElementsComplicationData.PLACEHOLDER,
-                contentDescription
-            )
-                .setText(ComplicationText.PLACEHOLDER)
-                .setTitle(ComplicationText.PLACEHOLDER)
-                .setMonochromaticImage(MonochromaticImage.PLACEHOLDER)
-                .setSmallImage(SmallImage.PLACEHOLDER)
-                .build()
-        ).toWireFormatRoundTrip().placeholder as WeightedElementsComplicationData
+        val placeholderWeightedElements =
+            NoDataComplicationData(
+                    WeightedElementsComplicationData.Builder(
+                            elements = WeightedElementsComplicationData.PLACEHOLDER,
+                            contentDescription
+                        )
+                        .setText(ComplicationText.PLACEHOLDER)
+                        .setTitle(ComplicationText.PLACEHOLDER)
+                        .setMonochromaticImage(MonochromaticImage.PLACEHOLDER)
+                        .setSmallImage(SmallImage.PLACEHOLDER)
+                        .build()
+                )
+                .toWireFormatRoundTrip()
+                .placeholder as WeightedElementsComplicationData
 
         assertThat(placeholderWeightedElements.elements)
             .isEqualTo(WeightedElementsComplicationData.PLACEHOLDER)
@@ -294,37 +338,44 @@ class PlaceholderTest {
         assertThat(placeholderWeightedElements.monochromaticImage)
             .isEqualTo(MonochromaticImage.PLACEHOLDER)
         assertThat(placeholderWeightedElements.smallImage).isEqualTo(SmallImage.PLACEHOLDER)
-        assertThat(placeholderWeightedElements.contentDescription!!
-            .getTextAt(resources, Instant.EPOCH)).isEqualTo("description")
+        assertThat(
+                placeholderWeightedElements.contentDescription!!.getTextAt(resources, Instant.EPOCH)
+            )
+            .isEqualTo("description")
         assertThat(placeholderWeightedElements.hasPlaceholderFields()).isTrue()
     }
 
     @OptIn(ComplicationExperimental::class)
     @Test
     fun normal_weightedElements() {
-        val weightedElements = NoDataComplicationData(
-            WeightedElementsComplicationData.Builder(
-                elements = listOf(
+        val weightedElements =
+            NoDataComplicationData(
+                    WeightedElementsComplicationData.Builder(
+                            elements =
+                                listOf(
+                                    WeightedElementsComplicationData.Element(0.5f, Color.RED),
+                                    WeightedElementsComplicationData.Element(1f, Color.GREEN),
+                                    WeightedElementsComplicationData.Element(2f, Color.BLUE),
+                                ),
+                            contentDescription
+                        )
+                        .setText(text)
+                        .setTitle(title)
+                        .setMonochromaticImage(monochromaticImage)
+                        .setSmallImage(smallImage)
+                        .build()
+                )
+                .toWireFormatRoundTrip()
+                .placeholder as WeightedElementsComplicationData
+
+        assertThat(weightedElements.elements)
+            .isEqualTo(
+                listOf(
                     WeightedElementsComplicationData.Element(0.5f, Color.RED),
                     WeightedElementsComplicationData.Element(1f, Color.GREEN),
                     WeightedElementsComplicationData.Element(2f, Color.BLUE),
-                ),
-                contentDescription
+                )
             )
-                .setText(text)
-                .setTitle(title)
-                .setMonochromaticImage(monochromaticImage)
-                .setSmallImage(smallImage)
-                .build()
-        ).toWireFormatRoundTrip().placeholder as WeightedElementsComplicationData
-
-        assertThat(weightedElements.elements).isEqualTo(
-            listOf(
-                WeightedElementsComplicationData.Element(0.5f, Color.RED),
-                WeightedElementsComplicationData.Element(1f, Color.GREEN),
-                WeightedElementsComplicationData.Element(2f, Color.BLUE),
-            )
-        )
         assertThat(weightedElements.text).isEqualTo(text)
         assertThat(weightedElements.title).isEqualTo(title)
         assertThat(weightedElements.monochromaticImage).isEqualTo(monochromaticImage)
@@ -336,29 +387,41 @@ class PlaceholderTest {
 
     @Test
     fun placeholder_monochromaticImage() {
-        val placeholderMonochromaticImage = NoDataComplicationData(
-            MonochromaticImageComplicationData.Builder(
-                MonochromaticImage.PLACEHOLDER,
-                contentDescription
-            ).build()
-        ).toWireFormatRoundTrip().placeholder as MonochromaticImageComplicationData
+        val placeholderMonochromaticImage =
+            NoDataComplicationData(
+                    MonochromaticImageComplicationData.Builder(
+                            MonochromaticImage.PLACEHOLDER,
+                            contentDescription
+                        )
+                        .build()
+                )
+                .toWireFormatRoundTrip()
+                .placeholder as MonochromaticImageComplicationData
 
         assertThat(placeholderMonochromaticImage.monochromaticImage)
             .isEqualTo(MonochromaticImage.PLACEHOLDER)
         assertThat(
-            placeholderMonochromaticImage.contentDescription!!.getTextAt(resources, Instant.EPOCH)
-        ).isEqualTo("description")
+                placeholderMonochromaticImage.contentDescription!!.getTextAt(
+                    resources,
+                    Instant.EPOCH
+                )
+            )
+            .isEqualTo("description")
         assertThat(placeholderMonochromaticImage.hasPlaceholderFields()).isTrue()
     }
 
     @Test
     fun normal_monochromaticImage() {
-        val placeholderMonochromaticImage = NoDataComplicationData(
-            MonochromaticImageComplicationData.Builder(
-                monochromaticImage,
-                contentDescription
-            ).build()
-        ).toWireFormatRoundTrip().placeholder as MonochromaticImageComplicationData
+        val placeholderMonochromaticImage =
+            NoDataComplicationData(
+                    MonochromaticImageComplicationData.Builder(
+                            monochromaticImage,
+                            contentDescription
+                        )
+                        .build()
+                )
+                .toWireFormatRoundTrip()
+                .placeholder as MonochromaticImageComplicationData
 
         assertThat(placeholderMonochromaticImage.monochromaticImage).isEqualTo(monochromaticImage)
         assertThat(placeholderMonochromaticImage.hasPlaceholderFields()).isFalse()
@@ -366,9 +429,13 @@ class PlaceholderTest {
 
     @Test
     fun placeholder_smallImage() {
-        val placeholderSmallImage = NoDataComplicationData(
-            SmallImageComplicationData.Builder(SmallImage.PLACEHOLDER, contentDescription).build()
-        ).toWireFormatRoundTrip().placeholder as SmallImageComplicationData
+        val placeholderSmallImage =
+            NoDataComplicationData(
+                    SmallImageComplicationData.Builder(SmallImage.PLACEHOLDER, contentDescription)
+                        .build()
+                )
+                .toWireFormatRoundTrip()
+                .placeholder as SmallImageComplicationData
 
         assertThat(placeholderSmallImage.smallImage).isEqualTo(SmallImage.PLACEHOLDER)
         assertThat(placeholderSmallImage.contentDescription!!.getTextAt(resources, Instant.EPOCH))
@@ -378,9 +445,12 @@ class PlaceholderTest {
 
     @Test
     fun normal_smallImage() {
-        val placeholderSmallImage = NoDataComplicationData(
-            SmallImageComplicationData.Builder(smallImage, contentDescription).build()
-        ).toWireFormatRoundTrip().placeholder as SmallImageComplicationData
+        val placeholderSmallImage =
+            NoDataComplicationData(
+                    SmallImageComplicationData.Builder(smallImage, contentDescription).build()
+                )
+                .toWireFormatRoundTrip()
+                .placeholder as SmallImageComplicationData
 
         assertThat(placeholderSmallImage.smallImage).isEqualTo(smallImage)
         assertThat(placeholderSmallImage.hasPlaceholderFields()).isFalse()
@@ -388,12 +458,16 @@ class PlaceholderTest {
 
     @Test
     fun placeholder_photoImage() {
-        val placeholderPhotoImage = NoDataComplicationData(
-            PhotoImageComplicationData.Builder(
-                PhotoImageComplicationData.PLACEHOLDER,
-                contentDescription
-            ).build()
-        ).toWireFormatRoundTrip().placeholder as PhotoImageComplicationData
+        val placeholderPhotoImage =
+            NoDataComplicationData(
+                    PhotoImageComplicationData.Builder(
+                            PhotoImageComplicationData.PLACEHOLDER,
+                            contentDescription
+                        )
+                        .build()
+                )
+                .toWireFormatRoundTrip()
+                .placeholder as PhotoImageComplicationData
 
         assertThat(placeholderPhotoImage.photoImage)
             .isEqualTo(PhotoImageComplicationData.PLACEHOLDER)
@@ -404,9 +478,12 @@ class PlaceholderTest {
 
     @Test
     fun normal_photoImage() {
-        val placeholderPhotoImage = NoDataComplicationData(
-            PhotoImageComplicationData.Builder(icon, contentDescription).build()
-        ).toWireFormatRoundTrip().placeholder as PhotoImageComplicationData
+        val placeholderPhotoImage =
+            NoDataComplicationData(
+                    PhotoImageComplicationData.Builder(icon, contentDescription).build()
+                )
+                .toWireFormatRoundTrip()
+                .placeholder as PhotoImageComplicationData
 
         assertThat(placeholderPhotoImage.photoImage).isEqualTo(icon)
         assertThat(placeholderPhotoImage.hasPlaceholderFields()).isFalse()
@@ -425,20 +502,19 @@ class PlaceholderTest {
         timelineEntry.timelineStartEpochSecond = 100
         timelineEntry.timelineEndEpochSecond = 1000
 
-        val wireLongTextComplication = ComplicationData.Builder(
-            ComplicationType.LONG_TEXT.toWireComplicationType()
-        )
-            .setEndDateTimeMillis(1650988800000)
-            .setDataSource(ComponentName("a", "b"))
-            .setLongText(
-                android.support.wearable.complications.ComplicationText.plainText("longText")
-            )
-            .setIcon(icon)
-            .setSmallImageStyle(IMAGE_STYLE_ICON)
-            .setContentDescription(
-                android.support.wearable.complications.ComplicationText.plainText("test")
-            )
-            .build()
+        val wireLongTextComplication =
+            ComplicationData.Builder(ComplicationType.LONG_TEXT.toWireComplicationType())
+                .setEndDateTimeMillis(1650988800000)
+                .setDataSource(ComponentName("a", "b"))
+                .setLongText(
+                    android.support.wearable.complications.ComplicationText.plainText("longText")
+                )
+                .setIcon(icon)
+                .setSmallImageStyle(IMAGE_STYLE_ICON)
+                .setContentDescription(
+                    android.support.wearable.complications.ComplicationText.plainText("test")
+                )
+                .build()
         wireLongTextComplication.setTimelineEntryCollection(listOf(timelineEntry))
 
         val apiLongTextComplicationData = wireLongTextComplication.toApiComplicationData()
@@ -448,7 +524,10 @@ class PlaceholderTest {
         assertThat(apiLongTextComplicationData.text.isPlaceholder()).isFalse()
 
         val noDataComplicationData =
-            apiLongTextComplicationData.asWireComplicationData().timelineEntries!!.first()
+            apiLongTextComplicationData
+                .asWireComplicationData()
+                .timelineEntries!!
+                .first()
                 .toApiComplicationData()
 
         assertThat(noDataComplicationData.type).isEqualTo(ComplicationType.NO_DATA)

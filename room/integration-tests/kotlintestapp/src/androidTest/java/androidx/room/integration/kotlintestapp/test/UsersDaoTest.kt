@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.room.androidx.room.integration.kotlintestapp.test
+package androidx.room.integration.kotlintestapp.test
 
-import androidx.room.androidx.room.integration.kotlintestapp.vo.Email
-import androidx.room.androidx.room.integration.kotlintestapp.vo.User
-import androidx.room.integration.kotlintestapp.test.TestDatabaseTest
+import androidx.kruth.assertThat
+import androidx.room.integration.kotlintestapp.vo.Email
+import androidx.room.integration.kotlintestapp.vo.User
 import androidx.test.filters.MediumTest
-import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 @MediumTest

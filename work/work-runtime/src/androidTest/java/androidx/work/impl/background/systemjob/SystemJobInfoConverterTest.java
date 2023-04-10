@@ -123,6 +123,7 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     public void testConvert_initialDelay() {
         final long expectedInitialDelay = 12123L;
         WorkSpec workSpec = new WorkSpec("id", TestWorker.class.getName());
+        workSpec.lastEnqueueTime = System.currentTimeMillis();
         workSpec.initialDelay = expectedInitialDelay;
         JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
         assertCloseValues(jobInfo.getMinLatencyMillis(), expectedInitialDelay);
@@ -229,6 +230,7 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     @SdkSuppress(minSdkVersion = 29)
     public void testConvert_setImportantWhileForeground() {
         WorkSpec workSpec = getTestWorkSpecWithConstraints(new Constraints.Builder().build());
+        workSpec.lastEnqueueTime = System.currentTimeMillis();
         JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
         assertThat(jobInfo.isImportantWhileForeground(), is(true));
     }
@@ -252,6 +254,7 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
         }
 
         WorkSpec workSpec = new WorkSpec("id", TestWorker.class.getName());
+        workSpec.lastEnqueueTime = System.currentTimeMillis();
         workSpec.expedited = true;
         JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
         assertThat(jobInfo.isExpedited(), is(true));
@@ -280,6 +283,7 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
 
         WorkSpec workSpec = new WorkSpec("id", TestWorker.class.getName());
         workSpec.expedited = true;
+        workSpec.lastEnqueueTime = System.currentTimeMillis();
         workSpec.initialDelay = 1000L; // delay
         JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
         assertThat(jobInfo.isExpedited(), is(false));

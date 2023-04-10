@@ -18,7 +18,6 @@ package androidx.annotation
 /**
  * Typedef for the [Dimension.unit] attribute.
  *
- * @hide
  */
 @IntDef(Dimension.PX, Dimension.DP, Dimension.SP)
 @RestrictTo(RestrictTo.Scope.LIBRARY)

@@ -48,7 +48,6 @@ public abstract class JavaScriptReplyProxy {
 
     /**
      * This class cannot be created by applications.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public JavaScriptReplyProxy() {}

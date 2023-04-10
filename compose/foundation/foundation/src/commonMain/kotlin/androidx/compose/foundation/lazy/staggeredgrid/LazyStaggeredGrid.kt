@@ -22,7 +22,6 @@ import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.layout.LazyLayout
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
@@ -33,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @ExperimentalFoundationApi
@@ -42,8 +42,8 @@ internal fun LazyStaggeredGrid(
     state: LazyStaggeredGridState,
     /** The layout orientation of the grid */
     orientation: Orientation,
-    /** Prefix sums of cross axis sizes of slots per line, e.g. the columns for vertical grid. */
-    slotSizesSums: Density.(Constraints) -> IntArray,
+    /** Cross axis positions and sizes of slots per line, e.g. the columns for vertical grid. */
+    slots: Density.(Constraints) -> LazyStaggeredGridSlots,
     /** Modifier to be applied for the inner layout */
     modifier: Modifier = Modifier,
     /** The inner padding to be added for the whole content (not for each individual item) */
@@ -54,10 +54,10 @@ internal fun LazyStaggeredGrid(
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     /** Whether scrolling via the user gestures is allowed. */
     userScrollEnabled: Boolean = true,
-    /** The vertical arrangement for items/lines. */
-    verticalArrangement: Arrangement.Vertical = Arrangement.Top,
-    /** The horizontal arrangement for items/lines. */
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
+    /** The vertical spacing for items/lines. */
+    mainAxisSpacing: Dp = 0.dp,
+    /** The horizontal spacing for items/lines. */
+    crossAxisSpacing: Dp = 0.dp,
     /** The content of the grid */
     content: LazyStaggeredGridScope.() -> Unit
 ) {
@@ -70,11 +70,11 @@ internal fun LazyStaggeredGrid(
         contentPadding,
         reverseLayout,
         orientation,
-        verticalArrangement,
-        horizontalArrangement,
-        slotSizesSums
+        mainAxisSpacing,
+        crossAxisSpacing,
+        slots
     )
-    val semanticState = rememberLazyStaggeredGridSemanticState(state, itemProvider, reverseLayout)
+    val semanticState = rememberLazyStaggeredGridSemanticState(state, reverseLayout)
 
     ScrollPositionUpdater(itemProvider, state)
 
@@ -100,7 +100,8 @@ internal fun LazyStaggeredGrid(
                 itemProvider = itemProvider,
                 state = semanticState,
                 orientation = orientation,
-                userScrollEnabled = userScrollEnabled
+                userScrollEnabled = userScrollEnabled,
+                reverseScrolling = reverseLayout
             ),
         prefetchState = state.prefetchState,
         itemProvider = itemProvider,
@@ -119,3 +120,9 @@ private fun ScrollPositionUpdater(
         state.updateScrollPositionIfTheFirstItemWasMoved(itemProvider)
     }
 }
+
+/** Slot configuration of staggered grid **/
+internal class LazyStaggeredGridSlots(
+    val positions: IntArray,
+    val sizes: IntArray
+)

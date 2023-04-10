@@ -27,6 +27,10 @@ interface MySdk {
     suspend fun handleNullableValues(maybeRequest: Request?): Response?
 
     suspend fun handleNullableInterfaces(maybeCallback: MyCallback?): MyInterface?
+
+    suspend fun returnUiInterface(): MyUiInterface
+
+    fun acceptUiInterfaceParam(input: MyUiInterface)
 }
 
 @PrivacySandboxInterface

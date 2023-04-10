@@ -19,4 +19,6 @@ package androidx.privacysandbox.ui.core;
 /** @hide */
 oneway interface IRemoteSessionController {
     void close();
+    void notifyConfigurationChanged(in Configuration configuration);
+    void notifyResized(int width, int height);
 }

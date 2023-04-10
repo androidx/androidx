@@ -41,49 +41,40 @@ import androidx.camera.core.impl.OptionsBundle;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Camera2ImplConfig extends CaptureRequestOptions {
 
-    /** @hide */
     @RestrictTo(Scope.LIBRARY)
     public static final String CAPTURE_REQUEST_ID_STEM = "camera2.captureRequest.option.";
 
     // Option Declarations:
     // *********************************************************************************************
 
-    /** @hide */
     @RestrictTo(Scope.LIBRARY)
     public static final Config.Option<Integer> TEMPLATE_TYPE_OPTION =
             Option.create("camera2.captureRequest.templateType", int.class);
-    /** @hide */
     @RestrictTo(Scope.LIBRARY)
     public static final Config.Option<Long> STREAM_USE_CASE_OPTION =
             Option.create("camera2.cameraCaptureSession.streamUseCase", long.class);
-    /** @hide */
     @RestrictTo(Scope.LIBRARY)
     public static final Option<CameraDevice.StateCallback> DEVICE_STATE_CALLBACK_OPTION =
             Option.create("camera2.cameraDevice.stateCallback", CameraDevice.StateCallback.class);
-    /** @hide */
     @RestrictTo(Scope.LIBRARY)
     public static final Option<CameraCaptureSession.StateCallback> SESSION_STATE_CALLBACK_OPTION =
             Option.create(
                     "camera2.cameraCaptureSession.stateCallback",
                     CameraCaptureSession.StateCallback.class);
-    /** @hide */
     @RestrictTo(Scope.LIBRARY)
     public static final Option<CameraCaptureSession.CaptureCallback>
             SESSION_CAPTURE_CALLBACK_OPTION =
             Option.create("camera2.cameraCaptureSession.captureCallback",
                     CameraCaptureSession.CaptureCallback.class);
 
-    /** @hide */
     @RestrictTo(Scope.LIBRARY)
     public static final Option<CameraEventCallbacks> CAMERA_EVENT_CALLBACK_OPTION =
             Option.create("camera2.cameraEvent.callback", CameraEventCallbacks.class);
 
-    /** @hide */
     @RestrictTo(Scope.LIBRARY)
     public static final Option<Object> CAPTURE_REQUEST_TAG_OPTION = Option.create(
             "camera2.captureRequest.tag", Object.class);
 
-    /** @hide */
     @RestrictTo(Scope.LIBRARY)
     public static final Option<String> SESSION_PHYSICAL_CAMERA_ID_OPTION = Option.create(
             "camera2.cameraCaptureSession.physicalCameraId", String.class);
@@ -103,7 +94,6 @@ public final class Camera2ImplConfig extends CaptureRequestOptions {
     // erase the type. This shouldn't be a problem as long as we are only using these options
     // within the Camera2ImplConfig and Camera2ImplConfig.Builder classes.
 
-    /** @hide */
     @RestrictTo(Scope.LIBRARY)
     @NonNull
     public static Option<Object> createCaptureRequestOption(@NonNull CaptureRequest.Key<?> key) {
@@ -113,7 +103,6 @@ public final class Camera2ImplConfig extends CaptureRequestOptions {
     /**
      * Returns all capture request options contained in this configuration.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     @NonNull

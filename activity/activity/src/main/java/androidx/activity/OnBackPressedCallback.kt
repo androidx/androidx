@@ -36,7 +36,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  *
  * @param enabled The default enabled state for this callback.
  *
- * @see ComponentActivity.getOnBackPressedDispatcher
+ * @see OnBackPressedDispatcher
  */
 abstract class OnBackPressedCallback(enabled: Boolean) {
     /**

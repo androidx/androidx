@@ -71,6 +71,8 @@ class PreviewExtenderValidationTest(private val config: CameraIdExtensionModePai
     @Before
     fun setUp(): Unit = runBlocking {
         assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
+        assumeTrue(!ExtensionVersion.isAdvancedExtenderSupported())
+
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         extensionsManager = ExtensionsManager.getInstanceAsync(
             context,

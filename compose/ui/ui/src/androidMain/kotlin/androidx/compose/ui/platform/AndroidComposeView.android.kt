@@ -49,15 +49,14 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.AndroidAutofill
 import androidx.compose.ui.autofill.Autofill
@@ -124,16 +123,18 @@ import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.OwnerSnapshotObserver
 import androidx.compose.ui.node.RootForTest
-import androidx.compose.ui.semantics.SemanticsModifierCore
-import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.platform.MotionEventVerifierApi29.isValidMotionEvent
+import androidx.compose.ui.semantics.EmptySemanticsModifierNodeElement
 import androidx.compose.ui.semantics.SemanticsOwner
+import androidx.compose.ui.semantics.findClosestParentNode
 import androidx.compose.ui.semantics.outerSemantics
+import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.createFontFamilyResolver
-import androidx.compose.ui.text.input.PlatformTextInputService
-import androidx.compose.ui.text.input.TextInputService
-import androidx.compose.ui.text.input.TextInputServiceAndroid
+import androidx.compose.ui.text.input.AndroidTextInputServicePlugin
+import androidx.compose.ui.text.input.PlatformTextInputPluginRegistryImpl
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -155,11 +156,12 @@ import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import java.lang.reflect.Method
+import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToInt
 
 @SuppressLint("ViewConstructor", "VisibleForTests")
-@OptIn(ExperimentalComposeUiApi::class)
-internal class AndroidComposeView(context: Context) :
+@OptIn(ExperimentalComposeUiApi::class, InternalTextApi::class, ExperimentalTextApi::class)
+internal class AndroidComposeView(context: Context, coroutineContext: CoroutineContext) :
     ViewGroup(context), Owner, ViewRootForTest, PositionCalculator, DefaultLifecycleObserver {
 
     /**
@@ -186,11 +188,7 @@ internal class AndroidComposeView(context: Context) :
     override var density = Density(context)
         private set
 
-    private val semanticsModifier = SemanticsModifierCore(
-        mergeDescendants = false,
-        clearAndSetSemantics = false,
-        properties = {}
-    )
+    private val semanticsModifier = EmptySemanticsModifierNodeElement
 
     override val focusOwner: FocusOwner = FocusOwnerImpl { registerOnEndApplyChangesListener(it) }
 
@@ -337,12 +335,16 @@ internal class AndroidComposeView(context: Context) :
     // so that we don't have to continue using try/catch after fails once.
     private var isRenderNodeCompatible = true
 
+    private var _viewTreeOwners: ViewTreeOwners? by mutableStateOf(null)
+
+    // Having an extra derived state here (instead of directly using _viewTreeOwners) is a
+    // workaround for b/271579465 to avoid unnecessary extra recompositions when this is mutated
+    // before setContent is called.
     /**
      * Current [ViewTreeOwners]. Use [setOnViewTreeOwnersAvailable] if you want to
      * execute your code when the object will be created.
      */
-    var viewTreeOwners: ViewTreeOwners? by mutableStateOf(null)
-        private set
+    val viewTreeOwners: ViewTreeOwners? by derivedStateOf { _viewTreeOwners }
 
     private var onViewTreeOwnersAvailable: ((ViewTreeOwners) -> Unit)? = null
 
@@ -365,10 +367,26 @@ internal class AndroidComposeView(context: Context) :
         _inputModeManager.inputMode = if (touchMode) Touch else Keyboard
     }
 
-    private val textInputServiceAndroid = TextInputServiceAndroid(this)
+    /**
+     * This is the root of the text input system's state. It currently holds the default
+     * [textInputService], but may be used to provide alternative text input systems. All text input
+     * methods this class implements from [View] should delegate to the active service.
+     */
+    override val platformTextInputPluginRegistry =
+        PlatformTextInputPluginRegistryImpl { factory, platformTextInput ->
+            factory.createAdapter(platformTextInput, view = this)
+        }
 
-    @OptIn(InternalComposeUiApi::class)
-    override val textInputService = textInputServiceFactory(textInputServiceAndroid)
+    /**
+     * The default text input service. The service is wired up through
+     * [platformTextInputPluginRegistry], this class only knows about it to support
+     * [LocalTextInputService].
+     */
+    // We never call dispose() on the returned AdapterHandle because the adapter will live as long
+    // as this view, and this view also owns the registry, so they'll all be gc'd together.
+    override val textInputService = platformTextInputPluginRegistry.getOrCreateAdapter(
+        AndroidTextInputServicePlugin
+    ).adapter.service
 
     @Deprecated(
         "fontLoader is deprecated, use fontFamilyResolver",
@@ -432,6 +450,8 @@ internal class AndroidComposeView(context: Context) :
      * floating toolbar(post-M) and primary toolbar(pre-M).
      */
     override val textToolbar: TextToolbar = AndroidTextToolbar(this)
+
+    override val coroutineContext: CoroutineContext = coroutineContext
 
     /**
      * When the first event for a mouse is ACTION_DOWN, an ACTION_HOVER_ENTER is never sent.
@@ -604,22 +624,42 @@ internal class AndroidComposeView(context: Context) :
         }
     }
 
-    override fun sendKeyEvent(keyEvent: KeyEvent): Boolean {
-        return focusOwner.dispatchKeyEvent(keyEvent)
-    }
+    /**
+     * This function is used by the testing framework to send key events.
+     */
+    override fun sendKeyEvent(keyEvent: KeyEvent): Boolean =
+        // First dispatch the key event to mimic the event being intercepted before it is sent to
+        // the soft keyboard.
+        focusOwner.dispatchInterceptedSoftKeyboardEvent(keyEvent) ||
+            // Next, send the key event to the Soft Keyboard.
+            // TODO(b/272600716): Send the key event to the IME.
 
-    override fun dispatchKeyEvent(event: AndroidKeyEvent) =
+            // Finally, dispatch the key event to onPreKeyEvent/onKeyEvent listeners.
+            focusOwner.dispatchKeyEvent(keyEvent)
+
+    override fun dispatchKeyEvent(event: AndroidKeyEvent): Boolean {
         if (isFocused) {
             // Focus lies within the Compose hierarchy, so we dispatch the key event to the
             // appropriate place.
             _windowInfo.keyboardModifiers = PointerKeyboardModifiers(event.metaState)
-            sendKeyEvent(KeyEvent(event))
+            // If the event is not consumed, use the default implementation.
+            return focusOwner.dispatchKeyEvent(KeyEvent(event)) || super.dispatchKeyEvent(event)
         } else {
-            // This Owner has a focused child view, which is a view interop use case,
+            // This Owner has a focused child view, which is a view interoperability use case,
             // so we use the default ViewGroup behavior which will route tke key event to the
             // focused view.
-            super.dispatchKeyEvent(event)
+            return super.dispatchKeyEvent(event)
         }
+    }
+
+    override fun dispatchKeyEventPreIme(event: AndroidKeyEvent): Boolean {
+        return (isFocused && focusOwner.dispatchInterceptedSoftKeyboardEvent(KeyEvent(event))) ||
+            // If this view is not focused, and it received a key event, it means this is a view
+            // interoperability use case and we need to route the event to the embedded child view.
+            // Also, if this event wasn't consumed by the compose hierarchy, we need to send it back
+            // to the parent view. Both these cases are handles by the default view implementation.
+            super.dispatchKeyEventPreIme(event)
+    }
 
     override fun onAttach(node: LayoutNode) {
     }
@@ -698,8 +738,12 @@ internal class AndroidComposeView(context: Context) :
                     info: AccessibilityNodeInfoCompat
                 ) {
                     super.onInitializeAccessibilityNodeInfo(host, info)
-                    var parentId = SemanticsNode(layoutNode.outerSemantics!!, false).parent!!.id
-                    if (parentId == semanticsOwner.unmergedRootSemanticsNode.id) {
+                    var parentId = layoutNode
+                        .findClosestParentNode { it.outerSemantics != null }
+                        ?.semanticsId
+                    if (parentId == null ||
+                        parentId == semanticsOwner.unmergedRootSemanticsNode.id
+                    ) {
                         parentId = AccessibilityNodeProviderCompat.HOST_VIEW_ID
                     }
                     info.setParent(thisView, parentId)
@@ -790,8 +834,8 @@ internal class AndroidComposeView(context: Context) :
         }
     }
 
-    override fun forceMeasureTheSubtree(layoutNode: LayoutNode) {
-        measureAndLayoutDelegate.forceMeasureTheSubtree(layoutNode)
+    override fun forceMeasureTheSubtree(layoutNode: LayoutNode, affectsLookahead: Boolean) {
+        measureAndLayoutDelegate.forceMeasureTheSubtree(layoutNode, affectsLookahead)
     }
 
     override fun onRequestMeasure(
@@ -1081,18 +1125,6 @@ internal class AndroidComposeView(context: Context) :
     }
 
     /**
-     * Android has an issue where calling showSoftwareKeyboard after calling
-     * hideSoftwareKeyboard, it results in keyboard flickering and sometimes the keyboard ends up
-     * being hidden even though the most recent call was to showKeyboard.
-     *
-     * This function starts a suspended function that listens for show/hide commands and only
-     * runs the latest command.
-     */
-    suspend fun keyboardVisibilityEventLoop() {
-        textInputServiceAndroid.textInputCommandEventLoop()
-    }
-
-    /**
      * Walks the entire LayoutNode sub-hierarchy and marks all nodes as needing measurement.
      */
     private fun invalidateLayoutNodeMeasurement(node: LayoutNode) {
@@ -1155,10 +1187,13 @@ internal class AndroidComposeView(context: Context) :
                 lifecycleOwner = lifecycleOwner,
                 savedStateRegistryOwner = savedStateRegistryOwner
             )
-            this.viewTreeOwners = viewTreeOwners
+            _viewTreeOwners = viewTreeOwners
             onViewTreeOwnersAvailable?.invoke(viewTreeOwners)
             onViewTreeOwnersAvailable = null
         }
+
+        _inputModeManager.inputMode = if (isInTouchMode) Touch else Keyboard
+
         viewTreeOwners!!.lifecycleOwner.lifecycle.addObserver(this)
         viewTreeObserver.addOnGlobalLayoutListener(globalLayoutListener)
         viewTreeObserver.addOnScrollChangedListener(scrollChangedListener)
@@ -1251,7 +1286,6 @@ internal class AndroidComposeView(context: Context) :
             recalculateWindowPosition(motionEvent)
             forceUseMatrixCache = true
             measureAndLayout(sendPointerUpdate = false)
-            desiredPointerIcon = null
             val result = trace("AndroidOwner:onTouch") {
                 val action = motionEvent.actionMasked
                 val lastEvent = previousMotionEvent
@@ -1287,12 +1321,6 @@ internal class AndroidComposeView(context: Context) :
                 previousMotionEvent = MotionEvent.obtainNoHistory(motionEvent)
 
                 sendMotionEvent(motionEvent)
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                AndroidComposeViewVerificationHelperMethodsN.setPointerIcon(
-                    this,
-                    desiredPointerIcon
-                )
             }
             return result
         } finally {
@@ -1370,9 +1398,8 @@ internal class AndroidComposeView(context: Context) :
         eventTime: Long,
         forceHover: Boolean = true
     ) {
-        val oldAction = motionEvent.actionMasked
         // don't send any events for pointers that are "up" unless they support hover
-        val upIndex = when (oldAction) {
+        val upIndex = when (motionEvent.actionMasked) {
             ACTION_UP -> if (action == ACTION_HOVER_ENTER || action == ACTION_HOVER_EXIT) -1 else 0
             ACTION_POINTER_UP -> motionEvent.actionIndex
             else -> -1
@@ -1510,10 +1537,11 @@ internal class AndroidComposeView(context: Context) :
         viewToWindowMatrix.invertTo(windowToViewMatrix)
     }
 
-    override fun onCheckIsTextEditor(): Boolean = textInputServiceAndroid.isEditorFocused()
+    override fun onCheckIsTextEditor(): Boolean =
+        platformTextInputPluginRegistry.focusedAdapter != null
 
     override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection? =
-        textInputServiceAndroid.createInputConnection(outAttrs)
+        platformTextInputPluginRegistry.focusedAdapter?.createInputConnection(outAttrs)
 
     override fun calculateLocalPosition(positionInWindow: Offset): Offset {
         recalculateWindowPosition()
@@ -1595,10 +1623,26 @@ internal class AndroidComposeView(context: Context) :
     }
 
     private fun isBadMotionEvent(event: MotionEvent): Boolean {
-        return !event.x.isFinite() ||
+        var eventInvalid = !event.x.isFinite() ||
             !event.y.isFinite() ||
             !event.rawX.isFinite() ||
             !event.rawY.isFinite()
+
+        if (!eventInvalid) {
+            // First event x,y is checked above if block, so we can skip index 0.
+            for (index in 1 until event.pointerCount) {
+                eventInvalid = !event.getX(index).isFinite() || !event.getY(index).isFinite() ||
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        !isValidMotionEvent(event, index)
+                    } else {
+                        false
+                    }
+
+                if (eventInvalid) break
+            }
+        }
+
+        return eventInvalid
     }
 
     private fun isPositionChanged(event: MotionEvent): Boolean {
@@ -1606,7 +1650,8 @@ internal class AndroidComposeView(context: Context) :
             return true
         }
         val lastEvent = previousMotionEvent
-        return lastEvent == null || event.rawX != lastEvent.rawX || event.rawY != lastEvent.rawY
+        return lastEvent == null || lastEvent.pointerCount != event.pointerCount ||
+            event.rawX != lastEvent.rawX || event.rawY != lastEvent.rawY
     }
 
     private fun findViewByAccessibilityIdRootedAtCurrentView(
@@ -1635,15 +1680,23 @@ internal class AndroidComposeView(context: Context) :
         return null
     }
 
-    private var desiredPointerIcon: PointerIcon? = null
-
     override val pointerIconService: PointerIconService =
         object : PointerIconService {
-            override var current: PointerIcon
-                get() = desiredPointerIcon ?: PointerIcon.Default
-                set(value) {
-                    desiredPointerIcon = value
+            private var currentIcon: PointerIcon = PointerIcon.Default
+
+            override fun getIcon(): PointerIcon {
+                return currentIcon
+            }
+
+            override fun setIcon(value: PointerIcon?) {
+                currentIcon = value ?: PointerIcon.Default
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    AndroidComposeViewVerificationHelperMethodsN.setPointerIcon(
+                        this@AndroidComposeView,
+                        currentIcon
+                    )
                 }
+            }
         }
 
     /**
@@ -1739,12 +1792,6 @@ private fun layoutDirectionFromInt(layoutDirection: Int): LayoutDirection = when
     android.util.LayoutDirection.RTL -> LayoutDirection.Rtl
     else -> LayoutDirection.Ltr
 }
-
-/** @suppress */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@InternalComposeUiApi // used by testing infra
-var textInputServiceFactory: (PlatformTextInputService) -> TextInputService =
-    { TextInputService(it) }
 
 /**
  * These classes are here to ensure that the classes that use this API will get verified and can be
@@ -1917,5 +1964,13 @@ private class CalculateMatrixToWindowApi21 : CalculateMatrixToWindow {
         tmpMatrix.reset()
         tmpMatrix.translate(x, y)
         preTransform(tmpMatrix)
+    }
+}
+
+@RequiresApi(29)
+private object MotionEventVerifierApi29 {
+    @DoNotInline
+    fun isValidMotionEvent(event: MotionEvent, index: Int): Boolean {
+        return event.getRawX(index).isFinite() && event.getRawY(index).isFinite()
     }
 }

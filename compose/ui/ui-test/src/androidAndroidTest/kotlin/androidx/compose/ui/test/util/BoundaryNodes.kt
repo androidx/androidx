@@ -31,7 +31,8 @@ fun BoundaryNode(
 
 @Composable
 fun BoundaryNode(
-    testTag: String
+    testTag: String,
+    modifier: Modifier = Modifier
 ) {
-    Column(Modifier.testTag(testTag)) {}
+    Column(modifier.testTag(testTag)) {}
 }

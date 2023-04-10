@@ -14,6 +14,7 @@ package androidx.fragment.app {
     method public void onCancel(android.content.DialogInterface);
     method @MainThread public android.app.Dialog onCreateDialog(android.os.Bundle?);
     method @CallSuper public void onDismiss(android.content.DialogInterface);
+    method public final androidx.activity.ComponentDialog requireComponentDialog();
     method public final android.app.Dialog requireDialog();
     method public void setCancelable(boolean);
     method public void setShowsDialog(boolean);
@@ -281,7 +282,7 @@ package androidx.fragment.app {
     method public final void clearFragmentResultListener(String);
     method public void dump(String, java.io.FileDescriptor?, java.io.PrintWriter, String![]?);
     method @Deprecated public static void enableDebugLogging(boolean);
-    method public boolean executePendingTransactions();
+    method @MainThread public boolean executePendingTransactions();
     method public static <F extends androidx.fragment.app.Fragment> F findFragment(android.view.View);
     method public androidx.fragment.app.Fragment? findFragmentById(@IdRes int);
     method public androidx.fragment.app.Fragment? findFragmentByTag(String?);
@@ -298,8 +299,8 @@ package androidx.fragment.app {
     method public void popBackStack();
     method public void popBackStack(String?, int);
     method public void popBackStack(int, int);
-    method public boolean popBackStackImmediate();
-    method public boolean popBackStackImmediate(String?, int);
+    method @MainThread public boolean popBackStackImmediate();
+    method @MainThread public boolean popBackStackImmediate(String?, int);
     method public boolean popBackStackImmediate(int, int);
     method public void putFragment(android.os.Bundle, String, androidx.fragment.app.Fragment);
     method public void registerFragmentLifecycleCallbacks(androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks, boolean);
@@ -344,6 +345,8 @@ package androidx.fragment.app {
   }
 
   public static interface FragmentManager.OnBackStackChangedListener {
+    method @MainThread public default void onBackStackChangeCommitted(androidx.fragment.app.Fragment, boolean);
+    method @MainThread public default void onBackStackChangeStarted(androidx.fragment.app.Fragment, boolean);
     method @MainThread public void onBackStackChanged();
   }
 
@@ -406,8 +409,8 @@ package androidx.fragment.app {
     method public androidx.fragment.app.FragmentTransaction attach(androidx.fragment.app.Fragment);
     method public abstract int commit();
     method public abstract int commitAllowingStateLoss();
-    method public abstract void commitNow();
-    method public abstract void commitNowAllowingStateLoss();
+    method @MainThread public abstract void commitNow();
+    method @MainThread public abstract void commitNowAllowingStateLoss();
     method public androidx.fragment.app.FragmentTransaction detach(androidx.fragment.app.Fragment);
     method public androidx.fragment.app.FragmentTransaction disallowAddToBackStack();
     method public androidx.fragment.app.FragmentTransaction hide(androidx.fragment.app.Fragment);
@@ -454,12 +457,12 @@ package androidx.fragment.app {
     method protected void getBoundsOnScreen(android.view.View!, android.graphics.Rect!);
     method protected static boolean isNullOrEmpty(java.util.List!);
     method public abstract Object! mergeTransitionsInSequence(Object?, Object?, Object?);
-    method public abstract Object! mergeTransitionsTogether(Object, Object, Object?);
+    method public abstract Object! mergeTransitionsTogether(Object?, Object?, Object?);
     method public abstract void removeTarget(Object, android.view.View);
     method public abstract void replaceTargets(Object, java.util.ArrayList<android.view.View!>!, java.util.ArrayList<android.view.View!>!);
     method public abstract void scheduleHideFragmentView(Object, android.view.View, java.util.ArrayList<android.view.View!>);
     method public abstract void scheduleRemoveTargets(Object, Object?, java.util.ArrayList<android.view.View!>?, Object?, java.util.ArrayList<android.view.View!>?, Object?, java.util.ArrayList<android.view.View!>?);
-    method public abstract void setEpicenter(Object, android.view.View);
+    method public abstract void setEpicenter(Object, android.view.View?);
     method public abstract void setEpicenter(Object, android.graphics.Rect);
     method public void setListenerForTransitionEnd(androidx.fragment.app.Fragment, Object, androidx.core.os.CancellationSignal, Runnable);
     method public abstract void setSharedElementTargets(Object, android.view.View, java.util.ArrayList<android.view.View!>);

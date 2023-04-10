@@ -39,6 +39,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.expectAssertionError
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -720,6 +721,32 @@ class SliderTest {
         }
     }
 
+    @Test
+    fun slider_parentWithInfiniteWidth_minWidth() {
+        val state = mutableStateOf(0f)
+        rule.setMaterialContentForSizeAssertions {
+            Box(modifier = Modifier.requiredWidth(Int.MAX_VALUE.dp)) {
+                Slider(value = state.value, onValueChange = { state.value = it })
+            }
+        }.assertWidthIsEqualTo(48.dp)
+    }
+
+    @Test
+    fun slider_rowWithInfiniteWidth() {
+        val state = mutableStateOf(0f)
+        expectAssertionError(false) {
+            rule.setContent {
+                Row(modifier = Modifier.requiredWidth(Int.MAX_VALUE.dp)) {
+                    Slider(
+                        modifier = Modifier.weight(1f),
+                        value = state.value,
+                        onValueChange = { state.value = it }
+                    )
+                }
+            }
+        }
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun rangeSlider_dragThumb() {
@@ -1244,6 +1271,32 @@ class SliderTest {
         rule.runOnIdle {
             Truth.assertThat(recompositionCounter.outerRecomposition).isEqualTo(1)
             Truth.assertThat(recompositionCounter.innerRecomposition).isEqualTo(4)
+        }
+    }
+
+    @Test
+    fun rangeSlider_parentWithInfiniteWidth_minWidth() {
+        val state = mutableStateOf(0f..1f)
+        rule.setMaterialContentForSizeAssertions {
+            Box(modifier = Modifier.requiredWidth(Int.MAX_VALUE.dp)) {
+                RangeSlider(value = state.value, onValueChange = { state.value = it })
+            }
+        }.assertWidthIsEqualTo(48.dp)
+    }
+
+    @Test
+    fun rangeSlider_rowWithInfiniteWidth() {
+        val state = mutableStateOf(0f..1f)
+        expectAssertionError(false) {
+            rule.setContent {
+                Row(modifier = Modifier.requiredWidth(Int.MAX_VALUE.dp)) {
+                    RangeSlider(
+                        modifier = Modifier.weight(1f),
+                        value = state.value,
+                        onValueChange = { state.value = it }
+                    )
+                }
+            }
         }
     }
 }

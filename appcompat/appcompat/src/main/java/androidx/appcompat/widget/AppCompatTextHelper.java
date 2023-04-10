@@ -558,7 +558,6 @@ class AppCompatTextHelper {
         return null;
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     void onLayout(boolean changed, int left, int top, int right, int bottom) {
         if (!SDK_LEVEL_SUPPORTS_AUTOSIZE) {
@@ -566,7 +565,6 @@ class AppCompatTextHelper {
         }
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     void setTextSize(int unit, float size) {
         if (!SDK_LEVEL_SUPPORTS_AUTOSIZE) {
@@ -576,13 +574,11 @@ class AppCompatTextHelper {
         }
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     void autoSizeText() {
         mAutoSizeTextHelper.autoSizeText();
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     boolean isAutoSizeEnabled() {
         return mAutoSizeTextHelper.isAutoSizeEnabled();

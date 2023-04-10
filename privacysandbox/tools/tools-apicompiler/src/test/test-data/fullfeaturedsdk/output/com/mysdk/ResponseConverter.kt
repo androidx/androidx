@@ -1,6 +1,10 @@
 package com.mysdk
 
-public object ResponseConverter {
+import android.content.Context
+
+public class ResponseConverter(
+    public val context: Context,
+) {
     public fun fromParcelable(parcelable: ParcelableResponse): Response {
         val annotatedValue = Response(
                 response = parcelable.response,
@@ -15,9 +19,9 @@ public object ResponseConverter {
         val parcelable = ParcelableResponse()
         parcelable.response = annotatedValue.response
         parcelable.mySecondInterface =
-                MySecondInterfaceStubDelegate(annotatedValue.mySecondInterface)
+                MySecondInterfaceStubDelegate(annotatedValue.mySecondInterface, context)
         parcelable.maybeOtherInterface =
-                MySecondInterfaceStubDelegate(annotatedValue.maybeOtherInterface)
+                MySecondInterfaceStubDelegate(annotatedValue.maybeOtherInterface, context)
         return parcelable
     }
 }

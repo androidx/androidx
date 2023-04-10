@@ -17,7 +17,7 @@ import kotlin.collections.List
 import kotlin.jvm.JvmStatic
 
 @Generated(value = ["androidx.room.RoomProcessor"])
-@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION"])
+@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION"])
 public class MyDao_Impl(
     __db: RoomDatabase,
 ) : MyDao {
@@ -33,10 +33,11 @@ public class MyDao_Impl(
             public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
                 statement.bindLong(1, entity.pk.toLong())
                 statement.bindString(2, __Fruit_enumToString(entity.enum))
-                if (entity.nullableEnum == null) {
+                val _tmpNullableEnum: Fruit? = entity.nullableEnum
+                if (_tmpNullableEnum == null) {
                     statement.bindNull(3)
                 } else {
-                    statement.bindString(3, __Fruit_enumToString(entity.nullableEnum))
+                    statement.bindString(3, __Fruit_enumToString(_tmpNullableEnum))
                 }
             }
         }

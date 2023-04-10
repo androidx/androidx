@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.focus
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.key.KeyEvent
@@ -80,6 +79,11 @@ internal interface FocusOwner : FocusManager {
     fun dispatchKeyEvent(keyEvent: KeyEvent): Boolean
 
     /**
+     * Dispatches an intercepted soft keyboard key event through the compose hierarchy.
+     */
+    fun dispatchInterceptedSoftKeyboardEvent(keyEvent: KeyEvent): Boolean
+
+    /**
      * Dispatches a rotary scroll event through the compose hierarchy.
      */
     fun dispatchRotaryEvent(event: RotaryScrollEvent): Boolean
@@ -87,18 +91,15 @@ internal interface FocusOwner : FocusManager {
     /**
      * Schedule a FocusTarget node to be invalidated after onApplyChanges.
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     fun scheduleInvalidation(node: FocusTargetModifierNode)
 
     /**
      * Schedule a FocusEvent node to be invalidated after onApplyChanges.
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     fun scheduleInvalidation(node: FocusEventModifierNode)
 
     /**
      * Schedule a FocusProperties node to be invalidated after onApplyChanges.
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     fun scheduleInvalidation(node: FocusPropertiesModifierNode)
 }

@@ -16,6 +16,8 @@
 
 package androidx.camera.testing;
 
+import static org.junit.Assume.assumeFalse;
+
 import android.os.Build;
 
 import androidx.annotation.RequiresApi;
@@ -41,6 +43,30 @@ public final class AndroidUtil {
                 || Build.MODEL.contains("Android SDK built for x86")
                 || Build.MANUFACTURER.contains("Genymotion")
                 || (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
-                || Build.PRODUCT.equals("google_sdk");
+                || Build.PRODUCT.equals("google_sdk")
+                || Build.HARDWARE.contains("ranchu");
+    }
+
+    /**
+     * Checks if the current device is emulator with API 21.
+     */
+    public static boolean isEmulatorAndAPI21() {
+        return Build.VERSION.SDK_INT == 21 && isEmulator();
+    }
+
+    /**
+     * Skips the test if the current device is emulator that doesn't support video recording.
+     */
+    public static void skipVideoRecordingTestIfNotSupportedByEmulator() {
+        // Skip test for b/168175357, b/233661493
+        assumeFalse(
+                "Cuttlefish has MediaCodec dequeInput/Output buffer fails issue. Unable to test.",
+                Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29
+        );
+        // Skip test for b/268102904
+        assumeFalse(
+                "Emulator API 21 has empty supported qualities. Unable to test.",
+                AndroidUtil.isEmulatorAndAPI21()
+        );
     }
 }

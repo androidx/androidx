@@ -16,7 +16,9 @@
 
 package androidx.privacysandbox.tools.core.generator
 
+import androidx.privacysandbox.tools.core.generator.SpecNames.contextPropertyName
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
+import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
 import androidx.privacysandbox.tools.core.model.Types
@@ -51,11 +53,16 @@ abstract class BinderCodeConverter(private val api: ParsedApi) {
         }
         val value = api.valueMap[type]
         if (value != null) {
-            return CodeBlock.of("%M(%L)", value.fromParcelableNameSpec(), expression)
+            return convertToValueModelCode(value, expression)
         }
         val callback = api.callbackMap[type]
         if (callback != null) {
-            return CodeBlock.of("%T(%L)", callback.clientProxyNameSpec(), expression)
+            return CodeBlock.of(
+                "%T(%L, %N)",
+                callback.clientProxyNameSpec(),
+                expression,
+                contextPropertyName
+            )
         }
         val sandboxInterface = api.interfaceMap[type]
         if (sandboxInterface != null) {
@@ -78,11 +85,6 @@ abstract class BinderCodeConverter(private val api: ParsedApi) {
         }
         return CodeBlock.of(expression)
     }
-
-    protected abstract fun convertToInterfaceModelCode(
-        annotatedInterface: AnnotatedInterface,
-        expression: String
-    ): CodeBlock
 
     /**
      * Generate a block that converts the given expression from the model representation to its
@@ -115,7 +117,7 @@ abstract class BinderCodeConverter(private val api: ParsedApi) {
         }
         val value = api.valueMap[type]
         if (value != null) {
-            return CodeBlock.of("%M(%L)", value.toParcelableNameSpec(), expression)
+            return convertToValueBinderCode(value, expression)
         }
         val callback = api.callbackMap[type]
         if (callback != null) {
@@ -144,6 +146,30 @@ abstract class BinderCodeConverter(private val api: ParsedApi) {
         return CodeBlock.of(expression)
     }
 
+    protected abstract fun convertToInterfaceModelCode(
+        annotatedInterface: AnnotatedInterface,
+        expression: String
+    ): CodeBlock
+
+    protected abstract fun convertToInterfaceBinderCode(
+        annotatedInterface: AnnotatedInterface,
+        expression: String
+    ): CodeBlock
+
+    protected abstract fun convertToValueModelCode(
+        value: AnnotatedValue,
+        expression: String
+    ): CodeBlock
+
+    protected abstract fun convertToValueBinderCode(
+        value: AnnotatedValue,
+        expression: String
+    ): CodeBlock
+
+    protected abstract fun convertToInterfaceBinderType(
+        annotatedInterface: AnnotatedInterface
+    ): TypeName
+
     private fun toBinderList(type: Type) = when (type) {
         Types.boolean -> "toBooleanArray"
         Types.int -> "toIntArray"
@@ -166,11 +192,6 @@ abstract class BinderCodeConverter(private val api: ParsedApi) {
         else -> "arrayOf"
     }
 
-    protected abstract fun convertToInterfaceBinderCode(
-        annotatedInterface: AnnotatedInterface,
-        expression: String
-    ): CodeBlock
-
     /** Convert the given model type declaration to its binder equivalent. */
     fun convertToBinderType(type: Type): TypeName {
         if (type.isNullable) {
@@ -190,7 +211,7 @@ abstract class BinderCodeConverter(private val api: ParsedApi) {
         }
         val sandboxInterface = api.interfaceMap[type]
         if (sandboxInterface != null) {
-            return sandboxInterface.aidlType().innerType.poetTypeName()
+            return convertToInterfaceBinderType(sandboxInterface)
         }
         if (type.qualifiedName == List::class.qualifiedName)
             return convertToBinderListType(type.typeParameters[0])

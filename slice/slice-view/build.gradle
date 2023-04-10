@@ -15,6 +15,7 @@
  */
 
 import androidx.build.Publish
+import androidx.build.RunApiTasks
 
 plugins {
     id("AndroidXPlugin")
@@ -41,7 +42,9 @@ dependencies {
 
 androidx {
     name = "Slice views"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    publish = Publish.SNAPSHOT_ONLY // Library is deprecated pending removal.
+    disableDeviceTests = true // Pending removal, don't run tests.
+    runApiTasks = new RunApiTasks.Yes() // Pending removal, but keep API files for now.
     mavenVersion = LibraryVersions.SLICE
     inceptionYear = "2017"
     description = "A library that handles rendering of slice content into supported templates"

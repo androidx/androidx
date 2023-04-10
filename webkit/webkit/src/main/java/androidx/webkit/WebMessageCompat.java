@@ -35,13 +35,11 @@ public class WebMessageCompat {
 
     /**
      * Indicates the payload of WebMessageCompat is String.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int TYPE_STRING = 0;
     /**
      * Indicates the payload of WebMessageCompat is JavaScript ArrayBuffer.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int TYPE_ARRAY_BUFFER = 1;
@@ -76,7 +74,6 @@ public class WebMessageCompat {
      * Creates a WebMessage with JavaScript ArrayBuffer payload.
      *
      * @param arrayBuffer the array buffer data of the message.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_GET_MESSAGE_PAYLOAD,
@@ -90,7 +87,6 @@ public class WebMessageCompat {
      *
      * @param arrayBuffer the array buffer data of the message.
      * @param ports       the ports that are sent with the message.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_GET_MESSAGE_PAYLOAD,
@@ -107,7 +103,6 @@ public class WebMessageCompat {
     /**
      * Returns the payload type of the message.
      * @return the payload type of WebMessageCompat.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @Type int getType() {
@@ -117,7 +112,6 @@ public class WebMessageCompat {
     /**
      * Returns the ArrayBuffer data of message. A ArrayBuffer or Transferable ArrayBuffer can be
      * received from JavaScript.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @Nullable byte[] getArrayBuffer() {
@@ -140,7 +134,6 @@ public class WebMessageCompat {
         return mPorts;
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @IntDef({TYPE_STRING, TYPE_ARRAY_BUFFER})
     @Retention(RetentionPolicy.SOURCE)

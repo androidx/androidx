@@ -32,6 +32,7 @@ import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.os.Build;
 import android.support.v4.testutils.TestUtils;
 import android.util.DisplayMetrics;
 
@@ -538,7 +539,7 @@ public class ResourcesCompatTest {
         ColorStateList csl2 = ResourcesCompat.getColorStateList(
                 mResources, R.color.color_state_list, theme);
 
-        if (!BuildCompat.isAtLeastT()) {
+        if (Build.VERSION.SDK_INT < 33) {
             // Validate the failure case that's being worked around.
             assertEquals(csl, csl2);
         } else {

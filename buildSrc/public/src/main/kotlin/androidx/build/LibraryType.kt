@@ -82,6 +82,32 @@ sealed class LibraryType(
         val OTHER_CODE_PROCESSOR = OtherCodeProcessor()
         val IDE_PLUGIN = IdePlugin()
         val UNSET = Unset()
+
+        private val allTypes = mapOf(
+            "PUBLISHED_LIBRARY" to PUBLISHED_LIBRARY,
+            "PUBLISHED_TEST_LIBRARY" to PUBLISHED_TEST_LIBRARY,
+            "PUBLISHED_NATIVE_LIBRARY" to PUBLISHED_NATIVE_LIBRARY,
+            "INTERNAL_TEST_LIBRARY" to INTERNAL_TEST_LIBRARY,
+            "INTERNAL_HOST_TEST_LIBRARY" to INTERNAL_HOST_TEST_LIBRARY,
+            "SAMPLES" to SAMPLES,
+            "LINT" to LINT,
+            "COMPILER_DAEMON" to COMPILER_DAEMON,
+            "COMPILER_DAEMON_TEST" to COMPILER_DAEMON_TEST,
+            "COMPILER_PLUGIN" to COMPILER_PLUGIN,
+            "GRADLE_PLUGIN" to GRADLE_PLUGIN,
+            "ANNOTATION_PROCESSOR" to ANNOTATION_PROCESSOR,
+            "ANNOTATION_PROCESSOR_UTILS" to ANNOTATION_PROCESSOR_UTILS,
+            "OTHER_CODE_PROCESSOR" to OTHER_CODE_PROCESSOR,
+            "IDE_PLUGIN" to IDE_PLUGIN,
+            "UNSET" to UNSET
+        )
+        fun valueOf(name: String): LibraryType {
+            val result = allTypes[name]
+            check(result != null) {
+                "LibraryType with name $name not found"
+            }
+            return result
+        }
     }
     open class PublishedLibrary(allowCallingVisibleForTestsApis: Boolean = false) : LibraryType(
         publish = Publish.SNAPSHOT_AND_RELEASE,

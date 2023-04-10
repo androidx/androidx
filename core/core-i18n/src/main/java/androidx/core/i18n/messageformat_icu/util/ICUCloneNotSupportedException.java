@@ -15,7 +15,6 @@ import androidx.annotation.RestrictTo;
  *
  * icu_annot::draft ICU 53
  * icu_annot::provisional This API might change or be removed in a future release.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ICUCloneNotSupportedException extends ICUException {

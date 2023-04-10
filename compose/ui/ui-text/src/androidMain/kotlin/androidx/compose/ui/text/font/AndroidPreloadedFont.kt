@@ -29,8 +29,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastMap
 import java.io.File
 
-@OptIn(ExperimentalTextApi::class)
-internal sealed class AndroidPreloadedFont @OptIn(ExperimentalTextApi::class) constructor(
+internal sealed class AndroidPreloadedFont constructor(
     final override val weight: FontWeight,
     final override val style: FontStyle,
     variationSettings: FontVariation.Settings

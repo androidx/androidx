@@ -32,7 +32,6 @@ import androidx.annotation.RestrictTo;
  * separate class so that Android framework can successfully verify classes without
  * encountering the new APIs.
  *
- * @hide
  */
 @RequiresApi(Build.VERSION_CODES.O)
 @RestrictTo(RestrictTo.Scope.LIBRARY)

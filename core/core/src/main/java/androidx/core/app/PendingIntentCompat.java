@@ -30,6 +30,7 @@ import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -37,7 +38,6 @@ import java.lang.annotation.RetentionPolicy;
 /** Helper for accessing features in {@link PendingIntent}. */
 public final class PendingIntentCompat {
 
-    /** @hide */
     @IntDef(
             flag = true,
             value = {
@@ -55,6 +55,7 @@ public final class PendingIntentCompat {
                 Intent.FILL_IN_CLIP_DATA
             })
     @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public @interface Flags {}
 
     /**

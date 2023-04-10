@@ -21,53 +21,62 @@ import android.graphics.drawable.Icon
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.test.SimpleWatchFaceTestService
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class WatchFaceServiceAndroidTest {
+    @After
+    public fun tearDown() {
+        InteractiveInstanceManager.setParameterlessEngine(null)
+    }
+
     @Test
     fun measuresWatchFaceIconsFromCustomContext() {
         val context: Context = ApplicationProvider.getApplicationContext()
-        val serviceSpy = object : SimpleWatchFaceTestService() {
-            override val resourcesContext: Context
-                get() = this.createPackageContext(context.packageName,
-                    Context.CONTEXT_RESTRICTED
-                )
-        }
+        val serviceSpy =
+            object : SimpleWatchFaceTestService() {
+                override val resourcesContext: Context
+                    get() =
+                        this.createPackageContext(context.packageName, Context.CONTEXT_RESTRICTED)
+            }
         val engine = serviceSpy.onCreateEngine() as WatchFaceService.EngineWrapper
 
         try {
-            val schema = UserStyleSchema(
-                listOf(
-                    UserStyleSetting.ListUserStyleSetting(
-                        UserStyleSetting.Id("someId"),
-                        "displayName",
-                        "description",
-                        Icon.createWithResource(
-                            context,
-                            androidx.wear.watchface.test.R.drawable.example_icon_24
-                        ),
-                        listOf(
-                            UserStyleSetting.ListUserStyleSetting.ListOption(
-                                UserStyleSetting.Option.Id("red_style"),
-                                displayName = "Red",
-                                screenReaderName = "Red watchface style",
-                                icon = Icon.createWithResource(
-                                    context,
-                                    androidx.wear.watchface.test.R.drawable.example_icon_24
-                                ),
-                            )
-                        ),
-                        listOf(WatchFaceLayer.BASE)
+            val schema =
+                UserStyleSchema(
+                    listOf(
+                        UserStyleSetting.ListUserStyleSetting(
+                            UserStyleSetting.Id("someId"),
+                            "displayName",
+                            "description",
+                            Icon.createWithResource(
+                                context,
+                                androidx.wear.watchface.test.R.drawable.example_icon_24
+                            ),
+                            listOf(
+                                UserStyleSetting.ListUserStyleSetting.ListOption(
+                                    UserStyleSetting.Option.Id("red_style"),
+                                    displayName = "Red",
+                                    screenReaderName = "Red watchface style",
+                                    icon =
+                                        Icon.createWithResource(
+                                            context,
+                                            androidx.wear.watchface.test.R.drawable.example_icon_24
+                                        ),
+                                )
+                            ),
+                            listOf(WatchFaceLayer.BASE)
+                        )
                     )
                 )
-            )
 
             // expect no exception
             engine.validateSchemaWireSize(schema)

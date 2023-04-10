@@ -24,7 +24,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.expression.Fingerprint;
-import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.expression.StateEntryBuilders;
 import androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue;
 import androidx.wear.protolayout.expression.proto.StateEntryProto;
@@ -80,35 +79,53 @@ public final class StateBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public Fingerprint getFingerprint() {
       return mFingerprint;
     }
+    /**
+     * Creates a new wrapper instance from the proto.
+     *
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static State fromProto(
+        @NonNull StateProto.State proto, @Nullable Fingerprint fingerprint) {
+      return new State(proto, fingerprint);
+    }
 
     /**
      * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
      * created using this method can't be added to any other wrapper.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static State fromProto(@NonNull StateProto.State proto) {
-      return new State(proto, null);
+      return fromProto(proto, null);
     }
 
     /**
      * Returns the internal proto instance.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public StateProto.State toProto() {
       return mImpl;
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "State{"
+          + "lastClickableId="
+          + getLastClickableId()
+          + ", idToValueMapping="
+          + getIdToValueMapping()
+          + "}";
     }
 
     /** Builder for {@link State} */
@@ -120,12 +137,11 @@ public final class StateBuilders {
 
       /**
        * Adds an entry into any shared state between the provider and renderer.
-       * @param id The key for the state item. This can be used when referring to this state item.
-       * @param value The value of the state item.
+       *
        * @since 1.2
        */
       @SuppressLint("MissingGetterMatchingBuilder")
-        @NonNull
+      @NonNull
       public Builder addIdToValueMapping(@NonNull String id, @NonNull StateEntryValue value) {
         mImpl.putIdToValue(id, value.toStateEntryValueProto());
         mFingerprint.recordPropertyUpdate(

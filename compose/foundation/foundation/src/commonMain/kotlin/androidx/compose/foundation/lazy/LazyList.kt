@@ -75,10 +75,9 @@ internal fun LazyList(
     /** The content of the list */
     content: LazyListScope.() -> Unit
 ) {
-    val overscrollEffect = ScrollableDefaults.overscrollEffect()
     val itemProvider = rememberLazyListItemProvider(state, content)
-    val semanticState =
-        rememberLazyListSemanticState(state, itemProvider, reverseLayout, isVertical)
+
+    val semanticState = rememberLazyListSemanticState(state, isVertical)
     val beyondBoundsInfo = remember { LazyListBeyondBoundsInfo() }
     val scope = rememberCoroutineScope()
     val placementAnimator = remember(state, isVertical) {
@@ -103,6 +102,7 @@ internal fun LazyList(
 
     ScrollPositionUpdater(itemProvider, state)
 
+    val overscrollEffect = ScrollableDefaults.overscrollEffect()
     val orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal
     LazyLayout(
         modifier = modifier
@@ -112,7 +112,8 @@ internal fun LazyList(
                 itemProvider = itemProvider,
                 state = semanticState,
                 orientation = orientation,
-                userScrollEnabled = userScrollEnabled
+                userScrollEnabled = userScrollEnabled,
+                reverseScrolling = reverseLayout
             )
             .clipScrollableContainer(orientation)
             .lazyListBeyondBoundsModifier(state, beyondBoundsInfo, reverseLayout, orientation)
@@ -262,7 +263,7 @@ private fun rememberLazyListMeasurePolicy(
             )
         }
 
-        val measuredItemProvider = LazyMeasuredItemProvider(
+        val measuredItemProvider = LazyListMeasuredItemProvider(
             contentConstraints,
             isVertical,
             itemProvider,
@@ -271,7 +272,7 @@ private fun rememberLazyListMeasurePolicy(
             // we add spaceBetweenItems as an extra spacing for all items apart from the last one so
             // the lazy list measuring logic will take it into account.
             val spacing = if (index.value == itemsCount - 1) 0 else spaceBetweenItems
-            LazyMeasuredItem(
+            LazyListMeasuredItem(
                 index = index.value,
                 placeables = placeables,
                 isVertical = isVertical,
@@ -298,7 +299,8 @@ private fun rememberLazyListMeasurePolicy(
 
         measureLazyList(
             itemsCount = itemsCount,
-            itemProvider = measuredItemProvider,
+            itemProvider = itemProvider,
+            measuredItemProvider = measuredItemProvider,
             mainAxisAvailableSize = mainAxisAvailableSize,
             beforeContentPadding = beforeContentPadding,
             afterContentPadding = afterContentPadding,

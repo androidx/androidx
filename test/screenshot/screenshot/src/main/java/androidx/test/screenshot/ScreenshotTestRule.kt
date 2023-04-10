@@ -119,12 +119,21 @@ open class ScreenshotTestRule(
 
     class ScreenshotTestStatement(private val base: Statement) : Statement() {
         override fun evaluate() {
-            // We currently only support Cuttlefish API 29 because of the storage access.
-            Assume.assumeTrue("Requires Cuttlefish", Build.MODEL.contains("Cuttlefish"))
-            Assume.assumeTrue(
-                "Requires SDK 29.",
-                Build.VERSION.SDK_INT == 29
-            )
+            if (Build.MODEL.contains("Cuttlefish")) {
+                // We currently support Cuttlefish with API 29 because of the storage access.
+                Assume.assumeTrue(
+                    "Requires SDK 29.",
+                    Build.VERSION.SDK_INT == 29
+                )
+            } else if (Build.MODEL.contains("gphone")) {
+                // We also support emulators with API 33 now
+                Assume.assumeTrue(
+                    "Requires SDK 33.",
+                    Build.VERSION.SDK_INT == 33
+                )
+            } else {
+                Assume.assumeTrue("Requires Cuttlefish or emulator", false)
+            }
             base.evaluate()
         }
     }
@@ -339,7 +348,8 @@ open class ScreenshotTestRule(
 
     private fun getDeviceModel(): String {
         var model = Build.MODEL.lowercase()
-        arrayOf("phone", "x86_64", "x86", "x64", "gms").forEach {
+        model = model.replace("sdk_gphone64_", "emulator")
+        arrayOf("phone", "x86_64", "x86", "x64", "gms", "arm64").forEach {
             model = model.replace(it, "")
         }
         return model.trim().replace(" ", "_")

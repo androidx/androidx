@@ -30,7 +30,6 @@ import java.util.concurrent.Executor;
  * and all sub-components.
  *
  * <p>A camera executor should always enforce that tasks are run sequentially.
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 @Target({ElementType.METHOD, ElementType.PARAMETER, ElementType.FIELD})

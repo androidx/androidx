@@ -18,7 +18,6 @@ import java.util.Properties;
 
 /**
  * ICUConfig is a class used for accessing ICU4J runtime configuration.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ICUConfig {

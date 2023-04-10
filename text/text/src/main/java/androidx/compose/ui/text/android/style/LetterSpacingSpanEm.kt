@@ -25,7 +25,7 @@ import androidx.compose.ui.text.android.InternalPlatformTextApi
  * @suppress
  */
 @InternalPlatformTextApi
-class LetterSpacingSpanEm(val letterSpacing: Float) : MetricAffectingSpan() {
+internal class LetterSpacingSpanEm(val letterSpacing: Float) : MetricAffectingSpan() {
     override fun updateDrawState(textPaint: TextPaint) {
         textPaint.letterSpacing = letterSpacing
     }

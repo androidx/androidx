@@ -204,6 +204,19 @@ public final class SearchSpecToProtoConverter {
             protoBuilder.setJoinSpec(joinSpecProtoBuilder);
         }
 
+        // TODO(b/208654892) Remove this field once EXPERIMENTAL_ICING_ADVANCED_QUERY is fully
+        //  supported.
+        boolean turnOnIcingAdvancedQuery =
+                mSearchSpec.isNumericSearchEnabled() || mSearchSpec.isVerbatimSearchEnabled()
+                        || mSearchSpec.isListFilterQueryLanguageEnabled();
+        if (turnOnIcingAdvancedQuery) {
+            protoBuilder.setSearchType(
+                    SearchSpecProto.SearchType.Code.EXPERIMENTAL_ICING_ADVANCED_QUERY);
+        }
+
+        // Set enabled features
+        protoBuilder.addAllEnabledFeatures(mSearchSpec.getEnabledFeatures());
+
         return protoBuilder.build();
     }
 

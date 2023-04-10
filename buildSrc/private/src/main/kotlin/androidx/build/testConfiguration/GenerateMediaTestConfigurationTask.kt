@@ -21,6 +21,7 @@ import androidx.build.renameApkForTesting
 import com.android.build.api.variant.BuiltArtifact
 import com.android.build.api.variant.BuiltArtifacts
 import com.android.build.api.variant.BuiltArtifactsLoader
+import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
@@ -33,7 +34,6 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
-import java.io.File
 
 /**
  * Writes three configuration files to test combinations of media client & service in
@@ -100,34 +100,22 @@ abstract class GenerateMediaTestConfigurationTask : DefaultTask() {
     abstract val presubmit: Property<Boolean>
 
     @get:OutputFile
-    abstract val clientPreviousServiceToT: RegularFileProperty
+    abstract val jsonClientPreviousServiceToTClientTests: RegularFileProperty
 
     @get:OutputFile
-    abstract val clientToTServicePrevious: RegularFileProperty
+    abstract val jsonClientPreviousServiceToTServiceTests: RegularFileProperty
 
     @get:OutputFile
-    abstract val clientToTServiceToT: RegularFileProperty
-
-    /**
-     * output file where we write the sha256 of each APK we refer in tests.
-     */
-    @get:OutputFile
-    abstract val shaReportOutput: RegularFileProperty
-
-    /**
-     * output file where we write the sha256 of each APK we refer in constained tests.
-     */
-    @get:OutputFile
-    abstract val constrainedShaReportOutput: RegularFileProperty
+    abstract val jsonClientToTServicePreviousClientTests: RegularFileProperty
 
     @get:OutputFile
-    abstract val constrainedClientPreviousServiceToT: RegularFileProperty
+    abstract val jsonClientToTServicePreviousServiceTests: RegularFileProperty
 
     @get:OutputFile
-    abstract val constrainedClientToTServicePrevious: RegularFileProperty
+    abstract val jsonClientToTServiceToTClientTests: RegularFileProperty
 
     @get:OutputFile
-    abstract val constrainedClientToTServiceToT: RegularFileProperty
+    abstract val jsonClientToTServiceToTServiceTests: RegularFileProperty
 
     @TaskAction
     fun generateAndroidTestZip() {
@@ -137,37 +125,35 @@ abstract class GenerateMediaTestConfigurationTask : DefaultTask() {
         val servicePreviousApk = resolveApk(
             servicePreviousFolder, servicePreviousLoader
         )
-        val testApkSha256Report = TestApkSha256Report()
         writeConfigFileContent(
-            testApkSha256Report, clientToTApk, serviceToTApk, clientToTPath.get(),
-            serviceToTPath.get(), clientToTServiceToT, false, false
-        )
-        writeConfigFileContent(
-            testApkSha256Report, clientToTApk, servicePreviousApk, clientToTPath.get(),
-            servicePreviousPath.get(), clientToTServicePrevious, false, true
-        )
-        writeConfigFileContent(
-            testApkSha256Report, clientPreviousApk, serviceToTApk, clientPreviousPath.get(),
-            serviceToTPath.get(), clientPreviousServiceToT, true, false
-        )
-        // write constrained configs as well
-        writeConfigFileContent(
-            testApkSha256Report, clientToTApk, serviceToTApk, clientToTPath.get(),
-            serviceToTPath.get(), constrainedClientToTServiceToT, false, false, true
+            clientApk = clientToTApk,
+            serviceApk = serviceToTApk,
+            clientPath = clientToTPath.get(),
+            servicePath = serviceToTPath.get(),
+            jsonClientOutputFile = jsonClientToTServiceToTClientTests,
+            jsonServiceOutputFile = jsonClientToTServiceToTServiceTests,
+            isClientPrevious = false,
+            isServicePrevious = false
         )
         writeConfigFileContent(
-            testApkSha256Report, clientToTApk, servicePreviousApk, clientToTPath.get(),
-            servicePreviousPath.get(), constrainedClientToTServicePrevious, false, true, true
+            clientApk = clientToTApk,
+            serviceApk = servicePreviousApk,
+            clientPath = clientToTPath.get(),
+            servicePath = servicePreviousPath.get(),
+            jsonClientOutputFile = jsonClientToTServicePreviousClientTests,
+            jsonServiceOutputFile = jsonClientToTServicePreviousServiceTests,
+            isClientPrevious = false,
+            isServicePrevious = true
         )
         writeConfigFileContent(
-            testApkSha256Report, clientPreviousApk, serviceToTApk, clientPreviousPath.get(),
-            serviceToTPath.get(), constrainedClientPreviousServiceToT, true, false, true
-        )
-        testApkSha256Report.writeToFile(
-            shaReportOutput.get().asFile
-        )
-        testApkSha256Report.writeToFile(
-            constrainedShaReportOutput.get().asFile
+            clientApk = clientPreviousApk,
+            serviceApk = serviceToTApk,
+            clientPath = clientPreviousPath.get(),
+            servicePath = serviceToTPath.get(),
+            jsonClientOutputFile = jsonClientPreviousServiceToTClientTests,
+            jsonServiceOutputFile = jsonClientPreviousServiceToTServiceTests,
+            isClientPrevious = true,
+            isServicePrevious = false
         )
     }
 
@@ -180,74 +166,58 @@ abstract class GenerateMediaTestConfigurationTask : DefaultTask() {
     }
 
     private fun BuiltArtifact.resolveName(path: String): String {
-        return outputFile.substringAfterLast("/")
-            .renameApkForTesting(path, false)
+        return outputFile.substringAfterLast("/").renameApkForTesting(path)
     }
 
     private fun writeConfigFileContent(
-        testApkSha256Report: TestApkSha256Report,
         clientApk: BuiltArtifacts,
         serviceApk: BuiltArtifacts,
         clientPath: String,
         servicePath: String,
-        outputFile: RegularFileProperty,
+        jsonClientOutputFile: RegularFileProperty,
+        jsonServiceOutputFile: RegularFileProperty,
         isClientPrevious: Boolean,
         isServicePrevious: Boolean,
-        isConstrained: Boolean = false
     ) {
-        val configBuilder = MediaConfigBuilder()
         val clientBuiltArtifact = clientApk.elements.single()
         val serviceBuiltArtifact = serviceApk.elements.single()
         val clientApkName = clientBuiltArtifact.resolveName(clientPath)
+        val clientApkSha256 = sha256(File(clientBuiltArtifact.outputFile))
         val serviceApkName = serviceBuiltArtifact.resolveName(servicePath)
-        testApkSha256Report.addFile(
-            name = clientApkName,
-            builtArtifact = clientBuiltArtifact
+        val serviceApkSha256 = sha256(File(serviceBuiltArtifact.outputFile))
+        createOrFail(jsonClientOutputFile).writeText(
+            buildMediaJson(
+                configName = jsonClientOutputFile.asFile.get().name,
+                forClient = true,
+                clientApkName = clientApkName,
+                clientApkSha256 = clientApkSha256,
+                isClientPrevious = isClientPrevious,
+                isServicePrevious = isServicePrevious,
+                minSdk = minSdk.get().toString(),
+                serviceApkName = serviceApkName,
+                serviceApkSha256 = serviceApkSha256,
+                tags = listOf(
+                    "androidx_unit_tests",
+                    "media_compat"
+                ),
+            )
         )
-        testApkSha256Report.addFile(
-            name = serviceApkName,
-            builtArtifact = serviceBuiltArtifact
+        createOrFail(jsonServiceOutputFile).writeText(
+            buildMediaJson(
+                configName = jsonServiceOutputFile.asFile.get().name,
+                forClient = false,
+                clientApkName = clientApkName,
+                clientApkSha256 = clientApkSha256,
+                isClientPrevious = isClientPrevious,
+                isServicePrevious = isServicePrevious,
+                minSdk = minSdk.get().toString(),
+                serviceApkName = serviceApkName,
+                serviceApkSha256 = serviceApkSha256,
+                tags = listOf(
+                    "androidx_unit_tests",
+                    "media_compat"
+                ),
+            )
         )
-        configBuilder.clientApkName(clientApkName)
-            .clientApplicationId(clientApk.applicationId)
-            .serviceApkName(serviceApkName)
-            .serviceApplicationId(serviceApk.applicationId)
-            .minSdk(minSdk.get().toString())
-            .testRunner(testRunner.get())
-            .isClientPrevious(isClientPrevious)
-            .isServicePrevious(isServicePrevious)
-            .tag("androidx_unit_tests")
-            .tag("media_compat")
-        val isPresubmit = presubmit.get()
-        configBuilder.isPostsubmit(!isPresubmit)
-        when (affectedModuleDetectorSubset.get()) {
-            ProjectSubset.DEPENDENT_PROJECTS -> {
-                if (isConstrained) {
-                    configBuilder.runAllTests(false)
-                } else {
-                    configBuilder.runAllTests(true)
-                }
-            }
-            ProjectSubset.NONE -> {
-                if (isPresubmit) {
-                    configBuilder.runAllTests(false)
-                } else {
-                    configBuilder.runAllTests(true)
-                }
-            }
-            else -> {
-                configBuilder.runAllTests(true)
-            }
-        }
-
-        val resolvedOutputFile: File = outputFile.asFile.get()
-        if (!resolvedOutputFile.exists()) {
-            if (!resolvedOutputFile.createNewFile()) {
-                throw RuntimeException(
-                    "Failed to create test configuration file: $resolvedOutputFile"
-                )
-            }
-        }
-        resolvedOutputFile.writeText(configBuilder.build())
     }
 }

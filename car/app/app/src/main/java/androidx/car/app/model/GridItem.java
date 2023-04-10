@@ -29,9 +29,11 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.Screen;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.KeepFields;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
-import androidx.car.app.annotations.KeepFields;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -86,6 +88,8 @@ public final class GridItem implements Item {
     private final int mImageType;
     @Nullable
     private final OnClickDelegate mOnClickDelegate;
+    @Nullable
+    private final Badge mBadge;
 
     /**
      * Returns whether the grid item is in a loading state.
@@ -142,6 +146,19 @@ public final class GridItem implements Item {
         return mOnClickDelegate;
     }
 
+    /**
+     * Returns the {@link Badge} that is displayed over the grid item image or {@code null} if not
+     * set.
+     *
+     * @see Builder#setBadge(Badge)
+     */
+    @ExperimentalCarApi
+    @Nullable
+    @RequiresCarApi(7)
+    public Badge getBadge() {
+        return mBadge;
+    }
+
     @Override
     @NonNull
     public String toString() {
@@ -153,12 +170,15 @@ public final class GridItem implements Item {
                 + mImage
                 + ", isLoading: "
                 + mIsLoading
+                + ", badge: "
+                + mBadge
                 + "]";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mIsLoading, mTitle, mImage, mImageType, mOnClickDelegate == null);
+        return Objects.hash(mIsLoading, mTitle, mImage, mImageType, mOnClickDelegate == null,
+                mBadge);
     }
 
     @Override
@@ -176,6 +196,7 @@ public final class GridItem implements Item {
                 && Objects.equals(mText, otherGridItem.mText)
                 && Objects.equals(mImage, otherGridItem.mImage)
                 && Objects.equals(mOnClickDelegate == null, otherGridItem.mOnClickDelegate == null)
+                && Objects.equals(mBadge, otherGridItem.mBadge)
                 && mImageType == otherGridItem.mImageType;
     }
 
@@ -186,6 +207,7 @@ public final class GridItem implements Item {
         mImage = builder.mImage;
         mImageType = builder.mImageType;
         mOnClickDelegate = builder.mOnClickDelegate;
+        mBadge = builder.mBadge;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -196,6 +218,7 @@ public final class GridItem implements Item {
         mImage = null;
         mImageType = IMAGE_TYPE_LARGE;
         mOnClickDelegate = null;
+        mBadge = null;
     }
 
     /** A builder of {@link GridItem}. */
@@ -211,6 +234,8 @@ public final class GridItem implements Item {
         @Nullable
         OnClickDelegate mOnClickDelegate;
         boolean mIsLoading;
+        @Nullable
+        Badge mBadge;
 
         /**
          * Sets whether the item is in a loading state.
@@ -324,6 +349,47 @@ public final class GridItem implements Item {
         }
 
         /**
+         * Sets an image to show in the grid item with the given {@link Badge} to be displayed over
+         * the image, with the default size {@link #IMAGE_TYPE_LARGE}.
+         *
+         * <p>A dot badge denotes some sort of call to action or notification and is
+         * displayed in the upper right corner of the image. An icon badge gives additional
+         * context about the image and is displayed in the lower right corner.
+         *
+         * @throws NullPointerException if {@code image} or {@code badge} is {@code null}
+         * @see #setImage(CarIcon, int)
+         */
+        @NonNull
+        @ExperimentalCarApi
+        @RequiresCarApi(7)
+        public Builder setImage(@NonNull CarIcon image, @NonNull Badge badge) {
+            requireNonNull(badge);
+            mBadge = badge;
+            return setImage(requireNonNull(image));
+        }
+
+        /**
+         * Sets an image to show in the grid item with the given {@code imageType} and given
+         * {@link Badge} to be displayed over the image.
+         *
+         * <p>A dot badge denotes a call to action or notification and is
+         * displayed in the upper right corner of the image. An icon badge gives additional
+         * context about the image and is displayed in the lower right corner.
+         *
+         * @throws NullPointerException if {@code image} or {@code badge} is {@code null}
+         * @see #setImage(CarIcon, int)
+         */
+        @NonNull
+        @ExperimentalCarApi
+        @RequiresCarApi(7)
+        public Builder setImage(@NonNull CarIcon image, @GridItemImageType int imageType,
+                @NonNull Badge badge) {
+            requireNonNull(badge);
+            mBadge = badge;
+            return setImage(requireNonNull(image), imageType);
+        }
+
+        /**
          * Sets an image to show in the grid item with the given {@code imageType}.
          *
          * <p>For a custom {@link CarIcon}, its {@link androidx.core.graphics.drawable.IconCompat}
@@ -372,8 +438,9 @@ public final class GridItem implements Item {
          * Constructs the {@link GridItem} defined by this builder.
          *
          * @throws IllegalStateException if the grid item's title is not set, if the grid item's
-         *                               image is set when it is loading or vice versa, or if
-         *                               the grid item is loading but the click listener is set
+         *                               image is set when it is loading or vice versa, if
+         *                               the grid item is loading but the click listener is set,
+         *                               or if a badge is set and an image is not set
          */
         @NonNull
         public GridItem build() {
@@ -389,6 +456,11 @@ public final class GridItem implements Item {
             if (mIsLoading && mOnClickDelegate != null) {
                 throw new IllegalStateException(
                         "The click listener must not be set on the grid item when it is loading");
+            }
+
+            if (mImage == null && mBadge != null) {
+                throw new IllegalStateException("A badge can only be set when a grid item image "
+                        + "is also provided");
             }
 
             return new GridItem(this);

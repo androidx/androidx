@@ -27,6 +27,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
@@ -64,10 +65,31 @@ abstract class FtlRunner : DefaultTask() {
     @get:Internal
     abstract val appLoader: Property<BuiltArtifactsLoader>
 
+    @get:Input
+    abstract val apkPackageName: Property<String>
+
     @get:Optional
     @get:Input
     @get:Option(option = "className", description = "Fully qualified class name of a class to run")
     abstract val className: Property<String>
+
+    @get:Optional
+    @get:Input
+    @get:Option(option = "packageName", description = "Package name test classes to run")
+    abstract val packageName: Property<String>
+
+    @get:Optional
+    @get:Input
+    @get:Option(option = "pullScreenshots", description = "true if screenshots should be pulled")
+    abstract val pullScreenshots: Property<String>
+
+    @get:Optional
+    @get:Input
+    @get:Option(
+        option = "instrumentationArgs",
+        description = "instrumentation arguments to pass to FTL test runner"
+    )
+    abstract val instrumentationArgs: Property<String>
 
     @get:Input
     abstract val device: Property<String>
@@ -94,66 +116,85 @@ abstract class FtlRunner : DefaultTask() {
                 "Missing gcloud, please follow go/androidx-dev#remote-build-cache to set it up"
             )
         }
+        val hasFilters = className.isPresent || packageName.isPresent
+        val filters = listOfNotNull(
+            if (className.isPresent) "class ${className.get()}" else null,
+            if (packageName.isPresent) "package ${packageName.get()}" else null,
+        ).joinToString(separator = ",")
+
+        val shouldPull = pullScreenshots.isPresent && pullScreenshots.get() == "true"
+
         execOperations.exec {
             it.commandLine(
                 listOfNotNull(
-                "gcloud",
-                "--project",
-                "androidx-dev-prod",
-                "firebase",
-                "test",
-                "android",
-                "run",
-                "--type",
-                "instrumentation",
-                "--no-performance-metrics",
-                "--no-auto-google-login",
-                "--device",
-                "model=${device.get()},locale=en_US,orientation=portrait",
-                "--app",
-                appApkPath,
-                "--test",
-                testApkPath,
-                if (className.isPresent) "--test-targets" else null,
-                if (className.isPresent) "class ${className.get()}" else null,
+                    "gcloud",
+                    "--project",
+                    "androidx-dev-prod",
+                    "firebase",
+                    "test",
+                    "android",
+                    "run",
+                    "--type",
+                    "instrumentation",
+                    "--no-performance-metrics",
+                    "--no-auto-google-login",
+                    "--device",
+                    "model=${device.get()},locale=en_US,orientation=portrait",
+                    "--app",
+                    appApkPath,
+                    "--test",
+                    testApkPath,
+                    if (hasFilters) "--test-targets" else null,
+                    if (hasFilters) filters else null,
+                    if (shouldPull) "--directories-to-pull" else null,
+                    if (shouldPull) {
+                        "/sdcard/Android/data/${apkPackageName.get()}/cache/androidx_screenshots"
+                    } else null,
+                    if (instrumentationArgs.isPresent) "--environment-variables" else null,
+                    if (instrumentationArgs.isPresent) instrumentationArgs.get() else null,
                 )
             )
         }
     }
 }
 
-private const val PIXEL2_API30_PREFIX = "ftlpixel2api30"
-private const val NEXUS4_API21_PREFIX = "ftlnexus4api21"
+private val devicesToRunOn = listOf(
+    "ftlpixel2api33" to "Pixel2.arm,version=33",
+    "ftlpixel2api30" to "Pixel2.arm,version=30",
+    "ftlpixel2api28" to "Pixel2.arm,version=28",
+    "ftlpixel2api26" to "Pixel2.arm,version=26",
+    "ftlnexus4api21" to "Nexus4,version=21",
+)
 
 fun Project.configureFtlRunner() {
     extensions.getByType(AndroidComponentsExtension::class.java).apply {
         onVariants { variant ->
             var name: String? = null
             var artifacts: Artifacts? = null
+            var apkPackageName: Provider<String>? = null
             when {
                 variant is HasAndroidTest -> {
                     name = variant.androidTest?.name
                     artifacts = variant.androidTest?.artifacts
+                    apkPackageName = variant.androidTest?.namespace
                 }
 
                 project.plugins.hasPlugin("com.android.test") -> {
                     name = variant.name
                     artifacts = variant.artifacts
+                    apkPackageName = variant.namespace
                 }
             }
-            if (name == null || artifacts == null) {
+            if (name == null || artifacts == null || apkPackageName == null) {
                 return@onVariants
             }
-            tasks.register("$PIXEL2_API30_PREFIX$name", FtlRunner::class.java) { task ->
-
-                task.device.set("Pixel2.arm,version=30")
-                task.testFolder.set(artifacts.get(SingleArtifact.APK))
-                task.testLoader.set(artifacts.getBuiltArtifactsLoader())
-            }
-            tasks.register("$NEXUS4_API21_PREFIX$name", FtlRunner::class.java) { task ->
-                task.device.set("Nexus4,version=21")
-                task.testFolder.set(artifacts.get(SingleArtifact.APK))
-                task.testLoader.set(artifacts.getBuiltArtifactsLoader())
+            devicesToRunOn.forEach { (taskPrefix, model) ->
+                tasks.register("$taskPrefix$name", FtlRunner::class.java) { task ->
+                    task.device.set(model)
+                    task.apkPackageName.set(apkPackageName)
+                    task.testFolder.set(artifacts.get(SingleArtifact.APK))
+                    task.testLoader.set(artifacts.getBuiltArtifactsLoader())
+                }
             }
         }
     }
@@ -162,15 +203,12 @@ fun Project.configureFtlRunner() {
 fun Project.addAppApkToFtlRunner() {
     extensions.getByType<ApplicationAndroidComponentsExtension>().apply {
         onVariants(selector().withBuildType("debug")) { appVariant ->
-            tasks.named("$PIXEL2_API30_PREFIX${appVariant.name}AndroidTest") { configTask ->
-                configTask as FtlRunner
-                configTask.appFolder.set(appVariant.artifacts.get(SingleArtifact.APK))
-                configTask.appLoader.set(appVariant.artifacts.getBuiltArtifactsLoader())
-            }
-            tasks.named("$NEXUS4_API21_PREFIX${appVariant.name}AndroidTest") { configTask ->
-                configTask as FtlRunner
-                configTask.appFolder.set(appVariant.artifacts.get(SingleArtifact.APK))
-                configTask.appLoader.set(appVariant.artifacts.getBuiltArtifactsLoader())
+            devicesToRunOn.forEach { (taskPrefix, _) ->
+                tasks.named("$taskPrefix${appVariant.name}AndroidTest") { configTask ->
+                    configTask as FtlRunner
+                    configTask.appFolder.set(appVariant.artifacts.get(SingleArtifact.APK))
+                    configTask.appLoader.set(appVariant.artifacts.getBuiltArtifactsLoader())
+                }
             }
         }
     }

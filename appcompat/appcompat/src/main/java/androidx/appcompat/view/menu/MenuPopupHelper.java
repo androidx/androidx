@@ -45,7 +45,6 @@ import androidx.core.view.ViewCompat;
 /**
  * Presents a menu as a small, simple popup anchored to another view.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class MenuPopupHelper implements MenuHelper {
@@ -156,7 +155,6 @@ public class MenuPopupHelper implements MenuHelper {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @NonNull

@@ -30,8 +30,8 @@ import androidx.core.content.ContextCompat;
 import androidx.test.filters.LargeTest;
 import androidx.test.screenshot.AndroidXScreenshotTestRule;
 import androidx.test.screenshot.matchers.MSSIMMatcher;
-import androidx.wear.tiles.LayoutElementBuilders;
-import androidx.wear.tiles.ResourceBuilders;
+import androidx.wear.protolayout.LayoutElementBuilders;
+import androidx.wear.protolayout.ResourceBuilders;
 import androidx.wear.protolayout.proto.LayoutElementProto.Layout;
 import androidx.wear.protolayout.proto.LayoutElementProto.LayoutElement;
 import androidx.wear.protolayout.proto.ResourceProto.AndroidImageResourceByResId;
@@ -236,13 +236,12 @@ public class TileRendererGoldenTest {
         TileRenderer renderer =
                 new TileRenderer(
                         appContext,
-                        LayoutElementBuilders.Layout.fromProto(
-                                Layout.newBuilder().setRoot(rootElement).build()),
-                        ResourceBuilders.Resources.fromProto(generateResources()),
                         ContextCompat.getMainExecutor(getApplicationContext()),
                         i -> {});
 
-        View firstChild = renderer.inflate(mainFrame);
+        View firstChild = renderer.inflate(LayoutElementBuilders.Layout.fromProto(
+                Layout.newBuilder().setRoot(rootElement).build()),
+                ResourceBuilders.Resources.fromProto(generateResources()), mainFrame);
 
         if (firstChild == null) {
             throw new RuntimeException("Failed to inflate " + expectedKey);

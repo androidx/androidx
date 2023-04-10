@@ -19,7 +19,6 @@ package androidx.compose.foundation.lazy.staggeredgrid
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.checkScrollableContainerConstraints
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -42,32 +41,36 @@ internal fun rememberStaggeredGridMeasurePolicy(
     contentPadding: PaddingValues,
     reverseLayout: Boolean,
     orientation: Orientation,
-    verticalArrangement: Arrangement.Vertical,
-    horizontalArrangement: Arrangement.Horizontal,
-    slotSizesSums: Density.(Constraints) -> IntArray
+    mainAxisSpacing: Dp,
+    crossAxisSpacing: Dp,
+    slots: Density.(Constraints) -> LazyStaggeredGridSlots
 ): LazyLayoutMeasureScope.(Constraints) -> LazyStaggeredGridMeasureResult = remember(
     state,
     itemProvider,
     contentPadding,
     reverseLayout,
     orientation,
-    verticalArrangement,
-    horizontalArrangement,
-    slotSizesSums
+    mainAxisSpacing,
+    crossAxisSpacing,
+    slots
 ) {
     { constraints ->
         checkScrollableContainerConstraints(
             constraints,
             orientation
         )
-        val resolvedSlotSums = slotSizesSums(this, constraints)
+        val resolvedSlots = slots(this, constraints)
         val isVertical = orientation == Orientation.Vertical
 
         // setup information for prefetch
-        state.laneWidthsPrefixSum = resolvedSlotSums
+        state.slots = resolvedSlots
         state.isVertical = isVertical
         state.spanProvider = itemProvider.spanProvider
 
+        // ensure scroll position is up to date
+        state.updateScrollPositionIfTheFirstItemWasMoved(itemProvider)
+
+        // setup measure
         val beforeContentPadding = contentPadding.beforePadding(
             orientation, reverseLayout, layoutDirection
         ).roundToPx()
@@ -86,18 +89,6 @@ internal fun rememberStaggeredGridMeasurePolicy(
             IntOffset(beforeContentPadding, startContentPadding)
         }
 
-        val mainAxisSpacing = if (isVertical) {
-            verticalArrangement.spacing
-        } else {
-            horizontalArrangement.spacing
-        }.roundToPx()
-
-        val crossAxisSpacing = if (isVertical) {
-            horizontalArrangement.spacing
-        } else {
-            verticalArrangement.spacing
-        }.roundToPx()
-
         val horizontalPadding = contentPadding.run {
             calculateStartPadding(layoutDirection) + calculateEndPadding(layoutDirection)
         }.roundToPx()
@@ -108,16 +99,16 @@ internal fun rememberStaggeredGridMeasurePolicy(
         measureStaggeredGrid(
             state = state,
             itemProvider = itemProvider,
-            resolvedSlotSums = resolvedSlotSums,
+            resolvedSlots = resolvedSlots,
             constraints = constraints.copy(
                 minWidth = constraints.constrainWidth(horizontalPadding),
                 minHeight = constraints.constrainHeight(verticalPadding)
             ),
-            mainAxisSpacing = mainAxisSpacing,
-            crossAxisSpacing = crossAxisSpacing,
+            mainAxisSpacing = mainAxisSpacing.roundToPx(),
             contentOffset = contentOffset,
             mainAxisAvailableSize = mainAxisAvailableSize,
             isVertical = isVertical,
+            reverseLayout = reverseLayout,
             beforeContentPadding = beforeContentPadding,
             afterContentPadding = afterContentPadding,
         ).also {

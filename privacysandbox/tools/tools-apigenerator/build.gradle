@@ -24,6 +24,8 @@ plugins {
     id("kotlin")
 }
 
+androidx.configureAarAsJarForConfiguration("testImplementation")
+
 dependencies {
     api(libs.kotlinStdlib)
     implementation(libs.asm)
@@ -37,6 +39,10 @@ dependencies {
     testImplementation(project(":privacysandbox:tools:tools-apipackager"))
     testImplementation(project(":privacysandbox:tools:tools-testing"))
     testImplementation(project(":room:room-compiler-processing-testing"))
+    testImplementationAarAsJar(project(":privacysandbox:ui:ui-core"))
+    testImplementationAarAsJar(project(":privacysandbox:ui:ui-client"))
+    testImplementationAarAsJar(project(":privacysandbox:sdkruntime:sdkruntime-client"))
+    testImplementationAarAsJar(project(":privacysandbox:sdkruntime:sdkruntime-core"))
     testImplementation(libs.kotlinCoroutinesCore)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
@@ -46,14 +52,19 @@ dependencies {
             dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
             include: "android.jar"
     ))
-    // Get AIDL compiler path and pass it to tests for code generation.
+    // Get AIDL compiler path and framework.aidl path and pass to tests for code generation.
     def aidlCompilerPath = "${SdkHelperKt.getSdkPath(project)}/build-tools/${SupportConfig.BUILD_TOOLS_VERSION}/aidl"
+    def frameworkAidlPath = "${SdkHelperKt.getSdkPath(project)}/platforms/${SupportConfig.COMPILE_SDK_VERSION}/framework.aidl"
     test {
         inputs.files(aidlCompilerPath)
                 .withPropertyName("aidl_compiler_path")
                 .withPathSensitivity(PathSensitivity.NAME_ONLY)
+        inputs.files(frameworkAidlPath)
+                .withPropertyName("framework_aidl_path")
+                .withPathSensitivity(PathSensitivity.NAME_ONLY)
         doFirst {
             systemProperty "aidl_compiler_path", aidlCompilerPath
+            systemProperty "framework_aidl_path", frameworkAidlPath
         }
     }
 }

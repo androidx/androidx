@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 
 /**
@@ -24,7 +23,6 @@ import androidx.compose.ui.Modifier
  * [onObservedReadsChanged] that will be called whenever the value of read object has changed.
  * To trigger [onObservedReadsChanged], read values within an [observeReads] block.
  */
-@ExperimentalComposeUiApi
 interface ObserverNode : DelegatableNode {
 
     /**
@@ -34,7 +32,6 @@ interface ObserverNode : DelegatableNode {
     fun onObservedReadsChanged()
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal class ModifierNodeOwnerScope(internal val observerNode: ObserverNode) : OwnerScope {
     override val isValidOwnerScope: Boolean
         get() = observerNode.node.isAttached
@@ -49,7 +46,6 @@ internal class ModifierNodeOwnerScope(internal val observerNode: ObserverNode) :
 /**
  * Use this function to observe reads within the specified [block].
  */
-@ExperimentalComposeUiApi
 fun <T> T.observeReads(block: () -> Unit) where T : Modifier.Node, T : ObserverNode {
     val target = ownerScope ?: ModifierNodeOwnerScope(this).also { ownerScope = it }
     requireOwner().snapshotObserver.observeReads(

@@ -32,30 +32,28 @@ public class ComplicationHighlightRenderer(
     @Px private val outlineExpansion: Float,
     @Px outlineStrokeWidth: Float
 ) {
-    private val transparentWhitePaint = Paint().apply {
-        style = Paint.Style.FILL
-        color = Color.argb(0, 255, 255, 255) // Transparent white
-        xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC)
-        isAntiAlias = true
-    }
+    private val transparentWhitePaint =
+        Paint().apply {
+            style = Paint.Style.FILL
+            color = Color.argb(0, 255, 255, 255) // Transparent white
+            xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC)
+            isAntiAlias = true
+        }
 
-    private val outlinePaint = Paint().apply {
-        style = Paint.Style.STROKE
-        strokeWidth = outlineStrokeWidth
-        isAntiAlias = true
-    }
+    private val outlinePaint =
+        Paint().apply {
+            style = Paint.Style.STROKE
+            strokeWidth = outlineStrokeWidth
+            isAntiAlias = true
+        }
 
     /**
      * Intended for use by [CanvasComplicationDrawable.drawHighlight]. Draws a thick line around the
-     * complication with [color] and with the given bounds.  Fills the center of the complication
+     * complication with [color] and with the given bounds. Fills the center of the complication
      * with transparent white. When composited on top of the underlying watchface the complication's
      * original pixels will be preserved with their original brightness.
      */
-    public fun drawComplicationHighlight(
-        canvas: Canvas,
-        bounds: Rect,
-        @ColorInt color: Int
-    ) {
+    public fun drawComplicationHighlight(canvas: Canvas, bounds: Rect, @ColorInt color: Int) {
         outlinePaint.color = color
         val radius = bounds.height() / 2.0f
         if (bounds.width() == bounds.height()) {
@@ -63,19 +61,9 @@ public class ComplicationHighlightRenderer(
             val ctrX = floor(bounds.exactCenterX() + 0.5f)
             val ctrY = floor(bounds.exactCenterY() + 0.5f)
 
-            canvas.drawCircle(
-                ctrX,
-                ctrY,
-                radius + outlineExpansion,
-                transparentWhitePaint
-            )
+            canvas.drawCircle(ctrX, ctrY, radius + outlineExpansion, transparentWhitePaint)
 
-            canvas.drawCircle(
-                ctrX,
-                ctrY,
-                radius + outlineExpansion,
-                outlinePaint
-            )
+            canvas.drawCircle(ctrX, ctrY, radius + outlineExpansion, outlinePaint)
         } else {
             canvas.drawRoundRect(
                 RectF(

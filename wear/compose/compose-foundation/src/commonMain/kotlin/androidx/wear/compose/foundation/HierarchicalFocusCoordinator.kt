@@ -54,6 +54,7 @@ import kotlinx.coroutines.CoroutineScope
  * @param content The content of this component.
  */
 @Composable
+@ExperimentalWearFoundationApi
 public fun HierarchicalFocusCoordinator(
     requiresFocus: () -> Boolean,
     content: @Composable () -> Unit
@@ -74,6 +75,7 @@ public fun HierarchicalFocusCoordinator(
  * new state (if true, we are becoming active and should request focus).
  */
 @Composable
+@ExperimentalWearFoundationApi
 public fun OnFocusChange(onFocusChanged: CoroutineScope.(Boolean) -> Unit) {
     FocusComposableImpl(
         focusEnabled = { true },
@@ -91,6 +93,7 @@ public fun OnFocusChange(onFocusChanged: CoroutineScope.(Boolean) -> Unit) {
  * @param focusRequester The associated [FocusRequester] to request focus on.
  */
 @Composable
+@ExperimentalWearFoundationApi
 public fun RequestFocusWhenActive(focusRequester: FocusRequester) {
     OnFocusChange {
         if (it) focusRequester.requestFocus()
@@ -106,6 +109,7 @@ public fun RequestFocusWhenActive(focusRequester: FocusRequester) {
  * Composable that is part of the composition.
  */
 @Composable
+@ExperimentalWearFoundationApi
 public fun rememberActiveFocusRequester() =
     remember { FocusRequester() }.also { RequestFocusWhenActive(it) }
 
@@ -123,11 +127,12 @@ internal fun FocusComposableImpl(
     onFocusChanged: CoroutineScope.(Boolean) -> Unit,
     content: @Composable () -> Unit
 ) {
+    val updatedFocusEnabled by rememberUpdatedState(focusEnabled)
     val parent by rememberUpdatedState(LocalFocusNodeParent.current)
 
     // Node in our internal tree representation of the FocusComposableImpl
     val node = remember { FocusNode(focused = derivedStateOf {
-        (parent?.focused?.value ?: true) && focusEnabled()
+        (parent?.focused?.value ?: true) && updatedFocusEnabled()
     }) }
 
     // Attach our node to our parent's (and remove if we leave the composition).

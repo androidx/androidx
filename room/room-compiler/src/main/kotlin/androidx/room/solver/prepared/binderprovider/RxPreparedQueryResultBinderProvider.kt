@@ -57,11 +57,11 @@ open class RxPreparedQueryResultBinderProvider internal constructor(
 
     companion object {
         fun getAll(context: Context) = listOf(
-            RxPreparedQueryResultBinderProvider(context, RxType.RX2_SINGLE),
-            RxPreparedQueryResultBinderProvider(context, RxType.RX2_MAYBE),
+            RxSingleOrMaybePreparedQueryResultBinderProvider(context, RxType.RX2_SINGLE),
+            RxSingleOrMaybePreparedQueryResultBinderProvider(context, RxType.RX2_MAYBE),
             RxCompletablePreparedQueryResultBinderProvider(context, RxType.RX2_COMPLETABLE),
-            RxPreparedQueryResultBinderProvider(context, RxType.RX3_SINGLE),
-            RxPreparedQueryResultBinderProvider(context, RxType.RX3_MAYBE),
+            RxSingleOrMaybePreparedQueryResultBinderProvider(context, RxType.RX3_SINGLE),
+            RxSingleOrMaybePreparedQueryResultBinderProvider(context, RxType.RX3_MAYBE),
             RxCompletablePreparedQueryResultBinderProvider(context, RxType.RX3_COMPLETABLE)
         )
     }
@@ -89,4 +89,16 @@ private class RxCompletablePreparedQueryResultBinderProvider(
      */
     override fun extractTypeArg(declared: XType): XType =
         context.COMMON_TYPES.VOID.makeNullable()
+}
+
+private class RxSingleOrMaybePreparedQueryResultBinderProvider(
+    context: Context,
+    rxType: RxType
+) : RxPreparedQueryResultBinderProvider(context, rxType) {
+
+    /**
+     * Since Maybe can have null values, the Callable returned must allow for null values.
+     */
+    override fun extractTypeArg(declared: XType): XType =
+        declared.typeArguments.first().makeNullable()
 }

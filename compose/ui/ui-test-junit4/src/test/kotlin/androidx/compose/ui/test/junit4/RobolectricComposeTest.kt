@@ -60,8 +60,10 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextInputSelection
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.test.espresso.AppNotIdleException
@@ -271,6 +273,8 @@ class RobolectricComposeTest {
             TextField(value = text, onValueChange = { updatedText = it })
         }
         onNodeWithText(text).assertIsDisplayed()
+        // If selection isn't set on initial state, it will be 0.
+        onNodeWithText(text).performTextInputSelection(TextRange(1))
         onNodeWithText(text).performTextInput("b")
         runOnIdle {
             assertThat(updatedText).isEqualTo("ab")

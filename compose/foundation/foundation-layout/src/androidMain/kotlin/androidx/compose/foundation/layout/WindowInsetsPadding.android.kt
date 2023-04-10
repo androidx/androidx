@@ -241,7 +241,7 @@ fun Modifier.mandatorySystemGesturesPadding() =
         mandatorySystemGestures
     }
 
-@Suppress("NOTHING_TO_INLINE", "ModifierInspectorInfo")
+@Suppress("NOTHING_TO_INLINE")
 @Stable
 private inline fun Modifier.windowInsetsPadding(
     noinline inspectorInfo: InspectorInfo.() -> Unit,

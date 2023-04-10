@@ -14,9 +14,23 @@ limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Enable requestLegacyExternalStorage for Android 10 saving to direct media file test
+         This value is ignore after targeting Android 11 -->
     <application
         android:supportsRtl="true"
+        android:requestLegacyExternalStorage="true"
         android:theme="@style/AppTheme">
+        <activity
+            android:name=".ConcurrentCameraActivity"
+            android:screenOrientation="sensorPortrait"
+            android:exported="true"
+            android:label="Concurrent Camera Test App"
+            android:taskAffinity="androidx.camera.integration.core.ConcurrentCameraActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".CameraXActivity"
             android:exported="true"

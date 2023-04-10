@@ -112,7 +112,6 @@ public final class HtmlCompat {
      */
     public static final int FROM_HTML_MODE_COMPACT = Html.FROM_HTML_MODE_COMPACT;
 
-    /** @hide */
     @IntDef(value = {
             FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH,
             FROM_HTML_SEPARATOR_LINE_BREAK_HEADING,
@@ -129,7 +128,6 @@ public final class HtmlCompat {
     @interface FromHtmlFlags {
     }
 
-    /** @hide */
     @IntDef({
             TO_HTML_PARAGRAPH_LINES_CONSECUTIVE,
             TO_HTML_PARAGRAPH_LINES_INDIVIDUAL

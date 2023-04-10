@@ -31,7 +31,6 @@ import androidx.car.app.serialization.Bundleable;
 /**
  * A listener of {@link SurfaceHolder}.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class SurfaceHolderListener implements SurfaceHolder.Callback {

@@ -17,7 +17,6 @@
 package androidx.camera.extensions.impl;
 
 import android.content.Context;
-import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
@@ -55,7 +54,7 @@ public interface ExtenderStateListener {
 
     /**
      * This will be invoked before creating a
-     * {@link CameraCaptureSession}. The {@link CaptureRequest}
+     * {@link android.hardware.camera2.CameraCaptureSession}. The {@link CaptureRequest}
      * parameters returned via {@link CaptureStageImpl} will be passed to the camera device as
      * part of the capture session initialization via
      * {@link SessionConfiguration#setSessionParameters(CaptureRequest)} which only supported from
@@ -67,7 +66,7 @@ public interface ExtenderStateListener {
     CaptureStageImpl onPresetSession();
 
     /**
-     * This will be invoked once after the {@link CameraCaptureSession}
+     * This will be invoked once after the {@link android.hardware.camera2.CameraCaptureSession}
      * has been created. The {@link CaptureRequest} parameters returned via
      * {@link CaptureStageImpl} will be used to generate a single request to the current
      * configured {@link CameraDevice}. The generated request will be submitted to camera before
@@ -79,7 +78,7 @@ public interface ExtenderStateListener {
     CaptureStageImpl onEnableSession();
 
     /**
-     * This will be invoked before the {@link CameraCaptureSession} is
+     * This will be invoked before the {@link android.hardware.camera2.CameraCaptureSession} is
      * closed. The {@link CaptureRequest} parameters returned via {@link CaptureStageImpl} will
      * be used to generate a single request to the currently configured {@link CameraDevice}. The
      * generated request will be submitted to camera before the CameraCaptureSession is closed.
@@ -88,4 +87,21 @@ public interface ExtenderStateListener {
      */
     @Nullable
     CaptureStageImpl onDisableSession();
+
+    /**
+     * This will be invoked before the {@link android.hardware.camera2.CameraCaptureSession} is
+     * initialized and must return a valid camera session type
+     * {@link android.hardware.camera2.params.SessionConfiguration#getSessionType}
+     * to be used to configure camera capture session. Both the preview and the image capture
+     * extender must return the same session type value for a specific extension type. If there
+     * is inconsistency between the session type values from preview and image extenders, then
+     * the session configuration will fail.
+     *
+     * @return Camera capture session type. Regular and vendor specific types are supported but
+     * not high speed values. The extension can return -1 in which case the camera capture session
+     * will be configured to use the default regular type.
+     *
+     * @since 1.4
+     */
+    int onSessionType();
 }

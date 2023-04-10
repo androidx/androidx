@@ -27,7 +27,8 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.Logger;
-import androidx.camera.core.impl.CamcorderProfileProxy;
+import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy;
+import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -95,7 +96,7 @@ public final class QualitySelector {
      */
     @NonNull
     public static List<Quality> getSupportedQualities(@NonNull CameraInfo cameraInfo) {
-        return VideoCapabilities.from(cameraInfo).getSupportedQualities();
+        return LegacyVideoCapabilities.from(cameraInfo).getSupportedQualities();
     }
 
     /**
@@ -118,7 +119,7 @@ public final class QualitySelector {
      */
     public static boolean isQualitySupported(@NonNull CameraInfo cameraInfo,
             @NonNull Quality quality) {
-        return VideoCapabilities.from(cameraInfo).isQualitySupported(quality);
+        return LegacyVideoCapabilities.from(cameraInfo).isQualitySupported(quality);
     }
 
     /**
@@ -139,24 +140,24 @@ public final class QualitySelector {
     @Nullable
     public static Size getResolution(@NonNull CameraInfo cameraInfo, @NonNull Quality quality) {
         checkQualityConstantsOrThrow(quality);
-        CamcorderProfileProxy profile = VideoCapabilities.from(cameraInfo).getProfile(quality);
-        return profile != null ? getProfileVideoSize(profile) : null;
+        VideoValidatedEncoderProfilesProxy profiles =
+                LegacyVideoCapabilities.from(cameraInfo).getProfiles(quality);
+        return profiles != null ? getProfileVideoSize(profiles) : null;
     }
 
     /**
      * Gets a map from all supported qualities to mapped resolutions.
      *
      * @param cameraInfo the cameraInfo to query the supported qualities on that camera.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull
     public static Map<Quality, Size> getQualityToResolutionMap(@NonNull CameraInfo cameraInfo) {
-        VideoCapabilities videoCapabilities = VideoCapabilities.from(cameraInfo);
+        LegacyVideoCapabilities videoCapabilities = LegacyVideoCapabilities.from(cameraInfo);
         Map<Quality, Size> map = new HashMap<>();
         for (Quality supportedQuality : videoCapabilities.getSupportedQualities()) {
             map.put(supportedQuality, getProfileVideoSize(
-                    requireNonNull(videoCapabilities.getProfile(supportedQuality))));
+                    requireNonNull(videoCapabilities.getProfiles(supportedQuality))));
         }
         return map;
     }
@@ -273,7 +274,7 @@ public final class QualitySelector {
      */
     @NonNull
     List<Quality> getPrioritizedQualities(@NonNull CameraInfo cameraInfo) {
-        VideoCapabilities videoCapabilities = VideoCapabilities.from(cameraInfo);
+        LegacyVideoCapabilities videoCapabilities = LegacyVideoCapabilities.from(cameraInfo);
 
         List<Quality> supportedQualities = videoCapabilities.getSupportedQualities();
         if (supportedQualities.isEmpty()) {
@@ -404,8 +405,9 @@ public final class QualitySelector {
     }
 
     @NonNull
-    private static Size getProfileVideoSize(@NonNull CamcorderProfileProxy profile) {
-        return new Size(profile.getVideoFrameWidth(), profile.getVideoFrameHeight());
+    private static Size getProfileVideoSize(@NonNull VideoValidatedEncoderProfilesProxy profiles) {
+        VideoProfileProxy videoProfile = profiles.getDefaultVideoProfile();
+        return new Size(videoProfile.getWidth(), videoProfile.getHeight());
     }
 
     private static void checkQualityConstantsOrThrow(@NonNull List<Quality> qualities) {

@@ -53,8 +53,6 @@ import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.TestExtension
 import com.android.build.gradle.TestPlugin
 import com.android.build.gradle.TestedExtension
-import com.android.build.gradle.internal.tasks.AnalyticsRecordingTask
-import com.android.build.gradle.internal.tasks.CheckAarMetadataTask
 import com.android.build.gradle.internal.tasks.ListingFileRedirectTask
 import java.io.File
 import java.time.Duration
@@ -63,7 +61,7 @@ import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
-import org.gradle.api.JavaVersion.VERSION_11
+import org.gradle.api.JavaVersion.VERSION_17
 import org.gradle.api.JavaVersion.VERSION_1_8
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -154,6 +152,8 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         project.tasks.register("printCoordinates", PrintProjectCoordinatesTask::class.java) {
             it.configureWithAndroidXExtension(extension)
         }
+        project.configureConstraintsWithinGroup(extension)
+        project.validateProjectParser(extension)
     }
 
     private fun Project.registerProjectOrArtifact() {
@@ -277,7 +277,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
                 if (extension.type.compilationTarget == CompilationTarget.HOST &&
                     extension.type != LibraryType.ANNOTATION_PROCESSOR_UTILS
                 ) {
-                    task.kotlinOptions.jvmTarget = "11"
+                    task.kotlinOptions.jvmTarget = "17"
                 } else {
                     task.kotlinOptions.jvmTarget = "1.8"
                 }
@@ -289,14 +289,6 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
                     kotlinCompilerArgs += "-Xjvm-default=all"
                 }
                 task.kotlinOptions.freeCompilerArgs += kotlinCompilerArgs
-            }
-
-            // If no one else is going to register a source jar, then we should.
-            // This cross-plugin hands-off logic shouldn't be necessary once we clean up sourceSet
-            // logic (b/235828421)
-            if (!project.plugins.hasPlugin(LibraryPlugin::class.java) &&
-                !project.plugins.hasPlugin(JavaPlugin::class.java)) {
-                project.configureSourceJarForJava()
             }
 
             val isAndroidProject = project.plugins.hasPlugin(LibraryPlugin::class.java) ||
@@ -321,6 +313,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
             }
             project.configureKmpTests()
             project.configureSourceJarForMultiplatform()
+            project.configureLintForMultiplatform(extension)
         }
     }
 
@@ -483,19 +476,11 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
             androidXExtension
         )
 
-        // Disable AAR verification when we're forcing max dep versions.
-        if (project.usingMaxDepVersions()) {
-            project.tasks.withType(CheckAarMetadataTask::class.java).configureEach { task ->
-                task.enabled = false
-            }
-        }
-
         project.addToProjectMap(androidXExtension)
     }
 
     private fun configureWithJavaPlugin(project: Project, extension: AndroidXExtension) {
         project.configureErrorProneForJava()
-        project.configureSourceJarForJava()
 
         // Force Java 1.8 source- and target-compatibility for all Java libraries.
         val javaExtension = project.extensions.getByType<JavaPluginExtension>()
@@ -504,14 +489,17 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
                 extension.type != LibraryType.ANNOTATION_PROCESSOR_UTILS
             ) {
                 javaExtension.apply {
-                    sourceCompatibility = VERSION_11
-                    targetCompatibility = VERSION_11
+                    sourceCompatibility = VERSION_17
+                    targetCompatibility = VERSION_17
                 }
             } else {
                 javaExtension.apply {
                     sourceCompatibility = VERSION_1_8
                     targetCompatibility = VERSION_1_8
                 }
+            }
+            if (!project.plugins.hasPlugin(KotlinBasePluginWrapper::class.java)) {
+                project.configureSourceJarForJava()
             }
         }
 
@@ -526,7 +514,9 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         }
 
         // Standard lint, docs, and Metalava configuration for AndroidX projects.
-        project.configureNonAndroidProjectForLint(extension)
+        if (project.multiplatformExtension == null) {
+            project.configureNonAndroidProjectForLint(extension)
+        }
         val apiTaskConfig = if (project.multiplatformExtension != null) {
             KmpApiTaskConfig
         } else {
@@ -698,7 +688,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
             buildTestApksTask.configure {
                 it.dependsOn(variant.assembleProvider)
             }
-            variant.configureApkZipping(project, true)
+            variant.configureApkZipping(project)
         }
 
         // AGP warns if we use project.buildDir (or subdirs) for CMake's generated
@@ -706,12 +696,6 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         // lives alongside the project's buildDir.
         externalNativeBuild.cmake.buildStagingDirectory =
             File(project.buildDir, "../nativeBuildStaging")
-
-        // disable analytics recording
-        // It's always out-of-date, and we don't release any apps in this repo
-        project.tasks.withType(AnalyticsRecordingTask::class.java).configureEach { task ->
-            task.enabled = false
-        }
     }
 
     /**
@@ -719,15 +703,11 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
      */
     @Suppress("DEPRECATION") // ApkVariant
     private fun com.android.build.gradle.api.ApkVariant.configureApkZipping(
-        project: Project,
-        testApk: Boolean
+        project: Project
     ) {
         packageApplicationProvider.get().let { packageTask ->
             AffectedModuleDetector.configureTaskGuard(packageTask)
-            // Skip copying AndroidTest apks if they have no source code (no tests to run).
-            if (!testApk || project.hasAndroidTestSourceCode()) {
-                addToTestZips(project, packageTask)
-            }
+            addToTestZips(project, packageTask)
         }
         // This task needs to be guarded by AffectedModuleDetector due to guarding test
         // APK building above. It can only be removed if we stop using AMD for test APKs.
@@ -749,14 +729,18 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
 
             config.dependencyConstraints.configureEach { dependencyConstraint ->
                 dependencyConstraint.apply {
-                    // Remove strict constraints on test dependencies and listenablefuture:1.0
-                    if (isTestConfig ||
-                        group == "com.google.guava" &&
-                        name == "listenablefuture" &&
-                        version == "1.0"
-                    ) {
-                        version { versionConstraint ->
-                            versionConstraint.strictly("")
+                    // Clear strict constraints on test dependencies and listenablefuture:1.0
+                    // Don't clear non-strict constraints because they might refer to projects,
+                    // and clearing their versions might be unsupported and unnecessary
+                    if (versionConstraint.strictVersion != "") {
+                        if (isTestConfig ||
+                            (group == "com.google.guava" &&
+                            name == "listenablefuture" &&
+                            version == "1.0")
+                        ) {
+                            version { versionConstraint ->
+                                versionConstraint.strictly("")
+                            }
                         }
                     }
                 }
@@ -851,7 +835,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
                     it.dependsOn(variant.assembleProvider)
                 }
             }
-            variant.configureApkZipping(project, false)
+            variant.configureApkZipping(project)
         }
     }
 
@@ -867,6 +851,129 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
                 }
             }
         }
+    }
+
+    // If this project wants other project in the same group to have the same version,
+    // this function configures those constraints.
+    private fun Project.configureConstraintsWithinGroup(
+        extension: AndroidXExtension
+    ) {
+        if (!project.shouldAddGroupConstraints().get()) {
+            return
+        }
+        project.afterEvaluate {
+            if (project.hasKotlinNativeTarget().get()) {
+                // KMP plugin cannot handle constraints properly for native targets
+                // b/274786186, YT: KT-57531
+                // It is expected to be fixed in Kotlin 1.9 after which, we should remove this check
+                return@afterEvaluate
+            }
+
+            // make sure that the project has a group
+            val projectGroup = extension.mavenGroup
+            if (projectGroup == null)
+                return@afterEvaluate
+            // make sure that this group is configured to use a single version
+            val requiredVersion = projectGroup.atomicGroupVersion
+            if (requiredVersion == null)
+                return@afterEvaluate
+
+            // We don't want to emit the same constraint into our .module file more than once,
+            // and we don't want to try to apply a constraint to a configuration that doesn't accept them,
+            // so we create a configuration to hold the constraints and make each other constraint extend it
+            val constraintConfiguration = project.configurations.create("groupConstraints")
+            project.configurations.configureEach { configuration ->
+                if (configuration != constraintConfiguration)
+                    configuration.extendsFrom(constraintConfiguration)
+            }
+
+            val otherProjectsInSameGroup = extension.getOtherProjectsInSameGroup()
+            val constraints = project.dependencies.constraints
+            val allProjectsExist = buildContainsAllStandardProjects()
+            for (otherProject in otherProjectsInSameGroup) {
+	        val otherGradlePath = otherProject.gradlePath
+                if (otherGradlePath == ":compose:ui:ui-android-stubs") {
+                    // exemption for library that doesn't truly get published: b/168127161
+                    continue
+                }
+                // We only enable constraints for builds that we intend to be able to publish from.
+                //   If a project isn't included in a build we intend to be able to publish from,
+                //   the project isn't going to be published.
+                // Sometimes this can happen when a project subset is enabled:
+                //   The KMP project subset enabled by androidx_multiplatform_mac.sh contains
+                //   :benchmark:benchmark-common but not :benchmark:benchmark-benchmark
+                //   This is ok because we don't intend to publish that artifact from that build
+                val otherProjectShouldExist =
+                    allProjectsExist || findProject(otherGradlePath) != null
+                if (!otherProjectShouldExist) {
+                    continue
+                }
+                // We only emit constraints referring to projects that will release
+                val otherFilepath = File(otherProject.filePath, "build.gradle")
+                val parsed = parseBuildFile(otherFilepath)
+                if (!parsed.shouldRelease()) {
+                    continue
+                }
+                if (parsed.libraryType == LibraryType.SAMPLES) {
+                    // a SAMPLES project knows how to publish, but we don't intend to actually
+                    // publish it
+                    continue
+                }
+                // Under certain circumstances, a project is allowed to override its
+                // version see ( isGroupVersionOverrideAllowed ), in which case it's
+                // not participating in the versioning policy yet and we don't emit
+                // version constraints referencing it
+                if (parsed.specifiesVersion) {
+                    continue
+                }
+                val dependencyConstraint = project(otherGradlePath)
+                constraints.add(
+                    constraintConfiguration.name,
+                    dependencyConstraint
+                )
+            }
+
+            // disallow duplicate constraints
+            project.configurations.all { config ->
+                // find all constraints contributed by this Configuration and its ancestors
+                val configurationConstraints: MutableSet<String> = mutableSetOf()
+                config.hierarchy.forEach { parentConfig ->
+                    parentConfig.dependencyConstraints.configureEach { dependencyConstraint ->
+                        dependencyConstraint.apply {
+                            if (
+                                versionConstraint.requiredVersion != "" &&
+                                versionConstraint.requiredVersion != "unspecified"
+                            ) {
+                                val key =
+                                    "${dependencyConstraint.group}:${dependencyConstraint.name}"
+                                if (configurationConstraints.contains(key)) {
+                                    throw GradleException(
+                                        "Constraint on $key was added multiple times in " +
+                                        "$config (version = " +
+                                        "${versionConstraint.requiredVersion}).\n\n" +
+                                        "This is unnecessary and can also trigger " +
+                                        "https://github.com/gradle/gradle/issues/24037 in " +
+                                        "builds trying to use the resulting artifacts.")
+                                }
+                                configurationConstraints.add(key)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Tells whether this build contains the usual set of all projects (`./gradlew projects`)
+     * Sometimes developers request to include fewer projects because this may run more quickly
+     */
+    private fun Project.buildContainsAllStandardProjects(): Boolean {
+        if (getProjectSubset() != null)
+            return false
+        if (ProjectLayoutType.isPlayground(this))
+            return false
+        return true
     }
 
     companion object {
@@ -970,20 +1077,8 @@ private fun Project.configureJavaCompilationWarnings(androidXExtension: AndroidX
  * Guarantees unique names for the APKs, and modifies some of the suffixes. The APK name is used
  * to determine what gets run by our test runner
  */
-fun String.renameApkForTesting(projectPath: String, hasBenchmarkPlugin: Boolean): String {
-    val name =
-        if (projectPath.contains("media") && projectPath.contains("version-compat-tests")) {
-            // Exclude media*:version-compat-tests modules from
-            // existing support library presubmit tests.
-            this.replace("-debug-androidTest", "")
-        } else if (hasBenchmarkPlugin) {
-            this.replace("-androidTest", "-androidBenchmark")
-        } else if (projectPath.endsWith("macrobenchmark")) {
-            this.replace("-androidTest", "-androidMacrobenchmark")
-        } else {
-            this
-        }
-    return "${projectPath.asFilenamePrefix()}_$name"
+fun String.renameApkForTesting(projectPath: String): String {
+    return "${projectPath.asFilenamePrefix()}_$this"
 }
 
 fun Project.hasBenchmarkPlugin(): Boolean {
@@ -1096,6 +1191,35 @@ fun Project.validateMultiplatformPluginHasNotBeenApplied() {
         throw GradleException(
             "The Kotlin multiplatform plugin should only be applied by the AndroidX plugin."
         )
+    }
+}
+
+/**
+ * Verifies that ProjectParser computes the correct values for this project
+ */
+fun Project.validateProjectParser(extension: AndroidXExtension) {
+    project.afterEvaluate {
+        val parsed = project.parse()
+        check(extension.type == parsed.libraryType) {
+            "ProjectParser incorrectly computed libraryType = ${parsed.libraryType} " +
+                "instead of ${extension.type}"
+        }
+        check(extension.publish == parsed.publish) {
+            "ProjectParser incorrectly computed publish = ${parsed.publish} " +
+                "instead of ${extension.publish}"
+        }
+        check(extension.shouldPublish() == parsed.shouldPublish()) {
+            "ProjectParser incorrectly computed shouldPublish() = ${parsed.shouldPublish()} " +
+                "instead of ${extension.shouldPublish()}"
+        }
+        check(extension.shouldRelease() == parsed.shouldRelease()) {
+            "ProjectParser incorrectly computed shouldRelease() = ${parsed.shouldRelease()} " +
+                "instead of ${extension.shouldRelease()}"
+        }
+        check(extension.projectDirectlySpecifiesMavenVersion == parsed.specifiesVersion) {
+            "ProjectParser incorrectly computed specifiesVersion = ${parsed.specifiesVersion}" +
+                "instead of ${extension.projectDirectlySpecifiesMavenVersion}"
+        }
     }
 }
 

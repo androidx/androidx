@@ -28,11 +28,11 @@ import androidx.compose.ui.focus.FocusProperties
 import androidx.compose.ui.focus.FocusPropertiesModifierNode
 import androidx.compose.ui.focus.FocusTargetModifierNode
 import androidx.compose.ui.input.key.KeyInputModifierNode
+import androidx.compose.ui.input.key.SoftKeyboardInterceptionModifierNode
 import androidx.compose.ui.input.pointer.PointerInputModifier
 import androidx.compose.ui.input.rotary.RotaryInputModifierNode
-import androidx.compose.ui.layout.IntermediateLayoutModifier
+import androidx.compose.ui.layout.IntermediateLayoutModifierNode
 import androidx.compose.ui.layout.LayoutModifier
-import androidx.compose.ui.layout.LookaheadOnPlacedModifier
 import androidx.compose.ui.layout.OnGloballyPositionedModifier
 import androidx.compose.ui.layout.OnPlacedModifier
 import androidx.compose.ui.layout.OnRemeasuredModifier
@@ -54,7 +54,6 @@ internal inline infix fun Int.or(other: NodeKind<*>): Int = this or other.mask
 // its own measureNode if the measureNode happens to implement LayoutAware. If the measureNode
 // implements any other node interfaces, such as draw, those should be visited by the coordinator
 // below them.
-@OptIn(ExperimentalComposeUiApi::class)
 internal val NodeKind<*>.includeSelfInTraversal: Boolean
     get() = mask and Nodes.LayoutAware.mask != 0
 
@@ -93,17 +92,19 @@ internal object Nodes {
     inline val KeyInput get() = NodeKind<KeyInputModifierNode>(0b1 shl 13)
     @JvmStatic
     inline val RotaryInput get() = NodeKind<RotaryInputModifierNode>(0b1 shl 14)
+    @JvmStatic
+    inline val CompositionLocalConsumer
+        get() = NodeKind<CompositionLocalConsumerModifierNode>(0b1 shl 15)
+    @JvmStatic
+    inline val SoftKeyboardKeyInput
+        get() = NodeKind<SoftKeyboardInterceptionModifierNode>(0b1 shl 17)
     // ...
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal fun calculateNodeKindSetFrom(element: Modifier.Element): Int {
     var mask = Nodes.Any.mask
     if (element is LayoutModifier) {
         mask = mask or Nodes.Layout
-    }
-    if (element is IntermediateLayoutModifier) {
-        mask = mask or Nodes.IntermediateMeasure
     }
     if (element is DrawModifier) {
         mask = mask or Nodes.Draw
@@ -134,8 +135,7 @@ internal fun calculateNodeKindSetFrom(element: Modifier.Element): Int {
     }
     if (
         element is OnPlacedModifier ||
-        element is OnRemeasuredModifier ||
-        element is LookaheadOnPlacedModifier
+        element is OnRemeasuredModifier
     ) {
         mask = mask or Nodes.LayoutAware
     }
@@ -187,6 +187,12 @@ internal fun calculateNodeKindSetFrom(node: Modifier.Node): Int {
     if (node is RotaryInputModifierNode) {
         mask = mask or Nodes.RotaryInput
     }
+    if (node is CompositionLocalConsumerModifierNode) {
+        mask = mask or Nodes.CompositionLocalConsumer
+    }
+    if (node is SoftKeyboardInterceptionModifierNode) {
+        mask = mask or Nodes.SoftKeyboardKeyInput
+    }
     return mask
 }
 
@@ -194,23 +200,19 @@ private const val Updated = 0
 private const val Inserted = 1
 private const val Removed = 2
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal fun autoInvalidateRemovedNode(node: Modifier.Node) = autoInvalidateNode(node, Removed)
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal fun autoInvalidateInsertedNode(node: Modifier.Node) = autoInvalidateNode(node, Inserted)
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal fun autoInvalidateUpdatedNode(node: Modifier.Node) = autoInvalidateNode(node, Updated)
 
-@OptIn(ExperimentalComposeUiApi::class)
 private fun autoInvalidateNode(node: Modifier.Node, phase: Int) {
     check(node.isAttached)
     if (node.isKind(Nodes.Layout) && node is LayoutModifierNode) {
         node.invalidateMeasurements()
         if (phase == Removed) {
             val coordinator = node.requireCoordinator(Nodes.Layout)
-            coordinator.detach()
+            coordinator.onRelease()
         }
     }
     if (node.isKind(Nodes.GlobalPositionAware) && node is GlobalPositionAwareModifierNode) {
@@ -227,7 +229,9 @@ private fun autoInvalidateNode(node: Modifier.Node, phase: Int) {
     }
     if (node.isKind(Nodes.FocusTarget) && node is FocusTargetModifierNode) {
         when (phase) {
-            Removed -> node.onRemoved()
+            // when we previously had focus target modifier on a node and then this modifier
+            // is removed we need to notify the focus tree about so the focus state is reset.
+            Removed -> node.onReset()
             else -> node.requireOwner().focusOwner.scheduleInvalidation(node)
         }
     }
@@ -246,7 +250,6 @@ private fun autoInvalidateNode(node: Modifier.Node, phase: Int) {
     }
 }
 
-@ExperimentalComposeUiApi
 private fun FocusPropertiesModifierNode.scheduleInvalidationOfAssociatedFocusTargets() {
     visitChildren(Nodes.FocusTarget) {
         // Schedule invalidation for the focus target,
@@ -264,7 +267,6 @@ private fun FocusPropertiesModifierNode.scheduleInvalidationOfAssociatedFocusTar
  * called from the main thread, but if this changes in the future, replace the
  * [CanFocusChecker.reset] call with a new [FocusProperties] object for every invocation.
  */
-@ExperimentalComposeUiApi
 private fun FocusPropertiesModifierNode.specifiesCanFocusProperty(): Boolean {
     CanFocusChecker.reset()
     modifyFocusProperties(CanFocusChecker)

@@ -27,7 +27,6 @@ import androidx.lifecycle.LifecycleRegistry;
 /**
  * A fake lifecycle owner which obeys the lifecycle transition rules.
  *
- * @hide
  * @see <a href="https://developer.android.com/topic/libraries/architecture/lifecycle">lifecycle</a>
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java

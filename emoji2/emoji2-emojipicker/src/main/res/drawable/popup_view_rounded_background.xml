@@ -16,6 +16,6 @@
   -->
 
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="?attr/colorButtonNormal"/>
+    <solid android:color="?android:attr/colorButtonNormal"/>
     <corners android:radius="@dimen/emoji_picker_popup_view_holder_corner_radius"/>
 </shape>

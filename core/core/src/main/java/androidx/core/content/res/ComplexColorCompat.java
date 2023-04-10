@@ -48,7 +48,6 @@ import java.io.IOException;
  *  <li>A simple color represented by an {@code int}</li>
  * </ol>
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public final class ComplexColorCompat {

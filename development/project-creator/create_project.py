@@ -25,6 +25,7 @@ from shutil import rmtree
 from shutil import copyfile
 from distutils.dir_util import copy_tree
 from distutils.dir_util import DistutilsFileError
+import re
 
 try:
     # non-default python3 module, be helpful if it is missing
@@ -590,7 +591,9 @@ def insert_new_group_id_into_library_versions_toml(group_id):
 
     # Open file for writing and update toml
     with open(LIBRARY_VERSIONS_FP, 'w') as f:
-        toml.dump(library_versions, f, encoder=toml.TomlPreserveInlineDictEncoder())
+        versions_toml_file_string = toml.dumps(library_versions, encoder=toml.TomlPreserveInlineDictEncoder())
+        versions_toml_file_string_new = re.sub(",]", " ]", versions_toml_file_string)
+        f.write(versions_toml_file_string_new)
 
 
 def is_group_id_atomic(group_id):

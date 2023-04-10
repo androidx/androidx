@@ -142,7 +142,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
     /**
      * A key for passing the MediaItem to the ResultReceiver in getItem.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String KEY_MEDIA_ITEM = "media_item";
@@ -150,7 +149,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
     /**
      * A key for passing the list of MediaItems to the ResultReceiver in search.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String KEY_SEARCH_RESULTS = "search_results";
@@ -160,18 +158,15 @@ public abstract class MediaBrowserServiceCompat extends Service {
     static final int RESULT_FLAG_ON_SEARCH_NOT_IMPLEMENTED = 1 << 2;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final int RESULT_ERROR = -1;
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final int RESULT_OK = 0;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final int RESULT_PROGRESS_UPDATE = 1;
@@ -1306,7 +1301,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
      * because lint checks considers the overriden method as the new public API that needs update
      * of current.txt.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
     public void attachToBaseContext(Context base) {
@@ -1424,7 +1418,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
      *
      * @param id id
      * @param option option
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public void onSubscribe(String id, Bundle option) {
@@ -1434,7 +1427,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
      * Called when a {@link MediaBrowserCompat#unsubscribe} is called.
      *
      * @param id
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public void onUnsubscribe(String id) {
@@ -1620,7 +1612,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
      * @param options A bundle of service-specific arguments to send
      *            to the media browse. The contents of this bundle may
      *            contain the information about the change.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
     public void notifyChildrenChanged(@NonNull RemoteUserInfo remoteUserInfo,

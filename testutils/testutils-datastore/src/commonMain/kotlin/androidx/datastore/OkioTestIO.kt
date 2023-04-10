@@ -82,7 +82,15 @@ class OkioPath(private val fileSystem: FileSystem, val path: Path) : TestFile() 
     }
 
     override fun delete(): Boolean {
+        if (!fileSystem.exists(path)) {
+            // to be consistent with the TestFile API.
+            return false
+        }
         fileSystem.delete(path)
         return !fileSystem.exists(path)
+    }
+
+    override fun exists(): Boolean {
+        return fileSystem.exists(path)
     }
 }

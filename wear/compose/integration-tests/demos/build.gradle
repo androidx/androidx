@@ -26,8 +26,8 @@ android {
         applicationId "androidx.wear.compose.integration.demos"
         minSdk 25
         targetSdk 30
-        versionCode 12
-        versionName "1.12"
+        versionCode 13
+        versionName "1.13"
         // Change the APK name to match the *testapp regex we use to pick up APKs for testing as
         // part of CI.
         archivesBaseName = "wear-compose-demos-testapp"
@@ -55,6 +55,7 @@ dependencies {
     implementation(project(":compose:integration-tests:demos:common"))
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:ui:ui"))
+    implementation(project(":compose:ui:ui-util"))
     implementation(project(":compose:ui:ui:ui-samples"))
     implementation(project(":compose:material:material-icons-core"))
 
@@ -64,6 +65,7 @@ dependencies {
     implementation(project(":wear:compose:compose-material-samples"))
 
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(project(":emoji2:emoji2"))
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)

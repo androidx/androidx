@@ -16,14 +16,12 @@
 
 package androidx.compose.ui.focus
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.node.DelegatableNode
 
 /**
  * Implement this interface create a modifier node that can be used to modify the focus properties
  * of the associated [FocusTargetModifierNode].
  */
-@ExperimentalComposeUiApi
 interface FocusPropertiesModifierNode : DelegatableNode {
     /**
      * A parent can modify the focus properties associated with the nearest

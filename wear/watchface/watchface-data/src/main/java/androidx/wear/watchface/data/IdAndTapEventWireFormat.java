@@ -31,7 +31,6 @@ import androidx.versionedparcelable.VersionedParcelize;
 /**
  * Pair of a ComplicationSlotID and a TapEvent, the wire format of Map<Int, TapEvent>
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize(allowSerialization = true)
@@ -54,14 +53,9 @@ public final class IdAndTapEventWireFormat implements VersionedParcelable, Parce
     @Px
     long mCalendarTapTimeMillis;
 
-    IdAndTapEventWireFormat() {
-    }
+    IdAndTapEventWireFormat() {}
 
-    public IdAndTapEventWireFormat(
-            int id,
-            int x,
-            int y,
-            long calendarTapTimeMillis) {
+    public IdAndTapEventWireFormat(int id, int x, int y, long calendarTapTimeMillis) {
         mId = id;
         mX = x;
         mY = y;

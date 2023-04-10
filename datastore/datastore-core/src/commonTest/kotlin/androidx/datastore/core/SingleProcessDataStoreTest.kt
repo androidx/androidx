@@ -50,6 +50,8 @@ import kotlin.random.Random
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.test.runCurrent
 
 @OptIn(ExperimentalCoroutinesApi::class)
 abstract class SingleProcessDataStoreTest<F : TestFile>(private val testIO: TestIO<F, *>) {
@@ -191,7 +193,8 @@ abstract class SingleProcessDataStoreTest<F : TestFile>(private val testIO: Test
 
     @Test
     fun testReadFromNonExistentFile() = doTest {
-        assertThat(testFile.delete()).isTrue()
+        // TODO remove deleteIfExists after b/276983736
+        testFile.deleteIfExists()
         val newStore = newDataStore(testFile)
         assertThat(newStore.data.first()).isEqualTo(0)
     }
@@ -687,12 +690,10 @@ abstract class SingleProcessDataStoreTest<F : TestFile>(private val testIO: Test
 
     @Test
     fun testDefaultValueUsedWhenNoDataOnDisk() = doTest {
+        testFile.deleteIfExists()
         val dataStore = newDataStore(
             serializerConfig = TestingSerializerConfig(defaultValue = 99),
             scope = dataStoreScope)
-
-        assertThat(testFile.delete()).isTrue()
-
         assertThat(dataStore.data.first()).isEqualTo(99)
     }
 
@@ -820,6 +821,112 @@ abstract class SingleProcessDataStoreTest<F : TestFile>(private val testIO: Test
         dataStore2.data.first()
     }
 
+    /**
+     * test that if read fails, all collectors are notified with it.
+     */
+    @Test
+    fun readFailsAfter_successfulUpdate() = doTest {
+        val asyncCollector = async(coroutineContext + Job()) {
+            // this uses a separate independent job not to cancel the test scope when
+            // the expected exception happens
+            store.data.collect()
+        }
+        store.updateData { 2 }
+        // update the version so the next read thinks the data has changed.
+        // ideally, this test should create another datastore instance that will change the data but
+        // we don't allow multiple instances on the same file so this is an easy workaround to
+        // create the test case.
+        store.incrementSharedCounter()
+        serializerConfig.failingRead = true
+        // trigger read
+        assertThrows(testIO.ioExceptionClass()) { store.data.first() }
+        runCurrent()
+        // should cancel due to exception
+        assertThat(asyncCollector.isCancelled).isTrue()
+        // recover from failure
+        serializerConfig.failingRead = false
+        assertThat(store.data.first()).isEqualTo(2)
+    }
+
+    /**
+     * test that failed updateData calls do not affect the cache or do not affect other collectors
+     */
+    @Test
+    fun readFailsAfter_failedUpdate() = doTest {
+        // fill cache
+        store.data.first()
+        serializerConfig.failingWrite = true
+        val asyncCollector = async {
+            store.data.collect()
+        }
+        // set cache to failure
+        assertThrows(testIO.ioExceptionClass()) {
+            store.updateData { 3 }
+        }
+        runCurrent()
+        // existing collector does not get an error due to failed write
+        assertThat(asyncCollector.isActive).isTrue()
+        assertThat(store.data.first()).isEqualTo(0)
+        asyncCollector.cancelAndJoin()
+    }
+
+    @Test
+    fun finalValueIsReceived() = doTest {
+        val datastoreScope = TestScope()
+        val store = newDataStore(
+            file = testIO.newTempFile(),
+            scope = datastoreScope.backgroundScope
+        )
+        suspend fun <R> runAndPumpInStore(block: suspend () -> R): R {
+            val async = datastoreScope.async { block() }
+            datastoreScope.runCurrent()
+            check(async.isCompleted) {
+                "Async block did not complete."
+            }
+            return async.await()
+        }
+        runAndPumpInStore {
+            store.updateData { 2 }
+        }
+        val asyncCollector = async {
+            store.data.toList()
+        }
+        datastoreScope.runCurrent()
+        runCurrent()
+        assertThat(asyncCollector.isActive).isTrue()
+        runAndPumpInStore {
+            store.updateData { 3 }
+        }
+        datastoreScope.runCurrent()
+        runCurrent()
+
+        assertThat(asyncCollector.isActive).isTrue()
+        // finalize the store
+        runAndPumpInStore {
+            datastoreScope.backgroundScope.coroutineContext[Job]!!.cancelAndJoin()
+        }
+        datastoreScope.runCurrent()
+        runCurrent()
+        assertThat(asyncCollector.isActive).isFalse()
+        assertThat(asyncCollector.await()).containsExactly(2.toByte(), 3.toByte()).inOrder()
+    }
+
+    @Test
+    fun testCancelledDataStoreScopeCantRead() = doTest {
+        // TODO(b/273990827): decide the contract of accessing when state is Final
+        dataStoreScope.cancel()
+
+        val flowCollector = async {
+            store.data.toList()
+        }
+        runCurrent()
+        assertThrows<CancellationException> { flowCollector.await() }
+
+        assertThrows<CancellationException> {
+            store.data.first()
+        }
+    }
+
     private class TestingCorruptionHandler(
         private val replaceWith: Byte? = null
     ) : CorruptionHandler<Byte> {
@@ -850,7 +957,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile>(private val testIO: Test
         initTasksList: List<InitTaskList> = listOf(),
         corruptionHandler: CorruptionHandler<Byte> = NoOpCorruptionHandler<Byte>()
     ): DataStore<Byte> {
-        return SingleProcessDataStore(
+        return DataStoreImpl(
             testIO.getStorage(serializerConfig) { file },
             scope = scope,
             initTasksList = initTasksList,
@@ -859,3 +966,14 @@ abstract class SingleProcessDataStoreTest<F : TestFile>(private val testIO: Test
     }
 }
 private typealias InitTaskList = suspend (api: InitializerApi<Byte>) -> Unit
+
+/**
+ * Utility method to increment shared counter using internal APIs.
+ */
+private suspend fun <T> DataStore<T>.incrementSharedCounter() {
+    val coordinator = (this as DataStoreImpl).storageConnection.coordinator
+    val currentVersion = coordinator.getVersion()
+    assertThat(
+        coordinator.incrementAndGetVersion()
+    ).isEqualTo(currentVersion + 1)
+}

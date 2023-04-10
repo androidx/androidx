@@ -54,7 +54,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 /**
- * This contains the picture of a view through the a transition and is used to interpolate it
+ * Contains the picture of a view through a transition and is used to interpolate it.
  * During an transition every view has a MotionController which drives its position.
  * <p>
  * All parameter which affect a views motion are added to MotionController and then setup()
@@ -228,7 +228,7 @@ public class MotionController {
     }
 
     /**
-     * Will return the id of the view to move relative to
+     * Will return the id of the view to move relative to.
      * The position at the start and then end will be viewed relative to this view
      * -1 is the return value if NOT in polar mode
      *
@@ -287,7 +287,8 @@ public class MotionController {
     }
 
     /**
-     * fill the array point with the center coordinates point[0] is filled with the
+     * fill the array point with the center coordinates.
+     * point[0] is filled with the
      * x coordinate of "time" 0.0 mPoints[point.length-1] is filled with the y coordinate of "time"
      * 1.0
      *
@@ -375,7 +376,8 @@ public class MotionController {
     }
 
     /**
-     * fill the array point with the center coordinates point[0] is filled with the
+     * fill the array point with the center coordinates.
+     * point[0] is filled with the
      * x coordinate of "time" 0.0 mPoints[point.length-1] is filled with the y coordinate of "time"
      * 1.0
      *
@@ -1232,7 +1234,7 @@ public class MotionController {
     }
 
     /**
-     * Calculates the adjusted (and optional velocity)
+     * Calculates the adjusted position (and optional velocity).
      * Note if requesting velocity staggering is not considered
      *
      * @param position position pre stagger
@@ -1663,7 +1665,7 @@ public class MotionController {
     }
 
     /**
-     * Get the keyFrames for the view controlled by this MotionController
+     * Get the keyFrames for the view controlled by this MotionController.
      * the info data structure is of the form
      * 0 length if your are at index i the [i+len+1] is the next entry
      * 1 type  1=Attributes, 2=Position, 3=TimeCycle 4=Cycle 5=Trigger

@@ -56,7 +56,6 @@ public class SessionResult extends CustomVersionedParcelable implements RemoteRe
     public static final int RESULT_SUCCESS = 0;
 
     /**
-     * @hide
      */
     @IntDef(flag = false, /*prefix = "RESULT_CODE",*/ value = {
             RESULT_SUCCESS,
@@ -217,7 +216,6 @@ public class SessionResult extends CustomVersionedParcelable implements RemoteRe
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @Override
@@ -233,7 +231,6 @@ public class SessionResult extends CustomVersionedParcelable implements RemoteRe
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @Override

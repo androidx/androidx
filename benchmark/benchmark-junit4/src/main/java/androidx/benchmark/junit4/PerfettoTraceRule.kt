@@ -87,7 +87,7 @@ class PerfettoTraceRule(
     ): Statement = object : Statement() {
         override fun evaluate() {
             val thisPackage = InstrumentationRegistry.getInstrumentation().context.packageName
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (Build.VERSION.SDK_INT >= 23) {
                 val label = "${description.className}_${description.methodName}"
                 PerfettoTrace.record(
                     fileLabel = label,

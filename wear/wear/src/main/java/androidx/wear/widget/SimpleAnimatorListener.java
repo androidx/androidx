@@ -25,7 +25,6 @@ import androidx.annotation.RestrictTo.Scope;
  * Convenience class for listening for Animator events that implements the AnimatorListener
  * interface and allows extending only methods that are necessary.
  *
- * @hide Hidden until this goes through review
  */
 @RestrictTo(Scope.LIBRARY)
 public class SimpleAnimatorListener implements Animator.AnimatorListener {

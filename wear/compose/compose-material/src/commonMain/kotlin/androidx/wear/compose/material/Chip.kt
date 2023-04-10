@@ -16,37 +16,19 @@
 package androidx.wear.compose.material
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -54,7 +36,6 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.painter.BrushPainter
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
@@ -184,38 +165,22 @@ public fun Chip(
     role: Role? = Role.Button,
     content: @Composable RowScope.() -> Unit,
 ) {
-    CompositionLocalProvider(
-        LocalContentColor provides colors.contentColor(enabled = enabled).value,
-        LocalTextStyle provides MaterialTheme.typography.button,
-        LocalContentAlpha provides colors.contentColor(enabled = enabled).value.alpha,
-    ) {
-        val borderStroke = border.borderStroke(enabled).value
-        Row(
-            modifier = modifier
-                .height(ChipDefaults.Height)
-                .then(
-                    if (borderStroke != null) Modifier.border(
-                        border = borderStroke,
-                        shape = shape
-                    ) else Modifier
-                )
-                .clip(shape = shape)
-                .width(intrinsicSize = IntrinsicSize.Max)
-                .paint(
-                    painter = colors.background(enabled = enabled).value,
-                    contentScale = ContentScale.Crop
-                )
-                .clickable(
-                    enabled = enabled,
-                    onClick = onClick,
-                    role = role,
-                    indication = rememberRipple(),
-                    interactionSource = interactionSource,
-                )
-                .padding(contentPadding),
-            content = content
-        )
-    }
+    androidx.wear.compose.materialcore.Chip(
+        modifier = modifier.height(ChipDefaults.Height),
+        onClick = onClick,
+        background = { colors.background(enabled = it) },
+        border = { border.borderStroke(enabled = it) },
+        enabled = enabled,
+        contentPadding = contentPadding,
+        shape = shape,
+        interactionSource = interactionSource,
+        role = role,
+        content = provideScopeContent(
+            colors.contentColor(enabled = enabled),
+            MaterialTheme.typography.button,
+            content
+        ),
+    )
 }
 
 /**
@@ -374,61 +339,31 @@ public fun Chip(
     shape: Shape = MaterialTheme.shapes.small,
     border: ChipBorder = ChipDefaults.chipBorder()
 ) {
-    Chip(
+    androidx.wear.compose.materialcore.Chip(
+        modifier = modifier.height(ChipDefaults.Height),
+        label = provideScopeContent(
+            colors.contentColor(enabled = enabled),
+            MaterialTheme.typography.button,
+            label
+        ),
         onClick = onClick,
-        colors = colors,
-        border = border,
-        modifier = modifier,
+        background = { colors.background(enabled = it) },
+        secondaryLabel = secondaryLabel?.let { provideScopeContent(
+            colors.secondaryContentColor(enabled = enabled),
+            textStyle = MaterialTheme.typography.caption2,
+            secondaryLabel
+        ) },
+        icon = icon?.let {
+            provideIcon(colors.iconColor(enabled = enabled), icon)
+        },
         enabled = enabled,
         interactionSource = interactionSource,
+        contentPadding = contentPadding,
         shape = shape,
-        contentPadding = contentPadding
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            // Fill the container height but not its width as chips have fixed size height but we
-            // want them to be able to fit their content
-            modifier = Modifier.fillMaxHeight()
-        ) {
-            if (icon != null) {
-                CompositionLocalProvider(
-                    LocalContentColor provides colors.iconColor(enabled).value,
-                    LocalContentAlpha provides
-                        colors.iconColor(enabled = enabled).value.alpha,
-                ) {
-                    Box(
-                        modifier = Modifier.wrapContentSize(align = Alignment.Center),
-                        content = icon
-                    )
-                }
-                Spacer(modifier = Modifier.size(ChipDefaults.IconSpacing))
-            }
-            Column {
-                Row {
-                    CompositionLocalProvider(
-                        LocalContentColor provides colors.contentColor(enabled).value,
-                        LocalTextStyle provides MaterialTheme.typography.button,
-                        LocalContentAlpha provides
-                            colors.contentColor(enabled = enabled).value.alpha,
-                    ) {
-                        label()
-                    }
-                }
-                if (secondaryLabel != null) {
-                    Row {
-                        CompositionLocalProvider(
-                            LocalContentColor provides colors.secondaryContentColor(enabled).value,
-                            LocalTextStyle provides MaterialTheme.typography.caption2,
-                            LocalContentAlpha provides
-                                colors.secondaryContentColor(enabled = enabled).value.alpha,
-                        ) {
-                            secondaryLabel()
-                        }
-                    }
-                }
-            }
-        }
-    }
+        border = { border.borderStroke(enabled = it) },
+        defaultIconSpacing = ChipDefaults.IconSpacing,
+        role = null
+    )
 }
 
 /**
@@ -690,53 +625,29 @@ public fun CompactChip(
     shape: Shape = MaterialTheme.shapes.small,
     border: ChipBorder = ChipDefaults.chipBorder()
 ) {
-    if (label != null) {
-        Chip(
-            label = {
-                CompositionLocalProvider(
-                    LocalTextStyle provides MaterialTheme.typography.caption1,
-                ) {
-                    label()
-                }
-            },
-            onClick = onClick,
-            modifier = modifier
-                .height(ChipDefaults.CompactChipHeight)
-                .padding(ChipDefaults.CompactChipTapTargetPadding),
-            icon = icon,
-            colors = colors,
-            border = border,
-            enabled = enabled,
-            interactionSource = interactionSource,
-            shape = shape,
-            contentPadding = contentPadding
-        )
-    } else {
-        // Icon only compact chips have their own layout with a specific width and center aligned
-        // content. We use the base simple single slot Chip under the covers.
-        Chip(
-            onClick = onClick,
-            modifier = modifier
-                .height(ChipDefaults.CompactChipHeight)
-                .width(ChipDefaults.IconOnlyCompactChipWidth)
-                .padding(ChipDefaults.CompactChipTapTargetPadding),
-            colors = colors,
-            border = border,
-            enabled = enabled,
-            interactionSource = interactionSource,
-            shape = shape,
-            contentPadding = contentPadding
-        ) {
-            // Use a box to fill and center align the icon into the single slot of the Chip
-            Box(modifier = Modifier
-                .fillMaxSize()
-                .wrapContentSize(align = Alignment.Center)) {
-                if (icon != null) {
-                    icon()
-                }
-            }
-        }
-    }
+    androidx.wear.compose.materialcore.CompactChip(
+        modifier = modifier.height(ChipDefaults.CompactChipHeight),
+        onClick = onClick,
+        background = { colors.background(enabled = it) },
+        label = label?.let { provideScopeContent(
+            colors.contentColor(enabled = enabled),
+            MaterialTheme.typography.caption1,
+            label
+        ) },
+        icon = icon?.let { provideIcon(
+            colors.iconColor(enabled = enabled),
+            icon
+        ) },
+        enabled = enabled,
+        interactionSource = interactionSource,
+        contentPadding = contentPadding,
+        shape = shape,
+        border = { border.borderStroke(enabled = it) },
+        defaultIconOnlyCompactChipWidth = ChipDefaults.IconOnlyCompactChipWidth,
+        defaultCompactChipTapTargetPadding = ChipDefaults.CompactChipTapTargetPadding,
+        defaultIconSpacing = ChipDefaults.IconSpacing,
+        role = null,
+    )
 }
 
 /**
@@ -907,11 +818,17 @@ public object ChipDefaults {
         secondaryContentColor: Color = contentColor,
         iconColor: Color = contentColor
     ): ChipColors {
+        // For light background colors, the default disabled content colors do not provide
+        // sufficient contrast. Instead, we default to using background for disabled content.
+        // See b/254025377
         return chipColors(
             backgroundColor = backgroundColor,
             contentColor = contentColor,
             secondaryContentColor = secondaryContentColor,
-            iconColor = iconColor
+            iconColor = iconColor,
+            disabledContentColor = MaterialTheme.colors.background,
+            disabledSecondaryContentColor = MaterialTheme.colors.background,
+            disabledIconColor = MaterialTheme.colors.background,
         )
     }
 

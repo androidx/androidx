@@ -99,7 +99,7 @@ class TapToFocusDeviceTest {
     fun tearDown(): Unit = runBlocking {
         withContext(Dispatchers.Main) {
             if (::camera.isInitialized) {
-                camera.detachUseCases()
+                camera.removeUseCases(camera.useCases)
             }
         }
 

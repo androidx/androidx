@@ -195,19 +195,19 @@ public class PreviewChannelHelper {
             return Collections.emptyList();
         }
 
-        Cursor cursor = mContext.getContentResolver()
+        List<PreviewChannel> channels = new ArrayList<>();
+        try (Cursor cursor = mContext.getContentResolver()
                 .query(
                         TvContractCompat.Channels.CONTENT_URI,
                         PreviewChannel.Columns.PROJECTION,
                         null,
                         null,
-                        null);
-
-        List<PreviewChannel> channels = new ArrayList<>();
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                channels.add(PreviewChannel.fromCursor(cursor));
-            } while (cursor.moveToNext());
+                        null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    channels.add(PreviewChannel.fromCursor(cursor));
+                } while (cursor.moveToNext());
+            }
         }
         return channels;
     }
@@ -228,10 +228,15 @@ public class PreviewChannelHelper {
 
         PreviewChannel channel = null;
         Uri channelUri = TvContractCompat.buildChannelUri(channelId);
-        Cursor cursor = mContext.getContentResolver()
-                .query(channelUri, PreviewChannel.Columns.PROJECTION, null, null, null);
-        if (cursor != null && cursor.moveToFirst()) {
-            channel = PreviewChannel.fromCursor(cursor);
+        try (Cursor cursor = mContext.getContentResolver()
+                .query(channelUri,
+                        PreviewChannel.Columns.PROJECTION,
+                        null,
+                        null,
+                        null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                channel = PreviewChannel.fromCursor(cursor);
+            }
         }
         return channel;
     }
@@ -267,7 +272,6 @@ public class PreviewChannelHelper {
      * Inner methods that does the actual work of updating a Preview Channel. The method is
      * extracted to make {@link #updatePreviewChannel(long, PreviewChannel)} testable.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     protected void updatePreviewChannelInternal(long channelId, @NonNull PreviewChannel upgrade) {
@@ -417,9 +421,12 @@ public class PreviewChannelHelper {
 
         PreviewProgram program = null;
         Uri programUri = TvContractCompat.buildPreviewProgramUri(programId);
-        Cursor cursor = mContext.getContentResolver().query(programUri, null, null, null, null);
-        if (cursor != null && cursor.moveToFirst()) {
-            program = PreviewProgram.fromCursor(cursor);
+        try (Cursor cursor = mContext.getContentResolver()
+                .query(programUri, null, null, null, null);
+        ) {
+            if (cursor != null && cursor.moveToFirst()) {
+                program = PreviewProgram.fromCursor(cursor);
+            }
         }
         return program;
     }
@@ -440,7 +447,6 @@ public class PreviewChannelHelper {
      * Inner methods that does the actual work of updating a Preview Program. The method is
      * extracted to make {@link #updatePreviewProgram(long, PreviewProgram)} testable.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     void updatePreviewProgramInternal(long programId, @NonNull PreviewProgram upgrade) {
@@ -494,9 +500,12 @@ public class PreviewChannelHelper {
 
         WatchNextProgram program = null;
         Uri programUri = TvContractCompat.buildWatchNextProgramUri(programId);
-        Cursor cursor = mContext.getContentResolver().query(programUri, null, null, null, null);
-        if (cursor != null && cursor.moveToFirst()) {
-            program = WatchNextProgram.fromCursor(cursor);
+        try (Cursor cursor = mContext.getContentResolver()
+                .query(programUri, null, null, null, null)
+        ) {
+            if (cursor != null && cursor.moveToFirst()) {
+                program = WatchNextProgram.fromCursor(cursor);
+            }
         }
         return program;
     }
@@ -517,7 +526,6 @@ public class PreviewChannelHelper {
      * Inner methods that does the actual work of updating a Watch Next Program. The method is
      * extracted to make {@link #updateWatchNextProgram(WatchNextProgram, long)} testable.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     void updateWatchNextProgram(long programId, @NonNull WatchNextProgram upgrade) {

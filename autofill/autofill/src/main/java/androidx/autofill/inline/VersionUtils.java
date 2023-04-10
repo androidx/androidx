@@ -32,7 +32,6 @@ import java.util.List;
  * Utility methods responsible for producing/consuming bundles representing supported versions,
  * or the mapping from supported versions to corresponding UI styles.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(api = Build.VERSION_CODES.R)

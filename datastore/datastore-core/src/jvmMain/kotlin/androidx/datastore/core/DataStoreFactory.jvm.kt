@@ -61,7 +61,7 @@ public actual object DataStoreFactory {
         scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
         produceFile: () -> File
     ): DataStore<T> = create(
-        storage = FileStorage(serializer, produceFile),
+        storage = FileStorage(serializer = serializer, produceFile = produceFile),
         corruptionHandler = corruptionHandler,
         migrations = migrations,
         scope = scope
@@ -97,7 +97,7 @@ public actual object DataStoreFactory {
         migrations: List<DataMigration<T>>,
         scope: CoroutineScope,
     ): DataStore<T> =
-        SingleProcessDataStore(
+        DataStoreImpl(
             storage = storage,
             corruptionHandler = corruptionHandler ?: NoOpCorruptionHandler(),
             initTasksList = listOf(DataMigrationInitializer.getInitializer(migrations)),

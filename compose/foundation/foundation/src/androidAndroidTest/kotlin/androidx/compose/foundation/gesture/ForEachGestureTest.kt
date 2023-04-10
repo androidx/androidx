@@ -20,8 +20,13 @@ import androidx.compose.foundation.gestures.forEachGesture
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -45,16 +50,20 @@ class ForEachGestureTest {
     @get:Rule
     val rule = createComposeRule()
 
+    private val tag = "pointerInputTag"
+
     /**
-     * Make sure that an empty `forEachGesture` block does not cause a crash.
+     * Make sure that a single `forEachGesture` block does not cause a crash.
+     * Note: Is is no longer possible for an empty gesture since pointerInput() is started lazily.
      */
+    // TODO (jjw): Check with George that this test is needed anymore.
     @Test
-    fun testEmptyForEachGesture() {
+    fun testSingleTapForEachGesture() {
         val latch1 = CountDownLatch(2)
         val latch2 = CountDownLatch(1)
         rule.setContent {
             Box(
-                Modifier.pointerInput(Unit) {
+                Modifier.testTag(tag).pointerInput(Unit) {
                     forEachGesture {
                         if (latch1.count == 0L) {
                             // forEachGesture will loop infinitely with nothing in the middle
@@ -65,12 +74,17 @@ class ForEachGestureTest {
                     }
                 }.pointerInput(Unit) {
                     awaitPointerEventScope {
-                        assertTrue(currentEvent.changes.isEmpty())
+                        // there is no awaitPointerEvent() / loop here, so it will only
+                        // execute once.
+                        assertTrue(currentEvent.changes.size == 1)
                         latch2.countDown()
                     }
                 }.size(10.dp)
             )
         }
+        rule.waitForIdle()
+        rule.onNodeWithTag(tag).performTouchInput { click(Offset.Zero) }
+
         assertTrue(latch1.await(1, TimeUnit.SECONDS))
         assertTrue(latch2.await(1, TimeUnit.SECONDS))
     }

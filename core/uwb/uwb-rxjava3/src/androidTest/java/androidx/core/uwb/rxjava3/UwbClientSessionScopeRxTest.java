@@ -39,7 +39,7 @@ public class UwbClientSessionScopeRxTest {
 
     private final UwbManager mUwbManager = new TestUwbManager();
     private final RangingParameters rangingParameters = new RangingParameters(
-            RangingParameters.UWB_CONFIG_ID_1,
+            RangingParameters.CONFIG_UNICAST_DS_TWR,
             0,
             /*sessionKeyInfo=*/ null,
             /*complexChannel=*/ null,

@@ -16,21 +16,21 @@
 
 package androidx.compose.foundation
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.view.View
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collection.mutableVectorOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.OnGloballyPositionedModifier
 import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.GlobalPositionAwareModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.currentValueOf
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.debugInspectorInfo
 import kotlin.math.roundToInt
 
 /**
@@ -42,11 +42,7 @@ fun Modifier.systemGestureExclusion() =
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
         this
     } else {
-        composed(inspectorInfo = debugInspectorInfo {
-            name = "systemGestureExclusion"
-        }) {
-            excludeFromSystemGestureQ(null)
-        }
+        this then excludeFromSystemGestureQ(null)
     }
 
 /**
@@ -63,36 +59,54 @@ fun Modifier.systemGestureExclusion(exclusion: (LayoutCoordinates) -> Rect) =
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
         this
     } else {
-        composed(inspectorInfo = debugInspectorInfo {
-            name = "systemGestureExclusion"
-            properties["exclusion"] = exclusion
-        }) {
-            excludeFromSystemGestureQ(exclusion)
-        }
+        this then excludeFromSystemGestureQ(exclusion)
     }
 
 @Suppress("NOTHING_TO_INLINE", "ComposableModifierFactory", "ModifierFactoryExtensionFunction")
 @RequiresApi(Build.VERSION_CODES.Q)
-@Composable
 private inline fun excludeFromSystemGestureQ(
     noinline exclusion: ((LayoutCoordinates) -> Rect)?
-): Modifier {
-    val view = LocalView.current
-    val modifier = remember(view, exclusion) { ExcludeFromSystemGestureModifier(view, exclusion) }
-    DisposableEffect(modifier) {
-        onDispose {
-            modifier.removeRect()
+): Modifier = ExcludeFromSystemGestureElement(exclusion)
+
+@RequiresApi(Build.VERSION_CODES.Q)
+private class ExcludeFromSystemGestureElement(
+    val exclusion: ((LayoutCoordinates) -> Rect)?
+) : ModifierNodeElement<ExcludeFromSystemGestureNode>() {
+    @SuppressLint("NewApi")
+    override fun create(): ExcludeFromSystemGestureNode {
+        return ExcludeFromSystemGestureNode(exclusion)
+    }
+
+    override fun update(node: ExcludeFromSystemGestureNode): ExcludeFromSystemGestureNode =
+        node.also {
+            it.exclusion = exclusion
+        }
+
+    override fun hashCode(): Int {
+        return exclusion.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is ExcludeFromSystemGestureElement) return false
+        return exclusion == other.exclusion
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "systemGestureExclusion"
+        if (exclusion != null) {
+            properties["exclusion"] = exclusion
         }
     }
-    return modifier
 }
 
 @RequiresApi(Build.VERSION_CODES.Q)
-private class ExcludeFromSystemGestureModifier(
-    val view: View,
-    val exclusion: ((LayoutCoordinates) -> Rect)?
-) : OnGloballyPositionedModifier {
+private class ExcludeFromSystemGestureNode(
+    var exclusion: ((LayoutCoordinates) -> Rect)?
+) : Modifier.Node(), GlobalPositionAwareModifierNode, CompositionLocalConsumerModifierNode {
     var rect: android.graphics.Rect? = null
+
+    private val view: View
+        get() = currentValueOf(LocalView)
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
         val newRect = if (exclusion == null) {
@@ -104,13 +118,14 @@ private class ExcludeFromSystemGestureModifier(
                 boundsInRoot.bottom.roundToInt()
             )
         } else {
-            calcBounds(coordinates, exclusion.invoke(coordinates))
+            calcBounds(coordinates, exclusion!!.invoke(coordinates))
         }
         replaceRect(newRect)
     }
 
-    fun removeRect() {
-        replaceRect(null)
+    override fun onDetach() {
+        super.onDetach()
+        replaceRect(null) // On Node detach, reset
     }
 
     fun replaceRect(newRect: android.graphics.Rect?) {

@@ -17,8 +17,9 @@
 package androidx.compose.ui.input.focus
 
 import android.view.KeyEvent as AndroidKeyEvent
+import android.view.KeyEvent.ACTION_DOWN
+import android.view.KeyEvent.KEYCODE_A
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -26,23 +27,27 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.setFocusableContent
+import androidx.compose.ui.input.focus.FocusAwareEventPropagationTest.NodeType.InterruptedSoftKeyboardInput
 import androidx.compose.ui.input.focus.FocusAwareEventPropagationTest.NodeType.KeyInput
 import androidx.compose.ui.input.focus.FocusAwareEventPropagationTest.NodeType.RotaryInput
 import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.KeyInputInputModifierNodeImpl
-import androidx.compose.ui.input.rotary.RotaryInputModifierNodeImpl
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.onInterceptKeyBeforeSoftKeyboard
+import androidx.compose.ui.input.key.onPreInterceptKeyBeforeSoftKeyboard
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
-import androidx.compose.ui.node.modifierElementOf
+import androidx.compose.ui.input.rotary.onPreRotaryScrollEvent
+import androidx.compose.ui.input.rotary.onRotaryScrollEvent
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyPress
 import androidx.compose.ui.test.performRotaryScrollInput
-import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import org.junit.Ignore
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,10 +55,6 @@ import org.junit.runners.Parameterized
 
 /**
  * Focus-aware event propagation test.
- *
- * This test verifies the event propagation logic using
- * [androidx.compose.ui.input.rotary.RotaryScrollEvent]s, but it is meant to test the generic
- * propagation logic for all focus-aware events.
  */
 @MediumTest
 @RunWith(Parameterized::class)
@@ -62,10 +63,8 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
     val rule = createComposeRule()
 
     private val sentEvent: Any = when (nodeType) {
-        KeyInput ->
-            KeyEvent(AndroidKeyEvent(AndroidKeyEvent.ACTION_DOWN, AndroidKeyEvent.KEYCODE_A))
-        RotaryInput ->
-            RotaryScrollEvent(1f, 1f, 0L)
+        KeyInput, InterruptedSoftKeyboardInput -> KeyEvent(AndroidKeyEvent(ACTION_DOWN, KEYCODE_A))
+        RotaryInput -> RotaryScrollEvent(1f, 1f, 0L)
     }
     private var receivedEvent: Any? = null
     private val initialFocus = FocusRequester()
@@ -73,7 +72,13 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "node = {0}")
-        fun initParameters() = arrayOf(KeyInput, RotaryInput)
+        fun initParameters() = arrayOf(KeyInput, InterruptedSoftKeyboardInput, RotaryInput)
+    }
+
+    @Before
+    fun ignoreEventTime() {
+        // This test just checks the propagation of events and doesn't care about the event time.
+        rule.mainClock.autoAdvance = false
     }
 
     @Test
@@ -99,7 +104,8 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
         // Assert.
         assertThat(receivedEvent).isNull()
         when (nodeType) {
-            KeyInput -> assertThat(error!!.message).contains("do not have an active focus target")
+            KeyInput, InterruptedSoftKeyboardInput ->
+                assertThat(error!!.message).contains("do not have an active focus target")
             RotaryInput -> assertThat(error).isNull()
         }
     }
@@ -130,14 +136,14 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
         assertThat(receivedEvent).isNull()
         when (nodeType) {
             KeyInput -> assertThat(error!!.message).contains("do not have an active focus target")
-            RotaryInput -> assertThat(error).isNull()
+            InterruptedSoftKeyboardInput, RotaryInput -> assertThat(receivedEvent).isNull()
         }
     }
 
     @Test
     fun onFocusAwareEvent_afterFocusable_isNotTriggered() {
         // Arrange.
-        ContentWithInitialFocus {
+        rule.setContentWithInitialFocus {
             Box(
                 modifier = Modifier
                     .focusable(initiallyFocused = true)
@@ -155,14 +161,14 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
         // Assert.
         when (nodeType) {
             KeyInput -> assertThat(receivedEvent).isEqualTo(sentEvent)
-            RotaryInput -> assertThat(receivedEvent).isNull()
+            InterruptedSoftKeyboardInput, RotaryInput -> assertThat(receivedEvent).isNull()
         }
     }
 
     @Test
     fun onPreFocusAwareEvent_afterFocusable_isNotTriggered() {
         // Arrange.
-        ContentWithInitialFocus {
+        rule.setContentWithInitialFocus {
             Box(
                 modifier = Modifier
                     .focusable(initiallyFocused = true)
@@ -179,15 +185,14 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
         // Assert.
         when (nodeType) {
             KeyInput -> assertThat(receivedEvent).isEqualTo(sentEvent)
-            RotaryInput -> assertThat(receivedEvent).isNull()
+            InterruptedSoftKeyboardInput, RotaryInput -> assertThat(receivedEvent).isNull()
         }
     }
 
-    @Ignore("b/265319988")
     @Test
     fun onFocusAwareEvent_isTriggered() {
         // Arrange.
-        ContentWithInitialFocus {
+        rule.setContentWithInitialFocus {
             Box(
                 modifier = Modifier
                     .onFocusAwareEvent {
@@ -208,7 +213,7 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
     @Test
     fun onPreFocusAwareEvent_triggered() {
         // Arrange.
-        ContentWithInitialFocus {
+        rule.setContentWithInitialFocus {
             Box(
                 modifier = Modifier
                     .onPreFocusAwareEvent {
@@ -229,7 +234,7 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
     @Test
     fun onFocusAwareEventNotTriggered_ifOnPreFocusAwareEventConsumesEvent_1() {
         // Arrange.
-        ContentWithInitialFocus {
+        rule.setContentWithInitialFocus {
             Box(
                 modifier = Modifier
                     .onFocusAwareEvent {
@@ -255,7 +260,7 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
     @Test
     fun onFocusAwareEventNotTriggered_ifOnPreFocusAwareEventConsumesEvent_2() {
         // Arrange.
-        ContentWithInitialFocus {
+        rule.setContentWithInitialFocus {
             Box(
                 modifier = Modifier
                     .onPreFocusAwareEvent {
@@ -284,7 +289,7 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
         var triggerIndex = 1
         var onFocusAwareEventTrigger = 0
         var onPreFocusAwareEventTrigger = 0
-        ContentWithInitialFocus {
+        rule.setContentWithInitialFocus {
             Box(
                 modifier = Modifier
                     .onFocusAwareEvent {
@@ -315,7 +320,7 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
         var triggerIndex = 1
         var onFocusAwareEventTrigger = 0
         var onPreFocusAwareEventTrigger = 0
-        ContentWithInitialFocus {
+        rule.setContentWithInitialFocus {
             Box(
                 modifier = Modifier
                     .onPreFocusAwareEvent {
@@ -348,7 +353,7 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
         var parentOnPreFocusAwareEventTrigger = 0
         var childOnFocusAwareEventTrigger = 0
         var childOnPreFocusAwareEventTrigger = 0
-        ContentWithInitialFocus {
+        rule.setContentWithInitialFocus {
             Box(
                 modifier = Modifier
                     .onFocusAwareEvent {
@@ -396,7 +401,7 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
         var parentOnPreFocusAwareEventTrigger = 0
         var childOnFocusAwareEventTrigger = 0
         var childOnPreFocusAwareEventTrigger = 0
-        ContentWithInitialFocus {
+        rule.setContentWithInitialFocus {
             Box(
                 modifier = Modifier
                     .onFocusAwareEvent {
@@ -445,7 +450,7 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
         var parentOnPreFocusAwareEventTrigger = 0
         var childOnFocusAwareEventTrigger = 0
         var childOnPreFocusAwareEventTrigger = 0
-        ContentWithInitialFocus {
+        rule.setContentWithInitialFocus {
             Box(
                 modifier = Modifier
                     .onFocusAwareEvent {
@@ -506,7 +511,7 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
 
     private fun SemanticsNodeInteraction.performFocusAwareInput(sentEvent: Any) {
         when (nodeType) {
-            KeyInput -> {
+            KeyInput, InterruptedSoftKeyboardInput -> {
                 check(sentEvent is KeyEvent)
                 performKeyPress(sentEvent)
             }
@@ -520,62 +525,24 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
         }
     }
 
-    private fun ContentWithInitialFocus(content: @Composable () -> Unit) {
-        rule.setContent {
-            Box(modifier = Modifier.requiredSize(10.dp, 10.dp)) { content() }
-        }
-        rule.runOnIdle { initialFocus.requestFocus() }
+    private fun ComposeContentTestRule.setContentWithInitialFocus(content: @Composable () -> Unit) {
+        setFocusableContent(content)
+        runOnIdle { initialFocus.requestFocus() }
     }
 
-    private fun Modifier.onFocusAwareEvent(onEvent: (Any) -> Boolean): Modifier = this.then(
-        @OptIn(ExperimentalComposeUiApi::class)
-        when (nodeType) {
-            KeyInput -> modifierElementOf(
-                key = onEvent,
-                create = { KeyInputInputModifierNodeImpl(onEvent = onEvent, onPreEvent = null) },
-                update = { it.onEvent = onEvent },
-                definitions = {
-                    name = "onEvent"
-                    properties["onEvent"] = onEvent
-                }
-            )
+    @OptIn(ExperimentalComposeUiApi::class)
+    private fun Modifier.onFocusAwareEvent(onEvent: (Any) -> Boolean): Modifier = when (nodeType) {
+        KeyInput -> onKeyEvent(onEvent)
+        InterruptedSoftKeyboardInput -> onInterceptKeyBeforeSoftKeyboard(onEvent)
+        RotaryInput -> onRotaryScrollEvent(onEvent)
+    }
 
-            RotaryInput -> modifierElementOf(
-                key = onEvent,
-                create = { RotaryInputModifierNodeImpl(onEvent = onEvent, onPreEvent = null) },
-                update = { it.onEvent = onEvent },
-                definitions = {
-                    name = "onEvent"
-                    properties["onEvent"] = onEvent
-                }
-            )
-        }
-    )
+    @OptIn(ExperimentalComposeUiApi::class)
+    private fun Modifier.onPreFocusAwareEvent(onPreEvent: (Any) -> Boolean) = when (nodeType) {
+        KeyInput -> onPreviewKeyEvent(onPreEvent)
+        InterruptedSoftKeyboardInput -> onPreInterceptKeyBeforeSoftKeyboard(onPreEvent)
+        RotaryInput -> onPreRotaryScrollEvent(onPreEvent)
+    }
 
-    private fun Modifier.onPreFocusAwareEvent(onEvent: (Any) -> Boolean): Modifier = this.then(
-        @OptIn(ExperimentalComposeUiApi::class)
-        when (nodeType) {
-            KeyInput -> modifierElementOf(
-                key = onEvent,
-                create = { KeyInputInputModifierNodeImpl(onEvent = null, onPreEvent = onEvent) },
-                update = { it.onEvent = onEvent },
-                definitions = {
-                    name = "onEvent"
-                    properties["onEvent"] = onEvent
-                }
-            )
-
-            RotaryInput -> modifierElementOf(
-                key = onEvent,
-                create = { RotaryInputModifierNodeImpl(onEvent = null, onPreEvent = onEvent) },
-                update = { it.onEvent = onEvent },
-                definitions = {
-                    name = "onEvent"
-                    properties["onEvent"] = onEvent
-                }
-            )
-        }
-    )
-
-    enum class NodeType { KeyInput, RotaryInput }
+    enum class NodeType { KeyInput, InterruptedSoftKeyboardInput, RotaryInput }
 }

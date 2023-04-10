@@ -887,7 +887,6 @@ private fun Placeable.PlacementScope.place(
 
     // label position is animated
     // in single line text field label is centered vertically before animation starts
-    var labelPositionY: Int? = null
     labelPlaceable?.let {
         val startPositionY = if (singleLine) {
             Alignment.CenterVertically.align(it.height, height)
@@ -895,7 +894,6 @@ private fun Placeable.PlacementScope.place(
             topPadding
         }
         val positionY = lerp(startPositionY, -(it.height / 2), animationProgress)
-        labelPositionY = positionY
         val positionX = (
             if (leadingPlaceable == null) {
                 0f
@@ -920,7 +918,7 @@ private fun Placeable.PlacementScope.place(
 
     // placed similar to the input text above
     placeholderPlaceable?.let {
-        var placeholderVerticalPosition = max(
+        val placeholderVerticalPosition = max(
             if (singleLine) {
                 Alignment.CenterVertically.align(it.height, height)
             } else {
@@ -928,13 +926,6 @@ private fun Placeable.PlacementScope.place(
             },
             heightOrZero(labelPlaceable) / 2
         )
-        // Ensure placeholder's bounding box does not cover label in unfocused state
-        // (workaround for b/261061240)
-        labelPositionY?.let { labelPositionY ->
-            if (placeholderVerticalPosition <= labelPositionY) {
-                placeholderVerticalPosition = labelPositionY + 1
-            }
-        }
         it.placeRelative(widthOrZero(leadingPlaceable), placeholderVerticalPosition)
     }
 

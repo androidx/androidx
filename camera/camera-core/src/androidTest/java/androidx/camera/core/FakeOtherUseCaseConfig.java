@@ -46,13 +46,11 @@ public class FakeOtherUseCaseConfig implements UseCaseConfig<FakeOtherUseCase> {
         return mConfig;
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public int getSurfaceOccupancyPriority(int valueIfMissing) {
         return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, valueIfMissing);
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public int getSurfaceOccupancyPriority() {
         return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY);
@@ -95,7 +93,6 @@ public class FakeOtherUseCaseConfig implements UseCaseConfig<FakeOtherUseCase> {
 
         // Implementations of TargetConfig.Builder default methods
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -120,7 +117,6 @@ public class FakeOtherUseCaseConfig implements UseCaseConfig<FakeOtherUseCase> {
 
         // Implementations of UseCaseConfig.Builder default methods
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -129,7 +125,6 @@ public class FakeOtherUseCaseConfig implements UseCaseConfig<FakeOtherUseCase> {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -138,7 +133,6 @@ public class FakeOtherUseCaseConfig implements UseCaseConfig<FakeOtherUseCase> {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -148,7 +142,6 @@ public class FakeOtherUseCaseConfig implements UseCaseConfig<FakeOtherUseCase> {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -158,7 +151,6 @@ public class FakeOtherUseCaseConfig implements UseCaseConfig<FakeOtherUseCase> {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -167,7 +159,6 @@ public class FakeOtherUseCaseConfig implements UseCaseConfig<FakeOtherUseCase> {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -176,7 +167,6 @@ public class FakeOtherUseCaseConfig implements UseCaseConfig<FakeOtherUseCase> {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -185,7 +175,6 @@ public class FakeOtherUseCaseConfig implements UseCaseConfig<FakeOtherUseCase> {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @NonNull
         @Override
@@ -194,7 +183,6 @@ public class FakeOtherUseCaseConfig implements UseCaseConfig<FakeOtherUseCase> {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @NonNull
         @Override

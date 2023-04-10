@@ -35,13 +35,11 @@ public abstract class CustomTabsServiceConnection implements ServiceConnection {
     @Nullable
     private Context mApplicationContext;
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     /* package */ void setApplicationContext(@NonNull Context context) {
         mApplicationContext = context;
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Nullable
     /* package */ Context getApplicationContext() {

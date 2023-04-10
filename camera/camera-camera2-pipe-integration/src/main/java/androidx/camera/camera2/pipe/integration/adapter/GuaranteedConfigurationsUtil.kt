@@ -414,6 +414,277 @@ object GuaranteedConfigurationsUtil {
     }
 
     @JvmStatic
+    fun getUltraHighResolutionSupportedCombinationList(): List<SurfaceCombination> {
+        val combinationList: MutableList<SurfaceCombination> = ArrayList()
+
+        // (YUV, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (PRIV, RECORD)
+        // Covers (YUV, ULTRA_MAXIMUM) + (PRIV, PREVIEW) in the guaranteed table.
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.ULTRA_MAXIMUM)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.RECORD)
+            )
+        }.also {
+            combinationList.add(it)
+        }
+
+        // (JPEG, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (PRIV, RECORD)
+        // Covers (JPEG, ULTRA_MAXIMUM) + (PRIV, PREVIEW) in the guaranteed table.
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.ULTRA_MAXIMUM)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.RECORD)
+            )
+        }.also {
+            combinationList.add(it)
+        }
+
+        // (RAW, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (PRIV, RECORD)
+        // Covers (RAW, ULTRA_MAXIMUM) + (PRIV, PREVIEW) in the guaranteed table.
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.RAW, ConfigSize.ULTRA_MAXIMUM)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.RECORD)
+            )
+        }.also {
+            combinationList.add(it)
+        }
+
+        // (YUV, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (JPEG, MAXIMUM)
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.ULTRA_MAXIMUM)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM)
+            )
+        }.also {
+            combinationList.add(it)
+        }
+
+        // (JPEG, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (JPEG, MAXIMUM)
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.ULTRA_MAXIMUM)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM)
+            )
+        }.also {
+            combinationList.add(it)
+        }
+
+        // (RAW, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (JPEG, MAXIMUM)
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.RAW, ConfigSize.ULTRA_MAXIMUM)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM)
+            )
+        }.also {
+            combinationList.add(it)
+        }
+
+        // (YUV, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (YUV, MAXIMUM)
+        // Covers (YUV, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (YUV, RECORD) in the guaranteed table.
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.ULTRA_MAXIMUM)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.MAXIMUM)
+            )
+        }.also {
+            combinationList.add(it)
+        }
+
+        // (JPEG, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (YUV, MAXIMUM)
+        // Covers (JPEG, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (YUV, RECORD) in the guaranteed table.
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.ULTRA_MAXIMUM)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.MAXIMUM)
+            )
+        }.also {
+            combinationList.add(it)
+        }
+
+        // (RAW, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (YUV, MAXIMUM)
+        // Covers (RAW, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (YUV, RECORD) in the guaranteed table.
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.RAW, ConfigSize.ULTRA_MAXIMUM)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.MAXIMUM)
+            )
+        }.also {
+            combinationList.add(it)
+        }
+
+        // (YUV, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (RAW, MAXIMUM)
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.ULTRA_MAXIMUM)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.RAW, ConfigSize.MAXIMUM)
+            )
+        }.also {
+            combinationList.add(it)
+        }
+
+        // (JPEG, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (RAW, MAXIMUM)
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.ULTRA_MAXIMUM)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.RAW, ConfigSize.MAXIMUM)
+            )
+        }.also {
+            combinationList.add(it)
+        }
+
+        // (RAW, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (RAW, MAXIMUM)
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.RAW, ConfigSize.ULTRA_MAXIMUM)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.RAW, ConfigSize.MAXIMUM)
+            )
+        }.also {
+            combinationList.add(it)
+        }
+
+        return combinationList
+    }
+
+    @JvmStatic
+    fun getConcurrentSupportedCombinationList(): List<SurfaceCombination> {
+        val combinationList: MutableList<SurfaceCombination> = ArrayList()
+        // (YUV, s1440p)
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.s1440p)
+            )
+        }.also { combinationList.add(it) }
+        // (PRIV, s1440p)
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.s1440p)
+            )
+        }.also { combinationList.add(it) }
+        // (JPEG, s1440p)
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.s1440p)
+            )
+        }.also { combinationList.add(it) }
+        // (YUV, s720p) + (JPEG, s1440p)
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.s720p)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.s1440p)
+            )
+        }.also { combinationList.add(it) }
+        // (PRIV, s720p) + (JPEG, s1440p)
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.s720p)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.s1440p)
+            )
+        }.also { combinationList.add(it) }
+        // (YUV, s720p) + (YUV, s1440p)
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.s720p)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.s1440p)
+            )
+        }.also { combinationList.add(it) }
+        // (YUV, s720p) + (PRIV, s1440p)
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.s720p)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.s1440p)
+            )
+        }.also { combinationList.add(it) }
+        // (PRIV, s720p) + (YUV, s1440p)
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.s720p)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.s1440p)
+            )
+        }.also { combinationList.add(it) }
+        // (PRIV, s720p) + (PRIV, s1440p)
+        SurfaceCombination().apply {
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.s720p)
+            )
+            addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.s1440p)
+            )
+        }.also { combinationList.add(it) }
+        return combinationList
+    }
+
+    @JvmStatic
     fun generateSupportedCombinationList(
         hardwareLevel: Int,
         isRawSupported: Boolean,
@@ -444,6 +715,13 @@ object GuaranteedConfigurationsUtil {
         if (hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3) {
             surfaceCombinations.addAll(getLevel3SupportedCombinationList())
         }
+        return surfaceCombinations
+    }
+
+    @JvmStatic
+    fun generateConcurrentSupportedCombinationList(): List<SurfaceCombination> {
+        val surfaceCombinations: MutableList<SurfaceCombination> = arrayListOf()
+        surfaceCombinations.addAll(getConcurrentSupportedCombinationList())
         return surfaceCombinations
     }
 }

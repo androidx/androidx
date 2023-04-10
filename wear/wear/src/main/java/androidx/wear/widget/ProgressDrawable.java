@@ -35,7 +35,6 @@ import androidx.annotation.RestrictTo.Scope;
 /**
  * Drawable for showing an indeterminate progress indicator.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 class ProgressDrawable extends Drawable {

@@ -16,14 +16,13 @@
 
 package androidx.glance.appwidget.macrobenchmark
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.TraceSectionMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.testutils.createStartupCompilationParams
 import org.junit.Rule
 import org.junit.Test
@@ -31,7 +30,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 @LargeTest
-@RequiresApi(Build.VERSION_CODES.Q)
+@SdkSuppress(minSdkVersion = 29)
 @RunWith(Parameterized::class)
 class AppWidgetUpdateBenchmark(
     private val startupMode: StartupMode,

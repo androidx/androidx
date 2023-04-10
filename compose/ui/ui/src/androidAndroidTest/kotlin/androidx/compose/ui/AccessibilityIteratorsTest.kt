@@ -31,7 +31,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -420,7 +419,6 @@ class AccessibilityIteratorsTest {
         Truth.assertThat(range).isNull()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     private fun multiLineText(
         text: String,
         fontSize: TextUnit = 20.sp,

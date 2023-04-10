@@ -66,6 +66,11 @@ object Names {
             val PackageName = Package("androidx.compose.ui.unit")
             val Dp = Name(PackageName, "Dp")
         }
+
+        object Node {
+            val PackageName = Package(Ui.PackageName, "node")
+            val CurrentValueOf = Name(PackageName, "currentValueOf")
+        }
     }
 
     object UiGraphics {

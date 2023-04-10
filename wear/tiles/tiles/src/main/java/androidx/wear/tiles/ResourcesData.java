@@ -24,7 +24,6 @@ import androidx.annotation.RestrictTo;
  *
  * <p>All this does is to serialize Resources as a protobuf and transmit it.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class ResourcesData extends ProtoParcelable {

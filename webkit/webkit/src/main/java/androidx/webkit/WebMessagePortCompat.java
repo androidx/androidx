@@ -81,7 +81,6 @@ public abstract class WebMessagePortCompat {
     }
 
     /**
-     * @hide disallow app devs to extend this class.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public WebMessagePortCompat() { }
@@ -149,7 +148,6 @@ public abstract class WebMessagePortCompat {
     /**
      * Internal getter returning the private {@link WebMessagePort} implementing this class. This is
      * only available on devices with an Android versions supporting WebMessagePorts.
-     * @hide
      */
     @RequiresApi(23)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -160,7 +158,6 @@ public abstract class WebMessagePortCompat {
      * Internal getter returning the private {@link java.lang.reflect.InvocationHandler}
      * implementing this class. This is only available on devices where the support library glue in
      * the WebView APK supports {@link WebMessagePortCompat}.
-     * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY)

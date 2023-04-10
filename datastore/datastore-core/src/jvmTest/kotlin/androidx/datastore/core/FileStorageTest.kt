@@ -311,7 +311,10 @@ class FileStorageTest {
             testFile
         }
         assertThrows<IOException> {
-            FileStorage(testingSerializer, fileProducer).createConnection()
+            FileStorage(
+                serializer = testingSerializer,
+                produceFile = fileProducer
+            ).createConnection()
         }
             .hasMessageThat().isEqualTo("Exception when producing file")
 

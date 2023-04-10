@@ -16,6 +16,7 @@
 
 package androidx.room.integration.kotlintestapp.test
 
+import androidx.kruth.assertThat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asFlow
 import androidx.room.Dao
@@ -33,7 +34,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.collect.ImmutableList
-import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -212,6 +212,7 @@ class BoxedNonNullTypesTest {
         @Query("SELECT value FROM MyEntity")
         fun getAsList(): List<Long>
 
+        @Suppress("ROOM_UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE")
         @Query("SELECT value FROM MyNullableEntity")
         fun getAsNullableList(): List<Long?>
 

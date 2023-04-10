@@ -69,8 +69,10 @@ import androidx.compose.ui.node.MeasureAndLayoutDelegate
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.OwnerSnapshotObserver
 import androidx.compose.ui.node.RootForTest
-import androidx.compose.ui.semantics.SemanticsModifierCore
+import androidx.compose.ui.semantics.EmptySemanticsModifierNodeElement
 import androidx.compose.ui.semantics.SemanticsOwner
+import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.input.PlatformTextInputPluginRegistry
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.platform.FontLoader
@@ -81,11 +83,15 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
+import androidx.compose.ui.text.InternalTextApi
+import androidx.compose.ui.text.input.PlatformTextInputPluginRegistryImpl
+import kotlin.coroutines.CoroutineContext
 
 private typealias Command = () -> Unit
 
 @OptIn(
     ExperimentalComposeUiApi::class,
+    ExperimentalTextApi::class,
     InternalCoreApi::class,
     InternalComposeUiApi::class
 )
@@ -93,6 +99,7 @@ internal class SkiaBasedOwner(
     private val platformInputService: PlatformInput,
     private val component: PlatformComponent,
     density: Density = Density(1f, 1f),
+    coroutineContext: CoroutineContext,
     val isPopup: Boolean = false,
     val isFocusable: Boolean = true,
     val onDismissRequest: (() -> Unit)? = null,
@@ -116,11 +123,7 @@ internal class SkiaBasedOwner(
 
     override val sharedDrawScope = LayoutNodeDrawScope()
 
-    private val semanticsModifier = SemanticsModifierCore(
-        mergeDescendants = false,
-        clearAndSetSemantics = false,
-        properties = {}
-    )
+    private val semanticsModifier = EmptySemanticsModifierNodeElement
 
     override val focusOwner: FocusOwner = FocusOwnerImpl {
         registerOnEndApplyChangesListener(it)
@@ -184,6 +187,8 @@ internal class SkiaBasedOwner(
             .onKeyEvent(onKeyEvent)
     }
 
+    override val coroutineContext: CoroutineContext = coroutineContext
+
     override val rootForTest = this
 
     override val snapshotObserver = OwnerSnapshotObserver { command ->
@@ -206,6 +211,13 @@ internal class SkiaBasedOwner(
     }
 
     override val textInputService = TextInputService(platformInputService)
+
+    @Suppress("UNUSED_ANONYMOUS_PARAMETER")
+    @OptIn(InternalTextApi::class)
+    override val platformTextInputPluginRegistry: PlatformTextInputPluginRegistry
+        get() = PlatformTextInputPluginRegistryImpl { factory, platformTextInput ->
+            TODO("See https://issuetracker.google.com/267235947")
+        }
 
     @Deprecated(
         "fontLoader is deprecated, use fontFamilyResolver",
@@ -310,8 +322,8 @@ internal class SkiaBasedOwner(
         measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
     }
 
-    override fun forceMeasureTheSubtree(layoutNode: LayoutNode) {
-        measureAndLayoutDelegate.forceMeasureTheSubtree(layoutNode)
+    override fun forceMeasureTheSubtree(layoutNode: LayoutNode, affectsLookahead: Boolean) {
+        measureAndLayoutDelegate.forceMeasureTheSubtree(layoutNode, affectsLookahead)
     }
 
     override fun onRequestMeasure(
@@ -490,13 +502,16 @@ internal class SkiaBasedOwner(
         requestLayout()
     }
 
+    // A Stub for the PointerIconService required in Owner.kt
     override val pointerIconService: PointerIconService =
         object : PointerIconService {
-            override var current: PointerIcon
-                get() = desiredPointerIcon ?: PointerIcon.Default
-                set(value) {
-                    desiredPointerIcon = value
-                }
+            override fun getIcon(): PointerIcon {
+                return desiredPointerIcon ?: PointerIcon.Default
+            }
+
+            override fun setIcon(value: PointerIcon?) {
+                desiredPointerIcon = value
+            }
         }
 }
 

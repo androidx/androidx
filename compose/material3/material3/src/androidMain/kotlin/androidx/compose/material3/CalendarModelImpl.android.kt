@@ -149,6 +149,10 @@ internal class CalendarModelImpl : CalendarModel {
         }
     }
 
+    override fun toString(): String {
+        return "CalendarModel"
+    }
+
     companion object {
 
         /**

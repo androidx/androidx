@@ -34,7 +34,7 @@ import org.junit.runners.Parameterized
 @OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
-internal class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
+class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
 
     @Before
     fun setUp() {
@@ -161,10 +161,6 @@ internal class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun params() = mutableListOf<ParamConfig>().apply {
-            for (orientation in TestOrientation) {
-                add(ParamConfig(orientation = orientation))
-            }
-        }
+        fun params() = AllOrientationsParams
     }
 }

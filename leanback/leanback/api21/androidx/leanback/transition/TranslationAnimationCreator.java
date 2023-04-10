@@ -20,7 +20,6 @@ import androidx.leanback.R;
  * This class is used by Slide and Explode to create an animator that goes from the start
  * position to the end position. It takes into account the canceled position so that it
  * will not blink out or shift suddenly when the transition is interrupted.
- * @hide
  */
 @RequiresApi(21)
 @RestrictTo(LIBRARY_GROUP_PREFIX)

@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalComposeUiApi::class)
+
 package androidx.compose.animation.demos.lookahead
 
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.demos.statetransition.InfiniteProgress
 import androidx.compose.animation.demos.statetransition.InfinitePulsingHeart
 import androidx.compose.animation.demos.fancy.AnimatedDotsDemo
@@ -39,10 +43,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.LookaheadScope
+import androidx.compose.ui.layout.intermediateLayout
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
 
 @Composable
 fun LookaheadWithMovableContentDemo() {
@@ -52,7 +65,9 @@ fun LookaheadWithMovableContentDemo() {
         var isSingleColumn by remember { mutableStateOf(true) }
 
         Column(
-            Modifier.padding(100.dp).fillMaxWidth(),
+            Modifier
+                .padding(100.dp)
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(modifier = Modifier.clickable {
@@ -71,11 +86,13 @@ fun LookaheadWithMovableContentDemo() {
 
         val items = remember {
             colors.mapIndexed { id, color ->
-                movableContentWithReceiverOf<SceneScope, Float> { weight ->
+                movableContentWithReceiverOf<LookaheadScope, Float> { weight ->
                     Box(
-                        Modifier.padding(15.dp).height(80.dp)
+                        Modifier
+                            .padding(15.dp)
+                            .height(80.dp)
                             .fillMaxWidth(weight)
-                            .sharedElement()
+                            .animateBoundsInScope()
                             .background(color, RoundedCornerShape(20)),
                         contentAlignment = Alignment.Center
                     ) {
@@ -88,42 +105,83 @@ fun LookaheadWithMovableContentDemo() {
                             }) {
                                 AnimatedDotsDemo()
                             }
+
                             2 -> Box(Modifier.graphicsLayer {
                                 scaleX = 0.5f
                                 scaleY = 0.5f
                             }) { InfinitePulsingHeart() }
+
                             else -> InfiniteProgress()
                         }
                     }
                 }
             }
         }
-        SceneHost(Modifier.fillMaxSize()) {
-            if (isSingleColumn) {
-                Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    items.forEach {
-                        it(0.8f)
-                    }
-                }
-            } else {
-                Row {
-                    Column(Modifier.weight(1f)) {
-                        items.forEachIndexed { id, item ->
-                            if (id % 2 == 0) {
-                                item(1f)
-                            }
+        Box(Modifier.fillMaxSize()) {
+            LookaheadScope {
+                if (isSingleColumn) {
+                    Column(
+                        Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        items.forEach {
+                            it(0.8f)
                         }
                     }
-                    Column(Modifier.weight(1f)) {
-                        items.forEachIndexed { id, item ->
-                            if (id % 2 != 0) {
-                                item(1f)
+                } else {
+                    Row {
+                        Column(Modifier.weight(1f)) {
+                            items.forEachIndexed { id, item ->
+                                if (id % 2 == 0) {
+                                    item(1f)
+                                }
+                            }
+                        }
+                        Column(Modifier.weight(1f)) {
+                            items.forEachIndexed { id, item ->
+                                if (id % 2 != 0) {
+                                    item(1f)
+                                }
                             }
                         }
                     }
                 }
             }
         }
+    }
+}
+
+context (LookaheadScope)
+fun Modifier.animateBoundsInScope(): Modifier = composed {
+    val sizeAnim = remember { DeferredAnimation(IntSize.VectorConverter) }
+    val offsetAnim = remember { DeferredAnimation(IntOffset.VectorConverter) }
+    this.intermediateLayout { measurable, _ ->
+        sizeAnim.updateTarget(
+            lookaheadSize,
+            spring()
+        )
+        measurable.measure(
+            Constraints.fixed(
+                sizeAnim.value!!.width,
+                sizeAnim.value!!.height
+            )
+        )
+            .run {
+                layout(width, height) {
+                    coordinates?.let {
+                        val target =
+                            lookaheadScopeCoordinates.localLookaheadPositionOf(it)
+                                .round()
+                        offsetAnim.updateTarget(target, spring())
+                        val current = lookaheadScopeCoordinates.localPositionOf(
+                            it,
+                            Offset.Zero
+                        ).round()
+                        val (x, y) = offsetAnim.value!! - current
+                        place(x, y)
+                    } ?: place(0, 0)
+                }
+            }
     }
 }
 

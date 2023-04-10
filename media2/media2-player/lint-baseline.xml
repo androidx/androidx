@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
 
     <issue
         id="NewApi"
@@ -116,6 +116,375 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/media2/player/TextRenderer.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(sleepBetweenRounds);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2DrmTestBase.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(SLEEP_TIME);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2Test.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(SLEEP_TIME);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2Test.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(SLEEP_TIME);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2Test.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(SLEEP_TIME);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2Test.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(SLEEP_TIME);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2Test.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(SLEEP_TIME);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2Test.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(SLEEP_TIME);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2Test.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(SLEEP_TIME);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2Test.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(SLEEP_TIME);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2Test.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(SLEEP_TIME);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2Test.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(SLEEP_TIME / 2);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2Test.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(SLEEP_TIME);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2Test.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(SLEEP_TIME);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2Test.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(durationMs);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2Test.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(1000);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2Test.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(playTime);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2Test.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(sleepIntervalMs);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2Test.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(SLEEP_TIME);  // let player get into stable state."
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2Test.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(SLEEP_TIME);  // let player get into stable state."
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2Test.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(playTime);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2Test.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(SLEEP_TIME);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2Test.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(SLEEP_TIME);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2Test.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(SLEEP_TIME);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2Test.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(SLEEP_TIME);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2Test.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(SLEEP_TIME);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2Test.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(SLEEP_TIME);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2Test.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(SLEEP_TIME);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2Test.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(SLEEP_TIME);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2TestBase.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(playTime);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2TestBase.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(sleepBetweenRounds);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayerDrmTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(SLEEP_TIME);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(SLEEP_TIME);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(1000);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(playTime);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(sleepIntervalMs);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(SLEEP_TIME);  // let player get into stable state."
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(SLEEP_TIME);  // let player get into stable state."
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(playTime);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(SLEEP_TIME);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(SLEEP_TIME);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/media2/player/MediaPlayerTest.java"/>
     </issue>
 
     <issue

@@ -1,9 +1,8 @@
 package com.mysdk
 
+import android.content.Context
 import com.mysdk.PrivacySandboxThrowableParcelConverter
 import com.mysdk.PrivacySandboxThrowableParcelConverter.toThrowableParcel
-import com.mysdk.RequestConverter.fromParcelable
-import com.mysdk.ResponseConverter.toParcelable
 import kotlin.Array
 import kotlin.BooleanArray
 import kotlin.CharArray
@@ -20,6 +19,7 @@ import kotlinx.coroutines.launch
 
 public class MySecondInterfaceStubDelegate internal constructor(
   public val `delegate`: MySecondInterface,
+  public val context: Context,
 ) : IMySecondInterface.Stub() {
   public override fun doIntStuff(x: IntArray, transactionCallback: IListIntTransactionCallback):
       Unit {
@@ -154,8 +154,10 @@ public class MySecondInterfaceStubDelegate internal constructor(
     @OptIn(DelicateCoroutinesApi::class)
     val job = GlobalScope.launch(Dispatchers.Main) {
       try {
-        val result = delegate.doValueStuff(x.map { fromParcelable(it) }.toList())
-        transactionCallback.onSuccess(result.map { toParcelable(it) }.toTypedArray())
+        val result = delegate.doValueStuff(x.map { RequestConverter(context).fromParcelable(it)
+            }.toList())
+        transactionCallback.onSuccess(result.map { ResponseConverter(context).toParcelable(it)
+            }.toTypedArray())
       }
       catch (t: Throwable) {
         transactionCallback.onFailure(toThrowableParcel(t))

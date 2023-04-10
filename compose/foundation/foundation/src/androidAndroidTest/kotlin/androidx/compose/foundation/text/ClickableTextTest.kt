@@ -29,13 +29,13 @@ import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.text.AnnotatedString
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.argWhere
-import com.nhaarman.mockitokotlin2.inOrder
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyZeroInteractions
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argWhere
+import org.mockito.kotlin.inOrder
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -119,7 +119,9 @@ class ClickableTextTest {
                 verify().invoke(argWhere { it > 0 }) // move to different character
                 verifyNoMoreInteractions()
             }
-            verifyZeroInteractions(onClick)
+            // Using `verifyZeroInteractions` here inexplicably results in a build failure, but
+            // `verifyNoMoreInteractions` builds and is literally calling the same API.
+            verifyNoMoreInteractions(onClick)
         }
     }
 }

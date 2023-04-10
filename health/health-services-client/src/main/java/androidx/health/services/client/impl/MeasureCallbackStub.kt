@@ -36,7 +36,6 @@ import java.util.concurrent.Executor
 /**
  * A stub implementation for IMeasureCallback.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class MeasureCallbackStub

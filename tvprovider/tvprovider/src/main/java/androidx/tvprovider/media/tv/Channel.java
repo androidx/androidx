@@ -79,7 +79,6 @@ import java.nio.charset.Charset;
  */
 public final class Channel {
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String[] PROJECTION = getProjection();
@@ -311,7 +310,6 @@ public final class Channel {
 
     /**
      * @return The value of {@link Channels#COLUMN_SYSTEM_APPROVED} for the channel.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public boolean isSystemApproved() {
@@ -379,7 +377,6 @@ public final class Channel {
      * TV Input Framework database.
      *
      * @param includeProtectedFields Whether the fields protected by system is included or not.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public ContentValues toContentValues(boolean includeProtectedFields) {
@@ -647,7 +644,6 @@ public final class Channel {
          *
          * @param packageName The value of {@link Channels#COLUMN_PACKAGE_NAME} for the channel.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         Builder setPackageName(String packageName) {
@@ -962,7 +958,6 @@ public final class Channel {
          *
          * @param value The value of {@link Channels#COLUMN_BROWSABLE} for the channel.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public Builder setBrowsable(boolean value) {
@@ -975,7 +970,6 @@ public final class Channel {
          *
          * @param value The value of {@link Channels#COLUMN_SYSTEM_APPROVED} for the channel.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public Builder setSystemApproved(boolean value) {
@@ -1027,7 +1021,6 @@ public final class Channel {
          *
          * @param value The value of {@link Channels#COLUMN_LOCKED} for the channel.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public Builder setLocked(boolean value) {

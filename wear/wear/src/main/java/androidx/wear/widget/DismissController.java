@@ -24,7 +24,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
 
-/** @hide */
 @RestrictTo(Scope.LIBRARY)
 @UiThread
 class DismissController {

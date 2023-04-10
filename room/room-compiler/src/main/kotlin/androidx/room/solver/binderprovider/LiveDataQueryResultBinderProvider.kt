@@ -31,7 +31,8 @@ class LiveDataQueryResultBinderProvider(context: Context) :
         context.processingEnv.findType(LifecyclesTypeNames.LIVE_DATA.canonicalName)?.rawType
     }
 
-    override fun extractTypeArg(declared: XType): XType = declared.typeArguments.first()
+    override fun extractTypeArg(declared: XType): XType =
+        declared.typeArguments.first().makeNullable()
 
     override fun create(
         typeArg: XType,

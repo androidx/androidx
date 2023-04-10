@@ -36,8 +36,6 @@ import android.view.MotionEvent.PointerProperties;
 import android.view.ViewConfiguration;
 import android.view.accessibility.AccessibilityEvent;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -51,6 +49,10 @@ import java.util.concurrent.TimeoutException;
 class InteractionController {
 
     private static final String TAG = InteractionController.class.getSimpleName();
+
+    // Duration of a long press (with multiplier to ensure detection).
+    private static final long LONG_PRESS_DURATION_MS =
+            (long) (ViewConfiguration.getLongPressTimeout() * 1.5f);
 
     private final KeyCharacterMap mKeyCharacterMap =
             KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD);
@@ -80,34 +82,6 @@ class InteractionController {
         public boolean accept(AccessibilityEvent t) {
             // check current event in the list
             return (t.getEventType() & mMask) != 0;
-        }
-    }
-
-    /**
-     * Predicate for waiting for all the events specified in the mask and populating
-     * a ctor passed list with matching events. User of this predicate must recycle
-     * all populated events in the events list.
-     */
-    static class EventCollectingPredicate implements AccessibilityEventFilter {
-        final int mMask;
-        final List<AccessibilityEvent> mEventsList;
-
-        EventCollectingPredicate(int mask, List<AccessibilityEvent> events) {
-            mMask = mask;
-            mEventsList = events;
-        }
-
-        @Override
-        public boolean accept(AccessibilityEvent t) {
-            // check current event in the list
-            if ((t.getEventType() & mMask) != 0) {
-                // For the events you need, always store a copy when returning false from
-                // predicates since the original will automatically be recycled after the call.
-                mEventsList.add(AccessibilityEvent.obtain(t));
-            }
-
-            // get more
-            return false;
         }
     }
 
@@ -217,7 +191,7 @@ class InteractionController {
      * @return true if events are received, else false if timeout.
      */
     public boolean clickAndSync(final int x, final int y, long timeout) {
-        return runAndWaitForEvents(clickRunnable(x, y), new WaitForAnyEventPredicate(
+        return runAndWaitForEvents(() -> clickNoSync(x, y), new WaitForAnyEventPredicate(
                 AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED |
                 AccessibilityEvent.TYPE_VIEW_SELECTED), timeout) != null;
     }
@@ -232,43 +206,9 @@ class InteractionController {
      * @return true if both events occurred in the expected order
      */
     public boolean clickAndWaitForNewWindow(final int x, final int y, long timeout) {
-        return runAndWaitForEvents(clickRunnable(x, y), new WaitForAllEventPredicate(
+        return runAndWaitForEvents(() -> clickNoSync(x, y), new WaitForAllEventPredicate(
                 AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED |
                 AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED), timeout) != null;
-    }
-
-    /**
-     * Returns a Runnable for use in
-     * {@link #runAndWaitForEvents(Runnable, AccessibilityEventFilter, long) to perform a click.
-     *
-     * @param x coordinate
-     * @param y coordinate
-     * @return Runnable
-     */
-    private Runnable clickRunnable(final int x, final int y) {
-        return () -> {
-            if (touchDown(x, y)) {
-                SystemClock.sleep(REGULAR_CLICK_LENGTH);
-                touchUp(x, y);
-            }
-        };
-    }
-
-    /**
-     * Returns a Runnable for use in
-     * {@link #runAndWaitForEvents(Runnable, AccessibilityEventFilter, long) to perform a long tap.
-     *
-     * @param x coordinate
-     * @param y coordinate
-     * @return Runnable
-     */
-    private Runnable longTapRunnable(final int x, final int y) {
-        return () -> {
-            if (touchDown(x, y)) {
-                SystemClock.sleep(ViewConfiguration.getLongPressTimeout());
-                touchUp(x, y);
-            }
-        };
     }
 
     /**
@@ -280,7 +220,7 @@ class InteractionController {
      */
     public boolean longTapNoSync(int x, int y) {
         if (touchDown(x, y)) {
-            SystemClock.sleep(ViewConfiguration.getLongPressTimeout());
+            SystemClock.sleep(LONG_PRESS_DURATION_MS);
             return touchUp(x, y);
         }
         return false;
@@ -296,7 +236,7 @@ class InteractionController {
      * @return true if events are received, else false if timeout.
      */
     public boolean longTapAndSync(final int x, final int y, long timeout) {
-        return runAndWaitForEvents(longTapRunnable(x, y), new WaitForAnyEventPredicate(
+        return runAndWaitForEvents(() -> longTapNoSync(x, y), new WaitForAnyEventPredicate(
                 AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED |
                 AccessibilityEvent.TYPE_VIEW_SELECTED), timeout) != null;
     }
@@ -334,56 +274,21 @@ class InteractionController {
             final int steps) {
         Runnable command = () -> swipe(downX, downY, upX, upY, steps);
 
-        // Collect all accessibility events generated during the swipe command and get the
-        // last event
-        ArrayList<AccessibilityEvent> events = new ArrayList<>();
+        // Get scroll direction based on position.
+        Direction direction;
+        if (Math.abs(downX - upX) > Math.abs(downY - upY)) {
+            // Horizontal.
+            direction = downX > upX ? Direction.RIGHT : Direction.LEFT;
+        } else {
+            // Vertical.
+            direction = downY > upY ? Direction.DOWN : Direction.UP;
+        }
+        EventCondition<Boolean> condition = Until.scrollFinished(direction);
         runAndWaitForEvents(command,
-                new EventCollectingPredicate(AccessibilityEvent.TYPE_VIEW_SCROLLED, events),
+                condition,
                 Configurator.getInstance().getScrollAcknowledgmentTimeout());
 
-        AccessibilityEvent event = getLastMatchingEvent(events,
-                AccessibilityEvent.TYPE_VIEW_SCROLLED);
-
-        if (event == null) {
-            // end of scroll since no new scroll events received
-            recycleAccessibilityEvents(events);
-            return false;
-        }
-
-        // AdapterViews have indices we can use to check for the beginning.
-        boolean foundEnd = false;
-        if (event.getFromIndex() != -1 && event.getToIndex() != -1 && event.getItemCount() != -1) {
-            foundEnd = event.getFromIndex() == 0 ||
-                    (event.getItemCount() - 1) == event.getToIndex();
-        } else if (event.getScrollX() != -1 && event.getScrollY() != -1) {
-            // Determine if we are scrolling vertically or horizontally.
-            if (downX == upX) {
-                // Vertical
-                foundEnd = event.getScrollY() == 0 ||
-                        event.getScrollY() == event.getMaxScrollY();
-            } else if (downY == upY) {
-                // Horizontal
-                foundEnd = event.getScrollX() == 0 ||
-                        event.getScrollX() == event.getMaxScrollX();
-            }
-        }
-        recycleAccessibilityEvents(events);
-        return !foundEnd;
-    }
-
-    private AccessibilityEvent getLastMatchingEvent(List<AccessibilityEvent> events, int type) {
-        for (int x = events.size(); x > 0; x--) {
-            AccessibilityEvent event = events.get(x - 1);
-            if (event.getEventType() == type)
-                return event;
-        }
-        return null;
-    }
-
-    private void recycleAccessibilityEvents(List<AccessibilityEvent> events) {
-        for (AccessibilityEvent event : events)
-            event.recycle();
-        events.clear();
+        return !condition.getResult();
     }
 
     /**
@@ -425,7 +330,7 @@ class InteractionController {
         ret = touchDown(downX, downY);
         SystemClock.sleep(MOTION_EVENT_INJECTION_DELAY_MILLIS);
         if (drag)
-            SystemClock.sleep(ViewConfiguration.getLongPressTimeout());
+            SystemClock.sleep(LONG_PRESS_DURATION_MS);
         for(int i = 1; i < swipeSteps; i++) {
             ret &= touchMove(downX + (int)(xStep * i), downY + (int)(yStep * i));
             if (!ret) {
@@ -542,60 +447,6 @@ class InteractionController {
             }
         }
         return true;
-    }
-
-    /**
-     * Rotates right and also freezes rotation in that position by
-     * disabling the sensors. If you want to un-freeze the rotation
-     * and re-enable the sensors see {@link #unfreezeRotation()}. Note
-     * that doing so may cause the screen contents to rotate
-     * depending on the current physical position of the test device.
-     * @throws RemoteException
-     */
-    public void setRotationRight() {
-        getUiAutomation().setRotation(UiAutomation.ROTATION_FREEZE_270);
-    }
-
-    /**
-     * Rotates left and also freezes rotation in that position by
-     * disabling the sensors. If you want to un-freeze the rotation
-     * and re-enable the sensors see {@link #unfreezeRotation()}. Note
-     * that doing so may cause the screen contents to rotate
-     * depending on the current physical position of the test device.
-     * @throws RemoteException
-     */
-    public void setRotationLeft() {
-        getUiAutomation().setRotation(UiAutomation.ROTATION_FREEZE_90);
-    }
-
-    /**
-     * Rotates up and also freezes rotation in that position by
-     * disabling the sensors. If you want to un-freeze the rotation
-     * and re-enable the sensors see {@link #unfreezeRotation()}. Note
-     * that doing so may cause the screen contents to rotate
-     * depending on the current physical position of the test device.
-     * @throws RemoteException
-     */
-    public void setRotationNatural() {
-        getUiAutomation().setRotation(UiAutomation.ROTATION_FREEZE_0);
-    }
-
-    /**
-     * Disables the sensors and freezes the device rotation at its
-     * current rotation state.
-     * @throws RemoteException
-     */
-    public void freezeRotation() {
-        getUiAutomation().setRotation(UiAutomation.ROTATION_FREEZE_CURRENT);
-    }
-
-    /**
-     * Re-enables the sensors and un-freezes the device rotation
-     * allowing its contents to rotate with the device physical rotation.
-     * @throws RemoteException
-     */
-    public void unfreezeRotation() {
-        getUiAutomation().setRotation(UiAutomation.ROTATION_UNFREEZE);
     }
 
     /**

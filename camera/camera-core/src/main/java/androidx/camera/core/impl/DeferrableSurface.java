@@ -63,7 +63,6 @@ public abstract class DeferrableSurface {
      * The exception that is returned by the ListenableFuture of {@link #getSurface()} if the
      * {@link Surface} backing the DeferrableSurface has already been closed.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class SurfaceClosedException extends Exception {
@@ -332,7 +331,6 @@ public abstract class DeferrableSurface {
         return mPrescribedStreamFormat;
     }
 
-    /** @hide */
     @RestrictTo(Scope.TESTS)
     public int getUseCount() {
         synchronized (mLock) {

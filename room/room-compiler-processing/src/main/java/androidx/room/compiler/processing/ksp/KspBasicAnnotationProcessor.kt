@@ -38,9 +38,7 @@ abstract class KspBasicAnnotationProcessor @JvmOverloads constructor(
     private val logger = DelegateLogger(symbolProcessorEnvironment.logger)
 
     private val xEnv = KspProcessingEnv(
-        options = symbolProcessorEnvironment.options,
-        codeGenerator = symbolProcessorEnvironment.codeGenerator,
-        logger = logger,
+        delegate = symbolProcessorEnvironment,
         config = config
     )
 

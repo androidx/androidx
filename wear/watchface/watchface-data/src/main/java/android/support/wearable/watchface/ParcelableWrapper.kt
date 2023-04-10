@@ -24,7 +24,6 @@ import androidx.annotation.RestrictTo
 /**
  * Wraps a Parcelable.
  *
- * @hide
  */
 @SuppressLint("BanParcelableUsage")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

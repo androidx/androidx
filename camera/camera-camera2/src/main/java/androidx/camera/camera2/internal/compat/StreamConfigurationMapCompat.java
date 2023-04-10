@@ -25,8 +25,11 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
-import androidx.camera.camera2.internal.compat.quirk.ExtraSupportedOutputSizeQuirk;
+import androidx.camera.camera2.internal.compat.workaround.OutputSizesCorrector;
+import androidx.camera.core.Logger;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Helper for accessing features in {@link StreamConfigurationMap} in a backwards compatible
@@ -34,99 +37,129 @@ import androidx.camera.camera2.internal.compat.quirk.ExtraSupportedOutputSizeQui
  */
 @RequiresApi(21)
 public class StreamConfigurationMapCompat {
+    private static final String TAG = "StreamConfigurationMapCompat";
 
     private final StreamConfigurationMapCompatImpl mImpl;
+    private final OutputSizesCorrector mOutputSizesCorrector;
+    private final Map<Integer, Size[]> mCachedFormatOutputSizes = new HashMap<>();
+    private final Map<Integer, Size[]> mCachedFormatHighResolutionOutputSizes = new HashMap<>();
+    private final Map<Class<?>, Size[]> mCachedClassOutputSizes = new HashMap<>();
 
-    private StreamConfigurationMapCompat(@NonNull StreamConfigurationMap map) {
+    private StreamConfigurationMapCompat(@NonNull StreamConfigurationMap map,
+            @NonNull OutputSizesCorrector outputSizesCorrector) {
         if (Build.VERSION.SDK_INT >= 23) {
             mImpl = new StreamConfigurationMapCompatApi23Impl(map);
         } else {
             mImpl = new StreamConfigurationMapCompatBaseImpl(map);
         }
+        mOutputSizesCorrector = outputSizesCorrector;
     }
 
     /**
      * Provides a backward-compatible wrapper for {@link StreamConfigurationMap}.
      *
      * @param map {@link StreamConfigurationMap} class to wrap
+     * @param outputSizesCorrector {@link OutputSizesCorrector} which can apply the related
+     *                                                         workarounds when output sizes are
+     *                                                         retrieved.
      * @return wrapped class
      */
     @NonNull
-    public static StreamConfigurationMapCompat toStreamConfigurationMapCompat(
-            @NonNull StreamConfigurationMap map) {
-        return new StreamConfigurationMapCompat(map);
+    static StreamConfigurationMapCompat toStreamConfigurationMapCompat(
+            @NonNull StreamConfigurationMap map,
+            @NonNull OutputSizesCorrector outputSizesCorrector) {
+        return new StreamConfigurationMapCompat(map, outputSizesCorrector);
     }
 
     /**
      * Get a list of sizes compatible with the requested image {@code format}.
      *
+     * <p>Output sizes related quirks will be applied onto the returned sizes list.
+     *
      * @param format an image format from {@link ImageFormat} or {@link PixelFormat}
      * @return an array of supported sizes, or {@code null} if the {@code format} is not a
-     *         supported output
-     *
+     * supported output
      * @see ImageFormat
      * @see PixelFormat
      */
     @Nullable
     public Size[] getOutputSizes(int format) {
-        Size[] sizes = mImpl.getOutputSizes(format);
-
-        ExtraSupportedOutputSizeQuirk quirk = DeviceQuirks.get(ExtraSupportedOutputSizeQuirk.class);
-        if (quirk == null) {
-            return sizes;
+        if (mCachedFormatOutputSizes.containsKey(format)) {
+            return mCachedFormatOutputSizes.get(format).clone();
         }
 
-        Size[] extraSizes = quirk.getExtraSupportedResolutions(format);
-        return concatNullableArrays(sizes, extraSizes);
+        Size[] outputSizes = mImpl.getOutputSizes(format);
+
+        if (outputSizes == null || outputSizes.length == 0) {
+            Logger.w(TAG, "Retrieved output sizes array is null or empty for format " + format);
+            return outputSizes;
+        }
+
+        outputSizes = mOutputSizesCorrector.applyQuirks(outputSizes, format);
+        mCachedFormatOutputSizes.put(format, outputSizes);
+        return outputSizes.clone();
     }
 
     /**
      * Get a list of sizes compatible with {@code klass} to use as an output.
      *
+     * <p>Output sizes related quirks will be applied onto the returned sizes list.
+     *
      * @param klass a non-{@code null} {@link Class} object reference
      * @return an array of supported sizes for {@link ImageFormat#PRIVATE} format,
-     *         or {@code null} iff the {@code klass} is not a supported output.
-     *
+     * or {@code null} iff the {@code klass} is not a supported output.
      * @throws NullPointerException if {@code klass} was {@code null}
      */
     @Nullable
     public <T> Size[] getOutputSizes(@NonNull Class<T> klass) {
-        Size[] sizes = mImpl.getOutputSizes(klass);
-        // Since "getOutputSizes()" returns null if the "klass" is not a supported output, not to
-        // add extra output sizes when klass is not supported.
-        if (sizes == null) {
-            return null;
+        if (mCachedClassOutputSizes.containsKey(klass)) {
+            return mCachedClassOutputSizes.get(klass).clone();
         }
 
-        ExtraSupportedOutputSizeQuirk quirk = DeviceQuirks.get(ExtraSupportedOutputSizeQuirk.class);
-        if (quirk == null) {
-            return sizes;
+        Size[] outputSizes = mImpl.getOutputSizes(klass);
+
+        if (outputSizes == null || outputSizes.length == 0) {
+            Logger.w(TAG, "Retrieved output sizes array is null or empty for class " + klass);
+            return outputSizes;
         }
 
-        Size[] extraSizes = quirk.getExtraSupportedResolutions(klass);
-        return concatNullableArrays(sizes, extraSizes);
+        outputSizes = mOutputSizesCorrector.applyQuirks(outputSizes, klass);
+        mCachedClassOutputSizes.put(klass, outputSizes);
+        return outputSizes.clone();
     }
 
+    /**
+     * Get a list of high resolution sizes compatible with the requested image {@code format}.
+     *
+     * @param format an image format from {@link ImageFormat} or {@link PixelFormat}
+     * @return an array of supported sizes, or {@code null} if the {@code format} is not a
+     * supported output
+     * @see ImageFormat
+     * @see PixelFormat
+     */
     @Nullable
-    private static Size[] concatNullableArrays(@Nullable Size[] array1, @Nullable Size[] array2) {
-        if (array1 == null) {
-            return array2;
-        } else if (array2 == null) {
-            return array1;
-        } else {
-            return concatArrays(array1, array2);
+    public Size[] getHighResolutionOutputSizes(int format) {
+        if (mCachedFormatHighResolutionOutputSizes.containsKey(format)) {
+            return mCachedFormatHighResolutionOutputSizes.get(format).clone();
         }
+
+        Size[] outputSizes = mImpl.getHighResolutionOutputSizes(format);
+
+        // High resolution output sizes can be null.
+        if (outputSizes != null && outputSizes.length > 0) {
+            outputSizes = mOutputSizesCorrector.applyQuirks(outputSizes, format);
+        }
+
+        mCachedFormatHighResolutionOutputSizes.put(format, outputSizes);
+        return outputSizes != null ? outputSizes.clone() : null;
     }
 
+    /**
+     * Returns the {@link StreamConfigurationMap} represented by this object.
+     */
     @NonNull
-    private static Size[] concatArrays(@NonNull Size[] array1, @NonNull Size[] array2) {
-        int length1 = array1.length;
-        int length2 = array2.length;
-        Size[] res = new Size[length1 + length2];
-        System.arraycopy(array1, 0, res, 0, length1);
-        System.arraycopy(array2, 0, res, length1, length2);
-
-        return res;
+    public StreamConfigurationMap toStreamConfigurationMap() {
+        return mImpl.unwrap();
     }
 
     interface StreamConfigurationMapCompatImpl {
@@ -136,5 +169,14 @@ public class StreamConfigurationMapCompat {
 
         @Nullable
         <T> Size[] getOutputSizes(@NonNull Class<T> klass);
+
+        @Nullable
+        Size[] getHighResolutionOutputSizes(int format);
+
+        /**
+         * Returns the underlying {@link StreamConfigurationMap} instance.
+         */
+        @NonNull
+        StreamConfigurationMap unwrap();
     }
 }

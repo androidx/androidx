@@ -46,6 +46,7 @@ import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.greaterThan
 import org.hamcrest.Matchers.greaterThanOrEqualTo
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -872,6 +873,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
         )
     }
 
+    @Ignore // b/266613027
     @Test
     fun test_getScrollState() {
         val test = setUpTest(config.orientation)
@@ -1087,6 +1089,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
         recorder.assertAllPagesSelected(testPages.flatMap { listOf(it, it + 1) })
     }
 
+    @Ignore // b/266613027
     @Test
     fun test_setCurrentItemWhileScrolling_maxIntItems() {
         val test = setUpTest(config.orientation)

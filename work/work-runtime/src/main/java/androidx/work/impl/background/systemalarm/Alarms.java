@@ -41,7 +41,6 @@ import androidx.work.impl.utils.IdGenerator;
 /**
  * A common class for managing Alarms.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class Alarms {

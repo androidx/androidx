@@ -206,6 +206,9 @@ object ProcessorErrors {
         "private, final, or abstract. It can be abstract only if the method is also" +
         " annotated with @Query."
 
+    fun nullableParamInShortcutMethod(param: String) = "Methods annotated with [@Insert, " +
+        "@Upsert, @Update, @Delete] shouldn't declare nullable parameters ($param)."
+
     fun transactionMethodAsync(returnTypeName: String) = "Method annotated with @Transaction must" +
         " not return deferred/async return type $returnTypeName. Since transactions are" +
         " thread confined and Room cannot guarantee that all queries in the method" +
@@ -251,6 +254,9 @@ object ProcessorErrors {
 
     val CANNOT_FIND_COLUMN_TYPE_ADAPTER = "Cannot figure out how to save this field into" +
         " database. You can consider adding a type converter for it."
+
+    val VALUE_CLASS_ONLY_SUPPORTED_IN_KSP = "Kotlin value classes are only supported " +
+        "in Room using KSP and generating Kotlin (room.generateKotlin=true)."
 
     val CANNOT_FIND_STMT_BINDER = "Cannot figure out how to bind this field into a statement."
 
@@ -1144,4 +1150,11 @@ object ProcessorErrors {
         return "The DAO method return type ($typeName) with the nullable type argument " +
         "is meaningless because for now Room will never put a null value in a result."
     }
+
+    val EXPORTING_SCHEMA_TO_RESOURCES = "Schema export is set to be outputted as a resource" +
+        " (i.e. room.exportSchemaResource is set to true), this means Room will write the current" +
+        " schema version file into the produced JAR. Such flag must only be used for generating" +
+        " the schema file and extracting it from the JAR but not for production builds, otherwise" +
+        " the schema file will end up in the final artifact which is typically not desired. This" +
+        " warning serves as a reminder to use room.exportSchemaResource cautiously."
 }

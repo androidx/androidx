@@ -27,182 +27,182 @@ class PolyFitLeastSquaresTest {
 
     @Test
     fun polyFitLeastSquares_linear2PointsSlopeOf0Intercept1_isCorrect() {
-        val x = listOf(0f, 1f)
-        val y = listOf(1f, 1f)
+        val x = floatArrayOf(0f, 1f)
+        val y = floatArrayOf(1f, 1f)
 
-        val actual = polyFitLeastSquares(x, y, 1)
+        val actual = polyFitLeastSquares(x, y, x.size, 1)
 
-        assertIsCloseToEquals(actual, listOf(1f, 0f))
+        assertIsCloseToEquals(actual, floatArrayOf(1f, 0f))
     }
 
     @Test
     fun polyFitLeastSquares_linear2PointsSlopeOf1Intercept0_isCorrect() {
-        val x = listOf(0f, 1f)
-        val y = listOf(0f, 1f)
+        val x = floatArrayOf(0f, 1f)
+        val y = floatArrayOf(0f, 1f)
 
-        val actual = polyFitLeastSquares(x, y, 1)
+        val actual = polyFitLeastSquares(x, y, x.size, 1)
 
-        assertIsCloseToEquals(actual, listOf(0f, 1f))
+        assertIsCloseToEquals(actual, floatArrayOf(0f, 1f))
     }
 
     @Test
     fun polyFitLeastSquares_linear2PointsSlopeOf1000000_isCorrect() {
-        val x = listOf(0f, 1f)
-        val y = listOf(0f, 1000000f)
+        val x = floatArrayOf(0f, 1f)
+        val y = floatArrayOf(0f, 1000000f)
 
-        val actual = polyFitLeastSquares(x, y, 1)
+        val actual = polyFitLeastSquares(x, y, x.size, 1)
 
-        assertIsCloseToEquals(actual, listOf(0f, 1000000f))
+        assertIsCloseToEquals(actual, floatArrayOf(0f, 1000000f))
     }
 
     @Test
     fun polyFitLeastSquares_linear2PointsSlopeOfNegative5_isCorrect() {
-        val x = listOf(0f, 1f)
-        val y = listOf(0f, -5f)
+        val x = floatArrayOf(0f, 1f)
+        val y = floatArrayOf(0f, -5f)
 
-        val actual = polyFitLeastSquares(x, y, 1)
+        val actual = polyFitLeastSquares(x, y, x.size, 1)
 
-        assertIsCloseToEquals(actual, listOf(0f, -5f))
+        assertIsCloseToEquals(actual, floatArrayOf(0f, -5f))
     }
 
     @Test
     fun polyFitLeastSquares_linear2PointsRandom1_isCorrect() {
-        val x = listOf(-8f, -2f)
-        val y = listOf(7f, 5f)
+        val x = floatArrayOf(-8f, -2f)
+        val y = floatArrayOf(7f, 5f)
 
-        val actual = polyFitLeastSquares(x, y, 1)
+        val actual = polyFitLeastSquares(x, y, x.size, 1)
 
-        assertIsCloseToEquals(actual, listOf(4.33333f, -.33333f))
+        assertIsCloseToEquals(actual, floatArrayOf(4.33333f, -.33333f))
     }
 
     @Test
     fun polyFitLeastSquares_linear2PointsRandom2_isCorrect() {
-        val x = listOf(-7f, 4f)
-        val y = listOf(4f, -2f)
+        val x = floatArrayOf(-7f, 4f)
+        val y = floatArrayOf(4f, -2f)
 
-        val actual = polyFitLeastSquares(x, y, 1)
+        val actual = polyFitLeastSquares(x, y, x.size, 1)
 
-        assertIsCloseToEquals(actual, listOf(.181818f, -.545454f))
+        assertIsCloseToEquals(actual, floatArrayOf(.181818f, -.545454f))
     }
 
     @Test
     fun polyFitLeastSquares_linear2PointsRandom3_isCorrect() {
-        val x = listOf(4f, -6f)
-        val y = listOf(-6f, 0f)
+        val x = floatArrayOf(4f, -6f)
+        val y = floatArrayOf(-6f, 0f)
 
-        val actual = polyFitLeastSquares(x, y, 1)
+        val actual = polyFitLeastSquares(x, y, x.size, 1)
 
-        assertIsCloseToEquals(actual, listOf(-3.6f, -.6f))
+        assertIsCloseToEquals(actual, floatArrayOf(-3.6f, -.6f))
     }
 
     @Test
     fun polyFitLeastSquares_linear4PointsImperfect_isCorrect() {
-        val x = listOf(0f, 2f, 0f, 2f)
-        val y = listOf(0f, 1f, 2f, 3f)
+        val x = floatArrayOf(0f, 2f, 0f, 2f)
+        val y = floatArrayOf(0f, 1f, 2f, 3f)
 
-        val actual = polyFitLeastSquares(x, y, 1)
+        val actual = polyFitLeastSquares(x, y, x.size, 1)
 
-        assertIsCloseToEquals(actual, listOf(1f, .5f))
+        assertIsCloseToEquals(actual, floatArrayOf(1f, .5f))
     }
 
     @Test
     fun polyFitLeastSquares_quadratic3PointsActuallyLinear_isCorrect() {
-        val x = listOf(0f, 1f, 2f)
-        val y = listOf(0f, 1f, 2f)
+        val x = floatArrayOf(0f, 1f, 2f)
+        val y = floatArrayOf(0f, 1f, 2f)
 
-        val actual = polyFitLeastSquares(x, y, 2)
+        val actual = polyFitLeastSquares(x, y, x.size, 2)
 
-        assertIsCloseToEquals(actual, listOf(0f, 1f, 0f))
+        assertIsCloseToEquals(actual, floatArrayOf(0f, 1f, 0f))
     }
 
     @Test
     fun polyFitLeastSquares_quadratic3Points_isCorrect() {
-        val x = listOf(0f, 1f, 2f)
-        val y = listOf(0f, 1f, 0f)
+        val x = floatArrayOf(0f, 1f, 2f)
+        val y = floatArrayOf(0f, 1f, 0f)
 
-        val actual = polyFitLeastSquares(x, y, 2)
+        val actual = polyFitLeastSquares(x, y, x.size, 2)
 
-        assertIsCloseToEquals(actual, listOf(0f, 2f, -1f))
+        assertIsCloseToEquals(actual, floatArrayOf(0f, 2f, -1f))
     }
 
     @Test
     fun polyFitLeastSquares_quadratic5Points_isCorrect() {
-        val x = listOf(0f, 1f, 2f, 3f, 4f)
-        val y = listOf(0f, 1f, 4f, 9f, 16f)
+        val x = floatArrayOf(0f, 1f, 2f, 3f, 4f)
+        val y = floatArrayOf(0f, 1f, 4f, 9f, 16f)
 
-        val actual = polyFitLeastSquares(x, y, 2)
+        val actual = polyFitLeastSquares(x, y, x.size, 2)
 
-        assertIsCloseToEquals(actual, listOf(0f, 0f, 1f))
+        assertIsCloseToEquals(actual, floatArrayOf(0f, 0f, 1f))
     }
 
     @Test
     fun polyFitLeastSquares_quadratic4PointsImperfect_isCorrect() {
-        val x = listOf(0f, 1f, 2f, 1f)
-        val y = listOf(0f, -1f, 0f, -2f)
+        val x = floatArrayOf(0f, 1f, 2f, 1f)
+        val y = floatArrayOf(0f, -1f, 0f, -2f)
 
-        val actual = polyFitLeastSquares(x, y, 2)
+        val actual = polyFitLeastSquares(x, y, x.size, 2)
 
-        assertIsCloseToEquals(actual, listOf(0f, -3f, 1.5f))
+        assertIsCloseToEquals(actual, floatArrayOf(0f, -3f, 1.5f))
     }
 
     @Test
     fun polyFitLeastSquares_cubic4PointsActuallyLinear_isCorrect() {
-        val x = listOf(0f, 1f, 2f, 3f)
-        val y = listOf(0f, 1f, 2f, 3f)
+        val x = floatArrayOf(0f, 1f, 2f, 3f)
+        val y = floatArrayOf(0f, 1f, 2f, 3f)
 
-        val actual = polyFitLeastSquares(x, y, 3)
+        val actual = polyFitLeastSquares(x, y, x.size, 3)
 
-        assertIsCloseToEquals(actual, listOf(0f, 1f, 0f, 0f))
+        assertIsCloseToEquals(actual, floatArrayOf(0f, 1f, 0f, 0f))
     }
 
     @Test
     fun polyFitLeastSquares_cubic4Points_isCorrect() {
-        val x = listOf(-1f, 0f, 1f, 2f)
-        val y = listOf(1f, 0f, 1f, 0f)
+        val x = floatArrayOf(-1f, 0f, 1f, 2f)
+        val y = floatArrayOf(1f, 0f, 1f, 0f)
 
-        val actual = polyFitLeastSquares(x, y, 3)
+        val actual = polyFitLeastSquares(x, y, x.size, 3)
 
-        assertIsCloseToEquals(actual, listOf(0f, .66666f, 1f, -.66666f))
+        assertIsCloseToEquals(actual, floatArrayOf(0f, .66666f, 1f, -.66666f))
     }
 
     @Test
     fun polyFitLeastSquares_cubic6PointsImperfect_isCorrect() {
-        val x = listOf(-1f, 0f, 1f, 2f, 0f, 1f)
-        val y = listOf(1f, 0f, 1f, 0f, 1f, 0f)
+        val x = floatArrayOf(-1f, 0f, 1f, 2f, 0f, 1f)
+        val y = floatArrayOf(1f, 0f, 1f, 0f, 1f, 0f)
 
-        val actual = polyFitLeastSquares(x, y, 3)
+        val actual = polyFitLeastSquares(x, y, x.size, 3)
 
-        assertIsCloseToEquals(actual, listOf(.5f, -.083333f, .25f, -.16666f))
+        assertIsCloseToEquals(actual, floatArrayOf(.5f, -.083333f, .25f, -.16666f))
     }
 
     @Test
     fun polyFitLeastSquares_1Point_isCorrect() {
-        val x = listOf(0f)
-        val y = listOf(13f)
+        val x = floatArrayOf(0f)
+        val y = floatArrayOf(13f)
 
-        val actual = polyFitLeastSquares(x, y, 1)
+        val actual = polyFitLeastSquares(x, y, x.size, 1)
 
-        assertIsCloseToEquals(actual, listOf(13f, 0f))
+        assertIsCloseToEquals(actual, floatArrayOf(13f, 0f))
     }
 
     @Test
     fun polyFitLeastSquares_degreeLargerThanData_isCorrect() {
-        val x = listOf(0f, 1f)
-        val y = listOf(0f, 1f)
+        val x = floatArrayOf(0f, 1f)
+        val y = floatArrayOf(0f, 1f)
 
-        val actual = polyFitLeastSquares(x, y, 2)
+        val actual = polyFitLeastSquares(x, y, x.size, 2)
 
-        assertIsCloseToEquals(actual, listOf(0f, 1f, 0f))
+        assertIsCloseToEquals(actual, floatArrayOf(0f, 1f, 0f))
     }
 
     @Test
     fun polyFitLeastSquares_3Points2IdenticalDegree1_isCorrect() {
-        val x = listOf(0f, 0f, 1f)
-        val y = listOf(0f, 0f, 1f)
+        val x = floatArrayOf(0f, 0f, 1f)
+        val y = floatArrayOf(0f, 0f, 1f)
 
-        val actual = polyFitLeastSquares(x, y, 1)
+        val actual = polyFitLeastSquares(x, y, x.size, 1)
 
-        assertIsCloseToEquals(actual, listOf(0f, 1f))
+        assertIsCloseToEquals(actual, floatArrayOf(0f, 1f))
     }
 
     @Test
@@ -215,23 +215,11 @@ class PolyFitLeastSquaresTest {
     private fun polyFitLeastSquares_degreeIsNegative_throwsIllegalArgumentException(
         degree: Int
     ) {
-        val x = listOf(0f, 1f)
-        val y = listOf(0f, 1f)
+        val x = floatArrayOf(0f, 1f)
+        val y = floatArrayOf(0f, 1f)
 
         val throwable = catchThrowable {
-            polyFitLeastSquares(x, y, degree)
-        }
-
-        assertThat(throwable is IllegalArgumentException).isTrue()
-    }
-
-    @Test
-    fun polyFitLeastSquares_missingData_throwsIllegalArgumentException() {
-        val x = listOf(-1f, 1f, 3f)
-        val y = listOf(1f, 3f)
-
-        val throwable = catchThrowable {
-            polyFitLeastSquares(x, y, 1)
+            polyFitLeastSquares(x, y, x.size, degree)
         }
 
         assertThat(throwable is IllegalArgumentException).isTrue()
@@ -239,11 +227,11 @@ class PolyFitLeastSquaresTest {
 
     @Test
     fun polyFitLeastSquares_noData_throwsIllegalArgumentException() {
-        val x = listOf<Float>()
-        val y = listOf<Float>()
+        val x = floatArrayOf()
+        val y = floatArrayOf()
 
         val throwable = catchThrowable {
-            polyFitLeastSquares(x, y, 1)
+            polyFitLeastSquares(x, y, x.size, 1)
         }
 
         assertThat(throwable is IllegalArgumentException).isTrue()
@@ -251,11 +239,11 @@ class PolyFitLeastSquaresTest {
 
     @Test
     fun polyFitLeastSquares_extremeSlope_throwsException() {
-        val x = listOf(0f, Float.MIN_VALUE)
-        val y = listOf(0f, Float.MAX_VALUE)
+        val x = floatArrayOf(0f, Float.MIN_VALUE)
+        val y = floatArrayOf(0f, Float.MAX_VALUE)
 
         val throwable = catchThrowable {
-            polyFitLeastSquares(x, y, 1)
+            polyFitLeastSquares(x, y, x.size, 1)
         }
 
         assertThat(throwable is IllegalArgumentException).isTrue()
@@ -263,11 +251,11 @@ class PolyFitLeastSquaresTest {
 
     @Test
     fun polyFitLeastSquares_3Points2IdenticalDegree2_throwsException() {
-        val x = listOf(0f, 0f, 1f)
-        val y = listOf(0f, 0f, 1f)
+        val x = floatArrayOf(0f, 0f, 1f)
+        val y = floatArrayOf(0f, 0f, 1f)
 
         val throwable = catchThrowable {
-            polyFitLeastSquares(x, y, 2)
+            polyFitLeastSquares(x, y, x.size, 2)
         }
 
         assertThat(throwable is IllegalArgumentException).isTrue()
@@ -286,8 +274,8 @@ class PolyFitLeastSquaresTest {
     }
 
     private fun assertIsCloseToEquals(
-        actual: List<Float>,
-        expected: List<Float>
+        actual: FloatArray,
+        expected: FloatArray
     ) {
         assertThat(expected.size).isEqualTo(expected.size)
         expected.forEachIndexed() { index, value ->

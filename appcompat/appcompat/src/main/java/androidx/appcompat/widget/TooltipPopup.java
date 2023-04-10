@@ -40,7 +40,6 @@ import androidx.appcompat.R;
 /**
  * A popup window displaying a text message aligned to a specified view.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 class TooltipPopup {

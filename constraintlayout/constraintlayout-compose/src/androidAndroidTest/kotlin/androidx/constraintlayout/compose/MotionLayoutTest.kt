@@ -36,14 +36,21 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.boundsInParent
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -51,14 +58,17 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
+import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.unit.size
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.test.R
@@ -66,6 +76,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import kotlin.math.roundToInt
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
+import kotlin.test.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -267,7 +279,9 @@ internal class MotionLayoutTest {
                             .background(Color.Green)
                             .layoutId("one")
                             .onGloballyPositioned {
-                                box1Position = it.positionInRoot().round()
+                                box1Position = it
+                                    .positionInRoot()
+                                    .round()
                             })
                     Box(
                         Modifier
@@ -275,7 +289,9 @@ internal class MotionLayoutTest {
                             .background(Color.Red)
                             .layoutId("two")
                             .onGloballyPositioned {
-                                box2Position = it.positionInRoot().round()
+                                box2Position = it
+                                    .positionInRoot()
+                                    .round()
                             })
                 }
             }
@@ -291,6 +307,298 @@ internal class MotionLayoutTest {
         }
     }
 
+    @Test
+    fun testTransitionChange_hasCorrectStartAndEnd() = with(rule.density) {
+        val rootWidthPx = 200
+        val rootHeightPx = 50
+
+        val scene = MotionScene {
+            val circleRef = createRefFor("circle")
+            val aCSetRef = constraintSet {
+                constrain(circleRef) {
+                    width = rootHeightPx.toDp().asDimension()
+                    height = rootHeightPx.toDp().asDimension()
+                    centerVerticallyTo(parent)
+                    start.linkTo(parent.start)
+                }
+            }
+            val bCSetRef = constraintSet {
+                constrain(circleRef) {
+                    width = Dimension.fillToConstraints
+                    height = rootHeightPx.toDp().asDimension()
+                    centerTo(parent)
+                }
+            }
+            val cCSetRef = constraintSet(extendConstraintSet = aCSetRef) {
+                constrain(circleRef) {
+                    clearHorizontal()
+                    end.linkTo(parent.end)
+                }
+            }
+            transition(
+                from = aCSetRef,
+                to = bCSetRef,
+                name = "part1"
+            ) {}
+            transition(
+                from = bCSetRef,
+                to = cCSetRef,
+                name = "part2"
+            ) {}
+        }
+
+        val progress = mutableStateOf(0f)
+        var bounds = IntRect.Zero
+
+        rule.setContent {
+            MotionLayout(
+                motionScene = scene,
+                progress = if (progress.value < 0.5) progress.value * 2 else progress.value * 2 - 1,
+                transitionName = if (progress.value < 0.5f) "part1" else "part2",
+                modifier = Modifier.size(width = rootWidthPx.toDp(), height = rootHeightPx.toDp())
+            ) {
+                Box(
+                    modifier = Modifier
+                        .layoutId("circle")
+                        .background(Color.Red)
+                        .onGloballyPositioned {
+                            bounds = it
+                                .boundsInParent()
+                                .roundToIntRect()
+                        }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertEquals(
+                expected = IntRect(IntOffset(0, 0), IntSize(rootHeightPx, rootHeightPx)),
+                actual = bounds
+            )
+        }
+
+        // Offset attributed to the default non-linear interpolator
+        val offset = 25
+
+        progress.value = 0.25f
+        rule.runOnIdle {
+            assertEquals(
+                expected = IntRect(
+                    offset = IntOffset(0, 0),
+                    size = IntSize(rootWidthPx / 2 + offset, rootHeightPx)
+                ),
+                actual = bounds
+            )
+        }
+
+        progress.value = 0.75f
+        rule.runOnIdle {
+            assertEquals(
+                expected = IntRect(
+                    offset = IntOffset(rootWidthPx / 2 - offset, 0),
+                    size = IntSize(rootWidthPx / 2 + offset, rootHeightPx)
+                ),
+                actual = bounds
+            )
+        }
+    }
+
+    @Test
+    fun testStartAndEndBoundsModifier() = with(rule.density) {
+        val rootSizePx = 100
+        val boxHeight = 10
+        val boxWidthStartPx = 10
+        val boxWidthEndPx = 70
+
+        val boxId = "box"
+
+        var startBoundsOfBox = Rect.Zero
+        var endBoundsOfBox = Rect.Zero
+        var globallyPositionedBounds = IntRect.Zero
+
+        var boundsProvidedCount = 0
+
+        val progress = mutableStateOf(0f)
+
+        rule.setContent {
+            MotionLayout(
+                motionScene = MotionScene {
+                    val box = createRefFor(boxId)
+                    defaultTransition(
+                        from = constraintSet {
+                            constrain(box) {
+                                width = boxWidthStartPx.toDp().asDimension()
+                                height = boxHeight.toDp().asDimension()
+
+                                top.linkTo(parent.top)
+                                centerHorizontallyTo(parent)
+                            }
+                        },
+                        to = constraintSet {
+                            constrain(box) {
+                                width = boxWidthEndPx.toDp().asDimension()
+                                height = boxHeight.toDp().asDimension()
+
+                                centerHorizontallyTo(parent)
+                                bottom.linkTo(parent.bottom)
+                            }
+                        }
+                    )
+                },
+                progress = progress.value,
+                modifier = Modifier.size(rootSizePx.toDp())
+            ) {
+                Box(
+                    modifier = Modifier
+                        .layoutId(boxId)
+                        .background(Color.Red)
+                        .onStartEndBoundsChanged(boxId) { startBounds, endBounds ->
+                            boundsProvidedCount++
+                            startBoundsOfBox = startBounds
+                            endBoundsOfBox = endBounds
+                        }
+                        .onGloballyPositioned {
+                            globallyPositionedBounds = it
+                                .boundsInParent()
+                                .roundToIntRect()
+                        }
+                )
+            }
+        }
+        rule.waitForIdle()
+
+        rule.runOnIdle {
+            // Values should only be assigned once, to prove that they are stable
+            assertEquals(1, boundsProvidedCount)
+            assertEquals(
+                expected = IntRect(
+                    offset = IntOffset((rootSizePx - boxWidthStartPx) / 2, 0),
+                    size = IntSize(boxWidthStartPx, boxHeight)
+                ),
+                actual = globallyPositionedBounds
+            )
+            assertEquals(
+                globallyPositionedBounds,
+                startBoundsOfBox.roundToIntRect()
+            )
+        }
+
+        progress.value = 1f
+
+        rule.runOnIdle {
+            // Values should only be assigned once, to prove that they are stable
+            assertEquals(1, boundsProvidedCount)
+            assertEquals(
+                expected = IntRect(
+                    offset = IntOffset((rootSizePx - boxWidthEndPx) / 2, rootSizePx - boxHeight),
+                    size = IntSize(boxWidthEndPx, boxHeight)
+                ),
+                actual = globallyPositionedBounds
+            )
+            assertEquals(
+                globallyPositionedBounds,
+                endBoundsOfBox.roundToIntRect()
+            )
+        }
+    }
+
+    @Test
+    fun testStaggeredAndCustomWeights() = with(rule.density) {
+        val rootSizePx = 100
+        val boxSizePx = 10
+        val progress = mutableStateOf(0f)
+        val staggeredValue = mutableStateOf(0.31f)
+        val weights = mutableStateListOf(Float.NaN, Float.NaN, Float.NaN)
+
+        val ids = IntArray(3) { it }
+        val positions = mutableMapOf<Int, IntOffset>()
+
+        rule.setContent {
+            MotionLayout(
+                motionScene = remember {
+                    derivedStateOf {
+                        MotionScene {
+                            val refs = ids.map { createRefFor(it) }.toTypedArray()
+                            defaultTransition(
+                                from = constraintSet {
+                                    createVerticalChain(*refs, chainStyle = ChainStyle.Packed(0.0f))
+                                    refs.forEachIndexed { index, ref ->
+                                        constrain(ref) {
+                                            staggeredWeight = weights[index]
+                                        }
+                                    }
+                                },
+                                to = constraintSet {
+                                    createVerticalChain(*refs, chainStyle = ChainStyle.Packed(0.0f))
+                                    constrain(*refs) {
+                                        end.linkTo(parent.end)
+                                    }
+                                }
+                            ) {
+                                staggered = staggeredValue.value
+                            }
+                        }
+                    }
+                }.value,
+                progress = progress.value,
+                modifier = Modifier.size(rootSizePx.toDp())
+            ) {
+                for (id in ids) {
+                    Box(
+                        Modifier
+                            .size(boxSizePx.toDp())
+                            .layoutId(id)
+                            .onGloballyPositioned {
+                                positions[id] = it
+                                    .positionInParent()
+                                    .round()
+                            })
+                }
+            }
+        }
+
+        // Set the progress to just before the stagger value (0.31f)
+        progress.value = 0.3f
+
+        rule.runOnIdle {
+            assertEquals(0, positions[0]!!.x)
+            assertNotEquals(0, positions[1]!!.x)
+            assertNotEquals(0, positions[2]!!.x)
+
+            // Widget 2 has higher weight since it's laid out further towards the bottom
+            assertTrue(positions[2]!!.x > positions[1]!!.x)
+        }
+
+        // Invert the staggering order
+        staggeredValue.value = -(staggeredValue.value)
+
+        rule.runOnIdle {
+            assertNotEquals(0, positions[0]!!.x)
+            assertNotEquals(0, positions[1]!!.x)
+            assertEquals(0, positions[2]!!.x)
+
+            // While inverted, widget 0 has the higher weight
+            assertTrue(positions[0]!!.x > positions[1]!!.x)
+        }
+
+        // Set the widget in the middle to have the lowest weight
+        weights[0] = 3f
+        weights[1] = 1f
+        weights[2] = 2f
+
+        // Set the staggering order back to normal
+        staggeredValue.value = -(staggeredValue.value)
+
+        rule.runOnIdle {
+            assertNotEquals(0, positions[0]!!.x)
+            assertEquals(0, positions[1]!!.x)
+            assertNotEquals(0, positions[2]!!.x)
+
+            // Widget 0 has higher weight, starts earlier
+            assertTrue(positions[0]!!.x > positions[2]!!.x)
+        }
+    }
+
     private fun Color.toHexString(): String = toArgb().toUInt().toString(16)
 }
 
@@ -298,11 +606,13 @@ internal class MotionLayoutTest {
 @Composable
 private fun CustomTextSize(modifier: Modifier, progress: Float) {
     val context = LocalContext.current
+    @Suppress("DEPRECATION")
     CompositionLocalProvider(
         LocalDensity provides Density(1f, 1f),
         LocalTextStyle provides TextStyle(
             fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.Normal
+            fontWeight = FontWeight.Normal,
+            platformStyle = PlatformTextStyle(includeFontPadding = true)
         )
     ) {
         MotionLayout(

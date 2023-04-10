@@ -27,7 +27,6 @@ import java.lang.reflect.Method;
 /**
  * Provides a {@link WearableActivityController} for ambient mode control.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class WearableControllerProvider {

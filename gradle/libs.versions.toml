@@ -2,13 +2,13 @@
 # -----------------------------------------------------------------------------
 # All of the following should be updated in sync.
 # -----------------------------------------------------------------------------
-androidGradlePlugin = "8.0.0-alpha07"
+androidGradlePlugin = "8.1.0-alpha11"
 # NOTE: When updating the lint version we also need to update the `api` version
 # supported by `IssueRegistry`'s.' For e.g. r.android.com/1331903
-androidLint = "31.0.0-alpha07"
+androidLint = "31.1.0-alpha11"
 # Once you have a chosen version of AGP to upgrade to, go to
 # https://developer.android.com/studio/archive and find the matching version of Studio.
-androidStudio = "2022.2.1.7"
+androidStudio = "2022.3.1.11"
 # -----------------------------------------------------------------------------
 
 androidGradlePluginMin = "7.0.4"
@@ -28,7 +28,7 @@ asm = "9.3"
 cmake = "3.22.1"
 dagger = "2.44"
 dexmaker = "2.28.3"
-dokka = "1.7.20"
+dokka = "1.8.10-dev-203"
 espresso = "3.5.1"
 espressoDevice = "1.0.0-alpha03"
 grpc = "1.52.0"
@@ -36,13 +36,13 @@ guavaJre = "31.1-jre"
 hilt = "2.44"
 incap = "0.2"
 jcodec = "0.2.5"
-kotlin = "1.8.0"
+kotlin = "1.8.20"
 kotlinBenchmark = "0.4.7"
-kotlinNative = "1.8.0"
+kotlinNative = "1.8.20"
 kotlinCompileTesting = "1.4.9"
 kotlinCoroutines = "1.6.4"
 kotlinSerialization = "1.3.3"
-ksp = "1.8.0-1.0.8"
+ksp = "1.8.20-1.0.10"
 ktlint = "0.46.0-20220520.192227-74"
 leakcanary = "2.8.1"
 media3 = "1.0.0-beta03"
@@ -55,12 +55,13 @@ paparazziNative = "2022.1.1-canary-f5f9f71"
 skiko = "0.7.7"
 sqldelight = "1.3.0"
 retrofit = "2.7.2"
-wire = "4.4.1"
+wire = "4.5.1"
 
 [libraries]
 agpTestingPlatformCoreProto =  { module = "com.google.testing.platform:core-proto", version = "0.0.8-alpha08" }
 androidAccessibilityFramework = { module = "com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework", version = { strictly = "2.1" } }
 androidBuilderModelMin = { module = "com.android.tools.build:builder-model", version.ref = "androidGradlePluginMin" }
+androidGradlePluginApi = { module = "com.android.tools.build:gradle-api", version.ref = "androidGradlePlugin" }
 androidGradlePluginz = { module = "com.android.tools.build:gradle", version.ref = "androidGradlePlugin" }
 androidLayoutlibApi = { module = "com.android.tools.layoutlib:layoutlib-api", version.ref = "androidLint" }
 androidLint = { module = "com.android.tools.lint:lint", version.ref = "androidLint" }
@@ -73,7 +74,9 @@ androidLintChecksMin = { module = "com.android.tools.lint:lint-checks", version.
 androidLintTests = { module = "com.android.tools.lint:lint-tests", version.ref = "androidLint" }
 androidToolsCommon = { module = "com.android.tools:common", version.ref = "androidLint" }
 androidToolsNinepatch = { module = "com.android.tools:ninepatch", version.ref = "androidLint" }
+androidToolsRepository= { module = "com.android.tools:repository", version.ref = "androidLint" }
 androidToolsSdkCommon = { module = "com.android.tools:sdk-common", version.ref = "androidLint" }
+androidToolsAnalyticsProtos = { module = "com.android.tools.analytics-library:protos", version.ref = "androidLint" }
 autoCommon = { module = "com.google.auto:auto-common", version = "0.11" }
 atomicFu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "atomicFu" }
 atomicFuPluginz = { module = "org.jetbrains.kotlinx:atomicfu-gradle-plugin", version.ref = "atomicFu" }
@@ -95,11 +98,12 @@ byteBuddyAgent = { module = "net.bytebuddy:byte-buddy-agent", version.ref = "byt
 checkerframework = { module = "org.checkerframework:checker-qual", version = "2.5.3" }
 checkmark = { module = "net.saff.checkmark:checkmark", version = "0.1.6" }
 constraintLayout = { module = "androidx.constraintlayout:constraintlayout", version = "2.0.1"}
-dackka = { module = "com.google.devsite:dackka", version = "1.1.0" }
+dackka = { module = "com.google.devsite:dackka", version = "1.3.1" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
 daggerCompiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
 dexmakerMockito = { module = "com.linkedin.dexmaker:dexmaker-mockito", version.ref = "dexmaker" }
 dexmakerMockitoInline = { module = "com.linkedin.dexmaker:dexmaker-mockito-inline", version.ref = "dexmaker" }
+dexmakerMockitoInlineExtended = { module = "com.linkedin.dexmaker:dexmaker-mockito-inline-extended", version.ref = "dexmaker" }
 dexMemberList = { module = "com.jakewharton.dex:dex-member-list", version = "4.1.1" }
 dokkaCli = { module = "org.jetbrains.dokka:dokka-cli", version.ref = "dokka" }
 dokkaAnalysis = { module = "org.jetbrains.dokka:dokka-analysis", version.ref = "dokka" }
@@ -140,9 +144,12 @@ jsr250 = { module = "javax.annotation:javax.annotation-api", version = "1.2" }
 junit = { module = "junit:junit", version = "4.13.2" }
 gcmNetworkManager = { module = "com.google.android.gms:play-services-gcm", version = "17.0.0" }
 googleCompileTesting = { module = "com.google.testing.compile:compile-testing", version = "0.18" }
-grpcBinder = { module = "io.grpc:grpc-binder", version.ref = "grpc" }
 grpcAndroid = { module = "io.grpc:grpc-android", version.ref = "grpc" }
+grpcBinder = { module = "io.grpc:grpc-binder", version.ref = "grpc" }
+grpcProtobufCompiler = { module = "io.grpc:protoc-gen-grpc-java", version.ref = "grpc" }
+grpcProtobufLite = { module = "io.grpc:grpc-protobuf-lite", version.ref = "grpc" }
 grpcStub = { module = "io.grpc:grpc-stub", version.ref = "grpc" }
+grpcTesting = { module = "io.grpc:grpc-testing", version.ref = "grpc" }
 gson = { module = "com.google.code.gson:gson", version = "2.9.0" }
 guava = { module = "com.google.guava:guava", version.ref = "guavaJre" }
 guavaAndroid = { module = "com.google.guava:guava", version = "31.1-android" }
@@ -205,7 +212,7 @@ mlkitBarcode = { module = "com.google.mlkit:barcode-scanning", version = "17.0.2
 mockitoCore = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 mockitoCore4 = { module = "org.mockito:mockito-core", version = "4.8.0" }
 mockitoAndroid = { module = "org.mockito:mockito-android", version.ref = "mockito" }
-mockitoKotlin = { module = "com.nhaarman.mockitokotlin2:mockito-kotlin", version = "2.1.0" }
+mockitoKotlin = { module = "org.mockito.kotlin:mockito-kotlin", version = "2.2.11" }
 mockitoKotlin4 = { module = "org.mockito.kotlin:mockito-kotlin", version = "4.0.0" }
 moshi = { module = "com.squareup.moshi:moshi", version.ref = "moshi" }
 moshiAdapters = { module = "com.squareup.moshi:moshi-adapters", version.ref = "moshi" }
@@ -234,7 +241,7 @@ protobufKotlin = { module = "com.google.protobuf:protobuf-kotlin", version.ref =
 reactiveStreams = { module = "org.reactivestreams:reactive-streams", version = "1.0.0" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofitConverterWire = { module = "com.squareup.retrofit2:converter-wire", version.ref = "retrofit" }
-robolectric = { module = "org.robolectric:robolectric", version = "4.9-alpha-1" }
+robolectric = { module = "org.robolectric:robolectric", version = "4.9.2" }
 rxjava2 = { module = "io.reactivex.rxjava2:rxjava", version = "2.2.9" }
 rxjava3 = { module = "io.reactivex.rxjava3:rxjava", version = "3.0.0" }
 shadow = { module = "gradle.plugin.com.github.johnrengelman:shadow", version = "7.1.1" }

@@ -29,9 +29,6 @@ package androidx.wear.watchface.complications.data {
     property public final androidx.wear.watchface.complications.data.TimeRange validTimeRange;
   }
 
-  public final class ComplicationDataExpressionEvaluatorKt {
-  }
-
   public final class ComplicationDisplayPolicies {
     field public static final int ALWAYS_DISPLAY = 0; // 0x0
     field public static final int DO_NOT_SHOW_WHEN_DEVICE_LOCKED = 1; // 0x1
@@ -61,7 +58,7 @@ package androidx.wear.watchface.complications.data {
   }
 
   public enum ComplicationType {
-    method public static androidx.wear.watchface.complications.data.ComplicationType valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.wear.watchface.complications.data.ComplicationType valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.wear.watchface.complications.data.ComplicationType[] values();
     enum_constant public static final androidx.wear.watchface.complications.data.ComplicationType EMPTY;
     enum_constant @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static final androidx.wear.watchface.complications.data.ComplicationType GOAL_PROGRESS;
@@ -89,15 +86,9 @@ package androidx.wear.watchface.complications.data {
     property public final java.time.Instant instant;
   }
 
-  public final class DataKt {
-  }
-
   public final class EmptyComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
     ctor public EmptyComplicationData();
     field public static final androidx.wear.watchface.complications.data.ComplicationType TYPE;
-  }
-
-  public final class FloatExpressionKt {
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class GoalProgressComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
@@ -134,9 +125,6 @@ package androidx.wear.watchface.complications.data {
     method public androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder setText(androidx.wear.watchface.complications.data.ComplicationText? text);
     method public androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder setTitle(androidx.wear.watchface.complications.data.ComplicationText? title);
     method public androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder setValidTimeRange(androidx.wear.watchface.complications.data.TimeRange? validTimeRange);
-  }
-
-  public final class ImageKt {
   }
 
   public final class LongTextComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
@@ -375,13 +363,10 @@ package androidx.wear.watchface.complications.data {
   }
 
   public enum SmallImageType {
-    method public static androidx.wear.watchface.complications.data.SmallImageType valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.wear.watchface.complications.data.SmallImageType valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.wear.watchface.complications.data.SmallImageType[] values();
     enum_constant public static final androidx.wear.watchface.complications.data.SmallImageType ICON;
     enum_constant public static final androidx.wear.watchface.complications.data.SmallImageType PHOTO;
-  }
-
-  public final class TextKt {
   }
 
   public final class TimeDifferenceComplicationText implements androidx.wear.watchface.complications.data.ComplicationText {
@@ -402,7 +387,7 @@ package androidx.wear.watchface.complications.data {
   }
 
   public enum TimeDifferenceStyle {
-    method public static androidx.wear.watchface.complications.data.TimeDifferenceStyle valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.wear.watchface.complications.data.TimeDifferenceStyle valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.wear.watchface.complications.data.TimeDifferenceStyle[] values();
     enum_constant public static final androidx.wear.watchface.complications.data.TimeDifferenceStyle SHORT_DUAL_UNIT;
     enum_constant public static final androidx.wear.watchface.complications.data.TimeDifferenceStyle SHORT_SINGLE_UNIT;
@@ -427,7 +412,7 @@ package androidx.wear.watchface.complications.data {
   }
 
   public enum TimeFormatStyle {
-    method public static androidx.wear.watchface.complications.data.TimeFormatStyle valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.wear.watchface.complications.data.TimeFormatStyle valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.wear.watchface.complications.data.TimeFormatStyle[] values();
     enum_constant public static final androidx.wear.watchface.complications.data.TimeFormatStyle DEFAULT;
     enum_constant public static final androidx.wear.watchface.complications.data.TimeFormatStyle LOWER_CASE;
@@ -451,9 +436,6 @@ package androidx.wear.watchface.complications.data {
     method public androidx.wear.watchface.complications.data.TimeRange after(java.time.Instant startInstant);
     method public androidx.wear.watchface.complications.data.TimeRange before(java.time.Instant endInstant);
     method public androidx.wear.watchface.complications.data.TimeRange between(java.time.Instant startInstant, java.time.Instant endInstant);
-  }
-
-  public final class TypeKt {
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class WeightedElementsComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
@@ -502,13 +484,6 @@ package androidx.wear.watchface.complications.data {
     method public float getWeight();
     property public final int color;
     property public final float weight;
-  }
-
-}
-
-package androidx.wear.watchface.utility {
-
-  public final class TraceEventKt {
   }
 
 }

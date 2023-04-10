@@ -202,7 +202,6 @@ class SavedStateViewModelFactory : ViewModelProvider.OnRequeryFactory, ViewModel
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun onRequery(viewModel: ViewModel) {

@@ -3,6 +3,7 @@ package foo.bar;
 import android.database.Cursor;
 import android.os.CancellationSignal;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
@@ -400,6 +401,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         _statement.bindLong(_argIndex, id);
         return __db.getInvalidationTracker().createLiveData(new String[] {"user"}, false, new Callable<User>() {
             @Override
+            @Nullable
             public User call() throws Exception {
                 final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
                 try {
@@ -461,6 +463,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         }
         return __db.getInvalidationTracker().createLiveData(new String[] {"user"}, false, new Callable<List<User>>() {
             @Override
+            @Nullable
             public List<User> call() throws Exception {
                 final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
                 try {

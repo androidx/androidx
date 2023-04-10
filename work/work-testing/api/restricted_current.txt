@@ -46,6 +46,8 @@ package androidx.work.testing {
     method public static androidx.work.testing.TestDriver? getTestDriver(android.content.Context);
     method public static void initializeTestWorkManager(android.content.Context);
     method public static void initializeTestWorkManager(android.content.Context, androidx.work.Configuration);
+    method public static void initializeTestWorkManagerWithRealExecutors(android.content.Context);
+    method public static void initializeTestWorkManagerWithRealExecutors(android.content.Context, androidx.work.Configuration);
   }
 
 }

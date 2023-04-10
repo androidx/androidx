@@ -139,6 +139,7 @@ package androidx.car.app {
   }
 
   @MainThread public class ScreenManager implements androidx.car.app.managers.Manager {
+    method public java.util.Collection<androidx.car.app.Screen!> getScreenStack();
     method public int getStackSize();
     method public androidx.car.app.Screen getTop();
     method public void pop();
@@ -1648,6 +1649,7 @@ package androidx.car.app.versioning {
     field public static final int LEVEL_4 = 4; // 0x4
     field public static final int LEVEL_5 = 5; // 0x5
     field public static final int LEVEL_6 = 6; // 0x6
+    field public static final int LEVEL_7 = 7; // 0x7
   }
 
 }

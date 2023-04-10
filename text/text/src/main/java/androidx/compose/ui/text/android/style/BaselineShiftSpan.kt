@@ -27,7 +27,7 @@ import kotlin.math.ceil
  * @suppress
  */
 @InternalPlatformTextApi
-open class BaselineShiftSpan(val multiplier: Float) : MetricAffectingSpan() {
+internal open class BaselineShiftSpan(val multiplier: Float) : MetricAffectingSpan() {
 
     override fun updateMeasureState(textPaint: TextPaint) {
         textPaint.baselineShift += ceil(textPaint.ascent() * multiplier).toInt()

@@ -33,7 +33,6 @@ import com.google.common.util.concurrent.ListenableFuture;
  * If your needs are more complex than {@code ResolvableFuture} supports, use {@link
  * AbstractResolvableFuture}, which offers an extensible version of the API.
  *
- * @hide
  * @author Sven Mawson
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)

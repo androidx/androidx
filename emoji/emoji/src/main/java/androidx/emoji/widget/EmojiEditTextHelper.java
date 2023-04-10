@@ -156,7 +156,6 @@ public final class EmojiEditTextHelper {
      *                        {@link EmojiCompat#REPLACE_STRATEGY_NON_EXISTENT},
      *                        {@link EmojiCompat#REPLACE_STRATEGY_ALL}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     void setEmojiReplaceStrategy(@EmojiCompat.ReplaceStrategy int replaceStrategy) {
@@ -171,7 +170,6 @@ public final class EmojiEditTextHelper {
      * @return one of {@link EmojiCompat#REPLACE_STRATEGY_DEFAULT},
      *                        {@link EmojiCompat#REPLACE_STRATEGY_NON_EXISTENT},
      *                        {@link EmojiCompat#REPLACE_STRATEGY_ALL}
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     int getEmojiReplaceStrategy() {

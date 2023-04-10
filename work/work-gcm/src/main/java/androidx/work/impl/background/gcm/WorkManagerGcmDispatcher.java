@@ -30,6 +30,8 @@ import androidx.work.impl.Schedulers;
 import androidx.work.impl.StartStopToken;
 import androidx.work.impl.StartStopTokens;
 import androidx.work.impl.WorkDatabase;
+import androidx.work.impl.WorkLauncher;
+import androidx.work.impl.WorkLauncherImpl;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkGenerationalId;
 import androidx.work.impl.model.WorkSpec;
@@ -59,11 +61,14 @@ public class WorkManagerGcmDispatcher {
 
     // Synthetic access
     WorkManagerImpl mWorkManagerImpl;
+    private final WorkLauncher mWorkLauncher;
 
     public WorkManagerGcmDispatcher(
             @NonNull WorkManagerImpl workManager, @NonNull WorkTimer timer) {
         mWorkManagerImpl = workManager;
         mWorkTimer = timer;
+        mWorkLauncher = new WorkLauncherImpl(workManager.getProcessor(),
+                workManager.getWorkTaskExecutor());
     }
 
     /**
@@ -106,13 +111,13 @@ public class WorkManagerGcmDispatcher {
                 mStartStopTokens);
         StartStopToken startStopToken = mStartStopTokens.tokenFor(id);
         WorkSpecTimeLimitExceededListener timeLimitExceededListener =
-                new WorkSpecTimeLimitExceededListener(mWorkManagerImpl, startStopToken);
+                new WorkSpecTimeLimitExceededListener(mWorkLauncher, startStopToken);
         Processor processor = mWorkManagerImpl.getProcessor();
         processor.addExecutionListener(listener);
         String wakeLockTag = "WorkGcm-onRunTask (" + workSpecId + ")";
         PowerManager.WakeLock wakeLock = WakeLocks.newWakeLock(
                 mWorkManagerImpl.getApplicationContext(), wakeLockTag);
-        mWorkManagerImpl.startWork(startStopToken);
+        mWorkLauncher.startWork(startStopToken);
         mWorkTimer.startTimer(id, AWAIT_TIME_IN_MILLISECONDS, timeLimitExceededListener);
 
         try {
@@ -180,19 +185,19 @@ public class WorkManagerGcmDispatcher {
     static class WorkSpecTimeLimitExceededListener implements WorkTimer.TimeLimitExceededListener {
         private static final String TAG = Logger.tagWithPrefix("WrkTimeLimitExceededLstnr");
 
-        private final WorkManagerImpl mWorkManager;
+        private final WorkLauncher mLauncher;
         private final StartStopToken mStartStopToken;
         WorkSpecTimeLimitExceededListener(
-                @NonNull WorkManagerImpl workManager,
+                @NonNull WorkLauncher launcher,
                 @NonNull StartStopToken startStopToken) {
-            mWorkManager = workManager;
+            mLauncher = launcher;
             mStartStopToken = startStopToken;
         }
 
         @Override
         public void onTimeLimitExceeded(@NonNull WorkGenerationalId id) {
             Logger.get().debug(TAG, "WorkSpec time limit exceeded " + id);
-            mWorkManager.stopWork(mStartStopToken);
+            mLauncher.stopWork(mStartStopToken);
         }
     }
 

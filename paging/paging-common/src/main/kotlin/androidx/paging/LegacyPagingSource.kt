@@ -32,7 +32,6 @@ import kotlinx.coroutines.withContext
 /**
  * A wrapper around [DataSource] which adapts it to the [PagingSource] API.
  *
- * @hide
  */
 @OptIn(DelicateCoroutinesApi::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -53,7 +52,6 @@ public class LegacyPagingSource<Key : Any, Value : Any>(
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun setPageSize(pageSize: Int) {
@@ -144,6 +142,6 @@ public class LegacyPagingSource<Key : Any, Value : Any>(
         get() = dataSource.type == POSITIONAL
 
     private companion object {
-        private const val PAGE_SIZE_NOT_SET = Integer.MIN_VALUE
+        private const val PAGE_SIZE_NOT_SET = Int.MIN_VALUE
     }
 }

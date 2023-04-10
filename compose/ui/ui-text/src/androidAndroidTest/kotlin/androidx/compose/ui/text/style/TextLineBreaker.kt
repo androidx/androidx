@@ -16,66 +16,40 @@
 
 package androidx.compose.ui.text.style
 
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.ExperimentalTextApi
-import androidx.compose.ui.text.MultiParagraph
-import androidx.compose.ui.text.TextLayoutInput
-import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.AndroidParagraph
+import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.ceilToInt
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.constrain
 import androidx.test.platform.app.InstrumentationRegistry
-import kotlin.math.ceil
 
-@OptIn(ExperimentalTextApi::class)
 open class TextLineBreaker {
-    private val defaultDensity = Density(1f)
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val fontFamilyResolver = createFontFamilyResolver(context)
     private val defaultHyphens = Hyphens.None
     private val defaultLineBreak = LineBreak.Simple
+    private val density = Density(density = 1f)
 
-    private fun constructTextLayoutResult(
+    private fun paragraph(
         text: String,
         textStyle: TextStyle,
         maxWidth: Int = Constraints.Infinity
-    ): TextLayoutResult {
-        val constraints = Constraints(maxWidth = maxWidth)
-
-        val input = TextLayoutInput(
-            text = AnnotatedString(text),
-            style = textStyle,
+    ): Paragraph {
+        return AndroidParagraph(
+            text = text,
+            spanStyles = listOf(),
             placeholders = listOf(),
+            style = textStyle,
             maxLines = Int.MAX_VALUE,
-            softWrap = true,
-            overflow = TextOverflow.Visible,
-            density = defaultDensity,
-            layoutDirection = LayoutDirection.Ltr,
-            fontFamilyResolver = fontFamilyResolver,
-            constraints = constraints
-        )
-
-        val paragraph = MultiParagraph(
-            annotatedString = input.text,
-            style = input.style,
-            constraints = input.constraints,
-            density = input.density,
-            fontFamilyResolver = input.fontFamilyResolver
-        )
-
-        return TextLayoutResult(
-            layoutInput = input,
-            multiParagraph = paragraph,
-            size = constraints.constrain(
-                IntSize(
-                    ceil(paragraph.width).toInt(),
-                    ceil(paragraph.height).toInt()
-                )
-            )
+            ellipsis = false,
+            constraints = Constraints(
+                maxWidth = maxWidth,
+                maxHeight = Float.POSITIVE_INFINITY.ceilToInt()
+            ),
+            density = density,
+            fontFamilyResolver = fontFamilyResolver
         )
     }
 
@@ -85,7 +59,7 @@ open class TextLineBreaker {
         lineBreak: LineBreak = defaultLineBreak,
         maxWidth: Int
     ): List<String> {
-        val layoutResult = constructTextLayoutResult(
+        val layoutResult = paragraph(
             text = text,
             textStyle = TextStyle(hyphens = hyphens, lineBreak = lineBreak),
             maxWidth = maxWidth

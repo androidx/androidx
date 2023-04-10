@@ -9,26 +9,40 @@ package androidx.health.connect.client {
     method public suspend Object? deleteRecords(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType, androidx.health.connect.client.time.TimeRangeFilter timeRangeFilter, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? getChanges(String changesToken, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ChangesResponse>);
     method public suspend Object? getChangesToken(androidx.health.connect.client.request.ChangesTokenRequest request, kotlin.coroutines.Continuation<? super java.lang.String>);
-    method public default static androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context, optional java.util.List<java.lang.String> providerPackageNames);
+    method public default static String getHealthConnectSettingsAction();
+    method public default static androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context, optional String providerPackageName);
     method public default static androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context);
     method public androidx.health.connect.client.PermissionController getPermissionController();
+    method public default static int getSdkStatus(android.content.Context context, optional String providerPackageName);
+    method public default static int getSdkStatus(android.content.Context context);
     method public suspend Object? insertRecords(java.util.List<? extends androidx.health.connect.client.records.Record> records, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.InsertRecordsResponse>);
-    method public default static boolean isApiSupported();
-    method public default static boolean isProviderAvailable(android.content.Context context, optional java.util.List<java.lang.String> providerPackageNames);
-    method public default static boolean isProviderAvailable(android.content.Context context);
+    method @Deprecated public default static boolean isApiSupported();
+    method @Deprecated public default static boolean isProviderAvailable(android.content.Context context, optional String providerPackageName);
+    method @Deprecated public default static boolean isProviderAvailable(android.content.Context context);
     method public suspend <T extends androidx.health.connect.client.records.Record> Object? readRecord(kotlin.reflect.KClass<T> recordType, String recordId, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ReadRecordResponse<T>>);
     method public suspend <T extends androidx.health.connect.client.records.Record> Object? readRecords(androidx.health.connect.client.request.ReadRecordsRequest<T> request, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ReadRecordsResponse<T>>);
     method public suspend Object? updateRecords(java.util.List<? extends androidx.health.connect.client.records.Record> records, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public default static String ACTION_HEALTH_CONNECT_SETTINGS;
     property public abstract androidx.health.connect.client.PermissionController permissionController;
     field public static final androidx.health.connect.client.HealthConnectClient.Companion Companion;
+    field public static final int SDK_AVAILABLE = 3; // 0x3
+    field public static final int SDK_UNAVAILABLE = 1; // 0x1
+    field public static final int SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED = 2; // 0x2
   }
 
   public static final class HealthConnectClient.Companion {
-    method public androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context, optional java.util.List<java.lang.String> providerPackageNames);
+    method public String getHealthConnectSettingsAction();
+    method public androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context, optional String providerPackageName);
     method public androidx.health.connect.client.HealthConnectClient getOrCreate(android.content.Context context);
-    method public boolean isApiSupported();
-    method public boolean isProviderAvailable(android.content.Context context, optional java.util.List<java.lang.String> providerPackageNames);
-    method public boolean isProviderAvailable(android.content.Context context);
+    method public int getSdkStatus(android.content.Context context, optional String providerPackageName);
+    method public int getSdkStatus(android.content.Context context);
+    method @Deprecated public boolean isApiSupported();
+    method @Deprecated public boolean isProviderAvailable(android.content.Context context, optional String providerPackageName);
+    method @Deprecated public boolean isProviderAvailable(android.content.Context context);
+    property public final String ACTION_HEALTH_CONNECT_SETTINGS;
+    field public static final int SDK_AVAILABLE = 3; // 0x3
+    field public static final int SDK_UNAVAILABLE = 1; // 0x1
+    field public static final int SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED = 2; // 0x2
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface PermissionController {
@@ -427,36 +441,21 @@ package androidx.health.connect.client.records {
     property public final String? title;
     field public static final androidx.health.connect.client.records.ExerciseSessionRecord.Companion Companion;
     field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.time.Duration> EXERCISE_DURATION_TOTAL;
-    field public static final int EXERCISE_TYPE_BACK_EXTENSION = 1; // 0x1
     field public static final int EXERCISE_TYPE_BADMINTON = 2; // 0x2
-    field public static final int EXERCISE_TYPE_BARBELL_SHOULDER_PRESS = 3; // 0x3
     field public static final int EXERCISE_TYPE_BASEBALL = 4; // 0x4
     field public static final int EXERCISE_TYPE_BASKETBALL = 5; // 0x5
-    field public static final int EXERCISE_TYPE_BENCH_PRESS = 6; // 0x6
-    field public static final int EXERCISE_TYPE_BENCH_SIT_UP = 7; // 0x7
     field public static final int EXERCISE_TYPE_BIKING = 8; // 0x8
     field public static final int EXERCISE_TYPE_BIKING_STATIONARY = 9; // 0x9
     field public static final int EXERCISE_TYPE_BOOT_CAMP = 10; // 0xa
     field public static final int EXERCISE_TYPE_BOXING = 11; // 0xb
-    field public static final int EXERCISE_TYPE_BURPEE = 12; // 0xc
     field public static final int EXERCISE_TYPE_CALISTHENICS = 13; // 0xd
     field public static final int EXERCISE_TYPE_CRICKET = 14; // 0xe
-    field public static final int EXERCISE_TYPE_CRUNCH = 15; // 0xf
     field public static final int EXERCISE_TYPE_DANCING = 16; // 0x10
-    field public static final int EXERCISE_TYPE_DEADLIFT = 17; // 0x11
-    field public static final int EXERCISE_TYPE_DUMBBELL_CURL_LEFT_ARM = 18; // 0x12
-    field public static final int EXERCISE_TYPE_DUMBBELL_CURL_RIGHT_ARM = 19; // 0x13
-    field public static final int EXERCISE_TYPE_DUMBBELL_FRONT_RAISE = 20; // 0x14
-    field public static final int EXERCISE_TYPE_DUMBBELL_LATERAL_RAISE = 21; // 0x15
-    field public static final int EXERCISE_TYPE_DUMBBELL_TRICEPS_EXTENSION_LEFT_ARM = 22; // 0x16
-    field public static final int EXERCISE_TYPE_DUMBBELL_TRICEPS_EXTENSION_RIGHT_ARM = 23; // 0x17
-    field public static final int EXERCISE_TYPE_DUMBBELL_TRICEPS_EXTENSION_TWO_ARM = 24; // 0x18
     field public static final int EXERCISE_TYPE_ELLIPTICAL = 25; // 0x19
     field public static final int EXERCISE_TYPE_EXERCISE_CLASS = 26; // 0x1a
     field public static final int EXERCISE_TYPE_FENCING = 27; // 0x1b
     field public static final int EXERCISE_TYPE_FOOTBALL_AMERICAN = 28; // 0x1c
     field public static final int EXERCISE_TYPE_FOOTBALL_AUSTRALIAN = 29; // 0x1d
-    field public static final int EXERCISE_TYPE_FORWARD_TWIST = 30; // 0x1e
     field public static final int EXERCISE_TYPE_FRISBEE_DISC = 31; // 0x1f
     field public static final int EXERCISE_TYPE_GOLF = 32; // 0x20
     field public static final int EXERCISE_TYPE_GUIDED_BREATHING = 33; // 0x21
@@ -466,16 +465,11 @@ package androidx.health.connect.client.records {
     field public static final int EXERCISE_TYPE_HIKING = 37; // 0x25
     field public static final int EXERCISE_TYPE_ICE_HOCKEY = 38; // 0x26
     field public static final int EXERCISE_TYPE_ICE_SKATING = 39; // 0x27
-    field public static final int EXERCISE_TYPE_JUMPING_JACK = 40; // 0x28
-    field public static final int EXERCISE_TYPE_JUMP_ROPE = 41; // 0x29
-    field public static final int EXERCISE_TYPE_LAT_PULL_DOWN = 42; // 0x2a
-    field public static final int EXERCISE_TYPE_LUNGE = 43; // 0x2b
     field public static final int EXERCISE_TYPE_MARTIAL_ARTS = 44; // 0x2c
     field public static final int EXERCISE_TYPE_OTHER_WORKOUT = 0; // 0x0
     field public static final int EXERCISE_TYPE_PADDLING = 46; // 0x2e
     field public static final int EXERCISE_TYPE_PARAGLIDING = 47; // 0x2f
     field public static final int EXERCISE_TYPE_PILATES = 48; // 0x30
-    field public static final int EXERCISE_TYPE_PLANK = 49; // 0x31
     field public static final int EXERCISE_TYPE_RACQUETBALL = 50; // 0x32
     field public static final int EXERCISE_TYPE_ROCK_CLIMBING = 51; // 0x33
     field public static final int EXERCISE_TYPE_ROLLER_HOCKEY = 52; // 0x34
@@ -493,7 +487,6 @@ package androidx.health.connect.client.records {
     field public static final int EXERCISE_TYPE_SOCCER = 64; // 0x40
     field public static final int EXERCISE_TYPE_SOFTBALL = 65; // 0x41
     field public static final int EXERCISE_TYPE_SQUASH = 66; // 0x42
-    field public static final int EXERCISE_TYPE_SQUAT = 67; // 0x43
     field public static final int EXERCISE_TYPE_STAIR_CLIMBING = 68; // 0x44
     field public static final int EXERCISE_TYPE_STAIR_CLIMBING_MACHINE = 69; // 0x45
     field public static final int EXERCISE_TYPE_STRENGTH_TRAINING = 70; // 0x46
@@ -503,7 +496,6 @@ package androidx.health.connect.client.records {
     field public static final int EXERCISE_TYPE_SWIMMING_POOL = 74; // 0x4a
     field public static final int EXERCISE_TYPE_TABLE_TENNIS = 75; // 0x4b
     field public static final int EXERCISE_TYPE_TENNIS = 76; // 0x4c
-    field public static final int EXERCISE_TYPE_UPPER_TWIST = 77; // 0x4d
     field public static final int EXERCISE_TYPE_VOLLEYBALL = 78; // 0x4e
     field public static final int EXERCISE_TYPE_WALKING = 79; // 0x4f
     field public static final int EXERCISE_TYPE_WATER_POLO = 80; // 0x50
@@ -1364,9 +1356,6 @@ package androidx.health.connect.client.units {
     method public androidx.health.connect.client.units.Energy kilojoules(double value);
   }
 
-  public final class EnergyKt {
-  }
-
   public final class Length implements java.lang.Comparable<androidx.health.connect.client.units.Length> {
     method public int compareTo(androidx.health.connect.client.units.Length other);
     method public static androidx.health.connect.client.units.Length feet(double value);
@@ -1393,9 +1382,6 @@ package androidx.health.connect.client.units {
     method public androidx.health.connect.client.units.Length kilometers(double value);
     method public androidx.health.connect.client.units.Length meters(double value);
     method public androidx.health.connect.client.units.Length miles(double value);
-  }
-
-  public final class LengthKt {
   }
 
   public final class Mass implements java.lang.Comparable<androidx.health.connect.client.units.Mass> {
@@ -1430,17 +1416,11 @@ package androidx.health.connect.client.units {
     method public androidx.health.connect.client.units.Mass pounds(double value);
   }
 
-  public final class MassKt {
-  }
-
   public final class Percentage implements java.lang.Comparable<androidx.health.connect.client.units.Percentage> {
     ctor public Percentage(double value);
     method public int compareTo(androidx.health.connect.client.units.Percentage other);
     method public double getValue();
     property public final double value;
-  }
-
-  public final class PercentageKt {
   }
 
   public final class Power implements java.lang.Comparable<androidx.health.connect.client.units.Power> {
@@ -1459,9 +1439,6 @@ package androidx.health.connect.client.units {
     method public androidx.health.connect.client.units.Power watts(double value);
   }
 
-  public final class PowerKt {
-  }
-
   public final class Pressure implements java.lang.Comparable<androidx.health.connect.client.units.Pressure> {
     method public int compareTo(androidx.health.connect.client.units.Pressure other);
     method public double getMillimetersOfMercury();
@@ -1472,9 +1449,6 @@ package androidx.health.connect.client.units {
 
   public static final class Pressure.Companion {
     method public androidx.health.connect.client.units.Pressure millimetersOfMercury(double value);
-  }
-
-  public final class PressureKt {
   }
 
   public final class Temperature implements java.lang.Comparable<androidx.health.connect.client.units.Temperature> {
@@ -1491,9 +1465,6 @@ package androidx.health.connect.client.units {
   public static final class Temperature.Companion {
     method public androidx.health.connect.client.units.Temperature celsius(double value);
     method public androidx.health.connect.client.units.Temperature fahrenheit(double value);
-  }
-
-  public final class TemperatureKt {
   }
 
   public final class Velocity implements java.lang.Comparable<androidx.health.connect.client.units.Velocity> {
@@ -1516,9 +1487,6 @@ package androidx.health.connect.client.units {
     method public androidx.health.connect.client.units.Velocity milesPerHour(double value);
   }
 
-  public final class VelocityKt {
-  }
-
   public final class Volume implements java.lang.Comparable<androidx.health.connect.client.units.Volume> {
     method public int compareTo(androidx.health.connect.client.units.Volume other);
     method public static androidx.health.connect.client.units.Volume fluidOuncesUs(double value);
@@ -1537,9 +1505,6 @@ package androidx.health.connect.client.units {
     method public androidx.health.connect.client.units.Volume fluidOuncesUs(double value);
     method public androidx.health.connect.client.units.Volume liters(double value);
     method public androidx.health.connect.client.units.Volume milliliters(double value);
-  }
-
-  public final class VolumeKt {
   }
 
 }

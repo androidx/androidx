@@ -183,22 +183,10 @@ public abstract class FragmentStateAdapter extends
         ensureFragment(position);
 
         /** Special case when {@link RecyclerView} decides to keep the {@link container}
-         * attached to the window, but not to the view hierarchy (i.e. parent is null) */
+         * attached to the window, resulting in no {@link `onViewAttachedToWindow} callback later */
         final FrameLayout container = holder.getContainer();
         if (ViewCompat.isAttachedToWindow(container)) {
-            if (container.getParent() != null) {
-                throw new IllegalStateException("Design assumption violated.");
-            }
-            container.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-                @Override
-                public void onLayoutChange(View v, int left, int top, int right, int bottom,
-                        int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                    if (container.getParent() != null) {
-                        container.removeOnLayoutChangeListener(this);
-                        placeFragmentInViewHolder(holder);
-                    }
-                }
-            });
+            placeFragmentInViewHolder(holder);
         }
 
         gcFragments();

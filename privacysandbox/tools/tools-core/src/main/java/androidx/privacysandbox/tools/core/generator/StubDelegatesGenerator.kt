@@ -16,6 +16,9 @@
 
 package androidx.privacysandbox.tools.core.generator
 
+import androidx.privacysandbox.tools.core.generator.GenerationTarget.SERVER
+import androidx.privacysandbox.tools.core.generator.SpecNames.contextClass
+import androidx.privacysandbox.tools.core.generator.SpecNames.contextPropertyName
 import androidx.privacysandbox.tools.core.generator.SpecNames.delicateCoroutinesApiClass
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.Method
@@ -32,14 +35,22 @@ import com.squareup.kotlinpoet.joinToCode
 
 class StubDelegatesGenerator(
     private val basePackageName: String,
-    private val binderCodeConverter: BinderCodeConverter
+    private val binderCodeConverter: BinderCodeConverter,
 ) {
     companion object {
         fun transportCancellationCallbackNameSpec(packageName: String) =
             ClassName(packageName, TransportCancellationGenerator.className)
     }
 
-    fun generate(annotatedInterface: AnnotatedInterface): FileSpec {
+    /**
+     * Generates a StubDelegate for this interface.
+     *
+     * This allows a server-side interface to be called by a remote ClientProxy.
+     *
+     * If  [target] is [GenerationTarget.SERVER] (ie. this will run on the SDK-side) includes a
+     * Context that will be the SDK context.
+     */
+    fun generate(annotatedInterface: AnnotatedInterface, target: GenerationTarget): FileSpec {
         val className = annotatedInterface.stubDelegateNameSpec().simpleName
         val aidlBaseClassName = ClassName(
             annotatedInterface.type.packageName, annotatedInterface.aidlName(), "Stub"
@@ -49,12 +60,21 @@ class StubDelegatesGenerator(
             superclass(aidlBaseClassName)
 
             primaryConstructor(
-                listOf(
-                    PropertySpec.builder(
-                        "delegate",
-                        annotatedInterface.type.poetTypeName(),
-                    ).addModifiers(KModifier.PUBLIC).build()
-                ), KModifier.INTERNAL
+                buildList {
+                    add(
+                        PropertySpec.builder(
+                            "delegate",
+                            annotatedInterface.type.poetTypeName(),
+                        ).addModifiers(KModifier.PUBLIC).build()
+                    )
+                    if (target == SERVER) {
+                        add(
+                            PropertySpec.builder(contextPropertyName, contextClass)
+                                .addModifiers(KModifier.PUBLIC).build()
+                        )
+                    }
+                },
+                KModifier.INTERNAL,
             )
 
             addFunctions(annotatedInterface.methods.map(::toFunSpec))

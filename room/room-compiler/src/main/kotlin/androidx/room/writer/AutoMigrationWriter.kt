@@ -21,6 +21,7 @@ import androidx.room.compiler.codegen.VisibilityModifier
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
+import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.XTypeSpec.Builder.Companion.addOriginatingElement
 import androidx.room.compiler.codegen.XTypeSpec.Builder.Companion.addProperty
@@ -108,11 +109,11 @@ class AutoMigrationWriter(
         ).apply {
             addParameter(
                 typeName = SupportDbTypeNames.DB,
-                name = "database",
+                name = "db",
             )
             addMigrationStatements(this)
             if (autoMigration.specClassName != null) {
-                addStatement("callback.onPostMigrate(database)")
+                addStatement("callback.onPostMigrate(db)")
             }
         }
         return migrateFunctionBuilder.build()
@@ -375,8 +376,8 @@ class AutoMigrationWriter(
         migrateBuilder: XFunSpec.Builder
     ) {
         migrateBuilder.addStatement(
-            "%T.foreignKeyCheck(database, %S)",
-            RoomTypeNames.DB_UTIL,
+            "%M(db, %S)",
+            RoomTypeNames.DB_UTIL.packageMember("foreignKeyCheck"),
             tableName
         )
     }
@@ -477,7 +478,7 @@ class AutoMigrationWriter(
         sql: String
     ) {
         migrateBuilder.addStatement(
-            "database.execSQL(%S)",
+            "db.execSQL(%S)",
             sql
         )
     }

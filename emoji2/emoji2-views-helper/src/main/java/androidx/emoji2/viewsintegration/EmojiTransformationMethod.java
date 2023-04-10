@@ -28,7 +28,6 @@ import androidx.emoji2.text.EmojiCompat;
 /**
  * TransformationMethod wrapper in order to update transformed text with emojis.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)

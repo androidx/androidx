@@ -19,6 +19,7 @@ package org.chromium.android_webview.js_sandbox.common;
 /**
  * Used to communicate the result of the JavaScript evaluation from the
  * sandbox to the embedding app.
+ * DEPRECATED INTERFACE! Do not add methods or constants into this file.
  * @hide
  */
 oneway interface IJsSandboxIsolateCallback {

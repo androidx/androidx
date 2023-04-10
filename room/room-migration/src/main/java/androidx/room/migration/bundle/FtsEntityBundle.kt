@@ -25,7 +25,6 @@ import com.google.gson.annotations.SerializedName
  * Data class that holds the schema information about an {@link Fts3 FTS3} or {@link Fts4 FTS4}
  * entity.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public open class FtsEntityBundle(

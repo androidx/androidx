@@ -17,32 +17,21 @@
 package androidx.compose.foundation.relocation
 
 import android.graphics.Rect as AndroidRect
-import android.view.View
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.LocalView
 
-@Composable
-internal actual fun rememberDefaultBringIntoViewParent(): BringIntoViewParent {
-    val view = LocalView.current
-    return remember(view) { AndroidBringIntoViewParent(view) }
-}
-
-/**
- * A [BringIntoViewParent] that delegates to the [View] hosting the composition.
- */
-private class AndroidBringIntoViewParent(private val view: View) : BringIntoViewParent {
-    override suspend fun bringChildIntoView(
-        childCoordinates: LayoutCoordinates,
-        boundsProvider: () -> Rect?
-    ) {
+internal actual fun CompositionLocalConsumerModifierNode.defaultBringIntoViewParent():
+    BringIntoViewParent =
+    BringIntoViewParent { childCoordinates, boundsProvider ->
+        val view = currentValueOf(LocalView)
         val childOffset = childCoordinates.positionInRoot()
-        val rootRect = boundsProvider()?.translate(childOffset) ?: return
-        view.requestRectangleOnScreen(rootRect.toRect(), false)
+        val rootRect = boundsProvider()?.translate(childOffset)
+        if (rootRect != null) {
+            view.requestRectangleOnScreen(rootRect.toRect(), false)
+        }
     }
-}
 
 private fun Rect.toRect() = AndroidRect(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())

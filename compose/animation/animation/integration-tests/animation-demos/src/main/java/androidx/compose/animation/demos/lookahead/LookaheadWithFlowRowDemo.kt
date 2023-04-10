@@ -40,7 +40,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.LookaheadLayout
+import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
@@ -55,48 +55,51 @@ fun LookaheadWithFlowRowDemo() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         var isHorizontal by remember { mutableStateOf(true) }
+
+        Button(modifier = Modifier.padding(top = 20.dp, bottom = 20.dp),
+            onClick = { isHorizontal = !isHorizontal }) {
+            Text("Toggle")
+        }
         Column(
             Modifier
                 .background(Color(0xfffdedac), RoundedCornerShape(10))
                 .padding(10.dp)
         ) {
             Text("LookaheadLayout + Modifier.animateBounds")
-            LookaheadLayout(
-                measurePolicy = lookaheadMeasurePolicy,
-                content = {
-                    MyFlowRow(
-                        modifier = Modifier
-                            .height(200.dp)
-                            .fillMaxWidth()
-                            .wrapContentSize(Alignment.CenterStart)
-                    ) {
-                        Box(
-                            Modifier
-                                .height(50.dp)
-                                .animateBounds(
-                                    Modifier.fillMaxWidth(if (isHorizontal) 0.4f else 1f)
-                                )
-                                .background(colors[0], RoundedCornerShape(10))
-                        )
-                        Box(
-                            Modifier
-                                .height(50.dp)
-                                .animateBounds(
-                                    Modifier.fillMaxWidth(if (isHorizontal) 0.2f else 0.4f)
-                                )
-                                .background(colors[1], RoundedCornerShape(10))
-                        )
-                        Box(
-                            Modifier
-                                .height(50.dp)
-                                .animateBounds(
-                                    Modifier.fillMaxWidth(if (isHorizontal) 0.2f else 0.4f)
-                                )
-                                .background(colors[2], RoundedCornerShape(10))
-                        )
-                    }
-                    Box(Modifier.size(if (isHorizontal) 200.dp else 100.dp))
-                })
+            LookaheadScope {
+                MyFlowRow(
+                    modifier = Modifier
+                        .height(200.dp)
+                        .fillMaxWidth()
+                        .wrapContentSize(Alignment.CenterStart)
+                ) {
+                    Box(
+                        Modifier
+                            .height(50.dp)
+                            .animateBounds(
+                                Modifier.fillMaxWidth(if (isHorizontal) 0.4f else 1f)
+                            )
+                            .background(colors[0], RoundedCornerShape(10))
+                    )
+                    Box(
+                        Modifier
+                            .height(50.dp)
+                            .animateBounds(
+                                Modifier.fillMaxWidth(if (isHorizontal) 0.2f else 0.4f)
+                            )
+                            .background(colors[1], RoundedCornerShape(10))
+                    )
+                    Box(
+                        Modifier
+                            .height(50.dp)
+                            .animateBounds(
+                                Modifier.fillMaxWidth(if (isHorizontal) 0.2f else 0.4f)
+                            )
+                            .background(colors[2], RoundedCornerShape(10))
+                    )
+                }
+                Box(Modifier.size(if (isHorizontal) 100.dp else 60.dp))
+            }
         }
 
         Spacer(Modifier.size(50.dp))
@@ -132,11 +135,6 @@ fun LookaheadWithFlowRowDemo() {
                         .background(colors[2], RoundedCornerShape(10))
                 )
             }
-        }
-
-        Button(modifier = Modifier.padding(top = 20.dp, bottom = 20.dp),
-            onClick = { isHorizontal = !isHorizontal }) {
-            Text("Toggle")
         }
     }
 }

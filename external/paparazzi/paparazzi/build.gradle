@@ -39,7 +39,7 @@ dependencies {
 
     compileOnlyAarAsJar("androidx.compose.runtime:runtime:1.2.1")
     compileOnlyAarAsJar("androidx.compose.ui:ui:1.2.1")
-    compileOnly("androidx.lifecycle:lifecycle-common:2.5.0")
+    compileOnly(project(":lifecycle:lifecycle-common"))
     compileOnlyAarAsJar(project(":lifecycle:lifecycle-runtime"))
     compileOnlyAarAsJar("androidx.savedstate:savedstate:1.2.0")
 

@@ -111,8 +111,11 @@ final class ImageSaver implements Runnable {
         try {
             if (isSaveToFile()) {
                 // For saving to file, write to the target folder and rename for better performance.
+                // The file extensions must be the same as app provided to avoid the directory
+                // access problem.
                 tempFile = new File(mOutputFileOptions.getFile().getParent(),
-                        TEMP_FILE_PREFIX + UUID.randomUUID().toString() + TEMP_FILE_SUFFIX);
+                        TEMP_FILE_PREFIX + UUID.randomUUID().toString()
+                                + getFileExtensionWithDot(mOutputFileOptions.getFile()));
             } else {
                 tempFile = File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX);
             }
@@ -183,6 +186,16 @@ final class ImageSaver implements Runnable {
             return null;
         }
         return tempFile;
+    }
+
+    private static String getFileExtensionWithDot(File file) {
+        String fileName = file.getName();
+        int dotIndex = fileName.lastIndexOf('.');
+        if (dotIndex >= 0) {
+            return fileName.substring(dotIndex);
+        } else {
+            return "";
+        }
     }
 
     @NonNull

@@ -21,6 +21,7 @@ import android.hardware.camera2.CameraCaptureSession.CaptureCallback
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
+import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
 import androidx.camera.camera2.pipe.integration.impl.createCaptureRequestOption
@@ -41,6 +42,8 @@ import org.robolectric.annotation.Config
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class CameraUseCaseAdapterTest {
 
+    private val resolution: Size = Size(640, 480)
+
     @Test
     fun shouldApplyOptionsFromConfigToBuilder_whenDefaultConfigSet() {
         // Arrange
@@ -60,7 +63,7 @@ class CameraUseCaseAdapterTest {
         val builder = CaptureConfig.Builder()
 
         // Act
-        CameraUseCaseAdapter.DefaultCaptureOptionsUnpacker.unpack(useCaseConfig, builder)
+        CameraUseCaseAdapter.DefaultCaptureOptionsUnpacker.INSTANCE.unpack(useCaseConfig, builder)
 
         // Assert
         val config = builder.build()
@@ -115,7 +118,8 @@ class CameraUseCaseAdapterTest {
         val builder = SessionConfig.Builder()
 
         // Act
-        CameraUseCaseAdapter.DefaultSessionOptionsUnpacker.unpack(useCaseConfig, builder)
+        CameraUseCaseAdapter.DefaultSessionOptionsUnpacker.unpack(resolution,
+            useCaseConfig, builder)
 
         // Assert
         val config = builder.build()
@@ -159,6 +163,7 @@ class CameraUseCaseAdapterTest {
         // Act
         val sessionBuilder = SessionConfig.Builder()
         CameraUseCaseAdapter.DefaultSessionOptionsUnpacker.unpack(
+            resolution,
             imageCaptureBuilder.useCaseConfig,
             sessionBuilder
         )
@@ -200,7 +205,8 @@ class CameraUseCaseAdapterTest {
         val sessionBuilder = SessionConfig.Builder()
 
         // Act
-        CameraUseCaseAdapter.DefaultSessionOptionsUnpacker.unpack(useCaseConfig, sessionBuilder)
+        CameraUseCaseAdapter.DefaultSessionOptionsUnpacker.unpack(resolution,
+            useCaseConfig, sessionBuilder)
         val sessionConfig = sessionBuilder.build()
 
         // Assert
@@ -239,7 +245,7 @@ class CameraUseCaseAdapterTest {
 
         // Act
         val captureBuilder = CaptureConfig.Builder()
-        CameraUseCaseAdapter.DefaultCaptureOptionsUnpacker.unpack(
+        CameraUseCaseAdapter.DefaultCaptureOptionsUnpacker.INSTANCE.unpack(
             imageCaptureBuilder.useCaseConfig,
             captureBuilder
         )
@@ -277,7 +283,9 @@ class CameraUseCaseAdapterTest {
         val captureBuilder = CaptureConfig.Builder()
 
         // Act
-        CameraUseCaseAdapter.DefaultCaptureOptionsUnpacker.unpack(useCaseConfig, captureBuilder)
+        CameraUseCaseAdapter.DefaultCaptureOptionsUnpacker.INSTANCE.unpack(
+            useCaseConfig, captureBuilder
+        )
         val captureConfig = captureBuilder.build()
 
         // Assert

@@ -52,7 +52,6 @@ public final class SettingsActivity extends AppCompatActivity {
     private MediaRouter mMediaRouter;
     private RoutesManager mRoutesManager;
     private RoutesAdapter mRoutesAdapter;
-    private RoutesAdapter.RouteItemListener mRouteItemListener;
     private SampleDynamicGroupMediaRouteProviderService mService;
     private ServiceConnection mConnection;
 
@@ -62,42 +61,39 @@ public final class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
 
         mMediaRouter = MediaRouter.getInstance(this);
-
         mRoutesManager = RoutesManager.getInstance(getApplicationContext());
-
         mConnection = new ProviderServiceConnection();
 
         setUpViews();
 
-        mRouteItemListener =
-                new RoutesAdapter.RouteItemListener() {
-                    @Override
-                    public void onRouteEditClick(@NonNull String routeId) {
-                        AddEditRouteActivity.launchActivity(
-                                /* context= */ SettingsActivity.this, /* routeId */ routeId);
-                    }
+        RoutesAdapter.RouteItemListener routeItemListener = new RoutesAdapter.RouteItemListener() {
+            @Override
+            public void onRouteEditClick(@NonNull String routeId) {
+                AddEditRouteActivity.launchActivity(
+                        /* context= */ SettingsActivity.this, /* routeId */ routeId);
+            }
 
-                    @Override
-                    public void onRouteDeleteClick(@NonNull String routeId) {
-                        new AlertDialog.Builder(SettingsActivity.this)
-                                .setTitle("Delete this route?")
-                                .setMessage("Are you sure you want to delete this route?")
-                                .setPositiveButton(android.R.string.cancel, null)
-                                .setNegativeButton(
-                                        android.R.string.ok,
-                                        (dialogInterface, i) -> {
-                                            mRoutesManager.deleteRouteWithId(routeId);
-                                            mService.reloadRoutes();
-                                            mRoutesAdapter.updateRoutes(
-                                                    mRoutesManager.getRouteItems());
-                                        })
-                                .show();
-                    }
-                };
+            @Override
+            public void onRouteDeleteClick(@NonNull String routeId) {
+                new AlertDialog.Builder(SettingsActivity.this)
+                        .setTitle(R.string.delete_route_alert_dialog_title)
+                        .setMessage(R.string.delete_route_alert_dialog_message)
+                        .setPositiveButton(android.R.string.cancel, null)
+                        .setNegativeButton(
+                                android.R.string.ok,
+                                (dialogInterface, i) -> {
+                                    mRoutesManager.deleteRouteWithId(routeId);
+                                    mService.reloadRoutes();
+                                    mRoutesAdapter.updateRoutes(
+                                            mRoutesManager.getRouteItems());
+                                })
+                        .show();
+            }
+        };
 
         RecyclerView routeList = findViewById(R.id.routes_recycler_view);
         routeList.setLayoutManager(new LinearLayoutManager(/* context= */ this));
-        mRoutesAdapter = new RoutesAdapter(mRoutesManager.getRouteItems(), mRouteItemListener);
+        mRoutesAdapter = new RoutesAdapter(mRoutesManager.getRouteItems(), routeItemListener);
         routeList.setAdapter(mRoutesAdapter);
         routeList.setHasFixedSize(true);
     }

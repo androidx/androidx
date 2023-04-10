@@ -37,6 +37,8 @@ import androidx.credentials.GetPasswordOption
 import androidx.credentials.GetPublicKeyCredentialOption
 import androidx.credentials.playservices.controllers.CreatePublicKeyCredential.PublicKeyCredentialControllerUtility.Companion.convertToPlayAuthPasskeyRequest
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
+import com.google.android.gms.auth.api.identity.BeginSignInRequest.GoogleIdTokenRequestOptions
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 
 /**
  * A utility class to handle logic for the begin sign in controller.
@@ -52,25 +54,48 @@ class BeginSignInControllerUtility {
             BeginSignInRequest {
             var isPublicKeyCredReqFound = false
             val requestBuilder = BeginSignInRequest.Builder()
-            for (option in request.getCredentialOptions) {
+            var autoSelect = false
+            for (option in request.credentialOptions) {
                 if (option is GetPasswordOption) {
                     requestBuilder.setPasswordRequestOptions(
                         BeginSignInRequest.PasswordRequestOptions.Builder()
                             .setSupported(true)
                             .build()
                     )
+                    autoSelect = autoSelect || option.isAutoSelectAllowed
                 } else if (option is GetPublicKeyCredentialOption && !isPublicKeyCredReqFound) {
                     requestBuilder.setPasskeysSignInRequestOptions(
                         convertToPlayAuthPasskeyRequest(option)
                     )
                     isPublicKeyCredReqFound = true
                     // TODO("Confirm logic for single vs multiple options of the same type")
+                } else if (option is GetGoogleIdOption) {
+                    requestBuilder.setGoogleIdTokenRequestOptions(
+                        convertToGoogleIdTokenOption(option))
+                    autoSelect = autoSelect || option.autoSelectEnabled
                 }
-            // TODO("Add GoogleIDToken version")
             }
             return requestBuilder
-                .setAutoSelectEnabled(request.isAutoSelectAllowed)
+                .setAutoSelectEnabled(autoSelect)
                 .build()
+        }
+
+        private fun convertToGoogleIdTokenOption(option: GetGoogleIdOption):
+          GoogleIdTokenRequestOptions {
+            var idTokenOption =
+                GoogleIdTokenRequestOptions.builder()
+                    .setFilterByAuthorizedAccounts(option.filterByAuthorizedAccounts)
+                    .setNonce(option.nonce)
+                    .setRequestVerifiedPhoneNumber(option.requestVerifiedPhoneNumber)
+                    .setServerClientId(option.serverClientId)
+                    .setSupported(true)
+            if (option.linkedServiceId != null) {
+                idTokenOption.associateLinkedAccounts(
+                    option.linkedServiceId!!,
+                    option.idTokenDepositionScopes
+                )
+            }
+            return idTokenOption.build()
         }
     }
 }

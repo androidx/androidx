@@ -480,7 +480,6 @@ public class TransitionSet extends Transition {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -549,7 +548,7 @@ public class TransitionSet extends Transition {
         }
     }
 
-    /** @hide
+    /**
      * @param sceneRoot */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -561,7 +560,7 @@ public class TransitionSet extends Transition {
         }
     }
 
-    /** @hide
+    /**
      * @param sceneRoot */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -573,7 +572,6 @@ public class TransitionSet extends Transition {
         }
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     protected void cancel() {
@@ -584,7 +582,6 @@ public class TransitionSet extends Transition {
         }
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     void forceToEnd(ViewGroup sceneRoot) {

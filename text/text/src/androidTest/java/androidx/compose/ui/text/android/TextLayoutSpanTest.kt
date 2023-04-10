@@ -29,7 +29,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.fonts.R
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.any
+import org.mockito.kotlin.any
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

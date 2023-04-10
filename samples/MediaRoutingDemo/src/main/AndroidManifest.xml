@@ -25,15 +25,16 @@
     <application
         android:hardwareAccelerated="true"
         android:icon="@drawable/app_sample_code"
-        android:label="@string/activity_sample_code"
+        android:label="@string/media_router_app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.SampleMediaRouter">
+        android:theme="@style/Theme.SampleMediaRouter"
+        android:name="androidx.multidex.MultiDexApplication">
 
         <activity
             android:name=".activities.MainActivity"
             android:configChanges="orientation|screenSize"
             android:exported="true"
-            android:label="@string/sample_media_router_activity_dark">
+            android:label="@string/main_activity_label">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.androidx.SAMPLE_CODE" />
@@ -46,7 +47,7 @@
             android:name=".activities.SettingsActivity"
             android:configChanges="orientation|screenSize"
             android:exported="true"
-            android:label="@string/sample_media_router_activity_dark">
+            android:label="@string/settings_activity_label">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
@@ -56,7 +57,7 @@
             android:name=".activities.AddEditRouteActivity"
             android:configChanges="orientation|screenSize"
             android:exported="false"
-            android:label="@string/sample_media_router_activity_dark">
+            android:label="@string/add_edit_route_activity_label">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.androidx.SAMPLE_CODE" />

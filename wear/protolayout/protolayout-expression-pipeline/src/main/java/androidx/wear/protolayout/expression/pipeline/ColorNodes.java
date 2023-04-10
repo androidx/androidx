@@ -16,10 +16,6 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
-import static androidx.wear.protolayout.expression.pipeline.AnimationsHelper.applyAnimationSpecToAnimator;
-
-import android.animation.ValueAnimator;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
@@ -35,9 +31,11 @@ class ColorNodes {
     /** Dynamic color node that has a fixed value. */
     static class FixedColorNode implements DynamicDataSourceNode<Integer> {
         private final int mValue;
-        private final DynamicTypeValueReceiver<Integer> mDownstream;
+        private final DynamicTypeValueReceiverWithPreUpdate<Integer> mDownstream;
 
-        FixedColorNode(FixedColor protoNode, DynamicTypeValueReceiver<Integer> downstream) {
+        FixedColorNode(
+                FixedColor protoNode,
+                DynamicTypeValueReceiverWithPreUpdate<Integer> downstream) {
             this.mValue = protoNode.getArgb();
             this.mDownstream = downstream;
         }
@@ -61,11 +59,11 @@ class ColorNodes {
     /** Dynamic color node that gets value from the platform source. */
     static class StateColorSourceNode extends StateSourceNode<Integer> {
         StateColorSourceNode(
-                ObservableStateStore observableStateStore,
+                StateStore stateStore,
                 StateColorSource protoNode,
-                DynamicTypeValueReceiver<Integer> downstream) {
+                DynamicTypeValueReceiverWithPreUpdate<Integer> downstream) {
             super(
-                    observableStateStore,
+                    stateStore,
                     protoNode.getSourceKey(),
                     se -> se.getColorVal().getArgb(),
                     downstream);
@@ -77,15 +75,18 @@ class ColorNodes {
             implements DynamicDataSourceNode<Integer> {
 
         private final AnimatableFixedColor mProtoNode;
-        private final DynamicTypeValueReceiver<Integer> mDownstream;
+        private final DynamicTypeValueReceiverWithPreUpdate<Integer> mDownstream;
 
         AnimatableFixedColorNode(
                 AnimatableFixedColor protoNode,
-                DynamicTypeValueReceiver<Integer> mDownstream,
+                DynamicTypeValueReceiverWithPreUpdate<Integer> downstream,
                 QuotaManager quotaManager) {
-            super(quotaManager);
+
+            super(quotaManager, protoNode.getAnimationSpec(), ARGB_EVALUATOR);
             this.mProtoNode = protoNode;
-            this.mDownstream = mDownstream;
+            this.mDownstream = downstream;
+            mQuotaAwareAnimator.addUpdateCallback(
+                    animatedValue -> mDownstream.onData((Integer) animatedValue));
         }
 
         @Override
@@ -97,13 +98,7 @@ class ColorNodes {
         @Override
         @UiThread
         public void init() {
-            ValueAnimator animator =
-                    ValueAnimator.ofArgb(mProtoNode.getFromArgb(), mProtoNode.getToArgb());
-            animator.addUpdateListener(a -> mDownstream.onData((Integer) a.getAnimatedValue()));
-
-            applyAnimationSpecToAnimator(animator, mProtoNode.getSpec());
-
-            mQuotaAwareAnimator.updateAnimator(animator);
+            mQuotaAwareAnimator.setIntValues(mProtoNode.getFromArgb(), mProtoNode.getToArgb());
             startOrSkipAnimator();
         }
 
@@ -118,8 +113,8 @@ class ColorNodes {
     static class DynamicAnimatedColorNode extends AnimatableNode
             implements DynamicDataNode<Integer> {
 
-        final DynamicTypeValueReceiver<Integer> mDownstream;
-        private final DynamicTypeValueReceiver<Integer> mInputCallback;
+        final DynamicTypeValueReceiverWithPreUpdate<Integer> mDownstream;
+        private final DynamicTypeValueReceiverWithPreUpdate<Integer> mInputCallback;
 
         @Nullable Integer mCurrentValue = null;
         int mPendingCalls = 0;
@@ -128,21 +123,27 @@ class ColorNodes {
         // initialization but mInputCallback is only used after the constructor is finished.
         @SuppressWarnings("method.invocation.invalid")
         DynamicAnimatedColorNode(
-                DynamicTypeValueReceiver<Integer> downstream,
+                DynamicTypeValueReceiverWithPreUpdate<Integer> downstream,
                 @NonNull AnimationSpec spec,
                 QuotaManager quotaManager) {
-            super(quotaManager);
+
+            super(quotaManager, spec, ARGB_EVALUATOR);
             this.mDownstream = downstream;
+            mQuotaAwareAnimator.addUpdateCallback(
+                    animatedValue -> {
+                        if (mPendingCalls == 0) {
+                            mCurrentValue = (Integer) animatedValue;
+                            mDownstream.onData(mCurrentValue);
+                        }
+                    });
             this.mInputCallback =
-                    new DynamicTypeValueReceiver<Integer>() {
+                    new DynamicTypeValueReceiverWithPreUpdate<Integer>() {
                         @Override
                         public void onPreUpdate() {
                             mPendingCalls++;
 
                             if (mPendingCalls == 1) {
                                 mDownstream.onPreUpdate();
-
-                                mQuotaAwareAnimator.resetAnimator();
                             }
                         }
 
@@ -157,19 +158,7 @@ class ColorNodes {
                                     mCurrentValue = newData;
                                     mDownstream.onData(mCurrentValue);
                                 } else {
-                                    ValueAnimator animator =
-                                            ValueAnimator.ofArgb(mCurrentValue, newData);
-
-                                    applyAnimationSpecToAnimator(animator, spec);
-                                    animator.addUpdateListener(
-                                            a -> {
-                                                if (mPendingCalls == 0) {
-                                                    mCurrentValue = (Integer) a.getAnimatedValue();
-                                                    mDownstream.onData(mCurrentValue);
-                                                }
-                                            });
-
-                                    mQuotaAwareAnimator.updateAnimator(animator);
+                                    mQuotaAwareAnimator.setIntValues(mCurrentValue, newData);
                                     startOrSkipAnimator();
                                 }
                             }
@@ -189,7 +178,7 @@ class ColorNodes {
                     };
         }
 
-        public DynamicTypeValueReceiver<Integer> getInputCallback() {
+        public DynamicTypeValueReceiverWithPreUpdate<Integer> getInputCallback() {
             return mInputCallback;
         }
     }

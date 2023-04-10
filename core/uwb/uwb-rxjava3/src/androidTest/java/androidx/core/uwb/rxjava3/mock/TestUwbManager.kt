@@ -51,7 +51,8 @@ class TestUwbManager : UwbManager {
         val localAddress = com.google.android.gms.nearby.uwb.UwbAddress(DEVICE_ADDRESS)
 
         val rangingCapabilities =
-            com.google.android.gms.nearby.uwb.RangingCapabilities(true, false, false, 200)
+            com.google.android.gms.nearby.uwb.RangingCapabilities(true, false, false, 200,
+                listOf(9), listOf(1, 2, 3), 2F)
         val uwbClient = TestUwbClient(complexChannel, localAddress, rangingCapabilities, true)
         return if (isController) {
              TestUwbControllerSessionScope(

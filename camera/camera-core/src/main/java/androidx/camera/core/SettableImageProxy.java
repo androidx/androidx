@@ -28,7 +28,6 @@ import androidx.annotation.RestrictTo;
 /**
  * An {@link ImageProxy} which overwrites the {@link ImageInfo}.
  *
- * @hide
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

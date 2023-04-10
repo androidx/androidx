@@ -30,13 +30,13 @@ import androidx.wear.watchface.style.CurrentUserStyleRepository
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.SettableFuture
-import kotlinx.coroutines.async
-import org.junit.Test
-import org.junit.runner.RunWith
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.async
+import org.junit.Test
+import org.junit.runner.RunWith
 
 internal class TestAsyncCanvasRenderInitWatchFaceService(
     testContext: Context,
@@ -59,43 +59,44 @@ internal class TestAsyncCanvasRenderInitWatchFaceService(
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
-    ) = WatchFace(
-        WatchFaceType.DIGITAL,
-        @Suppress("Deprecation")
-        object : ListenableCanvasRenderer(
-            surfaceHolder,
-            currentUserStyleRepository,
-            watchState,
-            CanvasType.HARDWARE,
-            16
-        ) {
-            override fun initFuture(): ListenableFuture<Unit> {
-                initFutureLatch.countDown()
-                return initFuture
-            }
+    ) =
+        WatchFace(
+            WatchFaceType.DIGITAL,
+            @Suppress("Deprecation")
+            object :
+                ListenableCanvasRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    CanvasType.HARDWARE,
+                    16
+                ) {
+                override fun initFuture(): ListenableFuture<Unit> {
+                    initFutureLatch.countDown()
+                    return initFuture
+                }
 
-            override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
-                // Actually rendering something isn't required.
-                synchronized(lock) {
-                    hasRendered = true
+                override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
+                    // Actually rendering something isn't required.
+                    synchronized(lock) { hasRendered = true }
+                }
+
+                override fun renderHighlightLayer(
+                    canvas: Canvas,
+                    bounds: Rect,
+                    zonedDateTime: ZonedDateTime
+                ) {
+                    // NOP
                 }
             }
+        )
 
-            override fun renderHighlightLayer(
-                canvas: Canvas,
-                bounds: Rect,
-                zonedDateTime: ZonedDateTime
-            ) {
-                // NOP
-            }
+    override fun getSystemTimeProvider() =
+        object : SystemTimeProvider {
+            override fun getSystemTimeMillis() = 123456789L
+
+            override fun getSystemTimeZoneId() = ZoneId.of("UTC")
         }
-    )
-
-    override fun getSystemTimeProvider() = object : SystemTimeProvider {
-        override fun getSystemTimeMillis() = 123456789L
-
-        override fun getSystemTimeZoneId() = ZoneId.of("UTC")
-    }
 }
 
 @MediumTest
@@ -109,32 +110,27 @@ public class AsyncListenableCanvasRendererTest : WatchFaceControlClientServiceTe
         val watchFaceService =
             TestAsyncCanvasRenderInitWatchFaceService(context, surfaceHolder, initFuture)
 
-        val deferredClient = handlerCoroutineScope.async {
-            @Suppress("deprecation")
-            watchFaceControlClientService.getOrCreateInteractiveWatchFaceClient(
-                "testId",
-                DeviceConfig(
-                    false,
-                    false,
-                    0,
-                    0
-                ),
-                WatchUiState(false, 0),
-                null,
-                emptyMap()
-            )
-        }
+        val deferredClient =
+            handlerCoroutineScope.async {
+                @Suppress("deprecation")
+                watchFaceControlClientService.getOrCreateInteractiveWatchFaceClient(
+                    "testId",
+                    DeviceConfig(false, false, 0, 0),
+                    WatchUiState(false, 0),
+                    null,
+                    emptyMap()
+                )
+            }
 
-        handler.post {
-            watchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
-        }
+        handler.post { watchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper }
 
         val client = awaitWithTimeout(deferredClient)
 
         try {
             assertThat(
-                watchFaceService.initFutureLatch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
-            ).isTrue()
+                    watchFaceService.initFutureLatch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
+                )
+                .isTrue()
             synchronized(watchFaceService.lock) {
                 assertThat(watchFaceService.hasRendered).isFalse()
             }

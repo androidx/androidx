@@ -77,9 +77,6 @@ package androidx.navigation {
     property public Args value;
   }
 
-  public final class NavArgsLazyKt {
-  }
-
   public final class NavArgument {
     method public Object? getDefaultValue();
     method public androidx.navigation.NavType<java.lang.Object> getType();
@@ -127,6 +124,7 @@ package androidx.navigation {
     property public androidx.lifecycle.ViewModelProvider.Factory defaultViewModelProviderFactory;
     property public final androidx.navigation.NavDestination destination;
     property public final String id;
+    property public androidx.lifecycle.Lifecycle lifecycle;
     property public final androidx.lifecycle.SavedStateHandle savedStateHandle;
     property public androidx.savedstate.SavedStateRegistry savedStateRegistry;
     property public androidx.lifecycle.ViewModelStore viewModelStore;
@@ -511,6 +509,7 @@ package androidx.navigation {
     method @CallSuper public void onLaunchSingleTopWithTransition(androidx.navigation.NavBackStackEntry backStackEntry);
     method public void pop(androidx.navigation.NavBackStackEntry popUpTo, boolean saveState);
     method public void popWithTransition(androidx.navigation.NavBackStackEntry popUpTo, boolean saveState);
+    method @CallSuper public void prepareForTransition(androidx.navigation.NavBackStackEntry entry);
     method public void push(androidx.navigation.NavBackStackEntry backStackEntry);
     method public void pushWithTransition(androidx.navigation.NavBackStackEntry backStackEntry);
     property public final kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.navigation.NavBackStackEntry>> backStack;

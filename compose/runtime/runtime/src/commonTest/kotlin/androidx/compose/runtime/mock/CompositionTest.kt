@@ -62,13 +62,15 @@ fun compositionTest(block: suspend CompositionTestScope.() -> Unit) = runTest {
                 val changeCount = recomposer.changeCount
                 Snapshot.sendApplyNotifications()
                 if (recomposer.hasPendingWork) {
-                    testScheduler.advanceTimeBy(5_000)
+                    advanceTimeBy(5_000)
                     check(ignorePendingWork || !recomposer.hasPendingWork) {
                         "Potentially infinite recomposition, still recomposing after advancing"
                     }
                 }
                 return recomposer.changeCount - changeCount
             }
+
+            override fun advanceTimeBy(amount: Long) = testScheduler.advanceTimeBy(amount)
 
             override fun advance(ignorePendingWork: Boolean) = advanceCount(ignorePendingWork) != 0L
 
@@ -111,6 +113,11 @@ interface CompositionTestScope : CoroutineScope {
      * Advance counting the number of time the recomposer ran.
      */
     fun advanceCount(ignorePendingWork: Boolean = false): Long
+
+    /**
+     * Advance the clock by [amount] ms
+     */
+    fun advanceTimeBy(amount: Long)
 
     /**
      * Verify the composition is well-formed.

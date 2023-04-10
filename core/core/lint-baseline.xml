@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-alpha05)" variant="all" version="8.0.0-alpha05">
+<issues format="6" by="lint 8.1.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.1.0-alpha07">
 
     <issue
         id="NewApi"
@@ -80,6 +80,33 @@
         errorLine2="                                                                                           ~~~">
         <location
             file="src/test/java/androidx/core/view/DisplayCompatTest.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast from `OutputStream` to `AutoCloseable` requires API level 19 (current min is 14)"
+        errorLine1="            closeQuietly(out);"
+        errorLine2="                         ~~~">
+        <location
+            file="src/androidTest/java/androidx/core/content/FileProviderTest.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast from `OutputStream` to `AutoCloseable` requires API level 19 (current min is 14)"
+        errorLine1="            closeQuietly(out);"
+        errorLine2="                         ~~~">
+        <location
+            file="src/androidTest/java/androidx/core/content/FileProviderTest.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast from `InputStream` to `AutoCloseable` requires API level 19 (current min is 14)"
+        errorLine1="            closeQuietly(in);"
+        errorLine2="                         ~~">
+        <location
+            file="src/androidTest/java/androidx/core/content/FileProviderTest.java"/>
     </issue>
 
     <issue
@@ -462,24 +489,6 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannelGroup#getChannels`"
-        errorLine1="            assertEquals(0, resultOne.getChannels().size());"
-        errorLine2="                                      ~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/app/NotificationManagerCompatTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 14): `android.app.NotificationChannelGroup#getChannels`"
-        errorLine1="            assertEquals(0, resultTwo.getChannels().size());"
-        errorLine2="                                      ~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/app/NotificationManagerCompatTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
         message="Field requires API level 19 (current min is 14): `android.app.Notification#extras`"
         errorLine1="        assertBundleEquals(&quot;Notification.extras&quot;, n2.extras, n2.extras)"
         errorLine2="                                                  ~~~~~~~~~">
@@ -719,6 +728,150 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/WindowInsetsAnimationCompat.java"/>
+    </issue>
+
+    <issue
+        id="BanHideAnnotation"
+        message="@hide is not allowed in Javadoc"
+        errorLine1="    public static int sizeAtStep(int srcSize, int dstSize, int step, int totalSteps) {"
+        errorLine2="                      ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/BitmapCompat.java"/>
+    </issue>
+
+    <issue
+        id="BanHideAnnotation"
+        message="@hide is not allowed in Javadoc"
+        errorLine1="    protected static boolean isAtLeastPreReleaseCodename(@NonNull String codename,"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/BuildCompat.java"/>
+    </issue>
+
+    <issue
+        id="BanHideAnnotation"
+        message="@hide is not allowed in Javadoc"
+        errorLine1="    public static void resetTypefaceCache() {"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/provider/FontsContractCompat.java"/>
+    </issue>
+
+    <issue
+        id="BanHideAnnotation"
+        message="@hide is not allowed in Javadoc"
+        errorLine1="    public static final class TvExtender implements Extender {"
+        errorLine2="                              ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="BanHideAnnotation"
+        message="@hide is not allowed in Javadoc"
+        errorLine1="        static final String EXTRA_TV_EXTENDER = &quot;android.tv.EXTENSIONS&quot;;"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="BanHideAnnotation"
+        message="@hide is not allowed in Javadoc"
+        errorLine1="        private static final String EXTRA_FLAGS = &quot;flags&quot;;"
+        errorLine2="                                    ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="BanHideAnnotation"
+        message="@hide is not allowed in Javadoc"
+        errorLine1="        static final String EXTRA_CONTENT_INTENT = &quot;content_intent&quot;;"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="BanHideAnnotation"
+        message="@hide is not allowed in Javadoc"
+        errorLine1="        static final String EXTRA_DELETE_INTENT = &quot;delete_intent&quot;;"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="BanHideAnnotation"
+        message="@hide is not allowed in Javadoc"
+        errorLine1="        static final String EXTRA_CHANNEL_ID = &quot;channel_id&quot;;"
+        errorLine2="                            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="BanHideAnnotation"
+        message="@hide is not allowed in Javadoc"
+        errorLine1="        static final String EXTRA_SUPPRESS_SHOW_OVER_APPS = &quot;suppressShowOverApps&quot;;"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(timeSliceMs);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/provider/DefaultExecutorServiceTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(TimeUnit.NANOSECONDS.toMillis(deadlineNanoTime - now));"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/provider/DefaultExecutorServiceTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(10);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/app/FrameMetricsAggregatorTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(100);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/widget/ScrollerCompatTestBase.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(20);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/ViewPropertyAnimatorCompatTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                    Thread.sleep(300)"
+        errorLine2="                           ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"/>
     </issue>
 
     <issue
@@ -1200,24 +1353,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        ArrayList&lt;Integer> list = mInfo.getExtras()"
-        errorLine2="                                        ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mInfo.getExtras().putIntegerArrayList(key, list);"
-        errorLine2="                  ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 21; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mInfo.addAction((AccessibilityNodeInfo.AccessibilityAction) action.mAction);"
         errorLine2="                  ~~~~~~~~~">
@@ -1326,54 +1461,9 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mInfo.getExtras().remove(SPANS_START_KEY);"
-        errorLine2="                  ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mInfo.getExtras().remove(SPANS_END_KEY);"
-        errorLine2="                  ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mInfo.getExtras().remove(SPANS_FLAGS_KEY);"
-        errorLine2="                  ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mInfo.getExtras().remove(SPANS_ID_KEY);"
-        errorLine2="                  ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 30; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return mInfo.getStateDescription();"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return mInfo.getExtras().getCharSequence(STATE_DESCRIPTION_KEY);"
-        errorLine2="                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
     </issue>
@@ -1389,15 +1479,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mInfo.getExtras().putCharSequence(STATE_DESCRIPTION_KEY, stateDescription);"
-        errorLine2="                  ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 33; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return mInfo.getUniqueId();"
         errorLine2="                         ~~~~~~~~~~~">
@@ -1407,27 +1488,9 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return mInfo.getExtras().getString(UNIQUE_ID_KEY);"
-        errorLine2="                         ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 33; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mInfo.setUniqueId(uniqueId);"
         errorLine2="                  ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mInfo.getExtras().putString(UNIQUE_ID_KEY, uniqueId);"
-        errorLine2="                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
     </issue>
@@ -1596,27 +1659,9 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return mInfo.getExtras().getCharSequence(HINT_TEXT_KEY);"
-        errorLine2="                         ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 26; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mInfo.setHintText(hintText);"
         errorLine2="                  ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mInfo.getExtras().putCharSequence(HINT_TEXT_KEY, hintText);"
-        errorLine2="                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
     </issue>
@@ -1716,15 +1761,6 @@
         message="This call references a method added in API level 18; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            List&lt;AccessibilityNodeInfo> nodes = mInfo.findAccessibilityNodeInfosByViewId(viewId);"
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return mInfo.getExtras();"
-        errorLine2="                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
     </issue>
@@ -1938,27 +1974,9 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return mInfo.getExtras().getCharSequence(TOOLTIP_TEXT_KEY);"
-        errorLine2="                         ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 28; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mInfo.setTooltipText(tooltipText);"
         errorLine2="                  ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mInfo.getExtras().putCharSequence(TOOLTIP_TEXT_KEY, tooltipText);"
-        errorLine2="                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
     </issue>
@@ -1974,27 +1992,9 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mInfo.getExtras().putCharSequence(PANE_TITLE_KEY, paneTitle);"
-        errorLine2="                  ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 28; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return mInfo.getPaneTitle();"
         errorLine2="                         ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return mInfo.getExtras().getCharSequence(PANE_TITLE_KEY);"
-        errorLine2="                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
     </issue>
@@ -2076,24 +2076,6 @@
         message="This call references a method added in API level 18; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return mInfo.refresh();"
         errorLine2="                         ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return mInfo.getExtras().getCharSequence(ROLE_DESCRIPTION_KEY);"
-        errorLine2="                         ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            mInfo.getExtras().putCharSequence(ROLE_DESCRIPTION_KEY, roleDescription);"
-        errorLine2="                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
     </issue>
@@ -4885,6 +4867,15 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void apply(NotificationBuilderWithBuilderAccessor builderAccessor) {"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public void apply(NotificationBuilderWithBuilderAccessor builder) {"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -4959,15 +4950,6 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public CharSequence title;"
         errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public PendingIntent actionIntent;"
-        errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"/>
     </issue>

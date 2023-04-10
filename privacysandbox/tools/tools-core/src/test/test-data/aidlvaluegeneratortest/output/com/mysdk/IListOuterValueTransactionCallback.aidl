@@ -5,7 +5,7 @@ import com.mysdk.ParcelableOuterValue;
 import com.mysdk.PrivacySandboxThrowableParcel;
 
 oneway interface IListOuterValueTransactionCallback {
-    void onCancellable(ICancellationSignal cancellationSignal);
-    void onFailure(in PrivacySandboxThrowableParcel throwableParcel);
-    void onSuccess(in ParcelableOuterValue[] result);
+    void onCancellable(ICancellationSignal cancellationSignal) = 6802168;
+    void onFailure(in PrivacySandboxThrowableParcel throwableParcel) = 12699996;
+    void onSuccess(in ParcelableOuterValue[] result) = 3688211;
 }

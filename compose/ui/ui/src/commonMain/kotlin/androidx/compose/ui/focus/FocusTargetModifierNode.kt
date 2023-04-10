@@ -18,6 +18,7 @@ package androidx.compose.ui.focus
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester.Companion.Default
 import androidx.compose.ui.focus.FocusStateImpl.Active
 import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
 import androidx.compose.ui.focus.FocusStateImpl.Captured
@@ -25,24 +26,27 @@ import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.layout.BeyondBoundsLayout
 import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.modifier.ModifierLocalNode
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.ObserverNode
-import androidx.compose.ui.node.modifierElementOf
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.node.visitAncestors
+import androidx.compose.ui.platform.InspectorInfo
 
 /**
  * This modifier node can be used to create a modifier that makes a component focusable.
  * Use a different instance of [FocusTargetModifierNode] for each focusable component.
  */
-@ExperimentalComposeUiApi
 class FocusTargetModifierNode : ObserverNode, ModifierLocalNode, Modifier.Node() {
     /**
      * The [FocusState] associated with this [FocusTargetModifierNode].
      */
     val focusState: FocusState
         get() = focusStateImpl
+
+    private var isProcessingCustomExit = false
+    private var isProcessingCustomEnter = false
 
     internal var focusStateImpl = Inactive
     internal val beyondBoundsLayoutParent: BeyondBoundsLayout?
@@ -54,14 +58,21 @@ class FocusTargetModifierNode : ObserverNode, ModifierLocalNode, Modifier.Node()
         if (previousFocusState != focusState) refreshFocusEventNodes()
     }
 
-    internal fun onRemoved() {
+    /**
+     * Clears focus if this focus target has it.
+     */
+    override fun onReset() {
         when (focusState) {
             // Clear focus from the current FocusTarget.
             // This currently clears focus from the entire hierarchy, but we can change the
             // implementation so that focus is sent to the immediate focus parent.
             Active, Captured -> requireOwner().focusOwner.clearFocus(force = true)
-
-            ActiveParent, Inactive -> scheduleInvalidationForFocusEvents()
+            ActiveParent -> {
+                scheduleInvalidationForFocusEvents()
+                // This node might be reused, so reset the state to Inactive.
+                focusStateImpl = Inactive
+            }
+            Inactive -> scheduleInvalidationForFocusEvents()
         }
     }
 
@@ -70,7 +81,6 @@ class FocusTargetModifierNode : ObserverNode, ModifierLocalNode, Modifier.Node()
      * [FocusPropertiesModifierNode.modifyFocusProperties] on each parent.
      * This effectively collects an aggregated focus state.
      */
-    @ExperimentalComposeUiApi
     internal fun fetchFocusProperties(): FocusProperties {
         val properties = FocusPropertiesImpl()
         visitAncestors(Nodes.FocusProperties or Nodes.FocusTarget) {
@@ -83,6 +93,60 @@ class FocusTargetModifierNode : ObserverNode, ModifierLocalNode, Modifier.Node()
             it.modifyFocusProperties(properties)
         }
         return properties
+    }
+
+    /**
+     * Fetch custom enter destination associated with this [focusTarget].
+     *
+     * Custom focus enter properties are specified as a lambda. If the user runs code in this
+     * lambda that triggers a focus search, or some other focus change that causes focus to leave
+     * the sub-hierarchy associated with this node, we could end up in a loop as that operation
+     * will trigger another invocation of the lambda associated with the focus exit property.
+     * This function prevents that re-entrant scenario by ensuring there is only one concurrent
+     * invocation of this lambda.
+     */
+    @OptIn(ExperimentalComposeUiApi::class)
+    internal inline fun fetchCustomEnter(
+        focusDirection: FocusDirection,
+        block: (FocusRequester) -> Unit
+    ) {
+        if (!isProcessingCustomEnter) {
+            isProcessingCustomEnter = true
+            try {
+                fetchFocusProperties().enter(focusDirection).also {
+                    if (it !== Default) block(it)
+                }
+            } finally {
+                isProcessingCustomEnter = false
+            }
+        }
+    }
+
+    /**
+     * Fetch custom exit destination associated with this [focusTarget].
+     *
+     * Custom focus exit properties are specified as a lambda. If the user runs code in this
+     * lambda that triggers a focus search, or some other focus change that causes focus to leave
+     * the sub-hierarchy associated with this node, we could end up in a loop as that operation
+     * will trigger another invocation of the lambda associated with the focus exit property.
+     * This function prevents that re-entrant scenario by ensuring there is only one concurrent
+     * invocation of this lambda.
+     */
+    @OptIn(ExperimentalComposeUiApi::class)
+    internal inline fun fetchCustomExit(
+        focusDirection: FocusDirection,
+        block: (FocusRequester) -> Unit
+    ) {
+        if (!isProcessingCustomExit) {
+            isProcessingCustomExit = true
+            try {
+                fetchFocusProperties().exit(focusDirection).also {
+                    if (it !== Default) block(it)
+                }
+            } finally {
+                isProcessingCustomExit = false
+            }
+        }
     }
 
     internal fun invalidateFocus() {
@@ -113,10 +177,16 @@ class FocusTargetModifierNode : ObserverNode, ModifierLocalNode, Modifier.Node()
         }
     }
 
-    internal companion object {
-        internal val FocusTargetModifierElement = modifierElementOf(
-            create = { FocusTargetModifierNode() },
-            definitions = { name = "focusTarget" }
-        )
+    internal object FocusTargetModifierElement : ModifierNodeElement<FocusTargetModifierNode>() {
+        override fun create() = FocusTargetModifierNode()
+
+        override fun update(node: FocusTargetModifierNode) = node
+
+        override fun InspectorInfo.inspectableProperties() {
+            name = "focusTarget"
+        }
+
+        override fun hashCode() = "focusTarget".hashCode()
+        override fun equals(other: Any?) = other === this
     }
 }

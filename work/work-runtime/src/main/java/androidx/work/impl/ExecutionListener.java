@@ -24,7 +24,6 @@ import androidx.work.impl.model.WorkGenerationalId;
 /**
  * Listener that reports the result of a {@link Worker}'s execution.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ExecutionListener {

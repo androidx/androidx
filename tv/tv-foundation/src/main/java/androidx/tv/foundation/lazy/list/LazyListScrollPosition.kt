@@ -128,8 +128,8 @@ internal fun LazyLayoutItemProvider.findIndexByKey(
         // this item is still at the same index
         return lastKnownIndex
     }
-    val newIndex = keyToIndexMap[key]
-    if (newIndex != null) {
+    val newIndex = getIndex(key)
+    if (newIndex != -1) {
         return newIndex
     }
     // fallback to the previous index if we don't know the new index of the item

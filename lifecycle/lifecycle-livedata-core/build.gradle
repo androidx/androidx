@@ -34,13 +34,6 @@ dependencies {
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
-
-    constraints {
-        implementation(project(":lifecycle:lifecycle-common"))
-        implementation(project(":lifecycle:lifecycle-livedata"))
-        implementation(project(":lifecycle:lifecycle-livedata-core-ktx"))
-        implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
-    }
 }
 
 androidx {

@@ -56,7 +56,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * Utility functions to work with {@link android.car.hardware.CarPropertyValue}
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public final class PropertyUtils {

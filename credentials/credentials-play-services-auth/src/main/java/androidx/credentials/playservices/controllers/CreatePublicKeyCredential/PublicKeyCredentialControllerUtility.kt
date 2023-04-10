@@ -20,9 +20,12 @@ import android.util.Base64
 import android.util.Log
 import androidx.credentials.CreatePublicKeyCredentialRequest
 import androidx.credentials.GetPublicKeyCredentialOption
+import androidx.credentials.exceptions.CreateCredentialCancellationException
+import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.domerrors.AbortError
 import androidx.credentials.exceptions.domerrors.ConstraintError
 import androidx.credentials.exceptions.domerrors.DataError
+import androidx.credentials.exceptions.domerrors.EncodingError
 import androidx.credentials.exceptions.domerrors.InvalidStateError
 import androidx.credentials.exceptions.domerrors.NetworkError
 import androidx.credentials.exceptions.domerrors.NotAllowedError
@@ -32,7 +35,6 @@ import androidx.credentials.exceptions.domerrors.SecurityError
 import androidx.credentials.exceptions.domerrors.TimeoutError
 import androidx.credentials.exceptions.domerrors.UnknownError
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialDomException
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialException
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.SignInCredential
 import com.google.android.gms.fido.common.Transport
@@ -114,7 +116,9 @@ class PublicKeyCredentialControllerUtility {
                 responseJson.put(
                     "attestationObject",
                     b64Encode(authenticatorResponse.attestationObject))
-                val transports = JSONArray(listOf(authenticatorResponse.transports))
+                val transportArray = convertToProperNamingScheme(authenticatorResponse)
+                val transports = JSONArray(transportArray)
+
                 responseJson.put("transports", transports)
                 json.put("response", responseJson)
             } else {
@@ -128,6 +132,20 @@ class PublicKeyCredentialControllerUtility {
             json.put("rawId", b64Encode(cred.rawId))
             json.put("type", cred.type)
             return json.toString()
+        }
+
+        private fun convertToProperNamingScheme(
+            authenticatorResponse: AuthenticatorAttestationResponse
+        ): Array<out String> {
+            val transportArray = authenticatorResponse.transports
+            var ix = 0
+            for (transport in transportArray) {
+                if (transport == "cable") {
+                    transportArray[ix] = "hybrid"
+                }
+                ix += 1
+            }
+            return transportArray
         }
 
         private fun addOptionalAuthenticatorAttachmentAndExtensions(
@@ -244,18 +262,30 @@ class PublicKeyCredentialControllerUtility {
          */
         fun publicKeyCredentialResponseContainsError(
             cred: PublicKeyCredential
-        ): CreatePublicKeyCredentialException? {
+        ): CreateCredentialException? {
             val authenticatorResponse: AuthenticatorResponse = cred.response
             if (authenticatorResponse is AuthenticatorErrorResponse) {
                 val code = authenticatorResponse.errorCode
                 var exceptionError = orderedErrorCodeToExceptions[code]
                 var msg = authenticatorResponse.errorMessage
-                val exception: CreatePublicKeyCredentialDomException
+                val exception: CreateCredentialException
                 if (exceptionError == null) {
                     exception = CreatePublicKeyCredentialDomException(
                         UnknownError(), "unknown fido gms exception - $msg"
                     )
-                } else { exception = CreatePublicKeyCredentialDomException(exceptionError, msg) }
+                } else {
+                    // This fix is quite fragile because it relies on that the fido module
+                    // does not change its error message, but is the only viable solution
+                    // because there's no other differentiator.
+                    if (code == ErrorCode.CONSTRAINT_ERR &&
+                        msg?.contains("Unable to get sync account") == true
+                    ) {
+                        exception = CreateCredentialCancellationException(
+                            "Passkey registration was cancelled by the user.")
+                    } else {
+                        exception = CreatePublicKeyCredentialDomException(exceptionError, msg)
+                    }
+                }
                 return exception
             }
             return null
@@ -357,7 +387,13 @@ class PublicKeyCredentialControllerUtility {
                             "transports"
                         )
                         for (j in 0 until descriptorTransports.length()) {
-                            transports.add(Transport.fromString(descriptorTransports.getString(j)))
+                            try {
+                                transports.add(Transport.fromString(
+                                    descriptorTransports.getString(j)))
+                            } catch (e: Transport.UnsupportedTransportException) {
+                                throw CreatePublicKeyCredentialDomException(EncodingError(),
+                                    e.message)
+                            }
                         }
                     }
                     excludeCredentialsList.add(

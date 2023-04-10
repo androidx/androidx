@@ -32,7 +32,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Implementation details for DefaultArtTooling.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressWarnings({"rawtypes", "unused", "unchecked"})

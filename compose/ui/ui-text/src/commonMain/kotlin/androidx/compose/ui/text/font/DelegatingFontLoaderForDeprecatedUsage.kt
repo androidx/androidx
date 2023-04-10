@@ -16,10 +16,7 @@
 
 package androidx.compose.ui.text.font
 
-import androidx.compose.ui.text.ExperimentalTextApi
-
 @Suppress("DEPRECATION")
-@OptIn(ExperimentalTextApi::class)
 @Deprecated("This exists to bridge existing Font.ResourceLoader APIs, and should be " +
     "removed with them",
     replaceWith = ReplaceWith("createFontFamilyResolver()"),

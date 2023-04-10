@@ -25,7 +25,6 @@ import androidx.annotation.RestrictTo;
 
 /**
  * Helper for view backgrounds.
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public final class BackgroundHelper {

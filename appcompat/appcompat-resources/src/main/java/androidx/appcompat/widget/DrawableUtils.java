@@ -43,7 +43,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-/** @hide */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class DrawableUtils {
 

@@ -24,4 +24,5 @@ oneway interface IRemoteSessionClient {
     void onRemoteSessionOpened(in SurfacePackage surfacePackage,
         IRemoteSessionController remoteSessionController, boolean isZOrderOnTop);
     void onRemoteSessionError(String exception);
+    void onResizeRequested(int width, int height);
 }

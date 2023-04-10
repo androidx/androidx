@@ -35,8 +35,11 @@ import java.util.Collection;
 /**
  * Helper class used for Tiles Material.
  *
- * @hide
+ * @deprecated Use the new class {@link androidx.wear.protolayout.material.Helper} which provides
+ *     the same API and functionality.
  */
+@Deprecated
+@SuppressWarnings("deprecation")
 @RestrictTo(Scope.LIBRARY_GROUP)
 public class Helper {
     private Helper() {}
@@ -44,7 +47,6 @@ public class Helper {
     /**
      * Returns given value if not null or throws {@code NullPointerException} otherwise.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -64,7 +66,6 @@ public class Helper {
     /**
      * Returns true if the given DeviceParameters belong to the round screen device.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static boolean isRoundDevice(@NonNull DeviceParameters deviceParameters) {
@@ -74,7 +75,6 @@ public class Helper {
     /**
      * Returns String representation of tag from byte array.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -85,7 +85,6 @@ public class Helper {
     /**
      * Returns byte array representation of tag from String.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull

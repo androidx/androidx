@@ -18,6 +18,8 @@ package androidx.window.core
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
+import android.os.Build
 import org.mockito.kotlin.mock
 import java.util.function.Consumer
 import org.junit.Assert.assertEquals
@@ -38,7 +40,12 @@ class ConsumerAdapterTest {
         }
 
         @Suppress("UNUSED_PARAMETER")
-        fun addConsumer(a: Activity, c: Consumer<String>) {
+        fun addConsumer(context: Context, c: Consumer<String>) {
+            consumers.add(c)
+        }
+
+        @Suppress("UNUSED_PARAMETER")
+        fun addConsumer(activity: Activity, c: Consumer<String>) {
             consumers.add(c)
         }
 
@@ -85,6 +92,29 @@ class ConsumerAdapterTest {
     }
 
     @Test
+    fun testSubscribeByReflectionForContext() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            // java.util.function.Consumer#accept is supported after N.
+            return
+        }
+        val values = mutableListOf<String>()
+        val context = mock<Context>()
+        adapter.createSubscription(
+            listenerInterface,
+            String::class,
+            "addConsumer",
+            "removeConsumer",
+            context
+        ) { s: String ->
+            values.add(s)
+        }
+
+        assertEquals(1, listenerInterface.consumers.size)
+        listenerInterface.consumers.first().accept(value)
+        assertEquals(listOf(value), values)
+    }
+
+    @Test
     fun testDisposeSubscribe() {
         val values = mutableListOf<String>()
         val subscription = adapter.createSubscription(
@@ -93,6 +123,24 @@ class ConsumerAdapterTest {
             "addConsumer",
             "removeConsumer",
             mock()
+        ) { s: String ->
+            values.add(s)
+        }
+        subscription.dispose()
+
+        assertTrue(listenerInterface.consumers.isEmpty())
+    }
+
+    @Test
+    fun testDisposeSubscribeForContext() {
+        val values = mutableListOf<String>()
+        val context = mock<Context>()
+        val subscription = adapter.createSubscription(
+            listenerInterface,
+            String::class,
+            "addConsumer",
+            "removeConsumer",
+            context
         ) { s: String ->
             values.add(s)
         }

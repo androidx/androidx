@@ -24,7 +24,6 @@ import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolateCallback;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/** @hide */
 @IntDef(value = {ExecutionErrorTypes.JS_EVALUATION_ERROR})
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @Retention(RetentionPolicy.SOURCE)

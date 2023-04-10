@@ -16,6 +16,7 @@
 
 package androidx.car.app.sample.showcase.common.screens.navigationdemos;
 
+import static androidx.car.app.CarToast.LENGTH_LONG;
 import static androidx.car.app.CarToast.LENGTH_SHORT;
 import static androidx.car.app.model.Action.FLAG_PRIMARY;
 
@@ -68,7 +69,10 @@ public class MapTemplateWithPaneDemoScreen extends Screen {
     @Override
     public Template onGetTemplate() {
         Pane.Builder paneBuilder = new Pane.Builder();
-        for (int i = 0; i < LIST_LIMIT; i++) {
+
+        paneBuilder.addRow(createRowWithExcessivelyLargeContent());
+        paneBuilder.addRow(createRowWithSecondaryAction(1));
+        for (int i = 2; i < LIST_LIMIT; i++) {
             paneBuilder.addRow(createRow(i));
         }
 
@@ -174,23 +178,48 @@ public class MapTemplateWithPaneDemoScreen extends Screen {
     }
 
     private Row createRow(int index) {
-        switch (index) {
-            case 0:
-                // Row with a large image.
-                return new Row.Builder()
-                        .setTitle(getCarContext().getString(R.string.first_row_title))
-                        .addText(getCarContext().getString(R.string.long_line_text))
-                        .setImage(new CarIcon.Builder(mRowLargeIcon).build())
-                        .build();
-            default:
-                return new Row.Builder()
-                        .setTitle(
-                                getCarContext().getString(R.string.other_row_title_prefix) + (index
-                                        + 1))
-                        .addText(getCarContext().getString(R.string.other_row_text))
-                        .addText(getCarContext().getString(R.string.other_row_text))
-                        .build();
+        return new Row.Builder()
+                .setTitle(createRowTitle(index))
+                .addText(getCarContext().getString(R.string.other_row_text))
+                .addText(getCarContext().getString(R.string.other_row_text))
+                .build();
+    }
 
+    private Row createRowWithExcessivelyLargeContent() {
+        return new Row.Builder()
+            .setTitle(getCarContext().getString(R.string.first_row_title))
+            .addText(getCarContext().getString(R.string.long_line_text))
+            .setImage(new CarIcon.Builder(mRowLargeIcon).build())
+            .build();
+    }
+
+    private Row createRowWithSecondaryAction(int index) {
+        Action action = new Action.Builder()
+                .setIcon(buildCarIconWithResources(R.drawable.baseline_question_mark_24))
+                .setOnClickListener(() -> CarToast.makeText(getCarContext(),
+                        R.string.secondary_action_toast, LENGTH_LONG).show())
+                .build();
+
+        Row.Builder rowBuilder = new Row.Builder()
+                .setTitle(createRowTitle(index))
+                .addText(getCarContext().getString(R.string.other_row_text));
+
+        if (getCarContext().getCarAppApiLevel() >= CarAppApiLevels.LEVEL_6) {
+            rowBuilder.addAction(action);
         }
+
+        return rowBuilder.build();
+    }
+
+    private CharSequence createRowTitle(int index) {
+        return getCarContext().getString(R.string.other_row_title_prefix) + (index + 1);
+    }
+
+    private CarIcon buildCarIconWithResources(int imageId) {
+        return new CarIcon.Builder(
+                IconCompat.createWithResource(
+                        getCarContext(),
+                        imageId))
+                .build();
     }
 }

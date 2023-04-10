@@ -17,6 +17,7 @@
 package androidx.privacysandbox.ui.client
 
 import android.content.Context
+import android.content.res.Configuration
 import android.hardware.display.DisplayManager
 import android.os.Binder
 import android.os.Build
@@ -33,18 +34,22 @@ import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import java.util.concurrent.Executor
 
 /**
- * Provides an adapter created from the supplied Bundle which acts as a proxy between the host app
- * and Binder provided by the provider of content.
- * @throws IllegalArgumentException if CoreLibInfo does not contain a Binder with the key
- * uiAdapterBinder
+ * Provides an adapter created from a supplied Bundle which acts as a proxy between the host app and
+ * the Binder provided by the provider of content.
  */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 object SandboxedUiAdapterFactory {
+
     // Bundle key is a binary compatibility requirement
     private const val UI_ADAPTER_BINDER = "uiAdapterBinder"
+
+    /**
+     * @throws IllegalArgumentException if {@code coreLibInfo} does not contain a Binder with the
+     * key UI_ADAPTER_BINDER
+     */
     fun createFromCoreLibInfo(coreLibInfo: Bundle): SandboxedUiAdapter {
         val uiAdapterBinder = requireNotNull(coreLibInfo.getBinder(UI_ADAPTER_BINDER)) {
-            "Invalid CoreLibInfo bundle, missing $UI_ADAPTER_BINDER."
+            "Invalid bundle, missing $UI_ADAPTER_BINDER."
         }
         val adapterInterface = ISandboxedUiAdapter.Stub.asInterface(
             uiAdapterBinder
@@ -102,6 +107,12 @@ object SandboxedUiAdapterFactory {
                     client.onSessionError(Throwable(errorString))
                 }
             }
+
+            override fun onResizeRequested(width: Int, height: Int) {
+                clientExecutor.execute {
+                    client.onResizeRequested(width, height)
+                }
+            }
         }
 
         private class SessionImpl(
@@ -110,6 +121,18 @@ object SandboxedUiAdapterFactory {
         ) : SandboxedUiAdapter.Session {
 
             override val view: View = surfaceView
+
+            override fun notifyConfigurationChanged(configuration: Configuration) {
+                remoteSessionController.notifyConfigurationChanged(configuration)
+            }
+
+            override fun notifyResized(width: Int, height: Int) {
+                remoteSessionController.notifyResized(width, height)
+            }
+
+            override fun notifyZOrderChanged(isZOrderOnTop: Boolean) {
+                surfaceView.setZOrderOnTop(isZOrderOnTop)
+            }
 
             override fun close() {
                 remoteSessionController.close()

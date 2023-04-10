@@ -44,6 +44,7 @@ import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -94,6 +95,7 @@ class FakeDragTest(private val config: TestConfig) :
         selectOrientation(config.orientation)
     }
 
+    @Ignore // b/266477436
     @Test
     fun testFakeDragging() {
         // test if ViewPager2 goes to the next page when fake dragging

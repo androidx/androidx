@@ -25,7 +25,6 @@ import android.provider.Settings;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ComplicationDeniedActivity extends Activity {
 

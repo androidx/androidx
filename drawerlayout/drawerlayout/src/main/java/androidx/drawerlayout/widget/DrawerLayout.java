@@ -438,7 +438,6 @@ public class DrawerLayout extends ViewGroup implements Openable {
     }
 
     /**
-     * @hide Internal use only; called to apply window insets when configured
      * with fitsSystemWindows="true"
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)

@@ -24,8 +24,8 @@ import android.support.wearable.complications.ComplicationText.TimeDifferenceBui
 import android.support.wearable.complications.ComplicationText.TimeFormatBuilder
 import android.support.wearable.complications.ComplicationText.plainText
 import androidx.test.core.app.ApplicationProvider
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
 import androidx.wear.watchface.complications.data.SharedRobolectricTestRunner
-import androidx.wear.watchface.complications.data.toFloatExpression
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Assert.assertThrows
@@ -100,7 +100,7 @@ public class ComplicationDataTest {
         // GIVEN complication data of the RANGED_VALUE type created by the Builder...
         val data =
             ComplicationData.Builder(ComplicationData.TYPE_RANGED_VALUE)
-                .setRangedValueExpression(byteArrayOf(42, 107).toFloatExpression())
+                .setRangedValueExpression(DynamicFloat.constant(20f))
                 .setRangedMinValue(5f)
                 .setRangedMaxValue(150f)
                 .setShortTitle(plainText("title"))
@@ -109,7 +109,8 @@ public class ComplicationDataTest {
 
         // WHEN the relevant getters are called on the resulting data
         // THEN the correct values are returned.
-        assertThat(data.rangedValueExpression!!.asByteArray()).isEqualTo(byteArrayOf(42, 107))
+        assertThat(data.rangedValueExpression?.toDynamicFloatByteArray())
+            .isEqualTo(DynamicFloat.constant(20f).toDynamicFloatByteArray())
         Assert.assertEquals(data.rangedMinValue, 5f, 0f)
         Assert.assertEquals(data.rangedMaxValue, 150f, 0f)
         assertThat(data.shortTitle!!.getTextAt(mResources, 0)).isEqualTo("title")

@@ -119,10 +119,10 @@ package androidx.navigation {
     method @MainThread public void navigate(androidx.navigation.NavDirections directions);
     method @MainThread public void navigate(androidx.navigation.NavDirections directions, androidx.navigation.NavOptions? navOptions);
     method @MainThread public void navigate(androidx.navigation.NavDirections directions, androidx.navigation.Navigator.Extras navigatorExtras);
-    method public final void navigate(String route, kotlin.jvm.functions.Function1<? super androidx.navigation.NavOptionsBuilder,kotlin.Unit> builder);
-    method public final void navigate(String route, optional androidx.navigation.NavOptions? navOptions, optional androidx.navigation.Navigator.Extras? navigatorExtras);
-    method public final void navigate(String route, optional androidx.navigation.NavOptions? navOptions);
-    method public final void navigate(String route);
+    method @MainThread public final void navigate(String route, kotlin.jvm.functions.Function1<? super androidx.navigation.NavOptionsBuilder,kotlin.Unit> builder);
+    method @MainThread public final void navigate(String route, optional androidx.navigation.NavOptions? navOptions, optional androidx.navigation.Navigator.Extras? navigatorExtras);
+    method @MainThread public final void navigate(String route, optional androidx.navigation.NavOptions? navOptions);
+    method @MainThread public final void navigate(String route);
     method @MainThread public boolean navigateUp();
     method @MainThread public boolean popBackStack();
     method @MainThread public boolean popBackStack(@IdRes int destinationId, boolean inclusive);

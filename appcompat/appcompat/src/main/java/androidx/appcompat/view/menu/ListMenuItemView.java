@@ -42,7 +42,6 @@ import androidx.core.view.ViewCompat;
 /**
  * The item view for each item in the ListView-based MenuViews.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class ListMenuItemView extends LinearLayout

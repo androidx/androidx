@@ -1,5 +1,0 @@
-// Baseline format: 1.0
-ChangedType: androidx.lifecycle.LiveDataReactiveStreams#fromPublisher(org.reactivestreams.Publisher<T>):
-    Method androidx.lifecycle.LiveDataReactiveStreams.fromPublisher has changed return type from androidx.lifecycle.LiveData<T!> to androidx.lifecycle.LiveData<T>
-ChangedType: androidx.lifecycle.LiveDataReactiveStreams#toPublisher(androidx.lifecycle.LifecycleOwner, androidx.lifecycle.LiveData<T>):
-    Method androidx.lifecycle.LiveDataReactiveStreams.toPublisher has changed return type from org.reactivestreams.Publisher<T!> to org.reactivestreams.Publisher<T>

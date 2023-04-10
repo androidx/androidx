@@ -25,6 +25,7 @@ import static androidx.camera.video.internal.encoder.EncoderImpl.InternalState.P
 import static androidx.camera.video.internal.encoder.EncoderImpl.InternalState.RELEASED;
 import static androidx.camera.video.internal.encoder.EncoderImpl.InternalState.STARTED;
 import static androidx.camera.video.internal.encoder.EncoderImpl.InternalState.STOPPING;
+import static androidx.core.util.Preconditions.checkState;
 
 import static java.util.Objects.requireNonNull;
 
@@ -240,10 +241,14 @@ public class EncoderImpl implements Encoder {
         mMediaFormat = encoderConfig.toMediaFormat();
         Logger.d(mTag, "mMediaFormat = " + mMediaFormat);
         mMediaCodec = mEncoderFinder.findEncoder(mMediaFormat);
-        clampVideoBitrateIfNotSupported(mMediaCodec.getCodecInfo(), mMediaFormat);
         Logger.i(mTag, "Selected encoder: " + mMediaCodec.getName());
         mEncoderInfo = createEncoderInfo(mIsVideoEncoder, mMediaCodec.getCodecInfo(),
                 encoderConfig.getMimeType());
+        if (mIsVideoEncoder) {
+            VideoEncoderInfo videoEncoderInfo = (VideoEncoderInfo) mEncoderInfo;
+            clampVideoBitrateIfNotSupported(videoEncoderInfo, mMediaFormat);
+        }
+
         try {
             reset();
         } catch (MediaCodec.CodecException e) {
@@ -262,41 +267,22 @@ public class EncoderImpl implements Encoder {
     }
 
     /**
-     * If video bitrate in MediaFormat is not supported by supplied MediaCodecInfo,
-     * clamp bitrate in MediaFormat
+     * Clamps the video bitrate in MediaFormat if the video bitrate is not supported by the
+     * supplied VideoEncoderInfo.
      *
-     * @param mediaCodecInfo MediaCodecInfo object
-     * @param mediaFormat    MediaFormat object
+     * @param videoEncoderInfo VideoEncoderInfo object
+     * @param mediaFormat      MediaFormat object
      */
-    private void clampVideoBitrateIfNotSupported(@NonNull MediaCodecInfo mediaCodecInfo,
+    private void clampVideoBitrateIfNotSupported(@NonNull VideoEncoderInfo videoEncoderInfo,
             @NonNull MediaFormat mediaFormat) {
-
-        if (!mediaCodecInfo.isEncoder() || !mIsVideoEncoder) {
-            return;
-        }
-
-        try {
-            String mime = mediaFormat.getString(MediaFormat.KEY_MIME);
-            MediaCodecInfo.CodecCapabilities caps = mediaCodecInfo.getCapabilitiesForType(mime);
-            Preconditions.checkArgument(caps != null,
-                    "MIME type is not supported");
-
-            if (mediaFormat.containsKey(MediaFormat.KEY_BIT_RATE)) {
-                // We only handle video bitrate issues at this moment.
-                MediaCodecInfo.VideoCapabilities videoCaps = caps.getVideoCapabilities();
-                Preconditions.checkArgument(videoCaps != null,
-                        "Not video codec");
-
-                int origBitrate = mediaFormat.getInteger(MediaFormat.KEY_BIT_RATE);
-                int newBitrate = videoCaps.getBitrateRange().clamp(origBitrate);
-                if (origBitrate != newBitrate) {
-                    mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, newBitrate);
-                    Logger.d(mTag, "updated bitrate from " + origBitrate
-                            + " to " + newBitrate);
-                }
+        checkState(mIsVideoEncoder);
+        if (mediaFormat.containsKey(MediaFormat.KEY_BIT_RATE)) {
+            int origBitrate = mediaFormat.getInteger(MediaFormat.KEY_BIT_RATE);
+            int newBitrate = videoEncoderInfo.getSupportedBitrateRange().clamp(origBitrate);
+            if (origBitrate != newBitrate) {
+                mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, newBitrate);
+                Logger.d(mTag, "updated bitrate from " + origBitrate + " to " + newBitrate);
             }
-        } catch (IllegalArgumentException e) {
-            Logger.w(mTag, "Unexpected error while validating video bitrate", e);
         }
     }
 
@@ -401,7 +387,7 @@ public class EncoderImpl implements Encoder {
                     mLastDataStopTimestamp = null;
 
                     final Range<Long> pauseRange = mActivePauseResumeTimeRanges.removeLast();
-                    Preconditions.checkState(
+                    checkState(
                             pauseRange != null && pauseRange.getUpper() == NO_LIMIT_LONG,
                             "There should be a \"pause\" before \"resume\"");
                     final long pauseTimeUs = pauseRange.getLower();
@@ -1204,7 +1190,7 @@ public class EncoderImpl implements Encoder {
 
             // If adjusted time <= last sent time, the buffer should have been detected and
             // dropped in checkBufferInfo().
-            Preconditions.checkState(adjustedTimeUs > mLastSentAdjustedTimeUs);
+            checkState(adjustedTimeUs > mLastSentAdjustedTimeUs);
             if (DEBUG) {
                 Logger.d(mTag, "Adjust bufferInfo.presentationTimeUs to "
                         + DebugUtils.readableUs(adjustedTimeUs));
@@ -1622,7 +1608,7 @@ public class EncoderImpl implements Encoder {
         private void cancelInputBuffer(@NonNull ListenableFuture<InputBuffer> inputBufferFuture) {
             if (!inputBufferFuture.cancel(true)) {
                 // Not able to cancel the future, need to cancel the input buffer as possible.
-                Preconditions.checkState(inputBufferFuture.isDone());
+                checkState(inputBufferFuture.isDone());
                 try {
                     inputBufferFuture.get().cancel();
                 } catch (ExecutionException | InterruptedException | CancellationException e) {

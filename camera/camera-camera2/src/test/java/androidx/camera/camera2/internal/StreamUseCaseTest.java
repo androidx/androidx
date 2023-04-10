@@ -36,6 +36,7 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.filters.SdkSuppress;
@@ -60,6 +61,7 @@ import java.util.Map;
 public class StreamUseCaseTest {
 
     private CameraCharacteristics mCameraCharacteristics;
+    private static final String CAMERA_ID_0 = "0";
 
     DeferrableSurface mMockSurface = new DeferrableSurface() {
         private final ListenableFuture<Surface> mSurfaceFuture = ResolvableFuture.create();
@@ -88,7 +90,7 @@ public class StreamUseCaseTest {
         Map<DeferrableSurface, Long> streamUseCaseMap = new HashMap<>();
         mMockSurface.setContainerClass(Preview.class);
         StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
-                new ArrayList<>(), streamUseCaseMap, getCameraCharacteristicsCompat());
+                new ArrayList<>(), streamUseCaseMap, getCameraCharacteristicsCompat(), true);
         assertTrue(streamUseCaseMap.isEmpty());
     }
 
@@ -97,7 +99,7 @@ public class StreamUseCaseTest {
     public void getStreamUseCaseFromUseCaseEmptyUseCase() {
         Map<DeferrableSurface, Long> streamUseCaseMap = new HashMap<>();
         StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
-                new ArrayList<>(), streamUseCaseMap, getCameraCharacteristicsCompat());
+                new ArrayList<>(), streamUseCaseMap, getCameraCharacteristicsCompat(), true);
         assertTrue(streamUseCaseMap.isEmpty());
     }
 
@@ -112,8 +114,23 @@ public class StreamUseCaseTest {
         ArrayList<SessionConfig> sessionConfigs = new ArrayList<>();
         sessionConfigs.add(sessionConfig);
         StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
-                sessionConfigs, streamUseCaseMap, getCameraCharacteristicsCompat());
+                sessionConfigs, streamUseCaseMap, getCameraCharacteristicsCompat(), true);
         assertTrue(streamUseCaseMap.isEmpty());
+    }
+
+    @Test
+    public void getStreamUseCaseFromUseCaseStreamSharing() {
+        Map<DeferrableSurface, Long> streamUseCaseMap = new HashMap<>();
+        mMockSurface.setContainerClass(StreamSharing.class);
+        SessionConfig sessionConfig =
+                new SessionConfig.Builder()
+                        .addSurface(mMockSurface).build();
+        ArrayList<SessionConfig> sessionConfigs = new ArrayList<>();
+        sessionConfigs.add(sessionConfig);
+        StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
+                sessionConfigs, streamUseCaseMap, getCameraCharacteristicsCompat(), true);
+        assertTrue(streamUseCaseMap.get(mMockSurface)
+                == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD);
     }
 
     @Test
@@ -126,7 +143,7 @@ public class StreamUseCaseTest {
         ArrayList<SessionConfig> sessionConfigs = new ArrayList<>();
         sessionConfigs.add(sessionConfig);
         StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
-                sessionConfigs, streamUseCaseMap, getCameraCharacteristicsCompat());
+                sessionConfigs, streamUseCaseMap, getCameraCharacteristicsCompat(), true);
         assertTrue(streamUseCaseMap.get(mMockSurface)
                 == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW);
     }
@@ -144,7 +161,7 @@ public class StreamUseCaseTest {
         ArrayList<SessionConfig> sessionConfigs = new ArrayList<>();
         sessionConfigs.add(sessionConfig);
         StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
-                sessionConfigs, streamUseCaseMap, getCameraCharacteristicsCompat());
+                sessionConfigs, streamUseCaseMap, getCameraCharacteristicsCompat(), true);
         assertTrue(streamUseCaseMap.isEmpty());
     }
 
@@ -159,7 +176,7 @@ public class StreamUseCaseTest {
         ArrayList<SessionConfig> sessionConfigs = new ArrayList<>();
         sessionConfigs.add(sessionConfig);
         StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
-                sessionConfigs, streamUseCaseMap, getCameraCharacteristicsCompat());
+                sessionConfigs, streamUseCaseMap, getCameraCharacteristicsCompat(), true);
         assertTrue(streamUseCaseMap.get(mMockSurface)
                 == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW);
     }
@@ -175,7 +192,7 @@ public class StreamUseCaseTest {
         ArrayList<SessionConfig> sessionConfigs = new ArrayList<>();
         sessionConfigs.add(sessionConfig);
         StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
-                sessionConfigs, streamUseCaseMap, getCameraCharacteristicsCompat());
+                sessionConfigs, streamUseCaseMap, getCameraCharacteristicsCompat(), true);
         assertTrue(streamUseCaseMap.get(mMockSurface)
                 == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_STILL_CAPTURE);
     }
@@ -191,7 +208,7 @@ public class StreamUseCaseTest {
         ArrayList<SessionConfig> sessionConfigs = new ArrayList<>();
         sessionConfigs.add(sessionConfig);
         StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
-                sessionConfigs, streamUseCaseMap, getCameraCharacteristicsCompat());
+                sessionConfigs, streamUseCaseMap, getCameraCharacteristicsCompat(), true);
         assertTrue(streamUseCaseMap.get(mMockSurface)
                 == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD);
     }
@@ -208,7 +225,8 @@ public class StreamUseCaseTest {
         sessionConfigs.add(sessionConfig);
         StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
                 sessionConfigs, streamUseCaseMap,
-                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(mCameraCharacteristics));
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(mCameraCharacteristics,
+                        CAMERA_ID_0), true);
         assertTrue(streamUseCaseMap.isEmpty());
     }
 
@@ -225,7 +243,8 @@ public class StreamUseCaseTest {
         StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
                 sessionConfigs,
                 streamUseCaseMap,
-                getCameraCharacteristicsCompatWithEmptyUseCases());
+                getCameraCharacteristicsCompatWithEmptyUseCases(),
+                true);
         assertTrue(streamUseCaseMap.isEmpty());
     }
 
@@ -242,7 +261,7 @@ public class StreamUseCaseTest {
         ArrayList<SessionConfig> sessionConfigs = new ArrayList<>();
         sessionConfigs.add(sessionConfig);
         StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
-                sessionConfigs, streamUseCaseMap, getCameraCharacteristicsCompat());
+                sessionConfigs, streamUseCaseMap, getCameraCharacteristicsCompat(), true);
         assertTrue(streamUseCaseMap.get(mMockSurface) == 3L);
     }
 
@@ -259,7 +278,7 @@ public class StreamUseCaseTest {
         ArrayList<SessionConfig> sessionConfigs = new ArrayList<>();
         sessionConfigs.add(sessionConfig);
         StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
-                sessionConfigs, streamUseCaseMap, getCameraCharacteristicsCompat());
+                sessionConfigs, streamUseCaseMap, getCameraCharacteristicsCompat(), true);
         assertTrue(streamUseCaseMap.get(mMockSurface)
                 == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW);
     }
@@ -276,7 +295,7 @@ public class StreamUseCaseTest {
             shadowCharacteristics0.set(CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES, uc);
         }
         return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
-                mCameraCharacteristics);
+                mCameraCharacteristics, CAMERA_ID_0);
     }
 
     private CameraCharacteristicsCompat getCameraCharacteristicsCompatWithEmptyUseCases() {
@@ -286,6 +305,6 @@ public class StreamUseCaseTest {
                     new long[]{});
         }
         return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
-                mCameraCharacteristics);
+                mCameraCharacteristics, CAMERA_ID_0);
     }
 }

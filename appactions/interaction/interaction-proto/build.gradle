@@ -18,12 +18,45 @@ import androidx.build.LibraryType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("com.github.johnrengelman.shadow")
     id("com.google.protobuf")
 }
 
+configurations {
+    shadowed
+    compileOnly.extendsFrom(shadowed)
+    testCompile.extendsFrom(shadowed)
+    shadowJar  // configuration containing Jar built by shadow plugin
+    protoJar  // configuration containing compiled proto and source
+}
+
 dependencies {
-    implementation(libs.protobufLite)
+    shadowed(libs.protobufLite)
+
     implementation("androidx.annotation:annotation:1.1.0")
+}
+
+task protoLiteJar(type: com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+    archiveClassifier = 'proto-lite-jar'
+    dependsOn(":appactions:interaction:interaction-proto:syncReleaseLibJars")
+    from("${buildDir}/intermediates/aar_main_jar/release")
+}
+assemble.dependsOn(protoLiteJar)
+
+task shadowJar(type: com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+    archiveClassifier = 'shadow-jar'
+    configurations = [project.configurations.shadowed]
+    dependsOn(protoLiteJar)
+    from(protoLiteJar.archiveFile)
+    relocate "com.google.protobuf", "androidx.appactions.interaction.protobuf"
+    exclude("**/*.proto")
+}
+assemble.dependsOn(shadowJar)
+
+artifacts {
+    // Specifies the output files for the shadowJar and protoJar configurations
+    shadowJar shadowJar.archiveFile
+    protoJar protoLiteJar.archiveFile
 }
 
 protobuf {
@@ -46,6 +79,22 @@ protobuf {
 
 android {
     namespace "androidx.appactions.interaction.proto"
+    defaultConfig {
+        minSdkVersion 19
+    }
+    libraryVariants.all { variant ->
+        // Replace the default jar with the shadow jar in the AAR.
+        def packageLib = variant.getPackageLibraryProvider().get()
+        packageLib.exclude('classes.jar')
+        packageLib.into('') {
+            from(project.tasks.getByName("shadowJar").outputs)
+            rename { "classes.jar" }
+        }
+    }
+    lintOptions {
+        // protobuf generates unannotated and synthetic accessor methods
+        disable("UnknownNullness", "SyntheticAccessor")
+    }
 }
 
 androidx {

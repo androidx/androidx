@@ -28,7 +28,6 @@ import androidx.annotation.VisibleForTesting;
 /**
  * Provides support for auto-scrolling a view.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 @VisibleForTesting(otherwise = PACKAGE_PRIVATE)

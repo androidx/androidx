@@ -104,6 +104,32 @@ package androidx.appsearch.builtintypes {
     method public androidx.appsearch.builtintypes.ContactPoint.Builder setUrl(String?);
   }
 
+  @androidx.appsearch.annotation.Document(name="builtin:ImageObject") public final class ImageObject extends androidx.appsearch.builtintypes.Thing {
+    method public java.util.List<androidx.appsearch.builtintypes.properties.Keyword!> getKeywords();
+    method public String? getSha256();
+    method public String? getThumbnailSha256();
+  }
+
+  public static final class ImageObject.Builder {
+    ctor public ImageObject.Builder(String, String);
+    ctor public ImageObject.Builder(androidx.appsearch.builtintypes.ImageObject);
+    method public androidx.appsearch.builtintypes.ImageObject.Builder addAlternateName(String);
+    method public androidx.appsearch.builtintypes.ImageObject.Builder addKeyword(String);
+    method public androidx.appsearch.builtintypes.ImageObject.Builder addKeyword(androidx.appsearch.builtintypes.properties.Keyword);
+    method public androidx.appsearch.builtintypes.ImageObject.Builder addKeywords(Iterable<androidx.appsearch.builtintypes.properties.Keyword!>);
+    method public androidx.appsearch.builtintypes.ImageObject build();
+    method public androidx.appsearch.builtintypes.ImageObject.Builder clearAlternateNames();
+    method public androidx.appsearch.builtintypes.ImageObject.Builder setCreationTimestampMillis(long);
+    method public androidx.appsearch.builtintypes.ImageObject.Builder setDescription(String?);
+    method public androidx.appsearch.builtintypes.ImageObject.Builder setDocumentScore(int);
+    method public androidx.appsearch.builtintypes.ImageObject.Builder setDocumentTtlMillis(long);
+    method public androidx.appsearch.builtintypes.ImageObject.Builder setImage(String?);
+    method public androidx.appsearch.builtintypes.ImageObject.Builder setName(String?);
+    method public androidx.appsearch.builtintypes.ImageObject.Builder setSha256(String?);
+    method public androidx.appsearch.builtintypes.ImageObject.Builder setThumbnailSha256(String?);
+    method public androidx.appsearch.builtintypes.ImageObject.Builder setUrl(String?);
+  }
+
   @androidx.appsearch.annotation.Document(name="builtin:Person") public class Person extends androidx.appsearch.builtintypes.Thing {
     method public java.util.List<java.lang.String!> getAdditionalNames();
     method public java.util.List<java.lang.String!> getAffiliations();
@@ -287,6 +313,15 @@ package androidx.appsearch.builtintypes {
     method public androidx.appsearch.builtintypes.Timer.Builder setStartTimeMillis(long);
     method public androidx.appsearch.builtintypes.Timer.Builder setStatus(int);
     method public androidx.appsearch.builtintypes.Timer.Builder setUrl(String?);
+  }
+
+}
+
+package androidx.appsearch.builtintypes.properties {
+
+  @androidx.appsearch.annotation.Document public final class Keyword {
+    ctor public Keyword(String);
+    method public String? asText();
   }
 
 }

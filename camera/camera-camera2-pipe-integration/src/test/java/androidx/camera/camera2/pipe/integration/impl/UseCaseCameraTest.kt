@@ -23,6 +23,7 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpInactiveSurfaceCloser
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraph
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
@@ -100,17 +101,20 @@ class UseCaseCameraTest {
                 }
             )
         }
+        @Suppress("UNCHECKED_CAST", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
         val useCaseCamera = UseCaseCameraImpl(
+            controls = emptySet<UseCaseCameraControl>() as java.util.Set<UseCaseCameraControl>,
             useCaseGraphConfig = fakeUseCaseGraphConfig,
             useCases = arrayListOf(fakeUseCase),
             useCaseSurfaceManager = UseCaseSurfaceManager(
                 useCaseThreads,
-                CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext()))
+                CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
+                NoOpInactiveSurfaceCloser,
             ),
             threads = useCaseThreads,
             requestControl = requestControl
         ).also {
-            it.runningUseCasesLiveData.value = setOf(fakeUseCase)
+            it.runningUseCases = setOf(fakeUseCase)
         }
         assumeTrue(
             fakeCameraGraph.fakeCameraGraphSession.repeatingRequestSemaphore.tryAcquire(
@@ -124,7 +128,8 @@ class UseCaseCameraTest {
                 addSurface(surface)
             }
         )
-        useCaseCamera.runningUseCasesLiveData.value = setOf(fakeUseCase)
+
+        useCaseCamera.runningUseCases = setOf(fakeUseCase)
 
         // Assert. The stopRepeating() should be called.
         assertThat(

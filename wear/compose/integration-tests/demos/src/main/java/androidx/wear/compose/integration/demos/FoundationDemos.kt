@@ -24,6 +24,8 @@ import androidx.wear.compose.foundation.samples.CurvedFontWeight
 import androidx.wear.compose.foundation.samples.CurvedFonts
 import androidx.wear.compose.foundation.samples.CurvedRowAndColumn
 import androidx.wear.compose.foundation.samples.CurvedWeight
+import androidx.wear.compose.foundation.samples.ExpandableTextSample
+import androidx.wear.compose.foundation.samples.ExpandableWithItemsSample
 import androidx.wear.compose.foundation.samples.HierarchicalFocusCoordinatorSample
 import androidx.wear.compose.foundation.samples.OversizeComposable
 import androidx.wear.compose.foundation.samples.ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo
@@ -35,9 +37,19 @@ import androidx.wear.compose.foundation.samples.SimpleScalingLazyColumnWithSnap
 val WearFoundationDemos = DemoCategory(
     "Foundation",
     listOf(
+        DemoCategory(
+            "Expandables",
+            listOf(
+                ComposableDemo("Items in SLC") { ExpandableListItems() },
+                ComposableDemo("Expandable Text") { ExpandableText() },
+                ComposableDemo("Items Sample") { ExpandableWithItemsSample() },
+                ComposableDemo("Text Sample") { ExpandableTextSample() },
+            )
+        ),
         DemoCategory("CurvedLayout", listOf(
             ComposableDemo("Curved Row") { CurvedWorldDemo() },
             ComposableDemo("Curved Row and Column") { CurvedRowAndColumn() },
+            ComposableDemo("Curved Box") { CurvedBoxDemo() },
             ComposableDemo("Simple") { SimpleCurvedWorld() },
             ComposableDemo("Alignment") { CurvedRowAlignmentDemo() },
             ComposableDemo("Curved Text") { BasicCurvedTextDemo() },

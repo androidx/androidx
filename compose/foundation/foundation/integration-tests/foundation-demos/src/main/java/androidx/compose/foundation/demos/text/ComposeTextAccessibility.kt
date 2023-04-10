@@ -76,9 +76,9 @@ fun TextAccessibilityDemo() {
             text = buildAnnotatedString {
                 append("This word is a link: ")
                 withAnnotation(UrlAnnotation("https://google.com")) {
-                    append("Google\n")
+                    append("Google")
                 }
-                append("This word is not a link: google.com")
+                append("\nThis word is not a link: google.com")
             },
             style = TextStyle(fontSize = fontSize8)
         )

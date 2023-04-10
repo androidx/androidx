@@ -335,7 +335,6 @@ public abstract class MediaLibraryService extends MediaSessionService {
             /**
              * Prevents session to be crashed when it returns any invalid return.
              *
-             * @hide
              **/
             @RestrictTo(LIBRARY)
             @NonNull

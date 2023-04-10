@@ -22,7 +22,7 @@ import kotlin.math.sqrt
 
 @Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
 @OptIn(ExperimentalFoundationApi::class)
-internal class LazyGridSpanLayoutProvider(private val itemProvider: LazyGridItemProvider) {
+internal class LazyGridSpanLayoutProvider(private val gridContent: LazyGridIntervalContent) {
     class LineConfiguration(val firstItemIndex: Int, val spans: List<TvGridItemSpan>)
 
     /** Caches the bucket info on lines 0, [bucketSize], 2 * [bucketSize], etc. */
@@ -61,7 +61,7 @@ internal class LazyGridSpanLayoutProvider(private val itemProvider: LazyGridItem
             List(currentSlotsPerLine) { TvGridItemSpan(1) }.also { previousDefaultSpans = it }
         }
 
-    val totalSize get() = itemProvider.itemCount
+    val totalSize get() = gridContent.intervals.size
 
     /** The number of slots on one grid line e.g. the number of columns of a vertical grid. */
     var slotsPerLine = 0
@@ -73,7 +73,7 @@ internal class LazyGridSpanLayoutProvider(private val itemProvider: LazyGridItem
         }
 
     fun getLineConfiguration(lineIndex: Int): LineConfiguration {
-        if (!itemProvider.hasCustomSpans) {
+        if (!gridContent.hasCustomSpans) {
             // Quick return when all spans are 1x1 - in this case we can easily calculate positions.
             val firstItemIndex = lineIndex * slotsPerLine
             return LineConfiguration(
@@ -173,7 +173,7 @@ internal class LazyGridSpanLayoutProvider(private val itemProvider: LazyGridItem
             return LineIndex(0)
         }
         require(itemIndex < totalSize)
-        if (!itemProvider.hasCustomSpans) {
+        if (!gridContent.hasCustomSpans) {
             return LineIndex(itemIndex / slotsPerLine)
         }
 
@@ -211,20 +211,23 @@ internal class LazyGridSpanLayoutProvider(private val itemProvider: LazyGridItem
         return LineIndex(currentLine)
     }
 
-    private fun spanOf(itemIndex: Int, maxSpan: Int) = with(itemProvider) {
+    fun spanOf(itemIndex: Int, maxSpan: Int): Int =
         with(TvLazyGridItemSpanScopeImpl) {
             maxCurrentLineSpan = maxSpan
             maxLineSpan = slotsPerLine
 
-            getSpan(itemIndex).currentLineSpan.coerceIn(1, slotsPerLine)
+            val interval = gridContent.intervals[itemIndex]
+            val localIntervalIndex = itemIndex - interval.startIndex
+            val span = interval.value.span.invoke(this, localIntervalIndex)
+            return span.currentLineSpan
         }
-    }
 
     private fun invalidateCache() {
         buckets.clear()
         buckets.add(Bucket(0))
         lastLineIndex = 0
         lastLineStartItemIndex = 0
+        lastLineStartKnownSpan = 0
         cachedBucketIndex = -1
         cachedBucket.clear()
     }

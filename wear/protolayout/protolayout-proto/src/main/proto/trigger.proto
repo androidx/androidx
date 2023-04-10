@@ -21,9 +21,9 @@ message OnLoadTrigger {}
 
 // Triggers *every time* the condition switches from false to true. If the
 // condition is true initially, that will fire the trigger on load.
-message OnConditionTrigger {
+message OnConditionMetTrigger {
   // Dynamic boolean used as trigger.
-  androidx.wear.protolayout.expression.proto.DynamicBool dynamic_bool = 1;
+  androidx.wear.protolayout.expression.proto.DynamicBool trigger = 1;
 }
 
 // The triggers that can be fired.
@@ -32,6 +32,6 @@ message Trigger {
     OnVisibleTrigger on_visible_trigger = 1;
     OnVisibleOnceTrigger on_visible_once_trigger = 2;
     OnLoadTrigger on_load_trigger = 3;
-    OnConditionTrigger on_condition_trigger = 4;
+    OnConditionMetTrigger on_condition_met_trigger = 4;
   }
 }

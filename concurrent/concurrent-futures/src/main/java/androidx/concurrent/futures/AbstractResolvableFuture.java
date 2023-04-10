@@ -51,7 +51,6 @@ import java.util.logging.Logger;
  *
  * @author Sven Mawson
  * @author Luke Sandberg
- * @hide
  */
 // TODO(b/119308748): Implement InternalFutureFailureAccess
 @SuppressWarnings("ShortCircuitBoolean") // we use non-short circuiting comparisons intentionally
@@ -845,7 +844,6 @@ public abstract class AbstractResolvableFuture<V> implements ListenableFuture<V>
     /**
      * internal dependency on other /util/concurrent classes.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     static <V> V getUninterruptibly(Future<V> future) throws ExecutionException {

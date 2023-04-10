@@ -53,7 +53,7 @@ class TextLayoutTest {
 
     @Test
     fun constructor_default_values() {
-        val textLayout = TextLayout(charSequence = "", textPaint = TextPaint())
+        val textLayout = TextLayout(charSequence = "", textPaint = TextPaint(), width = 0f)
         val frameworkLayout = textLayout.layout
 
         assertThat(frameworkLayout.width).isEqualTo(0)

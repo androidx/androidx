@@ -20,6 +20,7 @@ import android.app.Activity
 import android.content.Context
 import android.util.Log
 import androidx.annotation.GuardedBy
+import androidx.annotation.UiContext
 import androidx.annotation.VisibleForTesting
 import androidx.core.util.Consumer
 import androidx.window.core.Version
@@ -54,37 +55,43 @@ internal class SidecarWindowBackend @VisibleForTesting constructor(
     }
 
     override fun registerLayoutChangeCallback(
-        activity: Activity,
+        @UiContext context: Context,
         executor: Executor,
         callback: Consumer<WindowLayoutInfo>
     ) {
-        globalLock.withLock {
-            val windowExtension = windowExtension
-            if (windowExtension == null) {
-                if (DEBUG) {
-                    Log.v(TAG, "Extension not loaded, skipping callback registration.")
+        val activity = context as? Activity
+        activity?.let {
+            globalLock.withLock {
+                val windowExtension = windowExtension
+                if (windowExtension == null) {
+                    if (DEBUG) {
+                        Log.v(TAG, "Extension not loaded, skipping callback registration.")
+                    }
+                    callback.accept(WindowLayoutInfo(emptyList()))
+                    return
                 }
-                callback.accept(WindowLayoutInfo(emptyList()))
-                return
-            }
 
-            // Check if the activity was already registered, in case we need to report tracking of
-            // a new activity to the extension.
-            val isActivityRegistered = isActivityRegistered(activity)
-            val callbackWrapper = WindowLayoutChangeCallbackWrapper(activity, executor, callback)
-            windowLayoutChangeCallbacks.add(callbackWrapper)
-            if (!isActivityRegistered) {
-                windowExtension.onWindowLayoutChangeListenerAdded(activity)
-            } else {
-                // Latest info for the previously registered callback for activity
-                // and send it to the new activity
-                val lastInfo = windowLayoutChangeCallbacks.firstOrNull {
-                    activity == it.activity
-                }?.lastInfo
-                if (lastInfo != null) {
-                    callbackWrapper.accept(lastInfo)
+                // Check if the activity was already registered, in case we need to report tracking
+                // of a new activity to the extension.
+                val isActivityRegistered = isActivityRegistered(activity)
+                val callbackWrapper =
+                    WindowLayoutChangeCallbackWrapper(activity, executor, callback)
+                windowLayoutChangeCallbacks.add(callbackWrapper)
+                if (!isActivityRegistered) {
+                    windowExtension.onWindowLayoutChangeListenerAdded(activity)
+                } else {
+                    // Latest info for the previously registered callback for activity
+                    // and send it to the new activity
+                    val lastInfo = windowLayoutChangeCallbacks.firstOrNull {
+                        activity == it.activity
+                    }?.lastInfo
+                    if (lastInfo != null) {
+                        callbackWrapper.accept(lastInfo)
+                    }
                 }
             }
+        } ?: run {
+            callback.accept(WindowLayoutInfo(emptyList()))
         }
     }
 

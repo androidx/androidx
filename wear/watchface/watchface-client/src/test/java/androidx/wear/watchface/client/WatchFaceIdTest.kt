@@ -18,18 +18,16 @@ package androidx.wear.watchface.client
 
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.internal.bytecode.InstrumentationConfiguration
 import org.junit.runner.RunWith
 import org.junit.runners.model.FrameworkMethod
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.internal.bytecode.InstrumentationConfiguration
 
 // Without this we get test failures with an error:
 // "failed to access class kotlin.jvm.internal.DefaultConstructorMarker".
 public class ClientTestRunner(testClass: Class<*>) : RobolectricTestRunner(testClass) {
     override fun createClassLoaderConfig(method: FrameworkMethod): InstrumentationConfiguration =
-        InstrumentationConfiguration.Builder(
-            super.createClassLoaderConfig(method)
-        )
+        InstrumentationConfiguration.Builder(super.createClassLoaderConfig(method))
             .doNotInstrumentPackage("androidx.wear.watchface.client")
             .build()
 }

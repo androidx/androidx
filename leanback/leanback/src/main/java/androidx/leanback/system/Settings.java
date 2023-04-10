@@ -74,7 +74,6 @@ public class Settings {
     /**
      * Returns true if static shadows are recommended.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public boolean preferStaticShadows() {
@@ -84,7 +83,6 @@ public class Settings {
     /**
      * Returns true if view outline is disabled on low power chipset.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public boolean isOutlineClippingDisabled() {

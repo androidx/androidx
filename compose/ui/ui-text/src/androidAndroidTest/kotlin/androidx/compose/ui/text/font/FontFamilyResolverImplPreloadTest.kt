@@ -19,7 +19,6 @@
 package androidx.compose.ui.text.font
 
 import android.graphics.Typeface
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.FontTestData
 import androidx.compose.ui.text.font.testutils.AsyncFauxFont
 import androidx.compose.ui.text.font.testutils.AsyncTestTypefaceLoader
@@ -44,7 +43,6 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalTextApi::class)
 @ExperimentalCoroutinesApi
 class FontFamilyResolverImplPreloadTest {
     private lateinit var typefaceLoader: AsyncTestTypefaceLoader
@@ -197,7 +195,7 @@ class FontFamilyResolverImplPreloadTest {
             fallbackFont
         )
         val deferred = testScope.async { subject.preload(fontFamily) }
-        testScope.advanceTimeBy(Font.MaximumAsyncTimeout)
+        testScope.advanceTimeBy(Font.MaximumAsyncTimeoutMillis)
         assertThat(deferred.isCompleted).isTrue()
         testScope.runBlockingTest {
             deferred.await() // actually throw here

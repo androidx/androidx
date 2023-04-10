@@ -18,14 +18,22 @@ package androidx.wear.protolayout;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.content.ComponentName;
+
 import androidx.wear.protolayout.expression.StateEntryBuilders;
+import androidx.wear.protolayout.proto.ActionProto;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
+import java.util.Map;
+
 @RunWith(RobolectricTestRunner.class)
 public class ActionBuildersTest {
+    private static final ComponentName LAUNCH_COMPONENT = new ComponentName("com.package",
+            "launchClass");
+
     @Test
     public void setStateAction() {
         String key = "key";
@@ -37,5 +45,41 @@ public class ActionBuildersTest {
         assertThat(setStateAction.getTargetKey()).isEqualTo(key);
         assertThat(setStateAction.getValue().toStateEntryValueProto()).isEqualTo(
                 value.toStateEntryValueProto());
+    }
+
+    @Test
+    public void launchAction() {
+        ActionBuilders.LaunchAction launchAction = ActionBuilders.launchAction(LAUNCH_COMPONENT);
+
+        ActionProto.LaunchAction launchActionProto = launchAction.toActionProto().getLaunchAction();
+        assertThat(launchActionProto.getAndroidActivity().getPackageName()).isEqualTo(
+                LAUNCH_COMPONENT.getPackageName());
+        assertThat(launchActionProto.getAndroidActivity().getClassName()).isEqualTo(
+                LAUNCH_COMPONENT.getClassName());
+    }
+
+    @Test
+    public void launchActionWithExtras() {
+        String keyString = "keyString";
+        ActionBuilders.AndroidStringExtra stringExtra =
+                new ActionBuilders.AndroidStringExtra.Builder().setValue("string-extra").build();
+        String keyInt = "keyInt";
+        ActionBuilders.AndroidIntExtra intExtra =
+                new ActionBuilders.AndroidIntExtra.Builder().setValue(42).build();
+
+        ActionBuilders.LaunchAction launchAction = ActionBuilders.launchAction(LAUNCH_COMPONENT,
+                Map.of(keyInt, intExtra, keyString, stringExtra));
+
+        ActionProto.LaunchAction launchActionProto = launchAction.toActionProto().getLaunchAction();
+        assertThat(launchActionProto.getAndroidActivity().getPackageName()).isEqualTo(
+                LAUNCH_COMPONENT.getPackageName());
+        assertThat(launchActionProto.getAndroidActivity().getClassName()).isEqualTo(
+                LAUNCH_COMPONENT.getClassName());
+        Map<String, ActionProto.AndroidExtra> keyToExtraMap =
+                launchActionProto.getAndroidActivity().getKeyToExtraMap();
+        assertThat(keyToExtraMap).hasSize(2);
+        assertThat(keyToExtraMap.get(keyString).getStringVal().getValue()).isEqualTo(
+                stringExtra.getValue());
+        assertThat(keyToExtraMap.get(keyInt).getIntVal().getValue()).isEqualTo(intExtra.getValue());
     }
 }

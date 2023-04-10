@@ -59,6 +59,7 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -874,6 +875,7 @@ public class SpringTests {
 
     }
 
+    @Ignore // b/268534501
     @Test
     @SdkSuppress(minSdkVersion = 33, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void testDurationScaleChangeListener() throws InterruptedException {

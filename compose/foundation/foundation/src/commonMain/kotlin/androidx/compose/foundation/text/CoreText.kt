@@ -45,7 +45,6 @@ import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.LastBaseline
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
@@ -66,29 +65,11 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastMap
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
-private typealias PlaceholderRange = AnnotatedString.Range<Placeholder>
-private typealias InlineContentRange = AnnotatedString.Range<@Composable (String) -> Unit>
-
-@Composable
-internal fun InlineChildren(
-    text: AnnotatedString,
-    inlineContents: List<InlineContentRange>
-) {
-    inlineContents.fastForEach { (content, start, end) ->
-        Layout(
-            content = { content(text.subSequence(start, end).text) }
-        ) { children, constrains ->
-            val placeables = children.fastMap { it.measure(constrains) }
-            layout(width = constrains.maxWidth, height = constrains.maxHeight) {
-                placeables.fastForEach { it.placeRelative(0, 0) }
-            }
-        }
-    }
-}
+internal typealias PlaceholderRange = AnnotatedString.Range<Placeholder>
+internal typealias InlineContentRange = AnnotatedString.Range<@Composable (String) -> Unit>
 
 // NOTE(text-perf-review): consider merging this with TextDelegate?
 @OptIn(InternalFoundationTextApi::class)

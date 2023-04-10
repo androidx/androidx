@@ -30,6 +30,7 @@ import org.junit.runners.JUnit4
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
+import kotlin.random.Random
 import kotlin.test.assertFailsWith
 
 @Suppress("DEPRECATION")
@@ -501,8 +502,8 @@ class ItemKeyedDataSourceTest {
             Item(
                 names[it % 10],
                 it,
-                Math.random() * 1000,
-                (Math.random() * 200).toInt().toString() + " fake st."
+                Random.nextDouble(1000.0),
+                Random.nextInt(200).toString() + " fake st."
             )
         }.sortedWith(ITEM_COMPARATOR)
     }

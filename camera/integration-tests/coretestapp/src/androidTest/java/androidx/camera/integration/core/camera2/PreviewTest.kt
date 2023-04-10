@@ -29,11 +29,11 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
-import androidx.camera.core.ResolutionSelector
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
@@ -107,11 +107,15 @@ class PreviewTest(
     @Before
     @Throws(ExecutionException::class, InterruptedException::class)
     fun setUp() {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(cameraSelector.lensFacing!!))
+
         context = ApplicationProvider.getApplicationContext()
         CameraXUtil.initialize(context!!, cameraConfig).get()
 
         // init CameraX before creating Preview to get preview size with CameraX's context
-        defaultBuilder = Preview.Builder.fromConfig(Preview.DEFAULT_CONFIG.config)
+        defaultBuilder = Preview.Builder.fromConfig(Preview.DEFAULT_CONFIG.config).also {
+            it.mutableConfig.removeOption(ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)
+        }
         surfaceFutureSemaphore = Semaphore( /*permits=*/0)
         safeToReleaseSemaphore = Semaphore( /*permits=*/0)
     }
@@ -323,6 +327,7 @@ class PreviewTest(
         Truth.assertThat(config.targetAspectRatio).isEqualTo(AspectRatio.RATIO_4_3)
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun defaultAspectRatioWillBeSet_whenRatioDefaultIsSet() {
         val useCase = Preview.Builder().setTargetAspectRatio(AspectRatio.RATIO_DEFAULT).build()
@@ -331,6 +336,7 @@ class PreviewTest(
         Truth.assertThat(config.targetAspectRatio).isEqualTo(AspectRatio.RATIO_4_3)
     }
 
+    @Suppress("DEPRECATION") // legacy resolution API
     @Test
     fun defaultAspectRatioWontBeSet_whenTargetResolutionIsSet() {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
@@ -421,6 +427,8 @@ class PreviewTest(
     @Test
     @Throws(InterruptedException::class)
     fun useCaseCanBeReusedInDifferentCamera() {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT))
+
         val preview = defaultBuilder!!.build()
         instrumentation.runOnMainSync { preview.setSurfaceProvider(getSurfaceProvider(null)) }
 
@@ -548,9 +556,10 @@ class PreviewTest(
         // Arrange.
         val resolutionSelector =
             ResolutionSelector.Builder()
-                .setMaxResolution(maxHighResolutionOutputSize!!)
-                .setPreferredResolution(maxHighResolutionOutputSize)
-                .setHighResolutionEnabled(true)
+                .setHighResolutionEnabledFlag(ResolutionSelector.HIGH_RESOLUTION_FLAG_ON)
+                .setResolutionFilter { _, _ ->
+                    listOf(maxHighResolutionOutputSize)
+                }
                 .build()
         val preview = Preview.Builder().setResolutionSelector(resolutionSelector).build()
 

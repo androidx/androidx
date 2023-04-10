@@ -27,7 +27,12 @@ import androidx.wear.tiles.ColorBuilders.ColorProp;
  *
  * <p>See {@link ProgressIndicatorDefaults#DEFAULT_COLORS} for the default colors used in a {@link
  * CircularProgressIndicator}.
+ *
+ * @deprecated Use the new class {@link androidx.wear.protolayout.material.ProgressIndicatorColors}
+ *     which provides the same API and functionality.
  */
+@Deprecated
+@SuppressWarnings("deprecation")
 public class ProgressIndicatorColors {
     @NonNull private final ColorProp mIndicatorColor;
     @NonNull private final ColorProp mTrackColor;

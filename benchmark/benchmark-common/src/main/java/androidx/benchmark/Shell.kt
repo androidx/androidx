@@ -257,6 +257,38 @@ object Shell {
         return output.stdout
     }
 
+    /**
+     * Returns one apk (or more, if multi-apk/bundle) path for the given package
+     *
+     * The result of `pm path <package>` is one or more lines like:
+     * ```
+     * package: </path/to/apk1>
+     * package: </path/to/apk2>
+     * ```
+     *
+     * Note - to test multi-apk behavior locally, you can build and install a module like
+     * `benchmark:integration-tests:macrobenchmark-target` with the instructions below:
+     * ```
+     * ./gradlew benchmark:integ:macrobenchmark-target:bundleRelease
+     * java -jar bundletool.jar build-apks --local-testing --bundle=../../out/androidx/benchmark/integration-tests/macrobenchmark-target/build/outputs/bundle/release/macrobenchmark-target-release.aab --output=out.apks --overwrite --ks=/path/to/androidx/frameworks/support/development/keystore/debug.keystore --connected-device --ks-key-alias=AndroidDebugKey --ks-pass=pass:android
+     * java -jar bundletool.jar install-apks --apks=out.apks
+     * ```
+     */
+    @RequiresApi(21)
+    @CheckResult
+    fun pmPath(packageName: String): List<String> {
+        return executeScriptCaptureStdout("pm path $packageName").split("\n")
+            .mapNotNull {
+                val delimiter = "package:"
+                val index = it.indexOf(delimiter)
+                if (index != -1) {
+                    it.substring(index + delimiter.length).trim()
+                } else {
+                    null
+                }
+            }
+    }
+
     data class Output(val stdout: String, val stderr: String) {
         /**
          * Returns true if both stdout and stderr are blank
@@ -298,6 +330,18 @@ object Shell {
                 .start()
                 .getOutputAndClose()
         }
+    }
+
+    /**
+     * Direct execution of executeShellCommand which doesn't account for scripting functionality,
+     * and doesn't capture stderr.
+     *
+     * Only use this function if you do not care about failure / errors.
+     */
+    @RequiresApi(21)
+    @CheckResult
+    fun executeCommandCaptureStdoutOnly(command: String): String {
+        return ShellImpl.executeCommandUnsafe(command)
     }
 
     /**

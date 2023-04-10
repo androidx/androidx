@@ -96,6 +96,7 @@ def update_tracing_perfetto(old_version, new_version, core_path, force_unstrippe
     # build new binaries
     subprocess.check_call(["./gradlew",
                            ":tracing:tracing-perfetto-binary:createProjectZip",
+                           "-Pandroidx.constraints=true",
                            "-DTRACING_PERFETTO_REUSE_PREBUILTS_AAR=false"],
                           cwd=core_path)
 

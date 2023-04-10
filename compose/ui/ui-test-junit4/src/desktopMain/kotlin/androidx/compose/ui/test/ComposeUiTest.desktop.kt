@@ -22,22 +22,19 @@ import androidx.compose.ui.ComposeScene
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.InfiniteAnimationPolicy
-import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.test.junit4.MainTestClockImpl
 import androidx.compose.ui.test.junit4.UncaughtExceptionHandler
 import androidx.compose.ui.test.junit4.isOnUiThread
-import androidx.compose.ui.text.input.EditCommand
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
-import kotlin.coroutines.cancellation.CancellationException
 import org.jetbrains.skia.Surface
 
 @ExperimentalTestApi
@@ -200,14 +197,6 @@ class DesktopComposeUiTest(
     }
 
     private inner class DesktopTestOwner : TestOwner {
-        override fun sendTextInputCommand(node: SemanticsNode, command: List<EditCommand>) {
-            TODO()
-        }
-
-        override fun sendImeAction(node: SemanticsNode, actionSpecified: ImeAction) {
-            TODO()
-        }
-
         override fun <T> runOnUiThread(action: () -> T): T {
             return this@DesktopComposeUiTest.runOnUiThread(action)
         }

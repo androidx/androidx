@@ -245,6 +245,10 @@ class ModalBottomSheetState @Deprecated(
 
     internal suspend fun snapTo(target: ModalBottomSheetValue) = swipeableState.snapTo(target)
 
+    internal fun trySnapTo(target: ModalBottomSheetValue): Boolean {
+        return swipeableState.trySnapTo(target)
+    }
+
     internal fun requireOffset() = swipeableState.requireOffset()
 
     internal val lastVelocity: Float get() = swipeableState.lastVelocity
@@ -448,7 +452,10 @@ fun ModalBottomSheetLayout(
             animateTo = { target, velocity ->
                 scope.launch { sheetState.animateTo(target, velocity = velocity) }
             },
-            snapTo = { target -> scope.launch { sheetState.snapTo(target) } }
+            snapTo = { target ->
+                val didSnapSynchronously = sheetState.trySnapTo(target)
+                if (!didSnapSynchronously) scope.launch { sheetState.snapTo(target) }
+            }
         )
     }
     BoxWithConstraints(modifier) {

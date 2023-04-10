@@ -354,7 +354,6 @@ fun slideOut(
  *                        [TransformOrigin.Center].
  */
 @Stable
-@ExperimentalAnimationApi
 fun scaleIn(
     animationSpec: FiniteAnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
     initialScale: Float = 0f,
@@ -385,7 +384,6 @@ fun scaleIn(
  *                        [TransformOrigin.Center].
  */
 @Stable
-@ExperimentalAnimationApi
 fun scaleOut(
     animationSpec: FiniteAnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
     targetScale: Float = 0f,
@@ -943,7 +941,6 @@ private val TransformOriginVectorConverter =
 private val DefaultAlpha = mutableStateOf(1f)
 private val DefaultAlphaAndScaleSpring = spring<Float>(stiffness = Spring.StiffnessMediumLow)
 
-@Suppress("ModifierInspectorInfo")
 private fun Modifier.slideInOut(
     transition: Transition<EnterExitState>,
     slideIn: State<Slide?>,
@@ -1025,7 +1022,6 @@ private class SlideModifier(
     }
 }
 
-@Suppress("ModifierInspectorInfo")
 private fun Modifier.shrinkExpand(
     transition: Transition<EnterExitState>,
     expand: State<ChangeSize?>,

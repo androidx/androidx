@@ -19,6 +19,9 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.RawQuery
 import androidx.sqlite.db.SupportSQLiteQuery
+import androidx.work.WorkInfo
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
 
 /**
  * A Data Access Object for accessing [androidx.work.WorkInfo]s that uses raw SQL queries.
@@ -41,4 +44,17 @@ interface RawWorkInfoDao {
     fun getWorkInfoPojosLiveData(
         query: SupportSQLiteQuery
     ): LiveData<List<WorkSpec.WorkInfoPojo>>
+
+    /**
+     * @param query The raw query obtained using [androidx.work.WorkQuery]
+     * @return A [Flow] of a [List] of [WorkSpec.WorkInfoPojo]s using the
+     * raw query.
+     */
+    @RawQuery(observedEntities = [WorkSpec::class])
+    fun getWorkInfoPojosFlow(query: SupportSQLiteQuery): Flow<List<WorkSpec.WorkInfoPojo>>
 }
+
+fun RawWorkInfoDao.getWorkInfoPojosFlow(
+    dispatcher: CoroutineDispatcher,
+    query: SupportSQLiteQuery
+): Flow<List<WorkInfo>> = getWorkInfoPojosFlow(query).dedup(dispatcher)

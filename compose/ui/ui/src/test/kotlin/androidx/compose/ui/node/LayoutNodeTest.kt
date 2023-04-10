@@ -63,6 +63,7 @@ import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsModifier
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.PlatformTextInputPluginRegistry
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -74,6 +75,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.zIndex
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executors
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -1385,8 +1389,14 @@ class LayoutNodeTest {
         val semanticsModifier2 = object : SemanticsModifierNode, Modifier.Node() {
             override val semanticsConfiguration: SemanticsConfiguration = semanticsConfiguration
         }
-        val semanticsModifierElement1 = modifierElementOf(null, { semanticsModifier1 }, { }, { })
-        val semanticsModifierElement2 = modifierElementOf(null, { semanticsModifier2 }, { }, { })
+        data class TestSemanticsModifierElement(
+            private val node: Modifier.Node
+        ) : ModifierNodeElement<Modifier.Node>() {
+            override fun create() = node
+            override fun update(node: Modifier.Node) = node
+        }
+        val semanticsModifierElement1 = TestSemanticsModifierElement(semanticsModifier1)
+        val semanticsModifierElement2 = TestSemanticsModifierElement(semanticsModifier2)
         val layoutNode1 = LayoutNode(0, 0, 5, 5, semanticsModifierElement1, DpSize(48.dp, 48.dp))
         val layoutNode2 = LayoutNode(6, 6, 11, 11, semanticsModifierElement2, DpSize(48.dp, 48.dp))
         val outerNode = LayoutNode(0, 0, 11, 11).apply { attach(MockOwner()) }
@@ -2488,7 +2498,9 @@ private class EmptyLayoutModifier : LayoutModifier {
 @OptIn(InternalCoreApi::class)
 internal class MockOwner(
     val position: IntOffset = IntOffset.Zero,
-    override val root: LayoutNode = LayoutNode()
+    override val root: LayoutNode = LayoutNode(),
+    override val coroutineContext: CoroutineContext =
+        Executors.newFixedThreadPool(3).asCoroutineDispatcher()
 ) : Owner {
     val onRequestMeasureParams = mutableListOf<LayoutNode>()
     val onAttachParams = mutableListOf<LayoutNode>()
@@ -2518,6 +2530,8 @@ internal class MockOwner(
     override val density: Density
         get() = Density(1f)
     override val textInputService: TextInputService
+        get() = TODO("Not yet implemented")
+    override val platformTextInputPluginRegistry: PlatformTextInputPluginRegistry
         get() = TODO("Not yet implemented")
     override val pointerIconService: PointerIconService
         get() = TODO("Not yet implemented")
@@ -2589,7 +2603,7 @@ internal class MockOwner(
     override fun measureAndLayout(layoutNode: LayoutNode, constraints: Constraints) {
     }
 
-    override fun forceMeasureTheSubtree(layoutNode: LayoutNode) {
+    override fun forceMeasureTheSubtree(layoutNode: LayoutNode, affectsLookahead: Boolean) {
     }
 
     override fun registerOnEndApplyChangesListener(listener: () -> Unit) {
@@ -2782,3 +2796,5 @@ fun DelegatableNode.toModifier(): Modifier.Element {
         ?: error("Incorrectly assumed Modifier.Node was a BackwardsCompatNode")
     return node.element
 }
+
+private fun LayoutNode.onNodePlaced() = measurePassDelegate.onNodePlaced()

@@ -257,6 +257,15 @@
     <string name="sign_in_complete_text" msgid="8423984266325680606">"Oturum açtınız"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"Oturum açma tamamlandı"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"Oturum Açma Şablonu Demosu"</string>
+    <string name="tab_template_layouts_demo_title" msgid="6529681462424538165">"Sekme Şablonu Demoları"</string>
+    <string name="tab_template_demo_title" msgid="7587839101813629975">"Sekme Şablonu Demosu"</string>
+    <string name="tab_title_message" msgid="5266710951630087246">"Mesaj Sekmesi"</string>
+    <string name="tab_title_pane" msgid="2520606145526537263">"Bölme Sekmesi"</string>
+    <string name="tab_title_list" msgid="5104962518489668123">"Liste Sekmesi"</string>
+    <string name="tab_title_grid" msgid="5268168907976325154">"Uzun Sekme Başlıklı Izgara Sekmesi"</string>
+    <string name="tab_title_search" msgid="1892925693146631173">"Arama Sekmesi"</string>
+    <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Sekme Şablonu Yükleme Demosu"</string>
+    <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Sekme Şablonu Sekme İçermeyen Demo"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Resimler, bilinmeyen ana makine için gösterilemez"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"Simge"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"İçerik Sağlayıcı Simgeleri Demosu"</string>
@@ -289,7 +298,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Bazı ek metinler"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Örnek seçilebilir listesi"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Görev Sınırlaması Demosu"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"Görev sınırına ulaşıldı\nDevam ederseniz uygulama zorla durdurulacak"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Bu işlem, adım sayısının taşmasına neden olur ve sizi yeni bir ekrana yönlendirir."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"%1$d/%2$d görev adımı"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Devam etmek için tıklayın"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Lütfen farklı şablonları inceleyip arabanın sürüş modunda olduğundan emin olun"</string>
@@ -314,6 +323,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Satır da seçilebilir"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"İkincil işlem seçildi"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Satırdaki birincil işlem seçildi"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Bölümlere Ayrılmış Öğe Listesi Demosu"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Liste 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Liste 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Her listenin altında alt metin"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Boş Liste Demosu"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"Liste boş"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Çeşitli Şablon Demoları"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Öne Çıkan Demoları"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Şablon Düzeni Demoları"</string>

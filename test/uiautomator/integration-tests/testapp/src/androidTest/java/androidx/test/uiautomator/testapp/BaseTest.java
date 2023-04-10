@@ -51,6 +51,7 @@ public abstract class BaseTest {
     public void setUp() throws Exception {
         mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
         mDevice.wakeUp();
+        mDevice.pressMenu(); // Try to dismiss the lock screen if necessary.
         mDevice.pressHome();
         mDevice.setOrientationNatural();
     }

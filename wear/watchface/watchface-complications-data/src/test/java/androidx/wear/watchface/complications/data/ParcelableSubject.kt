@@ -25,32 +25,29 @@ import com.google.common.truth.Truth
 internal class ParcelableSubject(metadata: FailureMetadata?, private val subject: Parcelable?) :
     Subject(metadata, subject) {
 
-    private class ParcelableSubjectFactory :
-        Factory<ParcelableSubject, Parcelable> {
-        override fun createSubject(
-            metadata: FailureMetadata?,
-            subject: Parcelable?
-        ) = ParcelableSubject(metadata, subject)
+    private class ParcelableSubjectFactory : Factory<ParcelableSubject, Parcelable> {
+        override fun createSubject(metadata: FailureMetadata?, subject: Parcelable?) =
+            ParcelableSubject(metadata, subject)
     }
 
     fun hasSameSerializationAs(parcelable: Parcelable) {
         check("hasSameSerializationAs()").that(subject).isNotNull()
         check("hasSameSerializationAs()").that(parcelable).isNotNull()
-        check("hasSameSerializationAs()").that(serializeParcelable(subject!!))
+        check("hasSameSerializationAs()")
+            .that(serializeParcelable(subject!!))
             .isEqualTo(serializeParcelable(parcelable))
     }
 
     fun hasDifferentSerializationAs(parcelable: Parcelable) {
         check("hasDifferentSerializationAs()").that(subject).isNotNull()
         check("hasDifferentSerializationAs()").that(parcelable).isNotNull()
-        check("hasDifferentSerializationAs()").that(serializeParcelable(subject!!))
+        check("hasDifferentSerializationAs()")
+            .that(serializeParcelable(subject!!))
             .isNotEqualTo(serializeParcelable(parcelable))
     }
 
     private fun serializeParcelable(parcelable: Parcelable) =
-        Parcel.obtain().apply {
-            parcelable.writeToParcel(this, 0)
-        }.marshall()
+        Parcel.obtain().apply { parcelable.writeToParcel(this, 0) }.marshall()
 
     internal companion object {
         @JvmStatic
@@ -58,8 +55,6 @@ internal class ParcelableSubject(metadata: FailureMetadata?, private val subject
             return Truth.assertAbout(FACTORY).that(parcelable)
         }
 
-        @JvmField
-        val FACTORY: Factory<ParcelableSubject, Parcelable> =
-            ParcelableSubjectFactory()
+        @JvmField val FACTORY: Factory<ParcelableSubject, Parcelable> = ParcelableSubjectFactory()
     }
 }

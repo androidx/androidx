@@ -91,6 +91,7 @@ dependencies {
     androidTestImplementation(project(":annotation:annotation-experimental"))
     androidTestImplementation(project(":camera:camera-lifecycle"))
     androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation(project(":camera:camera-video"))
     androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
     androidTestImplementation(project(":internal-testutils-truth"))
     androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")

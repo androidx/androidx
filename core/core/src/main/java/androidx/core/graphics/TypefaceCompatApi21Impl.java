@@ -47,7 +47,6 @@ import java.lang.reflect.Method;
 
 /**
  * Implementation of the Typeface compat methods for API 21 and above.
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 @RequiresApi(21)

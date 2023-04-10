@@ -18,5 +18,4 @@ package androidx.wear.watchface.complications.datasource.samples
 
 import androidx.wear.watchface.complications.data.PlainComplicationText
 
-internal fun plainText(text: CharSequence) =
-    PlainComplicationText.Builder(text).build()
+internal fun plainText(text: CharSequence) = PlainComplicationText.Builder(text).build()

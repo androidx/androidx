@@ -28,7 +28,6 @@ import java.lang.annotation.Target;
 /**
  * An explicit tag that this field will not be used in Parcelization and may
  * not be initialized in all instances.
- * @hide
  */
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.FIELD)

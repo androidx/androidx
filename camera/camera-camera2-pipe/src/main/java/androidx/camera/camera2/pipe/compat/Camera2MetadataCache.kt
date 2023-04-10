@@ -21,9 +21,11 @@ import android.hardware.camera2.CameraManager
 import android.util.ArrayMap
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.DoNotDisturbException
 import androidx.camera.camera2.pipe.config.CameraPipeContext
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
@@ -53,7 +55,8 @@ constructor(
     private val cameraMetadataConfig: CameraPipe.CameraMetadataConfig,
     private val timeSource: TimeSource
 ) : Camera2MetadataProvider {
-    @GuardedBy("cache") private val cache = ArrayMap<String, CameraMetadata>()
+    @GuardedBy("cache")
+    private val cache = ArrayMap<String, CameraMetadata>()
 
     override suspend fun getCameraMetadata(cameraId: CameraId): CameraMetadata {
         synchronized(cache) {
@@ -88,6 +91,7 @@ constructor(
 
         return Debug.trace("Camera-${cameraId.value}#readCameraMetadata") {
             try {
+                Log.debug { "Loading metadata for $cameraId" }
                 val cameraManager =
                     cameraPipeContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
                 val characteristics = cameraManager.getCameraCharacteristics(cameraId.value)
@@ -111,7 +115,8 @@ constructor(
 
                 val cameraMetadata =
                     Camera2CameraMetadata(
-                        cameraId, redacted, characteristics, this, emptyMap(), cacheBlocklist)
+                        cameraId, redacted, characteristics, this, emptyMap(), cacheBlocklist
+                    )
 
                 Log.info {
                     val duration = Timestamps.now(timeSource) - start
@@ -124,8 +129,13 @@ constructor(
                 }
 
                 return@trace cameraMetadata
-            } catch (e: Throwable) {
-                throw IllegalStateException("Failed to load metadata for $cameraId!", e)
+            } catch (throwable: Throwable) {
+                if (CameraError.shouldHandleDoNotDisturbException(throwable)) {
+                    throw DoNotDisturbException(
+                        "Failed to load metadata: Do Not Disturb mode is on!"
+                    )
+                }
+                throw IllegalStateException("Failed to load metadata for $cameraId!", throwable)
             }
         }
     }

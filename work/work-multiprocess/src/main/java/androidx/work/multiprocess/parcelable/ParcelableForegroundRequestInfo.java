@@ -28,7 +28,6 @@ import androidx.work.ForegroundInfo;
 /**
  * ForegroundInfo but parcelable.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressLint("BanParcelableUsage")

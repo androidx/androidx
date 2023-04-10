@@ -32,10 +32,14 @@ import androidx.wear.watchface.complications.data.RangedValueComplicationData
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.complications.data.SmallImageComplicationData
 import com.google.common.truth.Truth.assertThat
-import org.mockito.Mockito
 import kotlin.jvm.java
+import org.mockito.Mockito
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.eq
 
-@org.junit.runner.RunWith(SharedRobolectricTestRunner::class)
+@RunWith(SharedRobolectricTestRunner::class)
 public class ComplicationDataSourceInfoRetrieverTest {
     private val mockService = Mockito.mock(IProviderInfoService::class.java)
     private val mockBinder = Mockito.mock(android.os.IBinder::class.java)
@@ -43,7 +47,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
         ComplicationDataSourceInfoRetriever(mockService)
     private val resources = ApplicationProvider.getApplicationContext<Context>().resources
 
-    @org.junit.Test
+    @Test
     @Suppress("NewApi") // retrievePreviewComplicationData
     public fun retrievePreviewComplicationData() {
         kotlinx.coroutines.runBlocking {
@@ -54,20 +58,22 @@ public class ComplicationDataSourceInfoRetrieverTest {
 
             val testData: ComplicationData =
                 LongTextComplicationData.Builder(
-                    PlainComplicationText.Builder("Test Text")
-                        .build(),
+                    PlainComplicationText.Builder("Test Text").build(),
                     ComplicationText.Companion.EMPTY
-                ).build()
+                )
+                    .build()
 
             Mockito.doAnswer {
                 val callback = it.arguments[2] as IPreviewComplicationDataCallback
                 callback.updateComplicationData(testData.asWireComplicationData())
                 true
-            }.`when`(mockService).requestPreviewComplicationData(
-                org.mockito.ArgumentMatchers.eq(component),
-                org.mockito.ArgumentMatchers.eq(type.toWireComplicationType()),
-                org.mockito.ArgumentMatchers.any()
-            )
+            }
+                .`when`(mockService)
+                .requestPreviewComplicationData(
+                    eq(component),
+                    eq(type.toWireComplicationType()),
+                    any()
+                )
 
             val previewData =
                 complicationDataSourceInfoRetriever.retrievePreviewComplicationData(
@@ -76,15 +82,18 @@ public class ComplicationDataSourceInfoRetrieverTest {
                 )!!
             assertThat(previewData.type).isEqualTo(type)
             assertThat(
-                (previewData as LongTextComplicationData).text.getTextAt(
-                    ApplicationProvider.getApplicationContext<Context>().resources,
-                    java.time.Instant.EPOCH
-                )
-            ).isEqualTo("Test Text")
+                (previewData as LongTextComplicationData)
+                    .text
+                    .getTextAt(
+                        ApplicationProvider.getApplicationContext<Context>().resources,
+                        java.time.Instant.EPOCH
+                    )
+            )
+                .isEqualTo("Test Text")
         }
     }
 
-    @org.junit.Test
+    @Test
     @Suppress("NewApi") // retrievePreviewComplicationData
     public fun retrievePreviewComplicationData_DataSourceReturnsNull() {
         kotlinx.coroutines.runBlocking {
@@ -97,22 +106,25 @@ public class ComplicationDataSourceInfoRetrieverTest {
                 val callback = it.arguments[2] as IPreviewComplicationDataCallback
                 callback.updateComplicationData(null)
                 true
-            }.`when`(mockService).requestPreviewComplicationData(
-                org.mockito.ArgumentMatchers.eq(component),
-                org.mockito.ArgumentMatchers.eq(type.toWireComplicationType()),
-                org.mockito.ArgumentMatchers.any()
-            )
+            }
+                .`when`(mockService)
+                .requestPreviewComplicationData(
+                    eq(component),
+                    eq(type.toWireComplicationType()),
+                    any()
+                )
 
             assertThat(
                 complicationDataSourceInfoRetriever.retrievePreviewComplicationData(
                     component,
                     type
                 )
-            ).isNull()
+            )
+                .isNull()
         }
     }
 
-    @org.junit.Test
+    @Test
     @Suppress("NewApi") // retrievePreviewComplicationData
     public fun retrievePreviewComplicationDataApiNotSupported() {
         kotlinx.coroutines.runBlocking {
@@ -126,11 +138,12 @@ public class ComplicationDataSourceInfoRetrieverTest {
                     component,
                     type
                 )
-            ).isNull()
+            )
+                .isNull()
         }
     }
 
-    @org.junit.Test
+    @Test
     @Suppress("NewApi") // retrievePreviewComplicationData
     public fun retrievePreviewComplicationDataApiReturnsFalse() {
         kotlinx.coroutines.runBlocking {
@@ -138,151 +151,213 @@ public class ComplicationDataSourceInfoRetrieverTest {
             val type = ComplicationType.LONG_TEXT
             Mockito.`when`(mockService.apiVersion).thenReturn(1)
             Mockito.`when`(mockService.asBinder()).thenReturn(mockBinder)
-            Mockito.doAnswer {
-                false
-            }.`when`(mockService).requestPreviewComplicationData(
-                org.mockito.ArgumentMatchers.eq(component),
-                org.mockito.ArgumentMatchers.eq(type.toWireComplicationType()),
-                org.mockito.ArgumentMatchers.any()
-            )
+            Mockito.doAnswer { false }
+                .`when`(mockService)
+                .requestPreviewComplicationData(
+                    eq(component),
+                    eq(type.toWireComplicationType()),
+                    any()
+                )
 
             assertThat(
                 complicationDataSourceInfoRetriever.retrievePreviewComplicationData(
                     component,
                     type
                 )
-            ).isNull()
+            )
+                .isNull()
         }
     }
 
-    @org.junit.Test
+    @Test
     public fun complicationDataSourceInfo_NullComponentName() {
-        val complicationDataSourceInfo = ComplicationDataSourceInfo(
-            "appName",
-            "name",
-            android.graphics.drawable.Icon.createWithContentUri("icon"),
-            ComplicationType.SHORT_TEXT,
-            componentName = null
-        )
+        val complicationDataSourceInfo =
+            ComplicationDataSourceInfo(
+                "appName",
+                "name",
+                android.graphics.drawable.Icon.createWithContentUri("icon"),
+                ComplicationType.SHORT_TEXT,
+                componentName = null
+            )
         assertThat(complicationDataSourceInfo.componentName).isNull()
-        assertThat(complicationDataSourceInfo.toString()).isEqualTo(
-            "ComplicationDataSourceInfo(appName=appName, name=name, type=SHORT_TEXT" +
-                ", icon=Icon(typ=URI uri=icon), componentName=null)"
-        )
+        assertThat(complicationDataSourceInfo.toString())
+            .isEqualTo(
+                "ComplicationDataSourceInfo(appName=appName, name=name, type=SHORT_TEXT" +
+                    ", icon=Icon(typ=URI uri=icon), componentName=null)"
+            )
     }
 
-    @org.junit.Test
+    @Test
     public fun createShortTextFallbackPreviewData() {
         val icon = android.graphics.drawable.Icon.createWithContentUri("icon")
-        val shortTextPreviewData = ComplicationDataSourceInfo(
-            "applicationName",
-            "complicationName",
-            icon,
-            ComplicationType.SHORT_TEXT,
-            componentName = null
-        ).fallbackPreviewData as ShortTextComplicationData
+        val shortTextPreviewData =
+            ComplicationDataSourceInfo(
+                "applicationName",
+                "complicationName",
+                icon,
+                ComplicationType.SHORT_TEXT,
+                componentName = null
+            )
+                .fallbackPreviewData as ShortTextComplicationData
+        assertThat(shortTextPreviewData.text.getTextAt(resources, java.time.Instant.EPOCH))
+            .isEqualTo("complic")
         assertThat(
-            shortTextPreviewData.text.getTextAt(resources, java.time.Instant.EPOCH)
-        ).isEqualTo("complic")
-        assertThat(
-            shortTextPreviewData.contentDescription!!.getTextAt(resources, java.time.Instant.EPOCH)
-        ).isEqualTo("complicationName")
+            shortTextPreviewData.contentDescription!!.getTextAt(
+                resources,
+                java.time.Instant.EPOCH
+            )
+        )
+            .isEqualTo("complicationName")
         assertThat(shortTextPreviewData.monochromaticImage!!.image).isEqualTo(icon)
     }
 
-    @org.junit.Test
+    @Test
     public fun createLongTextFallbackPreviewData() {
         val icon = android.graphics.drawable.Icon.createWithContentUri("icon")
-        val longTextPreviewData = ComplicationDataSourceInfo(
-            "applicationName",
-            "complicationName",
-            icon,
-            ComplicationType.LONG_TEXT,
-            componentName = null
-        ).fallbackPreviewData as LongTextComplicationData
+        val longTextPreviewData =
+            ComplicationDataSourceInfo(
+                "applicationName",
+                "complicationName",
+                icon,
+                ComplicationType.LONG_TEXT,
+                componentName = null
+            )
+                .fallbackPreviewData as LongTextComplicationData
+        assertThat(longTextPreviewData.text.getTextAt(resources, java.time.Instant.EPOCH))
+            .isEqualTo("complicationName")
         assertThat(
-            longTextPreviewData.text.getTextAt(resources, java.time.Instant.EPOCH)
-        ).isEqualTo("complicationName")
-        assertThat(
-            longTextPreviewData.contentDescription!!.getTextAt(resources, java.time.Instant.EPOCH)
-        ).isEqualTo("complicationName")
+            longTextPreviewData.contentDescription!!.getTextAt(
+                resources,
+                java.time.Instant.EPOCH
+            )
+        )
+            .isEqualTo("complicationName")
         assertThat(longTextPreviewData.monochromaticImage!!.image).isEqualTo(icon)
     }
 
-    @org.junit.Test
+    @Test
     public fun createSmallImageFallbackPreviewData() {
         val icon = android.graphics.drawable.Icon.createWithContentUri("icon")
-        val smallImagePreviewData = ComplicationDataSourceInfo(
-            "applicationName",
-            "complicationName",
-            icon,
-            ComplicationType.SMALL_IMAGE,
-            componentName = null
-        ).fallbackPreviewData as SmallImageComplicationData
+        val smallImagePreviewData =
+            ComplicationDataSourceInfo(
+                "applicationName",
+                "complicationName",
+                icon,
+                ComplicationType.SMALL_IMAGE,
+                componentName = null
+            )
+                .fallbackPreviewData as SmallImageComplicationData
         assertThat(smallImagePreviewData.smallImage.image).isEqualTo(icon)
         assertThat(
-            smallImagePreviewData.contentDescription!!.getTextAt(resources, java.time.Instant.EPOCH)
-        ).isEqualTo("complicationName")
+            smallImagePreviewData.contentDescription!!.getTextAt(
+                resources,
+                java.time.Instant.EPOCH
+            )
+        )
+            .isEqualTo("complicationName")
     }
 
-    @org.junit.Test
+    @Test
     public fun createPhotoImageFallbackPreviewData() {
         val icon = android.graphics.drawable.Icon.createWithContentUri("icon")
-        val photoImagePreviewData = ComplicationDataSourceInfo(
-            "applicationName",
-            "complicationName",
-            icon,
-            ComplicationType.PHOTO_IMAGE,
-            componentName = null
-        ).fallbackPreviewData as PhotoImageComplicationData
+        val photoImagePreviewData =
+            ComplicationDataSourceInfo(
+                "applicationName",
+                "complicationName",
+                icon,
+                ComplicationType.PHOTO_IMAGE,
+                componentName = null
+            )
+                .fallbackPreviewData as PhotoImageComplicationData
         assertThat(photoImagePreviewData.photoImage).isEqualTo(icon)
         assertThat(
-            photoImagePreviewData.contentDescription!!.getTextAt(resources, java.time.Instant.EPOCH)
-        ).isEqualTo("complicationName")
+            photoImagePreviewData.contentDescription!!.getTextAt(
+                resources,
+                java.time.Instant.EPOCH
+            )
+        )
+            .isEqualTo("complicationName")
     }
 
-    @org.junit.Test
+    @Test
     public fun createMonochromaticImageFallbackPreviewData() {
         val icon = android.graphics.drawable.Icon.createWithContentUri("icon")
-        val monochromaticImagePreviewData = ComplicationDataSourceInfo(
-            "applicationName",
-            "complicationName",
-            icon,
-            ComplicationType.MONOCHROMATIC_IMAGE,
-            componentName = null
-        ).fallbackPreviewData as MonochromaticImageComplicationData
-        assertThat(monochromaticImagePreviewData.monochromaticImage.image)
-            .isEqualTo(icon)
+        val monochromaticImagePreviewData =
+            ComplicationDataSourceInfo(
+                "applicationName",
+                "complicationName",
+                icon,
+                ComplicationType.MONOCHROMATIC_IMAGE,
+                componentName = null
+            )
+                .fallbackPreviewData as MonochromaticImageComplicationData
+        assertThat(monochromaticImagePreviewData.monochromaticImage.image).isEqualTo(icon)
         assertThat(
             monochromaticImagePreviewData.contentDescription!!.getTextAt(
                 resources,
                 java.time.Instant.EPOCH
             )
-        ).isEqualTo("complicationName")
+        )
+            .isEqualTo("complicationName")
     }
 
-    @org.junit.Test
+    @Test
     public fun createRangedValueFallbackPreviewData() {
         val icon = android.graphics.drawable.Icon.createWithContentUri("icon")
-        val rangedValuePreviewData = ComplicationDataSourceInfo(
-            "applicationName",
-            "complicationName",
-            icon,
-            ComplicationType.RANGED_VALUE,
-            componentName = null
-        ).fallbackPreviewData as RangedValueComplicationData
+        val rangedValuePreviewData =
+            ComplicationDataSourceInfo(
+                "applicationName",
+                "complicationName",
+                icon,
+                ComplicationType.RANGED_VALUE,
+                componentName = null
+            )
+                .fallbackPreviewData as RangedValueComplicationData
         assertThat(rangedValuePreviewData.min).isEqualTo(0.0f)
         assertThat(rangedValuePreviewData.max).isEqualTo(100.0f)
         assertThat(rangedValuePreviewData.value).isEqualTo(42.0f)
-        assertThat(
-            rangedValuePreviewData.text!!.getTextAt(resources, java.time.Instant.EPOCH)
-        ).isEqualTo("complicationName")
+        assertThat(rangedValuePreviewData.text!!.getTextAt(resources, java.time.Instant.EPOCH))
+            .isEqualTo("complicationName")
         assertThat(rangedValuePreviewData.monochromaticImage!!.image).isEqualTo(icon)
         assertThat(
             rangedValuePreviewData.contentDescription!!.getTextAt(
                 resources,
                 java.time.Instant.EPOCH
             )
-        ).isEqualTo("complicationName")
+        )
+            .isEqualTo("complicationName")
+    }
+
+    @Test
+    public fun complicationDataSourceInfo_equals() {
+        val icon = android.graphics.drawable.Icon.createWithContentUri("icon")
+        val icon2 = android.graphics.drawable.Icon.createWithContentUri("icon")
+        val a = ComplicationDataSourceInfo(
+                "applicationName",
+                "complicationName",
+                icon,
+                ComplicationType.RANGED_VALUE,
+                componentName = null
+            )
+        val b = ComplicationDataSourceInfo(
+                "applicationName",
+                "complicationName",
+                icon2,
+                ComplicationType.RANGED_VALUE,
+                componentName = null
+            )
+        val c = ComplicationDataSourceInfo(
+            "applicationName2",
+            "complicationName2",
+            icon,
+            ComplicationType.RANGED_VALUE,
+            componentName = null
+        )
+
+        // Test two identical ComplicationDataSourceInfo with different references.
+        assertThat(a).isEqualTo(b)
+
+        // Test two ComplicationDataSourceInfos with different contents.
+        assertThat(a).isNotEqualTo(c)
     }
 }

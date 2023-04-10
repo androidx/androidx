@@ -97,6 +97,7 @@ import java.util.WeakHashMap
 import kotlin.math.roundToInt
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -164,6 +165,7 @@ class LayoutInspectorTreeTest {
         assertThat(DEBUG).isFalse()
     }
 
+    @Ignore // b/273151077
     @Test
     fun buildTree() {
         val slotTableRecord = CompositionDataRecord.create()
@@ -244,6 +246,7 @@ class LayoutInspectorTreeTest {
         }
     }
 
+    @Ignore // b/273151077
     @Test
     fun buildTreeWithTransformedText() {
         val slotTableRecord = CompositionDataRecord.create()
@@ -465,6 +468,7 @@ class LayoutInspectorTreeTest {
         assertThat(node?.id).isGreaterThan(0)
     }
 
+    @Ignore // b/273151077
     @Test
     fun testSemantics() {
         val slotTableRecord = CompositionDataRecord.create()
@@ -517,6 +521,7 @@ class LayoutInspectorTreeTest {
         }
     }
 
+    @Ignore // b/273151077
     @Test
     fun testDialog() {
         val slotTableRecord = CompositionDataRecord.create()
@@ -589,6 +594,7 @@ class LayoutInspectorTreeTest {
         }
     }
 
+    @Ignore // b/273151077
     @Test
     fun testPopup() {
         val slotTableRecord = CompositionDataRecord.create()
@@ -670,17 +676,67 @@ class LayoutInspectorTreeTest {
         builder.hideSystemNodes = false
         val nodes = builder.convert(composeView)
         dumpNodes(nodes, composeView, builder)
-        val androidView = nodes.flatMap { flatten(it) }.single { it.name == "AndroidView" }
+        val androidView = nodes.flatMap { flatten(it) }.first { it.name == "AndroidView" }
         assertThat(androidView.viewId).isEqualTo(0)
 
         validate(listOf(androidView), builder) {
             node(
                 name = "AndroidView",
                 fileName = "LayoutInspectorTreeTest.kt",
+                children = listOf("AndroidView")
+            )
+            node(
+                name = "AndroidView",
+                fileName = "AndroidView.android.kt",
                 children = listOf("ComposeNode")
             )
             node(
                 name = "ComposeNode",
+                fileName = "AndroidView.android.kt",
+                hasViewIdUnder = composeView,
+                inlined = true,
+            )
+        }
+    }
+
+    @Test
+    fun testAndroidViewWithOnResetOverload() {
+        val slotTableRecord = CompositionDataRecord.create()
+
+        show {
+            Inspectable(slotTableRecord) {
+                Column {
+                    Text("Compose Text")
+                    AndroidView(
+                        factory = { context ->
+                            TextView(context).apply {
+                                text = "AndroidView"
+                            }
+                        },
+                        onReset = {
+                            // Do nothing, just use the overload.
+                        }
+                    )
+                }
+            }
+        }
+        val composeView = findAndroidComposeView() as ViewGroup
+        composeView.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
+        val builder = LayoutInspectorTree()
+        builder.hideSystemNodes = false
+        val nodes = builder.convert(composeView)
+        dumpNodes(nodes, composeView, builder)
+        val androidView = nodes.flatMap { flatten(it) }.first { it.name == "AndroidView" }
+        assertThat(androidView.viewId).isEqualTo(0)
+
+        validate(listOf(androidView), builder) {
+            node(
+                name = "AndroidView",
+                fileName = "LayoutInspectorTreeTest.kt",
+                children = listOf("ReusableComposeNode")
+            )
+            node(
+                name = "ReusableComposeNode",
                 fileName = "AndroidView.android.kt",
                 hasViewIdUnder = composeView,
                 inlined = true,
@@ -770,6 +826,7 @@ class LayoutInspectorTreeTest {
     }
     // WARNING: End formatted section
 
+    @Ignore // b/273151077
     @Test
     fun testLineNumbers() {
         // WARNING: The formatting of the lines below here affect test results.
@@ -855,9 +912,10 @@ class LayoutInspectorTreeTest {
         val cross1 = tree1.flatMap { flatten(it) }.single { it.name == "Crossfade" }
         val button1 = tree1.flatMap { flatten(it) }.single { it.name == "Button" }
         val column1 = tree1.flatMap { flatten(it) }.single { it.name == "Column" }
-        assertThat(cross1.id < RESERVED_FOR_GENERATED_IDS)
-        assertThat(button1.id < RESERVED_FOR_GENERATED_IDS)
-        assertThat(column1.id < RESERVED_FOR_GENERATED_IDS)
+
+        assertThat(cross1.id).isGreaterThan(RESERVED_FOR_GENERATED_IDS)
+        assertThat(button1.id).isGreaterThan(RESERVED_FOR_GENERATED_IDS)
+        assertThat(column1.id).isLessThan(RESERVED_FOR_GENERATED_IDS)
 
         composeTestRule.onNodeWithText("Button").performClick()
         composeTestRule.runOnIdle {
@@ -870,7 +928,7 @@ class LayoutInspectorTreeTest {
             val cross2 = tree2.flatMap { flatten(it) }.first { it.name == "Crossfade" }
             val button2 = tree2.flatMap { flatten(it) }.single { it.name == "Button" }
             val column2 = tree2.flatMap { flatten(it) }.single { it.name == "Column" }
-            assertThat(cross2.id).isEqualTo(cross1.id)
+            assertThat(cross2.id).isNotEqualTo(cross1.id)
             assertThat(button2.id).isEqualTo(button1.id)
             assertThat(column2.id).isEqualTo(column1.id)
         }

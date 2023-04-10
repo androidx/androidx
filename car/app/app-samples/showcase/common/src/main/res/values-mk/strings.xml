@@ -257,6 +257,15 @@
     <string name="sign_in_complete_text" msgid="8423984266325680606">"Најавени сте!"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"Најавувањето е завршено"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"Демо за шаблон за најавување"</string>
+    <string name="tab_template_layouts_demo_title" msgid="6529681462424538165">"Демоа за шаблони за картички"</string>
+    <string name="tab_template_demo_title" msgid="7587839101813629975">"Демо за шаблон за картичка"</string>
+    <string name="tab_title_message" msgid="5266710951630087246">"Картичка во вид на порака"</string>
+    <string name="tab_title_pane" msgid="2520606145526537263">"Картичка во вид на окно"</string>
+    <string name="tab_title_list" msgid="5104962518489668123">"Картичка во вид на список"</string>
+    <string name="tab_title_grid" msgid="5268168907976325154">"Картичка во вид на решетка со долг наслов на картичката"</string>
+    <string name="tab_title_search" msgid="1892925693146631173">"Картичка за пребарување"</string>
+    <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Демо за вчитување шаблон за картичка"</string>
+    <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Демо за немање картички за шаблон за картичка"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Сликите не може да се прикажат за непознат хост"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"Икона"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Демо за икони за даватели на содржини"</string>
@@ -289,7 +298,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Дополнителен текст"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Пример за текст што може да се избере"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Демо за ограничување за задачи"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"Достигнато е ограничувањето за задачи\nАко продолжите, апликацијата ќе се исклучи присилно"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Ова ќе го преполни бројот на чекори и ќе ве доведе до нов екран."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Преземете чекор %1$d од %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Кликнете за да одите нанапред"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Одете на различните шаблони и погрижете се автомобилот да е во режим на возење"</string>
@@ -314,6 +323,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Редот исто така може да се избере"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Избрано е секундарно дејство"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Избрано е примарно дејство на ред"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Демо на поделен список со ставки"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Список 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Список 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Поттекст под секој список"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Демо со празен список"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"Списокот е празен"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Разни демоа за шаблони"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Демоа за прикажување"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Демоа за распоред на шаблони"</string>

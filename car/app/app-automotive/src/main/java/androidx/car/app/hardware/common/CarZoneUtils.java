@@ -35,7 +35,6 @@ public final class CarZoneUtils {
     /**
      * Area types determine how {@link CarZone}s are converted to and from platform area ids.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @Retention(RetentionPolicy.SOURCE)

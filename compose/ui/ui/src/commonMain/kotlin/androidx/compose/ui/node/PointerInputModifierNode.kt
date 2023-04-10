@@ -16,10 +16,11 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
+import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNodeImpl
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.unit.IntSize
 
@@ -29,11 +30,10 @@ import androidx.compose.ui.unit.IntSize
  * [PointerInputModifierNode]s don't also react to them.
  *
  * This is the [androidx.compose.ui.Modifier.Node] equivalent of
- * [androidx.compose.ui.input.pointer.PointerInputModifier]
+ * [androidx.compose.ui.input.pointer.PointerInputFilter].
  *
  * @sample androidx.compose.ui.samples.PointerInputModifierNodeSample
  */
-@ExperimentalComposeUiApi
 interface PointerInputModifierNode : DelegatableNode {
     /**
      * Invoked when pointers that previously hit this [PointerInputModifierNode] have changed. It is
@@ -82,12 +82,45 @@ interface PointerInputModifierNode : DelegatableNode {
      * [sharePointerInputWithSiblings] set to `true` then the Layout will share with siblings.
      */
     fun sharePointerInputWithSiblings(): Boolean = false
+
+    /**
+     * Invoked when the density (pixels per inch for the screen) changes. This can impact the
+     * location of pointer input events (x and y) and can affect things like touch slop detection.
+     *
+     * Developers will need to restart the gesture detection handling pointer input in order for
+     * the event locations to remain accurate.
+     *
+     * The default implementation will do that by calling [onCancelPointerInput].
+     *
+     * [SuspendingPointerInputModifierNode] offers a more specific interface to allow only
+     * cancelling the coroutine for more control. See [SuspendingPointerInputModifierNodeImpl]
+     * for a concrete example.
+     */
+    fun onDensityChange() {
+        onCancelPointerInput()
+    }
+
+    /**
+     * Invoked when the view configuration (touch slop size, minimum touch target, tap timing)
+     * changes which means the composable UI the pointer input block is tied to has
+     * changed and the new UI might impact the location of pointer input events (x and y).
+     *
+     * Developers will need to restart the gesture detection that handles pointer input in order
+     * for the events locations to remain accurate.
+     *
+     * The default implementation will do that by calling [onCancelPointerInput].
+     *
+     * [SuspendingPointerInputModifierNode] offers a more specific interface to allow only
+     * cancelling the coroutine for more control. See [SuspendingPointerInputModifierNodeImpl]
+     * for a concrete example.
+     */
+    fun onViewConfigurationChange() {
+        onCancelPointerInput()
+    }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal val PointerInputModifierNode.isAttached: Boolean
     get() = node.isAttached
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal val PointerInputModifierNode.layoutCoordinates: LayoutCoordinates
     get() = requireCoordinator(Nodes.PointerInput)

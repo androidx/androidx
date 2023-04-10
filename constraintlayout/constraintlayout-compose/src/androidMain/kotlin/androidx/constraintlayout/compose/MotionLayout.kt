@@ -31,14 +31,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.MultiMeasureLayout
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -316,7 +321,7 @@ internal inline fun MotionLayoutCore(
         motionScene.getTransitionInstance(transitionName)
     }
 
-    val start = remember(motionScene) {
+    val start = remember(motionScene, transition) {
         val startId = transition?.getStartConstraintSetId() ?: "start"
         motionScene.getConstraintSetInstance(startId)
     }
@@ -379,13 +384,12 @@ internal inline fun MotionLayoutCore(
         motionScene.getTransitionInstance(transitionName)
     }
 
-    val startId = transition?.getStartConstraintSetId() ?: "start"
-    val endId = transition?.getEndConstraintSetId() ?: "end"
-
-    val start = remember(motionScene) {
+    val start = remember(motionScene, transition) {
+        val startId = transition?.getStartConstraintSetId() ?: "start"
         motionScene.getConstraintSetInstance(startId)
     }
-    val end = remember(motionScene) {
+    val end = remember(motionScene, transition) {
+        val endId = transition?.getEndConstraintSetId() ?: "end"
         motionScene.getConstraintSetInstance(endId)
     }
 
@@ -526,6 +530,95 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass")
     private val measurer: MotionMeasurer,
     private val motionProgress: MotionProgress
 ) {
+    /**
+     * Invokes [onBoundsChanged] whenever the Start or End bounds may have changed for the
+     * Composable corresponding to the given [layoutId] during positioning. This may happen if the
+     * current Transition for [MotionLayout] changes.
+     *
+     * [onBoundsChanged] will be invoked at least once when the content is placed the first time.
+     *
+     * Use this [Modifier] instead of [onGloballyPositioned] if you wish to keep track of Composable
+     * bounds while ignoring their positioning during animation. Such as when implementing
+     * DragAndDrop logic.
+     */
+    @ExperimentalMotionApi
+    fun Modifier.onStartEndBoundsChanged(
+        layoutId: Any,
+        onBoundsChanged: (startBounds: Rect, endBounds: Rect) -> Unit
+    ): Modifier {
+        return composed(
+            inspectorInfo = debugInspectorInfo {
+                name = "onStartEndBoundsChanged"
+                properties["layoutId"] = layoutId
+                properties["onBoundsChanged"] = onBoundsChanged
+            }
+        ) {
+            // TODO: Consider returning IntRect directly, note that it would imply adding a
+            //  dependency to `androidx.compose.ui.unit`
+            val id = remember(layoutId) { layoutId.toString() }
+
+            // Mutable Array to keep track of bound changes
+            val startPoints = remember { IntArray(4) { 0 } }
+            val startBoundsRef = remember { Ref<Rect>().apply { value = Rect.Zero } }
+
+            // Mutable Array to keep track of bound changes
+            val endPoints = remember { IntArray(4) { 0 } }
+            val endBoundsRef = remember { Ref<Rect>().apply { value = Rect.Zero } }
+
+            // Note that globally positioned is also invoked while animating, so keep the worload as
+            // low as possible
+            this.onPlaced {
+                val startFrame = measurer.transition.getStart(id)
+                var changed = false
+                if (startFrame.left != startPoints[0] ||
+                    startFrame.top != startPoints[1] ||
+                    startFrame.right != startPoints[2] ||
+                    startFrame.bottom != startPoints[3]
+                ) {
+                    startPoints[0] = startFrame.left
+                    startPoints[1] = startFrame.top
+                    startPoints[2] = startFrame.right
+                    startPoints[3] = startFrame.bottom
+
+                    // Only instantiate a new Rect when we know the old bounds are invalid
+                    startBoundsRef.value = Rect(
+                        startPoints[0].toFloat(),
+                        startPoints[1].toFloat(),
+                        startPoints[2].toFloat(),
+                        startPoints[3].toFloat(),
+                    )
+                    changed = true
+                }
+
+                val endFrame = measurer.transition.getEnd(id)
+                if (endFrame.left != endPoints[0] ||
+                    endFrame.top != endPoints[1] ||
+                    endFrame.right != endPoints[2] ||
+                    endFrame.bottom != endPoints[3]
+                ) {
+                    endPoints[0] = endFrame.left
+                    endPoints[1] = endFrame.top
+                    endPoints[2] = endFrame.right
+                    endPoints[3] = endFrame.bottom
+
+                    // Only instantiate a new Rect when we know the old bounds are invalid
+                    endBoundsRef.value = Rect(
+                        endPoints[0].toFloat(),
+                        endPoints[1].toFloat(),
+                        endPoints[2].toFloat(),
+                        endPoints[3].toFloat(),
+                    )
+                    changed = true
+                }
+                if (changed) {
+                    onBoundsChanged(
+                        startBoundsRef.value ?: Rect.Zero,
+                        endBoundsRef.value ?: Rect.Zero
+                    )
+                }
+            }
+        }
+    }
 
     @ExperimentalMotionApi
     inner class CustomProperties internal constructor(private val id: String) {

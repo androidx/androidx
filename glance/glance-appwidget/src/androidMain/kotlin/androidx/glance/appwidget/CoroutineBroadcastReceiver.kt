@@ -54,7 +54,13 @@ internal fun BroadcastReceiver.goAsync(
             }
         } finally {
             // This must be the last call, as the process may be killed after calling this.
-            pendingResult.finish()
+            try {
+                pendingResult.finish()
+            } catch (e: IllegalStateException) {
+                // On some OEM devices, this may throw an error about "Broadcast already finished".
+                // See b/257513022.
+                Log.e(GlanceAppWidgetTag, "Error thrown when trying to finish broadcast", e)
+            }
         }
     }
 }

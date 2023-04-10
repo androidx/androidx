@@ -92,11 +92,11 @@ fun TransformableSample() {
                 "\uD83C\uDF55",
                 fontSize = 32.sp,
                 // apply other transformations like rotation and zoom on the pizza slice emoji
-                modifier = Modifier.graphicsLayer(
-                    scaleX = scale,
-                    scaleY = scale,
+                modifier = Modifier.graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
                     rotationZ = rotation
-                )
+                }
             )
         }
     }

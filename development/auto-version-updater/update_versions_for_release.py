@@ -315,7 +315,10 @@ def update_versions_in_library_versions_toml(group_id, artifact_id, old_version)
 
     # Open file for writing and write toml back
     with open(LIBRARY_VERSIONS_FP, 'w') as f:
-        toml.dump(library_versions, f, encoder=toml.TomlPreserveInlineDictEncoder())
+        versions_toml_file_string = toml.dumps(library_versions, encoder=toml.TomlPreserveInlineDictEncoder())
+        versions_toml_file_string_new = re.sub(",]", " ]", versions_toml_file_string)
+        f.write(versions_toml_file_string_new)
+
     return updated_version
 
 
@@ -471,7 +474,7 @@ def commit_updates(release_date):
         msg = "Update versions for release id %s\n\nThis commit was generated from the command:\n%s\n\n%s" % (
             release_date, " ".join(sys.argv), "Test: ./gradlew checkApi")
         subprocess.check_call(["git", "commit", "-m", msg], cwd=dir, stderr=subprocess.STDOUT)
-        subprocess.check_call(["repo", "upload", ".", "--cbr", "-t", "-y", "--label", "Presubmit-Ready+1"], cwd=dir,
+        subprocess.check_call(["repo", "upload", ".", "--cbr", "-t", "-y", "-o", "banned-words~skip", "--label", "Presubmit-Ready+1"], cwd=dir,
                               stderr=subprocess.STDOUT)
 
 def main(args):

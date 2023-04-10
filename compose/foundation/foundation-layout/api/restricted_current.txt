@@ -115,6 +115,8 @@ package androidx.compose.foundation.layout {
   }
 
   public final class FlowLayoutKt {
+    method @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy columnMeasurementHelper(androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, int maxItemsInMainAxis);
+    method @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy rowMeasurementHelper(androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, int maxItemsInMainAxis);
   }
 
   public final class IntrinsicKt {
@@ -125,7 +127,7 @@ package androidx.compose.foundation.layout {
   }
 
   public enum IntrinsicSize {
-    method public static androidx.compose.foundation.layout.IntrinsicSize valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.compose.foundation.layout.IntrinsicSize valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.compose.foundation.layout.IntrinsicSize[] values();
     enum_constant public static final androidx.compose.foundation.layout.IntrinsicSize Max;
     enum_constant public static final androidx.compose.foundation.layout.IntrinsicSize Min;
@@ -167,9 +169,6 @@ package androidx.compose.foundation.layout {
     method public float calculateLeftPadding(androidx.compose.ui.unit.LayoutDirection layoutDirection);
     method public float calculateRightPadding(androidx.compose.ui.unit.LayoutDirection layoutDirection);
     method public float calculateTopPadding();
-  }
-
-  public final class RowColumnImplKt {
   }
 
   public final class RowKt {
@@ -225,9 +224,6 @@ package androidx.compose.foundation.layout {
   }
 
   public static final class WindowInsets.Companion {
-  }
-
-  public final class WindowInsetsConnection_androidKt {
   }
 
   public final class WindowInsetsKt {
@@ -309,13 +305,6 @@ package androidx.compose.foundation.layout {
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets getTappableElement(androidx.compose.foundation.layout.WindowInsets.Companion);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static androidx.compose.foundation.layout.WindowInsets getWaterfall(androidx.compose.foundation.layout.WindowInsets.Companion);
     method public static void setConsumeWindowInsets(androidx.compose.ui.platform.ComposeView, boolean);
-  }
-
-}
-
-package androidx.compose.foundation.layout.internal {
-
-  public final class JvmDefaultWithCompatibility_jvmKt {
   }
 
 }

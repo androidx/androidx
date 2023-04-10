@@ -4,11 +4,14 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":appcompat:appcompat"))
+    implementation("androidx.appcompat:appcompat:1.6.0")
     implementation(project(":mediarouter:mediarouter"))
-    implementation(project(":recyclerview:recyclerview"))
+    implementation("androidx.recyclerview:recyclerview:1.2.1")
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
     implementation(libs.material)
+
+    implementation ("androidx.multidex:multidex:2.0.1")
+    implementation("com.google.guava:guava:31.1-android")
 }
 
 android {
@@ -20,6 +23,7 @@ android {
     }
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
+        multiDexEnabled true
     }
     lint {
         baseline = file("lint-baseline.xml")

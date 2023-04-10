@@ -25,7 +25,7 @@ import kotlin.collections.MutableList
 import kotlin.collections.Set
 
 @Generated(value = ["androidx.room.RoomProcessor"])
-@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION"])
+@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION"])
 public class MyDatabase_Impl : MyDatabase() {
     private val _myDao: Lazy<MyDao> = lazy {
         MyDao_Impl(this)

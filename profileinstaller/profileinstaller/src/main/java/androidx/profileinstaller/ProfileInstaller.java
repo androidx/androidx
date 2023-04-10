@@ -184,7 +184,6 @@ public class ProfileInstaller {
     };
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
@@ -224,13 +223,12 @@ public class ProfileInstaller {
     @DiagnosticCode public static final int DIAGNOSTIC_REF_PROFILE_DOES_NOT_EXIST = 4;
 
     /**
-     * Indicates that the profile is compressed and a newer version of bundletool needs to be used
-     * to build the app.
+     * Indicates that the profile is compressed and a version of bundletool newer than 1.13.2
+     * needs to be used to build the app.
      */
     @DiagnosticCode public static final int DIAGNOSTIC_PROFILE_IS_COMPRESSED = 5;
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
@@ -352,7 +350,6 @@ public class ProfileInstaller {
     /**
      * Check if we've already installed a profile for this app installation.
      *
-     * @hide
      *
      * @param packageInfo used to lookup the last install time for this apk
      * @param appFilesDir directory to store a file to note prior installation
@@ -387,7 +384,6 @@ public class ProfileInstaller {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     static void noteProfileWrittenFor(@NonNull PackageInfo packageInfo, @NonNull File appFilesDir) {
@@ -400,7 +396,6 @@ public class ProfileInstaller {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     static boolean deleteProfileWrittenFor(@NonNull File appFilesDir) {

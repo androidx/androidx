@@ -21,7 +21,7 @@ package androidx.core.uwb
  *
  * @property uwbConfigType
  * The UWB configuration type. One type specifies one fixed set of pre-defined parameters. The
- * UWB config type includes [UWB_CONFIG_ID_1].
+ * UWB config type includes [CONFIG_UNICAST_DS_TWR] and [CONFIG_MULTICAST_DS_TWR].
  *
  * @property sessionId
  * The ID of the ranging session. If the value is SESSION_ID_UNSET (0), it will
@@ -72,7 +72,7 @@ class RangingParameters(
          * <p> Typical use case: device tracking tags
          */
         @JvmField
-        val UWB_CONFIG_ID_1 = 1
+        val CONFIG_UNICAST_DS_TWR = 1
 
         /**
          * Pre-defined one-to-many STATIC STS DS-TWR ranging
@@ -87,7 +87,7 @@ class RangingParameters(
          * <p> Typical use case: smart phone interacts with many smart devices
          */
         @JvmField
-        internal val UWB_CONFIG_ID_2 = 2
+        val CONFIG_MULTICAST_DS_TWR = 2
 
         /** Same as CONFIG_ID_1, except AoA data is not reported. */
         @JvmField

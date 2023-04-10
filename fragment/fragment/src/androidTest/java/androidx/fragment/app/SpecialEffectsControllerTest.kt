@@ -468,7 +468,7 @@ internal class TestSpecialEffectsController(
 ) : SpecialEffectsController(container) {
     val operationsToExecute = mutableListOf<Operation>()
 
-    override fun executeOperations(operations: MutableList<Operation>, isPop: Boolean) {
+    override fun executeOperations(operations: List<Operation>, isPop: Boolean) {
         operationsToExecute.addAll(operations)
         operations.forEach { operation ->
             operation.addCompletionListener {
@@ -488,7 +488,7 @@ internal class InstantSpecialEffectsController(
 ) : SpecialEffectsController(container) {
     var executeOperationsCallCount = 0
 
-    override fun executeOperations(operations: MutableList<Operation>, isPop: Boolean) {
+    override fun executeOperations(operations: List<Operation>, isPop: Boolean) {
         executeOperationsCallCount++
         operations.forEach(Operation::complete)
     }

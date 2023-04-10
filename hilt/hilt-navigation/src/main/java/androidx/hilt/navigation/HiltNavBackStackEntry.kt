@@ -18,9 +18,9 @@
 
 package androidx.hilt.navigation
 
-import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import androidx.activity.ComponentActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavBackStackEntry
 import dagger.hilt.android.internal.lifecycle.HiltViewModelFactory
@@ -40,23 +40,44 @@ public fun HiltViewModelFactory(
     context: Context,
     navBackStackEntry: NavBackStackEntry
 ): ViewModelProvider.Factory {
+    return HiltViewModelFactory(context, navBackStackEntry.defaultViewModelProviderFactory)
+}
+
+/**
+ * Creates a [ViewModelProvider.Factory] to get
+ * [HiltViewModel](https://dagger.dev/api/latest/dagger/hilt/android/lifecycle/HiltViewModel)
+ * -annotated `ViewModel` from a [ViewModelProvider.Factory].
+ *
+ * @param context the activity context.
+ * @param delegateFactory the delegated factory.
+ * @return the factory.
+ * @throws IllegalStateException if the context given is not an activity.
+ */
+@JvmName("create")
+public fun HiltViewModelFactory(
+    context: Context,
+    delegateFactory: ViewModelProvider.Factory
+): ViewModelProvider.Factory {
     val activity = context.let {
         var ctx = it
         while (ctx is ContextWrapper) {
-            if (ctx is Activity) {
+            // Hilt can only be used with ComponentActivity
+            if (ctx is ComponentActivity) {
                 return@let ctx
             }
             ctx = ctx.baseContext
         }
         throw IllegalStateException(
-            "Expected an activity context for creating a HiltViewModelFactory for a " +
-                "NavBackStackEntry but instead found: $ctx"
+            "Expected an activity context for creating a HiltViewModelFactory " +
+                "but instead found: $ctx"
         )
     }
+    // TODO(kuanyingchou): The `owner` is actually not used. We pass
+    //  `activity` here since it's a NonNull parameter. This can be removed with Dagger 2.45.
     return HiltViewModelFactory.createInternal(
-        activity,
-        navBackStackEntry,
-        navBackStackEntry.arguments,
-        navBackStackEntry.defaultViewModelProviderFactory,
+        /* activity = */ activity,
+        /* owner = */ activity,
+        /* defaultArgs = */ null,
+        /* delegateFactory = */ delegateFactory
     )
 }

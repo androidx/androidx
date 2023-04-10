@@ -26,7 +26,6 @@ import androidx.input.motionprediction.kalman.matrix.Matrix;
 /**
  * Class that independently applies the Kalman Filter to each axis of the pen.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class PointerKalmanFilter {

@@ -56,7 +56,6 @@ import androidx.car.app.serialization.Bundleable;
  *
  * <p>This view supports surface package even for builds lower than {@link Build.VERSION_CODES#R}.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public final class TemplateSurfaceView extends SurfaceView {

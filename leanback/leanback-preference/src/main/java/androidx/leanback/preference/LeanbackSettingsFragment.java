@@ -194,7 +194,6 @@ public abstract class LeanbackSettingsFragment extends Fragment
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static class DummyFragment extends Fragment {

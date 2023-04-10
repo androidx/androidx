@@ -18,20 +18,14 @@ package androidx.compose.foundation
 
 import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
+import androidx.compose.ui.input.pointer.PointerEvent
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.debugInspectorInfo
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.isActive
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.PointerInputModifierNode
+import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.launch
 
 /**
@@ -46,15 +40,67 @@ import kotlinx.coroutines.launch
 fun Modifier.hoverable(
     interactionSource: MutableInteractionSource,
     enabled: Boolean = true
-): Modifier = composed(
-    inspectorInfo = debugInspectorInfo {
+) = this then if (enabled) HoverableElement(interactionSource) else Modifier
+
+private class HoverableElement(
+    private val interactionSource: MutableInteractionSource
+) : ModifierNodeElement<HoverableNode>() {
+    override fun create() = HoverableNode(interactionSource)
+
+    override fun update(node: HoverableNode) = node.apply {
+        updateInteractionSource(interactionSource)
+    }
+
+    override fun hashCode(): Int {
+        return 31 * interactionSource.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is HoverableElement) return false
+        if (other.interactionSource != interactionSource) return false
+        return true
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
         name = "hoverable"
         properties["interactionSource"] = interactionSource
-        properties["enabled"] = enabled
     }
-) {
-    val scope = rememberCoroutineScope()
-    var hoverInteraction by remember { mutableStateOf<HoverInteraction.Enter?>(null) }
+}
+
+private class HoverableNode(
+    private var interactionSource: MutableInteractionSource
+) : PointerInputModifierNode, Modifier.Node() {
+    private var hoverInteraction: HoverInteraction.Enter? = null
+
+    fun updateInteractionSource(interactionSource: MutableInteractionSource) {
+        if (this.interactionSource != interactionSource) {
+            tryEmitExit()
+            // b/273699888 TODO: Define behavior if there is an ongoing hover
+            this.interactionSource = interactionSource
+        }
+    }
+
+    override fun onPointerEvent(
+        pointerEvent: PointerEvent,
+        pass: PointerEventPass,
+        bounds: IntSize
+    ) {
+        if (pass == PointerEventPass.Main) {
+            when (pointerEvent.type) {
+                PointerEventType.Enter -> coroutineScope.launch { emitEnter() }
+                PointerEventType.Exit -> coroutineScope.launch { emitExit() }
+            }
+        }
+    }
+
+    override fun onCancelPointerInput() {
+        tryEmitExit()
+    }
+
+    override fun onDetach() {
+        tryEmitExit()
+    }
 
     suspend fun emitEnter() {
         if (hoverInteraction == null) {
@@ -78,38 +124,5 @@ fun Modifier.hoverable(
             interactionSource.tryEmit(interaction)
             hoverInteraction = null
         }
-    }
-
-    DisposableEffect(interactionSource) {
-        onDispose { tryEmitExit() }
-    }
-    LaunchedEffect(enabled) {
-        if (!enabled) {
-            emitExit()
-        }
-    }
-
-    if (enabled) {
-        Modifier
-// TODO(b/202505231):
-//  because we only react to input events, and not on layout changes, we can have a situation when
-//  Composable is under the cursor, but not hovered. To fix that, we have two ways:
-//  a. Trigger Enter/Exit on any layout change, inside Owner
-//  b. Manually react on layout changes via Modifier.onGloballyPosition, and check something like
-//  LocalPointerPosition.current
-            .pointerInput(interactionSource) {
-                val currentContext = currentCoroutineContext()
-                awaitPointerEventScope {
-                    while (currentContext.isActive) {
-                        val event = awaitPointerEvent()
-                        when (event.type) {
-                            PointerEventType.Enter -> scope.launch { emitEnter() }
-                            PointerEventType.Exit -> scope.launch { emitExit() }
-                        }
-                    }
-                }
-            }
-    } else {
-        Modifier
     }
 }

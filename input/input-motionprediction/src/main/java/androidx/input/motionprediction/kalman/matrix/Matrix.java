@@ -28,7 +28,6 @@ import java.util.Locale;
 /**
  * Utility for basic Matrix calculations.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class Matrix {

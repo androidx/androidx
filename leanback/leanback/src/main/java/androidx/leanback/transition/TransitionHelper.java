@@ -23,7 +23,6 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.os.Build;
 import android.transition.AutoTransition;
-import android.transition.ChangeBounds;
 import android.transition.ChangeTransform;
 import android.transition.Fade;
 import android.transition.Scene;
@@ -38,14 +37,12 @@ import android.view.animation.AnimationUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 
 /**
  * Helper for view transitions.
- * @hide
  */
 @RestrictTo(LIBRARY)
 public final class TransitionHelper {

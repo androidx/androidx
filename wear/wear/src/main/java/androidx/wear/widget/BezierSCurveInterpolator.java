@@ -24,7 +24,6 @@ import androidx.annotation.RestrictTo.Scope;
 /**
  * Interpolator that uses a Bezier derived S shaped curve.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 class BezierSCurveInterpolator implements TimeInterpolator {

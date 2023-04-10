@@ -26,6 +26,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
@@ -464,16 +465,21 @@ internal class AndroidParagraph(
         color: Color,
         shadow: Shadow?,
         textDecoration: TextDecoration?,
-        drawStyle: DrawStyle?
+        drawStyle: DrawStyle?,
+        blendMode: BlendMode
     ) {
+        val currBlendMode = textPaint.blendMode
         with(textPaint) {
             setColor(color)
             setShadow(shadow)
             setTextDecoration(textDecoration)
             setDrawStyle(drawStyle)
+            this.blendMode = blendMode
         }
 
         paint(canvas)
+
+        textPaint.blendMode = currBlendMode
     }
 
     @OptIn(ExperimentalTextApi::class)
@@ -483,16 +489,21 @@ internal class AndroidParagraph(
         alpha: Float,
         shadow: Shadow?,
         textDecoration: TextDecoration?,
-        drawStyle: DrawStyle?
+        drawStyle: DrawStyle?,
+        blendMode: BlendMode
     ) {
+        val currBlendMode = textPaint.blendMode
         with(textPaint) {
             setBrush(brush, Size(width, height), alpha)
             setShadow(shadow)
             setTextDecoration(textDecoration)
             setDrawStyle(drawStyle)
+            this.blendMode = blendMode
         }
 
         paint(canvas)
+
+        textPaint.blendMode = currBlendMode
     }
 
     private fun paint(canvas: Canvas) {
@@ -550,7 +561,7 @@ private fun toLayoutAlign(align: TextAlign?): Int = when (align) {
     else -> DEFAULT_ALIGNMENT
 }
 
-@OptIn(ExperimentalTextApi::class, InternalPlatformTextApi::class)
+@OptIn(InternalPlatformTextApi::class)
 private fun toLayoutHyphenationFrequency(hyphens: Hyphens?): Int = when (hyphens) {
     Hyphens.Auto -> if (Build.VERSION.SDK_INT <= 32) {
         HYPHENATION_FREQUENCY_NORMAL
@@ -561,7 +572,7 @@ private fun toLayoutHyphenationFrequency(hyphens: Hyphens?): Int = when (hyphens
     else -> DEFAULT_HYPHENATION_FREQUENCY
 }
 
-@OptIn(ExperimentalTextApi::class, InternalPlatformTextApi::class)
+@OptIn(InternalPlatformTextApi::class)
 private fun toLayoutBreakStrategy(breakStrategy: LineBreak.Strategy?): Int = when (breakStrategy) {
     LineBreak.Strategy.Simple -> BREAK_STRATEGY_SIMPLE
     LineBreak.Strategy.HighQuality -> BREAK_STRATEGY_HIGH_QUALITY
@@ -569,7 +580,7 @@ private fun toLayoutBreakStrategy(breakStrategy: LineBreak.Strategy?): Int = whe
     else -> DEFAULT_BREAK_STRATEGY
 }
 
-@OptIn(ExperimentalTextApi::class, InternalPlatformTextApi::class)
+@OptIn(InternalPlatformTextApi::class)
 private fun toLayoutLineBreakStyle(lineBreakStrictness: LineBreak.Strictness?): Int =
     when (lineBreakStrictness) {
         LineBreak.Strictness.Default -> LINE_BREAK_STYLE_NONE
@@ -579,7 +590,7 @@ private fun toLayoutLineBreakStyle(lineBreakStrictness: LineBreak.Strictness?): 
         else -> DEFAULT_LINE_BREAK_STYLE
     }
 
-@OptIn(ExperimentalTextApi::class, InternalPlatformTextApi::class)
+@OptIn(InternalPlatformTextApi::class)
 private fun toLayoutLineBreakWordStyle(lineBreakWordStyle: LineBreak.WordBreak?): Int =
     when (lineBreakWordStyle) {
         LineBreak.WordBreak.Default -> LINE_BREAK_WORD_STYLE_NONE

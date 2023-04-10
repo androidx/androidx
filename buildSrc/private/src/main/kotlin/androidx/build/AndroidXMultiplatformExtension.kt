@@ -22,6 +22,7 @@ import org.gradle.api.NamedDomainObjectCollection
 import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinTargetPreset
@@ -51,6 +52,12 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     val targets: NamedDomainObjectCollection<KotlinTarget>
         get() = kotlinExtension.targets
 
+    internal fun hasNativeTarget(): Boolean {
+        // it is important to check initialized here not to trigger initialization
+        return kotlinExtensionDelegate.isInitialized() && targets.any {
+            it.platformType == KotlinPlatformType.native
+        }
+    }
     fun sourceSets(closure: Closure<*>) {
         if (kotlinExtensionDelegate.isInitialized()) {
             kotlinExtension.sourceSets.configure(closure)
@@ -196,4 +203,12 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     companion object {
         const val EXTENSION_NAME = "androidXMultiplatform"
     }
+}
+
+/**
+ * Returns a provider that is set to true if and only if this project has at least 1 kotlin native
+ * target (mac, linux, ios).
+ */
+internal fun Project.hasKotlinNativeTarget() = project.provider {
+    project.extensions.getByType(AndroidXMultiplatformExtension::class.java).hasNativeTarget()
 }

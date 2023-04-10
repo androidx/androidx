@@ -335,8 +335,7 @@ public object ToggleButtonDefaults {
         checkedContentColor: Color = contentColorFor(checkedBackgroundColor),
         disabledCheckedBackgroundColor: Color =
             checkedBackgroundColor.copy(alpha = ContentAlpha.disabled),
-        disabledCheckedContentColor: Color =
-            checkedContentColor.copy(alpha = ContentAlpha.disabled),
+        disabledCheckedContentColor: Color = MaterialTheme.colors.background,
         uncheckedBackgroundColor: Color = MaterialTheme.colors.surface,
         uncheckedContentColor: Color = contentColorFor(uncheckedBackgroundColor),
         disabledUncheckedBackgroundColor: Color =

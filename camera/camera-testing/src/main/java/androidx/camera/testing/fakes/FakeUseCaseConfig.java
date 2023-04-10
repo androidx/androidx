@@ -16,17 +16,18 @@
 
 package androidx.camera.testing.fakes;
 
+import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
+
 import android.util.Pair;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ResolutionSelector;
+import androidx.camera.core.MirrorMode;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
-import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
@@ -34,6 +35,7 @@ import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
 
 import java.util.List;
 import java.util.UUID;
@@ -57,7 +59,7 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
     @Override
     public int getInputFormat() {
         return retrieveOption(OPTION_INPUT_FORMAT,
-                ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
+                INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
     }
 
     /** Builder for an empty Config */
@@ -79,6 +81,11 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
 
         public Builder(@NonNull CaptureType captureType) {
             this(MutableOptionsBundle.create(), captureType);
+        }
+
+        public Builder(@NonNull CaptureType captureType, int inputFormat) {
+            this(MutableOptionsBundle.create(), captureType);
+            mOptionsBundle.insertOption(OPTION_INPUT_FORMAT, inputFormat);
         }
 
         public Builder(@NonNull Config config, @NonNull CaptureType captureType) {
@@ -192,6 +199,13 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
         @Override
         public Builder setTargetRotation(int rotation) {
             getMutableConfig().insertOption(OPTION_TARGET_ROTATION, rotation);
+            return this;
+        }
+
+        @NonNull
+        @Override
+        public Builder setMirrorMode(@MirrorMode.Mirror int mirrorMode) {
+            getMutableConfig().insertOption(OPTION_MIRROR_MODE, mirrorMode);
             return this;
         }
 

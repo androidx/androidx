@@ -35,7 +35,6 @@ import java.util.Map;
  * A factory to provide a unique {@link CarAppViewModel} for each pair of {@link ComponentName} and
  * {@link SessionInfo}.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 class CarAppViewModelFactory implements ViewModelProvider.Factory {

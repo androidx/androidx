@@ -22,9 +22,12 @@ import androidx.compose.foundation.text.selection.SelectionRegistrar
 import androidx.compose.foundation.text.selection.hasSelection
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.currentComposer
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
@@ -62,12 +65,26 @@ fun BasicText(
     text: String,
     modifier: Modifier = Modifier,
     style: TextStyle = TextStyle.Default,
-    onTextLayout: (TextLayoutResult) -> Unit = {},
+    onTextLayout: ((TextLayoutResult) -> Unit)? = null,
     overflow: TextOverflow = TextOverflow.Clip,
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
     minLines: Int = 1
 ) {
+    @Suppress("DEPRECATION")
+    if (NewTextRendering1_5) {
+        TextUsingModifier(
+            text = text,
+            modifier = modifier,
+            style = style,
+            onTextLayout = onTextLayout,
+            overflow = overflow,
+            softWrap = softWrap,
+            maxLines = maxLines,
+            minLines = minLines
+        )
+        return
+    }
     // NOTE(text-perf-review): consider precomputing layout here by pushing text to a channel...
     // something like:
     // remember(text) { precomputeTextLayout(text) }
@@ -133,13 +150,18 @@ fun BasicText(
             )
         )
     }
-    state.onTextLayout = onTextLayout
+    state.onTextLayout = onTextLayout ?: {}
     controller.update(selectionRegistrar)
     if (selectionRegistrar != null) {
         state.selectionBackgroundColor = LocalTextSelectionColors.current.backgroundColor
     }
 
-    Layout(modifier = modifier.then(controller.modifiers), measurePolicy = controller.measurePolicy)
+    Layout(
+        modifier = modifier
+            .textPointerHoverIcon(selectionRegistrar)
+            .then(controller.modifiers),
+        measurePolicy = controller.measurePolicy
+    )
 }
 
 /**
@@ -172,13 +194,28 @@ fun BasicText(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
     style: TextStyle = TextStyle.Default,
-    onTextLayout: (TextLayoutResult) -> Unit = {},
+    onTextLayout: ((TextLayoutResult) -> Unit)? = null,
     overflow: TextOverflow = TextOverflow.Clip,
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
     minLines: Int = 1,
     inlineContent: Map<String, InlineTextContent> = mapOf()
 ) {
+    @Suppress("DEPRECATION")
+    if (NewTextRendering1_5) {
+        TextUsingModifier(
+            text = text,
+            modifier = modifier,
+            style = style,
+            onTextLayout = onTextLayout,
+            overflow = overflow,
+            softWrap = softWrap,
+            maxLines = maxLines,
+            minLines = minLines,
+            inlineContent = inlineContent
+        )
+        return
+    }
     // Unlike text field for which validation happens inside the 'heightInLines' modifier, in text
     // 'maxLines' are not handled by the modifier but instead passed to the StaticLayout, therefore
     // we perform validation here
@@ -245,7 +282,7 @@ fun BasicText(
             )
         )
     }
-    state.onTextLayout = onTextLayout
+    state.onTextLayout = onTextLayout ?: {}
     state.selectionBackgroundColor = selectionBackgroundColor
 
     controller.update(selectionRegistrar)
@@ -256,7 +293,9 @@ fun BasicText(
         } else {
             { InlineChildren(text, inlineComposables) }
         },
-        modifier = modifier.then(controller.modifiers),
+        modifier = modifier
+            .textPointerHoverIcon(selectionRegistrar)
+            .then(controller.modifiers),
         measurePolicy = controller.measurePolicy
     )
 }
@@ -267,7 +306,7 @@ fun BasicText(
     text: String,
     modifier: Modifier = Modifier,
     style: TextStyle = TextStyle.Default,
-    onTextLayout: (TextLayoutResult) -> Unit = {},
+    onTextLayout: ((TextLayoutResult) -> Unit)? = null,
     overflow: TextOverflow = TextOverflow.Clip,
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE
@@ -290,7 +329,7 @@ fun BasicText(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
     style: TextStyle = TextStyle.Default,
-    onTextLayout: (TextLayoutResult) -> Unit = {},
+    onTextLayout: ((TextLayoutResult) -> Unit)? = null,
     overflow: TextOverflow = TextOverflow.Clip,
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
@@ -310,9 +349,25 @@ fun BasicText(
 }
 
 /**
+ * Optionally use legacy text rendering stack from 1.4.
+ *
+ * This flag will be removed by 1.5 beta01. If you find any issues with the new stack, flip this
+ * flag to false to confirm they are newly introduced then file a bug.
+ */
+@Deprecated(
+    message = "This flag will be removed by 1.5 beta1 and should only be used for debugging " +
+        "text related issues in the new 1.5 text stack.",
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING
+)
+var NewTextRendering1_5: Boolean by mutableStateOf(true)
+
+/**
  * A custom saver that won't save if no selection is active.
  */
 private fun selectionIdSaver(selectionRegistrar: SelectionRegistrar?) = Saver<Long, Long>(
     save = { if (selectionRegistrar.hasSelection(it)) it else null },
     restore = { it }
 )
+
+internal expect fun Modifier.textPointerHoverIcon(selectionRegistrar: SelectionRegistrar?): Modifier

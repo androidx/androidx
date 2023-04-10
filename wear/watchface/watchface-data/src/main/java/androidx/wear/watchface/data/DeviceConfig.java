@@ -31,7 +31,6 @@ import androidx.versionedparcelable.VersionedParcelize;
  * Data sent over AIDL during watch face creation for device characteristics that cannot change
  * dynamically.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize(allowSerialization = true)

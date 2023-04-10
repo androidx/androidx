@@ -24,11 +24,11 @@ import android.os.Build
 import android.support.wearable.complications.ComplicationText.plainText
 import android.util.Log
 import androidx.test.core.app.ApplicationProvider
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import androidx.wear.watchface.complications.data.ComplicationDisplayPolicies
 import androidx.wear.watchface.complications.data.ComplicationPersistencePolicies
-import androidx.wear.watchface.complications.data.FloatExpression
 import androidx.wear.watchface.complications.data.SharedRobolectricTestRunner
-import androidx.wear.watchface.complications.data.StringExpression
 import com.google.common.truth.Expect
 import kotlin.random.Random
 import org.junit.Before
@@ -40,8 +40,7 @@ import org.robolectric.shadows.ShadowLog
 
 @RunWith(SharedRobolectricTestRunner::class)
 class ComplicationDataEqualityTest {
-    @get:Rule
-    val expect = Expect.create()
+    @get:Rule val expect = Expect.create()
 
     @Before
     fun setup() {
@@ -88,20 +87,8 @@ class ComplicationDataEqualityTest {
             { setRangedValue(2f) },
         ),
         RANGED_VALUE_EXPRESSION(
-            {
-                setRangedValueExpression(
-                    object : FloatExpression() {
-                        override fun asByteArray() = byteArrayOf(1, 2)
-                    }
-                )
-            },
-            {
-                setRangedValueExpression(
-                    object : FloatExpression() {
-                        override fun asByteArray() = byteArrayOf(3, 4)
-                    }
-                )
-            },
+            { setRangedValueExpression(DynamicFloat.constant(1.2f)) },
+            { setRangedValueExpression(DynamicFloat.constant(3.4f)) },
         ),
         RANGED_VALUE_TYPE(
             { setRangedValueType(1) },
@@ -352,19 +339,11 @@ class ComplicationDataEqualityTest {
         RANGED_VALUE_EXPRESSION(
             {
                 setRangedValue(Random.nextFloat()) // Ignored when there's an expression.
-                    .setRangedValueExpression(
-                        object : FloatExpression() {
-                            override fun asByteArray() = byteArrayOf(1, 2)
-                        }
-                    )
+                    .setRangedValueExpression(DynamicFloat.constant(1.2f))
             },
             {
                 setRangedValue(Random.nextFloat()) // Ignored when there's an expression.
-                    .setRangedValueExpression(
-                        object : FloatExpression() {
-                            override fun asByteArray() = byteArrayOf(3, 4)
-                        }
-                    )
+                    .setRangedValueExpression(DynamicFloat.constant(3.4f))
             },
         ),
 
@@ -378,7 +357,7 @@ class ComplicationDataEqualityTest {
                 setShortTitle(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        StringExpression(byteArrayOf(1, 2))
+                        DynamicString.constant("1")
                     )
                 )
             },
@@ -386,7 +365,7 @@ class ComplicationDataEqualityTest {
                 setShortTitle(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        StringExpression(byteArrayOf(3, 4))
+                        DynamicString.constant("2")
                     )
                 )
             },
@@ -402,7 +381,7 @@ class ComplicationDataEqualityTest {
                 setShortText(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        StringExpression(byteArrayOf(1, 2))
+                        DynamicString.constant("1")
                     )
                 )
             },
@@ -410,7 +389,7 @@ class ComplicationDataEqualityTest {
                 setShortText(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        StringExpression(byteArrayOf(3, 4))
+                        DynamicString.constant("2")
                     )
                 )
             },
@@ -426,7 +405,7 @@ class ComplicationDataEqualityTest {
                 setLongTitle(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        StringExpression(byteArrayOf(1, 2))
+                        DynamicString.constant("1")
                     )
                 )
             },
@@ -434,7 +413,7 @@ class ComplicationDataEqualityTest {
                 setLongTitle(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        StringExpression(byteArrayOf(3, 4))
+                        DynamicString.constant("2")
                     )
                 )
             },
@@ -450,7 +429,7 @@ class ComplicationDataEqualityTest {
                 setLongText(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        StringExpression(byteArrayOf(1, 2))
+                        DynamicString.constant("1")
                     )
                 )
             },
@@ -458,7 +437,7 @@ class ComplicationDataEqualityTest {
                 setLongText(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        StringExpression(byteArrayOf(3, 4))
+                        DynamicString.constant("2")
                     )
                 )
             },
@@ -474,7 +453,7 @@ class ComplicationDataEqualityTest {
                 setContentDescription(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        StringExpression(byteArrayOf(1, 2))
+                        DynamicString.constant("1")
                     )
                 )
             },
@@ -482,7 +461,7 @@ class ComplicationDataEqualityTest {
                 setContentDescription(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        StringExpression(byteArrayOf(3, 4))
+                        DynamicString.constant("2")
                     )
                 )
             },
@@ -500,7 +479,7 @@ class ComplicationDataEqualityTest {
                         .setShortText(
                             ComplicationText(
                                 Random.nextInt().toString(), // Ignored when there's an expression.
-                                StringExpression(byteArrayOf(1, 2))
+                                DynamicString.constant("1")
                             )
                         )
                         .build()
@@ -512,7 +491,7 @@ class ComplicationDataEqualityTest {
                         .setShortText(
                             ComplicationText(
                                 Random.nextInt().toString(), // Ignored when there's an expression.
-                                StringExpression(byteArrayOf(3, 4))
+                                DynamicString.constant("2")
                             )
                         )
                         .build()

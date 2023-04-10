@@ -38,6 +38,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
 class SessionManagerImplTest {
     private val key = "KEY"
@@ -52,7 +53,10 @@ class SessionManagerImplTest {
             TODO("Not yet implemented")
         }
 
-        override suspend fun processEmittableTree(context: Context, root: EmittableWithChildren) {
+        override suspend fun processEmittableTree(
+            context: Context,
+            root: EmittableWithChildren
+        ): Boolean {
             TODO("Not yet implemented")
         }
 

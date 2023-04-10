@@ -40,17 +40,16 @@ import androidx.camera.extensions.internal.Version;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ExtensionDisabledQuirk implements Quirk {
-    private final boolean mIsAdvancedInterface = isAdvancedExtenderSupported();
 
     static boolean load() {
-        return isPixel5() || isMoto() || isAdvancedExtenderSupported();
+        return isPixel5() || isMoto();
     }
 
     /**
      * Checks whether extension should be disabled.
      */
     public boolean shouldDisableExtension() {
-        if (isPixel5() && !mIsAdvancedInterface) {
+        if (isPixel5() && !isAdvancedExtenderSupported()) {
             // 1. Disables Pixel 5's Basic Extender capability.
             return true;
         } else if (isMoto() && ExtensionVersion.isMaximumCompatibleVersion(Version.VERSION_1_1)) {

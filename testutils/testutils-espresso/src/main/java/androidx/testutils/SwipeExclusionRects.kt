@@ -19,6 +19,7 @@ package androidx.testutils
 import android.graphics.Rect
 import android.view.View
 import androidx.core.view.ViewCompat
+import androidx.test.internal.runner.junit4.statement.UiThreadStatement
 
 /**
  * Sets exclusion rects for system gestures on this view that will make sure Espresso's
@@ -26,9 +27,16 @@ import androidx.core.view.ViewCompat
  * won't be mistaken for system gestures.
  *
  * Set this on the view on which you will perform the swipe ViewActions.
+ *
+ * @param requestLayout requests a layout; exclusion rects don't take effect until the widget goes
+ * through a layout phase, and if the test scenario doesn't result in a layout phase (e.g.
+ * the method is called after the layout phase already happened), setting [requestLayout] to `true`
+ * allows for the exclusions to be registered correctly)
+ * @see ViewCompat#setSystemGestureExclusionRects
  */
-fun View.setSystemExclusionRectsForEspressoSwipes() {
+fun View.setSystemExclusionRectsForEspressoSwipes(requestLayout: Boolean) {
     addOnLayoutChangeListener(SetExclusionRectsOnLayout())
+    if (requestLayout) UiThreadStatement.runOnUiThread { requestLayout() }
 }
 
 private class SetExclusionRectsOnLayout : View.OnLayoutChangeListener {

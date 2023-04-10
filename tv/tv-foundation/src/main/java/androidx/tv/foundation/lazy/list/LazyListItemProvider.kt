@@ -17,75 +17,77 @@
 package androidx.tv.foundation.lazy.list
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.lazy.layout.DelegatingLazyLayoutItemProvider
-import androidx.compose.foundation.lazy.layout.IntervalList
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
-import androidx.compose.foundation.lazy.layout.rememberLazyNearestItemsRangeState
+import androidx.compose.foundation.lazy.layout.PinnableItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.tv.foundation.lazy.layout.LazyLayoutKeyIndexMap
+import androidx.tv.foundation.lazy.layout.NearestRangeKeyIndexMapState
 
 @Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
 @ExperimentalFoundationApi
 internal interface LazyListItemProvider : LazyLayoutItemProvider {
+    val keyToIndexMap: LazyLayoutKeyIndexMap
     /** The list of indexes of the sticky header items */
     val headerIndexes: List<Int>
     /** The scope used by the item content lambdas */
     val itemScope: TvLazyListItemScopeImpl
 }
 
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun rememberLazyListItemProvider(
     state: TvLazyListState,
     content: TvLazyListScope.() -> Unit
 ): LazyListItemProvider {
     val latestContent = rememberUpdatedState(content)
-    val nearestItemsRangeState = rememberLazyNearestItemsRangeState(
-        firstVisibleItemIndex = { state.firstVisibleItemIndex },
-        slidingWindowSize = { NearestItemsSlidingWindowSize },
-        extraItemCount = { NearestItemsExtraItemCount }
-    )
-
-    return remember(nearestItemsRangeState, state) {
-        val itemScope = TvLazyListItemScopeImpl()
-        val itemProviderState = derivedStateOf {
-            val listScope = TvLazyListScopeImpl().apply(latestContent.value)
-            LazyListItemProviderImpl(
-                listScope.intervals,
-                nearestItemsRangeState.value,
-                listScope.headerIndexes,
-                itemScope,
-                state
-            )
-        }
-        object : LazyListItemProvider,
-            LazyLayoutItemProvider by DelegatingLazyLayoutItemProvider(itemProviderState) {
-            override val headerIndexes: List<Int> get() = itemProviderState.value.headerIndexes
-            override val itemScope: TvLazyListItemScopeImpl get() =
-                itemProviderState.value.itemScope
-        }
+    return remember(state, latestContent) {
+        LazyListItemProviderImpl(
+            state = state,
+            latestContent = { latestContent.value },
+            itemScope = TvLazyListItemScopeImpl()
+        )
     }
 }
 
 @ExperimentalFoundationApi
-private class LazyListItemProviderImpl(
-    intervals: IntervalList<LazyListIntervalContent>,
-    nearestItemsRange: IntRange,
-    override val headerIndexes: List<Int>,
-    override val itemScope: TvLazyListItemScopeImpl,
-    state: TvLazyListState
-) : LazyListItemProvider,
-    LazyLayoutItemProvider by LazyLayoutItemProvider(
-        intervals = intervals,
-        nearestItemsRange = nearestItemsRange,
-        itemContent = { interval, index ->
-            LazyListPinnableContainerProvider(state, index) {
-                interval.value.item.invoke(itemScope, index - interval.startIndex)
-            }
+private class LazyListItemProviderImpl constructor(
+    private val state: TvLazyListState,
+    private val latestContent: () -> (TvLazyListScope.() -> Unit),
+    override val itemScope: TvLazyListItemScopeImpl
+) : LazyListItemProvider {
+    private val listContent by derivedStateOf(referentialEqualityPolicy()) {
+        TvLazyListIntervalContent(latestContent())
+    }
+
+    override val itemCount: Int get() = listContent.itemCount
+
+    @Composable
+    override fun Item(index: Int) {
+        listContent.PinnableItem(index, state.pinnedItems) { localIndex ->
+            with(itemScope) { item(localIndex) }
         }
+    }
+
+    override fun getKey(index: Int): Any = listContent.getKey(index)
+
+    override fun getContentType(index: Int): Any? = listContent.getContentType(index)
+
+    override val headerIndexes: List<Int> get() = listContent.headerIndexes
+
+    override val keyToIndexMap by NearestRangeKeyIndexMapState(
+        firstVisibleItemIndex = { state.firstVisibleItemIndex },
+        slidingWindowSize = { NearestItemsSlidingWindowSize },
+        extraItemCount = { NearestItemsExtraItemCount },
+        content = { listContent }
     )
+
+    override fun getIndex(key: Any): Int = keyToIndexMap[key]
+}
 
 /**
  * We use the idea of sliding window as an optimization, so user can scroll up to this number of

@@ -23,6 +23,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Logger;
+import androidx.camera.core.concurrent.CameraCoordinator;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.core.util.Pair;
@@ -41,7 +42,6 @@ import java.util.concurrent.Callable;
 /**
  * A {@link CameraFactory} implementation that contains and produces fake cameras.
  *
- * @hide
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(Scope.LIBRARY_GROUP)
@@ -57,6 +57,9 @@ public final class FakeCameraFactory implements CameraFactory {
 
     @Nullable
     private Object mCameraManager = null;
+
+    @NonNull
+    private CameraCoordinator mCameraCoordinator = new FakeCameraCoordinator();
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Map<String, Pair<Integer, Callable<CameraInternal>>> mCameraMap = new HashMap<>();
@@ -168,6 +171,16 @@ public final class FakeCameraFactory implements CameraFactory {
             }
         }
         return filteredCameraIds;
+    }
+
+    @NonNull
+    @Override
+    public CameraCoordinator getCameraCoordinator() {
+        return mCameraCoordinator;
+    }
+
+    public void setCameraCoordinator(@NonNull CameraCoordinator cameraCoordinator) {
+        mCameraCoordinator = cameraCoordinator;
     }
 
     public void setCameraManager(@Nullable Object cameraManager) {

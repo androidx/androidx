@@ -263,15 +263,15 @@ class DeleteSurroundingTextCommand(
     }
 
     override fun applyTo(buffer: EditingBuffer) {
-        buffer.delete(
-            buffer.selectionEnd,
-            minOf(buffer.selectionEnd + lengthAfterCursor, buffer.length)
-        )
+        // calculate the end with safe addition since lengthAfterCursor can be set to e.g. Int.MAX
+        // by the input
+        val end = buffer.selectionEnd.addExactOrElse(lengthAfterCursor) { buffer.length }
+        buffer.delete(buffer.selectionEnd, minOf(end, buffer.length))
 
-        buffer.delete(
-            maxOf(0, buffer.selectionStart - lengthBeforeCursor),
-            buffer.selectionStart
-        )
+        // calculate the start with safe subtraction since lengthBeforeCursor can be set to e.g.
+        // Int.MAX by the input
+        val start = buffer.selectionStart.subtractExactOrElse(lengthBeforeCursor) { 0 }
+        buffer.delete(maxOf(0, start), buffer.selectionStart)
     }
 
     override fun equals(other: Any?): Boolean {

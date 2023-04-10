@@ -45,7 +45,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.HashMap;
 import java.util.Map;
 
-/** Typography styles, currently set up to match Wear's styling. */
+/**
+ * Typography styles, currently set up to match Wear's styling.
+ *
+ * @deprecated Use the new class {@link androidx.wear.protolayout.material.Typography} which
+ *     provides the same API and functionality.
+ */
+@Deprecated
+@SuppressWarnings("deprecation")
 public class Typography {
     /** Typography for large display text. */
     public static final int TYPOGRAPHY_DISPLAY1 = 1;
@@ -83,7 +90,6 @@ public class Typography {
     /** Typography for small caption text. */
     public static final int TYPOGRAPHY_CAPTION3 = 12;
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({

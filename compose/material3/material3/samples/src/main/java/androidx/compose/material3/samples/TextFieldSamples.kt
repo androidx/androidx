@@ -34,6 +34,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -114,6 +115,23 @@ fun TextFieldWithPlaceholder() {
         onValueChange = { text = it },
         label = { Text("Email") },
         placeholder = { Text("example@gmail.com") }
+    )
+}
+
+@Preview
+@Sampled
+@Composable
+fun TextFieldWithPrefixAndSuffix() {
+    var text by rememberSaveable { mutableStateOf("") }
+
+    TextField(
+        value = text,
+        onValueChange = { text = it },
+        singleLine = true,
+        label = { Text("Label") },
+        prefix = { Text("www.") },
+        suffix = { Text(".com") },
+        placeholder = { Text("google") },
     )
 }
 
@@ -377,7 +395,7 @@ fun CustomTextFieldBasedOnDecorationBox() {
             enabled = enabled,
             singleLine = singleLine
         ) {
-            TextFieldDefaults.TextFieldDecorationBox(
+            TextFieldDefaults.DecorationBox(
                 value = value,
                 visualTransformation = passwordTransformation,
                 innerTextField = it,
@@ -388,7 +406,7 @@ fun CustomTextFieldBasedOnDecorationBox() {
                 interactionSource = interactionSource,
                 supportingText = { Text("Supporting text") },
                 // keep horizontal paddings but change the vertical
-                contentPadding = TextFieldDefaults.textFieldWithoutLabelPadding(
+                contentPadding = TextFieldDefaults.contentPaddingWithoutLabel(
                     top = 8.dp, bottom = 8.dp
                 ),
             )
@@ -413,7 +431,7 @@ fun CustomOutlinedTextFieldBasedOnDecorationBox() {
         val enabled = true
         val singleLine = true
 
-        val colors = TextFieldDefaults.outlinedTextFieldColors(
+        val colors = OutlinedTextFieldDefaults.colors(
             unfocusedBorderColor = Color.LightGray,
             focusedBorderColor = Color.DarkGray
         )
@@ -426,7 +444,7 @@ fun CustomOutlinedTextFieldBasedOnDecorationBox() {
             enabled = enabled,
             singleLine = singleLine
         ) {
-            TextFieldDefaults.OutlinedTextFieldDecorationBox(
+            OutlinedTextFieldDefaults.DecorationBox(
                 value = value,
                 visualTransformation = VisualTransformation.None,
                 innerTextField = it,
@@ -437,14 +455,14 @@ fun CustomOutlinedTextFieldBasedOnDecorationBox() {
                 interactionSource = interactionSource,
                 supportingText = { Text("Supporting text") },
                 // keep horizontal paddings but change the vertical
-                contentPadding = TextFieldDefaults.textFieldWithoutLabelPadding(
+                contentPadding = OutlinedTextFieldDefaults.contentPadding(
                     top = 8.dp, bottom = 8.dp
                 ),
                 // update border colors
                 colors = colors,
                 // update border thickness and shape
                 container = {
-                    TextFieldDefaults.OutlinedBorderContainerBox(
+                    OutlinedTextFieldDefaults.ContainerBox(
                         enabled = enabled,
                         isError = false,
                         colors = colors,

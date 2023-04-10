@@ -34,7 +34,7 @@ import org.junit.runners.Parameterized
 @OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
-internal class PagerScrollingTest(
+class PagerScrollingTest(
     val config: ParamConfig
 ) : BasePagerTest(config) {
 
@@ -179,7 +179,7 @@ internal class PagerScrollingTest(
         var initialPage = 1
         val state = PagerState(initialPage)
         createPager(
-            pageSize = PageSize.Fixed(200.dp),
+            pageSize = { PageSize.Fixed(200.dp) },
             state = state,
             modifier = Modifier.fillMaxSize(),
             pageCount = { 100 },
@@ -229,7 +229,7 @@ internal class PagerScrollingTest(
         var initialPage = 90
         val state = PagerState(initialPage)
         createPager(
-            pageSize = PageSize.Fixed(200.dp),
+            pageSize = { PageSize.Fixed(200.dp) },
             state = state,
             modifier = Modifier.fillMaxSize(),
             pageCount = { 100 },

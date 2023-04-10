@@ -556,7 +556,6 @@ class AffectedModuleDetectorImpl constructor(
             // placeholder test project to ensure no failure due to no instrumentation.
             // We can eventually remove if we resolve b/127819369
             ":placeholder-tests",
-            ":buildSrc-tests:project-subsets"
         )
 
         // Some tests are codependent even if their modules are not. Enable manual bundling of tests
@@ -594,26 +593,32 @@ class AffectedModuleDetectorImpl constructor(
                 ":benchmark:integration-tests:macrobenchmark-target"
             ), // link benchmark-macro's correctness test and its target
             setOf(
+                ":benchmark:integration-tests",
                 ":benchmark:integration-tests:macrobenchmark",
                 ":benchmark:integration-tests:macrobenchmark-target"
             ), // link benchmark's macrobenchmark and its target
             setOf(
+                ":compose:integration-tests",
                 ":compose:integration-tests:macrobenchmark",
                 ":compose:integration-tests:macrobenchmark-target"
             ),
             setOf(
+                ":emoji2:integration-tests",
                 ":emoji2:integration-tests:init-disabled-macrobenchmark",
                 ":emoji2:integration-tests:init-disabled-macrobenchmark-target",
             ),
             setOf(
+                ":emoji2:integration-tests",
                 ":emoji2:integration-tests:init-enabled-macrobenchmark",
                 ":emoji2:integration-tests:init-enabled-macrobenchmark-target",
             ),
             setOf(
+                ":wear:benchmark:integration-tests",
                 ":wear:benchmark:integration-tests:macrobenchmark",
                 ":wear:benchmark:integration-tests:macrobenchmark-target"
             ),
             setOf(
+                ":wear:compose:integration-tests",
                 ":wear:compose:integration-tests:macrobenchmark",
                 ":wear:compose:integration-tests:macrobenchmark-target"
             ),
@@ -625,12 +630,20 @@ class AffectedModuleDetectorImpl constructor(
             ),
             // Link glance-appwidget macrobenchmark and its target.
             setOf(
+                ":glance:glance-appwidget:integration-tests",
                 ":glance:glance-appwidget:integration-tests:macrobenchmark",
                 ":glance:glance-appwidget:integration-tests:macrobenchmark-target"
             ),
             setOf(
+                ":constraintlayout:constraintlayout-compose:integration-tests",
                 ":constraintlayout:constraintlayout-compose:integration-tests:macrobenchmark",
                 ":constraintlayout:constraintlayout-compose:integration-tests:macrobenchmark-target"
+            ),
+            setOf(
+                ":profileinstaller:integration-tests:profile-verification",
+                ":profileinstaller:integration-tests:profile-verification-sample",
+                ":profileinstaller:integration-tests:profile-verification-sample-no-initializer",
+                ":benchmark:integration-tests:baselineprofile-consumer",
             )
         )
 

@@ -32,7 +32,6 @@ import androidx.appcompat.R;
 import androidx.core.graphics.ColorUtils;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class ThemeUtils {

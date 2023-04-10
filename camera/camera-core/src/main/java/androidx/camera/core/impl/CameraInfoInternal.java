@@ -24,10 +24,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.DynamicRange;
 import androidx.core.util.Preconditions;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 /**
@@ -65,9 +67,9 @@ public interface CameraInfoInternal extends CameraInfo {
     @NonNull
     Quirks getCameraQuirks();
 
-    /** Returns the {@link CamcorderProfileProvider} associated with this camera. */
+    /** Returns the {@link EncoderProfilesProvider} associated with this camera. */
     @NonNull
-    CamcorderProfileProvider getCamcorderProfileProvider();
+    EncoderProfilesProvider getEncoderProfilesProvider();
 
     /** Returns the {@link Timebase} of frame output by this camera. */
     @NonNull
@@ -81,6 +83,23 @@ public interface CameraInfoInternal extends CameraInfo {
      */
     @NonNull
     List<Size> getSupportedResolutions(int format);
+
+    /**
+     * Returns the supported high resolutions of this camera based on the input image format.
+     *
+     * @param format an image format from {@link ImageFormat} or {@link PixelFormat}.
+     * @return a list of supported resolutions, or an empty list if the format is not supported.
+     */
+    @NonNull
+    List<Size> getSupportedHighResolutions(int format);
+
+    /**
+     * Returns the supported dynamic ranges of this camera.
+     *
+     * @return a set of supported dynamic range, or an empty set if no dynamic range is supported.
+     */
+    @NonNull
+    Set<DynamicRange> getSupportedDynamicRanges();
 
     /** {@inheritDoc} */
     @NonNull
@@ -100,6 +119,7 @@ public interface CameraInfoInternal extends CameraInfo {
                     throw new IllegalStateException("Unable to find camera with id " + cameraId
                             + " from list of available cameras.");
                 })
+                .addCameraFilter(new LensFacingCameraFilter(getLensFacing()))
                 .build();
     }
 }

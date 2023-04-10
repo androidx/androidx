@@ -58,8 +58,7 @@ class WatchFaceRenderer extends Renderer.CanvasRenderer {
     private final Paint mPaint;
     private final Paint mHighlightPaint;
     private final Paint mHighlightFocusPaint;
-    @Px
-    private final float mHighlightExtraRadius;
+    @Px private final float mHighlightExtraRadius;
     private final char[] mTime = new char[5];
     private Bitmap mHighlightBitmap;
 
@@ -69,7 +68,8 @@ class WatchFaceRenderer extends Renderer.CanvasRenderer {
             @NonNull CurrentUserStyleRepository userStyleRepository,
             @NonNull WatchState watchState,
             @NonNull ComplicationSlotsManager complicationSlotsManager) {
-        super(surfaceHolder,
+        super(
+                surfaceHolder,
                 userStyleRepository,
                 watchState,
                 CanvasType.HARDWARE,
@@ -89,8 +89,8 @@ class WatchFaceRenderer extends Renderer.CanvasRenderer {
     }
 
     @Override
-    public void render(@NonNull Canvas canvas, @NonNull Rect rect,
-            @NonNull ZonedDateTime zonedDateTime) {
+    public void render(
+            @NonNull Canvas canvas, @NonNull Rect rect, @NonNull ZonedDateTime zonedDateTime) {
         mPaint.setColor(Color.BLACK);
         canvas.drawRect(rect, mPaint);
 
@@ -102,7 +102,10 @@ class WatchFaceRenderer extends Renderer.CanvasRenderer {
         }
 
         mPaint.setColor(Color.WHITE);
-        int hour = zonedDateTime.getHour() % 12;
+        int hour = zonedDateTime.getHour();
+        if (hour != 12) {
+            hour %= 12;
+        }
         int minute = zonedDateTime.getMinute();
         int second = zonedDateTime.getSecond();
         mTime[0] = DIGITS[hour / 10];
@@ -131,8 +134,8 @@ class WatchFaceRenderer extends Renderer.CanvasRenderer {
     @Override
     public void renderHighlightLayer(
             @NonNull Canvas canvas, @NonNull Rect rect, @NonNull ZonedDateTime zonedDateTime) {
-        renderHighlightLayer(canvas, rect, zonedDateTime,
-                getRenderParameters().getHighlightLayer());
+        renderHighlightLayer(
+                canvas, rect, zonedDateTime, getRenderParameters().getHighlightLayer());
     }
 
     private void renderHighlightLayer(

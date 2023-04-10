@@ -46,14 +46,12 @@ public final class ColorBuilders {
             return mImpl.getArgb();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static ColorProp fromProto(@NonNull ColorProto.ColorProp proto) {
             return new ColorProp(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ColorProto.ColorProp toProto() {

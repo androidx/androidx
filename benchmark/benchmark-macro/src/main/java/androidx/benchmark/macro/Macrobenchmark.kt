@@ -32,8 +32,9 @@ import androidx.benchmark.Shell
 import androidx.benchmark.UserspaceTracing
 import androidx.benchmark.checkAndGetSuppressionState
 import androidx.benchmark.conditionalError
-import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
+import androidx.benchmark.perfetto.PerfettoTrace
+import androidx.benchmark.perfetto.PerfettoTraceProcessor
 import androidx.benchmark.perfetto.UiState
 import androidx.benchmark.perfetto.appendUiState
 import androidx.benchmark.userspaceTrace
@@ -251,15 +252,13 @@ private fun macrobenchmark(
 
                 tracePaths.add(tracePath)
 
-                // Loads a new trace in the perfetto trace processor shell
-                loadTrace(tracePath)
-                val iterationResult =
+                val measurementList = loadTrace(PerfettoTrace(tracePath)) {
                     // Extracts the metrics using the perfetto trace processor
                     userspaceTrace("extract metrics") {
                         metrics
-                            // capture list of Map<String,Long> per metric
+                            // capture list of Measurements
                             .map {
-                                it.getMetrics(
+                                it.getResult(
                                     Metric.CaptureInfo(
                                         targetPackageName = packageName,
                                         testPackageName = macrobenchPackageName,
@@ -269,14 +268,13 @@ private fun macrobenchmark(
                                     this
                                 )
                             }
-                            // merge into one map
-                            .reduce { sum, element -> sum + element }
+                            // merge together
+                            .reduce { sum, element -> sum.merge(element) }
                     }
+                }
 
                 // append UI state to trace, so tools opening trace will highlight relevant part in UI
                 val uiState = UiState(
-                    timelineStart = iterationResult.timelineRangeNs?.first,
-                    timelineEnd = iterationResult.timelineRangeNs?.last,
                     highlightPackage = packageName
                 )
                 File(tracePath).apply {
@@ -289,8 +287,8 @@ private fun macrobenchmark(
                 Log.d(TAG, "Iteration $iteration captured $uiState")
 
                 // report just the metrics
-                iterationResult
-            }.mergeIterationMeasurements()
+                measurementList
+            }.mergeMultiIterResults()
         }
 
         require(measurements.isNotEmpty()) {

@@ -134,6 +134,12 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
     /**
      * Opens an instance of encrypted SharedPreferences
      *
+     * <p>If the <code>masterKeyAlias</code> used here is for a key that is not yet created, this
+     * method will not be thread safe. Use the alternate signature that is not deprecated for
+     * multi-threaded contexts.
+     *
+     * @deprecated Use {@link #create(Context, String, MasterKey,
+     * PrefKeyEncryptionScheme, PrefValueEncryptionScheme)} instead.
      * @param fileName                  The name of the file to open; can not contain path
      *                                  separators.
      * @param masterKeyAlias            The alias of the master key to use.
@@ -143,8 +149,6 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
      * @return The SharedPreferences instance that encrypts all data.
      * @throws GeneralSecurityException when a bad master key or keyset has been attempted
      * @throws IOException              when fileName can not be used
-     * @deprecated Use {@link #create(Context, String, MasterKey,
-     * PrefKeyEncryptionScheme, PrefValueEncryptionScheme)} instead.
      */
     @Deprecated
     @NonNull
@@ -184,9 +188,9 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
         /**
          * Pref keys are encrypted deterministically with AES256-SIV-CMAC (RFC 5297).
          *
-         * For more information please see the Tink documentation:
+         * <p>For more information please see the Tink documentation:
          *
-         * <a href="https://google.github.io/tink/javadoc/tink/1.7.0/com/google/crypto/tink/daead/AesSivKeyManager.html">AesSivKeyManager</a>.aes256SivTemplate()
+         * <p><a href="https://google.github.io/tink/javadoc/tink/1.7.0/com/google/crypto/tink/daead/AesSivKeyManager.html">AesSivKeyManager</a>.aes256SivTemplate()
          */
         AES256_SIV("AES256_SIV");
 
@@ -208,9 +212,9 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
         /**
          * Pref values are encrypted with AES256-GCM. The associated data is the encrypted pref key.
          *
-         * For more information please see the Tink documentation:
+         * <p>For more information please see the Tink documentation:
          *
-         * <a href="https://google.github.io/tink/javadoc/tink/1.7.0/com/google/crypto/tink/aead/AesGcmKeyManager.html">AesGcmKeyManager</a>.aes256GcmTemplate()
+         * <p><a href="https://google.github.io/tink/javadoc/tink/1.7.0/com/google/crypto/tink/aead/AesGcmKeyManager.html">AesGcmKeyManager</a>.aes256GcmTemplate()
          */
         AES256_GCM("AES256_GCM");
 
@@ -229,7 +233,7 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
         private final EncryptedSharedPreferences mEncryptedSharedPreferences;
         private final SharedPreferences.Editor mEditor;
         private final List<String> mKeysChanged;
-        private AtomicBoolean mClearRequested = new AtomicBoolean(false);
+        private final AtomicBoolean mClearRequested = new AtomicBoolean(false);
 
         Editor(EncryptedSharedPreferences encryptedSharedPreferences,
                 SharedPreferences.Editor editor) {
@@ -421,7 +425,7 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
     @Override
     public String getString(@Nullable String key, @Nullable String defValue) {
         Object value = getDecryptedObject(key);
-        return (value != null && value instanceof String ? (String) value : defValue);
+        return (value instanceof String ? (String) value : defValue);
     }
 
     @SuppressWarnings("unchecked")
@@ -441,25 +445,25 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
     @Override
     public int getInt(@Nullable String key, int defValue) {
         Object value = getDecryptedObject(key);
-        return (value != null && value instanceof Integer ? (Integer) value : defValue);
+        return (value instanceof Integer ? (Integer) value : defValue);
     }
 
     @Override
     public long getLong(@Nullable String key, long defValue) {
         Object value = getDecryptedObject(key);
-        return (value != null && value instanceof Long ? (Long) value : defValue);
+        return (value instanceof Long ? (Long) value : defValue);
     }
 
     @Override
     public float getFloat(@Nullable String key, float defValue) {
         Object value = getDecryptedObject(key);
-        return (value != null && value instanceof Float ? (Float) value : defValue);
+        return (value instanceof Float ? (Float) value : defValue);
     }
 
     @Override
     public boolean getBoolean(@Nullable String key, boolean defValue) {
         Object value = getDecryptedObject(key);
-        return (value != null && value instanceof Boolean ? (Boolean) value : defValue);
+        return (value instanceof Boolean ? (Boolean) value : defValue);
     }
 
     @Override
@@ -635,10 +639,7 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
      * @param key the plain text key
      */
     boolean isReservedKey(String key) {
-        if (KEY_KEYSET_ALIAS.equals(key) || VALUE_KEYSET_ALIAS.equals(key)) {
-            return true;
-        }
-        return false;
+        return KEY_KEYSET_ALIAS.equals(key) || VALUE_KEYSET_ALIAS.equals(key);
     }
 
     Pair<String, String> encryptKeyValuePair(String key, byte[] value)

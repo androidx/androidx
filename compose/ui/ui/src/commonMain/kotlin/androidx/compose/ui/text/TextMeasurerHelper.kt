@@ -37,7 +37,6 @@ private val DefaultCacheSize: Int = 8
  * @param cacheSize Capacity of internal cache inside TextMeasurer. Size unit is the number of
  * unique text layout inputs that are measured.
  */
-@ExperimentalTextApi
 @Composable
 fun rememberTextMeasurer(
     cacheSize: Int = DefaultCacheSize

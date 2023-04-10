@@ -28,7 +28,6 @@ import androidx.camera.core.impl.TagBundle;
 /**
  * A fake implementation of {@link CameraCaptureResult} where the values are settable.
  *
- * @hide
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(Scope.LIBRARY_GROUP)
@@ -113,7 +112,6 @@ public final class FakeCameraCaptureResult implements CameraCaptureResult {
     /**
      * Builder for fake implementation of {@link CameraCaptureResult} where the values are settable.
      *
-     * @hide
      */
     @SuppressWarnings("unused")
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java

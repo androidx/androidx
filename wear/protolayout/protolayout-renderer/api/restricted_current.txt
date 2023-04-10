@@ -1,1 +1,25 @@
 // Signature format: 4.0
+package androidx.wear.protolayout.renderer.impl {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ProtoLayoutViewInstance implements java.lang.AutoCloseable {
+    ctor public ProtoLayoutViewInstance(androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance.Config);
+    method public void close() throws java.lang.Exception;
+    method @UiThread public void detach(android.view.ViewGroup);
+    method @UiThread public void renderAndAttach(androidx.wear.protolayout.proto.LayoutElementProto.Layout, androidx.wear.protolayout.proto.ResourceProto.Resources, android.view.ViewGroup);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final class ProtoLayoutViewInstance.Config {
+    method public com.google.common.util.concurrent.ListeningExecutorService getBgExecutorService();
+    method public String getClickableIdExtra();
+    method public androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway? getSensorGateway();
+    method public androidx.wear.protolayout.expression.pipeline.StateStore? getStateStore();
+    method public android.content.Context getUiContext();
+    method public com.google.common.util.concurrent.ListeningExecutorService getUiExecutorService();
+  }
+
+  public static interface ProtoLayoutViewInstance.LoadActionListener {
+    method public void onClick(androidx.wear.protolayout.proto.StateProto.State);
+  }
+
+}
+

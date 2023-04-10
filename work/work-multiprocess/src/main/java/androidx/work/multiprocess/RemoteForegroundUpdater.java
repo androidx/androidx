@@ -31,7 +31,6 @@ import java.util.UUID;
  * Transitions a {@link androidx.work.multiprocess.RemoteListenableWorker} to run in the context
  * of a foreground {@link android.app.Service}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteForegroundUpdater implements ForegroundUpdater {

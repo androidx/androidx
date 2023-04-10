@@ -1333,7 +1333,6 @@ public class ValueAnimator extends Animator implements AnimationHandler.Animatio
      *
      * @param frameTime The frame time.
      * @return true if the animation has ended.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override

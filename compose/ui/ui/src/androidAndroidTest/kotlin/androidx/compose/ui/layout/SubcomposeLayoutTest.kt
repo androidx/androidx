@@ -18,6 +18,7 @@ package androidx.compose.ui.layout
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.view.View
 import android.widget.FrameLayout
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -42,6 +43,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.background
@@ -51,6 +53,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.layout.RootMeasurePolicy.measure
 import androidx.compose.ui.platform.AndroidOwnerExtraAssertionsRule
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
@@ -70,6 +73,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -2316,6 +2320,72 @@ class SubcomposeLayoutTest {
             }
         }
         assertThat(error).isInstanceOf(IllegalArgumentException::class.java)
+    }
+
+    @Test
+    fun notSubcomposedAnymoreNodesAreNotRecomposed() {
+        var flag by mutableStateOf(true)
+        var updatedInMeasureFlag by mutableStateOf(true)
+        val state = SubcomposeLayoutState(SubcomposeSlotReusePolicy(1))
+        rule.setContent {
+            SubcomposeLayout(state) {
+                updatedInMeasureFlag = flag
+                Snapshot.sendApplyNotifications()
+                if (flag) {
+                    subcompose(0) {
+                        if (updatedInMeasureFlag) {
+                            Box(Modifier.testTag("tag"))
+                        }
+                    }
+                }
+                layout(100, 100) {}
+            }
+        }
+
+        rule.runOnIdle {
+            flag = false
+        }
+
+        // the node will exist when after `need` was switched to false it will first cause
+        // remeasure, and because during the remeasure we will not subcompose the child
+        // the node will be deactivated before its block recomposes causing the Box to be
+        // removed from the hierarchy.
+        rule.onNodeWithTag("tag")
+            .assertExists()
+    }
+
+    // Regression test of b/271156218
+    @Test
+    fun deactivatingDeeplyNestedAndroidViewDoesNotCauseRemeasure() {
+        var showContent by mutableStateOf(true)
+        val state = SubcomposeLayoutState(SubcomposeSlotReusePolicy(1))
+        rule.setContent {
+            SubcomposeLayout(
+                state = state,
+                modifier = Modifier.fillMaxSize()
+            ) { constraints ->
+                val content = if (showContent) {
+                    subcompose(0) {
+                        Box {
+                            AndroidView(::View, Modifier.fillMaxSize().testTag("AndroidView"))
+                        }
+                    }
+                } else emptyList()
+
+                val placeables = measure(content, constraints)
+                layout(100, 100) {
+                    placeables.placeChildren()
+                }
+            }
+        }
+
+        rule.onNodeWithTag("AndroidView").assertExists()
+
+        rule.runOnIdle { showContent = false }
+        rule.onNodeWithTag("AndroidView").assertIsNotDisplayed()
+
+        rule.runOnIdle { showContent = true }
+        rule.onNodeWithTag("AndroidView").assertExists()
     }
 
     private fun composeItems(

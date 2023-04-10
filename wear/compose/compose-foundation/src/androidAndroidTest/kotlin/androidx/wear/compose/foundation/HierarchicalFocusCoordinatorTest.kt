@@ -33,6 +33,7 @@ import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 
+@OptIn(ExperimentalWearFoundationApi::class)
 class HierarchicalFocusCoordinatorTest {
     @get:Rule
     val rule = createComposeRule()
@@ -213,6 +214,52 @@ class HierarchicalFocusCoordinatorTest {
         }
     }
 
+    @Test
+    public fun focus_not_required_reported_correctly() {
+        var focused = false
+        rule.setContent {
+            Box {
+                HierarchicalFocusCoordinator(
+                    requiresFocus = { false }
+                ) {
+                    FocusableTestItem { focused = it }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            Assert.assertFalse(focused)
+        }
+    }
+
+    @Test
+    public fun updating_requiresFocus_lambda_works() {
+        var lambdaUpdated by mutableStateOf(false)
+        var focused = false
+        rule.setContent {
+            Box {
+                HierarchicalFocusCoordinator(
+                    // We switch between a lambda that always returns false and one that always
+                    // return true given the state of lambdaUpdated.
+                    requiresFocus = if (lambdaUpdated) {
+                        { true }
+                    } else {
+                        { false }
+                    }
+                ) {
+                    FocusableTestItem { focused = it }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            lambdaUpdated = true
+        }
+
+        rule.runOnIdle {
+            Assert.assertTrue(focused)
+        }
+    }
     @Composable
     private fun FocusableTestItem(onFocusChanged: (Boolean) -> Unit) {
         val focusRequester = rememberActiveFocusRequester()

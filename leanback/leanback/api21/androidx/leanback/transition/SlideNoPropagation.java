@@ -23,7 +23,6 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
- * @hide
  */
 @RequiresApi(21)
 @RestrictTo(LIBRARY_GROUP_PREFIX)

@@ -72,7 +72,8 @@ internal class CaptureSessionState(
     private val activeSurfaceMap = synchronizedMap(HashMap<StreamId, Surface>())
     private var sessionCreatingTimestamp: TimestampNs? = null
 
-    @GuardedBy("lock") private var _cameraDevice: CameraDeviceWrapper? = null
+    @GuardedBy("lock")
+    private var _cameraDevice: CameraDeviceWrapper? = null
     var cameraDevice: CameraDeviceWrapper?
         get() = synchronized(lock) { _cameraDevice }
         set(value) =
@@ -87,14 +88,17 @@ internal class CaptureSessionState(
                 }
             }
 
-    @GuardedBy("lock") private var cameraCaptureSession: ConfiguredCameraCaptureSession? = null
+    @GuardedBy("lock")
+    private var cameraCaptureSession: ConfiguredCameraCaptureSession? = null
 
     @GuardedBy("lock")
     private var pendingOutputMap: Map<StreamId, OutputConfigurationWrapper>? = null
 
-    @GuardedBy("lock") private var pendingSurfaceMap: Map<StreamId, Surface>? = null
+    @GuardedBy("lock")
+    private var pendingSurfaceMap: Map<StreamId, Surface>? = null
 
-    @GuardedBy("lock") private var state = State.PENDING
+    @GuardedBy("lock")
+    private var state = State.PENDING
 
     private enum class State {
         PENDING,
@@ -104,7 +108,8 @@ internal class CaptureSessionState(
         CLOSED
     }
 
-    @GuardedBy("lock") private var _surfaceMap: Map<StreamId, Surface>? = null
+    @GuardedBy("lock")
+    private var _surfaceMap: Map<StreamId, Surface>? = null
 
     @GuardedBy("lock")
     private val _surfaceTokenMap: MutableMap<Surface, AutoCloseable> = mutableMapOf()
@@ -197,7 +202,9 @@ internal class CaptureSessionState(
                     ConfiguredCameraCaptureSession(
                         session,
                         GraphRequestProcessor.from(
-                            captureSequenceProcessorFactory.create(session, activeSurfaceMap)))
+                            captureSequenceProcessorFactory.create(session, activeSurfaceMap)
+                        )
+                    )
                 cameraCaptureSession = captureSession
             } else {
                 captureSession = cameraCaptureSession
@@ -234,7 +241,7 @@ internal class CaptureSessionState(
      * a closed state. This will not cancel repeating requests or abort captures.
      */
     fun disconnect() {
-        shutdown(false)
+        shutdown(abortAndStopRepeating = false)
     }
 
     /**
@@ -256,21 +263,6 @@ internal class CaptureSessionState(
 
         val graphProcessor = configuredCaptureSession?.processor
         if (graphProcessor != null) {
-            Log.debug { "$this Shutdown" }
-
-            Debug.traceStart { "$this#shutdown" }
-            Debug.traceStart { "$graphListener#onGraphStopped" }
-            graphListener.onGraphStopped(graphProcessor)
-            Debug.traceStop()
-            if (abortAndStopRepeating) {
-                Debug.traceStart { "$this#stopRepeating" }
-                graphProcessor.stopRepeating()
-                Debug.traceStop()
-                Debug.traceStart { "$this#stopRepeating" }
-                graphProcessor.abortCaptures()
-                Debug.traceStop()
-            }
-
             // WARNING:
             // This does NOT call close on the captureSession to avoid potentially slow
             // reconfiguration during mode switch and shutdown. This avoids unintentional restarts
@@ -281,6 +273,20 @@ internal class CaptureSessionState(
             // cleanly unless the device is also closed. See b/135125484 for example.
             //
             // WARNING - DO NOT CALL session.close().
+            Log.debug { "$this Shutdown" }
+
+            Debug.traceStart { "$this#shutdown" }
+            Debug.traceStart { "$graphListener#onGraphStopped" }
+            graphListener.onGraphStopped(graphProcessor)
+            Debug.traceStop()
+            if (abortAndStopRepeating) {
+                Debug.traceStart { "$this#stopRepeating" }
+                graphProcessor.stopRepeating()
+                Debug.traceStop()
+                Debug.traceStart { "$this#abortCaptures" }
+                graphProcessor.abortCaptures()
+                Debug.traceStop()
+            }
 
             Debug.traceStop()
         }
@@ -290,7 +296,7 @@ internal class CaptureSessionState(
             // If the CameraDevice is never opened, the session will never be created. For cleanup
             // reasons, make sure the session is finalized after shutdown if the cameraDevice was
             // never set.
-            shouldFinalizeSession = _cameraDevice == null
+            shouldFinalizeSession = _cameraDevice == null && state != State.CLOSED
             _cameraDevice = null
             state = State.CLOSED
         }
@@ -404,7 +410,8 @@ internal class CaptureSessionState(
                 val availableDeferredSurfaces = _surfaceMap?.filter { deferred.containsKey(it.key) }
 
                 if (availableDeferredSurfaces != null &&
-                    availableDeferredSurfaces.size == deferred.size) {
+                    availableDeferredSurfaces.size == deferred.size
+                ) {
                     pendingSurfaceMap = availableDeferredSurfaces
                 }
             }

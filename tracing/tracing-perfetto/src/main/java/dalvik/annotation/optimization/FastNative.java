@@ -72,7 +72,6 @@ import java.lang.annotation.Target;
  * Has no effect when used with non-native methods.
  * </p>
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @Retention(RetentionPolicy.CLASS)  // Save memory, don't instantiate as an object at runtime.

@@ -18,8 +18,10 @@ package androidx.camera.integration.view;
 
 import static androidx.camera.integration.view.MainActivity.CAMERA_DIRECTION_BACK;
 import static androidx.camera.integration.view.MainActivity.CAMERA_DIRECTION_FRONT;
+import static androidx.camera.integration.view.MainActivity.DEFAULT_SCALE_TYPE_ID;
 import static androidx.camera.integration.view.MainActivity.INTENT_EXTRA_CAMERA_DIRECTION;
 import static androidx.camera.integration.view.MainActivity.INTENT_EXTRA_E2E_TEST_CASE;
+import static androidx.camera.integration.view.MainActivity.INTENT_EXTRA_SCALE_TYPE;
 import static androidx.camera.integration.view.MainActivity.PREVIEW_TEST_CASE;
 import static androidx.camera.view.PreviewView.StreamState.IDLE;
 import static androidx.camera.view.PreviewView.StreamState.STREAMING;
@@ -85,6 +87,7 @@ public class PreviewViewFragment extends Fragment {
     @SuppressWarnings("WeakerAccess")
     int mCurrentLensFacing = CameraSelector.LENS_FACING_BACK;
     private BlurBitmap mBlurBitmap;
+    private PreviewView.ScaleType mCurrentScaleType = PreviewView.ScaleType.FILL_CENTER;
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
@@ -117,8 +120,11 @@ public class PreviewViewFragment extends Fragment {
                     controller.setVisibility(View.GONE);
                 }
             }
+            int scaleTypeId = bundle.getInt(INTENT_EXTRA_SCALE_TYPE, DEFAULT_SCALE_TYPE_ID);
+            mCurrentScaleType = PreviewView.ScaleType.values()[scaleTypeId];
         }
         mPreviewView = view.findViewById(R.id.preview_view);
+        mPreviewView.setScaleType(mCurrentScaleType);
         mPreviewView.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
         mPreviewView.addOnLayoutChangeListener(
                 (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom)
@@ -307,18 +313,16 @@ public class PreviewViewFragment extends Fragment {
         final Spinner scaleTypeSpinner = rootView.findViewById(R.id.scale_type);
         scaleTypeSpinner.setAdapter(adapter);
 
-        // Default value
-        final PreviewView.ScaleType currentScaleType = mPreviewView.getScaleType();
         final String currentScaleTypeLiteral =
-                PreviewViewScaleTypePresenter.getLiteralForScaleType(currentScaleType);
+                PreviewViewScaleTypePresenter.getLiteralForScaleType(mCurrentScaleType);
         final int defaultSelection = adapter.getPosition(currentScaleTypeLiteral);
         scaleTypeSpinner.setSelection(defaultSelection, false);
 
         scaleTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                final PreviewView.ScaleType scaleType = PreviewView.ScaleType.values()[position];
-                mPreviewView.setScaleType(scaleType);
+                mCurrentScaleType = PreviewView.ScaleType.values()[position];
+                mPreviewView.setScaleType(mCurrentScaleType);
 
                 // Update the preview snapshot ImageView to have a scaleType matching that of the
                 // PreviewView.

@@ -23,6 +23,7 @@ import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
 import androidx.glance.GlanceTheme
 import androidx.glance.action.Action
+import androidx.glance.action.action
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.unit.CheckableColorProvider
 import androidx.glance.appwidget.unit.CheckedUncheckedColorProvider.Companion.createCheckableColorProvider
@@ -142,6 +143,56 @@ fun RadioButton(
     style: TextStyle? = null,
     colors: RadioButtonColors = radioButtonColors(),
     maxLines: Int = Int.MAX_VALUE,
+) = RadioButtonElement(checked, onClick, modifier, enabled, text, style, colors, maxLines)
+
+/**
+ * Adds a radio button to the glance view.
+ *
+ * When showing a [Row] or [Column] that has [RadioButton] children, use
+ * [GlanceModifier.selectableGroup] to enable the radio group effect (unselecting the previously
+ * selected radio button when another is selected).
+ *
+ * @param checked whether the radio button is checked
+ * @param onClick the action to be run when the radio button is clicked
+ * @param modifier the modifier to apply to the radio button
+ * @param enabled if false, the radio button will not be clickable
+ * @param text the text to display to the end of the radio button
+ * @param style the style to apply to [text]
+ * @param colors the color tint to apply to the radio button
+ * @param maxLines An optional maximum number of lines for the text to span, wrapping if
+ * necessary. If the text exceeds the given number of lines, it will be truncated.
+ */
+@Composable
+fun RadioButton(
+    checked: Boolean,
+    onClick: () -> Unit,
+    modifier: GlanceModifier = GlanceModifier,
+    enabled: Boolean = true,
+    text: String = "",
+    style: TextStyle? = null,
+    colors: RadioButtonColors = radioButtonColors(),
+    maxLines: Int = Int.MAX_VALUE,
+) = RadioButtonElement(
+    checked,
+    action(block = onClick),
+    modifier,
+    enabled,
+    text,
+    style,
+    colors,
+    maxLines
+)
+
+@Composable
+private fun RadioButtonElement(
+    checked: Boolean,
+    onClick: Action?,
+    modifier: GlanceModifier = GlanceModifier,
+    enabled: Boolean = true,
+    text: String = "",
+    style: TextStyle? = null,
+    colors: RadioButtonColors = radioButtonColors(),
+    maxLines: Int = Int.MAX_VALUE,
 ) {
     val finalModifier = if (enabled && onClick != null) modifier.clickable(onClick) else modifier
     GlanceNode(factory = { EmittableRadioButton(colors) }, update = {
@@ -154,7 +205,6 @@ fun RadioButton(
         this.set(maxLines) { this.maxLines = it }
     })
 }
-
 /**
  * Use this modifier to group a list of RadioButtons together for accessibility purposes.
  *

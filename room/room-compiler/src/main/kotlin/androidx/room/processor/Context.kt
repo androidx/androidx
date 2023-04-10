@@ -263,7 +263,8 @@ class Context private constructor(
         INCREMENTAL("room.incremental", defaultValue = true),
         EXPAND_PROJECTION("room.expandProjection", defaultValue = false),
         USE_NULL_AWARE_CONVERTER("room.useNullAwareTypeAnalysis", defaultValue = false),
-        GENERATE_KOTLIN("room.generateKotlin", defaultValue = false);
+        GENERATE_KOTLIN("room.generateKotlin", defaultValue = false),
+        EXPORT_SCHEMA_RESOURCE("room.exportSchemaResource", defaultValue = false);
 
         /**
          * Returns the value of this option passed through the [XProcessingEnv]. If the value
@@ -273,8 +274,16 @@ class Context private constructor(
             return getInputValue(processingEnv) ?: defaultValue
         }
 
+        fun getValue(options: Map<String, String>): Boolean {
+            return getInputValue(options) ?: defaultValue
+        }
+
         fun getInputValue(processingEnv: XProcessingEnv): Boolean? {
-            return processingEnv.options[argName]?.takeIf {
+            return getInputValue(processingEnv.options)
+        }
+
+        private fun getInputValue(options: Map<String, String>): Boolean? {
+            return options[argName]?.takeIf {
                 it.isNotBlank()
             }?.toBoolean()
         }

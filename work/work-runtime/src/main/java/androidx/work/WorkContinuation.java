@@ -144,7 +144,6 @@ public abstract class WorkContinuation {
     }
 
     /**
-     * @hide
      */
     @SuppressWarnings("HiddenAbstractMethod")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

@@ -90,9 +90,10 @@ public value class AnchorType internal constructor(internal val ratio: Float) {
  * @param angularDirection Specify the direction the children are laid on. See
  * [CurvedDirection.Angular]. The default is [CurvedDirection.Angular.Normal], which is clockwise
  * under a LtR layout and counter clockwise on a RtL layout.
- * @param contentBuilder Specifies the content of this layout, currently there are 4 available
- * elements defined in foundations for this DSL: the sub-layouts [curvedRow] and [curvedColumn],
- * [basicCurvedText] and [curvedComposable] (used to add normal composables to curved layouts)
+ * @param contentBuilder Specifies the content of this layout, currently there are 5 available
+ * elements defined in foundations for this DSL: the sub-layouts [curvedBox], [curvedRow]
+ * and [curvedColumn], [basicCurvedText] and [curvedComposable]
+ * (used to add normal composables to curved layouts)
  */
 @Composable
 public fun CurvedLayout(

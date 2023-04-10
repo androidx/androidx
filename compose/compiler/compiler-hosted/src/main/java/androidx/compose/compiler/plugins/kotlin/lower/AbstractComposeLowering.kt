@@ -27,6 +27,7 @@ import androidx.compose.compiler.plugins.kotlin.analysis.Stability
 import androidx.compose.compiler.plugins.kotlin.analysis.knownStable
 import androidx.compose.compiler.plugins.kotlin.analysis.stabilityOf
 import androidx.compose.compiler.plugins.kotlin.irTrace
+import com.intellij.openapi.progress.ProcessCanceledException
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.jvm.ir.isInlineClassType
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
@@ -66,6 +67,7 @@ import org.jetbrains.kotlin.ir.expressions.IrGetEnumValue
 import org.jetbrains.kotlin.ir.expressions.IrGetObjectValue
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.expressions.IrMemberAccessExpression
+import org.jetbrains.kotlin.ir.expressions.IrReturn
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.expressions.IrVararg
 import org.jetbrains.kotlin.ir.expressions.impl.IrBlockImpl
@@ -116,6 +118,7 @@ import org.jetbrains.kotlin.ir.util.kotlinFqName
 import org.jetbrains.kotlin.ir.util.parentAsClass
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.primaryConstructor
+import org.jetbrains.kotlin.ir.util.statements
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.load.kotlin.computeJvmDescriptor
 import org.jetbrains.kotlin.name.CallableId
@@ -139,11 +142,18 @@ abstract class AbstractComposeLowering(
         context.referenceClass(ComposeClassIds.Composer)?.owner
             ?: error("Cannot find the Composer class in the classpath")
 
+    private val _composableIrClass =
+        context.referenceClass(ComposeClassIds.Composable)?.owner
+            ?: error("Cannot find the Composable annotation class in the classpath")
+
     // this ensures that composer always references up-to-date composer class symbol
     // otherwise, after remapping of symbols in DeepCopyTransformer, it results in duplicated
     // references
     protected val composerIrClass: IrClass
         get() = symbolRemapper.getReferencedClass(_composerIrClass.symbol).owner
+
+    protected val composableIrClass: IrClass
+        get() = symbolRemapper.getReferencedClass(_composableIrClass.symbol).owner
 
     fun referenceFunction(symbol: IrFunctionSymbol): IrFunctionSymbol {
         return symbolRemapper.getReferencedFunction(symbol)
@@ -1086,6 +1096,20 @@ abstract class AbstractComposeLowering(
         val stringKey = "$name$signature"
         return stringKey.hashCode()
     }
+
+    /*
+     * Delegated accessors are generated with IrReturn(IrCall(<delegated function>)) structure.
+     * To verify the delegated function is composable, this function is unpacking it and
+     * checks annotation on the symbol owner of the call.
+     */
+    fun IrFunction.isComposableDelegatedAccessor(): Boolean =
+        origin == IrDeclarationOrigin.DELEGATED_PROPERTY_ACCESSOR &&
+            body?.let {
+                val returnStatement = it.statements.singleOrNull() as? IrReturn
+                val callStatement = returnStatement?.value as? IrCall
+                val target = callStatement?.symbol?.owner
+                target?.hasComposableAnnotation()
+            } == true
 }
 
 private val unsafeSymbolsRegex = "[ <>]".toRegex()
@@ -1121,6 +1145,8 @@ val IrConstructorCall.annotationClass get() =
 inline fun <T> includeFileNameInExceptionTrace(file: IrFile, body: () -> T): T {
     try {
         return body()
+    } catch (e: ProcessCanceledException) {
+        throw e
     } catch (e: Exception) {
         throw Exception("IR lowering failed at: ${file.name}", e)
     }

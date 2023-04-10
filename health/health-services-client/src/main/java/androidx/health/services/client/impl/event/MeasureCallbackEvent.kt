@@ -10,7 +10,6 @@ import androidx.health.services.client.proto.EventsProto.MeasureCallbackEvent as
 /**
  * An event representing a `MeasureCallback` invocation.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class MeasureCallbackEvent(public override val proto: ListenerProto) :

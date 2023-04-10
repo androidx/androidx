@@ -17,7 +17,7 @@
 package androidx.camera.camera2.pipe
 
 /** Create and submit [CaptureSequence]s to an active camera instance. */
-public interface CaptureSequenceProcessor<
+interface CaptureSequenceProcessor<
     out TCaptureRequest, TCaptureSequence : CaptureSequence<TCaptureRequest>> {
 
     /**
@@ -51,7 +51,7 @@ public interface CaptureSequenceProcessor<
     ): TCaptureSequence?
 
     /** Issue a previously created [CaptureSequence] to the active camera instance. */
-    fun submit(captureSequence: TCaptureSequence): Int
+    fun submit(captureSequence: TCaptureSequence): Int?
 
     /**
      * Opportunistically abort any ongoing captures by the camera. This may or may not complete

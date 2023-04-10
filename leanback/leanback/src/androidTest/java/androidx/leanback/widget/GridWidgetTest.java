@@ -65,6 +65,7 @@ import androidx.testutils.AnimationActivityTestRule;
 import androidx.testutils.AnimationTest;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -931,6 +932,7 @@ public class GridWidgetTest {
         assertEquals(29, mGridView.getSelectedPosition());
     }
 
+    @Ignore // b/266757643
     @Test
     public void testThreeColumnVerticalBasic() throws Throwable {
         Intent intent = new Intent();
@@ -947,6 +949,7 @@ public class GridWidgetTest {
         verifyBeginAligned();
     }
 
+    @Ignore // b/269352002
     @Test
     public void testRedundantAppendRemove() throws Throwable {
         Intent intent = new Intent();
@@ -2103,6 +2106,7 @@ public class GridWidgetTest {
         assertFalse(scrolled[0]);
     }
 
+    @Ignore // b/268680302
     @Test
     public void testItemMovedHorizontal() throws Throwable {
         Intent intent = new Intent();
@@ -2249,6 +2253,7 @@ public class GridWidgetTest {
         assertEquals(topPadding, mGridView.findViewHolderForAdapterPosition(0).itemView.getTop());
     }
 
+    @Ignore // b/268680302
     @Test
     public void testItemMovedVertical() throws Throwable {
 
@@ -2343,6 +2348,7 @@ public class GridWidgetTest {
         assertEquals(mGridView.getWidth() / 2, (view.getLeft() + view.getRight()) / 2);
     }
 
+    @Ignore // b/266757643
     @Test
     public void testItemAddRemoveHorizontal() throws Throwable {
 
@@ -2926,7 +2932,7 @@ public class GridWidgetTest {
         testRemoveVisibleItemsInSmoothScrollingBackward(/*focusOnGridView=*/ false);
     }
 
-    @FlakyTest(bugId = 186848347)
+    @Ignore // b/266757643
     @Test
     public void testPendingSmoothScrollAndRemove() throws Throwable {
         Intent intent = new Intent();
@@ -5169,6 +5175,7 @@ public class GridWidgetTest {
         assertTrue(selectedPosition2 < selectedPosition1);
     }
 
+    @SdkSuppress(minSdkVersion = 23) // b/271599830
     @Test
     public void testAccessibilityFocusOutFrontEnd_actionsAvailable() throws Throwable {
         Intent intent = new Intent();

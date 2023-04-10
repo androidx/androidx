@@ -30,7 +30,6 @@ import java.util.List;
  * Defines APIs to access and update a persistable list of {@link ShortcutInfoCompat}. This class
  * is no-op as is and may be overridden to provide the required functionality.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public abstract class ShortcutInfoCompatSaver<T> {
@@ -51,7 +50,6 @@ public abstract class ShortcutInfoCompatSaver<T> {
     /**
      * Implementation that does nothing and returns null from asynchronous methods.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static class NoopImpl extends ShortcutInfoCompatSaver<Void> {

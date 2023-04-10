@@ -54,14 +54,6 @@ internal class IdentityScopeMap<T : Any> {
     internal var size = 0
 
     /**
-     * Returns the value at the given [index] order in the map.
-     */
-    @Suppress("NOTHING_TO_INLINE")
-    private inline fun valueAt(index: Int): Any {
-        return values[valueOrder[index]]!!
-    }
-
-    /**
      * Returns the [IdentityArraySet] for the value at the given [index] order in the map.
      */
     private fun scopeSetAt(index: Int): IdentityArraySet<T> {
@@ -97,6 +89,11 @@ internal class IdentityScopeMap<T : Any> {
      * and insertes it into the map and returns it.
      */
     private fun getOrCreateIdentitySet(value: Any): IdentityArraySet<T> {
+        val size = size
+        val valueOrder = valueOrder
+        val values = values
+        val scopeSets = scopeSets
+
         val index: Int
         if (size > 0) {
             index = find(value)
@@ -127,18 +124,18 @@ internal class IdentityScopeMap<T : Any> {
                 )
             }
             valueOrder[insertIndex] = valueIndex
-            size++
+            this.size++
             return scopeSet
         }
 
         // We have to increase the size of all arrays
         val newSize = valueOrder.size * 2
         val valueIndex = size
-        scopeSets = scopeSets.copyOf(newSize)
+        val newScopeSets = scopeSets.copyOf(newSize)
         val scopeSet = IdentityArraySet<T>()
-        scopeSets[valueIndex] = scopeSet
-        values = values.copyOf(newSize)
-        values[valueIndex] = value
+        newScopeSets[valueIndex] = scopeSet
+        val newValues = values.copyOf(newSize)
+        newValues[valueIndex] = value
 
         val newKeyOrder = IntArray(newSize)
         for (i in size + 1 until newSize) {
@@ -160,8 +157,10 @@ internal class IdentityScopeMap<T : Any> {
                 endIndex = insertIndex
             )
         }
-        valueOrder = newKeyOrder
-        size++
+        this.scopeSets = newScopeSets
+        this.values = newValues
+        this.valueOrder = newKeyOrder
+        this.size++
         return scopeSet
     }
 
@@ -169,7 +168,11 @@ internal class IdentityScopeMap<T : Any> {
      * Removes all values and scopes from the map
      */
     fun clear() {
-        for (i in 0 until scopeSets.size) {
+        val scopeSets = scopeSets
+        val valueOrder = valueOrder
+        val values = values
+
+        for (i in scopeSets.indices) {
             scopeSets[i]?.clear()
             valueOrder[i] = i
             values[i] = null
@@ -188,6 +191,11 @@ internal class IdentityScopeMap<T : Any> {
      */
     fun remove(value: Any, scope: T): Boolean {
         val index = find(value)
+
+        val valueOrder = valueOrder
+        val scopeSets = scopeSets
+        val values = values
+        val size = size
         if (index >= 0) {
             val valueOrderIndex = valueOrder[index]
             val set = scopeSets[valueOrderIndex] ?: return false
@@ -203,9 +211,10 @@ internal class IdentityScopeMap<T : Any> {
                         endIndex = endIndex
                     )
                 }
-                valueOrder[size - 1] = valueOrderIndex
+                val newSize = size - 1
+                valueOrder[newSize] = valueOrderIndex
                 values[valueOrderIndex] = null
-                size--
+                this.size = newSize
             }
             return removed
         }
@@ -233,6 +242,9 @@ internal class IdentityScopeMap<T : Any> {
     }
 
     private inline fun removingScopes(removalOperation: (IdentityArraySet<T>) -> Unit) {
+        val valueOrder = valueOrder
+        val scopeSets = scopeSets
+        val values = values
         var destinationIndex = 0
         for (i in 0 until size) {
             val valueIndex = valueOrder[i]
@@ -265,9 +277,11 @@ internal class IdentityScopeMap<T : Any> {
         var low = 0
         var high = size - 1
 
+        val values = values
+        val valueOrder = valueOrder
         while (low <= high) {
             val mid = (low + high).ushr(1)
-            val midValue = valueAt(mid)
+            val midValue = values[valueOrder[mid]]
             val midValHash = identityHashCode(midValue)
             when {
                 midValHash < valueIdentity -> low = mid + 1
@@ -287,9 +301,12 @@ internal class IdentityScopeMap<T : Any> {
      * be returned, which is always after the last item with the same [identityHashCode].
      */
     private fun findExactIndex(midIndex: Int, value: Any?, valueHash: Int): Int {
+        val values = values
+        val valueOrder = valueOrder
+
         // hunt down first
         for (i in midIndex - 1 downTo 0) {
-            val v = valueAt(i)
+            val v = values[valueOrder[i]]
             if (v === value) {
                 return i
             }
@@ -299,7 +316,7 @@ internal class IdentityScopeMap<T : Any> {
         }
 
         for (i in midIndex + 1 until size) {
-            val v = valueAt(i)
+            val v = values[valueOrder[i]]
             if (v === value) {
                 return i
             }

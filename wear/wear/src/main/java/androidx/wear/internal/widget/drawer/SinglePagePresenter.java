@@ -28,7 +28,6 @@ import androidx.wear.widget.drawer.WearableNavigationDrawerView.WearableNavigati
  * Provides a {@link WearableNavigationDrawerPresenter} implementation that is designed for the
  * single page navigation drawer.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 public class SinglePagePresenter extends WearableNavigationDrawerPresenter {

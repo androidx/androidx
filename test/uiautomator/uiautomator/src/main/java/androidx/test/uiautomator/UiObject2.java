@@ -31,16 +31,19 @@ import android.view.Display;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
 import android.widget.Checkable;
 import android.widget.TextView;
 
 import androidx.annotation.DoNotInline;
+import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,12 +60,18 @@ public class UiObject2 implements Searchable {
 
     private static final String TAG = UiObject2.class.getSimpleName();
 
+    // default percentage of margins for gestures.
+    private static final float DEFAULT_GESTURE_MARGIN_PERCENT = 0.1f;
+
+    // default percentage of each scroll in scrollUntil().
+    private static final float DEFAULT_SCROLL_UNTIL_PERCENT = 0.8f;
+
     // Default gesture speeds and timeouts.
     private static final int DEFAULT_SWIPE_SPEED = 5_000; // dp/s
     private static final int DEFAULT_SCROLL_SPEED = 5_000; // dp/s
     private static final int DEFAULT_FLING_SPEED = 7_500; // dp/s
     private static final int DEFAULT_DRAG_SPEED = 2_500; // dp/s
-    private static final int DEFAULT_PINCH_SPEED = 2_500; // dp/s
+    private static final int DEFAULT_PINCH_SPEED = 1_000; // dp/s
     private static final long SCROLL_TIMEOUT = 1_000; // ms
     private static final long FLING_TIMEOUT = 5_000; // ms; longer as motion may continue.
 
@@ -73,12 +82,10 @@ public class UiObject2 implements Searchable {
     private final int mDisplayId;
     private final float mDisplayDensity;
     private AccessibilityNodeInfo mCachedNode;
-
-    // Margins used for gestures (avoids touching too close to the object's edge).
-    private int mMarginLeft = 5;
-    private int mMarginTop = 5;
-    private int mMarginRight = 5;
-    private int mMarginBottom = 5;
+    private Margins mMargins = new PercentMargins(DEFAULT_GESTURE_MARGIN_PERCENT,
+            DEFAULT_GESTURE_MARGIN_PERCENT,
+            DEFAULT_GESTURE_MARGIN_PERCENT,
+            DEFAULT_GESTURE_MARGIN_PERCENT);
 
     /** Package-private constructor. Used by {@link UiDevice#findObject(BySelector)}. */
     UiObject2(UiDevice device, BySelector selector, AccessibilityNodeInfo cachedNode) {
@@ -129,6 +136,36 @@ public class UiObject2 implements Searchable {
 
     // Settings
 
+    /**
+     * Sets the percentage of gestures' margins to avoid touching too close to the edges, e.g.
+     * when scrolling up, phone open quick settings instead if gesture is close to the top.
+     * The percentage is based on the object's visible size, e.g. to set 20% margins:
+     * <pre>mUiObject2.setGestureMarginPercent(0.2f);</pre>
+     *
+     * @Param percent Float between [0, 0.5] for four margins: left, top, right, and bottom.
+     */
+    public void setGestureMarginPercent(@FloatRange(from = 0f, to = 0.5f) float percent) {
+        setGestureMarginPercent(percent, percent, percent, percent);
+    }
+
+    /**
+     * Sets the percentage of gestures' margins to avoid touching too close to the edges, e.g.
+     * when scrolling up, phone open quick settings instead if gesture is close to the top.
+     * The percentage is based on the object's visible size, e.g. to set 20% bottom margin only:
+     * <pre>mUiObject2.setGestureMarginPercent(0f, 0f, 0f, 0.2f);</pre>
+     *
+     * @Param left Float between [0, 1] for left margin
+     * @Param top Float between [0, 1] for top margin
+     * @Param right Float between [0, 1] for right margin
+     * @Param bottom Float between [0, 1] for bottom margin
+     */
+    public void setGestureMarginPercent(@FloatRange(from = 0f, to = 1f) float left,
+            @FloatRange(from = 0f, to = 1f) float top,
+            @FloatRange(from = 0f, to = 1f) float right,
+            @FloatRange(from = 0f, to = 1f) float bottom) {
+        mMargins = new PercentMargins(left, top, right, bottom);
+    }
+
     /** Sets the margins used for gestures in pixels. */
     public void setGestureMargin(int margin) {
         setGestureMargins(margin, margin, margin, margin);
@@ -136,10 +173,7 @@ public class UiObject2 implements Searchable {
 
     /** Sets the margins used for gestures in pixels. */
     public void setGestureMargins(int left, int top, int right, int bottom) {
-        mMarginLeft = left;
-        mMarginTop = top;
-        mMarginRight = right;
-        mMarginBottom = bottom;
+        mMargins = new SimpleMargins(left, top, right, bottom);
     }
 
     // Wait functions
@@ -235,11 +269,7 @@ public class UiObject2 implements Searchable {
     /** Returns this object's visible bounds with the margins removed. */
     private Rect getVisibleBoundsForGestures() {
         Rect ret = getVisibleBounds();
-        ret.left = ret.left + mMarginLeft;
-        ret.top = ret.top + mMarginTop;
-        ret.right = ret.right - mMarginRight;
-        ret.bottom = ret.bottom - mMarginBottom;
-        return ret;
+        return mMargins.apply(ret);
     }
 
     /** Updates a {@code point} to ensure it is within this object's visible bounds. */
@@ -650,6 +680,95 @@ public class UiObject2 implements Searchable {
     }
 
     /**
+     * Perform scroll actions in certain direction until a {@code condition} is satisfied or scroll
+     * has finished, e.g. to scroll until an object contain certain text is found:
+     * <pre> mScrollableUiObject2.scrollUntil(Direction.DOWN, Until.findObject(By.textContains
+     * ("sometext"))); </pre>
+     *
+     * @param direction The direction in which to scroll.
+     * @param condition The {@link Condition} to evaluate.
+     * @return If the condition is satisfied.
+     */
+    public <U> U scrollUntil(@NonNull Direction direction,
+            @NonNull Condition<? super UiObject2, U> condition) {
+        Rect bounds = getVisibleBoundsForGestures();
+        int speed = (int) (DEFAULT_SCROLL_SPEED * mDisplayDensity);
+
+        EventCondition<Boolean> scrollFinished = Until.scrollFinished(direction);
+
+        // To scroll, we swipe in the opposite direction
+        final Direction swipeDirection = Direction.reverse(direction);
+        while (true) {
+            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
+                // b/267804786: clearing cache on API 28 before applying the condition.
+                clearCache();
+            }
+            U result = condition.apply(this);
+            if (result != null && !Boolean.FALSE.equals(result)) {
+                // given condition is satisfied.
+                return result;
+            }
+            PointerGesture swipe = Gestures.swipeRect(bounds, swipeDirection,
+                    DEFAULT_SCROLL_UNTIL_PERCENT, speed, getDisplayId()).pause(250);
+            if (mGestureController.performGestureAndWait(scrollFinished, SCROLL_TIMEOUT, swipe)) {
+                // Scroll has finished.
+                break;
+            }
+        }
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
+            // b/267804786: clearing cache on API 28 before applying the condition.
+            clearCache();
+        }
+        return condition.apply(this);
+    }
+
+    /**
+     * Perform scroll actions in certain direction until a {@code condition} is satisfied or scroll
+     * has finished, e.g. to scroll until a new window has appeared:
+     * <pre> mScrollableUiObject2.scrollUntil(Direction.DOWN, Until.newWindow()); </pre>
+     *
+     * @param direction The direction in which to scroll.
+     * @param condition The {@link EventCondition} to wait for.
+     * @return The value obtained after applying the condition.
+     */
+    public <U> U scrollUntil(@NonNull Direction direction, @NonNull EventCondition<U> condition) {
+        Rect bounds = getVisibleBoundsForGestures();
+        int speed = (int) (DEFAULT_SCROLL_SPEED * mDisplayDensity);
+
+        // combine the input condition with scroll finished condition.
+        EventCondition<Boolean> scrollFinished = Until.scrollFinished(direction);
+        EventCondition<Boolean> combinedEventCondition = new EventCondition<Boolean>() {
+            @Override
+            public Boolean getResult() {
+                if (scrollFinished.getResult()) {
+                    // scroll has finished.
+                    return true;
+                }
+                U result = condition.getResult();
+                return result != null && !Boolean.FALSE.equals(result);
+            }
+
+            @Override
+            public boolean accept(AccessibilityEvent event) {
+                return condition.accept(event) || scrollFinished.accept(event);
+            }
+        };
+
+        // To scroll, we swipe in the opposite direction
+        final Direction swipeDirection = Direction.reverse(direction);
+        while (true) {
+            PointerGesture swipe = Gestures.swipeRect(bounds, swipeDirection,
+                    DEFAULT_SCROLL_UNTIL_PERCENT, speed, getDisplayId()).pause(250);
+            if (mGestureController.performGestureAndWait(combinedEventCondition, SCROLL_TIMEOUT,
+                    swipe)) {
+                // Either scroll has finished or the accessibility event has appeared.
+                break;
+            }
+        }
+        return condition.getResult();
+    }
+
+    /**
      * Performs a fling gesture on this object.
      *
      * @param direction The direction in which to fling.
@@ -749,7 +868,8 @@ public class UiObject2 implements Searchable {
                 // Select the existing text. Expect this to fail if there is no existing text.
                 Bundle args = new Bundle();
                 args.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_START_INT, 0);
-                args.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_END_INT, text.length());
+                args.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_END_INT,
+                        currentText == null ? 0 : currentText.length());
                 if (!node.performAction(AccessibilityNodeInfo.ACTION_SET_SELECTION, args) &&
                         currentText != null && currentText.length() > 0) {
                     // TODO: Decide if we should throw here
@@ -785,6 +905,32 @@ public class UiObject2 implements Searchable {
         return mCachedNode;
     }
 
+    /**
+     * Clear the a11y cache.
+     * @throws Exception
+     */
+    @SuppressLint("SoonBlockedPrivateApi") // Only used in API 28
+    private void clearCache() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Log.d(TAG, String.format("clearCache() reflection is not available on API >= 33,"
+                    + " current API: %d", Build.VERSION.SDK_INT));
+            return;
+        }
+        try {
+            Class<?> clazz = Class.forName(
+                    "android.view.accessibility.AccessibilityInteractionClient");
+            Method getInstance = clazz.getDeclaredMethod("getInstance");
+            Object instance = getInstance.invoke(null);
+            if (instance != null) {
+                Method clearCache = instance.getClass().getDeclaredMethod("clearCache");
+                clearCache.invoke(instance);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Fail to call AccessibilityInteractionClient#clearCache() reflection", e);
+        }
+
+    }
+
     UiDevice getDevice() {
         return mDevice;
     }
@@ -814,6 +960,46 @@ public class UiObject2 implements Searchable {
         @DoNotInline
         static int getDisplayId(AccessibilityWindowInfo accessibilityWindowInfo) {
             return accessibilityWindowInfo.getDisplayId();
+        }
+    }
+
+    private interface Margins {
+        Rect apply(Rect bounds);
+    }
+
+    private static class SimpleMargins implements Margins {
+        int mLeft, mTop, mRight, mBottom;
+        SimpleMargins(int left, int top, int right, int bottom) {
+            mLeft = left;
+            mTop = top;
+            mRight = right;
+            mBottom = bottom;
+        }
+
+        @Override
+        public Rect apply(Rect bounds) {
+            return new Rect(bounds.left + mLeft,
+                    bounds.top + mTop,
+                    bounds.right - mRight,
+                    bounds.bottom - mBottom);
+        }
+    }
+
+    private static class PercentMargins implements Margins {
+        float mLeft, mTop, mRight, mBottom;
+        PercentMargins(float left, float top, float right, float bottom) {
+            mLeft = left;
+            mTop = top;
+            mRight = right;
+            mBottom = bottom;
+        }
+
+        @Override
+        public Rect apply(Rect bounds) {
+            return new Rect(bounds.left + (int) (bounds.width() * mLeft),
+                    bounds.top + (int) (bounds.height() * mTop),
+                    bounds.right - (int) (bounds.width() * mRight),
+                    bounds.bottom - (int) (bounds.height() * mBottom));
         }
     }
 }

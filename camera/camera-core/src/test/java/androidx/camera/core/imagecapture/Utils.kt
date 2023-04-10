@@ -22,6 +22,7 @@ import android.graphics.Rect
 import android.os.Build
 import android.util.Pair
 import android.util.Size
+import androidx.camera.core.CaptureBundles
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageInfo
 import androidx.camera.core.ImageProxy
@@ -66,10 +67,11 @@ object Utils {
     }
 
     internal fun createProcessingRequest(
-        takePictureCallback: TakePictureCallback = FakeTakePictureCallback()
+        takePictureCallback: TakePictureCallback = FakeTakePictureCallback(),
+        captureBundle: CaptureBundle = CaptureBundles.singleDefaultCaptureBundle()
     ): ProcessingRequest {
         return ProcessingRequest(
-            { listOf() },
+            captureBundle,
             OUTPUT_FILE_OPTIONS,
             CROP_RECT,
             ROTATION_DEGREES,

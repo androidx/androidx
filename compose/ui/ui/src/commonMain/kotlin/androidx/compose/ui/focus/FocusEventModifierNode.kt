@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.focus
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusStateImpl.Active
 import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
 import androidx.compose.ui.focus.FocusStateImpl.Captured
@@ -30,7 +29,6 @@ import androidx.compose.ui.node.visitChildren
  * Implement this interface create a modifier node that can be used to observe focus state changes
  * to a [FocusTargetModifierNode] down the hierarchy.
  */
-@ExperimentalComposeUiApi
 interface FocusEventModifierNode : DelegatableNode {
 
     /**
@@ -40,7 +38,6 @@ interface FocusEventModifierNode : DelegatableNode {
     fun onFocusEvent(focusState: FocusState)
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal fun FocusEventModifierNode.getFocusState(): FocusState {
     visitChildren(Nodes.FocusTarget) {
         when (val focusState = it.focusStateImpl) {
@@ -60,7 +57,6 @@ internal fun FocusEventModifierNode.getFocusState(): FocusState {
  *
  * Make this public after [FocusTargetModifierNode] is made public.
  */
-@ExperimentalComposeUiApi
 internal fun FocusTargetModifierNode.refreshFocusEventNodes() {
     visitAncestors(Nodes.FocusEvent or Nodes.FocusTarget) {
         // If we reach the previous focus target node, we have gone too far, as

@@ -32,7 +32,7 @@ import androidx.annotation.IntRange
  * @suppress
  */
 @InternalPlatformTextApi
-object LayoutCompat {
+internal object LayoutCompat {
     const val ALIGN_NORMAL = 0
     const val ALIGN_OPPOSITE = 1
     const val ALIGN_CENTER = 2
@@ -170,7 +170,7 @@ object LayoutCompat {
  * @suppress
  */
 @InternalPlatformTextApi
-fun Layout.getLineForOffset(@IntRange(from = 0) offset: Int, upstream: Boolean): Int {
+internal fun Layout.getLineForOffset(@IntRange(from = 0) offset: Int, upstream: Boolean): Int {
     if (offset <= 0) return 0
     if (offset >= text.length) return lineCount - 1
     val downstreamLineNo = getLineForOffset(offset)

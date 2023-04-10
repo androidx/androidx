@@ -211,6 +211,21 @@ package androidx.wear.watchface.style {
   public static final class UserStyleSetting.Id.Companion {
   }
 
+  @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static final class UserStyleSetting.LargeCustomValueUserStyleSetting extends androidx.wear.watchface.style.UserStyleSetting {
+    ctor public UserStyleSetting.LargeCustomValueUserStyleSetting(java.util.Collection<? extends androidx.wear.watchface.style.WatchFaceLayer> affectsWatchFaceLayers, byte[] defaultValue);
+  }
+
+  public static final class UserStyleSetting.LargeCustomValueUserStyleSetting.CustomValueOption extends androidx.wear.watchface.style.UserStyleSetting.Option {
+    ctor public UserStyleSetting.LargeCustomValueUserStyleSetting.CustomValueOption(byte[] customValue);
+    method public byte[] getCustomValue();
+    property public final byte[] customValue;
+    field public static final androidx.wear.watchface.style.UserStyleSetting.LargeCustomValueUserStyleSetting.CustomValueOption.Companion Companion;
+    field public static final int MAX_SIZE = 125000; // 0x1e848
+  }
+
+  public static final class UserStyleSetting.LargeCustomValueUserStyleSetting.CustomValueOption.Companion {
+  }
+
   public static class UserStyleSetting.ListUserStyleSetting extends androidx.wear.watchface.style.UserStyleSetting {
     ctor public UserStyleSetting.ListUserStyleSetting(androidx.wear.watchface.style.UserStyleSetting.Id id, android.content.res.Resources resources, @StringRes int displayNameResourceId, @StringRes int descriptionResourceId, android.graphics.drawable.Icon? icon, java.util.List<androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption> options, java.util.Collection<? extends androidx.wear.watchface.style.WatchFaceLayer> affectsWatchFaceLayers, optional androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption defaultOption, optional androidx.wear.watchface.style.UserStyleSetting.WatchFaceEditorData? watchFaceEditorData);
     ctor public UserStyleSetting.ListUserStyleSetting(androidx.wear.watchface.style.UserStyleSetting.Id id, android.content.res.Resources resources, @StringRes int displayNameResourceId, @StringRes int descriptionResourceId, android.graphics.drawable.Icon? icon, java.util.List<androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption> options, java.util.Collection<? extends androidx.wear.watchface.style.WatchFaceLayer> affectsWatchFaceLayers, optional androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption defaultOption);
@@ -281,11 +296,8 @@ package androidx.wear.watchface.style {
     property public final android.graphics.drawable.Icon? icon;
   }
 
-  public final class UserStyleSettingKt {
-  }
-
   public enum WatchFaceLayer {
-    method public static androidx.wear.watchface.style.WatchFaceLayer valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.wear.watchface.style.WatchFaceLayer valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.wear.watchface.style.WatchFaceLayer[] values();
     enum_constant public static final androidx.wear.watchface.style.WatchFaceLayer BASE;
     enum_constant public static final androidx.wear.watchface.style.WatchFaceLayer COMPLICATIONS;

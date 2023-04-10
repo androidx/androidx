@@ -193,7 +193,7 @@ object Arguments {
             arguments.getBenchmarkArgument("killProcessDelayMillis")?.toLong() ?: 0L
 
         enableStartupProfiles =
-            arguments.getBenchmarkArgument("startupProfiles.enable")?.toBoolean() ?: false
+            arguments.getBenchmarkArgument("startupProfiles.enable")?.toBoolean() ?: true
 
         strictStartupProfiles =
             arguments.getBenchmarkArgument("startupProfiles.strict")?.toBoolean() ?: false

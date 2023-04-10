@@ -24,8 +24,8 @@ plugins {
 
 dependencies {
     api(project(":work:work-runtime-ktx"))
-    implementation("androidx.lifecycle:lifecycle-livedata-core:2.1.0")
-    implementation("androidx.room:room-runtime:2.5.0-beta01")
+    implementation("androidx.lifecycle:lifecycle-livedata-core:2.5.1")
+    implementation("androidx.room:room-runtime:2.5.0")
 
     androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
     androidTestImplementation(libs.testExtJunit)
@@ -34,6 +34,8 @@ dependencies {
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.multidex)
 
     testImplementation(libs.truth)
     testImplementation(libs.testCore)
@@ -50,6 +52,9 @@ androidx {
 
 android {
     namespace "androidx.work.testing"
+    defaultConfig {
+        multiDexEnabled = true
+    }
     lintOptions {
         // Too many Kotlin features require synthetic accessors - we want to rely on R8 to
         // remove these accessors

@@ -93,7 +93,7 @@ android {
 androidx {
     name = "Jetpack Camera Testing Library"
     type = LibraryType.INTERNAL_TEST_LIBRARY
-    publish = Publish.NONE
+    publish = Publish.SNAPSHOT_ONLY
     inceptionYear = "2019"
     description = "Testing components for the Jetpack Camera Library, a library providing a " +
             "consistent and reliable camera foundation that enables great camera driven " +"" +

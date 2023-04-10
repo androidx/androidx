@@ -16,7 +16,6 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
-
 /**
  * Interface responsible for managing quota. Before initiating some action (e.g. starting an
  * animation) that uses a limited resource, {@link #tryAcquireQuota} should be called to see if the

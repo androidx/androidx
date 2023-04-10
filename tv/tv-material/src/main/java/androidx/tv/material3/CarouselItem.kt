@@ -16,137 +16,141 @@
 
 package androidx.tv.material3
 
-import android.view.KeyEvent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.input.key.KeyEventType.Companion.KeyDown
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalFocusManager
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.tv.material3.KeyEventPropagation.ContinuePropagation
 
 /**
  * This composable is intended for use in Carousel.
  * A composable that has
  * - a [background] layer that is rendered as soon as the composable is visible.
- * - an [overlay] layer that is rendered after a delay of
- *   [overlayEnterTransitionStartDelayMillis].
+ * - a [content] layer that is rendered on top of the [background]
  *
- * @param modifier modifier applied to the CarouselItem.
- * @param overlayEnterTransitionStartDelayMillis time between the rendering of the
- * background and the overlay.
- * @param overlayEnterTransition animation used to bring the overlay into view.
- * @param overlayExitTransition animation used to remove the overlay from view.
- * @param background composable defining the background of the slide.
- * @param overlay composable defining the content overlaid on the background.
+ * @param background composable defining the background of the item
+ * @param itemIndex current active item index of the carousel
+ * @param modifier modifier applied to the CarouselItem
+ * @param contentTransform content transform to be applied to the content of the item when
+ * scrolling
+ * @param content composable defining the content displayed on top of the background
  */
 @Suppress("IllegalExperimentalApiUsage")
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
 @ExperimentalTvMaterial3Api
 @Composable
-fun CarouselItem(
-    background: @Composable () -> Unit,
+internal fun CarouselItem(
+    itemIndex: Int,
     modifier: Modifier = Modifier,
-    overlayEnterTransitionStartDelayMillis: Long =
-        CarouselItemDefaults.OverlayEnterTransitionStartDelayMillis,
-    overlayEnterTransition: EnterTransition = CarouselItemDefaults.OverlayEnterTransition,
-    overlayExitTransition: ExitTransition = CarouselItemDefaults.OverlayExitTransition,
-    overlay: @Composable () -> Unit
+    background: @Composable () -> Unit = {},
+    contentTransform: ContentTransform =
+        CarouselItemDefaults.contentTransformStartToEnd,
+    content: @Composable () -> Unit,
 ) {
-    val overlayVisible = remember { MutableTransitionState(initialState = false) }
     var containerBoxFocusState: FocusState? by remember { mutableStateOf(null) }
     val focusManager = LocalFocusManager.current
     var exitFocus by remember { mutableStateOf(false) }
 
-    LaunchedEffect(overlayVisible) {
-        overlayVisible.onAnimationCompletion {
-            // slide has loaded completely.
-            if (containerBoxFocusState?.isFocused == true) {
-                focusManager.moveFocus(FocusDirection.Enter)
-            }
-        }
+    var isVisible by remember { mutableStateOf(false) }
+
+    DisposableEffect(itemIndex) {
+        isVisible = true
+        onDispose { isVisible = false }
     }
 
     // This box holds the focus until the overlay animation completes
-    Box(modifier = modifier
-        .onKeyEvent {
-            exitFocus = it.key.nativeKeyCode == KeyEvent.KEYCODE_BACK && it.type == KeyDown
-            false
-        }
-        .onFocusChanged {
-            containerBoxFocusState = it
-            if (it.isFocused && exitFocus) {
-                focusManager.moveFocus(FocusDirection.Exit)
-                exitFocus = false
-            } else if (it.isFocused && overlayVisible.isIdle && overlayVisible.currentState) {
-                focusManager.moveFocus(FocusDirection.Enter)
+    Box(
+        modifier = modifier
+            .onKeyEvent {
+                exitFocus = it.isBackPress() && it.isTypeKeyDown()
+                ContinuePropagation
             }
-        }
-        .focusable()
+            .onFocusChanged {
+                containerBoxFocusState = it
+                if (it.isFocused && exitFocus) {
+                    focusManager.moveFocus(FocusDirection.Exit)
+                    exitFocus = false
+                }
+            }
+            .focusable()
     ) {
         background()
 
-        LaunchedEffect(overlayVisible) {
-            // After the delay, set overlay-visibility to true and trigger the animation to show the
-            // overlay.
-            delay(overlayEnterTransitionStartDelayMillis)
-            overlayVisible.targetState = true
-        }
-
         AnimatedVisibility(
-            modifier = Modifier.align(Alignment.BottomStart),
-            visibleState = overlayVisible,
-            enter = overlayEnterTransition,
-            exit = overlayExitTransition
+            visible = isVisible,
+            enter = contentTransform.targetContentEnter,
+            exit = contentTransform.initialContentExit,
         ) {
-            overlay.invoke()
+            LaunchedEffect(transition.isRunning, containerBoxFocusState?.isFocused) {
+                if (!transition.isRunning && containerBoxFocusState?.isFocused == true) {
+                    focusManager.moveFocus(FocusDirection.Enter)
+                }
+            }
+            content.invoke()
         }
     }
-}
-
-private suspend fun MutableTransitionState<Boolean>.onAnimationCompletion(
-    action: suspend () -> Unit
-) {
-    snapshotFlow { isIdle && currentState }.first { it }
-    action.invoke()
 }
 
 @ExperimentalTvMaterial3Api
 object CarouselItemDefaults {
     /**
-     * Default delay between the background being rendered and the overlay being rendered.
+     * Transform the content from right to left
      */
-    const val OverlayEnterTransitionStartDelayMillis: Long = 200
+    // Keeping this as public so that users can access it directly without the isLTR helper
+    val contentTransformRightToLeft: ContentTransform
+        @Composable get() =
+            slideInHorizontally { it * 4 }
+                .togetherWith(slideOutHorizontally { it * 4 })
 
     /**
-     * Default transition to bring the overlay into view.
+     * Transform the content from left to right
      */
-    val OverlayEnterTransition: EnterTransition = slideInHorizontally(initialOffsetX = { it * 4 })
+    // Keeping this as public so that users can access it directly without the isLTR helper
+    val contentTransformLeftToRight: ContentTransform
+        @Composable get() =
+            slideInHorizontally()
+                .togetherWith(slideOutHorizontally())
 
     /**
-     * Default transition to remove overlay from view.
+     * Content transform applied when moving forward taking isLTR into account
      */
-    val OverlayExitTransition: ExitTransition = slideOutHorizontally()
+    val contentTransformStartToEnd
+        @Composable get() =
+            if (isLtr())
+                contentTransformRightToLeft
+            else
+                contentTransformLeftToRight
+
+    /**
+     * Content transform applied when moving backward taking isLTR into account
+     */
+    val contentTransformEndToStart
+        @Composable get() =
+            if (isLtr())
+                contentTransformLeftToRight
+            else
+                contentTransformRightToLeft
 }
+
+@Composable
+private fun isLtr() = LocalLayoutDirection.current == LayoutDirection.Ltr

@@ -20,6 +20,8 @@ import androidx.privacysandbox.tools.core.Metadata
 import androidx.privacysandbox.tools.core.generator.AidlCompiler
 import androidx.privacysandbox.tools.core.generator.AidlGenerator
 import androidx.privacysandbox.tools.core.generator.ClientProxyTypeGenerator
+import androidx.privacysandbox.tools.core.generator.CoreLibInfoAndBinderWrapperConverterGenerator
+import androidx.privacysandbox.tools.core.generator.GenerationTarget
 import androidx.privacysandbox.tools.core.generator.ServerBinderCodeConverter
 import androidx.privacysandbox.tools.core.generator.ServiceFactoryFileGenerator
 import androidx.privacysandbox.tools.core.generator.StubDelegatesGenerator
@@ -49,6 +51,7 @@ internal class SdkCodeGenerator(
     private val codeGenerator: CodeGenerator,
     private val api: ParsedApi,
     private val aidlCompilerPath: Path,
+    private val frameworkAidlPath: Path?,
     private val sandboxApiVersion: SandboxApiVersion
 ) {
     private val binderCodeConverter = ServerBinderCodeConverter(api)
@@ -70,7 +73,10 @@ internal class SdkCodeGenerator(
     private fun generateAidlSources() {
         val workingDir = createTempDirectory("aidl")
         try {
-            AidlGenerator.generate(AidlCompiler(aidlCompilerPath), api, workingDir)
+            AidlGenerator.generate(
+                AidlCompiler(aidlCompilerPath, frameworkAidlPath),
+                api, workingDir
+            )
                 .forEach { source ->
                     // Sources created by the AIDL compiler have to be copied to files created
                     // through the KSP APIs, so that they are included in downstream compilation.
@@ -97,18 +103,25 @@ internal class SdkCodeGenerator(
 
     private fun generateStubDelegates() {
         val stubDelegateGenerator = StubDelegatesGenerator(basePackageName(), binderCodeConverter)
-        api.services.map(stubDelegateGenerator::generate).forEach(::write)
-        api.interfaces.map(stubDelegateGenerator::generate).forEach(::write)
+        api.services.map { stubDelegateGenerator.generate(it, GenerationTarget.SERVER) }
+            .forEach(::write)
+        api.interfaces.map { stubDelegateGenerator.generate(it, GenerationTarget.SERVER) }
+            .forEach(::write)
     }
 
     private fun generateValueConverters() {
-        val valueConverterFileGenerator = ValueConverterFileGenerator(binderCodeConverter)
+        val valueConverterFileGenerator =
+            ValueConverterFileGenerator(binderCodeConverter, GenerationTarget.SERVER)
         api.values.map(valueConverterFileGenerator::generate).forEach(::write)
+        api.interfaces.filter { it.inheritsSandboxedUiAdapter }.map {
+            CoreLibInfoAndBinderWrapperConverterGenerator.generate(it).also(::write)
+        }
     }
 
     private fun generateCallbackProxies() {
         val clientProxyGenerator = ClientProxyTypeGenerator(basePackageName(), binderCodeConverter)
-        api.callbacks.map(clientProxyGenerator::generate).forEach(::write)
+        api.callbacks.map { clientProxyGenerator.generate(it, GenerationTarget.SERVER) }
+            .forEach(::write)
     }
 
     private fun generateToolMetadata() {

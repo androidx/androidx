@@ -29,7 +29,6 @@ import java.util.List;
 /**
  * Wire format for {@link androidx.wear.watchface.style.LongRangeUserStyleSetting}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
@@ -37,7 +36,9 @@ public class LongRangeUserStyleSettingWireFormat extends UserStyleSettingWireFor
 
     LongRangeUserStyleSettingWireFormat() {}
 
-    /** @deprecated use a constructor with List<Bundle> perOptionOnWatchFaceEditorBundles. */
+    /**
+     * @deprecated use a constructor with List<Bundle> perOptionOnWatchFaceEditorBundles.
+     */
     @Deprecated
     public LongRangeUserStyleSettingWireFormat(
             @NonNull String id,
@@ -60,7 +61,15 @@ public class LongRangeUserStyleSettingWireFormat extends UserStyleSettingWireFor
             @NonNull List<Integer> affectsLayers,
             @Nullable Bundle onWatchFaceEditorBundle,
             @Nullable List<Bundle> perOptionOnWatchFaceEditorBundles) {
-        super(id, displayName, description, icon, options, defaultOptionIndex, affectsLayers,
-                onWatchFaceEditorBundle, perOptionOnWatchFaceEditorBundles);
+        super(
+                id,
+                displayName,
+                description,
+                icon,
+                options,
+                defaultOptionIndex,
+                affectsLayers,
+                onWatchFaceEditorBundle,
+                perOptionOnWatchFaceEditorBundles);
     }
 }

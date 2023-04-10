@@ -361,7 +361,6 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected SparseArrayObjectAdapter createPrimaryActionsAdapter(

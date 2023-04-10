@@ -33,7 +33,6 @@ import androidx.annotation.RestrictTo;
  *
  * Used by Leanback and Car.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class UnPressableLinearLayout extends LinearLayout {

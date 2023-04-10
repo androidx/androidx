@@ -30,6 +30,6 @@ class CreateCredentialCancellationException @JvmOverloads constructor(
     /** @hide */
     companion object {
         internal const val TYPE_CREATE_CREDENTIAL_CANCELLATION_EXCEPTION =
-            "androidx.credentials.TYPE_CREATE_CREDENTIAL_CANCELLATION_EXCEPTION"
+            "android.credentials.CreateCredentialException.TYPE_USER_CANCELED"
     }
 }

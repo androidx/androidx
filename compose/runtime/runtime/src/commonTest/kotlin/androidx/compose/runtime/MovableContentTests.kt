@@ -777,7 +777,6 @@ class MovableContentTests {
     }
 
     @Test
-    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     fun validateRecomposeScopesDoNotGetLost() = compositionTest {
         var isHorizontal by mutableStateOf(false)
         val displayValue = mutableStateOf(0)
@@ -807,7 +806,7 @@ class MovableContentTests {
 
         isHorizontal = true
         Snapshot.sendApplyNotifications()
-        testCoroutineScheduler.advanceTimeBy(10)
+        advanceTimeBy(10)
 
         displayValue.value++
         expectChanges()
@@ -1470,6 +1469,78 @@ class MovableContentTests {
         assertEquals(2, hashList.size)
         assertEquals(hashList[0], hashList[1])
     }
+
+    @Test
+    fun parameterPassingThroughDeferredSubcompose() = compositionTest {
+        var state by mutableStateOf(false)
+        var lastSeen: Boolean? = null
+        val content = movableContentOf { parameter: Boolean ->
+            Container {
+                lastSeen = parameter
+            }
+        }
+
+        compose {
+            if (state) {
+                content(true)
+            } else {
+                DeferredSubcompose {
+                    content(state)
+                }
+            }
+        }
+
+        advanceTimeBy(5_000)
+
+        assertEquals(state, lastSeen)
+
+        repeat(5) {
+            state = !state
+
+            expectChanges()
+
+            assertEquals(state, lastSeen, "Failed in iteration $it")
+        }
+    }
+
+    @Test
+    fun stateChangesWhilePendingMove() = compositionTest {
+        var state = 0
+        var lastSeen: Int? = null
+        var deferred by mutableStateOf(false)
+        var scope: RecomposeScope? = null
+
+        val content = movableContentOf {
+            Container {
+                lastSeen = state
+                scope = currentRecomposeScope
+            }
+        }
+
+        compose {
+            if (deferred) {
+                DeferredSubcompose {
+                    content()
+                }
+                SideEffect {
+                    state++
+                    scope?.invalidate()
+                }
+            } else {
+                content()
+            }
+        }
+
+        advanceTimeBy(5_000)
+
+        assertEquals(state, lastSeen)
+
+        deferred = true
+
+        advance()
+
+        assertEquals(state, lastSeen)
+    }
 }
 
 @Composable
@@ -1593,7 +1664,6 @@ private fun DeferredSubcompose(content: @Composable () -> Unit) {
         composition.setContent(content)
     }
     DisposableEffect(Unit) {
-
         onDispose { composition.dispose() }
     }
 }
@@ -1622,14 +1692,14 @@ class RememberedObject : RememberObserver {
     }
 
     override fun onForgotten() {
-        check(count > 0) { "Abandoned or forgotten mor times than remembered" }
+        check(count > 0) { "Abandoned or forgotten more times than remembered" }
         forgottenCount++
         count--
         if (count == 0) died = true
     }
 
     override fun onAbandoned() {
-        check(count > 0) { "Abandoned or forgotten mor times than remembered" }
+        check(count > 0) { "Abandoned or forgotten more times than remembered" }
         abandonedCount++
         count--
         if (count == 0) died = true

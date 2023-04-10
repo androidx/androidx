@@ -15,18 +15,15 @@
  */
 package androidx.compose.ui.text.font
 
-import androidx.compose.ui.text.ExperimentalTextApi
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-@OptIn(ExperimentalTextApi::class)
 class FontFamilyTest {
 
     private val resourceId1 = 1
-    private val resourceId2 = 2
 
     @Test(expected = IllegalStateException::class)
     fun `cannot be instantiated with empty font list`() {

@@ -15,7 +15,8 @@
  */
 package androidx.wear.compose.material
 
-import androidx.compose.animation.animateColor
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.core.Transition
@@ -34,7 +35,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.State
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -91,16 +91,8 @@ public fun Checkbox(
 
     // For Checkbox, the color and alpha animations have the same duration and easing,
     // so we don't need to explicitly animate alpha.
-    val boxColor = animateColor(
-        transition,
-        colorFn = { e, c -> colors.boxColor(enabled = e, checked = c) },
-        enabled = enabled
-    )
-    val checkColor = animateColor(
-        transition,
-        colorFn = { e, c -> colors.checkmarkColor(enabled = e, checked = c) },
-        enabled = enabled
-    )
+    val boxColor = colors.boxColor(enabled = enabled, checked = checked)
+    val checkColor = colors.checkmarkColor(enabled = enabled, checked = checked)
 
     Canvas(
         modifier = modifier.maybeToggleable(
@@ -159,16 +151,8 @@ public fun Switch(
     // For Switch, the color and alpha animations have the same duration and easing,
     // so we don't need to explicitly animate alpha.
     val thumbProgress = animateProgress(transition, "Switch")
-    val thumbColor = animateColor(
-        transition,
-        { e, c -> colors.thumbColor(enabled = e, checked = c) },
-        enabled
-    )
-    val trackColor = animateColor(
-        transition,
-        { e, c -> colors.trackColor(enabled = e, checked = c) },
-        enabled
-    )
+    val thumbColor = colors.thumbColor(enabled = enabled, checked = checked)
+    val trackColor = colors.trackColor(enabled = enabled, checked = checked)
 
     Canvas(
         modifier = modifier.maybeToggleable(
@@ -227,21 +211,13 @@ public fun RadioButton(
     val targetState = if (selected) ToggleStage.Checked else ToggleStage.Unchecked
     val transition = updateTransition(targetState)
 
-    val circleColor = animateColor(
-        transition,
-        colorFn = { e, s -> colors.ringColor(enabled = e, selected = s) },
-        enabled
-    )
+    val circleColor = colors.ringColor(enabled = enabled, selected = selected)
     val dotRadiusProgress = animateProgress(
         transition,
         durationMillis = if (selected) QUICK else STANDARD,
         label = "dot-radius"
     )
-    val dotColor = animateColor(
-        transition,
-        colorFn = { e, s -> colors.dotColor(enabled = e, selected = s) },
-        enabled
-    )
+    val dotColor = colors.dotColor(enabled = enabled, selected = selected)
     // Animation of the dot alpha only happens when toggling On to Off.
     val dotAlphaProgress =
         if (targetState == ToggleStage.Unchecked)
@@ -494,19 +470,6 @@ private fun animateProgress(
         }
     }
 
-@Composable
-private fun animateColor(
-    transition: Transition<ToggleStage>,
-    colorFn: @Composable (enabled: Boolean, checked: Boolean) -> State<Color>,
-    enabled: Boolean
-): State<Color> =
-    transition.animateColor(
-        transitionSpec = { tween(durationMillis = QUICK, easing = STANDARD_IN) },
-        label = "content-color"
-    ) {
-        colorFn(enabled, (it == ToggleStage.Checked)).value
-    }
-
 private fun Modifier.maybeToggleable(
     onCheckedChange: ((Boolean) -> Unit)?,
     enabled: Boolean,
@@ -668,26 +631,31 @@ private class DefaultCheckboxColors(
     private val disabledUncheckedCheckmarkColor: Color,
 ) : CheckboxColors {
     @Composable
-    override fun boxColor(enabled: Boolean, checked: Boolean): State<Color> {
-        return rememberUpdatedState(
-            if (enabled) {
-                if (checked) checkedBoxColor else uncheckedBoxColor
-            } else {
-                if (checked) disabledCheckedBoxColor else disabledUncheckedBoxColor
-            }
-        )
-    }
+    override fun boxColor(enabled: Boolean, checked: Boolean): State<Color> = animateColorAsState(
+        targetValue = toggleControlColor(
+            enabled,
+            checked,
+            checkedBoxColor,
+            uncheckedBoxColor,
+            disabledCheckedBoxColor,
+            disabledUncheckedBoxColor
+        ),
+        animationSpec = COLOR_ANIMATION_SPEC
+    )
 
     @Composable
-    override fun checkmarkColor(enabled: Boolean, checked: Boolean): State<Color> {
-        return rememberUpdatedState(
-            if (enabled) {
-                if (checked) checkedCheckmarkColor else uncheckedCheckmarkColor
-            } else {
-                if (checked) disabledCheckedCheckmarkColor else disabledUncheckedCheckmarkColor
-            }
+    override fun checkmarkColor(enabled: Boolean, checked: Boolean): State<Color> =
+        animateColorAsState(
+            targetValue = toggleControlColor(
+                enabled,
+                checked,
+                checkedCheckmarkColor,
+                uncheckedCheckmarkColor,
+                disabledCheckedCheckmarkColor,
+                disabledUncheckedCheckmarkColor
+            ),
+            animationSpec = COLOR_ANIMATION_SPEC
         )
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -736,26 +704,30 @@ private class DefaultSwitchColors(
     private val disabledUncheckedTrackColor: Color,
 ) : SwitchColors {
     @Composable
-    override fun thumbColor(enabled: Boolean, checked: Boolean): State<Color> {
-        return rememberUpdatedState(
-            if (enabled) {
-                if (checked) checkedThumbColor else uncheckedThumbColor
-            } else {
-                if (checked) disabledCheckedThumbColor else disabledUncheckedThumbColor
-            }
-        )
-    }
+    override fun thumbColor(enabled: Boolean, checked: Boolean): State<Color> = animateColorAsState(
+        targetValue = toggleControlColor(
+            enabled,
+            checked,
+            checkedThumbColor,
+            uncheckedThumbColor,
+            disabledCheckedThumbColor,
+            disabledUncheckedThumbColor
+        ),
+        animationSpec = COLOR_ANIMATION_SPEC
+    )
 
     @Composable
-    override fun trackColor(enabled: Boolean, checked: Boolean): State<Color> {
-        return rememberUpdatedState(
-            if (enabled) {
-                if (checked) checkedTrackColor else uncheckedTrackColor
-            } else {
-                if (checked) disabledCheckedTrackColor else disabledUncheckedTrackColor
-            }
-        )
-    }
+    override fun trackColor(enabled: Boolean, checked: Boolean): State<Color> = animateColorAsState(
+        targetValue = toggleControlColor(
+            enabled,
+            checked,
+            checkedTrackColor,
+            uncheckedTrackColor,
+            disabledCheckedTrackColor,
+            disabledUncheckedTrackColor
+        ),
+        animationSpec = COLOR_ANIMATION_SPEC
+    )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -804,26 +776,32 @@ private class DefaultRadioButtonColors(
     private val disabledUnselectedDotColor: Color,
 ) : RadioButtonColors {
     @Composable
-    override fun ringColor(enabled: Boolean, selected: Boolean): State<Color> {
-        return rememberUpdatedState(
-            if (enabled) {
-                if (selected) selectedRingColor else unselectedRingColor
-            } else {
-                if (selected) disabledSelectedRingColor else disabledUnselectedRingColor
-            }
+    override fun ringColor(enabled: Boolean, selected: Boolean): State<Color> =
+        animateColorAsState(
+            targetValue = toggleControlColor(
+                enabled,
+                selected,
+                selectedRingColor,
+                unselectedRingColor,
+                disabledSelectedRingColor,
+                disabledUnselectedRingColor
+            ),
+            animationSpec = COLOR_ANIMATION_SPEC
         )
-    }
 
     @Composable
-    override fun dotColor(enabled: Boolean, selected: Boolean): State<Color> {
-        return rememberUpdatedState(
-            if (enabled) {
-                if (selected) selectedDotColor else unselectedDotColor
-            } else {
-                if (selected) disabledSelectedDotColor else disabledUnselectedDotColor
-            }
+    override fun dotColor(enabled: Boolean, selected: Boolean): State<Color> =
+        animateColorAsState(
+            targetValue = toggleControlColor(
+                enabled,
+                selected,
+                selectedDotColor,
+                unselectedDotColor,
+                disabledSelectedDotColor,
+                disabledUnselectedDotColor
+            ),
+            animationSpec = COLOR_ANIMATION_SPEC
         )
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -885,6 +863,20 @@ private enum class ToggleStage {
     Unchecked, Checked
 }
 
+private fun toggleControlColor(
+    enabled: Boolean,
+    checked: Boolean,
+    checkedColor: Color,
+    uncheckedColor: Color,
+    enabledCheckedColor: Color,
+    disabledCheckedColor: Color
+) =
+    if (enabled) {
+        if (checked) checkedColor else uncheckedColor
+    } else {
+        if (checked) enabledCheckedColor else disabledCheckedColor
+    }
+
 private val BOX_CORNER = 3.dp
 private val BOX_STROKE = 2.dp
 private val BOX_RADIUS = 2.dp
@@ -901,3 +893,5 @@ private val SWITCH_THUMB_RADIUS = 7.dp
 private val RADIO_CIRCLE_RADIUS = 9.dp
 private val RADIO_CIRCLE_STROKE = 2.dp
 private val RADIO_DOT_RADIUS = 5.dp
+
+private val COLOR_ANIMATION_SPEC: AnimationSpec<Color> = tween(QUICK, 0, STANDARD_IN)

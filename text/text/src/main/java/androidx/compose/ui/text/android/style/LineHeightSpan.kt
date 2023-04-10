@@ -30,7 +30,7 @@ import kotlin.math.ceil
  * @suppress
  */
 @InternalPlatformTextApi
-class LineHeightSpan(
+internal class LineHeightSpan(
     val lineHeight: Float
 ) : android.text.style.LineHeightSpan {
 

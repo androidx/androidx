@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2021-2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,14 @@
 
 package androidx.wear.tiles;
 
-import static java.util.stream.Collectors.toList;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.wear.tiles.LayoutElementBuilders.Layout;
 import androidx.wear.protolayout.proto.TimelineProto;
+import androidx.wear.tiles.LayoutElementBuilders.Layout;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -61,14 +60,12 @@ public final class TimelineBuilders {
             return mImpl.getEndMillis();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static TimeInterval fromProto(@NonNull TimelineProto.TimeInterval proto) {
             return new TimeInterval(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public TimelineProto.TimeInterval toProto() {
@@ -132,7 +129,6 @@ public final class TimelineBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static TimelineEntry fromProto(@NonNull TimelineProto.TimelineEntry proto) {
@@ -142,13 +138,10 @@ public final class TimelineBuilders {
         /** Returns the {@link TimelineEntry} object containing the given layout element. */
         @NonNull
         public static TimelineEntry fromLayoutElement(
-                @NonNull LayoutElementBuilders.LayoutElement layoutElement
-        ) {
-            return new Builder()
-                    .setLayout(Layout.fromLayoutElement(layoutElement)).build();
+                @NonNull LayoutElementBuilders.LayoutElement layoutElement) {
+            return new Builder().setLayout(Layout.fromLayoutElement(layoutElement)).build();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public TimelineProto.TimelineEntry toProto() {
@@ -208,13 +201,13 @@ public final class TimelineBuilders {
         /** Gets the entries in a timeline. Intended for testing purposes only. */
         @NonNull
         public List<TimelineEntry> getTimelineEntries() {
-            return Collections.unmodifiableList(
-                    mImpl.getTimelineEntriesList().stream()
-                            .map(TimelineEntry::fromProto)
-                            .collect(toList()));
+            List<TimelineEntry> list = new ArrayList<>();
+            for (TimelineProto.TimelineEntry item : mImpl.getTimelineEntriesList()) {
+                list.add(TimelineEntry.fromProto(item));
+            }
+            return Collections.unmodifiableList(list);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static Timeline fromProto(@NonNull TimelineProto.Timeline proto) {
@@ -224,13 +217,12 @@ public final class TimelineBuilders {
         /** Returns the {@link Timeline} object containing the given layout element. */
         @NonNull
         public static Timeline fromLayoutElement(
-                @NonNull LayoutElementBuilders.LayoutElement layoutElement
-        ) {
+                @NonNull LayoutElementBuilders.LayoutElement layoutElement) {
             return new Builder()
-                    .addTimelineEntry(TimelineEntry.fromLayoutElement(layoutElement)).build();
+                    .addTimelineEntry(TimelineEntry.fromLayoutElement(layoutElement))
+                    .build();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public TimelineProto.Timeline toProto() {

@@ -17,6 +17,7 @@
 package androidx.tv.foundation.lazy.grid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.tv.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.compose.ui.unit.Constraints
 
 /**
@@ -44,6 +45,14 @@ internal class LazyMeasuredLineProvider(
         } else {
             Constraints.fixedHeight(crossAxisSize)
         }
+    }
+
+    fun itemConstraints(itemIndex: ItemIndex): Constraints {
+        val span = spanLayoutProvider.spanOf(
+            itemIndex.value,
+            spanLayoutProvider.slotsPerLine
+        )
+        return childConstraints(0, span)
     }
 
     /**
@@ -85,11 +94,10 @@ internal class LazyMeasuredLineProvider(
      * Contains the mapping between the key and the index. It could contain not all the items of
      * the list as an optimization.
      **/
-    val keyToIndexMap: Map<Any, Int> get() = measuredItemProvider.keyToIndexMap
+    val keyToIndexMap: LazyLayoutKeyIndexMap get() = measuredItemProvider.keyToIndexMap
 }
 
 // This interface allows to avoid autoboxing on index param
-@OptIn(ExperimentalFoundationApi::class)
 internal fun interface MeasuredLineFactory {
     fun createLine(
         index: LineIndex,

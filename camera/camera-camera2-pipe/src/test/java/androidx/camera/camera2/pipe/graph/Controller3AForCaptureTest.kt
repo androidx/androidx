@@ -65,18 +65,22 @@ class Controller3AForCaptureTest {
         // this response i.e cameraResponse1, AF is still scanning so the result won't be complete.
         val cameraResponse = async {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(requestNumber = RequestNumber(1)))
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
+            )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
                     resultMetadata =
-                        mapOf(
-                            CaptureResult.CONTROL_AF_STATE to
-                                CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
-                            CaptureResult.CONTROL_AE_STATE to
-                                CaptureResult.CONTROL_AE_STATE_SEARCHING)))
+                    mapOf(
+                        CaptureResult.CONTROL_AF_STATE to
+                            CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
+                        CaptureResult.CONTROL_AE_STATE to
+                            CaptureResult.CONTROL_AE_STATE_SEARCHING
+                    )
+                )
+            )
         }
 
         cameraResponse.await()
@@ -86,18 +90,22 @@ class Controller3AForCaptureTest {
         // lock3AForCapture call will complete.
         launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(requestNumber = RequestNumber(1)))
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
+            )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
                     resultMetadata =
-                        mapOf(
-                            CaptureResult.CONTROL_AF_STATE to
-                                CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
-                            CaptureResult.CONTROL_AE_STATE to
-                                CaptureResult.CONTROL_AE_STATE_CONVERGED)))
+                    mapOf(
+                        CaptureResult.CONTROL_AF_STATE to
+                            CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
+                        CaptureResult.CONTROL_AE_STATE to
+                            CaptureResult.CONTROL_AE_STATE_CONVERGED
+                    )
+                )
+            )
         }
 
         val result3A = result.await()
@@ -130,18 +138,22 @@ class Controller3AForCaptureTest {
         // complete.
         val cameraResponse = async {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(requestNumber = RequestNumber(1)))
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
+            )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
                     resultMetadata =
-                        mapOf(
-                            CaptureResult.CONTROL_AF_STATE to
-                                CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
-                            CaptureResult.CONTROL_AE_STATE to
-                                CaptureResult.CONTROL_AE_STATE_CONVERGED)))
+                    mapOf(
+                        CaptureResult.CONTROL_AF_STATE to
+                            CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
+                        CaptureResult.CONTROL_AE_STATE to
+                            CaptureResult.CONTROL_AE_STATE_CONVERGED
+                    )
+                )
+            )
         }
 
         cameraResponse.await()
@@ -152,18 +164,22 @@ class Controller3AForCaptureTest {
         // capture result corresponding to the submitted request suffices.
         launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(requestNumber = RequestNumber(1)))
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
+            )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
                     resultMetadata =
-                        mapOf(
-                            CaptureResult.CONTROL_AF_STATE to
-                                CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
-                            CaptureResult.CONTROL_AE_STATE to
-                                CaptureResult.CONTROL_AE_STATE_CONVERGED)))
+                    mapOf(
+                        CaptureResult.CONTROL_AF_STATE to
+                            CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
+                        CaptureResult.CONTROL_AE_STATE to
+                            CaptureResult.CONTROL_AE_STATE_CONVERGED
+                    )
+                )
+            )
         }
 
         val result3A = result.await()
@@ -185,11 +201,13 @@ class Controller3AForCaptureTest {
 
         val cameraResponse = async {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(requestNumber = RequestNumber(1)))
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
+            )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
-                FakeFrameMetadata(frameNumber = FrameNumber(101L), resultMetadata = mapOf()))
+                FakeFrameMetadata(frameNumber = FrameNumber(101L), resultMetadata = mapOf())
+            )
         }
 
         cameraResponse.await()

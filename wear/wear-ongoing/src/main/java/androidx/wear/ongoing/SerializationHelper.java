@@ -78,7 +78,6 @@ public class SerializationHelper {
 
     /**
      * Add the information from the given OngoingActivityData into the notification builder.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull
@@ -92,7 +91,6 @@ public class SerializationHelper {
     /**
      * Add the information from the given OngoingActivityData into the notification builder
      * and build the notification.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull
@@ -109,7 +107,6 @@ public class SerializationHelper {
 
     /**
      * Deserialize a OngoingActivityData from a notification.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Nullable
@@ -119,7 +116,6 @@ public class SerializationHelper {
 
     /**
      * Deserialize a OngoingActivityData from a bundle.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Nullable

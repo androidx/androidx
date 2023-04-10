@@ -750,12 +750,12 @@ package androidx.media.session {
 package androidx.media.utils {
 
   public final class MediaConstants {
-    field public static final String BROWSER_ROOT_HINTS_KEY_CUSTOM_BROWSER_ACTION_LIMIT = "androidx.media.MediaBrowserCompat.CUSTOM_BROWSER_ACTION_LIMIT";
+    field public static final String BROWSER_ROOT_HINTS_KEY_CUSTOM_BROWSER_ACTION_LIMIT = "androidx.media.utils.MediaBrowserCompat.extras.CUSTOM_BROWSER_ACTION_LIMIT";
     field public static final String BROWSER_ROOT_HINTS_KEY_MEDIA_ART_SIZE_PIXELS = "android.media.extras.MEDIA_ART_SIZE_HINT_PIXELS";
     field public static final String BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_LIMIT = "androidx.media.MediaBrowserCompat.Extras.KEY_ROOT_CHILDREN_LIMIT";
     field public static final String BROWSER_ROOT_HINTS_KEY_ROOT_CHILDREN_SUPPORTED_FLAGS = "androidx.media.MediaBrowserCompat.Extras.KEY_ROOT_CHILDREN_SUPPORTED_FLAGS";
     field public static final String BROWSER_SERVICE_EXTRAS_KEY_APPLICATION_PREFERENCES_USING_CAR_APP_LIBRARY_INTENT = "androidx.media.BrowserRoot.Extras.APPLICATION_PREFERENCES_USING_CAR_APP_LIBRARY_INTENT";
-    field public static final String BROWSER_SERVICE_EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ROOT_LIST = "android.media.extra.CUSTOM_BROWSER_ACTION_ROOT_LIST";
+    field public static final String BROWSER_SERVICE_EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ROOT_LIST = "androidx.media.utils.extras.CUSTOM_BROWSER_ACTION_ROOT_LIST";
     field public static final String BROWSER_SERVICE_EXTRAS_KEY_FAVORITES_MEDIA_ITEM = "androidx.media.BrowserRoot.Extras.FAVORITES_MEDIA_ITEM";
     field public static final String BROWSER_SERVICE_EXTRAS_KEY_SEARCH_SUPPORTED = "android.media.browse.SEARCH_SUPPORTED";
     field public static final String DESCRIPTION_EXTRAS_KEY_COMPLETION_PERCENTAGE = "androidx.media.MediaItem.Extras.COMPLETION_PERCENTAGE";
@@ -764,7 +764,7 @@ package androidx.media.utils {
     field public static final String DESCRIPTION_EXTRAS_KEY_CONTENT_STYLE_GROUP_TITLE = "android.media.browse.CONTENT_STYLE_GROUP_TITLE_HINT";
     field public static final String DESCRIPTION_EXTRAS_KEY_CONTENT_STYLE_PLAYABLE = "android.media.browse.CONTENT_STYLE_PLAYABLE_HINT";
     field public static final String DESCRIPTION_EXTRAS_KEY_CONTENT_STYLE_SINGLE_ITEM = "android.media.browse.CONTENT_STYLE_SINGLE_ITEM_HINT";
-    field public static final String DESCRIPTION_EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ID_LIST = "android.media.extra.CUSTOM_BROWSER_ACTION_ID_LIST";
+    field public static final String DESCRIPTION_EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ID_LIST = "androidx.media.utils.extras.CUSTOM_BROWSER_ACTION_ID_LIST";
     field public static final int DESCRIPTION_EXTRAS_VALUE_COMPLETION_STATUS_FULLY_PLAYED = 2; // 0x2
     field public static final int DESCRIPTION_EXTRAS_VALUE_COMPLETION_STATUS_NOT_PLAYED = 0; // 0x0
     field public static final int DESCRIPTION_EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED = 1; // 0x1
@@ -772,15 +772,15 @@ package androidx.media.utils {
     field public static final int DESCRIPTION_EXTRAS_VALUE_CONTENT_STYLE_CATEGORY_LIST_ITEM = 3; // 0x3
     field public static final int DESCRIPTION_EXTRAS_VALUE_CONTENT_STYLE_GRID_ITEM = 2; // 0x2
     field public static final int DESCRIPTION_EXTRAS_VALUE_CONTENT_STYLE_LIST_ITEM = 1; // 0x1
-    field public static final String EXTRA_KEY_CUSTOM_BROWSER_ACTION_EXTRAS = "androidx.media.utils.extra.KEY_CUSTOM_BROWSER_ACTION_EXTRAS";
-    field public static final String EXTRA_KEY_CUSTOM_BROWSER_ACTION_ICON_URI = "androidx.media.utils.extra.KEY_CUSTOM_BROWSER_ACTION_ICON_URI";
-    field public static final String EXTRA_KEY_CUSTOM_BROWSER_ACTION_ID = "androidx.media.utils.extra.KEY_CUSTOM_BROWSER_ACTION_ID";
-    field public static final String EXTRA_KEY_CUSTOM_BROWSER_ACTION_LABEL = "androidx.media.utils.extra.KEY_CUSTOM_BROWSER_ACTION_LABEL";
-    field public static final String EXTRA_KEY_CUSTOM_BROWSER_ACTION_MEDIA_ITEM_ID = "androidx.media.utils.extra.KEY_CUSTOM_BROWSER_ACTION_MEDIA_ITEM_ID";
-    field public static final String EXTRA_KEY_CUSTOM_BROWSER_ACTION_RESULT_BROWSE_NODE = "androidx.media.utils.extra.KEY_CUSTOM_BROWSER_ACTION_RESULT_BROWSE_NODE";
-    field public static final String EXTRA_KEY_CUSTOM_BROWSER_ACTION_RESULT_MESSAGE = "androidx.media.utils.extra.KEY_CUSTOM_BROWSER_ACTION_RESULT_MESSAGE";
-    field public static final String EXTRA_KEY_CUSTOM_BROWSER_ACTION_RESULT_REFRESH_ITEM = "androidx.media.utils.extra.KEY_CUSTOM_BROWSER_ACTION_RESULT_REFRESH_ITEM";
-    field public static final String EXTRA_KEY_CUSTOM_BROWSER_ACTION_RESULT_SHOW_PLAYING_ITEM = "androidx.media.utils.extra.KEY_CUSTOM_BROWSER_ACTION_RESULT_SHOW_PLAYING_ITEM";
+    field public static final String EXTRAS_KEY_CUSTOM_BROWSER_ACTION_EXTRAS = "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_EXTRAS";
+    field public static final String EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ICON_URI = "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_ICON_URI";
+    field public static final String EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ID = "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_ID";
+    field public static final String EXTRAS_KEY_CUSTOM_BROWSER_ACTION_LABEL = "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_LABEL";
+    field public static final String EXTRAS_KEY_CUSTOM_BROWSER_ACTION_MEDIA_ITEM_ID = "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_MEDIA_ITEM_ID";
+    field public static final String EXTRAS_KEY_CUSTOM_BROWSER_ACTION_RESULT_BROWSE_NODE = "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_RESULT_BROWSE_NODE";
+    field public static final String EXTRAS_KEY_CUSTOM_BROWSER_ACTION_RESULT_MESSAGE = "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_RESULT_MESSAGE";
+    field public static final String EXTRAS_KEY_CUSTOM_BROWSER_ACTION_RESULT_REFRESH_ITEM = "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_RESULT_REFRESH_ITEM";
+    field public static final String EXTRAS_KEY_CUSTOM_BROWSER_ACTION_RESULT_SHOW_PLAYING_ITEM = "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_RESULT_SHOW_PLAYING_ITEM";
     field public static final String METADATA_KEY_CONTENT_ID = "androidx.media.MediaMetadatCompat.METADATA_KEY_CONTENT_ID";
     field public static final String METADATA_KEY_IS_ADVERTISEMENT = "android.media.metadata.ADVERTISEMENT";
     field public static final String METADATA_KEY_IS_EXPLICIT = "android.media.IS_EXPLICIT";

@@ -18,12 +18,16 @@ package androidx.camera.camera2.pipe.testing
 
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraController
+import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.CameraStatusMonitor
 import androidx.camera.camera2.pipe.StreamId
 
 internal class FakeCameraController : CameraController {
     var started = false
     var closed = false
     var surfaceMap: Map<StreamId, Surface>? = null
+    override val cameraId: CameraId
+        get() = CameraId.fromCamera2Id("0")
 
     override fun start() {
         started = true
@@ -31,6 +35,11 @@ internal class FakeCameraController : CameraController {
 
     override fun stop() {
         started = false
+    }
+
+    override fun tryRestart(cameraStatus: CameraStatusMonitor.CameraStatus) {
+        stop()
+        start()
     }
 
     override fun close() {

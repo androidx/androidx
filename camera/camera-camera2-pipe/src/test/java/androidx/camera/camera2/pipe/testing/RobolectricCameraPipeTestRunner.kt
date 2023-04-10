@@ -46,7 +46,8 @@ public class RobolectricCameraPipeTestRunner(testClass: Class<*>) :
     }
 }
 
-@JvmInline public value class TestValue(public val value: String)
+@JvmInline
+public value class TestValue(public val value: String)
 
 public data class TestData(val value1: TestValue, val value2: String)
 

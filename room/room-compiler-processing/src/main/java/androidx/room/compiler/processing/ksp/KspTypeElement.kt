@@ -248,7 +248,9 @@ internal sealed class KspTypeElement(
     }
 
     override fun isValueClass(): Boolean {
-        return Modifier.INLINE in declaration.modifiers
+        // The inline modifier for inline classes is deprecated in Kotlin but we still include it
+        // in this check.
+        return Modifier.VALUE in declaration.modifiers || Modifier.INLINE in declaration.modifiers
     }
 
     override fun isFunctionalInterface(): Boolean {
@@ -329,6 +331,7 @@ internal sealed class KspTypeElement(
 
     override fun getEnclosedTypeElements(): List<XTypeElement> {
         return declaration.declarations.filterIsInstance<KSClassDeclaration>()
+            .filterNot { it.classKind == ClassKind.ENUM_ENTRY }
             .map { env.wrapClassDeclaration(it) }
             .toList()
     }
@@ -366,6 +369,7 @@ internal sealed class KspTypeElement(
         ): KspTypeElement {
             return when (ksClassDeclaration.classKind) {
                 ClassKind.ENUM_CLASS -> KspEnumTypeElement(env, ksClassDeclaration)
+                ClassKind.ENUM_ENTRY -> error("Expected declaration to not be an enum entry.")
                 else -> DefaultKspTypeElement(env, ksClassDeclaration)
             }
         }

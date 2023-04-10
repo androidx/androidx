@@ -164,7 +164,6 @@ import androidx.core.i18n.messageformat_icu.util.Output;
  * </p>
  *
  * icu_annot::stable ICU 3.8
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PluralRules implements Serializable {

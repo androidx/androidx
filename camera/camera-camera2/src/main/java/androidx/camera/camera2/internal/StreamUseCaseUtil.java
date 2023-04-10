@@ -36,6 +36,7 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.streamsharing.StreamSharing;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -65,7 +66,8 @@ public final class StreamUseCaseUtil {
     public static void populateSurfaceToStreamUseCaseMapping(
             @NonNull Collection<SessionConfig> sessionConfigs,
             @NonNull Map<DeferrableSurface, Long> streamUseCaseMap,
-            @NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat) {
+            @NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat,
+            boolean shouldSetStreamUseCaseByDefault) {
         if (Build.VERSION.SDK_INT < 33) {
             return;
         }
@@ -100,12 +102,16 @@ public final class StreamUseCaseUtil {
                     continue;
                 }
 
-                Long streamUseCase = getUseCaseToStreamUseCaseMapping()
-                        .get(surface.getContainerClass());
-                putStreamUseCaseToMappingIfAvailable(streamUseCaseMap,
-                        surface,
-                        streamUseCase,
-                        supportedStreamUseCases);
+                if (shouldSetStreamUseCaseByDefault) {
+                    // TODO(b/266879290) This is currently gated out because of camera device
+                    // crashing due to unsupported stream useCase combinations.
+                    Long streamUseCase = getUseCaseToStreamUseCaseMapping()
+                            .get(surface.getContainerClass());
+                    putStreamUseCaseToMappingIfAvailable(streamUseCaseMap,
+                            surface,
+                            streamUseCase,
+                            supportedStreamUseCases);
+                }
             }
         }
     }
@@ -143,6 +149,8 @@ public final class StreamUseCaseUtil {
             sUseCaseToStreamUseCaseMapping.put(ImageCapture.class,
                     Long.valueOf(CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_STILL_CAPTURE));
             sUseCaseToStreamUseCaseMapping.put(MediaCodec.class,
+                    Long.valueOf(CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD));
+            sUseCaseToStreamUseCaseMapping.put(StreamSharing.class,
                     Long.valueOf(CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD));
         }
         return sUseCaseToStreamUseCaseMapping;

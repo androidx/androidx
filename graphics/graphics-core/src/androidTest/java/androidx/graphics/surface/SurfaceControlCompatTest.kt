@@ -24,15 +24,16 @@ import android.opengl.EGL14
 import android.os.Build
 import android.os.SystemClock
 import android.view.SurfaceHolder
-import androidx.hardware.SyncFenceCompat
 import androidx.graphics.opengl.egl.EGLConfigAttributes
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
 import androidx.graphics.opengl.egl.EGLVersion
 import androidx.graphics.opengl.egl.supportsNativeAndroidFence
+import androidx.hardware.SyncFenceCompat
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.RequiresDevice
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import java.util.concurrent.CountDownLatch
@@ -45,13 +46,12 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@SdkSuppress(minSdkVersion = 29)
+@SdkSuppress(minSdkVersion = 29, maxSdkVersion = 32) // b/268117532
 class SurfaceControlCompatTest {
     var executor: Executor? = null
 
@@ -569,8 +569,6 @@ class SurfaceControlCompatTest {
     }
 
     @Test
-    @Ignore("b/262903415")
-    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     fun testTransactionSetBuffer_singleReleaseCallback() {
         if (Build.VERSION.SDK_INT == 33 && Build.VERSION.CODENAME != "REL") {
             return // b/262909049: Do not run this test on pre-release Android U.
@@ -633,9 +631,7 @@ class SurfaceControlCompatTest {
         }
     }
 
-    @Ignore("b/262909049")
     @Test
-    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     fun testTransactionSetBuffer_multipleReleaseCallbacksAndOverwriteWithSingleSC() {
         if (Build.VERSION.SDK_INT == 33 && Build.VERSION.CODENAME != "REL") {
             return // b/262909049: Do not run this test on pre-release Android U.
@@ -782,7 +778,6 @@ class SurfaceControlCompatTest {
         }
     }
 
-    @Ignore("b/262909049")
     @Test
     fun testTransactionSetBuffer_ReleaseCallbacksAndOverwriteWithMultipleSC() {
         val releaseLatch = CountDownLatch(1)
@@ -1409,6 +1404,7 @@ class SurfaceControlCompatTest {
         }
     }
 
+    @RequiresDevice // b/268117532
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetCrop_null() {
@@ -1454,6 +1450,7 @@ class SurfaceControlCompatTest {
         }
     }
 
+    @RequiresDevice // b/268117532
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetCrop_standardCrop() {
@@ -1499,6 +1496,7 @@ class SurfaceControlCompatTest {
         }
     }
 
+    @RequiresDevice // b/268117532
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetCrop_standardThenNullCrop() {
@@ -1564,6 +1562,7 @@ class SurfaceControlCompatTest {
         }
     }
 
+    @RequiresDevice // b/268117532
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetPosition() {
@@ -1620,6 +1619,7 @@ class SurfaceControlCompatTest {
         }
     }
 
+    @RequiresDevice // b/268117532
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetScale() {
@@ -1677,6 +1677,7 @@ class SurfaceControlCompatTest {
         }
     }
 
+    @RequiresDevice // b/268117532
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     fun testTransactionSetBufferTransform_identity() {
@@ -1737,6 +1738,7 @@ class SurfaceControlCompatTest {
         }
     }
 
+    @RequiresDevice // b/268117532
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     fun testTransactionSetBufferTransform_singleTransform() {
@@ -1800,6 +1802,7 @@ class SurfaceControlCompatTest {
         }
     }
 
+    @RequiresDevice // b/268117532
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun testSurfaceTransactionCommitOnDraw() {

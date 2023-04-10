@@ -21,6 +21,7 @@ import androidx.privacysandbox.tools.core.generator.poet.AidlInterfaceSpec
 import androidx.privacysandbox.tools.core.generator.poet.AidlInterfaceSpec.Companion.aidlInterface
 import androidx.privacysandbox.tools.core.generator.poet.AidlMethodSpec
 import androidx.privacysandbox.tools.core.generator.poet.AidlParcelableSpec.Companion.aidlParcelable
+import androidx.privacysandbox.tools.core.generator.poet.AidlTypeKind
 import androidx.privacysandbox.tools.core.generator.poet.AidlTypeSpec
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.AnnotatedValue
@@ -78,13 +79,7 @@ class AidlGenerator private constructor(
 
     private fun compileAidlInterfaces(aidlSources: List<GeneratedSource>): List<GeneratedSource> {
         aidlCompiler.compile(workingDir, aidlSources.map { it.file.toPath() })
-        val javaSources = aidlSources.map {
-            GeneratedSource(
-                packageName = it.packageName,
-                interfaceName = it.interfaceName,
-                file = getJavaFileForAidlFile(it.file)
-            )
-        }
+        val javaSources = aidlSources.map { it.copy(file = getJavaFileForAidlFile(it.file)) }
         javaSources.forEach {
             check(it.file.exists()) {
                 "Missing AIDL compilation output ${it.file.absolutePath}"
@@ -96,8 +91,8 @@ class AidlGenerator private constructor(
     private fun generateAidlContent(): List<AidlFileSpec> {
         val values = api.values.map(::generateValue)
         val service = aidlInterface(api.getOnlyService())
-        val customCallbacks = api.callbacks.map(::aidlInterface)
-        val interfaces = api.interfaces.map(::aidlInterface)
+        val customCallbacks = api.callbacks.flatMap(::aidlInterface)
+        val interfaces = api.interfaces.flatMap(::aidlInterface)
         val suspendFunctionUtilities = generateSuspendFunctionUtilities()
         return suspendFunctionUtilities +
             service +
@@ -106,9 +101,28 @@ class AidlGenerator private constructor(
             interfaces
     }
 
-    private fun aidlInterface(annotatedInterface: AnnotatedInterface) =
-        aidlInterface(Type(annotatedInterface.type.packageName, annotatedInterface.aidlName())) {
+    private fun aidlInterface(annotatedInterface: AnnotatedInterface): List<AidlFileSpec> {
+        val interfaceFile = aidlInterface(
+            Type(annotatedInterface.type.packageName, annotatedInterface.aidlName())
+        ) {
             annotatedInterface.methods.forEach { addMethod(it) }
+        }
+
+        return buildList {
+            if (annotatedInterface.inheritsSandboxedUiAdapter) {
+                add(uiAidlWrapper(annotatedInterface))
+            }
+            add(interfaceFile)
+        }
+    }
+
+    private fun uiAidlWrapper(annotatedInterface: AnnotatedInterface) =
+        aidlParcelable(annotatedInterface.uiAdapterAidlWrapper()) {
+            addProperty(
+                "coreLibInfo",
+                AidlTypeSpec(bundleType(), kind = AidlTypeKind.PARCELABLE)
+            )
+            addProperty("binder", annotatedInterface.aidlType())
         }
 
     private fun AidlInterfaceSpec.Builder.addMethod(method: Method) {
@@ -128,11 +142,8 @@ class AidlGenerator private constructor(
             "Void cannot be a parameter type."
         }
         val aidlType = getAidlTypeDeclaration(parameter.type)
-        addParameter(
-            parameter.name,
-            aidlType,
-            isIn = api.valueMap.containsKey(parameter.type.asNonNull()) || aidlType.isList
-        )
+
+        addParameter(parameter.name, aidlType)
     }
 
     private fun generateSuspendFunctionUtilities(): List<AidlFileSpec> {
@@ -158,10 +169,26 @@ class AidlGenerator private constructor(
                 addParameter("cancellationSignal", cancellationSignalType())
             }
             addMethod("onSuccess") {
-                if (type != Types.unit) addParameter(Parameter("result", type))
+                val interfaceType = api.interfaceMap[type]
+                if (interfaceType != null && interfaceType.inheritsSandboxedUiAdapter) {
+                    // Bypass getAidlTypeDeclaration, since we want to specify the UI wrapper
+                    // parcelable rather than the interface.
+                    addParameter(
+                        "result",
+                        AidlTypeSpec(
+                            interfaceType.uiAdapterAidlWrapper(),
+                            kind = AidlTypeKind.PARCELABLE
+                        )
+                    )
+                } else if (type != Types.unit) {
+                    addParameter(Parameter("result", type))
+                }
             }
             addMethod("onFailure") {
-                addParameter("throwableParcel", AidlTypeSpec(throwableParcelType()), isIn = true)
+                addParameter(
+                    "throwableParcel",
+                    AidlTypeSpec(throwableParcelType(), kind = AidlTypeKind.PARCELABLE)
+                )
             }
         }
     }
@@ -174,10 +201,21 @@ class AidlGenerator private constructor(
         return aidlParcelable(throwableParcelType()) {
             addProperty("exceptionClass", primitive("String"))
             addProperty("errorMessage", primitive("String"))
-            addProperty("stackTrace", AidlTypeSpec(parcelableStackFrameType(), isList = true))
-            addProperty("cause", AidlTypeSpec(throwableParcelType(), isList = true))
             addProperty(
-                "suppressedExceptions", AidlTypeSpec(throwableParcelType(), isList = true)
+                "stackTrace",
+                AidlTypeSpec(
+                    parcelableStackFrameType(),
+                    isList = true,
+                    kind = AidlTypeKind.PARCELABLE
+                )
+            )
+            addProperty(
+                "cause",
+                AidlTypeSpec(throwableParcelType(), isList = true, kind = AidlTypeKind.PARCELABLE)
+            )
+            addProperty(
+                "suppressedExceptions",
+                AidlTypeSpec(throwableParcelType(), isList = true, kind = AidlTypeKind.PARCELABLE)
             )
         }
     }
@@ -213,11 +251,18 @@ class AidlGenerator private constructor(
     }
 
     private fun packageName() = api.getOnlyService().type.packageName
-    private fun cancellationSignalType() = AidlTypeSpec(Type(packageName(), cancellationSignalName))
+    private fun cancellationSignalType() =
+        AidlTypeSpec(Type(packageName(), cancellationSignalName), kind = AidlTypeKind.INTERFACE)
+
     private fun throwableParcelType() = Type(packageName(), throwableParcelName)
     private fun parcelableStackFrameType() = Type(packageName(), parcelableStackFrameName)
+    private fun bundleType() = Type("android.os", "Bundle")
+
     private fun transactionCallback(type: Type) =
-        AidlTypeSpec(Type(api.getOnlyService().type.packageName, type.transactionCallbackName()))
+        AidlTypeSpec(
+            Type(api.getOnlyService().type.packageName, type.transactionCallbackName()),
+            kind = AidlTypeKind.INTERFACE
+        )
 
     private fun getAidlTypeDeclaration(rawType: Type): AidlTypeSpec {
         val type = wrapWithListIfNeeded(rawType)
@@ -254,18 +299,34 @@ internal fun File.ensureDirectory() {
     }
 }
 
-fun AnnotatedInterface.aidlName() = "I${type.simpleName}"
+fun AnnotatedInterface.aidlName(): String = "I${type.simpleName}"
 
 fun Type.transactionCallbackName() =
     "I${simpleName}${typeParameters.joinToString("") { it.simpleName }}TransactionCallback"
 
 internal fun AnnotatedValue.aidlType() =
-    AidlTypeSpec(Type(type.packageName, "Parcelable${type.simpleName}"))
+    AidlTypeSpec(
+        Type(type.packageName, "Parcelable${type.simpleName}"),
+        kind = AidlTypeKind.PARCELABLE
+    )
 
-internal fun AnnotatedInterface.aidlType() = AidlTypeSpec(Type(type.packageName, aidlName()))
+internal fun AnnotatedInterface.aidlType() =
+    AidlTypeSpec(Type(type.packageName, aidlName()), kind = AidlTypeKind.INTERFACE)
+
+internal fun AnnotatedInterface.uiAdapterAidlWrapper(): Type {
+    if (!inheritsSandboxedUiAdapter) {
+        throw IllegalArgumentException(
+            "Cannot get UI adapter AIDL wrapper type of non-UI interface"
+        )
+    }
+    return Type(type.packageName, "I${type.simpleName}CoreLibInfoAndBinderWrapper")
+}
+
+internal fun AnnotatedInterface.coreLibInfoConverterName() =
+    uiAdapterAidlWrapper().simpleName + "Converter"
 
 internal fun primitive(name: String, isList: Boolean = false) =
-    AidlTypeSpec(Type("", name), requiresImport = false, isList = isList)
+    AidlTypeSpec(Type("", name), isList = isList, kind = AidlTypeKind.PRIMITIVE)
 
 /**
  * Removes nullability from a type, and applies necessary changes to represent it in AIDL.

@@ -38,7 +38,6 @@ import java.util.List;
 /**
  * Utility class to parse the list of {@link ShareTargetCompat} from app's Xml resource.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 class ShareTargetXmlParser {

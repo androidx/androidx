@@ -121,7 +121,7 @@ open class BaseTest {
         val viewPager: ViewPager2 = activityTestRule.activity.findViewById(R.id.view_pager)
         activityTestRule.runOnUiThread {
             viewPager.orientation = orientation
-            viewPager.setSystemExclusionRectsForEspressoSwipes()
+            viewPager.setSystemExclusionRectsForEspressoSwipes(requestLayout = true)
         }
         onView(withId(R.id.view_pager)).check(matches(isDisplayed()))
 
@@ -148,7 +148,7 @@ open class BaseTest {
                 viewPager.orientation = orientation
                 viewPager.isUserInputEnabled = isUserInputEnabled
                 viewPager.adapter = adapterProvider(activity)
-                viewPager.setSystemExclusionRectsForEspressoSwipes()
+                viewPager.setSystemExclusionRectsForEspressoSwipes(requestLayout = false)
                 onCreateCallback(viewPager)
             }
             activity = activityTestRule.recreate()
@@ -161,19 +161,18 @@ open class BaseTest {
                 field = value
             }
 
-        fun runOnUiThreadSync(f: () -> Unit) {
+        fun <T> runOnUiThreadSync(f: () -> T): T {
             var thrownError: Throwable? = null
+            var result: T? = null
             activityTestRule.runOnUiThread {
                 try {
-                    f()
+                    result = f()
                 } catch (t: Throwable) {
                     thrownError = t
                 }
             }
-            val caughtError = thrownError
-            if (caughtError != null) {
-                throw caughtError
-            }
+            thrownError?.let { throw it }
+            return result!!
         }
 
         val viewPager: ViewPager2 get() = activity.findViewById(R.id.view_pager)

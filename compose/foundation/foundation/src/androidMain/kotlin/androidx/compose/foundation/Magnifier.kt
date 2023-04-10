@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation
 
-import android.annotation.SuppressLint
 import android.os.Build
 import android.widget.Magnifier
 import androidx.annotation.ChecksSdkIntAtLeast
@@ -261,7 +260,6 @@ fun Modifier.magnifier(
 @OptIn(ExperimentalFoundationApi::class)
 // The InspectorInfo this modifier reports is for the above public overload, and intentionally
 // doesn't include the platformMagnifierFactory parameter.
-@SuppressLint("ModifierInspectorInfo")
 @RequiresApi(28)
 internal fun Modifier.magnifier(
     sourceCenter: Density.() -> Offset,

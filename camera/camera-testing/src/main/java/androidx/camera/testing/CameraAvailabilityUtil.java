@@ -62,7 +62,6 @@ public class CameraAvailabilityUtil {
      *
      * @return The default lens facing.
      * @throws IllegalStateException if unable to find a camera with available lens facing.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @CameraSelector.LensFacing

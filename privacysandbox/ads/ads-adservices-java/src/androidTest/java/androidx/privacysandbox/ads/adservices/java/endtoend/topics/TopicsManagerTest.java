@@ -66,6 +66,10 @@ public class TopicsManagerTest {
         mTestUtil.overrideAllowlists(true);
         // TODO: Remove this override.
         mTestUtil.enableEnrollmentCheck(true);
+        // Force to use bundled files to make test result deterministic.
+        mTestUtil.shouldForceUseBundledFiles(true);
+        // Enable verbose logging.
+        mTestUtil.enableVerboseLogging();
     }
 
     @After
@@ -76,6 +80,7 @@ public class TopicsManagerTest {
         mTestUtil.overrideConsentManagerDebugMode(false);
         mTestUtil.overrideAllowlists(false);
         mTestUtil.enableEnrollmentCheck(false);
+        mTestUtil.shouldForceUseBundledFiles(false);
     }
 
     @Test
@@ -92,7 +97,7 @@ public class TopicsManagerTest {
         GetTopicsResponse response = topicsManager.getTopicsAsync(request).get();
 
         // At beginning, Sdk1 receives no topic.
-        assertThat(response.getTopics().isEmpty());
+        assertThat(response.getTopics()).isEmpty();
 
         // Now force the Epoch Computation Job. This should be done in the same epoch for
         // callersCanLearnMap to have the entry for processing.
@@ -106,8 +111,8 @@ public class TopicsManagerTest {
         response = topicsManager.getTopicsAsync(request).get();
         assertThat(response.getTopics()).isNotEmpty();
 
-        // Top 5 classifications for empty string with v2 model are [10230, 10253, 10227, 10250,
-        // 10257]. This is computed by running the model on the device for empty string.
+        // Top 5 classifications for empty string with v2 model are [10147, 10253, 10175, 10254,
+        // 10333]. This is computed by running the model on the device for empty string.
         // These 5 classification topics will become top 5 topics of the epoch since there is
         // no other apps calling Topics API.
         // The app will be assigned one random topic from one of these 5 topics.
@@ -116,7 +121,7 @@ public class TopicsManagerTest {
         Topic topic = response.getTopics().get(0);
 
         // topic is one of the 5 classification topics of the Test App.
-        assertThat(topic.getTopicId()).isIn(Arrays.asList(10230, 10253, 10227, 10250, 10257));
+        assertThat(topic.getTopicId()).isIn(Arrays.asList(10147, 10253, 10175, 10254, 10333));
 
         assertThat(topic.getModelVersion()).isAtLeast(1L);
         assertThat(topic.getTaxonomyVersion()).isAtLeast(1L);

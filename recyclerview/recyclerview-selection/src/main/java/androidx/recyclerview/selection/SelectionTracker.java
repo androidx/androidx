@@ -183,7 +183,6 @@ public abstract class SelectionTracker<K> {
      */
     public abstract boolean deselect(@NonNull K key);
 
-    /** @hide */
     @SuppressWarnings("HiddenAbstractMethod")
     @RestrictTo(LIBRARY)
     protected abstract @NonNull AdapterDataObserver getAdapterDataObserver();
@@ -195,7 +194,6 @@ public abstract class SelectionTracker<K> {
      * @param position The "anchor" position for the range. Subsequent range operations
      *                 (primarily keyboard and mouse based operations like SHIFT + click)
      *                 work with the established anchor point to define selection ranges.
-     * @hide
      */
     @SuppressWarnings("HiddenAbstractMethod")
     @RestrictTo(LIBRARY)
@@ -212,7 +210,6 @@ public abstract class SelectionTracker<K> {
      * @param position The new end position for the selection range.
      * @throws IllegalStateException if a range selection is not active. Range selection
      *                               must have been started by a call to {@link #startRange(int)}.
-     * @hide
      */
     @SuppressWarnings("HiddenAbstractMethod")
     @RestrictTo(LIBRARY)
@@ -223,7 +220,6 @@ public abstract class SelectionTracker<K> {
      * using {@link #extendProvisionalRange(int)} will be cleared (unless
      * {@link #mergeProvisionalSelection()} is called first.)
      *
-     * @hide
      */
     @SuppressWarnings("HiddenAbstractMethod")
     @RestrictTo(LIBRARY)
@@ -231,7 +227,6 @@ public abstract class SelectionTracker<K> {
 
     /**
      * @return Whether or not there is a current range selection active.
-     * @hide
      */
     @SuppressWarnings("HiddenAbstractMethod")
     @RestrictTo(LIBRARY)
@@ -245,7 +240,6 @@ public abstract class SelectionTracker<K> {
      * TODO: Reconcile this with startRange. Maybe just docs need to be updated.
      *
      * @param position the anchor position. Must already be selected.
-     * @hide
      */
     @SuppressWarnings("HiddenAbstractMethod")
     @RestrictTo(LIBRARY)
@@ -255,7 +249,6 @@ public abstract class SelectionTracker<K> {
      * Creates a provisional selection from anchor to {@code position}.
      *
      * @param position the end point.
-     * @hide
      */
     @SuppressWarnings("HiddenAbstractMethod")
     @RestrictTo(LIBRARY)
@@ -264,7 +257,6 @@ public abstract class SelectionTracker<K> {
     /**
      * Sets the provisional selection, replacing any existing selection.
      *
-     * @hide
      */
     @SuppressWarnings("HiddenAbstractMethod")
     @RestrictTo(LIBRARY)
@@ -273,7 +265,6 @@ public abstract class SelectionTracker<K> {
     /**
      * Clears any existing provisional selection
      *
-     * @hide
      */
     @SuppressWarnings("HiddenAbstractMethod")
     @RestrictTo(LIBRARY)
@@ -283,7 +274,6 @@ public abstract class SelectionTracker<K> {
      * Converts the provisional selection into primary selection, then clears
      * provisional selection.
      *
-     * @hide
      */
     @SuppressWarnings("HiddenAbstractMethod")
     @RestrictTo(LIBRARY)
@@ -321,7 +311,6 @@ public abstract class SelectionTracker<K> {
          * Called when Selection is cleared.
          * TODO(smckay): Make public in a future public API.
          *
-         * @hide
          */
         @RestrictTo(LIBRARY)
         protected void onSelectionCleared() {

@@ -8,10 +8,14 @@ package androidx.privacysandbox.ui.core {
   public static interface SandboxedUiAdapter.Session {
     method public void close();
     method public android.view.View getView();
+    method public void notifyConfigurationChanged(android.content.res.Configuration configuration);
+    method public void notifyResized(int width, int height);
+    method public void notifyZOrderChanged(boolean isZOrderOnTop);
     property public abstract android.view.View view;
   }
 
   public static interface SandboxedUiAdapter.SessionClient {
+    method public void onResizeRequested(int width, int height);
     method public void onSessionError(Throwable throwable);
     method public void onSessionOpened(androidx.privacysandbox.ui.core.SandboxedUiAdapter.Session session);
   }

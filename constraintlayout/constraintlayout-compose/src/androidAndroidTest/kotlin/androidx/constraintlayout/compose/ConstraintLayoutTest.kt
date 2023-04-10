@@ -17,6 +17,7 @@
 package androidx.constraintlayout.compose
 
 import android.content.Context
+import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -36,11 +37,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.Ref
@@ -49,10 +53,13 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -61,7 +68,9 @@ import androidx.compose.ui.unit.round
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import kotlin.math.roundToInt
+import kotlin.test.assertNotEquals
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -1945,14 +1954,14 @@ class ConstraintLayoutTest {
                     val (box0, box1, box2) = createRefsFor("box0", "box1")
 
                     constrain(box0, box1) {
-                        width = boxSize.toDp().asDimension
-                        height = boxSize.toDp().asDimension
+                        width = boxSize.toDp().asDimension()
+                        height = boxSize.toDp().asDimension()
                         top.linkTo(parent.top, margin.toDp())
                         start.linkTo(parent.start, margin.toDp())
                     }
                     constrain(box2) {
-                        width = boxSize.toDp().asDimension
-                        height = boxSize.toDp().asDimension
+                        width = boxSize.toDp().asDimension()
+                        height = boxSize.toDp().asDimension()
 
                         top.linkTo(box0.bottom)
                         start.linkTo(box0.end)
@@ -2341,7 +2350,9 @@ class ConstraintLayoutTest {
                                 bottom.linkTo(parent.bottom)
                             }
                             .onGloballyPositioned {
-                                box1Position = it.positionInRoot().round()
+                                box1Position = it
+                                    .positionInRoot()
+                                    .round()
                             })
                     Box(
                         Modifier
@@ -2353,7 +2364,9 @@ class ConstraintLayoutTest {
                                 bottom.linkTo(parent.bottom)
                             }
                             .onGloballyPositioned {
-                                box2Position = it.positionInRoot().round()
+                                box2Position = it
+                                    .positionInRoot()
+                                    .round()
                             })
                 }
             }
@@ -2367,6 +2380,166 @@ class ConstraintLayoutTest {
             assertEquals(IntOffset(0, expectedBox1Y), box1Position)
             assertEquals(IntOffset(box1Size, 0), box2Position)
         }
+    }
+
+    @Test
+    fun testTranslationXY_withDsl() = with(rule.density) {
+        val rootSizePx = 100
+        val boxSizePx = 10
+        val translationXPx = 7
+        val translationYPx = 9
+
+        var position = IntOffset.Zero
+
+        rule.setContent {
+            ConstraintLayout(
+                Modifier.size(rootSizePx.toDp())
+            ) {
+                val boxRef = createRef()
+                Box(
+                    Modifier
+                        .constrainAs(boxRef) {
+                            width = boxSizePx.toDp().asDimension()
+                            height = boxSizePx.toDp().asDimension()
+                            centerTo(parent)
+
+                            translationX = translationXPx.toDp()
+                            translationY = translationYPx.toDp()
+                        }
+                        .onPlaced {
+                            // TODO: Figure out a way to test `translationZ` i.e.: `shadowElevation`
+                            position = it.boundsInParent().topLeft.round()
+                        }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertEquals(
+                Offset(
+                    (rootSizePx - boxSizePx) / 2f + translationXPx,
+                    (rootSizePx - boxSizePx) / 2f + translationYPx,
+                ).round(),
+                position
+            )
+        }
+    }
+
+    @Test
+    fun testTranslationXY_withJson() = with(rule.density) {
+        val rootSizePx = 100
+        val boxSizePx = 10
+        val translationXPx = 7
+        val translationYPx = 9
+
+        var position = IntOffset.Zero
+
+        rule.setContent {
+            ConstraintLayout(
+                constraintSet = ConstraintSet(
+                    """
+                    {
+                      box: {
+                        width: ${boxSizePx.toDp().value},
+                        height: ${boxSizePx.toDp().value},
+                        center: 'parent',
+                        translationX: ${translationXPx.toDp().value},
+                        translationY: ${translationYPx.toDp().value}
+                      }
+                    }
+                """.trimIndent()
+                ),
+                Modifier.size(rootSizePx.toDp())
+            ) {
+                Box(
+                    Modifier
+                        .layoutId("box")
+                        .onPlaced {
+                            // TODO: Figure out a way to test `translationZ` i.e.: `shadowElevation`
+                            position = it.boundsInParent().topLeft.round()
+                        }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertEquals(
+                Offset(
+                    (rootSizePx - boxSizePx) / 2f + translationXPx,
+                    (rootSizePx - boxSizePx) / 2f + translationYPx,
+                ).round(),
+                position
+            )
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testVisibility_withInlineDsl() = with(rule.density) {
+        val rootSizePx = 100
+        val boxSizePx = 10
+        var box1Position = IntOffset.Zero
+        val expectedInitialBox1Position = Offset(
+            (rootSizePx + boxSizePx) / 2f,
+            (rootSizePx - boxSizePx) / 2f
+        ).round()
+
+        val boxVisibility = mutableStateOf(Visibility.Visible)
+
+        rule.setContent {
+            ConstraintLayout(Modifier.size(rootSizePx.toDp())) {
+                val (box0, box1) = createRefs()
+
+                Box(
+                    Modifier
+                        .testTag("box0")
+                        .constrainAs(box0) {
+                            centerTo(parent)
+                            visibility = boxVisibility.value
+                        }
+                        .background(Color.Red)
+                ) {
+                    Box(Modifier.size(boxSizePx.toDp()))
+                }
+                Box(
+                    Modifier
+                        .testTag("box1")
+                        .constrainAs(box1) {
+                            width = boxSizePx.toDp().asDimension()
+                            height = boxSizePx.toDp().asDimension()
+
+                            top.linkTo(box0.top)
+                            start.linkTo(box0.end)
+                        }
+                        .background(Color.Blue)
+                        .onGloballyPositioned {
+                            box1Position = it
+                                .positionInParent()
+                                .round()
+                        }
+                )
+            }
+        }
+        rule.waitForIdle()
+
+        var color = rule.onNodeWithTag("box0").captureToImage().asAndroidBitmap().getColor(5, 5)
+        assertEquals(Color.Red.toArgb(), color.toArgb())
+        assertEquals(expectedInitialBox1Position, box1Position)
+
+        boxVisibility.value = Visibility.Invisible
+        rule.waitForIdle()
+
+        color = rule.onNodeWithTag("box0").captureToImage().asAndroidBitmap().getColor(5, 5)
+        assertNotEquals(Color.Red.toArgb(), color.toArgb())
+        assertEquals(expectedInitialBox1Position, box1Position)
+
+        boxVisibility.value = Visibility.Gone
+        rule.waitForIdle()
+
+        // Dp.Unspecified since Gone Composables are not placed
+        rule.onNodeWithTag("box0").assertWidthIsEqualTo(Dp.Unspecified)
+        rule.onNodeWithTag("box0").assertHeightIsEqualTo(Dp.Unspecified)
+        assertEquals(Offset(rootSizePx / 2f, rootSizePx / 2f).round(), box1Position)
     }
 
     private fun listAnchors(box: ConstrainedLayoutReference): List<ConstrainScope.() -> Unit> {

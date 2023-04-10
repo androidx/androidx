@@ -72,7 +72,7 @@ internal sealed class KspAnnotated(
 
     override fun hasAnnotationWithPackage(pkg: String): Boolean {
         return annotations().any {
-            it.annotationType.resolve().declaration.qualifiedName?.getQualifier() == pkg
+            it.annotationType.resolve().declaration.packageName.asString() == pkg
         }
     }
 

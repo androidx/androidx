@@ -25,8 +25,10 @@ public class SharedRobolectricTestRunner(private val testClass: Class<*>) :
     RobolectricTestRunner(testClass) {
 
     override fun createClassLoaderConfig(method: FrameworkMethod?): InstrumentationConfiguration =
-        InstrumentationConfiguration.Builder(super.createClassLoaderConfig(method)).apply {
-            doNotInstrumentPackage("androidx.wear")
-            doNotInstrumentPackage("android.support.wearable")
-        }.build()
+        InstrumentationConfiguration.Builder(super.createClassLoaderConfig(method))
+            .apply {
+                doNotInstrumentPackage("androidx.wear")
+                doNotInstrumentPackage("android.support.wearable")
+            }
+            .build()
 }

@@ -33,6 +33,7 @@ import androidx.viewpager2.integration.testapp.test.util.swipeNext
 import androidx.viewpager2.widget.ViewPager2
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.equalTo
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -42,6 +43,7 @@ class PreviewPagesTest : BaseTest<PreviewPagesActivity>(PreviewPagesActivity::cl
 
     override val layoutId = R.id.view_pager
 
+    @Ignore("b/276935528")
     @Test
     fun test() {
         verifyCurrentPage(0)

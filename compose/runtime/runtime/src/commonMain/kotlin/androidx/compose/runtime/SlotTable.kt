@@ -472,6 +472,13 @@ internal class SlotTable : CompositionData, Iterable<CompositionGroup> {
             }
         }
 
+        // Verify that slot gap contains all nulls
+        for (index in slotsSize until slots.size) {
+            check(slots[index] == null) {
+                "Non null value in the slot gap at index $index"
+            }
+        }
+
         // Verify anchors are well-formed
         var lastLocation = -1
         anchors.fastForEach { anchor ->
@@ -597,6 +604,13 @@ internal class SlotTable : CompositionData, Iterable<CompositionGroup> {
         val start = groups.dataAnchor(group)
         val end = if (group + 1 < groupsSize) groups.dataAnchor(group + 1) else slots.size
         return slots.toList().subList(start, end)
+    }
+
+    internal fun slot(group: Int, slotIndex: Int): Any? {
+        val start = groups.slotAnchor(group)
+        val end = if (group + 1 < groupsSize) groups.dataAnchor(group + 1) else slots.size
+        val len = end - start
+        return if (slotIndex in 0 until len) return slots[start + slotIndex] else Composer.Empty
     }
 
     override val compositionGroups: Iterable<CompositionGroup> get() = this
@@ -1325,6 +1339,7 @@ internal class SlotWriter(
             // Only reset the writer if it closes normally.
             moveGroupGapTo(size)
             moveSlotGapTo(slots.size - slotsGapLen, groupGapStart)
+            clearSlotGap()
             recalculateMarks()
         }
         table.close(
@@ -1949,7 +1964,8 @@ internal class SlotWriter(
             fromIndex: Int,
             toWriter: SlotWriter,
             updateFromCursor: Boolean,
-            updateToCursor: Boolean
+            updateToCursor: Boolean,
+            removeSourceGroup: Boolean = true
         ): List<Anchor> {
             val groupsToMove = fromWriter.groupSize(fromIndex)
             val sourceGroupsEnd = fromIndex + groupsToMove
@@ -2057,7 +2073,11 @@ internal class SlotWriter(
             } else emptyList()
 
             val parentGroup = fromWriter.parent(fromIndex)
-            val anchorsRemoved = if (updateFromCursor) {
+            val anchorsRemoved = if (!removeSourceGroup) {
+                // e.g.: we can skip groups removal for insertTable of Composer because
+                // it's going to be disposed anyway after changes applied
+                false
+            } else if (updateFromCursor) {
                 // Remove the group using the sequence the writer expects when removing a group, that
                 // is the root group and the group's parent group must be correctly started and ended
                 // when it is not a root group.
@@ -2164,7 +2184,7 @@ internal class SlotWriter(
      *
      * @return a list of the anchors that were moved
      */
-    fun moveFrom(table: SlotTable, index: Int): List<Anchor> {
+    fun moveFrom(table: SlotTable, index: Int, removeSourceGroup: Boolean = true): List<Anchor> {
         runtimeCheck(insertCount > 0)
 
         if (index == 0 && currentGroup == 0 && this.table.groupsSize == 0) {
@@ -2196,7 +2216,8 @@ internal class SlotWriter(
                 index,
                 this,
                 updateFromCursor = true,
-                updateToCursor = true
+                updateToCursor = true,
+                removeSourceGroup = removeSourceGroup
             )
         }
     }
@@ -2482,9 +2503,6 @@ internal class SlotWriter(
                     endIndex = index + gapLen
                 )
             }
-
-            // Clear the gap in the data array
-            slots.fill(null, index, index + gapLen)
         }
 
         // Update the data anchors affected by the move
@@ -2520,6 +2538,12 @@ internal class SlotWriter(
             this.slotsGapOwner = newSlotsGapOwner
         }
         this.slotsGapStart = index
+    }
+
+    private fun clearSlotGap() {
+        val slotsGapStart = slotsGapStart
+        val slotsGapEnd = slotsGapStart + slotsGapLen
+        slots.fill(null, slotsGapStart, slotsGapEnd)
     }
 
     /**

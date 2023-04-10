@@ -28,7 +28,6 @@ import java.util.Set;
 /**
  * Controls the behavior of this view where the behavior may differ between single and multi-page.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 public abstract class WearableNavigationDrawerPresenter {

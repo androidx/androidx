@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-alpha07)" variant="all" version="8.0.0-alpha07">
+<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
 
     <issue
         id="NewApi"
@@ -44,24 +44,6 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/appcompat/widget/AppCompatRadioButtonTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 14): `onDropForTextView`"
-        errorLine1="                    ? OnDropApi24Impl.onDropForTextView(event, (TextView) view, activity)"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatReceiveContentHelper.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 14): `onDropForView`"
-        errorLine1="                    : OnDropApi24Impl.onDropForView(event, view, activity);"
-        errorLine2="                                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatReceiveContentHelper.java"/>
     </issue>
 
     <issue
@@ -206,6 +188,123 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatSeekBar.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/app/AlertDialogTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/app/AlertDialogTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/app/AlertDialogTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/app/AlertDialogTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/app/AlertDialogTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/app/AlertDialogTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(50)"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/widget/AppCompatAttributeTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(200);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/widget/AppCompatTextViewTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(/* millis = */ 2000)"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/app/LocalesConfigChangedUsingInvalidTopLocale.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(/* millis = */ 2000)"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/app/LocalesConfigChangedUsingInvalidTopLocale.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(/* timeout= */ 1000)"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/app/LocalesSyncToFrameworkTestCase.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/widget/PopupMenuTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/widget/PopupMenuTest.java"/>
     </issue>
 
     <issue
@@ -3326,15 +3425,6 @@
         errorLine2="                                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatRadioButton.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected synchronized void onDraw(Canvas canvas) {"
-        errorLine2="                                       ~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatSeekBar.java"/>
     </issue>
 
     <issue
@@ -7003,15 +7093,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void onDraw(Canvas canvas) {"
-        errorLine2="                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static TintTypedArray obtainStyledAttributes(Context context, AttributeSet set,"
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
@@ -7860,15 +7941,6 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public LayoutInflater getLayoutInflater() {"
         errorLine2="           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ViewStubCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void dispatchDraw(Canvas canvas) {"
-        errorLine2="                                ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ViewStubCompat.java"/>
     </issue>

@@ -31,7 +31,6 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.visitChildren
-import androidx.compose.ui.node.visitSubtreeIf
 import kotlin.math.absoluteValue
 import kotlin.math.max
 
@@ -44,12 +43,15 @@ private const val NoActiveChild = "ActiveParent must have a focusedChild"
  *  of the children is currently focused, we start from that point and search in the specified
  *  [direction][FocusDirection]. If none of the children are currently focused, we pick the
  *  top-left or bottom right based on the specified [direction][FocusDirection].
+ *
+ *  @return The value of [onFound] if a [focusTarget] was found, false if no [focusTarget] was
+ *  found, and null if focus search was cancelled using [FocusRequester.Cancel] or if a custom
+ *  focus search destination didn't point to any [focusTarget].
  */
-@ExperimentalComposeUiApi
 internal fun FocusTargetModifierNode.twoDimensionalFocusSearch(
     direction: FocusDirection,
     onFound: (FocusTargetModifierNode) -> Boolean
-): Boolean {
+): Boolean? {
     when (focusStateImpl) {
         Inactive -> return if (fetchFocusProperties().canFocus) onFound.invoke(this) else false
         ActiveParent -> {
@@ -62,18 +64,11 @@ internal fun FocusTargetModifierNode.twoDimensionalFocusSearch(
             when (focusedChild.focusStateImpl) {
 
                 ActiveParent -> {
-                    // If the focusedChild is an intermediate parent,
-                    // we continue searching among its children.
-                    if (focusedChild.twoDimensionalFocusSearch(direction, onFound)) return true
+                    // If the focusedChild is an intermediate parent, we search among its children.
+                    val found = focusedChild.twoDimensionalFocusSearch(direction, onFound)
+                    if (found != false) return found
 
-                    // If we don't find a match, we exit this Parent.
-                    // First check if this node has a custom focus exit.
-                    focusedChild
-                        .fetchFocusProperties().exit(direction)
-                        .findFocusTarget(onFound)?.let { return it }
-
-                    // If we don't have a custom exit property,
-                    // we search among the siblings of the parent.
+                    // We search among the siblings of the parent.
                     return generateAndSearchChildren(focusedChild.activeNode(), direction, onFound)
                 }
                 // Search for the next eligible sibling.
@@ -99,14 +94,10 @@ internal fun FocusTargetModifierNode.twoDimensionalFocusSearch(
  * @param onFound the callback that is run when the child is found.
  * @return true if we find a suitable child, false otherwise.
  */
-@ExperimentalComposeUiApi
 internal fun FocusTargetModifierNode.findChildCorrespondingToFocusEnter(
     direction: FocusDirection,
     onFound: (FocusTargetModifierNode) -> Boolean
 ): Boolean {
-
-    // Check if a custom FocusEnter is specified.
-    fetchFocusProperties().enter(direction).findFocusTarget(onFound)?.let { return it }
 
     val focusableChildren = MutableVector<FocusTargetModifierNode>()
     collectAccessibleChildren(focusableChildren)
@@ -139,7 +130,6 @@ internal fun FocusTargetModifierNode.findChildCorrespondingToFocusEnter(
 
 // Search among your children for the next child.
 // If the next child is not found, generate more children by requesting a beyondBoundsLayout.
-@ExperimentalComposeUiApi
 private fun FocusTargetModifierNode.generateAndSearchChildren(
     focusedItem: FocusTargetModifierNode,
     direction: FocusDirection,
@@ -160,7 +150,6 @@ private fun FocusTargetModifierNode.generateAndSearchChildren(
     } ?: false
 }
 
-@ExperimentalComposeUiApi
 private fun FocusTargetModifierNode.searchChildren(
     focusedItem: FocusTargetModifierNode,
     direction: FocusDirection,
@@ -178,10 +167,7 @@ private fun FocusTargetModifierNode.searchChildren(
         // If the result is not deactivated, this is a valid next item.
         if (nextItem.fetchFocusProperties().canFocus) return onFound.invoke(nextItem)
 
-        // If the result is deactivated, and the deactivated node has a custom Enter, we use it.
-        nextItem.fetchFocusProperties().enter(direction).findFocusTarget(onFound)?.let { return it }
-
-        // If the result is deactivated, and there is no custom enter, we search among its children.
+        // If the result is deactivated, we search among its children.
         if (nextItem.generateAndSearchChildren(focusedItem, direction, onFound)) return true
 
         // If there are no results among the children of the deactivated node,
@@ -196,30 +182,15 @@ private fun FocusTargetModifierNode.searchChildren(
  * child that is deactivated will add activated children instead, unless the deactivated
  * node has a custom Enter specified.
  */
-@ExperimentalComposeUiApi
 private fun DelegatableNode.collectAccessibleChildren(
     accessibleChildren: MutableVector<FocusTargetModifierNode>
 ) {
-    visitSubtreeIf(Nodes.FocusTarget) {
-
+    visitChildren(Nodes.FocusTarget) {
         if (it.fetchFocusProperties().canFocus) {
             accessibleChildren.add(it)
-            return@visitSubtreeIf false
+        } else {
+            it.collectAccessibleChildren(accessibleChildren)
         }
-
-        // If we encounter a deactivated child, we mimic a moveFocus(Enter).
-        when (val customEnter = it.fetchFocusProperties().enter(Enter)) {
-            // If the user declined a custom enter, omit this part of the tree.
-            FocusRequester.Cancel -> return@visitSubtreeIf false
-
-            // If there is no custom enter, we consider all the children.
-            FocusRequester.Default -> return@visitSubtreeIf true
-
-            else -> customEnter.focusRequesterNodes.forEach { node ->
-                node.collectAccessibleChildren(accessibleChildren)
-            }
-        }
-        false
     }
 }
 
@@ -227,7 +198,6 @@ private fun DelegatableNode.collectAccessibleChildren(
 // TODO(b/182319711): For Left/Right focus moves, Consider finding the first candidate in the beam
 //  and then only comparing candidates in the beam. If nothing is in the beam, then consider all
 //  valid candidates.
-@ExperimentalComposeUiApi
 @Suppress("ModifierFactoryExtensionFunction", "ModifierFactoryReturnType")
 private fun MutableVector<FocusTargetModifierNode>.findBestCandidate(
     focusRect: Rect,
@@ -403,7 +373,6 @@ private fun Rect.topLeft() = Rect(left, top, left, top)
 private fun Rect.bottomRight() = Rect(right, bottom, right, bottom)
 
 // Find the active descendant.
-@ExperimentalComposeUiApi
 @Suppress("ModifierFactoryExtensionFunction", "ModifierFactoryReturnType")
 private fun FocusTargetModifierNode.activeNode(): FocusTargetModifierNode {
     check(focusState == ActiveParent)

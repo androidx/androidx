@@ -118,7 +118,6 @@ public class ChainReference extends HelperReference {
      *                       one (if any) when the previous element has Gone visibility
      * @param postGoneMargin Additional space in pixels between the added element and the next
      *                       one (if any) when the next element has Gone visibility
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void addChainElement(@NonNull Object id,
@@ -173,14 +172,14 @@ public class ChainReference extends HelperReference {
         return 0;
     }
 
-    protected float getPostGoneMargin(@NonNull String id) {
+    float getPostGoneMargin(@NonNull String id) {
         if (mMapPostGoneMargin != null && mMapPostGoneMargin.containsKey(id)) {
             return mMapPostGoneMargin.get(id);
         }
         return 0;
     }
 
-    protected float getPreGoneMargin(@NonNull String id) {
+    float getPreGoneMargin(@NonNull String id) {
         if (mMapPreGoneMargin != null && mMapPreGoneMargin.containsKey(id)) {
             return mMapPreGoneMargin.get(id);
         }

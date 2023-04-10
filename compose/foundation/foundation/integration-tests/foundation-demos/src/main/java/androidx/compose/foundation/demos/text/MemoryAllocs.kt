@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReusableContent
+import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.State
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.withFrameMillis
@@ -73,6 +75,18 @@ fun MemoryAllocsIfNotEmptyText() {
 }
 
 @Composable
+fun MemoryAllocsLazyList() {
+    val states = produceLazyListReuseDriver()
+    Column {
+        Preamble(sourceCode = """
+                item { Text("Some static text") }
+            """.trimIndent()
+        )
+        LazyListReuse(states)
+    }
+}
+
+@Composable
 fun Preamble(sourceCode: String) {
     Text("Run in memory profiler to emulate text behavior during observable loads")
     Text(text = sourceCode,
@@ -98,6 +112,19 @@ fun IfNotEmptyText(text: State<String>) {
 }
 
 @Composable
+fun LazyListReuse(active: State<Pair<Boolean, Int>>) {
+    // this emulates what a LazyList does during reuse
+    ReusableContentHost(active.value.first) {
+        ReusableContent(active.value.second) {
+            Text(
+                "Some static text",
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Composable
 private fun SetText(text: State<String>) {
     Text(text.value)
 }
@@ -110,6 +137,20 @@ private fun textToggler(): State<String> = produceState("") {
                 "This text and empty string swap every frame"
             } else {
                 ""
+            }
+        }
+    }
+}
+
+@Composable
+fun produceLazyListReuseDriver(): State<Pair<Boolean, Int>> = produceState(false to 0) {
+    while (true) {
+        withFrameMillis {
+            val (oldToggle, oldCount) = value
+            value = if (oldToggle) {
+                false to oldCount
+            } else {
+                true to oldCount + 1
             }
         }
     }

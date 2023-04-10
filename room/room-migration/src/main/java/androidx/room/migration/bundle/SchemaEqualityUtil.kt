@@ -21,7 +21,6 @@ import androidx.annotation.RestrictTo
 /**
  * utility class to run schema equality on collections.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public object SchemaEqualityUtil {

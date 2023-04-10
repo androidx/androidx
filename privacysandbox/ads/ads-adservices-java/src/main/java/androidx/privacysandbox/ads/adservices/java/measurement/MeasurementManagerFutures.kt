@@ -110,7 +110,7 @@ abstract class MeasurementManagerFutures internal constructor() {
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION)
     abstract fun getMeasurementApiStatusAsync(): ListenableFuture<Int>
 
-    private class Api33Ext4JavaImpl(
+    private class Api33Ext5JavaImpl(
         private val mMeasurementManager: MeasurementManager
     ) : MeasurementManagerFutures() {
         @DoNotInline
@@ -180,7 +180,7 @@ abstract class MeasurementManagerFutures internal constructor() {
          */
         @JvmStatic
         fun from(context: Context): MeasurementManagerFutures? {
-            return obtain(context)?.let { Api33Ext4JavaImpl(it) }
+            return obtain(context)?.let { Api33Ext5JavaImpl(it) }
         }
     }
 }

@@ -664,7 +664,6 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      * the animation reaches equilibrium, the animation will come to its end, and end listeners
      * will be notified, if any.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override

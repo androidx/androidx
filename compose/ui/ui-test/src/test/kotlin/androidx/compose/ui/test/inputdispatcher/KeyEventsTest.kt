@@ -18,7 +18,6 @@ package androidx.compose.ui.test.inputdispatcher
 
 import android.view.KeyEvent
 import androidx.compose.testutils.expectError
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.test.AndroidInputDispatcher
@@ -40,7 +39,6 @@ import org.robolectric.annotation.Config
  */
 @RunWith(AndroidJUnit4::class)
 @Config(minSdk = RobolectricMinSdk)
-@OptIn(ExperimentalComposeUiApi::class)
 class KeyEventsTest : InputDispatcherTest() {
 
     companion object {

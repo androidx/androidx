@@ -83,7 +83,7 @@ public class RemoteListenableWorkerTest {
         mScheduler = mock(Scheduler::class.java)
         mForegroundProcessor = mock(ForegroundProcessor::class.java)
         mWorkManager = mock(WorkManagerImpl::class.java)
-        mDatabase = WorkDatabase.create(mContext, mExecutor, true)
+        mDatabase = WorkDatabase.create(mContext, mExecutor, mConfiguration.clock, true)
         val schedulers = listOf(mScheduler)
         // Processor
         mProcessor = Processor(mContext, mConfiguration, mTaskExecutor, mDatabase)

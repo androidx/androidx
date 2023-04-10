@@ -39,7 +39,7 @@ import com.google.devtools.ksp.symbol.Variance
  * this is what KAPT generates and Room needs it as long as it generates java code.
  */
 internal class KspSyntheticContinuationParameterElement(
-    private val env: KspProcessingEnv,
+    val env: KspProcessingEnv,
     override val enclosingElement: KspMethodElement
 ) : XExecutableParameterElement,
     XEquality,
@@ -48,22 +48,28 @@ internal class KspSyntheticContinuationParameterElement(
         delegate = null, // does not matter, this is synthetic and has no annotations.
         filter = NO_USE_SITE
     ) {
+    override fun isContinuationParam() = true
+
+    override fun isReceiverParam() = false
+
+    override fun isKotlinPropertyParam() = false
 
     override val name: String by lazy {
-        // KAPT uses `continuation` but it doesn't check for conflicts, we do.
-        var candidate = "continuation"
+        // KAPT uses `$completion` but it doesn't check for conflicts, we do. Be aware that before
+        // Kotlin 1.8.0 the param was named 'continuation'.
+        var candidate = PARAM_NAME
         var suffix = 0
         while (
             enclosingElement.declaration.parameters.any { it.name?.asString() == candidate }
         ) {
-            candidate = "continuation_$suffix"
+            candidate = PARAM_NAME + "_" + suffix
             suffix ++
         }
         candidate
     }
 
     override val equalityItems: Array<out Any?> by lazy {
-        arrayOf("continuation", enclosingElement)
+        arrayOf(PARAM_NAME, enclosingElement)
     }
 
     override val hasDefaultValue: Boolean
@@ -139,5 +145,9 @@ internal class KspSyntheticContinuationParameterElement(
 
     override fun hashCode(): Int {
         return XEquality.hashCode(equalityItems)
+    }
+
+    companion object {
+        const val PARAM_NAME = "\$completion"
     }
 }

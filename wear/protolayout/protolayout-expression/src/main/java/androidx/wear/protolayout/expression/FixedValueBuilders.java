@@ -49,7 +49,7 @@ final class FixedValueBuilders {
     }
 
     /**
-     * Gets the value. Intended for testing purposes only.
+     * Gets the value.
      *
      * @since 1.2
      */
@@ -57,7 +57,6 @@ final class FixedValueBuilders {
       return mImpl.getValue();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -75,7 +74,6 @@ final class FixedValueBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -83,7 +81,6 @@ final class FixedValueBuilders {
       return DynamicProto.DynamicInt32.newBuilder().setFixed(mImpl).build();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -151,7 +148,6 @@ final class FixedValueBuilders {
       return mImpl.getValue();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -169,7 +165,6 @@ final class FixedValueBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -177,7 +172,6 @@ final class FixedValueBuilders {
       return DynamicProto.DynamicString.newBuilder().setFixed(mImpl).build();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -244,7 +238,6 @@ final class FixedValueBuilders {
       return mImpl.getValue();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -262,7 +255,6 @@ final class FixedValueBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -270,7 +262,6 @@ final class FixedValueBuilders {
       return DynamicProto.DynamicFloat.newBuilder().setFixed(mImpl).build();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -337,7 +328,6 @@ final class FixedValueBuilders {
       return mImpl.getValue();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -355,7 +345,6 @@ final class FixedValueBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -363,7 +352,6 @@ final class FixedValueBuilders {
       return DynamicProto.DynamicBool.newBuilder().setFixed(mImpl).build();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -431,7 +419,6 @@ final class FixedValueBuilders {
       return mImpl.getArgb();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -449,7 +436,6 @@ final class FixedValueBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -457,7 +443,6 @@ final class FixedValueBuilders {
       return DynamicProto.DynamicColor.newBuilder().setFixed(mImpl).build();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -496,6 +481,86 @@ final class FixedValueBuilders {
       @NonNull
       public FixedColor build() {
         return new FixedColor(mImpl.build(), mFingerprint);
+      }
+    }
+  }
+
+  /**
+   * A fixed time instant type.
+   *
+   * @since 1.2
+   */
+  static final class FixedInstant implements DynamicBuilders.DynamicInstant {
+    private final FixedProto.FixedInstant mImpl;
+    @Nullable private final Fingerprint mFingerprint;
+
+    FixedInstant(FixedProto.FixedInstant impl, @Nullable Fingerprint fingerprint) {
+      this.mImpl = impl;
+      this.mFingerprint = fingerprint;
+    }
+
+    /**
+     * Gets the number of seconds that have elapsed since 00:00:00 UTC on 1 January 1970.
+     *
+     * @since 1.2
+     */
+    public long getEpochSeconds() {
+      return mImpl.getEpochSeconds();
+    }
+
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Fingerprint getFingerprint() {
+      return mFingerprint;
+    }
+
+    @NonNull
+    static FixedInstant fromProto(@NonNull FixedProto.FixedInstant proto) {
+      return new FixedInstant(proto, null);
+    }
+
+    @NonNull
+    FixedProto.FixedInstant toProto() {
+      return mImpl;
+    }
+
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public DynamicProto.DynamicInstant toDynamicInstantProto() {
+      return DynamicProto.DynamicInstant.newBuilder().setFixed(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "FixedInstant{" + "epochSeconds=" + getEpochSeconds() + "}";
+    }
+
+    /** Builder for {@link FixedInstant}. */
+    public static final class Builder implements DynamicBuilders.DynamicInstant.Builder {
+      private final FixedProto.FixedInstant.Builder mImpl = FixedProto.FixedInstant.newBuilder();
+      private final Fingerprint mFingerprint = new Fingerprint(-1986552556);
+
+      public Builder() {}
+
+      /**
+       * Sets the number of seconds that have elapsed since 00:00:00 UTC on 1 January 1970.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setEpochSeconds(long epochSeconds) {
+        mImpl.setEpochSeconds(epochSeconds);
+        mFingerprint.recordPropertyUpdate(1, Long.hashCode(epochSeconds));
+        return this;
+      }
+
+      @Override
+      @NonNull
+      public FixedInstant build() {
+        return new FixedInstant(mImpl.build(), mFingerprint);
       }
     }
   }

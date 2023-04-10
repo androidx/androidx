@@ -27,7 +27,6 @@ import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.XTypeSpec.Builder.Companion.addOriginatingElement
-import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
@@ -59,8 +58,6 @@ import androidx.room.vo.TransactionMethod
 import androidx.room.vo.UpdateMethod
 import androidx.room.vo.UpsertionMethod
 import androidx.room.vo.WriteQueryMethod
-import java.util.Arrays
-import java.util.Collections
 import java.util.Locale
 
 /**
@@ -198,7 +195,7 @@ class DaoWriter(
             if (requiredTypeConverters.isEmpty()) {
                 when (language) {
                     CodeLanguage.JAVA ->
-                        addStatement("return %T.emptyList()", Collections::class.asClassName())
+                        addStatement("return %T.emptyList()", CommonTypeNames.COLLECTIONS)
                     CodeLanguage.KOTLIN ->
                         addStatement("return emptyList()")
                 }
@@ -210,7 +207,7 @@ class DaoWriter(
                 when (language) {
                     CodeLanguage.JAVA ->
                         addStatement("return %T.asList($placeholders)",
-                            Arrays::class.asClassName(),
+                            CommonTypeNames.ARRAYS,
                             *requiredTypeConvertersLiterals
                         )
                     CodeLanguage.KOTLIN ->

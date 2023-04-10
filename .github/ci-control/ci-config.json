@@ -13,6 +13,7 @@
     },
     "main" : {
         "exclude" : [
+          "room"
         ],
         "default": true
     }

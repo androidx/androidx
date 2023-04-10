@@ -31,7 +31,6 @@ import androidx.work.impl.workers.DiagnosticsWorker;
 /**
  * The {@link android.content.BroadcastReceiver} which dumps out useful diagnostics information.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DiagnosticsReceiver extends BroadcastReceiver {

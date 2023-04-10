@@ -257,6 +257,15 @@
     <string name="sign_in_complete_text" msgid="8423984266325680606">"Você fez login."</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"Login concluído"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"Demonstração do modelo de login"</string>
+    <string name="tab_template_layouts_demo_title" msgid="6529681462424538165">"Demonstrações dos modelos de guia"</string>
+    <string name="tab_template_demo_title" msgid="7587839101813629975">"Demonstração do modelo de guia"</string>
+    <string name="tab_title_message" msgid="5266710951630087246">"Guia de mensagem"</string>
+    <string name="tab_title_pane" msgid="2520606145526537263">"Guia de painel"</string>
+    <string name="tab_title_list" msgid="5104962518489668123">"Guia em lista"</string>
+    <string name="tab_title_grid" msgid="5268168907976325154">"Guia em grade com título longo"</string>
+    <string name="tab_title_search" msgid="1892925693146631173">"Guia de pesquisa"</string>
+    <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Demonstração de carregamento do modelo de guia"</string>
+    <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Demonstração do modelo de guia sem guias"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Não é possível exibir imagens para um host desconhecido"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"Ícone"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Demonstração de ícones de provedor de conteúdo"</string>
@@ -289,7 +298,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Mais texto"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Lista selecionável de exemplos"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Demonstração de restrição de tarefa"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"Limite da tarefa atingido\nContinuar vai forçar a parada do app"</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Essa ação vai sobrecarregar a contagem de etapas e uma nova tela será aberta."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Etapa da tarefa: %1$d de %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Clique para continuar"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Visite os diferentes modelos e confira se o veículo está no modo carro"</string>
@@ -314,6 +323,12 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"A linha também pode ser selecionada"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"A ação secundária está selecionada"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"A ação principal da linha está selecionada"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Demonstração de lista de itens com seções"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Lista 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Lista 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Subtexto abaixo de cada lista"</string>
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Demonstração de lista vazia"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"A lista está vazia"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demonstração de modelos diversos"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Demonstrações em destaque"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Demonstrações de modelos de layout"</string>

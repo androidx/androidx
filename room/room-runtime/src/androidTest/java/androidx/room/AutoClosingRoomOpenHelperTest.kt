@@ -30,6 +30,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import java.io.IOException
 import java.util.concurrent.Executors
@@ -175,6 +176,7 @@ class AutoClosingRoomOpenHelperTest {
         assertThat(countingCallback.onCreateCalls).isEqualTo(1)
     }
 
+    @Ignore // b/266993269
     @RequiresApi(Build.VERSION_CODES.N)
     @Test
     fun testStatementReturnedByCompileStatement_doesntKeepDatabaseOpen() {

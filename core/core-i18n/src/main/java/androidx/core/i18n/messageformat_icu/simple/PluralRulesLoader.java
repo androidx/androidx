@@ -20,7 +20,6 @@ import androidx.core.i18n.messageformat_icu.simple.PluralRules.PluralType;
 
 /**
  * Loader for plural rules data.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PluralRulesLoader extends PluralRules.Factory {

@@ -52,3 +52,20 @@ object GlobalSnapshotManager {
         }
     }
 }
+
+/**
+ * Monitors global snapshot state writes and sends apply notifications.
+ */
+internal suspend fun globalSnapshotMonitor() {
+    val channel = Channel<Unit>(Channel.CONFLATED)
+    val observerHandle = Snapshot.registerGlobalWriteObserver {
+        channel.trySend(Unit)
+    }
+    try {
+        channel.consumeEach {
+            Snapshot.sendApplyNotifications()
+        }
+    } finally {
+        observerHandle.dispose()
+    }
+}

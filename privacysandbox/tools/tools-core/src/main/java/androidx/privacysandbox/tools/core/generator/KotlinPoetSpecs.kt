@@ -55,12 +55,6 @@ fun Type.poetClassName() = ClassName(packageName, simpleName)
 fun AnnotatedValue.converterNameSpec() =
     ClassName(type.packageName, "${type.simpleName}Converter")
 
-fun AnnotatedValue.toParcelableNameSpec() =
-    MemberName(converterNameSpec(), "toParcelable")
-
-fun AnnotatedValue.fromParcelableNameSpec() =
-    MemberName(converterNameSpec(), "fromParcelable")
-
 fun AnnotatedValue.parcelableNameSpec() =
     ClassName(type.packageName, "Parcelable${type.simpleName}")
 
@@ -151,14 +145,21 @@ fun CodeBlock.Builder.addStatement(builderBlock: CodeBlock.Builder.() -> Unit) {
 }
 
 object SpecNames {
+    val contextPropertyName = "context"
+
     val dispatchersMainClass = ClassName("kotlinx.coroutines", "Dispatchers", "Main")
     val delicateCoroutinesApiClass = ClassName("kotlinx.coroutines", "DelicateCoroutinesApi")
     val globalScopeClass = ClassName("kotlinx.coroutines", "GlobalScope")
-    val stackTraceElementClass = ClassName("java.lang", "StackTraceElement")
     val suspendCancellableCoroutineMethod =
         MemberName("kotlinx.coroutines", "suspendCancellableCoroutine", isExtension = true)
     val resumeWithExceptionMethod =
         MemberName("kotlin.coroutines", "resumeWithException", isExtension = true)
     val launchMethod = MemberName("kotlinx.coroutines", "launch", isExtension = true)
-    val iBinderClassName = ClassName("android.os", "IBinder")
+
+    val stackTraceElementClass = ClassName("java.lang", "StackTraceElement")
+    val iBinderClass = ClassName("android.os", "IBinder")
+    val bundleClass = ClassName("android.os", "Bundle")
+    val contextClass = ClassName("android.content", "Context")
+    val viewClass = ClassName("android.view", "View")
+    val toCoreLibInfoMethod = MemberName("androidx.privacysandbox.ui.provider", "toCoreLibInfo")
 }

@@ -73,6 +73,6 @@ class ClientBinderCodeConverterTest {
             converter.convertToModelCode(
                 Type(packageName = "com.mysdk", simpleName = "Callback"), expression = "callback"
             ).toString()
-        ).isEqualTo("com.mysdk.CallbackClientProxy(callback)")
+        ).isEqualTo("com.mysdk.CallbackClientProxy(callback, context)")
     }
 }

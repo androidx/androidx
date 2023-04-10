@@ -18,6 +18,8 @@ package androidx.tv.material3
 
 import android.os.SystemClock
 import android.view.KeyEvent
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
@@ -65,12 +67,12 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.delay
 import org.junit.Rule
 import org.junit.Test
 
-private const val delayBetweenSlides = 2500L
+private const val delayBetweenItems = 2500L
 private const val animationTime = 900L
-private const val overlayRenderWaitTime = 1500L
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 class CarouselTest {
@@ -87,10 +89,10 @@ class CarouselTest {
 
         rule.onNodeWithText("Text 1").assertIsDisplayed()
 
-        rule.mainClock.advanceTimeBy(delayBetweenSlides)
+        rule.mainClock.advanceTimeBy(delayBetweenItems)
         rule.onNodeWithText("Text 2").assertIsDisplayed()
 
-        rule.mainClock.advanceTimeBy(delayBetweenSlides)
+        rule.mainClock.advanceTimeBy(delayBetweenItems)
         rule.onNodeWithText("Text 3").assertIsDisplayed()
     }
 
@@ -109,7 +111,7 @@ class CarouselTest {
             .onParent()
             .performSemanticsAction(SemanticsActions.RequestFocus)
 
-        rule.mainClock.advanceTimeBy(delayBetweenSlides)
+        rule.mainClock.advanceTimeBy(delayBetweenItems)
 
         rule.onNodeWithText("Text 2").assertDoesNotExist()
         rule.onNodeWithText("Text 1").onParent().assertIsFocused()
@@ -128,7 +130,7 @@ class CarouselTest {
         rule.onNodeWithText("Text 1").assertIsDisplayed()
         rule.onNodeWithText("Text 1").onParent().assertIsNotFocused()
 
-        rule.mainClock.advanceTimeBy(delayBetweenSlides)
+        rule.mainClock.advanceTimeBy(delayBetweenItems)
 
         rule.onNodeWithText("Text 2").assertDoesNotExist()
         rule.onNodeWithText("Text 1").assertIsDisplayed()
@@ -152,17 +154,17 @@ class CarouselTest {
         rule.onNodeWithText("Text 1").assertIsDisplayed()
         rule.onNodeWithText("Text 1").onParent().assertIsNotFocused()
 
-        rule.mainClock.advanceTimeBy(delayBetweenSlides)
+        rule.mainClock.advanceTimeBy(delayBetweenItems)
 
         // pause handle has not been resumed, so Text 1 should still be on the screen.
         rule.onNodeWithText("Text 2").assertDoesNotExist()
         rule.onNodeWithText("Text 1").assertIsDisplayed()
 
         rule.runOnIdle { pauseHandle?.resumeAutoScroll() }
-        rule.mainClock.advanceTimeBy(delayBetweenSlides)
+        rule.mainClock.advanceTimeBy(delayBetweenItems)
 
         // pause handle has been resumed, so Text 2 should be on the screen after
-        // delayBetweenSlides + animationTime
+        // delayBetweenItems + animationTime
         rule.onNodeWithText("Text 1").assertDoesNotExist()
         rule.onNodeWithText("Text 2").assertIsDisplayed()
     }
@@ -190,23 +192,23 @@ class CarouselTest {
         rule.onNodeWithText("Text 1").assertIsDisplayed()
         rule.onNodeWithText("Text 1").onParent().assertIsNotFocused()
 
-        rule.mainClock.advanceTimeBy(delayBetweenSlides)
+        rule.mainClock.advanceTimeBy(delayBetweenItems)
 
         // pause handles have not been resumed, so Text 1 should still be on the screen.
         rule.onNodeWithText("Text 2").assertDoesNotExist()
         rule.onNodeWithText("Text 1").assertIsDisplayed()
 
         rule.runOnIdle { pauseHandle1?.resumeAutoScroll() }
-        rule.mainClock.advanceTimeBy(delayBetweenSlides)
+        rule.mainClock.advanceTimeBy(delayBetweenItems)
 
         // Second pause handle has not been resumed, so Text 1 should still be on the screen.
         rule.onNodeWithText("Text 2").assertDoesNotExist()
         rule.onNodeWithText("Text 1").assertIsDisplayed()
 
         rule.runOnIdle { pauseHandle2?.resumeAutoScroll() }
-        rule.mainClock.advanceTimeBy(delayBetweenSlides)
+        rule.mainClock.advanceTimeBy(delayBetweenItems)
         // All pause handles have been resumed, so Text 2 should be on the screen after
-        // delayBetweenSlides + animationTime
+        // delayBetweenItems + animationTime
         rule.onNodeWithText("Text 1").assertDoesNotExist()
         rule.onNodeWithText("Text 2").assertIsDisplayed()
     }
@@ -234,7 +236,7 @@ class CarouselTest {
         rule.onNodeWithText("Text 1").assertIsDisplayed()
         rule.onNodeWithText("Text 1").onParent().assertIsNotFocused()
 
-        rule.mainClock.advanceTimeBy(delayBetweenSlides)
+        rule.mainClock.advanceTimeBy(delayBetweenItems)
 
         // pause handles have not been resumed, so Text 1 should still be on the screen.
         rule.onNodeWithText("Text 2").assertDoesNotExist()
@@ -243,7 +245,7 @@ class CarouselTest {
         rule.runOnIdle { pauseHandle1?.resumeAutoScroll() }
         // subsequent call to resume should be ignored
         rule.runOnIdle { pauseHandle1?.resumeAutoScroll() }
-        rule.mainClock.advanceTimeBy(delayBetweenSlides)
+        rule.mainClock.advanceTimeBy(delayBetweenItems)
 
         // Second pause handle has not been resumed, so Text 1 should still be on the screen.
         rule.onNodeWithText("Text 2").assertDoesNotExist()
@@ -268,27 +270,29 @@ class CarouselTest {
         rule.onNodeWithText("Card").performSemanticsAction(SemanticsActions.RequestFocus)
         rule.onNodeWithText("Card").assertIsFocused()
 
-        rule.mainClock.advanceTimeBy(delayBetweenSlides)
+        rule.mainClock.advanceTimeBy(delayBetweenItems)
         rule.onNodeWithText("Text 1").assertDoesNotExist()
         rule.onNodeWithText("Text 2").assertIsDisplayed()
     }
 
+    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_pagerIndicatorDisplayed() {
         rule.setContent {
             SampleCarousel {
-                SampleCarouselSlide(index = it)
+                SampleCarouselItem(index = it)
             }
         }
 
         rule.onNodeWithTag("indicator").assertIsDisplayed()
     }
 
+    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_withAnimatedContent_successfulTransition() {
         rule.setContent {
             SampleCarousel {
-                SampleCarouselSlide(index = it) {
+                SampleCarouselItem(index = it) {
                     Column {
                         BasicText(text = "Text ${it + 1}")
                         BasicText(text = "PLAY")
@@ -297,20 +301,19 @@ class CarouselTest {
             }
         }
 
-        rule.onNodeWithText("Text 1").assertDoesNotExist()
-
-        rule.mainClock.advanceTimeBy(overlayRenderWaitTime + animationTime, true)
+        rule.mainClock.advanceTimeBy(animationTime, true)
         rule.mainClock.advanceTimeByFrame()
 
         rule.onNodeWithText("Text 1").assertIsDisplayed()
         rule.onNodeWithText("PLAY").assertIsDisplayed()
     }
 
+    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_withAnimatedContent_successfulFocusIn() {
         rule.setContent {
             SampleCarousel {
-                SampleCarouselSlide(index = it)
+                SampleCarouselItem(index = it)
             }
         }
 
@@ -318,8 +321,8 @@ class CarouselTest {
         rule.onNodeWithTag("pager")
             .performSemanticsAction(SemanticsActions.RequestFocus)
 
-        // current slide overlay render delay
-        rule.mainClock.advanceTimeBy(animationTime + overlayRenderWaitTime, false)
+        // current item overlay render delay
+        rule.mainClock.advanceTimeBy(animationTime, false)
         rule.mainClock.advanceTimeBy(animationTime, false)
         rule.mainClock.advanceTimeByFrame()
 
@@ -362,6 +365,7 @@ class CarouselTest {
         rule.onNodeWithTag("box-container").assertIsFocused()
     }
 
+    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_withCarouselItem_parentContainerGainsFocus_onBackPress() {
         rule.setContent {
@@ -370,7 +374,7 @@ class CarouselTest {
                 .fillMaxSize()
                 .focusable()) {
                 SampleCarousel {
-                    SampleCarouselSlide(index = it)
+                    SampleCarouselItem(index = it)
                 }
             }
         }
@@ -383,7 +387,7 @@ class CarouselTest {
         // Trigger recomposition after requesting focus and advance time to finish animations
         rule.mainClock.advanceTimeByFrame()
         rule.waitForIdle()
-        rule.mainClock.advanceTimeBy(animationTime + overlayRenderWaitTime, false)
+        rule.mainClock.advanceTimeBy(animationTime, false)
         rule.waitForIdle()
 
         // Check if the overlay button is focused
@@ -399,6 +403,7 @@ class CarouselTest {
         rule.onNodeWithTag("box-container").assertIsFocused()
     }
 
+    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_scrollToRegainFocus_checkBringIntoView() {
         val focusRequester = FocusRequester()
@@ -427,13 +432,10 @@ class CarouselTest {
                             .testTag("featured-carousel")
                             .border(2.dp, Color.Black),
                         carouselState = remember { CarouselState() },
-                        slideCount = 3,
-                        timeToDisplaySlideMillis = delayBetweenSlides
+                        itemCount = 3,
+                        autoScrollDurationMillis = delayBetweenItems
                     ) {
-                        SampleCarouselSlide(
-                            index = it,
-                            overlayRenderWaitTime = overlayRenderWaitTime,
-                        ) {
+                        SampleCarouselItem(index = it) {
                             Box {
                                 Column(modifier = Modifier.align(Alignment.BottomStart)) {
                                     BasicText(text = "carousel-frame")
@@ -489,21 +491,23 @@ class CarouselTest {
         assertThat(checkNodeCompletelyVisible(rule, "featured-carousel")).isTrue()
     }
 
+    @OptIn(ExperimentalAnimationApi::class)
     @Test
-    fun carousel_zeroSlideCount_shouldNotCrash() {
+    fun carousel_zeroItemCount_shouldNotCrash() {
         val testTag = "emptyCarousel"
         rule.setContent {
-            Carousel(slideCount = 0, modifier = Modifier.testTag(testTag)) {}
+            Carousel(itemCount = 0, modifier = Modifier.testTag(testTag)) {}
         }
 
         rule.onNodeWithTag(testTag).assertExists()
     }
 
+    @OptIn(ExperimentalAnimationApi::class)
     @Test
-    fun carousel_oneSlideCount_shouldNotCrash() {
+    fun carousel_oneItemCount_shouldNotCrash() {
         val testTag = "emptyCarousel"
         rule.setContent {
-            Carousel(slideCount = 1, modifier = Modifier.testTag(testTag)) {}
+            Carousel(itemCount = 1, modifier = Modifier.testTag(testTag)) {}
         }
 
         rule.onNodeWithTag(testTag).assertExists()
@@ -532,20 +536,20 @@ class CarouselTest {
         rule.mainClock.advanceTimeByFrame()
         rule.waitForIdle()
 
-        // Check that slide 1 is in view and button 1 has focus
+        // Check that item 1 is in view and button 1 has focus
         rule.onNodeWithText("Button-1").assertIsDisplayed()
         rule.onNodeWithText("Button-1").assertIsFocused()
 
-        // press dpad right to scroll to next slide
+        // press dpad right to scroll to next item
         performKeyPress(NativeKeyEvent.KEYCODE_DPAD_RIGHT)
 
-        // Wait for slide to load
+        // Wait for item to load
         rule.mainClock.advanceTimeByFrame()
         rule.waitForIdle()
         rule.mainClock.advanceTimeBy(animationTime, false)
         rule.waitForIdle()
 
-        // Check that slide 2 is in view and button 2 has focus
+        // Check that item 2 is in view and button 2 has focus
         rule.onNodeWithText("Button-2").assertIsDisplayed()
         // TODO: Fix button 2 isn't gaining focus
         // rule.onNodeWithText("Button-2").assertIsFocused()
@@ -553,20 +557,21 @@ class CarouselTest {
         // Check if the first focusable element in parent has focus
         rule.onNodeWithText("Row-button-1").assertIsNotFocused()
 
-        // press dpad left to scroll to previous slide
+        // press dpad left to scroll to previous item
         performKeyPress(NativeKeyEvent.KEYCODE_DPAD_LEFT)
 
-        // Wait for slide to load
+        // Wait for item to load
         rule.mainClock.advanceTimeByFrame()
         rule.waitForIdle()
         rule.mainClock.advanceTimeBy(animationTime, false)
         rule.waitForIdle()
 
-        // Check that slide 1 is in view and button 1 has focus
+        // Check that item 1 is in view and button 1 has focus
         rule.onNodeWithText("Button-1").assertIsDisplayed()
         rule.onNodeWithText("Button-1").assertIsFocused()
     }
 
+    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_manualScrolling_fastMultipleKeyPresses() {
         val carouselState = CarouselState()
@@ -587,8 +592,8 @@ class CarouselTest {
                     }
                 }
 
-                SampleCarousel(carouselState = carouselState, slideCount = 20) {
-                    SampleCarouselSlide(modifier = Modifier.testTag("slide-$it"), index = it)
+                SampleCarousel(carouselState = carouselState, itemCount = 20) {
+                    SampleCarouselItem(modifier = Modifier.testTag("item-$it"), index = it)
                 }
             }
         }
@@ -597,9 +602,9 @@ class CarouselTest {
         rule.onNodeWithTag("pager").performSemanticsAction(SemanticsActions.RequestFocus)
         rule.waitForIdle()
 
-        val slideProgression = listOf(6, 3, -4, 3, -6, 5, 3)
+        val itemProgression = listOf(6, 3, -4, 3, -6, 5, 3)
 
-        slideProgression.forEach {
+        itemProgression.forEach {
             if (it < 0) {
                 performKeyPress(NativeKeyEvent.KEYCODE_DPAD_LEFT, it * -1)
             } else {
@@ -607,21 +612,22 @@ class CarouselTest {
             }
         }
 
-        rule.mainClock.advanceTimeBy(animationTime + overlayRenderWaitTime)
+        rule.mainClock.advanceTimeBy(animationTime)
 
-        val finalSlide = slideProgression.sum()
-        rule.onNodeWithText("Play $finalSlide").assertIsFocused()
+        val finalItem = itemProgression.sum()
+        rule.onNodeWithText("Play $finalItem").assertIsFocused()
 
         performKeyPress(NativeKeyEvent.KEYCODE_DPAD_RIGHT, 3)
 
-        rule.mainClock.advanceTimeBy((animationTime + overlayRenderWaitTime) * 3)
+        rule.mainClock.advanceTimeBy((animationTime) * 3)
 
-        rule.onNodeWithText("Play ${finalSlide + 3}").assertIsFocused()
+        rule.onNodeWithText("Play ${finalItem + 3}").assertIsFocused()
     }
 
+    @Test
     fun carousel_manualScrolling_onDpadLongPress() {
         rule.setContent {
-            SampleCarousel(slideCount = 6) { index ->
+            SampleCarousel(itemCount = 6) { index ->
                 SampleButton("Button ${index + 1}")
             }
         }
@@ -635,31 +641,31 @@ class CarouselTest {
         rule.mainClock.advanceTimeByFrame()
         rule.waitForIdle()
 
-        // Assert that Button 1 from first slide is focused
+        // Assert that Button 1 from first item is focused
         rule.onNodeWithText("Button 1").assertIsFocused()
 
         // Trigger dpad right key long press
         performLongKeyPress(rule, NativeKeyEvent.KEYCODE_DPAD_RIGHT)
 
-        // Advance time and trigger recomposition to switch to next slide
+        // Advance time and trigger recomposition to switch to next item
         rule.mainClock.advanceTimeByFrame()
         rule.waitForIdle()
-        rule.mainClock.advanceTimeBy(delayBetweenSlides, false)
+        rule.mainClock.advanceTimeBy(delayBetweenItems, false)
         rule.waitForIdle()
 
-        // Assert that Button 2 from second slide is focused
+        // Assert that Button 2 from second item is focused
         rule.onNodeWithText("Button 2").assertIsFocused()
 
         // Trigger dpad left key long press
         performLongKeyPress(rule, NativeKeyEvent.KEYCODE_DPAD_LEFT)
 
-        // Advance time and trigger recomposition to switch to previous slide
-        rule.mainClock.advanceTimeBy(delayBetweenSlides, false)
+        // Advance time and trigger recomposition to switch to previous item
+        rule.mainClock.advanceTimeBy(delayBetweenItems, false)
         rule.waitForIdle()
         rule.mainClock.advanceTimeByFrame()
         rule.waitForIdle()
 
-        // Assert that Button 1 from first slide is focused
+        // Assert that Button 1 from first item is focused
         rule.onNodeWithText("Button 1").assertIsFocused()
     }
 
@@ -675,37 +681,37 @@ class CarouselTest {
         rule.onNodeWithTag("pager")
             .performSemanticsAction(SemanticsActions.RequestFocus)
 
-        // current slide overlay render delay
-        rule.mainClock.advanceTimeBy(animationTime + overlayRenderWaitTime, false)
+        // current item overlay render delay
+        rule.mainClock.advanceTimeBy(animationTime, false)
         rule.mainClock.advanceTimeBy(animationTime, false)
         rule.mainClock.advanceTimeByFrame()
 
-        // Assert that slide 1 is in view
+        // Assert that item 1 is in view
         rule.onNodeWithText("Button 1").assertIsDisplayed()
 
         // advance time
-        rule.mainClock.advanceTimeBy(delayBetweenSlides + animationTime, false)
+        rule.mainClock.advanceTimeBy(delayBetweenItems + animationTime, false)
         rule.mainClock.advanceTimeByFrame()
 
         // go right once
         performKeyPress(NativeKeyEvent.KEYCODE_DPAD_RIGHT)
 
-        // Wait for slide to load
+        // Wait for item to load
         rule.mainClock.advanceTimeBy(animationTime)
         rule.mainClock.advanceTimeByFrame()
 
-        // Assert that slide 2 is in view
+        // Assert that item 2 is in view
         rule.onNodeWithText("Button 2").assertIsDisplayed()
 
         // go left once
         performKeyPress(NativeKeyEvent.KEYCODE_DPAD_LEFT)
 
-        // Wait for slide to load
-        rule.mainClock.advanceTimeBy(delayBetweenSlides)
+        // Wait for item to load
+        rule.mainClock.advanceTimeBy(delayBetweenItems)
         rule.mainClock.advanceTimeBy(animationTime)
         rule.mainClock.advanceTimeByFrame()
 
-        // Assert that slide 1 is in view
+        // Assert that item 1 is in view
         rule.onNodeWithText("Button 1").assertIsDisplayed()
     }
 
@@ -725,47 +731,80 @@ class CarouselTest {
         rule.onNodeWithTag("pager")
             .performSemanticsAction(SemanticsActions.RequestFocus)
 
-        // current slide overlay render delay
-        rule.mainClock.advanceTimeBy(animationTime + overlayRenderWaitTime, false)
+        // current item overlay render delay
+        rule.mainClock.advanceTimeBy(animationTime, false)
         rule.mainClock.advanceTimeBy(animationTime, false)
         rule.mainClock.advanceTimeByFrame()
 
-        // Assert that slide 1 is in view
+        // Assert that item 1 is in view
         rule.onNodeWithText("Button 1").assertIsDisplayed()
 
         // advance time
-        rule.mainClock.advanceTimeBy(delayBetweenSlides + animationTime, false)
+        rule.mainClock.advanceTimeBy(delayBetweenItems + animationTime, false)
         rule.mainClock.advanceTimeByFrame()
 
         // go right once
         performKeyPress(NativeKeyEvent.KEYCODE_DPAD_LEFT)
 
-        // Wait for slide to load
+        // Wait for item to load
         rule.mainClock.advanceTimeBy(animationTime)
         rule.mainClock.advanceTimeByFrame()
 
-        // Assert that slide 2 is in view
+        // Assert that item 2 is in view
         rule.onNodeWithText("Button 2").assertIsDisplayed()
 
         // go left once
         performKeyPress(NativeKeyEvent.KEYCODE_DPAD_RIGHT)
 
-        // Wait for slide to load
-        rule.mainClock.advanceTimeBy(delayBetweenSlides + animationTime, false)
+        // Wait for item to load
+        rule.mainClock.advanceTimeBy(delayBetweenItems + animationTime, false)
         rule.mainClock.advanceTimeByFrame()
 
-        // Assert that slide 1 is in view
+        // Assert that item 1 is in view
         rule.onNodeWithText("Button 1").assertIsDisplayed()
+    }
+
+    @Test
+    fun carousel_itemCountChangesDuringAnimation_shouldNotCrash() {
+        val itemDisplayDurationMs: Long = 100
+        var itemChanges = 0
+        // number of items will fall from 4 to 2, but 4 item transitions should happen without a
+        // crash
+        val minSuccessfulItemChanges = 4
+        rule.setContent {
+            var itemCount by remember { mutableStateOf(4) }
+            LaunchedEffect(Unit) {
+                while (itemCount >= 2) {
+                    delay(itemDisplayDurationMs)
+                    itemCount--
+                }
+            }
+            SampleCarousel(
+                itemCount = itemCount,
+                timeToDisplayItemMillis = itemDisplayDurationMs
+            ) { index ->
+                if (index >= itemCount) {
+                    // itemIndex requested should not be greater than itemCount. User could be
+                    // using a data-structure that could throw an IndexOutOfBoundsException.
+                    // This can happen when the itemCount changes during the transition between
+                    // items.
+                    throw Exception("Index is larger, index=$index, itemCount=$itemCount")
+                }
+                itemChanges++
+            }
+        }
+
+        rule.waitUntil(timeoutMillis = 5000) { itemChanges > minSuccessfulItemChanges }
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 private fun SampleCarousel(
     carouselState: CarouselState = remember { CarouselState() },
-    slideCount: Int = 3,
-    timeToDisplaySlideMillis: Long = delayBetweenSlides,
-    content: @Composable (index: Int) -> Unit
+    itemCount: Int = 3,
+    timeToDisplayItemMillis: Long = delayBetweenItems,
+    content: @Composable CarouselScope.(index: Int) -> Unit
 ) {
     Carousel(
         modifier = Modifier
@@ -774,34 +813,34 @@ private fun SampleCarousel(
             .height(200.dp)
             .testTag("pager"),
         carouselState = carouselState,
-        slideCount = slideCount,
-        timeToDisplaySlideMillis = timeToDisplaySlideMillis,
+        itemCount = itemCount,
+        autoScrollDurationMillis = timeToDisplayItemMillis,
         carouselIndicator = {
             CarouselDefaults.IndicatorRow(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp)
                     .testTag("indicator"),
-                activeSlideIndex = carouselState.activeSlideIndex,
-                slideCount = slideCount
+                activeItemIndex = carouselState.activeItemIndex,
+                itemCount = itemCount
             )
         },
-        content = content,
+        content = { content(it) },
     )
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
-private fun SampleCarouselSlide(
+private fun CarouselScope.SampleCarouselItem(
     index: Int,
     modifier: Modifier = Modifier,
-    overlayRenderWaitTime: Long = CarouselItemDefaults.OverlayEnterTransitionStartDelayMillis,
+    contentTransformStartToEnd: ContentTransform =
+        CarouselItemDefaults.contentTransformStartToEnd,
     content: (@Composable () -> Unit) = { SampleButton("Play $index") },
 ) {
-
     CarouselItem(
         modifier = modifier,
-        overlayEnterTransitionStartDelayMillis = overlayRenderWaitTime,
+        contentTransformStartToEnd = contentTransformStartToEnd,
         background = {
             Box(
                 modifier = Modifier
@@ -809,9 +848,10 @@ private fun SampleCarouselSlide(
                     .background(Color.Red)
                     .border(2.dp, Color.Blue)
             )
-        },
-        overlay = content
-    )
+        }
+    ) {
+        content()
+    }
 }
 
 @Composable

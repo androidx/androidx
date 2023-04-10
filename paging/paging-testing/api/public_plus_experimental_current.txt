@@ -1,22 +1,28 @@
 // Signature format: 4.0
 package androidx.paging.testing {
 
+  public enum ErrorRecovery {
+    method public static androidx.paging.testing.ErrorRecovery valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.paging.testing.ErrorRecovery[] values();
+    enum_constant public static final androidx.paging.testing.ErrorRecovery RETRY;
+    enum_constant public static final androidx.paging.testing.ErrorRecovery RETURN_CURRENT_SNAPSHOT;
+    enum_constant public static final androidx.paging.testing.ErrorRecovery THROW;
+  }
+
+  public fun interface LoadErrorHandler {
+    method public androidx.paging.testing.ErrorRecovery onError(androidx.paging.CombinedLoadStates combinedLoadStates);
+  }
+
   public final class PagerFlowSnapshotKt {
-    method public static suspend <Value> Object? asSnapshot(kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<Value>>, kotlinx.coroutines.CoroutineScope coroutineScope, kotlin.jvm.functions.Function2<? super androidx.paging.testing.SnapshotLoader<Value>,? super kotlin.coroutines.Continuation<kotlin.Unit>,?> loadOperations, kotlin.coroutines.Continuation<java.util.List<Value>>);
+    method public static suspend <Value> Object? asSnapshot(kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<Value>>, kotlinx.coroutines.CoroutineScope coroutineScope, optional androidx.paging.testing.LoadErrorHandler onError, optional kotlin.jvm.functions.Function2<? super androidx.paging.testing.SnapshotLoader<Value>,? super kotlin.coroutines.Continuation<kotlin.Unit>,?> loadOperations, optional kotlin.coroutines.Continuation<java.util.List<Value>>);
   }
 
   public final class SnapshotLoader<Value> {
     method public suspend Object? appendScrollWhile(kotlin.jvm.functions.Function1<Value,java.lang.Boolean> predicate, kotlin.coroutines.Continuation<kotlin.Unit>);
+    method public suspend Object? flingTo(int index, kotlin.coroutines.Continuation<kotlin.Unit>);
     method public suspend Object? prependScrollWhile(kotlin.jvm.functions.Function1<Value,java.lang.Boolean> predicate, kotlin.coroutines.Continuation<kotlin.Unit>);
     method public suspend Object? refresh(kotlin.coroutines.Continuation<kotlin.Unit>);
-    method public suspend Object? scrollTo(int index, optional androidx.paging.testing.SnapshotLoader.ScrollBehavior scrollBehavior, optional kotlin.coroutines.Continuation<kotlin.Unit>);
-  }
-
-  public enum SnapshotLoader.ScrollBehavior {
-    method public static androidx.paging.testing.SnapshotLoader.ScrollBehavior valueOf(String name) throws java.lang.IllegalArgumentException;
-    method public static androidx.paging.testing.SnapshotLoader.ScrollBehavior[] values();
-    enum_constant public static final androidx.paging.testing.SnapshotLoader.ScrollBehavior ScrollIntoPlaceholders;
-    enum_constant public static final androidx.paging.testing.SnapshotLoader.ScrollBehavior WaitForPlaceholdersToLoad;
+    method public suspend Object? scrollTo(int index, kotlin.coroutines.Continuation<kotlin.Unit>);
   }
 
   public final class StaticListPagingSourceFactoryKt {

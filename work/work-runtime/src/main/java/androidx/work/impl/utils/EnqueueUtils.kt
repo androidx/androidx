@@ -17,14 +17,50 @@
 package androidx.work.impl.utils
 
 import android.os.Build
+import androidx.work.Configuration
 import androidx.work.Data
 import androidx.work.impl.Scheduler
 import androidx.work.impl.Schedulers
+import androidx.work.impl.WorkContinuationImpl
+import androidx.work.impl.WorkDatabase
+import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.WorkManagerImpl.MAX_PRE_JOB_SCHEDULER_API_LEVEL
 import androidx.work.impl.WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL
 import androidx.work.impl.model.WorkSpec
 import androidx.work.impl.workers.ARGUMENT_CLASS_NAME
 import androidx.work.impl.workers.ConstraintTrackingWorker
+import java.lang.IllegalArgumentException
+
+internal fun checkContentUriTriggerWorkerLimits(
+    workDatabase: WorkDatabase,
+    configuration: Configuration,
+    continuation: WorkContinuationImpl
+) {
+    if (Build.VERSION.SDK_INT < WorkManagerImpl.CONTENT_URI_TRIGGER_API_LEVEL) return
+    val continuations = mutableListOf(continuation)
+    var newCount = 0
+    while (continuations.isNotEmpty()) {
+        val current = continuations.removeLast()
+        newCount += current.work.count { it.workSpec.constraints.hasContentUriTriggers() }
+        (current.parents as List<WorkContinuationImpl>?)?.let { continuations.addAll(it) }
+    }
+    if (newCount == 0) return
+    val alreadyEnqueuedCount = workDatabase.workSpecDao().countNonFinishedContentUriTriggerWorkers()
+    val limit = configuration.contentUriTriggerWorkersLimit
+    if (alreadyEnqueuedCount + newCount > limit)
+        throw IllegalArgumentException(
+            "Too many workers with contentUriTriggers are enqueued:\n" +
+            "contentUriTrigger workers limit: $limit;\n" +
+            "already enqueued count: $alreadyEnqueuedCount;\n" +
+            "current enqueue operation count: $newCount.\n" +
+            "To address this issue you can: \n" +
+            "1. enqueue less workers or batch some of workers " +
+            "with content uri triggers together;\n" +
+            "2. increase limit via Configuration.Builder.setContentUriTriggerWorkersLimit;\n" +
+            "Please beware that workers with content uri triggers immediately occupy " +
+            "slots in JobScheduler so no updates to content uris are missed."
+        )
+}
 
 internal fun tryDelegateConstrainedWorkSpec(workSpec: WorkSpec): WorkSpec {
     // requiresBatteryNotLow and requiresStorageNotLow require API 26 for JobScheduler.

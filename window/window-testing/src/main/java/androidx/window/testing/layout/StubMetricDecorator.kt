@@ -26,6 +26,6 @@ import androidx.window.layout.WindowMetricsCalculatorDecorator
 @ExperimentalWindowApi
 internal object StubMetricDecorator : WindowMetricsCalculatorDecorator {
     override fun decorate(calculator: WindowMetricsCalculator): WindowMetricsCalculator {
-        return StubWindowMetricsCalculator
+        return StubWindowMetricsCalculator()
     }
 }

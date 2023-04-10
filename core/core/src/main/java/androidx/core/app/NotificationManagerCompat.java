@@ -16,6 +16,9 @@
 
 package androidx.core.app;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.TESTS;
+
 import android.Manifest;
 import android.app.AppOpsManager;
 import android.app.Notification;
@@ -40,21 +43,28 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.provider.Settings;
 import android.service.notification.NotificationListenerService;
+import android.service.notification.StatusBarNotification;
 import android.support.v4.app.INotificationSideChannel;
 import android.util.Log;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -118,6 +128,48 @@ public final class NotificationManagerCompat {
     @GuardedBy("sLock")
     private static SideChannelManager sSideChannelManager;
 
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @IntDef({INTERRUPTION_FILTER_UNKNOWN, INTERRUPTION_FILTER_ALL, INTERRUPTION_FILTER_PRIORITY,
+            INTERRUPTION_FILTER_NONE, INTERRUPTION_FILTER_ALARMS})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface InterruptionFilter {
+    }
+
+    /**
+     * {@link #getCurrentInterruptionFilter() Interruption filter} constant -
+     *     Normal interruption filter - no notifications are suppressed.
+     */
+    public static final int INTERRUPTION_FILTER_ALL = 1;
+
+    /**
+     * {@link #getCurrentInterruptionFilter() Interruption filter} constant -
+     *     Priority interruption filter - all notifications are suppressed except those that match
+     *     the priority criteria. Some audio streams are muted. See
+     *     {@link Policy#priorityCallSenders}, {@link Policy#priorityCategories},
+     *     {@link Policy#priorityMessageSenders} to define or query this criteria. Users can
+     *     additionally specify packages that can bypass this interruption filter.
+     */
+    public static final int INTERRUPTION_FILTER_PRIORITY = 2;
+
+    /**
+     * {@link #getCurrentInterruptionFilter() Interruption filter} constant -
+     *     No interruptions filter - all notifications are suppressed and all audio streams (except
+     *     those used for phone calls) and vibrations are muted.
+     */
+    public static final int INTERRUPTION_FILTER_NONE = 3;
+
+    /**
+     * {@link #getCurrentInterruptionFilter() Interruption filter} constant -
+     *     Alarms only interruption filter - all notifications except those of category
+     *     {@link Notification#CATEGORY_ALARM} are suppressed. Some audio streams are muted.
+     */
+    public static final int INTERRUPTION_FILTER_ALARMS = 4;
+
+    /** {@link #getCurrentInterruptionFilter() Interruption filter} constant -
+     *     returned when the value is unavailable for any reason.
+     */
+    public static final int INTERRUPTION_FILTER_UNKNOWN = 0;
+
     /**
      * Value signifying that the user has not expressed an importance.
      *
@@ -168,6 +220,14 @@ public final class NotificationManagerCompat {
         mContext = context;
         mNotificationManager = (NotificationManager) mContext.getSystemService(
                 Context.NOTIFICATION_SERVICE);
+    }
+
+    @RestrictTo(TESTS)
+    @VisibleForTesting
+    protected NotificationManagerCompat(@NonNull NotificationManager notificationManager,
+            @NonNull Context context) {
+        mContext = context;
+        mNotificationManager = notificationManager;
     }
 
     /**
@@ -228,6 +288,76 @@ public final class NotificationManagerCompat {
             mNotificationManager.cancel(tag, id);
         } else {
             mNotificationManager.notify(tag, id, notification);
+        }
+    }
+
+    /**
+     * Post a number of notifications, to be shown in the status bar, stream, etc.
+     * Each notification will attempt to be posted in the order provided in the {@code
+     * notificationWithIds} list. Each notification must have a provided id and may have a
+     * provided tag.
+     *
+     * This is the preferred method for posting groups of notifications, to improve sound and
+     * animation behavior.
+     */
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
+    public void notify(@NonNull List<NotificationWithIdAndTag> notificationWithIdAndTags) {
+        final int notificationsSize = notificationWithIdAndTags.size();
+        for (int i = 0; i < notificationsSize; i++) {
+            NotificationWithIdAndTag notificationWithIdAndTag = notificationWithIdAndTags.get(i);
+            notify(notificationWithIdAndTag.mTag, notificationWithIdAndTag.mId,
+                    notificationWithIdAndTag.mNotification);
+        }
+    }
+
+    /**
+     * Helper class which encapsulates a Notification, its id, and optionally a tag, for use when
+     * batch-posting a number of notifications.
+     */
+    public static class NotificationWithIdAndTag {
+        final String mTag;
+        final int mId;
+        Notification mNotification;
+
+        public NotificationWithIdAndTag(@Nullable String tag, int id,
+                @NonNull Notification notification) {
+            this.mTag = tag;
+            this.mId = id;
+            this.mNotification = notification;
+        }
+
+        public NotificationWithIdAndTag(int id, @NonNull Notification notification) {
+            this(null, id, notification);
+        }
+    }
+
+    /**
+     * Recover a list of active notifications: ones that have been posted by the calling app that
+     * have not yet been dismissed by the user or {@link #cancel(String, int)}ed by the app.
+     *
+     * <p><Each notification is embedded in a {@link StatusBarNotification} object, including the
+     * original <code>tag</code> and <code>id</code> supplied to
+     * {@link #notify(String, int, Notification) notify()}
+     * (via {@link StatusBarNotification#getTag() getTag()} and
+     * {@link StatusBarNotification#getId() getId()}) as well as a copy of the original
+     * {@link Notification} object (via {@link StatusBarNotification#getNotification()}).
+     * </p>
+     * <p>From {@link Build.VERSION_CODES#Q}, will also return notifications you've posted as an
+     * app's notification delegate via
+     * {@link NotificationManager#notifyAsPackage(String, String, int, Notification)}.
+     * </p>
+     * <p>
+     *     Returns an empty list on {@link Build.VERSION_CODES#LOLLIPOP_MR1} and earlier.
+     * </p>
+     *
+     * @return A list of {@link StatusBarNotification}.
+     */
+    @NonNull
+    public List<StatusBarNotification> getActiveNotifications() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            return Api23Impl.getActiveNotifications(mNotificationManager);
+        } else {
+            return new ArrayList<>();
         }
     }
 
@@ -688,6 +818,22 @@ public final class NotificationManagerCompat {
     }
 
     /**
+     * Gets the current notification interruption filter.
+     * <p>
+     * The interruption filter defines which notifications are allowed to
+     * interrupt the user (e.g. via sound &amp; vibration) and is applied
+     * globally.
+     */
+    public @InterruptionFilter int getCurrentInterruptionFilter() {
+        if (Build.VERSION.SDK_INT < 23) {
+            // Prior to API 23, Interruption Filters were not implemented, so we return
+            // unknown filter level.
+            return INTERRUPTION_FILTER_UNKNOWN;
+        }
+        return Api23Impl.getCurrentInterruptionFilter(mNotificationManager);
+    }
+
+    /**
      * Push a notification task for distribution to notification side channels.
      */
     private void pushSideChannelQueue(Task task) {
@@ -1059,7 +1205,33 @@ public final class NotificationManagerCompat {
     }
 
     /**
-     * A class for wrapping calls to {@link Notification.Builder} methods which
+     * A class for wrapping calls to {@link NotificationManager} methods which
+     * were added in API 23; these calls must be wrapped to avoid performance issues.
+     * See the UnsafeNewApiCall lint rule for more details.
+     */
+    @RequiresApi(23)
+    static class Api23Impl {
+        private Api23Impl() { }
+
+        @DoNotInline
+        static List<StatusBarNotification> getActiveNotifications(
+                NotificationManager notificationManager) {
+            StatusBarNotification[] notifs = notificationManager.getActiveNotifications();
+            if (notifs == null) {
+                return new ArrayList<>();
+            }
+            return Arrays.asList(notifs);
+        }
+
+        @DoNotInline
+        static int getCurrentInterruptionFilter(
+                NotificationManager notificationManager) {
+            return notificationManager.getCurrentInterruptionFilter();
+        }
+    }
+
+    /**
+     * A class for wrapping calls to {@link NotificationManager} methods which
      * were added in API 24; these calls must be wrapped to avoid performance issues.
      * See the UnsafeNewApiCall lint rule for more details.
      */
