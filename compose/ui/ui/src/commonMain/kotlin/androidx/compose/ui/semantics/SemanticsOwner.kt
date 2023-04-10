@@ -32,12 +32,12 @@ class SemanticsOwner internal constructor(private val rootNode: LayoutNode) {
      */
     val rootSemanticsNode: SemanticsNode
         get() {
-            return SemanticsNode(rootNode.outerSemantics!!, mergingEnabled = true)
+            return SemanticsNode(rootNode, mergingEnabled = true)
         }
 
     val unmergedRootSemanticsNode: SemanticsNode
         get() {
-            return SemanticsNode(rootNode.outerSemantics!!, mergingEnabled = false)
+            return SemanticsNode(rootNode, mergingEnabled = false)
         }
 }
 

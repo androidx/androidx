@@ -1043,7 +1043,7 @@ class LayoutNodeTest {
             ).apply {
                 attach(MockOwner())
             }
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         layoutNode.hitTest(Offset(0f, 0f), hit)
 
@@ -1061,7 +1061,7 @@ class LayoutNodeTest {
             ).apply {
                 attach(MockOwner())
             }
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         layoutNode.hitTest(Offset(-3f, 3f), hit, true)
 
@@ -1079,7 +1079,7 @@ class LayoutNodeTest {
             ).apply {
                 attach(MockOwner())
             }
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         layoutNode.hitTest(Offset(0f, 3f), hit, true)
 
@@ -1097,7 +1097,7 @@ class LayoutNodeTest {
             ).apply {
                 attach(MockOwner())
             }
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         layoutNode.hitTest(Offset(3f, 0f), hit, true)
 
@@ -1115,7 +1115,7 @@ class LayoutNodeTest {
         )
         outerNode.add(layoutNode)
         layoutNode.onNodePlaced()
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         outerNode.hitTest(Offset(-3f, 3f), hit, true)
 
@@ -1136,7 +1136,7 @@ class LayoutNodeTest {
         )
         outerNode.add(layoutNode)
         layoutNode.onNodePlaced()
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         outerNode.hitTest(Offset(25f, 25f), hit)
 
@@ -1159,7 +1159,7 @@ class LayoutNodeTest {
         )
         outerNode.add(layoutNode)
         layoutNode.onNodePlaced()
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         outerNode.hitTest(Offset(25f, 25f), hit)
 
@@ -1187,7 +1187,7 @@ class LayoutNodeTest {
         layoutNode1.onNodePlaced()
         layoutNode2.onNodePlaced()
 
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         // Hit closer to layoutNode1
         outerNode.hitTest(Offset(5.1f, 5.5f), hit, true)
@@ -1290,7 +1290,7 @@ class LayoutNodeTest {
         layoutNode2.onNodePlaced()
         layoutNode3.onNodePlaced()
 
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         // Hit outside of layoutNode2, but near layoutNode1
         outerNode.hitTest(Offset(10.1f, 10.1f), hit, true)
@@ -1325,7 +1325,7 @@ class LayoutNodeTest {
         layoutNode1.onNodePlaced()
         layoutNode2.onNodePlaced()
 
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         // Hit layoutNode1
         outerNode.hitTest(Offset(3.95f, 3.95f), hit, true)
@@ -1354,7 +1354,7 @@ class LayoutNodeTest {
             ).apply {
                 attach(MockOwner())
             }
-        val hit = HitTestResult<SemanticsModifierNode>()
+        val hit = HitTestResult()
 
         layoutNode.hitTestSemantics(Offset(-3f, 3f), hit)
 
@@ -1372,7 +1372,7 @@ class LayoutNodeTest {
         val layoutNode = LayoutNode(0, 0, 1, 1, semanticsModifier, DpSize(48.dp, 48.dp))
         outerNode.add(layoutNode)
         layoutNode.onNodePlaced()
-        val hit = HitTestResult<SemanticsModifierNode>()
+        val hit = HitTestResult()
 
         layoutNode.hitTestSemantics(Offset(-3f, 3f), hit)
 
@@ -1406,42 +1406,42 @@ class LayoutNodeTest {
         layoutNode2.onNodePlaced()
 
         // Hit closer to layoutNode1
-        val hit1 = HitTestResult<SemanticsModifierNode>()
+        val hit1 = HitTestResult()
         outerNode.hitTestSemantics(Offset(5.1f, 5.5f), hit1, true)
 
         assertThat(hit1).hasSize(1)
         assertThat(hit1[0]).isEqualTo(semanticsModifier1)
 
         // Hit closer to layoutNode2
-        val hit2 = HitTestResult<SemanticsModifierNode>()
+        val hit2 = HitTestResult()
         outerNode.hitTestSemantics(Offset(5.9f, 5.5f), hit2, true)
 
         assertThat(hit2).hasSize(1)
         assertThat(hit2[0]).isEqualTo(semanticsModifier2)
 
         // Hit closer to layoutNode1
-        val hit3 = HitTestResult<SemanticsModifierNode>()
+        val hit3 = HitTestResult()
         outerNode.hitTestSemantics(Offset(5.5f, 5.1f), hit3, true)
 
         assertThat(hit3).hasSize(1)
         assertThat(hit3[0]).isEqualTo(semanticsModifier1)
 
         // Hit closer to layoutNode2
-        val hit4 = HitTestResult<SemanticsModifierNode>()
+        val hit4 = HitTestResult()
         outerNode.hitTestSemantics(Offset(5.5f, 5.9f), hit4, true)
 
         assertThat(hit4).hasSize(1)
         assertThat(hit4[0]).isEqualTo(semanticsModifier2)
 
         // Hit inside layoutNode1
-        val hit5 = HitTestResult<SemanticsModifierNode>()
+        val hit5 = HitTestResult()
         outerNode.hitTestSemantics(Offset(4.9f, 4.9f), hit5, true)
 
         assertThat(hit5).hasSize(1)
         assertThat(hit5[0]).isEqualTo(semanticsModifier1)
 
         // Hit inside layoutNode2
-        val hit6 = HitTestResult<SemanticsModifierNode>()
+        val hit6 = HitTestResult()
         outerNode.hitTestSemantics(Offset(6.1f, 6.1f), hit6, true)
 
         assertThat(hit6).hasSize(1)
@@ -1466,14 +1466,14 @@ class LayoutNodeTest {
         layoutNode2.onNodePlaced()
 
         // Hit layoutNode1
-        val hit1 = HitTestResult<SemanticsModifierNode>()
+        val hit1 = HitTestResult()
         outerNode.hitTestSemantics(Offset(3.95f, 3.95f), hit1, true)
 
         assertThat(hit1).hasSize(1)
         assertThat(hit1[0].toModifier()).isEqualTo(semanticsModifier1)
 
         // Hit layoutNode2
-        val hit2 = HitTestResult<SemanticsModifierNode>()
+        val hit2 = HitTestResult()
         outerNode.hitTestSemantics(Offset(4.05f, 4.05f), hit2, true)
 
         assertThat(hit2).hasSize(1)
@@ -1490,7 +1490,7 @@ class LayoutNodeTest {
             ).apply {
                 attach(MockOwner())
             }
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         layoutNode.hitTest(Offset(-1f, -1f), hit)
         layoutNode.hitTest(Offset(0f, -1f), hit)
@@ -1518,7 +1518,7 @@ class LayoutNodeTest {
             ).apply {
                 attach(MockOwner())
             }
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         layoutNode.hitTest(Offset(-3f, -5f), hit)
         layoutNode.hitTest(Offset(0f, -5f), hit)
@@ -1593,7 +1593,7 @@ class LayoutNodeTest {
             else -> throw IllegalStateException()
         }
 
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         // Act.
 
@@ -1686,8 +1686,8 @@ class LayoutNodeTest {
         val offset1 = Offset(25f, 25f)
         val offset2 = Offset(75f, 75f)
 
-        val hit1 = mutableListOf<PointerInputModifierNode>()
-        val hit2 = mutableListOf<PointerInputModifierNode>()
+        val hit1 = mutableListOf<Modifier.Node>()
+        val hit2 = mutableListOf<Modifier.Node>()
 
         // Act
 
@@ -1767,9 +1767,9 @@ class LayoutNodeTest {
         val offset2 = Offset(75f, 75f)
         val offset3 = Offset(125f, 125f)
 
-        val hit1 = mutableListOf<PointerInputModifierNode>()
-        val hit2 = mutableListOf<PointerInputModifierNode>()
-        val hit3 = mutableListOf<PointerInputModifierNode>()
+        val hit1 = mutableListOf<Modifier.Node>()
+        val hit2 = mutableListOf<Modifier.Node>()
+        val hit3 = mutableListOf<Modifier.Node>()
 
         parentLayoutNode.hitTest(offset1, hit1)
         parentLayoutNode.hitTest(offset2, hit2)
@@ -1831,9 +1831,9 @@ class LayoutNodeTest {
         val offset2 = Offset(50f, 75f)
         val offset3 = Offset(50f, 125f)
 
-        val hit1 = mutableListOf<PointerInputModifierNode>()
-        val hit2 = mutableListOf<PointerInputModifierNode>()
-        val hit3 = mutableListOf<PointerInputModifierNode>()
+        val hit1 = mutableListOf<Modifier.Node>()
+        val hit2 = mutableListOf<Modifier.Node>()
+        val hit3 = mutableListOf<Modifier.Node>()
 
         // Act
 
@@ -1895,9 +1895,9 @@ class LayoutNodeTest {
         val offset2 = Offset(75f, 50f)
         val offset3 = Offset(125f, 50f)
 
-        val hit1 = mutableListOf<PointerInputModifierNode>()
-        val hit2 = mutableListOf<PointerInputModifierNode>()
-        val hit3 = mutableListOf<PointerInputModifierNode>()
+        val hit1 = mutableListOf<Modifier.Node>()
+        val hit2 = mutableListOf<Modifier.Node>()
+        val hit3 = mutableListOf<Modifier.Node>()
 
         // Act
 
@@ -2009,7 +2009,7 @@ class LayoutNodeTest {
                 Offset(4f, 3f)
             )
 
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         // Act and Assert
 
@@ -2065,7 +2065,7 @@ class LayoutNodeTest {
 
         val offset1 = Offset(50f, 75f)
 
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         // Act.
 
@@ -2112,7 +2112,7 @@ class LayoutNodeTest {
         layoutNode1.onNodePlaced()
         val offset1 = Offset(499f, 499f)
 
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         // Act.
 
@@ -2171,7 +2171,7 @@ class LayoutNodeTest {
 
         val offset1 = Offset(499f, 499f)
 
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         // Act.
 
@@ -2218,7 +2218,7 @@ class LayoutNodeTest {
 
         val offset = Offset(50f, 50f)
 
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         // Act.
 
@@ -2245,7 +2245,7 @@ class LayoutNodeTest {
 
         val offset = Offset.Zero
 
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         // Act.
 
@@ -2292,7 +2292,7 @@ class LayoutNodeTest {
         parent.remeasure()
         parent.replace()
 
-        val hit = mutableListOf<PointerInputModifierNode>()
+        val hit = mutableListOf<Modifier.Node>()
 
         // Act.
 
@@ -2617,6 +2617,8 @@ internal class MockOwner(
         TODO("Not yet implemented")
     }
 
+    val invalidatedLayers = mutableListOf<OwnedLayer>()
+
     override fun createLayer(
         drawBlock: (Canvas) -> Unit,
         invalidateParentLayer: () -> Unit
@@ -2669,6 +2671,7 @@ internal class MockOwner(
             }
 
             override fun invalidate() {
+                invalidatedLayers.add(this)
             }
 
             override fun destroy() {
@@ -2695,7 +2698,9 @@ internal class MockOwner(
         }
     }
 
+    var semanticsChanged: Boolean = false
     override fun onSemanticsChange() {
+        semanticsChanged = true
     }
 
     override fun onLayoutChange(layoutNode: LayoutNode) {
@@ -2716,10 +2721,10 @@ internal class MockOwner(
 @OptIn(ExperimentalComposeUiApi::class)
 private fun LayoutNode.hitTest(
     pointerPosition: Offset,
-    hitPointerInputFilters: MutableList<PointerInputModifierNode>,
+    hitPointerInputFilters: MutableList<Modifier.Node>,
     isTouchEvent: Boolean = false
 ) {
-    val hitTestResult = HitTestResult<PointerInputModifierNode>()
+    val hitTestResult = HitTestResult()
     hitTest(pointerPosition, hitTestResult, isTouchEvent)
     hitPointerInputFilters.addAll(hitTestResult)
 }
@@ -2785,7 +2790,9 @@ fun PointerInputModifierNode.toFilter(): PointerInputFilter {
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
-fun List<PointerInputModifierNode>.toFilters(): List<PointerInputFilter> = map { it.toFilter() }
+fun List<Modifier.Node>.toFilters(): List<PointerInputFilter> = map {
+    (it as PointerInputModifierNode).toFilter()
+}
 
 // This returns the corresponding modifier that produced the Node. This is only possible for
 // Nodes that are BackwardsCompatNodes and once we refactor semantics / pointer input to use

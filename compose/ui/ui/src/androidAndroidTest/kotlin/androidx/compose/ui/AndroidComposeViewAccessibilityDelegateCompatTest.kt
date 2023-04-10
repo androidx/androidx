@@ -31,9 +31,7 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.toAndroidRect
-import androidx.compose.ui.node.InnerNodeCoordinator
 import androidx.compose.ui.node.LayoutNode
-import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.SemanticsNodeCopy
@@ -46,7 +44,6 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.ScrollAxisRange
-import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
@@ -1604,19 +1601,10 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         properties: (SemanticsPropertyReceiver.() -> Unit)
     ): SemanticsNode {
         val layoutNode = LayoutNode(semanticsId = id)
-        val nodeCoordinator = InnerNodeCoordinator(layoutNode)
-        val modifierNode = object : SemanticsModifierNode, Modifier.Node() {
-            override val semanticsConfiguration = SemanticsConfiguration().also {
-                it.isMergingSemanticsOfDescendants = mergeDescendants
-                it.properties()
-            }
+        layoutNode.modifier = Modifier.semantics(mergeDescendants) {
+            properties()
         }
-        modifierNode.updateCoordinator(nodeCoordinator)
-        return SemanticsNode(
-            modifierNode,
-            true,
-            layoutNode
-        )
+        return SemanticsNode(layoutNode, true)
     }
 
     private fun createSemanticsNodeWithChildren(
@@ -1626,20 +1614,10 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
     ): SemanticsNode {
         val layoutNode = LayoutNode(semanticsId = id)
         layoutNode.zSortedChildren.addAll(children.map { it.layoutNode })
-        val nodeCoordinator = InnerNodeCoordinator(layoutNode)
-        val modifierNode = object : SemanticsModifierNode, Modifier.Node() {
-            override val semanticsConfiguration = SemanticsConfiguration().also {
-                it.properties()
-            }
-        }
-        modifierNode.updateCoordinator(nodeCoordinator)
-
-        val semanticsNode = SemanticsNode(modifierNode, true, layoutNode)
         layoutNode.modifier = Modifier.semantics {
             properties()
         }
-
-        return semanticsNode
+        return SemanticsNode(layoutNode, true)
     }
 
     private fun createSemanticsNodeWithAdjustedBoundsWithProperties(

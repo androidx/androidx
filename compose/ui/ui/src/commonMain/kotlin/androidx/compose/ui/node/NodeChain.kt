@@ -236,19 +236,20 @@ internal class NodeChain(val layoutNode: LayoutNode) {
         }
     }
 
-    private fun syncCoordinators() {
+    fun syncCoordinators() {
         var coordinator: NodeCoordinator = innerCoordinator
         var node: Modifier.Node? = tail.parent
         while (node != null) {
-            if (node.isKind(Nodes.Layout) && node is LayoutModifierNode) {
+            val layoutmod = node.asLayoutModifierNode()
+            if (layoutmod != null) {
                 val next = if (node.coordinator != null) {
                     val c = node.coordinator as LayoutModifierNodeCoordinator
                     val prevNode = c.layoutModifierNode
-                    c.layoutModifierNode = node
+                    c.layoutModifierNode = layoutmod
                     if (prevNode !== node) c.onLayoutModifierNodeChanged()
                     c
                 } else {
-                    val c = LayoutModifierNodeCoordinator(layoutNode, node)
+                    val c = LayoutModifierNodeCoordinator(layoutNode, layoutmod)
                     node.updateCoordinator(c)
                     c
                 }
@@ -540,7 +541,7 @@ internal class NodeChain(val layoutNode: LayoutNode) {
     ): Modifier.Node {
         val node = when (element) {
             is ModifierNodeElement<*> -> element.create().also {
-                it.kindSet = calculateNodeKindSetFrom(it)
+                it.kindSet = calculateNodeKindSetFromIncludingDelegates(it)
             }
             else -> BackwardsCompatNode(element)
         }
@@ -591,15 +592,13 @@ internal class NodeChain(val layoutNode: LayoutNode) {
                     return replaceNode(node, updated)
                 } else {
                     // the node was updated. we are done.
-                    if (next.autoInvalidate) {
-                        if (updated.isAttached) {
-                            // the modifier element is labeled as "auto invalidate", which means
-                            // that since the node was updated, we need to invalidate everything
-                            // relevant to it.
-                            autoInvalidateUpdatedNode(updated)
-                        } else {
-                            updated.updatedNodeAwaitingAttachForInvalidation = true
-                        }
+                    if (updated.isAttached) {
+                        // the modifier element is labeled as "auto invalidate", which means
+                        // that since the node was updated, we need to invalidate everything
+                        // relevant to it.
+                        autoInvalidateUpdatedNode(updated)
+                    } else {
+                        updated.updatedNodeAwaitingAttachForInvalidation = true
                     }
                     return updated
                 }
@@ -632,7 +631,7 @@ internal class NodeChain(val layoutNode: LayoutNode) {
 
     internal inline fun <reified T> headToTail(type: NodeKind<T>, block: (T) -> Unit) {
         headToTail(type.mask) {
-            if (it is T) block(it)
+            it.dispatchForKind(type, block)
         }
     }
 
@@ -671,7 +670,7 @@ internal class NodeChain(val layoutNode: LayoutNode) {
 
     internal inline fun <reified T> tailToHead(type: NodeKind<T>, block: (T) -> Unit) {
         tailToHead(type.mask) {
-            if (it is T) block(it)
+            it.dispatchForKind(type, block)
         }
     }
 

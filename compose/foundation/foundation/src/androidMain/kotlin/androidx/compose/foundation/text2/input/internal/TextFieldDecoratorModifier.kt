@@ -137,7 +137,7 @@ internal class TextFieldDecoratorModifierNode(
     KeyInputModifierNode,
     CompositionLocalConsumerModifierNode {
 
-    private val pointerInputNode = SuspendingPointerInputModifierNode {
+    private val pointerInputNode = delegate(SuspendingPointerInputModifierNode {
         detectTapAndPress(onTap = {
             if (!isFocused) {
                 requestFocus()
@@ -145,10 +145,7 @@ internal class TextFieldDecoratorModifierNode(
                 textInputSession?.showSoftwareKeyboard()
             }
         })
-    }
-        // TODO: remove `.node` after aosp/2462416 lands and merge everything into one delegated
-        //  block
-        .also { delegated { it.node } }
+    })
 
     var keyboardOptions: KeyboardOptions = keyboardOptions.withDefaultsFrom(filter?.keyboardOptions)
         private set
