@@ -120,20 +120,17 @@ public final class TabTemplateDemoScreen extends Screen {
                             ICON_RES_IDS[i])).build())
                     .setContentId(contentId);
             if (TextUtils.isEmpty(mActiveContentId) && i == 0) {
-                tabBuilder.setActive(true);
+                mActiveContentId = contentId;
                 mTabTemplateBuilder.setTabContents(tabContents);
             } else if (TextUtils.equals(mActiveContentId, contentId)) {
-                tabBuilder.setActive(true);
                 mTabTemplateBuilder.setTabContents(tabContents);
-            } else {
-                tabBuilder.setActive(false);
             }
 
             Tab tab = tabBuilder.build();
             mTabs.put(tab.getContentId(), tab);
             mTabTemplateBuilder.addTab(tab);
         }
-        return mTabTemplateBuilder.build();
+        return mTabTemplateBuilder.setActiveTabContentId(mActiveContentId).build();
     }
 
     private ListTemplate createListTemplate() {

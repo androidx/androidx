@@ -86,18 +86,14 @@ public final class TabTemplateLoadingDemoScreen extends Screen {
                             sIconResIds[i])).build())
                     .setContentId(contentId);
             if (TextUtils.isEmpty(mActiveContentId) && i == 0) {
-                tabBuilder.setActive(true);
-            } else if (TextUtils.equals(mActiveContentId, contentId)) {
-                tabBuilder.setActive(true);
-            } else {
-                tabBuilder.setActive(false);
+                mActiveContentId = contentId;
             }
 
             Tab tab = tabBuilder.build();
             mTabs.put(tab.getContentId(), tab);
             mTabTemplateBuilder.addTab(tab);
 
-            if (tab.isActive()) {
+            if (TextUtils.equals(mActiveContentId, contentId)) {
                 if (i == 0) {
                     mTabTemplateBuilder.setLoading(true);
                 } else {
@@ -105,7 +101,7 @@ public final class TabTemplateLoadingDemoScreen extends Screen {
                 }
             }
         }
-        return mTabTemplateBuilder.build();
+        return mTabTemplateBuilder.setActiveTabContentId(mActiveContentId).build();
     }
 
     private TabContents createSearchTab() {
