@@ -15,8 +15,6 @@
  */
 
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -34,6 +32,7 @@ dependencies {
     // Classes and types that are only needed at runtime
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesGuava)
+    implementation(libs.kotlinCoroutinesTest)
     implementation(project(":camera:camera-camera2-pipe"))
 
     testImplementation(libs.testCore)
@@ -45,21 +44,24 @@ dependencies {
 }
 
 android {
+    lintOptions {
+        enable 'CameraXQuirksClassDetector'
+    }
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.camera.camera2.pipe.testing"
 }
 
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
     }
 }
 
 androidx {
     name = "Jetpack Camera Camera Pipe Testing Library"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.CAMERA
     mavenVersion = LibraryVersions.CAMERA_PIPE
     runApiTasks = new RunApiTasks.No("CameraPipe is an implementation detail of other libraries.")
     inceptionYear = "2020"

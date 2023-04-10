@@ -245,6 +245,7 @@ class IncrementalAnnotationProcessingTest {
             apply plugin: 'com.android.application'
 
             android {
+                namespace "androidx.lifecycle.incap"
                 compileSdkVersion ${projectSetup.props.compileSdkVersion}
                 buildToolsVersion "${projectSetup.props.buildToolsVersion}"
 
@@ -282,9 +283,7 @@ class IncrementalAnnotationProcessingTest {
         addFileWithContent(
             "$MAIN_DIR/AndroidManifest.xml",
             """
-            <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-                package="androidx.lifecycle.incap">
-            </manifest>
+            <manifest/>
             """.trimIndent()
         )
     }

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -38,14 +37,12 @@ dependencies {
 }
 
 /**
- * Create a properties file with versions that can be read from the test helper to setup test
- * projects.
+ * Create a properties file with versions that can be read from the test helper to setup test projects.
  * see: b/178725084
  */
-def testPropsOutDir = project.layout.buildDirectory.dir("test-config")
 def writeTestPropsTask = tasks.register("prepareTestConfiguration", WriteProperties.class) {
     description = "Generates a properties file with the current environment for compilation tests"
-    setOutputFile(testPropsOutDir.map {
+    setOutputFile(project.layout.buildDirectory.dir("test-config").map {
         it.file("androidx.room.compiler.processing.util.CompilationTestCapabilities.Config" +
                 ".properties")
     })
@@ -53,26 +50,14 @@ def writeTestPropsTask = tasks.register("prepareTestConfiguration", WritePropert
     property("kspVersion", libs.versions.ksp.get())
 }
 
+// Remove upon updating to version 8.0 of lint plugin, b/253219347
+tasks.named("compileKotlin").configure { it.dependsOn(writeTestPropsTask) }
+
 java {
     sourceSets {
         main {
-            resources.srcDir(testPropsOutDir)
+            resources.srcDir(writeTestPropsTask.map { it.outputFile.parentFile })
         }
-    }
-}
-
-tasks.named("sourceJar").configure {
-    dependsOn(writeTestPropsTask)
-}
-tasks.named("processResources").configure {
-    dependsOn(writeTestPropsTask)
-}
-
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += [
-                "-Xjvm-default=all",
-        ]
     }
 }
 
@@ -81,8 +66,7 @@ tasks.withType(KotlinCompile).configureEach {
 tasks.named("compileTestKotlin", KotlinCompile.class).configure {
     it.kotlinOptions {
         freeCompilerArgs += [
-                "-Xopt-in=kotlin.RequiresOptIn",
-                "-Xopt-in=androidx.room.compiler.processing.ExperimentalProcessingApi"
+                "-opt-in=androidx.room.compiler.processing.ExperimentalProcessingApi"
         ]
     }
 }
@@ -90,7 +74,6 @@ tasks.named("compileTestKotlin", KotlinCompile.class).configure {
 androidx {
     name = "AndroidX Room XProcessor Testing"
     type = LibraryType.ANNOTATION_PROCESSOR_UTILS
-    mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2020"
     description = "Testing helpers for Room XProcessing APIs"
 }

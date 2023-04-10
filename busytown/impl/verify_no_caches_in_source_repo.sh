@@ -26,7 +26,7 @@ function checkForGeneratedFilesInSourceRepo() {
 
   # Paths that are still expected to be generated and that we have to allow
   # If you need add or remove an exemption here, update cleanBuild.sh too
-  EXEMPT_PATHS=".gradle buildSrc/.gradle local.properties reports build"
+  EXEMPT_PATHS=".gradle placeholder/.gradle buildSrc/.gradle local.properties reports build"
   # put "./" in front of each path to match the output from 'find'
   EXEMPT_PATHS="$(echo " $EXEMPT_PATHS" | sed 's| | ./|g')"
   # build a `find` argument for skipping descending into the exempt paths
@@ -76,5 +76,4 @@ Generated files should go in OUT_DIR instead because that is where developers ex
     exit 1
   fi
 }
-echo checking compared to $COMPARE_TO_FILE
 checkForGeneratedFilesInSourceRepo

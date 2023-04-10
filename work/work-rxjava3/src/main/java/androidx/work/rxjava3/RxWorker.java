@@ -207,7 +207,7 @@ public abstract class RxWorker extends ListenableWorker {
         single.subscribeOn(scheduler)
                 // observe on WM's private thread
                 .observeOn(Schedulers.from(
-                        getTaskExecutor().getBackgroundExecutor(),
+                        getTaskExecutor().getSerialTaskExecutor(),
                         /* interruptible */true,
                         /* fair */true))
                 .subscribe(adapter);

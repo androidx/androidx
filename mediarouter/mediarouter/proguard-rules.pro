@@ -12,5 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Prevent MediaRouteActionProvider from being removed or renamed.
--keep class androidx.mediarouter.app.MediaRouteActionProvider { public <init>(...); }
+# Allow R8 / ProGuard to remove debugging code.
+-assumevalues class androidx.mediarouter.** {
+  static boolean DEBUG return false;
+}

@@ -16,33 +16,26 @@
 
 package androidx.camera.extensions.impl;
 
+import android.annotation.SuppressLint;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.TotalCaptureResult;
 import android.media.Image;
 import android.util.Pair;
-import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.RequiresApi;
 
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 /**
  * The interface for processing a set of {@link Image}s that have captured.
  *
  * @since 1.0
  */
+@SuppressLint("UnknownNullness")
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public interface CaptureProcessorImpl {
-    /**
-     * This gets called to update where the CaptureProcessor should write the output of {@link
-     * #process(Map)}.
-     *
-     * @param surface The {@link Surface} that the CaptureProcessor should write data into.
-     * @param imageFormat The format of that the surface expects.
-     */
-    void onOutputSurface(Surface surface, int imageFormat);
-
+public interface CaptureProcessorImpl extends ProcessorImpl {
     /**
      * Process a set images captured that were requested.
      *
@@ -56,20 +49,21 @@ public interface CaptureProcessorImpl {
     void process(Map<Integer, Pair<Image, TotalCaptureResult>> results);
 
     /**
-     * This callback will be invoked when CameraX changes the configured input resolution. After
-     * this call, {@link CaptureProcessorImpl} should expect any {@link Image} received as input
-     * to be at the specified resolution.
+     * Process a set images captured that were requested.
      *
-     * @param size for the surface.
-     */
-    void onResolutionUpdate(Size size);
-
-    /**
-     * This callback will be invoked when CameraX changes the configured input image format.
-     * After this call, {@link CaptureProcessorImpl} should expect any {@link Image} received as
-     * input to have the specified image format.
+     * <p> The result of the processing step should be written to the {@link Surface} that was
+     * received by {@link #onOutputSurface(Surface, int)}.
      *
-     * @param imageFormat for the surface.
+     * @param results        The map of {@link ImageFormat#YUV_420_888} format images and metadata
+     *                       to process. The {@link Image} that are contained within the map will
+     *                       become invalid after this method completes, so no references to them
+     *                       should be kept.
+     * @param resultCallback Capture result callback to be called once the capture result
+     *                       values of the processed image are ready.
+     * @param executor       The executor to run the callback on. If null then the callback will
+     *                       run on any arbitrary executor.
+     * @since 1.3
      */
-    void onImageFormatUpdate(int imageFormat);
+    void process(Map<Integer, Pair<Image, TotalCaptureResult>> results,
+            ProcessResultImpl resultCallback, Executor executor);
 }

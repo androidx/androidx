@@ -228,4 +228,58 @@ class RemoveWorkManagerInitializerDetectorTest {
             )
         /* ktlint-enable max-line-length */
     }
+
+    @Test
+    fun testSuppressWhenManifestHasDefaultInitializer() {
+        val customApplication = kotlin(
+            "com/example/App.kt",
+            """
+            package com.example
+
+            import android.annotation.SuppressLint
+            import android.app.Application
+            import androidx.work.Configuration
+
+            @SuppressLint("RemoveWorkManagerInitializer")
+            class App: Application(), Configuration.Provider {
+                override fun onCreate() {
+
+                }
+
+                override fun getWorkManagerConfiguration(): Configuration = TODO()
+            }
+            """
+        ).indented().within("src")
+
+        val manifestWithInitializer = manifest(
+            """
+               <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:tools="http://schemas.android.com/tools"
+                  package="com.example">
+                  <application>
+                        <provider
+                          android:name="androidx.startup.InitializationProvider"
+                          android:authorities="com.example.workmanager-init">
+                          <meta-data
+                            android:name="androidx.work.WorkManagerInitializer"
+                            android:value="@string/androidx_startup" />
+                      </provider>
+                  </application>
+                </manifest>
+        """
+        ).indented()
+
+        /* ktlint-disable max-line-length */
+        lint().files(
+            // Manifest file
+            manifestWithInitializer,
+            // Source files
+            ANDROID_APPLICATION,
+            WORK_MANAGER_CONFIGURATION_PROVIDER,
+            customApplication
+        ).issues(RemoveWorkManagerInitializerDetector.ISSUE)
+            .run()
+            .expectClean()
+        /* ktlint-enable max-line-length */
+    }
 }

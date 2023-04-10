@@ -19,7 +19,6 @@
 package androidx.camera.camera2.pipe.compat
 
 import android.graphics.SurfaceTexture
-import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.OutputConfiguration
 import android.os.Build
 import android.util.Size
@@ -27,13 +26,19 @@ import android.view.Surface
 import android.view.SurfaceHolder
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.OutputStream.DynamicRangeProfile
+import androidx.camera.camera2.pipe.OutputStream.MirrorMode
 import androidx.camera.camera2.pipe.OutputStream.OutputType
+import androidx.camera.camera2.pipe.OutputStream.StreamUseCase
+import androidx.camera.camera2.pipe.OutputStream.TimestampBase
 import androidx.camera.camera2.pipe.UnsafeWrapper
+import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper.Companion.SURFACE_GROUP_ID_NONE
+import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.checkNOrHigher
 import androidx.camera.camera2.pipe.core.checkOOrHigher
 import androidx.camera.camera2.pipe.core.checkPOrHigher
-import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper.Companion.SURFACE_GROUP_ID_NONE
 import java.util.concurrent.Executor
+import kotlin.reflect.KClass
 
 /**
  * A data class that mirrors the fields in [android.hardware.camera2.params.SessionConfiguration] so
@@ -46,9 +51,8 @@ internal data class SessionConfigData(
     val outputConfigurations: List<OutputConfigurationWrapper>,
     val executor: Executor,
     val stateCallback: CameraCaptureSessionWrapper.StateCallback,
-
     val sessionTemplateId: Int,
-    val sessionParameters: Map<CaptureRequest.Key<*>, Any>
+    val sessionParameters: Map<*, Any?>
 ) {
     companion object {
         /* NOTE: These must keep in sync with their SessionConfiguration values. */
@@ -62,11 +66,7 @@ internal data class SessionConfigData(
  * that a real instance can be constructed when creating a
  * [android.hardware.camera2.CameraCaptureSession] on newer versions of the OS.
  */
-internal data class InputConfigData(
-    val width: Int,
-    val height: Int,
-    val format: Int
-)
+internal data class InputConfigData(val width: Int, val height: Int, val format: Int)
 
 /**
  * An interface for [OutputConfiguration] with minor modifications.
@@ -77,10 +77,10 @@ internal data class InputConfigData(
  * [OutputConfiguration]'s are NOT immutable, and changing state of an [OutputConfiguration] may
  * require the CameraCaptureSession to be finalized or updated.
  */
-internal interface OutputConfigurationWrapper : UnsafeWrapper<OutputConfiguration> {
+internal interface OutputConfigurationWrapper : UnsafeWrapper {
     /**
-     * This method will return null if the output configuration was created without a Surface,
-     * and until addSurface is called for the first time.
+     * This method will return null if the output configuration was created without a Surface, and
+     * until addSurface is called for the first time.
      *
      * @see OutputConfiguration.getSurface
      */
@@ -88,8 +88,8 @@ internal interface OutputConfigurationWrapper : UnsafeWrapper<OutputConfiguratio
 
     /**
      * This method returns the current list of surfaces for this [OutputConfiguration]. Since the
-     * [OutputConfiguration] is stateful, this value may change as a result of calling addSurface
-     * or removeSurface.
+     * [OutputConfiguration] is stateful, this value may change as a result of calling addSurface or
+     * removeSurface.
      *
      * @see OutputConfiguration.getSurfaces
      */
@@ -129,29 +129,46 @@ internal class AndroidOutputConfiguration(
     @RequiresApi(24)
     companion object {
         /**
-         * Create and validate an OutputConfiguration for Camera2.
+         * Create and validate an OutputConfiguration for Camera2. null is returned when a
+         * non-exceptional error is encountered when creating the OutputConfiguration.
          */
         fun create(
             surface: Surface?,
             outputType: OutputType = OutputType.SURFACE,
+            mirrorMode: MirrorMode? = null,
+            timestampBase: TimestampBase? = null,
+            dynamicRangeProfile: DynamicRangeProfile? = null,
+            streamUseCase: StreamUseCase? = null,
             size: Size? = null,
             surfaceSharing: Boolean = false,
             surfaceGroupId: Int = SURFACE_GROUP_ID_NONE,
-            physicalCameraId: CameraId? = null
-        ): OutputConfigurationWrapper {
+            physicalCameraId: CameraId? = null,
+            cameraId: CameraId? = null,
+            camera2MetadataProvider: Camera2MetadataProvider? = null,
+        ): OutputConfigurationWrapper? {
             check(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
 
             // Create the OutputConfiguration using the groupId via the constructor (if set)
             val configuration: OutputConfiguration
             if (outputType == OutputType.SURFACE) {
                 check(surface != null) {
-                    "OutputConfigurations defined with ${OutputType.SURFACE} must provide a valid" +
-                        " surface!"
+                    "OutputConfigurations defined with ${OutputType.SURFACE} must provide a"
+                    "non-null surface!"
                 }
-                configuration = if (surfaceGroupId != SURFACE_GROUP_ID_NONE) {
-                    OutputConfiguration(surfaceGroupId, surface)
-                } else {
-                    OutputConfiguration(surface)
+                // OutputConfiguration will, on some OS versions, attempt to read the surface size
+                // from the Surface object. If the Surface has been destroyed, this check will fail.
+                // Because there's no way to cleanly synchronize and check the value, we catch the
+                // exception for these cases.
+                try {
+                    configuration =
+                        if (surfaceGroupId != SURFACE_GROUP_ID_NONE) {
+                            OutputConfiguration(surfaceGroupId, surface)
+                        } else {
+                            OutputConfiguration(surface)
+                        }
+                } catch (e: Throwable) {
+                    Log.warn(e) { "Failed to create an OutputConfiguration for $surface!" }
+                    return null
                 }
             } else {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
@@ -164,13 +181,13 @@ internal class AndroidOutputConfiguration(
                 check(size != null) {
                     "Size must defined when creating a deferred OutputConfiguration."
                 }
-                val outputKlass = when (outputType) {
-                    OutputType.SURFACE_TEXTURE -> SurfaceTexture::class.java
-                    OutputType.SURFACE_VIEW -> SurfaceHolder::class.java
-                    OutputType.SURFACE -> throw IllegalStateException(
-                        "Unsupported OutputType: $outputType"
-                    )
-                }
+                val outputKlass =
+                    when (outputType) {
+                        OutputType.SURFACE_TEXTURE -> SurfaceTexture::class.java
+                        OutputType.SURFACE_VIEW -> SurfaceHolder::class.java
+                        OutputType.SURFACE ->
+                            throw IllegalStateException("Unsupported OutputType: $outputType")
+                    }
                 configuration = Api26Compat.newOutputConfiguration(size, outputKlass)
             }
 
@@ -182,6 +199,60 @@ internal class AndroidOutputConfiguration(
             // Pass along the physicalCameraId, if set.
             if (physicalCameraId != null) {
                 configuration.setPhysicalCameraIdCompat(physicalCameraId)
+            }
+
+            if (mirrorMode != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    Api33Compat.setMirrorMode(configuration, mirrorMode.value)
+                } else {
+                    if (mirrorMode != MirrorMode.MIRROR_MODE_AUTO) {
+                        Log.warn {
+                            "Cannot set mirrorMode to a non-default value on " +
+                                "API ${Build.VERSION.SDK_INT}. This may result in unexpected " +
+                                "behavior. Requested $mirrorMode"
+                        }
+                    }
+                }
+            }
+
+            if (timestampBase != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    Api33Compat.setTimestampBase(configuration, timestampBase.value)
+                } else {
+                    if (timestampBase != TimestampBase.TIMESTAMP_BASE_DEFAULT) {
+                        Log.info {
+                            "The timestamp base on API ${Build.VERSION.SDK_INT} will " +
+                                "default to TIMESTAMP_BASE_DEFAULT, with which the camera device" +
+                                " adjusts timestamps based on the output target. " +
+                                "Requested $timestampBase"
+                        }
+                    }
+                }
+            }
+
+            if (dynamicRangeProfile != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    Api33Compat.setDynamicRangeProfile(configuration, dynamicRangeProfile.value)
+                } else {
+                    if (dynamicRangeProfile != DynamicRangeProfile.STANDARD) {
+                        Log.warn {
+                            "Cannot set dynamicRangeProfile to a non-default value on API " +
+                                "${Build.VERSION.SDK_INT}. This may result in unexpected " +
+                                "behavior. Requested $dynamicRangeProfile"
+                        }
+                    }
+                }
+            }
+
+            if (streamUseCase != null && cameraId != null && camera2MetadataProvider != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    val cameraMetadata = camera2MetadataProvider.awaitCameraMetadata(cameraId)
+                    val availableStreamUseCases =
+                        Api33Compat.getAvailableStreamUseCases(cameraMetadata)
+                    if (availableStreamUseCases?.contains(streamUseCase.value) == true) {
+                        Api33Compat.setStreamUseCase(configuration, streamUseCase.value)
+                    }
+                }
             }
 
             // Create and return the Android
@@ -242,7 +313,12 @@ internal class AndroidOutputConfiguration(
     override val surfaceGroupId: Int
         get() = output.surfaceGroupId
 
-    override fun unwrap(): OutputConfiguration = output
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+        when (type) {
+            OutputConfiguration::class -> output as T
+            else -> null
+        }
 
     override fun toString(): String = output.toString()
 }

@@ -40,6 +40,7 @@ import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureMetaData;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.ImageCaptureConfig;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
@@ -57,6 +58,7 @@ import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -95,9 +97,9 @@ public class ImageCaptureTest {
 
         FakeCameraDeviceSurfaceManager fakeCameraDeviceSurfaceManager =
                 new FakeCameraDeviceSurfaceManager();
-        fakeCameraDeviceSurfaceManager.setSuggestedResolution("fakeCameraId",
+        fakeCameraDeviceSurfaceManager.setSuggestedStreamSpec("fakeCameraId",
                 ImageCaptureConfig.class,
-                new Size(640, 480));
+                StreamSpec.builder(new Size(640, 480)).build());
 
         UseCaseConfigFactory useCaseConfigFactory = new FakeUseCaseConfigFactory();
 
@@ -108,6 +110,15 @@ public class ImageCaptureTest {
 
         mSensorToBufferTransformMatrix = new Matrix();
         mSensorToBufferTransformMatrix.setScale(10, 10);
+    }
+
+    @After
+    public void tearDown() {
+        if (mCameraUseCaseAdapter != null) {
+            mInstrumentation.runOnMainSync(() -> {
+                mCameraUseCaseAdapter.removeUseCases(mCameraUseCaseAdapter.getUseCases());
+            });
+        }
     }
 
     @Test

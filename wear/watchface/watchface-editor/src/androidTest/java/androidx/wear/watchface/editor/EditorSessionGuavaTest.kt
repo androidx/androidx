@@ -238,6 +238,7 @@ public class EditorSessionGuavaTest {
     }
 
     @Test
+    @Suppress("Deprecation") // userStyleSettings
     public fun doNotCommitChangesOnClose() {
         val scenario = createOnWatchFaceEditingTestActivity(
             listOf(colorStyleSetting, watchHandStyleSetting),

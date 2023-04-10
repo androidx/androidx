@@ -15,13 +15,13 @@
  */
 package androidx.emoji2.bundled;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -48,6 +48,7 @@ import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 
+import androidx.annotation.RequiresApi;
 import androidx.emoji2.bundled.util.Emoji;
 import androidx.emoji2.bundled.util.EmojiMatcher;
 import androidx.emoji2.bundled.util.KeyboardUtil;
@@ -119,6 +120,7 @@ public class EmojiCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testInitWithContext_returnsInstanceWhenFound() {
         EmojiCompat.reset((EmojiCompat) null);
         EmojiCompat.skipDefaultConfigurationLookup(false);
@@ -156,6 +158,7 @@ public class EmojiCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testProcess_returnsEmptySpanned_withEmptyString() {
         final CharSequence charSequence = EmojiCompat.get().process("");
         assertNotNull(charSequence);
@@ -202,6 +205,7 @@ public class EmojiCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testProcess_doesNotAddEmojiSpan() {
         final String string = "abc";
         final CharSequence charSequence = EmojiCompat.get().process(string);
@@ -221,7 +225,7 @@ public class EmojiCompatTest {
         testString = new SpannableString("abc");
         assertSame(testString, EmojiCompat.get().process(testString));
 
-        testString = new TestString(new int[]{Emoji.CHAR_DEFAULT_EMOJI_STYLE}).toString();
+        testString = new TestString(Emoji.CHAR_DEFAULT_EMOJI_STYLE).toString();
         assertSame(testString, EmojiCompat.get().process(testString));
     }
 
@@ -288,6 +292,7 @@ public class EmojiCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testProcess_doesNotAddEmoji_forVariantBaseWithoutSelector() {
         assertCodePointDoesNotMatch(new int[]{Emoji.CHAR_DIGIT});
     }
@@ -361,9 +366,9 @@ public class EmojiCompatTest {
                 {0x2764, 0xF0362}
         };
 
-        for (int i = 0; i < exceptions.length; i++) {
-            final int[] codepoints = new int[]{exceptions[i][0]};
-            assertCodePointMatch(exceptions[i][1], codepoints);
+        for (int[] exception : exceptions) {
+            final int[] codepoints = new int[]{exception[0]};
+            assertCodePointMatch(exception[1], codepoints);
         }
     }
 
@@ -450,13 +455,14 @@ public class EmojiCompatTest {
         assertThat(processed, EmojiMatcher.hasEmojiCount(3));
         // new spans should be new instances
         final EmojiSpan[] newSpans = processed.getSpans(0, processed.length(), EmojiSpan.class);
-        for (int i = 0; i < newSpans.length; i++) {
-            assertFalse(spanSet.contains(newSpans[i]));
+        for (EmojiSpan newSpan : newSpans) {
+            assertFalse(spanSet.contains(newSpan));
         }
     }
 
     @SuppressLint("Range")
     @Test(expected = IllegalArgumentException.class)
+    @SdkSuppress(minSdkVersion = 19)
     public void testProcess_throwsException_withMaxEmojiSetToNegative() {
         final String original = new TestString(Emoji.EMOJI_SINGLE_CODEPOINT).toString();
 
@@ -467,6 +473,7 @@ public class EmojiCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testProcess_withMaxEmojiSetToZero() {
         final String original = new TestString(Emoji.EMOJI_SINGLE_CODEPOINT).toString();
 
@@ -641,63 +648,100 @@ public class EmojiCompatTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void testHasEmojiGlyph_withNullCharSequence() {
-        EmojiCompat.get().hasEmojiGlyph(null);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testHasEmojiGlyph_withMetadataVersion_withNullCharSequence() {
-        EmojiCompat.get().hasEmojiGlyph(null, Integer.MAX_VALUE);
+    public void testEmojiMatch_withMetadataVersion_withNullCharSequence() {
+        //noinspection ConstantConditions
+        EmojiCompat.get().getEmojiMatch(null, Integer.MAX_VALUE);
     }
 
     @Test
     @SdkSuppress(maxSdkVersion = 18)
-    public void testHasEmojiGlyph_pre19() {
-        String sequence = new TestString(new int[]{Emoji.CHAR_DEFAULT_EMOJI_STYLE}).toString();
-        assertFalse(EmojiCompat.get().hasEmojiGlyph(sequence));
-    }
-
-    @Test
-    @SdkSuppress(maxSdkVersion = 18)
-    public void testHasEmojiGlyph_withMetaVersion_pre19() {
-        String sequence = new TestString(new int[]{Emoji.CHAR_DEFAULT_EMOJI_STYLE}).toString();
-        assertFalse(EmojiCompat.get().hasEmojiGlyph(sequence, Integer.MAX_VALUE));
+    public void testEmojiMatch_pre19() {
+        String sequence = new TestString(Emoji.CHAR_DEFAULT_EMOJI_STYLE).toString();
+        assertEquals(EmojiCompat.EMOJI_UNSUPPORTED,
+                EmojiCompat.get().getEmojiMatch(sequence, Integer.MAX_VALUE));
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 19)
-    public void testHasEmojiGlyph_returnsTrueForExistingEmoji() {
+    public void testGetEmojiMatch_returnsMatchForExistingEmoji() {
+        final String sequence = new TestString(Emoji.EMOJI_FLAG).toString();
+        assertEquals(EmojiCompat.EMOJI_SUPPORTED,
+                EmojiCompat.get().getEmojiMatch(sequence, Integer.MAX_VALUE));
+    }
+
+
+    @SuppressWarnings("deprecation")
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testGetEmojiMatch_returnsMatchForExistingEmoji_deprecatedPath() {
         final String sequence = new TestString(Emoji.EMOJI_FLAG).toString();
         assertTrue(EmojiCompat.get().hasEmojiGlyph(sequence));
     }
 
     @Test
-    public void testHasGlyph_returnsFalseForNonExistentEmoji() {
-        final String sequence = new TestString(Emoji.EMOJI_FLAG).append(0x1111).toString();
+    @SdkSuppress(minSdkVersion = 19)
+    public void testEmojiMatch_returnsDecomposeForPartialMatch() {
+        final String sequence = new TestString(Emoji.EMOJI_FLAG)
+                .append(Emoji.EMOJI_FLAG)
+                .toString();
+        assertEquals(EmojiCompat.EMOJI_FALLBACK,
+                EmojiCompat.get().getEmojiMatch(sequence, Integer.MAX_VALUE));
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testEmojiMatch_returnsDecomposeForPartialMatch_deprecatedPath() {
+        final String sequence = new TestString(Emoji.EMOJI_FLAG)
+                .append(Emoji.EMOJI_FLAG)
+                .toString();
+        assertFalse(EmojiCompat.get().hasEmojiGlyph(sequence));
+    }
+
+    @Test
+    public void testEmojiMatch_returnsNoMatchForNonExistentEmoji() {
+        final String sequence = new TestString(72).toString();
+        assertEquals(EmojiCompat.EMOJI_UNSUPPORTED,
+                EmojiCompat.get().getEmojiMatch(sequence, Integer.MAX_VALUE));
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testEmojiMatch_returnsNoMatchForNonExistentEmoji_deprecatedPath() {
+        final String sequence = new TestString(72).toString();
         assertFalse(EmojiCompat.get().hasEmojiGlyph(sequence));
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 19)
     public void testHashEmojiGlyph_withDefaultEmojiStyles() {
-        String sequence = new TestString(new int[]{Emoji.CHAR_DEFAULT_EMOJI_STYLE}).toString();
-        assertTrue(EmojiCompat.get().hasEmojiGlyph(sequence));
+        String sequence = new TestString(Emoji.CHAR_DEFAULT_EMOJI_STYLE).toString();
+        assertEquals(EmojiCompat.EMOJI_SUPPORTED,
+                EmojiCompat.get().getEmojiMatch(sequence, Integer.MAX_VALUE));
 
-        sequence = new TestString(
-                new int[]{Emoji.CHAR_DEFAULT_EMOJI_STYLE, Emoji.CHAR_VS_EMOJI}).toString();
-        assertTrue(EmojiCompat.get().hasEmojiGlyph(sequence));
+        sequence = new TestString(Emoji.CHAR_DEFAULT_EMOJI_STYLE, Emoji.CHAR_VS_EMOJI)
+                .toString();
+        assertEquals(EmojiCompat.EMOJI_SUPPORTED,
+                EmojiCompat.get().getEmojiMatch(sequence, Integer.MAX_VALUE));
+    }
 
-        sequence = new TestString(
-                new int[]{Emoji.CHAR_DEFAULT_EMOJI_STYLE, Emoji.CHAR_VS_TEXT}).toString();
-        assertFalse(EmojiCompat.get().hasEmojiGlyph(sequence));
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testEmojiGlyph_TextStyle_doesNotMatch() {
+        String sequence = new TestString(Emoji.CHAR_DEFAULT_EMOJI_STYLE, Emoji.CHAR_VS_TEXT)
+                .toString();
+        assertEquals(EmojiCompat.EMOJI_UNSUPPORTED,
+                EmojiCompat.get().getEmojiMatch(sequence, Integer.MAX_VALUE));
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 19)
     public void testHashEmojiGlyph_withMetadataVersion() {
         final String sequence = new TestString(Emoji.EMOJI_SINGLE_CODEPOINT).toString();
-        assertFalse(EmojiCompat.get().hasEmojiGlyph(sequence, 0));
-        assertTrue(EmojiCompat.get().hasEmojiGlyph(sequence, Integer.MAX_VALUE));
+        assertEquals(EmojiCompat.EMOJI_UNSUPPORTED,
+                EmojiCompat.get().getEmojiMatch(sequence, 0));
+        assertEquals(EmojiCompat.EMOJI_SUPPORTED,
+                EmojiCompat.get().getEmojiMatch(sequence, Integer.MAX_VALUE));
     }
 
     @Test
@@ -741,6 +785,7 @@ public class EmojiCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testUpdateEditorInfoAttrs_doesNotSetKeyIfNotInitialized() {
         final EditorInfo editorInfo = new EditorInfo();
         editorInfo.extras = new Bundle();
@@ -760,6 +805,7 @@ public class EmojiCompatTest {
     }
 
     @Test(expected = IllegalStateException.class)
+    @SdkSuppress(minSdkVersion = 19)
     public void testLoad_throwsException_whenLoadStrategyDefault() {
         final EmojiCompat.MetadataRepoLoader loader = mock(EmojiCompat.MetadataRepoLoader.class);
         final EmojiCompat.Config config = new TestConfigBuilder.TestConfig(loader);
@@ -991,10 +1037,12 @@ public class EmojiCompatTest {
                 EmojiMatcher.hasEmojiAt(Emoji.DEFAULT_TEXT_STYLE, 0, 1));
     }
 
+    @RequiresApi(19)
     private void assertCodePointMatch(Emoji.EmojiMapping emoji) {
         assertCodePointMatch(emoji.id(), emoji.codepoints());
     }
 
+    @RequiresApi(19)
     private void assertCodePointMatch(int id, int[] codepoints) {
         TestString string = new TestString(codepoints);
         CharSequence charSequence = EmojiCompat.get().process(string.toString());
@@ -1014,6 +1062,7 @@ public class EmojiCompatTest {
                 EmojiMatcher.hasEmojiAt(id, string.emojiStartIndex(), string.emojiEndIndex()));
     }
 
+    @RequiresApi(19)
     private void assertCodePointDoesNotMatch(int[] codepoints) {
         TestString string = new TestString(codepoints);
         CharSequence charSequence = EmojiCompat.get().process(string.toString());

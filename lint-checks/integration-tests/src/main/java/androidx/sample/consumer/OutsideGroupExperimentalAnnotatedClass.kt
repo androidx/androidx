@@ -19,7 +19,10 @@
 package androidx.sample.consumer
 
 import sample.annotation.provider.ExperimentalSampleAnnotationJava
+import sample.annotation.provider.RequiresAndroidXOptInSampleAnnotationJava
+import sample.annotation.provider.RequiresAndroidXOptInSampleAnnotationJavaDuplicate
 import sample.annotation.provider.RequiresOptInSampleAnnotationJava
+import sample.annotation.provider.RequiresOptInSampleAnnotationJavaDuplicate
 
 class OutsideGroupExperimentalAnnotatedClass {
 
@@ -38,4 +41,44 @@ class OutsideGroupExperimentalAnnotatedClass {
     fun invalidRequiresOptInAnnotatedMethod() {
         // Nothing to see here.
     }
+
+    @kotlin.OptIn(RequiresOptInSampleAnnotationJava::class)
+    fun invalidMethodWithSingleOptIn() {
+        // Nothing to see here.
+    }
+
+    @kotlin.OptIn(
+        RequiresOptInSampleAnnotationJava::class,
+        RequiresOptInSampleAnnotationJavaDuplicate::class
+    )
+    fun invalidMethodWithMultipleOptInsWithLineBreaks() {
+        // Nothing to see here.
+    }
+
+    /* ktlint-disable max-line-length */
+    @kotlin.OptIn(RequiresOptInSampleAnnotationJava::class, RequiresOptInSampleAnnotationJavaDuplicate::class)
+    fun invalidMethodWithMultipleOptInsWithoutLineBreaks() {
+        // Nothing to see here.
+    }
+    /* ktlint-enable max-line-length */
+
+    @androidx.annotation.OptIn(RequiresAndroidXOptInSampleAnnotationJava::class)
+    fun invalidMethodWithSingleAndroidXOptIn() {
+        // Nothing to see here.
+    }
+
+    @androidx.annotation.OptIn(
+        RequiresAndroidXOptInSampleAnnotationJava::class,
+        RequiresAndroidXOptInSampleAnnotationJavaDuplicate::class
+    )
+    fun invalidMethodWithMultipleAndroidXOptInsWithLineBreaks() {
+        // Nothing to see here.
+    }
+
+    /* ktlint-disable max-line-length */
+    @androidx.annotation.OptIn(RequiresAndroidXOptInSampleAnnotationJava::class, RequiresAndroidXOptInSampleAnnotationJavaDuplicate::class)
+    fun invalidMethodWithMultipleAndroidXOptInsWithoutLineBreaks() {
+        // Nothing to see here.
+    }
+    /* ktlint-enable max-line-length */
 }

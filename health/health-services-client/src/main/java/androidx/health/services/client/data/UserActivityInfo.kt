@@ -16,11 +16,10 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcelable
-import androidx.health.services.client.data.UserActivityState.USER_ACTIVITY_ASLEEP
-import androidx.health.services.client.data.UserActivityState.USER_ACTIVITY_EXERCISE
-import androidx.health.services.client.data.UserActivityState.USER_ACTIVITY_PASSIVE
-import androidx.health.services.client.data.UserActivityState.USER_ACTIVITY_UNKNOWN
+import androidx.health.services.client.data.UserActivityState.Companion.USER_ACTIVITY_ASLEEP
+import androidx.health.services.client.data.UserActivityState.Companion.USER_ACTIVITY_EXERCISE
+import androidx.health.services.client.data.UserActivityState.Companion.USER_ACTIVITY_PASSIVE
+import androidx.health.services.client.data.UserActivityState.Companion.USER_ACTIVITY_UNKNOWN
 import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.UserActivityInfo as UserActivityInfoProto
 import java.time.Instant
@@ -28,7 +27,7 @@ import java.time.Instant
 /**
  * Represents an update from Passive tracking.
  *
- * Provides [DataPoint] s associated with the Passive tracking, in addition to data related to the
+ * Provides [DataPoint]s associated with the Passive tracking, in addition to data related to the
  * user's [UserActivityState].
  */
 @Suppress("ParcelCreator")
@@ -38,13 +37,13 @@ public class UserActivityInfo(
 
     /**
      * The [ExerciseInfo] of the user for a [UserActivityState.USER_ACTIVITY_EXERCISE] state, and
-     * `null` for other [UserActivityState] s.
+     * `null` for other [UserActivityState]s.
      */
     public val exerciseInfo: ExerciseInfo?,
 
     /** The time at which the current state took effect. */
     public val stateChangeTime: Instant,
-) : ProtoParcelable<UserActivityInfoProto>() {
+) {
 
     internal constructor(
         proto: DataProto.UserActivityInfo
@@ -54,15 +53,16 @@ public class UserActivityInfo(
         Instant.ofEpochMilli(proto.stateChangeTimeEpochMs)
     )
 
-    /** @hide */
-    override val proto: UserActivityInfoProto by lazy {
+    internal val proto: UserActivityInfoProto = getUserActivityInfoProto()
+
+    private fun getUserActivityInfoProto(): UserActivityInfoProto {
         val builder =
             UserActivityInfoProto.newBuilder()
                 .setState(userActivityState.toProto())
                 .setStateChangeTimeEpochMs(stateChangeTime.toEpochMilli())
 
         exerciseInfo?.let { builder.exerciseInfo = it.proto }
-        builder.build()
+        return builder.build()
     }
 
     override fun toString(): String =
@@ -72,12 +72,6 @@ public class UserActivityInfo(
             "exerciseInfo=$exerciseInfo)"
 
     public companion object {
-        @JvmField
-        public val CREATOR: Parcelable.Creator<UserActivityInfo> = newCreator { bytes ->
-            val proto = UserActivityInfoProto.parseFrom(bytes)
-            UserActivityInfo(proto)
-        }
-
         /** Creates a [UserActivityInfo] for [USER_ACTIVITY_UNKNOWN]. */
         @JvmStatic
         public fun createUnknownTypeState(stateChangeTime: Instant): UserActivityInfo =

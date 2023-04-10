@@ -31,5 +31,6 @@ android {
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
     }
+    namespace "com.example.android.support.vectordrawable"
 }
 

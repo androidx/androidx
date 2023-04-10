@@ -349,7 +349,7 @@ public class ListPreference extends DialogPreference {
         @Override
         public CharSequence provideSummary(@NonNull ListPreference preference) {
             if (TextUtils.isEmpty(preference.getEntry())) {
-                return (preference.getContext().getString(R.string.not_set));
+                return preference.getContext().getString(R.string.not_set);
             } else {
                 return preference.getEntry();
             }

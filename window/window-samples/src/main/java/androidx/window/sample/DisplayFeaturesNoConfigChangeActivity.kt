@@ -18,18 +18,21 @@ package androidx.window.sample
 
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
-import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.RecyclerView
+import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
+import androidx.window.sample.databinding.ActivityDisplayFeaturesNoConfigChangeBinding
 import androidx.window.sample.infolog.InfoLogAdapter
+import androidx.window.sample.util.PictureInPictureUtil.appendPictureInPictureMenu
+import androidx.window.sample.util.PictureInPictureUtil.handlePictureInPictureMenuItem
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -39,11 +42,14 @@ class DisplayFeaturesNoConfigChangeActivity : AppCompatActivity() {
 
     private val infoLogAdapter = InfoLogAdapter()
     private val displayFeatureViews = ArrayList<View>()
+    private lateinit var binding: ActivityDisplayFeaturesNoConfigChangeBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_display_features_no_config_change)
-        val recyclerView = findViewById<RecyclerView>(R.id.infoLogRecyclerView)
+        binding = ActivityDisplayFeaturesNoConfigChangeBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        val recyclerView = binding.infoLogRecyclerView
         recyclerView.adapter = infoLogAdapter
 
         lifecycleScope.launch(Dispatchers.Main) {
@@ -64,19 +70,35 @@ class DisplayFeaturesNoConfigChangeActivity : AppCompatActivity() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        appendPictureInPictureMenu(menuInflater, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when {
+            handlePictureInPictureMenuItem(this, item) -> true
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     /** Updates the device state and display feature positions. */
     private fun updateCurrentState(windowLayoutInfo: WindowLayoutInfo) {
         // Cleanup previously added feature views
-        val rootLayout = findViewById<FrameLayout>(R.id.featureContainerLayout)
+        val rootLayout = binding.featureContainerLayout
         for (featureView in displayFeatureViews) {
             rootLayout.removeView(featureView)
         }
         displayFeatureViews.clear()
 
+        // Update the UI with the current state
+        val stateStringBuilder = StringBuilder()
+        stateStringBuilder.append(getString(R.string.window_layout))
+            .append(": ")
+
         // Add views that represent display features
         for (displayFeature in windowLayoutInfo.displayFeatures) {
             val lp = getLayoutParamsForFeatureInFrameLayout(displayFeature, rootLayout)
-                ?: continue
 
             // Make sure that zero-wide and zero-high features are still shown
             if (lp.width == 0) {
@@ -87,14 +109,42 @@ class DisplayFeaturesNoConfigChangeActivity : AppCompatActivity() {
             }
 
             val featureView = View(this)
+            val foldFeature = displayFeature as? FoldingFeature
             val color = getColor(R.color.colorFeatureFold)
+
             featureView.foreground = ColorDrawable(color)
+
+            foldFeature?.let { feature ->
+                if (feature.isSeparating) {
+                    stateStringBuilder.append(getString(R.string.screens_are_separated))
+                } else {
+                    stateStringBuilder.append(getString(R.string.screens_are_not_separated))
+                }
+                stateStringBuilder
+                    .append(" - ")
+                    .append(
+                        if (feature.orientation == FoldingFeature.Orientation.HORIZONTAL) {
+                            getString(R.string.screen_is_horizontal)
+                        } else {
+                            getString(R.string.screen_is_vertical)
+                        }
+                    )
+                    .append(" - ")
+                    .append(
+                        if (feature.occlusionType == FoldingFeature.OcclusionType.FULL) {
+                            getString(R.string.occlusion_is_full)
+                        } else {
+                            getString(R.string.occlusion_is_none)
+                        }
+                    )
+            }
 
             rootLayout.addView(featureView, lp)
             featureView.id = View.generateViewId()
 
             displayFeatureViews.add(featureView)
         }
+        binding.currentState.text = stateStringBuilder.toString()
     }
 
     /** Adds the current state to the text log of changes on screen. */

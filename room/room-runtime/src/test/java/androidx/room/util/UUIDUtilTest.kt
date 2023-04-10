@@ -36,7 +36,7 @@ class UUIDUtilTest {
             putLong(uuid.leastSignificantBits)
         }.array()
 
-        val result = UUIDUtil.convertUUIDToByte(uuid)
+        val result = convertUUIDToByte(uuid)
 
         assertThat(result).isEqualTo(expected)
     }
@@ -48,7 +48,7 @@ class UUIDUtilTest {
         val buffer = ByteBuffer.wrap(byteArray)
         val expected = UUID(buffer.long, buffer.long)
 
-        val result = UUIDUtil.convertByteToUUID(byteArray)
+        val result = convertByteToUUID(byteArray)
 
         assertThat(result).isEqualTo(expected)
     }

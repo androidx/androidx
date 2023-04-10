@@ -14,8 +14,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.wear.watchface.samples">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!--
       Required for complications to receive complication data and open the data source chooser.
@@ -37,6 +36,39 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.DeviceDefault">
+
+        <service
+            android:name=".ExampleHierarchicalStyleWatchFaceService"
+            android:directBootAware="true"
+            android:exported="true"
+            android:label="@string/hierarchical_watch_face_name"
+            android:permission="android.permission.BIND_WALLPAPER">
+            <intent-filter>
+                <action android:name="android.service.wallpaper.WallpaperService" />
+                <category android:name=
+                    "com.google.android.wearable.watchface.category.WATCH_FACE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="com.google.android.wearable.watchface.preview"
+                android:resource="@drawable/hierarchical_preview" />
+            <meta-data
+                android:name="com.google.android.wearable.watchface.preview_circular"
+                android:resource="@drawable/hierarchical_preview" />
+            <meta-data
+                android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
+                android:value="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR"/>
+            <meta-data
+                android:name="android.service.wallpaper"
+                android:resource="@xml/watch_face" />
+            <meta-data
+                android:name="androidx.wear.watchface.MULTIPLE_INSTANCES_ALLOWED"
+                android:value="true" />
+            <meta-data
+                android:name=
+                    "com.google.android.wearable.watchface.companionBuiltinConfigurationEnabled"
+                android:value="true" />
+        </service>
 
         <service
             android:name=".ExampleCanvasAnalogWatchFaceService"
@@ -63,9 +95,15 @@
                 android:name="android.service.wallpaper"
                 android:resource="@xml/watch_face" />
             <meta-data
+                android:name="androidx.wear.watchface.MULTIPLE_INSTANCES_ALLOWED"
+                android:value="true" />
+            <meta-data
                 android:name=
                     "com.google.android.wearable.watchface.companionBuiltinConfigurationEnabled"
                 android:value="true" />
+            <meta-data
+                android:name="androidx.wear.watchface.FLAVORS_SUPPORTED"
+                android:value="true"/>
         </service>
 
         <service
@@ -92,6 +130,9 @@
             <meta-data
                 android:name="android.service.wallpaper"
                 android:resource="@xml/watch_face" />
+            <meta-data
+                android:name="androidx.wear.watchface.MULTIPLE_INSTANCES_ALLOWED"
+                android:value="true" />
             <meta-data
                 android:name=
                     "com.google.android.wearable.watchface.companionBuiltinConfigurationEnabled"
@@ -122,6 +163,9 @@
             <meta-data
                 android:name="android.service.wallpaper"
                 android:resource="@xml/watch_face" />
+            <meta-data
+                android:name="androidx.wear.watchface.MULTIPLE_INSTANCES_ALLOWED"
+                android:value="true" />
             <meta-data
                 android:name=
                     "com.google.android.wearable.watchface.companionBuiltinConfigurationEnabled"

@@ -46,6 +46,29 @@ public class PaneTemplateTest {
     }
 
     @Test
+    public void paneTemplate_title_unsupportedSpans_throws() {
+        CharSequence title1 = TestUtils.getCharSequenceWithClickableSpan("Title");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new PaneTemplate.Builder(TestUtils.createPane(2, 2)).setTitle(
+                        title1).build());
+
+        CharSequence title2 = TestUtils.getCharSequenceWithColorSpan("Title");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new PaneTemplate.Builder(TestUtils.createPane(2, 2)).setTitle(
+                        title2).build());
+
+        // CarIconSpan assert no exceptions
+        CharSequence title3 = TestUtils.getCharSequenceWithIconSpan("Title");
+        new PaneTemplate.Builder(TestUtils.createPane(2, 2)).setTitle(title3).build();
+
+        // DistanceSpan and DurationSpan assert no exceptions
+        CharSequence title4 = TestUtils.getCharSequenceWithDistanceAndDurationSpans("Title");
+        new PaneTemplate.Builder(TestUtils.createPane(2, 2)).setTitle(title4).build();
+    }
+
+    @Test
     public void pane_action_unsupportedSpans_throws() {
         CharSequence title1 = TestUtils.getCharSequenceWithClickableSpan("Title");
         Action action1 = new Action.Builder().setTitle(title1).build();
@@ -97,8 +120,9 @@ public class PaneTemplateTest {
     @Test
     public void pane_moreThanMaxPrimaryButtons_throws() {
         Action primaryAction = new Action.Builder().setTitle("primaryAction")
-                                       .setOnClickListener(() -> {})
-                                       .setFlags(FLAG_PRIMARY).build();
+                .setOnClickListener(() -> {
+                })
+                .setFlags(FLAG_PRIMARY).build();
         Row rowMeetingMaxTexts =
                 new Row.Builder().setTitle("Title").addText("text1").addText("text2").build();
 
@@ -112,8 +136,8 @@ public class PaneTemplateTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new PaneTemplate.Builder(paneExceedsMaxPrimaryAction)
-                              .setTitle("Title")
-                              .build());
+                        .setTitle("Title")
+                        .build());
     }
 
     @Test
@@ -125,12 +149,7 @@ public class PaneTemplateTest {
         }).build();
         Row rowMeetingRestrictions =
                 new Row.Builder().setTitle("Title").addText("text1").addText("text2").build();
-        assertThrows(
-                IllegalArgumentException.class,
-                () ->
-                        new PaneTemplate.Builder(new Pane.Builder().addRow(rowWithToggle).build())
-                                .setTitle("Title")
-                                .build());
+
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
@@ -140,19 +159,22 @@ public class PaneTemplateTest {
                                 .build());
 
         // Positive cases.
+        new PaneTemplate.Builder(new Pane.Builder().addRow(rowWithToggle).build())
+                                .setTitle("Title")
+                                .build();
+
         new PaneTemplate.Builder(new Pane.Builder().addRow(rowMeetingRestrictions).build())
                 .setTitle("Title")
                 .build();
     }
 
     @Test
-    public void createInstance_noHeaderTitleOrAction_throws() {
-        assertThrows(IllegalStateException.class,
-                () -> new PaneTemplate.Builder(getPane().build()).build());
+    public void createInstance_emptyHeader() {
+        PaneTemplate template = new PaneTemplate.Builder(getPane().build()).build();
 
-        // Positive cases.
-        new PaneTemplate.Builder(getPane().build()).setTitle("Title").build();
-        new PaneTemplate.Builder(getPane().build()).setHeaderAction(Action.BACK).build();
+        assertThat(template.getTitle()).isNull();
+        assertThat(template.getHeaderAction()).isNull();
+        assertThat(template.getActionStrip()).isNull();
     }
 
     @Test

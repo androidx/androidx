@@ -17,13 +17,13 @@
 package androidx.compose.compiler.plugins.kotlin
 
 import androidx.compose.compiler.plugins.kotlin.analysis.Stability
-import androidx.compose.compiler.plugins.kotlin.analysis.StabilityInferencer
 import androidx.compose.compiler.plugins.kotlin.analysis.knownStable
 import androidx.compose.compiler.plugins.kotlin.analysis.knownUnstable
+import androidx.compose.compiler.plugins.kotlin.analysis.stabilityOf
 import androidx.compose.compiler.plugins.kotlin.lower.ComposableFunctionBodyTransformer
 import androidx.compose.compiler.plugins.kotlin.lower.IrSourcePrinterVisitor
 import androidx.compose.compiler.plugins.kotlin.lower.isUnitOrNullableUnit
-import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
+import java.io.File
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrField
@@ -37,9 +37,10 @@ import org.jetbrains.kotlin.ir.util.fqNameForIrSerialization
 import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtParameter
-import java.io.File
 
+@JvmDefaultWithCompatibility
 interface FunctionMetrics {
+    val isEmpty: Boolean get() = false
     val packageName: FqName
     val name: String
     val composable: Boolean
@@ -52,6 +53,7 @@ interface FunctionMetrics {
     val defaultsGroup: Boolean
     val groups: Int
     val calls: Int
+    val scheme: String?
     fun recordGroup()
     fun recordComposableCall(
         expression: IrCall,
@@ -74,10 +76,16 @@ interface FunctionMetrics {
         hasDefaults: Boolean,
         readonly: Boolean
     )
+    fun recordScheme(
+        scheme: String
+    )
     fun print(out: Appendable, src: IrSourcePrinterVisitor)
 }
 
+@JvmDefaultWithCompatibility
 interface ModuleMetrics {
+    val isEmpty get() = false
+
     fun recordFunction(
         function: FunctionMetrics,
     )
@@ -95,6 +103,7 @@ interface ModuleMetrics {
         expression: IrCall,
         paramMeta: List<ComposableFunctionBodyTransformer.ParamMeta>
     )
+    fun log(message: String)
     fun Appendable.appendModuleJson()
     fun Appendable.appendComposablesCsv()
     fun Appendable.appendComposablesTxt()
@@ -105,6 +114,7 @@ interface ModuleMetrics {
 }
 
 object EmptyModuleMetrics : ModuleMetrics {
+    override val isEmpty: Boolean get() = true
     override fun recordFunction(function: FunctionMetrics) {}
     override fun recordClass(declaration: IrClass, marked: Boolean, stability: Stability) {}
     override fun recordLambda(composable: Boolean, memoized: Boolean, singleton: Boolean) {}
@@ -112,6 +122,9 @@ object EmptyModuleMetrics : ModuleMetrics {
         expression: IrCall,
         paramMeta: List<ComposableFunctionBodyTransformer.ParamMeta>
     ) {}
+    override fun log(message: String) {
+        println(message)
+    }
     override fun Appendable.appendModuleJson() {}
     override fun Appendable.appendComposablesCsv() {}
     override fun Appendable.appendComposablesTxt() {}
@@ -123,6 +136,7 @@ object EmptyModuleMetrics : ModuleMetrics {
 
 object EmptyFunctionMetrics : FunctionMetrics {
     private fun emptyMetricsAccessed(): Nothing = error("Empty metrics accessed")
+    override val isEmpty: Boolean get() = true
     override val packageName: FqName
         get() = emptyMetricsAccessed()
     override val name: String
@@ -147,6 +161,8 @@ object EmptyFunctionMetrics : FunctionMetrics {
         get() = emptyMetricsAccessed()
     override val calls: Int
         get() = emptyMetricsAccessed()
+    override val scheme: String
+        get() = emptyMetricsAccessed()
     override fun recordGroup() {}
     override fun recordComposableCall(
         expression: IrCall,
@@ -169,14 +185,13 @@ object EmptyFunctionMetrics : FunctionMetrics {
         hasDefaults: Boolean,
         readonly: Boolean
     ) {}
+    override fun recordScheme(scheme: String) {}
     override fun print(out: Appendable, src: IrSourcePrinterVisitor) {}
 }
 
 class ModuleMetricsImpl(
     var name: String,
-    context: IrPluginContext
 ) : ModuleMetrics {
-    val stabilityInferencer = StabilityInferencer(context)
     private var skippableComposables = 0
     private var restartableComposables = 0
     private var readonlyComposables = 0
@@ -203,6 +218,7 @@ class ModuleMetricsImpl(
 
     private val composables = mutableListOf<FunctionMetrics>()
     private val classes = mutableListOf<ClassMetrics>()
+    private val logMessages = mutableListOf<String>()
 
     private inner class ClassMetrics(
         val declaration: IrClass,
@@ -233,7 +249,7 @@ class ModuleMetricsImpl(
                 }
                 if (field.name == KtxNameConventions.STABILITY_FLAG) continue
                 append("  ")
-                val fieldStability = stabilityInferencer.stabilityOf(field.type)
+                val fieldStability = stabilityOf(field.type)
                 append("${fieldStability.simpleHumanReadable()} ")
                 append(if (isVar) "var " else "val ")
                 append(field.name.asString())
@@ -318,6 +334,10 @@ class ModuleMetricsImpl(
                 else -> unknownStableArguments++
             }
         }
+    }
+
+    override fun log(message: String) {
+        logMessages.add(message)
     }
 
     override fun Appendable.appendModuleJson() = appendJson {
@@ -418,6 +438,12 @@ class ModuleMetricsImpl(
             appendComposablesTxt()
         }
 
+        if (logMessages.isNotEmpty()) {
+            File(dir, "$prefix-composables.log").write {
+                for (line in logMessages) appendLine(line)
+            }
+        }
+
         File(dir, "$prefix-classes.txt").write {
             appendClassesTxt()
         }
@@ -442,7 +468,7 @@ class FunctionMetricsImpl(
     override var defaultsGroup: Boolean = false
     override var groups: Int = 0
     override var calls: Int = 0
-
+    override var scheme: String? = null
     private class Param(
         val declaration: IrValueParameter,
         val type: IrType,
@@ -527,11 +553,16 @@ class FunctionMetricsImpl(
         )
     }
 
+    override fun recordScheme(scheme: String) {
+        this.scheme = scheme
+    }
+
     override fun print(out: Appendable, src: IrSourcePrinterVisitor): Unit = with(out) {
         if (restartable) append("restartable ")
         if (skippable) append("skippable ")
         if (readonly) append("readonly ")
         if (inline) append("inline ")
+        scheme?.let { append("scheme(\"$it\") ") }
         append("fun ")
         append(name)
         if (parameters.isEmpty()) {

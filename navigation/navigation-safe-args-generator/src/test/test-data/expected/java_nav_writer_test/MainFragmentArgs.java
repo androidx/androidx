@@ -29,7 +29,7 @@ public class MainFragmentArgs implements NavArgs {
     }
 
     @NonNull
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked","deprecation"})
     public static MainFragmentArgs fromBundle(@NonNull Bundle bundle) {
         MainFragmentArgs __result = new MainFragmentArgs();
         bundle.setClassLoader(MainFragmentArgs.class.getClassLoader());

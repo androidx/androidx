@@ -25,6 +25,7 @@ import static androidx.lifecycle.Lifecycle.Event.ON_STOP;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -36,6 +37,8 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+
+import static kotlinx.coroutines.test.TestCoroutineDispatchersKt.UnconfinedTestDispatcher;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -57,8 +60,6 @@ import org.mockito.Mockito;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import kotlinx.coroutines.test.TestCoroutineDispatcher;
 
 @SuppressWarnings({"unchecked"})
 @RunWith(JUnit4.class)
@@ -92,10 +93,10 @@ public class LiveDataTest {
         mLiveData.activeObserversChanged = mActiveObserversChanged;
 
         mOwner = new TestLifecycleOwner(Lifecycle.State.INITIALIZED,
-                new TestCoroutineDispatcher());
+                UnconfinedTestDispatcher(null, null));
 
         mOwner2 = new TestLifecycleOwner(Lifecycle.State.INITIALIZED,
-                new TestCoroutineDispatcher());
+                UnconfinedTestDispatcher(null, null));
 
         mInObserver = false;
     }
@@ -116,6 +117,28 @@ public class LiveDataTest {
     @After
     public void removeExecutorDelegate() {
         ArchTaskExecutor.getInstance().setDelegate(null);
+    }
+
+    @Test
+    public void testIsInitialized() {
+        assertThat(mLiveData.isInitialized(), is(false));
+        assertThat(mLiveData.getValue(), is(nullValue()));
+
+        mLiveData.setValue("a");
+
+        assertThat(mLiveData.getValue(), is("a"));
+        assertThat(mLiveData.isInitialized(), is(true));
+    }
+
+    @Test
+    public void testIsInitializedNullValue() {
+        assertThat(mLiveData.isInitialized(), is(false));
+        assertThat(mLiveData.getValue(), is(nullValue()));
+
+        mLiveData.setValue(null);
+
+        assertThat(mLiveData.isInitialized(), is(true));
+        assertThat(mLiveData.getValue(), is(nullValue()));
     }
 
     @Test
@@ -233,6 +256,7 @@ public class LiveDataTest {
     @Test
     public void testInactiveRegistry() {
         Observer<String> observer = (Observer<String>) mock(Observer.class);
+        mOwner.handleLifecycleEvent(ON_CREATE);
         mOwner.handleLifecycleEvent(ON_DESTROY);
         mLiveData.observe(mOwner, observer);
         assertThat(mLiveData.hasObservers(), is(false));
@@ -930,7 +954,7 @@ public class LiveDataTest {
 
     private class FailReentranceObserver<T> implements Observer<T> {
         @Override
-        public void onChanged(@Nullable T t) {
+        public void onChanged(@Nullable T value) {
             assertThat(mInObserver, is(false));
         }
     }

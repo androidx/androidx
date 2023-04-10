@@ -16,18 +16,16 @@
 
 package androidx.window.embedding
 
-import androidx.window.core.ExperimentalWindowApi
-
 /**
  * Layout configuration rules for individual activities with split layouts. Take precedence over
  * [SplitPairRule].
  */
-@ExperimentalWindowApi
-class ActivityRule(
+class ActivityRule internal constructor(
     /**
-     * Filters used to choose when to apply this rule.
+     * Filters used to choose when to apply this rule. The rule will be applied if any one of the
+     * provided filters matches.
      */
-    filters: Set<ActivityFilter>,
+    val filters: Set<ActivityFilter>,
     /**
      * Whether the activity should always be expanded on launch. Some activities are supposed to
      * expand to the full task bounds, independent of the state of the split. An example is an
@@ -35,20 +33,34 @@ class ActivityRule(
      */
     val alwaysExpand: Boolean = false
 ) : EmbeddingRule() {
+
     /**
-     * Read-only filters used to choose when to apply this rule.
+     * Builder for [ActivityRule].
+     *
+     * @param filters See [ActivityRule.filters].
      */
-    val filters: Set<ActivityFilter> = filters.toSet()
+    class Builder(
+        private val filters: Set<ActivityFilter>
+    ) {
+        private var alwaysExpand: Boolean = false
+
+        /**
+         * @see ActivityRule.alwaysExpand
+         */
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        fun setAlwaysExpand(alwaysExpand: Boolean): Builder =
+            apply { this.alwaysExpand = alwaysExpand }
+
+        fun build() = ActivityRule(filters, alwaysExpand)
+    }
 
     /**
      * Creates a new immutable instance by adding a filter to the set.
+     * @see filters
      */
     internal operator fun plus(filter: ActivityFilter): ActivityRule {
-        val newSet = mutableSetOf<ActivityFilter>()
-        newSet.addAll(filters)
-        newSet.add(filter)
         return ActivityRule(
-            newSet.toSet(),
+            filters + filter,
             alwaysExpand
         )
     }

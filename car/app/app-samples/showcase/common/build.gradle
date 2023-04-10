@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import androidx.build.LibraryType
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -23,13 +25,18 @@ android {
     defaultConfig {
         minSdkVersion 23
     }
+    namespace "androidx.car.app.sample.showcase.common"
 }
 
 dependencies {
     implementation(project(":car:app:app"))
+    debugImplementation(libs.leakcanary)
 
-    api(libs.kotlinStdlib) // Due to :annotation-experimental
     implementation("androidx.core:core:1.7.0")
-    implementation(project(":annotation:annotation-experimental"))
+    implementation "androidx.annotation:annotation-experimental:1.2.0"
+    // There is an implicit compile-only dep due to :annotation-experimental
+    // Build will complain without this manual declaration.
+    compileOnly libs.kotlinStdlib
 }
+
 

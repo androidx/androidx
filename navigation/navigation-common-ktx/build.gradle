@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 
@@ -35,7 +34,10 @@ dependencies {
 androidx {
     name = "Android Navigation Common Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2018"
     description = "Android Navigation-Common-Ktx"
+}
+
+android {
+    namespace "androidx.navigation.common.ktx"
 }

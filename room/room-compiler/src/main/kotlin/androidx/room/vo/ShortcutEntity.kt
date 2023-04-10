@@ -24,6 +24,7 @@ data class ShortcutEntity(
     private val partialEntity: Pojo? // the partial entity
 ) {
     val tableName = entity.tableName
+    val entityClassName = entity.className
     val entityTypeName = entity.typeName
     val primaryKey by lazy {
         if (partialEntity == null) {

@@ -34,7 +34,7 @@ import androidx.wear.tiles.RequestBuilders.TileRequest;
 import androidx.wear.tiles.TileBuilders.Version;
 import androidx.wear.tiles.proto.EventProto;
 import androidx.wear.tiles.proto.RequestProto;
-import androidx.wear.tiles.proto.ResourceProto.Resources;
+import androidx.wear.protolayout.proto.ResourceProto.Resources;
 import androidx.wear.tiles.proto.TileProto.Tile;
 
 import com.google.common.truth.Expect;

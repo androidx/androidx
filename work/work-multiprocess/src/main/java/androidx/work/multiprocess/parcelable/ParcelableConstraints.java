@@ -16,10 +16,10 @@
 
 package androidx.work.multiprocess.parcelable;
 
-import static androidx.work.impl.model.WorkTypeConverters.byteArrayToContentUriTriggers;
-import static androidx.work.impl.model.WorkTypeConverters.contentUriTriggersToByteArray;
+import static androidx.work.impl.model.WorkTypeConverters.byteArrayToSetOfTriggers;
 import static androidx.work.impl.model.WorkTypeConverters.intToNetworkType;
 import static androidx.work.impl.model.WorkTypeConverters.networkTypeToInt;
+import static androidx.work.impl.model.WorkTypeConverters.setOfTriggersToByteArray;
 import static androidx.work.multiprocess.parcelable.ParcelUtils.readBooleanValue;
 import static androidx.work.multiprocess.parcelable.ParcelUtils.writeBooleanValue;
 
@@ -31,9 +31,10 @@ import android.os.Parcelable;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.work.Constraints;
-import androidx.work.ContentUriTriggers;
+import androidx.work.Constraints.ContentUriTrigger;
 import androidx.work.NetworkType;
 
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -74,11 +75,11 @@ public class ParcelableConstraints implements Parcelable {
         if (Build.VERSION.SDK_INT >= 24) {
             boolean hasTriggers = readBooleanValue(in);
             if (hasTriggers) {
-                ContentUriTriggers contentUriTriggers =
-                        byteArrayToContentUriTriggers(in.createByteArray());
-                for (ContentUriTriggers.Trigger trigger : contentUriTriggers.getTriggers()) {
+                Set<ContentUriTrigger> contentUriTriggers = byteArrayToSetOfTriggers(
+                        in.createByteArray());
+                for (ContentUriTrigger trigger : contentUriTriggers) {
                     builder.addContentUriTrigger(trigger.getUri(),
-                            trigger.shouldTriggerForDescendants());
+                            trigger.isTriggeredForDescendants());
                 }
             }
             // triggerMaxContentDelay
@@ -129,14 +130,14 @@ public class ParcelableConstraints implements Parcelable {
             boolean hasTriggers = mConstraints.hasContentUriTriggers();
             writeBooleanValue(parcel, hasTriggers);
             if (hasTriggers) {
-                ContentUriTriggers contentUriTriggers = mConstraints.getContentUriTriggers();
-                byte[] serializedTriggers = contentUriTriggersToByteArray(contentUriTriggers);
+                byte[] serializedTriggers =
+                        setOfTriggersToByteArray(mConstraints.getContentUriTriggers());
                 parcel.writeByteArray(serializedTriggers);
             }
             // triggerMaxContentDelay
-            parcel.writeLong(mConstraints.getTriggerMaxContentDelay());
+            parcel.writeLong(mConstraints.getContentTriggerMaxDelayMillis());
             // triggerContentUpdateDelay
-            parcel.writeLong(mConstraints.getTriggerContentUpdateDelay());
+            parcel.writeLong(mConstraints.getContentTriggerUpdateDelayMillis());
         }
     }
 

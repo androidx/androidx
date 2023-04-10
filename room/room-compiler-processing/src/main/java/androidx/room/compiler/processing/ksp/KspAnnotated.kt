@@ -17,24 +17,23 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.InternalXAnnotated
-import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XAnnotation
+import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.unwrapRepeatedAnnotationsFromContainer
-import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.symbol.AnnotationUseSiteTarget
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSTypeAlias
+import java.lang.annotation.ElementType
 import kotlin.reflect.KClass
 
-@OptIn(KspExperimental::class)
 internal sealed class KspAnnotated(
     val env: KspProcessingEnv
 ) : InternalXAnnotated {
     abstract fun annotations(): Sequence<KSAnnotation>
 
     private fun <T : Annotation> findAnnotations(annotation: KClass<T>): Sequence<KSAnnotation> {
-        return annotations().filter { isSameAnnotationClass(it, annotation) }
+        return annotations().filter { it.isSameAnnotationClass(annotation) }
     }
 
     override fun getAllAnnotations(): List<XAnnotation> {
@@ -82,21 +81,9 @@ internal sealed class KspAnnotated(
         containerAnnotation: KClass<out Annotation>?
     ): Boolean {
         return annotations().any {
-            isSameAnnotationClass(it, annotation) ||
-                (containerAnnotation != null && isSameAnnotationClass(it, containerAnnotation))
+            it.isSameAnnotationClass(annotation) ||
+                (containerAnnotation != null && it.isSameAnnotationClass(containerAnnotation))
         }
-    }
-
-    private fun isSameAnnotationClass(
-        ksAnnotation: KSAnnotation,
-        annotationClass: KClass<out Annotation>
-    ): Boolean {
-        var declaration = ksAnnotation.annotationType.resolve().declaration
-        while (declaration is KSTypeAlias) {
-            declaration = declaration.type.resolve().declaration
-        }
-        val qualifiedName = declaration.qualifiedName?.asString() ?: return false
-        return qualifiedName == annotationClass.qualifiedName
     }
 
     private class KSAnnotatedDelegate(
@@ -105,8 +92,8 @@ internal sealed class KspAnnotated(
         private val useSiteFilter: UseSiteFilter
     ) : KspAnnotated(env) {
         override fun annotations(): Sequence<KSAnnotation> {
-            return delegate.annotations.asSequence().filter {
-                useSiteFilter.accept(it)
+            return delegate.annotations.filter {
+                useSiteFilter.accept(env, it)
             }
         }
     }
@@ -118,50 +105,96 @@ internal sealed class KspAnnotated(
     }
 
     /**
-     * TODO: The implementation of UseSiteFilter is not 100% correct until
-     * https://github.com/google/ksp/issues/96 is fixed.
-     * https://kotlinlang.org/docs/reference/annotations.html
+     * Annotation use site filter
      *
-     * More specifically, when a use site is not defined in an annotation, we need to find the
-     * declaration of the annotation and decide on the use site based on that.
-     * Unfortunately, due to KSP issue #96, we cannot yet read values from a `@Target` annotation
-     * which prevents implementing it correctly.
-     *
-     * Current implementation just approximates it which should work for Room.
+     * https://kotlinlang.org/docs/annotations.html#annotation-use-site-targets
      */
     interface UseSiteFilter {
-        fun accept(annotation: KSAnnotation): Boolean
+        fun accept(env: KspProcessingEnv, annotation: KSAnnotation): Boolean
 
         private class Impl(
-            val acceptedTarget: AnnotationUseSiteTarget,
+            val acceptedSiteTarget: AnnotationUseSiteTarget,
+            val acceptedTarget: AnnotationTarget,
             private val acceptNoTarget: Boolean = true,
         ) : UseSiteFilter {
-            override fun accept(annotation: KSAnnotation): Boolean {
-                val target = annotation.useSiteTarget
-                return if (target == null) {
-                    acceptNoTarget
+            override fun accept(env: KspProcessingEnv, annotation: KSAnnotation): Boolean {
+                val useSiteTarget = annotation.useSiteTarget
+                val annotationTargets = annotation.getDeclaredTargets(env)
+                return if (useSiteTarget != null) {
+                    acceptedSiteTarget == useSiteTarget
+                } else if (annotationTargets.isNotEmpty()) {
+                    annotationTargets.contains(acceptedTarget)
                 } else {
-                    acceptedTarget == target
+                    acceptNoTarget
                 }
             }
         }
 
         companion object {
             val NO_USE_SITE = object : UseSiteFilter {
-                override fun accept(annotation: KSAnnotation): Boolean {
+                override fun accept(env: KspProcessingEnv, annotation: KSAnnotation): Boolean {
                     return annotation.useSiteTarget == null
                 }
             }
-            val NO_USE_SITE_OR_FIELD: UseSiteFilter = Impl(AnnotationUseSiteTarget.FIELD)
-            val NO_USE_SITE_OR_METHOD_PARAMETER: UseSiteFilter =
-                Impl(AnnotationUseSiteTarget.PARAM)
-            val NO_USE_SITE_OR_GETTER: UseSiteFilter = Impl(AnnotationUseSiteTarget.GET)
-            val NO_USE_SITE_OR_SETTER: UseSiteFilter = Impl(AnnotationUseSiteTarget.SET)
-            val NO_USE_SITE_OR_SET_PARAM: UseSiteFilter = Impl(AnnotationUseSiteTarget.SETPARAM)
+            val NO_USE_SITE_OR_FIELD: UseSiteFilter = Impl(
+                acceptedSiteTarget = AnnotationUseSiteTarget.FIELD,
+                acceptedTarget = AnnotationTarget.FIELD
+            )
+            val NO_USE_SITE_OR_METHOD_PARAMETER: UseSiteFilter = Impl(
+                acceptedSiteTarget = AnnotationUseSiteTarget.PARAM,
+                acceptedTarget = AnnotationTarget.VALUE_PARAMETER
+            )
+            val NO_USE_SITE_OR_GETTER: UseSiteFilter = Impl(
+                acceptedSiteTarget = AnnotationUseSiteTarget.GET,
+                acceptedTarget = AnnotationTarget.PROPERTY_GETTER
+            )
+            val NO_USE_SITE_OR_SETTER: UseSiteFilter = Impl(
+                acceptedSiteTarget = AnnotationUseSiteTarget.SET,
+                acceptedTarget = AnnotationTarget.PROPERTY_SETTER
+            )
+            val NO_USE_SITE_OR_SET_PARAM: UseSiteFilter = Impl(
+                acceptedSiteTarget = AnnotationUseSiteTarget.SETPARAM,
+                acceptedTarget = AnnotationTarget.PROPERTY_SETTER
+            )
             val FILE: UseSiteFilter = Impl(
-                acceptedTarget = AnnotationUseSiteTarget.FILE,
+                acceptedSiteTarget = AnnotationUseSiteTarget.FILE,
+                acceptedTarget = AnnotationTarget.FILE,
                 acceptNoTarget = false
             )
+
+            private fun KSAnnotation.getDeclaredTargets(
+                env: KspProcessingEnv
+            ): Set<AnnotationTarget> {
+                val annotationDeclaration = this.annotationType.resolve().declaration
+                val kotlinTargets = annotationDeclaration.annotations.firstOrNull {
+                    it.isSameAnnotationClass(kotlin.annotation.Target::class)
+                }?.let { targetAnnotation ->
+                    KspAnnotation(env, targetAnnotation)
+                        .asAnnotationBox(kotlin.annotation.Target::class.java)
+                        .value.allowedTargets
+                }?.toSet() ?: emptySet()
+                val javaTargets = annotationDeclaration.annotations.firstOrNull {
+                    it.isSameAnnotationClass(java.lang.annotation.Target::class)
+                }?.let { targetAnnotation ->
+                    KspAnnotation(env, targetAnnotation)
+                        .asAnnotationBox(java.lang.annotation.Target::class.java)
+                        .value.value.toList()
+                }?.mapNotNull { it.toAnnotationTarget() }?.toSet() ?: emptySet()
+                return kotlinTargets + javaTargets
+            }
+
+            private fun ElementType.toAnnotationTarget() = when (this) {
+                ElementType.TYPE -> AnnotationTarget.CLASS
+                ElementType.FIELD -> AnnotationTarget.FIELD
+                ElementType.METHOD -> AnnotationTarget.FUNCTION
+                ElementType.PARAMETER -> AnnotationTarget.VALUE_PARAMETER
+                ElementType.CONSTRUCTOR -> AnnotationTarget.CONSTRUCTOR
+                ElementType.LOCAL_VARIABLE -> AnnotationTarget.LOCAL_VARIABLE
+                ElementType.ANNOTATION_TYPE -> AnnotationTarget.ANNOTATION_CLASS
+                ElementType.TYPE_PARAMETER -> AnnotationTarget.TYPE_PARAMETER
+                ElementType.TYPE_USE -> AnnotationTarget.TYPE
+                else -> null
+            }
         }
     }
 
@@ -174,6 +207,17 @@ internal sealed class KspAnnotated(
             return delegate?.let {
                 KSAnnotatedDelegate(env, it, filter)
             } ?: NotAnnotated(env)
+        }
+
+        internal fun KSAnnotation.isSameAnnotationClass(
+            annotationClass: KClass<out Annotation>
+        ): Boolean {
+            var declaration = annotationType.resolve().declaration
+            while (declaration is KSTypeAlias) {
+                declaration = declaration.type.resolve().declaration
+            }
+            val qualifiedName = declaration.qualifiedName?.asString() ?: return false
+            return qualifiedName == annotationClass.qualifiedName
         }
     }
 }

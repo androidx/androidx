@@ -16,29 +16,37 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XConstructorElement
 import androidx.room.compiler.processing.XEnumEntry
 import androidx.room.compiler.processing.XEnumTypeElement
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
+import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.XTypeParameterElement
+import androidx.room.compiler.processing.collectAllMethods
+import androidx.room.compiler.processing.collectFieldsIncludingPrivateSupers
+import androidx.room.compiler.processing.filterMethodsByConfig
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
-import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import androidx.room.compiler.processing.tryBox
+import androidx.room.compiler.processing.util.MemoizedSequence
 import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.isConstructor
 import com.google.devtools.ksp.isOpen
-import com.google.devtools.ksp.isPrivate
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.javapoet.ClassName
+import com.squareup.kotlinpoet.javapoet.JClassName
+import com.squareup.kotlinpoet.javapoet.KClassName
 
 internal sealed class KspTypeElement(
     env: KspProcessingEnv,
@@ -62,8 +70,11 @@ internal sealed class KspTypeElement(
         declaration.findEnclosingMemberContainer(env) as? XTypeElement
     }
 
-    override val equalityItems: Array<out Any?> by lazy {
-        arrayOf(declaration)
+    override val enclosingElement: XMemberContainer?
+        get() = enclosingTypeElement
+
+    override val typeParameters: List<XTypeParameterElement> by lazy {
+        declaration.typeParameters.map { KspTypeParameterElement(env, it) }
     }
 
     override val qualifiedName: String by lazy {
@@ -77,26 +88,74 @@ internal sealed class KspTypeElement(
         )
     }
 
-    override val superType: XType? by lazy {
-        declaration.superTypes.firstOrNull {
-            val type = it.resolve().declaration as? KSClassDeclaration ?: return@firstOrNull false
-            type.classKind == ClassKind.CLASS
-        }?.let {
+    override val superClass: XType? by lazy {
+        if (isInterface()) {
+            // interfaces don't have super classes (they do have super types)
+            null
+        } else {
+            declaration.superTypes.firstOrNull {
+                val type =
+                    it.resolve().declaration as? KSClassDeclaration ?: return@firstOrNull false
+                type.classKind == ClassKind.CLASS
+            }?.let {
+                env.wrap(
+                    ksType = it.resolve(),
+                    allowPrimitives = false
+                )
+            }
+        }
+    }
+
+    override val superInterfaces by lazy {
+        declaration.superTypes.asSequence().map {
+            it.resolve()
+        }
+        .filter {
+            it.declaration is KSClassDeclaration &&
+                (it.declaration as KSClassDeclaration).classKind == ClassKind.INTERFACE
+        }.mapTo(mutableListOf()) {
             env.wrap(
-                ksType = it.resolve(),
+                ksType = it,
                 allowPrimitives = false
             )
         }
     }
 
+    @Deprecated(
+        "Use asClassName().toJavaPoet() to be clear the name is for JavaPoet.",
+        replaceWith = ReplaceWith(
+            "asClassName().toJavaPoet()",
+            "androidx.room.compiler.codegen.toJavaPoet"
+        )
+    )
     override val className: ClassName by lazy {
-        declaration.typeName(env.resolver).tryBox().also { typeName ->
-            check(typeName is ClassName) {
+        xClassName.java
+    }
+
+    private val xClassName: XClassName by lazy {
+        val java = declaration.asJTypeName(env.resolver).tryBox().also { typeName ->
+            check(typeName is JClassName) {
                 "Internal error. The type name for $declaration should be a class name but " +
                     "received ${typeName::class}"
             }
-        } as ClassName
+        } as JClassName
+        val kotlin = declaration.asKTypeName(env.resolver) as KClassName
+        XClassName(java, kotlin, XNullability.NONNULL)
     }
+
+    override fun asClassName() = xClassName
+
+    private val allMethods = MemoizedSequence {
+        collectAllMethods(this)
+    }
+
+    private val allFieldsIncludingPrivateSupers = MemoizedSequence {
+        collectFieldsIncludingPrivateSupers(this)
+    }
+
+    override fun getAllMethods(): Sequence<XMethodElement> = allMethods
+
+    override fun getAllFieldsIncludingPrivateSupers() = allFieldsIncludingPrivateSupers
 
     /**
      * This list includes fields for all properties in this class and its static companion
@@ -108,7 +167,6 @@ internal sealed class KspTypeElement(
                 KspFieldElement(
                     env = env,
                     declaration = it,
-                    containing = this
                 )
             }.let {
                 // only order instance properties with backing fields, we don't care about the order
@@ -129,7 +187,6 @@ internal sealed class KspTypeElement(
                 KspFieldElement(
                     env = env,
                     declaration = it,
-                    containing = this
                 )
             }
         declaredProperties + companionProperties
@@ -142,48 +199,28 @@ internal sealed class KspTypeElement(
     }
 
     private val syntheticGetterSetterMethods: List<XMethodElement> by lazy {
-        _declaredProperties.flatMap { field ->
-            when {
-                field.type.ksType.isInline() -> {
-                    // KAPT does not generate getters/setters for inlines, we'll hide them as well
-                    // until room generates kotlin code
-                    emptyList()
-                }
-                field.declaration.hasJvmFieldAnnotation() -> {
-                    // jvm fields cannot have accessors but KSP generates synthetic accessors for
-                    // them. We check for JVM field first before checking the getter
-                    emptyList()
-                }
-                field.declaration.isPrivate() -> emptyList()
-
-                else ->
-                    sequenceOf(field.declaration.getter, field.declaration.setter)
-                        .filterNotNull()
-                        .filterNot {
-                            // KAPT does not generate methods for privates, KSP does so we filter
-                            // them out.
-                            it.modifiers.contains(Modifier.PRIVATE)
-                        }
-                        .filter {
-                            if (field.isStatic()) {
-                                // static fields are the properties that are coming from the
-                                // companion. Whether we'll generate method for it or not depends on
-                                // the JVMStatic annotation
-                                it.hasJvmStaticAnnotation() ||
-                                    field.declaration.hasJvmStaticAnnotation()
-                            } else {
-                                true
-                            }
-                        }
-                        .map { accessor ->
-                            KspSyntheticPropertyMethodElement.create(
-                                env = env,
-                                field = field,
-                                accessor = accessor
-                            )
-                        }.toList()
+        if (declaration.isCompanionObject) {
+            _declaredProperties.flatMap { field ->
+                field.syntheticAccessors
             }
-        }
+        } else {
+            _declaredProperties.flatMap { field ->
+                // static fields are the properties that are coming from the
+                // companion. Whether we'll generate method for it or not depends on
+                // the JVMStatic annotation
+                if (field.isStatic() && !field.declaration.hasJvmStaticAnnotation()) {
+                    field.syntheticAccessors.filter {
+                        it.accessor.hasJvmStaticAnnotation()
+                    }
+                } else {
+                    field.syntheticAccessors
+                }
+            }
+        }.filterMethodsByConfig(env)
+    }
+
+    override fun isNested(): Boolean {
+        return declaration.findEnclosingMemberContainer(env) is XTypeElement
     }
 
     override fun isInterface(): Boolean {
@@ -235,7 +272,6 @@ internal sealed class KspTypeElement(
         return declaration.primaryConstructor?.let {
             KspConstructorElement(
                 env = env,
-                containing = this,
                 declaration = it
             )
         }
@@ -256,19 +292,13 @@ internal sealed class KspTypeElement(
             .filterNot {
                 // filter out constructors
                 it.simpleName.asString() == name
-            }.filterNot {
-                // if it receives or returns inline, drop it.
-                // we can re-enable these once room generates kotlin code
-                it.parameters.any {
-                    it.type.resolve().isInline()
-                } || it.returnType?.resolve()?.isInline() == true
             }.map {
                 KspMethodElement.create(
                     env = env,
-                    containing = this,
                     declaration = it
                 )
             }.toList()
+            .filterMethodsByConfig(env)
         KspClassFileUtility.orderMethods(declaration, declaredMethods) +
             syntheticGetterSetterMethods
     }
@@ -281,7 +311,6 @@ internal sealed class KspTypeElement(
         return declaration.getConstructors().map {
             KspConstructorElement(
                 env = env,
-                containing = this,
                 declaration = it
             )
         }.toList()
@@ -302,10 +331,6 @@ internal sealed class KspTypeElement(
         return declaration.declarations.filterIsInstance<KSClassDeclaration>()
             .map { env.wrapClassDeclaration(it) }
             .toList()
-    }
-
-    override fun toString(): String {
-        return declaration.toString()
     }
 
     private class DefaultKspTypeElement(

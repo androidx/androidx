@@ -31,10 +31,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
-import androidx.core.os.BuildCompat;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
-import androidx.work.ContentUriTriggers;
 import androidx.work.Logger;
 import androidx.work.NetworkType;
 import androidx.work.impl.WorkManagerImpl;
@@ -53,6 +51,7 @@ class SystemJobInfoConverter {
 
     static final String EXTRA_WORK_SPEC_ID = "EXTRA_WORK_SPEC_ID";
     static final String EXTRA_IS_PERIODIC = "EXTRA_IS_PERIODIC";
+    static final String EXTRA_WORK_SPEC_GENERATION = "EXTRA_WORK_SPEC_GENERATION";
 
     private final ComponentName mWorkServiceComponent;
 
@@ -75,6 +74,7 @@ class SystemJobInfoConverter {
         Constraints constraints = workSpec.constraints;
         PersistableBundle extras = new PersistableBundle();
         extras.putString(EXTRA_WORK_SPEC_ID, workSpec.id);
+        extras.putInt(EXTRA_WORK_SPEC_GENERATION, workSpec.getGeneration());
         extras.putBoolean(EXTRA_IS_PERIODIC, workSpec.isPeriodic());
         JobInfo.Builder builder = new JobInfo.Builder(jobId, mWorkServiceComponent)
                 .setRequiresCharging(constraints.requiresCharging())
@@ -110,12 +110,12 @@ class SystemJobInfoConverter {
         }
 
         if (Build.VERSION.SDK_INT >= 24 && constraints.hasContentUriTriggers()) {
-            ContentUriTriggers contentUriTriggers = constraints.getContentUriTriggers();
-            for (ContentUriTriggers.Trigger trigger : contentUriTriggers.getTriggers()) {
+            //noinspection ConstantConditions
+            for (Constraints.ContentUriTrigger trigger : constraints.getContentUriTriggers()) {
                 builder.addTriggerContentUri(convertContentUriTrigger(trigger));
             }
-            builder.setTriggerContentUpdateDelay(constraints.getTriggerContentUpdateDelay());
-            builder.setTriggerContentMaxDelay(constraints.getTriggerMaxContentDelay());
+            builder.setTriggerContentUpdateDelay(constraints.getContentTriggerUpdateDelayMillis());
+            builder.setTriggerContentMaxDelay(constraints.getContentTriggerMaxDelayMillis());
         }
 
         // We don't want to persist these jobs because we reschedule these jobs on BOOT_COMPLETED.
@@ -128,7 +128,7 @@ class SystemJobInfoConverter {
         // Retries cannot be expedited jobs, given they will occur at some point in the future.
         boolean isRetry = workSpec.runAttemptCount > 0;
         boolean isDelayed = offset > 0;
-        if (BuildCompat.isAtLeastS() && workSpec.expedited && !isRetry && !isDelayed) {
+        if (Build.VERSION.SDK_INT >= 31 && workSpec.expedited && !isRetry && !isDelayed) {
             //noinspection NewApi
             builder.setExpedited(true);
         }
@@ -137,8 +137,8 @@ class SystemJobInfoConverter {
 
     @RequiresApi(24)
     private static JobInfo.TriggerContentUri convertContentUriTrigger(
-            ContentUriTriggers.Trigger trigger) {
-        int flag = trigger.shouldTriggerForDescendants()
+            Constraints.ContentUriTrigger trigger) {
+        int flag = trigger.isTriggeredForDescendants()
                 ? JobInfo.TriggerContentUri.FLAG_NOTIFY_FOR_DESCENDANTS : 0;
         return new JobInfo.TriggerContentUri(trigger.getUri(), flag);
     }

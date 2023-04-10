@@ -15,6 +15,7 @@
  */
 package androidx.compose.ui.text.android
 
+import android.graphics.text.LineBreakConfig
 import android.os.Build
 import android.text.Layout.Alignment
 import android.text.StaticLayout
@@ -23,12 +24,16 @@ import android.text.TextDirectionHeuristic
 import android.text.TextPaint
 import android.text.TextUtils.TruncateAt
 import android.util.Log
+import androidx.annotation.DoNotInline
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.text.android.LayoutCompat.BreakStrategy
 import androidx.compose.ui.text.android.LayoutCompat.HyphenationFrequency
 import androidx.compose.ui.text.android.LayoutCompat.JustificationMode
+import androidx.compose.ui.text.android.LayoutCompat.LineBreakStyle
+import androidx.compose.ui.text.android.LayoutCompat.LineBreakWordStyle
+import androidx.core.os.BuildCompat
 import java.lang.reflect.Constructor
 import java.lang.reflect.InvocationTargetException
 
@@ -40,7 +45,7 @@ internal object StaticLayoutFactory {
     private val delegate: StaticLayoutFactoryImpl = if (Build.VERSION.SDK_INT >= 23) {
         StaticLayoutFactory23()
     } else {
-        StaticLayoutFactoryPre21()
+        StaticLayoutFactoryDefault()
     }
 
     /**
@@ -68,6 +73,10 @@ internal object StaticLayoutFactory {
         useFallbackLineSpacing: Boolean = LayoutCompat.DEFAULT_FALLBACK_LINE_SPACING,
         @BreakStrategy
         breakStrategy: Int = LayoutCompat.DEFAULT_BREAK_STRATEGY,
+        @LineBreakStyle
+        lineBreakStyle: Int = LayoutCompat.DEFAULT_LINE_BREAK_STYLE,
+        @LineBreakWordStyle
+        lineBreakWordStyle: Int = LayoutCompat.DEFAULT_LINE_BREAK_WORD_STYLE,
         @HyphenationFrequency
         hyphenationFrequency: Int = LayoutCompat.DEFAULT_HYPHENATION_FREQUENCY,
         leftIndents: IntArray? = null,
@@ -91,11 +100,27 @@ internal object StaticLayoutFactory {
                 includePadding = includePadding,
                 useFallbackLineSpacing = useFallbackLineSpacing,
                 breakStrategy = breakStrategy,
+                lineBreakStyle = lineBreakStyle,
+                lineBreakWordStyle = lineBreakWordStyle,
                 hyphenationFrequency = hyphenationFrequency,
                 leftIndents = leftIndents,
                 rightIndents = rightIndents
             )
         )
+    }
+
+    /**
+     * Returns whether fallbackLineSpacing is enabled for the given layout.
+     *
+     * @param layout StaticLayout instance
+     * @param useFallbackLineSpacing fallbackLineSpacing configuration passed while creating the
+     * StaticLayout.
+     */
+    fun isFallbackLineSpacingEnabled(
+        layout: StaticLayout,
+        useFallbackLineSpacing: Boolean
+    ): Boolean {
+        return delegate.isFallbackLineSpacingEnabled(layout, useFallbackLineSpacing)
     }
 }
 
@@ -117,6 +142,8 @@ private class StaticLayoutParams constructor(
     val includePadding: Boolean,
     val useFallbackLineSpacing: Boolean,
     val breakStrategy: Int,
+    val lineBreakStyle: Int,
+    val lineBreakWordStyle: Int,
     val hyphenationFrequency: Int,
     val leftIndents: IntArray?,
     val rightIndents: IntArray?
@@ -132,12 +159,17 @@ private class StaticLayoutParams constructor(
 }
 
 private interface StaticLayoutFactoryImpl {
+
+    @DoNotInline // API level specific, do not inline to prevent ART class verification breakages
     fun create(params: StaticLayoutParams): StaticLayout
+
+    fun isFallbackLineSpacingEnabled(layout: StaticLayout, useFallbackLineSpacing: Boolean): Boolean
 }
 
 @RequiresApi(23)
 private class StaticLayoutFactory23 : StaticLayoutFactoryImpl {
 
+    @DoNotInline
     override fun create(params: StaticLayoutParams): StaticLayout {
         return Builder.obtain(params.text, params.start, params.end, params.paint, params.width)
             .apply {
@@ -160,12 +192,35 @@ private class StaticLayoutFactory23 : StaticLayoutFactoryImpl {
                         params.useFallbackLineSpacing
                     )
                 }
+                if (Build.VERSION.SDK_INT >= 33) {
+                    StaticLayoutFactory33.setLineBreakConfig(
+                        this,
+                        params.lineBreakStyle,
+                        params.lineBreakWordStyle
+                    )
+                }
             }.build()
+    }
+
+    @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
+    override fun isFallbackLineSpacingEnabled(
+        layout: StaticLayout,
+        useFallbackLineSpacing: Boolean
+    ): Boolean {
+        return if (BuildCompat.isAtLeastT()) {
+            StaticLayoutFactory33.isFallbackLineSpacingEnabled(layout)
+        } else if (Build.VERSION.SDK_INT >= 28) {
+            useFallbackLineSpacing
+        } else {
+            false
+        }
     }
 }
 
 @RequiresApi(26)
 private object StaticLayoutFactory26 {
+    @JvmStatic
+    @DoNotInline
     fun setJustificationMode(builder: Builder, justificationMode: Int) {
         builder.setJustificationMode(justificationMode)
     }
@@ -173,12 +228,34 @@ private object StaticLayoutFactory26 {
 
 @RequiresApi(28)
 private object StaticLayoutFactory28 {
+    @JvmStatic
+    @DoNotInline
     fun setUseLineSpacingFromFallbacks(builder: Builder, useFallbackLineSpacing: Boolean) {
         builder.setUseLineSpacingFromFallbacks(useFallbackLineSpacing)
     }
 }
 
-private class StaticLayoutFactoryPre21 : StaticLayoutFactoryImpl {
+@RequiresApi(33)
+private object StaticLayoutFactory33 {
+    @JvmStatic
+    @DoNotInline
+    fun isFallbackLineSpacingEnabled(layout: StaticLayout): Boolean {
+        return layout.isFallbackLineSpacingEnabled
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun setLineBreakConfig(builder: Builder, lineBreakStyle: Int, lineBreakWordStyle: Int) {
+        val lineBreakConfig =
+            LineBreakConfig.Builder()
+                .setLineBreakStyle(lineBreakStyle)
+                .setLineBreakWordStyle(lineBreakWordStyle)
+                .build()
+        builder.setLineBreakConfig(lineBreakConfig)
+    }
+}
+
+private class StaticLayoutFactoryDefault : StaticLayoutFactoryImpl {
 
     companion object {
         private var isInitialized = false
@@ -213,6 +290,7 @@ private class StaticLayoutFactoryPre21 : StaticLayoutFactoryImpl {
         }
     }
 
+    @DoNotInline
     override fun create(params: StaticLayoutParams): StaticLayout {
         // On API 21 to 23, try to call the StaticLayoutConstructor which supports the
         // textDir and maxLines.
@@ -266,5 +344,12 @@ private class StaticLayoutFactoryPre21 : StaticLayoutFactoryImpl {
             params.ellipsize,
             params.ellipsizedWidth
         )
+    }
+
+    override fun isFallbackLineSpacingEnabled(
+        layout: StaticLayout,
+        useFallbackLineSpacing: Boolean
+    ): Boolean {
+        return false
     }
 }

@@ -17,19 +17,15 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.content.Context
-import android.graphics.Point
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback
 import android.hardware.camera2.CameraDevice
-import android.util.Size
-import android.view.Display
-import android.view.WindowManager
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.core.Log.info
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
-import androidx.camera.camera2.pipe.integration.impl.asLandscape
-import androidx.camera.camera2.pipe.integration.impl.minByArea
-import androidx.camera.camera2.pipe.integration.impl.toSize
+import androidx.camera.camera2.pipe.integration.impl.DisplayInfoManager
+import androidx.camera.camera2.pipe.integration.impl.SESSION_PHYSICAL_CAMERA_ID_OPTION
+import androidx.camera.camera2.pipe.integration.impl.STREAM_USE_CASE_OPTION
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CaptureConfig
@@ -50,11 +46,7 @@ import androidx.camera.core.impl.UseCaseConfigFactory
 @Suppress("DEPRECATION")
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
-
-    private val display: Display by lazy {
-        @Suppress("deprecation")
-        (context.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay!!
-    }
+    private val displayInfoManager by lazy { DisplayInfoManager(context) }
 
     init {
         if (context === context.applicationContext) {
@@ -72,7 +64,10 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
      * Returns the configuration for the given capture type, or `null` if the
      * configuration cannot be produced.
      */
-    override fun getConfig(captureType: UseCaseConfigFactory.CaptureType): Config? {
+    override fun getConfig(
+        captureType: UseCaseConfigFactory.CaptureType,
+        captureMode: Int
+    ): Config? {
         debug { "Creating config for $captureType" }
 
         // TODO: quirks for ImageCapture are not ready for the UseCaseConfigFactory. Will need to
@@ -86,6 +81,7 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
             UseCaseConfigFactory.CaptureType.IMAGE_ANALYSIS -> sessionBuilder.setTemplateType(
                 CameraDevice.TEMPLATE_PREVIEW
             )
+
             UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE -> sessionBuilder.setTemplateType(
                 CameraDevice.TEMPLATE_RECORD
             )
@@ -98,6 +94,7 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
         when (captureType) {
             UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE ->
                 captureBuilder.templateType = CameraDevice.TEMPLATE_STILL_CAPTURE
+
             UseCaseConfigFactory.CaptureType.PREVIEW,
             UseCaseConfigFactory.CaptureType.IMAGE_ANALYSIS,
             UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE ->
@@ -125,24 +122,15 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
         if (captureType == UseCaseConfigFactory.CaptureType.PREVIEW) {
             mutableConfig.insertOption(
                 ImageOutputConfig.OPTION_MAX_RESOLUTION,
-                getPreviewSize()
+                displayInfoManager.previewSize
             )
         }
 
         mutableConfig.insertOption(
             ImageOutputConfig.OPTION_TARGET_ROTATION,
-            display.rotation
+            displayInfoManager.defaultDisplay.rotation
         )
         return OptionsBundle.from(mutableConfig)
-    }
-
-    /**
-     * Returns the device's screen resolution, or 1080p, whichever is smaller.
-     */
-    private fun getPreviewSize(): Size? {
-        val displaySize = Point()
-        display.getRealSize(displaySize)
-        return minByArea(MAXIMUM_PREVIEW_SIZE, displaySize.toSize().asLandscape())
     }
 
     object DefaultCaptureOptionsUnpacker : CaptureConfig.OptionUnpacker {
@@ -224,6 +212,24 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
             }
 
             // TODO: Copy CameraEventCallback (used for extension)
+
+            // Copy extended Camera2 configurations
+            val extendedConfig = MutableOptionsBundle.create().apply {
+                camera2Config.getPhysicalCameraId()?.let { physicalCameraId ->
+                    insertOption(
+                        SESSION_PHYSICAL_CAMERA_ID_OPTION,
+                        physicalCameraId
+                    )
+                }
+
+                camera2Config.getStreamUseCase()?.let { streamUseCase ->
+                    insertOption(
+                        STREAM_USE_CASE_OPTION,
+                        streamUseCase
+                    )
+                }
+            }
+            builder.addImplementationOptions(extendedConfig)
 
             // Copy extension keys
             builder.addImplementationOptions(camera2Config.captureRequestOptions)

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -53,7 +52,10 @@ dependencies {
 androidx {
     name = "AndroidX Widget ViewPager2"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.VIEWPAGER2
     inceptionYear = "2017"
     description = "AndroidX Widget ViewPager2"
+}
+
+android {
+    namespace "androidx.viewpager2"
 }

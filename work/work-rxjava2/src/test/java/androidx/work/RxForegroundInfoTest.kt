@@ -92,6 +92,7 @@ private fun createWorkerParams(
     emptyList(),
     WorkerParameters.RuntimeExtras(),
     1,
+    0,
     executor,
     RxWorkerTest.InstantWorkTaskExecutor(),
     WorkerFactory.getDefaultWorkerFactory(),

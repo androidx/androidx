@@ -26,14 +26,14 @@ internal abstract class MetricCapture {
      *
      * Must be called at the start of each run.
      */
-    abstract fun captureStart()
+    abstract fun captureStart(timeNs: Long)
 
     /**
      * Marks the end of a run, and stores the metric value changes since the last start.
      *
      * Should be called when a run stops.
      */
-    abstract fun captureStop(): Long
+    abstract fun captureStop(timeNs: Long): Long
 
     /**
      * Pauses data collection.
@@ -64,13 +64,13 @@ internal class TimeCapture : MetricCapture() {
     private var currentPausedStarted = 0L
     private var currentTotalPaused = 0L
 
-    override fun captureStart() {
+    override fun captureStart(timeNs: Long) {
         currentTotalPaused = 0
-        currentStarted = System.nanoTime()
+        currentStarted = timeNs
     }
 
-    override fun captureStop(): Long {
-        return System.nanoTime() - currentStarted - currentTotalPaused
+    override fun captureStop(timeNs: Long): Long {
+        return timeNs - currentStarted - currentTotalPaused
     }
 
     override fun capturePaused() {
@@ -88,12 +88,12 @@ internal class AllocationCountCapture : MetricCapture() {
     private var currentPausedStarted = 0
     private var currentTotalPaused = 0
 
-    override fun captureStart() {
+    override fun captureStart(timeNs: Long) {
         currentTotalPaused = 0
         Debug.startAllocCounting()
     }
 
-    override fun captureStop(): Long {
+    override fun captureStop(timeNs: Long): Long {
         Debug.stopAllocCounting()
         return (Debug.getGlobalAllocCount() - currentTotalPaused).toLong()
     }

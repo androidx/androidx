@@ -16,6 +16,7 @@
 
 package androidx.room.parser
 
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.util.runProcessorTest
@@ -45,7 +46,7 @@ class SQLTypeAffinityTest {
             }
 
             fun XType.toSignature(): String {
-                return "${typeName}${nullability.toSignature()}"
+                return "${asTypeName().toString(CodeLanguage.JAVA)}${nullability.toSignature()}"
             }
 
             val result = SQLTypeAffinity.values().associate {

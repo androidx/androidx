@@ -24,8 +24,13 @@ import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
+import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraph
+import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
+import androidx.camera.camera2.pipe.integration.testing.FakeCapturePipeline
 import androidx.camera.camera2.pipe.integration.testing.FakeSurface
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
@@ -35,6 +40,8 @@ import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.TagBundle
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -44,8 +51,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -63,9 +68,28 @@ class UseCaseCameraRequestControlTest {
             dispatcher
         )
     }
+    private val fakeCameraProperties = FakeCameraProperties()
     private val fakeCameraGraph = FakeCameraGraph()
+    private val fakeUseCaseGraphConfig = UseCaseGraphConfig(
+        graph = fakeCameraGraph,
+        surfaceToStreamMap = surfaceToStreamMap,
+        cameraStateAdapter = CameraStateAdapter(),
+    )
+    private val fakeConfigAdapter = CaptureConfigAdapter(
+        useCaseGraphConfig = fakeUseCaseGraphConfig,
+        cameraProperties = fakeCameraProperties,
+        threads = useCaseThreads,
+    )
+    private val fakeUseCaseCameraState = UseCaseCameraState(
+        useCaseGraphConfig = fakeUseCaseGraphConfig,
+        threads = useCaseThreads,
+    )
     private val requestControl = UseCaseCameraRequestControlImpl(
-        fakeCameraGraph, surfaceToStreamMap, useCaseThreads
+        capturePipeline = FakeCapturePipeline(),
+        configAdapter = fakeConfigAdapter,
+        state = fakeUseCaseCameraState,
+        threads = useCaseThreads,
+        useCaseGraphConfig = fakeUseCaseGraphConfig,
     )
 
     @Test
@@ -90,7 +114,7 @@ class UseCaseCameraRequestControlTest {
         requestControl.setSessionConfigAsync(
             sessionConfigBuilder.build()
         ).await()
-        requestControl.appendParametersAsync(
+        requestControl.addParametersAsync(
             values = mapOf(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION to 5)
         ).await()
         requestControl.setConfigAsync(
@@ -157,7 +181,7 @@ class UseCaseCameraRequestControlTest {
             type = UseCaseCameraRequestControl.Type.CAMERA2_CAMERA_CONTROL,
             config = camera2CameraControlConfig
         )
-        requestControl.appendParametersAsync(
+        requestControl.addParametersAsync(
             values = mapOf(CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_OFF)
         )
         requestControl.setSessionConfigAsync(
@@ -199,7 +223,7 @@ class UseCaseCameraRequestControlTest {
             ).build(),
             tags = mapOf(testCamera2InteropTagKey to testCamera2InteropTagValue)
         )
-        requestControl.appendParametersAsync(
+        requestControl.addParametersAsync(
             values = mapOf(CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_OFF),
             tags = mapOf(testTagKey to testTagValue)
         )
@@ -241,7 +265,7 @@ class UseCaseCameraRequestControlTest {
             ).build(),
             listeners = setOf(testRequestListener)
         )
-        requestControl.appendParametersAsync(
+        requestControl.addParametersAsync(
             values = mapOf(CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_OFF),
             listeners = setOf(testRequestListener1)
         )

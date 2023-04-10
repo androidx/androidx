@@ -329,10 +329,12 @@ public class SliceAction implements androidx.slice.core.SliceAction {
 
     /**
      * @param description the content description for this action.
+     * @return
      */
     @NonNull
     @Override
-    public SliceAction setContentDescription(@NonNull CharSequence description) {
+    public androidx.slice.core.SliceAction setContentDescription(
+            @NonNull CharSequence description) {
         mSliceAction.setContentDescription(description);
         return this;
     }

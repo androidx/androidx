@@ -19,41 +19,41 @@ limitations under the License.
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="lb_navigation_menu_contentDescription" msgid="8084428500709675515">"Meniu de navigare"</string>
     <string name="orb_search_action" msgid="1301877238242752863">"Acțiunea de căutare"</string>
-    <string name="lb_search_bar_hint" msgid="5700349211583074131">"Căutați"</string>
-    <string name="lb_search_bar_hint_speech" msgid="5926531297066387462">"Rostiți pentru a căuta"</string>
-    <string name="lb_search_bar_hint_with_title" msgid="4826526877249029043">"Căutați <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
-    <string name="lb_search_bar_hint_with_title_speech" msgid="6032250334706920550">"Rostiți pentru a căuta <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <string name="lb_search_bar_hint" msgid="5700349211583074131">"Caută"</string>
+    <string name="lb_search_bar_hint_speech" msgid="5926531297066387462">"Rostește pentru a căuta"</string>
+    <string name="lb_search_bar_hint_with_title" msgid="4826526877249029043">"Caută <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
+    <string name="lb_search_bar_hint_with_title_speech" msgid="6032250334706920550">"Rostește pentru a căuta <xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>"</string>
     <string name="lb_control_display_fast_forward_multiplier" msgid="4657191930956702614">"%1$dX"</string>
     <string name="lb_control_display_rewind_multiplier" msgid="4597148235912710942">"%1$dX"</string>
-    <string name="lb_playback_controls_play" msgid="7088090604803481121">"Redați"</string>
-    <string name="lb_playback_controls_pause" msgid="917331776961802657">"Întrerupeți"</string>
-    <string name="lb_playback_controls_fast_forward" msgid="740570111678243493">"Derulați rapid înainte"</string>
-    <string name="lb_playback_controls_fast_forward_multiplier" msgid="5734614175721471329">"Derulați rapid înainte cu %1$dX"</string>
-    <string name="lb_playback_controls_rewind" msgid="2866333981131020771">"Derulați înapoi"</string>
-    <string name="lb_playback_controls_rewind_multiplier" msgid="6038956370475252734">"Derulați înapoi cu %1$dX"</string>
-    <string name="lb_playback_controls_skip_next" msgid="8117512422682146745">"Ignorați articolul următor"</string>
-    <string name="lb_playback_controls_skip_previous" msgid="3481218248309447059">"Ignorați articolul anterior"</string>
+    <string name="lb_playback_controls_play" msgid="7088090604803481121">"Redă"</string>
+    <string name="lb_playback_controls_pause" msgid="917331776961802657">"Întrerupe"</string>
+    <string name="lb_playback_controls_fast_forward" msgid="740570111678243493">"Derulează rapid înainte"</string>
+    <string name="lb_playback_controls_fast_forward_multiplier" msgid="5734614175721471329">"Derulează rapid înainte cu %1$dX"</string>
+    <string name="lb_playback_controls_rewind" msgid="2866333981131020771">"Derulează înapoi"</string>
+    <string name="lb_playback_controls_rewind_multiplier" msgid="6038956370475252734">"Derulează înapoi cu %1$dX"</string>
+    <string name="lb_playback_controls_skip_next" msgid="8117512422682146745">"Ignoră articolul următor"</string>
+    <string name="lb_playback_controls_skip_previous" msgid="3481218248309447059">"Ignoră articolul anterior"</string>
     <string name="lb_playback_controls_more_actions" msgid="8730341244454469032">"Mai multe acțiuni"</string>
-    <string name="lb_playback_controls_thumb_up" msgid="3458671378107738666">"Deselectați „Îmi place”"</string>
-    <string name="lb_playback_controls_thumb_up_outline" msgid="1385865732502550659">"Selectați „Îmi place”"</string>
-    <string name="lb_playback_controls_thumb_down" msgid="3544533410444618518">"Deselectați „Nu îmi place”"</string>
-    <string name="lb_playback_controls_thumb_down_outline" msgid="8475278766138652105">"Selectați „Nu îmi place”"</string>
-    <string name="lb_playback_controls_repeat_none" msgid="1614290959784265209">"Nu repetați"</string>
-    <string name="lb_playback_controls_repeat_all" msgid="8429099206716245199">"Repetați toate"</string>
-    <string name="lb_playback_controls_repeat_one" msgid="676658705837320560">"Repetați unul"</string>
-    <string name="lb_playback_controls_shuffle_enable" msgid="5151681938752704485">"Activați redarea în mod aleatoriu"</string>
-    <string name="lb_playback_controls_shuffle_disable" msgid="6793109999253893369">"Dezactivați redarea în mod aleatoriu"</string>
-    <string name="lb_playback_controls_high_quality_enable" msgid="3057698527166674705">"Activați calitatea înaltă"</string>
-    <string name="lb_playback_controls_high_quality_disable" msgid="1209119371486219736">"Dezactivați calitatea înaltă"</string>
-    <string name="lb_playback_controls_closed_captioning_enable" msgid="2346334170216706076">"Activați subtitrările"</string>
-    <string name="lb_playback_controls_closed_captioning_disable" msgid="8691966842977635128">"Dezactivați subtitrările"</string>
-    <string name="lb_playback_controls_picture_in_picture" msgid="5770668162543767702">"Activați modul Picture-in-Picture"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="3458671378107738666">"Deselectează „Îmi place”"</string>
+    <string name="lb_playback_controls_thumb_up_outline" msgid="1385865732502550659">"Selectează „Îmi place”"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="3544533410444618518">"Deselectează „Nu îmi place”"</string>
+    <string name="lb_playback_controls_thumb_down_outline" msgid="8475278766138652105">"Selectează „Nu îmi place”"</string>
+    <string name="lb_playback_controls_repeat_none" msgid="1614290959784265209">"Nu repeta"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="8429099206716245199">"Repetă-le pe toate"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="676658705837320560">"Repetă unul"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="5151681938752704485">"Activează redarea aleatorie"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="6793109999253893369">"Dezactivează redarea aleatorie"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="3057698527166674705">"Activează calitatea înaltă"</string>
+    <string name="lb_playback_controls_high_quality_disable" msgid="1209119371486219736">"Dezactivează calitatea înaltă"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2346334170216706076">"Activează subtitrările"</string>
+    <string name="lb_playback_controls_closed_captioning_disable" msgid="8691966842977635128">"Dezactivează subtitrările"</string>
+    <string name="lb_playback_controls_picture_in_picture" msgid="5770668162543767702">"Activează modul Picture-in-Picture"</string>
     <string name="lb_playback_time_separator" msgid="1471121602610716654">"/"</string>
     <string name="lb_playback_controls_shown" msgid="8690223891515602822">"Comenzile media sunt afișate"</string>
-    <string name="lb_playback_controls_hidden" msgid="5859666950961624736">"Comenzile media sunt ascunse. Apăsați pe butonul direcțional pentru a le afișa."</string>
-    <string name="lb_guidedaction_finish_title" msgid="3330958750346333890">"Finalizați"</string>
-    <string name="lb_guidedaction_continue_title" msgid="893619591225519922">"Continuați"</string>
+    <string name="lb_playback_controls_hidden" msgid="5859666950961624736">"Comenzile media sunt ascunse. Apasă pe butonul direcțional pentru a le afișa."</string>
+    <string name="lb_guidedaction_finish_title" msgid="3330958750346333890">"Finalizează"</string>
+    <string name="lb_guidedaction_continue_title" msgid="893619591225519922">"Continuă"</string>
     <string name="lb_media_player_error" msgid="3228326776757666747">"Cod de eroare MediaPlayer %1$d suplimentar %2$d"</string>
-    <string name="lb_onboarding_get_started" msgid="5549711907371161292">"ÎNCEPEȚI"</string>
+    <string name="lb_onboarding_get_started" msgid="5549711907371161292">"ÎNCEPE"</string>
     <string name="lb_onboarding_accessibility_next" msgid="2394451791544864917">"Înainte"</string>
 </resources>

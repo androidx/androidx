@@ -37,7 +37,7 @@ import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.swipe.FragmentAdapter
 import androidx.viewpager2.widget.swipe.PageFragment
 import org.hamcrest.CoreMatchers.equalTo
-import org.junit.Assert.assertThat
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.TimeUnit.SECONDS
@@ -51,6 +51,7 @@ import java.util.concurrent.TimeUnit.SECONDS
 class HostFragmentBackStackTest : BaseTest() {
     @Test
     fun test_sameFragment_multipleBackStackEntries() {
+        @Suppress("DEPRECATION")
         FragmentManager.enableDebugLogging(true)
         val containerId = ViewCompat.generateViewId()
         setUpTest(ORIENTATION_HORIZONTAL).apply {

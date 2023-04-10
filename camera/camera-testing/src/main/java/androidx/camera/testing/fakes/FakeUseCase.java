@@ -16,16 +16,20 @@
 
 package androidx.camera.testing.fakes;
 
-import android.util.Size;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.UseCase;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
+import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A fake {@link UseCase}.
@@ -33,12 +37,23 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class FakeUseCase extends UseCase {
     private volatile boolean mIsDetached = false;
+    private final AtomicInteger mStateAttachedCount = new AtomicInteger(0);
+    private final CaptureType mCaptureType;
+    private boolean mMergedConfigRetrieved = false;
+
+    /**
+     * Creates a new instance of a {@link FakeUseCase} with a given configuration and capture type.
+     */
+    public FakeUseCase(@NonNull FakeUseCaseConfig config, @NonNull CaptureType captureType) {
+        super(config);
+        mCaptureType = captureType;
+    }
 
     /**
      * Creates a new instance of a {@link FakeUseCase} with a given configuration.
      */
     public FakeUseCase(@NonNull FakeUseCaseConfig config) {
-        super(config);
+        this(config, CaptureType.PREVIEW);
     }
 
     /**
@@ -58,7 +73,8 @@ public class FakeUseCase extends UseCase {
     @Override
     public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder(@NonNull Config config) {
         return new FakeUseCaseConfig.Builder(config)
-                .setSessionOptionUnpacker((useCaseConfig, sessionConfigBuilder) -> { });
+                .setSessionOptionUnpacker((useCaseConfig, sessionConfigBuilder) -> {
+                });
     }
 
     /**
@@ -71,26 +87,62 @@ public class FakeUseCase extends UseCase {
     @Override
     public UseCaseConfig<?> getDefaultConfig(boolean applyDefaultConfig,
             @NonNull UseCaseConfigFactory factory) {
-        Config config = factory.getConfig(UseCaseConfigFactory.CaptureType.PREVIEW);
+        Config config = factory.getConfig(
+                mCaptureType,
+                ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY);
         return config == null ? null : getUseCaseConfigBuilder(config).getUseCaseConfig();
     }
 
+    @NonNull
     @Override
-    public void onDetached() {
-        super.onDetached();
+    protected UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
+            @NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
+        mMergedConfigRetrieved = true;
+        return builder.getUseCaseConfig();
+    }
+
+    @Override
+    public void onUnbind() {
+        super.onUnbind();
         mIsDetached = true;
     }
 
     @Override
+    public void onStateAttached() {
+        super.onStateAttached();
+        mStateAttachedCount.incrementAndGet();
+    }
+
+    @Override
+    public void onStateDetached() {
+        super.onStateDetached();
+        mStateAttachedCount.decrementAndGet();
+    }
+
+    @Override
     @NonNull
-    protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
-        return suggestedResolution;
+    protected StreamSpec onSuggestedStreamSpecUpdated(@NonNull StreamSpec suggestedStreamSpec) {
+        return suggestedStreamSpec;
     }
 
     /**
-     * Returns true if {@link #onDetached()} has been called previously.
+     * Returns true if {@link #onUnbind()} has been called previously.
      */
     public boolean isDetached() {
         return mIsDetached;
+    }
+
+    /**
+     * Returns true if {@link #onStateAttached()} has been called previously.
+     */
+    public int getStateAttachedCount() {
+        return mStateAttachedCount.get();
+    }
+
+    /**
+     * Returns true if {@link #mergeConfigs} have been invoked.
+     */
+    public boolean getMergedConfigRetrieved() {
+        return mMergedConfigRetrieved;
     }
 }

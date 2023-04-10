@@ -43,7 +43,7 @@ public interface MutableConfig extends Config {
      * @param opt      The option to be added or modified
      * @param value    The value to insert for this option.
      * @param <ValueT> The type of the value being inserted.
-     * @throws {@link IllegalArgumentException} if there is a conflict that cannot be resolved.
+     * @throws IllegalArgumentException if there is a conflict that cannot be resolved.
      */
     <ValueT> void insertOption(@NonNull Option<ValueT> opt, @NonNull OptionPriority priority,
             @Nullable ValueT value);

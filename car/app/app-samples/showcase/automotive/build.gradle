@@ -23,22 +23,29 @@ android {
     defaultConfig {
         applicationId "androidx.car.app.sample.showcase"
         minSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        targetSdkVersion 31
+        // Increment this to generate signed builds for uploading to Playstore
+        // Make sure this is different from the showcase-mobile version
+        versionCode 107
+        versionName "107"
     }
 
     buildTypes {
+        debug {
+            pseudoLocalesEnabled true
+        }
         release {
             // Enables code shrinking, obfuscation, and optimization.
             minifyEnabled true
             proguardFiles getDefaultProguardFile(
-                    'proguard-android-optimize.txt'),
-                    'proguard-rules.pro'
+                    'proguard-android-optimize.txt')
         }
     }
+    namespace "androidx.car.app.sample.showcase"
 }
 
 dependencies {
     implementation(project(":car:app:app-samples:showcase-common"))
     implementation(project(":car:app:app-automotive"))
 }
+

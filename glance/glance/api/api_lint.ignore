@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+KotlinDefaultParameterOrder: androidx.glance.template.GalleryTemplateData#GalleryTemplateData(androidx.glance.template.HeaderBlock, androidx.glance.template.TextBlock, androidx.glance.template.ImageBlock, androidx.glance.template.ActionBlock, androidx.glance.template.ImageBlock) parameter #0:
+    Parameter `header` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
+KotlinDefaultParameterOrder: androidx.glance.template.GalleryTemplateData#GalleryTemplateData(androidx.glance.template.HeaderBlock, androidx.glance.template.TextBlock, androidx.glance.template.ImageBlock, androidx.glance.template.ActionBlock, androidx.glance.template.ImageBlock) parameter #3:
+    Parameter `mainActionBlock` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)

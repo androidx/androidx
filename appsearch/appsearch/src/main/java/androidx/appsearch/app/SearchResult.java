@@ -20,6 +20,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.core.util.ObjectsCompat;
@@ -49,6 +50,7 @@ public final class SearchResult {
     static final String PACKAGE_NAME_FIELD = "packageName";
     static final String DATABASE_NAME_FIELD = "databaseName";
     static final String RANKING_SIGNAL_FIELD = "rankingSignal";
+    static final String JOINED_RESULTS = "joinedResults";
 
     @NonNull
     private final Bundle mBundle;
@@ -115,6 +117,7 @@ public final class SearchResult {
      * value, this method returns an empty list.
      */
     @NonNull
+    @SuppressWarnings("deprecation")
     public List<MatchInfo> getMatchInfos() {
         if (mMatchInfos == null) {
             List<Bundle> matchBundles =
@@ -122,10 +125,14 @@ public final class SearchResult {
             mMatchInfos = new ArrayList<>(matchBundles.size());
             for (int i = 0; i < matchBundles.size(); i++) {
                 MatchInfo matchInfo = new MatchInfo(matchBundles.get(i), getGenericDocument());
-                mMatchInfos.add(matchInfo);
+                if (mMatchInfos != null) {
+                    // This additional check is added for NullnessChecker.
+                    mMatchInfos.add(matchInfo);
+                }
             }
         }
-        return mMatchInfos;
+        // This check is added for NullnessChecker, mMatchInfos will always be NonNull.
+        return Preconditions.checkNotNull(mMatchInfos);
     }
 
     /**
@@ -177,6 +184,35 @@ public final class SearchResult {
         return mBundle.getDouble(RANKING_SIGNAL_FIELD);
     }
 
+    /**
+     * Gets a list of {@link SearchResult} joined from the join operation.
+     *
+     * <p> These joined documents match the outer document as specified in the {@link JoinSpec}
+     * with parentPropertyExpression and childPropertyExpression. They are ordered according to the
+     * {@link JoinSpec#getNestedSearchSpec}, and as many SearchResults as specified by
+     * {@link JoinSpec#getMaxJoinedResultCount} will be returned. If no {@link JoinSpec} was
+     * specified, this returns an empty list.
+     *
+     * <p> This method is inefficient to call repeatedly, as new {@link SearchResult} objects are
+     * created each time.
+     *
+     * @return a List of SearchResults containing joined documents.
+     */
+    @NonNull
+    @SuppressWarnings("deprecation") // Bundle#getParcelableArrayList(String) is deprecated.
+    public List<SearchResult> getJoinedResults() {
+        ArrayList<Bundle> bundles = mBundle.getParcelableArrayList(JOINED_RESULTS);
+        if (bundles == null) {
+            return new ArrayList<>();
+        }
+        List<SearchResult> res = new ArrayList<>(bundles.size());
+        for (int i = 0; i < bundles.size(); i++) {
+            res.add(new SearchResult(bundles.get(i)));
+        }
+
+        return res;
+    }
+
     /** Builder for {@link SearchResult} objects. */
     public static final class Builder {
         private final String mPackageName;
@@ -184,6 +220,7 @@ public final class SearchResult {
         private ArrayList<Bundle> mMatchInfoBundles = new ArrayList<>();
         private GenericDocument mGenericDocument;
         private double mRankingSignal;
+        private ArrayList<Bundle> mJoinedResults = new ArrayList<>();
         private boolean mBuilt = false;
 
         /**
@@ -244,6 +281,17 @@ public final class SearchResult {
             return this;
         }
 
+        /**
+         * Adds a {@link SearchResult} that was joined by the {@link JoinSpec}.
+         * @param joinedResult The joined SearchResult to add.
+         */
+        @NonNull
+        public Builder addJoinedResult(@NonNull SearchResult joinedResult) {
+            resetIfBuilt();
+            mJoinedResults.add(joinedResult.getBundle());
+            return this;
+        }
+
         /** Constructs a new {@link SearchResult}. */
         @NonNull
         public SearchResult build() {
@@ -253,6 +301,7 @@ public final class SearchResult {
             bundle.putBundle(DOCUMENT_FIELD, mGenericDocument.getBundle());
             bundle.putDouble(RANKING_SIGNAL_FIELD, mRankingSignal);
             bundle.putParcelableArrayList(MATCH_INFOS_FIELD, mMatchInfoBundles);
+            bundle.putParcelableArrayList(JOINED_RESULTS, mJoinedResults);
             mBuilt = true;
             return new SearchResult(bundle);
         }
@@ -260,58 +309,75 @@ public final class SearchResult {
         private void resetIfBuilt() {
             if (mBuilt) {
                 mMatchInfoBundles = new ArrayList<>(mMatchInfoBundles);
+                mJoinedResults = new ArrayList<>(mJoinedResults);
                 mBuilt = false;
             }
         }
     }
 
     /**
-     * This class represents a match objects for any Snippets that might be present in
-     * {@link SearchResults} from query. Using this class
-     * user can get the full text, exact matches and Snippets of document content for a given match.
+     * This class represents match objects for any Snippets that might be present in
+     * {@link SearchResults} from a query. Using this class, the user can get:
+     * <ul>
+     *     <li>the full text - all of the text in that String property</li>
+     *     <li>the exact term match - the 'term' (full word) that matched the query</li>
+     *     <li>the subterm match - the portion of the matched term that appears in the query</li>
+     *     <li>a suggested text snippet - a portion of the full text surrounding the exact term
+     *     match, set to term boundaries. The size of the snippet is specified in
+     *     {@link SearchSpec.Builder#setMaxSnippetSize}</li>
+     * </ul>
+     * for each match in the document.
      *
      * <p>Class Example 1:
-     * A document contains following text in property subject:
-     * <p>A commonly used fake word is foo. Another nonsense word that’s used a lot is bar.
+     * <p>A document contains the following text in property "subject":
+     * <p>"A commonly used fake word is foo. Another nonsense word that’s used a lot is bar."
      *
-     * <p>If the queryExpression is "foo".
-     *
-     * <p>{@link MatchInfo#getPropertyPath()} returns "subject"
-     * <p>{@link MatchInfo#getFullText()} returns "A commonly used fake word is foo. Another
-     * nonsense word that’s used a lot is bar."
-     * <p>{@link MatchInfo#getExactMatchRange()} returns [29, 32]
-     * <p>{@link MatchInfo#getExactMatch()} returns "foo"
-     * <p>{@link MatchInfo#getSubmatchRange()} returns [29, 32]
-     * <p>{@link MatchInfo#getSubmatch()} returns "foo"
-     * <p>{@link MatchInfo#getSnippetRange()} returns [26, 33]
-     * <p>{@link MatchInfo#getSnippet()} returns "is foo."
+     * <p>If the queryExpression is "foo" and {@link SearchSpec#getMaxSnippetSize}  is 10,
+     * <ul>
+     *      <li>{@link MatchInfo#getPropertyPath()} returns "subject"</li>
+     *      <li>{@link MatchInfo#getFullText()} returns "A commonly used fake word is foo. Another
+     * nonsense word that’s used a lot is bar."</li>
+     *      <li>{@link MatchInfo#getExactMatchRange()} returns [29, 32]</li>
+     *      <li>{@link MatchInfo#getExactMatch()} returns "foo"</li>
+     *      <li>{@link MatchInfo#getSubmatchRange()} returns [29, 32]</li>
+     *      <li>{@link MatchInfo#getSubmatch()} returns "foo"</li>
+     *      <li>{@link MatchInfo#getSnippetRange()} returns [26, 33]</li>
+     *      <li>{@link MatchInfo#getSnippet()} returns "is foo."</li>
+     * </ul>
      * <p>
      * <p>Class Example 2:
-     * A document contains a property name sender which contains 2 property names name and email, so
-     * we will have 2 property paths: {@code sender.name} and {@code sender.email}.
-     * <p>Let {@code sender.name = "Test Name Jr."} and
-     * {@code sender.email = "TestNameJr@gmail.com"}
+     * <p>A document contains one property named "subject" and one property named "sender" which
+     * contains a "name" property.
      *
-     * <p>If the queryExpression is "Test". We will have 2 matches.
+     * In this case, we will have 2 property paths: {@code sender.name} and {@code subject}.
+     * <p>Let {@code sender.name = "Test Name Jr."} and
+     * {@code subject = "Testing 1 2 3"}
+     *
+     * <p>If the queryExpression is "Test" with {@link SearchSpec#TERM_MATCH_PREFIX} and
+     * {@link SearchSpec#getMaxSnippetSize} is 10. We will have 2 matches:
      *
      * <p> Match-1
-     * <p>{@link MatchInfo#getPropertyPath()} returns "sender.name"
-     * <p>{@link MatchInfo#getFullText()} returns "Test Name Jr."
-     * <p>{@link MatchInfo#getExactMatchRange()} returns [0, 4]
-     * <p>{@link MatchInfo#getExactMatch()} returns "Test"
-     * <p>{@link MatchInfo#getSubmatchRange()} returns [0, 4]
-     * <p>{@link MatchInfo#getSubmatch()} returns "Test"
-     * <p>{@link MatchInfo#getSnippetRange()} returns [0, 9]
-     * <p>{@link MatchInfo#getSnippet()} returns "Test Name"
+     * <ul>
+     *      <li>{@link MatchInfo#getPropertyPath()} returns "sender.name"</li>
+     *      <li>{@link MatchInfo#getFullText()} returns "Test Name Jr."</li>
+     *      <li>{@link MatchInfo#getExactMatchRange()} returns [0, 4]</li>
+     *      <li>{@link MatchInfo#getExactMatch()} returns "Test"</li>
+     *      <li>{@link MatchInfo#getSubmatchRange()} returns [0, 4]</li>
+     *      <li>{@link MatchInfo#getSubmatch()} returns "Test"</li>
+     *      <li>{@link MatchInfo#getSnippetRange()} returns [0, 9]</li>
+     *      <li>{@link MatchInfo#getSnippet()} returns "Test Name"</li>
+     * </ul>
      * <p> Match-2
-     * <p>{@link MatchInfo#getPropertyPath()} returns "sender.email"
-     * <p>{@link MatchInfo#getFullText()} returns "TestNameJr@gmail.com"
-     * <p>{@link MatchInfo#getExactMatchRange()} returns [0, 20]
-     * <p>{@link MatchInfo#getExactMatch()} returns "TestNameJr@gmail.com"
-     * <p>{@link MatchInfo#getSubmatchRange()} returns [0, 4]
-     * <p>{@link MatchInfo#getSubmatch()} returns "Test"
-     * <p>{@link MatchInfo#getSnippetRange()} returns [0, 20]
-     * <p>{@link MatchInfo#getSnippet()} returns "TestNameJr@gmail.com"
+     * <ul>
+     *      <li>{@link MatchInfo#getPropertyPath()} returns "subject"</li>
+     *      <li>{@link MatchInfo#getFullText()} returns "Testing 1 2 3"</li>
+     *      <li>{@link MatchInfo#getExactMatchRange()} returns [0, 7]</li>
+     *      <li>{@link MatchInfo#getExactMatch()} returns "Testing"</li>
+     *      <li>{@link MatchInfo#getSubmatchRange()} returns [0, 4]</li>
+     *      <li>{@link MatchInfo#getSubmatch()} returns "Test"</li>
+     *      <li>{@link MatchInfo#getSnippetRange()} returns [0, 9]</li>
+     *      <li>{@link MatchInfo#getSnippet()} returns "Testing 1"</li>
+     * </ul>
      */
     public static final class MatchInfo {
         /** The path of the matching snippet property. */
@@ -324,6 +390,8 @@ public final class SearchResult {
         private static final String SNIPPET_RANGE_UPPER_FIELD = "snippetRangeUpper";
 
         private final String mPropertyPath;
+        @Nullable
+        private PropertyPath mPropertyPathObject = null;
         final Bundle mBundle;
 
         /**
@@ -375,16 +443,40 @@ public final class SearchResult {
         }
 
         /**
+         * Gets a {@link PropertyPath} object representing the property path corresponding to the
+         * given entry.
+         *
+         * <p> Methods such as {@link GenericDocument#getPropertyDocument} accept a path as a
+         * string rather than a {@link PropertyPath} object. However, you may want to manipulate
+         * the path before getting a property document. This method returns a {@link PropertyPath}
+         * rather than a String for easier path manipulation, which can then be converted to a
+         * String.
+         *
+         * @see #getPropertyPath
+         * @see PropertyPath
+         */
+        @NonNull
+        public PropertyPath getPropertyPathObject() {
+            if (mPropertyPathObject == null) {
+                mPropertyPathObject = new PropertyPath(mPropertyPath);
+            }
+            return mPropertyPathObject;
+        }
+
+        /**
          * Gets the full text corresponding to the given entry.
-         * <p>For class example this returns "A commonly used fake word is foo. Another nonsense
+         * <p>Class example 1: this returns "A commonly used fake word is foo. Another nonsense
          * word that's used a lot is bar."
+         * <p>Class example 2: for the first {@link MatchInfo}, this returns "Test Name Jr." and,
+         * for the second {@link MatchInfo}, this returns "Testing 1 2 3".
          */
         @NonNull
         public String getFullText() {
             if (mFullText == null) {
-                Preconditions.checkState(
-                        mDocument != null,
-                        "Document has not been populated; this MatchInfo cannot be used yet");
+                if (mDocument == null) {
+                    throw new IllegalStateException(
+                            "Document has not been populated; this MatchInfo cannot be used yet");
+                }
                 mFullText = getPropertyValues(mDocument, mPropertyPath);
             }
             return mFullText;
@@ -394,7 +486,7 @@ public final class SearchResult {
          * Gets the {@link MatchRange} of the exact term of the given entry that matched the query.
          * <p>Class example 1: this returns [29, 32].
          * <p>Class example 2: for the first {@link MatchInfo}, this returns [0, 4] and, for the
-         * second {@link MatchInfo}, this returns [0, 20].
+         * second {@link MatchInfo}, this returns [0, 7].
          */
         @NonNull
         public MatchRange getExactMatchRange() {
@@ -410,7 +502,7 @@ public final class SearchResult {
          * Gets the exact term of the given entry that matched the query.
          * <p>Class example 1: this returns "foo".
          * <p>Class example 2: for the first {@link MatchInfo}, this returns "Test" and, for the
-         * second {@link MatchInfo}, this returns "TestNameJr@gmail.com".
+         * second {@link MatchInfo}, this returns "Testing".
          */
         @NonNull
         public CharSequence getExactMatch() {
@@ -426,12 +518,17 @@ public final class SearchResult {
          *
          * <!--@exportToFramework:ifJetpack()-->
          * <p>This information may not be available depending on the backend and Android API
-         * level. To ensure it is available, call {@link Capabilities#isSubmatchSupported}.
+         * level. To ensure it is available, call {@link Features#isFeatureSupported}.
          *
-         * @throws UnsupportedOperationException if {@link Capabilities#isSubmatchSupported} is
+         * @throws UnsupportedOperationException if {@link Features#isFeatureSupported} is
          * false.
          * <!--@exportToFramework:else()-->
          */
+        // @exportToFramework:startStrip()
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH)
+        // @exportToFramework:endStrip()
         @NonNull
         public MatchRange getSubmatchRange() {
             checkSubmatchSupported();
@@ -451,12 +548,17 @@ public final class SearchResult {
          *
          * <!--@exportToFramework:ifJetpack()-->
          * <p>This information may not be available depending on the backend and Android API
-         * level. To ensure it is available, call {@link Capabilities#isSubmatchSupported}.
+         * level. To ensure it is available, call {@link Features#isFeatureSupported}.
          *
-         * @throws UnsupportedOperationException if {@link Capabilities#isSubmatchSupported} is
+         * @throws UnsupportedOperationException if {@link Features#isFeatureSupported} is
          * false.
          * <!--@exportToFramework:else()-->
          */
+        // @exportToFramework:startStrip()
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH)
+        // @exportToFramework:endStrip()
         @NonNull
         public CharSequence getSubmatch() {
             checkSubmatchSupported();
@@ -469,7 +571,7 @@ public final class SearchResult {
          * {@link SearchSpec.Builder#setMaxSnippetSize}.
          * <p>Class example 1: this returns [29, 41].
          * <p>Class example 2: for the first {@link MatchInfo}, this returns [0, 9] and, for the
-         * second {@link MatchInfo}, this returns [0, 20].
+         * second {@link MatchInfo}, this returns [0, 13].
          */
         @NonNull
         public MatchRange getSnippetRange() {
@@ -489,7 +591,7 @@ public final class SearchResult {
          * the matched token with content on either side clipped to token boundaries.
          * <p>Class example 1: this returns "foo. Another".
          * <p>Class example 2: for the first {@link MatchInfo}, this returns "Test Name" and, for
-         * the second {@link MatchInfo}, this returns "TestNameJr@gmail.com".
+         * the second {@link MatchInfo}, this returns "Testing 1 2 3".
          */
         @NonNull
         public CharSequence getSnippet() {
@@ -510,9 +612,6 @@ public final class SearchResult {
 
         /** Extracts the matching string from the document. */
         private static String getPropertyValues(GenericDocument document, String propertyName) {
-            // In IcingLib snippeting is available for only 3 data types i.e String, double and
-            // long, so we need to check which of these three are requested.
-            // TODO (tytytyww): support double[] and long[].
             String result = document.getPropertyString(propertyName);
             if (result == null) {
                 throw new IllegalStateException(
@@ -538,8 +637,8 @@ public final class SearchResult {
              * <p>Example properties: 'body', 'sender.name', 'sender.emailaddress', etc.
              * For class example 1 this returns "subject".
              *
-             * @param propertyPath A {@code dot-delimited sequence of property names indicating
-             *                     which property in the document these snippets correspond to.
+             * @param propertyPath A dot-delimited sequence of property names indicating which
+             *                     property in the document these snippets correspond to.
              */
             public Builder(@NonNull String propertyPath) {
                 mPropertyPath = Preconditions.checkNotNull(propertyPath);
@@ -577,8 +676,14 @@ public final class SearchResult {
                 if (mSubmatchRange != null) {
                     // Only populate the submatch fields if it was actually set.
                     bundle.putInt(MatchInfo.SUBMATCH_RANGE_LOWER_FIELD, mSubmatchRange.getStart());
+                }
+
+                if (mSubmatchRange != null) {
+                    // Only populate the submatch fields if it was actually set.
+                    // Moved to separate block for Nullness Checker.
                     bundle.putInt(MatchInfo.SUBMATCH_RANGE_UPPER_FIELD, mSubmatchRange.getEnd());
                 }
+
                 bundle.putInt(MatchInfo.SNIPPET_RANGE_LOWER_FIELD, mSnippetRange.getStart());
                 bundle.putInt(MatchInfo.SNIPPET_RANGE_UPPER_FIELD, mSnippetRange.getEnd());
                 return new MatchInfo(bundle, /*document=*/ null);

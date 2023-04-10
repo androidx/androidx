@@ -178,6 +178,7 @@ public final class ViewPager2 extends ViewGroup {
     }
 
     @RequiresApi(21)
+    @SuppressLint("ClassVerificationFailure")
     public ViewPager2(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
             int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
@@ -389,6 +390,7 @@ public final class ViewPager2 extends ViewGroup {
         Parcelable mAdapterState;
 
         @RequiresApi(24)
+        @SuppressLint("ClassVerificationFailure")
         SavedState(Parcel source, ClassLoader loader) {
             super(source, loader);
             readValues(source, loader);
@@ -403,6 +405,7 @@ public final class ViewPager2 extends ViewGroup {
             super(superState);
         }
 
+        @SuppressWarnings("deprecation")
         private void readValues(Parcel source, ClassLoader loader) {
             mRecyclerViewId = source.readInt();
             mCurrentItem = source.readInt();
@@ -578,7 +581,8 @@ public final class ViewPager2 extends ViewGroup {
     }
 
     public @Orientation int getOrientation() {
-        return mLayoutManager.getOrientation();
+        return mLayoutManager.getOrientation() == LinearLayoutManager.VERTICAL
+                ? ViewPager2.ORIENTATION_VERTICAL : ViewPager2.ORIENTATION_HORIZONTAL;
     }
 
     boolean isRtl() {
@@ -958,7 +962,7 @@ public final class ViewPager2 extends ViewGroup {
 
     @RequiresApi(16)
     @Override
-    public boolean performAccessibilityAction(int action, Bundle arguments) {
+    public boolean performAccessibilityAction(int action, @Nullable Bundle arguments) {
         if (mAccessibilityProvider.handlesPerformAccessibilityAction(action, arguments)) {
             return mAccessibilityProvider.onPerformAccessibilityAction(action, arguments);
         }

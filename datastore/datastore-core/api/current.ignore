@@ -1,0 +1,15 @@
+// Baseline format: 1.0
+ParameterNameChange: androidx.datastore.core.DataMigration#cleanUp(kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #0:
+    Attempted to remove parameter name from parameter arg1 in androidx.datastore.core.DataMigration.cleanUp
+ParameterNameChange: androidx.datastore.core.DataMigration#migrate(T, kotlin.coroutines.Continuation<? super T>) parameter #1:
+    Attempted to remove parameter name from parameter arg2 in androidx.datastore.core.DataMigration.migrate
+ParameterNameChange: androidx.datastore.core.DataMigration#shouldMigrate(T, kotlin.coroutines.Continuation<? super java.lang.Boolean>) parameter #1:
+    Attempted to remove parameter name from parameter arg2 in androidx.datastore.core.DataMigration.shouldMigrate
+ParameterNameChange: androidx.datastore.core.DataStore#updateData(kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super T>,?>, kotlin.coroutines.Continuation<? super T>) parameter #1:
+    Attempted to remove parameter name from parameter arg2 in androidx.datastore.core.DataStore.updateData
+ParameterNameChange: androidx.datastore.core.Serializer#readFrom(java.io.InputStream, kotlin.coroutines.Continuation<? super T>) parameter #1:
+    Attempted to remove parameter name from parameter arg2 in androidx.datastore.core.Serializer.readFrom
+ParameterNameChange: androidx.datastore.core.Serializer#writeTo(T, java.io.OutputStream, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #2:
+    Attempted to remove parameter name from parameter arg3 in androidx.datastore.core.Serializer.writeTo
+ParameterNameChange: androidx.datastore.core.handlers.ReplaceFileCorruptionHandler#handleCorruption(androidx.datastore.core.CorruptionException, kotlin.coroutines.Continuation<? super T>) parameter #1:
+    Attempted to remove parameter name from parameter arg2 in androidx.datastore.core.handlers.ReplaceFileCorruptionHandler.handleCorruption

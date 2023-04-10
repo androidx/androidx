@@ -29,7 +29,7 @@ import androidx.annotation.Nullable;
  * Stubs for RenderNode on M-P devices.
  */
 public class RenderNode {
-    @SuppressWarnings("UnusedVariable")
+    @SuppressWarnings("unused")
     private RenderNode(String name, View owningView) {
     }
 
@@ -53,6 +53,13 @@ public class RenderNode {
 
     /** stub */
     public void discardDisplayList() {
+    }
+
+    /**
+     * Same stub as discardDisplayList however it was named destroyDisplayListData in Android M
+     * and earlier
+     */
+    public void destroyDisplayListData() {
     }
 
     /** stub */
@@ -167,6 +174,26 @@ public class RenderNode {
 
     /** stub */
     public float getElevation() {
+        throw new UnsupportedOperationException();
+    }
+
+    /** stub */
+    public boolean setAmbientShadowColor(int color) {
+        throw new UnsupportedOperationException();
+    }
+
+    /** stub */
+    public int getAmbientShadowColor() {
+        throw new UnsupportedOperationException();
+    }
+
+    /** stub */
+    public boolean setSpotShadowColor(int color) {
+        throw new UnsupportedOperationException();
+    }
+
+    /** stub */
+    public int getSpotShadowColor() {
         throw new UnsupportedOperationException();
     }
 

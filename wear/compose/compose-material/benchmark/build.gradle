@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import androidx.build.LibraryType
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -29,10 +31,10 @@ android {
     buildTypes.all {
         consumerProguardFiles "benchmark-proguard-rules.pro"
     }
+    namespace "androidx.wear.compose.material.benchmark"
 }
 
 dependencies {
-    kotlinPlugin project(":compose:compiler:compiler")
 
     androidTestImplementation project(":benchmark:benchmark-junit4")
     androidTestImplementation project(":compose:runtime:runtime")
@@ -49,4 +51,7 @@ dependencies {
     androidTestImplementation(libs.kotlinReflect)
     androidTestImplementation(libs.kotlinTestCommon)
     androidTestImplementation(libs.truth)
+}
+androidx {
+    type = LibraryType.INTERNAL_TEST_LIBRARY
 }

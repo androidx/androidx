@@ -24,7 +24,6 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
     implementation(libs.kotlinStdlib)
 
     implementation(projectOrArtifact(":compose:integration-tests:demos:common"))
@@ -39,4 +38,8 @@ androidx {
     publish = Publish.NONE
     inceptionYear = "2020"
     description = "This is a project for Navigation demos."
+}
+
+android {
+    namespace "androidx.navigation.compose.demos"
 }

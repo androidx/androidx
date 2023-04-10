@@ -16,7 +16,11 @@
 
 package androidx.compose.ui.graphics.colorspace
 
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.util.packFloats
+import kotlin.math.abs
 import kotlin.math.pow
+import kotlin.math.sign
 
 /**
  * Implementation of the Oklab color space. Oklab uses
@@ -34,33 +38,92 @@ internal class Oklab(
         get() = true
 
     override fun getMinValue(component: Int): Float {
-        return if (component == 0) 0f else -2f
+        return if (component == 0) 0f else -0.5f
     }
 
     override fun getMaxValue(component: Int): Float {
-        return if (component == 0) 1f else 2f
+        return if (component == 0) 1f else 0.5f
     }
 
     override fun toXyz(v: FloatArray): FloatArray {
         v[0] = v[0].coerceIn(0f, 1f)
-        v[1] = v[1].coerceIn(-2f, 2f)
-        v[2] = v[2].coerceIn(-2f, 2f)
+        v[1] = v[1].coerceIn(-0.5f, 0.5f)
+        v[2] = v[2].coerceIn(-0.5f, 0.5f)
 
         mul3x3Float3(InverseM2, v)
-        v[0] = v[0].pow(3f)
-        v[1] = v[1].pow(3f)
-        v[2] = v[2].pow(3f)
+        v[0] = v[0] * v[0] * v[0]
+        v[1] = v[1] * v[1] * v[1]
+        v[2] = v[2] * v[2] * v[2]
         mul3x3Float3(InverseM1, v)
 
         return v
     }
 
+    override fun toXy(v0: Float, v1: Float, v2: Float): Long {
+        val v00 = v0.coerceIn(0f, 1f)
+        val v10 = v1.coerceIn(-0.5f, 0.5f)
+        val v20 = v2.coerceIn(-0.5f, 0.5f)
+
+        val v01 = mul3x3Float3_0(InverseM2, v00, v10, v20)
+        val v11 = mul3x3Float3_1(InverseM2, v00, v10, v20)
+        val v21 = mul3x3Float3_2(InverseM2, v00, v10, v20)
+
+        val v02 = v01 * v01 * v01
+        val v12 = v11 * v11 * v11
+        val v22 = v21 * v21 * v21
+
+        val v03 = mul3x3Float3_0(InverseM1, v02, v12, v22)
+        val v13 = mul3x3Float3_1(InverseM1, v02, v12, v22)
+
+        return packFloats(v03, v13)
+    }
+
+    override fun toZ(v0: Float, v1: Float, v2: Float): Float {
+        val v00 = v0.coerceIn(0f, 1f)
+        val v10 = v1.coerceIn(-0.5f, 0.5f)
+        val v20 = v2.coerceIn(-0.5f, 0.5f)
+
+        val v01 = mul3x3Float3_0(InverseM2, v00, v10, v20)
+        val v11 = mul3x3Float3_1(InverseM2, v00, v10, v20)
+        val v21 = mul3x3Float3_2(InverseM2, v00, v10, v20)
+
+        val v02 = v01 * v01 * v01
+        val v12 = v11 * v11 * v11
+        val v22 = v21 * v21 * v21
+
+        val v23 = mul3x3Float3_2(InverseM1, v02, v12, v22)
+
+        return v23
+    }
+
+    override fun xyzaToColor(
+        x: Float,
+        y: Float,
+        z: Float,
+        a: Float,
+        colorSpace: ColorSpace
+    ): Color {
+        var v0 = mul3x3Float3_0(M1, x, y, z)
+        var v1 = mul3x3Float3_1(M1, x, y, z)
+        var v2 = mul3x3Float3_2(M1, x, y, z)
+
+        v0 = sign(v0) * abs(v0).pow(1.0f / 3.0f)
+        v1 = sign(v1) * abs(v1).pow(1.0f / 3.0f)
+        v2 = sign(v2) * abs(v2).pow(1.0f / 3.0f)
+
+        val v01 = mul3x3Float3_0(M2, v0, v1, v2)
+        val v11 = mul3x3Float3_1(M2, v0, v1, v2)
+        val v21 = mul3x3Float3_2(M2, v0, v1, v2)
+
+        return Color(v01, v11, v21, a, colorSpace)
+    }
+
     override fun fromXyz(v: FloatArray): FloatArray {
         mul3x3Float3(M1, v)
 
-        v[0] = v[0].pow(1f / 3f)
-        v[1] = v[1].pow(1f / 3f)
-        v[2] = v[2].pow(1f / 3f)
+        v[0] = sign(v[0]) * abs(v[0]).pow(1.0f / 3.0f)
+        v[1] = sign(v[1]) * abs(v[1]).pow(1.0f / 3.0f)
+        v[2] = sign(v[2]) * abs(v[2]).pow(1.0f / 3.0f)
 
         mul3x3Float3(M2, v)
         return v
@@ -79,7 +142,7 @@ internal class Oklab(
                 -0.1288597137f, 0.0361456387f, 0.6338517070f
             ),
             chromaticAdaptation(
-                matrix = Adaptation.VonKries.transform,
+                matrix = Adaptation.Bradford.transform,
                 srcWhitePoint = Illuminant.D50.toXyz(),
                 dstWhitePoint = Illuminant.D65.toXyz()
             )

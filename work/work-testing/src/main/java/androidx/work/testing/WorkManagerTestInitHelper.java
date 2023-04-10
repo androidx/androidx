@@ -22,6 +22,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.work.Configuration;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.utils.SerialExecutorImpl;
+import androidx.work.impl.utils.taskexecutor.SerialExecutor;
 
 
 /**
@@ -55,13 +57,19 @@ public final class WorkManagerTestInitHelper {
 
         // Check if the configuration being used has overridden the task executor. If not,
         // swap to SynchronousExecutor. This is to preserve existing behavior.
+        SerialExecutor serialExecutor;
         if (configuration.isUsingDefaultTaskExecutor()) {
             Configuration.Builder builder = new Configuration.Builder(configuration)
                     .setTaskExecutor(new SynchronousExecutor());
             configuration = builder.build();
+            serialExecutor = new SynchronousSerialExecutor();
+        } else {
+            serialExecutor = new SerialExecutorImpl(configuration.getTaskExecutor());
         }
 
-        WorkManagerImpl.setDelegate(new TestWorkManagerImpl(context, configuration));
+        WorkManagerImpl.setDelegate(
+                new TestWorkManagerImpl(context, configuration, serialExecutor)
+        );
     }
 
     /**

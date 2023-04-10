@@ -21,7 +21,7 @@ import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapAndPress
 import androidx.compose.foundation.gestures.drag
-import androidx.compose.foundation.gestures.forEachGesture
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -47,14 +47,15 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.input.pointer.consumePositionChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
@@ -183,7 +184,7 @@ fun HorizontalScrollbar(
 ) = Scrollbar(
     adapter,
     modifier,
-    reverseLayout,
+    if (LocalLayoutDirection.current == LayoutDirection.Rtl) !reverseLayout else reverseLayout,
     style,
     interactionSource,
     isVertical = false
@@ -246,9 +247,14 @@ private fun Scrollbar(
             Box(
                 Modifier
                     .background(if (isVisible) color else Color.Transparent, style.shape)
-                    .scrollbarDrag(interactionSource, dragInteraction) { offset ->
-                        sliderAdapter.position += if (isVertical) offset.y else offset.x
-                    }
+                    .scrollbarDrag(
+                        interactionSource = interactionSource,
+                        draggedInteraction = dragInteraction,
+                        onDelta = { offset ->
+                            sliderAdapter.rawPosition += if (isVertical) offset.y else offset.x
+                        },
+                        onFinished = { sliderAdapter.rawPosition = sliderAdapter.position }
+                    )
             )
         },
         modifier
@@ -261,30 +267,31 @@ private fun Scrollbar(
 private fun Modifier.scrollbarDrag(
     interactionSource: MutableInteractionSource,
     draggedInteraction: MutableState<DragInteraction.Start?>,
-    onDelta: (Offset) -> Unit
+    onDelta: (Offset) -> Unit,
+    onFinished: () -> Unit
 ): Modifier = composed {
     val currentInteractionSource by rememberUpdatedState(interactionSource)
     val currentDraggedInteraction by rememberUpdatedState(draggedInteraction)
     val currentOnDelta by rememberUpdatedState(onDelta)
+    val currentOnFinished by rememberUpdatedState(onFinished)
     pointerInput(Unit) {
-        forEachGesture {
-            awaitPointerEventScope {
-                val down = awaitFirstDown(requireUnconsumed = false)
-                val interaction = DragInteraction.Start()
-                currentInteractionSource.tryEmit(interaction)
-                currentDraggedInteraction.value = interaction
-                val isSuccess = drag(down.id) { change ->
-                    currentOnDelta.invoke(change.positionChange())
-                    change.consumePositionChange()
-                }
-                val finishInteraction = if (isSuccess) {
-                    DragInteraction.Stop(interaction)
-                } else {
-                    DragInteraction.Cancel(interaction)
-                }
-                currentInteractionSource.tryEmit(finishInteraction)
-                currentDraggedInteraction.value = null
+        awaitEachGesture {
+            val down = awaitFirstDown(requireUnconsumed = false)
+            val interaction = DragInteraction.Start()
+            currentInteractionSource.tryEmit(interaction)
+            currentDraggedInteraction.value = interaction
+            val isSuccess = drag(down.id) { change ->
+                currentOnDelta.invoke(change.positionChange())
+                change.consume()
             }
+            val finishInteraction = if (isSuccess) {
+                DragInteraction.Stop(interaction)
+            } else {
+                DragInteraction.Cancel(interaction)
+            }
+            currentInteractionSource.tryEmit(finishInteraction)
+            currentDraggedInteraction.value = null
+            currentOnFinished.invoke()
         }
     }
 }
@@ -531,7 +538,19 @@ private class SliderAdapter(
             return if (extraContentSpace == 0f) 1f else extraScrollbarSpace / extraContentSpace
         }
 
-    private var rawPosition: Float
+    /**
+     * A position with cumulative offset, may be out of the container when dragging
+     */
+    var rawPosition: Float = position
+        set(value) {
+            field = value
+            position = value
+        }
+
+    /**
+     * Actual scroll of content regarding slider layout
+     */
+    private var scrollPosition: Float
         get() = scrollScale * adapter.scrollOffset
         set(value) {
             runBlocking {
@@ -539,10 +558,13 @@ private class SliderAdapter(
             }
         }
 
+    /**
+     * Actual position of a thumb within slider container
+     */
     var position: Float
-        get() = if (reverseLayout) containerSize - size - rawPosition else rawPosition
+        get() = if (reverseLayout) containerSize - size - scrollPosition else scrollPosition
         set(value) {
-            rawPosition = if (reverseLayout) {
+            scrollPosition = if (reverseLayout) {
                 containerSize - size - value
             } else {
                 value

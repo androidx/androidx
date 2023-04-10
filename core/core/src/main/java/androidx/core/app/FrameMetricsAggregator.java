@@ -169,7 +169,7 @@ public class FrameMetricsAggregator {
      */
     public static final int EVERY_DURATION          = 0x1ff;
 
-    private FrameMetricsBaseImpl mInstance;
+    private final FrameMetricsBaseImpl mInstance;
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -337,7 +337,7 @@ public class FrameMetricsAggregator {
         private static final int NANOS_ROUNDING_VALUE = NANOS_PER_MS / 2;
         int mTrackingFlags;
         SparseIntArray[] mMetrics = new SparseIntArray[LAST_INDEX + 1];
-        private ArrayList<WeakReference<Activity>> mActivities = new ArrayList<>();
+        private final ArrayList<WeakReference<Activity>> mActivities = new ArrayList<>();
         private static HandlerThread sHandlerThread = null;
         private static Handler sHandler = null;
 

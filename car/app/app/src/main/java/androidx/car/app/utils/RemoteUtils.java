@@ -345,6 +345,14 @@ public final class RemoteUtils {
                 return null;
             });
         }
+        @RequiresCarApi(5)
+        @Override
+        public void onClick(float x, float y) throws RemoteException {
+            dispatchCallFromHost(mLifecycle, "onClick", () -> {
+                mSurfaceCallback.onClick(x, y);
+                return null;
+            });
+        }
     }
 
     private RemoteUtils() {

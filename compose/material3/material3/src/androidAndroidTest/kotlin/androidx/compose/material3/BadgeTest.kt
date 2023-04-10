@@ -19,10 +19,11 @@ import android.os.Build
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material3.tokens.NavigationBar
+import androidx.compose.material3.tokens.BadgeTokens
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -56,36 +57,40 @@ class BadgeTest {
     @get:Rule
     val rule = createComposeRule()
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun badge_noContent_size() {
         rule
             .setMaterialContentForSizeAssertions {
                 Badge()
             }
-            .assertHeightIsEqualTo(NavigationBar.BadgeSize)
-            .assertWidthIsEqualTo(NavigationBar.BadgeSize)
+            .assertHeightIsEqualTo(BadgeTokens.Size)
+            .assertWidthIsEqualTo(BadgeTokens.Size)
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun badge_shortContent_size() {
         rule
             .setMaterialContentForSizeAssertions {
                 Badge { Text("1") }
             }
-            .assertHeightIsEqualTo(NavigationBar.LargeBadgeSize)
-            .assertWidthIsEqualTo(NavigationBar.LargeBadgeSize)
+            .assertHeightIsEqualTo(BadgeTokens.LargeSize)
+            .assertWidthIsEqualTo(BadgeTokens.LargeSize)
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun badge_longContent_size() {
         rule
             .setMaterialContentForSizeAssertions {
                 Badge { Text("999+") }
             }
-            .assertHeightIsEqualTo(NavigationBar.LargeBadgeSize)
-            .assertWidthIsAtLeast(NavigationBar.LargeBadgeSize)
+            .assertHeightIsEqualTo(BadgeTokens.LargeSize)
+            .assertWidthIsAtLeast(BadgeTokens.LargeSize)
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun badge_shortContent_customSizeModifier_size() {
         val customWidth = 24.dp
@@ -100,12 +105,15 @@ class BadgeTest {
             .assertWidthIsEqualTo(customWidth)
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun badge_noContent_shape() {
+        var shape = RectangleShape
         var errorColor = Color.Unspecified
-        rule.setMaterialContent {
-            errorColor = MaterialTheme.colorScheme.fromToken(NavigationBar.BadgeColor)
+        rule.setMaterialContent(lightColorScheme()) {
+            shape = BadgeTokens.Shape.toShape()
+            errorColor = BadgeTokens.Color.toColor()
             Badge(modifier = Modifier.testTag(TestBadgeTag))
         }
 
@@ -113,17 +121,18 @@ class BadgeTest {
             .captureToImage()
             .assertShape(
                 density = rule.density,
-                shape = NavigationBar.BadgeShape,
+                shape = shape,
                 shapeColor = errorColor,
                 backgroundColor = Color.White,
                 shapeOverlapPixelCount = with(rule.density) { 1.dp.toPx() }
             )
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun badgeBox_noContent_position() {
         rule
-            .setMaterialContent {
+            .setMaterialContent(lightColorScheme()) {
                 BadgedBox(badge = { Badge(Modifier.testTag(TestBadgeTag)) }) {
                     Icon(
                         icon,
@@ -137,16 +146,17 @@ class BadgeTest {
         val badgeBounds = badge.getUnclippedBoundsInRoot()
         badge.assertPositionInRootIsEqualTo(
             expectedLeft =
-                anchorBounds.right + BadgeOffset +
-                    max((NavigationBar.BadgeSize - badgeBounds.width) / 2, 0.dp),
+            anchorBounds.right + BadgeOffset +
+                max((BadgeTokens.Size - badgeBounds.width) / 2, 0.dp),
             expectedTop = -badgeBounds.height / 2
         )
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun badgeBox_shortContent_position() {
         rule
-            .setMaterialContent {
+            .setMaterialContent(lightColorScheme()) {
                 BadgedBox(badge = { Badge { Text("8") } }) {
                     Icon(
                         icon,
@@ -160,9 +170,9 @@ class BadgeTest {
         val badgeBounds = badge.getUnclippedBoundsInRoot()
         badge.assertPositionInRootIsEqualTo(
             expectedLeft = anchorBounds.right + BadgeWithContentHorizontalOffset + max
-            (
                 (
-                    NavigationBar.LargeBadgeSize - badgeBounds.width
+                (
+                    BadgeTokens.LargeSize - badgeBounds.width
                     ) / 2,
                 0.dp
             ),
@@ -170,10 +180,11 @@ class BadgeTest {
         )
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun badgeBox_longContent_position() {
         rule
-            .setMaterialContent {
+            .setMaterialContent(lightColorScheme()) {
                 BadgedBox(badge = { Badge { Text("999+") } }) {
                     Icon(
                         icon,
@@ -194,9 +205,10 @@ class BadgeTest {
         )
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun badge_notMergingDescendants_withOwnContentDescription() {
-        rule.setMaterialContent {
+        rule.setMaterialContent(lightColorScheme()) {
             BadgedBox(
                 badge = {
                     Badge { Text("99+") }
@@ -218,6 +230,7 @@ class BadgeTest {
         rule.onNodeWithTag(TestAnchorTag).assertContentDescriptionEquals("inbox")
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun badgeBox_size() {
         rule.setMaterialContentForSizeAssertions {

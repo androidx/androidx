@@ -122,7 +122,7 @@ class SubtitleAnchorView extends View implements Anchor {
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
 
         if (mSubtitleWidget != null) {

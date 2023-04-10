@@ -69,15 +69,12 @@ abstract class MediaPlayerTestBase extends MediaTestBase {
     MediaStubActivity mActivity;
     Instrumentation mInstrumentation;
 
-    KeyguardManager mKeyguardManager;
     List<AssetFileDescriptor> mFdsToClose = new ArrayList<>();
 
     @Before
     @CallSuper
     public void setUp() throws Throwable {
         mInstrumentation = InstrumentationRegistry.getInstrumentation();
-        mKeyguardManager = (KeyguardManager)
-                mInstrumentation.getTargetContext().getSystemService(KEYGUARD_SERVICE);
         mActivity = mActivityRule.getActivity();
         setKeepScreenOn();
 

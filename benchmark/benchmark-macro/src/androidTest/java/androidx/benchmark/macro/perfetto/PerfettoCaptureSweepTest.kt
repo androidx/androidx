@@ -16,6 +16,7 @@
 
 package androidx.benchmark.macro.perfetto
 
+import android.os.Build
 import androidx.benchmark.macro.FileLinkingRule
 import androidx.benchmark.macro.Packages
 import androidx.benchmark.perfetto.PerfettoCapture
@@ -37,6 +38,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import kotlin.test.assertEquals
 import kotlin.test.fail
+import org.junit.Ignore
 
 /**
  * Trace validation tests for PerfettoCapture
@@ -60,12 +62,27 @@ class PerfettoCaptureSweepTest(
         PerfettoHelper.stopAllPerfettoProcesses()
     }
 
-    @SdkSuppress(minSdkVersion = LOWEST_BUNDLED_VERSION_SUPPORTED)
+    @Ignore("b/258216025")
+    @SdkSuppress(minSdkVersion = LOWEST_BUNDLED_VERSION_SUPPORTED, maxSdkVersion = 33)
     @Test
-    fun captureAndValidateTrace_bundled() = captureAndValidateTrace(unbundled = false)
+    fun captureAndValidateTrace_bundled() {
+        if (Build.VERSION.SDK_INT == 33 && Build.VERSION.CODENAME != "REL") {
+            return // b/262909049: Do not run this test on pre-release Android U.
+        }
 
+        captureAndValidateTrace(unbundled = false)
+    }
+
+    @Ignore("b/258216025")
     @Test
-    fun captureAndValidateTrace_unbundled() = captureAndValidateTrace(unbundled = true)
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
+    fun captureAndValidateTrace_unbundled() {
+        if (Build.VERSION.SDK_INT == 33 && Build.VERSION.CODENAME != "REL") {
+            return // b/262909049: Do not run this test on pre-release Android U.
+        }
+
+        captureAndValidateTrace(unbundled = true)
+    }
 
     private fun captureAndValidateTrace(unbundled: Boolean) {
         assumeTrue(isAbiSupported())
@@ -102,10 +119,9 @@ class PerfettoCaptureSweepTest(
 
         perfettoCapture.stop(traceFilePath)
 
-        val matchingSlices = PerfettoTraceProcessor.querySlices(
-            absoluteTracePath = traceFilePath,
-            "PerfettoCaptureTest_%"
-        )
+        val matchingSlices = PerfettoTraceProcessor.runServer(traceFilePath) {
+            querySlices("PerfettoCaptureTest_%")
+        }
 
         // Note: this test avoids validating platform-triggered trace sections, to avoid flakes
         // from legitimate (and coincidental) platform use during test.
@@ -115,7 +131,10 @@ class PerfettoCaptureSweepTest(
         )
         matchingSlices
             .forEach {
-                assertTrue(it.dur > 30_000_000) // should be at least 30ms
+                assertTrue(
+                    "Expected dur > 30ms, was ${it.dur / 1_000_000.0} ms",
+                    it.dur > 30_000_000
+                )
             }
     }
 

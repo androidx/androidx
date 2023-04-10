@@ -16,25 +16,61 @@
 
 package androidx.camera.camera2.pipe
 
-import android.hardware.camera2.CaptureRequest
-import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraConstrainedHighSpeedCaptureSession
-import android.hardware.camera2.params.SessionConfiguration
+import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
+import android.hardware.camera2.params.SessionConfiguration
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_FRAME_LIMIT
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS
 import kotlinx.coroutines.Deferred
-import java.io.Closeable
+import kotlinx.coroutines.flow.StateFlow
 
-/**
- * A [CameraGraph] represents the combined configuration and state of a camera.
- */
+abstract class GraphState internal constructor() {
+    /**
+     * When the [CameraGraph] is starting. This means we're in the process of opening a (virtual)
+     * camera and creating a capture session.
+     */
+    object GraphStateStarting : GraphState()
+
+    /**
+     * When the [CameraGraph] is started. This means a capture session has been successfully created
+     * for the [CameraGraph].
+     */
+    object GraphStateStarted : GraphState()
+
+    /**
+     * When the [CameraGraph] is stopping. This means we're in the process of stopping the graph.
+     */
+    object GraphStateStopping : GraphState()
+
+    /**
+     * When the [CameraGraph] hasn't been started, or stopped. This does not guarantee the closure
+     * of the capture session or the camera device itself.
+     */
+    object GraphStateStopped : GraphState()
+
+    /**
+     * When the [CameraGraph] has encountered an error. If [willAttemptRetry] is true, CameraPipe
+     * will retry opening the camera (and creating a capture session).
+     */
+    class GraphStateError(val cameraError: CameraError, val willAttemptRetry: Boolean) :
+        GraphState()
+}
+
+/** A [CameraGraph] represents the combined configuration and state of a camera. */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public interface CameraGraph : Closeable {
+public interface CameraGraph : AutoCloseable {
     public val streams: StreamGraph
+
+    /**
+     * Returns the state flow of [GraphState], which emits the current state of the [CameraGraph],
+     * including when a [CameraGraph] is stopped, starting or started.
+     */
+    public val graphState: StateFlow<GraphState>
 
     /**
      * This will cause the [CameraGraph] to start opening the [CameraDevice] and configuring a
@@ -46,14 +82,12 @@ public interface CameraGraph : Closeable {
     /**
      * This will cause the [CameraGraph] to stop executing requests and close the current Camera2
      * [CameraCaptureSession] (if one is active). The most recent repeating request will be
-     * preserved, and any calls to submit a request to a session will be enqueued. To stop
-     * requests from being enqueued, close the [CameraGraph].
+     * preserved, and any calls to submit a request to a session will be enqueued. To stop requests
+     * from being enqueued, close the [CameraGraph].
      */
     public fun stop()
 
-    /**
-     * Acquire and exclusive access to the [CameraGraph] in a suspending fashion.
-     */
+    /** Acquire and exclusive access to the [CameraGraph] in a suspending fashion. */
     public suspend fun acquireSession(): Session
 
     /**
@@ -71,6 +105,7 @@ public interface CameraGraph : Closeable {
 
     /**
      * This defines the configuration, flags, and pre-defined structure of a [CameraGraph] instance.
+     * Note that for parameters, null is considered a valid value, and unset keys are ignored.
      *
      * @param camera The Camera2 [CameraId] that this [CameraGraph] represents.
      * @param streams A list of [CameraStream]s to use when building the configuration.
@@ -87,8 +122,14 @@ public interface CameraGraph : Closeable {
      * @param defaultTemplate The default template to be used if a [Request] does not specify one.
      * @param defaultParameters The default parameters to be used for a [Request].
      * @param defaultListeners A default set of listeners that will be added to every [Request].
-     * @param requiredParameters Will override any other configured parameter, and can be used
-     *   to enforce that specific keys are always set to specific value for every [CaptureRequest].
+     * @param requiredParameters Will override any other configured parameter, and can be used to
+     *   enforce that specific keys are always set to specific value for every [CaptureRequest].
+     * @param cameraBackendId If defined, this tells the [CameraGraph] to use a specific
+     *   [CameraBackend] to open and operate the camera. The defined [camera] parameter must be a
+     *   camera that can be opened by this [CameraBackend]. If this value is null it will use the
+     *   default backend that has been configured by [CameraPipe].
+     * @param customCameraBackend If defined, this [customCameraBackend] will be created an used for
+     *   _only_ this [CameraGraph]. This cannot be defined if [cameraBackendId] is defined.
      */
     public data class Config(
         val camera: CameraId,
@@ -96,17 +137,24 @@ public interface CameraGraph : Closeable {
         val streamSharingGroups: List<List<CameraStream.Config>> = listOf(),
         val input: InputStream.Config? = null,
         val sessionTemplate: RequestTemplate = RequestTemplate(1),
-        val sessionParameters: Map<CaptureRequest.Key<*>, Any> = emptyMap(),
+        val sessionParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
         val sessionMode: OperatingMode = OperatingMode.NORMAL,
         val defaultTemplate: RequestTemplate = RequestTemplate(1),
-        val defaultParameters: Map<*, Any> = emptyMap<Any, Any>(),
+        val defaultParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
         val defaultListeners: List<Request.Listener> = listOf(),
-        val requiredParameters: Map<Any, Any?> = emptyMap(),
-
+        val requiredParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
+        val cameraBackendId: CameraBackendId? = null,
+        val customCameraBackend: CameraBackendFactory? = null,
         val metadataTransform: MetadataTransform = MetadataTransform(),
         val flags: Flags = Flags()
-        // TODO: Internal error handling. May be better at the CameraPipe level.
-    )
+    // TODO: Internal error handling. May be better at the CameraPipe level.
+    ) {
+        init {
+            check(cameraBackendId == null || customCameraBackend == null) {
+                "Setting both cameraBackendId and customCameraBackend is not supported."
+            }
+        }
+    }
 
     /**
      * Flags define boolean values that are used to adjust the behavior and interactions with
@@ -142,9 +190,7 @@ public interface CameraGraph : Closeable {
         public val METERING_REGIONS_DEFAULT: Array<MeteringRectangle> =
             arrayOf(MeteringRectangle(0, 0, 0, 0, 0))
 
-        /**
-         * Placeholder frame number for [Result3A] when a 3A method encounters an error.
-         */
+        /** Placeholder frame number for [Result3A] when a 3A method encounters an error. */
         public val FRAME_NUMBER_INVALID: FrameNumber = FrameNumber(-1L)
     }
 
@@ -152,35 +198,33 @@ public interface CameraGraph : Closeable {
      * A [Session] is an interactive lock for [CameraGraph] and allows state to be changed.
      *
      * Holding this object prevents other systems from acquiring a [Session] until the currently
-     * held session is released. Because of it's exclusive nature, [Session]s are intended for
-     * fast, short-lived state updates, or for interactive capture sequences that must not be
-     * altered. (Flash photo sequences, for example).
+     * held session is released. Because of its exclusive nature, [Session]s are intended for fast,
+     * short-lived state updates, or for interactive capture sequences that must not be altered.
+     * (Flash photo sequences, for example).
      *
      * While this object is thread-safe, it should not shared or held for long periods of time.
      * Example: A [Session] should *not* be held during video recording.
      */
-    public interface Session : Closeable {
+    public interface Session : AutoCloseable {
         /**
-         * Causes the CameraGraph to start or update the current repeating request with the
-         * provided [Request] object. The [Request] object may be cached, and may be used for
-         * other interactions with the camera (such as updating 3A, or issuing 3A triggers).
+         * Causes the CameraGraph to start or update the current repeating request with the provided
+         * [Request] object. The [Request] object may be cached, and may be used for other
+         * interactions with the camera (such as updating 3A, or issuing 3A triggers).
          */
         public fun startRepeating(request: Request)
 
-        /**
-         * Stop the current repeating request.
-         */
+        /** Stop the current repeating request. */
         public fun stopRepeating()
 
         /**
-         * Add the [Request] into an in-flight request queue. Requests will be issued to the
-         * Camera exactly once.
+         * Add the [Request] into an in-flight request queue. Requests will be issued to the Camera
+         * exactly once.
          */
         public fun submit(request: Request)
 
         /**
-         * Add the [Request] into an in-flight request queue. Requests will be issued to the
-         * Camera exactly once. The list of [Request]s is guaranteed to be submitted together.
+         * Add the [Request] into an in-flight request queue. Requests will be issued to the Camera
+         * exactly once. The list of [Request]s is guaranteed to be submitted together.
          */
         public fun submit(requests: List<Request>)
 
@@ -224,14 +268,14 @@ public interface CameraGraph : Closeable {
          *
          * This method has a side effect on the currently set AE mode. Ref:
          * https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#FLASH_MODE
-         * To use the flash control, AE mode must be set to ON or OFF. So if the AE mode is
-         * already not either ON or OFF, we will need to update the AE mode to one of those states,
-         * here we will choose ON. It is the responsibility of the application layer above
-         * CameraPipe to restore the AE mode after the torch control has been used. The
-         * [update3A] method can be used to restore the AE state to a previous value.
+         * To use the flash control, AE mode must be set to ON or OFF. So if the AE mode is already
+         * not either ON or OFF, we will need to update the AE mode to one of those states, here we
+         * will choose ON. It is the responsibility of the application layer above CameraPipe to
+         * restore the AE mode after the torch control has been used. The [update3A] method can be
+         * used to restore the AE state to a previous value.
          *
          * @return the FrameNumber at which the turn was fully turned on if switch was ON, or the
-         * FrameNumber at which it was completely turned off when the switch was OFF.
+         *   FrameNumber at which it was completely turned off when the switch was OFF.
          */
         public fun setTorch(torchState: TorchState): Deferred<Result3A>
 
@@ -241,20 +285,21 @@ public interface CameraGraph : Closeable {
          * value is passed for a parameter, that parameter is ignored, and the current value for
          * that parameter continues to be applied.
          *
-         * TODO(sushilnath@): Add support for specifying the AE, AF and AWB modes as well. The
-         * update of modes require special care if the desired lock behavior is immediate. In
-         * that case we have to submit a combination of repeating and single requests so that the
-         * AF skips the initial state of the new mode's state machine and stays locks in the new
-         * mode as well.
-         *
-         * @param frameLimit the maximum number of frames to wait before we give up waiting for
-         * this operation to complete.
+         * @param afTriggerStartAeMode the AeMode value that should override current AeMode for
+         *   AF_TRIGGER_START request, this value should not be retained for following requests
+         * @param frameLimit the maximum number of frames to wait before we give up waiting for this
+         *   operation to complete.
          * @param timeLimitNs the maximum time limit in ms we wait before we give up waiting for
-         * this operation to complete.
-         *
+         *   this operation to complete.
          * @return [Result3A], which will contain the latest frame number at which the locks were
-         * applied or the frame number at which the method returned early because either frame limit
-         * or time limit was reached.
+         *   applied or the frame number at which the method returned early because either frame
+         *   limit or time limit was reached.
+         *
+         * TODO(sushilnath@): Add support for specifying the AE, AF and AWB modes as well. The
+         *   update of modes require special care if the desired lock behavior is immediate. In that
+         *   case we have to submit a combination of repeating and single requests so that the AF
+         *   skips the initial state of the new mode's state machine and stays locks in the new mode
+         *   as well.
          */
         public suspend fun lock3A(
             aeMode: AeMode? = null,
@@ -266,14 +311,15 @@ public interface CameraGraph : Closeable {
             aeLockBehavior: Lock3ABehavior? = null,
             afLockBehavior: Lock3ABehavior? = null,
             awbLockBehavior: Lock3ABehavior? = null,
+            afTriggerStartAeMode: AeMode? = null,
             frameLimit: Int = DEFAULT_FRAME_LIMIT,
             timeLimitNs: Long = DEFAULT_TIME_LIMIT_NS
         ): Deferred<Result3A>
 
         /**
          * Unlocks auto-exposure, auto-focus, auto-whitebalance. Once they are unlocked they get
-         * back to their initial state or resume their auto scan depending on the current mode
-         * they are operating in.
+         * back to their initial state or resume their auto scan depending on the current mode they
+         * are operating in.
          *
          * Providing 'true' for a parameter in this method will unlock that component and if 'false'
          * is provided or the parameter is not specified then it will have no effect on the lock of
@@ -281,28 +327,29 @@ public interface CameraGraph : Closeable {
          * unlocked, it will stay unlocked.
          *
          * @return [Result3A], which will contain the latest frame number at which the auto-focus,
-         * auto-exposure, auto-white balance were unlocked as per the method arguments.
-         *
+         *   auto-exposure, auto-white balance were unlocked as per the method arguments.
          */
-        public suspend fun unlock3A(ae: Boolean? = null, af: Boolean? = null, awb: Boolean? = null):
-            Deferred<Result3A>
+        public suspend fun unlock3A(
+            ae: Boolean? = null,
+            af: Boolean? = null,
+            awb: Boolean? = null
+        ): Deferred<Result3A>
 
         /**
-         * This methods does pre-capture metering sequence and locks auto-focus. Once the
-         * operation completes, we can proceed to take high-quality pictures.
+         * This methods does pre-capture metering sequence and locks auto-focus. Once the operation
+         * completes, we can proceed to take high-quality pictures.
          *
-         * Note: Flash will be used during pre-capture metering and during image capture if the
-         * AE mode was set to [AeMode.ON_AUTO_FLASH] or [AeMode.ON_ALWAYS_FLASH], thus firing it
-         * for low light captures or for every capture, respectively.
+         * Note: Flash will be used during pre-capture metering and during image capture if the AE
+         * mode was set to [AeMode.ON_AUTO_FLASH] or [AeMode.ON_ALWAYS_FLASH], thus firing it for
+         * low light captures or for every capture, respectively.
          *
-         * @param frameLimit the maximum number of frames to wait before we give up waiting for
-         * this operation to complete.
+         * @param frameLimit the maximum number of frames to wait before we give up waiting for this
+         *   operation to complete.
          * @param timeLimitNs the maximum time limit in ms we wait before we give up waiting for
-         * this operation to complete.
-         *
+         *   this operation to complete.
          * @return [Result3A], which will contain the latest frame number at which the locks were
-         * applied or the frame number at which the method returned early because either frame limit
-         * or time limit was reached.
+         *   applied or the frame number at which the method returned early because either frame
+         *   limit or time limit was reached.
          */
         public suspend fun lock3AForCapture(
             frameLimit: Int = DEFAULT_FRAME_LIMIT,
@@ -313,9 +360,8 @@ public interface CameraGraph : Closeable {
          * After submitting pre-capture metering sequence needed by [lock3AForCapture] method, the
          * camera system can internally lock the auto-exposure routine for subsequent still image
          * capture, and if not image capture request is submitted the auto-exposure may not resume
-         * it's normal scan.
-         * This method brings focus and exposure back to normal after high quality image captures
-         * using [lock3AForCapture] method.
+         * it's normal scan. This method brings focus and exposure back to normal after high quality
+         * image captures using [lock3AForCapture] method.
          */
         public suspend fun unlock3APostCapture(): Deferred<Result3A>
     }

@@ -17,9 +17,9 @@
 package androidx.room.vo
 
 import androidx.room.compiler.processing.XType
-import androidx.room.migration.bundle.BundleUtil
 import androidx.room.migration.bundle.EntityBundle
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.migration.bundle.TABLE_NAME_PLACEHOLDER
 
 /**
  * A Pojo with a mapping SQLite table.
@@ -89,7 +89,7 @@ open class Entity(
 
     open fun toBundle(): EntityBundle = EntityBundle(
         tableName,
-        createTableQuery(BundleUtil.TABLE_NAME_PLACEHOLDER),
+        createTableQuery(TABLE_NAME_PLACEHOLDER),
         fields.map { it.toBundle() },
         primaryKey.toBundle(),
         indices.map { it.toBundle() },

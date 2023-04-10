@@ -1,0 +1,8 @@
+// Signature format: 4.0
+package androidx.privacysandbox.tools {
+
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface PrivacySandboxService {
+  }
+
+}
+

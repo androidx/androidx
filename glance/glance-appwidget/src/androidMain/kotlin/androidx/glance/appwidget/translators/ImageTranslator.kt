@@ -22,17 +22,32 @@ import android.util.Log
 import android.widget.RemoteViews
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.core.widget.RemoteViewsCompat.setImageViewAdjustViewBounds
+import androidx.core.widget.RemoteViewsCompat.setImageViewColorFilter
+import androidx.core.widget.RemoteViewsCompat.setImageViewColorFilterResource
 import androidx.glance.AndroidResourceImageProvider
 import androidx.glance.BitmapImageProvider
-import androidx.glance.layout.ContentScale
+import androidx.glance.ColorFilterParams
 import androidx.glance.EmittableImage
 import androidx.glance.IconImageProvider
+import androidx.glance.TintColorFilterParams
 import androidx.glance.appwidget.GlanceAppWidgetTag
+import androidx.glance.appwidget.InsertedViewInfo
 import androidx.glance.appwidget.LayoutType
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.UriImageProvider
 import androidx.glance.appwidget.applyModifiers
 import androidx.glance.appwidget.insertView
+import androidx.glance.color.DayNightColorProvider
+import androidx.glance.findModifier
+import androidx.glance.layout.ContentScale
+import androidx.glance.layout.HeightModifier
+import androidx.glance.layout.WidthModifier
+import androidx.glance.unit.ColorProvider
+import androidx.glance.unit.Dimension
+import androidx.glance.unit.ResourceColorProvider
 
 internal fun RemoteViews.translateEmittableImage(
     translationContext: TranslationContext,
@@ -48,7 +63,6 @@ internal fun RemoteViews.translateEmittableImage(
         }
     }
     val viewDef = insertView(translationContext, selector, element.modifier)
-    setContentDescription(viewDef.mainViewId, element.contentDescription)
     when (val provider = element.provider) {
         is AndroidResourceImageProvider -> setImageViewResource(
             viewDef.mainViewId,
@@ -60,7 +74,44 @@ internal fun RemoteViews.translateEmittableImage(
         else ->
             throw IllegalArgumentException("An unsupported ImageProvider type was used.")
     }
+    element.colorFilterParams?.let { applyColorFilter(translationContext, this, it, viewDef) }
     applyModifiers(translationContext, this, element.modifier, viewDef)
+
+    // If the content scale is Fit, the developer has expressed that they want the image to
+    // maintain its aspect ratio. AdjustViewBounds on ImageView tells the view to rescale to
+    // maintain its aspect ratio. This only really makes sense if one of the dimensions is set to
+    // wrap, that is, should change to match the content.
+    val shouldAdjustViewBounds = element.contentScale == ContentScale.Fit &&
+        (element.modifier.findModifier<WidthModifier>()?.width == Dimension.Wrap ||
+            element.modifier.findModifier<HeightModifier>()?.height == Dimension.Wrap)
+    setImageViewAdjustViewBounds(viewDef.mainViewId, shouldAdjustViewBounds)
+}
+
+private fun applyColorFilter(
+    translationContext: TranslationContext,
+    rv: RemoteViews,
+    colorFilterParams: ColorFilterParams,
+    viewDef: InsertedViewInfo
+) {
+    when (colorFilterParams) {
+        is TintColorFilterParams -> {
+            val colorProvider = colorFilterParams.colorProvider
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                ImageTranslatorApi31Impl.applyTintColorFilter(
+                    translationContext,
+                    rv,
+                    colorProvider,
+                    viewDef.mainViewId
+                )
+            } else {
+                rv.setImageViewColorFilter(
+                    viewDef.mainViewId, colorProvider.getColor(translationContext.context).toArgb()
+                )
+            }
+        }
+
+        else -> throw IllegalArgumentException("An unsupported ColorFilter was used.")
+    }
 }
 
 private fun setImageViewIcon(rv: RemoteViews, viewId: Int, provider: IconImageProvider) {
@@ -76,4 +127,38 @@ private object ImageTranslatorApi23Impl {
     fun setImageViewIcon(rv: RemoteViews, viewId: Int, icon: Icon) {
         rv.setImageViewIcon(viewId, icon)
     }
+}
+
+@RequiresApi(Build.VERSION_CODES.S)
+private object ImageTranslatorApi31Impl {
+    @DoNotInline
+    fun applyTintColorFilter(
+        translationContext: TranslationContext,
+        rv: RemoteViews,
+        colorProvider: ColorProvider,
+        viewId: Int
+    ) {
+        when (colorProvider) {
+            is DayNightColorProvider -> rv.setImageViewColorFilter(
+                viewId,
+                colorProvider.day,
+                colorProvider.night
+            )
+
+            is ResourceColorProvider -> rv.setImageViewColorFilterResource(
+                viewId,
+                colorProvider.resId
+            )
+
+            else -> rv.setImageViewColorFilter(
+                viewId,
+                colorProvider.getColor(translationContext.context).toArgb()
+            )
+        }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.S)
+internal fun RemoteViews.setImageViewColorFilter(viewId: Int, notNight: Color, night: Color) {
+    setImageViewColorFilter(viewId = viewId, notNight = notNight.toArgb(), night = night.toArgb())
 }

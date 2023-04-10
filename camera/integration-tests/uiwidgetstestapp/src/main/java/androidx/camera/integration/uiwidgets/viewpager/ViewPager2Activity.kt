@@ -21,12 +21,15 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import androidx.annotation.VisibleForTesting
 import androidx.camera.integration.uiwidgets.databinding.ActivityViewpager2Binding
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.google.android.material.tabs.TabLayoutMediator
 
 /** A activity uses ViewPager2 as container to include {@link CameraFragment} and
  * {@link TextViewFragment} */
@@ -38,6 +41,10 @@ class ViewPager2Activity : BaseActivity() {
         )
         private const val TAG = " ViewPager2Activity"
         private const val REQUEST_CODE_PERMISSIONS = 6
+        @VisibleForTesting
+        val BLANK_VIEW_ID = View.generateViewId()
+        @VisibleForTesting
+        val CAMERA_VIEW_ID = View.generateViewId()
     }
 
     private lateinit var binding: ActivityViewpager2Binding
@@ -66,6 +73,19 @@ class ViewPager2Activity : BaseActivity() {
 
     private fun setupAdapter() {
         binding.viewPager2.adapter = ViewPager2Adapter(this@ViewPager2Activity)
+        TabLayoutMediator(binding.tabLayout, binding.viewPager2) { tab, position ->
+            when (position) {
+                0 -> {
+                    tab.text = "CAMERA_VIEW"
+                    tab.view.id = CAMERA_VIEW_ID
+                }
+                1 -> {
+                    tab.text = "BLANK_VIEW"
+                    tab.view.id = BLANK_VIEW_ID
+                }
+                else -> throw IllegalArgumentException()
+            }
+        }.attach()
     }
 
     override fun onRequestPermissionsResult(

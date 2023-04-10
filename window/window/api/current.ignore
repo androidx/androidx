@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-RemovedInterface: androidx.window.layout.WindowInfoRepository:
-    Removed class androidx.window.layout.WindowInfoRepository

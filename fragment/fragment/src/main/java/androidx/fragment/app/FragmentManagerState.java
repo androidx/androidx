@@ -17,7 +17,6 @@
 package androidx.fragment.app;
 
 import android.annotation.SuppressLint;
-import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -25,7 +24,6 @@ import java.util.ArrayList;
 
 @SuppressLint("BanParcelableUsage")
 final class FragmentManagerState implements Parcelable {
-    ArrayList<FragmentState> mSavedState;
     ArrayList<String> mActive;
     ArrayList<String> mAdded;
     BackStackRecordState[] mBackStack;
@@ -33,15 +31,12 @@ final class FragmentManagerState implements Parcelable {
     String mPrimaryNavActiveWho = null;
     ArrayList<String> mBackStackStateKeys = new ArrayList<>();
     ArrayList<BackStackState> mBackStackStates = new ArrayList<>();
-    ArrayList<String> mResultKeys = new ArrayList<>();
-    ArrayList<Bundle> mResults = new ArrayList<>();
     ArrayList<FragmentManager.LaunchedFragmentInfo> mLaunchedFragments;
 
     public FragmentManagerState() {
     }
 
     public FragmentManagerState(Parcel in) {
-        mSavedState = in.createTypedArrayList(FragmentState.CREATOR);
         mActive = in.createStringArrayList();
         mAdded = in.createStringArrayList();
         mBackStack = in.createTypedArray(BackStackRecordState.CREATOR);
@@ -49,8 +44,6 @@ final class FragmentManagerState implements Parcelable {
         mPrimaryNavActiveWho = in.readString();
         mBackStackStateKeys = in.createStringArrayList();
         mBackStackStates = in.createTypedArrayList(BackStackState.CREATOR);
-        mResultKeys = in.createStringArrayList();
-        mResults = in.createTypedArrayList(Bundle.CREATOR);
         mLaunchedFragments = in.createTypedArrayList(FragmentManager.LaunchedFragmentInfo.CREATOR);
     }
 
@@ -61,7 +54,6 @@ final class FragmentManagerState implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeTypedList(mSavedState);
         dest.writeStringList(mActive);
         dest.writeStringList(mAdded);
         dest.writeTypedArray(mBackStack, flags);
@@ -69,8 +61,6 @@ final class FragmentManagerState implements Parcelable {
         dest.writeString(mPrimaryNavActiveWho);
         dest.writeStringList(mBackStackStateKeys);
         dest.writeTypedList(mBackStackStates);
-        dest.writeStringList(mResultKeys);
-        dest.writeTypedList(mResults);
         dest.writeTypedList(mLaunchedFragments);
     }
 

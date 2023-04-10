@@ -22,7 +22,6 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(project(":compose:compiler:compiler"))
 
     debugImplementation(project(":compose:ui:ui-test-manifest"))
 
@@ -36,4 +35,5 @@ android {
     defaultConfig {
         minSdkVersion 21
     }
+    namespace "androidx.compose.ui.test.manifest.integration.testapp"
 }

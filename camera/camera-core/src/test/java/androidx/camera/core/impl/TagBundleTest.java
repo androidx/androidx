@@ -26,8 +26,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 @RunWith(RobolectricTestRunner.class)
@@ -44,13 +42,6 @@ public class TagBundleTest {
     private static final Integer TAG_VALUE_2 = 2;
 
     TagBundle mTagBundle;
-    private static final List<String> KEY_LIST = new ArrayList<>();
-
-    static {
-        KEY_LIST.add(TAG_0);
-        KEY_LIST.add(TAG_1);
-        KEY_LIST.add(TAG_2);
-    }
 
     @Before
     public void setUp() {
@@ -83,5 +74,11 @@ public class TagBundleTest {
         Set<String> keyList = mTagBundle.listKeys();
 
         assertThat(keyList).containsExactly(TAG_0, TAG_1, TAG_2);
+    }
+
+    @Test
+    public void verifyTagBundleToString() {
+        assertThat(mTagBundle.toString()).startsWith("android.hardware.camera2.CaptureRequest"
+                + ".setTag.CX");
     }
 }

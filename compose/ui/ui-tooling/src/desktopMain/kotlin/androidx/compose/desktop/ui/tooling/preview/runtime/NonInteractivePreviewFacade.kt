@@ -18,8 +18,8 @@ package androidx.compose.desktop.ui.tooling.preview.runtime
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.currentComposer
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.TestComposeWindow
-import androidx.compose.ui.tooling.CommonPreviewUtils
 import androidx.compose.ui.unit.Density
 
 /**
@@ -42,10 +42,11 @@ import androidx.compose.ui.unit.Density
  *    preview classpath (a requested preview function or a requested frame size may differ).
  * 7. A rendered frame is sent back to the IDE plugin and is shown in the IDE as an image.
  */
-@Suppress("unused")
+@Suppress("DEPRECATION", "unused")
 internal class NonInteractivePreviewFacade {
     companion object {
         @JvmStatic
+        @OptIn(ExperimentalComposeUiApi::class)
         fun render(fqName: String, width: Int, height: Int, scale: Double?): ByteArray {
             val className = fqName.substringBeforeLast(".")
             val methodName = fqName.substringAfterLast(".")
@@ -55,7 +56,7 @@ internal class NonInteractivePreviewFacade {
                 // We need to delay the reflection instantiation of the class until we are in the
                 // composable to ensure all the right initialization has happened and the Composable
                 // class loads correctly.
-                CommonPreviewUtils.invokeComposableViaReflection(
+                androidx.compose.ui.tooling.ComposableInvoker.invokeComposable(
                     className,
                     methodName,
                     currentComposer

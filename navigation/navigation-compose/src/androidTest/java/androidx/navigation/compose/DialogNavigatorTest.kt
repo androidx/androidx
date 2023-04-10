@@ -20,9 +20,12 @@ import androidx.compose.material.Text
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.testing.TestNavigatorState
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -76,5 +79,34 @@ class DialogNavigatorTest {
         navigator.popBackStack(entry, false)
 
         rule.onNodeWithText(defaultText).assertDoesNotExist()
+    }
+
+    @Test
+    fun testNestedNavHostInDialogDismissed() {
+        lateinit var navController: NavHostController
+
+        rule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, "first") {
+                composable("first") { }
+                dialog("second") {
+                    viewModel<TestViewModel>(it)
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            navController.navigate("second")
+        }
+
+        // Now trigger the back button
+        rule.runOnIdle {
+            navController.navigatorProvider.getNavigator(DialogNavigator::class.java).dismiss(
+                navController.getBackStackEntry("second")
+            )
+        }
+
+        rule.waitForIdle()
+        assertThat(navController.currentDestination?.route).isEqualTo("first")
     }
 }

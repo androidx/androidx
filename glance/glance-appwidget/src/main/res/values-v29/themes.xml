@@ -15,5 +15,5 @@
   -->
 
 <resources>
-    <style name="Glance.AppWidget.Theme" parent="android:Theme.DeviceDefault.DayNight" />
+    <style name="Glance.AppWidget.Theme" parent="android:Theme.DeviceDefault.DayNight"/>
 </resources>

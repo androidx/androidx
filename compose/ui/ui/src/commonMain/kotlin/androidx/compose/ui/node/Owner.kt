@@ -15,24 +15,28 @@
  */
 package androidx.compose.ui.node
 
+import androidx.compose.runtime.Applier
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.PointerIconService
+import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.platform.AccessibilityManager
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.TextInputService
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 
@@ -87,7 +91,7 @@ internal interface Owner {
      *  TODO(ralu): Replace with SemanticsTree. This is a temporary hack until we have a semantics
      *  tree implemented.
      */
-    @Suppress("EXPERIMENTAL_ANNOTATION_ON_WRONG_TARGET")
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalComposeUiApi
     @ExperimentalComposeUiApi
     val autofillTree: AutofillTree
@@ -96,7 +100,7 @@ internal interface Owner {
      * The [Autofill] class can be used to perform autofill operations. It is used as a
      * CompositionLocal.
      */
-    @Suppress("EXPERIMENTAL_ANNOTATION_ON_WRONG_TARGET")
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalComposeUiApi
     @ExperimentalComposeUiApi
     val autofill: Autofill?
@@ -108,16 +112,23 @@ internal interface Owner {
     val pointerIconService: PointerIconService
 
     /**
-     * Provide a focus manager that controls focus within Compose.
+     * Provide a focus owner that controls focus within Compose.
      */
-    val focusManager: FocusManager
+    val focusOwner: FocusOwner
 
     /**
      * Provide information about the window that hosts this [Owner].
      */
     val windowInfo: WindowInfo
 
+    @Deprecated(
+        "fontLoader is deprecated, use fontFamilyResolver",
+        replaceWith = ReplaceWith("fontFamilyResolver")
+    )
+    @Suppress("DEPRECATION")
     val fontLoader: Font.ResourceLoader
+
+    val fontFamilyResolver: FontFamily.Resolver
 
     val layoutDirection: LayoutDirection
 
@@ -130,14 +141,37 @@ internal interface Owner {
         set
 
     /**
-     * Called by [LayoutNode] to request the Owner a new measurement+layout.
+     * Called by [LayoutNode] to request the Owner a new measurement+layout. [forceRequest] defines
+     * whether the node should bypass the logic that would reject measure requests, and therefore
+     * force the measure request to be evaluated even when it's already pending measure.
+     *
+     * [affectsLookahead] specifies whether this measure request is for the lookahead pass.
      */
-    fun onRequestMeasure(layoutNode: LayoutNode)
+    fun onRequestMeasure(
+        layoutNode: LayoutNode,
+        affectsLookahead: Boolean = false,
+        forceRequest: Boolean = false
+    )
 
     /**
-     * Called by [LayoutNode] to request the Owner a new layout.
+     * Called by [LayoutNode] to request the Owner a new layout. [forceRequest] defines
+     * whether the node should bypass the logic that would reject relayout requests, and therefore
+     * force the relayout request to be evaluated even when it's already pending measure/layout.
+     *
+     * [affectsLookahead] specifies whether this relayout request is for the lookahead pass
+     * pass.
      */
-    fun onRequestRelayout(layoutNode: LayoutNode)
+    fun onRequestRelayout(
+        layoutNode: LayoutNode,
+        affectsLookahead: Boolean = false,
+        forceRequest: Boolean = false
+    )
+
+    /**
+     * Called when graphics layers have changed the position of children and the
+     * OnGloballyPositionedModifiers must be called.
+     */
+    fun requestOnPositionedCallback(layoutNode: LayoutNode)
 
     /**
      * Called by [LayoutNode] when it is attached to the view system and now has an owner.
@@ -182,6 +216,12 @@ internal interface Owner {
     fun measureAndLayout(sendPointerUpdate: Boolean = true)
 
     /**
+     * Measures and lays out only the passed [layoutNode]. It will be remeasured with the passed
+     * [constraints].
+     */
+    fun measureAndLayout(layoutNode: LayoutNode, constraints: Constraints)
+
+    /**
      * Makes sure the passed [layoutNode] and its subtree is remeasured and has the final sizes.
      */
     fun forceMeasureTheSubtree(layoutNode: LayoutNode)
@@ -221,11 +261,35 @@ internal interface Owner {
      */
     val snapshotObserver: OwnerSnapshotObserver
 
+    val modifierLocalManager: ModifierLocalManager
+
+    /**
+     * Registers a call to be made when the [Applier.onEndChanges] is called. [listener]
+     * should be called in [onEndApplyChanges] and then removed after being called.
+     */
+    fun registerOnEndApplyChangesListener(listener: () -> Unit)
+
+    /**
+     * Called when [Applier.onEndChanges] executes. This must call all listeners registered
+     * in [registerOnEndApplyChangesListener] and then remove them so that they are not
+     * called again.
+     */
+    fun onEndApplyChanges()
+
+    /**
+     * [listener] will be notified after the current or next layout has finished.
+     */
+    fun registerOnLayoutCompletedListener(listener: OnLayoutCompletedListener)
+
     companion object {
         /**
          * Enables additional (and expensive to do in production) assertions. Useful to be set
          * to true during the tests covering our core logic.
          */
         var enableExtraAssertions: Boolean = false
+    }
+
+    interface OnLayoutCompletedListener {
+        fun onLayoutComplete()
     }
 }

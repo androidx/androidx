@@ -24,9 +24,16 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import android.content.ContentResolver;
+import android.net.Uri;
+
+import androidx.car.app.TestUtils;
 import androidx.car.app.model.CarColor;
+import androidx.car.app.model.CarIcon;
+import androidx.car.app.model.CarText;
 import androidx.car.app.model.DateTimeWithZone;
 import androidx.car.app.model.Distance;
+import androidx.core.graphics.drawable.IconCompat;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,6 +55,7 @@ public class TravelEstimateTest {
     private final Distance mRemainingDistance =
             Distance.create(/* displayDistance= */ 100, Distance.UNIT_METERS);
     private final long mRemainingTime = TimeUnit.HOURS.toMillis(10);
+    private final CarText mTripInformation = CarText.create("Batter Level is Low");
 
     @Test
     public void build_default_to_unknown_time() {
@@ -84,15 +92,20 @@ public class TravelEstimateTest {
         Distance remainingDistance = Distance.create(/* displayDistance= */ 100,
                 Distance.UNIT_METERS);
         long remainingTime = TimeUnit.HOURS.toMillis(10);
+        CarIcon tripIcon = CarIcon.APP_ICON;
+        CarText tripInformation = CarText.create("Pick Up Alice");
         TravelEstimate travelEstimate =
                 new TravelEstimate.Builder(remainingDistance, arrivalTime).setRemainingTimeSeconds(
-                        TimeUnit.MILLISECONDS.toSeconds(remainingTime)).build();
+                        TimeUnit.MILLISECONDS.toSeconds(remainingTime)).setTripIcon(
+                        tripIcon).setTripText(tripInformation).build();
 
         assertThat(travelEstimate.getRemainingDistance()).isEqualTo(remainingDistance);
         assertThat(travelEstimate.getRemainingTimeSeconds()).isEqualTo(
                 TimeUnit.MILLISECONDS.toSeconds(remainingTime));
         assertThat(travelEstimate.getArrivalTimeAtDestination()).isEqualTo(arrivalTime);
         assertThat(travelEstimate.getRemainingTimeColor()).isEqualTo(CarColor.DEFAULT);
+        assertThat(travelEstimate.getTripText()).isEqualTo(tripInformation);
+        assertThat(travelEstimate.getTripIcon()).isEqualTo(tripIcon);
     }
 
     @Test
@@ -218,16 +231,47 @@ public class TravelEstimateTest {
     }
 
     @Test
+    public void create_invalidCarIcon() {
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme(ContentResolver.SCHEME_CONTENT);
+        builder.appendPath("foo/bar");
+        Uri iconUri = builder.build();
+        CarIcon carIcon = new CarIcon.Builder(IconCompat.createWithContentUri(iconUri)).build();
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new TravelEstimate.Builder(mRemainingDistance,
+                        mArrivalTime).setTripIcon(carIcon));
+    }
+
+    @Test
+    public void create_tripInformation_unsupportedSpans() {
+        CharSequence text = TestUtils.getCharSequenceWithIconSpan("Text");
+        CarText tripInformation = CarText.create(text);
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new TravelEstimate.Builder(mRemainingDistance,
+                        mArrivalTime).setTripText(tripInformation));
+
+        // ColorSpan do not throw
+        CharSequence text2 = TestUtils.getCharSequenceWithColorSpan("Text");
+        CarText tripInformation2 = CarText.create(text2);
+        new TravelEstimate.Builder(mRemainingDistance,
+                mArrivalTime).setTripText(tripInformation2).build();
+    }
+
+    @Test
     public void equals() {
         TravelEstimate travelEstimate = new TravelEstimate.Builder(mRemainingDistance,
                 mArrivalTime).setRemainingTimeSeconds(
-                TimeUnit.MILLISECONDS.toSeconds(mRemainingTime)).build();
+                TimeUnit.MILLISECONDS.toSeconds(mRemainingTime)).setTripIcon(
+                CarIcon.APP_ICON).setTripText(mTripInformation).build();
 
         assertThat(travelEstimate)
                 .isEqualTo(
                         new TravelEstimate.Builder(mRemainingDistance,
                                 mArrivalTime).setRemainingTimeSeconds(
-                                TimeUnit.MILLISECONDS.toSeconds(mRemainingTime)).build());
+                                TimeUnit.MILLISECONDS.toSeconds(mRemainingTime)).setTripIcon(
+                                CarIcon.APP_ICON).setTripText(mTripInformation).build());
     }
 
     @Test
@@ -291,6 +335,40 @@ public class TravelEstimateTest {
                                 .setRemainingTimeSeconds(
                                         TimeUnit.MILLISECONDS.toSeconds(mRemainingTime))
                                 .setRemainingTimeColor(CarColor.GREEN)
+                                .build());
+    }
+
+    @Test
+    public void notEquals_differentTripIcon() {
+        TravelEstimate travelEstimate =
+                new TravelEstimate.Builder(mRemainingDistance,
+                        mArrivalTime)
+                        .setTripIcon(CarIcon.APP_ICON)
+                        .build();
+
+        assertThat(travelEstimate)
+                .isNotEqualTo(
+                        new TravelEstimate.Builder(mRemainingDistance,
+                                mArrivalTime)
+                                .setTripIcon(CarIcon.ALERT)
+                                .build());
+    }
+
+    @Test
+    public void notEquals_differentTripInformation() {
+        CarText tripInformation1 = CarText.create("test1");
+        TravelEstimate travelEstimate =
+                new TravelEstimate.Builder(mRemainingDistance,
+                        mArrivalTime)
+                        .setTripText(tripInformation1)
+                        .build();
+
+        CarText tripInformation2 = CarText.create("test2");
+        assertThat(travelEstimate)
+                .isNotEqualTo(
+                        new TravelEstimate.Builder(mRemainingDistance,
+                                mArrivalTime)
+                                .setTripText(tripInformation2)
                                 .build());
     }
 }

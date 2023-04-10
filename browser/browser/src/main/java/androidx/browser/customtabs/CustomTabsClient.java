@@ -138,6 +138,7 @@ public class CustomTabsClient {
      * @param ignoreDefault If set, the default VIEW handler won't get priority over other browsers.
      * @return The preferred package name for handling Custom Tabs, or <code>null</code>.
      */
+    @SuppressWarnings("deprecation")
     public static @Nullable String getPackageName(
             @NonNull Context context, @Nullable List<String> packages, boolean ignoreDefault) {
         PackageManager pm = context.getPackageManager();
@@ -392,6 +393,19 @@ public class CustomTabsClient {
                     public void run() {
                         callback.onRelationshipValidationResult(
                                 relation, requestedOrigin, result, extras);
+                    }
+                });
+            }
+
+            @Override
+            public void onActivityResized(final int height, final int width,
+                    final @Nullable Bundle extras)
+                    throws RemoteException {
+                if (callback == null) return;
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onActivityResized(height, width, extras);
                     }
                 });
             }

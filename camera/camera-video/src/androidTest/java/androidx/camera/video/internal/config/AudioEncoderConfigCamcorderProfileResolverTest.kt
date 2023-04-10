@@ -19,35 +19,58 @@ package androidx.camera.video.internal.config
 import android.content.Context
 import android.util.Range
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraXConfig
+import androidx.camera.core.impl.Timebase
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.video.AudioSpec
 import androidx.camera.video.Quality
 import androidx.camera.video.VideoCapabilities
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assume
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.TimeUnit
+import org.junit.runners.Parameterized
 
-@RunWith(AndroidJUnit4::class)
+@RunWith(Parameterized::class)
 @SmallTest
 @SdkSuppress(minSdkVersion = 21)
-class AudioEncoderConfigCamcorderProfileResolverTest {
+class AudioEncoderConfigCamcorderProfileResolverTest(
+    private val implName: String,
+    private val cameraConfig: CameraXConfig
+) {
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun data() = listOf(
+            arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
+            arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+        )
+    }
+
+    @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+    )
 
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
     private val defaultAudioSpec = AudioSpec.builder().build()
+    private val timebase = Timebase.UPTIME
 
     private lateinit var cameraUseCaseAdapter: CameraUseCaseAdapter
     private lateinit var videoCapabilities: VideoCapabilities
@@ -58,11 +81,12 @@ class AudioEncoderConfigCamcorderProfileResolverTest {
 
         CameraXUtil.initialize(
             context,
-            Camera2Config.defaultConfig()
+            cameraConfig
         ).get()
 
         val cameraInfo = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector).cameraInfo
         videoCapabilities = VideoCapabilities.from(cameraInfo)
+        Assume.assumeTrue(videoCapabilities.supportedQualities.isNotEmpty())
     }
 
     @After
@@ -88,6 +112,7 @@ class AudioEncoderConfigCamcorderProfileResolverTest {
             val config = AudioEncoderConfigCamcorderProfileResolver(
                 it.audioCodecMimeType!!,
                 it.requiredAudioProfile,
+                timebase,
                 defaultAudioSpec,
                 sourceSettings,
                 it
@@ -110,6 +135,7 @@ class AudioEncoderConfigCamcorderProfileResolverTest {
             AudioEncoderConfigCamcorderProfileResolver(
                 profile.audioCodecMimeType!!,
                 profile.requiredAudioProfile,
+                timebase,
                 defaultAudioSpec,
                 defaultSourceSettings,
                 profile
@@ -122,6 +148,7 @@ class AudioEncoderConfigCamcorderProfileResolverTest {
         val higherChannelCountConfig = AudioEncoderConfigCamcorderProfileResolver(
             profile.audioCodecMimeType!!,
             profile.requiredAudioProfile,
+            timebase,
             defaultAudioSpec,
             higherChannelCountSourceSettings,
             profile
@@ -140,6 +167,7 @@ class AudioEncoderConfigCamcorderProfileResolverTest {
             AudioEncoderConfigCamcorderProfileResolver(
                 profile.audioCodecMimeType!!,
                 profile.requiredAudioProfile,
+                timebase,
                 defaultAudioSpec,
                 defaultSourceSettings,
                 profile
@@ -152,6 +180,7 @@ class AudioEncoderConfigCamcorderProfileResolverTest {
         val higherSampleRateConfig = AudioEncoderConfigCamcorderProfileResolver(
             profile.audioCodecMimeType!!,
             profile.requiredAudioProfile,
+            timebase,
             defaultAudioSpec,
             higherSampleRateSourceSettings,
             profile
@@ -181,6 +210,7 @@ class AudioEncoderConfigCamcorderProfileResolverTest {
             AudioEncoderConfigCamcorderProfileResolver(
                 profile.audioCodecMimeType!!,
                 profile.requiredAudioProfile,
+                timebase,
                 higherAudioSpec,
                 defaultSourceSettings,
                 profile
@@ -191,6 +221,7 @@ class AudioEncoderConfigCamcorderProfileResolverTest {
             AudioEncoderConfigCamcorderProfileResolver(
                 profile.audioCodecMimeType!!,
                 profile.requiredAudioProfile,
+                timebase,
                 lowerAudioSpec,
                 defaultSourceSettings,
                 profile

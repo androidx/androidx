@@ -16,57 +16,50 @@
 
 package androidx.window.embedding
 
+import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
+import android.app.Activity
+import android.content.Context
 import android.util.Log
-import androidx.window.core.ExperimentalWindowApi
+import androidx.window.core.ConsumerAdapter
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
 import androidx.window.extensions.WindowExtensionsProvider
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
-import androidx.window.extensions.embedding.SplitInfo
-import java.util.function.Consumer
-import androidx.window.extensions.embedding.EmbeddingRule as ExtensionsEmbeddingRule
+import java.lang.reflect.Proxy
 
 /**
  * Adapter implementation for different historical versions of activity embedding OEM interface in
  * [ActivityEmbeddingComponent]. Only supports the single current version in this implementation.
  */
-@ExperimentalWindowApi
 internal class EmbeddingCompat constructor(
     private val embeddingExtension: ActivityEmbeddingComponent,
-    private val adapter: EmbeddingAdapter
+    private val adapter: EmbeddingAdapter,
+    private val consumerAdapter: ConsumerAdapter,
+    private val applicationContext: Context
 ) : EmbeddingInterfaceCompat {
-    constructor() : this(
-        embeddingComponent(),
-        EmbeddingAdapter()
-    )
 
-    override fun setSplitRules(rules: Set<EmbeddingRule>) {
-        embeddingExtension.setEmbeddingRules(adapter.translate(rules))
+    override fun setRules(rules: Set<EmbeddingRule>) {
+        val r = adapter.translate(applicationContext, rules)
+        embeddingExtension.setEmbeddingRules(r)
     }
 
     override fun setEmbeddingCallback(embeddingCallback: EmbeddingCallbackInterface) {
-        val translatingCallback = EmbeddingTranslatingCallback(embeddingCallback, adapter)
-        embeddingExtension.setSplitInfoCallback(translatingCallback)
+        consumerAdapter.addConsumer(
+            embeddingExtension,
+            List::class,
+            "setSplitInfoCallback"
+        ) { values ->
+            val splitInfoList = values.filterIsInstance<OEMSplitInfo>()
+            embeddingCallback.onSplitInfoChanged(adapter.translate(splitInfoList))
+        }
+    }
+
+    override fun isActivityEmbedded(activity: Activity): Boolean {
+        return embeddingExtension.isActivityEmbedded(activity)
     }
 
     companion object {
         const val DEBUG = true
         private const val TAG = "EmbeddingCompat"
-
-        fun getExtensionApiLevel(): Int? {
-            return try {
-                WindowExtensionsProvider.getWindowExtensions().vendorApiLevel
-            } catch (e: NoClassDefFoundError) {
-                if (DEBUG) {
-                    Log.d(TAG, "Embedding extension version not found")
-                }
-                null
-            } catch (e: UnsupportedOperationException) {
-                if (DEBUG) {
-                    Log.d(TAG, "Stub Extension")
-                }
-                null
-            }
-        }
 
         fun isEmbeddingAvailable(): Boolean {
             return try {
@@ -86,23 +79,17 @@ internal class EmbeddingCompat constructor(
 
         fun embeddingComponent(): ActivityEmbeddingComponent {
             return if (isEmbeddingAvailable()) {
-                WindowExtensionsProvider.getWindowExtensions().getActivityEmbeddingComponent()
-                    ?: EmptyEmbeddingComponent()
+                WindowExtensionsProvider.getWindowExtensions().activityEmbeddingComponent
+                    ?: Proxy.newProxyInstance(
+                        EmbeddingCompat::class.java.classLoader,
+                        arrayOf(ActivityEmbeddingComponent::class.java)
+                    ) { _, _, _ -> } as ActivityEmbeddingComponent
             } else {
-                EmptyEmbeddingComponent()
+                Proxy.newProxyInstance(
+                    EmbeddingCompat::class.java.classLoader,
+                    arrayOf(ActivityEmbeddingComponent::class.java)
+                ) { _, _, _ -> } as ActivityEmbeddingComponent
             }
         }
-    }
-}
-
-// Empty implementation of the embedding component to use when the device doesn't provide one and
-// avoid null checks.
-private class EmptyEmbeddingComponent : ActivityEmbeddingComponent {
-    override fun setEmbeddingRules(splitRules: MutableSet<ExtensionsEmbeddingRule>) {
-        // empty
-    }
-
-    override fun setSplitInfoCallback(consumer: Consumer<MutableList<SplitInfo>>) {
-        // empty
     }
 }

@@ -28,8 +28,31 @@ export class PlainTextFormatter {
       if (!node.textContent) {
         continue;
       }
-      output.push(node.textContent);
+      // Split the textContent into lines.
+      // Analyze every line and check for
+      // empty spaces (\s*) and new lines (\r?\n).
+      let lines = node.textContent.split(/\r?\n/);
+      let content: string[] = [];
+      for (let i = 0; i < lines.length; i += 1) {
+        if (!PlainTextFormatter.isEmpty(lines[i])) {
+          content.push(lines[i]);
+        }
+      }
+      let payload = content.join('\r\n');
+      if (!PlainTextFormatter.isEmpty(payload)) {
+        output.push(payload);
+      }
     }
-    return output.join('');
+    return output.join('\r\n');
+  }
+
+  private static isEmpty(content: string): boolean {
+    if (/^\s*$/.exec(content)) {
+      return true;
+    }
+    if (/^r?\n$/.exec(content)) {
+      return true;
+    }
+    return false;
   }
 }

@@ -17,6 +17,10 @@ ExecutorRegistration: androidx.emoji.text.EmojiCompat.MetadataRepoLoader#load(an
     Registration methods should have overload that accepts delivery Executor: `load`
 
 
+GenericCallbacks: androidx.emoji.text.EmojiCompat.MetadataRepoLoaderCallback:
+    EmojiCompat.MetadataRepoLoaderCallback can be replaced with OutcomeReceiver<R,E> (platform) or suspend fun / ListenableFuture (AndroidX).
+
+
 MissingNullability: androidx.emoji.text.EmojiCompat#get():
     Missing nullability on method `get` return
 MissingNullability: androidx.emoji.text.EmojiCompat#handleOnKeyDown(android.text.Editable, int, android.view.KeyEvent) parameter #2:

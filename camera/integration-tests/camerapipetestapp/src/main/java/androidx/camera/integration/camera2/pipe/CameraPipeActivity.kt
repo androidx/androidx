@@ -16,14 +16,13 @@
 
 package androidx.camera.integration.camera2.pipe
 
-import android.app.Activity
+import android.Manifest
 import android.hardware.camera2.CameraCharacteristics
-import android.os.Build
 import android.os.Bundle
 import android.os.Trace
 import android.util.Log
 import android.view.View
-import android.view.WindowManager
+import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import kotlinx.coroutines.runBlocking
@@ -31,13 +30,14 @@ import kotlinx.coroutines.runBlocking
 /**
  * This is the main activity for the CameraPipe test application.
  */
-class CameraPipeActivity : Activity() {
+class CameraPipeActivity : CameraPermissionActivity() {
     private lateinit var cameraPipe: CameraPipe
     private lateinit var dataVisualizations: DataVisualizations
     private lateinit var ui: CameraPipeUi
 
     private var lastCameraId: CameraId? = null
     private var currentCamera: SimpleCamera? = null
+    private var operatingMode: CameraGraph.OperatingMode = CameraGraph.OperatingMode.NORMAL
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,7 +45,7 @@ class CameraPipeActivity : Activity() {
         cameraPipe = (applicationContext as CameraPipeApplication).cameraPipe
 
         // This adjusts the UI to make the activity run a a full screen application.
-        configureFullScreenCameraWindow()
+        configureFullScreenCameraWindow(this)
 
         // Inflate the main ui for the camera activity.
         Trace.beginSection("CXCP-App#inflate")
@@ -67,11 +67,18 @@ class CameraPipeActivity : Activity() {
         super.onStart()
         Log.i("CXCP-App", "Activity onStart")
 
-        val camera = currentCamera
-        if (camera == null) {
-            startNextCamera()
-        } else {
-            camera.start()
+        checkPermissionsAndRun(
+            setOf(
+                Manifest.permission.CAMERA,
+                Manifest.permission.RECORD_AUDIO
+            )
+        ) {
+            val camera = currentCamera
+            if (camera == null) {
+                startNextCamera()
+            } else {
+                camera.start()
+            }
         }
     }
 
@@ -111,7 +118,7 @@ class CameraPipeActivity : Activity() {
         Trace.endSection()
 
         Trace.beginSection("CXCP-App#startCameraGraph")
-        camera = SimpleCamera.create(cameraPipe, cameraId, ui.viewfinder, listOf())
+        camera = SimpleCamera.create(cameraPipe, cameraId, ui.viewfinder, listOf(), operatingMode)
         Trace.endSection()
         currentCamera = camera
         lastCameraId = cameraId
@@ -124,14 +131,31 @@ class CameraPipeActivity : Activity() {
     }
 
     private suspend fun findNextCamera(lastCameraId: CameraId?): CameraId {
-        val cameras: List<CameraId> = cameraPipe.cameras().ids()
+        val cameras = cameraPipe.cameras().getCameraIds()
+        checkNotNull(cameras) { "Unable to load CameraIds from CameraPipe" }
+
         // By default, open the first back facing camera if no camera was previously configured.
         if (lastCameraId == null) {
-            return cameras.firstOrNull {
-                cameraPipe.cameras().getMetadata(it)[CameraCharacteristics.LENS_FACING] ==
-                    CameraCharacteristics.LENS_FACING_BACK
-            } ?: cameras.first()
+            for (id in cameras) {
+                val metadata = cameraPipe.cameras().getCameraMetadata(id)
+                if (metadata != null && metadata[CameraCharacteristics.LENS_FACING] ==
+                    CameraCharacteristics.LENS_FACING_BACK) {
+                    return id
+                }
+            }
+            return cameras.first()
         }
+
+        // If a camera was previously opened and the operating mode is NORMAL, return the same
+        // camera but switch to HIGH_SPEED operating mode
+        if (operatingMode == CameraGraph.OperatingMode.NORMAL) {
+            operatingMode = CameraGraph.OperatingMode.HIGH_SPEED
+            return lastCameraId
+        }
+
+        // If the operating mode is not NORMAL, continue finding the next camera, which will
+        // be opened in NORMAL operating mode
+        operatingMode = CameraGraph.OperatingMode.NORMAL
 
         // If a camera was previously open, select the next camera in the list of all cameras. It is
         // possible that the list of cameras contains only one camera, in which case this will return
@@ -145,43 +169,5 @@ class CameraPipeActivity : Activity() {
 
         // When we reach the end of the list of cameras, loop.
         return cameras[(lastCameraIndex + 1) % cameras.size]
-    }
-
-    @Suppress("DEPRECATION")
-    private fun configureFullScreenCameraWindow() {
-        Trace.beginSection("CXCP-App#windowFlags")
-        // Make the navigation bar semi-transparent.
-        window.setFlags(
-            WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,
-            WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION
-        )
-
-        // Hide navigation to make the app full screen
-        // TODO: Alter this to use window insets class when running on Android R
-        val uiOptions = (
-            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                or View.SYSTEM_UI_FLAG_LOW_PROFILE
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-            )
-        window.decorView.systemUiVisibility = uiOptions
-
-        // Make portrait / landscape rotation seamless
-        val windowParams: WindowManager.LayoutParams = window.attributes
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            windowParams.rotationAnimation = WindowManager.LayoutParams.ROTATION_ANIMATION_SEAMLESS
-        } else {
-            windowParams.rotationAnimation = WindowManager.LayoutParams.ROTATION_ANIMATION_JUMPCUT
-        }
-
-        // Allow the app to draw over screen cutouts (notches, camera bumps, etc)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            windowParams.layoutInDisplayCutoutMode =
-                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-        }
-        window.attributes = windowParams
-
-        Trace.endSection()
     }
 }

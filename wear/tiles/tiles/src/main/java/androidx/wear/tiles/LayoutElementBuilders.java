@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.proto.AlignmentProto;
 import androidx.wear.tiles.ColorBuilders.ColorProp;
 import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.tiles.DimensionBuilders.ContainerDimension;
@@ -42,8 +43,9 @@ import androidx.wear.tiles.ModifiersBuilders.SpanModifiers;
 import androidx.wear.tiles.TypeBuilders.BoolProp;
 import androidx.wear.tiles.TypeBuilders.Int32Prop;
 import androidx.wear.tiles.TypeBuilders.StringProp;
-import androidx.wear.tiles.proto.LayoutElementProto;
-import androidx.wear.tiles.proto.TypesProto;
+import androidx.wear.protolayout.proto.LayoutElementProto;
+import androidx.wear.protolayout.proto.TypesProto;
+import androidx.wear.protolayout.protobuf.InvalidProtocolBufferException;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -340,9 +342,9 @@ public final class LayoutElementBuilders {
 
     /** An extensible {@code HorizontalAlignment} property. */
     public static final class HorizontalAlignmentProp {
-        private final LayoutElementProto.HorizontalAlignmentProp mImpl;
+        private final AlignmentProto.HorizontalAlignmentProp mImpl;
 
-        private HorizontalAlignmentProp(LayoutElementProto.HorizontalAlignmentProp impl) {
+        private HorizontalAlignmentProp(AlignmentProto.HorizontalAlignmentProp impl) {
             this.mImpl = impl;
         }
 
@@ -356,28 +358,28 @@ public final class LayoutElementBuilders {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static HorizontalAlignmentProp fromProto(
-                @NonNull LayoutElementProto.HorizontalAlignmentProp proto) {
+                @NonNull AlignmentProto.HorizontalAlignmentProp proto) {
             return new HorizontalAlignmentProp(proto);
         }
 
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public LayoutElementProto.HorizontalAlignmentProp toProto() {
+        public AlignmentProto.HorizontalAlignmentProp toProto() {
             return mImpl;
         }
 
         /** Builder for {@link HorizontalAlignmentProp} */
         public static final class Builder {
-            private final LayoutElementProto.HorizontalAlignmentProp.Builder mImpl =
-                    LayoutElementProto.HorizontalAlignmentProp.newBuilder();
+            private final AlignmentProto.HorizontalAlignmentProp.Builder mImpl =
+                    AlignmentProto.HorizontalAlignmentProp.newBuilder();
 
             public Builder() {}
 
             /** Sets the value. */
             @NonNull
             public Builder setValue(@HorizontalAlignment int value) {
-                mImpl.setValue(LayoutElementProto.HorizontalAlignment.forNumber(value));
+                mImpl.setValue(AlignmentProto.HorizontalAlignment.forNumber(value));
                 return this;
             }
 
@@ -391,9 +393,9 @@ public final class LayoutElementBuilders {
 
     /** An extensible {@code VerticalAlignment} property. */
     public static final class VerticalAlignmentProp {
-        private final LayoutElementProto.VerticalAlignmentProp mImpl;
+        private final AlignmentProto.VerticalAlignmentProp mImpl;
 
-        private VerticalAlignmentProp(LayoutElementProto.VerticalAlignmentProp impl) {
+        private VerticalAlignmentProp(AlignmentProto.VerticalAlignmentProp impl) {
             this.mImpl = impl;
         }
 
@@ -407,28 +409,28 @@ public final class LayoutElementBuilders {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static VerticalAlignmentProp fromProto(
-                @NonNull LayoutElementProto.VerticalAlignmentProp proto) {
+                @NonNull AlignmentProto.VerticalAlignmentProp proto) {
             return new VerticalAlignmentProp(proto);
         }
 
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public LayoutElementProto.VerticalAlignmentProp toProto() {
+        public AlignmentProto.VerticalAlignmentProp toProto() {
             return mImpl;
         }
 
         /** Builder for {@link VerticalAlignmentProp} */
         public static final class Builder {
-            private final LayoutElementProto.VerticalAlignmentProp.Builder mImpl =
-                    LayoutElementProto.VerticalAlignmentProp.newBuilder();
+            private final AlignmentProto.VerticalAlignmentProp.Builder mImpl =
+                    AlignmentProto.VerticalAlignmentProp.newBuilder();
 
             public Builder() {}
 
             /** Sets the value. */
             @NonNull
             public Builder setValue(@VerticalAlignment int value) {
-                mImpl.setValue(LayoutElementProto.VerticalAlignment.forNumber(value));
+                mImpl.setValue(AlignmentProto.VerticalAlignment.forNumber(value));
                 return this;
             }
 
@@ -839,9 +841,9 @@ public final class LayoutElementBuilders {
 
     /** An extensible {@code TextAlignment} property. */
     public static final class TextAlignmentProp {
-        private final LayoutElementProto.TextAlignmentProp mImpl;
+        private final AlignmentProto.TextAlignmentProp mImpl;
 
-        private TextAlignmentProp(LayoutElementProto.TextAlignmentProp impl) {
+        private TextAlignmentProp(AlignmentProto.TextAlignmentProp impl) {
             this.mImpl = impl;
         }
 
@@ -855,28 +857,28 @@ public final class LayoutElementBuilders {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static TextAlignmentProp fromProto(
-                @NonNull LayoutElementProto.TextAlignmentProp proto) {
+                @NonNull AlignmentProto.TextAlignmentProp proto) {
             return new TextAlignmentProp(proto);
         }
 
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public LayoutElementProto.TextAlignmentProp toProto() {
+        public AlignmentProto.TextAlignmentProp toProto() {
             return mImpl;
         }
 
         /** Builder for {@link TextAlignmentProp} */
         public static final class Builder {
-            private final LayoutElementProto.TextAlignmentProp.Builder mImpl =
-                    LayoutElementProto.TextAlignmentProp.newBuilder();
+            private final AlignmentProto.TextAlignmentProp.Builder mImpl =
+                    AlignmentProto.TextAlignmentProp.newBuilder();
 
             public Builder() {}
 
             /** Sets the value. */
             @NonNull
             public Builder setValue(@TextAlignment int value) {
-                mImpl.setValue(LayoutElementProto.TextAlignment.forNumber(value));
+                mImpl.setValue(AlignmentProto.TextAlignment.forNumber(value));
                 return this;
             }
 
@@ -941,9 +943,9 @@ public final class LayoutElementBuilders {
 
     /** An extensible {@code ArcAnchorType} property. */
     public static final class ArcAnchorTypeProp {
-        private final LayoutElementProto.ArcAnchorTypeProp mImpl;
+        private final AlignmentProto.ArcAnchorTypeProp mImpl;
 
-        private ArcAnchorTypeProp(LayoutElementProto.ArcAnchorTypeProp impl) {
+        private ArcAnchorTypeProp(AlignmentProto.ArcAnchorTypeProp impl) {
             this.mImpl = impl;
         }
 
@@ -957,28 +959,28 @@ public final class LayoutElementBuilders {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static ArcAnchorTypeProp fromProto(
-                @NonNull LayoutElementProto.ArcAnchorTypeProp proto) {
+                @NonNull AlignmentProto.ArcAnchorTypeProp proto) {
             return new ArcAnchorTypeProp(proto);
         }
 
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public LayoutElementProto.ArcAnchorTypeProp toProto() {
+        public AlignmentProto.ArcAnchorTypeProp toProto() {
             return mImpl;
         }
 
         /** Builder for {@link ArcAnchorTypeProp} */
         public static final class Builder {
-            private final LayoutElementProto.ArcAnchorTypeProp.Builder mImpl =
-                    LayoutElementProto.ArcAnchorTypeProp.newBuilder();
+            private final AlignmentProto.ArcAnchorTypeProp.Builder mImpl =
+                    AlignmentProto.ArcAnchorTypeProp.newBuilder();
 
             public Builder() {}
 
             /** Sets the value. */
             @NonNull
             public Builder setValue(@ArcAnchorType int value) {
-                mImpl.setValue(LayoutElementProto.ArcAnchorType.forNumber(value));
+                mImpl.setValue(AlignmentProto.ArcAnchorType.forNumber(value));
                 return this;
             }
 
@@ -1194,9 +1196,9 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setMultilineAlignment(@TextAlignment int multilineAlignment) {
                 mImpl.setMultilineAlignment(
-                        LayoutElementProto.TextAlignmentProp.newBuilder()
+                        AlignmentProto.TextAlignmentProp.newBuilder()
                                 .setValue(
-                                        LayoutElementProto.TextAlignment.forNumber(
+                                        AlignmentProto.TextAlignment.forNumber(
                                                 multilineAlignment)));
                 return this;
             }
@@ -1448,13 +1450,11 @@ public final class LayoutElementBuilders {
 
         /**
          * Gets filtering parameters for this image. If not specified, defaults to no filtering.
-         * Intended for testing purposes only.
          */
-        @TilesExperimental
         @Nullable
-        public ColorFilter getFilter() {
-            if (mImpl.hasFilter()) {
-                return ColorFilter.fromProto(mImpl.getFilter());
+        public ColorFilter getColorFilter() {
+            if (mImpl.hasColorFilter()) {
+                return ColorFilter.fromProto(mImpl.getColorFilter());
             } else {
                 return null;
             }
@@ -1555,10 +1555,9 @@ public final class LayoutElementBuilders {
             /**
              * Sets filtering parameters for this image. If not specified, defaults to no filtering.
              */
-            @TilesExperimental
             @NonNull
-            public Builder setFilter(@NonNull ColorFilter filter) {
-                mImpl.setFilter(filter.toProto());
+            public Builder setColorFilter(@NonNull ColorFilter filter) {
+                mImpl.setColorFilter(filter.toProto());
                 return this;
             }
 
@@ -1838,9 +1837,9 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setHorizontalAlignment(@HorizontalAlignment int horizontalAlignment) {
                 mImpl.setHorizontalAlignment(
-                        LayoutElementProto.HorizontalAlignmentProp.newBuilder()
+                        AlignmentProto.HorizontalAlignmentProp.newBuilder()
                                 .setValue(
-                                        LayoutElementProto.HorizontalAlignment.forNumber(
+                                        AlignmentProto.HorizontalAlignment.forNumber(
                                                 horizontalAlignment)));
                 return this;
             }
@@ -1861,9 +1860,9 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setVerticalAlignment(@VerticalAlignment int verticalAlignment) {
                 mImpl.setVerticalAlignment(
-                        LayoutElementProto.VerticalAlignmentProp.newBuilder()
+                        AlignmentProto.VerticalAlignmentProp.newBuilder()
                                 .setValue(
-                                        LayoutElementProto.VerticalAlignment.forNumber(
+                                        AlignmentProto.VerticalAlignment.forNumber(
                                                 verticalAlignment)));
                 return this;
             }
@@ -2398,9 +2397,9 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setMultilineAlignment(@HorizontalAlignment int multilineAlignment) {
                 mImpl.setMultilineAlignment(
-                        LayoutElementProto.HorizontalAlignmentProp.newBuilder()
+                        AlignmentProto.HorizontalAlignmentProp.newBuilder()
                                 .setValue(
-                                        LayoutElementProto.HorizontalAlignment.forNumber(
+                                        AlignmentProto.HorizontalAlignment.forNumber(
                                                 multilineAlignment)));
                 return this;
             }
@@ -2588,9 +2587,9 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setHorizontalAlignment(@HorizontalAlignment int horizontalAlignment) {
                 mImpl.setHorizontalAlignment(
-                        LayoutElementProto.HorizontalAlignmentProp.newBuilder()
+                        AlignmentProto.HorizontalAlignmentProp.newBuilder()
                                 .setValue(
-                                        LayoutElementProto.HorizontalAlignment.forNumber(
+                                        AlignmentProto.HorizontalAlignment.forNumber(
                                                 horizontalAlignment)));
                 return this;
             }
@@ -2764,9 +2763,9 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setVerticalAlignment(@VerticalAlignment int verticalAlignment) {
                 mImpl.setVerticalAlignment(
-                        LayoutElementProto.VerticalAlignmentProp.newBuilder()
+                        AlignmentProto.VerticalAlignmentProp.newBuilder()
                                 .setValue(
-                                        LayoutElementProto.VerticalAlignment.forNumber(
+                                        AlignmentProto.VerticalAlignment.forNumber(
                                                 verticalAlignment)));
                 return this;
             }
@@ -2953,8 +2952,8 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setAnchorType(@ArcAnchorType int anchorType) {
                 mImpl.setAnchorType(
-                        LayoutElementProto.ArcAnchorTypeProp.newBuilder()
-                                .setValue(LayoutElementProto.ArcAnchorType.forNumber(anchorType)));
+                        AlignmentProto.ArcAnchorTypeProp.newBuilder()
+                                .setValue(AlignmentProto.ArcAnchorType.forNumber(anchorType)));
                 return this;
             }
 
@@ -2978,9 +2977,9 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setVerticalAlign(@VerticalAlignment int verticalAlign) {
                 mImpl.setVerticalAlign(
-                        LayoutElementProto.VerticalAlignmentProp.newBuilder()
+                        AlignmentProto.VerticalAlignmentProp.newBuilder()
                                 .setValue(
-                                        LayoutElementProto.VerticalAlignment.forNumber(
+                                        AlignmentProto.VerticalAlignment.forNumber(
                                                 verticalAlign)));
                 return this;
             }
@@ -3582,11 +3581,35 @@ public final class LayoutElementBuilders {
             return new Layout(proto);
         }
 
+        /** Returns the {@link Layout} object containing the given layout element. */
+        @NonNull
+        public static Layout fromLayoutElement(@NonNull LayoutElement layoutElement) {
+            return new Builder().setRoot(layoutElement).build();
+        }
+
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public LayoutElementProto.Layout toProto() {
             return mImpl;
+        }
+
+        /** Converts to byte array representation. */
+        @TilesExperimental
+        @NonNull
+        public byte[] toByteArray() {
+            return mImpl.toByteArray();
+        }
+
+        /** Converts from byte array representation. */
+        @TilesExperimental
+        @Nullable
+        public static Layout fromByteArray(@NonNull byte[] byteArray) {
+            try {
+                return fromProto(LayoutElementProto.Layout.parseFrom(byteArray));
+            } catch (InvalidProtocolBufferException e) {
+                return null;
+            }
         }
 
         /** Builder for {@link Layout} */

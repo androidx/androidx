@@ -19,6 +19,9 @@ package androidx.recommendation.app;
 import android.app.Notification;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * <p>
  * Helper class to add content info extensions to notifications. To create a notification with
@@ -80,7 +83,7 @@ public final class RecommendationExtender implements Notification.Extender {
      *
      * @param notif The notification from which to copy options.
      */
-    public RecommendationExtender(Notification notif) {
+    public RecommendationExtender(@NonNull Notification notif) {
         Bundle contentBundle = notif.extras == null ?
                 null : notif.extras.getBundle(EXTRA_CONTENT_INFO_EXTENDER);
         if (contentBundle != null) {
@@ -137,7 +140,7 @@ public final class RecommendationExtender implements Notification.Extender {
      * @param types Array of predefined type tags (see the <code>CONTENT_TYPE_*</code> constants)
      *            that describe the content referred to by a notification.
      */
-    public RecommendationExtender setContentTypes(String[] types) {
+    public @NonNull RecommendationExtender setContentTypes(@Nullable String[] types) {
         mTypes = types;
         return this;
     }
@@ -151,7 +154,7 @@ public final class RecommendationExtender implements Notification.Extender {
      *         describe the content associated with the notification.
      * @see RecommendationExtender#setContentTypes
      */
-    public String[] getContentTypes() {
+    public @Nullable String[] getContentTypes() {
         return mTypes;
     }
 
@@ -162,7 +165,7 @@ public final class RecommendationExtender implements Notification.Extender {
      *         primary type for the content associated with the notification.
      * @see RecommendationExtender#setContentTypes
      */
-    public String getPrimaryContentType() {
+    public @Nullable String getPrimaryContentType() {
         if (mTypes == null || mTypes.length == 0) {
             return null;
         }
@@ -178,7 +181,7 @@ public final class RecommendationExtender implements Notification.Extender {
      * @param genres Array of genre string tags that describe the content referred to by a
      *            notification.
      */
-    public RecommendationExtender setGenres(String[] genres) {
+    public @NonNull RecommendationExtender setGenres(@Nullable String[] genres) {
         mGenres = genres;
         return this;
     }
@@ -190,7 +193,7 @@ public final class RecommendationExtender implements Notification.Extender {
      * @return An array of genre tags that describe the content associated with the notification.
      * @see RecommendationExtender#setGenres
      */
-    public String[] getGenres() {
+    public @Nullable String[] getGenres() {
         return mGenres;
     }
 
@@ -205,8 +208,9 @@ public final class RecommendationExtender implements Notification.Extender {
      *            locale and currency.
      * @return This object for method chaining.
      */
-    public RecommendationExtender setPricingInformation(
-            @ContentRecommendation.ContentPricing String priceType, String priceValue) {
+    public @NonNull RecommendationExtender setPricingInformation(
+            @Nullable @ContentRecommendation.ContentPricing String priceType,
+            @Nullable String priceValue) {
         mPricingType = priceType;
         mPricingValue = priceValue;
         return this;
@@ -219,7 +223,7 @@ public final class RecommendationExtender implements Notification.Extender {
      *         constants).
      * @see RecommendationExtender#setPricingInformation
      */
-    public String getPricingType() {
+    public @Nullable String getPricingType() {
         return mPricingType;
     }
 
@@ -232,7 +236,7 @@ public final class RecommendationExtender implements Notification.Extender {
      *         currency.
      * @see RecommendationExtender#setPricingInformation
      */
-    public String getPricingValue() {
+    public @Nullable String getPricingValue() {
         if (mPricingType == null) {
             return null;
         }
@@ -247,7 +251,7 @@ public final class RecommendationExtender implements Notification.Extender {
      * @param contentStatus The status value for this content. Must be one of the predefined content
      *            status values (see the <code>CONTENT_STATUS_*</code> constants).
      */
-    public RecommendationExtender setStatus(
+    public @NonNull RecommendationExtender setStatus(
             @ContentRecommendation.ContentStatus int contentStatus) {
         mContentStatus = contentStatus;
         return this;
@@ -273,8 +277,8 @@ public final class RecommendationExtender implements Notification.Extender {
      *            must be one of the predefined maturity rating tags (see the <code> CONTENT_MATURITY_*</code>
      *            constants).
      */
-    public RecommendationExtender setMaturityRating(
-            @ContentRecommendation.ContentMaturity String maturityRating) {
+    public @NonNull RecommendationExtender setMaturityRating(
+            @Nullable @ContentRecommendation.ContentMaturity String maturityRating) {
         mMaturityRating = maturityRating;
         return this;
     }
@@ -286,7 +290,7 @@ public final class RecommendationExtender implements Notification.Extender {
      *         the <code>CONTENT_MATURITY_*</code> constants).
      * @see RecommendationExtender#setMaturityRating
      */
-    public String getMaturityRating() {
+    public @Nullable String getMaturityRating() {
         return mMaturityRating;
     }
 
@@ -295,7 +299,7 @@ public final class RecommendationExtender implements Notification.Extender {
      *
      * @param length The runing time, in seconds, of the content associated with the notification.
      */
-    public RecommendationExtender setRunningTime(long length) {
+    public @NonNull RecommendationExtender setRunningTime(long length) {
         if (length < 0) {
             throw new IllegalArgumentException("Invalid value for Running Time");
         }

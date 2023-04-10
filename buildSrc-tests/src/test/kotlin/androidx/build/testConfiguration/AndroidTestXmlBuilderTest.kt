@@ -126,6 +126,15 @@ class AndroidTestXmlBuilderTest {
     }
 
     @Test
+    fun testValidTestConfigXml_disableDeviceTests() {
+        builder.disableDeviceTests(true)
+        MatcherAssert.assertThat(
+            builder.build(),
+            CoreMatchers.`is`(disableDeviceTestsConfig)
+        )
+    }
+
+    @Test
     fun testValidMediaConfigXml_default() {
         validate(mediaBuilder.build())
     }
@@ -149,6 +158,21 @@ class AndroidTestXmlBuilderTest {
     }
 }
 
+private val disableDeviceTestsConfig = """
+    <?xml version="1.0" encoding="utf-8"?>
+    <!-- Copyright (C) 2020 The Android Open Source Project
+    Licensed under the Apache License, Version 2.0 (the "License")
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions
+    and limitations under the License.-->
+
+""".trimIndent()
+
 private val goldenDefaultConfig = """
     <?xml version="1.0" encoding="utf-8"?>
     <!-- Copyright (C) 2020 The Android Open Source Project
@@ -170,7 +194,7 @@ private val goldenDefaultConfig = """
     <option name="wifi:disable" value="true" />
     <include name="google/unbundled/common/setup" />
     <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
-    <option name="cleanup-apks" value="false" />
+    <option name="cleanup-apks" value="true" />
     <option name="install-arg" value="-t" />
     <option name="test-file-name" value="placeholder.apk" />
     </target_preparer>

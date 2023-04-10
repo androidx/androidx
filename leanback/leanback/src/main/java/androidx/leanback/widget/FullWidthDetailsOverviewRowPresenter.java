@@ -25,6 +25,8 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.leanback.R;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -167,13 +169,13 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
 
         public class DetailsOverviewRowListener extends DetailsOverviewRow.Listener {
             @Override
-            public void onImageDrawableChanged(DetailsOverviewRow row) {
+            public void onImageDrawableChanged(@NonNull DetailsOverviewRow row) {
                 sHandler.removeCallbacks(mUpdateDrawableCallback);
                 sHandler.post(mUpdateDrawableCallback);
             }
 
             @Override
-            public void onItemChanged(DetailsOverviewRow row) {
+            public void onItemChanged(@NonNull DetailsOverviewRow row) {
                 if (mDetailsDescriptionViewHolder != null) {
                     mDetailsPresenter.onUnbindViewHolder(mDetailsDescriptionViewHolder);
                 }
@@ -181,7 +183,7 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
             }
 
             @Override
-            public void onActionsAdapterChanged(DetailsOverviewRow row) {
+            public void onActionsAdapterChanged(@NonNull DetailsOverviewRow row) {
                 bindActions(row.getActionsAdapter());
             }
         };
@@ -247,7 +249,12 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
 
         final OnChildSelectedListener mChildSelectedListener = new OnChildSelectedListener() {
             @Override
-            public void onChildSelected(ViewGroup parent, View view, int position, long id) {
+            public void onChildSelected(
+                    @NonNull ViewGroup parent,
+                    @Nullable View view,
+                    int position,
+                    long id
+            ) {
                 dispatchItemSelection(view);
             }
         };
@@ -568,7 +575,10 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
     }
 
     @Override
-    protected void onBindRowViewHolder(RowPresenter.ViewHolder holder, Object item) {
+    protected void onBindRowViewHolder(
+            @NonNull RowPresenter.ViewHolder holder,
+            @NonNull Object item
+    ) {
         super.onBindRowViewHolder(holder, item);
 
         DetailsOverviewRow row = (DetailsOverviewRow) item;
@@ -580,7 +590,7 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
     }
 
     @Override
-    protected void onUnbindRowViewHolder(RowPresenter.ViewHolder holder) {
+    protected void onUnbindRowViewHolder(@NonNull RowPresenter.ViewHolder holder) {
         ViewHolder vh = (ViewHolder) holder;
         vh.onUnbind();
         mDetailsPresenter.onUnbindViewHolder(vh.mDetailsDescriptionViewHolder);
@@ -604,7 +614,7 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
     }
 
     @Override
-    protected void onRowViewAttachedToWindow(RowPresenter.ViewHolder vh) {
+    protected void onRowViewAttachedToWindow(@NonNull RowPresenter.ViewHolder vh) {
         super.onRowViewAttachedToWindow(vh);
         ViewHolder viewHolder = (ViewHolder) vh;
         mDetailsPresenter.onViewAttachedToWindow(viewHolder.mDetailsDescriptionViewHolder);
@@ -612,7 +622,7 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
     }
 
     @Override
-    protected void onRowViewDetachedFromWindow(RowPresenter.ViewHolder vh) {
+    protected void onRowViewDetachedFromWindow(@NonNull RowPresenter.ViewHolder vh) {
         super.onRowViewDetachedFromWindow(vh);
         ViewHolder viewHolder = (ViewHolder) vh;
         mDetailsPresenter.onViewDetachedFromWindow(viewHolder.mDetailsDescriptionViewHolder);
@@ -769,7 +779,7 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
     }
 
     @Override
-    public void setEntranceTransitionState(RowPresenter.ViewHolder holder,
+    public void setEntranceTransitionState(@NonNull RowPresenter.ViewHolder holder,
             boolean afterEntrance) {
         super.setEntranceTransitionState(holder, afterEntrance);
         if (mParticipatingEntranceTransition) {

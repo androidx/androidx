@@ -27,7 +27,7 @@ import com.android.tools.lint.detector.api.CURRENT_API
  */
 class UiIssueRegistry : IssueRegistry() {
     // Tests are run with this version. We ensure that with ApiLintVersionsTest
-    override val api = 11
+    override val api = 13
     override val minApi = CURRENT_API
     override val issues get() = listOf(
         ComposedModifierDetector.UnnecessaryComposedModifier,
@@ -35,7 +35,9 @@ class UiIssueRegistry : IssueRegistry() {
         ModifierDeclarationDetector.ModifierFactoryExtensionFunction,
         ModifierDeclarationDetector.ModifierFactoryReturnType,
         ModifierDeclarationDetector.ModifierFactoryUnreferencedReceiver,
-        ModifierParameterDetector.ModifierParameter
+        ModifierParameterDetector.ModifierParameter,
+        ReturnFromAwaitPointerEventScopeDetector.ExitAwaitPointerEventScope,
+        MultipleAwaitPointerEventScopesDetector.MultipleAwaitPointerEventScopes
     )
     override val vendor = Vendor(
         vendorName = "Jetpack Compose",

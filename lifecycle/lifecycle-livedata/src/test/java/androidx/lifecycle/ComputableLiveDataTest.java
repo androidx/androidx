@@ -27,6 +27,8 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
+import static kotlinx.coroutines.test.TestCoroutineDispatchersKt.UnconfinedTestDispatcher;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.arch.core.executor.ArchTaskExecutor;
@@ -48,8 +50,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import kotlinx.coroutines.test.TestCoroutineDispatcher;
-
 @RunWith(JUnit4.class)
 public class ComputableLiveDataTest {
     private TaskExecutor mTaskExecutor;
@@ -58,7 +58,7 @@ public class ComputableLiveDataTest {
     @Before
     public void setup() {
         mLifecycleOwner = new TestLifecycleOwner(Lifecycle.State.INITIALIZED,
-                new TestCoroutineDispatcher());
+                UnconfinedTestDispatcher(null, null));
     }
 
     @Before
@@ -75,8 +75,8 @@ public class ComputableLiveDataTest {
     @Test
     public void noComputeWithoutObservers() {
         final TestComputable computable = new TestComputable();
-        verify(mTaskExecutor, never()).executeOnDiskIO(computable.mRefreshRunnable);
-        verify(mTaskExecutor, never()).executeOnDiskIO(computable.mInvalidationRunnable);
+        verify(mTaskExecutor, never()).executeOnDiskIO(computable.refreshRunnable);
+        verify(mTaskExecutor, never()).executeOnDiskIO(computable.invalidationRunnable);
     }
 
     @SuppressWarnings("unchecked")
@@ -151,7 +151,7 @@ public class ComputableLiveDataTest {
         verify(mTaskExecutor, never()).executeOnDiskIO(any(Runnable.class));
         assertThat(mValue.get(), is(-1));
         mLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
-        verify(mTaskExecutor).executeOnDiskIO(computable.mRefreshRunnable);
+        verify(mTaskExecutor).executeOnDiskIO(computable.refreshRunnable);
         assertThat(mValue.get(), is(1));
     }
 
@@ -171,8 +171,8 @@ public class ComputableLiveDataTest {
 
         mLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START);
 
-        verify(mTaskExecutor, never()).executeOnDiskIO(computable.mRefreshRunnable);
-        verify(customExecutor).execute(computable.mRefreshRunnable);
+        verify(mTaskExecutor, never()).executeOnDiskIO(computable.refreshRunnable);
+        verify(customExecutor).execute(computable.refreshRunnable);
     }
 
     @Test
@@ -191,7 +191,7 @@ public class ComputableLiveDataTest {
         mLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
         computable.invalidate();
         reset(mTaskExecutor);
-        verify(mTaskExecutor, never()).executeOnDiskIO(computable.mRefreshRunnable);
+        verify(mTaskExecutor, never()).executeOnDiskIO(computable.refreshRunnable);
         assertThat(mValue.get(), is(1));
     }
 

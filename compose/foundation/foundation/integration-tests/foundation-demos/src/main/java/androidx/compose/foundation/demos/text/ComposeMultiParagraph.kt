@@ -26,11 +26,12 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 
-val lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas fermentum non" +
-    " diam sed pretium."
+val lorem = loremIpsum(wordCount = 14)
 
+@Preview
 @Composable
 fun MultiParagraphDemo() {
     LazyColumn {
@@ -57,6 +58,7 @@ fun MultiParagraphDemo() {
     }
 }
 
+@Preview
 @Composable
 fun TextDemoParagraph() {
     val text1 = "paragraph1 paragraph1 paragraph1 paragraph1 paragraph1"
@@ -72,6 +74,7 @@ fun TextDemoParagraph() {
     )
 }
 
+@Preview
 @Composable
 fun TextDemoParagraphTextAlign() {
     val annotatedString = buildAnnotatedString {
@@ -118,6 +121,7 @@ fun TextDemoParagraphLineHeight() {
     )
 }
 
+@Preview
 @Composable
 fun TextDemoParagraphIndent() {
     val text1 = "TextIndent firstLine TextIndent firstLine TextIndent firstLine"

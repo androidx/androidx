@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.util
 
 import androidx.room.compiler.processing.XExecutableElement
+import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 
 fun XTypeElement.getAllFieldNames() = getAllFieldsIncludingPrivateSupers().map {
@@ -31,14 +32,18 @@ fun XTypeElement.getField(name: String) = getAllFieldsIncludingPrivateSupers().f
     it.name == name
 }
 
-fun XTypeElement.getDeclaredMethod(name: String) = getDeclaredMethods().firstOrNull {
-    it.name == name
-} ?: throw AssertionError("cannot find method with name $name")
+fun XTypeElement.getDeclaredMethodByJvmName(jvmName: String) = getDeclaredMethods().firstOrNull {
+    it.jvmName == jvmName
+} ?: throw AssertionError("cannot find method with name $jvmName")
 
-fun XTypeElement.getMethod(name: String) = getAllMethods().firstOrNull {
-    it.name == name
-} ?: throw AssertionError("cannot find method with name $name")
+fun XTypeElement.getMethodByJvmName(jvmName: String) = getAllMethods().firstOrNull {
+    it.jvmName == jvmName
+} ?: throw AssertionError("cannot find method with jvmName $jvmName")
 
 fun XExecutableElement.getParameter(name: String) = parameters.firstOrNull {
     it.name == name
 } ?: throw AssertionError("cannot find parameter with name $name")
+
+fun XType.isCollection(): Boolean {
+    return isTypeOf(List::class) || isTypeOf(Set::class)
+}

@@ -80,8 +80,8 @@ public class SizeFCompatTest {
     @TargetApi(21)
     @Config(sdk = 21)
     @Test
-    public void createFromSizeF() {
-        assertThat(SizeFCompat.createFromSizeF(new SizeF(11.2f, 21.4f)))
+    public void toSizeFCompat() {
+        assertThat(SizeFCompat.toSizeFCompat(new SizeF(11.2f, 21.4f)))
                 .isEqualTo(new SizeFCompat(11.2f, 21.4f));
     }
 }

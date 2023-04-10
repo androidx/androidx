@@ -18,16 +18,15 @@ package androidx.compose.material.icons.generator
 
 import com.google.common.base.CaseFormat
 import java.io.File
+import java.util.Locale
 
 /**
- * Processes vector drawables in [iconDirectory] into a list of icons, removing any unwanted
+ * Processes vector drawables in [iconDirectories] into a list of icons, removing any unwanted
  * attributes (such as android: attributes that reference the theme) from the XML source.
  *
- * Drawables in [iconDirectory] should match the following structure, see download_material_icons.py
- * to update icons, using this structure.
+ * Each directory in [iconDirectories] should contain a flat list of icons to process. For example,
+ * given the existing structure in raw-icons:
  *
- * // Top level
- * [iconDirectory]
  * // Theme name
  * ├── filled
  *     // Icon name
@@ -38,13 +37,15 @@ import java.io.File
  * ├── twotone
  * └── sharp
  *
- * @param iconDirectory root directory containing the directory structure mentioned above
+ * Each directory in [iconDirectories] should be a theme directory (filled, outlined, etc).
+ *
+ * @param iconDirectories list of directories containing icon to process
  * @param expectedApiFile location of the checked-in API file that contains the current list of
  * all icons processed and generated
  * @param generatedApiFile location of the to-be-generated API file in the build directory,
  * that we will write to and compare with [expectedApiFile]. This way the generated file can be
  * copied to overwrite the expected file, 'confirming' any API changes as a result of changing
- * icons in [iconDirectory].
+ * icons in [iconDirectories].
  */
 class IconProcessor(
     private val iconDirectories: List<File>,
@@ -53,7 +54,7 @@ class IconProcessor(
     private val verifyApi: Boolean = true
 ) {
     /**
-     * @return a list of processed [Icon]s, from the given [iconDirectory].
+     * @return a list of processed [Icon]s, from the provided [iconDirectories].
      */
     fun process(): List<Icon> {
         val icons = loadIcons()
@@ -74,7 +75,7 @@ class IconProcessor(
             val theme = dir.name.toIconTheme()
             val icons = dir.walk().filter { !it.isDirectory }.toList()
 
-            icons.map { file ->
+            val transformedIcons = icons.map { file ->
                 val filename = file.nameWithoutExtension
                 val kotlinName = filename.toKotlinPropertyName()
 
@@ -89,6 +90,25 @@ class IconProcessor(
                     fileContent = processXmlFile(file.readText())
                 )
             }
+
+            // Ensure icon names are unique when accounting for case insensitive filesystems -
+            // workaround for b/216295020
+            transformedIcons
+                .groupBy { it.kotlinName.lowercase(Locale.ROOT) }
+                .filter { it.value.size > 1 }
+                .filterNot { entry ->
+                    entry.value.map { it.kotlinName }.containsAll(AllowedDuplicateIconNames)
+                }
+                .forEach { entry ->
+                    throw IllegalStateException(
+                        """Found multiple icons with the same case-insensitive filename:
+                                | ${entry.value.joinToString()}. Generating icons with the same
+                                | case-insensitive filename will cause issues on devices without
+                                | a case sensitive filesystem (OSX / Windows).""".trimMargin()
+                    )
+                }
+
+            transformedIcons
         }
     }
 }
@@ -119,13 +139,13 @@ private fun ensureIconsExistInAllThemes(icons: List<Icon>) {
     }
 
     val expectedIconNames = groupedIcons.values.map { themeIcons ->
-        themeIcons.map { icon -> icon.kotlinName }
+        themeIcons.map { icon -> icon.kotlinName }.sorted()
     }
 
     expectedIconNames.first().let { expected ->
         expectedIconNames.forEach { actual ->
             check(actual == expected) {
-                "Not all icons were found in all themes"
+                "Not all icons were found in all themes $actual $expected"
             }
         }
     }
@@ -178,3 +198,7 @@ private fun String.toKotlinPropertyName(): String {
         if (name.first().isDigit()) "_$name" else name
     }
 }
+
+// These icons have already shipped in a stable release, so it is too late to rename / remove one to
+// fix the clash.
+private val AllowedDuplicateIconNames = listOf("AddChart", "Addchart")

@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 
 plugins {
     id('AndroidXPlugin')
     id('java-library')
 }
+
+androidx.configureAarAsJarForConfiguration("testImplementation")
 
 dependencies {
     api('androidx.annotation:annotation:1.1.0')
@@ -31,19 +32,13 @@ dependencies {
     implementation(libs.javapoet)
 
     // For testing, add in the compiled classes from appsearch to get access to annotations.
-    testImplementation fileTree(
-            dir: "${new File(project(":appsearch:appsearch").buildDir, "libJar")}",
-            include : "*.jar"
-    )
+    testImplementationAarAsJar(project(":appsearch:appsearch"))
     testImplementation(libs.googleCompileTesting)
 }
 
-tasks.findByName('compileJava').dependsOn(":appsearch:appsearch:jarRelease")
-
 androidx {
     name = 'AndroidX AppSearch Compiler'
-    type = LibraryType.COMPILER_PLUGIN
-    mavenGroup = LibraryGroups.APPSEARCH
+    type = LibraryType.ANNOTATION_PROCESSOR
     inceptionYear = '2019'
     description = 'Compiler for classes annotated with @androidx.appsearch.annotation.Document'
     failOnDeprecationWarnings = false

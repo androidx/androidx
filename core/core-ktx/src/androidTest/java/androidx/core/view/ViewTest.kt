@@ -25,6 +25,7 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.core.ktx.test.R
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import androidx.testutils.fail
@@ -137,6 +138,7 @@ class ViewTest {
         assertEquals(40, view.paddingBottom)
     }
 
+    @SdkSuppress(minSdkVersion = 17)
     @Test
     fun updatePaddingRelative() {
         view.updatePaddingRelative(start = 10, end = 20)
@@ -146,6 +148,7 @@ class ViewTest {
         assertEquals(0, view.paddingBottom)
     }
 
+    @SdkSuppress(minSdkVersion = 17)
     @Test
     fun updatePaddingRelativeNoOp() {
         view.setPaddingRelative(10, 20, 30, 40)
@@ -311,7 +314,7 @@ class ViewTest {
     }
 
     @Test fun ancestorsEmpty() {
-        view.ancestors.forEach {
+        view.ancestors.forEach { _ ->
             fail()
         }
     }

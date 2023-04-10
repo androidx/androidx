@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -27,6 +25,7 @@ android {
     defaultConfig {
         multiDexEnabled true
     }
+    namespace "androidx.appsearch.debugview.samples"
 }
 
 dependencies {
@@ -49,7 +48,6 @@ dependencies {
 androidx {
     name = "AndroidX AppSearch Debug View Sample App"
     type = LibraryType.SAMPLES
-    mavenGroup = LibraryGroups.APPSEARCH
     inceptionYear = "2021"
     description = "Contains a sample app for integrating the Androidx AppSearch Debug View"
 }

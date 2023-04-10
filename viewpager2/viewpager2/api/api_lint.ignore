@@ -1,4 +1,10 @@
 // Baseline format: 1.0
+InvalidNullabilityOverride: androidx.viewpager2.widget.WindowInsetsApplier#onApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat) parameter #0:
+    Invalid nullability on parameter `v` in method `onApplyWindowInsets`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullabilityOverride: androidx.viewpager2.widget.WindowInsetsApplier#onApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat) parameter #1:
+    Invalid nullability on parameter `insets` in method `onApplyWindowInsets`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+
+
 MissingNullability: androidx.viewpager2.widget.ViewPager2#dispatchRestoreInstanceState(android.util.SparseArray<android.os.Parcelable>) parameter #0:
     Missing nullability on parameter `container` in method `dispatchRestoreInstanceState`
 MissingNullability: androidx.viewpager2.widget.ViewPager2#getAccessibilityClassName():
@@ -9,5 +15,3 @@ MissingNullability: androidx.viewpager2.widget.ViewPager2#onRestoreInstanceState
     Missing nullability on parameter `state` in method `onRestoreInstanceState`
 MissingNullability: androidx.viewpager2.widget.ViewPager2#onViewAdded(android.view.View) parameter #0:
     Missing nullability on parameter `child` in method `onViewAdded`
-MissingNullability: androidx.viewpager2.widget.ViewPager2#performAccessibilityAction(int, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `arguments` in method `performAccessibilityAction`

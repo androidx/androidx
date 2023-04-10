@@ -17,6 +17,8 @@
 package androidx.fragment.app
 
 import androidx.fragment.app.test.FragmentTestActivity
+import androidx.fragment.app.test.TestViewModel
+import androidx.fragment.app.test.ViewModelActivity
 import androidx.fragment.test.R
 import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.ViewModel
@@ -25,6 +27,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,7 +42,7 @@ class FragmentViewLifecycleOwnerTest {
      */
     @Test
     fun defaultFactoryNotOverwritten() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
@@ -72,7 +75,7 @@ class FragmentViewLifecycleOwnerTest {
      */
     @Test
     fun defaultFactoryOverwritten() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
@@ -92,7 +95,82 @@ class FragmentViewLifecycleOwnerTest {
         }
     }
 
-    private class TestViewModel : ViewModel()
+    @Test
+    fun testCreateViewModelViaExtras() {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                setContentView(R.layout.simple_container)
+                supportFragmentManager
+            }
+            val fragment = StrictViewFragment()
+
+            fm.beginTransaction()
+                .add(R.id.fragmentContainer, fragment, "fragment")
+                .commit()
+            executePendingTransactions()
+
+            val viewLifecycleOwner = (fragment.viewLifecycleOwner as FragmentViewLifecycleOwner)
+
+            val creationViewModel = ViewModelProvider(
+                viewLifecycleOwner.viewModelStore,
+                viewLifecycleOwner.defaultViewModelProviderFactory,
+                viewLifecycleOwner.defaultViewModelCreationExtras
+            )["test", TestViewModel::class.java]
+
+            recreate()
+
+            val recreatedViewLifecycleOwner = withActivity {
+                supportFragmentManager.findFragmentByTag("fragment")?.viewLifecycleOwner
+                    as FragmentViewLifecycleOwner
+            }
+
+            assertThat(
+                ViewModelProvider(recreatedViewLifecycleOwner)["test", TestViewModel::class.java]
+            ).isSameInstanceAs(creationViewModel)
+        }
+    }
+
+    @Test
+    fun testCreateViewModelViaExtrasSavedState() {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                setContentView(R.layout.simple_container)
+                supportFragmentManager
+            }
+            val fragment = StrictViewFragment()
+
+            fm.beginTransaction()
+                .add(R.id.fragmentContainer, fragment, "fragment")
+                .commit()
+            executePendingTransactions()
+
+            val viewLifecycleOwner = (fragment.viewLifecycleOwner as FragmentViewLifecycleOwner)
+
+            val creationViewModel = ViewModelProvider(
+                viewLifecycleOwner.viewModelStore,
+                viewLifecycleOwner.defaultViewModelProviderFactory,
+                viewLifecycleOwner.defaultViewModelCreationExtras
+            )["test", ViewModelActivity.TestSavedStateViewModel::class.java]
+
+            creationViewModel.savedStateHandle["key"] = "value"
+
+            recreate()
+
+            val recreatedViewLifecycleOwner = withActivity {
+                supportFragmentManager.findFragmentByTag("fragment")?.viewLifecycleOwner
+                    as FragmentViewLifecycleOwner
+            }
+
+            val recreateViewModel = ViewModelProvider(recreatedViewLifecycleOwner)[
+                "test", ViewModelActivity.TestSavedStateViewModel::class.java
+            ]
+
+            assertThat(recreateViewModel).isSameInstanceAs(creationViewModel)
+
+            val value: String? = recreateViewModel.savedStateHandle["key"]
+            assertThat(value).isEqualTo("value")
+        }
+    }
 
     class FakeViewModelProviderFactory : ViewModelProvider.Factory {
         private var createCalled: Boolean = false
@@ -105,7 +183,6 @@ class FragmentViewLifecycleOwnerTest {
     }
 
     public class FragmentWithFactoryOverride : StrictViewFragment() {
-        public override fun getDefaultViewModelProviderFactory(): ViewModelProvider.Factory =
-            FakeViewModelProviderFactory()
+        public override val defaultViewModelProviderFactory = FakeViewModelProviderFactory()
     }
 }

@@ -24,6 +24,7 @@ import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.leanback.R;
 import androidx.leanback.graphics.CompositeDrawable;
@@ -74,9 +75,12 @@ public class DetailsParallaxDrawable extends CompositeDrawable {
      *                                        coverDrawable,
      *                                        PropertyValuesHolder.ofInt("verticalOffset", 0, -120))
      */
-    public DetailsParallaxDrawable(Context context, DetailsParallax parallax,
-                                   Drawable coverDrawable,
-                                   ParallaxTarget coverDrawableParallaxTarget) {
+    public DetailsParallaxDrawable(
+            @NonNull Context context,
+            @NonNull DetailsParallax parallax,
+            @NonNull Drawable coverDrawable,
+            @NonNull ParallaxTarget coverDrawableParallaxTarget
+    ) {
         init(context, parallax, coverDrawable, new ColorDrawable(), coverDrawableParallaxTarget);
     }
 
@@ -93,9 +97,12 @@ public class DetailsParallaxDrawable extends CompositeDrawable {
      *                                        coverDrawable,
      *                                        PropertyValuesHolder.ofInt("verticalOffset", 0, -120))
      */
-    public DetailsParallaxDrawable(Context context, DetailsParallax parallax,
-                                   Drawable coverDrawable, Drawable bottomDrawable,
-                                   ParallaxTarget coverDrawableParallaxTarget) {
+    public DetailsParallaxDrawable(
+            @NonNull Context context,
+            @NonNull DetailsParallax parallax,
+            @NonNull Drawable coverDrawable,
+            @NonNull Drawable bottomDrawable,
+            @NonNull ParallaxTarget coverDrawableParallaxTarget) {
 
         init(context, parallax, coverDrawable, bottomDrawable, coverDrawableParallaxTarget);
     }
@@ -105,7 +112,7 @@ public class DetailsParallaxDrawable extends CompositeDrawable {
      * @param context Context to get resource values.
      * @param parallax DetailsParallax to add background parallax effect.
      */
-    public DetailsParallaxDrawable(Context context, DetailsParallax parallax) {
+    public DetailsParallaxDrawable(@NonNull Context context, @NonNull DetailsParallax parallax) {
         int verticalMovementMax = -context.getResources().getDimensionPixelSize(
                 R.dimen.lb_details_cover_drawable_parallax_movement);
         Drawable coverDrawable = new FitWidthBitmapDrawable();
@@ -140,6 +147,7 @@ public class DetailsParallaxDrawable extends CompositeDrawable {
     /**
      * @return First child which is cover drawable appearing at top.
      */
+    @NonNull
     public Drawable getCoverDrawable() {
         return getChildAt(0).getDrawable();
     }
@@ -147,6 +155,7 @@ public class DetailsParallaxDrawable extends CompositeDrawable {
     /**
      * @return Second child which is ColorDrawable by default.
      */
+    @NonNull
     public Drawable getBottomDrawable() {
         return mBottomDrawable;
     }

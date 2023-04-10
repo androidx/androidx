@@ -17,10 +17,12 @@
 package androidx.wear.watchface.style.data;
 
 import android.graphics.drawable.Icon;
+import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelize;
 
 import java.util.List;
@@ -30,9 +32,13 @@ import java.util.List;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 public class ListUserStyleSettingWireFormat extends UserStyleSettingWireFormat {
+
+    @Nullable
+    @ParcelField(104)
+    public List<CharSequence> mPerOptionScreenReaderNames;
 
     ListUserStyleSettingWireFormat() {}
 
@@ -43,7 +49,12 @@ public class ListUserStyleSettingWireFormat extends UserStyleSettingWireFormat {
             @Nullable Icon icon,
             @NonNull List<OptionWireFormat> options,
             int defaultOptionIndex,
-            @NonNull List<Integer> affectsLayers) {
-        super(id, displayName, description, icon, options, defaultOptionIndex, affectsLayers);
+            @NonNull List<Integer> affectsLayers,
+            @Nullable Bundle onWatchFaceEditorBundle,
+            @Nullable List<Bundle> perOptionOnWatchFaceEditorBundles,
+            @Nullable List<CharSequence> perOptionScreenReaderNames) {
+        super(id, displayName, description, icon, options, defaultOptionIndex, affectsLayers,
+                onWatchFaceEditorBundle, perOptionOnWatchFaceEditorBundles);
+        mPerOptionScreenReaderNames = perOptionScreenReaderNames;
     }
 }

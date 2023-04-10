@@ -21,6 +21,7 @@ import android.location.Location;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Logger;
 import androidx.exifinterface.media.ExifInterface;
@@ -37,6 +38,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * Utility class for modifying metadata on JPEG files.
@@ -185,7 +187,8 @@ public final class Exif {
         exifTags.removeAll(DO_NOT_COPY_EXIF_TAGS);
         for (String tag : exifTags) {
             String originalValue = mExifInterface.getAttribute(tag);
-            if (originalValue != null) {
+            String croppedExifValue = croppedExif.mExifInterface.getAttribute(tag);
+            if (originalValue != null && !Objects.equals(originalValue, croppedExifValue)) {
                 croppedExif.mExifInterface.setAttribute(tag, originalValue);
             }
         }
@@ -601,6 +604,12 @@ public final class Exif {
         mExifInterface.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(orientation));
     }
 
+    @VisibleForTesting
+    @NonNull
+    public ExifInterface getExifInterface() {
+        return mExifInterface;
+    }
+
     /** Attaches the current timestamp to the file. */
     public void attachTimestamp() {
         long now = System.currentTimeMillis();
@@ -688,11 +697,6 @@ public final class Exif {
         static Converter fromKilometersPerHour(double kph) {
             return new Converter(kph * 0.621371);
         }
-
-        static Converter fromMetersPerSecond(double mps) {
-            return new Converter(mps * 2.23694);
-        }
-
         static Converter fromMilesPerHour(double mph) {
             return new Converter(mph);
         }
@@ -706,18 +710,6 @@ public final class Exif {
 
             Converter(double mph) {
                 mMph = mph;
-            }
-
-            double toKilometersPerHour() {
-                return mMph / 0.621371;
-            }
-
-            double toMilesPerHour() {
-                return mMph;
-            }
-
-            double toKnots() {
-                return mMph / 1.15078;
             }
 
             double toMetersPerSecond() {

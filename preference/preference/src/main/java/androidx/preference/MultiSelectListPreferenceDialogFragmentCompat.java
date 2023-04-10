@@ -48,7 +48,7 @@ public class MultiSelectListPreferenceDialogFragmentCompat extends PreferenceDia
     CharSequence[] mEntryValues;
 
     @NonNull
-    public static MultiSelectListPreferenceDialogFragmentCompat newInstance(String key) {
+    public static MultiSelectListPreferenceDialogFragmentCompat newInstance(@NonNull String key) {
         final MultiSelectListPreferenceDialogFragmentCompat fragment =
                 new MultiSelectListPreferenceDialogFragmentCompat();
         final Bundle b = new Bundle(1);

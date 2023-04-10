@@ -24,7 +24,6 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(project(":compose:compiler:compiler"))
 }
 
 kotlin {
@@ -104,5 +103,6 @@ task runWindowApi(type: JavaExec) {
 task run {
     dependsOn("run1")
 }
+
 
 BuildOnServerKt.addToBuildOnServer(project, "${project.path}:jvmJar")

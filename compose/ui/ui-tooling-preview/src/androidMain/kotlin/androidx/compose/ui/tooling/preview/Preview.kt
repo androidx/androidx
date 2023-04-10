@@ -21,8 +21,10 @@ import androidx.annotation.IntRange
 import androidx.compose.runtime.Composable
 
 /**
- * [Preview] can be applied to @[Composable] methods with no parameters to show them in the Android
- * Studio preview.
+ * [Preview] can be applied to either of the following:
+ * - @[Composable] methods with no parameters to show them in the Android Studio preview.
+ * - Annotation classes, that could then be used to annotate @[Composable] methods or other
+ * annotation classes, which will then be considered as indirectly annotated with that [Preview].
  *
  * The annotation contains a number of parameters that allow to define the way the @[Composable]
  * will be rendered within the preview.
@@ -49,10 +51,13 @@ import androidx.compose.runtime.Composable
  * @param uiMode Bit mask of the ui mode as per [android.content.res.Configuration.uiMode]
  * @param device Device string indicating the device to use in the preview. See the available
  * devices in [Devices].
+ * @param wallpaper Integer defining which wallpaper from those available in Android Studio
+ * to use for dynamic theming.
  */
 @MustBeDocumented
-@Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.BINARY)
 @Target(
+    AnnotationTarget.ANNOTATION_CLASS,
     AnnotationTarget.FUNCTION
 )
 @Repeatable
@@ -70,5 +75,6 @@ annotation class Preview(
     val showBackground: Boolean = false,
     val backgroundColor: Long = 0,
     @UiMode val uiMode: Int = 0,
-    @Device val device: String = Devices.DEFAULT
+    @Device val device: String = Devices.DEFAULT,
+    @Wallpaper val wallpaper: Int = Wallpapers.NONE,
 )

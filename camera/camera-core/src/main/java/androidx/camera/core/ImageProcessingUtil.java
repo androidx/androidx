@@ -19,6 +19,7 @@ package androidx.camera.core;
 import static androidx.camera.core.ImageProcessingUtil.Result.ERROR_CONVERSION;
 import static androidx.camera.core.ImageProcessingUtil.Result.SUCCESS;
 
+import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.media.Image;
 import android.media.ImageWriter;
@@ -30,16 +31,24 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.internal.compat.ImageWriterCompat;
+import androidx.camera.core.internal.utils.ImageUtil;
+import androidx.core.util.Preconditions;
 
 import java.nio.ByteBuffer;
 import java.util.Locale;
 
-/** Utility class to convert an {@link Image} from YUV to RGB. */
+/**
+ * Utility class to convert an {@link Image} from YUV to RGB.
+ *
+ * @hide
+ */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-final class ImageProcessingUtil {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public final class ImageProcessingUtil {
 
     private static final String TAG = "ImageProcessingUtil";
     private static int sImageCount = 0;
@@ -58,16 +67,118 @@ final class ImageProcessingUtil {
     }
 
     /**
+     * Wraps a JPEG byte array with an {@link Image}.
+     *
+     * <p>This methods wraps the given byte array with an {@link Image} via the help of the
+     * given ImageReader. The image format of the ImageReader has to be JPEG, and the JPEG image
+     * size has to match the size of the ImageReader.
+     */
+    @Nullable
+    public static ImageProxy convertJpegBytesToImage(
+            @NonNull ImageReaderProxy jpegImageReaderProxy,
+            @NonNull byte[] jpegBytes) {
+        Preconditions.checkArgument(jpegImageReaderProxy.getImageFormat() == ImageFormat.JPEG);
+        Preconditions.checkNotNull(jpegBytes);
+
+        Surface surface = jpegImageReaderProxy.getSurface();
+        Preconditions.checkNotNull(surface);
+
+        if (nativeWriteJpegToSurface(jpegBytes, surface) != 0) {
+            Logger.e(TAG, "Failed to enqueue JPEG image.");
+            return null;
+        }
+
+        final ImageProxy imageProxy = jpegImageReaderProxy.acquireLatestImage();
+        if (imageProxy == null) {
+            Logger.e(TAG, "Failed to get acquire JPEG image.");
+        }
+        return imageProxy;
+    }
+
+
+    /**
+     * Copies information from a given Bitmap to the address of the ByteBuffer
+     *
+     * @param bitmap            source bitmap
+     * @param byteBuffer        destination ByteBuffer
+     * @param bufferStride      the stride of the ByteBuffer
+     */
+    public static void copyBitmapToByteBuffer(@NonNull Bitmap bitmap,
+            @NonNull ByteBuffer byteBuffer, int bufferStride) {
+        int bitmapStride = bitmap.getRowBytes();
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        nativeCopyBetweenByteBufferAndBitmap(bitmap, byteBuffer, bitmapStride, bufferStride, width,
+                height, false);
+    }
+
+    /**
+     * Copies information from a ByteBuffer to the address of the Bitmap
+     *
+     * @param bitmap            destination Bitmap
+     * @param byteBuffer        source ByteBuffer
+     * @param bufferStride      the stride of the ByteBuffer
+     *
+     */
+    public static void copyByteBufferToBitmap(@NonNull Bitmap bitmap,
+            @NonNull ByteBuffer byteBuffer, int bufferStride) {
+        int bitmapStride = bitmap.getRowBytes();
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        nativeCopyBetweenByteBufferAndBitmap(bitmap, byteBuffer, bufferStride, bitmapStride, width,
+                height, true);
+    }
+
+    /**
+     * Writes a JPEG bytes data as an Image into the Surface. Returns true if it succeeds and false
+     * otherwise.
+     */
+    public static boolean writeJpegBytesToSurface(
+            @NonNull Surface surface,
+            @NonNull byte[] jpegBytes) {
+        Preconditions.checkNotNull(jpegBytes);
+        Preconditions.checkNotNull(surface);
+
+        if (nativeWriteJpegToSurface(jpegBytes, surface) != 0) {
+            Logger.e(TAG, "Failed to enqueue JPEG image.");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Convert a YUV_420_888 ImageProxy to a JPEG bytes data as an Image into the Surface.
+     *
+     * <p>Returns true if it succeeds and false otherwise.
+     */
+    public static boolean convertYuvToJpegBytesIntoSurface(
+            @NonNull ImageProxy imageProxy,
+            @IntRange(from = 1, to = 100) int jpegQuality,
+            @ImageOutputConfig.RotationDegreesValue int rotationDegrees,
+            @NonNull Surface outputSurface) {
+        try {
+            byte[] jpegBytes =
+                    ImageUtil.yuvImageToJpegByteArray(
+                            imageProxy, null, jpegQuality, rotationDegrees);
+            return writeJpegBytesToSurface(outputSurface,
+                    jpegBytes);
+        } catch (ImageUtil.CodecFailedException e) {
+            Logger.e(TAG, "Failed to encode YUV to JPEG", e);
+            return false;
+        }
+    }
+
+    /**
      * Converts image proxy in YUV to RGB.
      *
      * Currently this config supports the devices which generated NV21, NV12, I420 YUV layout,
      * otherwise the input YUV layout will be converted to NV12 first and then to RGBA_8888 as a
      * fallback.
      *
-     * @param imageProxy input image proxy in YUV.
-     * @param rgbImageReaderProxy output image reader proxy in RGB.
-     * @param rgbConvertedBuffer intermediate image buffer for format conversion.
-     * @param rotationDegrees output image rotation degrees.
+     * @param imageProxy           input image proxy in YUV.
+     * @param rgbImageReaderProxy  output image reader proxy in RGB.
+     * @param rgbConvertedBuffer   intermediate image buffer for format conversion.
+     * @param rotationDegrees      output image rotation degrees.
      * @param onePixelShiftEnabled true if one pixel shift should be applied, otherwise false.
      * @return output image proxy in RGB.
      */
@@ -152,13 +263,13 @@ final class ImageProcessingUtil {
     /**
      * Rotates YUV image proxy.
      *
-     * @param imageProxy input image proxy.
+     * @param imageProxy              input image proxy.
      * @param rotatedImageReaderProxy input image reader proxy.
-     * @param rotatedImageWriter output image writer.
-     * @param yRotatedBuffer intermediate image buffer for y plane rotation.
-     * @param uRotatedBuffer intermediate image buffer for u plane rotation.
-     * @param vRotatedBuffer intermediate image buffer for v plane rotation.
-     * @param rotationDegrees output image rotation degrees.
+     * @param rotatedImageWriter      output image writer.
+     * @param yRotatedBuffer          intermediate image buffer for y plane rotation.
+     * @param uRotatedBuffer          intermediate image buffer for u plane rotation.
+     * @param vRotatedBuffer          intermediate image buffer for v plane rotation.
+     * @param rotationDegrees         output image rotation degrees.
      * @return rotated image proxy or null if rotation fails or format is not supported.
      */
     @Nullable
@@ -359,6 +470,16 @@ final class ImageProcessingUtil {
         ImageWriterCompat.queueInputImage(rotatedImageWriter, rotatedImage);
         return SUCCESS;
     }
+
+
+    private static native int nativeCopyBetweenByteBufferAndBitmap(Bitmap bitmap,
+            ByteBuffer byteBuffer,
+            int sourceStride, int destinationStride, int width, int height,
+            boolean isCopyBufferToBitmap);
+
+
+    private static native int nativeWriteJpegToSurface(@NonNull byte[] jpegArray,
+            @NonNull Surface surface);
 
     private static native int nativeConvertAndroid420ToABGR(
             @NonNull ByteBuffer srcByteBufferY,

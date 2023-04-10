@@ -33,7 +33,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -50,7 +49,6 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalTestApi::class)
 class NavigationRailScreenshotTest {
     @get:Rule
     val composeTestRule = createComposeRule()
@@ -64,11 +62,9 @@ class NavigationRailScreenshotTest {
 
         var scope: CoroutineScope? = null
 
-        composeTestRule.setContent {
-            MaterialTheme(lightColorScheme()) {
-                scope = rememberCoroutineScope()
-                DefaultNavigationRail(interactionSource)
-            }
+        composeTestRule.setMaterialContent(lightColorScheme()) {
+            scope = rememberCoroutineScope()
+            DefaultNavigationRail(interactionSource)
         }
 
         assertNavigationRailMatches(
@@ -85,11 +81,9 @@ class NavigationRailScreenshotTest {
 
         var scope: CoroutineScope? = null
 
-        composeTestRule.setContent {
-            MaterialTheme(lightColorScheme()) {
-                scope = rememberCoroutineScope()
-                DefaultNavigationRail(interactionSource)
-            }
+        composeTestRule.setMaterialContent(lightColorScheme()) {
+            scope = rememberCoroutineScope()
+            DefaultNavigationRail(interactionSource)
         }
 
         assertNavigationRailMatches(
@@ -101,16 +95,33 @@ class NavigationRailScreenshotTest {
     }
 
     @Test
+    fun lightTheme_defaultColors_disabled() {
+        val interactionSource = MutableInteractionSource()
+
+        var scope: CoroutineScope? = null
+
+        composeTestRule.setMaterialContent(lightColorScheme()) {
+            scope = rememberCoroutineScope()
+            DefaultNavigationRail(interactionSource, setUnselectedItemsAsDisabled = true)
+        }
+
+        assertNavigationRailMatches(
+            scope = scope!!,
+            interactionSource = interactionSource,
+            interaction = null,
+            goldenIdentifier = "navigationRail_lightTheme_defaultColors_disabled"
+        )
+    }
+
+    @Test
     fun darkTheme_defaultColors() {
         val interactionSource = MutableInteractionSource()
 
         var scope: CoroutineScope? = null
 
-        composeTestRule.setContent {
-            MaterialTheme(darkColorScheme()) {
-                scope = rememberCoroutineScope()
-                DefaultNavigationRail(interactionSource)
-            }
+        composeTestRule.setMaterialContent(darkColorScheme()) {
+            scope = rememberCoroutineScope()
+            DefaultNavigationRail(interactionSource)
         }
 
         assertNavigationRailMatches(
@@ -127,11 +138,9 @@ class NavigationRailScreenshotTest {
 
         var scope: CoroutineScope? = null
 
-        composeTestRule.setContent {
-            MaterialTheme(darkColorScheme()) {
-                scope = rememberCoroutineScope()
-                DefaultNavigationRail(interactionSource)
-            }
+        composeTestRule.setMaterialContent(darkColorScheme()) {
+            scope = rememberCoroutineScope()
+            DefaultNavigationRail(interactionSource)
         }
 
         assertNavigationRailMatches(
@@ -143,16 +152,33 @@ class NavigationRailScreenshotTest {
     }
 
     @Test
+    fun darkTheme_defaultColors_disabled() {
+        val interactionSource = MutableInteractionSource()
+
+        var scope: CoroutineScope? = null
+
+        composeTestRule.setMaterialContent(darkColorScheme()) {
+            scope = rememberCoroutineScope()
+            DefaultNavigationRail(interactionSource, setUnselectedItemsAsDisabled = true)
+        }
+
+        assertNavigationRailMatches(
+            scope = scope!!,
+            interactionSource = interactionSource,
+            interaction = null,
+            goldenIdentifier = "navigationRail_darkTheme_defaultColors_disabled"
+        )
+    }
+
+    @Test
     fun lightTheme_defaultColors_withHeaderFab() {
         val interactionSource = MutableInteractionSource()
 
         var scope: CoroutineScope? = null
 
-        composeTestRule.setContent {
-            MaterialTheme(lightColorScheme()) {
-                scope = rememberCoroutineScope()
-                DefaultNavigationRail(interactionSource, withHeaderFab = true)
-            }
+        composeTestRule.setMaterialContent(lightColorScheme()) {
+            scope = rememberCoroutineScope()
+            DefaultNavigationRail(interactionSource, withHeaderFab = true)
         }
 
         assertNavigationRailMatches(
@@ -169,11 +195,9 @@ class NavigationRailScreenshotTest {
 
         var scope: CoroutineScope? = null
 
-        composeTestRule.setContent {
-            MaterialTheme(lightColorScheme()) {
-                scope = rememberCoroutineScope()
-                DefaultNavigationRail(interactionSource, withHeaderFab = true)
-            }
+        composeTestRule.setMaterialContent(lightColorScheme()) {
+            scope = rememberCoroutineScope()
+            DefaultNavigationRail(interactionSource, withHeaderFab = true)
         }
 
         assertNavigationRailMatches(
@@ -228,12 +252,14 @@ class NavigationRailScreenshotTest {
  * @param interactionSource the [MutableInteractionSource] for the first [NavigationRailItem], to
  * control its visual state.
  * @param withHeaderFab when true, shows a [FloatingActionButton] as the [NavigationRail] header.
+ * @param setUnselectedItemsAsDisabled when true, marks unselected items as disabled
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DefaultNavigationRail(
     interactionSource: MutableInteractionSource,
-    withHeaderFab: Boolean = false
+    withHeaderFab: Boolean = false,
+    setUnselectedItemsAsDisabled: Boolean = false,
 ) {
     Box(Modifier.semantics(mergeDescendants = true) {}.testTag(Tag)) {
         NavigationRail(
@@ -254,12 +280,14 @@ private fun DefaultNavigationRail(
                 icon = { Icon(Icons.Filled.Home, null) },
                 label = { Text("Home") },
                 selected = false,
+                enabled = !setUnselectedItemsAsDisabled,
                 onClick = {}
             )
             NavigationRailItem(
                 icon = { Icon(Icons.Filled.Search, null) },
                 label = { Text("Search") },
                 selected = false,
+                enabled = !setUnselectedItemsAsDisabled,
                 onClick = {}
             )
         }

@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
+    api(libs.kotlinStdlib)
     implementation("androidx.arch.core:core-common:2.1.0")
     api("androidx.arch.core:core-runtime:2.1.0")
     api(project(":lifecycle:lifecycle-livedata-core"))
@@ -31,13 +32,22 @@ dependencies {
     testImplementation("androidx.arch.core:core-testing:2.1.0")
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.truth)
+
+    constraints {
+        implementation(project(":lifecycle:lifecycle-livedata-core"))
+        implementation(project(":lifecycle:lifecycle-livedata-ktx"))
+    }
 }
 
 androidx {
     name = "Android Lifecycle LiveData"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycle LiveData"
+}
+
+android {
+    namespace "androidx.lifecycle.livedata"
 }

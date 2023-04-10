@@ -26,10 +26,11 @@ class VersionChecker(val context: IrPluginContext) {
 
     companion object {
         /**
-         * A table of version ints to version strings. This should be updated every time
-         * ComposeVersion.kt is updated.
+         * A table of runtime version ints to version strings for compose-runtime.
+         * This should be updated every time a new version of the Compose Runtime is released.
+         * Typically updated via update_versions_for_release.py
          */
-        private val versionTable = mapOf(
+        private val runtimeVersionToMavenVersionTable = mapOf(
             1600 to "0.1.0-dev16",
             1700 to "1.0.0-alpha06",
             1800 to "1.0.0-alpha07",
@@ -63,6 +64,47 @@ class VersionChecker(val context: IrPluginContext) {
             4700 to "1.1.0-beta02",
             4800 to "1.1.0-beta03",
             4900 to "1.1.0-beta04",
+            5000 to "1.1.0-rc01",
+            5001 to "1.1.0-rc02",
+            5002 to "1.1.0-rc03",
+            5003 to "1.1.0",
+            5004 to "1.1.1",
+            6000 to "1.2.0-alpha01",
+            6100 to "1.2.0-alpha02",
+            6200 to "1.2.0-alpha03",
+            6300 to "1.2.0-alpha04",
+            6400 to "1.2.0-alpha05",
+            6500 to "1.2.0-alpha06",
+            6600 to "1.2.0-alpha07",
+            6700 to "1.2.0-alpha08",
+            6800 to "1.2.0-beta01",
+            6900 to "1.2.0-beta02",
+            7000 to "1.2.0-beta03",
+            7100 to "1.2.0-rc01",
+            7101 to "1.2.0-rc02",
+            7102 to "1.2.0-rc03",
+            7103 to "1.2.0",
+            7104 to "1.2.1",
+            7105 to "1.2.2",
+            8000 to "1.3.0-alpha01",
+            8100 to "1.3.0-alpha02",
+            8200 to "1.3.0-alpha03",
+            8300 to "1.3.0-beta01",
+            8400 to "1.3.0-beta02",
+            8500 to "1.3.0-beta03",
+            8600 to "1.3.0-rc01",
+            8601 to "1.3.0-rc02",
+            8602 to "1.3.0",
+            8603 to "1.3.1",
+            8604 to "1.3.2",
+            8605 to "1.3.3",
+            8606 to "1.3.4",
+            9000 to "1.4.0-alpha01",
+            9001 to "1.4.0-alpha02",
+            9100 to "1.4.0-alpha03",
+            9200 to "1.4.0-alpha04",
+            9300 to "1.4.0-alpha05",
+            9400 to "1.4.0-alpha06",
         )
 
         /**
@@ -75,22 +117,22 @@ class VersionChecker(val context: IrPluginContext) {
          * The maven version string of this compiler. This string should be updated before/after every
          * release.
          */
-        const val compilerVersion: String = "1.1.0-beta04"
+        const val compilerVersion: String = "1.4.1"
         private val minimumRuntimeVersion: String
-            get() = versionTable[minimumRuntimeVersionInt] ?: "unknown"
+            get() = runtimeVersionToMavenVersionTable[minimumRuntimeVersionInt] ?: "unknown"
     }
 
     fun check() {
         // version checker accesses bodies of the functions that are not deserialized in KLIB
         if (!context.platform.isJvm()) return
 
-        val versionClass = context.referenceClass(ComposeFqNames.ComposeVersion)
+        val versionClass = context.referenceClass(ComposeClassIds.ComposeVersion)
         if (versionClass == null) {
             // If the version class isn't present, it likely means that compose runtime isn't on the
             // classpath anywhere. But also for dev03-dev15 there wasn't any ComposeVersion class at
             // all, so we check for the presence of the Composer class here to try and check for the
             // case that an older version of Compose runtime is available.
-            val composerClass = context.referenceClass(ComposeFqNames.Composer)
+            val composerClass = context.referenceClass(ComposeClassIds.Composer)
             if (composerClass != null) {
                 outdatedRuntimeWithUnknownVersionNumber()
             } else {
@@ -111,7 +153,7 @@ class VersionChecker(val context: IrPluginContext) {
         }
         val versionInt = versionExpr.value as Int
         if (versionInt < minimumRuntimeVersionInt) {
-            outdatedRuntime(versionTable[versionInt] ?: "<unknown>")
+            outdatedRuntime(runtimeVersionToMavenVersionTable[versionInt] ?: "<unknown>")
         }
         // success. We are compatible with this runtime version!
     }

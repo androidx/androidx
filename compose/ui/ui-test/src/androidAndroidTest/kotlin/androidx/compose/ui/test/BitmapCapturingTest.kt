@@ -17,29 +17,36 @@
 package androidx.compose.ui.test
 
 import android.os.Build
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.testutils.assertContainsColor
+import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.testutils.assertPixels
-import androidx.compose.testutils.expectError
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.roundToInt
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -66,15 +73,15 @@ class BitmapCapturingTest(val config: TestConfig) {
     val rule = createAndroidComposeRule(config.activityClass)
 
     private val rootTag = "Root"
-    private val tag11 = "Rect11"
-    private val tag12 = "Rect12"
-    private val tag21 = "Rect21"
-    private val tag22 = "Rect22"
+    private val tagTopLeft = "TopLeft"
+    private val tagTopRight = "TopRight"
+    private val tagBottomLeft = "BottomLeft"
+    private val tagBottomRight = "BottomRight"
 
-    private val color11 = Color.Red
-    private val color12 = Color.Blue
-    private val color21 = Color.Green
-    private val color22 = Color.Yellow
+    private val colorTopLeft = Color.Red
+    private val colorTopRight = Color.Blue
+    private val colorBottomLeft = Color.Green
+    private val colorBottomRight = Color.Yellow
     private val colorBg = Color.Black
 
     @Test
@@ -82,28 +89,28 @@ class BitmapCapturingTest(val config: TestConfig) {
         composeCheckerboard()
 
         var calledCount = 0
-        rule.onNodeWithTag(tag11)
+        rule.onNodeWithTag(tagTopLeft)
             .captureToImage()
             .assertPixels(expectedSize = IntSize(100, 50)) {
                 calledCount++
-                color11
+                colorTopLeft
             }
         assertThat(calledCount).isEqualTo((100 * 50))
 
-        rule.onNodeWithTag(tag12)
+        rule.onNodeWithTag(tagTopRight)
             .captureToImage()
             .assertPixels(expectedSize = IntSize(100, 50)) {
-                color12
+                colorTopRight
             }
-        rule.onNodeWithTag(tag21)
+        rule.onNodeWithTag(tagBottomLeft)
             .captureToImage()
             .assertPixels(expectedSize = IntSize(100, 50)) {
-                color21
+                colorBottomLeft
             }
-        rule.onNodeWithTag(tag22)
+        rule.onNodeWithTag(tagBottomRight)
             .captureToImage()
             .assertPixels(expectedSize = IntSize(100, 50)) {
-                color22
+                colorBottomRight
             }
     }
 
@@ -114,32 +121,7 @@ class BitmapCapturingTest(val config: TestConfig) {
         rule.onNodeWithTag(rootTag)
             .captureToImage()
             .assertPixels(expectedSize = IntSize(200, 100)) {
-                if (it.y >= 100 || it.x >= 200) {
-                    throw AssertionError("$it is out of range!")
-                }
                 expectedColorProvider(it)
-            }
-    }
-
-    @Test(expected = AssertionError::class)
-    fun assertWrongColor_expectException() {
-        composeCheckerboard()
-
-        rule.onNodeWithTag(tag11)
-            .captureToImage()
-            .assertPixels(expectedSize = IntSize(100, 50)) {
-                color22 // Assuming wrong color
-            }
-    }
-
-    @Test(expected = AssertionError::class)
-    fun assertWrongSize_expectException() {
-        composeCheckerboard()
-
-        rule.onNodeWithTag(tag11)
-            .captureToImage()
-            .assertPixels(expectedSize = IntSize(10, 10)) {
-                color21
             }
     }
 
@@ -147,7 +129,7 @@ class BitmapCapturingTest(val config: TestConfig) {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // b/163023027
     fun captureDialog_verifyBackground() {
         // Test that we are really able to capture dialogs to bitmap.
-        rule.setContent {
+        setContent {
             AlertDialog(onDismissRequest = {}, confirmButton = {}, backgroundColor = Color.Red)
         }
 
@@ -157,73 +139,145 @@ class BitmapCapturingTest(val config: TestConfig) {
     }
 
     @Test
-    fun capturePopup_shouldFail() {
-        // Test that we throw an error when trying to capture a popup.
-        rule.setContent {
+    fun capturePopup_verifyBackground() {
+        setContent {
             Box {
                 Popup {
-                    Text("Hello")
+                    Box(Modifier.background(Color.Red)) {
+                        Text("Hello")
+                    }
                 }
             }
         }
 
-        expectError<IllegalArgumentException>(
-            expectedMessage = ".*Popups currently cannot be captured to bitmap.*"
-        ) {
-            rule.onNode(isPopup())
-                .captureToImage()
-        }
+        rule.onNode(isPopup())
+            .captureToImage()
+            .assertContainsColor(Color.Red)
     }
+
+    @Test
+    fun captureComposable_withPopUp_verifyBackground() {
+        setContent {
+            Box(
+                Modifier
+                    .testTag(rootTag)
+                    .size(300.dp)
+                    .background(Color.Yellow)
+            ) {
+                Popup {
+                    Box(Modifier.background(Color.Red)) {
+                        Text("Hello")
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag(rootTag)
+            .captureToImage()
+            .assertContainsColor(Color.Yellow)
+            .assertDoesNotContainColor(Color.Red)
+    }
+
+    @Test
+    fun captureComposable_withDialog_verifyBackground() {
+        setContent {
+            Box(
+                Modifier
+                    .testTag(rootTag)
+                    .size(300.dp)
+                    .background(Color.Yellow)
+            ) {
+                Dialog({}) {
+                    Box(
+                        Modifier
+                            .size(300.dp)
+                            .background(Color.Red)) {
+                        Text("Hello")
+                    }
+                }
+            }
+        }
+        rule.onNodeWithTag(rootTag)
+            .captureToImage()
+            .assertContainsColor(Color.Yellow)
+            .assertDoesNotContainColor(Color.Red)
+    }
+
+    @Test
+    fun capturePopup_verifySize() {
+        val boxSize = 200.dp
+        val boxSizePx = boxSize.toPixel(rule.density).roundToInt()
+        setContent {
+            Box {
+                Popup {
+                    Box(Modifier.size(boxSize)) {
+                        Text("Hello")
+                    }
+                }
+            }
+        }
+
+        rule.onNode(isPopup())
+            .captureToImage()
+            .let {
+                assertThat(IntSize(it.width, it.height)).isEqualTo(IntSize(boxSizePx, boxSizePx))
+            }
+    }
+
+    private fun Dp.toPixel(density: Density) = this.value * density.density
 
     private fun expectedColorProvider(pos: IntOffset): Color {
         if (pos.y < 50) {
             if (pos.x < 100) {
-                return color11
+                return colorTopLeft
             } else if (pos.x < 200) {
-                return color12
+                return colorTopRight
             }
         } else if (pos.y < 100) {
             if (pos.x < 100) {
-                return color21
+                return colorBottomLeft
             } else if (pos.x < 200) {
-                return color22
+                return colorBottomRight
             }
         }
-        return colorBg
+        throw IllegalArgumentException("Expected color undefined for position $pos")
     }
 
     private fun composeCheckerboard() {
         with(rule.density) {
-            rule.setContent {
-                Box(Modifier.fillMaxSize().background(colorBg)) {
-                    Box(Modifier.padding(top = 20.toDp()).background(colorBg)) {
+            setContent {
+                Box(Modifier.background(colorBg)) {
+                    Box(
+                        Modifier
+                            .padding(top = 20.toDp())
+                            .background(colorBg)) {
                         Column(Modifier.testTag(rootTag)) {
                             Row {
                                 Box(
                                     Modifier
-                                        .testTag(tag11)
+                                        .testTag(tagTopLeft)
                                         .size(100.toDp(), 50.toDp())
-                                        .background(color = color11)
+                                        .background(color = colorTopLeft)
                                 )
                                 Box(
                                     Modifier
-                                        .testTag(tag12)
+                                        .testTag(tagTopRight)
                                         .size(100.toDp(), 50.toDp())
-                                        .background(color12)
+                                        .background(colorTopRight)
                                 )
                             }
                             Row {
                                 Box(
                                     Modifier
-                                        .testTag(tag21)
+                                        .testTag(tagBottomLeft)
                                         .size(100.toDp(), 50.toDp())
-                                        .background(color21)
+                                        .background(colorBottomLeft)
                                 )
                                 Box(
                                     Modifier
-                                        .testTag(tag22)
+                                        .testTag(tagBottomRight)
                                         .size(100.toDp(), 50.toDp())
-                                        .background(color22)
+                                        .background(colorBottomRight)
                                 )
                             }
                         }
@@ -232,4 +286,24 @@ class BitmapCapturingTest(val config: TestConfig) {
             }
         }
     }
+
+    private fun setContent(content: @Composable () -> Unit) {
+        when (val activity = rule.activity) {
+            is ActivityWithActionBar -> activity.setContent(content)
+            else -> rule.setContent(content)
+        }
+    }
+
+    private fun fetchNodeRootView(nodeTag: String): View {
+        return fetchNodeInteraction(nodeTag).fetchRootView()
+    }
+
+    private fun fetchNodeInteraction(nodeTag: String): SemanticsNodeInteraction {
+        return rule.onNodeWithTag(nodeTag)
+    }
+}
+
+private fun SemanticsNodeInteraction.fetchRootView(): View {
+    val node = fetchSemanticsNode()
+    return (node.root as ViewRootForTest).view
 }

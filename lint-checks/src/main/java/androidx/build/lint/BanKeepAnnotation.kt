@@ -23,6 +23,7 @@ import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
+import com.android.tools.lint.detector.api.Incident
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
@@ -42,10 +43,12 @@ class BanKeepAnnotation : Detector(), Detector.UastScanner {
             if (node.qualifiedName == "androidx.annotation.Keep" ||
                 node.qualifiedName == "android.support.annotation.keep"
             ) {
-                context.report(
-                    ISSUE, node, context.getNameLocation(node),
-                    "Uses @Keep annotation"
-                )
+                val incident = Incident(context)
+                    .issue(ISSUE)
+                    .location(context.getNameLocation(node))
+                    .message("Uses @Keep annotation")
+                    .scope(node)
+                context.report(incident)
             }
         }
     }

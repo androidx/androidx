@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -29,6 +27,7 @@ android {
         minSdkVersion 21
         testInstrumentationRunner("androidx.test.runner.AndroidJUnitRunner")
     }
+    namespace "androidx.core.splashscreen"
 }
 
 dependencies {
@@ -41,17 +40,16 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(project(":appcompat:appcompat"))
+    androidTestImplementation(projectOrArtifact(":appcompat:appcompat"))
     androidTestImplementation(project(":test:screenshot:screenshot"))
 
-    samples(project(":core:core-splashscreen:core-splashscreen-samples"))
+    samples("androidx.core.core-splashscreen:core-splashscreen-samples:1.0.0-rc01")
 }
 
 androidx {
     name = "SplashScreen"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CORE_SPLASHSCREEN
-    mavenGroup = LibraryGroups.CORE
     inceptionYear = "2021"
     description = "This library provides the compatibility APIs for SplashScreen " +
             "and helper method to enable a splashscreen on devices prior Android 12"

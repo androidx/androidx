@@ -930,6 +930,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
         }
 
         @Override
+        @NonNull
         public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view;
 
@@ -947,8 +948,8 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
                     view = mInflater.inflate(R.layout.mr_cast_group_item, parent, false);
                     return new GroupViewHolder(view);
                 default:
-                    Log.w(TAG, "Cannot create ViewHolder because of wrong view type");
-                    return null;
+                    // Never happens
+                    throw new IllegalStateException();
             }
         }
 
@@ -981,8 +982,8 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
                     break;
                 }
                 default: {
-                    Log.w(TAG, "Cannot bind item to ViewHolder because of wrong view type");
-                    break;
+                    // Never happens.
+                    throw new IllegalStateException();
                 }
             }
         }
@@ -1072,8 +1073,8 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
             private final int mExpandedHeight;
 
             GroupVolumeViewHolder(View itemView) {
-                super(itemView, (ImageButton) itemView.findViewById(R.id.mr_cast_mute_button),
-                        (MediaRouteVolumeSlider) itemView.findViewById(R.id.mr_cast_volume_slider));
+                super(itemView, itemView.findViewById(R.id.mr_cast_mute_button),
+                        itemView.findViewById(R.id.mr_cast_volume_slider));
                 mTextView = itemView.findViewById(R.id.mr_group_volume_route_name);
 
                 Resources res = mContext.getResources();
@@ -1157,8 +1158,8 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
             };
 
             RouteViewHolder(View itemView) {
-                super(itemView, (ImageButton) itemView.findViewById(R.id.mr_cast_mute_button),
-                        (MediaRouteVolumeSlider) itemView.findViewById(R.id.mr_cast_volume_slider));
+                super(itemView, itemView.findViewById(R.id.mr_cast_mute_button),
+                        itemView.findViewById(R.id.mr_cast_volume_slider));
                 mItemView = itemView;
                 mImageView = itemView.findViewById(R.id.mr_cast_route_icon);
                 mProgressBar = itemView.findViewById(R.id.mr_cast_route_progress_bar);
@@ -1330,17 +1331,19 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
         }
 
         @Override
-        public void onRouteAdded(MediaRouter router, MediaRouter.RouteInfo info) {
+        public void onRouteAdded(@NonNull MediaRouter router, @NonNull MediaRouter.RouteInfo info) {
             updateRoutesView();
         }
 
         @Override
-        public void onRouteRemoved(MediaRouter router, MediaRouter.RouteInfo info) {
+        public void onRouteRemoved(@NonNull MediaRouter router,
+                @NonNull MediaRouter.RouteInfo info) {
             updateRoutesView();
         }
 
         @Override
-        public void onRouteSelected(MediaRouter router, MediaRouter.RouteInfo route) {
+        public void onRouteSelected(@NonNull MediaRouter router,
+                @NonNull MediaRouter.RouteInfo route) {
             mSelectedRoute = route;
 
             mIsSelectingRoute = false;
@@ -1351,12 +1354,14 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
         }
 
         @Override
-        public void onRouteUnselected(MediaRouter router, MediaRouter.RouteInfo route) {
+        public void onRouteUnselected(@NonNull MediaRouter router,
+                @NonNull MediaRouter.RouteInfo route) {
             updateRoutesView();
         }
 
         @Override
-        public void onRouteChanged(MediaRouter router, MediaRouter.RouteInfo route) {
+        public void onRouteChanged(@NonNull MediaRouter router,
+                @NonNull MediaRouter.RouteInfo route) {
             boolean shouldRefreshRoute = false;
             if (route == mSelectedRoute && route.getDynamicGroupController() != null) {
                 for (MediaRouter.RouteInfo memberRoute : route.getProvider().getRoutes()) {
@@ -1384,7 +1389,8 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
         }
 
         @Override
-        public void onRouteVolumeChanged(MediaRouter router, MediaRouter.RouteInfo route) {
+        public void onRouteVolumeChanged(@NonNull MediaRouter router,
+                @NonNull MediaRouter.RouteInfo route) {
             int volume = route.getVolume();
             if (DEBUG) {
                 Log.d(TAG, "onRouteVolumeChanged(), route.getVolume:" + volume);
@@ -1528,7 +1534,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
 
         private InputStream openInputStreamByScheme(Uri uri) throws IOException {
             String scheme = uri.getScheme().toLowerCase();
-            InputStream stream = null;
+            InputStream stream;
             if (ContentResolver.SCHEME_ANDROID_RESOURCE.equals(scheme)
                     || ContentResolver.SCHEME_CONTENT.equals(scheme)
                     || ContentResolver.SCHEME_FILE.equals(scheme)) {

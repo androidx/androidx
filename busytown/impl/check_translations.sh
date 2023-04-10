@@ -19,12 +19,13 @@ trap 'rm -rf "$tempdir"' EXIT
 expect="$tempdir/expect.txt"
 find . \
     \( \
-      -iname '*samples*' \
+      -iname '*sample*' \
+      -o -iname '*donottranslate*' \
       -o -iname '*debug*' \
       -o -iname '*test*' \
     \) \
     -prune -o \
-    -path '*/res/values/strings.xml' \
+    -path '*/res/values/*strings.xml' \
     -print \
   | sed -n 's/.\///p' \
   | sort \
@@ -33,16 +34,16 @@ find . \
 # Scrape string.xml files for platform branch
 actual="$tempdir/actual.txt"
 grep 'androidx-platform-dev' "$exports" \
-  | grep -Eo '[^ ]+/strings\.xml' \
+  | grep -Eo '[^ ]+strings\.xml' \
   | sort \
   > "$actual"
 
 # Compare and report
 diff=$(diff "${expect}" "${actual}" | { grep '<' || true; })
 if [ -n "$diff" ]; then
-  echo "Missing files in $exports:" &> 2
-  diff "$expect" "$actual" | grep strings.xml | sed -n 's/< //p' &> 2
-  echo &> 2
-  echo 'See go/androidx/playbook#translations for more information' &> 2
+  echo "Missing files in $exports:" >&2
+  diff "$expect" "$actual" | grep strings.xml | sed -n 's/< //p' >&2
+  echo >&2
+  echo 'See go/androidx/playbook#translations for more information' >&2
   exit 1
 fi

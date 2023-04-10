@@ -73,12 +73,22 @@ public class ScreenManager implements Manager {
      * <p>If the {@code screen} pushed is already in the stack it will be moved to the top of the
      * stack.
      *
+     * <p>If the app's lifecycle is already in the {@link State#DESTROYED} state, this operation
+     * is a no-op.
+     *
      * @throws NullPointerException  if {@code screen} is {@code null}
      * @throws IllegalStateException if the current thread is not the main thread
      */
     public void push(@NonNull Screen screen) {
         checkMainThread();
+        if (mAppLifecycle.getCurrentState().equals(State.DESTROYED)) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Pushing screens after the DESTROYED state is a no-op");
+            }
+            return;
+        }
         pushInternal(requireNonNull(screen));
+
     }
 
     /**
@@ -87,6 +97,9 @@ public class ScreenManager implements Manager {
      * <p>When the given {@code screen} finishes, the {@code onScreenResultCallback} will receive a
      * callback to {@link OnScreenResultListener#onScreenResult} with the result that the pushed
      * {@code screen} set via {@link Screen#setResult}.
+     *
+     * <p>If the app's lifecycle is already in the {@link State#DESTROYED} state, this operation
+     * is a no-op.
      *
      * @param screen                 the {@link Screen} to push on top of the stack
      * @param onScreenResultListener the listener that will be executed with the result pushed by
@@ -100,6 +113,13 @@ public class ScreenManager implements Manager {
     public void pushForResult(
             @NonNull Screen screen, @NonNull OnScreenResultListener onScreenResultListener) {
         checkMainThread();
+        if (mAppLifecycle.getCurrentState().equals(State.DESTROYED)) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Pushing screens after the DESTROYED state is a no-op");
+            }
+            return;
+        }
+
         requireNonNull(screen).setOnScreenResultListener(requireNonNull(onScreenResultListener));
         pushInternal(screen);
     }
@@ -109,10 +129,20 @@ public class ScreenManager implements Manager {
      *
      * <p>If the top {@link Screen} is the only {@link Screen} in the stack, it will not be removed.
      *
+     * <p>If the app's lifecycle is already in the {@link State#DESTROYED} state, this operation
+     * is a no-op.
+     *
      * @throws IllegalStateException if the current thread is not the main thread
      */
     public void pop() {
         checkMainThread();
+        if (mAppLifecycle.getCurrentState().equals(State.DESTROYED)) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Popping screens after the DESTROYED state is a no-op");
+            }
+            return;
+        }
+
         if (mScreenStack.size() > 1) {
             popInternal(Collections.singletonList(mScreenStack.pop()));
         }
@@ -124,6 +154,9 @@ public class ScreenManager implements Manager {
      *
      * <p>The root {@link Screen} will not be popped.
      *
+     * <p>If the app's lifecycle is already in the {@link State#DESTROYED} state, this operation
+     * is a no-op.
+     *
      * @throws NullPointerException  if {@code marker} is {@code null}
      * @throws IllegalStateException if the current thread is not the main thread
      * @see Screen#setMarker
@@ -131,6 +164,12 @@ public class ScreenManager implements Manager {
     public void popTo(@NonNull String marker) {
         checkMainThread();
         requireNonNull(marker);
+        if (mAppLifecycle.getCurrentState().equals(State.DESTROYED)) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Popping screens after the DESTROYED state is a no-op");
+            }
+            return;
+        }
 
         // Pop all screens, except until found root or the provided screen.
         List<Screen> screensToPop = new ArrayList<>();
@@ -149,10 +188,19 @@ public class ScreenManager implements Manager {
     /**
      * Removes all screens from the stack until the root has been reached.
      *
+     * <p>If the app's lifecycle is already in the {@link State#DESTROYED} state, this operation
+     * is a no-op.
+     *
      * @throws IllegalStateException if the current thread is not the main thread
      */
     public void popToRoot() {
         checkMainThread();
+        if (mAppLifecycle.getCurrentState().equals(State.DESTROYED)) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Popping screens after the DESTROYED state is a no-op");
+            }
+            return;
+        }
 
         if (mScreenStack.size() <= 1) {
             return;
@@ -172,12 +220,21 @@ public class ScreenManager implements Manager {
      *
      * <p>If the {@code screen} is the only {@link Screen} in the stack, it will not be removed.
      *
+     * <p>If the app's lifecycle is already in the {@link State#DESTROYED} state, this operation
+     * is a no-op.
+     *
      * @throws NullPointerException  if {@code screen} is {@code null}
      * @throws IllegalStateException if the current thread is not the main thread
      */
     public void remove(@NonNull Screen screen) {
         checkMainThread();
         requireNonNull(screen);
+        if (mAppLifecycle.getCurrentState().equals(State.DESTROYED)) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Popping screens after the DESTROYED state is a no-op");
+            }
+            return;
+        }
 
         if (mScreenStack.size() <= 1) {
             // Don't pop the final Screen.
@@ -231,7 +288,8 @@ public class ScreenManager implements Manager {
     }
 
     void destroyAndClearScreenStack() {
-        for (Screen screen : mScreenStack) {
+        Deque<Screen> screenStack = new ArrayDeque<>(mScreenStack);
+        for (Screen screen : screenStack) {
             stop(screen, true);
         }
         mScreenStack.clear();

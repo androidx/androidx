@@ -15,7 +15,6 @@
  */
 package androidx.room.util
 
-import androidx.room.util.CursorUtil.findColumnIndexBySuffix
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 

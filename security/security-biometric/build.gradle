@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -41,13 +39,13 @@ android {
     defaultConfig {
         minSdkVersion 23
     }
+    namespace "androidx.security.biometric"
 }
 
 androidx {
     name = "AndroidX Security Biometric"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.SECURITY_BIOMETRIC
-    mavenGroup = LibraryGroups.SECURITY
     inceptionYear = "2020"
     description = "AndroidX Security Biometric"
 }

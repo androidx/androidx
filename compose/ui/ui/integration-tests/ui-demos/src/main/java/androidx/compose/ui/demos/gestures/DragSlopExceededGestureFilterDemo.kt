@@ -19,7 +19,7 @@ package androidx.compose.ui.demos.gestures
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitTouchSlopOrCancellation
-import androidx.compose.foundation.gestures.forEachGesture
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,7 +32,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 
@@ -65,13 +64,11 @@ fun DragSlopExceededGestureFilterDemo() {
                 .wrapContentSize(Alignment.Center)
                 .size(192.dp)
                 .pointerInput(Unit) {
-                    forEachGesture {
-                        awaitPointerEventScope {
-                            val down = awaitFirstDown(requireUnconsumed = false)
-                            awaitTouchSlopOrCancellation(down.id) { change, _ ->
-                                alternativeColor.value = !alternativeColor.value
-                                change.consumeAllChanges()
-                            }
+                    awaitEachGesture {
+                        val down = awaitFirstDown(requireUnconsumed = false)
+                        awaitTouchSlopOrCancellation(down.id) { change, _ ->
+                            alternativeColor.value = !alternativeColor.value
+                            change.consume()
                         }
                     }
                 }

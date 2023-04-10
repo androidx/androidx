@@ -16,40 +16,42 @@
 
 package androidx.room.solver
 
-import androidx.room.ext.DEFAULT_IMPLS_CLASS_NAME
-import androidx.room.ext.L
-import androidx.room.ext.N
-import androidx.room.ext.T
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isVoid
-import com.squareup.javapoet.ClassName
+import androidx.room.ext.DEFAULT_IMPLS_CLASS_NAME
+import androidx.room.vo.KotlinDefaultMethodDelegate
 
 /**
- * Method binder that delegates to concrete DAO function in a Kotlin interface.
+ * Method binder that delegates to concrete DAO function in a Kotlin interface, specifically to
+ * a function where the implementation is in the DefaultImpl Kotlin generated class.
+ *
+ * @see [KotlinDefaultMethodDelegate]
  */
 object KotlinDefaultMethodDelegateBinder {
     fun executeAndReturn(
-        daoName: ClassName,
-        daoImplName: ClassName,
+        daoName: XClassName,
+        daoImplName: XClassName,
         methodName: String,
         returnType: XType,
         parameterNames: List<String>,
         scope: CodeGenScope
     ) {
-        scope.builder().apply {
-            val params: MutableList<Any> = mutableListOf()
+        check(scope.language == CodeLanguage.JAVA)
+        scope.builder.apply {
+            val params = mutableListOf<Any>()
             val format = buildString {
                 if (!returnType.isVoid()) {
                     append("return ")
                 }
-                append("$T.$N.$N($T.this")
+                append("%T.%L.%L(%T.this")
                 params.add(daoName)
                 params.add(DEFAULT_IMPLS_CLASS_NAME)
                 params.add(methodName)
                 params.add(daoImplName)
                 parameterNames.forEach {
-                    append(", ")
-                    append(L)
+                    append(", %L")
                     params.add(it)
                 }
                 append(")")

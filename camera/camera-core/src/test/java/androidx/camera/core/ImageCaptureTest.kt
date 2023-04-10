@@ -29,26 +29,41 @@ import android.view.Surface
 import androidx.camera.core.ImageCapture.ImageCaptureRequest
 import androidx.camera.core.ImageCapture.ImageCaptureRequestProcessor
 import androidx.camera.core.ImageCapture.ImageCaptureRequestProcessor.ImageCaptor
+import androidx.camera.core.impl.CameraConfig
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CaptureConfig
+import androidx.camera.core.impl.Identifier
+import androidx.camera.core.impl.OptionsBundle
 import androidx.camera.core.impl.SessionConfig
+import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.TagBundle
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.core.internal.utils.SizeUtil
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
+import androidx.camera.testing.fakes.FakeCameraControl
 import androidx.camera.testing.fakes.FakeCameraFactory
+import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.fakes.FakeImageInfo
 import androidx.camera.testing.fakes.FakeImageProxy
 import androidx.camera.testing.fakes.FakeImageReaderProxy
+import androidx.camera.testing.fakes.FakeSessionProcessor
 import androidx.concurrent.futures.ResolvableFuture
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import java.io.File
+import java.util.ArrayDeque
+import java.util.Collections
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executor
+import java.util.concurrent.atomic.AtomicReference
 import org.junit.After
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -65,12 +80,6 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowLooper
-import java.io.File
-import java.util.ArrayDeque
-import java.util.Collections
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.Executor
-import java.util.concurrent.atomic.AtomicReference
 
 private const val MAX_IMAGES = 3
 
@@ -80,11 +89,11 @@ private const val MAX_IMAGES = 3
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-public class ImageCaptureTest {
-
+class ImageCaptureTest {
     private lateinit var callbackHandler: Handler
     private lateinit var callbackThread: HandlerThread
     private lateinit var executor: Executor
+    private lateinit var camera: FakeCamera
     private var fakeImageReaderProxy: FakeImageReaderProxy? = null
     private var capturedImage: ImageProxy? = null
     private lateinit var cameraUseCaseAdapter: CameraUseCaseAdapter
@@ -99,8 +108,12 @@ public class ImageCaptureTest {
 
     @Before
     @Throws(ExecutionException::class, InterruptedException::class)
-    public fun setUp() {
-        val camera = FakeCamera()
+    fun setUp() {
+        val cameraInfo = FakeCameraInfoInternal().apply {
+            isPrivateReprocessingSupported = true
+        }
+
+        camera = FakeCamera(null, cameraInfo)
 
         val cameraFactoryProvider =
             CameraFactory.Provider { _, _, _ ->
@@ -126,14 +139,14 @@ public class ImageCaptureTest {
 
     @After
     @Throws(ExecutionException::class, InterruptedException::class)
-    public fun tearDown() {
+    fun tearDown() {
         CameraXUtil.shutdown().get()
         fakeImageReaderProxy = null
         callbackThread.quitSafely()
     }
 
     @Test
-    public fun metadataNotSet_createsNewMetadataInstance() {
+    fun metadataNotSet_createsNewMetadataInstance() {
         val options = ImageCapture.OutputFileOptions.Builder(File("fake_path")).build()
         options.metadata.isReversedHorizontal = true
 
@@ -143,7 +156,7 @@ public class ImageCaptureTest {
     }
 
     @Test
-    public fun reverseHorizontalIsSet_flagReturnsTrue() {
+    fun reverseHorizontalIsSet_flagReturnsTrue() {
         val metadata = ImageCapture.Metadata()
         assertThat(metadata.isReversedHorizontalSet).isFalse()
 
@@ -152,10 +165,120 @@ public class ImageCaptureTest {
     }
 
     @Test
-    public fun captureImageWithViewPort_isSet() {
+    fun takePictureToImageWithoutBinding_receiveOnError() {
+        // Arrange.
+        val imageCapture = createImageCapture()
+        val onImageCapturedCallback = mock(ImageCapture.OnImageCapturedCallback::class.java)
+
+        // Act.
+        imageCapture.takePicture(executor, onImageCapturedCallback)
+        shadowOf(getMainLooper()).idle()
+        flushHandler(callbackHandler)
+
+        // Assert.
+        verify(onImageCapturedCallback).onError(any())
+    }
+
+    @Test
+    fun takePictureToFileWithoutBinding_receiveOnError() {
+        // Arrange.
+        val imageCapture = createImageCapture()
+        val options = ImageCapture.OutputFileOptions.Builder(File("fake_path")).build()
+        val onImageSavedCallback = mock(ImageCapture.OnImageSavedCallback::class.java)
+
+        // Act.
+        imageCapture.takePicture(options, executor, onImageSavedCallback)
+        shadowOf(getMainLooper()).idle()
+        flushHandler(callbackHandler)
+
+        // Assert.
+        verify(onImageSavedCallback).onError(any())
+    }
+
+    @Test
+    fun onError_surfaceIsRecreated() {
+        // Arrange: create ImageCapture and get the Surface
+        val imageCapture = bindImageCapture(
+            bufferFormat = ImageFormat.JPEG,
+        )
+        val oldSurface = imageCapture.sessionConfig.surfaces.single().surface.get()
+        assertTakePictureManagerHasTheSameSurface(imageCapture)
+
+        // Act: invoke onError callback.
+        imageCapture.sessionConfig.errorListeners.single().onError(
+            imageCapture.sessionConfig,
+            SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET
+        )
+
+        // Assert: the surface has been recreated.
+        val newSurface = imageCapture.sessionConfig.surfaces.single().surface.get()
+        assertThat(newSurface).isNotEqualTo(oldSurface)
+        assertTakePictureManagerHasTheSameSurface(imageCapture)
+    }
+
+    private fun assertTakePictureManagerHasTheSameSurface(imageCapture: ImageCapture) {
+        val takePictureManagerSurface =
+            imageCapture.takePictureManager.imagePipeline.createSessionConfigBuilder()
+                .build().surfaces.single().surface.get()
+        val useCaseSurface = imageCapture.sessionConfig.surfaces.single().surface.get()
+        assertThat(takePictureManagerSurface).isEqualTo(useCaseSurface)
+    }
+
+    @Test
+    fun processingPipelineOn_pipelineEnabled() {
+        assertThat(
+            bindImageCapture(
+                useProcessingPipeline = true,
+                bufferFormat = ImageFormat.JPEG,
+            ).isProcessingPipelineEnabled
+        ).isTrue()
+    }
+
+    @Test
+    fun detachWithoutAttach_doesNotCrash() {
+        ImageCapture.Builder().build().onUnbind()
+    }
+
+    @Test
+    fun useImageReaderProvider_pipelineDisabled() {
+        assertThat(
+            bindImageCapture(
+                useProcessingPipeline = true,
+                bufferFormat = ImageFormat.JPEG,
+                imageReaderProxyProvider = getImageReaderProxyProvider(),
+            ).isProcessingPipelineEnabled
+        ).isFalse()
+    }
+
+    @Test
+    fun yuvFormat_pipelineDisabled() {
+        assertThat(
+            bindImageCapture(
+                useProcessingPipeline = true,
+                bufferFormat = ImageFormat.YUV_420_888,
+            ).isProcessingPipelineEnabled
+        ).isFalse()
+    }
+
+    @Config(minSdk = 28)
+    @Test
+    fun extensionIsOn_pipelineDisabled() {
+        assertThat(
+            bindImageCapture(
+                useProcessingPipeline = true,
+                bufferFormat = ImageFormat.JPEG,
+                sessionProcessor = FakeSessionProcessor(null, null)
+            ).isProcessingPipelineEnabled
+        ).isFalse()
+    }
+
+    @Test
+    fun captureImageWithViewPort_isSet() {
         // Arrange
         val imageCapture = bindImageCapture(
-            ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build()
+            ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+            ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build(),
+            imageReaderProxyProvider = getImageReaderProxyProvider()
         )
 
         // Act
@@ -178,9 +301,10 @@ public class ImageCaptureTest {
     }
 
     @Test
-    public fun capturedImageValidAfterRemoved() {
+    fun capturedImageValidAfterRemoved() {
         // Arrange
         val imageCapture = bindImageCapture(
+            ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
             ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build()
         )
 
@@ -200,9 +324,12 @@ public class ImageCaptureTest {
     }
 
     @Test
-    public fun capturedImageSize_isEqualToSurfaceSize() {
+    fun capturedImageSize_isEqualToSurfaceSize() {
         // Act/arrange.
-        val imageCapture = bindImageCapture()
+        val imageCapture = bindImageCapture(
+            ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+            imageReaderProxyProvider = getImageReaderProxyProvider()
+        )
 
         // Act
         imageCapture.takePicture(executor, onImageCapturedCallback)
@@ -217,7 +344,7 @@ public class ImageCaptureTest {
     }
 
     @Test
-    public fun imageCaptureRequestProcessor_canSendRequest() {
+    fun imageCaptureRequestProcessor_canSendRequest() {
         // Arrange.
         val requestProcessor = ImageCaptureRequestProcessor(MAX_IMAGES, createSuccessImageCaptor())
         val request = createImageCaptureRequest()
@@ -225,12 +352,15 @@ public class ImageCaptureTest {
         // Act.
         requestProcessor.sendRequest(request)
 
+        // Ensure tasks are posted to the processing executor
+        shadowOf(getMainLooper()).idle()
+
         // Assert.
         verify(request).dispatchImage(any())
     }
 
     @Test
-    public fun imageCaptureRequestProcessor_canSendMultipleRequests() {
+    fun imageCaptureRequestProcessor_canSendMultipleRequests() {
         // Arrange.
         val requestProcessor = ImageCaptureRequestProcessor(MAX_IMAGES, createSuccessImageCaptor())
         for (i in 0 until MAX_IMAGES) {
@@ -239,13 +369,16 @@ public class ImageCaptureTest {
             // Act.
             requestProcessor.sendRequest(request)
 
+            // Ensure tasks are posted to the processing executor
+            shadowOf(getMainLooper()).idle()
+
             // Assert.
             verify(request).dispatchImage(any())
         }
     }
 
     @Test
-    public fun imageCaptureRequestProcessor_onlyAllowOneRequestProcessing() {
+    fun imageCaptureRequestProcessor_onlyAllowOneRequestProcessing() {
         // Arrange.
         // Create an ImageCaptor that won't complete the future.
         val captorFutureRef = AtomicReference<ResolvableFuture<ImageProxy>?>()
@@ -258,6 +391,9 @@ public class ImageCaptureTest {
         requestProcessor.sendRequest(request0)
         requestProcessor.sendRequest(request1)
 
+        // Ensure tasks are posted to the processing executor
+        shadowOf(getMainLooper()).idle()
+
         // Assert.
         // Has processing request but not complete.
         assertThat(captorFutureRef.get()).isNotNull()
@@ -267,6 +403,9 @@ public class ImageCaptureTest {
         // Act.
         // Complete request0.
         captorFutureRef.getAndSet(null)!!.set(mock(ImageProxy::class.java))
+
+        // Ensure tasks are posted to the processing executor
+        shadowOf(getMainLooper()).idle()
 
         // Assert.
         // request0 is complete and request1 is in processing.
@@ -278,12 +417,15 @@ public class ImageCaptureTest {
         // Complete request1.
         captorFutureRef.getAndSet(null)!!.set(mock(ImageProxy::class.java))
 
+        // Ensure tasks are posted to the processing executor
+        shadowOf(getMainLooper()).idle()
+
         // Assert.
         verify(request1).dispatchImage(any())
     }
 
     @Test
-    public fun imageCaptureRequestProcessor_unableToProcessNextWhenOverMaxImages() {
+    fun imageCaptureRequestProcessor_unableToProcessNextWhenOverMaxImages() {
         // Arrange.
         val requestProcessor = ImageCaptureRequestProcessor(MAX_IMAGES, createSuccessImageCaptor())
 
@@ -292,6 +434,9 @@ public class ImageCaptureTest {
         for (i in 0 until MAX_IMAGES) {
             val request = createImageCaptureRequest()
             requestProcessor.sendRequest(request)
+
+            // Ensure tasks are posted to the processing executor
+            shadowOf(getMainLooper()).idle()
 
             // Save the dispatched images.
             val captor = ArgumentCaptor.forClass(ImageProxy::class.java)
@@ -305,6 +450,9 @@ public class ImageCaptureTest {
         val request = createImageCaptureRequest()
         requestProcessor.sendRequest(request)
 
+        // Ensure tasks are posted to the processing executor
+        shadowOf(getMainLooper()).idle()
+
         // Assert.
         verify(request, never()).dispatchImage(any())
 
@@ -312,13 +460,16 @@ public class ImageCaptureTest {
         // Close one image to trigger next processing.
         images.poll()!!.close()
 
+        // Ensure tasks are posted to the processing executor
+        shadowOf(getMainLooper()).idle()
+
         // Assert.
         // It should trigger next processing.
         verify(request).dispatchImage(any())
     }
 
     @Test
-    public fun imageCaptureRequestProcessor_canCancelRequests() {
+    fun imageCaptureRequestProcessor_canCancelRequests() {
         // Arrange.
         // Create an ImageCaptor that won't complete the future.
         val captorFutureRef = AtomicReference<ResolvableFuture<ImageProxy>?>()
@@ -331,12 +482,18 @@ public class ImageCaptureTest {
             val request = createImageCaptureRequest()
             requestList.add(request)
             requestProcessor.sendRequest(request)
+
+            // Ensure tasks are posted to the processing executor
+            shadowOf(getMainLooper()).idle()
         }
 
         // Act.
         val errorMsg = "Cancel request."
         val throwable = RuntimeException(errorMsg)
         requestProcessor.cancelRequests(throwable)
+
+        // Ensure tasks are posted to the processing executor
+        shadowOf(getMainLooper()).idle()
 
         // Assert.
         for (request in requestList) {
@@ -347,7 +504,7 @@ public class ImageCaptureTest {
     }
 
     @Test
-    public fun imageCaptureRequestProcessor_requestFail() {
+    fun imageCaptureRequestProcessor_requestFail() {
         // Arrange.
         val errorMsg = "Capture failed."
         val throwable = RuntimeException(errorMsg)
@@ -358,28 +515,113 @@ public class ImageCaptureTest {
         // Act.
         requestProcessor.sendRequest(request)
 
+        // Ensure tasks are posted to the processing executor
+        shadowOf(getMainLooper()).idle()
+
         // Verify.
         verify(request).notifyCallbackError(anyInt(), eq(errorMsg), eq(throwable))
     }
 
-    private fun bindImageCapture(): ImageCapture {
-        return bindImageCapture(null)
+    @Test
+    fun sessionConfigSurfaceFormat_isInputFormat() {
+        // Act/arrange.
+        val imageCapture = bindImageCapture(bufferFormat = ImageFormat.YUV_420_888,
+            imageReaderProxyProvider = { width, height, _, queueDepth, usage ->
+                // Create a JPEG ImageReader that is of different format from buffer/input format.
+                fakeImageReaderProxy = FakeImageReaderProxy.newInstance(
+                    width, height, ImageFormat.JPEG, queueDepth, usage
+                )
+                fakeImageReaderProxy!!
+            })
+
+        // Verify.
+        assertThat(imageCapture.sessionConfig.surfaces[0].prescribedStreamFormat)
+            .isEqualTo(ImageFormat.YUV_420_888)
     }
 
-    private fun bindImageCapture(viewPort: ViewPort?): ImageCapture {
+    @Config(maxSdk = 22)
+    @Test
+    fun bindImageCaptureWithZslUnsupportedSdkVersion_notAddZslConfig() {
+        bindImageCapture(
+            ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG,
+            ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build()
+        )
+
+        assertThat(camera.cameraControlInternal).isInstanceOf(FakeCameraControl::class.java)
+        val cameraControl = camera.cameraControlInternal as FakeCameraControl
+        assertThat(cameraControl.isZslConfigAdded).isFalse()
+    }
+
+    @Config(minSdk = 23)
+    @Test
+    fun bindImageCaptureInRegularCaptureModeWithZslSupportedSdkVersion_notAddZslConfig() {
+        bindImageCapture(
+            ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+            ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build()
+        )
+
+        assertThat(camera.cameraControlInternal).isInstanceOf(FakeCameraControl::class.java)
+        val cameraControl = camera.cameraControlInternal as FakeCameraControl
+        assertThat(cameraControl.isZslConfigAdded).isFalse()
+    }
+
+    @Config(minSdk = 23)
+    @Test
+    fun bindImageCaptureInZslCaptureModeWithZslSupportedSdkVersion_addZslConfig() {
+        bindImageCapture(
+            ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG,
+            ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build()
+        )
+
+        assertThat(camera.cameraControlInternal).isInstanceOf(FakeCameraControl::class.java)
+        val cameraControl = camera.cameraControlInternal as FakeCameraControl
+        assertThat(cameraControl.isZslConfigAdded).isTrue()
+    }
+
+    @Test
+    fun throwException_whenSetBothTargetResolutionAndAspectRatio() {
+        assertThrows(IllegalArgumentException::class.java) {
+            ImageCapture.Builder().setTargetResolution(SizeUtil.RESOLUTION_VGA)
+                .setTargetAspectRatio(AspectRatio.RATIO_4_3).build()
+        }
+    }
+
+    @Test
+    fun throwException_whenSetTargetResolutionWithResolutionSelector() {
+        assertThrows(IllegalArgumentException::class.java) {
+            ImageCapture.Builder().setTargetResolution(SizeUtil.RESOLUTION_VGA)
+                .setResolutionSelector(ResolutionSelector.Builder().build())
+                .build()
+        }
+    }
+
+    @Test
+    fun throwException_whenSetTargetAspectRatioWithResolutionSelector() {
+        assertThrows(IllegalArgumentException::class.java) {
+            ImageCapture.Builder().setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                .setResolutionSelector(ResolutionSelector.Builder().build())
+                .build()
+        }
+    }
+
+    private fun bindImageCapture(
+        captureMode: Int = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+        viewPort: ViewPort? = null,
+        // Set non jpg format so it doesn't trigger the exif code path.
+        bufferFormat: Int = ImageFormat.YUV_420_888,
+        imageReaderProxyProvider: ImageReaderProxyProvider? = null,
+        useProcessingPipeline: Boolean? = null,
+        sessionProcessor: SessionProcessor? = null
+    ): ImageCapture {
         // Arrange.
-        val sessionOptionUnpacker =
-            { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
-        val imageCapture = ImageCapture.Builder()
-            // Set non jpg format so it doesn't trigger the exif code path.
-            .setBufferFormat(ImageFormat.YUV_420_888)
-            .setTargetRotation(Surface.ROTATION_0)
-            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-            .setFlashMode(ImageCapture.FLASH_MODE_OFF)
-            .setCaptureOptionUnpacker { _: UseCaseConfig<*>?, _: CaptureConfig.Builder? -> }
-            .setImageReaderProxyProvider(getImageReaderProxyProvider())
-            .setSessionOptionUnpacker(sessionOptionUnpacker)
-            .build()
+        val imageCapture = createImageCapture(
+            captureMode,
+            bufferFormat,
+            imageReaderProxyProvider,
+        )
+        if (useProcessingPipeline != null) {
+            imageCapture.mUseProcessingPipeline = useProcessingPipeline
+        }
 
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
             ApplicationProvider
@@ -388,8 +630,50 @@ public class ImageCaptureTest {
         )
 
         cameraUseCaseAdapter.setViewPort(viewPort)
+        if (sessionProcessor != null) {
+            cameraUseCaseAdapter.setExtendedConfig(object : CameraConfig {
+                override fun getConfig(): androidx.camera.core.impl.Config {
+                    return OptionsBundle.emptyBundle()
+                }
+
+                override fun getSessionProcessor(
+                    valueIfMissing: SessionProcessor?
+                ): SessionProcessor? {
+                    return sessionProcessor
+                }
+
+                override fun getSessionProcessor(): SessionProcessor {
+                    return sessionProcessor
+                }
+
+                override fun getCompatibilityId(): Identifier {
+                    return Identifier.create(Any())
+                }
+            })
+        }
+
         cameraUseCaseAdapter.addUseCases(Collections.singleton<UseCase>(imageCapture))
         return imageCapture
+    }
+
+    private fun createImageCapture(
+        captureMode: Int = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+        // Set non jpg format by default so it doesn't trigger the exif code path.
+        bufferFormat: Int = ImageFormat.YUV_420_888,
+        imageReaderProxyProvider: ImageReaderProxyProvider? = null
+    ): ImageCapture {
+        val builder = ImageCapture.Builder()
+            .setTargetRotation(Surface.ROTATION_0)
+            .setCaptureMode(captureMode)
+            .setFlashMode(ImageCapture.FLASH_MODE_OFF)
+            .setCaptureOptionUnpacker { _: UseCaseConfig<*>?, _: CaptureConfig.Builder? -> }
+            .setSessionOptionUnpacker { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
+
+        builder.setBufferFormat(bufferFormat)
+        if (imageReaderProxyProvider != null) {
+            builder.setImageReaderProxyProvider(imageReaderProxyProvider)
+        }
+        return builder.build()
     }
 
     private fun getImageReaderProxyProvider(): ImageReaderProxyProvider {

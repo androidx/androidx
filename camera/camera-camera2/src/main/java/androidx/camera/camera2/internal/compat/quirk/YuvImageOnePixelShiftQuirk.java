@@ -24,8 +24,12 @@ import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.internal.compat.quirk.OnePixelShiftQuirk;
 
 /**
- * For these devices, workaround will be patched to shift one pixel right to left and
- * duplicate the last pixel for YUV_420_888 data when converting to RGBA.
+ * <p>QuirkSummary
+ *     Bug Id: 184229033
+ *     Description: On certain devices, one pixel shifted when the HAL layer converts RGB data to
+ *                  YUV data. It leads to the leftmost column degradation when converting YUV to
+ *                  RGB in applications.
+ *     Device(s): Motorola MotoG3, Samsung SM-G532F/SM-J700F
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class YuvImageOnePixelShiftQuirk implements OnePixelShiftQuirk {

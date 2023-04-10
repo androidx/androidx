@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -31,14 +29,19 @@ dependencies {
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
-    testImplementation("org.robolectric:robolectric:4.7") // TODO(b/206673076): use libs.robolectric
+    testImplementation(libs.robolectric)
+
+    samples(project(":core:core-performance:core-performance-samples"))
 }
 
 androidx {
-    name = "androidx.core:core-performance"
+    name = "Core Performance"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CORE_PERFORMANCE
-    mavenGroup = LibraryGroups.CORE
     inceptionYear = "2021"
-    description = "This libraray makes it easy for developers to make UI and feature choices based on Android Performance Class level for GMS devices."
+    description = "This library makes it easy for developers to make UI and feature choices based on Android Performance Class level for GMS devices."
+}
+
+android {
+    namespace "androidx.core.performance"
 }

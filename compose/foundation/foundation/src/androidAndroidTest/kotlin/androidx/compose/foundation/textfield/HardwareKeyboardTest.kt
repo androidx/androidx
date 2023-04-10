@@ -17,6 +17,7 @@
 package androidx.compose.foundation.textfield
 
 import android.view.KeyEvent
+import android.view.KeyEvent.META_ALT_ON
 import android.view.KeyEvent.META_CTRL_ON
 import android.view.KeyEvent.META_SHIFT_ON
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -46,7 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Rule
 import org.junit.Test
@@ -128,6 +129,30 @@ class HardwareKeyboardTest {
         keysSequenceTest(initText = "hello") {
             Key.Delete.downAndUp()
             expectedText("ello")
+        }
+    }
+
+    @Test
+    fun textField_delete_atEnd() {
+        val text = "hello"
+        val value = mutableStateOf(
+            TextFieldValue(
+                text,
+                // Place cursor at end.
+                selection = TextRange(text.length)
+            )
+        )
+        keysSequenceTest(value = value) {
+            Key.Delete.downAndUp()
+            expectedText("hello")
+        }
+    }
+
+    @Test
+    fun textField_delete_whenEmpty() {
+        keysSequenceTest(initText = "") {
+            Key.Delete.downAndUp()
+            expectedText("")
         }
     }
 
@@ -217,6 +242,45 @@ class HardwareKeyboardTest {
     }
 
     @Test
+    fun textField_deleteToBeginningOfLine() {
+        keysSequenceTest(initText = "hello world\nhi world") {
+            Key.DirectionRight.downAndUp(META_CTRL_ON)
+            Key.Backspace.downAndUp(META_ALT_ON)
+            expectedText(" world\nhi world")
+            Key.Backspace.downAndUp(META_ALT_ON)
+            expectedText(" world\nhi world")
+            repeat(3) { Key.DirectionRight.downAndUp() }
+            Key.Backspace.downAndUp(META_ALT_ON)
+            expectedText("rld\nhi world")
+            Key.DirectionDown.downAndUp()
+            Key.MoveEnd.downAndUp()
+            Key.Backspace.downAndUp(META_ALT_ON)
+            expectedText("rld\n")
+            Key.Backspace.downAndUp(META_ALT_ON)
+            expectedText("rld\n")
+        }
+    }
+
+    @Test
+    fun textField_deleteToEndOfLine() {
+        keysSequenceTest(initText = "hello world\nhi world") {
+            Key.DirectionRight.downAndUp(META_CTRL_ON)
+            Key.Delete.downAndUp(META_ALT_ON)
+            expectedText("hello\nhi world")
+            Key.Delete.downAndUp(META_ALT_ON)
+            expectedText("hello\nhi world")
+            repeat(3) { Key.DirectionRight.downAndUp() }
+            Key.Delete.downAndUp(META_ALT_ON)
+            expectedText("hello\nhi")
+            Key.MoveHome.downAndUp()
+            Key.Delete.downAndUp(META_ALT_ON)
+            expectedText("hello\n")
+            Key.Delete.downAndUp(META_ALT_ON)
+            expectedText("hello\n")
+        }
+    }
+
+    @Test
     fun textField_paragraphNavigation() {
         keysSequenceTest(initText = "hello world\nhi") {
             Key.DirectionDown.downAndUp(META_CTRL_ON)
@@ -246,11 +310,37 @@ class HardwareKeyboardTest {
     }
 
     @Test
+    fun textField_onValueChangeRecomposeTest() {
+        // sample code in b/200577798
+        val value = mutableStateOf(TextFieldValue(""))
+        var lastNewValue: TextFieldValue? = null
+        val onValueChange: (TextFieldValue) -> Unit = { newValue ->
+            lastNewValue = newValue
+            if (newValue.text.isBlank() || newValue.text.startsWith("z")) {
+                value.value = newValue
+            }
+        }
+
+        keysSequenceTest(value = value, onValueChange = onValueChange) {
+            // based on repro steps in the ticket, one of the values would become "aa"
+            // check 10 times to make sure it is not "aa"
+            repeat(10) {
+                Key.A.downAndUp()
+                // should always be "a" and buffer should not accumulate
+                assertThat(lastNewValue?.text).isEqualTo("a")
+            }
+        }
+    }
+
+    @Test
     fun textField_pageNavigation() {
         keysSequenceTest(
             initText = "1\n2\n3\n4\n5",
-            modifier = Modifier.requiredSize(30.dp)
+            modifier = Modifier.requiredSize(27.dp)
         ) {
+            // By page down, the cursor should be at the visible top line. In this case the height
+            // constraint is 27dp which covers from 1, 2 and middle of 3. Thus, by page down, the
+            // first line should be 3, and cursor should be the before letter 3, i.e. index = 4.
             Key.PageDown.downAndUp()
             expectedSelection(TextRange(4))
         }
@@ -275,13 +365,13 @@ class HardwareKeyboardTest {
 
         fun expectedText(text: String) {
             rule.runOnIdle {
-                Truth.assertThat(state.value.text).isEqualTo(text)
+                assertThat(state.value.text).isEqualTo(text)
             }
         }
 
         fun expectedSelection(selection: TextRange) {
             rule.runOnIdle {
-                Truth.assertThat(state.value.selection).isEqualTo(selection)
+                assertThat(state.value.selection).isEqualTo(selection)
             }
         }
     }
@@ -289,33 +379,39 @@ class HardwareKeyboardTest {
     private fun keysSequenceTest(
         initText: String = "",
         modifier: Modifier = Modifier.fillMaxSize(),
-        sequence: SequenceScope.() -> Unit
+        sequence: SequenceScope.() -> Unit,
+    ) {
+        val value = mutableStateOf(TextFieldValue(initText))
+        keysSequenceTest(value = value, modifier = modifier, sequence = sequence)
+    }
+
+    private fun keysSequenceTest(
+        value: MutableState<TextFieldValue>,
+        modifier: Modifier = Modifier.fillMaxSize(),
+        onValueChange: (TextFieldValue) -> Unit = { value.value = it },
+        sequence: SequenceScope.() -> Unit,
     ) {
         val inputService = TextInputService(mock())
-
-        val state = mutableStateOf(TextFieldValue(initText))
-        val focusFequester = FocusRequester()
+        val focusRequester = FocusRequester()
         rule.setContent {
             CompositionLocalProvider(
                 LocalTextInputService provides inputService
             ) {
                 BasicTextField(
-                    value = state.value,
+                    value = value.value,
                     textStyle = TextStyle(
                         fontFamily = TEST_FONT_FAMILY,
                         fontSize = 10.sp
                     ),
-                    modifier = modifier.focusRequester(focusFequester),
-                    onValueChange = {
-                        state.value = it
-                    }
+                    modifier = modifier.focusRequester(focusRequester),
+                    onValueChange = onValueChange
                 )
             }
         }
 
-        rule.runOnIdle { focusFequester.requestFocus() }
+        rule.runOnIdle { focusRequester.requestFocus() }
 
-        sequence(SequenceScope(state) { rule.onNode(hasSetTextAction()) })
+        sequence(SequenceScope(value) { rule.onNode(hasSetTextAction()) })
     }
 }
 

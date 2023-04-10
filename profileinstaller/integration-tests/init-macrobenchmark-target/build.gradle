@@ -28,6 +28,7 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
         }
     }
+    namespace "androidx.profileinstaller.integration.macrobenchmark.target"
 }
 
 dependencies {

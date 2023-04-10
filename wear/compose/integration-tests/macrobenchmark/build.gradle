@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 /*
  * Copyright 2021 The Android Open Source Project
  *
@@ -24,6 +26,7 @@ android {
     defaultConfig {
         minSdkVersion 29
     }
+    namespace "androidx.wear.compose.integration.macrobenchmark"
 }
 
 dependencies {
@@ -38,5 +41,11 @@ dependencies {
 }
 
 // Define a task dependency so the app is installed before we run macro benchmarks.
-tasks.getByPath(":wear:compose:integration-tests:macrobenchmark:connectedCheck")
- .dependsOn(tasks.getByPath(":wear:compose:integration-tests:macrobenchmark-target:installRelease"))
+afterEvaluate {
+    tasks.getByPath(":wear:compose:integration-tests:macrobenchmark:connectedDebugAndroidTest")
+            .dependsOn(
+                    tasks.getByPath(
+                            ":wear:compose:integration-tests:macrobenchmark-target:installRelease"
+                    )
+            )
+}

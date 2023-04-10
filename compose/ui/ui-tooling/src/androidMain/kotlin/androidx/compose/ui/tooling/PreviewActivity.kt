@@ -21,13 +21,16 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExtendedFloatingActionButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.tooling.CommonPreviewUtils.invokeComposableViaReflection
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
 
 /**
  * Activity used to run `@Composable` previews from Android Studio.
@@ -58,6 +61,8 @@ class PreviewActivity : ComponentActivity() {
         intent?.getStringExtra("composable")?.let { setComposableContent(it) }
     }
 
+    @Suppress("DEPRECATION")
+    @OptIn(ExperimentalComposeUiApi::class)
     private fun setComposableContent(composableFqn: String) {
         Log.d(TAG, "PreviewActivity has composable $composableFqn")
         val className = composableFqn.substringBeforeLast('.')
@@ -69,7 +74,7 @@ class PreviewActivity : ComponentActivity() {
         }
         Log.d(TAG, "Previewing '$methodName' without a parameter provider.")
         setContent {
-            invokeComposableViaReflection(
+            ComposableInvoker.invokeComposable(
                 className,
                 methodName,
                 currentComposer
@@ -84,6 +89,8 @@ class PreviewActivity : ComponentActivity() {
      * Otherwise, the content will display a FAB that changes the argument value on click, cycling
      * through all the values in the provider's sequence.
      */
+    @Suppress("DEPRECATION")
+    @OptIn(ExperimentalComposeUiApi::class)
     private fun setParameterizedContent(
         className: String,
         methodName: String,
@@ -103,13 +110,15 @@ class PreviewActivity : ComponentActivity() {
                 val index = remember { mutableStateOf(0) }
 
                 Scaffold(
-                    content = {
-                        invokeComposableViaReflection(
-                            className,
-                            methodName,
-                            currentComposer,
-                            previewParameters[index.value]
-                        )
+                    content = { padding ->
+                        Box(Modifier.padding(padding)) {
+                            ComposableInvoker.invokeComposable(
+                                className,
+                                methodName,
+                                currentComposer,
+                                previewParameters[index.value]
+                            )
+                        }
                     },
                     floatingActionButton = {
                         ExtendedFloatingActionButton(
@@ -121,7 +130,7 @@ class PreviewActivity : ComponentActivity() {
             }
         } else {
             setContent {
-                invokeComposableViaReflection(
+                ComposableInvoker.invokeComposable(
                     className,
                     methodName,
                     currentComposer,

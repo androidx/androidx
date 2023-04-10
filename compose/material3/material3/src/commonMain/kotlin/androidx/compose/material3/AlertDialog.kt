@@ -21,8 +21,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.material3.tokens.Dialog
+import androidx.compose.material3.tokens.DialogTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
@@ -57,9 +56,7 @@ internal fun AlertDialogContent(
         tonalElevation = tonalElevation,
     ) {
         Column(
-            modifier = Modifier
-                .sizeIn(minWidth = MinWidth, maxWidth = MaxWidth)
-                .padding(DialogPadding)
+            modifier = Modifier.padding(DialogPadding)
         ) {
             icon?.let {
                 CompositionLocalProvider(LocalContentColor provides iconContentColor) {
@@ -74,7 +71,7 @@ internal fun AlertDialogContent(
             }
             title?.let {
                 CompositionLocalProvider(LocalContentColor provides titleContentColor) {
-                    val textStyle = MaterialTheme.typography.fromToken(Dialog.SubheadFont)
+                    val textStyle = MaterialTheme.typography.fromToken(DialogTokens.HeadlineFont)
                     ProvideTextStyle(textStyle) {
                         Box(
                             // Align the title to the center when an icon is present.
@@ -96,10 +93,11 @@ internal fun AlertDialogContent(
             text?.let {
                 CompositionLocalProvider(LocalContentColor provides textContentColor) {
                     val textStyle =
-                        MaterialTheme.typography.fromToken(Dialog.SupportingTextFont)
+                        MaterialTheme.typography.fromToken(DialogTokens.SupportingTextFont)
                     ProvideTextStyle(textStyle) {
                         Box(
                             Modifier
+                                .weight(weight = 1f, fill = false)
                                 .padding(TextPadding)
                                 .align(Alignment.Start)
                         ) {
@@ -111,7 +109,7 @@ internal fun AlertDialogContent(
             Box(modifier = Modifier.align(Alignment.End)) {
                 CompositionLocalProvider(LocalContentColor provides buttonContentColor) {
                     val textStyle =
-                        MaterialTheme.typography.fromToken(Dialog.ActionLabelTextFont)
+                        MaterialTheme.typography.fromToken(DialogTokens.ActionLabelTextFont)
                     ProvideTextStyle(value = textStyle, content = buttons)
                 }
             }
@@ -213,11 +211,11 @@ internal fun AlertDialogFlowRow(
     }
 }
 
+internal val DialogMinWidth = 280.dp
+internal val DialogMaxWidth = 560.dp
+
 // Paddings for each of the dialog's parts.
-private val DialogPadding = PaddingValues(start = 24.dp, top = 24.dp, end = 24.dp, bottom = 18.dp)
+private val DialogPadding = PaddingValues(all = 24.dp)
 private val IconPadding = PaddingValues(bottom = 16.dp)
 private val TitlePadding = PaddingValues(bottom = 16.dp)
-private val TextPadding = PaddingValues(bottom = 18.dp)
-
-private val MinWidth = 280.dp
-private val MaxWidth = 560.dp
+private val TextPadding = PaddingValues(bottom = 24.dp)

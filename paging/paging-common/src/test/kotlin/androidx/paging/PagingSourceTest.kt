@@ -261,6 +261,42 @@ class PagingSourceTest {
         assertThat(invalidateCalls).isEqualTo(3)
     }
 
+    @Test
+    fun page_iterator() {
+        val dataSource = ItemDataSource()
+
+        runBlocking {
+            val pages = mutableListOf<LoadResult.Page<Key, Item>>()
+
+            // first page
+            val key = ITEMS_BY_NAME_ID[5].key()
+            val params = LoadParams.Append(key, 5, false)
+            val page = dataSource.load(params) as LoadResult.Page
+            pages.add(page)
+
+            val iterator = page.iterator()
+            var startIndex = 6
+            val endIndex = 11
+            // iterate normally
+            while (iterator.hasNext() && startIndex < endIndex) {
+                val item = iterator.next()
+                assertThat(item).isEqualTo(ITEMS_BY_NAME_ID[startIndex++])
+            }
+
+            // second page
+            val params2 = LoadParams.Append(
+                ITEMS_BY_NAME_ID[10].key(), 5, false
+            )
+            val page2 = dataSource.load(params2) as LoadResult.Page
+            pages.add(page2)
+
+            // iterate through list of pages
+            assertThat(pages.flatten()).containsExactlyElementsIn(
+                ITEMS_BY_NAME_ID.subList(6, 16)
+            ).inOrder()
+        }
+    }
+
     data class Key(val name: String, val id: Int)
 
     data class Item(

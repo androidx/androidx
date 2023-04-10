@@ -58,6 +58,7 @@ public interface WindowExtensions {
      * @return the OEM implementation of {@link ActivityEmbeddingComponent}
      */
     @Nullable
-    @ExperimentalWindowExtensionsApi
-    ActivityEmbeddingComponent getActivityEmbeddingComponent();
+    default ActivityEmbeddingComponent getActivityEmbeddingComponent() {
+        return null;
+    }
 }

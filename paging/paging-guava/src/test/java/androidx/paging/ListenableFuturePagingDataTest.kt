@@ -20,8 +20,9 @@ import com.google.common.util.concurrent.AsyncFunction
 import com.google.common.util.concurrent.Futures
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.asExecutor
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,11 +33,12 @@ import org.junit.runners.JUnit4
 class ListenableFuturePagingDataTest {
     private val original = PagingData.from(listOf("a", "b", "c"))
 
-    private val testDispatcher = TestCoroutineDispatcher()
+    private val testDispatcher = UnconfinedTestDispatcher()
+    private val testScope = TestScope(testDispatcher)
     private val differ = TestPagingDataDiffer<String>(testDispatcher)
 
     @Test
-    fun map() = testDispatcher.runBlockingTest {
+    fun map() = testScope.runTest {
         val transformed = original.mapAsync(
             AsyncFunction<String, String> {
                 Futures.immediateFuture(it + it)
@@ -48,7 +50,7 @@ class ListenableFuturePagingDataTest {
     }
 
     @Test
-    fun flatMap() = testDispatcher.runBlockingTest {
+    fun flatMap() = testScope.runTest {
         val transformed = original.flatMapAsync(
             AsyncFunction<String, Iterable<String>> {
                 Futures.immediateFuture(listOf(it!!, it))
@@ -60,7 +62,7 @@ class ListenableFuturePagingDataTest {
     }
 
     @Test
-    fun filter() = testDispatcher.runBlockingTest {
+    fun filter() = testScope.runTest {
         val filtered = original.filterAsync(
             AsyncFunction {
                 Futures.immediateFuture(it != "b")
@@ -72,7 +74,7 @@ class ListenableFuturePagingDataTest {
     }
 
     @Test
-    fun insertSeparators() = testDispatcher.runBlockingTest {
+    fun insertSeparators() = testScope.runTest {
         val separated = original.insertSeparatorsAsync(
             AsyncFunction<AdjacentItems<String>, String?> {
                 val (before, after) = it!!

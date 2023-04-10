@@ -16,15 +16,19 @@
 
 package androidx.work.impl.background.systemjob;
 
+import static androidx.work.impl.background.systemjob.SystemJobInfoConverter.EXTRA_WORK_SPEC_GENERATION;
 import static androidx.work.impl.background.systemjob.SystemJobInfoConverter.EXTRA_WORK_SPEC_ID;
 
 import android.app.Application;
 import android.app.job.JobParameters;
+import android.app.job.JobScheduler;
 import android.app.job.JobService;
+import android.net.Network;
+import android.net.Uri;
 import android.os.Build;
 import android.os.PersistableBundle;
-import android.text.TextUtils;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -32,14 +36,17 @@ import androidx.annotation.RestrictTo;
 import androidx.work.Logger;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.ExecutionListener;
+import androidx.work.impl.StartStopToken;
+import androidx.work.impl.StartStopTokens;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.model.WorkGenerationalId;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Service invoked by {@link android.app.job.JobScheduler} to run work tasks.
+ * Service invoked by {@link JobScheduler} to run work tasks.
  *
  * @hide
  */
@@ -48,7 +55,8 @@ import java.util.Map;
 public class SystemJobService extends JobService implements ExecutionListener {
     private static final String TAG = Logger.tagWithPrefix("SystemJobService");
     private WorkManagerImpl mWorkManagerImpl;
-    private final Map<String, JobParameters> mJobParameters = new HashMap<>();
+    private final Map<WorkGenerationalId, JobParameters> mJobParameters = new HashMap<>();
+    private final StartStopTokens mStartStopTokens = new StartStopTokens();
 
     @Override
     public void onCreate() {
@@ -96,17 +104,18 @@ public class SystemJobService extends JobService implements ExecutionListener {
             return false;
         }
 
-        String workSpecId = getWorkSpecIdFromJobParameters(params);
-        if (TextUtils.isEmpty(workSpecId)) {
+        WorkGenerationalId workGenerationalId = workGenerationalIdFromJobParameters(params);
+        if (workGenerationalId == null) {
             Logger.get().error(TAG, "WorkSpec id not found!");
             return false;
         }
 
         synchronized (mJobParameters) {
-            if (mJobParameters.containsKey(workSpecId)) {
+            if (mJobParameters.containsKey(workGenerationalId)) {
                 // This condition may happen due to our workaround for an undesired behavior in API
                 // 23.  See the documentation in {@link SystemJobScheduler#schedule}.
-                Logger.get().debug(TAG, "Job is already being executed by SystemJobService: " + workSpecId);
+                Logger.get().debug(TAG, "Job is already being executed by SystemJobService: "
+                        + workGenerationalId);
                 return false;
             }
 
@@ -114,23 +123,23 @@ public class SystemJobService extends JobService implements ExecutionListener {
             // returns true. This is because JobScheduler ensures that for PeriodicWork, constraints
             // are actually met irrespective.
 
-            Logger.get().debug(TAG, "onStartJob for " + workSpecId);
-            mJobParameters.put(workSpecId, params);
+            Logger.get().debug(TAG, "onStartJob for " + workGenerationalId);
+            mJobParameters.put(workGenerationalId, params);
         }
 
         WorkerParameters.RuntimeExtras runtimeExtras = null;
         if (Build.VERSION.SDK_INT >= 24) {
             runtimeExtras = new WorkerParameters.RuntimeExtras();
-            if (params.getTriggeredContentUris() != null) {
+            if (Api24Impl.getTriggeredContentUris(params) != null) {
                 runtimeExtras.triggeredContentUris =
-                        Arrays.asList(params.getTriggeredContentUris());
+                        Arrays.asList(Api24Impl.getTriggeredContentUris(params));
             }
-            if (params.getTriggeredContentAuthorities() != null) {
+            if (Api24Impl.getTriggeredContentAuthorities(params) != null) {
                 runtimeExtras.triggeredContentAuthorities =
-                        Arrays.asList(params.getTriggeredContentAuthorities());
+                        Arrays.asList(Api24Impl.getTriggeredContentAuthorities(params));
             }
             if (Build.VERSION.SDK_INT >= 28) {
-                runtimeExtras.network = params.getNetwork();
+                runtimeExtras.network = Api28Impl.getNetwork(params);
             }
         }
 
@@ -141,7 +150,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
         // In such cases, we rely on SystemJobService to ask for a reschedule by calling
         // jobFinished(params, true) in onExecuted(...);
         // For more information look at b/123211993
-        mWorkManagerImpl.startWork(workSpecId, runtimeExtras);
+        mWorkManagerImpl.startWork(mStartStopTokens.tokenFor(workGenerationalId), runtimeExtras);
         return true;
     }
 
@@ -152,28 +161,32 @@ public class SystemJobService extends JobService implements ExecutionListener {
             return true;
         }
 
-        String workSpecId = getWorkSpecIdFromJobParameters(params);
-        if (TextUtils.isEmpty(workSpecId)) {
+        WorkGenerationalId workGenerationalId = workGenerationalIdFromJobParameters(params);
+        if (workGenerationalId == null) {
             Logger.get().error(TAG, "WorkSpec id not found!");
             return false;
         }
 
-        Logger.get().debug(TAG, "onStopJob for " + workSpecId);
+        Logger.get().debug(TAG, "onStopJob for " + workGenerationalId);
 
         synchronized (mJobParameters) {
-            mJobParameters.remove(workSpecId);
+            mJobParameters.remove(workGenerationalId);
         }
-        mWorkManagerImpl.stopWork(workSpecId);
-        return !mWorkManagerImpl.getProcessor().isCancelled(workSpecId);
+        StartStopToken runId = mStartStopTokens.remove(workGenerationalId);
+        if (runId != null) {
+            mWorkManagerImpl.stopWork(runId);
+        }
+        return !mWorkManagerImpl.getProcessor().isCancelled(workGenerationalId.getWorkSpecId());
     }
 
     @Override
-    public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
-        Logger.get().debug(TAG, workSpecId + " executed on JobScheduler");
+    public void onExecuted(@NonNull WorkGenerationalId id, boolean needsReschedule) {
+        Logger.get().debug(TAG, id.getWorkSpecId() + " executed on JobScheduler");
         JobParameters parameters;
         synchronized (mJobParameters) {
-            parameters = mJobParameters.remove(workSpecId);
+            parameters = mJobParameters.remove(id);
         }
+        mStartStopTokens.remove(id);
         if (parameters != null) {
             jobFinished(parameters, needsReschedule);
         }
@@ -181,15 +194,47 @@ public class SystemJobService extends JobService implements ExecutionListener {
 
     @Nullable
     @SuppressWarnings("ConstantConditions")
-    private static String getWorkSpecIdFromJobParameters(@NonNull JobParameters parameters) {
+    private static WorkGenerationalId workGenerationalIdFromJobParameters(
+            @NonNull JobParameters parameters
+    ) {
         try {
             PersistableBundle extras = parameters.getExtras();
             if (extras != null && extras.containsKey(EXTRA_WORK_SPEC_ID)) {
-                return extras.getString(EXTRA_WORK_SPEC_ID);
+                return new WorkGenerationalId(extras.getString(EXTRA_WORK_SPEC_ID),
+                        extras.getInt(EXTRA_WORK_SPEC_GENERATION));
             }
         } catch (NullPointerException e) {
             // b/138441699: BaseBundle.getString sometimes throws an NPE.  Ignore and return null.
         }
         return null;
+    }
+
+    @RequiresApi(24)
+    static class Api24Impl {
+        private Api24Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Uri[] getTriggeredContentUris(JobParameters jobParameters) {
+            return jobParameters.getTriggeredContentUris();
+        }
+
+        @DoNotInline
+        static String[] getTriggeredContentAuthorities(JobParameters jobParameters) {
+            return jobParameters.getTriggeredContentAuthorities();
+        }
+    }
+
+    @RequiresApi(28)
+    static class Api28Impl {
+        private Api28Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Network getNetwork(JobParameters jobParameters) {
+            return jobParameters.getNetwork();
+        }
     }
 }

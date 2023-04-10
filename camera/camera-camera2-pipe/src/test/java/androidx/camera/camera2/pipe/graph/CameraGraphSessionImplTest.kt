@@ -38,18 +38,11 @@ internal class CameraGraphSessionImplTest {
     private val graphState3A = GraphState3A()
     private val graphProcessor = FakeGraphProcessor(graphState3A = graphState3A)
     private val listener3A = Listener3A()
-    private val controller3A = Controller3A(
-        graphProcessor,
-        FakeCameraMetadata(),
-        graphState3A,
-        listener3A
-    )
+    private val controller3A =
+        Controller3A(graphProcessor, FakeCameraMetadata(), graphState3A, listener3A)
 
-    private val session = CameraGraphSessionImpl(
-        tokenLock.acquireOrNull(1, 1)!!,
-        graphProcessor,
-        controller3A
-    )
+    private val session =
+        CameraGraphSessionImpl(tokenLock.acquireOrNull(1, 1)!!, graphProcessor, controller3A)
 
     @Test
     fun createCameraGraphSession() {
@@ -60,9 +53,7 @@ internal class CameraGraphSessionImplTest {
     fun sessionCannotBeUsedAfterClose() {
         session.close()
 
-        val result = assertThrows<IllegalStateException> {
-            session.submit(Request(listOf()))
-        }
+        val result = assertThrows<IllegalStateException> { session.submit(Request(listOf())) }
         result.hasMessageThat().contains("submit")
     }
 }

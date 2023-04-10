@@ -209,6 +209,7 @@ public class MediaSessionProviderService extends Service {
             session.updatePlayer(createMockPlayer(config));
         }
 
+        @SuppressWarnings("deprecation")
         private SessionPlayer createMockPlayer(Bundle config) {
             SessionPlayer player;
             if (config.containsKey(KEY_VOLUME_CONTROL_TYPE)) {

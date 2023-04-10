@@ -26,11 +26,14 @@ import androidx.camera.core.CameraControl;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCapture.CaptureMode;
 import androidx.camera.core.ImageCapture.FlashMode;
+import androidx.camera.core.ImageCapture.FlashType;
 import androidx.camera.core.impl.utils.futures.Futures;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -55,42 +58,51 @@ public interface CameraControlInternal extends CameraControl {
     void setFlashMode(@FlashMode int flashMode);
 
     /**
-     * Performs a AF trigger.
-     *
-     * @return a {@link ListenableFuture} which completes when the request is completed.
-     * Cancelling the ListenableFuture is a no-op.
+     * Adds zero-shutter lag config to {@link SessionConfig}.
+     * @param sessionConfigBuilder session config builder.
      */
-    @NonNull
-    ListenableFuture<CameraCaptureResult> triggerAf();
+    void addZslConfig(@NonNull SessionConfig.Builder sessionConfigBuilder);
 
     /**
-     * Starts a flash sequence.
+     * Sets the flag if zero-shutter lag needs to be disabled by user case config.
      *
-     * @param flashType Uses one shot flash or use torch as flash when taking a picture.
-     * @return a {@link ListenableFuture} which completes when the request is completed.
-     * Cancelling the ListenableFuture is a no-op.
+     * <p> Zero-shutter lag will be disabled when any of the following conditions:
+     * <ul>
+     *     <li> Extension is ON
+     *     <li> VideoCapture is ON
+     * </ul>
+     *
+     * @param disabled True if zero-shutter lag should be disabled. Otherwise returns false.
+     *                 However, enabling zero-shutter lag needs other conditions e.g. flash mode
+     *                 OFF, so setting to false doesn't guarantee zero-shutter lag to be always ON.
      */
-    @NonNull
-    ListenableFuture<Void> startFlashSequence(@ImageCapture.FlashType int flashType);
-
-    /** Cancels AF trigger AND/OR finishes flash sequence.* */
-    void cancelAfAndFinishFlashSequence(boolean cancelAfTrigger, boolean finishFlashSequence);
+    void setZslDisabledByUserCaseConfig(boolean disabled);
 
     /**
-     * Set a exposure compensation to the camera
+     * Checks if zero-shutter lag is disabled by user case config.
      *
-     * @param exposure the exposure compensation value to set
-     * @return a ListenableFuture which is completed when the new exposure compensation reach the
-     * target.
+     * @return True if zero-shutter lag should be disabled. Otherwise returns false.
      */
-    @NonNull
-    @Override
-    ListenableFuture<Integer> setExposureCompensationIndex(int exposure);
+    boolean isZslDisabledByByUserCaseConfig();
 
     /**
-     * Performs still capture requests.
+     * Performs still capture requests with the desired capture mode.
+     *
+     * @param captureConfigs capture configuration used for creating CaptureRequest
+     * @param captureMode the mode to capture the image, possible value is
+     * {@link ImageCapture#CAPTURE_MODE_MINIMIZE_LATENCY} or
+     * {@link ImageCapture#CAPTURE_MODE_MAXIMIZE_QUALITY}
+     * @param flashType the options when flash is required for taking a picture.
+     * @return ListenableFuture that would be completed while all the captures are completed. It
+     * would fail with a {@link androidx.camera.core.ImageCapture#ERROR_CAMERA_CLOSED} when the
+     * capture was canceled, or a {@link androidx.camera.core.ImageCapture#ERROR_CAPTURE_FAILED}
+     * when the capture was failed.
      */
-    void submitStillCaptureRequests(@NonNull List<CaptureConfig> captureConfigs);
+    @NonNull
+    ListenableFuture<List<Void>> submitStillCaptureRequests(
+            @NonNull List<CaptureConfig> captureConfigs,
+            @CaptureMode int captureMode,
+            @FlashType int flashType);
 
     /**
      * Gets the current SessionConfig.
@@ -135,27 +147,23 @@ public interface CameraControlInternal extends CameraControl {
         public void setFlashMode(@FlashMode int flashMode) {
         }
 
+        @Override
+        public void setZslDisabledByUserCaseConfig(boolean disabled) {
+        }
+
+        @Override
+        public boolean isZslDisabledByByUserCaseConfig() {
+            return false;
+        }
+
+        @Override
+        public void addZslConfig(@NonNull SessionConfig.Builder sessionConfigBuilder) {
+        }
+
         @NonNull
         @Override
         public ListenableFuture<Void> enableTorch(boolean torch) {
             return Futures.immediateFuture(null);
-        }
-
-        @Override
-        @NonNull
-        public ListenableFuture<CameraCaptureResult> triggerAf() {
-            return Futures.immediateFuture(CameraCaptureResult.EmptyCameraCaptureResult.create());
-        }
-
-        @Override
-        @NonNull
-        public ListenableFuture<Void> startFlashSequence(@ImageCapture.FlashType int flashType) {
-            return Futures.immediateFuture(null);
-        }
-
-        @Override
-        public void cancelAfAndFinishFlashSequence(boolean cancelAfTrigger,
-                boolean finishFlashSequence) {
         }
 
         @NonNull
@@ -164,8 +172,13 @@ public interface CameraControlInternal extends CameraControl {
             return Futures.immediateFuture(0);
         }
 
+        @NonNull
         @Override
-        public void submitStillCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
+        public ListenableFuture<List<Void>> submitStillCaptureRequests(
+                @NonNull List<CaptureConfig> captureConfigs,
+                @CaptureMode int captureMode,
+                @FlashType int flashType) {
+            return Futures.immediateFuture(Collections.emptyList());
         }
 
         @NonNull

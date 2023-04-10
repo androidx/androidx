@@ -1,7 +1,8 @@
 # The Manual Prebuilts Dance™
 
-NOTE There is also a [script](releasing_detailed.md#the-prebuilts-dance™) that
-automates this step.
+NOTE There is also a
+[script](/company/teams/androidx/releasing_detailed.md#the-prebuilts-dance™)
+that automates this step.
 
 Public-facing Jetpack library docs are built from prebuilts to reconcile our
 monolithic docs update process with our independently-versioned library release

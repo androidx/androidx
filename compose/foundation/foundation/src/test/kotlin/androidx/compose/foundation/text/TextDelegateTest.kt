@@ -18,11 +18,11 @@ package androidx.compose.foundation.text
 
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.mock
+import org.mockito.kotlin.mock
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -31,7 +31,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class TextDelegateTest {
     private val density = Density(density = 1f)
-    private val resourceLoader = mock<Font.ResourceLoader>()
+    private val fontFamilyResolver = mock<FontFamily.Resolver>()
 
     @Test
     fun `constructor with default values`() {
@@ -39,10 +39,11 @@ class TextDelegateTest {
             text = AnnotatedString(text = ""),
             style = TextStyle.Default,
             density = density,
-            resourceLoader = resourceLoader
+            fontFamilyResolver = fontFamilyResolver
         )
 
         assertThat(textDelegate.maxLines).isEqualTo(Int.MAX_VALUE)
+        assertThat(textDelegate.minLines).isEqualTo(DefaultMinLines)
         assertThat(textDelegate.overflow).isEqualTo(TextOverflow.Clip)
     }
 
@@ -53,7 +54,7 @@ class TextDelegateTest {
             text = text,
             style = TextStyle.Default,
             density = density,
-            resourceLoader = resourceLoader
+            fontFamilyResolver = fontFamilyResolver
         )
 
         assertThat(textDelegate.text).isEqualTo(text)
@@ -68,10 +69,25 @@ class TextDelegateTest {
             style = TextStyle.Default,
             maxLines = maxLines,
             density = density,
-            resourceLoader = resourceLoader
+            fontFamilyResolver = fontFamilyResolver
         )
 
         assertThat(textDelegate.maxLines).isEqualTo(maxLines)
+    }
+
+    @Test
+    fun `constructor with customized minLines`() {
+        val minLines = 8
+
+        val textDelegate = TextDelegate(
+            text = AnnotatedString(text = ""),
+            style = TextStyle.Default,
+            minLines = minLines,
+            density = density,
+            fontFamilyResolver = fontFamilyResolver
+        )
+
+        assertThat(textDelegate.minLines).isEqualTo(minLines)
     }
 
     @Test
@@ -83,7 +99,7 @@ class TextDelegateTest {
             style = TextStyle.Default,
             overflow = overflow,
             density = density,
-            resourceLoader = resourceLoader
+            fontFamilyResolver = fontFamilyResolver
         )
 
         assertThat(textDelegate.overflow).isEqualTo(overflow)
@@ -95,7 +111,7 @@ class TextDelegateTest {
             text = AnnotatedString(text = ""),
             style = TextStyle.Default,
             density = density,
-            resourceLoader = resourceLoader
+            fontFamilyResolver = fontFamilyResolver
         )
 
         textDelegate.minIntrinsicWidth
@@ -107,7 +123,7 @@ class TextDelegateTest {
             text = AnnotatedString(text = ""),
             style = TextStyle.Default,
             density = density,
-            resourceLoader = resourceLoader
+            fontFamilyResolver = fontFamilyResolver
         )
 
         textDelegate.maxIntrinsicWidth

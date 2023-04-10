@@ -17,7 +17,6 @@
 package androidx.wear.watchface.client
 
 import android.os.RemoteException
-import androidx.annotation.RestrictTo
 import androidx.wear.watchface.editor.IEditorObserver
 import androidx.wear.watchface.editor.IEditorService
 import androidx.wear.watchface.editor.data.EditorStateWireFormat
@@ -50,9 +49,7 @@ public interface EditorListener {
     public fun onEditorStateChanged(editorState: EditorState)
 }
 
-/** @hide */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public class EditorServiceClientImpl(
+internal class EditorServiceClientImpl(
     private val iEditorService: IEditorService
 ) : EditorServiceClient {
     private val lock = Any()

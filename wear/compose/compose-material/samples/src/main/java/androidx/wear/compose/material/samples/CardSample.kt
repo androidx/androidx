@@ -17,15 +17,12 @@
 package androidx.wear.compose.material.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.AppCard
 import androidx.wear.compose.material.CardDefaults
 import androidx.wear.compose.material.Icon
@@ -43,16 +40,15 @@ fun AppCardWithIcon() {
             Icon(
                 painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
                 contentDescription = "airplane",
-                modifier = Modifier.size(24.dp).wrapContentSize(align = Alignment.Center),
+                modifier = Modifier.size(CardDefaults.AppImageSize)
+                    .wrapContentSize(align = Alignment.Center),
             )
         },
         title = { Text("AppCard") },
         time = { Text("now") },
     ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Text("Some body content")
-            Text("and some more body content")
-        }
+        Text("Some body content")
+        Text("and some more body content")
     }
 }
 
@@ -64,10 +60,8 @@ fun TitleCardStandard() {
         title = { Text("TitleCard") },
         time = { Text("now") },
     ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Text("Some body content")
-            Text("and some more body content")
-        }
+        Text("Some body content")
+        Text("and some more body content")
     }
 }
 
@@ -83,8 +77,6 @@ fun TitleCardWithImage() {
         contentColor = MaterialTheme.colors.onSurface,
         titleColor = MaterialTheme.colors.onSurface,
     ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Text("Text coloured to stand out on the image")
-        }
+        Text("Text coloured to stand out on the image")
     }
 }

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright 2022 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="dialog" msgid="4057925834421392736">"డైలాగ్"</string>
+    <string name="expanded" msgid="5974471714631304645">"విస్తరించబడింది"</string>
+    <string name="collapsed" msgid="5389587048670450460">"కుదించబడింది"</string>
+    <string name="snackbar_dismiss" msgid="3962933905051144957">"విస్మరించండి"</string>
+    <string name="search_bar_search" msgid="6420018528474762666">"సెర్చ్ చేయండి"</string>
+    <string name="suggestions_available" msgid="7189888345201419934">"సూచనలు దిగువున ఉన్నాయి"</string>
+    <string name="date_picker_title" msgid="9208721003668059792">"తేదీని ఎంచుకోండి"</string>
+    <string name="date_picker_headline" msgid="2846784065735639969">"ఎంచుకున్న తేదీ"</string>
+    <string name="date_picker_switch_to_year_selection" msgid="3412370019845183965">"ఒక సంవత్సరాన్ని ఎంచుకునే ఆప్షన్‌కు మారండి"</string>
+    <string name="date_picker_switch_to_day_selection" msgid="145089358343568971">"సంవత్సరాన్ని ఎంచుకోవడానికి స్వైప్ చేయండి, లేదా రోజును ఎంచుకునేందుకు తిరిగి మారడానికి ట్యాప్ చేయండి"</string>
+    <string name="date_picker_switch_to_next_month" msgid="8313783187901412102">"వచ్చే నెలకు మార్చండి"</string>
+    <string name="date_picker_switch_to_previous_month" msgid="7596294429748914881">"మునుపటి నెలకు మార్చండి"</string>
+    <string name="date_picker_navigate_to_year_description" msgid="5152441868029453612">"%1$s సంవత్సరానికి వెళ్లండి"</string>
+    <string name="date_picker_headline_description" msgid="4627306862713137085">"ప్రస్తుత ఎంపిక: %1$s"</string>
+    <string name="date_picker_no_selection_description" msgid="5724377114289981899">"ఏదీ లేదు"</string>
+    <string name="date_picker_year_picker_pane_title" msgid="8140324713311804736">"సంవత్సరం పికర్ కనిపిస్తుంది"</string>
+</resources>

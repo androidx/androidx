@@ -299,7 +299,6 @@ public class MediaRouteActionProvider extends ActionProvider {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     @NonNull
     public View onCreateActionView() {
         if (mButton != null) {
@@ -350,32 +349,37 @@ public class MediaRouteActionProvider extends ActionProvider {
         }
 
         @Override
-        public void onRouteAdded(MediaRouter router, MediaRouter.RouteInfo info) {
+        public void onRouteAdded(@NonNull MediaRouter router, @NonNull MediaRouter.RouteInfo info) {
             refreshRoute(router);
         }
 
         @Override
-        public void onRouteRemoved(MediaRouter router, MediaRouter.RouteInfo info) {
+        public void onRouteRemoved(@NonNull MediaRouter router,
+                @NonNull MediaRouter.RouteInfo info) {
             refreshRoute(router);
         }
 
         @Override
-        public void onRouteChanged(MediaRouter router, MediaRouter.RouteInfo info) {
+        public void onRouteChanged(@NonNull MediaRouter router,
+                @NonNull MediaRouter.RouteInfo info) {
             refreshRoute(router);
         }
 
         @Override
-        public void onProviderAdded(MediaRouter router, MediaRouter.ProviderInfo provider) {
+        public void onProviderAdded(@NonNull MediaRouter router,
+                @NonNull MediaRouter.ProviderInfo provider) {
             refreshRoute(router);
         }
 
         @Override
-        public void onProviderRemoved(MediaRouter router, MediaRouter.ProviderInfo provider) {
+        public void onProviderRemoved(@NonNull MediaRouter router,
+                @NonNull MediaRouter.ProviderInfo provider) {
             refreshRoute(router);
         }
 
         @Override
-        public void onProviderChanged(MediaRouter router, MediaRouter.ProviderInfo provider) {
+        public void onProviderChanged(@NonNull MediaRouter router,
+                @NonNull MediaRouter.ProviderInfo provider) {
             refreshRoute(router);
         }
 

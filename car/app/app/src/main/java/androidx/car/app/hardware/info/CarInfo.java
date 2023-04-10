@@ -17,6 +17,7 @@ package androidx.car.app.hardware.info;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.OnCarDataAvailableListener;
 
@@ -125,4 +126,26 @@ public interface CarInfo {
      * @param listener the listener to remove
      */
     void removeMileageListener(@NonNull OnCarDataAvailableListener<Mileage> listener);
+
+    /**
+     * Setup an ongoing listener to receive {@link EvStatus} information from the car hardware.
+     *
+     * <p>If the listener was added previously then it won't be added.
+     *
+     * @param executor the executor which will be used for invoking the listener
+     * @param listener the listener that will be invoked when data is available
+     */
+    @ExperimentalCarApi
+    void addEvStatusListener(@NonNull /* @CallbackExecutor */ Executor executor,
+            @NonNull OnCarDataAvailableListener<EvStatus> listener);
+
+    /**
+     * Remove an ongoing listener for {@link EvStatus} information.
+     *
+     * <p>If the listener is not currently added, then nothing will be removed.
+     *
+     * @param listener the listener to remove
+     */
+    @ExperimentalCarApi
+    void removeEvStatusListener(@NonNull OnCarDataAvailableListener<EvStatus> listener);
 }

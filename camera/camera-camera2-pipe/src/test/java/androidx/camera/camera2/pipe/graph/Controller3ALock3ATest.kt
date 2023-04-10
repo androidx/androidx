@@ -23,75 +23,75 @@ import android.hardware.camera2.params.MeteringRectangle
 import android.os.Build
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Lock3ABehavior
-import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
-import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
-import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
-import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 internal class Controller3ALock3ATest {
-    private val graphState3A = GraphState3A()
-    private val graphProcessor = FakeGraphProcessor(graphState3A = graphState3A)
-    private val requestProcessor = FakeRequestProcessor()
+    private val graphTestContext = GraphTestContext()
+    private val graphState3A = graphTestContext.graphProcessor.graphState3A
+    private val graphProcessor = graphTestContext.graphProcessor
+    private val captureSequenceProcessor = graphTestContext.captureSequenceProcessor
+
     private val listener3A = Listener3A()
-    private val fakeMetadata = FakeCameraMetadata(
-        mapOf(
-            CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
-                intArrayOf(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
-        ),
-    )
+    private val fakeMetadata =
+        FakeCameraMetadata(
+            mapOf(
+                CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
+                    intArrayOf(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)),
+        )
     private val controller3A = Controller3A(graphProcessor, fakeMetadata, graphState3A, listener3A)
 
-    @OptIn(DelicateCoroutinesApi::class)
-    @Test
-    fun testAfImmediateAeImmediate(): Unit = runBlocking {
-        initGraphProcessor()
+    @After
+    fun teardown() {
+        graphTestContext.close()
+    }
 
-        val result = controller3A.lock3A(
-            afLockBehavior = Lock3ABehavior.IMMEDIATE,
-            aeLockBehavior = Lock3ABehavior.IMMEDIATE
-        )
+    @Test
+    fun testAfImmediateAeImmediate() = runTest {
+        val result =
+            controller3A.lock3A(
+                afLockBehavior = Lock3ABehavior.IMMEDIATE,
+                aeLockBehavior = Lock3ABehavior.IMMEDIATE)
         assertThat(result.isCompleted).isFalse()
 
         // Since requirement of to lock both AE and AF immediately, the requests to lock AE and AF
         // are sent right away. The result of lock3A call will complete once AE and AF have reached
         // their desired states. In this response i.e cameraResponse1, AF is still scanning so the
         // result won't be complete.
-        val cameraResponse = GlobalScope.async {
+        val cameraResponse = async {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(
-                    requestNumber = RequestNumber(1)
-                )
-            )
+                FakeRequestMetadata(requestNumber = RequestNumber(1)))
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
-                    resultMetadata = mapOf(
-                        CaptureResult.CONTROL_AF_STATE to CaptureResult
-                            .CONTROL_AF_STATE_PASSIVE_SCAN,
-                        CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED
-                    )
-                )
-            )
+                    resultMetadata =
+                        mapOf(
+                            CaptureResult.CONTROL_AF_STATE to
+                                CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
+                            CaptureResult.CONTROL_AE_STATE to
+                                CaptureResult.CONTROL_AE_STATE_LOCKED)))
         }
 
         cameraResponse.await()
@@ -99,24 +99,20 @@ internal class Controller3ALock3ATest {
 
         // One we we are notified that the AE and AF are in locked state, the result of lock3A call
         // will complete.
-        GlobalScope.launch {
+        launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(
-                    requestNumber = RequestNumber(1)
-                )
-            )
+                FakeRequestMetadata(requestNumber = RequestNumber(1)))
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
-                    resultMetadata = mapOf(
-                        CaptureResult.CONTROL_AF_STATE to CaptureResult
-                            .CONTROL_AF_STATE_FOCUSED_LOCKED,
-                        CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED
-                    )
-                )
-            )
+                    resultMetadata =
+                        mapOf(
+                            CaptureResult.CONTROL_AF_STATE to
+                                CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
+                            CaptureResult.CONTROL_AE_STATE to
+                                CaptureResult.CONTROL_AE_STATE_LOCKED)))
         }
 
         val result3A = result.await()
@@ -125,54 +121,43 @@ internal class Controller3ALock3ATest {
 
         // We not check if the correct sequence of requests were submitted by lock3A call. The
         // request should be a repeating request to lock AE.
-        val request1 = requestProcessor.nextEvent().requestSequence
-        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(
-            true
-        )
+        val request1 = captureSequenceProcessor.nextEvent().requestSequence
+        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
 
         // The second request should be a single request to lock AF.
-        val request2 = requestProcessor.nextEvent().requestSequence
-        assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER]).isEqualTo(
-            CaptureRequest.CONTROL_AF_TRIGGER_START
-        )
-        assertThat(request2.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(
-            true
-        )
+        val request2 = captureSequenceProcessor.nextEvent().requestSequence
+        assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
+            .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START)
+        assertThat(request2.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     @Test
-    fun testAfImmediateAeAfterCurrentScan(): Unit = runBlocking {
-        initGraphProcessor()
+    fun testAfImmediateAeAfterCurrentScan() = runTest {
+        val globalScope = CoroutineScope(UnconfinedTestDispatcher())
 
-        val lock3AAsyncTask = GlobalScope.async {
-            controller3A.lock3A(
-                afLockBehavior = Lock3ABehavior.IMMEDIATE,
-                aeLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN
-            )
-        }
+        val lock3AAsyncTask =
+            globalScope.async {
+                controller3A.lock3A(
+                    afLockBehavior = Lock3ABehavior.IMMEDIATE,
+                    aeLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN)
+            }
         assertThat(lock3AAsyncTask.isCompleted).isFalse()
         // Launch a task to repeatedly invoke a given capture result.
-        GlobalScope.launch {
+        globalScope.launch {
             while (true) {
                 listener3A.onRequestSequenceCreated(
-                    FakeRequestMetadata(
-                        requestNumber = RequestNumber(1)
-                    )
-                )
+                    FakeRequestMetadata(requestNumber = RequestNumber(1)))
                 listener3A.onPartialCaptureResult(
                     FakeRequestMetadata(requestNumber = RequestNumber(1)),
                     FrameNumber(101L),
                     FakeFrameMetadata(
                         frameNumber = FrameNumber(101L),
-                        resultMetadata = mapOf(
-                            CaptureResult.CONTROL_AF_STATE to
-                                CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
-                            CaptureResult.CONTROL_AE_STATE to
-                                CaptureResult.CONTROL_AE_STATE_CONVERGED
-                        )
-                    )
-                )
+                        resultMetadata =
+                            mapOf(
+                                CaptureResult.CONTROL_AF_STATE to
+                                    CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
+                                CaptureResult.CONTROL_AE_STATE to
+                                    CaptureResult.CONTROL_AE_STATE_CONVERGED)))
                 delay(FRAME_RATE_MS)
             }
         }
@@ -183,31 +168,25 @@ internal class Controller3ALock3ATest {
 
         // Check the correctness of the requests submitted by lock3A.
         // One repeating request was sent to monitor the state of AE to get converged.
-        requestProcessor.nextEvent().requestSequence
+        captureSequenceProcessor.nextEvent().requestSequence
         // Once AE is converged, another repeatingrequest is sent to lock AE.
-        val request1 = requestProcessor.nextEvent().requestSequence
-        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(
-            true
-        )
+        val request1 = captureSequenceProcessor.nextEvent().requestSequence
+        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
 
-        GlobalScope.launch {
+        globalScope.launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(
-                    requestNumber = RequestNumber(1)
-                )
-            )
+                FakeRequestMetadata(requestNumber = RequestNumber(1)))
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
-                    resultMetadata = mapOf(
-                        CaptureResult.CONTROL_AF_STATE to CaptureResult
-                            .CONTROL_AF_STATE_FOCUSED_LOCKED,
-                        CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED
-                    )
-                )
-            )
+                    resultMetadata =
+                        mapOf(
+                            CaptureResult.CONTROL_AF_STATE to
+                                CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
+                            CaptureResult.CONTROL_AE_STATE to
+                                CaptureResult.CONTROL_AE_STATE_LOCKED)))
         }
 
         val result3A = result.await()
@@ -215,44 +194,39 @@ internal class Controller3ALock3ATest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
 
         // A single request to lock AF must have been used as well.
-        val request2 = requestProcessor.nextEvent().requestSequence
-        assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER]).isEqualTo(
-            CaptureRequest.CONTROL_AF_TRIGGER_START
-        )
+        val request2 = captureSequenceProcessor.nextEvent().requestSequence
+        assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
+            .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START)
+        globalScope.cancel()
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     @Test
-    fun testAfImmediateAeAfterNewScan(): Unit = runBlocking {
-        initGraphProcessor()
+    fun testAfImmediateAeAfterNewScan() = runTest {
+        val globalScope = CoroutineScope(UnconfinedTestDispatcher())
 
-        val lock3AAsyncTask = GlobalScope.async {
-            controller3A.lock3A(
-                afLockBehavior = Lock3ABehavior.IMMEDIATE,
-                aeLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN
-            )
-        }
+        val lock3AAsyncTask =
+            globalScope.async {
+                controller3A.lock3A(
+                    afLockBehavior = Lock3ABehavior.IMMEDIATE,
+                    aeLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN)
+            }
         assertThat(lock3AAsyncTask.isCompleted).isFalse()
-        GlobalScope.launch {
+
+        globalScope.launch {
             while (true) {
                 listener3A.onRequestSequenceCreated(
-                    FakeRequestMetadata(
-                        requestNumber = RequestNumber(1)
-                    )
-                )
+                    FakeRequestMetadata(requestNumber = RequestNumber(1)))
                 listener3A.onPartialCaptureResult(
                     FakeRequestMetadata(requestNumber = RequestNumber(1)),
                     FrameNumber(101L),
                     FakeFrameMetadata(
                         frameNumber = FrameNumber(101L),
-                        resultMetadata = mapOf(
-                            CaptureResult.CONTROL_AF_STATE to
-                                CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
-                            CaptureResult.CONTROL_AE_STATE to
-                                CaptureResult.CONTROL_AE_STATE_CONVERGED
-                        )
-                    )
-                )
+                        resultMetadata =
+                            mapOf(
+                                CaptureResult.CONTROL_AF_STATE to
+                                    CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
+                                CaptureResult.CONTROL_AE_STATE to
+                                    CaptureResult.CONTROL_AE_STATE_CONVERGED)))
                 delay(FRAME_RATE_MS)
             }
         }
@@ -262,29 +236,23 @@ internal class Controller3ALock3ATest {
 
         // For a new AE scan we first send a request to unlock AE just in case it was
         // previously or internally locked.
-        val request1 = requestProcessor.nextEvent().requestSequence
-        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(
-            false
-        )
+        val request1 = captureSequenceProcessor.nextEvent().requestSequence
+        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(false)
 
-        GlobalScope.launch {
+        globalScope.launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(
-                    requestNumber = RequestNumber(1)
-                )
-            )
+                FakeRequestMetadata(requestNumber = RequestNumber(1)))
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
-                    resultMetadata = mapOf(
-                        CaptureResult.CONTROL_AF_STATE to CaptureResult
-                            .CONTROL_AF_STATE_FOCUSED_LOCKED,
-                        CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED
-                    )
-                )
-            )
+                    resultMetadata =
+                        mapOf(
+                            CaptureResult.CONTROL_AF_STATE to
+                                CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
+                            CaptureResult.CONTROL_AE_STATE to
+                                CaptureResult.CONTROL_AE_STATE_LOCKED)))
         }
 
         val result3A = result.await()
@@ -292,53 +260,44 @@ internal class Controller3ALock3ATest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
 
         // There should be one more request to lock AE after new scan is done.
-        val request2 = requestProcessor.nextEvent().requestSequence
-        assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(
-            true
-        )
+        val request2 = captureSequenceProcessor.nextEvent().requestSequence
+        assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
 
         // And one request to lock AF.
-        val request3 = requestProcessor.nextEvent().requestSequence
-        assertThat(request3!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER]).isEqualTo(
-            CaptureRequest.CONTROL_AF_TRIGGER_START
-        )
-        assertThat(request3.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(
-            true
-        )
+        val request3 = captureSequenceProcessor.nextEvent().requestSequence
+        assertThat(request3!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
+            .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START)
+        assertThat(request3.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
+
+        globalScope.cancel()
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     @Test
-    fun testAfAfterCurrentScanAeImmediate(): Unit = runBlocking {
-        initGraphProcessor()
+    fun testAfAfterCurrentScanAeImmediate() = runTest {
+        val globalScope = CoroutineScope(UnconfinedTestDispatcher())
 
-        val lock3AAsyncTask = GlobalScope.async {
-            controller3A.lock3A(
-                afLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN,
-                aeLockBehavior = Lock3ABehavior.IMMEDIATE
-            )
-        }
+        val lock3AAsyncTask =
+            globalScope.async {
+                controller3A.lock3A(
+                    afLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN,
+                    aeLockBehavior = Lock3ABehavior.IMMEDIATE)
+            }
         assertThat(lock3AAsyncTask.isCompleted).isFalse()
-        GlobalScope.launch {
+        globalScope.launch {
             while (true) {
                 listener3A.onRequestSequenceCreated(
-                    FakeRequestMetadata(
-                        requestNumber = RequestNumber(1)
-                    )
-                )
+                    FakeRequestMetadata(requestNumber = RequestNumber(1)))
                 listener3A.onPartialCaptureResult(
                     FakeRequestMetadata(requestNumber = RequestNumber(1)),
                     FrameNumber(101L),
                     FakeFrameMetadata(
                         frameNumber = FrameNumber(101L),
-                        resultMetadata = mapOf(
-                            CaptureResult.CONTROL_AF_STATE to
-                                CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED,
-                            CaptureResult.CONTROL_AE_STATE to
-                                CaptureResult.CONTROL_AE_STATE_CONVERGED
-                        )
-                    )
-                )
+                        resultMetadata =
+                            mapOf(
+                                CaptureResult.CONTROL_AF_STATE to
+                                    CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED,
+                                CaptureResult.CONTROL_AE_STATE to
+                                    CaptureResult.CONTROL_AE_STATE_CONVERGED)))
                 delay(FRAME_RATE_MS)
             }
         }
@@ -346,24 +305,20 @@ internal class Controller3ALock3ATest {
         val result = lock3AAsyncTask.await()
         assertThat(result.isCompleted).isFalse()
 
-        GlobalScope.launch {
+        globalScope.launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(
-                    requestNumber = RequestNumber(1)
-                )
-            )
+                FakeRequestMetadata(requestNumber = RequestNumber(1)))
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
-                    resultMetadata = mapOf(
-                        CaptureResult.CONTROL_AF_STATE to CaptureResult
-                            .CONTROL_AF_STATE_FOCUSED_LOCKED,
-                        CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED
-                    )
-                )
-            )
+                    resultMetadata =
+                        mapOf(
+                            CaptureResult.CONTROL_AF_STATE to
+                                CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
+                            CaptureResult.CONTROL_AE_STATE to
+                                CaptureResult.CONTROL_AE_STATE_LOCKED)))
         }
 
         val result3A = result.await()
@@ -371,55 +326,45 @@ internal class Controller3ALock3ATest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
 
         // There should be one request to monitor AF to finish it's scan.
-        requestProcessor.nextEvent()
+        captureSequenceProcessor.nextEvent()
         // One request to lock AE
-        val request2 = requestProcessor.nextEvent().requestSequence
-        assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(
-            true
-        )
+        val request2 = captureSequenceProcessor.nextEvent().requestSequence
+        assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
 
         // And one request to lock AF.
-        val request3 = requestProcessor.nextEvent().requestSequence
-        assertThat(request3!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER]).isEqualTo(
-            CaptureRequest.CONTROL_AF_TRIGGER_START
-        )
-        assertThat(request3.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(
-            true
-        )
+        val request3 = captureSequenceProcessor.nextEvent().requestSequence
+        assertThat(request3!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
+            .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START)
+        assertThat(request3.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
+        globalScope.cancel()
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     @Test
-    fun testAfAfterNewScanScanAeImmediate(): Unit = runBlocking {
-        initGraphProcessor()
+    fun testAfAfterNewScanScanAeImmediate() = runTest {
+        val globalScope = CoroutineScope(UnconfinedTestDispatcher())
 
-        val lock3AAsyncTask = GlobalScope.async {
-            controller3A.lock3A(
-                afLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
-                aeLockBehavior = Lock3ABehavior.IMMEDIATE
-            )
-        }
+        val lock3AAsyncTask =
+            globalScope.async {
+                controller3A.lock3A(
+                    afLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
+                    aeLockBehavior = Lock3ABehavior.IMMEDIATE)
+            }
         assertThat(lock3AAsyncTask.isCompleted).isFalse()
-        GlobalScope.launch {
+        globalScope.launch {
             while (true) {
                 listener3A.onRequestSequenceCreated(
-                    FakeRequestMetadata(
-                        requestNumber = RequestNumber(1)
-                    )
-                )
+                    FakeRequestMetadata(requestNumber = RequestNumber(1)))
                 listener3A.onPartialCaptureResult(
                     FakeRequestMetadata(requestNumber = RequestNumber(1)),
                     FrameNumber(101L),
                     FakeFrameMetadata(
                         frameNumber = FrameNumber(101L),
-                        resultMetadata = mapOf(
-                            CaptureResult.CONTROL_AF_STATE to
-                                CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED,
-                            CaptureResult.CONTROL_AE_STATE to
-                                CaptureResult.CONTROL_AE_STATE_CONVERGED
-                        )
-                    )
-                )
+                        resultMetadata =
+                            mapOf(
+                                CaptureResult.CONTROL_AF_STATE to
+                                    CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED,
+                                CaptureResult.CONTROL_AE_STATE to
+                                    CaptureResult.CONTROL_AE_STATE_CONVERGED)))
                 delay(FRAME_RATE_MS)
             }
         }
@@ -427,24 +372,20 @@ internal class Controller3ALock3ATest {
         val result = lock3AAsyncTask.await()
         assertThat(result.isCompleted).isFalse()
 
-        GlobalScope.launch {
+        globalScope.launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(
-                    requestNumber = RequestNumber(1)
-                )
-            )
+                FakeRequestMetadata(requestNumber = RequestNumber(1)))
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
-                    resultMetadata = mapOf(
-                        CaptureResult.CONTROL_AF_STATE to CaptureResult
-                            .CONTROL_AF_STATE_FOCUSED_LOCKED,
-                        CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED
-                    )
-                )
-            )
+                    resultMetadata =
+                        mapOf(
+                            CaptureResult.CONTROL_AF_STATE to
+                                CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
+                            CaptureResult.CONTROL_AE_STATE to
+                                CaptureResult.CONTROL_AE_STATE_LOCKED)))
         }
 
         val result3A = result.await()
@@ -452,61 +393,50 @@ internal class Controller3ALock3ATest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
 
         // One request to cancel AF to start a new scan.
-        val request1 = requestProcessor.nextEvent().requestSequence
-        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER]).isEqualTo(
-            CaptureRequest.CONTROL_AF_TRIGGER_CANCEL
-        )
+        val request1 = captureSequenceProcessor.nextEvent().requestSequence
+        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
+            .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
         // There should be one request to monitor AF to finish it's scan.
-        requestProcessor.nextEvent()
+        captureSequenceProcessor.nextEvent()
 
         // There should be one request to monitor lock AE.
-        val request2 = requestProcessor.nextEvent().requestSequence
-        assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(
-            true
-        )
+        val request2 = captureSequenceProcessor.nextEvent().requestSequence
+        assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
 
         // And one request to lock AF.
-        val request3 = requestProcessor.nextEvent().requestSequence
-        assertThat(request3!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER]).isEqualTo(
-            CaptureRequest.CONTROL_AF_TRIGGER_START
-        )
-        assertThat(request3.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(
-            true
-        )
+        val request3 = captureSequenceProcessor.nextEvent().requestSequence
+        assertThat(request3!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
+            .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START)
+        assertThat(request3.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
+        globalScope.cancel()
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     @Test
-    fun testAfAfterCurrentScanAeAfterCurrentScan(): Unit = runBlocking {
-        initGraphProcessor()
+    fun testAfAfterCurrentScanAeAfterCurrentScan() = runTest {
+        val globalScope = CoroutineScope(UnconfinedTestDispatcher())
 
-        val lock3AAsyncTask = GlobalScope.async {
-            controller3A.lock3A(
-                afLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN,
-                aeLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN
-            )
-        }
+        val lock3AAsyncTask =
+            globalScope.async {
+                controller3A.lock3A(
+                    afLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN,
+                    aeLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN)
+            }
         assertThat(lock3AAsyncTask.isCompleted).isFalse()
-        GlobalScope.launch {
+        globalScope.launch {
             while (true) {
                 listener3A.onRequestSequenceCreated(
-                    FakeRequestMetadata(
-                        requestNumber = RequestNumber(1)
-                    )
-                )
+                    FakeRequestMetadata(requestNumber = RequestNumber(1)))
                 listener3A.onPartialCaptureResult(
                     FakeRequestMetadata(requestNumber = RequestNumber(1)),
                     FrameNumber(101L),
                     FakeFrameMetadata(
                         frameNumber = FrameNumber(101L),
-                        resultMetadata = mapOf(
-                            CaptureResult.CONTROL_AF_STATE to
-                                CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED,
-                            CaptureResult.CONTROL_AE_STATE to
-                                CaptureResult.CONTROL_AE_STATE_CONVERGED
-                        )
-                    )
-                )
+                        resultMetadata =
+                            mapOf(
+                                CaptureResult.CONTROL_AF_STATE to
+                                    CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED,
+                                CaptureResult.CONTROL_AE_STATE to
+                                    CaptureResult.CONTROL_AE_STATE_CONVERGED)))
                 delay(FRAME_RATE_MS)
             }
         }
@@ -514,24 +444,20 @@ internal class Controller3ALock3ATest {
         val result = lock3AAsyncTask.await()
         assertThat(result.isCompleted).isFalse()
 
-        GlobalScope.launch {
+        globalScope.launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(
-                    requestNumber = RequestNumber(1)
-                )
-            )
+                FakeRequestMetadata(requestNumber = RequestNumber(1)))
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
-                    resultMetadata = mapOf(
-                        CaptureResult.CONTROL_AF_STATE to CaptureResult
-                            .CONTROL_AF_STATE_FOCUSED_LOCKED,
-                        CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED
-                    )
-                )
-            )
+                    resultMetadata =
+                        mapOf(
+                            CaptureResult.CONTROL_AF_STATE to
+                                CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
+                            CaptureResult.CONTROL_AE_STATE to
+                                CaptureResult.CONTROL_AE_STATE_LOCKED)))
         }
 
         val result3A = result.await()
@@ -539,69 +465,59 @@ internal class Controller3ALock3ATest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
 
         // There should be one request to monitor AF to finish it's scan.
-        val event = requestProcessor.nextEvent()
-        assertThat(event.startRepeating).isTrue()
+        val event = captureSequenceProcessor.nextEvent()
+        assertThat(event.requestSequence!!.repeating).isTrue()
         assertThat(event.rejected).isFalse()
         assertThat(event.abort).isFalse()
         assertThat(event.close).isFalse()
-        assertThat(event.submit).isFalse()
+        assertThat(event.submit).isTrue()
 
         // One request to lock AE
-        val request2Event = requestProcessor.nextEvent()
-        assertThat(request2Event.startRepeating).isTrue()
-        assertThat(request2Event.submit).isFalse()
+        val request2Event = captureSequenceProcessor.nextEvent()
+        assertThat(request2Event.requestSequence!!.repeating).isTrue()
+        assertThat(request2Event.submit).isTrue()
         val request2 = request2Event.requestSequence!!
         assertThat(request2).isNotNull()
         assertThat(request2.requiredParameters).isNotEmpty()
-        assertThat(request2.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(
-            true
-        )
+        assertThat(request2.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
 
         // And one request to lock AF.
-        val request3Event = requestProcessor.nextEvent()
-        assertThat(request3Event.startRepeating).isFalse()
+        val request3Event = captureSequenceProcessor.nextEvent()
+        assertThat(request3Event.requestSequence!!.repeating).isFalse()
         assertThat(request3Event.submit).isTrue()
         val request3 = request3Event.requestSequence!!
-        assertThat(request3.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER]).isEqualTo(
-            CaptureRequest.CONTROL_AF_TRIGGER_START
-        )
-        assertThat(request3.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(
-            true
-        )
+        assertThat(request3.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
+            .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START)
+        assertThat(request3.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
+
+        globalScope.cancel()
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     @Test
-    fun testAfAfterNewScanScanAeAfterNewScan(): Unit = runBlocking {
-        initGraphProcessor()
-
-        val lock3AAsyncTask = GlobalScope.async {
-            controller3A.lock3A(
-                afLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
-                aeLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN
-            )
-        }
+    fun testAfAfterNewScanScanAeAfterNewScan() = runTest {
+        val globalScope = CoroutineScope(UnconfinedTestDispatcher())
+        val lock3AAsyncTask =
+            globalScope.async {
+                controller3A.lock3A(
+                    afLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
+                    aeLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN)
+            }
         assertThat(lock3AAsyncTask.isCompleted).isFalse()
-        GlobalScope.launch {
+        globalScope.launch {
             while (true) {
                 listener3A.onRequestSequenceCreated(
-                    FakeRequestMetadata(
-                        requestNumber = RequestNumber(1)
-                    )
-                )
+                    FakeRequestMetadata(requestNumber = RequestNumber(1)))
                 listener3A.onPartialCaptureResult(
                     FakeRequestMetadata(requestNumber = RequestNumber(1)),
                     FrameNumber(101L),
                     FakeFrameMetadata(
                         frameNumber = FrameNumber(101L),
-                        resultMetadata = mapOf(
-                            CaptureResult.CONTROL_AF_STATE to
-                                CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED,
-                            CaptureResult.CONTROL_AE_STATE to
-                                CaptureResult.CONTROL_AE_STATE_CONVERGED
-                        )
-                    )
-                )
+                        resultMetadata =
+                            mapOf(
+                                CaptureResult.CONTROL_AF_STATE to
+                                    CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED,
+                                CaptureResult.CONTROL_AE_STATE to
+                                    CaptureResult.CONTROL_AE_STATE_CONVERGED)))
                 delay(FRAME_RATE_MS)
             }
         }
@@ -609,24 +525,20 @@ internal class Controller3ALock3ATest {
         val result = lock3AAsyncTask.await()
         assertThat(result.isCompleted).isFalse()
 
-        GlobalScope.launch {
+        globalScope.launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(
-                    requestNumber = RequestNumber(1)
-                )
-            )
+                FakeRequestMetadata(requestNumber = RequestNumber(1)))
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
-                    resultMetadata = mapOf(
-                        CaptureResult.CONTROL_AF_STATE to CaptureResult
-                            .CONTROL_AF_STATE_FOCUSED_LOCKED,
-                        CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED
-                    )
-                )
-            )
+                    resultMetadata =
+                        mapOf(
+                            CaptureResult.CONTROL_AF_STATE to
+                                CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
+                            CaptureResult.CONTROL_AE_STATE to
+                                CaptureResult.CONTROL_AE_STATE_LOCKED)))
         }
 
         val result3A = result.await()
@@ -634,69 +546,55 @@ internal class Controller3ALock3ATest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
 
         // One request to cancel AF to start a new scan.
-        val request1 = requestProcessor.nextEvent().requestSequence
-        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER]).isEqualTo(
-            CaptureRequest.CONTROL_AF_TRIGGER_CANCEL
-        )
+        val request1 = captureSequenceProcessor.nextEvent().requestSequence
+        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
+            .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
         // There should be one request to unlock AE and monitor the current AF scan to finish.
-        val request2 = requestProcessor.nextEvent().requestSequence
-        assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(
-            false
-        )
+        val request2 = captureSequenceProcessor.nextEvent().requestSequence
+        assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(false)
 
         // There should be one request to monitor lock AE.
-        val request3 = requestProcessor.nextEvent().requestSequence
-        assertThat(request3!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(
-            true
-        )
+        val request3 = captureSequenceProcessor.nextEvent().requestSequence
+        assertThat(request3!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
 
         // And one request to lock AF.
-        val request4 = requestProcessor.nextEvent().requestSequence
-        assertThat(request4!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER]).isEqualTo(
-            CaptureRequest.CONTROL_AF_TRIGGER_START
-        )
-        assertThat(request4.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(
-            true
-        )
+        val request4 = captureSequenceProcessor.nextEvent().requestSequence
+        assertThat(request4!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
+            .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START)
+        assertThat(request4.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
+        globalScope.cancel()
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     @Test
-    fun testLock3AWithRegions(): Unit = runBlocking {
-        initGraphProcessor()
-
+    fun testLock3AWithRegions() = runTest {
         val afMeteringRegion = MeteringRectangle(1, 1, 100, 100, 2)
         val aeMeteringRegion = MeteringRectangle(10, 15, 140, 140, 3)
-        val result = controller3A.lock3A(
-            aeRegions = listOf(aeMeteringRegion),
-            afRegions = listOf(afMeteringRegion),
-            afLockBehavior = Lock3ABehavior.IMMEDIATE,
-            aeLockBehavior = Lock3ABehavior.IMMEDIATE
-        )
+        val result =
+            controller3A.lock3A(
+                aeRegions = listOf(aeMeteringRegion),
+                afRegions = listOf(afMeteringRegion),
+                afLockBehavior = Lock3ABehavior.IMMEDIATE,
+                aeLockBehavior = Lock3ABehavior.IMMEDIATE)
         assertThat(result.isCompleted).isFalse()
 
         // Since requirement of to lock both AE and AF immediately, the requests to lock AE and AF
         // are sent right away. The result of lock3A call will complete once AE and AF have reached
         // their desired states. In this response i.e cameraResponse1, AF is still scanning so the
         // result won't be complete.
-        val cameraResponse = GlobalScope.async {
+        val cameraResponse = async {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(
-                    requestNumber = RequestNumber(1)
-                )
-            )
+                FakeRequestMetadata(requestNumber = RequestNumber(1)))
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
-                    resultMetadata = mapOf(
-                        CaptureResult.CONTROL_AF_STATE to CaptureResult
-                            .CONTROL_AF_STATE_PASSIVE_SCAN,
-                        CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED
-                    )
-                )
-            )
+                    resultMetadata =
+                        mapOf(
+                            CaptureResult.CONTROL_AF_STATE to
+                                CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
+                            CaptureResult.CONTROL_AE_STATE to
+                                CaptureResult.CONTROL_AE_STATE_LOCKED)))
         }
 
         cameraResponse.await()
@@ -704,24 +602,20 @@ internal class Controller3ALock3ATest {
 
         // One we we are notified that the AE and AF are in locked state, the result of lock3A call
         // will complete.
-        GlobalScope.launch {
+        launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(
-                    requestNumber = RequestNumber(1)
-                )
-            )
+                FakeRequestMetadata(requestNumber = RequestNumber(1)))
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
-                    resultMetadata = mapOf(
-                        CaptureResult.CONTROL_AF_STATE to CaptureResult
-                            .CONTROL_AF_STATE_FOCUSED_LOCKED,
-                        CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED
-                    )
-                )
-            )
+                    resultMetadata =
+                        mapOf(
+                            CaptureResult.CONTROL_AF_STATE to
+                                CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
+                            CaptureResult.CONTROL_AE_STATE to
+                                CaptureResult.CONTROL_AE_STATE_LOCKED)))
         }
 
         val result3A = result.await()
@@ -738,41 +632,28 @@ internal class Controller3ALock3ATest {
 
         // We not check if the correct sequence of requests were submitted by lock3A call. The
         // request should be a repeating request to lock AE.
-        val request1 = requestProcessor.nextEvent().requestSequence
-        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(
-            true
-        )
+        val request1 = captureSequenceProcessor.nextEvent().requestSequence
+        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
 
         // The second request should be a single request to lock AF.
-        val request2 = requestProcessor.nextEvent().requestSequence
-        assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER]).isEqualTo(
-            CaptureRequest.CONTROL_AF_TRIGGER_START
-        )
-        assertThat(request2.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(
-            true
-        )
+        val request2 = captureSequenceProcessor.nextEvent().requestSequence
+        assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
+            .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START)
+        assertThat(request2.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     @Test
-    fun testLock3AWithUnsupportedAutoFocusTrigger(): Unit = runBlocking {
-        initGraphProcessor()
-
-        val fakeMetadata = FakeCameraMetadata(
-            mapOf(
-                CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
-                    intArrayOf(CaptureRequest.CONTROL_AF_MODE_OFF)
-            ),
-        )
+    fun testLock3AWithUnsupportedAutoFocusTrigger() = runTest {
+        val fakeMetadata =
+            FakeCameraMetadata(
+                mapOf(
+                    CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
+                        intArrayOf(CaptureRequest.CONTROL_AF_MODE_OFF)),
+            )
         val controller3A = Controller3A(graphProcessor, fakeMetadata, graphState3A, listener3A)
         val result = controller3A.lock3A(afLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN).await()
         assertThat(result.status).isEqualTo(Result3A.Status.OK)
         assertThat(result.frameMetadata).isEqualTo(null)
-    }
-
-    private fun initGraphProcessor() {
-        graphProcessor.onGraphStarted(requestProcessor)
-        graphProcessor.startRepeating(Request(streams = listOf(StreamId(1))))
     }
 
     companion object {

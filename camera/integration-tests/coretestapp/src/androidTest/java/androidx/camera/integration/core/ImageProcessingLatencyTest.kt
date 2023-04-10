@@ -18,6 +18,7 @@ package androidx.camera.integration.core
 
 import android.content.Context
 import android.util.Size
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888
@@ -29,6 +30,8 @@ import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
@@ -39,11 +42,8 @@ import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 // Profile the ImageProcessing performance to convert the input image from CameraX.
 @LargeTest
@@ -52,7 +52,9 @@ class ImageProcessingLatencyTest(
     private val targetResolution: Size
 ) {
     @get:Rule
-    val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     @get:Rule
     val labTest: LabTestRule = LabTestRule()
@@ -86,7 +88,6 @@ class ImageProcessingLatencyTest(
     fun tearDown(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
             withContext(Dispatchers.Main) {
-                cameraProvider.unbindAll()
                 cameraProvider.shutdown()[10, TimeUnit.SECONDS]
             }
         }
@@ -104,7 +105,7 @@ class ImageProcessingLatencyTest(
         measureImageProcessing(CameraSelector.LENS_FACING_FRONT)
     }
 
-    private fun measureImageProcessing(lensFacing: Int) {
+    private fun measureImageProcessing(lensFacing: Int): Unit = runBlocking {
         // The log is used to profile the ImageProcessing performance. The log parser identifies
         // the log pattern "Image processing performance profiling" in the device output log.
         Logger.d(
@@ -126,12 +127,13 @@ class ImageProcessingLatencyTest(
                 }
             }
 
-        camera =
-            CameraUtil.createCameraAndAttachUseCase(
-                context,
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
                 CameraSelector.Builder().requireLensFacing(lensFacing).build(),
                 imageAnalyzer
             )
+        }
 
         assertTrue(countDownLatch.await(60, TimeUnit.SECONDS))
     }

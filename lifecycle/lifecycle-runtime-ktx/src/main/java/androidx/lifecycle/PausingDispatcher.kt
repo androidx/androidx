@@ -30,6 +30,12 @@ import kotlin.coroutines.CoroutineContext
  *
  * @see Lifecycle.whenStateAtLeast for details
  */
+@Deprecated("whenCreated has been deprecated because it runs the block on a " +
+    "pausing dispatcher that suspends, rather than cancels work when the " +
+    "lifecycle state goes below the given state. Use withCreated for " +
+    "non-suspending work that needs to run only once when the Lifecycle changes."
+)
+@Suppress("DEPRECATION")
 public suspend fun <T> LifecycleOwner.whenCreated(block: suspend CoroutineScope.() -> T): T =
     lifecycle.whenCreated(block)
 
@@ -38,6 +44,12 @@ public suspend fun <T> LifecycleOwner.whenCreated(block: suspend CoroutineScope.
  *
  * @see Lifecycle.whenStateAtLeast for details
  */
+@Deprecated("whenCreated has been deprecated because it runs the block on a " +
+    "pausing dispatcher that suspends, rather than cancels work when the " +
+    "lifecycle state goes below the given state. Use withCreated for " +
+    "non-suspending work that needs to run only once when the Lifecycle changes."
+)
+@Suppress("DEPRECATION")
 public suspend fun <T> Lifecycle.whenCreated(block: suspend CoroutineScope.() -> T): T {
     return whenStateAtLeast(Lifecycle.State.CREATED, block)
 }
@@ -48,6 +60,12 @@ public suspend fun <T> Lifecycle.whenCreated(block: suspend CoroutineScope.() ->
  *
  * @see Lifecycle.whenStateAtLeast for details
  */
+@Deprecated("whenStarted has been deprecated because it runs the block on a " +
+    "pausing dispatcher that suspends, rather than cancels work when the " +
+    "lifecycle state goes below the given state. Use withStarted for " +
+    "non-suspending work that needs to run only once when the Lifecycle changes."
+)
+@Suppress("DEPRECATION")
 public suspend fun <T> LifecycleOwner.whenStarted(block: suspend CoroutineScope.() -> T): T =
     lifecycle.whenStarted(block)
 
@@ -56,6 +74,12 @@ public suspend fun <T> LifecycleOwner.whenStarted(block: suspend CoroutineScope.
  *
  * @see Lifecycle.whenStateAtLeast for details
  */
+@Deprecated("whenStarted has been deprecated because it runs the block on a " +
+    "pausing dispatcher that suspends, rather than cancels work when the " +
+    "lifecycle state goes below the given state. Use withStarted for " +
+    "non-suspending work that needs to run only once when the Lifecycle changes."
+)
+@Suppress("DEPRECATION")
 public suspend fun <T> Lifecycle.whenStarted(block: suspend CoroutineScope.() -> T): T {
     return whenStateAtLeast(Lifecycle.State.STARTED, block)
 }
@@ -66,6 +90,12 @@ public suspend fun <T> Lifecycle.whenStarted(block: suspend CoroutineScope.() ->
  *
  * @see Lifecycle.whenStateAtLeast for details
  */
+@Deprecated("whenResumed has been deprecated because it runs the block on a " +
+    "pausing dispatcher that suspends, rather than cancels work when the " +
+    "lifecycle state goes below the given state. Use withResumed for " +
+    "non-suspending work that needs to run only once when the Lifecycle changes."
+)
+@Suppress("DEPRECATION")
 public suspend fun <T> LifecycleOwner.whenResumed(block: suspend CoroutineScope.() -> T): T =
     lifecycle.whenResumed(block)
 
@@ -74,6 +104,12 @@ public suspend fun <T> LifecycleOwner.whenResumed(block: suspend CoroutineScope.
  *
  * @see Lifecycle.whenStateAtLeast for details
  */
+@Deprecated("whenResumed has been deprecated because it runs the block on a " +
+    "pausing dispatcher that suspends, rather than cancels work when the " +
+    "lifecycle state goes below the given state. Use withResumed for " +
+    "non-suspending work that needs to run only once when the Lifecycle changes."
+)
+@Suppress("DEPRECATION")
 public suspend fun <T> Lifecycle.whenResumed(block: suspend CoroutineScope.() -> T): T {
     return whenStateAtLeast(Lifecycle.State.RESUMED, block)
 }
@@ -150,6 +186,11 @@ public suspend fun <T> Lifecycle.whenResumed(block: suspend CoroutineScope.() ->
  * @param block The block to run when the lifecycle is at least in [minState].
  * @return <T> The return value of the [block]
  */
+@Deprecated("whenStateAtLeast has been deprecated because it runs the block on a " +
+    "pausing dispatcher that suspends, rather than cancels work when the " +
+    "lifecycle state goes below the given state. Use withStateAtLeast for " +
+    "non-suspending work that needs to run only once when the Lifecycle changes."
+)
 public suspend fun <T> Lifecycle.whenStateAtLeast(
     minState: Lifecycle.State,
     block: suspend CoroutineScope.() -> T

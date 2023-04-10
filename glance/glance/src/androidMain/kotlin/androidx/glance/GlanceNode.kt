@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:GlanceComposable
+
 package androidx.glance
 
 import androidx.annotation.RestrictTo
@@ -38,7 +40,7 @@ inline fun <T : Emittable> GlanceNode(
 inline fun <T : Emittable> GlanceNode(
     noinline factory: () -> T,
     update: @DisallowComposableCalls Updater<T>.() -> Unit,
-    content: @Composable () -> Unit,
+    content: @Composable @GlanceComposable () -> Unit,
 ) {
     ComposeNode<T, Applier>(factory, update, content)
 }

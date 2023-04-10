@@ -41,7 +41,3 @@ KotlinOperator: androidx.recyclerview.selection.Selection#contains(K):
 
 PublicTypedef: androidx.recyclerview.selection.ItemKeyProvider.Scope:
     Don't expose @IntDef: Scope must be hidden.
-
-
-VisiblySynchronized: androidx.recyclerview.selection.OperationMonitor#isStarted():
-    Internal locks must not be exposed: method androidx.recyclerview.selection.OperationMonitor.isStarted()

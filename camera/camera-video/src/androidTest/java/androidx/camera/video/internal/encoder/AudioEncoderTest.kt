@@ -17,6 +17,7 @@ package androidx.camera.video.internal.encoder
 
 import android.media.MediaCodecInfo
 import androidx.camera.core.impl.Observable.Observer
+import androidx.camera.core.impl.Timebase
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.video.internal.BufferProvider
 import androidx.camera.video.internal.BufferProvider.State
@@ -25,6 +26,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import java.nio.ByteBuffer
+import java.util.concurrent.Semaphore
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.AtomicReference
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -38,19 +46,12 @@ import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
-import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.clearInvocations
 import org.mockito.Mockito.inOrder
 import org.mockito.Mockito.never
 import org.mockito.Mockito.timeout
 import org.mockito.Mockito.verify
 import org.mockito.invocation.InvocationOnMock
-import java.nio.ByteBuffer
-import java.util.concurrent.Semaphore
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicLong
-import java.util.concurrent.atomic.AtomicReference
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -60,12 +61,13 @@ class AudioEncoderTest {
     companion object {
         private const val MIME_TYPE = "audio/mp4a-latm"
         private const val ENCODER_PROFILE = MediaCodecInfo.CodecProfileLevel.AACObjectLC
+        private val INPUT_TIMEBASE = Timebase.UPTIME
         private const val BIT_RATE = 64000
         private const val SAMPLE_RATE = 44100
         private const val CHANNEL_COUNT = 1
     }
 
-    private lateinit var encoder: Encoder
+    private lateinit var encoder: EncoderImpl
     private lateinit var encoderCallback: EncoderCallback
     private lateinit var fakeAudioLoop: FakeAudioLoop
 
@@ -83,6 +85,7 @@ class AudioEncoderTest {
             AudioEncoderConfig.builder()
                 .setMimeType(MIME_TYPE)
                 .setProfile(ENCODER_PROFILE)
+                .setInputTimebase(INPUT_TIMEBASE)
                 .setBitrate(BIT_RATE)
                 .setSampleRate(SAMPLE_RATE)
                 .setChannelCount(CHANNEL_COUNT)
@@ -98,10 +101,16 @@ class AudioEncoderTest {
     fun tearDown() {
         if (this::encoder.isInitialized) {
             encoder.release()
+            encoder.releasedFuture[10, TimeUnit.SECONDS]
         }
         if (this::fakeAudioLoop.isInitialized) {
             fakeAudioLoop.stop()
         }
+    }
+
+    @Test
+    fun canGetEncoderInfo() {
+        assertThat(encoder.encoderInfo).isNotNull()
     }
 
     @Test
@@ -285,28 +294,48 @@ class AudioEncoderTest {
     fun pauseResumeEncoder_getChronologicalData() {
         // Arrange.
         fakeAudioLoop.start()
-        val dataList = ArrayList<EncodedData>()
+        val inOrder = inOrder(encoderCallback)
+
+        // Act.
+        encoder.start()
+        inOrder.verify(encoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
+
+        encoder.pause()
+        inOrder.verify(encoderCallback, timeout(5000L)).onEncodePaused()
+
+        encoder.start()
+        inOrder.verify(encoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
+
+        // Assert.
+        val captor = ArgumentCaptor.forClass(EncodedData::class.java)
+        verify(
+            encoderCallback,
+            Mockito.atLeast(/*start*/5 + /*resume*/5)
+        ).onEncodedData(captor.capture())
+        verifyDataInChronologicalOrder(captor.allValues)
+
+        // Cleanup.
+        encoder.stop()
+    }
+
+    @Test
+    fun stopEncoder_reachStopTime() {
+        // Arrange.
+        fakeAudioLoop.start()
 
         // Act.
         encoder.start()
         verify(encoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
 
-        encoder.pause()
-        verify(encoderCallback, timeout(5000L)).onEncodePaused()
+        val stopTimeUs = TimeUnit.NANOSECONDS.toMicros(System.nanoTime())
 
-        // Save all values before clear invocations
-        var startCaptor = ArgumentCaptor.forClass(EncodedData::class.java)
-        verify(encoderCallback, atLeastOnce()).onEncodedData(startCaptor.capture())
-        dataList.addAll(startCaptor.allValues)
-        clearInvocations(encoderCallback)
-
-        encoder.start()
-        val resumeCaptor = ArgumentCaptor.forClass(EncodedData::class.java)
-        verify(encoderCallback, timeout(15000L).atLeast(5)).onEncodedData(resumeCaptor.capture())
-        dataList.addAll(resumeCaptor.allValues)
+        encoder.stop()
+        verify(encoderCallback, timeout(5000L)).onEncodeStop()
 
         // Assert.
-        verifyDataInChronologicalOrder(dataList)
+        // If the last data timestamp is null, it means the encoding is probably stopped because of timeout.
+        assertThat(encoder.mLastDataStopTimestamp).isNotNull()
+        assertThat(encoder.mLastDataStopTimestamp).isAtLeast(stopTimeUs)
     }
 
     @Test
@@ -402,8 +431,9 @@ class AudioEncoderTest {
                 CameraXExecutors.ioExecutor().asCoroutineDispatcher()
             ) {
                 while (true) {
+                    val acquireFuture = bufferProvider.acquireBuffer()
                     try {
-                        val inputBuffer = bufferProvider.acquireBuffer().await()
+                        val inputBuffer = acquireFuture.await()
                         inputBuffer.apply {
                             byteBuffer.apply {
                                 put(
@@ -418,6 +448,15 @@ class AudioEncoderTest {
                             submit()
                         }
                     } catch (e: IllegalStateException) {
+                        if (e is CancellationException) {
+                            // When the fake loop is stopped, cancel acquired InputBuffer if any.
+                            if (!acquireFuture.cancel(true)) {
+                                try {
+                                    acquireFuture.await().cancel()
+                                } catch (ignored: Exception) {
+                                }
+                            }
+                        }
                         // For simplicity, AudioLoop doesn't monitor the encoder's state.
                         // When an IllegalStateException is thrown by encoder which is not started,
                         // AudioLoop should retry with a delay to avoid busy loop.

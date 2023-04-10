@@ -16,45 +16,62 @@
 
 package androidx.camera.integration.uiwidgets.rotations
 
+import android.os.Build
 import android.view.Surface
 import android.view.View
-import androidx.camera.core.CameraSelector
 import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
+import java.util.Locale
+import java.util.concurrent.TimeUnit
 import org.junit.After
+import org.junit.Assume
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.TimeUnit
 
 @RunWith(Parameterized::class)
 @LargeTest
 class ImageAnalysisOrientationConfigChangesTest(
     private val lensFacing: Int,
-    private val rotation: Int
-) : ImageAnalysisBaseTest<OrientationConfigChangesOverriddenActivity>() {
+    private val rotation: Int,
+    private val cameraXConfig: String
+) : ImageAnalysisBaseTest<OrientationConfigChangesOverriddenActivity>(cameraXConfig) {
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters(name = "lensFacing={0}, rotation={1}")
+        private val rotations = arrayOf(
+            Surface.ROTATION_0,
+            Surface.ROTATION_90,
+            Surface.ROTATION_180,
+            Surface.ROTATION_270
+        )
+
+        @JvmStatic
+        @Parameterized.Parameters(name = "lensFacing={0}, rotation={1}, cameraXConfig={2}")
         fun data() = mutableListOf<Array<Any?>>().apply {
-            add(arrayOf(CameraSelector.LENS_FACING_BACK, Surface.ROTATION_0))
-            add(arrayOf(CameraSelector.LENS_FACING_BACK, Surface.ROTATION_90))
-            add(arrayOf(CameraSelector.LENS_FACING_BACK, Surface.ROTATION_180))
-            add(arrayOf(CameraSelector.LENS_FACING_BACK, Surface.ROTATION_270))
-            add(arrayOf(CameraSelector.LENS_FACING_FRONT, Surface.ROTATION_0))
-            add(arrayOf(CameraSelector.LENS_FACING_FRONT, Surface.ROTATION_90))
-            add(arrayOf(CameraSelector.LENS_FACING_FRONT, Surface.ROTATION_180))
-            add(arrayOf(CameraSelector.LENS_FACING_FRONT, Surface.ROTATION_270))
+            lensFacingList.forEach { lens ->
+                rotations.forEach { rotation ->
+                    cameraXConfigList.forEach { cameraXConfig ->
+                        add(arrayOf(lens, rotation, cameraXConfig))
+                    }
+                }
+            }
         }
     }
 
     @Before
     fun before() {
+        Assume.assumeFalse(
+            "Known issue on this device. Please see b/198744779",
+            listOf(
+                "redmi note 9s",
+                "redmi note 8"
+            ).contains(Build.MODEL.lowercase(Locale.US)) && rotation == Surface.ROTATION_180
+        )
         setUp(lensFacing)
     }
 
@@ -65,7 +82,7 @@ class ImageAnalysisOrientationConfigChangesTest(
 
     @Test
     fun verifyRotation() {
-        verifyRotation<OrientationConfigChangesOverriddenActivity>(lensFacing) {
+        verifyRotation<OrientationConfigChangesOverriddenActivity>(lensFacing, cameraXConfig) {
             if (rotate(rotation)) {
 
                 // Wait for the rotation to occur

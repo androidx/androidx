@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -39,7 +38,14 @@ dependencies {
 androidx {
     name = "AndroidX Share Target Support Library"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.SHARETARGET
     inceptionYear = "2018"
     description = "ShareTarget"
+}
+
+android {
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
+    }
+
+    namespace "androidx.sharetarget"
 }

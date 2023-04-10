@@ -27,20 +27,21 @@ import android.view.DisplayListCanvas
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.annotation.RequiresApi
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.platform.ViewRootForTest
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.TestMonotonicFrameClock
 import androidx.compose.ui.test.frameDelayMillis
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
 /**
  * Factory method to provide implementation of [ComposeBenchmarkScope].
@@ -52,7 +53,7 @@ fun <T : ComposeTestCase> createAndroidComposeBenchmarkRunner(
     return AndroidComposeTestCaseRunner(testCaseFactory, activity)
 }
 
-@OptIn(ExperimentalCoroutinesApi::class) // for TestCoroutineDispatcher and friends
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
 internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
     private val testCaseFactory: () -> T,
     private val activity: ComponentActivity
@@ -86,10 +87,14 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
 
     private var canvas: Canvas? = null
 
-    private val testCoroutineDispatcher = TestCoroutineDispatcher()
-    private val frameClock = TestMonotonicFrameClock(CoroutineScope(testCoroutineDispatcher))
+    private val testCoroutineDispatcher = UnconfinedTestDispatcher()
+    private val frameClock = TestMonotonicFrameClock(
+        CoroutineScope(testCoroutineDispatcher + testCoroutineDispatcher.scheduler)
+    )
+
+    @OptIn(ExperimentalTestApi::class)
     private val recomposerApplyCoroutineScope = CoroutineScope(
-        testCoroutineDispatcher + frameClock + Job()
+        frameClock + frameClock.continuationInterceptor + Job()
     )
     private val recomposer: Recomposer = Recomposer(recomposerApplyCoroutineScope.coroutineContext)
         .also { recomposerApplyCoroutineScope.launch { it.runRecomposeAndApplyChanges() } }
@@ -172,7 +177,7 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
         require(simulationState == SimulationState.DrawPrepared) {
             "You need to call 'drawPrepare' before calling 'draw'."
         }
-        getView().draw(canvas)
+        getView().draw(canvas!!)
         simulationState = SimulationState.DrawInProgress
     }
 
@@ -206,7 +211,8 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
     override fun recompose() {
         if (hasPendingChanges()) {
             didLastRecomposeHaveChanges = true
-            testCoroutineDispatcher.advanceTimeBy(frameClock.frameDelayMillis)
+            testCoroutineDispatcher.scheduler.advanceTimeBy(frameClock.frameDelayMillis)
+            testCoroutineDispatcher.scheduler.runCurrent()
         } else {
             didLastRecomposeHaveChanges = false
         }
@@ -241,12 +247,13 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
         rootView.removeAllViews()
 
         // Dispatcher will clean up the cancelled coroutines when it advances to them
-        testCoroutineDispatcher.advanceUntilIdle()
+        testCoroutineDispatcher.scheduler.advanceUntilIdle()
 
         // Important so we can set the content again.
         view = null
         testCase = null
         simulationState = SimulationState.Initialized
+        recomposer.close()
     }
 
     override fun capturePreviewPictureToActivity() {

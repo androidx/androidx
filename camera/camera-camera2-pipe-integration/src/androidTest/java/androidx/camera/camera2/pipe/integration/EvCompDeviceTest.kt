@@ -29,7 +29,6 @@ import androidx.camera.camera2.pipe.testing.VerifyResultListener
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
@@ -39,6 +38,8 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
@@ -48,8 +49,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -162,40 +161,6 @@ class EvCompDeviceTest {
     }
 
     @Test
-    fun setExposureAndStartFlashSequence_theExposureSettingShouldApply() = runBlocking {
-        val exposureState = camera.cameraInfo.exposureState
-        Assume.assumeTrue(exposureState.isExposureCompensationSupported)
-
-        bindUseCase()
-
-        // Act. Set the exposure compensation
-        val upper = exposureState.exposureCompensationRange.upper
-        cameraControl.setExposureCompensationIndex(upper).get(3000, TimeUnit.MILLISECONDS)
-        // Test the flash API after exposure changed.
-        cameraControl.startFlashSequence(FLASH_TYPE_ONE_SHOT_FLASH).get(3000, TimeUnit.MILLISECONDS)
-
-        // Assert. Verify the exposure compensation target result is in the capture result.
-        registerListener().verifyCaptureResultParameter(CONTROL_AE_EXPOSURE_COMPENSATION, upper)
-    }
-
-    @Test
-    fun setExposureAndTriggerAf_theExposureSettingShouldApply() = runBlocking {
-        val exposureState = camera.cameraInfo.exposureState
-        Assume.assumeTrue(exposureState.isExposureCompensationSupported)
-
-        bindUseCase()
-
-        // Act. Set the exposure compensation, and then use the AF API after the exposure is
-        // changed.
-        val upper = exposureState.exposureCompensationRange.upper
-        cameraControl.setExposureCompensationIndex(upper).get(3000, TimeUnit.MILLISECONDS)
-        cameraControl.triggerAf().get(3000, TimeUnit.MILLISECONDS)
-
-        // Assert. Verify the exposure compensation target result is in the capture result.
-        registerListener().verifyCaptureResultParameter(CONTROL_AE_EXPOSURE_COMPENSATION, upper)
-    }
-
-    @Test
     fun setExposureAndZoomRatio_theExposureSettingShouldApply() = runBlocking {
         val exposureState = camera.cameraInfo.exposureState
         Assume.assumeTrue(exposureState.isExposureCompensationSupported)
@@ -277,9 +242,7 @@ class EvCompDeviceTest {
         value: T,
         timeout: Long = TimeUnit.SECONDS.toMillis(5),
     ) = verify(
-        { _, captureResults: List<FrameInfo> ->
-            Truth.assertThat(captureResults.last().metadata[key]).isEqualTo(value)
-        },
+        { _, captureResult: FrameInfo -> captureResult.metadata[key] == value },
         timeout
     )
 

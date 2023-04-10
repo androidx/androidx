@@ -37,9 +37,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.wear.watchface.complications.data.StringExpression;
 
+import java.io.IOException;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Objects;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -58,7 +65,46 @@ import java.util.concurrent.TimeUnit;
  */
 @SuppressLint("BanParcelableUsage")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public final class ComplicationText implements Parcelable, TimeDependentText {
+public final class ComplicationText implements Parcelable, TimeDependentText, Serializable {
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ComplicationText that = (ComplicationText) o;
+        if (!Objects.equals(mStringExpression, that.mStringExpression)) {
+            return false;
+        }
+        if (!Objects.equals(mTimeDependentText, that.mTimeDependentText)) {
+            return false;
+        }
+        if (mSurroundingText == null) {
+            return that.mSurroundingText == null;
+        } else {
+            if (that.mSurroundingText != null) {
+                return mSurroundingText.toString().contentEquals(that.mSurroundingText);
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mSurroundingText, mTimeDependentText, mStringExpression);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "ComplicationText{" + "mSurroundingText="
+                + ComplicationData.maybeRedact(mSurroundingText)
+                + ", mTimeDependentText=" + mTimeDependentText + ", mStringExpression="
+                + mStringExpression + "}";
+    }
 
     /** @hide */
     @IntDef({
@@ -189,6 +235,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
     private static final String KEY_DIFFERENCE_STYLE = "difference_style";
     private static final String KEY_DIFFERENCE_SHOW_NOW_TEXT = "show_now_text";
     private static final String KEY_DIFFERENCE_MINIMUM_UNIT = "minimum_unit";
+    private static final String KEY_STRING_EXPRESSION = "string_expression";
     private static final String KEY_FORMAT_FORMAT_STRING = "format_format_string";
     private static final String KEY_FORMAT_STYLE = "format_style";
     private static final String KEY_FORMAT_TIME_ZONE = "format_time_zone";
@@ -216,14 +263,20 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
      * #mTimeDependentText} is not null, getText will return this text with {@code ^1} replaced by
      * the time-dependent string.
      */
-    @Nullable private final CharSequence mSurroundingText;
+    @Nullable
+    private final CharSequence mSurroundingText;
 
     /**
      * The time-dependent part of the complication text. If {@link #mSurroundingText} is null, this
      * must be not null and {@link #getTextAt} will return just the time-dependent value relative to
      * the given time.
      */
+    @Nullable
     private final TimeDependentText mTimeDependentText;
+
+    /** A [StringExpression] which will be evaluated by the system on the WatchFace's behalf. */
+    @Nullable
+    private final StringExpression mStringExpression;
 
     /** Used to replace occurrences of ^1 with time dependent text and ignore ^[2-9]. */
     private final CharSequence[] mTemplateValues =
@@ -234,17 +287,43 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
 
     private CharSequence mDependentTextCache;
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    public ComplicationText(@Nullable CharSequence surroundingText,
-            @Nullable TimeDependentText timeDependentText) {
+    private ComplicationText(
+            @Nullable CharSequence surroundingText,
+            @Nullable TimeDependentText timeDependentText,
+            @Nullable StringExpression stringExpression) {
         mSurroundingText = surroundingText;
         mTimeDependentText = timeDependentText;
+        mStringExpression = stringExpression;
         checkFields();
+    }
+
+    public ComplicationText(@NonNull CharSequence surroundingText) {
+        this(surroundingText, /* timeDependentText = */ null, /* stringExpression = */ null);
+    }
+
+    public ComplicationText(
+            @NonNull CharSequence surroundingText, @NonNull TimeDependentText timeDependentText) {
+        this(surroundingText, timeDependentText, /* stringExpression = */ null);
+    }
+
+    public ComplicationText(
+            @NonNull CharSequence surroundingText, @NonNull StringExpression stringExpression) {
+        this(surroundingText, /* timeDependentText = */ null, stringExpression);
+    }
+
+    public ComplicationText(@NonNull StringExpression stringExpression) {
+        this(/* surroundingText = */ null, /* timeDependentText = */ null, stringExpression);
     }
 
     private ComplicationText(@NonNull Parcel in) {
         Bundle bundle = in.readBundle(getClass().getClassLoader());
         mSurroundingText = bundle.getCharSequence(KEY_SURROUNDING_STRING);
+
+        if (bundle.containsKey(KEY_STRING_EXPRESSION)) {
+            mStringExpression = new StringExpression(bundle.getByteArray(KEY_STRING_EXPRESSION));
+        } else {
+            mStringExpression = null;
+        }
 
         if (bundle.containsKey(KEY_DIFFERENCE_STYLE)
                 && bundle.containsKey(KEY_DIFFERENCE_PERIOD_START)
@@ -273,6 +352,58 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
         checkFields();
     }
 
+    private static class SerializedForm implements Serializable {
+        CharSequence mSurroundingText;
+        TimeDependentText mTimeDependentText;
+        StringExpression mStringExpression;
+
+        SerializedForm(@Nullable CharSequence surroundingText,
+                @Nullable TimeDependentText timeDependentText,
+                @Nullable StringExpression stringExpression) {
+            mSurroundingText = surroundingText;
+            mTimeDependentText = timeDependentText;
+            mStringExpression = stringExpression;
+        }
+
+        private void writeObject(ObjectOutputStream oos) throws IOException {
+            CharSequenceSerializableHelper.writeToStream(mSurroundingText, oos);
+            oos.writeObject(mTimeDependentText);
+            if (mStringExpression == null) {
+                oos.writeInt(0);
+            } else {
+                byte[] bytes = mStringExpression.asByteArray();
+                oos.writeInt(bytes.length);
+                oos.write(bytes);
+            }
+        }
+
+        private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+            mSurroundingText = CharSequenceSerializableHelper.readFromStream(ois);
+            mTimeDependentText = (TimeDependentText) ois.readObject();
+            int length = ois.readInt();
+            if (length == 0) {
+                mStringExpression = null;
+            } else {
+                byte[] bytes = new byte[length];
+                ois.readFully(bytes);
+                mStringExpression = new StringExpression(bytes);
+            }
+        }
+
+        @SuppressLint("SyntheticAccessor")
+        Object readResolve() {
+            return new ComplicationText(mSurroundingText, mTimeDependentText, mStringExpression);
+        }
+    }
+
+    Object writeReplace() {
+        return new SerializedForm(mSurroundingText, mTimeDependentText, mStringExpression);
+    }
+
+    private void readObject(ObjectInputStream stream) throws InvalidObjectException {
+        throw new InvalidObjectException("Use SerializedForm");
+    }
+
     /**
      * Returns the {@link TimeUnit} with the provided {@code name}. Returns null if {@code name} is
      * null, or is not a TimeUnit.
@@ -290,16 +421,17 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
     }
 
     private void checkFields() {
-        if (mSurroundingText == null && mTimeDependentText == null) {
+        if (mSurroundingText == null && mTimeDependentText == null && mStringExpression == null) {
             throw new IllegalStateException(
-                    "One of mSurroundingText and mTimeDependentText must be non-null");
+                    "One of mSurroundingText, mTimeDependentText and mStringExpression must be"
+                            + " non-null");
         }
     }
 
     /**
      * Writes this {@link ComplicationProviderInfo} to a {@link Parcel}.
      *
-     * @param out The {@link Parcel} to write to
+     * @param out   The {@link Parcel} to write to
      * @param flags Flags for writing the {@link Parcel}
      */
     @Override
@@ -307,22 +439,29 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
         Bundle bundle = new Bundle();
         bundle.putCharSequence(KEY_SURROUNDING_STRING, mSurroundingText);
 
-        if (mTimeDependentText instanceof TimeDifferenceText) {
-            TimeDifferenceText timeDiffText = (TimeDifferenceText) mTimeDependentText;
-            bundle.putLong(KEY_DIFFERENCE_PERIOD_START, timeDiffText.getReferencePeriodStart());
-            bundle.putLong(KEY_DIFFERENCE_PERIOD_END, timeDiffText.getReferencePeriodEnd());
-            bundle.putInt(KEY_DIFFERENCE_STYLE, timeDiffText.getStyle());
-            bundle.putBoolean(KEY_DIFFERENCE_SHOW_NOW_TEXT, timeDiffText.shouldShowNowText());
-            if (timeDiffText.getMinimumUnit() != null) {
-                bundle.putString(KEY_DIFFERENCE_MINIMUM_UNIT, timeDiffText.getMinimumUnit().name());
-            }
-        } else if (mTimeDependentText instanceof TimeFormatText) {
-            TimeFormatText timeFormatText = (TimeFormatText) mTimeDependentText;
-            bundle.putString(KEY_FORMAT_FORMAT_STRING, timeFormatText.getFormatString());
-            bundle.putInt(KEY_FORMAT_STYLE, timeFormatText.getStyle());
-            TimeZone timeZone = timeFormatText.getTimeZone();
-            if (timeZone != null) {
-                bundle.putString(KEY_FORMAT_TIME_ZONE, timeZone.getID());
+        if (mStringExpression != null) {
+            bundle.putByteArray(KEY_STRING_EXPRESSION, mStringExpression.asByteArray());
+        }
+
+        if (mTimeDependentText != null) {
+            if (mTimeDependentText instanceof TimeDifferenceText) {
+                TimeDifferenceText timeDiffText = (TimeDifferenceText) mTimeDependentText;
+                bundle.putLong(KEY_DIFFERENCE_PERIOD_START, timeDiffText.getReferencePeriodStart());
+                bundle.putLong(KEY_DIFFERENCE_PERIOD_END, timeDiffText.getReferencePeriodEnd());
+                bundle.putInt(KEY_DIFFERENCE_STYLE, timeDiffText.getStyle());
+                bundle.putBoolean(KEY_DIFFERENCE_SHOW_NOW_TEXT, timeDiffText.shouldShowNowText());
+                if (timeDiffText.getMinimumUnit() != null) {
+                    bundle.putString(KEY_DIFFERENCE_MINIMUM_UNIT,
+                            timeDiffText.getMinimumUnit().name());
+                }
+            } else if (mTimeDependentText instanceof TimeFormatText) {
+                TimeFormatText timeFormatText = (TimeFormatText) mTimeDependentText;
+                bundle.putString(KEY_FORMAT_FORMAT_STRING, timeFormatText.getFormatString());
+                bundle.putInt(KEY_FORMAT_STYLE, timeFormatText.getStyle());
+                TimeZone timeZone = timeFormatText.getTimeZone();
+                if (timeZone != null) {
+                    bundle.putString(KEY_FORMAT_TIME_ZONE, timeZone.getID());
+                }
             }
         }
 
@@ -337,6 +476,11 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public TimeDependentText getTimeDependentText() {
+        if (mStringExpression != null) {
+            throw new UnsupportedOperationException("getTimeDependentText not supported for "
+                    + "StringExpressions");
+        }
+        assert mTimeDependentText != null;
         return mTimeDependentText;
     }
 
@@ -349,13 +493,18 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
      * {@code referencePeriodEnd} then the text returned will represent the time difference
      * between {@code referencePeriodStart} and {@code dateTimeMillis}.
      *
-     * @param resources {@link Resources} from the current {@link Context}
+     * @param resources      {@link Resources} from the current {@link Context}
      * @param dateTimeMillis milliseconds since epoch, e.g. from {@link System#currentTimeMillis}
      * @return Text appropriate for the given date time.
      */
     @NonNull
     @Override
     public CharSequence getTextAt(@NonNull Resources resources, long dateTimeMillis) {
+        if (mStringExpression != null && mTimeDependentText == null && mSurroundingText == null) {
+            throw new UnsupportedOperationException("getTextAt not supported for "
+                    + "StringExpressions");
+        }
+
         if (mTimeDependentText == null) {
             return mSurroundingText;
         }
@@ -378,12 +527,24 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
         return TextUtils.expandTemplate(mSurroundingText, mTemplateValues);
     }
 
-    /**
-     * Returns The text within which the time difference is displayed.
-     */
+    /** Returns the text within which the time difference is displayed. */
     @Nullable
-    CharSequence getSurroundingText() {
+    public CharSequence getSurroundingText() {
         return mSurroundingText;
+    }
+
+    /** Returns the {@link StringExpression} to be evaluated to display this text. */
+    @Nullable
+    public StringExpression getStringExpression() {
+        return mStringExpression;
+    }
+
+    /** Whether or not this is a placeholder. */
+    public boolean isPlaceholder() {
+        if (mSurroundingText == null) {
+            return false;
+        }
+        return mSurroundingText.toString().equals(ComplicationData.PLACEHOLDER_STRING);
     }
 
     /**
@@ -440,7 +601,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
      */
     @NonNull
     public static ComplicationText plainText(@NonNull CharSequence text) {
-        return new ComplicationText(text, null);
+        return new ComplicationText(text);
     }
 
     /**
@@ -481,9 +642,11 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
 
         /**
          * @param referencePeriodStartMillis The start of the reference period (in milliseconds
-         *     since the epoch) from which the time difference will be calculated.
-         * @param referencePeriodEndMillis The end of the reference period (in milliseconds since
-         *     the epoch) from which the time difference will be calculated.
+         *                                   since the epoch) from which the time difference will
+         *                                   be calculated.
+         * @param referencePeriodEndMillis   The end of the reference period (in milliseconds since
+         *                                   the epoch) from which the time difference will be
+         *                                   calculated.
          */
         public TimeDifferenceBuilder(
                 long referencePeriodStartMillis,

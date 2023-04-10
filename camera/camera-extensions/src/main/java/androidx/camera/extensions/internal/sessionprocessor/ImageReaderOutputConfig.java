@@ -19,26 +19,49 @@ package androidx.camera.extensions.internal.sessionprocessor;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+
+import com.google.auto.value.AutoValue;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Surface will be created by constructing an ImageReader.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public interface ImageReaderOutputConfig extends Camera2OutputConfig {
+@AutoValue
+public abstract class ImageReaderOutputConfig implements Camera2OutputConfig {
+    /**
+     * Creates the {@link ImageReaderOutputConfig} instance.
+     */
+    static ImageReaderOutputConfig create(int id, int surfaceGroupId,
+            @Nullable String physicalCameraId,
+            @NonNull List<Camera2OutputConfig> sharedOutputConfigs,
+            @NonNull Size size, int imageFormat, int maxImages) {
+        return new AutoValue_ImageReaderOutputConfig(id, surfaceGroupId, physicalCameraId,
+                sharedOutputConfigs, size, imageFormat, maxImages);
+    }
+
+    static ImageReaderOutputConfig create(
+            int id, @NonNull Size size, int imageFormat, int maxImages) {
+        return new AutoValue_ImageReaderOutputConfig(id, -1, null,
+                Collections.emptyList(), size, imageFormat, maxImages);
+    }
     /**
      * Returns the size of the surface.
      */
     @NonNull
-    Size getSize();
+    abstract Size getSize();
 
     /**
      * Gets the image format of the surface.
      */
-    int getImageFormat();
+    abstract int getImageFormat();
 
     /**
      * Gets the capacity for the image reader.
      */
-    int getMaxImages();
+    abstract int getMaxImages();
 }

@@ -31,11 +31,16 @@ import java.util.Objects;
 /**
  * Implementation of the OutputConfiguration compat methods for API 24 and above.
  */
+@SuppressWarnings("unused")
 @RequiresApi(24)
 class OutputConfigurationCompatApi24Impl extends OutputConfigurationCompatBaseImpl {
 
     OutputConfigurationCompatApi24Impl(@NonNull Surface surface) {
         this(new OutputConfigurationParamsApi24(new OutputConfiguration(surface)));
+    }
+
+    OutputConfigurationCompatApi24Impl(int surfaceGroupId, @NonNull Surface surface) {
+        this(new OutputConfigurationParamsApi24(new OutputConfiguration(surfaceGroupId, surface)));
     }
 
     OutputConfigurationCompatApi24Impl(@NonNull Object outputConfiguration) {
@@ -93,15 +98,17 @@ class OutputConfigurationCompatApi24Impl extends OutputConfigurationCompatBaseIm
         return ((OutputConfiguration) getOutputConfiguration()).getSurfaceGroupId();
     }
 
+    @NonNull
     @Override
     public Object getOutputConfiguration() {
         Preconditions.checkArgument(mObject instanceof OutputConfigurationParamsApi24);
         return ((OutputConfigurationParamsApi24) mObject).mOutputConfiguration;
     }
 
-    @RequiresApi(21)
     private static final class OutputConfigurationParamsApi24 {
+        @NonNull
         final OutputConfiguration mOutputConfiguration;
+
         @Nullable
         String mPhysicalCameraId;
         boolean mIsShared;

@@ -33,17 +33,16 @@ import kotlin.math.min
  * dimensions such as line thickness in DP with Dp objects. Hairline (1 pixel) thickness
  * may be specified with [Hairline], a dimension that take up no space. Dp are normally
  * defined using [dp], which can be applied to [Int], [Double], and [Float].
- *     val leftMargin = 10.dp
- *     val rightMargin = 10f.dp
- *     val topMargin = 20.0.dp
- *     val bottomMargin = 10.dp
- * Drawing is done in pixels. To retrieve the pixel size of a Dp, use [toPx]:
- *     val lineThicknessPx = lineThickness.toPx(context)
- * [toPx] is normally needed only for painting operations.
+ *
+ * @sample androidx.compose.ui.unit.samples.DpSample
+ *
+ * Drawing and Layout are done in pixels. To retrieve the pixel size of a Dp, use [Density.toPx]:
+ *
+ * @sample androidx.compose.ui.unit.samples.ToPxSample
  */
-@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-inline class Dp(val value: Float) : Comparable<Dp> {
+@kotlin.jvm.JvmInline
+value class Dp(val value: Float) : Comparable<Dp> {
     /**
      * Add two [Dp]s together.
      */
@@ -257,9 +256,9 @@ fun DpOffset(x: Dp, y: Dp): DpOffset = DpOffset(packFloats(x.value, y.value))
 /**
  * A two-dimensional offset using [Dp] for units
  */
-@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-inline class DpOffset internal constructor(@PublishedApi internal val packedValue: Long) {
+@kotlin.jvm.JvmInline
+value class DpOffset internal constructor(@PublishedApi internal val packedValue: Long) {
 
     /**
      * The horizontal aspect of the offset in [Dp]
@@ -375,9 +374,9 @@ fun DpSize(width: Dp, height: Dp): DpSize = DpSize(packFloats(width.value, heigh
 /**
  * A two-dimensional Size using [Dp] for units
  */
-@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-inline class DpSize internal constructor(@PublishedApi internal val packedValue: Long) {
+@kotlin.jvm.JvmInline
+value class DpSize internal constructor(@PublishedApi internal val packedValue: Long) {
 
     /**
      * The horizontal aspect of the Size in [Dp]

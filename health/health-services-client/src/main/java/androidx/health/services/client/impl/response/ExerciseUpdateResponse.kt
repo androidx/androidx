@@ -17,6 +17,7 @@
 package androidx.health.services.client.impl.response
 
 import android.os.Parcelable
+import androidx.annotation.RestrictTo
 import androidx.health.services.client.data.ExerciseUpdate
 import androidx.health.services.client.data.ProtoParcelable
 import androidx.health.services.client.proto.ResponsesProto
@@ -26,14 +27,14 @@ import androidx.health.services.client.proto.ResponsesProto
  *
  * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ExerciseUpdateResponse(public val exerciseUpdate: ExerciseUpdate) :
     ProtoParcelable<ResponsesProto.ExerciseUpdateResponse>() {
 
-    override val proto: ResponsesProto.ExerciseUpdateResponse by lazy {
+    override val proto: ResponsesProto.ExerciseUpdateResponse =
         ResponsesProto.ExerciseUpdateResponse.newBuilder()
             .setExerciseUpdate(exerciseUpdate.proto)
             .build()
-    }
 
     public companion object {
         @JvmField

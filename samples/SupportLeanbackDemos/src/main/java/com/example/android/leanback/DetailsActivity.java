@@ -16,6 +16,7 @@ package com.example.android.leanback;
 import android.app.Activity;
 import android.os.Bundle;
 
+@SuppressWarnings("deprecation")
 public class DetailsActivity extends Activity
 {
     public static final String EXTRA_ITEM = "item";

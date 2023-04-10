@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.paging
 
 import androidx.paging.ActiveFlowTracker.FlowType
@@ -29,7 +28,6 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -38,29 +36,25 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.yield
-import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 class CachingTest {
-    private val testScope = TestCoroutineScope()
-
     private val tracker = ActiveFlowTrackerImpl()
 
-    @After
-    fun checkResources() {
-        testScope.cleanupTestCoroutines()
-    }
+    private val testScope = TestScope(UnconfinedTestDispatcher())
 
     @Test
-    fun noSharing() = testScope.runBlockingTest {
+    fun noSharing() = testScope.runTest {
         val pageFlow = buildPageFlow()
         val firstCollect = pageFlow.collectItemsUntilSize(6)
         val secondCollect = pageFlow.collectItemsUntilSize(9)
@@ -85,8 +79,8 @@ class CachingTest {
     }
 
     @Test
-    fun cached() = testScope.runBlockingTest {
-        val pageFlow = buildPageFlow().cachedIn(testScope, tracker)
+    fun cached() = testScope.runTest {
+        val pageFlow = buildPageFlow().cachedIn(backgroundScope, tracker)
         val firstCollect = pageFlow.collectItemsUntilSize(6)
         val secondCollect = pageFlow.collectItemsUntilSize(9)
         assertThat(firstCollect).isEqualTo(
@@ -110,14 +104,14 @@ class CachingTest {
     }
 
     @Test
-    fun cached_afterMapping() = testScope.runBlockingTest {
+    fun cached_afterMapping() = testScope.runTest {
         var mappingCnt = 0
         val pageFlow = buildPageFlow().map { pagingData ->
             val mappingIndex = mappingCnt++
             pagingData.map {
                 it.copy(metadata = mappingIndex.toString())
             }
-        }.cachedIn(testScope, tracker)
+        }.cachedIn(backgroundScope, tracker)
         val firstCollect = pageFlow.collectItemsUntilSize(6)
         val secondCollect = pageFlow.collectItemsUntilSize(9)
         assertThat(firstCollect).isEqualTo(
@@ -145,9 +139,9 @@ class CachingTest {
     }
 
     @Test
-    fun cached_beforeMapping() = testScope.runBlockingTest {
+    fun cached_beforeMapping() = testScope.runTest {
         var mappingCnt = 0
-        val pageFlow = buildPageFlow().cachedIn(testScope, tracker).map { pagingData ->
+        val pageFlow = buildPageFlow().cachedIn(backgroundScope, tracker).map { pagingData ->
             val mappingIndex = mappingCnt++
             pagingData.map {
                 it.copy(metadata = mappingIndex.toString())
@@ -180,14 +174,14 @@ class CachingTest {
     }
 
     @Test
-    fun cached_afterMapping_withMoreMappingAfterwards() = testScope.runBlockingTest {
+    fun cached_afterMapping_withMoreMappingAfterwards() = testScope.runTest {
         var mappingCnt = 0
         val pageFlow = buildPageFlow().map { pagingData ->
             val mappingIndex = mappingCnt++
             pagingData.map {
                 it.copy(metadata = mappingIndex.toString())
             }
-        }.cachedIn(testScope, tracker).map { pagingData ->
+        }.cachedIn(backgroundScope, tracker).map { pagingData ->
             val mappingIndex = mappingCnt++
             pagingData.map {
                 it.copy(metadata = "${it.metadata}_$mappingIndex")
@@ -264,10 +258,10 @@ class CachingTest {
     }
 
     @Test
-    fun cachedWithPassiveCollector() = testScope.runBlockingTest {
-        val flow = buildPageFlow().cachedIn(testScope, tracker)
+    fun cachedWithPassiveCollector() = testScope.runTest {
+        val flow = buildPageFlow().cachedIn(backgroundScope, tracker)
         val passive = ItemCollector(flow)
-        passive.collectPassivelyIn(testScope)
+        passive.collectPassivelyIn(backgroundScope)
         testScope.runCurrent()
         // collecting on the paged source will trigger initial page
         assertThat(passive.items()).isEqualTo(
@@ -289,7 +283,7 @@ class CachingTest {
         assertThat(flow.collectItemsUntilSize(9)).isEqualTo(firstList)
         assertThat(passive.items()).isEqualTo(firstList)
         val passive2 = ItemCollector(flow)
-        passive2.collectPassivelyIn(testScope)
+        passive2.collectPassivelyIn(backgroundScope)
         testScope.runCurrent()
         // a new passive one should receive all existing items immediately
         assertThat(passive2.items()).isEqualTo(firstList)
@@ -313,9 +307,9 @@ class CachingTest {
      * invalidations create new PagingData BUT a new collector only sees the latest one.
      */
     @Test
-    public fun unusedPagingDataIsNeverCollectedByNewDownstream(): Unit = testScope.runBlockingTest {
+    public fun unusedPagingDataIsNeverCollectedByNewDownstream(): Unit = testScope.runTest {
         val factory = StringPagingSource.VersionedFactory()
-        val flow = buildPageFlow(factory).cachedIn(testScope, tracker)
+        val flow = buildPageFlow(factory).cachedIn(backgroundScope, tracker)
         val collector = ItemCollector(flow)
         val job = SupervisorJob()
         val subScope = CoroutineScope(coroutineContext + job)
@@ -343,7 +337,7 @@ class CachingTest {
         // create another collector from shared, should only receive 1 paging data and that
         // should be the latest because previous PagingData is invalidated
         val collector2 = ItemCollector(flow)
-        collector2.collectPassivelyIn(testScope)
+        collector2.collectPassivelyIn(backgroundScope)
         testScope.runCurrent()
         assertThat(collector2.items()).isEqualTo(
             buildItems(
@@ -400,7 +394,7 @@ class CachingTest {
     private val PagingData<Item>.version
         get(): Int {
             return (
-                (receiver as PageFetcher<*, *>.PagerUiReceiver<*, *>)
+                (hintReceiver as PageFetcher<*, *>.PagerHintReceiver<*, *>)
                     .pageFetcherSnapshot.pagingSource as StringPagingSource
                 ).version
         }
@@ -414,7 +408,7 @@ class CachingTest {
                 val expectedVersion = pagingData.version
                 val items = mutableListOf<Item>()
                 yield() // this yield helps w/ cancellation wrt mapLatest
-                val receiver = pagingData.receiver
+                val receiver = pagingData.hintReceiver
                 var loadedPageCount = 0
                 pagingData.flow.filterIsInstance<PageEvent.Insert<Item>>()
                     .onEach {
@@ -483,7 +477,7 @@ class CachingTest {
 
         private suspend fun collectPassively() {
             source.collect {
-                receivedPagingDataCount ++
+                receivedPagingDataCount++
                 // clear to latest
                 val list = mutableListOf<Item>()
                 items = list

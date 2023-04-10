@@ -28,15 +28,17 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -48,7 +50,7 @@ import kotlin.test.fail
 class SimpleChannelFlowTest(
     private val impl: Impl
 ) {
-    val testScope = TestCoroutineScope()
+    val testScope = TestScope(UnconfinedTestDispatcher())
 
     @Test
     fun basic() {
@@ -56,7 +58,7 @@ class SimpleChannelFlowTest(
             send(1)
             send(2)
         }
-        testScope.runBlockingTest {
+        testScope.runTest {
             val items = channelFlow.toList()
             assertThat(items).containsExactly(1, 2)
         }
@@ -65,14 +67,14 @@ class SimpleChannelFlowTest(
     @Test
     fun emitWithLaunch() {
         val channelFlow = createFlow<Int> {
-            launch {
+            launch(coroutineContext, CoroutineStart.UNDISPATCHED) {
                 send(1)
                 delay(100)
                 send(2)
             }
             send(3)
         }
-        testScope.runBlockingTest {
+        testScope.runTest {
             val items = channelFlow.toList()
             assertThat(items).containsExactly(1, 3, 2).inOrder()
         }
@@ -87,7 +89,7 @@ class SimpleChannelFlowTest(
                 emittedValues.add(it)
             }
         }
-        testScope.runBlockingTest {
+        testScope.runTest {
             assertThat(channelFlow.take(4).toList()).containsExactly(0, 1, 2, 3)
             assertThat(emittedValues).containsExactlyElementsIn((0..9).toList())
         }
@@ -102,7 +104,7 @@ class SimpleChannelFlowTest(
                 emittedValues.add(it)
             }
         }
-        testScope.runBlockingTest {
+        testScope.runTest {
             assertThat(channelFlow.buffer(0).take(4).toList()).containsExactly(0, 1, 2, 3)
             when (impl) {
                 Impl.CHANNEL_FLOW -> {
@@ -133,7 +135,7 @@ class SimpleChannelFlowTest(
                 lastDispatched.complete(dispatched)
             }
         }
-        testScope.runBlockingTest {
+        testScope.runTest {
             channelFlow.takeWhile { it < 3 }.toList()
             assertThat(lastDispatched.await()).isEqualTo(3)
         }
@@ -155,7 +157,7 @@ class SimpleChannelFlowTest(
                 throw th
             }
         }
-        testScope.runBlockingTest {
+        testScope.runTest {
             val collection = launch {
                 channelFlow.toList()
             }
@@ -181,7 +183,7 @@ class SimpleChannelFlowTest(
                 throw th
             }
         }
-        testScope.runBlockingTest {
+        testScope.runTest {
             runCatching {
                 channelFlow.collect {
                     throw IllegalArgumentException("expected failure")
@@ -214,7 +216,7 @@ class SimpleChannelFlowTest(
                 }
             }
         }
-        testScope.runBlockingTest {
+        testScope.runTest {
             assertThat(
                 combinedFlow.toList()
             ).containsExactly(
@@ -232,7 +234,7 @@ class SimpleChannelFlowTest(
             close()
             awaitCancellation()
         }
-        testScope.runBlockingTest {
+        testScope.runTest {
             assertThat(flow.toList()).containsExactly(1)
         }
     }

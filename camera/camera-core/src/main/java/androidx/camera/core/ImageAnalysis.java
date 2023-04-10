@@ -22,7 +22,9 @@ import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_IMAGE_READER_
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_ONE_PIXEL_SHIFT_ENABLED;
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_OUTPUT_IMAGE_FORMAT;
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_OUTPUT_IMAGE_ROTATION_ENABLED;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_RESOLUTION;
@@ -31,11 +33,13 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_SESSION_CONFIG;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_HIGH_RESOLUTION_DISABLED;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_CLASS;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_USE_CASE_EVENT_CALLBACK;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECUTOR;
 
 import android.graphics.ImageFormat;
@@ -70,6 +74,7 @@ import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.Threads;
@@ -162,6 +167,10 @@ public final class ImageAnalysis extends UseCase {
      * <p>All {@link ImageProxy} sent to {@link Analyzer#analyze(ImageProxy)} will have
      * format {@link android.graphics.PixelFormat#RGBA_8888}
      *
+     * <p>The output order is a single-plane with the order of R, G, B, A in increasing byte index
+     * in the {@link java.nio.ByteBuffer}. The {@link java.nio.ByteBuffer} is retrieved from
+     * {@link ImageProxy.PlaneProxy#getBuffer()}.
+     *
      * @see Builder#setOutputImageFormat(int)
      */
     public static final int OUTPUT_IMAGE_FORMAT_RGBA_8888 = 2;
@@ -250,13 +259,53 @@ public final class ImageAnalysis extends UseCase {
         mImageAnalysisAbstractAnalyzer.setOnePixelShiftEnabled(
                 isOnePixelShiftEnabled == null ? isOnePixelShiftIssueDevice
                         : isOnePixelShiftEnabled);
-        return super.onMergeConfig(cameraInfo, builder);
+
+        // Override the target resolution with the value provided by the analyzer.
+        Size analyzerResolution;
+        synchronized (mAnalysisLock) {
+            analyzerResolution = mSubscribedAnalyzer != null
+                    ? mSubscribedAnalyzer.getDefaultTargetResolution() : null;
+        }
+
+        if (analyzerResolution != null) {
+            if (!builder.getMutableConfig().containsOption(OPTION_RESOLUTION_SELECTOR)) {
+                int targetRotation = builder.getMutableConfig().retrieveOption(
+                        OPTION_TARGET_ROTATION, Surface.ROTATION_0);
+                // analyzerResolution is a size in the sensor coordinate system, but the legacy
+                // target resolution setting is in the view coordinate system. Flips the
+                // analyzerResolution according to the sensor rotation degrees.
+                if (cameraInfo.getSensorRotationDegrees(targetRotation) % 180 == 90) {
+                    analyzerResolution = new Size(/* width= */ analyzerResolution.getHeight(),
+                            /* height= */ analyzerResolution.getWidth());
+                }
+
+                if (!builder.getUseCaseConfig().containsOption(OPTION_TARGET_RESOLUTION)) {
+                    builder.getMutableConfig().insertOption(OPTION_TARGET_RESOLUTION,
+                            analyzerResolution);
+                }
+            } else {
+                // Merges analyzerResolution or default resolution to ResolutionSelector.
+                ResolutionSelector resolutionSelector =
+                        builder.getMutableConfig().retrieveOption(OPTION_RESOLUTION_SELECTOR);
+
+                if (resolutionSelector.getPreferredResolution() == null) {
+                    ResolutionSelector.Builder resolutionSelectorBuilder =
+                            ResolutionSelector.Builder.fromSelector(resolutionSelector);
+                    resolutionSelectorBuilder.setPreferredResolution(analyzerResolution);
+                    builder.getMutableConfig().insertOption(OPTION_RESOLUTION_SELECTOR,
+                            resolutionSelectorBuilder.build());
+                }
+            }
+        }
+
+        return builder.getUseCaseConfig();
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     SessionConfig.Builder createPipeline(@NonNull String cameraId,
-            @NonNull ImageAnalysisConfig config, @NonNull Size resolution) {
+            @NonNull ImageAnalysisConfig config, @NonNull StreamSpec streamSpec) {
         Threads.checkMainThread();
+        Size resolution = streamSpec.getResolution();
 
         Executor backgroundExecutor = Preconditions.checkNotNull(config.getBackgroundExecutor(
                 CameraXExecutors.highPriorityExecutor()));
@@ -297,11 +346,11 @@ public final class ImageAnalysis extends UseCase {
         final SafeCloseImageReaderProxy processedImageReaderProxy =
                 (isYuv2Rgb || isYuvRotationOrPixelShift)
                         ? new SafeCloseImageReaderProxy(
-                                ImageReaderProxys.createIsolatedReader(
-                                        width,
-                                        height,
-                                        format,
-                                        imageReaderProxy.getMaxImages())) : null;
+                        ImageReaderProxys.createIsolatedReader(
+                                width,
+                                height,
+                                format,
+                                imageReaderProxy.getMaxImages())) : null;
         if (processedImageReaderProxy != null) {
             mImageAnalysisAbstractAnalyzer.setProcessedImageReaderProxy(processedImageReaderProxy);
         }
@@ -340,7 +389,7 @@ public final class ImageAnalysis extends UseCase {
             if (isCurrentCamera(cameraId)) {
                 // Only reset the pipeline when the bound camera is the same.
                 SessionConfig.Builder errorSessionConfigBuilder = createPipeline(cameraId, config,
-                        resolution);
+                        streamSpec);
                 updateSessionConfig(errorSessionConfigBuilder.build());
 
                 notifyReset();
@@ -488,6 +537,7 @@ public final class ImageAnalysis extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void setSensorToBufferTransformMatrix(@NonNull Matrix matrix) {
+        super.setSensorToBufferTransformMatrix(matrix);
         mImageAnalysisAbstractAnalyzer.setSensorToBufferTransformMatrix(matrix);
     }
 
@@ -513,6 +563,20 @@ public final class ImageAnalysis extends UseCase {
     public int getBackpressureStrategy() {
         return ((ImageAnalysisConfig) getCurrentConfig()).getBackpressureStrategy(
                 DEFAULT_BACKPRESSURE_STRATEGY);
+    }
+
+    /**
+     * Returns the executor that will be used for background tasks.
+     *
+     * @return The {@link Executor} provided to
+     * {@link ImageAnalysis.Builder#setBackgroundExecutor(Executor)}.
+     * If no Executor has been provided, then returns {@code null}
+     */
+    @Nullable
+    @ExperimentalUseCaseApi
+    public Executor getBackgroundExecutor() {
+        return ((ImageAnalysisConfig) getCurrentConfig())
+                .getBackgroundExecutor(null);
     }
 
     /**
@@ -584,8 +648,8 @@ public final class ImageAnalysis extends UseCase {
      * {@link ResolutionInfo} for the changes.
      *
      * @return the resolution information if the use case has been bound by the
-     * {@link androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle(LifecycleOwner
-     * , CameraSelector, UseCase...)} API, or null if the use case is not bound yet.
+     * {@link androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle(LifecycleOwner,
+     * CameraSelector, UseCase...)} API, or null if the use case is not bound yet.
      */
     @Nullable
     @Override
@@ -606,7 +670,7 @@ public final class ImageAnalysis extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public void onDetached() {
+    public void onUnbind() {
         clearPipeline();
         mImageAnalysisAbstractAnalyzer.detach();
     }
@@ -621,7 +685,9 @@ public final class ImageAnalysis extends UseCase {
     @Nullable
     public UseCaseConfig<?> getDefaultConfig(boolean applyDefaultConfig,
             @NonNull UseCaseConfigFactory factory) {
-        Config captureConfig = factory.getConfig(UseCaseConfigFactory.CaptureType.IMAGE_ANALYSIS);
+        Config captureConfig = factory.getConfig(
+                UseCaseConfigFactory.CaptureType.IMAGE_ANALYSIS,
+                ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY);
 
         if (applyDefaultConfig) {
             captureConfig = Config.mergeConfigs(captureConfig, DEFAULT_CONFIG.getConfig());
@@ -638,7 +704,7 @@ public final class ImageAnalysis extends UseCase {
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void onAttached() {
+    public void onBind() {
         mImageAnalysisAbstractAnalyzer.attach();
     }
 
@@ -662,14 +728,14 @@ public final class ImageAnalysis extends UseCase {
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
+    protected StreamSpec onSuggestedStreamSpecUpdated(@NonNull StreamSpec suggestedStreamSpec) {
         final ImageAnalysisConfig config = (ImageAnalysisConfig) getCurrentConfig();
 
         SessionConfig.Builder sessionConfigBuilder = createPipeline(getCameraId(), config,
-                suggestedResolution);
+                suggestedStreamSpec);
         updateSessionConfig(sessionConfigBuilder.build());
 
-        return suggestedResolution;
+        return suggestedStreamSpec;
     }
 
     /**
@@ -764,7 +830,90 @@ public final class ImageAnalysis extends UseCase {
          * @see android.hardware.camera2.CaptureResult#SENSOR_TIMESTAMP
          */
         void analyze(@NonNull ImageProxy image);
+
+        /**
+         * Implement this method to set a default target resolution for the {@link ImageAnalysis}.
+         *
+         * <p> Implement this method if the {@link Analyzer} requires a specific resolution to
+         * work. The return value will be used as the default target resolution for the
+         * {@link ImageAnalysis}. Return {@code null} if no falling back is needed. By default,
+         * this method returns {@code null}.
+         *
+         * <p> If the app does not set a target resolution for {@link ImageAnalysis}, then this
+         * value will be used as the target resolution. If the {@link ImageAnalysis} has set a
+         * target resolution, e.g. if {@link ImageAnalysis.Builder#setTargetResolution(Size)} is
+         * called, then the {@link ImageAnalysis} will use the app value over this value.
+         *
+         * <p> Note that this method is invoked by CameraX at the time of binding to lifecycle. In
+         * order for this value to be effective, the {@link Analyzer} has to be set before
+         * {@link ImageAnalysis} is bound to a lifecycle. Otherwise, the value will be ignored.
+         *
+         * @return the default resolution of {@link ImageAnalysis}, or {@code null} if no specific
+         * resolution is needed.
+         */
+        @Nullable
+        default Size getDefaultTargetResolution() {
+            return null;
+        }
+
+        /**
+         * Implement this method to return the target coordinate system.
+         *
+         * <p>The coordinates detected by analyzing camera frame usually needs to be transformed.
+         * For example, in order to highlight a detected face, the app needs to transform the
+         * bounding box from the {@link ImageAnalysis}'s coordinate system to the View's coordinate
+         * system. This method allows the implementer to set a target coordinate system.
+         *
+         * <p>The value will be used by CameraX to calculate the transformation {@link Matrix} and
+         * forward it to the {@link Analyzer} via {@link #updateTransform}. By default, this
+         * method returns {@link ImageAnalysis#COORDINATE_SYSTEM_ORIGINAL}.
+         *
+         * <p>For now, camera-core only supports {@link ImageAnalysis#COORDINATE_SYSTEM_ORIGINAL},
+         * please see libraries derived from camera-core, for example, camera-view.
+         *
+         * @see #updateTransform(Matrix)
+         */
+        default int getTargetCoordinateSystem() {
+            return COORDINATE_SYSTEM_ORIGINAL;
+        }
+
+        /**
+         * Implement this method to receive the {@link Matrix} for coordinate transformation.
+         *
+         * <p>The value represents the transformation from the camera sensor to the target
+         * coordinate system defined in {@link #getTargetCoordinateSystem()}. It should be used
+         * by the implementation to transform the coordinates detected in the camera frame. For
+         * example, the coordinates of the detected face.
+         *
+         * <p>If the value is {@code null}, it means that no valid transformation is available.
+         * It could have different causes depending on the value of
+         * {@link #getTargetCoordinateSystem()}:
+         * <ul>
+         *     <li> If the target coordinate system is {@link #COORDINATE_SYSTEM_ORIGINAL}, it is
+         *     always invalid because in that case, the coordinate system depends on how the
+         *     analysis algorithm processes the {@link ImageProxy}.
+         *     <li> It is also invalid if the target coordinate system is not available, for example
+         *     if the analyzer targets the viewfinder and the view finder is not visible in UI.
+         * </ul>
+         *
+         * <p>This method is invoked whenever a new transformation is ready. For example, when
+         * the view finder is first a launched as well as when it's resized.
+         *
+         * @see #getTargetCoordinateSystem()
+         */
+        default void updateTransform(@Nullable Matrix matrix) {
+            // no-op
+        }
     }
+
+    /**
+     * {@link ImageAnalysis.Analyzer} option for returning the original coordinates.
+     *
+     * <p> Use this option if no additional transformation is needed by the {@link Analyzer}
+     * implementation. By using this option, CameraX will pass {@code null} to
+     * {@link Analyzer#updateTransform(Matrix)}.
+     */
+    public static final int COORDINATE_SYSTEM_ORIGINAL = 0;
 
     /**
      * Provides a base static default configuration for the ImageAnalysis.
@@ -928,6 +1077,9 @@ public final class ImageAnalysis extends UseCase {
         /**
          * Enable or disable output image rotation.
          *
+         * <p>On API 22 and below, this API has no effect. User needs to handle the image rotation
+         * based on the {@link ImageInfo#getRotationDegrees()}.
+         *
          * <p>{@link ImageAnalysis#setTargetRotation(int)} is to adjust the rotation
          * degree information returned by {@link ImageInfo#getRotationDegrees()} based on
          * sensor rotation and user still needs to rotate the output image to achieve the target
@@ -943,7 +1095,11 @@ public final class ImageAnalysis extends UseCase {
          *
          * @param outputImageRotationEnabled flag to enable or disable.
          * @return The current Builder.
+         *
+         * @see
+         * <a href="https://developer.android.com/training/camerax/orientation-rotation#imageanalysis">ImageAnalysis</a>
          */
+        @RequiresApi(23)
         @NonNull
         public Builder setOutputImageRotationEnabled(boolean outputImageRotationEnabled) {
             getMutableConfig().insertOption(OPTION_OUTPUT_IMAGE_ROTATION_ENABLED,
@@ -994,15 +1150,9 @@ public final class ImageAnalysis extends UseCase {
         @Override
         @NonNull
         public ImageAnalysis build() {
-            // Error at runtime for using both setTargetResolution and setTargetAspectRatio on
-            // the same config.
-            if (getMutableConfig().retrieveOption(OPTION_TARGET_ASPECT_RATIO, null) != null
-                    && getMutableConfig().retrieveOption(OPTION_TARGET_RESOLUTION, null) != null) {
-                throw new IllegalArgumentException(
-                        "Cannot use both setTargetResolution and setTargetAspectRatio on the same"
-                                + " config.");
-            }
-            return new ImageAnalysis(getUseCaseConfig());
+            ImageAnalysisConfig imageAnalysisConfig = getUseCaseConfig();
+            ImageOutputConfig.validateConfig(imageAnalysisConfig);
+            return new ImageAnalysis(imageAnalysisConfig);
         }
 
         // Implementations of TargetConfig.Builder default methods
@@ -1056,8 +1206,8 @@ public final class ImageAnalysis extends UseCase {
          * Application code should check the resulting output's resolution and the resulting
          * aspect ratio may not be exactly as requested.
          *
-         * <p>If not set, resolutions with aspect ratio 4:3 will be considered in higher
-         * priority.
+         * <p>If not set, or {@link AspectRatio#RATIO_DEFAULT} is supplied, resolutions with
+         * aspect ratio 4:3 will be considered in higher priority.
          *
          * @param aspectRatio The desired ImageAnalysis {@link AspectRatio}
          * @return The current Builder.
@@ -1065,6 +1215,9 @@ public final class ImageAnalysis extends UseCase {
         @NonNull
         @Override
         public Builder setTargetAspectRatio(@AspectRatio.Ratio int aspectRatio) {
+            if (aspectRatio == AspectRatio.RATIO_DEFAULT) {
+                aspectRatio = Defaults.DEFAULT_ASPECT_RATIO;
+            }
             getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO, aspectRatio);
             return this;
         }
@@ -1192,6 +1345,64 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setCustomOrderedResolutions(@NonNull List<Size> resolutions) {
+            getMutableConfig().insertOption(OPTION_CUSTOM_ORDERED_RESOLUTIONS, resolutions);
+            return this;
+        }
+
+        /**
+         * Sets the resolution selector to select the preferred supported resolution.
+         *
+         * <p>ImageAnalysis has a default minimal bounding size as 640x480. The input
+         * {@link ResolutionSelector}'s' preferred resolution can override the minimal bounding
+         * size to find the best resolution.
+         *
+         * <p>When using the {@code camera-camera2} CameraX implementation, which resolution will
+         * be finally selected will depend on the camera device's hardware level, capabilities
+         * and the bound use cases combination. The device hardware level and capabilities
+         * information can be retrieved via the interop class
+         * {@link androidx.camera.camera2.interop.Camera2CameraInfo#getCameraCharacteristic(android.hardware.camera2.CameraCharacteristics.Key)}
+         * with
+         * {@link android.hardware.camera2.CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL} and
+         * {@link android.hardware.camera2.CameraCharacteristics#REQUEST_AVAILABLE_CAPABILITIES}.
+         *
+         * <p>A {@code LIMITED-level} above device can support a {@code RECORD} size resolution
+         * for {@link ImageAnalysis} when it is bound together with {@link Preview} and
+         * {@link ImageCapture}. The trade-off is the selected resolution for the
+         * {@link ImageCapture} will also be restricted by the {@code RECORD} size. To
+         * successfully select a {@code RECORD} size resolution for {@link ImageAnalysis}, a
+         * {@code RECORD} size preferred resolution should be set on both {@link ImageCapture} and
+         * {@link ImageAnalysis}. This indicates that the application clearly understand the
+         * trade-off and prefer the {@link ImageAnalysis} to have a larger resolution rather than
+         * the {@link ImageCapture} to have a {@code MAXIMUM} size resolution. For the
+         * definitions of {@code RECORD}, {@code MAXIMUM} sizes and more details see the
+         * <a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture">Regular capture</a>
+         * section in {@link android.hardware.camera2.CameraDevice}'s. The {@code RECORD} size
+         * refers to the camera device's maximum supported recording resolution, as determined by
+         * {@link CamcorderProfile}. The {@code MAXIMUM} size refers to the camera device's
+         * maximum output resolution for that format or target from
+         * {@link android.hardware.camera2.params.StreamConfigurationMap#getOutputSizes}.
+         *
+         * <p>The existing {@link #setTargetResolution(Size)} and
+         * {@link #setTargetAspectRatio(int)} APIs are deprecated and are not compatible with
+         * {@link ResolutionSelector}. Calling any of these APIs together with
+         * {@link ResolutionSelector} will throw an {@link IllegalArgumentException} while
+         * {@link #build()} is called to create the {@link ImageAnalysis} instance.
+         *
+         * @hide
+         **/
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setResolutionSelector(@NonNull ResolutionSelector resolutionSelector) {
+            getMutableConfig().insertOption(OPTION_RESOLUTION_SELECTOR, resolutionSelector);
+            return this;
+        }
+
         // Implementations of ThreadConfig.Builder default methods
 
         /**
@@ -1285,6 +1496,24 @@ public final class ImageAnalysis extends UseCase {
                 @NonNull ImageReaderProxyProvider imageReaderProxyProvider) {
             getMutableConfig().insertOption(OPTION_IMAGE_READER_PROXY_PROVIDER,
                     imageReaderProxyProvider);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setZslDisabled(boolean disabled) {
+            getMutableConfig().insertOption(OPTION_ZSL_DISABLED, disabled);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setHighResolutionDisabled(boolean disabled) {
+            getMutableConfig().insertOption(OPTION_HIGH_RESOLUTION_DISABLED, disabled);
             return this;
         }
     }

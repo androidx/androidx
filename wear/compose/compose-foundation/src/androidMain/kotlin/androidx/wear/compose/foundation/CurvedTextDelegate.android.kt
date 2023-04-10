@@ -16,16 +16,31 @@
 
 package androidx.wear.compose.foundation
 
+import android.graphics.Typeface
+import android.text.StaticLayout
+import android.text.TextPaint
+import android.text.TextUtils
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
-import kotlin.math.min
+import androidx.compose.ui.platform.LocalFontFamilyResolver
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontSynthesis
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.resolveAsTypeface
+import androidx.compose.ui.text.style.TextOverflow
+import kotlin.math.roundToInt
 
 /**
  * Used to cache computations and objects with expensive construction (Android's Paint & Path)
@@ -34,118 +49,178 @@ internal actual class CurvedTextDelegate {
     private var text: String = ""
     private var clockwise: Boolean = true
     private var fontSizePx: Float = 0f
-    private var arcPaddingPx: ArcPaddingPx = ArcPaddingPx(0f, 0f, 0f, 0f)
 
     actual var textWidth by mutableStateOf(0f)
     actual var textHeight by mutableStateOf(0f)
     actual var baseLinePosition = 0f
 
+    private var typeFace: State<Typeface?> = mutableStateOf(null)
+
     private val paint = android.graphics.Paint().apply { isAntiAlias = true }
     private val backgroundPath = android.graphics.Path()
     private val textPath = android.graphics.Path()
 
-    var lastSize: Size? = null
+    var lastLayoutInfo: CurvedLayoutInfo? = null
 
     actual fun updateIfNeeded(
         text: String,
         clockwise: Boolean,
-        fontSizePx: Float,
-        arcPaddingPx: ArcPaddingPx
+        fontSizePx: Float
     ) {
         if (
             text != this.text ||
             clockwise != this.clockwise ||
-            fontSizePx != this.fontSizePx ||
-            arcPaddingPx != this.arcPaddingPx
+            fontSizePx != this.fontSizePx
         ) {
             this.text = text
             this.clockwise = clockwise
             this.fontSizePx = fontSizePx
-            this.arcPaddingPx = arcPaddingPx
-            doUpdate()
-            lastSize = null // Ensure paths are recomputed
+            paint.textSize = fontSizePx
+            updateMeasures()
+            lastLayoutInfo = null // Ensure paths are recomputed
         }
     }
 
-    private fun doUpdate() {
-        paint.textSize = fontSizePx
+    @Composable
+    actual fun UpdateFontIfNeeded(
+        fontFamily: FontFamily?,
+        fontWeight: FontWeight?,
+        fontStyle: FontStyle?,
+        fontSynthesis: FontSynthesis?
+    ) {
+        val fontFamilyResolver = LocalFontFamilyResolver.current
+        typeFace = remember(fontFamily, fontWeight, fontStyle, fontSynthesis, fontFamilyResolver) {
+            derivedStateOf {
+                fontFamilyResolver.resolveAsTypeface(
+                    fontFamily,
+                    fontWeight ?: FontWeight.Normal,
+                    fontStyle ?: FontStyle.Normal,
+                    fontSynthesis ?: FontSynthesis.All
+                ).value
+            }
+        }
+        updateTypeFace()
+    }
 
+    private fun updateMeasures() {
         val rect = android.graphics.Rect()
         paint.getTextBounds(text, 0, text.length, rect)
 
-        textWidth = rect.width() + arcPaddingPx.before + arcPaddingPx.after
-        textHeight = -paint.fontMetrics.top + paint.fontMetrics.bottom +
-            arcPaddingPx.inner + arcPaddingPx.outer
-        baseLinePosition = arcPaddingPx.outer +
+        textWidth = rect.width().toFloat()
+        textHeight = -paint.fontMetrics.top + paint.fontMetrics.bottom
+        baseLinePosition =
             if (clockwise) -paint.fontMetrics.top else paint.fontMetrics.bottom
     }
 
-    private fun updatePathsIfNeeded(size: Size) {
-        if (size != lastSize) {
-            lastSize = size
-
-            val clockwiseFactor = if (clockwise) 1f else -1f
-
-            val outerRadius = min(size.width, size.height) / 2f
-            val innerRadius = outerRadius - textHeight
-            val baselineRadius = outerRadius - baseLinePosition
-
-            val sweepDegree = (textWidth / baselineRadius)
-                .toDegrees()
-                .coerceAtMost(360f)
-            val paddingBeforeAsAngle = (arcPaddingPx.before / baselineRadius)
-                .toDegrees()
-                .coerceAtMost(360f)
-
-            val centerX = size.width / 2f
-            val centerY = size.height / 2f
-
-            backgroundPath.reset()
-            backgroundPath.arcTo(
-                centerX - outerRadius,
-                centerY - outerRadius,
-                centerX + outerRadius,
-                centerY + outerRadius,
-                anchor - clockwiseFactor * sweepDegree / 2,
-                clockwiseFactor * sweepDegree, false
-            )
-            backgroundPath.arcTo(
-                centerX - innerRadius,
-                centerY - innerRadius,
-                centerX + innerRadius,
-                centerY + innerRadius,
-                anchor + clockwiseFactor * sweepDegree / 2,
-                -clockwiseFactor * sweepDegree, false
-            )
-            backgroundPath.close()
-
-            textPath.reset()
-            textPath.addArc(
-                centerX - baselineRadius,
-                centerY - baselineRadius,
-                centerX + baselineRadius,
-                centerY + baselineRadius,
-                anchor - clockwiseFactor * (sweepDegree / 2 - paddingBeforeAsAngle),
-                clockwiseFactor * sweepDegree
-            )
+    private fun updateTypeFace() {
+        val currentTypeface = typeFace.value
+        if (currentTypeface != paint.typeface) {
+            paint.typeface = currentTypeface
+            updateMeasures()
+            lastLayoutInfo = null // Ensure paths are recomputed
         }
     }
 
-    actual fun doDraw(canvas: Canvas, size: Size, color: Color, background: Color) {
-        updatePathsIfNeeded(size)
+    private fun updatePathsIfNeeded(layoutInfo: CurvedLayoutInfo) {
+        if (layoutInfo != lastLayoutInfo) {
+            lastLayoutInfo = layoutInfo
+            with(layoutInfo) {
+                val clockwiseFactor = if (clockwise) 1f else -1f
 
-        if (background.isSpecified && background != Color.Transparent) {
-            paint.color = background.toArgb()
-            canvas.nativeCanvas.drawPath(backgroundPath, paint)
+                val sweepDegree = sweepRadians.toDegrees().coerceAtMost(360f)
+
+                val centerX = centerOffset.x
+                val centerY = centerOffset.y
+
+                // TODO: move background drawing to a CurvedModifier
+                backgroundPath.reset()
+                backgroundPath.arcTo(
+                    centerX - outerRadius,
+                    centerY - outerRadius,
+                    centerX + outerRadius,
+                    centerY + outerRadius,
+                    startAngleRadians.toDegrees(),
+                    sweepDegree, false
+                )
+                backgroundPath.arcTo(
+                    centerX - innerRadius,
+                    centerY - innerRadius,
+                    centerX + innerRadius,
+                    centerY + innerRadius,
+                    startAngleRadians.toDegrees() + sweepDegree,
+                    -sweepDegree, false
+                )
+                backgroundPath.close()
+
+                textPath.reset()
+                textPath.addArc(
+                    centerX - measureRadius,
+                    centerY - measureRadius,
+                    centerX + measureRadius,
+                    centerY + measureRadius,
+                    startAngleRadians.toDegrees() +
+                        (if (clockwise) 0f else sweepDegree),
+                    clockwiseFactor * sweepDegree
+                )
+            }
+        }
+    }
+
+    actual fun DrawScope.doDraw(
+        layoutInfo: CurvedLayoutInfo,
+        parentSweepRadians: Float,
+        overflow: TextOverflow,
+        color: Color,
+        background: Color
+    ) {
+        updateTypeFace()
+        updatePathsIfNeeded(layoutInfo)
+
+        drawIntoCanvas { canvas ->
+            if (background.isSpecified && background != Color.Transparent) {
+                paint.color = background.toArgb()
+                canvas.nativeCanvas.drawPath(backgroundPath, paint)
+            }
+
+            paint.color = color.toArgb()
+            val actualText = if (
+                // Float arithmetic can make the parentSweepRadians slightly smaller
+                layoutInfo.sweepRadians <= parentSweepRadians + 0.001f ||
+                overflow == TextOverflow.Visible
+            ) {
+                text
+            } else {
+                ellipsize(
+                    text, TextPaint(paint), overflow == TextOverflow.Ellipsis,
+                    (parentSweepRadians * layoutInfo.measureRadius).roundToInt()
+                )
+            }
+            canvas.nativeCanvas.drawTextOnPath(actualText, textPath, 0f, 0f, paint)
+        }
+    }
+
+    private fun ellipsize(
+        text: String,
+        paint: TextPaint,
+        addEllipsis: Boolean,
+        ellipsizedWidth: Int,
+    ): String {
+        if (addEllipsis) {
+            return TextUtils.ellipsize(
+                text,
+                paint,
+                ellipsizedWidth.toFloat(),
+                TextUtils.TruncateAt.END
+            ).toString()
         }
 
-        paint.color = color.toArgb()
-        canvas.nativeCanvas.drawTextOnPath(text, textPath, 0f, 0f, paint)
+        val layout = StaticLayout.Builder
+            .obtain(text, 0, text.length, paint, ellipsizedWidth)
+            .setEllipsize(null)
+            .setMaxLines(1)
+            .build()
+
+        // Cut text that it's too big when in TextOverFlow.Clip mode.
+        return text.substring(0, layout.getLineEnd(0))
     }
 }
-
-// We always draw curved text centered at the top, the CurvedRow will rotate us to the
-// desired angle.
-// Note that this is in the Angle system used by the arc drawing functions: 0 is 3 o clock,
-// increasing clockwise.
-private const val anchor = 270f

@@ -31,6 +31,7 @@ import android.content.pm.ProviderInfo;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -38,13 +39,17 @@ import androidx.lifecycle.Observer;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowApplication;
 import org.robolectric.shadows.ShadowLooper;
@@ -53,6 +58,9 @@ import org.robolectric.shadows.ShadowLooper;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class CarConnectionTypeLiveDataTest {
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
+
     @Mock
     private Observer<Integer> mMockObserver;
 
@@ -63,8 +71,6 @@ public class CarConnectionTypeLiveDataTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-
         ProviderInfo info = new ProviderInfo();
         info.authority = CarConnectionTypeLiveData.CAR_CONNECTION_AUTHORITY;
         mContentProvider =
@@ -77,12 +83,30 @@ public class CarConnectionTypeLiveDataTest {
     }
 
     @Test
-    public void observe_registersBroadcastReceiver() {
-        assertThat(shadowOf(mApplication).getRegisteredReceivers()).hasSize(1);
+    @Config(sdk = Build.VERSION_CODES.S_V2)
+    public void observe_belowT_registersBroadcastReceiverWithNoFlags() {
+        shadowOf(mApplication).clearRegisteredReceivers();
 
         mCarConnectionTypeLiveData.observeForever(mMockObserver);
 
-        assertThat(shadowOf(mApplication).getRegisteredReceivers()).hasSize(2);
+        ShadowApplication.Wrapper registeredReceiver =
+                shadowOf(mApplication).getRegisteredReceivers().get(0);
+        assertThat(registeredReceiver.broadcastReceiver).isNotNull();
+        assertThat(registeredReceiver.flags).isEqualTo(0);
+    }
+
+    @Test
+    @Config(sdk = Build.VERSION_CODES.TIRAMISU)
+    @Ignore // TODO(b/240591692): Remove @Ignore once Robolectric supports SDK 33
+    public void observe_tAndAbove_registersBroadcastReceiverWithFlags() {
+        shadowOf(mApplication).clearRegisteredReceivers();
+
+        mCarConnectionTypeLiveData.observeForever(mMockObserver);
+
+        ShadowApplication.Wrapper registeredReceiver =
+                shadowOf(mApplication).getRegisteredReceivers().get(0);
+        assertThat(registeredReceiver.broadcastReceiver).isNotNull();
+        assertThat(registeredReceiver.flags).isEqualTo(Context.RECEIVER_EXPORTED);
     }
 
     @Test

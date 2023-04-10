@@ -18,14 +18,17 @@ package androidx.camera.camera2.pipe.testing
 
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
-import androidx.camera.camera2.pipe.compat.CameraMetadataProvider
+import androidx.camera.camera2.pipe.compat.Camera2MetadataProvider
 
-/**
- * Utility class for providing fake metadata for tests.
- */
+/** Utility class for providing fake metadata for tests. */
 class FakeCameraMetadataProvider(
     private val fakeMetadata: Map<CameraId, CameraMetadata> = emptyMap()
-) : CameraMetadataProvider {
-    override suspend fun getMetadata(cameraId: CameraId): CameraMetadata = awaitMetadata(cameraId)
-    override fun awaitMetadata(cameraId: CameraId): CameraMetadata = fakeMetadata[cameraId]!!
+) : Camera2MetadataProvider {
+    override suspend fun getCameraMetadata(cameraId: CameraId): CameraMetadata =
+        awaitCameraMetadata(cameraId)
+
+    override fun awaitCameraMetadata(cameraId: CameraId): CameraMetadata =
+        checkNotNull(fakeMetadata[cameraId]) {
+            "Failed to find metadata for $cameraId. Available fakeMetadata is $fakeMetadata"
+        }
 }

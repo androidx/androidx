@@ -19,6 +19,7 @@ package androidx.appcompat.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.text.method.KeyListener;
+import android.text.method.NumberKeyListener;
 import android.util.AttributeSet;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
@@ -74,23 +75,15 @@ class AppCompatEmojiEditTextHelper {
     }
 
     /**
-     * Call from constructor to initialize key listener correctly.
+     * All subtypes of NumberKeyListener do not allow inputting emoji, so we don't need to wrap
+     * them
+     *
+     * Practically, this allows us to avoid calling setKeyListener in TextView which has
+     * unintended side-effects of breaking filtering for number key listeners (see b/207119921)
+     * due to the call to locale behavior inside TextView.
      */
-    void initKeyListener() {
-        // setKeyListener will cause a reset both focusable and the inputType to the most basic
-        // style for the key listener. Since we're calling this from the View constructor, this
-        // will cause both focusable and inputType to reset from the XML attributes.
-        // See: b/191061070 and b/188049943 for details
-        //
-        // We will only reset this during initKeyListener, and default to the platform behavior
-        // for later calls to setKeyListener, to emulate the exact behavior that a regular
-        // EditText would provide.
-        boolean wasFocusable = mView.isFocusable();
-        int inputType = mView.getInputType();
-        mView.setKeyListener(mView.getKeyListener());
-        // reset the input type and focusable attributes after calling setKeyListener
-        mView.setRawInputType(inputType);
-        mView.setFocusable(wasFocusable);
+    boolean isEmojiCapableKeyListener(KeyListener currentKeyListener) {
+        return !(currentKeyListener instanceof NumberKeyListener);
     }
 
     /**
@@ -125,7 +118,13 @@ class AppCompatEmojiEditTextHelper {
      */
     @Nullable
     KeyListener getKeyListener(@Nullable KeyListener keyListener) {
-        return mEmojiEditTextHelper.getKeyListener(keyListener);
+        // add a guard for NumberkeyListener both here and in emoji2 to avoid release dependency.
+        // this allows appcompat 1.4.1 to ship without a dependency on emoji2 1.1.
+        if (isEmojiCapableKeyListener(keyListener)) {
+            return mEmojiEditTextHelper.getKeyListener(keyListener);
+        } else {
+            return keyListener;
+        }
     }
 
     /**

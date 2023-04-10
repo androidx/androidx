@@ -23,7 +23,6 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin project(":compose:compiler:compiler")
 
     androidTestImplementation project(":benchmark:benchmark-junit4")
     androidTestImplementation project(":compose:foundation:foundation-layout")
@@ -36,4 +35,8 @@ dependencies {
     androidTestImplementation(libs.kotlinReflect)
     androidTestImplementation(libs.kotlinTestCommon)
     androidTestImplementation(libs.truth)
+}
+
+android {
+    namespace "androidx.compose.foundation.layout.benchmark"
 }

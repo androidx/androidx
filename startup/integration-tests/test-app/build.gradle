@@ -26,10 +26,12 @@ android {
             minifyEnabled = true
         }
     }
+    namespace "androidx.startup.testapp"
 }
 
 dependencies {
     implementation(libs.kotlinStdlib)
+    implementation(project(":startup:startup-runtime"))
     implementation(project(":startup:integration-tests:first-library"))
     implementation(project(":startup:integration-tests:second-library"))
     implementation(libs.constraintLayout)

@@ -85,6 +85,25 @@ class ComposableDeclarationChecker : DeclarationChecker, StorageComponentContain
                         listOf(descriptor, override)
                     )
                 )
+            } else if (!descriptor.toScheme(null).canOverride(override.toScheme(null))) {
+                context.trace.report(
+                    ComposeErrors.COMPOSE_APPLIER_DECLARATION_MISMATCH.on(declaration)
+                )
+            }
+
+            descriptor.valueParameters.forEach { valueParameter ->
+                valueParameter.overriddenDescriptors.firstOrNull()?.let { overriddenParam ->
+                    val overrideIsComposable = overriddenParam.type.hasComposableAnnotation()
+                    val paramIsComposable = valueParameter.type.hasComposableAnnotation()
+                    if (paramIsComposable != overrideIsComposable) {
+                        context.trace.report(
+                            ComposeErrors.CONFLICTING_OVERLOADS.on(
+                                declaration,
+                                listOf(valueParameter, overriddenParam)
+                            )
+                        )
+                    }
+                }
             }
         }
         if (descriptor.isSuspend && hasComposableAnnotation) {

@@ -16,6 +16,8 @@
 
 package androidx.camera.video.internal.compat;
 
+import android.content.Context;
+import android.media.AudioRecord;
 import android.media.MediaCodecInfo;
 import android.util.Range;
 
@@ -50,5 +52,13 @@ public final class Api31Impl {
     public static Range<Integer>[] getInputChannelCountRanges(
             @NonNull MediaCodecInfo.AudioCapabilities caps) {
         return caps.getInputChannelCountRanges();
+    }
+
+    /**
+     * Sets the context used for attribution on an {@link AudioRecord}.
+     */
+    @DoNotInline
+    public static void setContext(@NonNull AudioRecord.Builder builder, @NonNull Context context) {
+        builder.setContext(context);
     }
 }

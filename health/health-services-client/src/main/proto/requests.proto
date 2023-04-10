@@ -35,6 +35,12 @@ message BackgroundRegistrationRequest {
   reserved 2 to max;  // Next ID
 }
 
+message BatchingModeConfigRequest {
+  optional string package_name = 1;
+  repeated BatchingMode batching_mode_overrides = 2 [packed = true];
+  reserved 3 to max;  // Next ID
+}
+
 // Request for capabilities.
 message CapabilitiesRequest {
   optional string package_name = 1;
@@ -85,7 +91,19 @@ message MeasureUnregistrationRequest {
   reserved 3 to max;  // Next ID
 }
 
-// Request for passive unregistration.
+message PassiveListenerCallbackRegistrationRequest {
+  optional string package_name = 1;
+  optional PassiveListenerConfig config = 2;
+  reserved 3 to max;  // Next ID
+}
+
+message PassiveListenerServiceRegistrationRequest {
+  optional string package_name = 1;
+  optional string listener_service_class = 2;
+  optional PassiveListenerConfig config = 3;
+  reserved 4 to max;  // Next ID
+}
+
 message PassiveGoalRequest {
   optional string package_name = 1;
   optional string receiver_class_name = 2;
@@ -93,21 +111,9 @@ message PassiveGoalRequest {
   reserved 4 to max;  // Next ID
 }
 
-// Request for passive unregistration.
-message PassiveMonitoringUnregistrationRequest {
-  optional string package_name = 1;
-  reserved 2 to max;  // Next ID
-}
-
 message PrepareExerciseRequest {
   optional string package_name = 1;
   optional WarmUpConfig config = 2;
-  reserved 3 to max;  // Next ID
-}
-
-message RegisterForAutoExerciseRequest {
-  optional string package_name = 1;
-  optional AutoExerciseConfig config = 2;
   reserved 3 to max;  // Next ID
 }
 
@@ -117,8 +123,8 @@ message StartExerciseRequest {
   reserved 3 to max;  // Next ID
 }
 
-// Request to unregister for automatic exercise detection updates.
-message UnregisterFromAutoExerciseRequest {
+message UpdateExerciseTypeConfigRequest {
   optional string package_name = 1;
-  reserved 2 to max;  // Next ID
+  optional ExerciseTypeConfig config = 2;
+  reserved 3 to max;  // Next ID
 }

@@ -24,10 +24,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.work.Configuration;
 import androidx.work.Data;
+import androidx.work.ForegroundUpdater;
+import androidx.work.ProgressUpdater;
 import androidx.work.WorkerParameters;
+import androidx.work.impl.Processor;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.foreground.ForegroundProcessor;
 import androidx.work.impl.utils.WorkForegroundUpdater;
 import androidx.work.impl.utils.WorkProgressUpdater;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
@@ -55,6 +57,7 @@ public class ParcelableWorkerParameters implements Parcelable {
     @NonNull
     private final WorkerParameters.RuntimeExtras mRuntimeExtras;
     private final int mRunAttemptCount;
+    private final int mGeneration;
 
     public ParcelableWorkerParameters(@NonNull WorkerParameters parameters) {
         mId = parameters.getId();
@@ -62,6 +65,7 @@ public class ParcelableWorkerParameters implements Parcelable {
         mTags = parameters.getTags();
         mRuntimeExtras = parameters.getRuntimeExtras();
         mRunAttemptCount = parameters.getRunAttemptCount();
+        mGeneration = parameters.getGeneration();
     }
 
     public static final Creator<ParcelableWorkerParameters> CREATOR =
@@ -92,6 +96,8 @@ public class ParcelableWorkerParameters implements Parcelable {
         mRuntimeExtras = parcelableRuntimeExtras.getRuntimeExtras();
         // runAttemptCount
         mRunAttemptCount = in.readInt();
+        // generation
+        mGeneration = in.readInt();
     }
 
     @Override
@@ -115,6 +121,8 @@ public class ParcelableWorkerParameters implements Parcelable {
         parcelableRuntimeExtras.writeToParcel(parcel, flags);
         // runAttemptCount
         parcel.writeInt(mRunAttemptCount);
+        // generation
+        parcel.writeInt(mGeneration);
     }
 
     @NonNull
@@ -145,18 +153,43 @@ public class ParcelableWorkerParameters implements Parcelable {
         Configuration configuration = workManager.getConfiguration();
         WorkDatabase workDatabase = workManager.getWorkDatabase();
         TaskExecutor taskExecutor = workManager.getWorkTaskExecutor();
-        ForegroundProcessor foregroundProcessor = workManager.getProcessor();
+        Processor processor = workManager.getProcessor();
+        WorkProgressUpdater progressUpdater = new WorkProgressUpdater(workDatabase, taskExecutor);
+        WorkForegroundUpdater foregroundUpdater = new WorkForegroundUpdater(
+                workDatabase,
+                processor,
+                taskExecutor
+        );
+        return toWorkerParameters(
+                configuration,
+                taskExecutor,
+                progressUpdater,
+                foregroundUpdater
+        );
+    }
+
+    /**
+     * Converts {@link ParcelableWorkerParameters} to an instance of {@link WorkerParameters}
+     * lazily.
+     */
+    @NonNull
+    public WorkerParameters toWorkerParameters(
+            @NonNull Configuration configuration,
+            @NonNull TaskExecutor taskExecutor,
+            @NonNull ProgressUpdater progressUpdater,
+            @NonNull ForegroundUpdater foregroundUpdater) {
         return new WorkerParameters(
                 mId,
                 mData,
                 mTags,
                 mRuntimeExtras,
                 mRunAttemptCount,
+                mGeneration,
                 configuration.getExecutor(),
                 taskExecutor,
                 configuration.getWorkerFactory(),
-                new WorkProgressUpdater(workDatabase, taskExecutor),
-                new WorkForegroundUpdater(workDatabase, foregroundProcessor, taskExecutor)
+                progressUpdater,
+                foregroundUpdater
         );
     }
 }

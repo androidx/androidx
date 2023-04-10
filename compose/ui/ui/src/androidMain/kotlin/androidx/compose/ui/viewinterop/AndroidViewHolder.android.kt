@@ -19,6 +19,7 @@ package androidx.compose.ui.viewinterop
 import android.content.Context
 import android.graphics.Rect
 import android.graphics.Region
+import android.os.Build
 import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
@@ -28,8 +29,11 @@ import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
@@ -41,14 +45,20 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.platform.AndroidComposeView
+import androidx.compose.ui.platform.composeToViewOffset
 import androidx.compose.ui.platform.compositionContext
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Velocity
+import androidx.core.view.NestedScrollingParent3
+import androidx.core.view.NestedScrollingParentHelper
+import androidx.core.view.ViewCompat
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.savedstate.SavedStateRegistryOwner
-import androidx.savedstate.ViewTreeSavedStateRegistryOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 
 /**
  * A base class used to host a [View] inside Compose.
@@ -58,8 +68,10 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalComposeUiApi::class)
 internal abstract class AndroidViewHolder(
     context: Context,
-    parentContext: CompositionContext?
-) : ViewGroup(context) {
+    parentContext: CompositionContext?,
+    private val dispatcher: NestedScrollDispatcher
+) : ViewGroup(context), NestedScrollingParent3 {
+
     init {
         // Any [Abstract]ComposeViews that are descendants of this view will host
         // subcompositions of the host composition.
@@ -78,7 +90,7 @@ internal abstract class AndroidViewHolder(
         internal set(value) {
             if (value !== field) {
                 field = value
-                removeAllViews()
+                removeAllViewsInLayout()
                 if (value != null) {
                     addView(value)
                     runUpdate()
@@ -123,21 +135,21 @@ internal abstract class AndroidViewHolder(
 
     internal var onDensityChanged: ((Density) -> Unit)? = null
 
-    /** Sets the [ViewTreeLifecycleOwner] for this view. */
+    /** Sets the ViewTreeLifecycleOwner for this view. */
     var lifecycleOwner: LifecycleOwner? = null
         set(value) {
             if (value !== field) {
                 field = value
-                ViewTreeLifecycleOwner.set(this, value)
+                setViewTreeLifecycleOwner(value)
             }
         }
 
-    /** Sets the [ViewTreeSavedStateRegistryOwner] for this view. */
+    /** Sets the ViewTreeSavedStateRegistryOwner for this view. */
     var savedStateRegistryOwner: SavedStateRegistryOwner? = null
         set(value) {
             if (value !== field) {
                 field = value
-                ViewTreeSavedStateRegistryOwner.set(this, value)
+                setViewTreeSavedStateRegistryOwner(value)
             }
         }
 
@@ -165,6 +177,9 @@ internal abstract class AndroidViewHolder(
 
     private var lastWidthMeasureSpec: Int = Unmeasured
     private var lastHeightMeasureSpec: Int = Unmeasured
+
+    private val nestedScrollingParentHelper: NestedScrollingParentHelper =
+        NestedScrollingParentHelper(this)
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         view?.measure(widthMeasureSpec, heightMeasureSpec)
@@ -222,6 +237,15 @@ internal abstract class AndroidViewHolder(
         // We need to call super here in order to correctly update the dirty flags of the holder.
         super.onDescendantInvalidated(child, target)
         layoutNode.invalidateLayer()
+    }
+
+    override fun onWindowVisibilityChanged(visibility: Int) {
+        super.onWindowVisibilityChanged(visibility)
+        // On Lollipop, when the Window becomes visible, child Views need to be explicitly
+        // invalidated for some reason.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M && visibility == View.VISIBLE) {
+            layoutNode.invalidateLayer()
+        }
     }
 
     // Always mark the region of the View to not be transparent to disable an optimisation which
@@ -377,6 +401,108 @@ internal abstract class AndroidViewHolder(
     // TODO: b/203141462 - consume whether the AndroidView() is inside a scrollable container, and
     //  use that to set this. In the meantime set true as the defensive default.
     override fun shouldDelayChildPressedState(): Boolean = true
+
+    // NestedScrollingParent3
+    override fun onStartNestedScroll(child: View, target: View, axes: Int, type: Int): Boolean {
+        return (axes and ViewCompat.SCROLL_AXIS_VERTICAL) != 0 ||
+            (axes and ViewCompat.SCROLL_AXIS_HORIZONTAL) != 0
+    }
+
+    override fun getNestedScrollAxes(): Int {
+        return nestedScrollingParentHelper.nestedScrollAxes
+    }
+
+    override fun onNestedScrollAccepted(child: View, target: View, axes: Int, type: Int) {
+        nestedScrollingParentHelper.onNestedScrollAccepted(child, target, axes, type)
+    }
+
+    override fun onStopNestedScroll(target: View, type: Int) {
+        nestedScrollingParentHelper.onStopNestedScroll(target, type)
+    }
+
+    override fun onNestedScroll(
+        target: View,
+        dxConsumed: Int,
+        dyConsumed: Int,
+        dxUnconsumed: Int,
+        dyUnconsumed: Int,
+        type: Int,
+        consumed: IntArray
+    ) {
+        if (!isNestedScrollingEnabled) return
+        val consumedByParent =
+            dispatcher.dispatchPostScroll(
+                consumed = Offset(dxConsumed.toComposeOffset(), dyConsumed.toComposeOffset()),
+                available = Offset(dxUnconsumed.toComposeOffset(), dyUnconsumed.toComposeOffset()),
+                source = toNestedScrollSource(type)
+            )
+        consumed[0] = composeToViewOffset(consumedByParent.x)
+        consumed[1] = composeToViewOffset(consumedByParent.y)
+    }
+
+    override fun onNestedScroll(
+        target: View,
+        dxConsumed: Int,
+        dyConsumed: Int,
+        dxUnconsumed: Int,
+        dyUnconsumed: Int,
+        type: Int
+    ) {
+        if (!isNestedScrollingEnabled) return
+        dispatcher.dispatchPostScroll(
+            consumed = Offset(dxConsumed.toComposeOffset(), dyConsumed.toComposeOffset()),
+            available = Offset(dxUnconsumed.toComposeOffset(), dyUnconsumed.toComposeOffset()),
+            source = toNestedScrollSource(type)
+        )
+    }
+
+    override fun onNestedPreScroll(target: View, dx: Int, dy: Int, consumed: IntArray, type: Int) {
+        if (!isNestedScrollingEnabled) return
+        val consumedByParent =
+            dispatcher.dispatchPreScroll(
+                available = Offset(dx.toComposeOffset(), dy.toComposeOffset()),
+                source = toNestedScrollSource(type)
+            )
+        consumed[0] = composeToViewOffset(consumedByParent.x)
+        consumed[1] = composeToViewOffset(consumedByParent.y)
+    }
+
+    override fun onNestedFling(
+        target: View,
+        velocityX: Float,
+        velocityY: Float,
+        consumed: Boolean
+    ): Boolean {
+        if (!isNestedScrollingEnabled) return false
+        val viewVelocity = Velocity(velocityX.toComposeVelocity(), velocityY.toComposeVelocity())
+        dispatcher.coroutineScope.launch {
+            if (!consumed) {
+                dispatcher.dispatchPostFling(
+                    consumed = Velocity.Zero,
+                    available = viewVelocity
+                )
+            } else {
+                dispatcher.dispatchPostFling(
+                    consumed = viewVelocity,
+                    available = Velocity.Zero
+                )
+            }
+        }
+        return false
+    }
+
+    override fun onNestedPreFling(target: View, velocityX: Float, velocityY: Float): Boolean {
+        if (!isNestedScrollingEnabled) return false
+        val toBeConsumed = Velocity(velocityX.toComposeVelocity(), velocityY.toComposeVelocity())
+        dispatcher.coroutineScope.launch {
+            dispatcher.dispatchPreFling(toBeConsumed)
+        }
+        return false
+    }
+
+    override fun isNestedScrollingEnabled(): Boolean {
+        return view?.isNestedScrollingEnabled ?: super.isNestedScrollingEnabled()
+    }
 }
 
 private fun View.layoutAccordingTo(layoutNode: LayoutNode) {
@@ -387,3 +513,12 @@ private fun View.layoutAccordingTo(layoutNode: LayoutNode) {
 }
 
 private const val Unmeasured = Int.MIN_VALUE
+
+private fun Int.toComposeOffset() = toFloat() * -1
+
+private fun Float.toComposeVelocity(): Float = this * -1f
+
+private fun toNestedScrollSource(type: Int): NestedScrollSource = when (type) {
+    ViewCompat.TYPE_TOUCH -> NestedScrollSource.Drag
+    else -> NestedScrollSource.Fling
+}

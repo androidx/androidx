@@ -16,8 +16,10 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XFiler
 import androidx.room.compiler.processing.XMessager
+import androidx.room.compiler.processing.originatingElementForPoet
 import androidx.room.compiler.processing.util.ISSUE_TRACKER_LINK
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
@@ -27,8 +29,11 @@ import com.squareup.javapoet.JavaFile
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.OriginatingElementsHolder
 import java.io.OutputStream
+import java.nio.file.Path
 import javax.lang.model.element.Element
 import javax.tools.Diagnostic
+import kotlin.io.path.extension
+import kotlin.io.path.nameWithoutExtension
 
 internal class KspFiler(
     private val delegate: CodeGenerator,
@@ -70,6 +75,27 @@ internal class KspFiler(
         }
     }
 
+    override fun writeResource(
+        filePath: Path,
+        originatingElements: List<XElement>,
+        mode: XFiler.Mode
+    ): OutputStream {
+        require(filePath.extension != "java" && filePath.extension != "kt") {
+            "Could not create resource file with a source type extension. File must not be " +
+                "neither '.java' nor '.kt', but was: $filePath"
+        }
+        val kspFilerOriginatingElements = originatingElements
+            .mapNotNull { it.originatingElementForPoet() }
+            .toOriginatingElements()
+        return createNewFile(
+            originatingElements = kspFilerOriginatingElements,
+            packageName = filePath.parent?.toString() ?: "",
+            fileName = filePath.nameWithoutExtension,
+            extensionName = filePath.extension,
+            aggregating = mode == XFiler.Mode.Aggregating
+        )
+    }
+
     private fun createNewFile(
         originatingElements: OriginatingElements,
         packageName: String,
@@ -78,14 +104,16 @@ internal class KspFiler(
         aggregating: Boolean
     ): OutputStream {
         val dependencies = if (originatingElements.isEmpty()) {
-            messager.printMessage(
-                Diagnostic.Kind.WARNING,
-                """
-                    No dependencies are reported for $fileName which will prevent
-                    incremental compilation.
-                    Please file a bug at $ISSUE_TRACKER_LINK.
-                """.trimIndent()
-            )
+            val isSourceFile = extensionName == "java" || extensionName == "kt"
+            if (isSourceFile) {
+                val filePath = "$packageName.$fileName.$extensionName"
+                messager.printMessage(
+                    Diagnostic.Kind.WARNING,
+                    "No dependencies reported for generated source $filePath which will" +
+                        "prevent incremental compilation.\n" +
+                        "Please file a bug at $ISSUE_TRACKER_LINK."
+                )
+            }
             Dependencies.ALL_FILES
         } else {
             Dependencies(

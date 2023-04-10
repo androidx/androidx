@@ -60,6 +60,7 @@ public class ViewStyle extends BundledStyle {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @SuppressWarnings("deprecation")
     public void applyStyleOnViewIfValid(@NonNull View view) {
         if (!isValid()) {
             return;

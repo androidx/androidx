@@ -20,26 +20,27 @@ import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XType
-import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_FIELD
-import com.google.devtools.ksp.closestClassDeclaration
+import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
+import com.google.devtools.ksp.isPrivate
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.Modifier
 
 internal class KspFieldElement(
     env: KspProcessingEnv,
     override val declaration: KSPropertyDeclaration,
-    val containing: KspMemberContainer
 ) : KspElement(env, declaration),
     XFieldElement,
     XHasModifiers by KspHasModifiers.create(declaration),
     XAnnotated by KspAnnotated.create(env, declaration, NO_USE_SITE_OR_FIELD) {
 
-    override val equalityItems: Array<out Any?> by lazy {
-        arrayOf(declaration, containing)
-    }
-
     override val enclosingElement: KspMemberContainer by lazy {
         declaration.requireEnclosingMemberContainer(env)
+    }
+
+    override val closestMemberContainer: KspMemberContainer by lazy {
+        enclosingElement
     }
 
     override val name: String by lazy {
@@ -47,62 +48,64 @@ internal class KspFieldElement(
     }
 
     override val type: KspType by lazy {
-        env.wrap(
-            originatingReference = declaration.type,
-            ksType = declaration.typeAsMemberOf(containing.type?.ksType)
-        )
+        asMemberOf(enclosingElement.type?.ksType)
     }
 
-    /**
-     * The type of the field where it is declared. Note that this properly is null if this field
-     * is the original declaration (e.g. not inherited).
-     */
-    val declarationType: KspType? by lazy {
-        val declaredIn = declaration.closestClassDeclaration()
-        if (declaredIn == null || declaredIn == containing.declaration) {
-            null
-        } else {
-            KspFieldElement(
-                env = env,
-                declaration = declaration,
-                containing = env.wrapClassDeclaration(declaredIn)
-            ).type
+    val syntheticAccessors: List<KspSyntheticPropertyMethodElement> by lazy {
+        when {
+            declaration.hasJvmFieldAnnotation() -> {
+                // jvm fields cannot have accessors but KSP generates synthetic accessors for
+                // them. We check for JVM field first before checking the getter
+                emptyList()
+            }
+            declaration.isPrivate() -> emptyList()
+            declaration.modifiers.contains(Modifier.CONST) -> {
+                // No accessors are needed for const properties:
+                // https://kotlinlang.org/docs/java-to-kotlin-interop.html#static-fields
+                emptyList()
+            }
+            else -> {
+                sequenceOf(declaration.getter, declaration.setter)
+                    .filterNotNull()
+                    .filterNot {
+                        // KAPT does not generate methods for privates, KSP does so we filter
+                        // them out.
+                        it.modifiers.contains(Modifier.PRIVATE)
+                    }
+                    .map { accessor ->
+                        KspSyntheticPropertyMethodElement.create(
+                            env = env,
+                            field = this,
+                            accessor = accessor
+                        )
+                    }.toList()
+            }
         }
     }
 
+    val syntheticSetter
+        get() = syntheticAccessors.firstOrNull {
+            it.parameters.size == 1
+        }
+
     override fun asMemberOf(other: XType): KspType {
-        if (containing.type?.isSameType(other) != false) {
+        if (enclosingElement.type?.isSameType(other) != false) {
             return type
         }
         check(other is KspType)
-        val asMember = declaration.typeAsMemberOf(other.ksType)
-        return env.wrap(
-            originatingReference = declaration.type,
-            ksType = asMember
-        )
+        return asMemberOf(other.ksType)
     }
 
-    override fun copyTo(newContainer: XTypeElement): KspFieldElement {
-        check(newContainer is KspTypeElement) {
-            "Unexpected container (${newContainer::class}), expected KspTypeElement"
-        }
-        return KspFieldElement(
-            env = env,
-            declaration = declaration,
-            containing = newContainer
+    private fun asMemberOf(ksType: KSType?): KspType {
+        return env.wrap(
+            originatingReference = declaration.type,
+            ksType = declaration.typeAsMemberOf(ksType)
         )
     }
 
     companion object {
-        fun create(
-            env: KspProcessingEnv,
-            declaration: KSPropertyDeclaration
-        ): KspFieldElement {
-            return KspFieldElement(
-                env = env,
-                declaration = declaration,
-                containing = declaration.requireEnclosingMemberContainer(env)
-            )
+        fun create(env: KspProcessingEnv, declaration: KSPropertyDeclaration): KspFieldElement {
+            return KspFieldElement(env, declaration)
         }
     }
 }

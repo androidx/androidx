@@ -30,6 +30,7 @@ import com.android.tools.lint.detector.api.UastLintUtils
 import com.android.tools.lint.detector.api.isKotlin
 import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiVariable
+import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.impl.source.PsiImmediateClassType
 import org.jetbrains.kotlin.asJava.elements.KtLightTypeParameter
 import org.jetbrains.kotlin.psi.KtCallExpression
@@ -151,8 +152,14 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
                 // node.sourcePsi : `value`
                 // dot: `.`
                 // variable: `liveDataField`
-                val dot = node.sourcePsi?.prevSibling
-                val variable = dot?.prevSibling?.firstChild
+                val dot = generateSequence(node.sourcePsi?.prevSibling) {
+                    it.prevSibling
+                }.firstOrNull { it !is PsiWhiteSpace }
+                val variable = generateSequence(generateSequence(dot?.prevSibling) {
+                    it.prevSibling
+                }.firstOrNull { it !is PsiWhiteSpace }) {
+                    it.firstChild
+                }.firstOrNull { it !is PsiWhiteSpace }
                 return variable?.text
             }
         }

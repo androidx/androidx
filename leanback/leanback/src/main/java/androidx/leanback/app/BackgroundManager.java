@@ -165,7 +165,7 @@ public final class BackgroundManager {
         }
 
         @Override
-        public void draw(Canvas canvas) {
+        public void draw(@NonNull Canvas canvas) {
             if (mState.mBitmap == null) {
                 return;
             }
@@ -348,7 +348,7 @@ public final class BackgroundManager {
         }
 
         @Override
-        public void draw(Canvas canvas) {
+        public void draw(@NonNull Canvas canvas) {
             for (int i = 0; i < mWrapper.length; i++) {
                 final Drawable d;
                 // For each child drawable, we multiple Wrapper's alpha and LayerDrawable's alpha

@@ -253,6 +253,7 @@ public abstract class SharedElementCallback {
      * java.util.List)} and {@link #onSharedElementEnd(java.util.List, java.util.List,
      * java.util.List)}. A null value will produce a null snapshot value for those two methods.
      */
+    @SuppressWarnings("deprecation")
     public View onCreateSnapshotView(Context context, Parcelable snapshot) {
         ImageView view = null;
         if (snapshot instanceof Bundle) {

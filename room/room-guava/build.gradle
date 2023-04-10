@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -37,7 +36,10 @@ dependencies {
 androidx {
     name = "Android Room Guava"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2018"
     description = "Android Room Guava"
+}
+
+android {
+    namespace "androidx.room.guava"
 }

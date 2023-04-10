@@ -17,7 +17,7 @@
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:minWidth="100dp"
     android:minHeight="100dp"
-    android:initialLayout="@layout/loading_layout"
+    android:initialLayout="@layout/glance_default_loading_layout"
     android:minResizeHeight="40dp"
     android:minResizeWidth="40dp"
     android:previewImage="@drawable/compose"

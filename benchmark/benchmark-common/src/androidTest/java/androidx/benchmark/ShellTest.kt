@@ -21,18 +21,19 @@ import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import java.io.File
+import kotlin.test.assertContains
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import org.junit.After
 import org.junit.Assert
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.File
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -40,7 +41,7 @@ class ShellTest {
     @Before
     @After
     fun setup() {
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 23) {
             // ensure we don't leak background processes
             Shell.terminateProcessesAndWait(
                 KILL_WAIT_POLL_PERIOD_MS,
@@ -67,10 +68,7 @@ class ShellTest {
         val output = Shell.optionalCommand("echo foo")
 
         val expected = when {
-            Build.VERSION.SDK_INT >= 23 -> "foo\n"
-            // known bug in the shell on L (21,22). `echo` doesn't work with shell
-            // programmatically, only works in interactive shell :|
-            Build.VERSION.SDK_INT in 21..22 -> ""
+            Build.VERSION.SDK_INT >= 21 -> "foo\n"
             else -> null
         }
 
@@ -107,20 +105,37 @@ class ShellTest {
 
     @SdkSuppress(minSdkVersion = 21)
     @Test
-    fun executeScript_trivial() {
-        Assert.assertEquals("foo\n", Shell.executeScript("echo foo"))
+    fun executeScriptCaptureStdout_trivial() {
+        Assert.assertEquals("foo\n", Shell.executeScriptCaptureStdout("echo foo"))
     }
 
     @SdkSuppress(minSdkVersion = 21)
     @Test
-    fun executeScriptWithStderr_trivial() {
-        Assert.assertEquals(Shell.Output("foo\n", ""), Shell.executeScriptWithStderr("echo foo"))
+    fun executeScriptCaptureStdoutStderr_trivial() {
+        Assert.assertEquals(
+            Shell.Output("foo\n", ""),
+            Shell.executeScriptCaptureStdoutStderr("echo foo")
+        )
     }
 
     @SdkSuppress(minSdkVersion = 21)
     @Test
-    fun executeScriptWithStderr_invalidCommand() {
-        val shellOutput = Shell.executeScriptWithStderr("invalidCommand")
+    fun executeScriptCaptureStdoutStderr_stderrFirstLine() {
+        Assert.assertEquals(
+            Shell.Output("bar\n", "foo\n"),
+            Shell.executeScriptCaptureStdoutStderr(
+                """
+                echo foo 1>&2 # stderr on 1st line, previously unsupported
+                echo bar
+                """.trimIndent()
+            )
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    fun executeScriptCaptureStdoutStderr_invalidCommand() {
+        val shellOutput = Shell.executeScriptCaptureStdoutStderr("invalidCommand")
 
         Assert.assertEquals("", shellOutput.stdout)
 
@@ -135,40 +150,49 @@ class ShellTest {
         )
     }
 
-    @SdkSuppress(minSdkVersion = 26) // xargs only available 26+
+    @SdkSuppress(minSdkVersion = 23) // xargs added api 23
     @Test
-    fun executeScript_pipe_xargs() {
+    fun executeScriptCaptureStdout_pipe_xargs() {
         // validate piping works with xargs
-        Assert.assertEquals("foo\n", Shell.executeScript("echo foo | xargs echo $1"))
+        Assert.assertEquals("foo\n", Shell.executeScriptCaptureStdout("echo foo | xargs echo $1"))
     }
 
     @SdkSuppress(minSdkVersion = 29) // `$(</dev/stdin)` doesn't work before 29
     @Test
-    fun executeScript_pipe_echo() {
+    fun executeScriptCaptureStdout_pipe_echo() {
         // validate piping works
-        Assert.assertEquals("foo\n", Shell.executeScript("echo foo | echo $(</dev/stdin)"))
+        Assert.assertEquals(
+            "foo\n",
+            Shell.executeScriptCaptureStdout("echo foo | echo $(</dev/stdin)")
+        )
     }
 
-    @SdkSuppress(minSdkVersion = 26) // xargs only available 26+
+    @SdkSuppress(minSdkVersion = 23) // xargs added api 23
     @Test
-    fun executeScript_stdinArg_xargs() {
+    fun executeScriptCaptureStdout_stdinArg_xargs() {
         // validate stdin to first command in script
-        Assert.assertEquals("foo\n", Shell.executeScript("xargs echo $1", stdin = "foo"))
+        Assert.assertEquals(
+            "foo\n",
+            Shell.executeScriptCaptureStdout("xargs echo $1", stdin = "foo")
+        )
     }
 
     @SdkSuppress(minSdkVersion = 29) // `$(</dev/stdin)` doesn't work before 29
     @Test
-    fun executeScript_stdinArg_echo() {
+    fun executeScriptCaptureStdout_stdinArg_echo() {
         // validate stdin to first command in script
-        Assert.assertEquals("foo\n", Shell.executeScript("echo $(</dev/stdin)", stdin = "foo"))
+        Assert.assertEquals(
+            "foo\n",
+            Shell.executeScriptCaptureStdout("echo $(</dev/stdin)", stdin = "foo")
+        )
     }
 
     @SdkSuppress(minSdkVersion = 21)
     @Test
-    fun executeScript_multilineRedirect() {
+    fun executeScriptCaptureStdout_multilineRedirect() {
         Assert.assertEquals(
             "foo\n",
-            Shell.executeScript(
+            Shell.executeScriptCaptureStdout(
                 """
                     echo foo > /data/local/tmp/foofile
                     cat /data/local/tmp/foofile
@@ -177,12 +201,12 @@ class ShellTest {
         )
     }
 
-    @SdkSuppress(minSdkVersion = 26) // xargs only available 26+
+    @SdkSuppress(minSdkVersion = 23) // xargs added api 23
     @Test
-    fun executeScript_multilineRedirectStdin_xargs() {
+    fun executeScriptCaptureStdout_multilineRedirectStdin_xargs() {
         Assert.assertEquals(
             "foo\n",
-            Shell.executeScript(
+            Shell.executeScriptCaptureStdout(
                 """
                     xargs echo $1 > /data/local/tmp/foofile
                     cat /data/local/tmp/foofile
@@ -194,10 +218,10 @@ class ShellTest {
 
     @SdkSuppress(minSdkVersion = 29) // `$(</dev/stdin)` doesn't work before 29
     @Test
-    fun executeScript_multilineRedirectStdin_echo() {
+    fun executeScriptCaptureStdout_multilineRedirectStdin_echo() {
         Assert.assertEquals(
             "foo\n",
-            Shell.executeScript(
+            Shell.executeScriptCaptureStdout(
                 """
                     echo $(</dev/stdin) > /data/local/tmp/foofile
                     cat /data/local/tmp/foofile
@@ -217,10 +241,10 @@ class ShellTest {
         try {
             Assert.assertEquals(
                 "foo\n",
-                Shell.executeCommand(path)
+                Shell.executeScriptCaptureStdout(path)
             )
         } finally {
-            Shell.executeCommand("rm $path")
+            Shell.executeScriptCaptureStdout("rm $path")
         }
     }
 
@@ -336,23 +360,69 @@ class ShellTest {
         assertFalse(backgroundProcess2.isAlive())
     }
 
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    fun getRunningSubPackages() {
+        assertEquals(emptyList(), Shell.getRunningProcessesForPackage("not.a.real.packagename"))
+        assertEquals(listOf(Packages.TEST), Shell.getRunningProcessesForPackage(Packages.TEST))
+    }
+
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    fun checkRootStatus() {
+        if (Shell.isSessionRooted()) {
+            assertContains(Shell.executeScriptCaptureStdout("id"), "uid=0(root)")
+        } else {
+            assertFalse(
+                Shell.executeScriptCaptureStdout("id").contains("uid=0(root)"),
+                "Shell.isSessionRooted() is false so user should not be root"
+            )
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 23) // xargs added api 23
+    @Test
+    fun shellReuse() {
+        val script = Shell.createShellScript("xargs echo $1", stdin = "foo")
+
+        repeat(2) {
+            // validates that the stdin can be reused across multiple invocations
+            with(script.start()) {
+                assertEquals(listOf("foo"), stdOutLineSequence().toList())
+            }
+        }
+        script.cleanUp()
+    }
+
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    fun getChecksum() {
+        val emptyPaths = listOf("/data/local/tmp/emptyfile1", "/data/local/tmp/emptyfile2")
+        try {
+            val checksums = emptyPaths.map {
+                Shell.executeScriptSilent("rm -f $it")
+                Shell.executeScriptSilent("touch $it")
+                Shell.getChecksum(it)
+            }
+
+            assertEquals(checksums.first(), checksums.last())
+            if (Build.VERSION.SDK_INT < 23) {
+                checksums.forEach { checksum ->
+                    // getChecksum uses ls -l to check size pre API 23,
+                    // this validates that behavior + result parsing
+                    assertEquals("0", checksum)
+                }
+            }
+        } finally {
+            emptyPaths.forEach {
+                Shell.executeScriptSilent("rm -f $it")
+            }
+        }
+    }
+
     @RequiresApi(21)
     private fun pidof(packageName: String): Int? {
-        if (Build.VERSION.SDK_INT >= 24) {
-            // On API 23 (first version to offer it) we observe that 'pidof'
-            // returns list of all processes :|
-            return Shell.executeCommand("pidof $packageName").trim().toIntOrNull()
-        }
-        val psLineForPackage: String? = Shell.executeScript("ps | grep $packageName")
-            .split("\r?\n")
-            .firstOrNull { it.trim().endsWith(" $packageName") }
-
-        // e.g.
-        // "root      8803  1173  3696   864   813fcf0c b0144fea S logcat"
-        return psLineForPackage
-            ?.split(Regex("\\s+"))
-            ?.get(1)
-            ?.toIntOrNull()
+        return Shell.getPidsForProcess(packageName).firstOrNull()
     }
 
     companion object {
@@ -367,7 +437,7 @@ class ShellTest {
          */
         @RequiresApi(23)
         fun getBackgroundSpinningProcess(): Shell.ProcessPid {
-            val pid = Shell.executeScript(
+            val pid = Shell.executeScriptCaptureStdout(
                 """
                     $BACKGROUND_SPINNING_PROCESS_NAME > /dev/null 2> /dev/null &
                     echo $!

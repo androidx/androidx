@@ -25,7 +25,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SmallTest
 import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkManagerImpl
-import androidx.work.impl.utils.SerialExecutor
+import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.WorkProgressUpdater
 import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
@@ -109,18 +109,7 @@ class CoroutineWorkerTest {
         val worker = workerFactory.createWorkerWithDefaultFallback(
             context,
             SynchronousCoroutineWorker::class.java.name,
-            WorkerParameters(
-                UUID.randomUUID(),
-                Data.EMPTY,
-                emptyList(),
-                WorkerParameters.RuntimeExtras(),
-                1,
-                configuration.executor,
-                workManagerImpl.workTaskExecutor,
-                workerFactory,
-                progressUpdater,
-                mForegroundUpdater
-            )
+            WorkerParameters(workerFactory)
         ) as SynchronousCoroutineWorker
 
         assertThat(worker.job.isCompleted, `is`(false))
@@ -145,18 +134,7 @@ class CoroutineWorkerTest {
         val worker = workerFactory.createWorkerWithDefaultFallback(
             context,
             SynchronousCoroutineWorker::class.java.name,
-            WorkerParameters(
-                UUID.randomUUID(),
-                Data.EMPTY,
-                emptyList(),
-                WorkerParameters.RuntimeExtras(),
-                1,
-                configuration.executor,
-                workManagerImpl.workTaskExecutor,
-                workerFactory,
-                progressUpdater,
-                mForegroundUpdater
-            )
+            WorkerParameters(workerFactory)
         ) as SynchronousCoroutineWorker
 
         assertThat(worker.job.isCancelled, `is`(false))
@@ -175,16 +153,9 @@ class CoroutineWorkerTest {
             context,
             ProgressUpdatingWorker::class.java.name,
             WorkerParameters(
-                workRequest.id,
-                Data.EMPTY,
-                emptyList(),
-                WorkerParameters.RuntimeExtras(),
-                1,
-                configuration.executor,
-                workManagerImpl.workTaskExecutor,
                 workerFactory,
+                workRequest.id,
                 progressUpdater,
-                mForegroundUpdater
             )
         ) as ProgressUpdatingWorker
 
@@ -219,16 +190,9 @@ class CoroutineWorkerTest {
             context,
             ProgressUpdatingWorker::class.java.name,
             WorkerParameters(
-                workRequest.id,
-                Data.EMPTY,
-                emptyList(),
-                WorkerParameters.RuntimeExtras(),
-                1,
-                configuration.executor,
-                workManagerImpl.workTaskExecutor,
                 workerFactory,
+                workRequest.id,
                 progressUpdater,
-                mForegroundUpdater
             )
         ) as ProgressUpdatingWorker
 
@@ -259,21 +223,13 @@ class CoroutineWorkerTest {
     class InstantWorkTaskExecutor : TaskExecutor {
 
         private val mSynchronousExecutor = SynchronousExecutor()
-        private val mSerialExecutor = SerialExecutor(mSynchronousExecutor)
-
-        override fun postToMainThread(runnable: Runnable) {
-            runnable.run()
-        }
+        private val mSerialExecutor = SerialExecutorImpl(mSynchronousExecutor)
 
         override fun getMainThreadExecutor(): Executor {
             return mSynchronousExecutor
         }
 
-        override fun executeOnBackgroundThread(runnable: Runnable) {
-            mSerialExecutor.execute(runnable)
-        }
-
-        override fun getBackgroundExecutor(): SerialExecutor {
+        override fun getSerialTaskExecutor(): SerialExecutorImpl {
             return mSerialExecutor
         }
     }
@@ -285,6 +241,25 @@ class CoroutineWorkerTest {
             return Result.success(workDataOf("output" to 999L))
         }
 
+        @Deprecated(message = "use withContext(...) inside doWork() instead.")
         override val coroutineContext = SynchronousExecutor().asCoroutineDispatcher()
     }
+
+    fun WorkerParameters(
+        workerFactory: WorkerFactory,
+        id: UUID = UUID.randomUUID(),
+        progressUpdater: ProgressUpdater = this.progressUpdater,
+    ) = WorkerParameters(
+        id,
+        Data.EMPTY,
+        emptyList(),
+        WorkerParameters.RuntimeExtras(),
+        1,
+        1,
+        configuration.executor,
+        workManagerImpl.workTaskExecutor,
+        workerFactory,
+        progressUpdater,
+        mForegroundUpdater
+    )
 }

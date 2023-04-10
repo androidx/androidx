@@ -16,52 +16,8 @@
 
 package androidx.compose.ui.focus
 
-import androidx.compose.runtime.remember
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
-import androidx.compose.ui.focus.FocusStateImpl.Inactive
-import androidx.compose.ui.modifier.ModifierLocalConsumer
-import androidx.compose.ui.modifier.ModifierLocalProvider
-import androidx.compose.ui.modifier.ModifierLocalReadScope
-import androidx.compose.ui.modifier.ProvidableModifierLocal
-import androidx.compose.ui.modifier.modifierLocalOf
-import androidx.compose.ui.node.ModifiedFocusNode
-import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.platform.InspectorValueInfo
-import androidx.compose.ui.platform.NoInspectorInfo
-import androidx.compose.ui.platform.debugInspectorInfo
-
-/**
- * A [Modifier.Element] that wraps makes the modifiers on the right into a Focusable. Use a
- * different instance of [FocusModifier] for each focusable component.
- */
-internal class FocusModifier(
-    initialFocus: FocusStateImpl,
-    // TODO(b/172265016): Make this a required parameter and remove the default value.
-    //  Set this value in AndroidComposeView, and other places where we create a focus modifier
-    //  using this internal constructor.
-    inspectorInfo: InspectorInfo.() -> Unit = NoInspectorInfo
-) : ModifierLocalConsumer,
-    InspectorValueInfo(inspectorInfo) {
-    // TODO(b/188684110): Move focusState and focusedChild to ModifiedFocusNode and make this
-    //  modifier stateless.
-    var focusState: FocusStateImpl = initialFocus
-    var focusedChild: ModifiedFocusNode? = null
-    var hasFocusListeners: Boolean = false
-    lateinit var focusNode: ModifiedFocusNode
-    lateinit var modifierLocalReadScope: ModifierLocalReadScope
-
-    // Reading the FocusProperties ModifierLocal.
-    override fun onModifierLocalsUpdated(scope: ModifierLocalReadScope) {
-        modifierLocalReadScope = scope
-
-        // Update the focus node with the current focus properties.
-        with(scope) {
-            hasFocusListeners = ModifierLocalHasFocusEventListener.current
-            focusNode.setUpdatedProperties(ModifierLocalFocusProperties.current)
-        }
-    }
-}
 
 /**
  * Add this modifier to a component to make it focusable.
@@ -76,10 +32,8 @@ internal class FocusModifier(
  *
  * @sample androidx.compose.ui.samples.FocusableSampleUsingLowerLevelFocusTarget
  */
-fun Modifier.focusTarget(): Modifier = composed(debugInspectorInfo { name = "focusTarget" }) {
-    val focusModifier = remember { FocusModifier(Inactive) }
-    focusTarget(focusModifier)
-}
+@OptIn(ExperimentalComposeUiApi::class)
+fun Modifier.focusTarget(): Modifier = this then FocusTargetModifierNode.FocusTargetModifierElement
 
 /**
  * Add this modifier to a component to make it focusable.
@@ -88,69 +42,4 @@ fun Modifier.focusTarget(): Modifier = composed(debugInspectorInfo { name = "foc
     "Replaced by focusTarget",
     ReplaceWith("focusTarget()", "androidx.compose.ui.focus.focusTarget")
 )
-fun Modifier.focusModifier(): Modifier = composed(debugInspectorInfo { name = "focusModifier" }) {
-    val focusModifier = remember { FocusModifier(Inactive) }
-    focusTarget(focusModifier)
-}
-
-/**
- * A helper function that allows you to pass in an instance of FocusModifier.
- * This is only used internally, to set the root focus modifier or in tests where we need to set an
- * initial focus state or inspect the focus modifier state after running some operation.
- */
-internal fun Modifier.focusTarget(focusModifier: FocusModifier): Modifier {
-    return this.then(focusModifier).then(ResetFocusModifierLocals)
-}
-
-/**
- * This modifier local is used as a temporary work-around to improve performance.
- * Instead of sending focus state change events up the hierarchy, we only send it if we have
- * listeners that need this state.
- */
-internal val ModifierLocalHasFocusEventListener = modifierLocalOf { false }
-
-/**
- * The Focus Modifier reads the state of some Modifier Locals that are set by the parents. Consider
- * the following example:
- *
- *     Box(
- *         Modifier
- *             .focusRequester(item1)
- *             .onFocusChanged { ... }
- *             .focusOrder { next = item2 }
- *             .focusProperties { canFocus = false }
- *             .focusTarget()          // focusModifier1
- *     ) {
- *         Box(
- *             Modifier.focusTarget()  // focusModifier2
- *         )
- *     }
- *
- * Here, the focusRequester, onFocusChanged, focusOrder and focusProperties modifiers provide
- * modifier local values that are intended for focusModifier1.
- *
- * We don't want these modifier locals to be read by focusModifier2.
- *
- * Add this modifier after every FocusModifier to reset all the focus related modifier locals, so
- * that focus modifiers further down the tree do not read these values.
- */
-internal val ResetFocusModifierLocals: Modifier = Modifier
-    // Reset the FocusProperties modifier local.
-    .then(
-        object : ModifierLocalProvider<FocusProperties> {
-            override val key: ProvidableModifierLocal<FocusProperties>
-                get() = ModifierLocalFocusProperties
-            override val value: FocusProperties
-                get() = DefaultFocusProperties
-        }
-
-    )
-    // Update the HasFocusEventListener modifier local value to false.
-    .then(
-        object : ModifierLocalProvider<Boolean> {
-            override val key: ProvidableModifierLocal<Boolean>
-                get() = ModifierLocalHasFocusEventListener
-            override val value: Boolean
-                get() = false
-        }
-    )
+fun Modifier.focusModifier(): Modifier = focusTarget()

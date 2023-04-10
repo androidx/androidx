@@ -21,11 +21,6 @@ package androidx.room.compiler.processing
  */
 interface XVariableElement : XElement {
     /**
-     * The name of the variable element.
-     */
-    val name: String
-
-    /**
      * Returns the type of this field or parameter
      */
     val type: XType

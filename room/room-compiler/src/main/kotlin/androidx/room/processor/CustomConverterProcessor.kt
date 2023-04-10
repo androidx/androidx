@@ -35,7 +35,6 @@ import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_UNBOUND_GENERIC
 import androidx.room.solver.types.CustomTypeConverterWrapper
 import androidx.room.vo.BuiltInConverterFlags
 import androidx.room.vo.CustomTypeConverter
-import java.util.LinkedHashSet
 
 /**
  * Processes classes that are referenced in TypeConverters annotations.
@@ -60,7 +59,9 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
                 if (typeElement == null) {
                     context.logger.e(
                         element,
-                        ProcessorErrors.typeConverterMustBeDeclared(it.typeName)
+                        ProcessorErrors.typeConverterMustBeDeclared(
+                            it.asTypeName().toString(context.codeLanguage)
+                        )
                     )
                     emptyList()
                 } else {
@@ -72,7 +73,8 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
                 annotation.getAsAnnotationBox<BuiltInTypeConverters>("builtInTypeConverters").let {
                     BuiltInConverterFlags(
                         enums = it.value.enums,
-                        uuid = it.value.uuid
+                        uuid = it.value.uuid,
+                        byteBuffer = it.value.byteBuffer
                     )
                 }
             return ProcessResult(
@@ -84,7 +86,7 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
 
         private fun reportDuplicates(context: Context, converters: List<CustomTypeConverter>) {
             converters
-                .groupBy { it.from.typeName to it.to.typeName }
+                .groupBy { it.from.asTypeName() to it.to.asTypeName() }
                 .filterValues { it.size > 1 }
                 .values.forEach { possiblyDuplicateConverters ->
                     possiblyDuplicateConverters.forEach { converter ->
@@ -133,7 +135,7 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
         }
         return converterMethods.mapNotNull {
             processMethod(
-                container = element.type,
+                container = element,
                 isContainerKotlinObject = isKotlinObjectDeclaration,
                 methodElement = it,
                 isProvidedConverter = isProvidedConverter
@@ -142,12 +144,12 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
     }
 
     private fun processMethod(
-        container: XType,
+        container: XTypeElement,
         methodElement: XMethodElement,
         isContainerKotlinObject: Boolean,
         isProvidedConverter: Boolean
     ): CustomTypeConverter? {
-        val asMember = methodElement.asMemberOf(container)
+        val asMember = methodElement.asMemberOf(container.type)
         val returnType = asMember.returnType
         val invalidReturnType = returnType.isInvalidReturnType()
         context.checker.check(
@@ -157,9 +159,8 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
             context.logger.e(methodElement, TYPE_CONVERTER_BAD_RETURN_TYPE)
             return null
         }
-        val returnTypeName = returnType.typeName
         context.checker.notUnbound(
-            returnTypeName, methodElement,
+            returnType, methodElement,
             TYPE_CONVERTER_UNBOUND_GENERIC
         )
         val params = methodElement.parameters
@@ -168,9 +169,9 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
             return null
         }
         val param = params.map {
-            it.asMemberOf(container)
+            it.asMemberOf(container.type)
         }.first()
-        context.checker.notUnbound(param.typeName, params[0], TYPE_CONVERTER_UNBOUND_GENERIC)
+        context.checker.notUnbound(param, params[0], TYPE_CONVERTER_UNBOUND_GENERIC)
         return CustomTypeConverter(
             enclosingClass = container,
             isEnclosingClassKotlinObject = isContainerKotlinObject,
@@ -184,16 +185,18 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
     /**
      * Order of classes is important hence they are a LinkedHashSet not a set.
      */
-    open class ProcessResult(
+    data class ProcessResult(
         val classes: LinkedHashSet<XType>,
         val converters: List<CustomTypeConverterWrapper>,
         val builtInConverterFlags: BuiltInConverterFlags
     ) {
-        object EMPTY : ProcessResult(
-            classes = LinkedHashSet(),
-            converters = emptyList(),
-            builtInConverterFlags = BuiltInConverterFlags.DEFAULT
-        )
+        companion object {
+            val EMPTY = ProcessResult(
+                classes = LinkedHashSet(),
+                converters = emptyList(),
+                builtInConverterFlags = BuiltInConverterFlags.DEFAULT
+            )
+        }
 
         operator fun plus(other: ProcessResult): ProcessResult {
             val newClasses = LinkedHashSet<XType>()

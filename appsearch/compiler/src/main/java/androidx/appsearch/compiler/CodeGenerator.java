@@ -82,7 +82,7 @@ class CodeGenerator {
      */
     private TypeSpec createClass() throws ProcessingException {
         // Gets the full name of target class.
-        String qualifiedName = mModel.getClassElement().getQualifiedName().toString();
+        String qualifiedName = mModel.getQualifiedDocumentClassName();
         String className = qualifiedName.substring(mOutputPackage.length() + 1);
         ClassName genClassName = mHelper.getDocumentClassFactoryForClass(mOutputPackage, className);
 
@@ -94,7 +94,7 @@ class CodeGenerator {
         TypeSpec.Builder genClass = TypeSpec
                 .classBuilder(genClassName)
                 .addOriginatingElement(mModel.getClassElement())
-                .addModifiers(Modifier.PUBLIC)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addSuperinterface(factoryType);
 
         // Add the @Generated annotation to avoid static analysis running on these files

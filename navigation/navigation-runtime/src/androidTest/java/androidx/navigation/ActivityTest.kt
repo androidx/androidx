@@ -68,6 +68,7 @@ class ActivityTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test fun navArgsLazy() {
         // Normally, this would be set by using an <activity> destination to
         // start the Activity, but we'll fake it here in the test

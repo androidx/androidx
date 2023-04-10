@@ -51,17 +51,16 @@ class BadgeScreenshotTest {
     @get:Rule
     val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun lightTheme_noContent() {
-        composeTestRule.setContent {
-            MaterialTheme(lightColorScheme()) {
-                Box(
-                    Modifier.size(56.dp).semantics(mergeDescendants = true) {}.testTag(TestTag),
-                    contentAlignment = Alignment.Center
-                ) {
-                    BadgedBox(badge = { Badge() }) {
-                        Icon(Icons.Filled.Favorite, null)
-                    }
+        composeTestRule.setMaterialContent(lightColorScheme()) {
+            Box(
+                Modifier.size(56.dp).semantics(mergeDescendants = true) {}.testTag(TestTag),
+                contentAlignment = Alignment.Center
+            ) {
+                BadgedBox(badge = { Badge() }) {
+                    Icon(Icons.Filled.Favorite, null)
                 }
             }
         }
@@ -71,17 +70,16 @@ class BadgeScreenshotTest {
         )
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun darkTheme_noContent() {
-        composeTestRule.setContent {
-            MaterialTheme(darkColorScheme()) {
-                Box(
-                    Modifier.size(56.dp).semantics(mergeDescendants = true) {}.testTag(TestTag),
-                    contentAlignment = Alignment.Center
-                ) {
-                    BadgedBox(badge = { Badge() }) {
-                        Icon(Icons.Filled.Favorite, null)
-                    }
+        composeTestRule.setMaterialContent(darkColorScheme()) {
+            Box(
+                Modifier.size(56.dp).semantics(mergeDescendants = true) {}.testTag(TestTag),
+                contentAlignment = Alignment.Center
+            ) {
+                BadgedBox(badge = { Badge() }) {
+                    Icon(Icons.Filled.Favorite, null)
                 }
             }
         }
@@ -91,17 +89,16 @@ class BadgeScreenshotTest {
         )
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun lightTheme_withContent() {
-        composeTestRule.setContent {
-            MaterialTheme(lightColorScheme()) {
-                Box(
-                    Modifier.size(56.dp).semantics(mergeDescendants = true) {}.testTag(TestTag),
-                    contentAlignment = Alignment.Center
-                ) {
-                    BadgedBox(badge = { Badge { Text("8") } }) {
-                        Icon(Icons.Filled.Favorite, null)
-                    }
+        composeTestRule.setMaterialContent(lightColorScheme()) {
+            Box(
+                Modifier.size(56.dp).semantics(mergeDescendants = true) {}.testTag(TestTag),
+                contentAlignment = Alignment.Center
+            ) {
+                BadgedBox(badge = { Badge { Text("8") } }) {
+                    Icon(Icons.Filled.Favorite, null)
                 }
             }
         }
@@ -111,17 +108,16 @@ class BadgeScreenshotTest {
         )
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun darkTheme_withContent() {
-        composeTestRule.setContent {
-            MaterialTheme(darkColorScheme()) {
-                Box(
-                    Modifier.size(56.dp).semantics(mergeDescendants = true) {}.testTag(TestTag),
-                    contentAlignment = Alignment.Center
-                ) {
-                    BadgedBox(badge = { Badge { Text("8") } }) {
-                        Icon(Icons.Filled.Favorite, null)
-                    }
+        composeTestRule.setMaterialContent(darkColorScheme()) {
+            Box(
+                Modifier.size(56.dp).semantics(mergeDescendants = true) {}.testTag(TestTag),
+                contentAlignment = Alignment.Center
+            ) {
+                BadgedBox(badge = { Badge { Text("8") } }) {
+                    Icon(Icons.Filled.Favorite, null)
                 }
             }
         }

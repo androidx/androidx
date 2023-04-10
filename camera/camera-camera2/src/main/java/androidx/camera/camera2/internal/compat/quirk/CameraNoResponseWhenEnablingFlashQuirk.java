@@ -33,12 +33,14 @@ import java.util.Locale;
 /**
  * Camera gets stuck when taking pictures with flash ON or AUTO in dark environment.
  *
- * <p>See b/193336562 and b/194046401 for details.
+ * <p>QuirkSummary
+ *     Bug Id: 193336562, 194046401
+ *     Description: Camera HAL get stuck when taking pictures with flash ON or AUTO in dark
+ *                 environment.
+ *     Device(s): SM-N9200 and all Samsung Galaxy Note 5 devices, SM-J510FN
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class CameraNoResponseWhenEnablingFlashQuirk implements UseTorchAsFlashQuirk {
-    @VisibleForTesting
-    public static final String BUILD_BRAND = "SAMSUNG";
 
     @VisibleForTesting
     public static final List<String> AFFECTED_MODELS = Arrays.asList(
@@ -67,8 +69,7 @@ public class CameraNoResponseWhenEnablingFlashQuirk implements UseTorchAsFlashQu
     );
 
     static boolean load(@NonNull CameraCharacteristicsCompat characteristics) {
-        return BUILD_BRAND.equals(Build.BRAND.toUpperCase(Locale.US))
-                && AFFECTED_MODELS.contains(Build.MODEL.toUpperCase())
+        return AFFECTED_MODELS.contains(Build.MODEL.toUpperCase(Locale.US))
                 && characteristics.get(CameraCharacteristics.LENS_FACING) == LENS_FACING_BACK;
     }
 }

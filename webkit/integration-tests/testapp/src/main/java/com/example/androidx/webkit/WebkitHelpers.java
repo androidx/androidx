@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.content.pm.PackageInfo;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.webkit.WebViewCompat;
 
@@ -32,7 +33,7 @@ public final class WebkitHelpers {
      * assumes the title has already been set to something interesting, and we want to append the
      * WebView version to the end of the title.
      */
-    public static void appendWebViewVersionToTitle(Activity activity) {
+    public static void appendWebViewVersionToTitle(@NonNull Activity activity) {
         PackageInfo webViewPackage = WebViewCompat.getCurrentWebViewPackage(activity);
 
         final String webViewVersion = webViewPackage != null
@@ -54,7 +55,8 @@ public final class WebkitHelpers {
      * @param messageResourceId the resource ID of the message to show.
      * @return the {@link TextView} holding the error message.
      */
-    public static TextView showMessageInActivity(Activity activity,
+    @NonNull
+    public static TextView showMessageInActivity(@NonNull Activity activity,
             @StringRes int messageResourceId) {
         TextView errorMessage = new TextView(activity);
         errorMessage.setText(messageResourceId);

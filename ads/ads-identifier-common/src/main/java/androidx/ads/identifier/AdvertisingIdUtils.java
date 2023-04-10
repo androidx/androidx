@@ -66,7 +66,7 @@ public class AdvertisingIdUtils {
      * <p>Only system-level providers will be returned.
      */
     @NonNull
-    @SuppressWarnings("MixedMutabilityReturnType")
+    @SuppressWarnings({"MixedMutabilityReturnType", "deprecation"})
     public static List<ServiceInfo> getAdvertisingIdProviderServices(
             @NonNull PackageManager packageManager) {
         Intent intent = new Intent(GET_AD_ID_ACTION);
@@ -89,6 +89,7 @@ public class AdvertisingIdUtils {
         return systemLevelServiceInfos;
     }
 
+    @SuppressWarnings("deprecation")
     private static boolean isSystemByApplicationInfo(
             @NonNull String packageName, @NonNull PackageManager packageManager) {
         try {
@@ -123,6 +124,7 @@ public class AdvertisingIdUtils {
      * package is found.
      */
     @Nullable
+    @SuppressWarnings("deprecation")
     public static ServiceInfo selectServiceByPriority(
             @NonNull List<ServiceInfo> serviceInfos, @NonNull PackageManager packageManager) {
         if (serviceInfos.isEmpty()) {

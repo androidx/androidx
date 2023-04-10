@@ -15,14 +15,12 @@
   -->
 
 <resources>
-
-    <style name="Theme.SplashScreen" parent="android:Theme.DeviceDefault.NoActionBar">
+    <style name="Theme.SplashScreen" parent="Base.Theme.SplashScreen.DayNight">
         <item name="android:windowSplashScreenAnimatedIcon">?windowSplashScreenAnimatedIcon</item>
         <item name="android:windowSplashScreenBackground">?windowSplashScreenBackground</item>
         <item name="android:windowSplashScreenAnimationDuration">
             ?windowSplashScreenAnimationDuration
         </item>
-        <item name="android:windowSplashScreenIconBackgroundColor">@android:color/transparent</item>
     </style>
 
     <style name="Theme.SplashScreen.IconBackground" parent="Theme.SplashScreen">

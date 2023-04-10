@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.car.app.Screen;
 import androidx.car.app.ScreenManager;
 import androidx.car.app.model.Template;
+import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
@@ -39,6 +40,10 @@ public class TestScreenManagerTest {
     @Before
     public void setup() {
         mCarContext = TestCarContext.createCarContext(ApplicationProvider.getApplicationContext());
+        // Set the app's lifecycle to STARTED so that screens would be set to the STARTED state when
+        // pushed. Otherwise we may run into issues in tests when popping screens, where they go
+        // from the INITIALIZED state to the DESTROYED state.
+        mCarContext.getLifecycleOwner().getRegistry().setCurrentState(Lifecycle.State.STARTED);
     }
 
     @Test

@@ -49,7 +49,6 @@ public final class CarAppExtenderTest {
             "androidx.car.app.INTENT_PRIMARY_ACTION";
     private static final String INTENT_SECONDARY_ACTION =
             "androidx.car.app.INTENT_SECONDARY_ACTION";
-
     private final Context mContext = ApplicationProvider.getApplicationContext();
 
     @Test
@@ -183,6 +182,7 @@ public final class CarAppExtenderTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation") // Action.icon
     public void notification_extended_addActions() {
         int icon1 = TestUtils.getTestDrawableResId(mContext, "ic_test_1");
         CharSequence title1 = "FirstAction";
@@ -206,10 +206,10 @@ public final class CarAppExtenderTest {
 
         List<Action> actions = new CarAppExtender(builder.build()).getActions();
         assertThat(actions).hasSize(2);
-        assertThat(actions.get(0).getIcon().getResId()).isEqualTo(icon1);
+        assertThat(actions.get(0).icon).isEqualTo(icon1);
         assertThat(title1.toString().contentEquals(actions.get(0).title)).isTrue();
         assertThat(actions.get(0).actionIntent).isEqualTo(actionIntent1);
-        assertThat(actions.get(1).getIcon().getResId()).isEqualTo(icon2);
+        assertThat(actions.get(1).icon).isEqualTo(icon2);
         assertThat(title2.toString().contentEquals(actions.get(1).title)).isTrue();
         assertThat(actions.get(1).actionIntent).isEqualTo(actionIntent2);
     }

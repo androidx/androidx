@@ -48,21 +48,13 @@ buildscript {
                 artifact()
             }
         }
-        gradlePluginPortal()
+        gradlePluginPortal().content {
+            it.includeModule("gradle.plugin.com.github.johnrengelman", "shadow")
+            it.includeModule("me.champeau.gradle", "japicmp-gradle-plugin")
+        }
     }
 
     ext.repos = [:]
-    dependencies {
-        // NOTE: It's not really clear why asm:9.1 must be explicitly declared here since it should
-        // be provided transitively.
-        classpath("org.ow2.asm:asm:9.1")
-        classpath(libs.androidGradlePluginz)
-        classpath(libs.kotlinGradlePluginz)
-        classpath(libs.kspGradlePluginz)
-        classpath(libs.gson)
-        classpath(libs.shadow)
-        classpath(libs.japicmpPluginz)
-    }
 }
 
 apply from: "$supportRootFolder/buildSrc/dependencies.gradle"

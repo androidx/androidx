@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,15 @@
 
 package androidx.compose.ui.focus
 
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.modifier.ModifierLocalProvider
-import androidx.compose.ui.modifier.ProvidableModifierLocal
-import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.platform.InspectorValueInfo
-import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.node.modifierElementOf
 
 /**
  * A [modifier][Modifier.Element] that can be used to observe focus state events.
  */
+@Deprecated("Use FocusEventModifierNode instead")
+@JvmDefaultWithCompatibility
 interface FocusEventModifier : Modifier.Element {
     /**
      * A callback that is called whenever the focus system raises events.
@@ -33,28 +32,29 @@ interface FocusEventModifier : Modifier.Element {
     fun onFocusEvent(focusState: FocusState)
 }
 
-internal class FocusEventModifierImpl(
-    val onFocusEvent: (FocusState) -> Unit,
-    inspectorInfo: InspectorInfo.() -> Unit
-) : FocusEventModifier, ModifierLocalProvider<Boolean>, InspectorValueInfo(inspectorInfo) {
-    override fun onFocusEvent(focusState: FocusState) {
-        onFocusEvent.invoke(focusState)
-    }
-    override val key: ProvidableModifierLocal<Boolean> get() = ModifierLocalHasFocusEventListener
-    override val value: Boolean get() = true
-}
-
 /**
  * Add this modifier to a component to observe focus state events.
  */
-fun Modifier.onFocusEvent(onFocusEvent: (FocusState) -> Unit): Modifier {
-    return this.then(
-        FocusEventModifierImpl(
-            onFocusEvent = onFocusEvent,
-            inspectorInfo = debugInspectorInfo {
-                name = "onFocusEvent"
-                properties["onFocusEvent"] = onFocusEvent
-            }
-        )
-    )
+@Suppress("ModifierInspectorInfo") // b/251831790.
+fun Modifier.onFocusEvent(onFocusEvent: (FocusState) -> Unit): Modifier = this.then(
+    @OptIn(ExperimentalComposeUiApi::class)
+    (modifierElementOf(
+        key = onFocusEvent,
+        create = { FocusEventModifierNodeImpl(onFocusEvent) },
+        update = { it.onFocusEvent = onFocusEvent },
+        definitions = {
+            name = "onFocusEvent"
+            properties["onFocusEvent"] = onFocusEvent
+        }
+    ))
+)
+
+@OptIn(ExperimentalComposeUiApi::class)
+private class FocusEventModifierNodeImpl(
+    var onFocusEvent: (FocusState) -> Unit
+) : FocusEventModifierNode, Modifier.Node() {
+
+    override fun onFocusEvent(focusState: FocusState) {
+        this.onFocusEvent.invoke(focusState)
+    }
 }

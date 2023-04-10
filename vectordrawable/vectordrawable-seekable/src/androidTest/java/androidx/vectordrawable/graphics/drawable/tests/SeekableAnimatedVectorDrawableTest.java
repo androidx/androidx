@@ -18,6 +18,7 @@ package androidx.vectordrawable.graphics.drawable.tests;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 
 import android.content.Context;
@@ -41,9 +42,7 @@ import androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable;
 import androidx.vectordrawable.seekable.test.R;
 
 import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -58,9 +57,6 @@ public class SeekableAnimatedVectorDrawableTest {
 
     @ClassRule
     public static AnimatorTestRule sAnimatorTestRule = new AnimatorTestRule();
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     private static final float PIXEL_ERROR_THRESHOLD = 0.3f;
     private static final float PIXEL_DIFF_THRESHOLD = 0.03f;
@@ -277,11 +273,12 @@ public class SeekableAnimatedVectorDrawableTest {
     @Test
     @UiThreadTest
     public void pathMorphing_exception() {
-        expectedException.expect(InflateException.class);
-        SeekableAnimatedVectorDrawable.create(
-                ApplicationProvider.getApplicationContext(),
-                R.drawable.animation_path_morphing_rect_exception
-        );
+        assertThrows(InflateException.class, () -> {
+            SeekableAnimatedVectorDrawable.create(
+                    ApplicationProvider.getApplicationContext(),
+                    R.drawable.animation_path_morphing_rect_exception
+            );
+        });
     }
 
     @Test

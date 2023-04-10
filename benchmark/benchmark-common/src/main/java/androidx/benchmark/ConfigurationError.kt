@@ -110,17 +110,21 @@ internal fun List<ConfigurationError>.prettyPrint(prefix: String): String {
 fun List<ConfigurationError>.checkAndGetSuppressionState(
     suppressedErrorIds: Set<String>,
 ): ConfigurationError.SuppressionState? {
+    if (isEmpty()) {
+        return null
+    }
+
     val (suppressed, unsuppressed) = partition {
         suppressedErrorIds.contains(it.id)
     }
 
-    val prefix = suppressed.joinToString("_") { it.id } + "_"
+    val prefix = this.joinToString("_") { it.id } + "_"
 
-    val unsuppressedString = unsuppressed.joinToString(" ") { it.id }
-    val suppressedString = suppressed.joinToString(" ") { it.id }
-    val howToSuppressString = this.joinToString(",") { it.id }
-
-    if (unsuppressed.isNotEmpty()) {
+    // either fail and report all unsuppressed errors ...
+    if (unsuppressed.isNotEmpty() && !Arguments.dryRunMode) {
+        val unsuppressedString = unsuppressed.joinToString(" ") { it.id }
+        val suppressedString = suppressed.joinToString(" ") { it.id }
+        val howToSuppressString = this.joinToString(",") { it.id }
         throw AssertionError(
             """
                 |ERRORS (not suppressed): $unsuppressedString
@@ -140,9 +144,6 @@ fun List<ConfigurationError>.checkAndGetSuppressionState(
         )
     }
 
-    if (suppressed.isEmpty()) {
-        return null
-    }
-
-    return ConfigurationError.SuppressionState(prefix, suppressed.prettyPrint("WARNING: "))
+    // ... or report all errors as suppressed
+    return ConfigurationError.SuppressionState(prefix, prettyPrint("WARNING: "))
 }

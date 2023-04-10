@@ -22,12 +22,12 @@ import androidx.exifinterface.media.ExifInterface
 import androidx.exifinterface.media.ExifInterface.FLAG_FLASH_FIRED
 import androidx.exifinterface.media.ExifInterface.FLAG_FLASH_NO_FLASH_FUNCTION
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.TimeUnit
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import java.util.concurrent.TimeUnit
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument

@@ -21,10 +21,13 @@ import android.os.Build;
 import android.os.Build.VERSION_CODES;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.TypedArrayUtils;
 
@@ -74,7 +77,7 @@ public class PreferenceCategory extends PreferenceGroup {
     public void onBindViewHolder(@NonNull PreferenceViewHolder holder) {
         super.onBindViewHolder(holder);
         if (Build.VERSION.SDK_INT >= VERSION_CODES.P) {
-            holder.itemView.setAccessibilityHeading(true);
+            Api28Impl.setAccessibilityHeading(holder.itemView, true);
         } else if (Build.VERSION.SDK_INT < VERSION_CODES.LOLLIPOP) {
             // We can't safely look for colorAccent in the category layout XML below Lollipop, as it
             // only exists within AppCompat, and will crash if using a platform theme. We should
@@ -100,6 +103,14 @@ public class PreferenceCategory extends PreferenceGroup {
                 return;
             }
             titleView.setTextColor(value.data);
+        }
+    }
+
+    @RequiresApi(28)
+    private static class Api28Impl {
+        @DoNotInline
+        static void setAccessibilityHeading(@NonNull View view, boolean isHeading) {
+            view.setAccessibilityHeading(isHeading);
         }
     }
 }

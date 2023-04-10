@@ -56,7 +56,9 @@ public class TorchControlDeviceTest {
     private static final int LENS_FACING = CameraSelector.LENS_FACING_BACK;
 
     @Rule
-    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest(
+            new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    );
 
     private TorchControl mTorchControl;
     private CameraUseCaseAdapter mCamera;

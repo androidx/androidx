@@ -78,11 +78,11 @@ public class ImageUtilTest {
                     + "KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAoo"
                     + "ooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiii"
                     + "gAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9k=";
-    private FakeImageProxy mImage;
     @Mock
     private final ImageProxy.PlaneProxy mDataPlane = mock(ImageProxy.PlaneProxy.class);
     private final ByteBuffer mDataBuffer =
             ByteBuffer.wrap(Base64.decode(JPEG_IMAGE_DATA_BASE_64, Base64.DEFAULT));
+    private FakeImageProxy mImage;
     private byte[] mDataByteArray = new byte[mDataBuffer.capacity()];
 
     @Before
@@ -98,7 +98,6 @@ public class ImageUtilTest {
         mDataBuffer.get(mDataByteArray);
         mDataBuffer.clear();
     }
-
     @Test
     public void rotateAspectRatioFor90Degrees_rotated() {
         // Arrange.

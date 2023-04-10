@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -30,12 +28,13 @@ android {
     defaultConfig {
         testInstrumentationRunner "androidx.hilt.navigation.fragment.TestRunner"
     }
+    namespace "androidx.hilt.navigation.fragment"
 }
 
 dependencies {
     api(libs.kotlinStdlib)
     api(project(":hilt:hilt-navigation"))
-    api("androidx.navigation:navigation-fragment-ktx:2.3.2")
+    api("androidx.navigation:navigation-fragment-ktx:2.5.1")
 
     androidTestImplementation("androidx.fragment:fragment-testing:1.3.0")
     androidTestImplementation(libs.testExtJunit)
@@ -60,7 +59,6 @@ androidx {
     name = "Android Navigation Fragment Hilt Extension"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.HILT
-    mavenGroup = LibraryGroups.HILT
     inceptionYear = "2021"
     description = "Android Navigation Fragment Hilt Extension"
 }

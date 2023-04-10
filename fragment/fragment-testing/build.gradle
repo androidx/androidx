@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -28,6 +27,7 @@ dependencies {
     api(project(":fragment:fragment-ktx"))
     api(libs.testCore)
     api(libs.kotlinStdlib)
+    api(project(":fragment:fragment-testing-manifest"))
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.testExtJunit)
@@ -37,6 +37,7 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.multidex)
 
     lintPublish(project(":fragment:fragment-testing-lint"))
 }
@@ -44,19 +45,13 @@ dependencies {
 androidx {
     name = "Fragment Test Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.FRAGMENT
     inceptionYear = "2018"
     description = "Extensions for testing 'fragment' artifact"
 }
 
-// needed only while https://youtrack.jetbrains.com/issue/KT-47000 isn't resolved which is
-// targeted to 1.6
-if (project.hasProperty("androidx.useMaxDepVersions")){
-    tasks.withType(KotlinCompile).configureEach {
-        kotlinOptions {
-            freeCompilerArgs += [
-                    "-Xjvm-default=enable",
-            ]
-        }
+android {
+    namespace "androidx.fragment.testing"
+    defaultConfig {
+        multiDexEnabled true
     }
 }

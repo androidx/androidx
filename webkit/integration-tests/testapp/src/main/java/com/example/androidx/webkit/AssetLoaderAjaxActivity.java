@@ -42,7 +42,16 @@ import androidx.webkit.WebViewAssetLoader.ResourcesPathHandler;
 public class AssetLoaderAjaxActivity extends AppCompatActivity {
     private static final int MAX_IDLE_TIME_MS = 5000;
 
-    private class MyWebViewClient extends WebViewClient {
+    private static class MyWebViewClient extends WebViewClient {
+        private final WebViewAssetLoader mAssetLoader;
+        private final UriIdlingResource mUriIdlingResource;
+
+        MyWebViewClient(@NonNull WebViewAssetLoader assetLoader,
+                @NonNull UriIdlingResource uriIdlingResource) {
+            mAssetLoader = assetLoader;
+            mUriIdlingResource = uriIdlingResource;
+        }
+
         @Override
         @SuppressWarnings("deprecation") // use the old one for compatibility with all API levels.
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -53,36 +62,30 @@ public class AssetLoaderAjaxActivity extends AppCompatActivity {
         @RequiresApi(21)
         public WebResourceResponse shouldInterceptRequest(WebView view,
                                                           WebResourceRequest request) {
-            if (mUriIdlingResource != null) {
-                mUriIdlingResource.beginLoad(request.getUrl().toString());
-            }
-            WebResourceResponse response = mAssetLoader.shouldInterceptRequest(request.getUrl());
-            if (mUriIdlingResource != null) {
-                mUriIdlingResource.endLoad(request.getUrl().toString());
-            }
+            Uri url = Api21Impl.getUrl(request);
+            mUriIdlingResource.beginLoad(url.toString());
+            WebResourceResponse response = mAssetLoader.shouldInterceptRequest(url);
+            mUriIdlingResource.endLoad(url.toString());
             return response;
         }
 
         @Override
         @SuppressWarnings("deprecation") // use the old one for compatibility with all API levels.
-        public WebResourceResponse shouldInterceptRequest(WebView view, String request) {
-            if (mUriIdlingResource != null) {
-                mUriIdlingResource.beginLoad(request);
-            }
-            WebResourceResponse response = mAssetLoader.shouldInterceptRequest(Uri.parse(request));
-            if (mUriIdlingResource != null) {
-                mUriIdlingResource.endLoad(request);
-            }
+        public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+            mUriIdlingResource.beginLoad(url);
+            WebResourceResponse response = mAssetLoader.shouldInterceptRequest(Uri.parse(url));
+            mUriIdlingResource.endLoad(url);
             return response;
         }
     }
 
-    private WebViewAssetLoader mAssetLoader;
     private WebView mWebView;
+
     // IdlingResource that indicates that WebView has finished loading all WebResourceRequests
     // by waiting until there are no requests made for 5000ms.
     @NonNull
-    private UriIdlingResource mUriIdlingResource;
+    private final UriIdlingResource mUriIdlingResource =
+            new UriIdlingResource("AssetLoaderWebViewUriIdlingResource", MAX_IDLE_TIME_MS);
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -97,7 +100,10 @@ public class AssetLoaderAjaxActivity extends AppCompatActivity {
         // is used to host resources/assets is used for demonstration purpose only.
         // The developer should ALWAYS use a domain which they are in control of or use
         // the default androidplatform.net reserved by Google for this purpose.
-        mAssetLoader = new WebViewAssetLoader.Builder()
+        // use "example.com" instead of the default domain
+        // Host app resources ... under https://example.com/androidx_webkit/example/res/...
+        // Host app assets under https://example.com/androidx_webkit/example/assets/...
+        WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
                 .setDomain("example.com") // use "example.com" instead of the default domain
                 // Host app resources ... under https://example.com/androidx_webkit/example/res/...
                 .addPathHandler("/androidx_webkit/example/res/", new ResourcesPathHandler(this))
@@ -106,7 +112,7 @@ public class AssetLoaderAjaxActivity extends AppCompatActivity {
                 .build();
 
         mWebView = findViewById(R.id.webview_asset_loader_webview);
-        mWebView.setWebViewClient(new MyWebViewClient());
+        mWebView.setWebViewClient(new MyWebViewClient(assetLoader, mUriIdlingResource));
 
         WebSettings webViewSettings = mWebView.getSettings();
         webViewSettings.setJavaScriptEnabled(true);
@@ -117,15 +123,19 @@ public class AssetLoaderAjaxActivity extends AppCompatActivity {
         // if your app is not using file:// or content:// URLs.
         webViewSettings.setAllowFileAccess(false);
         webViewSettings.setAllowContentAccess(false);
+    }
 
-        Uri path = new Uri.Builder()
+    /**
+     * Load the url https://example.com/androidx_webkit/example/assets/www/ajax_requests.html.
+     */
+    public void loadUrl() {
+        String mainPageUrl = new Uri.Builder()
                 .scheme("https")
                 .authority("example.com")
                 .appendPath("androidx_webkit").appendPath("example").appendPath("assets")
                 .appendPath("www").appendPath("ajax_requests.html")
-                .build();
-        // Load the url https://example.com/androidx_webkit/example/assets/www/ajax_requests.html
-        mWebView.loadUrl(path.toString());
+                .build().toString();
+        mWebView.loadUrl(mainPageUrl);
     }
 
     /**
@@ -135,10 +145,6 @@ public class AssetLoaderAjaxActivity extends AppCompatActivity {
     @VisibleForTesting
     @NonNull
     public UriIdlingResource getUriIdlingResource() {
-        if (mUriIdlingResource == null) {
-            mUriIdlingResource =
-                    new UriIdlingResource("AssetLoaderWebViewUriIdlingResource", MAX_IDLE_TIME_MS);
-        }
         return mUriIdlingResource;
     }
 }

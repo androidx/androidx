@@ -18,8 +18,8 @@ package androidx.camera.camera2.pipe
 
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
-import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.FakeMetadata
+import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -43,13 +43,12 @@ internal class RequestTest {
 
     @Test
     fun canReadCaptureParameters() {
-        val request = Request(
-            listOf(StreamId(1)),
-            parameters = mapOf(
-                CaptureRequest.EDGE_MODE to CaptureRequest.EDGE_MODE_HIGH_QUALITY
-            ),
-            extras = mapOf(FakeMetadata.TEST_KEY to 42)
-        )
+        val request =
+            Request(
+                listOf(StreamId(1)),
+                parameters =
+                    mapOf(CaptureRequest.EDGE_MODE to CaptureRequest.EDGE_MODE_HIGH_QUALITY),
+                extras = mapOf(FakeMetadata.TEST_KEY to 42))
 
         // Check with a valid test key
         assertThat(request[FakeMetadata.TEST_KEY]).isEqualTo(42)
@@ -68,9 +67,8 @@ internal class RequestTest {
         // Check with an invalid test key
         assertThat(request.get(CaptureRequest.CONTROL_AE_MODE)).isNull()
         assertThat(
-            request.getOrDefault(
-                CaptureRequest.CONTROL_AE_MODE, default = CaptureRequest.CONTROL_AE_MODE_ON
-            )
-        ).isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON)
+                request.getOrDefault(
+                    CaptureRequest.CONTROL_AE_MODE, default = CaptureRequest.CONTROL_AE_MODE_ON))
+            .isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON)
     }
 }

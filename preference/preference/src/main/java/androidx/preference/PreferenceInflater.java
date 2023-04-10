@@ -49,7 +49,7 @@ class PreferenceInflater {
     private PreferenceManager mPreferenceManager;
     private String[] mDefaultPackages;
 
-    PreferenceInflater(@NonNull Context context, PreferenceManager preferenceManager) {
+    public PreferenceInflater(@NonNull Context context, PreferenceManager preferenceManager) {
         mContext = context;
         init(preferenceManager);
     }

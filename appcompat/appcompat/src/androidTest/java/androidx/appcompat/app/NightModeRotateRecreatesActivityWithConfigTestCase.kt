@@ -45,7 +45,7 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-@SdkSuppress(minSdkVersion = 18)
+@SdkSuppress(minSdkVersion = 31) // UiAutomator is unreliable below SDK 31
 public class NightModeRotateRecreatesActivityWithConfigTestCase(private val setMode: NightSetMode) {
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()

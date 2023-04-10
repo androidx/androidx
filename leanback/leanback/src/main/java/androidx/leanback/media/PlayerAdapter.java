@@ -16,6 +16,9 @@
 
 package androidx.leanback.media;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * Base class that wraps underlying media player. The class is used by PlaybackGlue, for example
  * {@link PlaybackTransportControlGlue} is bound to a PlayerAdapter.
@@ -35,35 +38,35 @@ public abstract class PlayerAdapter {
         /**
          * Client for Play/Pause state change. See {@link #isPlaying()}.
          */
-        public void onPlayStateChanged(PlayerAdapter adapter) {
+        public void onPlayStateChanged(@NonNull PlayerAdapter adapter) {
         }
 
         /**
          * Client for {@link #isPrepared()} changed.
          * @param adapter The adapter that has changed ready state.
          */
-        public void onPreparedStateChanged(PlayerAdapter adapter) {
+        public void onPreparedStateChanged(@NonNull PlayerAdapter adapter) {
         }
 
         /**
          * Client when the current media is finished.
          * @param adapter The adapter that has just finished current media.
          */
-        public void onPlayCompleted(PlayerAdapter adapter) {
+        public void onPlayCompleted(@NonNull PlayerAdapter adapter) {
         }
 
         /**
          * Event for {@link #getCurrentPosition()} changed.
          * @param adapter The adapter whose {@link #getCurrentPosition()} changed.
          */
-        public void onCurrentPositionChanged(PlayerAdapter adapter) {
+        public void onCurrentPositionChanged(@NonNull PlayerAdapter adapter) {
         }
 
         /**
          * Event for {@link #getBufferedPosition()} changed.
          * @param adapter The adapter whose {@link #getBufferedPosition()} changed.
          */
-        public void onBufferedPositionChanged(PlayerAdapter adapter) {
+        public void onBufferedPositionChanged(@NonNull PlayerAdapter adapter) {
         }
 
         /**
@@ -71,7 +74,7 @@ public abstract class PlayerAdapter {
          * after playing except for live stream.
          * @param adapter The adapter whose {@link #getDuration()} changed.
          */
-        public void onDurationChanged(PlayerAdapter adapter) {
+        public void onDurationChanged(@NonNull PlayerAdapter adapter) {
         }
 
         /**
@@ -80,7 +83,7 @@ public abstract class PlayerAdapter {
          * @param width Intrinsic width of the video.
          * @param height Intrinsic height of the video.
          */
-        public void onVideoSizeChanged(PlayerAdapter adapter, int width, int height) {
+        public void onVideoSizeChanged(@NonNull PlayerAdapter adapter, int width, int height) {
         }
 
         /**
@@ -89,7 +92,11 @@ public abstract class PlayerAdapter {
          * @param errorCode Optional error code, specific to implementation.
          * @param errorMessage Optional error message, specific to implementation.
          */
-        public void onError(PlayerAdapter adapter, int errorCode, String errorMessage) {
+        public void onError(
+                @NonNull PlayerAdapter adapter,
+                int errorCode,
+                @Nullable String errorMessage
+        ) {
         }
 
         /**
@@ -97,14 +104,14 @@ public abstract class PlayerAdapter {
          * @param adapter The adapter that begins buffering or finishes buffering.
          * @param start True for buffering start, false otherwise.
          */
-        public void onBufferingStateChanged(PlayerAdapter adapter, boolean start) {
+        public void onBufferingStateChanged(@NonNull PlayerAdapter adapter, boolean start) {
         }
 
         /**
          * Event for meta data changed.
          * @param adapter The adapter that finishes current media item.
          */
-        public void onMetadataChanged(PlayerAdapter adapter) {
+        public void onMetadataChanged(@NonNull PlayerAdapter adapter) {
         }
     }
 
@@ -114,7 +121,7 @@ public abstract class PlayerAdapter {
      * Sets callback for event of PlayerAdapter.
      * @param callback Client for event of PlayerAdapter.
      */
-    public final void setCallback(Callback callback) {
+    public final void setCallback(@Nullable Callback callback) {
         mCallback = callback;
     }
 
@@ -122,6 +129,7 @@ public abstract class PlayerAdapter {
      * Gets callback for event of PlayerAdapter.
      * @return Client for event of PlayerAdapter.
      */
+    @Nullable
     public final Callback getCallback() {
         return mCallback;
     }
@@ -252,7 +260,7 @@ public abstract class PlayerAdapter {
      * This method is called attached to associated {@link PlaybackGlueHost}.
      * @param host
      */
-    public void onAttachedToHost(PlaybackGlueHost host) {
+    public void onAttachedToHost(@NonNull PlaybackGlueHost host) {
     }
 
     /**

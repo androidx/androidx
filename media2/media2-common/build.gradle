@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -54,12 +53,12 @@ android {
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
+    namespace "androidx.media2.common"
 }
 
 androidx {
     name = "AndroidX media2 common library"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.MEDIA2
     inceptionYear = "2018"
     description = "Media2 Common"
     failOnDeprecationWarnings = false

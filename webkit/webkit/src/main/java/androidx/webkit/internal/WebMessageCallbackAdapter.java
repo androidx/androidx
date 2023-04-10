@@ -17,6 +17,7 @@
 package androidx.webkit.internal;
 
 import androidx.annotation.NonNull;
+import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebMessagePortCompat.WebMessageCallbackCompat;
 
 import org.chromium.support_lib_boundary.WebMessageBoundaryInterface;
@@ -30,18 +31,21 @@ import java.lang.reflect.InvocationHandler;
  * Adapter between {@link WebMessageCallbackCompat} and {@link WebMessageCallbackBoundaryInterface}.
  */
 public class WebMessageCallbackAdapter implements WebMessageCallbackBoundaryInterface {
-    WebMessageCallbackCompat mImpl;
+    private final WebMessageCallbackCompat mImpl;
 
     public WebMessageCallbackAdapter(@NonNull WebMessageCallbackCompat impl) {
         mImpl = impl;
     }
 
     @Override
-    public void onMessage(InvocationHandler port, InvocationHandler message) {
-        mImpl.onMessage(new WebMessagePortImpl(port),
+    public void onMessage(@NonNull InvocationHandler port, @NonNull InvocationHandler message) {
+        final WebMessageCompat messageCompat =
                 WebMessageAdapter.webMessageCompatFromBoundaryInterface(
-                        BoundaryInterfaceReflectionUtil.castToSuppLibClass(
-                                WebMessageBoundaryInterface.class, message)));
+                BoundaryInterfaceReflectionUtil.castToSuppLibClass(
+                        WebMessageBoundaryInterface.class, message));
+        if (messageCompat != null) {
+            mImpl.onMessage(new WebMessagePortImpl(port), messageCompat);
+        }
     }
 
     // This method declares which APIs the support library side supports - so that the Chromium-side

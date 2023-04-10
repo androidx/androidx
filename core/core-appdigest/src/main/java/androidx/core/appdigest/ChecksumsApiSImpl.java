@@ -134,6 +134,7 @@ class ChecksumsApiSImpl {
     }
 
     @SuppressLint("WrongConstant")
+    @SuppressWarnings("deprecation")
     static void getInstallerChecksums(@NonNull Context context,
             String split, File file,
             @Checksum.Type int required,

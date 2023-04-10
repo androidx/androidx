@@ -121,7 +121,7 @@ public class TestedFrameLayout extends FrameLayout implements NestedScrollingPar
     }
 
     @Override
-    public void onDraw(Canvas c) {
+    public void onDraw(@NonNull Canvas c) {
         super.onDraw(c);
         if (mDrawLatch != null) {
             mDrawLatch.countDown();

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -50,12 +48,12 @@ android {
     defaultConfig {
         minSdkVersion 17
     }
+    namespace "androidx.leanback.widget"
 }
 
 androidx {
     name = "AndroidX Leanback Grid"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.LEANBACK
     mavenVersion = LibraryVersions.LEANBACK_GRID
     inceptionYear = "2021"
     description = "This library adds grid view components to be used in TV"

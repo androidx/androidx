@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -36,12 +34,12 @@ android {
     defaultConfig {
         minSdkVersion 25
     }
+    namespace "androidx.wear.input.samples"
 }
 
 androidx {
     name = "Android Wear Input Samples"
     type = LibraryType.SAMPLES
-    mavenGroup = LibraryGroups.WEAR
     mavenVersion = LibraryVersions.WEAR_INPUT
     inceptionYear = "2021"
     description = "Contains the sample code for the Android Wear Input Classes"

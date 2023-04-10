@@ -24,7 +24,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.emptyFlow
@@ -35,18 +34,19 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import org.junit.Test
 import kotlin.random.Random
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FlowExtTest {
-    val testScope = TestCoroutineScope()
+    val testScope = TestScope()
 
     @Test
-    fun scan_basic() = testScope.runBlockingTest {
+    fun scan_basic() = testScope.runTest {
         val arguments = mutableListOf<Pair<Int, Int>>()
         assertThat(
             flowOf(1, 2, 3).simpleScan(0) { acc, value ->
@@ -64,7 +64,7 @@ class FlowExtTest {
     }
 
     @Test
-    fun scan_initialValue() = testScope.runBlockingTest {
+    fun scan_initialValue() = testScope.runTest {
         assertThat(
             emptyFlow<Int>().simpleScan("x") { _, value ->
                 "$value"
@@ -73,7 +73,7 @@ class FlowExtTest {
     }
 
     @Test
-    fun runningReduce_basic() = testScope.runBlockingTest {
+    fun runningReduce_basic() = testScope.runTest {
         assertThat(
             flowOf(1, 2, 3, 4).simpleRunningReduce { acc, value ->
                 acc + value
@@ -82,7 +82,7 @@ class FlowExtTest {
     }
 
     @Test
-    fun runningReduce_empty() = testScope.runBlockingTest {
+    fun runningReduce_empty() = testScope.runTest {
         assertThat(
             emptyFlow<Int>().simpleRunningReduce { acc, value ->
                 acc + value
@@ -91,7 +91,7 @@ class FlowExtTest {
     }
 
     @Test
-    fun mapLatest() = testScope.runBlockingTest {
+    fun mapLatest() = testScope.runTest {
         assertThat(
             flowOf(1, 2, 3, 4)
                 .onEach {
@@ -107,7 +107,7 @@ class FlowExtTest {
     }
 
     @Test
-    fun mapLatest_empty() = testScope.runBlockingTest {
+    fun mapLatest_empty() = testScope.runTest {
         assertThat(
             emptyFlow<Int>().simpleMapLatest { value ->
                 "$value-$value"
@@ -116,7 +116,7 @@ class FlowExtTest {
     }
 
     @Test
-    fun flatMapLatest() = testScope.runBlockingTest {
+    fun flatMapLatest() = testScope.runTest {
         assertThat(
             flowOf(1, 2, 3, 4)
                 .onEach {
@@ -135,7 +135,7 @@ class FlowExtTest {
     }
 
     @Test
-    fun flatMapLatest_empty() = testScope.runBlockingTest {
+    fun flatMapLatest_empty() = testScope.runTest {
         assertThat(
             emptyFlow<Int>()
                 .simpleFlatMapLatest {
@@ -145,7 +145,7 @@ class FlowExtTest {
     }
 
     @Test
-    fun combineWithoutBatching_buffersEmissions() = testScope.runBlockingTest {
+    fun combineWithoutBatching_buffersEmissions() = testScope.runTest {
         val flow1 = Channel<Int>(BUFFERED)
         val flow2 = Channel<String>(BUFFERED)
 
@@ -176,7 +176,7 @@ class FlowExtTest {
     }
 
     @Test
-    fun combineWithoutBatching_doesNotBatchOnSlowTransform() = testScope.runBlockingTest {
+    fun combineWithoutBatching_doesNotBatchOnSlowTransform() = testScope.runTest {
         val flow1 = flowOf(1, 2, 3)
         val flow2 = flowOf("A", "B", "C")
         val slowTransform: suspend (Int, String) -> String = { num: Int, letter: String ->
@@ -198,7 +198,7 @@ class FlowExtTest {
     }
 
     @Test
-    fun combineWithoutBatching_updateFrom() = testScope.runBlockingTest {
+    fun combineWithoutBatching_updateFrom() = testScope.runTest {
         val flow1 = Channel<Int>(BUFFERED)
         val flow2 = Channel<Int>(BUFFERED)
 
@@ -234,7 +234,7 @@ class FlowExtTest {
     }
 
     @Test
-    fun combineWithoutBatching_collectorCancellationPropagates() = testScope.runBlockingTest {
+    fun combineWithoutBatching_collectorCancellationPropagates() = testScope.runTest {
         val flow1Emissions = mutableListOf<Int>()
         val flow1 = flowOf(1, 2, 3).onEach(flow1Emissions::add)
         val flow2Emissions = mutableListOf<String>()
@@ -304,7 +304,7 @@ class FlowExtTest {
         )
 
         @Test
-        fun onNext_receiverBuffers() = runBlockingTest {
+        fun onNext_receiverBuffers() = runTest {
             val result = mutableListOf<SendResult<Int, Int>>()
             val combiner = UnbatchedFlowCombiner<Int, Int> { a, b, c ->
                 result.add(SendResult(a, b, c))
@@ -343,7 +343,7 @@ class FlowExtTest {
         }
 
         @Test
-        fun onNext_otherBuffers() = runBlockingTest {
+        fun onNext_otherBuffers() = runTest {
             val result = mutableListOf<SendResult<Int, Int>>()
             val combiner = UnbatchedFlowCombiner<Int, Int> { a, b, c ->
                 result.add(SendResult(a, b, c))
@@ -382,7 +382,7 @@ class FlowExtTest {
         }
 
         @Test
-        fun onNext_initialDispatchesFirst() = runBlockingTest {
+        fun onNext_initialDispatchesFirst() = runTest {
             val result = mutableListOf<SendResult<Int, Int>>()
             val combiner = UnbatchedFlowCombiner<Int, Int> { a, b, c ->
                 // Give a chance for other calls to onNext to run.

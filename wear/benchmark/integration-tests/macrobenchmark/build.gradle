@@ -24,6 +24,7 @@ android {
     defaultConfig {
         minSdkVersion 29
     }
+    namespace "androidx.wear.benchmark.integration.macrobenchmark"
 }
 
 dependencies {
@@ -38,6 +39,11 @@ dependencies {
 }
 
 // Define a task dependency so the app is installed before we run macro benchmarks.
-tasks.getByPath(":wear:benchmark:integration-tests:macrobenchmark:connectedCheck")
-    .dependsOn(tasks.getByPath(
-            ":wear:benchmark:integration-tests:macrobenchmark-target:installRelease"))
+afterEvaluate {
+    tasks.getByPath(":wear:benchmark:integration-tests:macrobenchmark:connectedDebugAndroidTest")
+            .dependsOn(
+                    tasks.getByPath(
+                            ":wear:benchmark:integration-tests:macrobenchmark-target:installRelease"
+                    )
+            )
+}

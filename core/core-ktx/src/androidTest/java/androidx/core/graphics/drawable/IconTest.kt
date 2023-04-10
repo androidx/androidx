@@ -89,7 +89,7 @@ class IconTest {
     }
 
     private fun Icon.toIntrinsicBitmap(): Bitmap {
-        val drawable = loadDrawable(context)
+        val drawable = loadDrawable(context)!!
         val bitmap = createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight)
         drawable.setBounds(0, 0, drawable.intrinsicHeight, drawable.intrinsicHeight)
         drawable.draw(Canvas(bitmap))

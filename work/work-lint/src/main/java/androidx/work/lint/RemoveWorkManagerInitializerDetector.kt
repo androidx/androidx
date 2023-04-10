@@ -33,15 +33,20 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.XmlContext
 import com.android.tools.lint.detector.api.XmlScanner
+import java.util.EnumSet
 import org.jetbrains.uast.UClass
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
-import java.util.EnumSet
 
 class RemoveWorkManagerInitializerDetector : Detector(), SourceCodeScanner, XmlScanner {
     private var removedDefaultInitializer = false
     private var location: Location? = null
+
+    // The `Application` subclass.
+    private var javaContext: JavaContext? = null
+    private var klass: UClass? = null
+
     private var applicationImplementsConfigurationProvider = false
 
     companion object {
@@ -85,7 +90,10 @@ class RemoveWorkManagerInitializerDetector : Detector(), SourceCodeScanner, XmlS
 
     override fun getApplicableElements() = listOf("application")
 
-    override fun applicableSuperClasses() = listOf("androidx.work.Configuration.Provider")
+    override fun applicableSuperClasses() = listOf(
+        "android.app.Application",
+        "androidx.work.Configuration.Provider"
+    )
 
     override fun visitElement(context: XmlContext, element: Element) {
         // Check providers
@@ -117,20 +125,35 @@ class RemoveWorkManagerInitializerDetector : Detector(), SourceCodeScanner, XmlS
     }
 
     override fun visitClass(context: JavaContext, declaration: UClass) {
+        javaContext = context
         if (context.evaluator.inheritsFrom(
                 declaration.javaPsi,
                 "android.app.Application",
                 false
             )
         ) {
-            applicationImplementsConfigurationProvider = true
+            klass = declaration
+            if (context.evaluator.implementsInterface(
+                    declaration.javaPsi,
+                    "androidx.work.Configuration.Provider",
+                    false
+                )
+            ) {
+                applicationImplementsConfigurationProvider = true
+            }
         }
     }
 
     override fun afterCheckRootProject(context: Context) {
         val location = location ?: Location.create(context.file)
+        val javaKlass = klass
+        val isSuppressed = if (javaContext != null && javaKlass != null) {
+            context.driver.isSuppressed(javaContext, ISSUE, javaKlass.javaPsi)
+        } else {
+            false
+        }
         if (applicationImplementsConfigurationProvider) {
-            if (!removedDefaultInitializer) {
+            if (!removedDefaultInitializer && !isSuppressed) {
                 context.report(
                     issue = ISSUE,
                     location = location,

@@ -18,11 +18,11 @@ package androidx.car.app.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -35,14 +35,11 @@ import java.util.Objects;
  * that users can perform based on such content.
  */
 @CarProtocol
+@KeepFields
 public final class Pane {
-    @Keep
     private final List<Action> mActionList;
-    @Keep
     private final List<Row> mRows;
-    @Keep
     private final boolean mIsLoading;
-    @Keep
     @Nullable
     private final CarIcon mImage;
 
@@ -167,7 +164,7 @@ public final class Pane {
          *
          * <p>By default, no actions are displayed.
          *
-         * @throws NullPointerException     if {@code action} is {@code null}
+         * @throws NullPointerException if {@code action} is {@code null}
          */
         @NonNull
         public Builder addAction(@NonNull Action action) {
@@ -182,8 +179,8 @@ public final class Pane {
          * <h4>Image Sizing Guidance</h4>
          *
          * To minimize scaling artifacts across a wide range of car screens, apps should provide
-         * images targeting a 480 x 854 (9:16) dp bounding box. If the image exceeds this maximum
-         * size in either one of the dimensions, it will be scaled down to be centered inside the
+         * images targeting a 480 x 480 dp bounding box. If the image exceeds this maximum size
+         * in either one of the dimensions, it will be scaled down to be centered inside the
          * bounding box while preserving its aspect ratio.
          *
          * @throws NullPointerException if {@code image} is {@code null}

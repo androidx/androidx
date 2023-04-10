@@ -16,21 +16,26 @@
 
 package androidx.camera.video;
 
+import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
+
 import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CamcorderProfileProxy;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -135,8 +140,25 @@ public final class QualitySelector {
     public static Size getResolution(@NonNull CameraInfo cameraInfo, @NonNull Quality quality) {
         checkQualityConstantsOrThrow(quality);
         CamcorderProfileProxy profile = VideoCapabilities.from(cameraInfo).getProfile(quality);
-        return profile != null ? new Size(profile.getVideoFrameWidth(),
-                profile.getVideoFrameHeight()) : null;
+        return profile != null ? getProfileVideoSize(profile) : null;
+    }
+
+    /**
+     * Gets a map from all supported qualities to mapped resolutions.
+     *
+     * @param cameraInfo the cameraInfo to query the supported qualities on that camera.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @NonNull
+    public static Map<Quality, Size> getQualityToResolutionMap(@NonNull CameraInfo cameraInfo) {
+        VideoCapabilities videoCapabilities = VideoCapabilities.from(cameraInfo);
+        Map<Quality, Size> map = new HashMap<>();
+        for (Quality supportedQuality : videoCapabilities.getSupportedQualities()) {
+            map.put(supportedQuality, getProfileVideoSize(
+                    requireNonNull(videoCapabilities.getProfile(supportedQuality))));
+        }
+        return map;
     }
 
     private final List<Quality> mPreferredQualityList;
@@ -189,7 +211,7 @@ public final class QualitySelector {
         Preconditions.checkNotNull(quality, "quality cannot be null");
         Preconditions.checkNotNull(fallbackStrategy, "fallbackStrategy cannot be null");
         checkQualityConstantsOrThrow(quality);
-        return new QualitySelector(Arrays.asList(quality), fallbackStrategy);
+        return new QualitySelector(singletonList(quality), fallbackStrategy);
     }
 
     /**
@@ -379,6 +401,11 @@ public final class QualitySelector {
             default:
                 throw new AssertionError("Unhandled fallback strategy: " + mFallbackStrategy);
         }
+    }
+
+    @NonNull
+    private static Size getProfileVideoSize(@NonNull CamcorderProfileProxy profile) {
+        return new Size(profile.getVideoFrameWidth(), profile.getVideoFrameHeight());
     }
 
     private static void checkQualityConstantsOrThrow(@NonNull List<Quality> qualities) {

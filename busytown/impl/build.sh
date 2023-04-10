@@ -18,9 +18,11 @@ if [ "$DIST_DIR" == "" ]; then
 fi
 mkdir -p "$DIST_DIR"
 export DIST_DIR="$DIST_DIR"
-
 if [ "$CHANGE_INFO" != "" ]; then
   cp "$CHANGE_INFO" "$DIST_DIR/"
+fi
+if [ "$MANIFEST" == "" ]; then
+  export MANIFEST="$DIST_DIR/manifest_${BUILD_NUMBER}.xml"
 fi
 
 # parse arguments
@@ -58,18 +60,38 @@ function run() {
   fi
 }
 
-# Confirm the existence of .git dirs. TODO(b/170634430) remove this
-(echo "top commit:" && git --no-pager log -1)
-
 # export some variables
 ANDROID_HOME=../../prebuilts/fullsdk-linux
 
-EXIT_VALUE=0
+BUILD_STATUS=0
+# enable remote build cache unless explicitly disabled
+if [ "$USE_ANDROIDX_REMOTE_BUILD_CACHE" == "" ]; then
+  export USE_ANDROIDX_REMOTE_BUILD_CACHE=gcp
+fi
+
+# Make sure that our native dependencies are new enough for KMP/konan
+# If our existing native libraries are newer, then we don't downgrade them because
+# something else (like Bash) might be requiring the newer version.
+function areNativeLibsNewEnoughForKonan() {
+  host=`uname`
+  if [[ "$host" == Darwin* ]]; then
+    # we don't have any Macs having native dependencies too old to build KMP/konan
+    true
+  else
+    # on Linux we check whether we have a sufficiently new GLIBCXX
+    gcc --print-file-name=libstdc++.so.6 | xargs readelf -a -W | grep GLIBCXX_3.4.21 >/dev/null
+  fi
+}
+if ! areNativeLibsNewEnoughForKonan; then
+  KONAN_HOST_LIBS="$OUT_DIR/konan-host-libs"
+  $SCRIPT_DIR/prepare-linux-sysroot.sh "$KONAN_HOST_LIBS"
+  export LD_LIBRARY_PATH=$KONAN_HOST_LIBS
+fi
+
 # run the build
-if run ./gradlew --ci saveSystemStats "$@"; then
+if run ./gradlew --ci "$@"; then
   echo build passed
 else
-  EXIT_VALUE=1
   if [ "$DIAGNOSE" == "true" ]; then
     # see if diagnose-build-failure.sh can identify the root cauase
     echo "running diagnose-build-failure.sh, see build.log" >&2
@@ -77,16 +99,29 @@ else
     # We probably won't have enough time to fully diagnose the problem given this timeout, but
     # we might be able to determine whether this problem is reproducible enough for a developer to
     # more easily investigate further
-    ./development/diagnose-build-failure/diagnose-build-failure.sh --timeout 600 "--ci saveSystemStats $*"
+    ./development/diagnose-build-failure/diagnose-build-failure.sh --timeout 600 "--ci $*"
   fi
-fi
-
-#export build scan information
-zip -q -r $DIST_DIR/build_scans.zip $OUT_DIR/.gradle/build-scan-data || true
-
-if [ "$EXIT_VALUE" != "0" ]; then
-  exit "$EXIT_VALUE"
+  if grep "/prefab" "$DIST_DIR/logs/gradle.log" >/dev/null 2>/dev/null; then
+    # error looks like it might have involved prefab, copy the prefab dir to DIST where we can find it
+    if [ -e "$OUT_DIR/androidx/external/libyuv/build" ]; then
+      cd "$OUT_DIR/androidx/external/libyuv/build"
+      echo "Zipping $PWD into $DIST_DIR/libyuv-build.zip"
+      zip -qr "$DIST_DIR/libyuv-build.zip" .
+      cd -
+    fi
+  fi
+  BUILD_STATUS=1 # failure
 fi
 
 # check that no unexpected modifications were made to the source repository, such as new cache directories
 DIST_DIR=$DIST_DIR $SCRIPT_DIR/verify_no_caches_in_source_repo.sh $BUILD_START_MARKER
+
+# copy configuration cache reports to DIST_DIR so we can see them b/250893051
+CONFIGURATION_CACHE_REPORTS_EXPORTED=$DIST_DIR/configuration-cache-reports
+CONFIGURATION_CACHE_REPORTS=$OUT_DIR/androidx/build/reports/configuration-cache
+if [ -d "$CONFIGURATION_CACHE_REPORTS" ]; then
+    rm -rf "$CONFIGURATION_CACHE_REPORTS_EXPORTED"
+    cp -r "$CONFIGURATION_CACHE_REPORTS" "$CONFIGURATION_CACHE_REPORTS_EXPORTED"
+fi
+
+exit "$BUILD_STATUS"

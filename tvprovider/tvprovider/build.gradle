@@ -1,4 +1,3 @@
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -21,12 +20,12 @@ android {
     defaultConfig {
         minSdkVersion 21
     }
+    namespace "androidx.tvprovider"
 }
 
 androidx {
     name = "Android Support TV Provider"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.TVPROVIDER
     inceptionYear = "2017"
     description = "Android Support Library for TV Provider"
     failOnDeprecationWarnings = false

@@ -26,17 +26,21 @@ import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.impl.Quirk;
 
 /**
- * Quirk required to maintain good exposure on legacy devices by specifying a proper
- * {@link android.hardware.camera2.CaptureRequest#CONTROL_AE_TARGET_FPS_RANGE}.
- * <p>
- * Legacy devices set the AE target FPS range to [30, 30]. This can potentially cause underexposure
- * issues. {@link androidx.camera.camera2.internal.compat.workaround.AeFpsRange} contains a
- * workaround that is used on legacy devices to set a AE FPS range whose upper bound is 30, which
- * guarantees a smooth frame rate, and whose lower bound is as small as possible to properly
- * expose frames in low light conditions. The default behavior on non legacy devices does not add
- * the AE FPS range option.
- *
- * @see androidx.camera.camera2.internal.compat.workaround.AeFpsRange
+ * <p>QuirkSummary
+ *     Bug Id: b/167425305
+ *     Description: Quirk required to maintain good exposure on legacy devices by specifying a
+ *                  proper
+ *                  {@link android.hardware.camera2.CaptureRequest#CONTROL_AE_TARGET_FPS_RANGE}.
+ *                  Legacy devices set the AE target FPS range to [30, 30]. This can potentially
+ *                  cause underexposure issues.
+ *                  {@link androidx.camera.camera2.internal.compat.workaround.AeFpsRange}
+ *                  contains a workaround that is used on legacy devices to set a AE FPS range
+ *                  whose upper bound is 30, which guarantees a smooth frame rate, and whose lower
+ *                  bound is as small as possible to properly expose frames in low light
+ *                  conditions. The default behavior on non legacy devices does not add the AE
+ *                  FPS range option.
+ *     Device(s): All legacy devices
+ *     @see androidx.camera.camera2.internal.compat.workaround.AeFpsRange
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class AeFpsRangeLegacyQuirk implements Quirk {

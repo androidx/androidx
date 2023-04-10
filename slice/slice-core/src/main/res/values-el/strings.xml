@@ -18,7 +18,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="abc_slices_permission_request" msgid="4431189529265983653">"Η εφαρμογή <xliff:g id="APP_0">%1$s</xliff:g> θέλει να εμφανίζει κομμάτια της εφαρμογής <xliff:g id="APP_2">%2$s</xliff:g>."</string>
-    <string name="abc_slice_permission_title" msgid="4776010267128891014">"Να επιτρέπεται στην εφαρμογή <xliff:g id="APP_0">%1$s</xliff:g> να εμφανίζει κομμάτια της εφαρμογής <xliff:g id="APP_2">%2$s</xliff:g>;"</string>
+    <string name="abc_slice_permission_title" msgid="4776010267128891014">"Να επιτρέπεται στο <xliff:g id="APP_0">%1$s</xliff:g> να εμφανίζει κομμάτια της εφαρμογής <xliff:g id="APP_2">%2$s</xliff:g>;"</string>
     <string name="abc_slice_permission_text_1" msgid="9108592981418900836">"- Μπορεί να διαβάζει πληροφορίες από την εφαρμογή <xliff:g id="APP">%1$s</xliff:g>."</string>
     <string name="abc_slice_permission_text_2" msgid="7135705417979137589">"- Μπορεί να εκτελεί ενέργειες εντός της εφαρμογής <xliff:g id="APP">%1$s</xliff:g>."</string>
     <string name="abc_slice_permission_allow" msgid="6374752258872407887">"Αποδοχή"</string>

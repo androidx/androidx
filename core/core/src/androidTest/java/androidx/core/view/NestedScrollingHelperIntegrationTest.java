@@ -16,7 +16,7 @@
 package androidx.core.view;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.content.Context;
 import android.view.View;

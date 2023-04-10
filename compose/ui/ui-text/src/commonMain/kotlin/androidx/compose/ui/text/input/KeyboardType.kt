@@ -16,11 +16,13 @@
 
 package androidx.compose.ui.text.input
 
+import androidx.compose.runtime.Stable
+
 /**
  * Values representing the different available Keyboard Types.
  */
-@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
-inline class KeyboardType internal constructor(@Suppress("unused") private val value: Int) {
+@kotlin.jvm.JvmInline
+value class KeyboardType internal constructor(@Suppress("unused") private val value: Int) {
 
     override fun toString(): String {
         return when (this) {
@@ -32,6 +34,7 @@ inline class KeyboardType internal constructor(@Suppress("unused") private val v
             Email -> "Email"
             Password -> "Password"
             NumberPassword -> "NumberPassword"
+            Decimal -> "Decimal"
             else -> "Invalid"
         }
     }
@@ -40,41 +43,60 @@ inline class KeyboardType internal constructor(@Suppress("unused") private val v
         /**
          * A keyboard type used to request an IME that shows regular keyboard.
          */
+        @Stable
         val Text: KeyboardType = KeyboardType(1)
 
         /**
          * A keyboard type used to request an IME that is capable of inputting ASCII characters.
          */
+        @Stable
         val Ascii: KeyboardType = KeyboardType(2)
 
         /**
-         * A keyboard type used to request an that is capable of inputting digits.
+         * A keyboard type used to request an IME that is capable of inputting digits. IME may
+         * provide inputs other than digits but it is not guaranteed.
+         *
+         * @see KeyboardType.Decimal
          */
+        @Stable
         val Number: KeyboardType = KeyboardType(3)
 
         /**
          * A keyboard type used to request an IME that is capable of inputting phone numbers.
          */
+        @Stable
         val Phone: KeyboardType = KeyboardType(4)
 
         /**
          * A keyboard type used to request an IME that is capable of inputting URIs.
          */
+        @Stable
         val Uri: KeyboardType = KeyboardType(5)
 
         /**
          * A keyboard type used to request an IME that is capable of inputting email addresses.
          */
+        @Stable
         val Email: KeyboardType = KeyboardType(6)
 
         /**
-         * A keyboard type used to request an IME that is capable of inputting password
+         * A keyboard type used to request an IME that is capable of inputting password.
          */
+        @Stable
         val Password: KeyboardType = KeyboardType(7)
 
         /**
          * A keyboard type used to request an IME that is capable of inputting number password.
          */
+        @Stable
         val NumberPassword: KeyboardType = KeyboardType(8)
+
+        /**
+         * A keyboard type used to request an IME that is capable of inputting decimals.
+         * IME should explicitly provide a decimal separator as input, which is not assured by
+         * [KeyboardType.Number].
+         */
+        @Stable
+        val Decimal: KeyboardType = KeyboardType(9)
     }
 }

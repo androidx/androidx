@@ -21,7 +21,7 @@ package androidx.compose.runtime
  * Recomposition will always return the value produced by composition.
  */
 @Composable
-inline fun <T> remember(calculation: @DisallowComposableCalls () -> T): T =
+inline fun <T> remember(crossinline calculation: @DisallowComposableCalls () -> T): T =
     currentComposer.cache(false, calculation)
 
 /**
@@ -31,7 +31,7 @@ inline fun <T> remember(calculation: @DisallowComposableCalls () -> T): T =
 @Composable
 inline fun <T> remember(
     key1: Any?,
-    calculation: @DisallowComposableCalls () -> T
+    crossinline calculation: @DisallowComposableCalls () -> T
 ): T {
     return currentComposer.cache(currentComposer.changed(key1), calculation)
 }
@@ -44,7 +44,7 @@ inline fun <T> remember(
 inline fun <T> remember(
     key1: Any?,
     key2: Any?,
-    calculation: @DisallowComposableCalls () -> T
+    crossinline calculation: @DisallowComposableCalls () -> T
 ): T {
     return currentComposer.cache(
         currentComposer.changed(key1) or currentComposer.changed(key2),
@@ -61,7 +61,7 @@ inline fun <T> remember(
     key1: Any?,
     key2: Any?,
     key3: Any?,
-    calculation: @DisallowComposableCalls () -> T
+    crossinline calculation: @DisallowComposableCalls () -> T
 ): T {
     return currentComposer.cache(
         currentComposer.changed(key1) or
@@ -78,7 +78,7 @@ inline fun <T> remember(
 @Composable
 inline fun <T> remember(
     vararg keys: Any?,
-    calculation: @DisallowComposableCalls () -> T
+    crossinline calculation: @DisallowComposableCalls () -> T
 ): T {
     var invalid = false
     for (key in keys) invalid = invalid or currentComposer.changed(key)
@@ -144,6 +144,35 @@ inline fun ReusableContent(
 ) {
     currentComposer.startReusableGroup(reuseKey, key)
     content()
+    currentComposer.endReusableGroup()
+}
+
+/**
+ * An optional utility function used when hosting [ReusableContent]. If [active] is false the
+ * content is treated as if it is deleted by removing all remembered objects from the composition
+ * but the node produced for the tree are not removed. When the composition later becomes active
+ * then the nodes are able to be reused inside [ReusableContent] content without requiring the
+ * remembered state of the composition's lifetime being arbitrarily extended.
+ *
+ * @param active when [active] is `true` [content] is composed normally. When [active] is `false`
+ * then the content is deactivated and all remembered state is treated as if the content was
+ * deleted but the nodes managed by the composition's [Applier] are unaffected. A [active] becomes
+ * `true` any reusable nodes from the previously active composition are candidates for reuse.
+ * @param content the composable content that is managed by this composable.
+ */
+@Composable
+@ExplicitGroupsComposable
+inline fun ReusableContentHost(
+    active: Boolean,
+    crossinline content: @Composable () -> Unit
+) {
+    currentComposer.startReusableGroup(reuseKey, active)
+    val activeChanged = currentComposer.changed(active)
+    if (active) {
+        content()
+    } else {
+        currentComposer.deactivateToEndGroup(activeChanged)
+    }
     currentComposer.endReusableGroup()
 }
 

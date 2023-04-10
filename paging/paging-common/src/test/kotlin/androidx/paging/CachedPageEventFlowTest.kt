@@ -23,12 +23,15 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -38,10 +41,10 @@ import org.junit.runners.Parameterized
 class CachedPageEventFlowTest(
     private val terminationType: TerminationType
 ) {
-    private val testScope = TestCoroutineScope()
+    private val testScope = TestScope(UnconfinedTestDispatcher())
 
     @Test
-    fun slowFastCollectors() = testScope.runBlockingTest {
+    fun slowFastCollectors() = testScope.runTest {
         val upstream = Channel<PageEvent<String>>(Channel.UNLIMITED)
         val subject = CachedPageEventFlow(
             src = upstream.consumeAsFlow(),
@@ -64,9 +67,7 @@ class CachedPageEventFlowTest(
         )
         upstream.send(refreshEvent)
         runCurrent()
-        // removal of canDispatchWithoutInsert check causes an additional NotLoading state update
         assertThat(fastCollector.items()).containsExactly(
-            localLoadStateUpdate<String>(),
             refreshEvent
         )
         assertThat(slowCollector.items()).isEmpty()
@@ -81,14 +82,12 @@ class CachedPageEventFlowTest(
         upstream.send(appendEvent)
         runCurrent()
         assertThat(fastCollector.items()).containsExactly(
-            localLoadStateUpdate<String>(),
             refreshEvent,
             appendEvent
         )
         assertThat(slowCollector.items()).isEmpty()
         advanceTimeBy(3_000)
         assertThat(slowCollector.items()).containsExactly(
-            localLoadStateUpdate<String>(),
             refreshEvent,
             appendEvent
         )
@@ -119,7 +118,6 @@ class CachedPageEventFlowTest(
             TerminationType.CLOSE_CACHED_EVENT_FLOW -> subject.close()
         }
         val fullList = listOf(
-            localLoadStateUpdate<String>(),
             refreshEvent,
             appendEvent
         ) + manyNewAppendEvents + finalAppendEvent
@@ -146,7 +144,7 @@ class CachedPageEventFlowTest(
     }
 
     @Test
-    fun ensureSharing() = testScope.runBlockingTest {
+    fun ensureSharing() = testScope.runTest {
         val refreshEvent = localRefresh(
             listOf(
                 TransformablePage(
@@ -173,7 +171,7 @@ class CachedPageEventFlowTest(
         collector1.collectIn(testScope)
         runCurrent()
         assertThat(collector1.items()).isEqualTo(
-            listOf(localLoadStateUpdate<String>(), refreshEvent, appendEvent)
+            listOf(refreshEvent, appendEvent)
         )
         val collector2 = PageCollector(subject.downstreamFlow)
         collector2.collectIn(testScope)
@@ -201,7 +199,7 @@ class CachedPageEventFlowTest(
         )
         upstream.send(prependEvent)
         assertThat(collector1.items()).isEqualTo(
-            listOf(localLoadStateUpdate<String>(), refreshEvent, appendEvent, prependEvent)
+            listOf(refreshEvent, appendEvent, prependEvent)
         )
         assertThat(collector2.items()).isEqualTo(
             listOf(firstSnapshotRefreshEvent, prependEvent)
@@ -250,7 +248,7 @@ class CachedPageEventFlowTest(
     }
 
     @Test
-    fun emptyPage_singlelocalLoadStateUpdate() = testScope.runBlockingTest {
+    fun emptyPage_singlelocalLoadStateUpdate() = testScope.runTest {
         val upstream = Channel<PageEvent<String>>(Channel.UNLIMITED)
         val subject = CachedPageEventFlow(
             src = upstream.consumeAsFlow(),
@@ -258,7 +256,6 @@ class CachedPageEventFlowTest(
         )
 
         // creating two collectors and collecting right away to assert that all collectors
-        // collecting before any INSERT event would receive an initial IDLE state update.
         val collector = PageCollector(subject.downstreamFlow)
         collector.collectIn(testScope)
 
@@ -267,17 +264,9 @@ class CachedPageEventFlowTest(
 
         runCurrent()
 
-        // an empty input stream should cause collect to receive a single state update where
-        // source = LoadStates.IDLE and mediator = null
-        // any collectors that started collection before an Insert should receive this IDLE state
-        // update
-        assertThat(collector.items()).containsExactly(
-            localLoadStateUpdate<String>(),
-        )
-
-        assertThat(collector2.items()).containsExactly(
-            localLoadStateUpdate<String>(),
-        )
+        // until upstream sends events, collectors shouldn't receive any events
+        assertThat(collector.items()).isEmpty()
+        assertThat(collector2.items()).isEmpty()
 
         // now send refresh event
         val refreshEvent = localRefresh(
@@ -291,12 +280,10 @@ class CachedPageEventFlowTest(
         runCurrent()
 
         assertThat(collector.items()).containsExactly(
-            localLoadStateUpdate<String>(),
             refreshEvent
         )
 
         assertThat(collector2.items()).containsExactly(
-            localLoadStateUpdate<String>(),
             refreshEvent
         )
 
@@ -304,7 +291,7 @@ class CachedPageEventFlowTest(
     }
 
     @Test
-    fun idleStateUpdate_collectedBySingleCollector() = testScope.runBlockingTest {
+    fun idleStateUpdate_collectedBySingleCollector() = testScope.runTest {
         val upstream = Channel<PageEvent<String>>(Channel.UNLIMITED)
         val subject = CachedPageEventFlow(
             src = upstream.consumeAsFlow(),
@@ -326,19 +313,15 @@ class CachedPageEventFlowTest(
 
         runCurrent()
 
-        // regardless of when the first collector started collecting (before or after first
-        // INSERT), it would receive the initial IDLE state update
+        // collector shouldn't receive any idle events before the refresh
         assertThat(collector.items()).containsExactly(
-            localLoadStateUpdate<String>(),
             refreshEvent
         )
 
         val delayedCollector = PageCollector(subject.downstreamFlow)
         delayedCollector.collectIn(testScope)
 
-        // if a collector started collecting an INSERT but the initial IDLE state has
-        // already been collected by another collector, then these delayed collectors would not
-        // receive it.
+        // delayed collector shouldn't receive any idle events since we already have refresh
         assertThat(delayedCollector.items()).containsExactly(
             refreshEvent
         )

@@ -41,6 +41,7 @@ public class Preferences extends AppCompatActivity {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public boolean onSupportNavigateUp() {
         onBackPressed();

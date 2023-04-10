@@ -35,7 +35,7 @@ import java.util.List;
  *
  * <h3>Example</h3>
  * <pre>
- * MediaRouteSelector selectorBuilder = new MediaRouteSelector.Builder()
+ * MediaRouteSelector selector = new MediaRouteSelector.Builder()
  *         .addControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO)
  *         .addControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)
  *         .build();
@@ -75,7 +75,7 @@ public final class MediaRouteSelector {
         if (mControlCategories == null) {
             mControlCategories = mBundle.getStringArrayList(KEY_CONTROL_CATEGORIES);
             if (mControlCategories == null || mControlCategories.isEmpty()) {
-                mControlCategories = Collections.<String>emptyList();
+                mControlCategories = Collections.emptyList();
             }
         }
     }
@@ -180,14 +180,13 @@ public final class MediaRouteSelector {
         return mControlCategories.hashCode();
     }
 
+    @NonNull
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder();
-        result.append("MediaRouteSelector{ ");
-        result.append("controlCategories=").append(
-                Arrays.toString(getControlCategories().toArray()));
-        result.append(" }");
-        return result.toString();
+        return "MediaRouteSelector{ "
+                + "controlCategories="
+                + Arrays.toString(getControlCategories().toArray())
+                + " }";
     }
 
     /**

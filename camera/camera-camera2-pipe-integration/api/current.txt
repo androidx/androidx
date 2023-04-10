@@ -1,0 +1,9 @@
+// Signature format: 4.0
+package androidx.camera.camera2.pipe.integration {
+
+  @RequiresApi(21) public final class CameraPipeConfig {
+    method public static androidx.camera.core.CameraXConfig defaultConfig();
+  }
+
+}
+

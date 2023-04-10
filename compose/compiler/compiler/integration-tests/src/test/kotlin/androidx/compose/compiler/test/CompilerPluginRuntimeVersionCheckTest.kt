@@ -46,7 +46,7 @@ class CompilerPluginRuntimeVersionCheckTest {
     private lateinit var projectRoot: File
 
     private val compilerPluginVersion by lazy {
-        val metadataFile = File(projectSetup.props.localSupportRepo).resolve(
+        val metadataFile = File(projectSetup.props.tipOfTreeMavenRepoPath).resolve(
             "androidx/compose/compiler/compiler/maven-metadata.xml"
         )
         check(metadataFile.exists()) {
@@ -126,7 +126,7 @@ class CompilerPluginRuntimeVersionCheckTest {
             "org.jetbrains.kotlin:kotlin-gradle-plugin:${projectSetup.props.kotlinVersion}"
         val repositoriesBlock = buildString {
             appendLine("repositories {")
-            appendLine("maven { url \"${projectSetup.props.localSupportRepo}\" }")
+            appendLine("maven { url \"${projectSetup.props.tipOfTreeMavenRepoPath}\" }")
             projectSetup.allRepositoryPaths.forEach {
                 appendLine(
                     """
@@ -168,6 +168,7 @@ class CompilerPluginRuntimeVersionCheckTest {
             apply plugin: "kotlin-android"
 
             android {
+                namespace "androidx.compose.compiler.test"
                 compileSdkVersion ${projectSetup.props.compileSdkVersion}
                 buildToolsVersion "${projectSetup.props.buildToolsVersion}"
                 defaultConfig {
@@ -189,6 +190,14 @@ class CompilerPluginRuntimeVersionCheckTest {
             dependencies {
                 $dependenciesBlock
             }
+
+            tasks.withType(
+                org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+            ).configureEach {
+                kotlinOptions {
+                    jvmTarget = "1.8"
+                }
+            }
             """.trimIndent()
         )
     }
@@ -206,9 +215,7 @@ class CompilerPluginRuntimeVersionCheckTest {
         addFileWithContent(
             "$MAIN_DIR/AndroidManifest.xml",
             """
-            <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-                package="androidx.compose.compiler.test">
-            </manifest>
+            <manifest/>
             """.trimIndent()
         )
     }

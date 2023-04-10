@@ -17,27 +17,35 @@ package androidx.benchmark {
   }
 
   public final class BenchmarkState {
+    ctor @androidx.benchmark.ExperimentalBenchmarkStateApi public BenchmarkState(optional Integer? warmupCount, optional Integer? repeatCount);
+    method @androidx.benchmark.ExperimentalBenchmarkStateApi public java.util.List<java.lang.Double> getMeasurementTimeNs();
     method public boolean keepRunning();
     method public void pauseTiming();
-    method @androidx.benchmark.BenchmarkState.Companion.ExperimentalExternalReport public static void reportData(String className, String testName, @IntRange(from=0) long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, @IntRange(from=0) int warmupIterations, @IntRange(from=0) long thermalThrottleSleepSeconds, @IntRange(from=1) int repeatIterations);
+    method @androidx.benchmark.BenchmarkState.Companion.ExperimentalExternalReport public static void reportData(String className, String testName, @IntRange(from=0L) long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, @IntRange(from=0L) int warmupIterations, @IntRange(from=0L) long thermalThrottleSleepSeconds, @IntRange(from=1L) int repeatIterations);
     method public void resumeTiming();
     field public static final androidx.benchmark.BenchmarkState.Companion Companion;
   }
 
   public static final class BenchmarkState.Companion {
-    method @androidx.benchmark.BenchmarkState.Companion.ExperimentalExternalReport public void reportData(String className, String testName, @IntRange(from=0) long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, @IntRange(from=0) int warmupIterations, @IntRange(from=0) long thermalThrottleSleepSeconds, @IntRange(from=1) int repeatIterations);
+    method @androidx.benchmark.BenchmarkState.Companion.ExperimentalExternalReport public void reportData(String className, String testName, @IntRange(from=0L) long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, @IntRange(from=0L) int warmupIterations, @IntRange(from=0L) long thermalThrottleSleepSeconds, @IntRange(from=1L) int repeatIterations);
   }
 
-  @kotlin.Experimental @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public static @interface BenchmarkState.Companion.ExperimentalExternalReport {
+  @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public static @interface BenchmarkState.Companion.ExperimentalExternalReport {
   }
 
   public final class ConfigurationErrorKt {
+  }
+
+  @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalBenchmarkStateApi {
   }
 
   public final class MetricNameUtilsKt {
   }
 
   public final class ProfilerKt {
+  }
+
+  public final class ShellKt {
   }
 
   public final class UserspaceTracingKt {
@@ -47,7 +55,28 @@ package androidx.benchmark {
 
 package androidx.benchmark.perfetto {
 
+  @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalPerfettoCaptureApi {
+  }
+
   public final class PerfettoConfigKt {
+  }
+
+  @RequiresApi(21) @androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi public final class PerfettoTrace {
+    ctor public PerfettoTrace(String path);
+    method public String getPath();
+    method public static void record(String fileLabel, optional java.util.List<java.lang.String> appTagPackages, optional String? userspaceTracingPackage, optional kotlin.jvm.functions.Function1<? super androidx.benchmark.perfetto.PerfettoTrace,kotlin.Unit>? traceCallback, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static void record(String fileLabel, optional java.util.List<java.lang.String> appTagPackages, optional String? userspaceTracingPackage, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static void record(String fileLabel, optional java.util.List<java.lang.String> appTagPackages, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static void record(String fileLabel, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    property public final String path;
+    field public static final androidx.benchmark.perfetto.PerfettoTrace.Companion Companion;
+  }
+
+  public static final class PerfettoTrace.Companion {
+    method public void record(String fileLabel, optional java.util.List<java.lang.String> appTagPackages, optional String? userspaceTracingPackage, optional kotlin.jvm.functions.Function1<? super androidx.benchmark.perfetto.PerfettoTrace,kotlin.Unit>? traceCallback, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public void record(String fileLabel, optional java.util.List<java.lang.String> appTagPackages, optional String? userspaceTracingPackage, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public void record(String fileLabel, optional java.util.List<java.lang.String> appTagPackages, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public void record(String fileLabel, kotlin.jvm.functions.Function0<kotlin.Unit> block);
   }
 
   public final class UiStateKt {

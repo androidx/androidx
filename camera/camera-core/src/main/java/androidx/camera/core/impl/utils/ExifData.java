@@ -116,8 +116,11 @@ import android.util.Pair;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.ImageInfo;
+import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureMetaData;
+import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.core.util.Preconditions;
 import androidx.exifinterface.media.ExifInterface;
 
@@ -294,6 +297,29 @@ public class ExifData {
                 + "list. Number of IFDs mismatch.");
         mByteOrder = order;
         mAttributes = attributes;
+    }
+
+    /**
+     * Creates a {@link ExifData} from {@link ImageProxy} and rotation degrees.
+     *
+     * @param rotationDegrees overwrites the rotation degrees in the {@link ImageInfo}.
+     */
+    @NonNull
+    public static ExifData create(@NonNull ImageProxy imageProxy,
+            @ImageOutputConfig.RotationDegreesValue int rotationDegrees) {
+        ExifData.Builder builder = ExifData.builderForDevice();
+        if (imageProxy.getImageInfo() != null) {
+            imageProxy.getImageInfo().populateExifData(builder);
+        }
+
+        // Overwrites the orientation degrees value of the output image because the capture
+        // results might not have correct value when capturing image in YUV_420_888 format. See
+        // b/204375890.
+        builder.setOrientationDegrees(rotationDegrees);
+
+        return builder.setImageWidth(imageProxy.getWidth())
+                .setImageHeight(imageProxy.getHeight())
+                .build();
     }
 
     /**
@@ -547,6 +573,7 @@ public class ExifData {
 
         /**
          * Sets the amount of time the sensor was exposed for, in nanoseconds.
+         *
          * @param exposureTimeNs The exposure time in nanoseconds.
          */
         @NonNull
@@ -559,6 +586,7 @@ public class ExifData {
          * Sets the lens f-number.
          *
          * <p>The lens f-number has precision 1.xx, for example, 1.80.
+         *
          * @param fNumber The f-number.
          */
         @NonNull
@@ -594,7 +622,7 @@ public class ExifData {
          * Sets the white balance mode.
          *
          * @param whiteBalanceMode The white balance mode. One of {@link WhiteBalanceMode#AUTO}
-         *                        or {@link WhiteBalanceMode#MANUAL}.
+         *                         or {@link WhiteBalanceMode#MANUAL}.
          */
         @NonNull
         public Builder setWhiteBalanceMode(@NonNull WhiteBalanceMode whiteBalanceMode) {

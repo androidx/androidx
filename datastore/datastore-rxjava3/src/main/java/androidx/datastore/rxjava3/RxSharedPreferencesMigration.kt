@@ -24,6 +24,7 @@ import androidx.datastore.migrations.SharedPreferencesView
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.rx3.await
 
+@JvmDefaultWithCompatibility
 /**
  * Client implemented migration interface.
  **/
@@ -53,7 +54,7 @@ public interface RxSharedPreferencesMigration<T> {
      * @param currentData the most recently persisted data
      * @return a Single of the updated data
      */
-    @Suppress("UPPER_BOUND_VIOLATED_BASED_ON_JAVA_ANNOTATIONS")
+    @Suppress("UPPER_BOUND_VIOLATED")
     public fun migrate(sharedPreferencesView: SharedPreferencesView, currentData: T): Single<T>
 }
 

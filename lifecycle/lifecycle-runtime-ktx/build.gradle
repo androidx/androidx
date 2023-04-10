@@ -15,7 +15,6 @@
  */
 
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -42,19 +41,19 @@ dependencies {
     androidTestImplementation(libs.kotlinCoroutinesTest)
 
     lintPublish(project(":lifecycle:lifecycle-runtime-ktx-lint"))
+
+    constraints {
+        implementation(project(":lifecycle:lifecycle-runtime"))
+    }
 }
 
 androidx {
     name = "Android Lifecycle Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2019"
     description = "Kotlin extensions for 'lifecycle' artifact"
 }
 
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
-    }
+android {
+    namespace "androidx.lifecycle.ktx"
 }

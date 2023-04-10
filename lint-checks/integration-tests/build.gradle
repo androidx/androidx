@@ -24,17 +24,8 @@ plugins {
 
 dependencies {
     implementation(projectOrArtifact(":annotation:annotation"))
+    implementation(projectOrArtifact(":annotation:annotation-experimental"))
     implementation(libs.kotlinStdlib)
-}
-
-// Allow usage of Kotlin's @Experimental and @RequiresOptIn annotations.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += [
-                "-Xopt-in=kotlin.Experimental",
-                "-Xopt-in=kotlin.RequiresOptIn",
-        ]
-    }
 }
 
 androidx {
@@ -50,6 +41,7 @@ android {
         // We don't want errors to cause lint to fail
         abortOnError false
     }
+    namespace "androidx.lint.integration.tests"
 }
 
 

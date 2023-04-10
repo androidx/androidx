@@ -15,5 +15,6 @@
   -->
 
 <resources>
-    <item type="id" name="jankstats"/>
+    <item type="id" name="metricsStateHolder"/>
+    <item type="id" name="metricsDelegator"/>
 </resources>

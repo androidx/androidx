@@ -95,7 +95,34 @@ public class AppCompatViewInflater {
 
     private final Object[] mConstructorArgs = new Object[2];
 
-    final View createView(View parent, final String name, @NonNull Context context,
+    /**
+     * Creates an AppCompat-compatible widget by automatically "substituting" all usages of core
+     * Android widgets with the AppCompat extensions of those widgets.
+     * <p>
+     * Most developers should not call this method directly. Instead, use the layout inflater
+     * provided by {@link AppCompatActivity#getLayoutInflater()} or call
+     * {@link AppCompatDelegate#createView(View, String, Context, AttributeSet)}.
+     *
+     * @param parent the hierarchical parent of the view, if any
+     * @param name class name of the view, must be a simple class name like {@code TextView} for
+     *             core Android widgets
+     * @param context context against which the view should be constructed, may be wrapped for
+     *                theming purposes or fully replaced if {@code inheritContext} is {@code true}
+     * @param attrs attribute set to pass to the view constructor
+     * @param inheritContext {@code true} to construct the view against the {@code parent} view's
+     *                       context instead of {@code context}, or {@code false} to use
+     *                       {@code context}
+     * @param readAndroidTheme {@code true} to parse {@code android:theme} from {@code attrs} and
+     *                         wrap the view's construction context if necessary
+     * @param readAppTheme {@code true} to parse {@code app:theme} from {@code attrs} and wrap the
+     *                     view's construction context if necessary
+     * @param wrapContext {@code true} to wrap the view's construction context to provide
+     *                    additional resource system feature backports
+     * @return an AppCompat-compatible widget
+     */
+    @Nullable
+    public final View createView(@Nullable View parent, @NonNull final String name,
+            @NonNull Context context,
             @NonNull AttributeSet attrs, boolean inheritContext,
             boolean readAndroidTheme, boolean readAppTheme, boolean wrapContext) {
         final Context originalContext = context;

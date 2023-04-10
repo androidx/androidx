@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("EXPERIMENTAL_API_USAGE", "EXPERIMENTAL_UNSIGNED_LITERALS")
 
 package androidx.compose.ui.graphics
 
@@ -112,8 +111,8 @@ import kotlin.math.min
  * [color spaces][ColorSpaces] for the exact ranges.
  */
 @Immutable
-@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
-inline class Color(val value: ULong) {
+@kotlin.jvm.JvmInline
+value class Color(val value: ULong) {
     /**
      * Returns this color's color space.
      *
@@ -133,19 +132,12 @@ inline class Color(val value: ULong) {
      * @return A non-null color instance in the specified color space
      */
     fun convert(colorSpace: ColorSpace): Color {
-        if (colorSpace == this.colorSpace) {
+        val thisColorSpace = this.colorSpace
+        if (colorSpace == thisColorSpace) {
             return this // nothing to convert
         }
-        val connector = this.colorSpace.connect(colorSpace)
-        val color = getComponents()
-        connector.transform(color)
-        return Color(
-            red = color[0],
-            green = color[1],
-            blue = color[2],
-            alpha = color[3],
-            colorSpace = colorSpace
-        )
+        val connector = thisColorSpace.connect(colorSpace)
+        return connector.transformToColor(red, green, blue, alpha)
     }
 
     /**
@@ -287,26 +279,37 @@ inline class Color(val value: ULong) {
     companion object {
         @Stable
         val Black = Color(0xFF000000)
+
         @Stable
         val DarkGray = Color(0xFF444444)
+
         @Stable
         val Gray = Color(0xFF888888)
+
         @Stable
         val LightGray = Color(0xFFCCCCCC)
+
         @Stable
         val White = Color(0xFFFFFFFF)
+
         @Stable
         val Red = Color(0xFFFF0000)
+
         @Stable
         val Green = Color(0xFF00FF00)
+
         @Stable
         val Blue = Color(0xFF0000FF)
+
         @Stable
         val Yellow = Color(0xFFFFFF00)
+
         @Stable
         val Cyan = Color(0xFF00FFFF)
+
         @Stable
         val Magenta = Color(0xFFFF00FF)
+
         @Stable
         val Transparent = Color(0x00000000)
 
@@ -330,7 +333,6 @@ inline class Color(val value: ULong) {
          * @param value The strength of the color, where 0 is black.
          * @param colorSpace The RGB color space used to calculate the Color from the HSV values.
          */
-        @ExperimentalGraphicsApi
         fun hsv(
             hue: Float,
             saturation: Float,
@@ -363,7 +365,6 @@ inline class Color(val value: ULong) {
          * white.
          * @param colorSpace The RGB color space used to calculate the Color from the HSL values.
          */
-        @ExperimentalGraphicsApi
         fun hsl(
             hue: Float,
             saturation: Float,
@@ -515,7 +516,8 @@ fun Color(
 /**
  * Linear interpolate between two [Colors][Color], [start] and [stop] with [fraction] fraction
  * between the two. The [ColorSpace] of the result is always the [ColorSpace][Color.colorSpace]
- * of [stop]. [fraction] should be between 0 and 1, inclusive.
+ * of [stop]. [fraction] should be between 0 and 1, inclusive. Interpolation is done
+ * in the [ColorSpaces.Oklab] color space.
  */
 @Stable
 fun lerp(start: Color, stop: Color, /*@FloatRange(from = 0.0, to = 1.0)*/ fraction: Float): Color {
@@ -612,7 +614,7 @@ fun Color.luminance(): Float {
             "The supplied color space is ${colorSpace.model}"
     }
 
-    val eotf = (colorSpace as Rgb).eotf
+    val eotf = (colorSpace as Rgb).eotfFunc
     val r = eotf(red.toDouble())
     val g = eotf(green.toDouble())
     val b = eotf(blue.toDouble())
@@ -632,7 +634,7 @@ private fun saturate(v: Float): Float {
  * @return An ARGB color in the sRGB color space
  */
 @Stable
-/*@ColorInt*/
+// @ColorInt
 fun Color.toArgb(): Int {
     val colorSpace = colorSpace
     if (colorSpace.isSrgb) {
@@ -662,7 +664,7 @@ inline val Color.isSpecified: Boolean get() = value != Color.Unspecified.value
 inline val Color.isUnspecified: Boolean get() = value == Color.Unspecified.value
 
 /**
- * If this [Color] [isSpecified] then this is returned, otherwise [block] is executed and its result
+ * If this color [isSpecified] then this is returned, otherwise [block] is executed and its result
  * is returned.
  */
 inline fun Color.takeOrElse(block: () -> Color): Color = if (isSpecified) this else block()

@@ -18,14 +18,19 @@ package androidx.camera.integration.uiwidgets.rotations
 
 import android.Manifest
 import android.content.ContentValues
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.text.TextUtils
 import android.util.Log
 import android.util.Size
+import androidx.annotation.OptIn
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -35,6 +40,7 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.integration.uiwidgets.databinding.ActivityRotationsMainBinding
+import androidx.camera.lifecycle.ExperimentalCameraProviderConfiguration
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -96,7 +102,37 @@ open class CameraActivity : AppCompatActivity() {
         }
     }
 
+    @OptIn(ExperimentalCameraProviderConfiguration::class)
     private fun setUpCamera() {
+        val newCameraImpl = intent.getStringExtra(KEY_CAMERA_IMPLEMENTATION)
+        Log.d(TAG, "Set up cameraImpl: $newCameraImpl")
+        if (!TextUtils.isEmpty(newCameraImpl) && newCameraImpl != cameraImpl) {
+            try {
+                Log.d(TAG, "ProcessCameraProvider initialize using $newCameraImpl")
+                ProcessCameraProvider.configureInstance(
+                    when (newCameraImpl) {
+                        CAMERA2_IMPLEMENTATION_OPTION -> Camera2Config.defaultConfig()
+                        CAMERA_PIPE_IMPLEMENTATION_OPTION -> CameraPipeConfig.defaultConfig()
+                        else -> Camera2Config.defaultConfig()
+                    }
+                )
+                cameraImpl = newCameraImpl
+            } catch (e: IllegalStateException) {
+                throw IllegalStateException(
+                    "WARNING: CameraX is currently configured to a different implementation " +
+                        "this would have resulted in unexpected behavior.", e
+                )
+            }
+        }
+
+        if (intent.getBooleanExtra(KEY_CAMERA_IMPLEMENTATION_NO_HISTORY, false)) {
+            intent = Intent(intent).apply {
+                removeExtra(KEY_CAMERA_IMPLEMENTATION)
+                removeExtra(KEY_CAMERA_IMPLEMENTATION_NO_HISTORY)
+            }
+            cameraImpl = null
+        }
+
         val cameraProcessFuture = ProcessCameraProvider.getInstance(this)
         cameraProcessFuture.addListener(
             Runnable {
@@ -305,6 +341,10 @@ open class CameraActivity : AppCompatActivity() {
     companion object {
         const val KEY_LENS_FACING = "lens-facing"
         const val KEY_IMAGE_CAPTURE_MODE = "image-capture-mode"
+        const val KEY_CAMERA_IMPLEMENTATION = "camera_implementation"
+        const val KEY_CAMERA_IMPLEMENTATION_NO_HISTORY = "camera_implementation_no_history"
+        const val CAMERA2_IMPLEMENTATION_OPTION = "camera2"
+        const val CAMERA_PIPE_IMPLEMENTATION_OPTION = "camera_pipe"
         const val IMAGE_CAPTURE_MODE_IN_MEMORY = 0
         const val IMAGE_CAPTURE_MODE_FILE = 1
         const val IMAGE_CAPTURE_MODE_OUTPUT_STREAM = 2
@@ -312,7 +352,12 @@ open class CameraActivity : AppCompatActivity() {
 
         private const val TAG = "MainActivity"
         private const val REQUEST_CODE_PERMISSIONS = 20
-        val PERMISSIONS =
+        val PERMISSIONS = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+            // in android 10 or later, we don't actually need WRITE_EXTERNAL_STORAGE to write to
+            // the external storage.
+            arrayOf(Manifest.permission.CAMERA)
+        else
             arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        private var cameraImpl: String? = null
     }
 }

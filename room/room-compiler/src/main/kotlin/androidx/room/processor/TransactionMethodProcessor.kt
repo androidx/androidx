@@ -16,14 +16,11 @@
 
 package androidx.room.processor
 
-import androidx.room.ext.GuavaUtilConcurrentTypeNames
-import androidx.room.ext.LifecyclesTypeNames
-import androidx.room.ext.RxJava2TypeNames
-import androidx.room.ext.RxJava3TypeNames
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
-import androidx.room.ext.KotlinTypeNames
+import androidx.room.ext.DEFERRED_TYPES
 import androidx.room.vo.TransactionMethod
 
 class TransactionMethodProcessor(
@@ -48,9 +45,8 @@ class TransactionMethodProcessor(
         val rawReturnType = returnType.rawType
 
         DEFERRED_TYPES.firstOrNull { className ->
-            context.processingEnv.findType(className)?.let {
-                rawReturnType.isAssignableFrom(it)
-            } ?: false
+            context.processingEnv.findType(className.canonicalName)
+                ?.rawType?.isAssignableFrom(rawReturnType) ?: false
         }?.let { returnTypeName ->
             context.logger.e(
                 ProcessorErrors.transactionMethodAsync(returnTypeName.toString()),
@@ -73,30 +69,24 @@ class TransactionMethodProcessor(
                 TransactionMethod.CallType.CONCRETE
         }
 
+        val isVarArgs = executableElement.isVarArgs()
+        val parameters = delegate.extractParams()
+        val processedParamNames = parameters.mapIndexed { index, param ->
+            // Apply spread operator when delegating to a vararg parameter in Kotlin.
+            if (context.codeLanguage == CodeLanguage.KOTLIN &&
+                isVarArgs && index == parameters.size - 1) {
+                "*${param.name}"
+            } else {
+                param.name
+            }
+        }
+
         return TransactionMethod(
             element = executableElement,
             returnType = returnType,
-            parameterNames = delegate.extractParams().map { it.name },
+            parameterNames = processedParamNames,
             callType = callType,
             methodBinder = delegate.findTransactionMethodBinder(callType)
-        )
-    }
-
-    companion object {
-        val DEFERRED_TYPES = listOf(
-            LifecyclesTypeNames.LIVE_DATA,
-            RxJava2TypeNames.FLOWABLE,
-            RxJava2TypeNames.OBSERVABLE,
-            RxJava2TypeNames.MAYBE,
-            RxJava2TypeNames.SINGLE,
-            RxJava2TypeNames.COMPLETABLE,
-            RxJava3TypeNames.FLOWABLE,
-            RxJava3TypeNames.OBSERVABLE,
-            RxJava3TypeNames.MAYBE,
-            RxJava3TypeNames.SINGLE,
-            RxJava3TypeNames.COMPLETABLE,
-            GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE,
-            KotlinTypeNames.FLOW
         )
     }
 }

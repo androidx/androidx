@@ -28,11 +28,12 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.work.Configuration;
-import androidx.work.InputMergerFactory;
+import androidx.work.NoOpInputMergerFactory;
 import androidx.work.WorkManager;
 import androidx.work.WorkerFactory;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.utils.SerialExecutor;
+import androidx.work.impl.utils.SerialExecutorImpl;
+import androidx.work.impl.utils.taskexecutor.SerialExecutor;
 
 import org.junit.After;
 import org.junit.Before;
@@ -71,7 +72,8 @@ public class WorkManagerInitHelperTest {
         WorkManagerTestInitHelper.initializeTestWorkManager(mContext, configuration);
         WorkManagerImpl workManager = (WorkManagerImpl) WorkManager.getInstance(mContext);
         assertThat(workManager, is(notNullValue()));
-        SerialExecutor serialExecutor = workManager.getWorkTaskExecutor().getBackgroundExecutor();
+        SerialExecutorImpl serialExecutor =
+                (SerialExecutorImpl) workManager.getWorkTaskExecutor().getSerialTaskExecutor();
         assertThat(serialExecutor.getDelegatedExecutor(), is(mExecutor));
     }
 
@@ -84,15 +86,15 @@ public class WorkManagerInitHelperTest {
         WorkManagerTestInitHelper.initializeTestWorkManager(mContext, configuration);
         WorkManagerImpl workManager = (WorkManagerImpl) WorkManager.getInstance(mContext);
         assertThat(workManager, is(notNullValue()));
-        SerialExecutor serialExecutor = workManager.getWorkTaskExecutor().getBackgroundExecutor();
-        assertThat(serialExecutor.getDelegatedExecutor(), instanceOf(SynchronousExecutor.class));
+        SerialExecutor serialExecutor = workManager.getWorkTaskExecutor().getSerialTaskExecutor();
+        assertThat(serialExecutor, instanceOf(SynchronousSerialExecutor.class));
     }
 
     @Test
     public void testWorkManagerInitialized_withFullConfiguration() {
         Configuration configuration = new Configuration.Builder()
                 .setExecutor(mExecutor)
-                .setInputMergerFactory(InputMergerFactory.getDefaultInputMergerFactory())
+                .setInputMergerFactory(NoOpInputMergerFactory.INSTANCE)
                 .setWorkerFactory(WorkerFactory.getDefaultWorkerFactory())
                 .setJobSchedulerJobIdRange(1000, 2000)
                 .setMaxSchedulerLimit(50)
@@ -102,8 +104,8 @@ public class WorkManagerInitHelperTest {
         WorkManagerTestInitHelper.initializeTestWorkManager(mContext, configuration);
         WorkManagerImpl workManager = (WorkManagerImpl) WorkManager.getInstance(mContext);
         assertThat(workManager, is(notNullValue()));
-        SerialExecutor serialExecutor = workManager.getWorkTaskExecutor().getBackgroundExecutor();
-        assertThat(serialExecutor.getDelegatedExecutor(), instanceOf(SynchronousExecutor.class));
+        SerialExecutor serialExecutor = workManager.getWorkTaskExecutor().getSerialTaskExecutor();
+        assertThat(serialExecutor, instanceOf(SynchronousSerialExecutor.class));
         Configuration used = workManager.getConfiguration();
 
         assertThat(configuration.getInputMergerFactory(), is(used.getInputMergerFactory()));

@@ -28,6 +28,7 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
         }
     }
+    namespace "androidx.emoji2.integration.macrobenchmark.enabled.target"
 }
 
 dependencies {
@@ -35,5 +36,6 @@ dependencies {
     implementation(libs.constraintLayout, { transitive = true })
     implementation(project(":arch:core:core-runtime"))
     implementation(project(":appcompat:appcompat"))
+    implementation(project(":profileinstaller:profileinstaller"))
     implementation(libs.material)
 }

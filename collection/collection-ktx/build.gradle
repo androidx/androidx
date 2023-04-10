@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -24,16 +23,11 @@ plugins {
 
 dependencies {
     api(project(":collection:collection"))
-    api(libs.kotlinStdlib)
-    testImplementation(libs.junit)
-    testImplementation(libs.truth)
-    testImplementation(project(":internal-testutils-truth"))
 }
 
 androidx {
     name = "Collections Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.COLLECTION
     inceptionYear = "2018"
     description = "Kotlin extensions for 'collection' artifact"
 }

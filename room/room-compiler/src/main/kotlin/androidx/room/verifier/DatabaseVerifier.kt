@@ -24,12 +24,14 @@ import androidx.room.vo.EntityOrView
 import androidx.room.vo.FtsEntity
 import androidx.room.vo.FtsOptions
 import androidx.room.vo.Warning
-import org.sqlite.JDBC
-import org.sqlite.SQLiteJDBCLoader
 import java.io.File
 import java.sql.Connection
+import java.sql.Driver
+import java.sql.DriverManager
 import java.sql.SQLException
 import java.util.regex.Pattern
+import org.sqlite.JDBC
+import org.sqlite.SQLiteJDBCLoader
 
 /**
  * Builds an in-memory version of the database and verifies the queries against it.
@@ -59,6 +61,13 @@ class DatabaseVerifier private constructor(
             "\\s+COLLATE\\s+(LOCALIZED|UNICODE)", Pattern.CASE_INSENSITIVE
         )
 
+        /**
+         * Keep a reference to the SQLite JDBC driver so we can re-register it in the case that Room
+         * finishes processing, cleans up and unregisters the driver but is started again within the
+         * same class loader such that JDBC's static block and driver registration does not occur.
+         */
+        private val DRIVER: Driver
+
         init {
             verifyTempDir()
             // Synchronize on a bootstrap loaded class so that parallel runs of Room in the same JVM
@@ -69,6 +78,10 @@ class DatabaseVerifier private constructor(
             synchronized(System::class.java) {
                 SQLiteJDBCLoader.initialize() // extract and loads native library
                 JDBC.isValidURL(CONNECTION_URL) // call to register driver
+                DRIVER = DriverManager.getDriver("jdbc:sqlite:") // get registered driver
+                check(DRIVER is JDBC) {
+                    "Expected driver to be a '${JDBC::class.java}' but was '${DRIVER::class.java}'"
+                }
             }
         }
 
@@ -103,6 +116,8 @@ class DatabaseVerifier private constructor(
             views: List<DatabaseView>
         ): DatabaseVerifier? {
             try {
+                // Re-register driver in case it was unregistered, this is a no-op is already there.
+                DriverManager.registerDriver(DRIVER)
                 val connection = JDBC.createConnection(CONNECTION_URL, java.util.Properties())
                 return DatabaseVerifier(connection, context, entities, views)
             } catch (ex: Exception) {
@@ -111,6 +126,20 @@ class DatabaseVerifier private constructor(
                     DatabaseVerificationErrors.cannotCreateConnection(ex)
                 )
                 return null
+            }
+        }
+
+        /**
+         * Unregisters the SQLite JDBC driver used by the verifier.
+         *
+         * This is necessary since the driver is statically registered and never unregistered and
+         * can cause class loader leaks. See https://github.com/google/ksp/issues/1063.
+         */
+        fun cleanup() {
+            try {
+                DriverManager.deregisterDriver(DRIVER)
+            } catch (ignored: SQLException) {
+                // Driver was not found
             }
         }
     }

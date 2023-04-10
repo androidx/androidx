@@ -17,6 +17,7 @@
 package androidx.benchmark.integration.macrobenchmark
 
 import android.content.Intent
+import android.os.Build
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
@@ -27,6 +28,7 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import androidx.testutils.getStartupMetrics
+import org.junit.Assume.assumeFalse
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,13 +47,19 @@ class TrivialStartupFullyDrawnBenchmark {
     val benchmarkRule = MacrobenchmarkRule()
 
     private fun startup(startupMode: StartupMode) = benchmarkRule.measureRepeated(
-        compilationMode = CompilationMode.None,
+        compilationMode = if (Build.VERSION.SDK_INT >= 24) {
+            CompilationMode.None()
+        } else {
+            CompilationMode.Full()
+        },
         packageName = TARGET_PACKAGE_NAME,
         metrics = getStartupMetrics(),
         startupMode = startupMode,
-        iterations = 1
+        iterations = 1,
+        setupBlock = {
+            pressHome()
+        }
     ) {
-        pressHome()
         startActivityAndWait(Intent().apply {
             setPackage(TARGET_PACKAGE_NAME)
             action = "androidx.benchmark.integration.macrobenchmark.target" +
@@ -64,7 +72,12 @@ class TrivialStartupFullyDrawnBenchmark {
     }
 
     @Test
-    fun hot() = startup(StartupMode.HOT)
+    fun hot() {
+        // b/204572406 - HOT doesn't work on Angler API 23 in CI, but failure doesn't repro locally
+        assumeFalse(Build.VERSION.SDK_INT == 23 && Build.DEVICE == "angler")
+
+        startup(StartupMode.HOT)
+    }
 
     @Test
     fun warm() = startup(StartupMode.WARM)

@@ -16,11 +16,14 @@
 
 package androidx.core.location;
 
+import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import java.util.List;
 
 /**
  * A version of {@link LocationListener} suitable for use on all API levels.
@@ -35,4 +38,15 @@ public interface LocationListenerCompat extends LocationListener {
 
     @Override
     default void onProviderDisabled(@NonNull String provider) {}
+
+    @Override
+    default void onLocationChanged(@NonNull List<Location> locations) {
+        final int size = locations.size();
+        for (int i = 0; i < size; i++) {
+            onLocationChanged(locations.get(i));
+        }
+    }
+
+    @Override
+    default void onFlushComplete(int requestCode) {}
 }

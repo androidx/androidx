@@ -16,22 +16,25 @@
 
 package androidx.compose.runtime.benchmark
 
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import androidx.benchmark.junit4.measureRepeated
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
-import androidx.test.filters.LargeTest
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.random.Random
+import org.junit.After
+import org.junit.Assume.assumeTrue
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -44,7 +47,7 @@ class SnapshotStateObserverBenchmark : ComposeBenchmarkBase() {
     private val doNothing: (Any) -> Unit = { _ -> }
 
     private lateinit var stateObserver: SnapshotStateObserver
-    private val models: List<MutableState<Any>> = List(StateCount) { mutableStateOf(0) }
+    private val models: List<MutableState<Int>> = List(StateCount) { mutableStateOf(0) }
     private val nodes: List<Any> = List(ScopeCount) { it }
     private lateinit var random: Random
 
@@ -75,6 +78,7 @@ class SnapshotStateObserverBenchmark : ComposeBenchmarkBase() {
 
     @Test
     fun modelObservation() {
+        assumeTrue(Build.VERSION.SDK_INT != 29)
         runOnUiThread {
             benchmarkRule.measureRepeated {
                 runWithTimingDisabled {
@@ -90,6 +94,7 @@ class SnapshotStateObserverBenchmark : ComposeBenchmarkBase() {
 
     @Test
     fun nestedModelObservation() {
+        assumeTrue(Build.VERSION.SDK_INT != 29)
         runOnUiThread {
             val list = mutableListOf<Any>()
             repeat(10) {
@@ -112,7 +117,72 @@ class SnapshotStateObserverBenchmark : ComposeBenchmarkBase() {
     }
 
     @Test
+    fun derivedStateObservation() {
+        runOnUiThread {
+            val node = Any()
+            val states = models.take(3)
+            val derivedState = derivedStateOf {
+                states[0].value + states[1].value + states[2].value
+            }
+
+            stateObserver.observeReads(node, doNothing) {
+                // read derived state a few times
+                repeat(10) {
+                    derivedState.value
+                }
+            }
+
+            benchmarkRule.measureRepeated {
+                stateObserver.observeReads(node, doNothing) {
+                    // read derived state a few times
+                    repeat(10) {
+                        derivedState.value
+                    }
+                }
+
+                runWithTimingDisabled {
+                    states.forEach {
+                        it.value += 1
+                    }
+                    Snapshot.sendApplyNotifications()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun deeplyNestedModelObservations() {
+        assumeTrue(Build.VERSION.SDK_INT != 29)
+        runOnUiThread {
+            val list = mutableListOf<Any>()
+            repeat(100) {
+                list += nodes[random.nextInt(ScopeCount)]
+            }
+
+            fun observeRecursive(index: Int) {
+                if (index == 100) return
+                val node = list[index]
+                stateObserver.observeReads(node, doNothing) {
+                    observeForNode(node)
+                    observeRecursive(index + 1)
+                }
+            }
+
+            benchmarkRule.measureRepeated {
+                runWithTimingDisabled {
+                    random = Random(0)
+                    nodes.forEach { node ->
+                        stateObserver.clear(node)
+                    }
+                }
+                observeRecursive(0)
+            }
+        }
+    }
+
+    @Test
     fun modelClear() {
+        assumeTrue(Build.VERSION.SDK_INT != 29)
         runOnUiThread {
             val nodeSet = hashSetOf<Any>()
             nodeSet.addAll(nodes)
@@ -130,7 +200,25 @@ class SnapshotStateObserverBenchmark : ComposeBenchmarkBase() {
     }
 
     @Test
+    fun modelIncrementalClear() {
+        assumeTrue(Build.VERSION.SDK_INT != 29)
+        runOnUiThread {
+            benchmarkRule.measureRepeated {
+                for (i in 0 until nodes.size) {
+                    stateObserver.clearIf { node ->
+                        (node as Int) < i
+                    }
+                }
+                runWithTimingDisabled {
+                    setupObservations()
+                }
+            }
+        }
+    }
+
+    @Test
     fun notifyChanges() {
+        assumeTrue(Build.VERSION.SDK_INT != 29)
         runOnUiThread {
             val states = mutableSetOf<Int>()
             repeat(50) {

@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+BannedThrow: androidx.wear.watchface.editor.EditorRequest#createFromIntent(android.content.Intent):
+    Methods must not throw unchecked exceptions
+BannedThrow: androidx.wear.watchface.editor.EditorRequest.Companion#createFromIntent(android.content.Intent):
+    Methods must not throw unchecked exceptions
+BannedThrow: androidx.wear.watchface.editor.EditorSession#createOnWatchEditorSession(androidx.activity.ComponentActivity, kotlin.coroutines.Continuation<? super androidx.wear.watchface.editor.EditorSession>):
+    Methods must not throw unchecked exceptions
+BannedThrow: androidx.wear.watchface.editor.EditorSession.Companion#createOnWatchEditorSession(androidx.activity.ComponentActivity, kotlin.coroutines.Continuation<? super androidx.wear.watchface.editor.EditorSession>):
+    Methods must not throw unchecked exceptions

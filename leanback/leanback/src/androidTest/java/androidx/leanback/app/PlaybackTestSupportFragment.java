@@ -17,6 +17,7 @@ package androidx.leanback.app;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -98,7 +99,9 @@ public class PlaybackTestSupportFragment extends PlaybackSupportFragment {
             @Override
             public void onActionClicked(Action action) {
                 if (action.getId() == R.id.lb_control_picture_in_picture) {
-                    getActivity().enterPictureInPictureMode();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        getActivity().enterPictureInPictureMode();
+                    }
                     return;
                 }
                 super.onActionClicked(action);

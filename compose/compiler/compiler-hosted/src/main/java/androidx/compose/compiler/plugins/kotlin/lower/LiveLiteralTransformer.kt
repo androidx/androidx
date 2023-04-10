@@ -16,17 +16,14 @@
 
 package androidx.compose.compiler.plugins.kotlin.lower
 
-import androidx.compose.compiler.plugins.kotlin.ComposeFqNames
+import androidx.compose.compiler.plugins.kotlin.ComposeCallableIds
+import androidx.compose.compiler.plugins.kotlin.ComposeClassIds
 import androidx.compose.compiler.plugins.kotlin.ModuleMetrics
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
-import org.jetbrains.kotlin.backend.common.ir.addChild
-import org.jetbrains.kotlin.backend.common.ir.copyTo
-import org.jetbrains.kotlin.backend.common.ir.createParameterDeclarations
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
 import org.jetbrains.kotlin.ir.builders.declarations.IrFunctionBuilder
 import org.jetbrains.kotlin.ir.builders.declarations.addConstructor
@@ -89,6 +86,7 @@ import org.jetbrains.kotlin.ir.expressions.impl.IrExpressionBodyImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrGetObjectValueImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrStringConcatenationImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrVarargImpl
+import org.jetbrains.kotlin.ir.expressions.impl.copyWithOffsets
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.symbols.impl.IrSimpleFunctionSymbolImpl
 import org.jetbrains.kotlin.ir.types.IrType
@@ -97,7 +95,10 @@ import org.jetbrains.kotlin.ir.types.makeNullable
 import org.jetbrains.kotlin.ir.types.typeWith
 import org.jetbrains.kotlin.ir.util.DeepCopySymbolRemapper
 import org.jetbrains.kotlin.ir.util.SYNTHETIC_OFFSET
+import org.jetbrains.kotlin.ir.util.addChild
 import org.jetbrains.kotlin.ir.util.constructors
+import org.jetbrains.kotlin.ir.util.copyTo
+import org.jetbrains.kotlin.ir.util.createParameterDeclarations
 import org.jetbrains.kotlin.ir.util.defaultType
 import org.jetbrains.kotlin.ir.util.getPropertyGetter
 import org.jetbrains.kotlin.ir.util.isAnnotationClass
@@ -106,7 +107,6 @@ import org.jetbrains.kotlin.ir.util.primaryConstructor
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 import org.jetbrains.kotlin.load.kotlin.PackagePartClassUtils
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.resolve.BindingTrace
 
 /**
  * This transformer transforms constant literal expressions into expressions which read a
@@ -161,10 +161,9 @@ open class LiveLiteralTransformer(
     private val keyVisitor: DurableKeyVisitor,
     context: IrPluginContext,
     symbolRemapper: DeepCopySymbolRemapper,
-    bindingTrace: BindingTrace,
     metrics: ModuleMetrics,
 ) :
-    AbstractComposeLowering(context, symbolRemapper, bindingTrace, metrics),
+    AbstractComposeLowering(context, symbolRemapper, metrics),
     ModuleLoweringPass {
 
     override fun lower(module: IrModuleFragment) {
@@ -172,19 +171,17 @@ open class LiveLiteralTransformer(
     }
 
     private val liveLiteral =
-        getInternalFunction("liveLiteral")
-    private val derivedStateOf =
-        getTopLevelFunction(ComposeFqNames.fqNameFor("derivedStateOf"))
+        getTopLevelFunction(ComposeCallableIds.liveLiteral)
     private val isLiveLiteralsEnabled =
-        getInternalProperty("isLiveLiteralsEnabled")
+        getTopLevelPropertyGetter(ComposeCallableIds.isLiveLiteralsEnabled)
     private val liveLiteralInfoAnnotation =
-        getInternalClass("LiveLiteralInfo")
+        getTopLevelClass(ComposeClassIds.LiveLiteralInfo)
     private val liveLiteralFileInfoAnnotation =
-        getInternalClass("LiveLiteralFileInfo")
+        getTopLevelClass(ComposeClassIds.LiveLiteralFileInfo)
     private val stateInterface =
-        getTopLevelClass(ComposeFqNames.fqNameFor("State"))
+        getTopLevelClass(ComposeClassIds.State)
     private val NoLiveLiteralsAnnotation =
-        getTopLevelClass(ComposeFqNames.fqNameFor("NoLiveLiterals"))
+        getTopLevelClass(ComposeClassIds.NoLiveLiterals)
 
     private fun IrAnnotationContainer.hasNoLiveLiteralsAnnotation(): Boolean = annotations.any {
         it.symbol.owner == NoLiveLiteralsAnnotation.owner.primaryConstructor
@@ -241,7 +238,6 @@ open class LiveLiteralTransformer(
         putValueArgument(0, irConst(file))
     }
 
-    @OptIn(ObsoleteDescriptorBasedAPI::class)
     private fun irLiveLiteralGetter(
         key: String,
         literalValue: IrExpression,
@@ -274,6 +270,7 @@ open class LiveLiteralTransformer(
                 visibility = DescriptorVisibilities.PRIVATE
                 origin = IrDeclarationOrigin.DEFAULT_PROPERTY_ACCESSOR
             }.also { fn ->
+                fn.correspondingPropertySymbol = p.symbol
                 val thisParam = clazz.thisReceiver!!.copyTo(fn)
                 fn.dispatchReceiverParameter = thisParam
                 fn.body = DeclarationIrBuilder(context, fn.symbol).irBlockBody {
@@ -300,6 +297,7 @@ open class LiveLiteralTransformer(
                 visibility = DescriptorVisibilities.PRIVATE
                 origin = IrDeclarationOrigin.DEFAULT_PROPERTY_ACCESSOR
             }.also { fn ->
+                fn.correspondingPropertySymbol = p.symbol
                 val thisParam = clazz.thisReceiver!!.copyTo(fn)
                 fn.dispatchReceiverParameter = thisParam
                 fn.body = DeclarationIrBuilder(context, fn.symbol).irBlockBody {
@@ -311,6 +309,7 @@ open class LiveLiteralTransformer(
                 visibility = DescriptorVisibilities.PRIVATE
                 origin = IrDeclarationOrigin.DEFAULT_PROPERTY_ACCESSOR
             }.also { fn ->
+                fn.correspondingPropertySymbol = p.symbol
                 val thisParam = clazz.thisReceiver!!.copyTo(fn)
                 fn.dispatchReceiverParameter = thisParam
                 val valueParam = fn.addValueParameter("value", stateType)
@@ -395,8 +394,7 @@ open class LiveLiteralTransformer(
         }
     }
 
-    @OptIn(ObsoleteDescriptorBasedAPI::class)
-    override fun <T> visitConst(expression: IrConst<T>): IrExpression {
+    override fun visitConst(expression: IrConst<*>): IrExpression {
         when (expression.kind) {
             IrConstKind.Null -> return expression
             else -> {
@@ -472,90 +470,92 @@ open class LiveLiteralTransformer(
     }
 
     override fun visitFile(declaration: IrFile): IrFile {
-        if (declaration.hasNoLiveLiteralsAnnotation()) return declaration
-        val filePath = declaration.fileEntry.name
-        val fileName = filePath.split('/').last()
-        val keys = makeKeySet()
-        return keyVisitor.root(keys) {
-            val prevEnabledSymbol = liveLiteralsEnabledSymbol
-            var nextEnabledSymbol: IrSimpleFunctionSymbol? = null
-            val prevClass = liveLiteralsClass
-            val nextClass = context.irFactory.buildClass {
-                kind = ClassKind.OBJECT
-                visibility = DescriptorVisibilities.INTERNAL
-                val shortName = PackagePartClassUtils.getFilePartShortName(fileName)
-                // the name of the LiveLiterals class is per-file, so we use the same name that
-                // the kotlin file class lowering produces, prefixed with `LiveLiterals$`.
-                name = Name.identifier("LiveLiterals${"$"}$shortName")
-            }.also {
-                it.createParameterDeclarations()
+        includeFileNameInExceptionTrace(declaration) {
+            if (declaration.hasNoLiveLiteralsAnnotation()) return declaration
+            val filePath = declaration.fileEntry.name
+            val fileName = filePath.split('/').last()
+            val keys = makeKeySet()
+            return keyVisitor.root(keys) {
+                val prevEnabledSymbol = liveLiteralsEnabledSymbol
+                var nextEnabledSymbol: IrSimpleFunctionSymbol? = null
+                val prevClass = liveLiteralsClass
+                val nextClass = context.irFactory.buildClass {
+                    kind = ClassKind.OBJECT
+                    visibility = DescriptorVisibilities.INTERNAL
+                    val shortName = PackagePartClassUtils.getFilePartShortName(fileName)
+                    // the name of the LiveLiterals class is per-file, so we use the same name that
+                    // the kotlin file class lowering produces, prefixed with `LiveLiterals$`.
+                    name = Name.identifier("LiveLiterals${"$"}$shortName")
+                }.also {
+                    it.createParameterDeclarations()
 
-                // store the full file path to the file that this class is associated with in an
-                // annotation on the class. This will be used by tooling to associate the keys
-                // inside of this class with actual PSI in the editor.
-                it.annotations += irLiveLiteralFileInfoAnnotation(declaration.fileEntry.name)
-                it.addConstructor {
-                    isPrimary = true
-                }.also { ctor ->
-                    ctor.body = DeclarationIrBuilder(context, it.symbol).irBlockBody {
-                        +irDelegatingConstructorCall(
-                            context
-                                .irBuiltIns
-                                .anyClass
-                                .owner
-                                .primaryConstructor!!
-                        )
-                    }
-                }
-
-                if (usePerFileEnabledFlag) {
-                    val enabledProp = it.addProperty {
-                        name = Name.identifier("enabled")
-                        visibility = DescriptorVisibilities.PRIVATE
-                    }.also { p ->
-                        p.backingField = context.irFactory.buildField {
-                            name = Name.identifier("enabled")
-                            isStatic = true
-                            type = builtIns.booleanType
-                            visibility = DescriptorVisibilities.PRIVATE
-                        }.also { f ->
-                            f.correspondingPropertySymbol = p.symbol
-                            f.parent = it
-                            f.initializer = IrExpressionBodyImpl(
-                                SYNTHETIC_OFFSET,
-                                SYNTHETIC_OFFSET,
-                                irConst(false)
+                    // store the full file path to the file that this class is associated with in an
+                    // annotation on the class. This will be used by tooling to associate the keys
+                    // inside of this class with actual PSI in the editor.
+                    it.annotations += irLiveLiteralFileInfoAnnotation(declaration.fileEntry.name)
+                    it.addConstructor {
+                        isPrimary = true
+                    }.also { ctor ->
+                        ctor.body = DeclarationIrBuilder(context, it.symbol).irBlockBody {
+                            +irDelegatingConstructorCall(
+                                context
+                                    .irBuiltIns
+                                    .anyClass
+                                    .owner
+                                    .primaryConstructor!!
                             )
                         }
-                        p.addGetter {
-                            returnType = builtIns.booleanType
+                    }
+
+                    if (usePerFileEnabledFlag) {
+                        val enabledProp = it.addProperty {
+                            name = Name.identifier("enabled")
                             visibility = DescriptorVisibilities.PRIVATE
-                            origin = IrDeclarationOrigin.DEFAULT_PROPERTY_ACCESSOR
-                        }.also { fn ->
-                            val thisParam = it.thisReceiver!!.copyTo(fn)
-                            fn.dispatchReceiverParameter = thisParam
-                            fn.body = DeclarationIrBuilder(context, fn.symbol).irBlockBody {
-                                +irReturn(irGetField(irGet(thisParam), p.backingField!!))
+                        }.also { p ->
+                            p.backingField = context.irFactory.buildField {
+                                name = Name.identifier("enabled")
+                                isStatic = true
+                                type = builtIns.booleanType
+                                visibility = DescriptorVisibilities.PRIVATE
+                            }.also { f ->
+                                f.correspondingPropertySymbol = p.symbol
+                                f.parent = it
+                                f.initializer = IrExpressionBodyImpl(
+                                    SYNTHETIC_OFFSET,
+                                    SYNTHETIC_OFFSET,
+                                    irConst(false)
+                                )
+                            }
+                            p.addGetter {
+                                returnType = builtIns.booleanType
+                                visibility = DescriptorVisibilities.PRIVATE
+                                origin = IrDeclarationOrigin.DEFAULT_PROPERTY_ACCESSOR
+                            }.also { fn ->
+                                val thisParam = it.thisReceiver!!.copyTo(fn)
+                                fn.dispatchReceiverParameter = thisParam
+                                fn.body = DeclarationIrBuilder(context, fn.symbol).irBlockBody {
+                                    +irReturn(irGetField(irGet(thisParam), p.backingField!!))
+                                }
                             }
                         }
+                        nextEnabledSymbol = enabledProp.getter?.symbol
                     }
-                    nextEnabledSymbol = enabledProp.getter?.symbol
                 }
-            }
-            try {
-                liveLiteralsClass = nextClass
-                currentFile = declaration
-                liveLiteralsEnabledSymbol = nextEnabledSymbol
-                val file = super.visitFile(declaration)
-                // if there were no constants found in the entire file, then we don't need to
-                // create this class at all
-                if (liveLiteralsEnabled && keys.isNotEmpty()) {
-                    file.addChild(nextClass)
+                try {
+                    liveLiteralsClass = nextClass
+                    currentFile = declaration
+                    liveLiteralsEnabledSymbol = nextEnabledSymbol
+                    val file = super.visitFile(declaration)
+                    // if there were no constants found in the entire file, then we don't need to
+                    // create this class at all
+                    if (liveLiteralsEnabled && keys.isNotEmpty()) {
+                        file.addChild(nextClass)
+                    }
+                    file
+                } finally {
+                    liveLiteralsClass = prevClass
+                    liveLiteralsEnabledSymbol = prevEnabledSymbol
                 }
-                file
-            } finally {
-                liveLiteralsClass = prevClass
-                liveLiteralsEnabledSymbol = prevEnabledSymbol
             }
         }
     }

@@ -21,6 +21,8 @@ import android.view.accessibility.AccessibilityEvent;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.leanback.R;
 
 /**
@@ -53,8 +55,9 @@ public class ControlButtonPresenterSelector extends PresenterSelector {
     /**
      * Always returns the presenter for primary controls.
      */
+    @Nullable
     @Override
-    public Presenter getPresenter(Object item) {
+    public Presenter getPresenter(@Nullable Object item) {
         return mPrimaryPresenter;
     }
 
@@ -83,6 +86,7 @@ public class ControlButtonPresenterSelector extends PresenterSelector {
             mLayoutResourceId = layoutResourceId;
         }
 
+        @NonNull
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent) {
             View v = LayoutInflater.from(parent.getContext())
@@ -91,7 +95,10 @@ public class ControlButtonPresenterSelector extends PresenterSelector {
         }
 
         @Override
-        public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
+        public void onBindViewHolder(
+                @NonNull Presenter.ViewHolder viewHolder,
+                @Nullable Object item
+        ) {
             Action action = (Action) item;
             ActionViewHolder vh = (ActionViewHolder) viewHolder;
             vh.mIcon.setImageDrawable(action.getIcon());
@@ -112,7 +119,7 @@ public class ControlButtonPresenterSelector extends PresenterSelector {
         }
 
         @Override
-        public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
+        public void onUnbindViewHolder(@NonNull Presenter.ViewHolder viewHolder) {
             ActionViewHolder vh = (ActionViewHolder) viewHolder;
             vh.mIcon.setImageDrawable(null);
             if (vh.mLabel != null) {

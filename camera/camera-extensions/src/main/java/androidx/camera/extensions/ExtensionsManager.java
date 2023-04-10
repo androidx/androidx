@@ -57,8 +57,8 @@ import java.util.concurrent.ExecutionException;
  * Extensions</code> are {@link ExtensionMode#BOKEH}, {@link ExtensionMode#HDR},
  * {@link ExtensionMode#NIGHT}, {@link ExtensionMode#FACE_RETOUCH} and {@link ExtensionMode#AUTO}
  * . The known supported devices are listed in the
- * <a href="https://developer.android.com/training/camerax/devices">CameraX devices</a>
- * page.  Please see the ones that the <code>Extensions support</code> column is checked.
+ * <a href="https://developer.android.com/training/camera/supported-devices">Supported devices</a>
+ * page.
  *
  * <p><code>CameraX Extensions</code> are built on the top of <code>CameraX Core</code> libraries
  * . To enable an extension mode, an {@link ExtensionsManager} instance needs to be retrieved

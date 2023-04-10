@@ -635,6 +635,7 @@ public class AppCompatEditTextReceiveContentTest {
                     && extrasMatch(actual.getExtras());
         }
 
+        @SuppressWarnings("deprecation")
         private boolean extrasMatch(Bundle actualExtras) {
             if (mSource == SOURCE_INPUT_METHOD && Build.VERSION.SDK_INT >= 25
                     && Build.VERSION.SDK_INT <= 30) {

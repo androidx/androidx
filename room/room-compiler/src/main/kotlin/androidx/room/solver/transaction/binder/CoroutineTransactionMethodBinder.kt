@@ -16,60 +16,116 @@
 
 package androidx.room.solver.transaction.binder
 
-import androidx.room.ext.Function1TypeSpecBuilder
-import androidx.room.ext.KotlinTypeNames.CONTINUATION
-import androidx.room.ext.L
-import androidx.room.ext.N
-import androidx.room.ext.RoomTypeNames.ROOM_DB_KT
-import androidx.room.ext.T
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
+import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.Function1TypeSpec
+import androidx.room.ext.KotlinTypeNames
+import androidx.room.ext.RoomMemberNames
+import androidx.room.ext.isNotKotlinUnit
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.transaction.result.TransactionMethodAdapter
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.WildcardTypeName
 
 /**
  * Binder that knows how to write suspending transaction wrapper methods.
  */
 class CoroutineTransactionMethodBinder(
     adapter: TransactionMethodAdapter,
-    private val continuationParamName: String
+    private val continuationParamName: String,
+    private val javaLambdaSyntaxAvailable: Boolean
 ) : TransactionMethodBinder(adapter) {
     override fun executeAndReturn(
         returnType: XType,
         parameterNames: List<String>,
-        daoName: ClassName,
-        daoImplName: ClassName,
-        dbField: FieldSpec,
+        daoName: XClassName,
+        daoImplName: XClassName,
+        dbProperty: XPropertySpec,
+        scope: CodeGenScope
+    ) {
+        when (scope.language) {
+            CodeLanguage.JAVA -> executeAndReturnJava(
+                returnType, parameterNames, daoName, daoImplName, dbProperty, scope
+            )
+            CodeLanguage.KOTLIN -> executeAndReturnKotlin(
+                returnType, parameterNames, daoName, daoImplName, dbProperty, scope
+            )
+        }
+    }
+
+    private fun executeAndReturnJava(
+        returnType: XType,
+        parameterNames: List<String>,
+        daoName: XClassName,
+        daoImplName: XClassName,
+        dbProperty: XPropertySpec,
         scope: CodeGenScope
     ) {
         val innerContinuationParamName = "__cont"
-        val functionImpl = Function1TypeSpecBuilder(
-            parameterTypeName = ParameterizedTypeName.get(
-                CONTINUATION, WildcardTypeName.supertypeOf(returnType.typeName)
-            ),
-            parameterName = innerContinuationParamName,
-            returnTypeName = ClassName.OBJECT
-        ) {
+        val adapterScope = scope.fork()
+        adapter.createDelegateToSuperCode(
+            parameterNames = parameterNames + innerContinuationParamName,
+            daoName = daoName,
+            daoImplName = daoImplName,
+            returnStmt = !javaLambdaSyntaxAvailable,
+            scope = adapterScope
+        )
+        val functionImpl: Any = if (javaLambdaSyntaxAvailable) {
+            XCodeBlock.of(
+                scope.language,
+                "(%L) -> %L",
+                innerContinuationParamName, adapterScope.generate()
+            )
+        } else {
+            Function1TypeSpec(
+                language = scope.language,
+                parameterTypeName = KotlinTypeNames.CONTINUATION.parametrizedBy(
+                    XTypeName.getConsumerSuperName(returnType.asTypeName())
+                ),
+                parameterName = innerContinuationParamName,
+                returnTypeName = KotlinTypeNames.ANY
+            ) {
+                addStatement("%L", adapterScope.generate())
+            }
+        }
+
+        scope.builder.addStatement(
+            "return %M(%N, %L, %L)",
+            RoomMemberNames.ROOM_DATABASE_WITH_TRANSACTION,
+            dbProperty,
+            functionImpl,
+            continuationParamName
+        )
+    }
+
+    private fun executeAndReturnKotlin(
+        returnType: XType,
+        parameterNames: List<String>,
+        daoName: XClassName,
+        daoImplName: XClassName,
+        dbProperty: XPropertySpec,
+        scope: CodeGenScope
+    ) {
+        scope.builder.apply {
+            if (returnType.isNotKotlinUnit()) {
+                add("return ")
+            }
+            beginControlFlow(
+                "%N.%M",
+                dbProperty, RoomMemberNames.ROOM_DATABASE_WITH_TRANSACTION
+            )
             val adapterScope = scope.fork()
-            adapter.createDelegateToSuperStatement(
-                returnType = returnType,
-                parameterNames = parameterNames + innerContinuationParamName,
+            adapter.createDelegateToSuperCode(
+                parameterNames = parameterNames,
                 daoName = daoName,
                 daoImplName = daoImplName,
-                returnStmt = true,
                 scope = adapterScope
             )
-            addCode(adapterScope.generate())
-        }.build()
-
-        scope.builder().apply {
-            addStatement(
-                "return $T.withTransaction($N, $L, $N)",
-                ROOM_DB_KT, dbField, functionImpl, continuationParamName
-            )
+            addStatement("%L", adapterScope.generate())
+            endControlFlow()
         }
     }
 }

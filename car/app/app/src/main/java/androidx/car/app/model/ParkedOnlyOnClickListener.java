@@ -21,9 +21,9 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.Looper;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 
 /**
  * An {@link OnClickListener} that wraps another one and executes its {@link #onClick} method only
@@ -45,8 +45,8 @@ import androidx.car.app.annotations.CarProtocol;
 // Lint check wants this to be renamed *Callback.
 @SuppressLint("ListenerInterface")
 @CarProtocol
+@KeepFields
 public final class ParkedOnlyOnClickListener implements OnClickListener {
-    @Keep
     private final OnClickListener mListener;
 
     /**

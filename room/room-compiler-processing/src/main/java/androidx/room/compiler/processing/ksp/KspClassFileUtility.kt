@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XProcessingConfig
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
@@ -103,8 +104,6 @@ internal object KspClassFileUtility {
 
     /**
      * Sorts the given methods in the order they are declared in the backing class declaration.
-     * Note that this does not check signatures so ordering might break if there are multiple
-     * methods with the same name.
      */
     fun orderMethods(
         owner: KSClassDeclaration,
@@ -112,14 +111,14 @@ internal object KspClassFileUtility {
     ): List<KspMethodElement> {
         // no reason to try to load .class if we don't have any fields to sort
         if (methods.isEmpty()) return methods
-        val comparator = getNamesComparator(owner, Type.METHOD, KspMethodElement::name)
+        val comparator = getNamesComparator(owner, Type.METHOD, XMethodElement::jvmDescriptor)
         return if (comparator == null) {
             methods
         } else {
             methods.forEach {
-                // make sure each name gets registered so that if we didn't find it in .class for
-                // whatever reason, we keep the order given from KSP.
-                comparator.register(it.name)
+                // make sure each descriptor gets registered so that if we didn't find it in .class
+                // for whatever reason, we keep the order given from KSP.
+                comparator.register(it.jvmDescriptor())
             }
             methods.sortedWith(comparator)
         }
@@ -140,45 +139,55 @@ internal object KspClassFileUtility {
             // this is needed only for compiled kotlin classes
             // https://github.com/google/ksp/issues/250#issuecomment-761108924
             if (ksClassDeclaration.origin != Origin.KOTLIN_LIB) return null
-            val typeReferences = ReflectionReferences.getInstance(ksClassDeclaration) ?: return null
-            val descriptor = typeReferences.getDescriptorMethod.invoke(ksClassDeclaration)
-                ?: return null
-            if (!typeReferences.deserializedClassDescriptor.isInstance(descriptor)) {
-                return null
-            }
-            val descriptorSrc = typeReferences.descriptorSourceMethod.invoke(descriptor)
-                ?: return null
-            if (!typeReferences.kotlinJvmBinarySourceElement.isInstance(descriptorSrc)) {
-                return null
-            }
-            val binarySource = typeReferences.binaryClassMethod.invoke(descriptorSrc)
-                ?: return null
 
-            val fieldNameComparator = MemberNameComparator(
+            // A companion object's `declarations` contains fields declared in the object in KSP,
+            // while KotlinJvmBinaryClass.visitMembers() does not. This leads to unsorted fields.
+            // As a workaround we register all the fields of an enclosing type in hope that we
+            // cover every field in a companion object's KSDeclarationContainer.declarations.
+            val classDeclaration = if (
+                    ksClassDeclaration.isCompanionObject &&
+                    type == Type.FIELD &&
+                    ksClassDeclaration.parentDeclaration is KSClassDeclaration) {
+                ksClassDeclaration.parentDeclaration as KSClassDeclaration
+            } else {
+                ksClassDeclaration
+            }
+
+            val typeReferences = ReflectionReferences.getInstance(classDeclaration) ?: return null
+            val binarySource = getBinarySource(typeReferences, classDeclaration) ?: return null
+
+            val memberNameComparator = MemberNameComparator(
                 getName = getName,
                 // we can do strict mode only in classes. For Interfaces, private methods won't
                 // show up in the binary.
                 strictMode = XProcessingConfig.STRICT_MODE &&
-                    ksClassDeclaration.classKind != ClassKind.INTERFACE
+                    classDeclaration.classKind != ClassKind.INTERFACE
             )
             val invocationHandler = InvocationHandler { _, method, args ->
                 if (method.name == type.visitorName) {
                     val nameAsString = typeReferences.asStringMethod.invoke(args[0])
                     if (nameAsString is String) {
-                        fieldNameComparator.register(nameAsString)
+                        when (type) {
+                            Type.FIELD -> memberNameComparator.register(nameAsString)
+                            Type.METHOD -> {
+                                val methodTypeDescriptor = args[1]
+                                memberNameComparator.register(nameAsString + methodTypeDescriptor)
+                            }
+                        }
                     }
                 }
                 null
             }
 
             val proxy = Proxy.newProxyInstance(
-                ksClassDeclaration.javaClass.classLoader,
+                classDeclaration.javaClass.classLoader,
                 arrayOf(typeReferences.memberVisitor),
                 invocationHandler
             )
+
             typeReferences.visitMembersMethod.invoke(binarySource, proxy, null)
-            fieldNameComparator.seal()
-            fieldNameComparator
+            memberNameComparator.seal()
+            memberNameComparator
         } catch (ignored: Throwable) {
             // this is best effort, if it failed, just ignore
             if (XProcessingConfig.STRICT_MODE) {
@@ -186,6 +195,24 @@ internal object KspClassFileUtility {
             }
             null
         }
+    }
+
+    private fun getBinarySource(
+        typeReferences: ReflectionReferences,
+        ksClassDeclaration: KSClassDeclaration
+    ): Any? {
+        val descriptor = typeReferences.getDescriptorMethod.invoke(ksClassDeclaration)
+            ?: return null
+        if (!typeReferences.deserializedClassDescriptor.isInstance(descriptor)) {
+            return null
+        }
+        val descriptorSrc = typeReferences.descriptorSourceMethod.invoke(descriptor)
+            ?: return null
+        if (!typeReferences.kotlinJvmBinarySourceElement.isInstance(descriptorSrc)) {
+            return null
+        }
+        return typeReferences.binaryClassMethod.invoke(descriptorSrc)
+            ?: return null
     }
 
     /**
@@ -284,7 +311,7 @@ internal object KspClassFileUtility {
          */
         private fun getOrder(name: String) = orders.getOrPut(name) {
             if (sealed && strictMode) {
-                error("expected to find field/method $name but it is non-existent")
+                error("expected to find field/method $name but it is non-existent: $orders")
             }
             nextOrder++
         }

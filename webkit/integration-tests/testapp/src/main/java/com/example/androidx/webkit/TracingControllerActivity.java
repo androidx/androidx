@@ -52,12 +52,6 @@ import java.util.concurrent.Executors;
  * An {@link Activity} to exercise Tracing Controller functionality.
  */
 public class TracingControllerActivity extends AppCompatActivity {
-    TracingController mTracingController;
-    private WebView mWebView;
-    private TextView mInfo;
-    private EditText mNavigationBar;
-    private Button mButton;
-    private String mLogPath;
 
     @Override
     @SuppressWarnings("CatchAndPrintStackTrace")
@@ -65,87 +59,107 @@ public class TracingControllerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tracing_controller);
         setTitle(R.string.tracing_controller_activity_title);
+        WebkitHelpers.appendWebViewVersionToTitle(this);
 
-        mNavigationBar = findViewById(R.id.tracing_controller_edittext);
-        mNavigationBar.setOnEditorActionListener((TextView v, int actionId, KeyEvent event) -> {
+        final WebView webView = findViewById(R.id.tracing_controller_webview);
+        webView.setWebViewClient(new WebViewClient());
+
+        final EditText navigationBar = findViewById(R.id.tracing_controller_edittext);
+
+        final TextView infoView = findViewById(R.id.tracing_controller_textview);
+        infoView.setVisibility(View.GONE);
+
+        final Button tracingButton = findViewById(R.id.tracing_controller_button);
+
+        if (!WebViewFeature.isFeatureSupported(WebViewFeature.TRACING_CONTROLLER_BASIC_USAGE)) {
+            navigationBar.setVisibility(View.GONE);
+            webView.setVisibility(View.GONE);
+            tracingButton.setVisibility(View.GONE);
+            infoView.setVisibility(View.GONE);
+            WebkitHelpers.showMessageInActivity(this, R.string.webkit_api_not_available);
+            return;
+        }
+
+        final TracingController tracingController = TracingController.getInstance();
+
+        navigationBar.setOnEditorActionListener((TextView v, int actionId, KeyEvent event) -> {
             if (actionId == EditorInfo.IME_ACTION_NEXT) {
-                String url = mNavigationBar.getText().toString();
+                String url = navigationBar.getText().toString();
                 if (!url.isEmpty()) {
                     if (!url.startsWith("http")) url = "http://" + url;
-                    mWebView.loadUrl(url);
-                    mNavigationBar.setText("");
+                    webView.loadUrl(url);
+                    navigationBar.setText("");
                 }
                 return true;
             }
             return false;
         });
 
-        mInfo = findViewById(R.id.tracing_controller_textview);
-        mInfo.setVisibility(View.GONE);
-
-        mButton = findViewById(R.id.tracing_controller_button);
-        mButton.setOnClickListener(v -> {
-            if (mTracingController.isTracing()) {
+        tracingButton.setOnClickListener(v -> {
+            if (tracingController.isTracing()) {
                 try {
-                    mButton.setEnabled(false);
-                    mLogPath = getExternalFilesDir(null) + File.separator + "tc.json";
-                    FileOutputStream os = new FileOutputStream(new File(mLogPath)) {
-                        @Override
-                        public void close() throws IOException {
-                            super.close();
-                            runOnUiThread(() -> {
-                                mInfo.setVisibility(View.VISIBLE);
-                                mButton.setVisibility(View.GONE);
-                                mInfo.setText(
-                                        getString(R.string.tracing_controller_log_path, mLogPath));
-                                try {
-                                    verifyJSON();
-                                } catch (IOException | JSONException e) {
-                                    mInfo.setText(R.string.tracing_controller_invalid_log);
-                                }
-                            });
-                        }
-                    };
+                    tracingButton.setEnabled(false);
+                    final String logPath = getExternalFilesDir(null) + File.separator + "tc.json";
+                    FileOutputStream os = new VerifyingFileOutputStream(logPath, infoView,
+                            tracingButton);
                     ExecutorService executor = Executors.newSingleThreadExecutor();
-                    mTracingController.stop(os, executor);
+                    tracingController.stop(os, executor);
                 } catch (FileNotFoundException e) {
+
                     e.printStackTrace();
                 }
             } else {
-                TracingConfig config = new TracingConfig.Builder()
-                        .addCategories(TracingConfig.CATEGORIES_ANDROID_WEBVIEW)
-                        .build();
-                mTracingController.start(config);
-                mButton.setText(R.string.tracing_controller_stop_tracing);
+                TracingConfig config = new TracingConfig.Builder().addCategories(
+                        TracingConfig.CATEGORIES_ANDROID_WEBVIEW).build();
+                tracingController.start(config);
+                tracingButton.setText(R.string.tracing_controller_stop_tracing);
             }
         });
 
-        mWebView = findViewById(R.id.tracing_controller_webview);
-        mWebView.setWebViewClient(new WebViewClient());
 
-        WebkitHelpers.appendWebViewVersionToTitle(this);
-        if (!WebViewFeature.isFeatureSupported(WebViewFeature.TRACING_CONTROLLER_BASIC_USAGE)) {
-            mNavigationBar.setVisibility(View.GONE);
-            mWebView.setVisibility(View.GONE);
-            mButton.setVisibility(View.GONE);
-            mInfo.setVisibility(View.GONE);
-            WebkitHelpers.showMessageInActivity(this, R.string.webkit_api_not_available);
-            return;
-        }
-
-        mTracingController = TracingController.getInstance();
     }
 
-    private void verifyJSON() throws IOException, JSONException {
-        StringBuilder builder = new StringBuilder();
-        FileInputStream fis = new FileInputStream(mLogPath);
-        BufferedReader br = new BufferedReader(new InputStreamReader(fis, UTF_8));
-        String sCurrentLine;
-        while ((sCurrentLine = br.readLine()) != null) {
-            builder.append(sCurrentLine).append("\n");
+    private class VerifyingFileOutputStream extends FileOutputStream {
+
+        private final String mLogPath;
+        private final TextView mInfoView;
+        private final Button mTracingButton;
+
+        VerifyingFileOutputStream(String logPath, TextView infoView, Button tracingButton)
+                throws FileNotFoundException {
+            super(logPath);
+            mLogPath = logPath;
+            mInfoView = infoView;
+            mTracingButton = tracingButton;
         }
 
-        // Throw exception if JSON is incorrect
-        new JSONObject(builder.toString());
+        @Override
+        public void close() throws IOException {
+            super.close();
+            runOnUiThread(() -> {
+                mInfoView.setVisibility(View.VISIBLE);
+                mTracingButton.setVisibility(View.GONE);
+                mInfoView.setText(getString(R.string.tracing_controller_log_path, mLogPath));
+                try {
+                    verifyJSON(mLogPath);
+                } catch (IOException | JSONException e) {
+                    mInfoView.setText(R.string.tracing_controller_invalid_log);
+                }
+            });
+        }
+
+        private void verifyJSON(String logPath) throws IOException, JSONException {
+            StringBuilder builder = new StringBuilder();
+            FileInputStream fis = new FileInputStream(logPath);
+            BufferedReader br = new BufferedReader(new InputStreamReader(fis, UTF_8));
+            String sCurrentLine;
+            while ((sCurrentLine = br.readLine()) != null) {
+                builder.append(sCurrentLine).append("\n");
+            }
+
+            // Throw exception if JSON is incorrect
+            new JSONObject(builder.toString());
+        }
+
     }
 }

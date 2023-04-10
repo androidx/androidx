@@ -38,18 +38,22 @@ import kotlinx.coroutines.launch
 internal class WakeLock(
     private val scope: CoroutineScope,
     private val timeout: Long = 0,
-    private val callback: () -> Unit
+    private val startTimeoutOnCreation: Boolean = false,
+    private val callback: () -> Unit,
 ) {
     private val lock = Any()
 
-    @GuardedBy("lock")
-    private var count = 0
+    @GuardedBy("lock") private var count = 0
 
-    @GuardedBy("lock")
-    private var timeoutJob: Job? = null
+    @GuardedBy("lock") private var timeoutJob: Job? = null
 
-    @GuardedBy("lock")
-    private var closed = false
+    @GuardedBy("lock") private var closed = false
+
+    init {
+        if (startTimeoutOnCreation) {
+            synchronized(lock) { startTimeout() }
+        }
+    }
 
     private inner class WakeLockToken : Token {
         private val closed = atomic(false)
@@ -99,21 +103,27 @@ internal class WakeLock(
         synchronized(lock) {
             count -= 1
             if (count == 0 && !closed) {
-                timeoutJob = scope.launch {
-                    delay(timeout)
-
-                    synchronized(lock) {
-                        if (closed || count != 0) {
-                            return@launch
-                        }
-                        timeoutJob = null
-                        closed = true
-                    }
-
-                    // Execute the callback
-                    callback()
-                }
+                startTimeout()
             }
         }
+    }
+
+    @GuardedBy("lock")
+    private fun startTimeout() {
+        timeoutJob =
+            scope.launch {
+                delay(timeout)
+
+                synchronized(lock) {
+                    if (closed || count != 0) {
+                        return@launch
+                    }
+                    timeoutJob = null
+                    closed = true
+                }
+
+                // Execute the callback
+                callback()
+            }
     }
 }

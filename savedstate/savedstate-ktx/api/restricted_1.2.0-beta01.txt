@@ -1,0 +1,9 @@
+// Signature format: 4.0
+package androidx.savedstate {
+
+  public final class ViewKt {
+    method public static androidx.savedstate.SavedStateRegistryOwner? findViewTreeSavedStateRegistryOwner(android.view.View);
+  }
+
+}
+

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 import androidx.build.RunApiTasks
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -31,6 +31,5 @@ androidx {
     name = "Compose Animation Tooling"
     description = "Compose Animation APIs for tooling support. Internal use only."
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.Compose.ANIMATION
     runApiTasks = new RunApiTasks.Yes()
 }

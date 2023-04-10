@@ -20,6 +20,9 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * A ViewGroup for managing focus behavior between overlapping views.
  */
@@ -34,7 +37,8 @@ public class BrowseFrameLayout extends FrameLayout {
          * Returns the view where focus should be requested given the current focused view and
          * the direction of focus search.
          */
-        View onFocusSearch(View focused, int direction);
+        @Nullable
+        View onFocusSearch(@Nullable View focused, int direction);
     }
 
     /**
@@ -48,23 +52,23 @@ public class BrowseFrameLayout extends FrameLayout {
          * android.view.ViewGroup#onRequestFocusInDescendants(int, android.graphics.Rect)}.
          */
         boolean onRequestFocusInDescendants(int direction,
-                Rect previouslyFocusedRect);
+                @Nullable Rect previouslyFocusedRect);
         /**
          * See {@link android.view.ViewGroup#requestChildFocus(
          * android.view.View, android.view.View)}.
          */
-        void onRequestChildFocus(View child, View focused);
+        void onRequestChildFocus(@Nullable View child, @Nullable View focused);
     }
 
-    public BrowseFrameLayout(Context context) {
+    public BrowseFrameLayout(@NonNull Context context) {
         this(context, null, 0);
     }
 
-    public BrowseFrameLayout(Context context, AttributeSet attrs) {
+    public BrowseFrameLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public BrowseFrameLayout(Context context, AttributeSet attrs, int defStyle) {
+    public BrowseFrameLayout(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
@@ -75,13 +79,14 @@ public class BrowseFrameLayout extends FrameLayout {
     /**
      * Sets a {@link OnFocusSearchListener}.
      */
-    public void setOnFocusSearchListener(OnFocusSearchListener listener) {
+    public void setOnFocusSearchListener(@Nullable OnFocusSearchListener listener) {
         mListener = listener;
     }
 
     /**
      * Returns the {@link OnFocusSearchListener}.
      */
+    @Nullable
     public OnFocusSearchListener getOnFocusSearchListener() {
         return mListener;
     }
@@ -89,20 +94,21 @@ public class BrowseFrameLayout extends FrameLayout {
     /**
      * Sets a {@link OnChildFocusListener}.
      */
-    public void setOnChildFocusListener(OnChildFocusListener listener) {
+    public void setOnChildFocusListener(@Nullable OnChildFocusListener listener) {
         mOnChildFocusListener = listener;
     }
 
     /**
      * Returns the {@link OnChildFocusListener}.
      */
+    @Nullable
     public OnChildFocusListener getOnChildFocusListener() {
         return mOnChildFocusListener;
     }
 
     @Override
     protected boolean onRequestFocusInDescendants(int direction,
-            Rect previouslyFocusedRect) {
+            @Nullable Rect previouslyFocusedRect) {
         if (mOnChildFocusListener != null) {
             if (mOnChildFocusListener.onRequestFocusInDescendants(direction,
                     previouslyFocusedRect)) {
@@ -113,7 +119,7 @@ public class BrowseFrameLayout extends FrameLayout {
     }
 
     @Override
-    public View focusSearch(View focused, int direction) {
+    public View focusSearch(@Nullable View focused, int direction) {
         if (mListener != null) {
             View view = mListener.onFocusSearch(focused, direction);
             if (view != null) {
@@ -148,7 +154,7 @@ public class BrowseFrameLayout extends FrameLayout {
      * back button clicks when we are in full screen video mode because
      * {@link View#setOnKeyListener(OnKeyListener)} doesn't fire as the focus is not on this view.
      */
-    public void setOnDispatchKeyListener(OnKeyListener listener) {
+    public void setOnDispatchKeyListener(@Nullable OnKeyListener listener) {
         this.mOnDispatchKeyListener = listener;
     }
 }

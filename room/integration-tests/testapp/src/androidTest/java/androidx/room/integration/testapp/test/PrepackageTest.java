@@ -19,7 +19,7 @@ package androidx.room.integration.testapp.test;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 import android.content.Context;
@@ -236,8 +236,8 @@ public class PrepackageTest {
                 .createFromAsset("databases/products_v1.db")
                 .addMigrations(new Migration(1, 2) {
                     @Override
-                    public void migrate(@NonNull SupportSQLiteDatabase database) {
-                        database.execSQL(
+                    public void migrate(@NonNull SupportSQLiteDatabase db) {
+                        db.execSQL(
                                 "INSERT INTO Products (id, name) VALUES (null, 'Mofongo')");
                     }
                 })
@@ -338,8 +338,8 @@ public class PrepackageTest {
                 .createFromAsset("databases/products_v1.db")
                 .addMigrations(new Migration(1, 2) {
                     @Override
-                    public void migrate(@NonNull SupportSQLiteDatabase database) {
-                        database.execSQL(
+                    public void migrate(@NonNull SupportSQLiteDatabase db) {
+                        db.execSQL(
                                 "INSERT INTO Products (id, name) VALUES (null, 'Mofongo')");
                     }
                 })

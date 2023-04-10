@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright 2022 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_split_activity_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <TextView
+        android:id="@+id/activity_embedded_status_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Activity is embedded" />
+
+    <CheckBox
+        android:id="@+id/split_main_check_box"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Split Main with Others" />
+
+    <CheckBox
+        android:id="@+id/finish_primary_with_secondary_check_box"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Finish primary with secondary"
+        android:enabled="false" />
+
+    <CheckBox
+        android:id="@+id/finish_secondary_with_primary_check_box"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Finish secondary with primary"
+        android:enabled="false" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="#AAAAAA" />
+
+    <Button
+        android:id="@+id/launch_b_button"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_centerHorizontal="true"
+        android:text="Launch B (support PiP)" />
+
+    <CheckBox
+        android:id="@+id/use_place_holder_check_box"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Use a placeholder for B" />
+
+    <CheckBox
+        android:id="@+id/use_sticky_place_holder_check_box"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Placeholder is sticky"
+        android:enabled="false" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="#AAAAAA" />
+
+    <Button
+        android:id="@+id/launch_no_pip_button"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_centerHorizontal="true"
+        android:text="Launch activity not support PiP" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="#AAAAAA" />
+
+    <Button
+        android:id="@+id/enter_pip_button"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_centerHorizontal="true"
+        android:text="Enter PiP" />
+
+    <RadioGroup
+        android:id="@+id/support_pip_radio_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <RadioButton
+            android:id="@+id/support_pip_not_enter_on_exit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Not enter PiP on exit"
+            android:checked="true"/>
+        <RadioButton
+            android:id="@+id/support_pip_enter_on_user_leave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Enter PiP on user leave"/>
+        <RadioButton
+            android:id="@+id/support_pip_auto_enter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Enable auto-enter PiP"/>
+    </RadioGroup>
+
+</LinearLayout>

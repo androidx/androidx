@@ -32,3 +32,7 @@ dependencies {
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has its own MockMaker
     testImplementation(libs.junit)
 }
+
+android {
+    namespace "androidx.startup.second_library"
+}

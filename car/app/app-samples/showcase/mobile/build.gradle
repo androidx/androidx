@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import androidx.build.LibraryType
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -23,22 +25,29 @@ android {
     defaultConfig {
         applicationId "androidx.car.app.sample.showcase"
         minSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+        targetSdkVersion 31
+        // Increment this to generate signed builds for uploading to Playstore
+        // Make sure this is different from the showcase-automotive version
+        versionCode 106
+        versionName "106"
     }
 
     buildTypes {
+        debug {
+            pseudoLocalesEnabled true
+        }
         release {
             // Enables code shrinking, obfuscation, and optimization.
             minifyEnabled true
             proguardFiles getDefaultProguardFile(
-                    'proguard-android-optimize.txt'),
-                    'proguard-rules.pro'
+                    'proguard-android-optimize.txt')
         }
     }
+    namespace "androidx.car.app.sample.showcase"
 }
 
 dependencies {
     implementation(project(":car:app:app-samples:showcase-common"))
     implementation(project(":car:app:app-projected"))
 }
+

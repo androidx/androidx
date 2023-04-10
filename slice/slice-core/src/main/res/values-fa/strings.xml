@@ -22,5 +22,5 @@
     <string name="abc_slice_permission_text_1" msgid="9108592981418900836">"- می‌تواند اطلاعات <xliff:g id="APP">%1$s</xliff:g> را بخواند"</string>
     <string name="abc_slice_permission_text_2" msgid="7135705417979137589">"- می‌تواند در <xliff:g id="APP">%1$s</xliff:g> اقدام انجام دهد"</string>
     <string name="abc_slice_permission_allow" msgid="6374752258872407887">"اجازه دادن"</string>
-    <string name="abc_slice_permission_deny" msgid="576316744017426251">"رد کردن"</string>
+    <string name="abc_slice_permission_deny" msgid="576316744017426251">"مجاز نبودن"</string>
 </resources>

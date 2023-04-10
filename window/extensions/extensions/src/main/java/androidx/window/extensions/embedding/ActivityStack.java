@@ -19,7 +19,6 @@ package androidx.window.extensions.embedding;
 import android.app.Activity;
 
 import androidx.annotation.NonNull;
-import androidx.window.extensions.ExperimentalWindowExtensionsApi;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +27,6 @@ import java.util.List;
  * Description of a group of activities stacked on top of each other and shown as a single
  * container, all within the same task.
  */
-@ExperimentalWindowExtensionsApi
 public class ActivityStack {
     @NonNull
     private final List<Activity> mActivities;

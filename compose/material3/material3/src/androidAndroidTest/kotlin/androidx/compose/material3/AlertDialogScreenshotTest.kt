@@ -20,7 +20,6 @@ import android.os.Build
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.testutils.assertAgainstGolden
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -35,7 +34,6 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalTestApi::class)
 class AlertDialogScreenshotTest {
 
     @get:Rule
@@ -46,31 +44,29 @@ class AlertDialogScreenshotTest {
 
     @Test
     fun alertDialog_lightTheme() {
-        composeTestRule.setContent {
-            MaterialTheme {
-                AlertDialog(
-                    onDismissRequest = {},
-                    title = {
-                        Text(text = "Title")
-                    },
-                    text = {
-                        Text(
-                            "This area typically contains the supportive text " +
-                                "which presents the details regarding the Dialog's purpose."
-                        )
-                    },
-                    confirmButton = {
-                        TextButton(onClick = { /* doSomething() */ }) {
-                            Text("Confirm")
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { /* doSomething() */ }) {
-                            Text("Dismiss")
-                        }
+        composeTestRule.setMaterialContent(lightColorScheme()) {
+            AlertDialog(
+                onDismissRequest = {},
+                title = {
+                    Text(text = "Title")
+                },
+                text = {
+                    Text(
+                        "This area typically contains the supportive text " +
+                            "which presents the details regarding the Dialog's purpose."
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = { /* doSomething() */ }) {
+                        Text("Confirm")
                     }
-                )
-            }
+                },
+                dismissButton = {
+                    TextButton(onClick = { /* doSomething() */ }) {
+                        Text("Dismiss")
+                    }
+                }
+            )
         }
 
         assertAppBarAgainstGolden(goldenIdentifier = "alertDialog_lightTheme")
@@ -78,31 +74,29 @@ class AlertDialogScreenshotTest {
 
     @Test
     fun alertDialog_darkTheme() {
-        composeTestRule.setContent {
-            MaterialTheme(colorScheme = darkColorScheme()) {
-                AlertDialog(
-                    onDismissRequest = {},
-                    title = {
-                        Text(text = "Title")
-                    },
-                    text = {
-                        Text(
-                            "This area typically contains the supportive text " +
-                                "which presents the details regarding the Dialog's purpose."
-                        )
-                    },
-                    confirmButton = {
-                        TextButton(onClick = { /* doSomething() */ }) {
-                            Text("Confirm")
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { /* doSomething() */ }) {
-                            Text("Dismiss")
-                        }
+        composeTestRule.setMaterialContent(darkColorScheme()) {
+            AlertDialog(
+                onDismissRequest = {},
+                title = {
+                    Text(text = "Title")
+                },
+                text = {
+                    Text(
+                        "This area typically contains the supportive text " +
+                            "which presents the details regarding the Dialog's purpose."
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = { /* doSomething() */ }) {
+                        Text("Confirm")
                     }
-                )
-            }
+                },
+                dismissButton = {
+                    TextButton(onClick = { /* doSomething() */ }) {
+                        Text("Dismiss")
+                    }
+                }
+            )
         }
 
         assertAppBarAgainstGolden(goldenIdentifier = "alertDialog_darkTheme")
@@ -110,32 +104,30 @@ class AlertDialogScreenshotTest {
 
     @Test
     fun alertDialog_withIcon_lightTheme() {
-        composeTestRule.setContent {
-            MaterialTheme {
-                AlertDialog(
-                    onDismissRequest = {},
-                    icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
-                    title = {
-                        Text(text = "Title")
-                    },
-                    text = {
-                        Text(
-                            "This area typically contains the supportive text " +
-                                "which presents the details regarding the Dialog's purpose."
-                        )
-                    },
-                    confirmButton = {
-                        TextButton(onClick = { /* doSomething() */ }) {
-                            Text("Confirm")
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { /* doSomething() */ }) {
-                            Text("Dismiss")
-                        }
+        composeTestRule.setMaterialContent(lightColorScheme()) {
+            AlertDialog(
+                onDismissRequest = {},
+                icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
+                title = {
+                    Text(text = "Title")
+                },
+                text = {
+                    Text(
+                        "This area typically contains the supportive text " +
+                            "which presents the details regarding the Dialog's purpose."
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = { /* doSomething() */ }) {
+                        Text("Confirm")
                     }
-                )
-            }
+                },
+                dismissButton = {
+                    TextButton(onClick = { /* doSomething() */ }) {
+                        Text("Dismiss")
+                    }
+                }
+            )
         }
 
         assertAppBarAgainstGolden(goldenIdentifier = "alertDialog_withIcon_lightTheme")
@@ -143,32 +135,30 @@ class AlertDialogScreenshotTest {
 
     @Test
     fun alertDialog_withIcon_darkTheme() {
-        composeTestRule.setContent {
-            MaterialTheme(colorScheme = darkColorScheme()) {
-                AlertDialog(
-                    onDismissRequest = {},
-                    icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
-                    title = {
-                        Text(text = "Title")
-                    },
-                    text = {
-                        Text(
-                            "This area typically contains the supportive text " +
-                                "which presents the details regarding the Dialog's purpose."
-                        )
-                    },
-                    confirmButton = {
-                        TextButton(onClick = { /* doSomething() */ }) {
-                            Text("Confirm")
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { /* doSomething() */ }) {
-                            Text("Dismiss")
-                        }
+        composeTestRule.setMaterialContent(darkColorScheme()) {
+            AlertDialog(
+                onDismissRequest = {},
+                icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
+                title = {
+                    Text(text = "Title")
+                },
+                text = {
+                    Text(
+                        "This area typically contains the supportive text " +
+                            "which presents the details regarding the Dialog's purpose."
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = { /* doSomething() */ }) {
+                        Text("Confirm")
                     }
-                )
-            }
+                },
+                dismissButton = {
+                    TextButton(onClick = { /* doSomething() */ }) {
+                        Text("Dismiss")
+                    }
+                }
+            )
         }
 
         assertAppBarAgainstGolden(goldenIdentifier = "alertDialog_withIcon_darkTheme")

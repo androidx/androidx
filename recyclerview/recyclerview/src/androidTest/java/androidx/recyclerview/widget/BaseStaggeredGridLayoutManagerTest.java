@@ -113,8 +113,8 @@ abstract class BaseStaggeredGridLayoutManagerTest extends BaseRecyclerViewInstru
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
-            public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
-                    RecyclerView.State state) {
+            public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
+                    @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
                 try {
                     StaggeredGridLayoutManager.LayoutParams
                             lp = (StaggeredGridLayoutManager.LayoutParams) view.getLayoutParams();

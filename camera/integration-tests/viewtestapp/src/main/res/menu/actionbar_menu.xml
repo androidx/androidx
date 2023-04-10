@@ -32,4 +32,8 @@
         android:id="@+id/compose_ui"
         android:title="@string/compose_ui"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/mlkit"
+        android:title="@string/mlkit"
+        app:showAsAction="never" />
 </menu>

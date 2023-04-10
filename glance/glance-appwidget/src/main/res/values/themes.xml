@@ -15,5 +15,5 @@
   -->
 
 <resources>
-    <style name="Glance.AppWidget.Theme" parent="android:Theme.DeviceDefault"/>
+    <style name="Glance.AppWidget.Theme" parent="android:Theme.DeviceDefault" />
 </resources>

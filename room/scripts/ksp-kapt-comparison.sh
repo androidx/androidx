@@ -13,7 +13,7 @@ PROJECT_DIR="$SCRIPT_DIR/.."
 # move to the project directory
 cd $PROJECT_DIR;
 
-KSP_TASK=":room:integration-tests:room-testapp-kotlin:kspWithKspDebugAndroidTestKotlin"
+KSP_TASK=":room:integration-tests:room-testapp-kotlin:kspWithKspGenJavaDebugAndroidTestKotlin"
 KAPT_TASK=":room:integration-tests:room-testapp-kotlin:kaptGenerateStubsWithKaptDebugAndroidTestKotlin \
     :room:integration-tests:room-testapp-kotlin:kaptWithKaptDebugAndroidTestKotlin"
 # parses the given profile file, extracts task durations that we are interested in and adds them to the global tracking
@@ -54,9 +54,10 @@ function runBuild {
     fi
     local cmd="./gradlew --init-script \
         $SCRIPT_DIR/rerun-requested-task-init-script.gradle \
+        --no-configuration-cache
         --profile $task"
     log "Executing $cmd"
-    local profileFile=`$cmd|grep -v "buildSrc"|awk '/profiling report at:/ {print $6}'`
+    local profileFile=`$cmd|grep "room"|awk '/profiling report at:/ {print $6}'`
     log "result: $profileFile"
     parseTimes $profileFile $type
 }

@@ -16,6 +16,7 @@
 
 package androidx.arch.core.executor.testing;
 
+import androidx.annotation.NonNull;
 import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.arch.core.executor.TaskExecutor;
 
@@ -34,12 +35,12 @@ public class InstantTaskExecutorRule extends TestWatcher {
         super.starting(description);
         ArchTaskExecutor.getInstance().setDelegate(new TaskExecutor() {
             @Override
-            public void executeOnDiskIO(Runnable runnable) {
+            public void executeOnDiskIO(@NonNull Runnable runnable) {
                 runnable.run();
             }
 
             @Override
-            public void postToMainThread(Runnable runnable) {
+            public void postToMainThread(@NonNull Runnable runnable) {
                 runnable.run();
             }
 

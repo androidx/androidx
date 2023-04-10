@@ -38,6 +38,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ShareActionProvider;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -195,7 +196,7 @@ public final class ShareCompat {
      * @param intent Intent that was launched to share content
      * @return ComponentName of the calling activity
      */
-    @SuppressWarnings("WeakerAccess")
+    @SuppressWarnings({"WeakerAccess", "deprecation"})
     @Nullable
     static ComponentName getCallingActivity(@NonNull Intent intent) {
         ComponentName result = intent.getParcelableExtra(EXTRA_CALLING_ACTIVITY);
@@ -265,6 +266,7 @@ public final class ShareCompat {
      *
      * @deprecated Use the system sharesheet. See https://developer.android.com/training/sharing/send
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
     public static void configureMenuItem(@NonNull Menu menu, @IdRes int menuItemId,
             @NonNull IntentBuilder shareIntent) {
@@ -832,7 +834,7 @@ public final class ShareCompat {
                     result = Html.toHtml((Spanned) text);
                 } else if (text != null) {
                     if (SDK_INT >= 16) {
-                        result = Html.escapeHtml(text);
+                        result = Api16Impl.escapeHtml(text);
                     } else {
                         StringBuilder out = new StringBuilder();
                         withinStyle(out, text, 0, text.length());
@@ -880,9 +882,10 @@ public final class ShareCompat {
          * @return A URI referring to a data stream to be shared or null if one was not supplied
          * @see Intent#EXTRA_STREAM
          */
+        @SuppressWarnings("deprecation")
         @Nullable
         public Uri getStream() {
-            return (Uri) mIntent.getParcelableExtra(Intent.EXTRA_STREAM);
+            return mIntent.getParcelableExtra(Intent.EXTRA_STREAM);
         }
 
         /**
@@ -894,6 +897,7 @@ public final class ShareCompat {
          * @see Intent#EXTRA_STREAM
          * @see Intent#ACTION_SEND_MULTIPLE
          */
+        @SuppressWarnings("deprecation")
         @Nullable
         public Uri getStream(int index) {
             if (mStreams == null && isMultipleShare()) {
@@ -916,6 +920,7 @@ public final class ShareCompat {
          *
          * @return Count of text items contained within the Intent
          */
+        @SuppressWarnings("deprecation")
         public int getStreamCount() {
             if (mStreams == null && isMultipleShare()) {
                 mStreams = mIntent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
@@ -1064,6 +1069,7 @@ public final class ShareCompat {
          *
          * @return The calling application's label or null if unknown
          */
+        @SuppressWarnings("deprecation")
         @Nullable
         public CharSequence getCallingApplicationLabel() {
             if (mCallingPackage == null) return null;
@@ -1080,9 +1086,11 @@ public final class ShareCompat {
 
     @RequiresApi(16)
     private static class Api16Impl {
-        // Prevent instantiation.
-        private Api16Impl() {}
+        private Api16Impl() {
+            // This class is not instantiable.
+        }
 
+        @DoNotInline
         static void migrateExtraStreamToClipData(@NonNull Intent intent,
                 @NonNull ArrayList<Uri> streams) {
             CharSequence text = intent.getCharSequenceExtra(Intent.EXTRA_TEXT);
@@ -1101,9 +1109,15 @@ public final class ShareCompat {
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         }
 
+        @DoNotInline
         static void removeClipData(@NonNull Intent intent) {
             intent.setClipData(null);
             intent.setFlags(intent.getFlags() & ~Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        }
+
+        @DoNotInline
+        static String escapeHtml(CharSequence text) {
+            return Html.escapeHtml(text);
         }
     }
 }

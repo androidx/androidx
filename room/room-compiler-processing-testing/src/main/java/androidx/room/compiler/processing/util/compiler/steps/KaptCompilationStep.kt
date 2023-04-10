@@ -20,12 +20,14 @@ import androidx.room.compiler.processing.util.compiler.DiagnosticsMessageCollect
 import androidx.room.compiler.processing.util.compiler.KotlinCliRunner
 import androidx.room.compiler.processing.util.compiler.TestKapt3Registrar
 import androidx.room.compiler.processing.util.compiler.toSourceSet
+import java.io.File
+import javax.annotation.processing.Processor
 import org.jetbrains.kotlin.base.kapt3.AptMode
 import org.jetbrains.kotlin.base.kapt3.KaptFlag
 import org.jetbrains.kotlin.base.kapt3.KaptOptions
 import org.jetbrains.kotlin.cli.common.ExitCode
-import java.io.File
-import javax.annotation.processing.Processor
+import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import org.jetbrains.kotlin.compiler.plugin.parseLegacyPluginOption
 
 /**
  * Runs KAPT to run annotation processors.
@@ -38,6 +40,7 @@ internal class KaptCompilationStep(
     private fun createKaptArgs(
         workingDir: File,
         javacArguments: List<String>,
+        kotlincArguments: List<String>
     ): KaptOptions.Builder {
         return KaptOptions.Builder().also {
             it.stubsOutputDir = workingDir.resolve("kapt-stubs") // IGNORED
@@ -58,6 +61,11 @@ internal class KaptCompilationStep(
             //  https://youtrack.jetbrains.com/issue/KT-47934
             it.flags.add(KaptFlag.MAP_DIAGNOSTIC_LOCATIONS)
 
+            if (getPluginOptions(KAPT_PLUGIN_ID, kotlincArguments)
+                    .getOrDefault("correctErrorTypes", "false") == "true") {
+                it.flags.add(KaptFlag.CORRECT_ERROR_TYPES)
+            }
+
             javacArguments.forEach { javacArg ->
                 it.javacOptions[javacArg.substringBefore("=")] =
                     javacArg.substringAfter("=", missingDelimiterValue = "")
@@ -65,6 +73,7 @@ internal class KaptCompilationStep(
         }
     }
 
+    @OptIn(ExperimentalCompilerApi::class)
     override fun execute(
         workingDir: File,
         arguments: CompilationStepArguments
@@ -72,14 +81,18 @@ internal class KaptCompilationStep(
         if (annotationProcessors.isEmpty()) {
             return CompilationStepResult.skip(arguments)
         }
-        val kaptMessages = DiagnosticsMessageCollector()
+        val kaptMessages = DiagnosticsMessageCollector(name)
         val result = KotlinCliRunner.runKotlinCli(
             arguments = arguments, // output is ignored,
             destinationDir = workingDir.resolve(CLASS_OUT_FOLDER_NAME),
             pluginRegistrars = listOf(
                 TestKapt3Registrar(
                     processors = annotationProcessors,
-                    baseOptions = createKaptArgs(workingDir, arguments.javacArguments),
+                    baseOptions = createKaptArgs(
+                        workingDir,
+                        arguments.javacArguments,
+                        arguments.kotlincArguments
+                    ),
                     messageCollector = kaptMessages
                 )
             )
@@ -111,5 +124,21 @@ internal class KaptCompilationStep(
         private const val KOTLIN_SRC_OUT_FOLDER_NAME = "kapt-kotlin-src-out"
         private const val RESOURCES_OUT_FOLDER_NAME = "kapt-classes-out"
         private const val CLASS_OUT_FOLDER_NAME = "class-out"
+        private const val KAPT_PLUGIN_ID = "org.jetbrains.kotlin.kapt3"
+
+        internal fun getPluginOptions(
+            pluginId: String,
+            kotlincArguments: List<String>
+        ): Map<String, String> {
+            val options = kotlincArguments.dropLast(1).zip(kotlincArguments.drop(1))
+                .filter { it.first == "-P" }
+                .mapNotNull {
+                    parseLegacyPluginOption(it.second)
+                }
+            val filteredOptionsMap = options
+                .filter { it.pluginId == pluginId }
+                .associateBy({ it.optionName }, { it.value })
+            return filteredOptionsMap
+        }
     }
 }

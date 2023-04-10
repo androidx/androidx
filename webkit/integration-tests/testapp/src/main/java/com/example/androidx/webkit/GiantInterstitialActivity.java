@@ -21,6 +21,7 @@ import android.util.DisplayMetrics;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewFeature;
@@ -37,7 +38,7 @@ public class GiantInterstitialActivity extends AppCompatActivity {
 
     @Override
     @SuppressWarnings("deprecation") /* defaultDisplay */
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_giant_interstitial);
         setTitle(R.string.giant_interstitial_activity_title);

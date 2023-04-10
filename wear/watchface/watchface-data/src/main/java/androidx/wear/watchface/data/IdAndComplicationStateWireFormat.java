@@ -32,7 +32,7 @@ import androidx.versionedparcelable.VersionedParcelize;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public final class IdAndComplicationStateWireFormat implements VersionedParcelable, Parcelable {
@@ -77,6 +77,7 @@ public final class IdAndComplicationStateWireFormat implements VersionedParcelab
 
     public static final Parcelable.Creator<IdAndComplicationStateWireFormat> CREATOR =
             new Parcelable.Creator<IdAndComplicationStateWireFormat>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public IdAndComplicationStateWireFormat createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

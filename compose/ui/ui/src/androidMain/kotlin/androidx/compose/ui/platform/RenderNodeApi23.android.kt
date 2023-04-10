@@ -16,13 +16,16 @@
 
 package androidx.compose.ui.platform
 
+import android.graphics.Color
 import android.graphics.Outline
 import android.view.RenderNode
 import android.view.DisplayListCanvas
 import android.os.Build
+import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.CanvasHolder
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RenderEffect
 
@@ -35,6 +38,8 @@ import androidx.compose.ui.graphics.RenderEffect
 @RequiresApi(Build.VERSION_CODES.M)
 internal class RenderNodeApi23(val ownerView: AndroidComposeView) : DeviceRenderNode {
     private val renderNode = RenderNode.create("Compose", ownerView)
+
+    private var internalCompositingStrategy = CompositingStrategy.Auto
 
     init {
         if (needToValidateAccess) {
@@ -65,7 +70,10 @@ internal class RenderNodeApi23(val ownerView: AndroidComposeView) : DeviceRender
             renderNode.setLeftTopRightBottom(0, 0, 0, 0)
             renderNode.offsetLeftAndRight(0)
             renderNode.offsetTopAndBottom(0)
-            renderNode.discardDisplayList()
+            verifyShadowColorProperties(renderNode)
+            discardDisplayListInternal()
+            renderNode.setLayerType(View.LAYER_TYPE_NONE)
+            renderNode.setHasOverlappingRendering(renderNode.hasOverlappingRendering())
             needToValidateAccess = false // only need to do this once
         }
         if (testFailCreateRenderNode) {
@@ -117,6 +125,34 @@ internal class RenderNodeApi23(val ownerView: AndroidComposeView) : DeviceRender
         get() = renderNode.elevation
         set(value) {
             renderNode.elevation = value
+        }
+
+    override var ambientShadowColor: Int
+        get() {
+            return if (Build.VERSION.SDK_INT >= 28) {
+                RenderNodeVerificationHelper28.getAmbientShadowColor(renderNode)
+            } else {
+                Color.BLACK
+            }
+        }
+        set(value) {
+            if (Build.VERSION.SDK_INT >= 28) {
+                RenderNodeVerificationHelper28.setAmbientShadowColor(renderNode, value)
+            }
+        }
+
+    override var spotShadowColor: Int
+        get() {
+            return if (Build.VERSION.SDK_INT >= 28) {
+                RenderNodeVerificationHelper28.getSpotShadowColor(renderNode)
+            } else {
+                Color.BLACK
+            }
+        }
+        set(value) {
+            if (Build.VERSION.SDK_INT >= 28) {
+                RenderNodeVerificationHelper28.setSpotShadowColor(renderNode, value)
+            }
         }
 
     override var rotationZ: Float
@@ -175,6 +211,33 @@ internal class RenderNodeApi23(val ownerView: AndroidComposeView) : DeviceRender
         set(value) {
             renderNode.alpha = value
         }
+
+    override var compositingStrategy: CompositingStrategy
+        get() = internalCompositingStrategy
+        set(value) {
+            when (value) {
+                CompositingStrategy.Offscreen -> {
+                    renderNode.setLayerType(View.LAYER_TYPE_HARDWARE)
+                    renderNode.setHasOverlappingRendering(true)
+                }
+                CompositingStrategy.ModulateAlpha -> {
+                    renderNode.setLayerType(View.LAYER_TYPE_NONE)
+                    renderNode.setHasOverlappingRendering(false)
+                }
+                else -> { // CompositingStrategy.Auto
+                    renderNode.setLayerType(View.LAYER_TYPE_NONE)
+                    renderNode.setHasOverlappingRendering(true)
+                }
+            }
+            internalCompositingStrategy = value
+        }
+
+    internal fun getLayerType(): Int = when (internalCompositingStrategy) {
+        CompositingStrategy.Offscreen -> View.LAYER_TYPE_HARDWARE
+        else -> View.LAYER_TYPE_NONE
+    }
+
+    internal fun hasOverlappingRendering(): Boolean = renderNode.hasOverlappingRendering()
 
     override val hasDisplayList: Boolean
         get() = renderNode.isValid
@@ -252,6 +315,8 @@ internal class RenderNodeApi23(val ownerView: AndroidComposeView) : DeviceRender
             translationX = renderNode.translationX,
             translationY = renderNode.translationY,
             elevation = renderNode.elevation,
+            ambientShadowColor = ambientShadowColor,
+            spotShadowColor = spotShadowColor,
             rotationZ = renderNode.rotation,
             rotationX = renderNode.rotationX,
             rotationY = renderNode.rotationY,
@@ -263,11 +328,37 @@ internal class RenderNodeApi23(val ownerView: AndroidComposeView) : DeviceRender
             // on it since this is a write only field
             clipToBounds = clipToBounds,
             alpha = renderNode.alpha,
-            renderEffect = renderEffect
+            renderEffect = renderEffect,
+            compositingStrategy = internalCompositingStrategy
         )
 
     override fun discardDisplayList() {
-        renderNode.discardDisplayList()
+        discardDisplayListInternal()
+    }
+
+    private fun discardDisplayListInternal() {
+        // See b/216660268. RenderNode#discardDisplayList was originally called
+        // destroyDisplayListData on Android M and below. Make sure we gate on the corresponding
+        // API level and call the original method name on these API levels, otherwise invoke
+        // the current method name of discardDisplayList
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            RenderNodeVerificationHelper24.discardDisplayList(renderNode)
+        } else {
+            RenderNodeVerificationHelper23.destroyDisplayListData(renderNode)
+        }
+    }
+
+    private fun verifyShadowColorProperties(renderNode: RenderNode) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            RenderNodeVerificationHelper28.setAmbientShadowColor(
+                renderNode,
+                RenderNodeVerificationHelper28.getAmbientShadowColor(renderNode)
+            )
+            RenderNodeVerificationHelper28.setSpotShadowColor(
+                renderNode,
+                RenderNodeVerificationHelper28.getSpotShadowColor(renderNode)
+            )
+        }
     }
 
     companion object {
@@ -279,5 +370,47 @@ internal class RenderNodeApi23(val ownerView: AndroidComposeView) : DeviceRender
         // stub implementation, but we only need to validate it once. This flag indicates that
         // validation is still needed.
         private var needToValidateAccess = true
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.P)
+private object RenderNodeVerificationHelper28 {
+
+    @androidx.annotation.DoNotInline
+    fun getAmbientShadowColor(renderNode: RenderNode): Int {
+        return renderNode.ambientShadowColor
+    }
+
+    @androidx.annotation.DoNotInline
+    fun setAmbientShadowColor(renderNode: RenderNode, target: Int) {
+        renderNode.ambientShadowColor = target
+    }
+
+    @androidx.annotation.DoNotInline
+    fun getSpotShadowColor(renderNode: RenderNode): Int {
+        return renderNode.spotShadowColor
+    }
+
+    @androidx.annotation.DoNotInline
+    fun setSpotShadowColor(renderNode: RenderNode, target: Int) {
+        renderNode.spotShadowColor = target
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.N)
+private object RenderNodeVerificationHelper24 {
+
+    @androidx.annotation.DoNotInline
+    fun discardDisplayList(renderNode: RenderNode) {
+        renderNode.discardDisplayList()
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.M)
+private object RenderNodeVerificationHelper23 {
+
+    @androidx.annotation.DoNotInline
+    fun destroyDisplayListData(renderNode: RenderNode) {
+        renderNode.destroyDisplayListData()
     }
 }

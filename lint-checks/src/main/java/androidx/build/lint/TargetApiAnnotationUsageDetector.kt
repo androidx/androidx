@@ -23,11 +23,13 @@ import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
+import com.android.tools.lint.detector.api.Incident
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import org.jetbrains.uast.UAnnotation
+import org.jetbrains.uast.namePsiElement
 
 /**
  * Enforces policy banning use of the `@TargetApi` annotation.
@@ -43,17 +45,28 @@ class TargetApiAnnotationUsageDetector : Detector(), Detector.UastScanner {
     private inner class AnnotationChecker(val context: JavaContext) : UElementHandler() {
         override fun visitAnnotation(node: UAnnotation) {
             if (node.qualifiedName == "android.annotation.TargetApi") {
-                context.report(
-                    ISSUE, node, context.getNameLocation(node),
-                    "Use `@RequiresApi` instead of `@TargetApi`",
-                    fix().name("Replace with `@RequiresApi`")
-                        .replace()
-                        .pattern("(?:android\\.annotation\\.)?TargetApi")
-                        .with("androidx.annotation.RequiresApi")
-                        .shortenNames()
-                        .autoFix(true, true)
-                        .build(),
-                )
+
+                // To support Kotlin's type aliases, we need to check the pattern against the symbol
+                // instead of a constant ("TargetApi") to pass Lint's IMPORT_ALIAS test mode. In the
+                // case where namePsiElement returns null (which shouldn't happen), fall back to the
+                // RegEx check.
+                val searchPattern = node.namePsiElement?.text
+                    ?: "(?:android\\.annotation\\.)?TargetApi"
+
+                val lintFix = fix().name("Replace with `@RequiresApi`")
+                    .replace()
+                    .pattern(searchPattern)
+                    .with("androidx.annotation.RequiresApi")
+                    .shortenNames()
+                    .autoFix(true, true)
+                    .build()
+                val incident = Incident(context)
+                    .fix(lintFix)
+                    .issue(ISSUE)
+                    .location(context.getNameLocation(node))
+                    .message("Use `@RequiresApi` instead of `@TargetApi`")
+                    .scope(node)
+                context.report(incident)
             }
         }
     }

@@ -82,7 +82,9 @@ public final class Camera2CameraControlDeviceTest {
     private Camera2CameraControlImpl mCamera2CameraControlImpl;
 
     @Rule
-    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest(
+            new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    );
 
     @Before
     public void setUp() {

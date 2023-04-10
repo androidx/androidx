@@ -31,16 +31,21 @@ import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class AppInfoTest {
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
+
     @Mock
     private Context mContext;
     @Mock
@@ -48,9 +53,8 @@ public class AppInfoTest {
     private final ApplicationInfo mApplicationInfo = new ApplicationInfo();
 
     @Before
+    @SuppressWarnings("deprecation")
     public void setUp() throws PackageManager.NameNotFoundException {
-        MockitoAnnotations.initMocks(this);
-
         when(mContext.getPackageManager()).thenReturn(mPackageManager);
         when(mPackageManager.getApplicationInfo(isNull(), anyInt()))
                 .thenReturn(mApplicationInfo);

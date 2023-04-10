@@ -324,7 +324,7 @@ public class BundlerTest {
             assertThat(
                     new CarIcon.Builder((IconCompat) Bundler.fromBundle(bundle)).build()).isEqualTo(
                     new CarIcon.Builder(image).build());
-            Drawable drawable = readImage.toIcon(mContext).loadDrawable(mContext);
+            Drawable drawable = readImage.loadDrawable(mContext);
             assertThat(drawable).isNotNull();
         } finally {
             bitmap.recycle();
@@ -558,6 +558,7 @@ public class BundlerTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void imageCompat_dejetify() throws BundlerException {
         CarIcon image = TestUtils.getTestCarIcon(mContext, "ic_test_1");
         Bundle bundle = Bundler.toBundle(image);

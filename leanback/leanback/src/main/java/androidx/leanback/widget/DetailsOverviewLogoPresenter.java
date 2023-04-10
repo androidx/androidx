@@ -5,6 +5,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.leanback.R;
 
 /**
@@ -29,18 +31,22 @@ public class DetailsOverviewLogoPresenter extends Presenter {
      */
     public static class ViewHolder extends Presenter.ViewHolder {
 
+        @Nullable
         protected FullWidthDetailsOverviewRowPresenter mParentPresenter;
+        @Nullable
         protected FullWidthDetailsOverviewRowPresenter.ViewHolder mParentViewHolder;
         private boolean mSizeFromDrawableIntrinsic;
 
-        public ViewHolder(View view) {
+        public ViewHolder(@NonNull View view) {
             super(view);
         }
 
+        @Nullable
         public FullWidthDetailsOverviewRowPresenter getParentPresenter() {
             return mParentPresenter;
         }
 
+        @Nullable
         public FullWidthDetailsOverviewRowPresenter.ViewHolder getParentViewHolder() {
             return mParentViewHolder;
         }
@@ -84,13 +90,15 @@ public class DetailsOverviewLogoPresenter extends Presenter {
      * @param parent Parent view.
      * @return View created for the logo.
      */
-    public View onCreateView(ViewGroup parent) {
+    @NonNull
+    public View onCreateView(@NonNull ViewGroup parent) {
         return LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.lb_fullwidth_details_overview_logo, parent, false);
     }
 
+    @NonNull
     @Override
-    public Presenter.ViewHolder onCreateViewHolder(ViewGroup parent) {
+    public Presenter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent) {
         View view = onCreateView(parent);
         ViewHolder vh = new ViewHolder(view);
         ViewGroup.LayoutParams lp = view.getLayoutParams();
@@ -106,9 +114,9 @@ public class DetailsOverviewLogoPresenter extends Presenter {
      * @param parentViewHolder
      * @param parentPresenter
      */
-    public void setContext(ViewHolder viewHolder,
-            FullWidthDetailsOverviewRowPresenter.ViewHolder parentViewHolder,
-            FullWidthDetailsOverviewRowPresenter parentPresenter) {
+    public void setContext(@NonNull ViewHolder viewHolder,
+            @Nullable FullWidthDetailsOverviewRowPresenter.ViewHolder parentViewHolder,
+            @Nullable FullWidthDetailsOverviewRowPresenter parentPresenter) {
         viewHolder.mParentViewHolder = parentViewHolder;
         viewHolder.mParentPresenter = parentPresenter;
     }
@@ -121,7 +129,10 @@ public class DetailsOverviewLogoPresenter extends Presenter {
      * {@link FullWidthDetailsOverviewRowPresenter#notifyOnBindLogo(FullWidthDetailsOverviewRowPresenter.ViewHolder)}
      * when image view is bound to the drawable.
      */
-    public boolean isBoundToImage(ViewHolder viewHolder, DetailsOverviewRow row) {
+    public boolean isBoundToImage(
+            @NonNull ViewHolder viewHolder,
+            @Nullable DetailsOverviewRow row
+    ) {
         return row != null && row.getImageDrawable() != null;
     }
 
@@ -133,7 +144,7 @@ public class DetailsOverviewLogoPresenter extends Presenter {
      * @param item DetailsOverviewRow object to bind.
      */
     @Override
-    public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
+    public void onBindViewHolder(@NonNull Presenter.ViewHolder viewHolder, @Nullable Object item) {
         DetailsOverviewRow row = (DetailsOverviewRow) item;
         ImageView imageView = ((ImageView) viewHolder.view);
         imageView.setImageDrawable(row.getImageDrawable());
@@ -167,7 +178,7 @@ public class DetailsOverviewLogoPresenter extends Presenter {
     }
 
     @Override
-    public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
+    public void onUnbindViewHolder(@NonNull Presenter.ViewHolder viewHolder) {
     }
 
 }

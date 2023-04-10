@@ -9,7 +9,7 @@ import java.lang.String;
 import javax.annotation.processing.Generated;
 
 @Generated("androidx.appsearch.compiler.AppSearchCompiler")
-public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
+public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   public static final String SCHEMA_NAME = "Gift";
 
   @Override
@@ -22,6 +22,7 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     return new AppSearchSchema.Builder(SCHEMA_NAME)
           .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("price")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setIndexingType(AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.BooleanPropertyConfig.Builder("cat")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
@@ -50,7 +51,6 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     boolean catConv = genericDoc.getPropertyBoolean("cat");
     boolean dogConv = genericDoc.getPropertyBoolean("dog");
     Gift document = new Gift(dogConv, idConv, namespaceConv);
-    document.namespace = namespaceConv;
     document.price = priceConv;
     document.cat = catConv;
     return document;

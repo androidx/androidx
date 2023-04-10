@@ -54,6 +54,7 @@ public final class Camera2CameraFactory implements CameraFactory {
     private final CameraStateRegistry mCameraStateRegistry;
     private final CameraManagerCompat mCameraManager;
     private final List<String> mAvailableCameraIds;
+    private final DisplayInfoManager mDisplayInfoManager;
     private final Map<String, Camera2CameraInfoImpl> mCameraInfos = new HashMap<>();
 
     /** Creates a Camera2 implementation of CameraFactory */
@@ -63,6 +64,7 @@ public final class Camera2CameraFactory implements CameraFactory {
         mThreadConfig = threadConfig;
         mCameraStateRegistry = new CameraStateRegistry(DEFAULT_ALLOWED_CONCURRENT_OPEN_CAMERAS);
         mCameraManager = CameraManagerCompat.from(context, mThreadConfig.getSchedulerHandler());
+        mDisplayInfoManager = DisplayInfoManager.getInstance(context);
 
         List<String> optimizedCameraIds = CameraSelectionOptimizer.getSelectedAvailableCameraIds(
                 this, availableCamerasSelector);
@@ -81,7 +83,8 @@ public final class Camera2CameraFactory implements CameraFactory {
                 getCameraInfo(cameraId),
                 mCameraStateRegistry,
                 mThreadConfig.getCameraExecutor(),
-                mThreadConfig.getSchedulerHandler());
+                mThreadConfig.getSchedulerHandler(),
+                mDisplayInfoManager);
     }
 
     Camera2CameraInfoImpl getCameraInfo(@NonNull String cameraId)

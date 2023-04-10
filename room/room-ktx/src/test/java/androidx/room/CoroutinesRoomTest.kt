@@ -26,7 +26,6 @@ import kotlinx.coroutines.yield
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.util.concurrent.Callable
 import kotlin.coroutines.ContinuationInterceptor
 
 @RunWith(JUnit4::class)
@@ -43,7 +42,7 @@ class CoroutinesRoomTest {
             db = database,
             inTransaction = false,
             tableNames = arrayOf("Pet"),
-            callable = Callable {
+            callable = {
                 callableExecuted = true
                 expectedResult
             }
@@ -66,12 +65,12 @@ class CoroutinesRoomTest {
 
     // Use runBlocking dispatcher as query dispatchers, keeps the tests consistent.
     private fun testRun(block: suspend CoroutineScope.() -> Unit) = runBlocking {
-        database.backingFieldMap["QueryDispatcher"] = coroutineContext[ContinuationInterceptor]
+        database.backingFieldMap["QueryDispatcher"] = coroutineContext[ContinuationInterceptor]!!
         block.invoke(this)
     }
 
     private class TestDatabase : RoomDatabase() {
-        override fun createOpenHelper(config: DatabaseConfiguration?): SupportSQLiteOpenHelper {
+        override fun createOpenHelper(config: DatabaseConfiguration): SupportSQLiteOpenHelper {
             throw UnsupportedOperationException("Shouldn't be called!")
         }
 

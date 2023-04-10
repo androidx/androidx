@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.window.sample.DisplayFeaturesConfigChangeActivity
 import androidx.window.sample.DisplayFeaturesNoConfigChangeActivity
+import androidx.window.sample.ImeActivity
 import androidx.window.sample.PresentationActivity
 import androidx.window.sample.R
 import androidx.window.sample.R.string.display_features_config_change
@@ -63,6 +64,11 @@ class WindowDemosActivity : AppCompatActivity() {
                 buttonTitle = getString(R.string.presentation),
                 description = getString(R.string.presentation_demo_description),
                 clazz = PresentationActivity::class.java
+            ),
+            DemoItem(
+                buttonTitle = getString(R.string.ime),
+                description = getString(R.string.ime_demo_description),
+                clazz = ImeActivity::class.java
             )
         )
         val recyclerView = findViewById<RecyclerView>(R.id.demo_recycler_view)

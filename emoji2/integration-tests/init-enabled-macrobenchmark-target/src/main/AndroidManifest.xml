@@ -15,8 +15,7 @@
   -->
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="androidx.emoji2.integration.macrobenchmark.enabled.target">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <application
         android:label="Emoji2 Init Enabled Macrobenchmark Target"

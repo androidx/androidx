@@ -34,7 +34,6 @@ import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -281,7 +280,7 @@ class PointerInteropFilterAndroidViewHookupTest {
     }
 
     @Test
-    fun ui_downMove_moveIsDispatchedDuringMain() {
+    fun ui_downMove_moveIsDispatchedDuringFinal() {
         val down =
             MotionEvent(
                 0,
@@ -311,9 +310,9 @@ class PointerInteropFilterAndroidViewHookupTest {
 
         assertThat(eventStringLog).hasSize(4)
         assertThat(eventStringLog[0]).isEqualTo(PointerEventPass.Initial.toString())
-        assertThat(eventStringLog[1]).isEqualTo("motionEvent")
-        assertThat(eventStringLog[2]).isEqualTo(PointerEventPass.Main.toString())
-        assertThat(eventStringLog[3]).isEqualTo(PointerEventPass.Final.toString())
+        assertThat(eventStringLog[1]).isEqualTo(PointerEventPass.Main.toString())
+        assertThat(eventStringLog[2]).isEqualTo(PointerEventPass.Final.toString())
+        assertThat(eventStringLog[3]).isEqualTo("motionEvent")
     }
 
     @Test
@@ -354,7 +353,7 @@ class PointerInteropFilterAndroidViewHookupTest {
     }
 
     @Test
-    fun ui_downDisallowInterceptMoveAllowInterceptMove_2ndMoveIsDispatchedDuringMain() {
+    fun ui_downDisallowInterceptMoveAllowInterceptMove_2ndMoveIsDispatchedDuringFinal() {
         val down =
             MotionEvent(
                 0,
@@ -397,13 +396,13 @@ class PointerInteropFilterAndroidViewHookupTest {
 
         assertThat(eventStringLog).hasSize(4)
         assertThat(eventStringLog[0]).isEqualTo(PointerEventPass.Initial.toString())
-        assertThat(eventStringLog[1]).isEqualTo("motionEvent")
-        assertThat(eventStringLog[2]).isEqualTo(PointerEventPass.Main.toString())
-        assertThat(eventStringLog[3]).isEqualTo(PointerEventPass.Final.toString())
+        assertThat(eventStringLog[1]).isEqualTo(PointerEventPass.Main.toString())
+        assertThat(eventStringLog[2]).isEqualTo(PointerEventPass.Final.toString())
+        assertThat(eventStringLog[3]).isEqualTo("motionEvent")
     }
 
     @Test
-    fun ui_downDisallowInterceptUpDownMove_2ndMoveIsDispatchedDuringMain() {
+    fun ui_downDisallowInterceptUpDownMove_2ndMoveIsDispatchedDuringFinal() {
         val down =
             MotionEvent(
                 0,
@@ -456,9 +455,9 @@ class PointerInteropFilterAndroidViewHookupTest {
 
         assertThat(eventStringLog).hasSize(4)
         assertThat(eventStringLog[0]).isEqualTo(PointerEventPass.Initial.toString())
-        assertThat(eventStringLog[1]).isEqualTo("motionEvent")
-        assertThat(eventStringLog[2]).isEqualTo(PointerEventPass.Main.toString())
-        assertThat(eventStringLog[3]).isEqualTo(PointerEventPass.Final.toString())
+        assertThat(eventStringLog[1]).isEqualTo(PointerEventPass.Main.toString())
+        assertThat(eventStringLog[2]).isEqualTo(PointerEventPass.Final.toString())
+        assertThat(eventStringLog[3]).isEqualTo("motionEvent")
     }
 
     @Test
@@ -478,7 +477,6 @@ class PointerInteropFilterAndroidViewHookupTest {
         assertThat(captureRequestDisallow.disallowIntercept).isFalse()
     }
 
-    @FlakyTest(bugId = 206967867)
     @Test
     fun disallowTriggeredWhenMovementInClickChildAfterRequestDisallow() {
         var clicked = false

@@ -393,6 +393,44 @@ public class LocaleListCompatTest {
         assertNotEquals(first.toLanguageTags(), second.toLanguageTags());
     }
 
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    public void testLocaleListCompat_matchesLanguageAndScript() {
+        assertTrue(LocaleListCompat.matchesLanguageAndScript(forLanguageTag("fr-Latn-FR"),
+                forLanguageTag("fr-Latn")));
+        assertTrue(LocaleListCompat.matchesLanguageAndScript(forLanguageTag("zh-Hans-CN"),
+                forLanguageTag("zh-Hans")));
+        assertTrue(LocaleListCompat.matchesLanguageAndScript(forLanguageTag("zh-Hant-TW"),
+                forLanguageTag("zh-Hant")));
+        assertTrue(LocaleListCompat.matchesLanguageAndScript(forLanguageTag("en-US"),
+                forLanguageTag("en-US")));
+        assertTrue(LocaleListCompat.matchesLanguageAndScript(forLanguageTag("en-US"),
+                forLanguageTag("en-CA")));
+        assertTrue(LocaleListCompat.matchesLanguageAndScript(forLanguageTag("ar-NA"),
+                forLanguageTag("ar-ZA")));
+        assertTrue(LocaleListCompat.matchesLanguageAndScript(forLanguageTag("zh-CN"),
+                forLanguageTag("zh")));
+        assertTrue(LocaleListCompat.matchesLanguageAndScript(forLanguageTag("zh-CN"),
+                forLanguageTag("zh-Hans")));
+        assertTrue(LocaleListCompat.matchesLanguageAndScript(forLanguageTag("zh-TW"),
+                forLanguageTag("zh-Hant")));
+
+        assertFalse(LocaleListCompat.matchesLanguageAndScript(forLanguageTag("zh-Hant-TW"),
+                forLanguageTag("zh-Hans")));
+        assertFalse(LocaleListCompat.matchesLanguageAndScript(forLanguageTag("en-XA"),
+                forLanguageTag("en-US")));
+        assertFalse(LocaleListCompat.matchesLanguageAndScript(forLanguageTag("ar-YE"),
+                forLanguageTag("ar-XB")));
+        assertFalse(LocaleListCompat.matchesLanguageAndScript(forLanguageTag("en-US"),
+                forLanguageTag("zh-TW")));
+        assertFalse(LocaleListCompat.matchesLanguageAndScript(forLanguageTag("zh-TW"),
+                forLanguageTag("zh")));
+        assertFalse(LocaleListCompat.matchesLanguageAndScript(forLanguageTag("zh-CN"),
+                forLanguageTag("zh-Hant")));
+        assertFalse(LocaleListCompat.matchesLanguageAndScript(forLanguageTag("zh-TW"),
+                forLanguageTag("zh-Hans")));
+    }
+
     private Locale forLanguageTag(String str) {
         if (Build.VERSION.SDK_INT >= 21) {
             return Locale.forLanguageTag(str);

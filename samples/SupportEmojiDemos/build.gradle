@@ -35,4 +35,5 @@ android {
     sourceSets {
         main.assets.srcDirs = [new File(fontDir, "supported-emojis").getAbsolutePath()]
     }
+    namespace "com.example.android.support.text.emoji"
 }

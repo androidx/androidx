@@ -22,6 +22,7 @@ import android.os.HandlerThread
 import android.os.Looper
 import android.os.Process
 import androidx.annotation.GuardedBy
+import androidx.annotation.RestrictTo
 import androidx.health.services.client.impl.ipc.internal.ConnectionManager
 
 /**
@@ -29,6 +30,7 @@ import androidx.health.services.client.impl.ipc.internal.ConnectionManager
  *
  * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public object HsConnectionManager {
 
     private val lock = Any()

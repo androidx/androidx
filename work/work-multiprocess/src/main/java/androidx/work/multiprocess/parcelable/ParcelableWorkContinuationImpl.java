@@ -62,7 +62,7 @@ public class ParcelableWorkContinuationImpl implements Parcelable {
         return mInfo;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "deprecation"})
     protected ParcelableWorkContinuationImpl(@NonNull Parcel parcel) {
         // name
         String name = null;

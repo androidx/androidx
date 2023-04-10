@@ -17,6 +17,7 @@ package androidx.emoji2.viewsintegration;
 
 import android.os.Build;
 import android.text.method.KeyListener;
+import android.text.method.NumberKeyListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
@@ -288,6 +289,11 @@ public final class EmojiEditTextHelper {
                 // be disabled (this causes keyboard and soft keyboard interactions to not be
                 // possible, and the EmojiKeyListener is not required)
                 return null;
+            }
+            if (keyListener instanceof NumberKeyListener) {
+                // don't wrap NumberKeyListener as it will never allow emoji input and TextView
+                // needs the original type to do correct locale setting (b/207119921)
+                return keyListener;
             }
             // make a KeyListener as it's always correct even if disabled
             return new EmojiKeyListener(keyListener);

@@ -15,7 +15,6 @@
  */
 
 import androidx.build.BundleInsideHelper
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 
 plugins {
@@ -43,7 +42,6 @@ dependencies {
 androidx {
     name = "Navigation Compose Lint"
     type = LibraryType.LINT
-    mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2021"
     description = "Lint checks for Navigation Compose"
 }

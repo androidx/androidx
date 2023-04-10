@@ -25,10 +25,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.lazy.GridCells
+import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Text
@@ -43,7 +44,6 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.Pager
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
@@ -163,11 +163,10 @@ private object ListsSnippetsStickyHeaders2 {
 }
 
 private object ListsSnippetsGrids {
-    @OptIn(ExperimentalFoundationApi::class)
     @Composable
     fun PhotoGrid(photos: List<Photo>) {
         LazyVerticalGrid(
-            cells = GridCells.Adaptive(minSize = 128.dp)
+            columns = GridCells.Adaptive(minSize = 128.dp)
         ) {
             items(photos) { photo ->
                 PhotoItem(photo)
@@ -291,6 +290,15 @@ private object ListsSnippetsItemKeys {
     }
 }
 
+@Composable
+private fun ListsContentTypeSnippet() {
+    LazyColumn {
+        items(elements, contentType = { it.type }) {
+            // ...
+        }
+    }
+}
+
 // ========================
 // Fakes below
 // ========================
@@ -331,3 +339,6 @@ private fun ScrollToTopButton(onClick: () -> Unit = {}) = Unit
 private object MyAnalyticsService {
     fun sendScrolledPastFirstItemEvent() = Unit
 }
+
+private class ContentTypeElement(val type: Long)
+private val elements = listOf<ContentTypeElement>()

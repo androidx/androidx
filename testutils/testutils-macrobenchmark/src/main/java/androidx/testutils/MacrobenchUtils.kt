@@ -18,8 +18,9 @@ package androidx.testutils
 
 import android.content.Intent
 import android.os.Build
-import androidx.annotation.RequiresApi
+import androidx.benchmark.macro.BaselineProfileMode
 import androidx.benchmark.macro.CompilationMode
+import androidx.benchmark.macro.Metric
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.StartupTimingLegacyMetric
 import androidx.benchmark.macro.StartupTimingMetric
@@ -27,76 +28,73 @@ import androidx.benchmark.macro.isSupportedWithVmSettings
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 
 /**
- * Basic, always-usable compilation modes, when baseline profiles aren't available.
- *
- * Over time, it's expected very few macrobenchmarks will reference this directly, as more libraries
- * gain baseline profiles.
+ * Compilation modes to sweep over for jetpack internal macrobenchmarks
  */
-val BASIC_COMPILATION_MODES = if (Build.VERSION.SDK_INT < 24) {
+val COMPILATION_MODES = if (Build.VERSION.SDK_INT < 24) {
     // other modes aren't supported
-    listOf(CompilationMode.None)
+    listOf(CompilationMode.Full())
 } else {
     listOf(
-        CompilationMode.None,
+        CompilationMode.None(),
         CompilationMode.Interpreted,
-        CompilationMode.SpeedProfile()
+        CompilationMode.Partial(
+            baselineProfileMode = BaselineProfileMode.Disable,
+            warmupIterations = 3
+        ),
+        /* For simplicity we use `Partial()`, which will only install baseline profiles if
+         * available, which would not be useful for macrobenchmarks that don't include baseline
+         * profiles. However baseline profiles are expected to make their way into essentially every
+         * jetpack macrobenchmark over time.
+         */
+        CompilationMode.Partial(),
+        CompilationMode.Full()
     )
 }
 
-/**
- * Default compilation modes to test for all AndroidX macrobenchmarks.
- *
- * Baseline profiles are only supported from Nougat (API 24),
- * currently through Android 11 (API 30)
- */
-val COMPILATION_MODES = if (Build.VERSION.SDK_INT in 24..30) {
-    listOf(CompilationMode.BaselineProfile)
-} else {
-    emptyList()
-} + BASIC_COMPILATION_MODES
+val STARTUP_MODES = listOf(
+    StartupMode.HOT,
+    StartupMode.WARM,
+    StartupMode.COLD
+).filter {
+    // skip StartupMode.HOT on Angler, API 23 - it works locally with same build on Bullhead,
+    // but not in Jetpack CI (b/204572406)
+    !(Build.VERSION.SDK_INT == 23 && it == StartupMode.HOT && Build.DEVICE == "angler")
+}
 
 /**
  * Temporary, while transitioning to new metrics
  */
-@RequiresApi(23)
 fun getStartupMetrics() = if (Build.VERSION.SDK_INT >= 29) {
     listOf(StartupTimingMetric(), StartupTimingLegacyMetric())
 } else {
     listOf(StartupTimingMetric())
 }
 
-@RequiresApi(23)
 fun MacrobenchmarkRule.measureStartup(
     compilationMode: CompilationMode,
     startupMode: StartupMode,
     packageName: String,
     iterations: Int = 10,
+    metrics: List<Metric> = getStartupMetrics(),
     setupIntent: Intent.() -> Unit = {}
 ) = measureRepeated(
     packageName = packageName,
-    metrics = getStartupMetrics(),
+    metrics = metrics,
     compilationMode = compilationMode,
     iterations = iterations,
-    startupMode = startupMode
+    startupMode = startupMode,
+    setupBlock = {
+        pressHome()
+    }
 ) {
-    pressHome()
     val intent = Intent()
     intent.setPackage(packageName)
     setupIntent(intent)
     startActivityAndWait(intent)
 }
 
-@RequiresApi(21)
 fun createStartupCompilationParams(
-    startupModes: List<StartupMode> = listOf(
-        StartupMode.HOT,
-        StartupMode.WARM,
-        StartupMode.COLD
-    ).filter {
-        // skip StartupMode.HOT on Angler, API 23 - it works locally with same build on Bullhead,
-        // but not in Jetpack CI (b/204572406)
-        !(Build.VERSION.SDK_INT == 23 && it == StartupMode.HOT && Build.DEVICE == "angler")
-    },
+    startupModes: List<StartupMode> = STARTUP_MODES,
     compilationModes: List<CompilationMode> = COMPILATION_MODES
 ): List<Array<Any>> = mutableListOf<Array<Any>>().apply {
     for (startupMode in startupModes) {
@@ -110,7 +108,6 @@ fun createStartupCompilationParams(
     }
 }
 
-@RequiresApi(21)
 fun createCompilationParams(
     compilationModes: List<CompilationMode> = COMPILATION_MODES
 ): List<Array<Any>> = mutableListOf<Array<Any>>().apply {

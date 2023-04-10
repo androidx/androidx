@@ -22,7 +22,7 @@ package androidx.drawerlayout.widget {
     method public boolean isDrawerVisible(android.view.View);
     method public boolean isDrawerVisible(int);
     method public boolean isOpen();
-    method public void onDraw(android.graphics.Canvas!);
+    method public void onDraw(android.graphics.Canvas);
     method public void open();
     method public void openDrawer(android.view.View);
     method public void openDrawer(android.view.View, boolean);

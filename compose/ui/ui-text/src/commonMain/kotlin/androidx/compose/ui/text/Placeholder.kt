@@ -56,7 +56,7 @@ class Placeholder(
         )
     }
 
-    override operator fun equals(other: Any?): Boolean {
+    override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Placeholder) return false
         if (width != other.width) return false
@@ -84,8 +84,8 @@ class Placeholder(
  * The settings used to specify how a placeholder is vertically aligned within a text line.
  * @see Placeholder
  */
-@Suppress("INLINE_CLASS_DEPRECATED")
-inline class PlaceholderVerticalAlign internal constructor(
+@kotlin.jvm.JvmInline
+value class PlaceholderVerticalAlign internal constructor(
     @Suppress("unused") private val value: Int
 ) {
 

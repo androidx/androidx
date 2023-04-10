@@ -26,7 +26,6 @@ import android.content.ContentResolver;
 import android.graphics.PorterDuff.Mode;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -34,6 +33,7 @@ import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarColorConstraints;
 import androidx.car.app.model.constraints.CarIconConstraints;
+import androidx.car.app.annotations.KeepFields;
 import androidx.core.graphics.drawable.IconCompat;
 
 import java.lang.annotation.Retention;
@@ -91,6 +91,7 @@ import java.util.Objects;
  * }</pre>
  */
 @CarProtocol
+@KeepFields
 public final class CarIcon {
     /** Matches with {@link android.graphics.drawable.Icon#TYPE_RESOURCE} */
     private static final int TYPE_RESOURCE = 2;
@@ -190,13 +191,10 @@ public final class CarIcon {
     @NonNull
     public static final CarIcon PAN = CarIcon.forStandardType(TYPE_PAN);
 
-    @Keep
     @CarIconType
     private final int mType;
-    @Keep
     @Nullable
     private final IconCompat mIcon;
-    @Keep
     @Nullable
     private final CarColor mTint;
 
@@ -341,11 +339,11 @@ public final class CarIcon {
     /** A builder of {@link CarIcon}. */
     public static final class Builder {
         @Nullable
-        private IconCompat mIcon;
+        private final IconCompat mIcon;
         @Nullable
         private CarColor mTint;
         @CarIconType
-        private int mType;
+        private final int mType;
 
         /**
          * Sets the tint of the icon to the given {@link CarColor}.
@@ -358,7 +356,7 @@ public final class CarIcon {
          * <p>The tint mode used to blend this color is {@link Mode#SRC_IN}.
          *
          * <p>Depending on contrast requirements, capabilities of the vehicle screens, or other
-         *  factors, the color may be ignored by the host or overridden by the vehicle system.
+         * factors, the color may be ignored by the host or overridden by the vehicle system.
          *
          * @throws NullPointerException if {@code tin} is {@code null}
          * @see CarColor

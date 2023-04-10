@@ -20,8 +20,10 @@ package androidx.camera.testing.fakes;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Build;
+import android.util.Size;
 
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.impl.ImageFormatConstants;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +31,9 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
@@ -54,5 +59,18 @@ public final class FakeCameraInfoTest {
     @Test
     public void canRetrieveSensorRotation() {
         assertThat(mFakeCameraInfo.getSensorRotationDegrees()).isEqualTo(SENSOR_ROTATION_DEGREES);
+    }
+
+    @Test
+    public void canRetrieveSupportedResolutions() {
+        List<Size> resolutions = new ArrayList<>();
+        resolutions.add(new Size(1280, 720));
+        resolutions.add(new Size(640, 480));
+        mFakeCameraInfo.setSupportedResolutions(
+                ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE, resolutions);
+
+        assertThat(mFakeCameraInfo.getSupportedResolutions(
+                ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE))
+                .containsExactlyElementsIn(resolutions);
     }
 }

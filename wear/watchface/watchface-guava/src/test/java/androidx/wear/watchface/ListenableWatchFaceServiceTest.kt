@@ -47,6 +47,7 @@ private class TestListenableWatchFaceService : ListenableWatchFaceService() {
         return Futures.immediateFuture(
             WatchFace(
                 WatchFaceType.DIGITAL,
+                @Suppress("deprecation")
                 object : Renderer.CanvasRenderer(
                     surfaceHolder,
                     currentUserStyleRepository,

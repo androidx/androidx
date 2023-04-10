@@ -33,10 +33,12 @@ import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
@@ -45,6 +47,8 @@ import java.util.concurrent.Executor;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class CarResultStubTest {
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
 
     @Mock
     private ICarHost mMockCarHost;
@@ -62,7 +66,6 @@ public class CarResultStubTest {
 
     @Before
     public void setUp() throws RemoteException {
-        MockitoAnnotations.initMocks(this);
         // Perform after mocks initialized.
         mCarHardwareHost = new TestCarHardwareHostStub(mMockCarHardwareHost);
 
@@ -77,7 +80,7 @@ public class CarResultStubTest {
         Integer desiredResult = 5;
         Bundleable desiredBundleable = Bundleable.create(desiredResult);
         int desiredResultType = ICarHardwareResultTypes.TYPE_INFO_MODEL;
-        Integer unsupportedResult = new Integer(-1);
+        Integer unsupportedResult = -1;
 
         String param = "param";
         Bundleable paramBundle = Bundleable.create(param);
@@ -98,7 +101,7 @@ public class CarResultStubTest {
     public void addListener_callHost_unsupported_singleShot() throws BundlerException,
             RemoteException {
         int desiredResultType = ICarHardwareResultTypes.TYPE_INFO_MODEL;
-        Integer unsupportedResult = new Integer(-1);
+        Integer unsupportedResult = -1;
 
         String param = "param";
         Bundleable paramBundle = Bundleable.create(param);

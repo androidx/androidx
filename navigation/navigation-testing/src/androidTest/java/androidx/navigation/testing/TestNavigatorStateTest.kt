@@ -228,6 +228,81 @@ class TestNavigatorStateTest {
         assertThat(viewModel.wasCleared).isFalse()
     }
 
+    @Test
+    fun testTransitionInterruptPushPop() {
+        val navigator = TestTransitionNavigator()
+        navigator.onAttach(state)
+        val firstEntry = state.createBackStackEntry(navigator.createDestination(), null)
+
+        navigator.navigate(listOf(firstEntry), null, null)
+        state.markTransitionComplete(firstEntry)
+
+        val secondEntry = state.createBackStackEntry(navigator.createDestination(), null)
+        navigator.navigate(listOf(secondEntry), null, null)
+        assertThat(state.transitionsInProgress.value.contains(firstEntry)).isTrue()
+        assertThat(state.transitionsInProgress.value.contains(secondEntry)).isTrue()
+        assertThat(firstEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+        assertThat(secondEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.STARTED)
+
+        navigator.popBackStack(secondEntry, true)
+        assertThat(state.transitionsInProgress.value.contains(firstEntry)).isTrue()
+        assertThat(state.transitionsInProgress.value.contains(secondEntry)).isTrue()
+        state.markTransitionComplete(firstEntry)
+        state.markTransitionComplete(secondEntry)
+        assertThat(firstEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(secondEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.DESTROYED)
+    }
+
+    @Test
+    fun testTransitionInterruptPopPush() {
+        val navigator = TestTransitionNavigator()
+        navigator.onAttach(state)
+        val firstEntry = state.createBackStackEntry(navigator.createDestination(), null)
+
+        navigator.navigate(listOf(firstEntry), null, null)
+        state.markTransitionComplete(firstEntry)
+
+        val secondEntry = state.createBackStackEntry(navigator.createDestination(), null)
+        navigator.navigate(listOf(secondEntry), null, null)
+        assertThat(state.transitionsInProgress.value.contains(firstEntry)).isTrue()
+        assertThat(state.transitionsInProgress.value.contains(secondEntry)).isTrue()
+        assertThat(firstEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+        assertThat(secondEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.STARTED)
+        state.markTransitionComplete(firstEntry)
+        state.markTransitionComplete(secondEntry)
+
+        navigator.popBackStack(secondEntry, true)
+        assertThat(state.transitionsInProgress.value.contains(firstEntry)).isTrue()
+        assertThat(state.transitionsInProgress.value.contains(secondEntry)).isTrue()
+
+        val secondEntryReplace = state.createBackStackEntry(navigator.createDestination(), null)
+        navigator.navigate(listOf(secondEntryReplace), null, null)
+        assertThat(state.transitionsInProgress.value.contains(firstEntry)).isTrue()
+        assertThat(state.transitionsInProgress.value.contains(secondEntry)).isTrue()
+        assertThat(state.transitionsInProgress.value.contains(secondEntryReplace)).isTrue()
+        assertThat(firstEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+        assertThat(secondEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+        assertThat(secondEntryReplace.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.STARTED)
+        state.markTransitionComplete(firstEntry)
+        state.markTransitionComplete(secondEntry)
+        state.markTransitionComplete(secondEntryReplace)
+        assertThat(firstEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+        assertThat(secondEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.DESTROYED)
+        assertThat(secondEntryReplace.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+    }
+
     @Navigator.Name("test")
     internal class TestNavigator : Navigator<NavDestination>() {
         override fun createDestination(): NavDestination = NavDestination(this)

@@ -19,6 +19,7 @@ package androidx.room.compiler.processing.ksp.synthetic
 import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XExecutableParameterElement
+import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.ksp.KspAnnotated
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
@@ -29,6 +30,8 @@ import androidx.room.compiler.processing.ksp.KspType
 import androidx.room.compiler.processing.ksp.requireContinuationClass
 import androidx.room.compiler.processing.ksp.returnTypeAsMemberOf
 import androidx.room.compiler.processing.ksp.swapResolvedType
+import com.google.devtools.ksp.symbol.KSDeclaration
+import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.Variance
 
 /**
@@ -37,7 +40,7 @@ import com.google.devtools.ksp.symbol.Variance
  */
 internal class KspSyntheticContinuationParameterElement(
     private val env: KspProcessingEnv,
-    override val enclosingMethodElement: KspMethodElement
+    override val enclosingElement: KspMethodElement
 ) : XExecutableParameterElement,
     XEquality,
     XAnnotated by KspAnnotated.create(
@@ -51,7 +54,7 @@ internal class KspSyntheticContinuationParameterElement(
         var candidate = "continuation"
         var suffix = 0
         while (
-            enclosingMethodElement.declaration.parameters.any { it.name?.asString() == candidate }
+            enclosingElement.declaration.parameters.any { it.name?.asString() == candidate }
         ) {
             candidate = "continuation_$suffix"
             suffix ++
@@ -60,68 +63,65 @@ internal class KspSyntheticContinuationParameterElement(
     }
 
     override val equalityItems: Array<out Any?> by lazy {
-        arrayOf("continuation", enclosingMethodElement)
+        arrayOf("continuation", enclosingElement)
     }
 
     override val hasDefaultValue: Boolean
         get() = false
 
-    private val jvmTypeResolutionScope by lazy {
-        KspJvmTypeResolutionScope.MethodParameter(
-            kspExecutableElement = enclosingMethodElement,
-            parameterIndex = enclosingMethodElement.parameters.size - 1,
-            annotated = enclosingMethodElement.declaration
+    private fun jvmTypeResolutionScope(container: KSDeclaration?): KspJvmTypeResolutionScope {
+        return KspJvmTypeResolutionScope.MethodParameter(
+            kspExecutableElement = enclosingElement,
+            parameterIndex = enclosingElement.parameters.size - 1,
+            annotated = enclosingElement.declaration,
+            container = container
         )
     }
 
-    override val type: XType by lazy {
-        val continuation = env.resolver.requireContinuationClass()
-        val asMember = enclosingMethodElement.declaration.returnTypeAsMemberOf(
-            ksType = enclosingMethodElement.containing.type?.ksType
-        )
-        val returnTypeRef = checkNotNull(enclosingMethodElement.declaration.returnType) {
-            "cannot find return type reference for $this"
-        }
-        val returnTypeAsTypeArgument = env.resolver.getTypeArgument(
-            returnTypeRef.swapResolvedType(asMember),
-            Variance.CONTRAVARIANT
-        )
-        val contType = continuation.asType(
-            listOf(
-                returnTypeAsTypeArgument
-            )
-        )
-        env.wrap(
-            ksType = contType,
-            allowPrimitives = false
-        ).withJvmTypeResolver(jvmTypeResolutionScope)
+    override val type: KspType by lazy {
+        asMemberOf(enclosingElement.enclosingElement.type?.ksType)
     }
 
     override val fallbackLocationText: String
-        get() = "return type of ${enclosingMethodElement.fallbackLocationText}"
+        get() = "return type of ${enclosingElement.fallbackLocationText}"
 
     // Not applicable
     override val docComment: String? get() = null
 
+    override val closestMemberContainer: XMemberContainer by lazy {
+        enclosingElement.closestMemberContainer
+    }
+
     override fun asMemberOf(other: XType): KspType {
+        if (enclosingElement.enclosingElement.type?.isSameType(other) != false) {
+            return type
+        }
         check(other is KspType)
+        return asMemberOf(other.ksType)
+    }
+
+    private fun asMemberOf(ksType: KSType?): KspType {
         val continuation = env.resolver.requireContinuationClass()
-        val asMember = enclosingMethodElement.declaration.returnTypeAsMemberOf(
-            ksType = other.ksType
+        val asMember = enclosingElement.declaration.returnTypeAsMemberOf(
+            ksType = ksType
         )
-        val returnTypeRef = checkNotNull(enclosingMethodElement.declaration.returnType) {
+        val returnTypeRef = checkNotNull(enclosingElement.declaration.returnType) {
             "cannot find return type reference for $this"
         }
         val returnTypeAsTypeArgument = env.resolver.getTypeArgument(
             returnTypeRef.swapResolvedType(asMember),
-            Variance.CONTRAVARIANT
+            // even though this will be CONTRAVARIANT when resolved to the JVM type, in Kotlin, it
+            // is still INVARIANT. (see [KSTypeVarianceResolver]
+            Variance.INVARIANT
         )
         val contType = continuation.asType(listOf(returnTypeAsTypeArgument))
         return env.wrap(
             ksType = contType,
             allowPrimitives = false
         ).withJvmTypeResolver(
-            jvmTypeResolutionScope
+            jvmTypeResolutionScope(
+                container = ksType?.declaration
+            )
         )
     }
 

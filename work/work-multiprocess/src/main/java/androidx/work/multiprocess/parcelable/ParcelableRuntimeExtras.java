@@ -47,6 +47,7 @@ public class ParcelableRuntimeExtras implements Parcelable {
         mRuntimeExtras = runtimeExtras;
     }
 
+    @SuppressWarnings("deprecation")
     public ParcelableRuntimeExtras(@NonNull Parcel in) {
         ClassLoader loader = getClass().getClassLoader();
         // network

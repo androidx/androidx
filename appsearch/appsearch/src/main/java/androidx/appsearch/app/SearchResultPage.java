@@ -61,6 +61,7 @@ public class SearchResultPage {
 
     /** Returns all {@link androidx.appsearch.app.SearchResult}s of this page */
     @NonNull
+    @SuppressWarnings("deprecation")
     public List<SearchResult> getResults() {
         if (mResults == null) {
             ArrayList<Bundle> resultBundles = mBundle.getParcelableArrayList(RESULTS_FIELD);

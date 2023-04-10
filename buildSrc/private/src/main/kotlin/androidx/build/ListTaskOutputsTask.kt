@@ -16,19 +16,21 @@
 
 package androidx.build
 
+import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import java.io.File
 
 /**
  * Finds the outputs of every task and saves this mapping into a file
  */
+@CacheableTask
 abstract class ListTaskOutputsTask : DefaultTask() {
     @OutputFile
     val outputFile: Property<File> = project.objects.property(File::class.java)
@@ -37,9 +39,14 @@ abstract class ListTaskOutputsTask : DefaultTask() {
     @Input
     val tasks: MutableList<Task> = mutableListOf()
 
+    @get:Input
+    val outputText by lazy { computeOutputText() }
+
     init {
         group = "Help"
-        outputs.upToDateWhen { false }
+        // compute the output text when the taskgraph is ready so that the output text can be
+        // saved in the configuration cache and not generate a configuration cache violation
+        project.gradle.taskGraph.whenReady({ outputText.toString() })
     }
 
     fun setOutput(f: File) {
@@ -89,14 +96,15 @@ abstract class ListTaskOutputsTask : DefaultTask() {
         return components.joinToString("")
     }
 
+    fun computeOutputText(): String {
+        val tasksByOutput = project.rootProject.findAllTasksByOutput()
+        return formatTasks(tasksByOutput)
+    }
+
     @TaskAction
     fun exec() {
-        val tasksByOutput = project.rootProject.findAllTasksByOutput()
-        val text = formatTasks(tasksByOutput)
-
         val outputFile = outputFile.get()
-        outputFile.writeText(text)
-        logger.lifecycle("Wrote ${outputFile.path}")
+        outputFile.writeText(outputText)
     }
 }
 
@@ -107,13 +115,6 @@ val taskNamesKnownToDuplicateOutputs = setOf(
     "kotlinSourcesJar",
     "releaseSourcesJar",
     "sourceJarRelease",
-    // Can remove "lint" after AGP 7.1.0-alpha05.
-    "lint",
-    "lintReport",
-    "lintFix",
-    // Can remove "lintVital" after AGP 7.1.0-alpha05.
-    "lintVital",
-    "lintVitalReport",
     "sourceJar",
     // MPP plugin has issues with modules using withJava() clause, see b/158747039.
     "processTestResources",
@@ -126,14 +127,20 @@ val taskNamesKnownToDuplicateOutputs = setOf(
     "generateDebugProtos",
     "generateReleaseProtos",
     // Release APKs
-    "copyReleaseApk"
+    "copyReleaseApk",
+)
+
+val taskTypesKnownToDuplicateOutputs = setOf(
+    // b/224564238
+    "com.android.build.gradle.internal.lint.AndroidLintTask_Decorated"
 )
 
 fun shouldValidateTaskOutput(task: Task): Boolean {
     if (!task.enabled) {
         return false
     }
-    return !taskNamesKnownToDuplicateOutputs.contains(task.name)
+    return !taskNamesKnownToDuplicateOutputs.contains(task.name) &&
+        !taskTypesKnownToDuplicateOutputs.contains(task::class.qualifiedName)
 }
 
 // For this project and all subprojects, collects all tasks and creates a map keyed by their output files
@@ -158,6 +165,9 @@ fun Project.findAllTasksByOutput(): Map<File, Task> {
                             "multiple tasks: " + otherTask + " and " + existingTask
                     )
                 }
+                // if there is an exempt conflict, keep the alphabetically earlier task to ensure consistency
+                if (existingTask.path > otherTask.path)
+                  continue
             }
             tasksByOutput[otherTaskOutput] = otherTask
         }

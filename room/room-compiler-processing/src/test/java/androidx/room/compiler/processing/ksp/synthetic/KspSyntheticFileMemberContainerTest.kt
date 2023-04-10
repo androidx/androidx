@@ -56,10 +56,10 @@ class KspSyntheticFileMemberContainerTest {
             val className = elements.map {
                 val owner = invocation.kspResolver.getOwnerJvmClassName(it as KSPropertyDeclaration)
                 assertWithMessage(it.toString()).that(owner).isNotNull()
-                KspSyntheticFileMemberContainer(owner!!).className
+                KspSyntheticFileMemberContainer(owner!!).asClassName()
             }.first()
-            assertThat(className.packageName()).isEmpty()
-            assertThat(className.simpleNames()).containsExactly("AppKt")
+            assertThat(className.packageName).isEmpty()
+            assertThat(className.simpleNames).containsExactly("AppKt")
         }
     }
 
@@ -136,7 +136,8 @@ class KspSyntheticFileMemberContainerTest {
                     val owner = invocation.kspResolver.getOwnerJvmClassName(field.declaration)
                     assertWithMessage(qName).that(owner).isNotNull()
                     val synthetic = KspSyntheticFileMemberContainer(owner!!)
-                    assertWithMessage(qName).that(target.className).isEqualTo(synthetic.className)
+                    assertWithMessage(qName).that(target.asClassName())
+                        .isEqualTo(synthetic.asClassName())
                 }
             }
             listOf("lib", "app").forEach { pkg ->

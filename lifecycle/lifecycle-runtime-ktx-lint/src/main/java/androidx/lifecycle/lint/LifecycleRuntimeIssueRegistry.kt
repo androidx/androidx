@@ -17,14 +17,21 @@
 package androidx.lifecycle.lint
 
 import com.android.tools.lint.client.api.IssueRegistry
+import com.android.tools.lint.client.api.Vendor
 import com.android.tools.lint.detector.api.CURRENT_API
 
+@Suppress("UnstableApiUsage")
 class LifecycleRuntimeIssueRegistry : IssueRegistry() {
     // tests are run with this version. We ensure that with ApiLintVersionsTest
-    override val api = 11
+    override val api = 13
     override val minApi = CURRENT_API
     override val issues get() = listOf(
         LifecycleWhenChecks.ISSUE,
         RepeatOnLifecycleDetector.ISSUE
+    )
+    override val vendor = Vendor(
+        feedbackUrl = "https://issuetracker.google.com/issues/new?component=413132",
+        identifier = "androidx.lifecycle",
+        vendorName = "Android Open Source Project",
     )
 }

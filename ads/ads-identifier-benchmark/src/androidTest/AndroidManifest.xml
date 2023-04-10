@@ -15,10 +15,9 @@
   ~ limitations under the License.
   -->
 <manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.ads.identifier.benchmark">
+    xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:name=".AdsIdentifierBenchmarkApplication">
+        android:name="androidx.ads.identifier.benchmark.AdsIdentifierBenchmarkApplication">
         <!-- enable profiling by shell for non-intrusive profiling tools -->
         <profileable android:shell="true"/>
     </application>

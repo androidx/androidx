@@ -25,6 +25,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -49,7 +50,7 @@ public class NotificationChannelCompat {
     private static final boolean DEFAULT_SHOW_BADGE = true;
     private static final int DEFAULT_LIGHT_COLOR = 0;
 
-    // These fields are settable theough the builder
+    // These fields are settable through the builder
     @NonNull
     final String mId;
     CharSequence mName;
@@ -281,30 +282,30 @@ public class NotificationChannelCompat {
 
     @RequiresApi(26)
     NotificationChannelCompat(@NonNull NotificationChannel channel) {
-        this(channel.getId(), channel.getImportance());
+        this(Api26Impl.getId(channel), Api26Impl.getImportance(channel));
         // Populate all builder-editable fields
-        mName = channel.getName();
-        mDescription = channel.getDescription();
-        mGroupId = channel.getGroup();
-        mShowBadge = channel.canShowBadge();
-        mSound = channel.getSound();
-        mAudioAttributes = channel.getAudioAttributes();
-        mLights = channel.shouldShowLights();
-        mLightColor = channel.getLightColor();
-        mVibrationEnabled = channel.shouldVibrate();
-        mVibrationPattern = channel.getVibrationPattern();
+        mName = Api26Impl.getName(channel);
+        mDescription = Api26Impl.getDescription(channel);
+        mGroupId = Api26Impl.getGroup(channel);
+        mShowBadge = Api26Impl.canShowBadge(channel);
+        mSound = Api26Impl.getSound(channel);
+        mAudioAttributes = Api26Impl.getAudioAttributes(channel);
+        mLights = Api26Impl.shouldShowLights(channel);
+        mLightColor = Api26Impl.getLightColor(channel);
+        mVibrationEnabled = Api26Impl.shouldVibrate(channel);
+        mVibrationPattern = Api26Impl.getVibrationPattern(channel);
         if (Build.VERSION.SDK_INT >= 30) {
-            mParentId = channel.getParentChannelId();
-            mConversationId = channel.getConversationId();
+            mParentId = Api30Impl.getParentChannelId(channel);
+            mConversationId = Api30Impl.getConversationId(channel);
         }
         // Populate all read-only fields
-        mBypassDnd = channel.canBypassDnd();
-        mLockscreenVisibility = channel.getLockscreenVisibility();
+        mBypassDnd = Api26Impl.canBypassDnd(channel);
+        mLockscreenVisibility = Api26Impl.getLockscreenVisibility(channel);
         if (Build.VERSION.SDK_INT >= 29) {
-            mCanBubble = channel.canBubble();
+            mCanBubble = Api29Impl.canBubble(channel);
         }
         if (Build.VERSION.SDK_INT >= 30) {
-            mImportantConversation = channel.isImportantConversation();
+            mImportantConversation = Api30Impl.isImportantConversation(channel);
         }
     }
 
@@ -317,17 +318,17 @@ public class NotificationChannelCompat {
         if (Build.VERSION.SDK_INT < 26) {
             return null;
         }
-        NotificationChannel channel = new NotificationChannel(mId, mName, mImportance);
-        channel.setDescription(mDescription);
-        channel.setGroup(mGroupId);
-        channel.setShowBadge(mShowBadge);
-        channel.setSound(mSound, mAudioAttributes);
-        channel.enableLights(mLights);
-        channel.setLightColor(mLightColor);
-        channel.setVibrationPattern(mVibrationPattern);
-        channel.enableVibration(mVibrationEnabled);
+        NotificationChannel channel = Api26Impl.createNotificationChannel(mId, mName, mImportance);
+        Api26Impl.setDescription(channel, mDescription);
+        Api26Impl.setGroup(channel, mGroupId);
+        Api26Impl.setShowBadge(channel, mShowBadge);
+        Api26Impl.setSound(channel, mSound, mAudioAttributes);
+        Api26Impl.enableLights(channel, mLights);
+        Api26Impl.setLightColor(channel, mLightColor);
+        Api26Impl.setVibrationPattern(channel, mVibrationPattern);
+        Api26Impl.enableVibration(channel, mVibrationEnabled);
         if (Build.VERSION.SDK_INT >= 30 && mParentId != null && mConversationId != null) {
-            channel.setConversationId(mParentId, mConversationId);
+            Api30Impl.setConversationId(channel, mParentId, mConversationId);
         }
         return channel;
     }
@@ -523,4 +524,178 @@ public class NotificationChannelCompat {
         return mImportantConversation;
     }
 
+    /**
+     * A class for wrapping calls to {@link NotificationChannel} methods which
+     * were added in API 26; these calls must be wrapped to avoid performance issues.
+     * See the UnsafeNewApiCall lint rule for more details.
+     */
+    @RequiresApi(26)
+    static class Api26Impl {
+        private Api26Impl() { }
+
+        @DoNotInline
+        static NotificationChannel createNotificationChannel(String id, CharSequence name,
+                int importance) {
+            return new NotificationChannel(id, name, importance);
+        }
+
+        @DoNotInline
+        static String getId(NotificationChannel notificationChannel) {
+            return notificationChannel.getId();
+        }
+
+        @DoNotInline
+        static int getImportance(NotificationChannel notificationChannel) {
+            return notificationChannel.getImportance();
+        }
+
+        @DoNotInline
+        static CharSequence getName(NotificationChannel notificationChannel) {
+            return notificationChannel.getName();
+        }
+
+        @DoNotInline
+        static String getDescription(NotificationChannel notificationChannel) {
+            return notificationChannel.getDescription();
+        }
+
+        @DoNotInline
+        static void setDescription(NotificationChannel notificationChannel, String description) {
+            notificationChannel.setDescription(description);
+        }
+
+        @DoNotInline
+        static String getGroup(NotificationChannel notificationChannel) {
+            return notificationChannel.getGroup();
+        }
+
+        @DoNotInline
+        static void setGroup(NotificationChannel notificationChannel, String groupId) {
+            notificationChannel.setGroup(groupId);
+        }
+
+        @DoNotInline
+        static boolean canShowBadge(NotificationChannel notificationChannel) {
+            return notificationChannel.canShowBadge();
+        }
+
+        @DoNotInline
+        static void setShowBadge(NotificationChannel notificationChannel, boolean showBadge) {
+            notificationChannel.setShowBadge(showBadge);
+        }
+
+        @DoNotInline
+        static Uri getSound(NotificationChannel notificationChannel) {
+            return notificationChannel.getSound();
+        }
+
+        @DoNotInline
+        static void setSound(NotificationChannel notificationChannel, Uri sound,
+                AudioAttributes audioAttributes) {
+            notificationChannel.setSound(sound, audioAttributes);
+        }
+
+        @DoNotInline
+        static AudioAttributes getAudioAttributes(NotificationChannel notificationChannel) {
+            return notificationChannel.getAudioAttributes();
+        }
+
+        @DoNotInline
+        static boolean shouldShowLights(NotificationChannel notificationChannel) {
+            return notificationChannel.shouldShowLights();
+        }
+
+        @DoNotInline
+        static void enableLights(NotificationChannel notificationChannel, boolean lights) {
+            notificationChannel.enableLights(lights);
+        }
+
+        @DoNotInline
+        static int getLightColor(NotificationChannel notificationChannel) {
+            return notificationChannel.getLightColor();
+        }
+
+        @DoNotInline
+        static void setLightColor(NotificationChannel notificationChannel, int argb) {
+            notificationChannel.setLightColor(argb);
+        }
+
+        @DoNotInline
+        static boolean shouldVibrate(NotificationChannel notificationChannel) {
+            return notificationChannel.shouldVibrate();
+        }
+
+        @DoNotInline
+        static void enableVibration(NotificationChannel notificationChannel, boolean vibration) {
+            notificationChannel.enableVibration(vibration);
+        }
+
+        @DoNotInline
+        static long[] getVibrationPattern(NotificationChannel notificationChannel) {
+            return notificationChannel.getVibrationPattern();
+        }
+
+        @DoNotInline
+        static void setVibrationPattern(NotificationChannel notificationChannel,
+                long[] vibrationPattern) {
+            notificationChannel.setVibrationPattern(vibrationPattern);
+        }
+
+        @DoNotInline
+        static boolean canBypassDnd(NotificationChannel notificationChannel) {
+            return notificationChannel.canBypassDnd();
+        }
+
+        @DoNotInline
+        static int getLockscreenVisibility(NotificationChannel notificationChannel) {
+            return notificationChannel.getLockscreenVisibility();
+        }
+
+    }
+
+    /**
+     * A class for wrapping calls to {@link NotificationChannel} methods which
+     * were added in API 29; these calls must be wrapped to avoid performance issues.
+     * See the UnsafeNewApiCall lint rule for more details.
+     */
+    @RequiresApi(29)
+    static class Api29Impl {
+        private Api29Impl() { }
+
+        @DoNotInline
+        static boolean canBubble(NotificationChannel notificationChannel) {
+            return notificationChannel.canBubble();
+        }
+    }
+
+    /**
+     * A class for wrapping calls to {@link NotificationChannel} methods which
+     * were added in API 30; these calls must be wrapped to avoid performance issues.
+     * See the UnsafeNewApiCall lint rule for more details.
+     */
+    @RequiresApi(30)
+    static class Api30Impl {
+        private Api30Impl() { }
+
+        @DoNotInline
+        static String getParentChannelId(NotificationChannel notificationChannel) {
+            return notificationChannel.getParentChannelId();
+        }
+
+        @DoNotInline
+        static String getConversationId(NotificationChannel notificationChannel) {
+            return notificationChannel.getConversationId();
+        }
+
+        @DoNotInline
+        static void setConversationId(NotificationChannel notificationChannel,
+                String parentChannelId, String conversationId) {
+            notificationChannel.setConversationId(parentChannelId, conversationId);
+        }
+
+        @DoNotInline
+        static boolean isImportantConversation(NotificationChannel notificationChannel) {
+            return notificationChannel.isImportantConversation();
+        }
+    }
 }

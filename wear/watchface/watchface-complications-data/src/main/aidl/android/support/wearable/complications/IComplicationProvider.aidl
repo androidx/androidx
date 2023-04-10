@@ -86,7 +86,7 @@ interface IComplicationProvider {
 
     /**
      * If a metadata key with
-     * androidx.wear.watchface.complications.data.source.SYNCHRONOUS_UPDATE_PERIOD_MILLISECOND is
+     * androidx.wear.watchface.complications.data.source.SYNCHRONOUS_UPDATE_PERIOD_MILLISECONDS is
      * present in the manifest, and the watch face becomes visible and non-ambient then
      * onStartSynchronousComplicationRequests will be called. A series of calls to
      * onSynchronousComplicationRequest will follow, ending with a call to
@@ -103,9 +103,9 @@ interface IComplicationProvider {
 
     /**
      * If a metadata key with
-     * androidx.wear.watchface.complications.data.source.SYNCHRONOUS_UPDATE_PERIOD_MILLISECOND is
+     * androidx.wear.watchface.complications.data.source.SYNCHRONOUS_UPDATE_PERIOD_MILLISECONDS is
      * present in the manifest, when the watch face ceases to be visible and non ambient
-     * onStopInteractiveComplication will be called. After this no subsequent calls to
+     * onStopSynchronousComplicationRequests will be called. After this no subsequent calls to
      * onSynchronousComplicationRequest will me made unless the watch face becomes visible and non
      * ambient again. However calls to onComplicationRequest may resume (depending on
      * the value of METADATA_KEY_UPDATE_PERIOD_SECONDS).

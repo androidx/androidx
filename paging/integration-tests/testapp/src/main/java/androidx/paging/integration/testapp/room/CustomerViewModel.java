@@ -48,8 +48,10 @@ public class CustomerViewModel extends AndroidViewModel {
 
     @SuppressLint("RestrictedApi")
     private void createDb() {
-        mDatabase = Room.databaseBuilder(this.getApplication(),
-                SampleDatabase.class, "customerDatabase").build();
+        mDatabase = Room.databaseBuilder(this.getApplication(), SampleDatabase.class,
+                        "customerDatabase")
+                .fallbackToDestructiveMigration()
+                .build();
 
         ArchTaskExecutor.getInstance().executeOnDiskIO(() -> {
             // fill with some simple data

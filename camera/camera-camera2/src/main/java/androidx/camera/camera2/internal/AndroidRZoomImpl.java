@@ -100,7 +100,7 @@ final class AndroidRZoomImpl implements ZoomControl.ZoomImpl {
                 return;
             }
 
-            float zoomRatio = zoomRatioFloat.floatValue();
+            float zoomRatio = zoomRatioFloat;
             if (mPendingZoomRatio == zoomRatio) {
                 mPendingZoomRatioCompleter.set(null);
                 mPendingZoomRatioCompleter = null;

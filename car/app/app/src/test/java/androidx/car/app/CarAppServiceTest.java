@@ -16,653 +16,275 @@
 
 package androidx.car.app;
 
-import static androidx.lifecycle.Lifecycle.Event.ON_CREATE;
-import static androidx.lifecycle.Lifecycle.Event.ON_DESTROY;
+import static androidx.car.app.SessionInfo.DEFAULT_SESSION_INFO;
+import static androidx.car.app.SessionInfo.DISPLAY_TYPE_CLUSTER;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
+import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.os.RemoteException;
+import android.os.Build;
+import android.os.IBinder;
 
 import androidx.annotation.NonNull;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.PlaceListMapTemplate;
 import androidx.car.app.model.Template;
-import androidx.car.app.navigation.NavigationManager;
-import androidx.car.app.serialization.Bundleable;
-import androidx.car.app.serialization.BundlerException;
-import androidx.car.app.testing.SessionController;
-import androidx.car.app.testing.TestCarContext;
 import androidx.car.app.validation.HostValidator;
 import androidx.car.app.versioning.CarAppApiLevels;
-import androidx.lifecycle.DefaultLifecycleObserver;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleRegistry;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
+import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.android.controller.ServiceController;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
-
-import java.util.Deque;
-import java.util.Locale;
 
 
 /** Tests for {@link CarAppService} and related classes for establishing a host connection. */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public final class CarAppServiceTest {
-    @Mock
-    ICarHost mMockCarHost;
-    @Mock
-    DefaultLifecycleObserver mLifecycleObserver;
-    @Mock
-    IOnDoneCallback mMockOnDoneCallback;
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
 
-    private TestCarContext mCarContext;
-    private final Template mTemplate =
+    private static final HostInfo TEST_HOST_INFO = new HostInfo("foo", 1);
+    private static final Template TEST_RETURN_TEMPLATE =
             new PlaceListMapTemplate.Builder()
                     .setTitle("Title")
                     .setItemList(new ItemList.Builder().build())
                     .build();
+    private static final SessionInfo TEST_CLUSTER_SESSION_INFO =
+            new SessionInfo(DISPLAY_TYPE_CLUSTER, "test-cluster-session-id");
 
+    private final Context mContext = ApplicationProvider.getApplicationContext();
+    @Mock
+    private ICarHost mMockCarHost;
+    @Mock
+    private IOnDoneCallback mMockOnDoneCallback;
     private CarAppService mCarAppService;
-    private Intent mIntentSet;
-    private SessionController mSessionController;
-    @Captor
-    ArgumentCaptor<Bundleable> mBundleableArgumentCaptor;
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        mCarAppService =
-                new CarAppService() {
-                    @Override
-                    @NonNull
-                    public HostValidator createHostValidator() {
-                        return HostValidator.ALLOW_ALL_HOSTS_VALIDATOR;
-                    }
-
-                    @Override
-                    @NonNull
-                    public Session onCreateSession() {
-                        // Recreate a new CarContext, because the previous one would have been
-                        // destroyed in an unbind-rebind scenario.
-                        mCarContext = TestCarContext.createCarContext(
-                                ApplicationProvider.getApplicationContext());
-                        Session session = createTestSession();
-                        mSessionController = new SessionController(session, mCarContext,
-                                new Intent());
-                        return session;
-                    }
-                };
-
-        AppInfo appInfo = new AppInfo(CarAppApiLevels.getOldest(), CarAppApiLevels.getLatest(),
-                "blah");
-        mCarAppService.setAppInfo(appInfo);
-
-        // Sets default handshake and host info. OnAppCreate depends on these being non-null.
-        String hostPackageName = "com.google.projection.gearhead";
-        HandshakeInfo handshakeInfo = new HandshakeInfo(hostPackageName,
-                CarAppApiLevels.getLatest());
-        HostInfo hostInfo = new HostInfo(hostPackageName, 1);
-        mCarAppService.setHostInfo(hostInfo);
-        mCarAppService.setHandshakeInfo(handshakeInfo);
+        ServiceController<? extends CarAppService> serviceController =
+                Robolectric.buildService(TestCarAppService.class);
+        serviceController.get().setHostInfo(TEST_HOST_INFO);
+        mCarAppService = serviceController.create().get();
     }
 
-    private Session createTestSession() {
+    @Test
+    public void onUnbind_destroysSession() {
+        Intent bindIntent = new Intent();
+        SessionInfo clusterSessionInfo = new SessionInfo(DISPLAY_TYPE_CLUSTER, "test-id");
+        SessionInfoIntentEncoder.encode(clusterSessionInfo, bindIntent);
+        CarAppBinder binder = bindAndStart(bindIntent);
+
+        assertThat(binder.getCurrentSession()).isNotNull();
+        assertThat(mCarAppService.getSession(clusterSessionInfo)).isNotNull();
+        assertThat(mCarAppService.onUnbind(bindIntent)).isTrue();
+
+        assertThat(binder.getCurrentSession()).isNull();
+        assertThat(mCarAppService.getSession(clusterSessionInfo)).isNull();
+    }
+
+    // Tests old host with new client
+    @Test
+    @SuppressWarnings("deprecation") // Testing a deprecated method
+    public void onUnbind_destroysDefaultSession_whenNoSessionInfoIncluded() {
+        Intent bindIntent = new Intent();
+        CarAppBinder binder = bindAndStart(bindIntent);
+
+        assertThat(binder.getCurrentSession()).isNotNull();
+        assertThat(mCarAppService.getCurrentSession()).isNotNull();
+        assertThat(mCarAppService.onUnbind(bindIntent)).isTrue();
+
+        assertThat(binder.getCurrentSession()).isNull();
+        assertThat(mCarAppService.getCurrentSession()).isNull();
+    }
+
+    // Test encoding/decoding implementations across SDK versions
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.P, maxSdk = Build.VERSION_CODES.Q)
+    public void onBind_returnsSameBinder_forSimilarIntents() {
+        // Create two intent instances with the same data
+        Intent intent1 = new Intent();
+        SessionInfoIntentEncoder.encode(DEFAULT_SESSION_INFO, intent1);
+        Intent intent2 = new Intent();
+        SessionInfoIntentEncoder.encode(DEFAULT_SESSION_INFO, intent2);
+
+        IBinder result1 = mCarAppService.onBind(intent1);
+        IBinder result2 = mCarAppService.onBind(intent2);
+
+        assertThat(result1).isSameInstanceAs(result2);
+    }
+
+    // Test encoding/decoding implementations across SDK versions
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.P, maxSdk = Build.VERSION_CODES.Q)
+    public void onBind_returnsDifferentBinders_forUniqueIntents() {
+        // Create two intent instances with different data
+        SessionInfo sessionInfo1 = new SessionInfo(DISPLAY_TYPE_CLUSTER, "1");
+        Intent intent1 = new Intent();
+        SessionInfoIntentEncoder.encode(sessionInfo1, intent1);
+        SessionInfo sessionInfo2 = new SessionInfo(DISPLAY_TYPE_CLUSTER, "2");
+        Intent intent2 = new Intent();
+        SessionInfoIntentEncoder.encode(sessionInfo2, intent2);
+
+        IBinder result1 = mCarAppService.onBind(intent1);
+        IBinder result2 = mCarAppService.onBind(intent2);
+
+        assertThat(result1).isNotEqualTo(result2);
+    }
+
+    // Test encoding/decoding implementations across SDK versions
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.P, maxSdk = Build.VERSION_CODES.Q)
+    public void onBind_returnsDefaultBinder_whenNoSessionInfoSet() {
+        Intent intent = new Intent();
+
+        CarAppBinder result = (CarAppBinder) mCarAppService.onBind(intent);
+
+        assertThat(result.getCurrentSessionInfo()).isEqualTo(DEFAULT_SESSION_INFO);
+    }
+
+    @Test
+    public void onCreateSession_withoutNewOnCreateSession_usesOldOnCreateSession() {
+        ServiceController<? extends CarAppService> serviceController =
+                Robolectric.buildService(TestCarAppServiceWithoutNewOnCreateSession.class);
+        serviceController.get().setHostInfo(TEST_HOST_INFO);
+        CarAppService oldSessionCarAppService = serviceController.create().get();
+
+        Session result = oldSessionCarAppService.onCreateSession(DEFAULT_SESSION_INFO);
+
+        assertThat(result).isNotNull();
+    }
+
+    @Test
+    public void onCreateSession_doesNotCallOldMethod() {
+        Session result = mCarAppService.onCreateSession(DEFAULT_SESSION_INFO);
+
+        assertThat(result).isNotNull();
+    }
+
+    @Test
+    public void getSession() {
+        Intent intent = new Intent();
+        SessionInfoIntentEncoder.encode(TEST_CLUSTER_SESSION_INFO, intent);
+        CarAppBinder binder = bindAndStart(intent);
+
+        Session result = mCarAppService.getSession(TEST_CLUSTER_SESSION_INFO);
+
+        assertThat(result).isNotNull();
+        assertThat(result).isEqualTo(binder.getCurrentSession());
+    }
+
+    @Test
+    @SuppressWarnings("deprecation") // Testing a deprecated method
+    public void getCurrentSession() {
+        // Bind with a cluster session
+        Intent clusterIntent = new Intent();
+        SessionInfoIntentEncoder.encode(TEST_CLUSTER_SESSION_INFO, clusterIntent);
+        CarAppBinder clusterBinder = bindAndStart(clusterIntent);
+        // Bind with a main display session
+        Intent mainScreenIntent = new Intent();
+        SessionInfoIntentEncoder.encode(DEFAULT_SESSION_INFO, mainScreenIntent);
+        CarAppBinder mainScreenBinder = bindAndStart(mainScreenIntent);
+
+        Session result = mCarAppService.getCurrentSession();
+
+        assertThat(result).isNotNull();
+        assertThat(result).isEqualTo(mainScreenBinder.getCurrentSession());
+        assertThat(result).isNotEqualTo(clusterBinder.getCurrentSession());
+    }
+
+    /**
+     * Binds and runs through the binder lifecycle to start the app session passing in the test's
+     * mock objects. Returns the created {@link CarAppBinder}.
+     */
+    private CarAppBinder bindAndStart(Intent intent) {
+        CarAppBinder binder = (CarAppBinder) mCarAppService.onBind(intent);
+        binder.setHandshakeInfo(
+                new HandshakeInfo(TEST_HOST_INFO.getPackageName(), CarAppApiLevels.getLatest()));
+        binder.onAppCreate(mMockCarHost, intent, mContext.getResources().getConfiguration(),
+                mMockOnDoneCallback);
+        binder.onAppStart(mMockOnDoneCallback);
+        return binder;
+    }
+
+    private static Session createSession() {
         return new Session() {
             @NonNull
             @Override
             public Screen onCreateScreen(@NonNull Intent intent) {
-                mIntentSet = intent;
                 return new Screen(getCarContext()) {
-                    @Override
                     @NonNull
+                    @Override
                     public Template onGetTemplate() {
-                        return mTemplate;
+                        return TEST_RETURN_TEMPLATE;
                     }
                 };
-            }
-
-            @Override
-            public void onNewIntent(@NonNull Intent intent) {
-                mIntentSet = intent;
             }
         };
     }
 
     @Test
-    public void onAppCreate_updatesCarApiLevel() throws RemoteException, BundlerException {
-        String hostPackageName = "com.google.projection.gearhead";
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-        int hostApiLevel = CarAppApiLevels.LEVEL_1;
-        HandshakeInfo handshakeInfo = new HandshakeInfo(hostPackageName, hostApiLevel);
+    public void onCreateSession_onInvalidCarAppService_throwsException() {
+        ServiceController<? extends CarAppService> serviceController =
+                Robolectric.buildService(TestCarAppServiceNoOnCreateSession.class);
+        serviceController.get().setHostInfo(TEST_HOST_INFO);
+        CarAppService invalidCarAppService = serviceController.create().get();
 
-        mCarAppService.setCurrentSession(null);
-        carApp.onHandshakeCompleted(Bundleable.create(handshakeInfo), mMockOnDoneCallback);
-        carApp.onAppCreate(mMockCarHost, null, new Configuration(), mMockOnDoneCallback);
-
-        assertThat(
-                mCarAppService.getCurrentSession().getCarContext().getCarAppApiLevel()).isEqualTo(
-                hostApiLevel);
+        try {
+            invalidCarAppService.onCreateSession(SessionInfo.DEFAULT_SESSION_INFO);
+            assertWithMessage("Expected CarAppService to throw an exception about implementing "
+                    + "#onCreateSession(SessionInfo), but it didn't.").fail();
+        } catch (RuntimeException e) {
+            assertThat(e).hasMessageThat().contains("CarAppService#onCreateSession(SessionInfo)");
+        }
     }
 
-    @Test
-    public void onAppCreate_updatesContextHostInfo()
-            throws RemoteException, BundlerException, InterruptedException {
-        String hostPackageName = "com.google.projection.gearhead";
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-        HandshakeInfo handshakeInfo = new HandshakeInfo(hostPackageName, CarAppApiLevels.LEVEL_1);
-
-        mCarAppService.setCurrentSession(null);
-        carApp.onHandshakeCompleted(Bundleable.create(handshakeInfo), mMockOnDoneCallback);
-        carApp.onAppCreate(mMockCarHost, null, new Configuration(), mMockOnDoneCallback);
-
-        assertThat(mCarAppService.getCurrentSession()
-                .getCarContext().getHostInfo().getPackageName()).isEqualTo(hostPackageName);
+    private static class TestCarAppServiceNoOnCreateSession extends CarAppService {
+        @NonNull
+        @Override
+        public HostValidator createHostValidator() {
+            return HostValidator.ALLOW_ALL_HOSTS_VALIDATOR;
+        }
     }
 
-    @Test
-    public void onAppCreate_createsFirstScreen() throws RemoteException {
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-        carApp.onAppCreate(mMockCarHost, null, new Configuration(), mMockOnDoneCallback);
+    private static class TestCarAppServiceWithoutNewOnCreateSession extends CarAppService {
+        @NonNull
+        @Override
+        public HostValidator createHostValidator() {
+            return HostValidator.ALLOW_ALL_HOSTS_VALIDATOR;
+        }
 
-        assertThat(
-                mCarAppService
-                        .getCurrentSession()
-                        .getCarContext()
-                        .getCarService(ScreenManager.class)
-                        .getTopTemplate()
-                        .getTemplate())
-                .isInstanceOf(PlaceListMapTemplate.class);
+        @NonNull
+        @Override
+        @SuppressWarnings("deprecation")
+        public Session onCreateSession() {
+            return createSession();
+        }
     }
 
-    @Test
-    public void onAppCreate_withIntent_callsWithOnCreateScreenWithIntent() throws
-            RemoteException {
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-        Intent intent = new Intent("Foo");
-        carApp.onAppCreate(mMockCarHost, intent, new Configuration(), mMockOnDoneCallback);
-
-        assertThat(mIntentSet).isEqualTo(intent);
-        verify(mMockOnDoneCallback).onSuccess(any());
-    }
-
-    @Test
-    public void onAppCreate_alreadyPreviouslyCreated_callsOnNewIntent() throws RemoteException {
-        IOnDoneCallback callback = mock(IOnDoneCallback.class);
-
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-        Intent intent = new Intent("Foo");
-        carApp.onAppCreate(mMockCarHost, intent, new Configuration(), callback);
-        verify(callback).onSuccess(any());
-
-        IOnDoneCallback callback2 = mock(IOnDoneCallback.class);
-        Intent intent2 = new Intent("Foo2");
-        carApp.onAppCreate(mMockCarHost, intent2, new Configuration(), callback2);
-
-        assertThat(mIntentSet).isEqualTo(intent2);
-        verify(callback2).onSuccess(any());
-    }
-
-    @Test
-    public void onAppCreate_updatesTheConfiguration() throws RemoteException {
-        Configuration configuration = new Configuration();
-        configuration.setToDefaults();
-        configuration.setLocale(Locale.CANADA_FRENCH);
-
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-        carApp.onAppCreate(mMockCarHost, null, configuration, mock(IOnDoneCallback.class));
-
-        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0))
-                .isEqualTo(Locale.CANADA_FRENCH);
-    }
-
-    @Test
-    public void onNewIntent_callsOnNewIntentWithIntent() throws RemoteException {
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-        Intent intent = new Intent("Foo");
-        carApp.onAppCreate(mMockCarHost, intent, new Configuration(), mock(IOnDoneCallback.class));
-
-        Intent intent2 = new Intent("Foo2");
-        carApp.onNewIntent(intent2, mMockOnDoneCallback);
-
-        assertThat(mIntentSet).isEqualTo(intent2);
-        verify(mMockOnDoneCallback).onSuccess(any());
-    }
-
-    @Test
-    public void onNewIntent_lifecycleNotCreated_doesNotDispatch_sendsError()
-            throws RemoteException {
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-
-        carApp.onNewIntent(new Intent("Foo"), mMockOnDoneCallback);
-
-        assertThat(mIntentSet).isNull();
-        verify(mMockOnDoneCallback).onFailure(any());
-    }
-
-    @Test
-    public void getNavigationManager() throws RemoteException {
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-        carApp.onAppCreate(mMockCarHost, null, new Configuration(), mock(IOnDoneCallback.class));
-
-        assertThat(mCarAppService.getCurrentSession().getCarContext().getCarService(
-                NavigationManager.class)).isNotNull();
-    }
-
-    @Test
-    public void onConfigurationChanged_lifecycleNotCreated_returnsAFailure()
-            throws RemoteException {
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-
-        Configuration configuration = new Configuration();
-        configuration.setToDefaults();
-        configuration.setLocale(Locale.CANADA_FRENCH);
-
-        carApp.onConfigurationChanged(configuration, mMockOnDoneCallback);
-
-        assertThat(mCarContext).isNull();
-        verify(mMockOnDoneCallback).onFailure(any());
-    }
-
-    @Test
-    public void onConfigurationChanged_updatesTheConfiguration() throws RemoteException {
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-        carApp.onAppCreate(mMockCarHost, null, new Configuration(), mock(IOnDoneCallback.class));
-
-        Configuration configuration = new Configuration();
-        configuration.setToDefaults();
-        configuration.setLocale(Locale.CANADA_FRENCH);
-
-        carApp.onConfigurationChanged(configuration, mMockOnDoneCallback);
-
-        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0))
-                .isEqualTo(Locale.CANADA_FRENCH);
-        verify(mMockOnDoneCallback).onSuccess(any());
-    }
-
-    @Test
-    public void getAppInfo() throws RemoteException, BundlerException {
-        AppInfo appInfo = new AppInfo(3, 4, "foo");
-        mCarAppService.setAppInfo(appInfo);
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-
-        carApp.getAppInfo(mMockOnDoneCallback);
-
-        verify(mMockOnDoneCallback).onSuccess(mBundleableArgumentCaptor.capture());
-        AppInfo receivedAppInfo = (AppInfo) mBundleableArgumentCaptor.getValue().get();
-        assertThat(receivedAppInfo.getMinCarAppApiLevel())
-                .isEqualTo(appInfo.getMinCarAppApiLevel());
-        assertThat(receivedAppInfo.getLatestCarAppApiLevel())
-                .isEqualTo(appInfo.getLatestCarAppApiLevel());
-        assertThat(receivedAppInfo.getLibraryDisplayVersion()).isEqualTo(
-                appInfo.getLibraryDisplayVersion());
-    }
-
-    @Test
-    public void onHandshakeCompleted_updatesHostInfo()
-            throws RemoteException, BundlerException, InterruptedException {
-        String hostPackageName = "com.google.projection.gearhead";
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-        HandshakeInfo handshakeInfo = new HandshakeInfo(hostPackageName, CarAppApiLevels.LEVEL_1);
-
-        carApp.onHandshakeCompleted(Bundleable.create(handshakeInfo), mMockOnDoneCallback);
-        carApp.onAppCreate(mMockCarHost, null, new Configuration(), mMockOnDoneCallback);
-
-        assertThat(mCarAppService.getHostInfo().getPackageName()).isEqualTo(hostPackageName);
-    }
-
-    @Test
-    public void onHandshakeCompleted_updatesHandshakeInfo() throws RemoteException,
-            BundlerException {
-        String hostPackageName = "com.google.projection.gearhead";
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-
-        HandshakeInfo handshakeInfo = new HandshakeInfo(hostPackageName, CarAppApiLevels.LEVEL_1);
-        carApp.onHandshakeCompleted(Bundleable.create(handshakeInfo), mMockOnDoneCallback);
-        assertThat(mCarAppService.getHandshakeInfo()).isNotNull();
-        assertThat(mCarAppService.getHandshakeInfo().getHostCarAppApiLevel()).isEqualTo(
-                handshakeInfo.getHostCarAppApiLevel());
-        assertThat(mCarAppService.getHandshakeInfo().getHostPackageName()).isEqualTo(
-                handshakeInfo.getHostPackageName());
-    }
-
-    @Test
-    public void onHandshakeCompleted_lowerThanMinApiLevel_throws() throws BundlerException,
-            RemoteException {
-        AppInfo appInfo = new AppInfo(3, 4, "foo");
-        mCarAppService.setAppInfo(appInfo);
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-
-        HandshakeInfo handshakeInfo = new HandshakeInfo("bar",
-                appInfo.getMinCarAppApiLevel() - 1);
-        carApp.onHandshakeCompleted(Bundleable.create(handshakeInfo), mMockOnDoneCallback);
-
-        verify(mMockOnDoneCallback).onFailure(any());
-    }
-
-    @Test
-    public void onHandshakeCompleted_higherThanCurrentApiLevel_throws() throws BundlerException,
-            RemoteException {
-        AppInfo appInfo = new AppInfo(3, 4, "foo");
-        mCarAppService.setAppInfo(appInfo);
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-
-        HandshakeInfo handshakeInfo = new HandshakeInfo("bar",
-                appInfo.getLatestCarAppApiLevel() + 1);
-        carApp.onHandshakeCompleted(Bundleable.create(handshakeInfo), mMockOnDoneCallback);
-
-        verify(mMockOnDoneCallback).onFailure(any());
-    }
-
-    @Test
-    public void onUnbind_movesLifecycleStateToDestroyed() throws RemoteException {
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-        carApp.onAppCreate(mMockCarHost, null, new Configuration(), mMockOnDoneCallback);
-        carApp.onAppStart(mMockOnDoneCallback);
-
-        // TODO(b/184154464): this should use the public getLifecycle() after the public
-        // LifecycleRegistry is properly hooked up to the TestLifecycleOwner.
-        mCarAppService.getCurrentSession().getLifecycleInternal().addObserver(mLifecycleObserver);
-
-        assertThat(mCarAppService.onUnbind(null)).isTrue();
-
-        verify(mLifecycleObserver).onDestroy(any());
-    }
-
-    @Test
-    public void onUnbind_rebind_callsOnCreateScreen() throws RemoteException, BundlerException {
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-
-        carApp.onAppCreate(mMockCarHost, null, new Configuration(), mMockOnDoneCallback);
-        carApp.onAppStart(mMockOnDoneCallback);
-
-        Session currentSession = mCarAppService.getCurrentSession();
-        // TODO(b/184154464): this should use the public getLifecycle() after the public
-        // LifecycleRegistry is properly hooked up to the TestLifecycleOwner.
-        currentSession.getLifecycleInternal().addObserver(mLifecycleObserver);
-        assertThat(mCarAppService.onUnbind(null)).isTrue();
-
-        verify(mLifecycleObserver).onDestroy(any());
-
-        assertThat(currentSession.getCarContext().getCarService(
-                ScreenManager.class).getScreenStack()).isEmpty();
-        assertThat(mCarAppService.getCurrentSession()).isNull();
-
-        String hostPackageName = "com.google.projection.gearhead";
-        int hostApiLevel = CarAppApiLevels.LEVEL_1;
-        HandshakeInfo handshakeInfo = new HandshakeInfo(hostPackageName, hostApiLevel);
-        carApp.onHandshakeCompleted(Bundleable.create(handshakeInfo), mMockOnDoneCallback);
-        carApp.onAppCreate(mMockCarHost, null, new Configuration(), mMockOnDoneCallback);
-
-        currentSession = mCarAppService.getCurrentSession();
-        assertThat(currentSession.getCarContext().getCarService(
-                ScreenManager.class).getScreenStack()).hasSize(1);
-    }
-
-    @Test
-    public void onUnbind_clearsScreenStack() throws RemoteException {
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-        carApp.onAppCreate(mMockCarHost, null, new Configuration(), mMockOnDoneCallback);
-
-        Deque<Screen> screenStack =
-                mCarAppService.getCurrentSession().getCarContext().getCarService(
-                        ScreenManager.class).getScreenStack();
-        assertThat(screenStack).hasSize(1);
-
-        Screen screen = screenStack.getFirst();
-        assertThat(screen.getLifecycle().getCurrentState()).isAtLeast(Lifecycle.State.CREATED);
-
-        mCarAppService.onUnbind(null);
-
-        assertThat(screenStack).isEmpty();
-        assertThat(screen.getLifecycle().getCurrentState()).isEqualTo(Lifecycle.State.DESTROYED);
-    }
-
-    @Test
-    public void finish() throws RemoteException {
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-        carApp.onAppCreate(mMockCarHost, null, new Configuration(), mMockOnDoneCallback);
-
-        mCarAppService.getCurrentSession().getCarContext().finishCarApp();
-
-        assertThat(mCarContext.hasCalledFinishCarApp()).isTrue();
-    }
-
-    @Test
-    public void onNewIntent_callsSessionIntent() throws
-            RemoteException {
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-
-        // onAppCreate must be called first to create the Session before onNewIntent.
-        carApp.onAppCreate(mMockCarHost, null, new Configuration(), mock(IOnDoneCallback.class));
-        assertThat(mIntentSet).isNull();
-
-        Intent intent = new Intent("Foo");
-        carApp.onNewIntent(intent, mMockOnDoneCallback);
-
-        assertThat(mIntentSet).isEqualTo(intent);
-        verify(mMockOnDoneCallback).onSuccess(any());
-    }
-
-    @Test
-    public void onNewIntent_notAtLeastCreated_doesCallSessionIntent_sendsFailure() throws
-            RemoteException {
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-
-        Intent intent = new Intent("Foo");
-        carApp.onNewIntent(intent, mMockOnDoneCallback);
-
-        assertThat(mIntentSet).isNull();
-        verify(mMockOnDoneCallback).onFailure(any());
-    }
-
-    @Test
-    public void onNewIntent_destroyed_doesCallSessionIntent_sendsFailure() throws
-            RemoteException {
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-
-        // onAppCreate must be called first to create the Session before onNewIntent.
-        Intent intent1 = new Intent();
-        carApp.onAppCreate(mMockCarHost, intent1, new Configuration(), mock(IOnDoneCallback.class));
-        assertThat(mIntentSet).isEqualTo(intent1);
-
-        mCarContext.getLifecycleOwner().mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
-
-        Intent intent2 = new Intent("Foo");
-        carApp.onNewIntent(intent2, mMockOnDoneCallback);
-
-        assertThat(mIntentSet).isEqualTo(intent1);
-        verify(mMockOnDoneCallback).onFailure(any());
-    }
-
-    @Test
-    public void onAppStart_movesLifecycle() throws RemoteException {
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-        carApp.onAppCreate(mMockCarHost, null, new Configuration(), mock(IOnDoneCallback.class));
-
-        carApp.onAppStart(mMockOnDoneCallback);
-
-        verify(mMockOnDoneCallback).onSuccess(any());
-        assertThat(mCarContext.getLifecycleOwner().mRegistry.getCurrentState()).isEqualTo(
-                Lifecycle.State.STARTED);
-    }
-
-    @Test
-    public void onAppStart_notAtLeastCreated_doesNotMoveLifecycle_sendsFailure()
-            throws RemoteException {
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-
-        carApp.onAppStart(mMockOnDoneCallback);
-
-        verify(mMockOnDoneCallback).onFailure(any());
-        assertThat(mCarContext).isNull();
-    }
-
-    @Test
-    public void onAppStart_destroyed_doesNotMoveLifecycle_sendsFailure()
-            throws RemoteException {
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-        carApp.onAppCreate(mMockCarHost, null, new Configuration(), mock(IOnDoneCallback.class));
-        mCarContext.getLifecycleOwner().mRegistry.setCurrentState(Lifecycle.State.DESTROYED);
-
-        carApp.onAppStart(mMockOnDoneCallback);
-
-        verify(mMockOnDoneCallback).onFailure(any());
-        assertThat(mCarContext.getLifecycleOwner().mRegistry.getCurrentState()).isEqualTo(
-                Lifecycle.State.DESTROYED);
-    }
-
-    @Test
-    public void onAppResume_movesLifecycle() throws RemoteException {
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-        carApp.onAppCreate(mMockCarHost, null, new Configuration(), mock(IOnDoneCallback.class));
-
-        carApp.onAppResume(mMockOnDoneCallback);
-
-        verify(mMockOnDoneCallback).onSuccess(any());
-        assertThat(mCarContext.getLifecycleOwner().mRegistry.getCurrentState()).isEqualTo(
-                Lifecycle.State.RESUMED);
-    }
-
-    @Test
-    public void onAppResume_notAtLeastCreated_doesNotMoveLifecycle_sendsFailure()
-            throws RemoteException {
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-
-        carApp.onAppResume(mMockOnDoneCallback);
-
-        verify(mMockOnDoneCallback).onFailure(any());
-        assertThat(mCarContext).isNull();
-    }
-
-    @Test
-    public void onAppResume_destroyed_doesNotMoveLifecycle_sendsFailure()
-            throws RemoteException {
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-        carApp.onAppCreate(mMockCarHost, null, new Configuration(), mock(IOnDoneCallback.class));
-        mCarContext.getLifecycleOwner().mRegistry.setCurrentState(Lifecycle.State.DESTROYED);
-
-        carApp.onAppResume(mMockOnDoneCallback);
-
-        verify(mMockOnDoneCallback).onFailure(any());
-        assertThat(mCarContext.getLifecycleOwner().mRegistry.getCurrentState()).isEqualTo(
-                Lifecycle.State.DESTROYED);
-    }
-
-    @Test
-    public void onAppPause_movesLifecycle() throws RemoteException {
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-        carApp.onAppCreate(mMockCarHost, null, new Configuration(), mock(IOnDoneCallback.class));
-
-        carApp.onAppPause(mMockOnDoneCallback);
-
-        verify(mMockOnDoneCallback).onSuccess(any());
-        assertThat(mCarContext.getLifecycleOwner().mRegistry.getCurrentState()).isEqualTo(
-                Lifecycle.State.STARTED);
-    }
-
-    @Test
-    public void onAppPause_notAtLeastCreated_doesNotMoveLifecycle_sendsFailure()
-            throws RemoteException {
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-
-        carApp.onAppPause(mMockOnDoneCallback);
-
-        verify(mMockOnDoneCallback).onFailure(any());
-        assertThat(mCarContext).isNull();
-    }
-
-    @Test
-    public void onAppPause_destroyed_doesNotMoveLifecycle_sendsFailure()
-            throws RemoteException {
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-        carApp.onAppCreate(mMockCarHost, null, new Configuration(), mock(IOnDoneCallback.class));
-        mCarContext.getLifecycleOwner().mRegistry.setCurrentState(Lifecycle.State.DESTROYED);
-
-        carApp.onAppPause(mMockOnDoneCallback);
-
-        verify(mMockOnDoneCallback).onFailure(any());
-        assertThat(mCarContext.getLifecycleOwner().mRegistry.getCurrentState()).isEqualTo(
-                Lifecycle.State.DESTROYED);
-    }
-
-    @Test
-    public void onAppStop_movesLifecycle() throws RemoteException {
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-        carApp.onAppCreate(mMockCarHost, null, new Configuration(), mock(IOnDoneCallback.class));
-
-        carApp.onAppStop(mMockOnDoneCallback);
-
-        verify(mMockOnDoneCallback).onSuccess(any());
-        assertThat(mCarContext.getLifecycleOwner().mRegistry.getCurrentState()).isEqualTo(
-                Lifecycle.State.CREATED);
-    }
-
-    @Test
-    public void onAppStop_notAtLeastCreated_doesNotMoveLifecycle_sendsFailure()
-            throws RemoteException {
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-
-        carApp.onAppStop(mMockOnDoneCallback);
-
-        verify(mMockOnDoneCallback).onFailure(any());
-        assertThat(mCarContext).isNull();
-    }
-
-    @Test
-    public void onAppStop_destroyed_doesNotMoveLifecycle_sendsFailure()
-            throws RemoteException {
-        ICarApp carApp = (ICarApp) mCarAppService.onBind(null);
-        carApp.onAppCreate(mMockCarHost, null, new Configuration(), mock(IOnDoneCallback.class));
-        mCarContext.getLifecycleOwner().mRegistry.setCurrentState(Lifecycle.State.DESTROYED);
-
-        carApp.onAppStop(mMockOnDoneCallback);
-
-        verify(mMockOnDoneCallback).onFailure(any());
-        assertThat(mCarContext.getLifecycleOwner().mRegistry.getCurrentState()).isEqualTo(
-                Lifecycle.State.DESTROYED);
-    }
-
-    @Test
-    public void session_screen_lifecycleEvents_inCorrectOrder()
-            throws RemoteException {
-        // We have to manually create the Session here instead of rely on using ICarApp because
-        // of two issues:
-        // 1. If we inject a TestCarContext, it will overwrite a TestLifeCycleOwner instance that
-        // is different than the one the ScreenManager used to register a listener to.
-        // 2. If we don't inject a TestCarContext, the existing logic of ICarApp in CarAppService
-        // throws a NPE when trying to update the configuration of the Session/CarContext.
-        Session session = createTestSession();
-        ((LifecycleRegistry) session.getLifecycleInternal()).handleLifecycleEvent(ON_CREATE);
-        Screen screen = session.onCreateScreen(new Intent());
-        session.getCarContext().getCarService(ScreenManager.class).push(screen);
-
-        DefaultLifecycleObserver sessionObserver = mock(DefaultLifecycleObserver.class);
-        DefaultLifecycleObserver screenObserver = mock(DefaultLifecycleObserver.class);
-        session.getLifecycle().addObserver(sessionObserver);
-        screen.getLifecycle().addObserver(screenObserver);
-
-        ((LifecycleRegistry) session.getLifecycleInternal()).handleLifecycleEvent(ON_DESTROY);
-        InOrder inOrder = inOrder(screenObserver, sessionObserver);
-        inOrder.verify(sessionObserver).onCreate(any());
-        inOrder.verify(screenObserver).onCreate(any());
-        inOrder.verify(screenObserver).onDestroy(any());
-        inOrder.verify(sessionObserver).onDestroy(any());
+    private static class TestCarAppService extends CarAppService {
+        @NonNull
+        @Override
+        public HostValidator createHostValidator() {
+            return HostValidator.ALLOW_ALL_HOSTS_VALIDATOR;
+        }
+
+        @NonNull
+        @Override
+        public Session onCreateSession(@NonNull SessionInfo sessionInfo) {
+            return createSession();
+        }
     }
 }

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="GlanceAppWidget">
+	    <attr name="glance_isTopLevelLayout" format="boolean" />
+    </declare-styleable>
+</resources>

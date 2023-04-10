@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -41,7 +40,10 @@ dependencies {
 androidx {
     name = "Android Navigation Testing"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2017"
     description = "Android Navigation-Testing"
+}
+
+android {
+    namespace "androidx.navigation.testing"
 }

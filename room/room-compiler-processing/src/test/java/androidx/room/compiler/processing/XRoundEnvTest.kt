@@ -16,16 +16,19 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.testcode.OtherAnnotation
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.getDeclaredMethod
+import androidx.room.compiler.processing.util.getDeclaredMethodByJvmName
 import androidx.room.compiler.processing.util.getField
-import androidx.room.compiler.processing.util.getMethod
+import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.TypeName
+import com.squareup.kotlinpoet.INT
+import com.squareup.kotlinpoet.UNIT
+import com.squareup.kotlinpoet.javapoet.JTypeName
 import org.junit.Test
 
 class XRoundEnvTest {
@@ -35,7 +38,7 @@ class XRoundEnvTest {
         val source = Source.kotlin(
             "Baz.kt",
             """
-            import androidx.room.compiler.processing.testcode.OtherAnnotation;
+            import androidx.room.compiler.processing.testcode.OtherAnnotation
             @OtherAnnotation(value="xx")
             class Baz {
                 @OtherAnnotation(value="xx")
@@ -63,13 +66,13 @@ class XRoundEnvTest {
                 containsExactlyElementsIn(annotatedElementsByName)
                 hasSize(3)
                 contains(targetElement)
-                contains(targetElement.getMethod("myFunction"))
+                contains(targetElement.getMethodByJvmName("myFunction"))
 
                 if (testInvocation.isKsp) {
                     contains(targetElement.getField("myProperty"))
                 } else {
                     // Javac sees a property annotation on the synthetic function
-                    contains(targetElement.getDeclaredMethod("getMyProperty\$annotations"))
+                    contains(targetElement.getDeclaredMethodByJvmName("getMyProperty\$annotations"))
                 }
             }
         }
@@ -80,7 +83,7 @@ class XRoundEnvTest {
         val source = Source.kotlin(
             "Baz.kt",
             """
-            import androidx.room.compiler.processing.testcode.OtherAnnotation;
+            import androidx.room.compiler.processing.testcode.OtherAnnotation
             class Baz {
                 @get:OtherAnnotation(value="xx")
                 var myProperty1: Int = 0
@@ -104,8 +107,8 @@ class XRoundEnvTest {
             ).apply {
                 hasSize(3)
 
-                contains(targetElement.getDeclaredMethod("getMyProperty1"))
-                contains(targetElement.getDeclaredMethod("setMyProperty2"))
+                contains(targetElement.getDeclaredMethodByJvmName("getMyProperty1"))
+                contains(targetElement.getDeclaredMethodByJvmName("setMyProperty2"))
                 contains(targetElement.getField("myProperty3"))
             }
         }
@@ -116,7 +119,7 @@ class XRoundEnvTest {
         val source = Source.kotlin(
             "Baz.kt",
             """
-            import androidx.room.compiler.processing.XRoundEnvTest.PropertyAnnotation;
+            import androidx.room.compiler.processing.XRoundEnvTest.PropertyAnnotation
             class Baz {
                 @PropertyAnnotation
                 fun myFun(): Int = 0
@@ -146,9 +149,9 @@ class XRoundEnvTest {
             )
             assertThat(annotatedElements).hasSize(1)
             val subject = annotatedElements.filterIsInstance<XMethodElement>().first()
-            assertThat(subject.name).isEqualTo("myFun")
-            assertThat(subject.enclosingElement.className).isEqualTo(
-                ClassName.get("", "BazKt")
+            assertThat(subject.jvmName).isEqualTo("myFun")
+            assertThat(subject.enclosingElement.asClassName()).isEqualTo(
+                XClassName.get("", "BazKt")
             )
             assertThat(subject.isStatic()).isTrue()
         }
@@ -178,39 +181,36 @@ class XRoundEnvTest {
             assertThat(annotatedElements).hasSize(3)
             val byName = annotatedElements.associateBy {
                 when (it) {
-                    is XMethodElement -> it.name
+                    is XMethodElement -> it.jvmName
                     is XFieldElement -> it.name
                     else -> error("unexpected type $it")
                 }
             }
-            val containerClassName = ClassName.get("foo.bar", "MyCustomClass")
+            val containerClassName = XClassName.get("foo.bar", "MyCustomClass")
             assertThat(byName.keys).containsExactly(
                 "getMyPropertyGetter",
                 "setMyPropertySetter",
                 "myProperty"
             )
             (byName["getMyPropertyGetter"] as XMethodElement).let {
-                assertThat(it.returnType.typeName).isEqualTo(TypeName.INT)
+                assertThat(it.returnType.asTypeName()).isEqualTo(XTypeName.PRIMITIVE_INT)
                 assertThat(it.parameters).hasSize(0)
-                assertThat(it.enclosingElement.className).isEqualTo(
-                    containerClassName
-                )
+                assertThat(it.enclosingElement.asClassName()).isEqualTo(containerClassName)
                 assertThat(it.isStatic()).isTrue()
             }
             (byName["setMyPropertySetter"] as XMethodElement).let {
-                assertThat(it.returnType.typeName).isEqualTo(TypeName.VOID)
+                assertThat(it.returnType.asTypeName().java).isEqualTo(JTypeName.VOID)
+                assertThat(it.returnType.asTypeName().kotlin).isEqualTo(UNIT)
                 assertThat(it.parameters).hasSize(1)
-                assertThat(it.parameters.first().type.typeName).isEqualTo(TypeName.INT)
-                assertThat(it.enclosingElement.className).isEqualTo(
-                    containerClassName
-                )
+                assertThat(it.parameters.first().type.asTypeName())
+                    .isEqualTo(XTypeName.PRIMITIVE_INT)
+                assertThat(it.enclosingElement.asClassName()).isEqualTo(containerClassName)
                 assertThat(it.isStatic()).isTrue()
             }
             (byName["myProperty"] as XFieldElement).let {
-                assertThat(it.type.typeName).isEqualTo(TypeName.INT)
-                assertThat(it.enclosingElement.className).isEqualTo(
-                    containerClassName
-                )
+                assertThat(it.type.asTypeName().java).isEqualTo(JTypeName.INT)
+                assertThat(it.type.asTypeName().kotlin).isEqualTo(INT)
+                assertThat(it.enclosingElement.asClassName()).isEqualTo(containerClassName)
                 assertThat(it.isStatic()).isTrue()
             }
         }
@@ -290,20 +290,20 @@ class XRoundEnvTest {
                 testInvocation.roundEnv.getElementsAnnotatedWith(TopLevelAnnotation::class)
             val annotatedParams = annotatedElements.filterIsInstance<XExecutableParameterElement>()
             val ctorProperty = annotatedParams.first { it.name == "ctorProperty" }
-            assertThat(ctorProperty.enclosingMethodElement).isEqualTo(
+            assertThat(ctorProperty.enclosingElement).isEqualTo(
                 typeElement.findPrimaryConstructor()
             )
             val ctorParam = annotatedParams.first { it.name == "ctorParam" }
-            assertThat(ctorParam.enclosingMethodElement).isEqualTo(
+            assertThat(ctorParam.enclosingElement).isEqualTo(
                 typeElement.findPrimaryConstructor()
             )
             val setterParam = annotatedParams.first { it.name == "p0" || it.name == "arg0" }
-            assertThat(setterParam.enclosingMethodElement).isEqualTo(
-                typeElement.getDeclaredMethod("setProperty")
+            assertThat(setterParam.enclosingElement).isEqualTo(
+                typeElement.getDeclaredMethodByJvmName("setProperty")
             )
             val methodParam = annotatedParams.first { it.name == "methodParam" }
-            assertThat(methodParam.enclosingMethodElement).isEqualTo(
-                typeElement.getDeclaredMethod("method")
+            assertThat(methodParam.enclosingElement).isEqualTo(
+                typeElement.getDeclaredMethodByJvmName("method")
             )
         }
     }

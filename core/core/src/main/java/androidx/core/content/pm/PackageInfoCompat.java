@@ -81,6 +81,7 @@ public final class PackageInfoCompat {
      *                                              provided {@param packageManager}
      */
     @NonNull
+    @SuppressWarnings("deprecation")
     public static List<Signature> getSignatures(@NonNull PackageManager packageManager,
             @NonNull String packageName) throws PackageManager.NameNotFoundException {
         Signature[] array;

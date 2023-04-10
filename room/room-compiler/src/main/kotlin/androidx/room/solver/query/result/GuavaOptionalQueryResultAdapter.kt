@@ -16,12 +16,10 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.processing.XType
-import androidx.room.ext.GuavaBaseTypeNames
-import androidx.room.ext.L
-import androidx.room.ext.T
+import androidx.room.ext.GuavaTypeNames
 import androidx.room.solver.CodeGenScope
-import com.squareup.javapoet.ParameterizedTypeName
 
 /**
  * Wraps a row adapter when there is only 1 item in the result, and the result's outer type is
@@ -29,22 +27,27 @@ import com.squareup.javapoet.ParameterizedTypeName
  */
 class GuavaOptionalQueryResultAdapter(
     private val typeArg: XType,
-    private val resultAdapter: SingleEntityQueryResultAdapter
+    private val resultAdapter: SingleItemQueryResultAdapter
 ) : QueryResultAdapter(resultAdapter.rowAdapters) {
     override fun convert(
         outVarName: String,
         cursorVarName: String,
         scope: CodeGenScope
     ) {
-        scope.builder().apply {
+        scope.builder.apply {
             val valueVarName = scope.getTmpVar("_value")
             resultAdapter.convert(valueVarName, cursorVarName, scope)
-            addStatement(
-                "final $T $L = $T.fromNullable($L)",
-                ParameterizedTypeName.get(GuavaBaseTypeNames.OPTIONAL, typeArg.typeName),
-                outVarName,
-                GuavaBaseTypeNames.OPTIONAL,
-                valueVarName
+            addLocalVariable(
+                name = outVarName,
+                typeName = GuavaTypeNames.OPTIONAL.parametrizedBy(
+                    typeArg.asTypeName()
+                ),
+                assignExpr = XCodeBlock.of(
+                    language = language,
+                    format = "%T.fromNullable(%L)",
+                    GuavaTypeNames.OPTIONAL,
+                    valueVarName
+                )
             )
         }
     }

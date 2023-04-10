@@ -19,7 +19,6 @@ package android.support.wearable.watchface.accessibility;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Rect;
-import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -31,10 +30,7 @@ import android.support.wearable.watchface.Constants;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -43,7 +39,6 @@ import java.util.Objects;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(VERSION_CODES.KITKAT)
 @SuppressWarnings("BanParcelableUsage")
 public final class ContentDescriptionLabel implements Parcelable {
 
@@ -97,6 +92,7 @@ public final class ContentDescriptionLabel implements Parcelable {
     public ContentDescriptionLabel(
             @NonNull Context context, @NonNull Rect bounds, @NonNull ComplicationData data) {
         this(bounds, AccessibilityUtils.generateContentDescription(context, data));
+        mTapAction = data.getTapAction();
     }
 
     private ContentDescriptionLabel(@NonNull Rect bounds, @NonNull TimeDependentText text) {
@@ -104,6 +100,7 @@ public final class ContentDescriptionLabel implements Parcelable {
         this.mText = text;
     }
 
+    @SuppressWarnings("deprecation")
     protected ContentDescriptionLabel(@NonNull Parcel in) {
         Bundle bundle = in.readBundle(getClass().getClassLoader());
         mText = bundle.getParcelable(Constants.KEY_TEXT);
@@ -165,7 +162,7 @@ public final class ContentDescriptionLabel implements Parcelable {
         dest.writeBundle(bundle);
     }
 
-    @NotNull
+    @NonNull
     @Override
     public String toString() {
         return "ContentDescriptionLabel{text="

@@ -14,35 +14,30 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.0.0")
+    implementation(libs.kotlinStdlib)
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.truth)
 }
 
-// Used by testImplementation in room-compiler
-android.libraryVariants.all { variant ->
-    def name = variant.name
-    def suffix = name.capitalize()
-    def jarTask = project.tasks.create(name: "jar${suffix}", type: Jar){
-        dependsOn(variant.javaCompileProvider.get())
-        from(variant.javaCompileProvider.get().destinationDir)
-        destinationDirectory.fileValue(new File(project.buildDir, "libJar"))
-    }
+android {
+    namespace "androidx.sqlite.db"
 }
 
 androidx {
     name = "Android DB"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.SQLITE
     inceptionYear = "2017"
     description = "Android DB"
 }

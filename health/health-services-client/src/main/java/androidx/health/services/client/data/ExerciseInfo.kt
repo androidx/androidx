@@ -16,44 +16,32 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcelable
+import androidx.health.services.client.data.ExerciseTrackedStatus.Companion.toProto
 import androidx.health.services.client.proto.DataProto
-import java.lang.IllegalStateException
 
 /** High-level info about the exercise. */
 @Suppress("ParcelCreator")
 public class ExerciseInfo(
     /** Returns the [ExerciseTrackedStatus]. */
-    public val exerciseTrackedStatus: ExerciseTrackedStatus,
+    @ExerciseTrackedStatus public val exerciseTrackedStatus: Int,
 
     /**
      * Returns the [ExerciseType] of the active exercise, or [ExerciseType.UNKNOWN] if there is no
      * active exercise.
      */
     public val exerciseType: ExerciseType,
-) : ProtoParcelable<DataProto.ExerciseInfo>() {
+) {
 
     internal constructor(
         proto: DataProto.ExerciseInfo
     ) : this(
-        ExerciseTrackedStatus.fromProto(proto.exerciseTrackedStatus)
-            ?: throw IllegalStateException("Invalid status ${proto.exerciseTrackedStatus}"),
+        ExerciseTrackedStatus.fromProto(proto.exerciseTrackedStatus),
         ExerciseType.fromProto(proto.exerciseType)
     )
 
-    /** @hide */
-    override val proto: DataProto.ExerciseInfo by lazy {
+    internal val proto: DataProto.ExerciseInfo =
         DataProto.ExerciseInfo.newBuilder()
             .setExerciseTrackedStatus(exerciseTrackedStatus.toProto())
             .setExerciseType(exerciseType.toProto())
             .build()
-    }
-
-    public companion object {
-        @JvmField
-        public val CREATOR: Parcelable.Creator<ExerciseInfo> = newCreator { bytes ->
-            val proto = DataProto.ExerciseInfo.parseFrom(bytes)
-            ExerciseInfo(proto)
-        }
-    }
 }

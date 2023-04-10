@@ -99,6 +99,7 @@ public class NotificationCompat {
          * @return The {@link MediaSessionCompat.Token} in the {@code notification} if it contains,
          *         null otherwise.
          */
+        @SuppressWarnings("deprecation")
         public static MediaSessionCompat.Token getMediaSession(Notification notification) {
             Bundle extras = androidx.core.app.NotificationCompat.getExtras(notification);
             if (extras != null) {

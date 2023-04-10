@@ -60,8 +60,8 @@ class AlteredTableColumnOrderTest {
             Room.databaseBuilder(context, TestDatabase::class.java, "migrated_foo.db")
                 .createFromAsset("databases/foo_v1.db")
                 .addMigrations(object : Migration(1, 2) {
-                    override fun migrate(database: SupportSQLiteDatabase) {
-                        database.execSQL("ALTER TABLE Foo ADD COLUMN X TEXT NOT NULL DEFAULT 'X';")
+                    override fun migrate(db: SupportSQLiteDatabase) {
+                        db.execSQL("ALTER TABLE Foo ADD COLUMN X TEXT NOT NULL DEFAULT 'X';")
                     }
                 })
                 .build()

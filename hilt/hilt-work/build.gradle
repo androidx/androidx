@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -27,6 +25,7 @@ android {
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
+    namespace "androidx.hilt.work"
 }
 
 dependencies {
@@ -37,23 +36,10 @@ dependencies {
     annotationProcessor(libs.hiltCompiler)
 }
 
-android.libraryVariants.all { variant ->
-    def name = variant.name
-    def suffix = name.capitalize()
-
-    // Create jar<variant> task for testImplementation in hilt-compiler.
-    project.tasks.register("jar${suffix}", Jar).configure {
-        dependsOn(variant.javaCompileProvider)
-        from(variant.javaCompileProvider.map { task -> task.destinationDir})
-        destinationDirectory.fileValue(new File(project.buildDir, "libJar"))
-    }
-}
-
 androidx {
     name = "Android Lifecycle WorkManager Hilt Extension"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.HILT
-    mavenGroup = LibraryGroups.HILT
     inceptionYear = "2020"
     description = "Android Lifecycle WorkManager Hilt Extension"
 }

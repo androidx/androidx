@@ -65,7 +65,7 @@ class ShortcutParameterProcessor(
 
         fun extractPojoTypeFromIterator(iterableType: XType): XType {
             iterableType.typeElement!!.getAllNonPrivateInstanceMethods().forEach {
-                if (it.name == "iterator") {
+                if (it.jvmName == "iterator") {
                     return it.asMemberOf(iterableType)
                         .returnType
                         .typeArguments

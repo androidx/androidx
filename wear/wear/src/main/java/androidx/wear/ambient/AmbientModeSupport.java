@@ -77,7 +77,12 @@ import java.io.PrintWriter;
  *         }
  *     }
  * }</pre>
+ *
+ * @deprecated Use {@link AmbientLifecycleObserverInterface} and {@link AmbientLifecycleObserver}
+ *     instead. These classes use lifecycle components instead, preventing the need to hook these
+ *     events using fragments.
  */
+@Deprecated
 public final class AmbientModeSupport extends Fragment {
     private static final String TAG = "AmbientModeSupport";
 

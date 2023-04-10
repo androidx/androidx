@@ -21,24 +21,28 @@ import android.app.PendingIntent.CanceledException
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.graphics.Rect
+import android.util.Log
 import androidx.annotation.Px
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
+import androidx.annotation.VisibleForTesting.Companion.PACKAGE_PRIVATE
 import androidx.annotation.WorkerThread
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.data.ComplicationData
+import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationType
-import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.utility.TraceEvent
 import androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFormat
+import androidx.wear.watchface.data.ComplicationStateWireFormat
+import androidx.wear.watchface.data.IdAndComplicationStateWireFormat
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import java.time.Instant
 
 private fun getComponentName(context: Context) = ComponentName(
     context.packageName,
@@ -59,6 +63,10 @@ public class ComplicationSlotsManager(
     complicationSlotCollection: Collection<ComplicationSlot>,
     private val currentUserStyleRepository: CurrentUserStyleRepository
 ) {
+    internal companion object {
+        internal const val TAG = "ComplicationSlotsManager"
+    }
+
     /**
      * Interface used to report user taps on the [ComplicationSlot]. See [addTapListener] and
      * [removeTapListener].
@@ -78,11 +86,11 @@ public class ComplicationSlotsManager(
      *
      * @hide
      */
-    @VisibleForTesting
+    @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public lateinit var watchState: WatchState
 
-    private lateinit var watchFaceHostApi: WatchFaceHostApi
+    internal lateinit var watchFaceHostApi: WatchFaceHostApi
     internal lateinit var renderer: Renderer
 
     /** A map of complication IDs to complicationSlots. */
@@ -98,7 +106,9 @@ public class ComplicationSlotsManager(
     private class InitialComplicationConfig(
         val complicationSlotBounds: ComplicationSlotBounds,
         val enabled: Boolean,
-        val accessibilityTraversalIndex: Int
+        val accessibilityTraversalIndex: Int,
+        val nameResourceId: Int?,
+        val screenReaderNameResourceId: Int?
     )
 
     // Copy of the original complication configs. This is necessary because the semantics of
@@ -111,7 +121,9 @@ public class ComplicationSlotsManager(
                 InitialComplicationConfig(
                     it.complicationSlotBounds,
                     it.enabled,
-                    it.accessibilityTraversalIndex
+                    it.accessibilityTraversalIndex,
+                    it.nameResourceId,
+                    it.screenReaderNameResourceId
                 )
             }
         )
@@ -138,25 +150,45 @@ public class ComplicationSlotsManager(
         }
     }
 
+    private fun applyInitialComplicationConfig() {
+        for ((id, complication) in complicationSlots) {
+            val initialConfig = initialComplicationConfigs[id]!!
+            complication.complicationSlotBounds = initialConfig.complicationSlotBounds
+            complication.enabled = initialConfig.enabled
+            complication.accessibilityTraversalIndex = initialConfig.accessibilityTraversalIndex
+            complication.nameResourceId = initialConfig.nameResourceId
+            complication.screenReaderNameResourceId = initialConfig.screenReaderNameResourceId
+        }
+        onComplicationsUpdated()
+    }
+
     /** @hide */
+    @WorkerThread
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun listenForStyleChanges(coroutineScope: CoroutineScope) {
-        val complicationsStyleCategory =
-            currentUserStyleRepository.schema.userStyleSettings.firstOrNull {
-                it is ComplicationSlotsUserStyleSetting
-            }
+        var previousOption =
+            currentUserStyleRepository.schema.findComplicationSlotsOptionForUserStyle(
+                currentUserStyleRepository.userStyle.value
+            )
 
-        // Add a listener if we have a ComplicationSlotsUserStyleSetting so we can track changes and
-        // automatically apply them.
-        if (complicationsStyleCategory != null) {
-            // Ensure we apply any initial StyleCategoryOption overlay by initializing with null.
-            var previousOption: ComplicationSlotsOption? = null
-            coroutineScope.launch {
-                currentUserStyleRepository.userStyle.collect { userStyle ->
-                    val newlySelectedOption =
-                        userStyle[complicationsStyleCategory]!! as ComplicationSlotsOption
-                    if (previousOption != newlySelectedOption) {
-                        previousOption = newlySelectedOption
+        // Apply the initial settings on the worker thread.
+        previousOption?.let {
+            applyComplicationSlotsStyleCategoryOption(it)
+        }
+
+        // Add a listener so we can track changes and automatically apply them on the UIThread
+        coroutineScope.launch {
+            currentUserStyleRepository.userStyle.collect {
+                val newlySelectedOption =
+                    currentUserStyleRepository.schema.findComplicationSlotsOptionForUserStyle(
+                        currentUserStyleRepository.userStyle.value
+                    )
+
+                if (previousOption != newlySelectedOption) {
+                    previousOption = newlySelectedOption
+                    if (newlySelectedOption == null) {
+                        applyInitialComplicationConfig()
+                    } else {
                         applyComplicationSlotsStyleCategoryOption(newlySelectedOption)
                     }
                 }
@@ -167,11 +199,9 @@ public class ComplicationSlotsManager(
     /** Finish initialization. */
     @WorkerThread
     internal fun init(
-        watchFaceHostApi: WatchFaceHostApi,
         renderer: Renderer,
         complicationSlotInvalidateListener: ComplicationSlot.InvalidateListener
     ) = TraceEvent("ComplicationSlotsManager.init").use {
-        this.watchFaceHostApi = watchFaceHostApi
         this.renderer = renderer
 
         for ((_, complication) in complicationSlots) {
@@ -180,8 +210,6 @@ public class ComplicationSlotsManager(
             // Force lazy construction of renderers.
             complication.renderer.onRendererCreated(renderer)
         }
-
-        listenForStyleChanges(watchFaceHostApi.getUiThreadCoroutineScope())
 
         require(
             complicationSlots.values.distinctBy { it.renderer }.size ==
@@ -205,6 +233,9 @@ public class ComplicationSlotsManager(
                 override?.enabled ?: initialConfig.enabled
             complication.accessibilityTraversalIndex =
                 override?.accessibilityTraversalIndex ?: initialConfig.accessibilityTraversalIndex
+            complication.nameResourceId = override?.nameResourceId ?: initialConfig.nameResourceId
+            complication.screenReaderNameResourceId =
+                override?.screenReaderNameResourceId ?: initialConfig.screenReaderNameResourceId
         }
         onComplicationsUpdated()
     }
@@ -234,7 +265,9 @@ public class ComplicationSlotsManager(
 
                 labelsDirty =
                     labelsDirty || complication.dataDirty || complication.complicationBoundsDirty ||
-                    complication.accessibilityTraversalIndexDirty
+                        complication.accessibilityTraversalIndexDirty ||
+                        complication.nameResourceIdDirty ||
+                        complication.screenReaderNameResourceIdDirty
 
                 if (complication.defaultDataSourcePolicyDirty ||
                     complication.defaultDataSourceTypeDirty
@@ -251,9 +284,11 @@ public class ComplicationSlotsManager(
 
                 complication.dataDirty = false
                 complication.complicationBoundsDirty = false
-                complication.supportedTypesDirty = false
                 complication.defaultDataSourcePolicyDirty = false
                 complication.defaultDataSourceTypeDirty = false
+                complication.accessibilityTraversalIndexDirty = false
+                complication.nameResourceIdDirty = false
+                complication.screenReaderNameResourceIdDirty = false
             }
 
             complication.enabledDirty = false
@@ -277,47 +312,106 @@ public class ComplicationSlotsManager(
      * @param data The [ComplicationData] that should be displayed in the complication.
      */
     @UiThread
-    internal fun onComplicationDataUpdate(complicationSlotId: Int, data: ComplicationData) {
-        val complication = complicationSlots[complicationSlotId] ?: return
+    internal fun onComplicationDataUpdate(
+        complicationSlotId: Int,
+        data: ComplicationData,
+        instant: Instant
+    ) {
+        val complication = complicationSlots[complicationSlotId]
+        if (complication == null) {
+            Log.e(
+                TAG,
+                "onComplicationDataUpdate failed due to invalid complicationSlotId=" +
+                    "$complicationSlotId with data=$data"
+            )
+            return
+        }
         complication.dataDirty = complication.dataDirty ||
             (complication.renderer.getData() != data)
-        complication.renderer.loadData(data, true)
-        (complication.complicationData as MutableStateFlow<ComplicationData>).value = data
+        complication.setComplicationData(data, true, instant)
     }
 
     /**
      * For use by screen shot code which will reset the data afterwards, hence dirty bit not set.
      */
-    internal fun setComplicationDataUpdateSync(complicationSlotId: Int, data: ComplicationData) {
-        val complication = complicationSlots[complicationSlotId] ?: return
-        complication.renderer.loadData(data, false)
-        (complication.complicationData as MutableStateFlow<ComplicationData>).value = data
+    @UiThread
+    internal fun setComplicationDataUpdateSync(
+        complicationSlotId: Int,
+        data: ComplicationData,
+        instant: Instant
+    ) {
+        val complication = complicationSlots[complicationSlotId]
+        if (complication == null) {
+            Log.e(
+                TAG,
+                "setComplicationDataUpdateSync failed due to invalid complicationSlotId=" +
+                    "$complicationSlotId with data=$data"
+            )
+            return
+        }
+        complication.setComplicationData(data, false, instant)
     }
 
+    /**
+     * For each slot, if the ComplicationData is timeline complication data then the correct
+     * override is selected for [instant].
+     */
     @UiThread
-    internal fun clearComplicationData() {
+    internal fun selectComplicationDataForInstant(instant: Instant) {
         for ((_, complication) in complicationSlots) {
-            complication.renderer.loadData(NoDataComplicationData(), false)
-            (complication.complicationData as MutableStateFlow).value = NoDataComplicationData()
+            complication.selectComplicationDataForInstant(
+                instant,
+                loadDrawablesAsynchronous = true,
+                forceUpdate = false
+            )
         }
     }
 
     /**
      * Returns the id of the complication slot at coordinates x, y or `null` if there isn't one.
+     * Initially checks slots without margins (should be no overlaps) then then if there was no hit
+     * it tries again this time with margins (overlaps are possible) reporting the first hit if any.
      *
      * @param x The x coordinate of the point to perform a hit test
      * @param y The y coordinate of the point to perform a hit test
      * @return The [ComplicationSlot] at coordinates x, y or {@code null} if there isn't one
      */
     public fun getComplicationSlotAt(@Px x: Int, @Px y: Int): ComplicationSlot? =
-        complicationSlots.values.firstOrNull { complication ->
+        findLowestIdMatchingComplicationOrNull { complication ->
             complication.enabled && complication.tapFilter.hitTest(
                 complication,
                 renderer.screenBounds,
                 x,
-                y
+                y,
+                includeMargins = false
+            )
+        } ?: findLowestIdMatchingComplicationOrNull { complication ->
+            complication.enabled && complication.tapFilter.hitTest(
+                complication,
+                renderer.screenBounds,
+                x,
+                y,
+                includeMargins = true
             )
         }
+
+    /**
+     * Finds the [ComplicationSlot] with the lowest id for which [predicate] returns true, returns
+     * `null` otherwise.
+     */
+    private fun findLowestIdMatchingComplicationOrNull(
+        predicate: (complication: ComplicationSlot) -> Boolean
+    ): ComplicationSlot? {
+        var bestComplication: ComplicationSlot? = null
+        var bestId = 0
+        for ((id, complication) in complicationSlots) {
+            if (predicate.invoke(complication) && (bestComplication == null || bestId > id)) {
+                bestComplication = complication
+                bestId = id
+            }
+        }
+        return bestComplication
+    }
 
     /**
      * Returns the background [ComplicationSlot] if there is one or `null` otherwise.
@@ -331,7 +425,7 @@ public class ComplicationSlotsManager(
 
     /**
      * Called when the user single taps on a [ComplicationSlot], invokes the permission request
-     * helper if needed, otherwise s the tap action.
+     * helper if needed, otherwise returns the tap action.
      *
      * @param complicationSlotId The ID for the [ComplicationSlot] that was single tapped
      */
@@ -361,6 +455,42 @@ public class ComplicationSlotsManager(
         for (complicationListener in complicationListeners) {
             complicationListener.onComplicationSlotTapped(complicationSlotId)
         }
+    }
+
+    /**
+     * Note getComplicationState may be called before [init], this is why it requires
+     * [screenBounds].
+     */
+    @OptIn(ComplicationExperimental::class)
+    @UiThread
+    internal fun getComplicationsState(screenBounds: Rect) = complicationSlots.map {
+        val systemDataSourceFallbackDefaultType =
+            it.value.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType
+                .toWireComplicationType()
+        IdAndComplicationStateWireFormat(
+            it.key,
+            ComplicationStateWireFormat(
+                it.value.computeBounds(screenBounds, applyMargins = false),
+                it.value.computeBounds(screenBounds, applyMargins = true),
+                it.value.boundsType,
+                ComplicationType.toWireTypes(it.value.supportedTypes),
+                it.value.defaultDataSourcePolicy.dataSourcesAsList(),
+                it.value.defaultDataSourcePolicy.systemDataSourceFallback,
+                systemDataSourceFallbackDefaultType,
+                it.value.defaultDataSourcePolicy.primaryDataSourceDefaultType
+                    ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType,
+                it.value.defaultDataSourcePolicy.secondaryDataSourceDefaultType
+                    ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType,
+                it.value.enabled,
+                it.value.initiallyEnabled,
+                it.value.renderer.getData().type.toWireComplicationType(),
+                it.value.fixedComplicationDataSource,
+                it.value.configExtras,
+                it.value.nameResourceId,
+                it.value.screenReaderNameResourceId,
+                it.value.boundingArc?.toWireFormat()
+            )
+        )
     }
 
     @UiThread
@@ -416,4 +546,35 @@ public class ComplicationSlotsManager(
                     .systemDataSourceFallbackDefaultType.toWireComplicationType()
             )
         }.toTypedArray()
+
+    /**
+     * Returns the earliest [Instant] after [afterInstant] at which any complication field in any
+     * enabled complication may change.
+     */
+    internal fun getNextChangeInstant(afterInstant: Instant): Instant {
+        var minInstant = Instant.MAX
+        for ((_, complication) in complicationSlots) {
+            if (!complication.enabled) {
+                continue
+            }
+            val instant = complication.complicationData.value.getNextChangeInstant(afterInstant)
+            if (instant.isBefore(minInstant)) {
+                minInstant = instant
+            }
+        }
+        return minInstant
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ComplicationSlotsManager
+
+        return complicationSlots == other.complicationSlots
+    }
+
+    override fun hashCode(): Int {
+        return complicationSlots.hashCode()
+    }
 }

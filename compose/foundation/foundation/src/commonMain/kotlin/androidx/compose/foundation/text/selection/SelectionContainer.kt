@@ -16,7 +16,8 @@
 
 package androidx.compose.foundation.text.selection
 
-import androidx.compose.foundation.text.detectDragGesturesWithObserver
+import androidx.compose.foundation.text.ContextMenuArea
+import androidx.compose.foundation.text.detectDownAndDragGesturesWithObserver
 import androidx.compose.foundation.text.isInTouchMode
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -33,7 +34,7 @@ import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.util.fastForEach
 
 /**
- * Enables text selection for it's direct or indirection children.
+ * Enables text selection for its direct or indirect children.
  *
  * @sample androidx.compose.foundation.samples.SelectionSample
  */
@@ -51,7 +52,7 @@ fun SelectionContainer(modifier: Modifier = Modifier, content: @Composable () ->
 }
 
 /**
- * Disables text selection for it's direct or indirection children. To use this, simply add this
+ * Disables text selection for its direct or indirect children. To use this, simply add this
  * to wrap one or more text composables.
  *
  * @sample androidx.compose.foundation.samples.DisableSelectionSample
@@ -91,40 +92,42 @@ internal fun SelectionContainer(
     manager.selection = selection
     manager.touchMode = isInTouchMode
 
-    CompositionLocalProvider(LocalSelectionRegistrar provides registrarImpl) {
-        // Get the layout coordinates of the selection container. This is for hit test of
-        // cross-composable selection.
-        SimpleLayout(modifier = modifier.then(manager.modifier)) {
-            children()
-            if (isInTouchMode && manager.hasFocus) {
-                manager.selection?.let {
-                    listOf(true, false).fastForEach { isStartHandle ->
-                        val observer = remember(isStartHandle) {
-                            manager.handleDragObserver(isStartHandle)
-                        }
-                        val position = if (isStartHandle) {
-                            manager.startHandlePosition
-                        } else {
-                            manager.endHandlePosition
-                        }
+    ContextMenuArea(manager) {
+        CompositionLocalProvider(LocalSelectionRegistrar provides registrarImpl) {
+            // Get the layout coordinates of the selection container. This is for hit test of
+            // cross-composable selection.
+            SimpleLayout(modifier = modifier.then(manager.modifier)) {
+                children()
+                if (isInTouchMode && manager.hasFocus) {
+                    manager.selection?.let {
+                        listOf(true, false).fastForEach { isStartHandle ->
+                            val observer = remember(isStartHandle) {
+                                manager.handleDragObserver(isStartHandle)
+                            }
+                            val position = if (isStartHandle) {
+                                manager.startHandlePosition
+                            } else {
+                                manager.endHandlePosition
+                            }
 
-                        val direction = if (isStartHandle) {
-                            it.start.direction
-                        } else {
-                            it.end.direction
-                        }
+                            val direction = if (isStartHandle) {
+                                it.start.direction
+                            } else {
+                                it.end.direction
+                            }
 
-                        if (position != null) {
-                            SelectionHandle(
-                                position = position,
-                                isStartHandle = isStartHandle,
-                                direction = direction,
-                                handlesCrossed = it.handlesCrossed,
-                                modifier = Modifier.pointerInput(observer) {
-                                    detectDragGesturesWithObserver(observer)
-                                },
-                                content = null
-                            )
+                            if (position != null) {
+                                SelectionHandle(
+                                    position = position,
+                                    isStartHandle = isStartHandle,
+                                    direction = direction,
+                                    handlesCrossed = it.handlesCrossed,
+                                    modifier = Modifier.pointerInput(observer) {
+                                        detectDownAndDragGesturesWithObserver(observer)
+                                    },
+                                    content = null
+                                )
+                            }
                         }
                     }
                 }

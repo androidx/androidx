@@ -103,11 +103,6 @@ public class ForceDarkStrategyActivity extends AppCompatActivity {
                     + "</html>"
     ).getBytes(), Base64.NO_PADDING);
 
-    private WebView mDarkThemeWebView;
-    private WebView mNoDarkThemeWebView;
-    private Spinner mDarkStrategySpinner;
-    private Switch mForceDarkSwitch;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,30 +117,30 @@ public class ForceDarkStrategyActivity extends AppCompatActivity {
             return;
         }
 
-        mDarkThemeWebView = findViewById(R.id.webview_dark_theme);
-        mNoDarkThemeWebView = findViewById(R.id.webview_no_dark_theme);
-        mForceDarkSwitch = findViewById(R.id.switch_force_dark_strategy);
-        mDarkStrategySpinner = findViewById(R.id.spinner_force_dark_strategy);
+        final WebView darkThemeWebView = findViewById(R.id.webview_dark_theme);
+        final WebView noDarkThemeWebView = findViewById(R.id.webview_no_dark_theme);
+        final Spinner darkStrategySpinner = findViewById(R.id.spinner_force_dark_strategy);
+        Switch forceDarkSwitch = findViewById(R.id.switch_force_dark_strategy);
 
-        mDarkThemeWebView.loadData(mDarkThemeSupport,
+        darkThemeWebView.loadData(mDarkThemeSupport,
                 "text/html", "base64");
 
-        mNoDarkThemeWebView.loadData(mNoDarkThemeSupport,
+        noDarkThemeWebView.loadData(mNoDarkThemeSupport,
                 "text/html", "base64");
 
-        mForceDarkSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+        forceDarkSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             int forceDark =
                     isChecked ? WebSettingsCompat.FORCE_DARK_ON : WebSettingsCompat.FORCE_DARK_OFF;
 
-            WebSettingsCompat.setForceDark(mDarkThemeWebView.getSettings(), forceDark);
-            WebSettingsCompat.setForceDark(mNoDarkThemeWebView.getSettings(), forceDark);
+            WebSettingsCompat.setForceDark(darkThemeWebView.getSettings(), forceDark);
+            WebSettingsCompat.setForceDark(noDarkThemeWebView.getSettings(), forceDark);
         });
-        mDarkStrategySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        darkStrategySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 int forceDarkStrategy =
                         WebSettingsCompat.DARK_STRATEGY_PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING;
-                switch (mDarkStrategySpinner.getSelectedItemPosition()) {
+                switch (darkStrategySpinner.getSelectedItemPosition()) {
                     case 0:
                         forceDarkStrategy =
                                 WebSettingsCompat.DARK_STRATEGY_USER_AGENT_DARKENING_ONLY;
@@ -155,9 +150,9 @@ public class ForceDarkStrategyActivity extends AppCompatActivity {
                                 WebSettingsCompat.DARK_STRATEGY_WEB_THEME_DARKENING_ONLY;
                         break;
                 }
-                WebSettingsCompat.setForceDarkStrategy(mDarkThemeWebView.getSettings(),
+                WebSettingsCompat.setForceDarkStrategy(darkThemeWebView.getSettings(),
                         forceDarkStrategy);
-                WebSettingsCompat.setForceDarkStrategy(mNoDarkThemeWebView.getSettings(),
+                WebSettingsCompat.setForceDarkStrategy(darkThemeWebView.getSettings(),
                         forceDarkStrategy);
             }
 
@@ -166,4 +161,5 @@ public class ForceDarkStrategyActivity extends AppCompatActivity {
             }
         });
     }
+
 }

@@ -18,7 +18,9 @@ package androidx.camera.camera2.interop;
 
 import static androidx.camera.camera2.impl.Camera2ImplConfig.DEVICE_STATE_CALLBACK_OPTION;
 import static androidx.camera.camera2.impl.Camera2ImplConfig.SESSION_CAPTURE_CALLBACK_OPTION;
+import static androidx.camera.camera2.impl.Camera2ImplConfig.SESSION_PHYSICAL_CAMERA_ID_OPTION;
 import static androidx.camera.camera2.impl.Camera2ImplConfig.SESSION_STATE_CALLBACK_OPTION;
+import static androidx.camera.camera2.impl.Camera2ImplConfig.STREAM_USE_CASE_OPTION;
 import static androidx.camera.camera2.impl.Camera2ImplConfig.TEMPLATE_TYPE_OPTION;
 
 import android.annotation.SuppressLint;
@@ -101,6 +103,32 @@ public final class Camera2Interop {
         }
 
         /**
+         * Sets a stream use case flag on the given extendable builder.
+         *
+         * <p>Requires API 33 or above.
+         *
+         * <p>Calling this method will set the stream use case for all CameraX outputs for the
+         * same stream session. Valid use cases available on devices can be found in
+         * {@link android.hardware.camera2.CameraCharacteristics#SCALER_AVAILABLE_STREAM_USE_CASES}
+         *
+         * <p>No app should call this without double-checking the supported list first, or at least
+         * {@link android.hardware.camera2.CameraMetadata#REQUEST_AVAILABLE_CAPABILITIES_STREAM_USE_CASE}
+         * capability which guarantees quite a few use cases.
+         *
+         * <p>See {@link android.hardware.camera2.params.OutputConfiguration#setStreamUseCase}
+         * to see how Camera2 framework uses this.
+         *
+         * @param streamUseCase The stream use case to set.
+         * @return The current Extender.
+         */
+        @RequiresApi(33)
+        @NonNull
+        public Extender<T> setStreamUseCase(long streamUseCase) {
+            mBaseBuilder.getMutableConfig().insertOption(STREAM_USE_CASE_OPTION, streamUseCase);
+            return this;
+        }
+
+        /**
          * Sets a {@link CameraDevice.StateCallback}.
          *
          * <p>The caller is expected to use the {@link CameraDevice} instance accessed through the
@@ -175,8 +203,37 @@ public final class Camera2Interop {
                     captureCallback);
             return this;
         }
+
+        /**
+         * Set the ID of the physical camera to get output from.
+         *
+         * <p>In the case one logical camera is made up of multiple physical cameras, this call
+         * forces the physical camera with the specified camera ID to produce image.
+         *
+         * <p>The valid physical camera IDs can be queried by {@code CameraCharacteristics
+         * .getPhysicalCameraIds} on API &gt;= 28. Passing in an invalid physical camera ID will
+         * be ignored.
+         *
+         * <p>On API &lt;= 27, the physical camera ID will be ignored since logical camera is not
+         * supported on these API levels.
+         *
+         * <p>Currently it doesn't support binding use cases with different physical camera IDs. If
+         * use cases with different physical camera IDs are bound at the same time, an
+         * {@link IllegalArgumentException} will be thrown.
+         *
+         * @param cameraId The desired camera ID.
+         * @return The current Extender.
+         */
+        @RequiresApi(28)
+        @NonNull
+        public Extender<T> setPhysicalCameraId(@NonNull String cameraId) {
+            mBaseBuilder.getMutableConfig().insertOption(SESSION_PHYSICAL_CAMERA_ID_OPTION,
+                    cameraId);
+            return this;
+        }
     }
 
     // Ensure this class isn't instantiated
-    private Camera2Interop() {}
+    private Camera2Interop() {
+    }
 }

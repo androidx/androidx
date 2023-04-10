@@ -17,8 +17,8 @@
 package androidx.build
 
 import androidx.build.gradle.isRoot
-import org.gradle.api.Project
 import java.io.File
+import org.gradle.api.Project
 
 /**
  * @return build id string for current build
@@ -53,10 +53,7 @@ fun isPresubmitBuild(): Boolean {
  * the contents of DIST_DIR to somewhere and make it available.
  */
 fun Project.getDistributionDirectory(): File {
-    // forUseAtConfigurationTime() is deprecated in Gradle 7.4, but we still use 7.3
-    @Suppress("DEPRECATION")
-    val envVar = project.providers.environmentVariable("DIST_DIR")
-        .forUseAtConfigurationTime().getOrElse("")
+    val envVar = project.providers.environmentVariable("DIST_DIR").getOrElse("")
     return if (envVar != "") {
         File(envVar)
     } else {
@@ -84,14 +81,14 @@ fun Project.getBuildInfoDirectory(): File =
  * configs cause all the tests to be run, except in cases where buildSrc changes.
  */
 fun Project.getTestConfigDirectory(): File =
-    File(getDistributionDirectory(), "test-xml-configs")
+    File(rootProject.buildDir, "test-xml-configs")
 
 /**
  * Directory for android test configuration files that get consumed by Tradefed in CI. These
  * "constrained" configs cause only small and medium tests to be run for dependent projects.
  */
 fun Project.getConstrainedTestConfigDirectory(): File =
-    File(getDistributionDirectory(), "constrained-test-xml-configs")
+    File(rootProject.buildDir, "constrained-test-xml-configs")
 
 /**
  * Directory to put release note files for generate release note tasks.

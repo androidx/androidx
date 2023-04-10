@@ -32,7 +32,7 @@ public interface PanModeDelegate {
     /**
      * Notifies that the user has entered or exited pan mode.
      *
-     * @param isInPanMode   the updated checked state
+     * @param isInPanMode   the latest pan mode state.
      * @param callback      the {@link OnDoneCallback} to trigger when the client finishes handling
      *                      the event
      */

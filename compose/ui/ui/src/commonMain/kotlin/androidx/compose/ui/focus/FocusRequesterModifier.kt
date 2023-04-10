@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,9 @@
 
 package androidx.compose.ui.focus
 
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.platform.InspectorValueInfo
-import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.node.modifierElementOf
 
 /**
  * A [modifier][Modifier.Element] that is used to pass in a [FocusRequester] that can be used to
@@ -30,6 +29,8 @@ import androidx.compose.ui.platform.debugInspectorInfo
  * @see FocusRequester
  * @see Modifier.focusRequester
  */
+@Deprecated("Use FocusRequesterModifierNode instead")
+@JvmDefaultWithCompatibility
 interface FocusRequesterModifier : Modifier.Element {
     /**
      * An instance of [FocusRequester], that can be used to request focus state changes.
@@ -39,24 +40,40 @@ interface FocusRequesterModifier : Modifier.Element {
     val focusRequester: FocusRequester
 }
 
-internal class FocusRequesterModifierImpl(
-    override val focusRequester: FocusRequester,
-    inspectorInfo: InspectorInfo.() -> Unit
-) : FocusRequesterModifier, InspectorValueInfo(inspectorInfo)
-
 /**
  * Add this modifier to a component to request changes to focus.
  *
  * @sample androidx.compose.ui.samples.RequestFocusSample
  */
-fun Modifier.focusRequester(focusRequester: FocusRequester): Modifier {
-    return this.then(
-        FocusRequesterModifierImpl(
-            focusRequester = focusRequester,
-            inspectorInfo = debugInspectorInfo {
-                name = "focusRequester"
-                properties["focusRequester"] = focusRequester
-            }
-        )
-    )
+@Suppress("ModifierInspectorInfo") // b/251831790.
+fun Modifier.focusRequester(focusRequester: FocusRequester): Modifier = this.then(
+    @OptIn(ExperimentalComposeUiApi::class)
+    (modifierElementOf(
+        key = focusRequester,
+        create = { FocusRequesterModifierNodeImpl(focusRequester) },
+        update = {
+            it.focusRequester.focusRequesterNodes -= it
+            it.focusRequester = focusRequester
+            it.focusRequester.focusRequesterNodes += it
+        },
+        definitions = {
+            name = "focusRequester"
+            properties["focusRequester"] = focusRequester
+        }
+    ))
+)
+
+@OptIn(ExperimentalComposeUiApi::class)
+private class FocusRequesterModifierNodeImpl(
+    var focusRequester: FocusRequester
+) : FocusRequesterModifierNode, Modifier.Node() {
+    override fun onAttach() {
+        super.onAttach()
+        focusRequester.focusRequesterNodes += this
+    }
+
+    override fun onDetach() {
+        focusRequester.focusRequesterNodes -= this
+        super.onDetach()
+    }
 }

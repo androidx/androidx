@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -23,17 +23,17 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.1.0")
-    testImplementation(libs.kotlinStdlib)
+    api("androidx.annotation:annotation:1.3.0")
+    api(libs.kotlinStdlibJdk8)
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.guava)
+    testImplementation(libs.truth)
 }
 
 androidx {
     name = "Android Room-Common"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2017"
     description = "Android Room-Common"
 }

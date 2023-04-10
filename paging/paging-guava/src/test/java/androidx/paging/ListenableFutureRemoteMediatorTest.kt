@@ -21,7 +21,7 @@ import androidx.paging.RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -32,7 +32,7 @@ import kotlin.test.fail
 @RunWith(JUnit4::class)
 class ListenableFutureRemoteMediatorTest {
     @Test
-    fun initializeFuture() = runBlockingTest {
+    fun initializeFuture() = runTest {
         val remoteMediator = object : ListenableFutureRemoteMediator<Int, Int>() {
             override fun loadFuture(
                 loadType: LoadType,
@@ -48,7 +48,7 @@ class ListenableFutureRemoteMediatorTest {
     }
 
     @Test
-    fun initializeFutureDefault() = runBlockingTest {
+    fun initializeFutureDefault() = runTest {
         val remoteMediator = object : ListenableFutureRemoteMediator<Int, Int>() {
             override fun loadFuture(
                 loadType: LoadType,

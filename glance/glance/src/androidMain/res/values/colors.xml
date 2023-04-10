@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <color name="glance_colorPrimary">#ff6750a4</color>
+    <color name="glance_colorOnPrimary">#ffffffff</color>
+    <color name="glance_colorPrimaryInverse">#ffd0bcff</color>
+    <color name="glance_colorPrimaryContainer">#ffeaddff</color>
+    <color name="glance_colorOnPrimaryContainer">#ff21005d</color>
+    <color name="glance_colorSecondary">#ff625b71</color>
+    <color name="glance_colorOnSecondary">#ffffffff</color>
+    <color name="glance_colorSecondaryContainer">#ffe8def8</color>
+    <color name="glance_colorOnSecondaryContainer">#ff1d192b</color>
+    <color name="glance_colorTertiary">#ff7d5260</color>
+    <color name="glance_colorOnTertiary">#ffffffff</color>
+    <color name="glance_colorTertiaryContainer">#ffffd8e4</color>
+    <color name="glance_colorOnTertiaryContainer">#ff31111d</color>
+    <color name="glance_colorBackground">#fffffbfe</color>
+    <color name="glance_colorOnBackground">#ff1c1b1f</color>
+    <color name="glance_colorSurface">#fffffbfe</color>
+    <color name="glance_colorOnSurface">#ff1c1b1f</color>
+    <color name="glance_colorSurfaceVariant">#ffe7e0ec</color>
+    <color name="glance_colorOnSurfaceVariant">#ff49454f</color>
+    <color name="glance_colorSurfaceInverse">#ff313033</color>
+    <color name="glance_colorOnSurfaceInverse">#fff4eff4</color>
+    <color name="glance_colorOutline">#ff79747e</color>
+    <color name="glance_colorError">#ffb3261e</color>
+    <color name="glance_colorOnError">#ffffffff</color>
+    <color name="glance_colorErrorContainer">#fff9dedc</color>
+    <color name="glance_colorOnErrorContainer">#ff410e0b</color>
+</resources>

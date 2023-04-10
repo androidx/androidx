@@ -87,6 +87,11 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
      * There is no guarantee that the keyboard will be shown. The software keyboard or
      * system service may silently ignore this request.
      */
+    @Deprecated(
+        message = "Use SoftwareKeyboardController.show or " +
+            "TextInputSession.showSoftwareKeyboard instead.",
+        replaceWith = ReplaceWith("textInputSession.showSoftwareKeyboard()")
+    )
     // TODO(b/183448615) @InternalTextApi
     fun showSoftwareKeyboard() {
         if (_currentInputSession.get() != null) {
@@ -97,6 +102,11 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
     /**
      * Hide onscreen keyboard.
      */
+    @Deprecated(
+        message = "Use SoftwareKeyboardController.hide or " +
+            "TextInputSession.hideSoftwareKeyboard instead.",
+        replaceWith = ReplaceWith("textInputSession.hideSoftwareKeyboard()")
+    )
     // TODO(b/183448615) @InternalTextApi
     fun hideSoftwareKeyboard(): Unit = platformTextInputService.hideSoftwareKeyboard()
 }
@@ -149,6 +159,10 @@ class TextInputSession(
 
     /**
      * Notify the focused rectangle to the system.
+     *
+     * The system can ignore this information or use it to for additional functionality.
+     *
+     * For example, desktop systems show a popup near the focused input area (for some languages).
      *
      * If the session is not open, no action will be performed.
      *
@@ -264,7 +278,11 @@ interface PlatformTextInputService {
     /**
      * Notify the focused rectangle to the system.
      *
-     * @see TextInputSession.notifyFocusedRect
+     * The system can ignore this information or use it to for additional functionality.
+     *
+     * For example, desktop systems show a popup near the focused input area (for some languages).
      */
-    fun notifyFocusedRect(rect: Rect)
+    // TODO(b/262648050) Try to find a better API.
+    fun notifyFocusedRect(rect: Rect) {
+    }
 }

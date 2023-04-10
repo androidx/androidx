@@ -84,7 +84,15 @@ class WatchFaceConfigActivity : FragmentActivity() {
                 object : FragmentController {
                     @SuppressLint("SyntheticAccessor")
                     override fun showConfigFragment() {
-                        showFragment(ConfigFragment())
+                        showFragment(
+                            ConfigFragment.newInstance(
+                                ArrayList(
+                                    editorSession.userStyleSchema.rootUserStyleSettings.map {
+                                        it.id.value
+                                    }
+                                )
+                            )
+                        )
                     }
 
                     @SuppressLint("SyntheticAccessor")
@@ -157,7 +165,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
                 }
             }
 
-        var topLevelOptionCount = editorSession.userStyleSchema.userStyleSettings.size
+        var topLevelOptionCount = editorSession.userStyleSchema.rootUserStyleSettings.size
         val hasBackgroundComplication = editorSession.backgroundComplicationSlotId != null
         if (hasBackgroundComplication) {
             topLevelOptionCount++
@@ -189,9 +197,10 @@ class WatchFaceConfigActivity : FragmentActivity() {
             numComplications > 1 -> fragmentController.showComplicationConfigSelectionFragment()
 
             // For a single style, go select the option.
-            editorSession.userStyleSchema.userStyleSettings.size == 1 -> {
+            editorSession.userStyleSchema.rootUserStyleSettings.size == 1 -> {
                 // There should only be a single userStyle setting if we get here.
-                val onlyStyleSetting = editorSession.userStyleSchema.userStyleSettings.first()
+                val onlyStyleSetting =
+                    editorSession.userStyleSchema.rootUserStyleSettings.first()
                 fragmentController.showStyleConfigFragment(
                     onlyStyleSetting.id.value,
                     editorSession.userStyleSchema,

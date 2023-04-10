@@ -95,6 +95,7 @@ public class SliceProviderWrapperContainer {
         }
 
         @Override
+        @SuppressWarnings("deprecation")
         public Bundle call(String method, String arg, Bundle extras) {
             if (mAutoGrantPermissions != null) {
                 Uri uri = null;

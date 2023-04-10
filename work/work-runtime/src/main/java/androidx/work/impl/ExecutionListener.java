@@ -19,6 +19,7 @@ package androidx.work.impl;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.work.Worker;
+import androidx.work.impl.model.WorkGenerationalId;
 
 /**
  * Listener that reports the result of a {@link Worker}'s execution.
@@ -31,8 +32,8 @@ public interface ExecutionListener {
     /**
      * Called when a {@link Worker} has executed.
      *
-     * @param workSpecId      work id corresponding to the {@link Worker}
+     * @param id      work id corresponding to the {@link Worker}
      * @param needsReschedule {@code true} if work should be rescheduled according to backoff policy
      */
-    void onExecuted(@NonNull String workSpecId, boolean needsReschedule);
+    void onExecuted(@NonNull WorkGenerationalId id, boolean needsReschedule);
 }

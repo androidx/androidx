@@ -49,9 +49,8 @@ public class LongTextLayoutHelper extends LayoutHelper {
 
     @Override
     public void getIconBounds(@NonNull Rect outRect) {
-        ComplicationData data = getComplicationData();
         getBounds(outRect);
-        if (data.getIcon() == null || data.getSmallImage() != null || shouldShowTextOnly(outRect)) {
+        if (!hasIcon() || hasSmallImage() || shouldShowTextOnly(outRect)) {
             outRect.setEmpty();
         } else {
             // Show icon on the left part of bounds
@@ -61,9 +60,8 @@ public class LongTextLayoutHelper extends LayoutHelper {
 
     @Override
     public void getSmallImageBounds(@NonNull Rect outRect) {
-        ComplicationData data = getComplicationData();
         getBounds(outRect);
-        if (data.getSmallImage() == null || shouldShowTextOnly(outRect)) {
+        if (!hasSmallImage() || shouldShowTextOnly(outRect)) {
             outRect.setEmpty();
         } else {
             // Show image on the left part of bounds
@@ -73,10 +71,9 @@ public class LongTextLayoutHelper extends LayoutHelper {
 
     @Override
     public void getLongTextBounds(@NonNull Rect outRect) {
-        ComplicationData data = getComplicationData();
         getBounds(outRect);
         if (shouldShowTextOnly(outRect)) {
-            if (data.getLongTitle() != null) {
+            if (hasLongTitle()) {
                 // Title is available, use top half
                 getTopHalf(outRect, outRect);
             }
@@ -84,7 +81,7 @@ public class LongTextLayoutHelper extends LayoutHelper {
             // No-op here.
         } else {
             // To the right of the icon/small image
-            if (data.getLongTitle() == null) {
+            if (!hasLongTitle()) {
                 // Full height if there's no title
                 getRightPart(outRect, outRect);
             } else {
@@ -108,9 +105,8 @@ public class LongTextLayoutHelper extends LayoutHelper {
 
     @Override
     public int getLongTextGravity() {
-        ComplicationData data = getComplicationData();
         // Title is always shown if available
-        if (data.getLongTitle() == null) {
+        if (!hasLongTitle()) {
             return Gravity.CENTER_VERTICAL;
         } else {
             return Gravity.BOTTOM;
@@ -119,9 +115,8 @@ public class LongTextLayoutHelper extends LayoutHelper {
 
     @Override
     public void getLongTitleBounds(@NonNull Rect outRect) {
-        ComplicationData data = getComplicationData();
         getBounds(outRect);
-        if (data.getLongTitle() == null) {
+        if (!hasLongTitle()) {
             outRect.setEmpty();
         } else {
             if (shouldShowTextOnly(outRect)) {

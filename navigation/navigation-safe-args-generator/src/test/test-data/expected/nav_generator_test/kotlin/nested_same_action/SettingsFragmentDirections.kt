@@ -8,7 +8,7 @@ import kotlin.String
 
 public class SettingsFragmentDirections private constructor() {
   private data class Exit(
-    public val exitReason: String = "DIFFERENT"
+    public val exitReason: String = "DIFFERENT",
   ) : NavDirections {
     public override val actionId: Int = R.id.exit
 

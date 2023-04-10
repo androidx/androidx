@@ -15,6 +15,6 @@
 # libproto uses reflection to deserialize a Proto, which Proguard can't accurately detect.
 # Keep all the class members of any generated messages to ensure we can deserialize properly inside
 # these classes.
--keepclassmembers class * extends androidx.wear.tiles.protobuf.GeneratedMessageLite {
+-keepclassmembers class * extends androidx.wear.protolayout.protobuf.GeneratedMessageLite {
   <fields>;
 }

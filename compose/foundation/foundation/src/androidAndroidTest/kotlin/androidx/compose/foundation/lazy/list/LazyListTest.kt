@@ -17,18 +17,15 @@
 package androidx.compose.foundation.lazy.list
 
 import android.os.Build
-import androidx.compose.animation.core.snap
 import androidx.compose.foundation.AutoTestFrameClock
+import androidx.compose.foundation.VelocityTrackerCalculationThreshold
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.ScrollableDefaults
-import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -38,79 +35,88 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.savePointerInputEvents
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.WithTouchSlop
-import androidx.compose.testutils.assertIsEqualTo
+import androidx.compose.testutils.assertPixels
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher.Companion.keyIsDefined
+import androidx.compose.ui.test.SemanticsMatcher.Companion.keyNotDefined
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
-import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
-import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.StateRestorationTester
-import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.test.swipeWithVelocity
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.collect.Range
 import com.google.common.truth.IntegerSubject
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import kotlinx.coroutines.Dispatchers
+import java.util.concurrent.CountDownLatch
+import kotlin.math.abs
+import kotlin.math.roundToInt
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.CountDownLatch
 
 @LargeTest
 @RunWith(Parameterized::class)
-class LazyListTest(private val orientation: Orientation) {
+class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(orientation) {
     private val LazyListTag = "LazyListTag"
     private val firstItemTag = "firstItemTag"
-
-    @get:Rule
-    val rule = createComposeRule()
-
-    private val vertical: Boolean
-        get() = orientation == Orientation.Vertical
 
     @Test
     fun lazyListShowsCombinedItems() {
@@ -210,12 +216,12 @@ class LazyListTest(private val orientation: Orientation) {
     }
 
     @Test
-    fun lazyListOnlyVisibleItemsAdded() {
+    fun lazyList_noBeyondBoundItemsCount_OnlyVisibleItemsAdded() {
         val items = (1..4).map { it.toString() }
 
         rule.setContentWithTestViewConfiguration {
             Box(Modifier.mainAxisSize(200.dp)) {
-                LazyColumnOrRow {
+                LazyColumnOrRow(beyondBoundsItemCount = 0) {
                     items(items) {
                         Spacer(
                             Modifier.mainAxisSize(101.dp).then(fillParentMaxCrossAxis()).testTag(it)
@@ -233,6 +239,35 @@ class LazyListTest(private val orientation: Orientation) {
 
         rule.onNodeWithTag("3")
             .assertDoesNotExist()
+
+        rule.onNodeWithTag("4")
+            .assertDoesNotExist()
+    }
+
+    @Test
+    fun lazyList_withBeyondBoundItemsCount_bothVisibleAndBeyondBoundItemsCountAdded() {
+        val items = (1..4).map { it.toString() }
+
+        rule.setContentWithTestViewConfiguration {
+            Box(Modifier.mainAxisSize(200.dp)) {
+                LazyColumnOrRow(beyondBoundsItemCount = 1) {
+                    items(items) {
+                        Spacer(
+                            Modifier.mainAxisSize(101.dp).then(fillParentMaxCrossAxis()).testTag(it)
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag("1")
+            .assertIsDisplayed()
+
+        rule.onNodeWithTag("2")
+            .assertIsDisplayed()
+
+        rule.onNodeWithTag("3")
+            .assertIsNotDisplayed()
 
         rule.onNodeWithTag("4")
             .assertDoesNotExist()
@@ -798,6 +833,27 @@ class LazyListTest(private val orientation: Orientation) {
     }
 
     @Test
+    fun onlyOneInitialMeasurePass() {
+        val items by mutableStateOf((1..20).toList())
+        lateinit var state: LazyListState
+        rule.setContent {
+            state = rememberLazyListState()
+            LazyColumnOrRow(
+                Modifier.requiredSize(100.dp).testTag(LazyListTag),
+                state = state
+            ) {
+                items(items) {
+                    Spacer(Modifier.requiredSize(20.dp).testTag("$it"))
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(state.numMeasurePasses).isEqualTo(1)
+        }
+    }
+
+    @Test
     fun stateUpdatedAfterScroll() {
         val items by mutableStateOf((1..20).toList())
         lateinit var state: LazyListState
@@ -974,11 +1030,44 @@ class LazyListTest(private val orientation: Orientation) {
     }
 
     @Test
-    fun itemsAreNotRedrawnDuringScroll() {
+    fun itemsAreNotRedrawnDuringScroll_noBeyondBoundItemsCount() {
         val items = (0..20).toList()
         val redrawCount = Array(6) { 0 }
         rule.setContentWithTestViewConfiguration {
-            LazyColumnOrRow(Modifier.requiredSize(100.dp).testTag(LazyListTag)) {
+            LazyColumnOrRow(
+                modifier = Modifier.requiredSize(100.dp).testTag(LazyListTag),
+                beyondBoundsItemCount = 0
+            ) {
+                items(items) {
+                    Spacer(
+                        Modifier.requiredSize(20.dp)
+                            .drawBehind { redrawCount[it]++ }
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithTag(LazyListTag)
+            .scrollMainAxisBy(10.dp)
+
+        rule.runOnIdle {
+            redrawCount.forEachIndexed { index, i ->
+                assertWithMessage("Item with index $index was redrawn $i times")
+                    .that(i).isEqualTo(1)
+            }
+        }
+    }
+
+    @Test
+    fun itemsAreNotRedrawnDuringScroll_withBeyondBoundItemsCount() {
+        val items = (0..20).toList()
+        val beyondBoundsItemCount = 1
+        val redrawCount = Array(6 + beyondBoundsItemCount) { 0 }
+        rule.setContentWithTestViewConfiguration {
+            LazyColumnOrRow(
+                modifier = Modifier.requiredSize(100.dp).testTag(LazyListTag),
+                beyondBoundsItemCount = beyondBoundsItemCount
+            ) {
                 items(items) {
                     Spacer(
                         Modifier.requiredSize(20.dp)
@@ -1496,6 +1585,28 @@ class LazyListTest(private val orientation: Orientation) {
     }
 
     @Test
+    fun maxIntElements_withKey_startInMiddle() {
+        val itemSize = with(rule.density) { 15.toDp() }
+
+        rule.setContent {
+            LazyColumnOrRow(
+                modifier = Modifier.requiredSize(itemSize),
+                state = LazyListState(firstVisibleItemIndex = Int.MAX_VALUE / 2)
+            ) {
+                items(Int.MAX_VALUE, key = { it }) {
+                    Box(
+                        Modifier
+                            .size(itemSize)
+                            .testTag("$it"))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("${Int.MAX_VALUE / 2}")
+            .assertStartPositionInRootIsEqualTo(0.dp)
+    }
+
+    @Test
     fun scrollingByExactlyTheItemSize_switchesTheFirstVisibleItem() {
         val itemSize = with(rule.density) { 30.toDp() }
         lateinit var state: LazyListState
@@ -1523,6 +1634,580 @@ class LazyListTest(private val orientation: Orientation) {
         }
     }
 
+    @Test
+    fun pointerInputScrollingIsAllowedWhenUserScrollingIsEnabled() {
+        val itemSize = with(rule.density) { 30.toDp() }
+        rule.setContentWithTestViewConfiguration {
+            LazyColumnOrRow(
+                Modifier.mainAxisSize(itemSize * 3).testTag(LazyListTag),
+                userScrollEnabled = true,
+            ) {
+                items(5) {
+                    Spacer(Modifier.size(itemSize).testTag("$it"))
+                }
+            }
+        }
+
+        rule.onNodeWithTag(LazyListTag).scrollBy(itemSize)
+
+        rule.onNodeWithTag("1")
+            .assertStartPositionInRootIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun pointerInputScrollingIsDisallowedWhenUserScrollingIsDisabled() {
+        val itemSize = with(rule.density) { 30.toDp() }
+        rule.setContentWithTestViewConfiguration {
+            LazyColumnOrRow(
+                Modifier.mainAxisSize(itemSize * 3).testTag(LazyListTag),
+                userScrollEnabled = false,
+            ) {
+                items(5) {
+                    Spacer(Modifier.size(itemSize).testTag("$it"))
+                }
+            }
+        }
+
+        rule.onNodeWithTag(LazyListTag).scrollBy(itemSize)
+
+        rule.onNodeWithTag("1")
+            .assertStartPositionInRootIsEqualTo(itemSize)
+    }
+
+    @Test
+    fun programmaticScrollingIsAllowedWhenUserScrollingIsDisabled() {
+        val itemSize = with(rule.density) { 30.toDp() }
+        lateinit var state: LazyListState
+        rule.setContentWithTestViewConfiguration {
+            LazyColumnOrRow(
+                Modifier.mainAxisSize(itemSize * 3),
+                state = rememberLazyListState().also { state = it },
+                userScrollEnabled = false,
+            ) {
+                items(5) {
+                    Spacer(Modifier.size(itemSize).testTag("$it"))
+                }
+            }
+        }
+
+        state.scrollBy(itemSize)
+
+        rule.onNodeWithTag("1")
+            .assertStartPositionInRootIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun semanticScrollingIsDisallowedWhenUserScrollingIsDisabled() {
+        val itemSize = with(rule.density) { 30.toDp() }
+        rule.setContentWithTestViewConfiguration {
+            LazyColumnOrRow(
+                Modifier.mainAxisSize(itemSize * 3).testTag(LazyListTag),
+                userScrollEnabled = false,
+            ) {
+                items(5) {
+                    Spacer(Modifier.size(itemSize).testTag("$it"))
+                }
+            }
+        }
+
+        rule.onNodeWithTag(LazyListTag)
+            .assert(keyNotDefined(SemanticsActions.ScrollBy))
+            .assert(keyNotDefined(SemanticsActions.ScrollToIndex))
+            // but we still have a read only scroll range property
+            .assert(
+                keyIsDefined(
+                    if (vertical) {
+                        SemanticsProperties.VerticalScrollAxisRange
+                    } else {
+                        SemanticsProperties.HorizontalScrollAxisRange
+                    }
+                )
+            )
+    }
+
+    @Test
+    fun withMissingItems() {
+        val itemSize = with(rule.density) { 30.toDp() }
+        lateinit var state: LazyListState
+        rule.setContent {
+            state = rememberLazyListState()
+            LazyColumnOrRow(
+                modifier = Modifier.mainAxisSize(itemSize + 1.dp),
+                state = state
+            ) {
+                items(4) {
+                    if (it != 1) {
+                        Box(Modifier.size(itemSize).testTag(it.toString()))
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag("0").assertIsDisplayed()
+        rule.onNodeWithTag("2").assertIsDisplayed()
+
+        rule.runOnIdle {
+            runBlocking {
+                state.scrollToItem(1)
+            }
+        }
+
+        rule.onNodeWithTag("0").assertIsNotDisplayed()
+        rule.onNodeWithTag("2").assertIsDisplayed()
+        rule.onNodeWithTag("3").assertIsDisplayed()
+    }
+
+    @Test
+    fun withZeroSizedFirstItem_shouldNotConsumedDrag() {
+        var scrollConsumedAccumulator = Offset.Zero
+        val collectingDataConnection = object : NestedScrollConnection {
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset {
+                scrollConsumedAccumulator += consumed
+                return Offset.Zero
+            }
+        }
+
+        rule.setContent {
+            val state = rememberLazyListState()
+            LazyColumnOrRow(
+                modifier = Modifier
+                    .testTag("mainList")
+                    .nestedScroll(collectingDataConnection),
+                state = state,
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(all = 10.dp)
+            ) {
+                item {
+                    Spacer(modifier = Modifier.size(size = 0.dp))
+                }
+                items(10) {
+                    Box(Modifier.fillMaxWidth()) {
+                        BasicText(text = it.toString())
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag("mainList").performTouchInput {
+            swipeDown()
+        }
+
+        rule.runOnIdle {
+            assertThat(scrollConsumedAccumulator).isEqualTo(Offset.Zero)
+        }
+    }
+
+    @Test
+    fun withZeroSizedFirstItem_shouldKeepItemOnSizeChange() {
+        val firstItemSize = mutableStateOf(0.dp)
+
+        rule.setContent {
+            val state = rememberLazyListState()
+            LazyColumnOrRow(
+                modifier = Modifier
+                    .testTag("mainList"),
+                state = state,
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(all = 10.dp)
+            ) {
+                item {
+                    Spacer(modifier = Modifier
+                        .testTag("firstItem")
+                        .size(size = firstItemSize.value)
+                        .background(Color.Black))
+                }
+                items(10) {
+                    Box(Modifier.background(Color.Red).fillMaxWidth()) {
+                        BasicText(text = it.toString())
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag("firstItem").assertIsNotDisplayed()
+        firstItemSize.value = 20.dp
+        rule.onNodeWithTag("firstItem").assertIsDisplayed()
+    }
+
+    @Test
+    fun recomposingWithNewComposedModifierObjectIsNotCausingRemeasure() {
+        var remeasureCount = 0
+        val layoutModifier = Modifier.layout { measurable, constraints ->
+            remeasureCount++
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) {
+                placeable.place(0, 0)
+            }
+        }
+        val counter = mutableStateOf(0)
+
+        rule.setContentWithTestViewConfiguration {
+            counter.value // just to trigger recomposition
+            LazyColumnOrRow(
+                // this will return a new object everytime causing Lazy list recomposition
+                // without causing remeasure
+                Modifier.composed { layoutModifier }
+            ) {
+                items(1) {
+                    Spacer(Modifier.size(10.dp))
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(remeasureCount).isEqualTo(1)
+            counter.value++
+        }
+
+        rule.runOnIdle {
+            assertThat(remeasureCount).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun passingNegativeItemsCountIsNotAllowed() {
+        var exception: Exception? = null
+        rule.setContentWithTestViewConfiguration {
+            LazyColumnOrRow {
+                try {
+                    items(-1) {
+                        Box(Modifier)
+                    }
+                } catch (e: Exception) {
+                    exception = e
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(exception).isInstanceOf(IllegalArgumentException::class.java)
+        }
+    }
+
+    @Test
+    fun scrollingALotDoesntCauseLazyLayoutRecomposition() {
+        var recomposeCount = 0
+        lateinit var state: LazyListState
+
+        rule.setContentWithTestViewConfiguration {
+            state = rememberLazyListState()
+            LazyColumnOrRow(
+                Modifier.composed {
+                    recomposeCount++
+                    Modifier
+                },
+                state
+            ) {
+                items(1000) {
+                    Spacer(Modifier.size(10.dp))
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(recomposeCount).isEqualTo(1)
+
+            runBlocking {
+                state.scrollToItem(100)
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(recomposeCount).isEqualTo(1)
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun zIndexOnItemAffectsDrawingOrder() {
+        rule.setContentWithTestViewConfiguration {
+            LazyColumnOrRow(
+                Modifier.size(6.dp).testTag(LazyListTag)
+            ) {
+                items(listOf(Color.Blue, Color.Green, Color.Red)) { color ->
+                    Box(
+                        Modifier
+                            .mainAxisSize(2.dp)
+                            .crossAxisSize(6.dp)
+                            .zIndex(if (color == Color.Green) 1f else 0f)
+                            .drawBehind {
+                                drawRect(
+                                    color,
+                                    topLeft = Offset(-10.dp.toPx(), -10.dp.toPx()),
+                                    size = Size(20.dp.toPx(), 20.dp.toPx())
+                                )
+                            })
+                }
+            }
+        }
+
+        rule.onNodeWithTag(LazyListTag)
+            .captureToImage()
+            .assertPixels { Color.Green }
+    }
+
+    @Test
+    fun scrollDuringMeasure() {
+        rule.setContent {
+            BoxWithConstraints {
+                val state = rememberLazyListState()
+                LazyColumnOrRow(
+                    state = state,
+                    modifier = Modifier.mainAxisSize(100.dp).fillMaxCrossAxis()
+                ) {
+                    items(20) {
+                        val tag = it.toString()
+                        BasicText(
+                            text = tag,
+                            modifier = Modifier.mainAxisSize(30.dp).fillMaxCrossAxis().testTag(tag)
+                        )
+                    }
+                }
+                LaunchedEffect(state) {
+                    state.scrollToItem(10)
+                }
+            }
+        }
+
+        rule.onNodeWithTag("10")
+            .assertStartPositionInRootIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun scrollInLaunchedEffect() {
+        rule.setContent {
+            val state = rememberLazyListState()
+            LazyColumnOrRow(
+                state = state,
+                modifier = Modifier.mainAxisSize(100.dp).fillMaxCrossAxis()
+            ) {
+                items(20) {
+                    val tag = it.toString()
+                    BasicText(
+                        text = tag,
+                        modifier = Modifier.mainAxisSize(30.dp).fillMaxCrossAxis().testTag(tag)
+                    )
+                }
+            }
+            LaunchedEffect(state) {
+                state.scrollToItem(10)
+            }
+        }
+
+        rule.onNodeWithTag("10")
+            .assertStartPositionInRootIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun assertVelocityCalculationIsSimilar_witHistoricalValues() {
+        // arrange
+        val tracker = VelocityTracker()
+        var velocity = Velocity.Zero
+        val capturingScrollConnection = object : NestedScrollConnection {
+            override suspend fun onPreFling(available: Velocity): Velocity {
+                velocity += available
+                return Velocity.Zero
+            }
+        }
+        rule.setContent {
+            Box(modifier = Modifier
+                .background(Color.Yellow)
+                .nestedScroll(capturingScrollConnection)
+                .fillMaxWidth()
+                .pointerInput(Unit) {
+                    savePointerInputEvents(tracker, this)
+                }) {
+                LazyColumnOrRow {
+                    items(200) {
+                        Box(modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                            .padding(8.dp)
+                            .background(Color.Blue))
+                    }
+                }
+            }
+        }
+
+        // act
+        composeViewSwipeForward()
+
+        // assert
+        rule.runOnIdle {
+            val diff = abs((velocity - tracker.calculateVelocity()).toFloat())
+            assertThat(diff).isLessThan(VelocityTrackerCalculationThreshold)
+        }
+        tracker.resetTracking()
+        velocity = Velocity.Zero
+
+        // act
+        composeViewSwipeBackward()
+
+        // assert
+        rule.runOnIdle {
+            val diff = abs((velocity - tracker.calculateVelocity()).toFloat())
+            assertThat(diff).isLessThan(VelocityTrackerCalculationThreshold)
+        }
+    }
+
+    @Test
+    fun itemsComposedInOrderDuringAnimatedScroll() {
+        // for the Paging use case it is important that during such long scrolls we do not
+        // accidentally compose an item from completely other part of the list as it will break
+        // the logic defining what page to load. this issue was happening right after the
+        // teleporting during the animated scrolling happens (for example we were on item 100
+        // and we immediately snap to item 400). the prefetching logic was not detecting such
+        // moves and were continuing prefetching item 101 even if it is not needed anymore.
+        val state = LazyListState()
+        var previousItem = -1
+        // initialize lambda here so it is not recreated when items block is rerun causing
+        // extra recompositions
+        val itemContent: @Composable LazyItemScope.(index: Int) -> Unit = {
+            assertWithMessage("Item $it should be larger than $previousItem")
+                .that(it > previousItem).isTrue()
+            previousItem = it
+            BasicText("$it", Modifier.size(10.dp))
+        }
+        lateinit var scope: CoroutineScope
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            LazyColumnOrRow(Modifier.size(30.dp), state = state, beyondBoundsItemCount = 0) {
+                items(500, itemContent = itemContent)
+            }
+        }
+
+        var animationFinished by mutableStateOf(false)
+        rule.runOnIdle {
+            scope.launch {
+                state.animateScrollToItem(500)
+                animationFinished = true
+            }
+        }
+        rule.waitUntil(timeoutMillis = 10000) { animationFinished }
+    }
+
+    @Test
+    fun increasingConstraintsWhenParentMaxSizeIsUsed_correctlyMaintainsThePosition() {
+        val state = LazyListState(1, 10)
+        var constraints by mutableStateOf(Constraints.fixed(100, 100))
+        rule.setContentWithTestViewConfiguration {
+            Layout(content = {
+                LazyColumnOrRow(state = state) {
+                    items(3) {
+                        Box(Modifier.fillParentMaxSize())
+                    }
+                }
+            }) { measurables, _ ->
+                val placeable = measurables.first().measure(constraints)
+                layout(constraints.maxWidth, constraints.maxHeight) {
+                    placeable.place(0, 0)
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            constraints = Constraints.fixed(500, 500)
+        }
+
+        rule.runOnIdle {
+            assertThat(state.firstVisibleItemIndex).isEqualTo(1)
+            assertThat(state.firstVisibleItemScrollOffset).isEqualTo(10)
+        }
+    }
+
+    @Test
+    fun usingFillParentMaxSizeOnInfinityConstraintsIsIgnored() {
+        rule.setContentWithTestViewConfiguration {
+            Layout(content = {
+                LazyColumnOrRow {
+                    items(1) {
+                        Box(
+                            Modifier
+                                .fillParentMaxSize(0.95f)
+                                .testTag("item"))
+                    }
+                }
+            }) { measurables, _ ->
+                val crossInfinityConstraints = if (vertical) {
+                    Constraints(maxWidth = Constraints.Infinity, maxHeight = 100)
+                } else {
+                    Constraints(maxWidth = 100, maxHeight = Constraints.Infinity)
+                }
+                val placeable = measurables.first().measure(crossInfinityConstraints)
+                layout(placeable.width, placeable.height) {
+                    placeable.place(0, 0)
+                }
+            }
+        }
+
+        rule.onNodeWithTag("item")
+            .assertMainAxisSizeIsEqualTo(with(rule.density) { (100 * 0.95f).roundToInt().toDp() })
+            .assertCrossAxisSizeIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun fillingFullSize_nextItemIsNotComposed() {
+        val state = LazyListState()
+        state.prefetchingEnabled = false
+        val itemSizePx = 5f
+        val itemSize = with(rule.density) { itemSizePx.toDp() }
+        rule.setContentWithTestViewConfiguration {
+            LazyColumnOrRow(
+                Modifier
+                    .testTag(LazyListTag)
+                    .mainAxisSize(itemSize),
+                state = state
+            ) {
+                items(3) { index ->
+                    Box(fillParentMaxMainAxis().crossAxisSize(1.dp).testTag("$index"))
+                }
+            }
+        }
+
+        repeat(3) { index ->
+            rule.onNodeWithTag("$index")
+                .assertIsDisplayed()
+            rule.onNodeWithTag("${index + 1}")
+                .assertDoesNotExist()
+            rule.runOnIdle {
+                runBlocking {
+                    state.scrollBy(itemSizePx)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun fillingFullSize_crossAxisSizeOfVisibleItemIsUsed() {
+        val state = LazyListState()
+        val itemSizePx = 5f
+        val itemSize = with(rule.density) { itemSizePx.toDp() }
+        rule.setContentWithTestViewConfiguration {
+            LazyColumnOrRow(
+                Modifier
+                    .testTag(LazyListTag)
+                    .mainAxisSize(itemSize),
+                state = state
+            ) {
+                items(5) { index ->
+                    Box(fillParentMaxMainAxis().crossAxisSize(index.dp))
+                }
+            }
+        }
+
+        repeat(5) { index ->
+            rule.onNodeWithTag(LazyListTag)
+                .assertCrossAxisSizeIsEqualTo(index.dp)
+            rule.runOnIdle {
+                runBlocking {
+                    state.scrollBy(itemSizePx)
+                }
+            }
+        }
+    }
+
     // ********************* END OF TESTS *********************
     // Helper functions, etc. live below here
 
@@ -1530,109 +2215,6 @@ class LazyListTest(private val orientation: Orientation) {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun params() = arrayOf(Orientation.Vertical, Orientation.Horizontal)
-    }
-
-    private fun Modifier.mainAxisSize(size: Dp) =
-        if (vertical) {
-            this.height(size)
-        } else {
-            this.width(size)
-        }
-
-    private fun Modifier.crossAxisSize(size: Dp) =
-        if (vertical) {
-            this.width(size)
-        } else {
-            this.height(size)
-        }
-
-    private fun Modifier.fillMaxCrossAxis() =
-        if (vertical) {
-            this.fillMaxWidth()
-        } else {
-            this.fillMaxHeight()
-        }
-
-    private fun LazyItemScope.fillParentMaxCrossAxis() =
-        if (vertical) {
-            Modifier.fillParentMaxWidth()
-        } else {
-            Modifier.fillParentMaxHeight()
-        }
-
-    private fun SemanticsNodeInteraction.scrollMainAxisBy(distance: Dp) {
-        if (vertical) {
-            this.scrollBy(y = distance, density = rule.density)
-        } else {
-            this.scrollBy(x = distance, density = rule.density)
-        }
-    }
-
-    private fun SemanticsNodeInteraction.assertMainAxisSizeIsEqualTo(expectedSize: Dp) =
-        if (vertical) {
-            assertHeightIsEqualTo(expectedSize)
-        } else {
-            assertWidthIsEqualTo(expectedSize)
-        }
-
-    private fun SemanticsNodeInteraction.assertCrossAxisSizeIsEqualTo(expectedSize: Dp) =
-        if (vertical) {
-            assertWidthIsEqualTo(expectedSize)
-        } else {
-            assertHeightIsEqualTo(expectedSize)
-        }
-
-    private fun SemanticsNodeInteraction.assertStartPositionIsAlmost(expected: Dp) {
-        val position = if (vertical) {
-            getUnclippedBoundsInRoot().top
-        } else {
-            getUnclippedBoundsInRoot().left
-        }
-        position.assertIsEqualTo(expected, tolerance = 1.dp)
-    }
-
-    private fun SemanticsNodeInteraction.assertStartPositionInRootIsEqualTo(expectedStart: Dp) =
-        if (vertical) {
-            assertTopPositionInRootIsEqualTo(expectedStart)
-        } else {
-            assertLeftPositionInRootIsEqualTo(expectedStart)
-        }
-
-    private fun LazyListState.scrollBy(offset: Dp) {
-        runBlocking(Dispatchers.Main + AutoTestFrameClock()) {
-            animateScrollBy(with(rule.density) { offset.roundToPx().toFloat() }, snap())
-        }
-    }
-
-    @Suppress("NOTHING_TO_INLINE")
-    @Composable
-    private inline fun LazyColumnOrRow(
-        modifier: Modifier = Modifier,
-        state: LazyListState = rememberLazyListState(),
-        contentPadding: PaddingValues = PaddingValues(0.dp),
-        reverseLayout: Boolean = false,
-        flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
-        noinline content: LazyListScope.() -> Unit
-    ) {
-        if (vertical) {
-            LazyColumn(
-                modifier = modifier,
-                state = state,
-                contentPadding = contentPadding,
-                reverseLayout = reverseLayout,
-                flingBehavior = flingBehavior,
-                content = content
-            )
-        } else {
-            LazyRow(
-                modifier = modifier,
-                state = state,
-                contentPadding = contentPadding,
-                reverseLayout = reverseLayout,
-                flingBehavior = flingBehavior,
-                content = content
-            )
-        }
     }
 }
 

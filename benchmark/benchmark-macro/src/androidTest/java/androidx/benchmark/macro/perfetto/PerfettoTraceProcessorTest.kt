@@ -22,22 +22,26 @@ import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
+import java.net.ConnectException
+import java.net.HttpURLConnection
+import java.net.URL
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class PerfettoTraceProcessorTest {
+
     @Test
     fun shellPath() {
         assumeTrue(isAbiSupported())
         val shellPath = PerfettoTraceProcessor.shellPath
-        val out = Shell.executeCommand("$shellPath --version")
+        val out = Shell.executeScriptCaptureStdout("$shellPath --version")
         assertTrue(
             "expect to get Perfetto version string, saw: $out",
             out.contains("Perfetto v")
@@ -48,7 +52,7 @@ class PerfettoTraceProcessorTest {
     fun getJsonMetrics_tracePathWithSpaces() {
         assumeTrue(isAbiSupported())
         assertFailsWith<IllegalArgumentException> {
-            PerfettoTraceProcessor.getJsonMetrics("/a b", "ignored")
+            PerfettoTraceProcessor.runServer("/a b") { }
         }
     }
 
@@ -56,7 +60,14 @@ class PerfettoTraceProcessorTest {
     fun getJsonMetrics_metricWithSpaces() {
         assumeTrue(isAbiSupported())
         assertFailsWith<IllegalArgumentException> {
-            PerfettoTraceProcessor.getJsonMetrics("/ignored", "a b")
+            PerfettoTraceProcessor.runServer(
+                createTempFileFromAsset(
+                    "api31_startup_cold",
+                    ".perfetto-trace"
+                ).absolutePath
+            ) {
+                getTraceMetrics("a b")
+            }
         }
     }
 
@@ -68,7 +79,14 @@ class PerfettoTraceProcessorTest {
         }
 
         assertFailsWith<IllegalStateException> {
-            PerfettoTraceProcessor.getJsonMetrics("ignored_path", "ignored_metric")
+            PerfettoTraceProcessor.runServer(
+                createTempFileFromAsset(
+                    "api31_startup_cold",
+                    ".perfetto-trace"
+                ).absolutePath
+            ) {
+                getTraceMetrics("ignored_metric")
+            }
         }
     }
 
@@ -77,39 +95,39 @@ class PerfettoTraceProcessorTest {
         // check known slice content is queryable
         assumeTrue(isAbiSupported())
         val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
-        assertEquals(
-            expected = listOf(
-                Slice(
-                    name = "activityStart",
-                    ts = 186975009436431,
-                    dur = 29580628
-                )
-            ),
-            actual = PerfettoTraceProcessor.querySlices(traceFile.absolutePath, "activityStart")
-        )
-        assertEquals(
-            expected = listOf(
-                Slice(
-                    name = "activityStart",
-                    ts = 186975009436431,
-                    dur = 29580628
+        PerfettoTraceProcessor.runServer(traceFile.absolutePath) {
+
+            assertEquals(
+                expected = listOf(
+                    Slice(
+                        name = "activityStart",
+                        ts = 186975009436431,
+                        dur = 29580628
+                    )
                 ),
-                Slice(
-                    name = "activityResume",
-                    ts = 186975039764298,
-                    dur = 6570418
-                )
-            ),
-            actual = PerfettoTraceProcessor.querySlices(
-                traceFile.absolutePath,
-                "activityStart",
-                "activityResume"
-            ).sortedBy { it.ts }
-        )
+                actual = querySlices("activityStart")
+            )
+            assertEquals(
+                expected = listOf(
+                    Slice(
+                        name = "activityStart",
+                        ts = 186975009436431,
+                        dur = 29580628
+                    ),
+                    Slice(
+                        name = "activityResume",
+                        ts = 186975039764298,
+                        dur = 6570418
+                    )
+                ),
+                actual = querySlices("activityStart", "activityResume")
+                    .sortedBy { it.ts }
+            )
+        }
     }
 
     @Test
-    public fun validateTraceProcessorBinariesExist() {
+    fun validateTraceProcessorBinariesExist() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val suffixes = listOf("aarch64")
         val entries = suffixes.map { "trace_processor_shell_$it" }.toSet()
@@ -118,5 +136,33 @@ class PerfettoTraceProcessorTest {
             "Expected to find $entries",
             assets.toSet().containsAll(entries)
         )
+    }
+
+    @Test
+    fun runServerShouldHandleStartAndStopServer() {
+        assumeTrue(isAbiSupported())
+
+        // This method will return true if the server status endpoint returns 200 (that is also
+        // the only status code being returned).
+        fun isRunning(): Boolean = try {
+            val url = URL("http://localhost:${PerfettoTraceProcessor.PORT}/")
+            with(url.openConnection() as HttpURLConnection) {
+                return@with responseCode == 200
+            }
+        } catch (e: ConnectException) {
+            false
+        }
+
+        // Check server is not running
+        assertTrue(!isRunning())
+
+        PerfettoTraceProcessor.runServer {
+
+            // Check server is running
+            assertTrue(isRunning())
+        }
+
+        // Check server is not running
+        assertTrue(!isRunning())
     }
 }

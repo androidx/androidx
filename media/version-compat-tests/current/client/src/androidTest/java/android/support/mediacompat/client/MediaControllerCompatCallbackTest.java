@@ -701,6 +701,7 @@ public class MediaControllerCompatCallbackTest {
 
     @Test
     @SmallTest
+    @SuppressWarnings("deprecation")
     public void testReceivingParcelables() throws Exception {
         Bundle arguments = new Bundle();
         arguments.putString("event", TEST_SESSION_EVENT);

@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit;
  * Minimal rendered for the watch face, using canvas to render hours, minutes, and a blinking
  * separator.
  */
+@SuppressWarnings("deprecation")
 public class WatchFaceRenderer extends Renderer.CanvasRenderer {
 
     private static final long UPDATE_DELAY_MILLIS = TimeUnit.SECONDS.toMillis(1);

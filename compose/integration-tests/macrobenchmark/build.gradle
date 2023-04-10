@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
 }
 
-android.defaultConfig {
-    minSdkVersion 23
+android {
+    defaultConfig {
+        minSdkVersion 23
+    }
+    namespace "androidx.compose.integration.macrobenchmark"
 }
 
 dependencies {
@@ -36,5 +41,11 @@ dependencies {
 }
 
 // Define a task dependency so the app is installed before we run macro benchmarks.
-tasks.getByPath(":compose:integration-tests:macrobenchmark:connectedCheck")
-    .dependsOn(tasks.getByPath(":compose:integration-tests:macrobenchmark-target:installRelease"))
+afterEvaluate {
+    tasks.getByPath(":compose:integration-tests:macrobenchmark:connectedDebugAndroidTest")
+            .dependsOn(
+                    tasks.getByPath(
+                            ":compose:integration-tests:macrobenchmark-target:installRelease"
+                    )
+            )
+}

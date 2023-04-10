@@ -22,6 +22,7 @@ import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.StateSet;
@@ -37,7 +38,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.XmlRes;
 import androidx.core.R;
 import androidx.core.math.MathUtils;
-import androidx.core.os.BuildCompat;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -168,7 +168,7 @@ public final class ColorStateListInflaterCompat {
             }
 
             final float lStar;
-            if (BuildCompat.isAtLeastS()
+            if (Build.VERSION.SDK_INT >= 31
                     && a.hasValue(R.styleable.ColorStateListItem_android_lStar)) {
                 lStar = a.getFloat(R.styleable.ColorStateListItem_android_lStar, -1.0f);
             } else {

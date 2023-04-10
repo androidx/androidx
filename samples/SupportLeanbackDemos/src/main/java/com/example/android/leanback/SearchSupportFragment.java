@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.res.ResourcesCompat;
@@ -54,20 +55,20 @@ public class SearchSupportFragment extends androidx.leanback.app.SearchSupportFr
         // when two photo items have the same id, they are the same from adapter's
         // perspective
         @Override
-        public boolean areItemsTheSame(PhotoItem oldItem, PhotoItem newItem) {
+        public boolean areItemsTheSame(@NonNull PhotoItem oldItem, @NonNull PhotoItem newItem) {
             return oldItem.getId() == newItem.getId();
         }
 
         // when two photo items is equal to each other (based on the equal method defined in
         // PhotoItem), they have the same content.
         @Override
-        public boolean areContentsTheSame(PhotoItem oldItem, PhotoItem newItem) {
+        public boolean areContentsTheSame(@NonNull PhotoItem oldItem, @NonNull PhotoItem newItem) {
             return oldItem.equals(newItem);
         }
 
         @Nullable
         @Override
-        public Object getChangePayload(PhotoItem oldItem, PhotoItem newItem) {
+        public Object getChangePayload(@NonNull PhotoItem oldItem, @NonNull PhotoItem newItem) {
             Bundle diff = new Bundle();
             if (oldItem.getImageResourceId()
                     != newItem.getImageResourceId()) {

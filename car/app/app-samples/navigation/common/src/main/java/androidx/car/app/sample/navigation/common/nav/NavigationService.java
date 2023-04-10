@@ -194,7 +194,7 @@ public class NavigationService extends Service {
         mScript =
                 Script.execute(
                         instructions,
-                        (instruction) -> {
+                        (instruction, nextInstruction) -> {
                             switch (instruction.getType()) {
                                 case START_NAVIGATION:
                                     startNavigation();
@@ -229,6 +229,17 @@ public class NavigationService extends Service {
                                                         mDestinations.get(0),
                                                         destinationTravelEstimate)
                                                 .setLoading(false);
+
+                                        if (instruction.getShouldShowNextStep()
+                                                && nextInstruction != null && mSteps.size() > 1) {
+                                            Step nextStep = mSteps.get(1);
+                                            TravelEstimate nextStepTravelEstimate =
+                                                    nextInstruction.getStepTravelEstimate();
+                                            if (nextStepTravelEstimate != null) {
+                                                tripBuilder.addStep(nextStep,
+                                                        nextStepTravelEstimate);
+                                            }
+                                        }
 
                                         String road = instruction.getRoad();
                                         if (road != null) {

@@ -27,15 +27,18 @@ import kotlinx.coroutines.flow.flowOf
  */
 public class PagingData<T : Any> internal constructor(
     internal val flow: Flow<PageEvent<T>>,
-    internal val receiver: UiReceiver
+    internal val uiReceiver: UiReceiver,
+    internal val hintReceiver: HintReceiver
 ) {
     public companion object {
-        internal val NOOP_RECEIVER = object : UiReceiver {
-            override fun accessHint(viewportHint: ViewportHint) {}
-
+        internal val NOOP_UI_RECEIVER = object : UiReceiver {
             override fun retry() {}
 
             override fun refresh() {}
+        }
+
+        internal val NOOP_HINT_RECEIVER = object : HintReceiver {
+            override fun accessHint(viewportHint: ViewportHint) {}
         }
 
         /**
@@ -53,7 +56,8 @@ public class PagingData<T : Any> internal constructor(
                     mediatorLoadStates = null,
                 )
             ),
-            receiver = NOOP_RECEIVER
+            uiReceiver = NOOP_UI_RECEIVER,
+            hintReceiver = NOOP_HINT_RECEIVER,
         )
 
         /**
@@ -79,7 +83,8 @@ public class PagingData<T : Any> internal constructor(
                     mediatorLoadStates = mediatorLoadStates,
                 )
             ),
-            receiver = NOOP_RECEIVER
+            uiReceiver = NOOP_UI_RECEIVER,
+            hintReceiver = NOOP_HINT_RECEIVER,
         )
 
         /**
@@ -100,7 +105,8 @@ public class PagingData<T : Any> internal constructor(
                     mediatorLoadStates = null,
                 )
             ),
-            receiver = NOOP_RECEIVER
+            uiReceiver = NOOP_UI_RECEIVER,
+            hintReceiver = NOOP_HINT_RECEIVER,
         )
 
         /**
@@ -127,7 +133,8 @@ public class PagingData<T : Any> internal constructor(
                     mediatorLoadStates = mediatorLoadStates,
                 )
             ),
-            receiver = NOOP_RECEIVER
+            uiReceiver = NOOP_UI_RECEIVER,
+            hintReceiver = NOOP_HINT_RECEIVER,
         )
     }
 }

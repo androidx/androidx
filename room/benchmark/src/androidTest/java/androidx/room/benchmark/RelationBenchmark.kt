@@ -29,9 +29,11 @@ import androidx.room.Query
 import androidx.room.Relation
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.RoomWarnings
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import androidx.testutils.generateAllEnumerations
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -89,11 +91,7 @@ class RelationBenchmark(private val parentSampleSize: Int, private val childSamp
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "parentSampleSize={0}, childSampleSize={1}")
-        fun data() = arrayOf(100, 500, 1000).flatMap { parentSampleSize ->
-            arrayOf(10).map { childSampleSize ->
-                arrayOf(parentSampleSize, childSampleSize)
-            }
-        }
+        fun data() = generateAllEnumerations(listOf(100, 500, 1000), listOf(10))
 
         private const val DB_NAME = "relation-benchmark-test"
     }
@@ -125,6 +123,7 @@ class RelationBenchmark(private val parentSampleSize: Int, private val childSamp
         @Insert
         fun insertItems(item: List<Item>)
 
+        @SuppressWarnings(RoomWarnings.RELATION_QUERY_WITHOUT_TRANSACTION)
         @Query("SELECT * FROM User")
         fun getUserWithItems(): List<UserWithItems>
     }

@@ -3,9 +3,9 @@ package androidx.work.multiprocess {
 
   public abstract class RemoteCoroutineWorker extends androidx.work.multiprocess.RemoteListenableWorker {
     ctor public RemoteCoroutineWorker(android.content.Context context, androidx.work.WorkerParameters parameters);
-    method public abstract suspend Object? doRemoteWork(kotlin.coroutines.Continuation<? super androidx.work.ListenableWorker.Result> p);
+    method public abstract suspend Object? doRemoteWork(kotlin.coroutines.Continuation<? super androidx.work.ListenableWorker.Result>);
     method public final void onStopped();
-    method public final suspend Object? setProgress(androidx.work.Data data, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+    method public final suspend Object? setProgress(androidx.work.Data data, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result> startRemoteWork();
   }
 

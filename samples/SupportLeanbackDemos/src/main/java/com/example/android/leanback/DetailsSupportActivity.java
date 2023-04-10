@@ -20,6 +20,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.FragmentActivity;
 
+@SuppressWarnings("deprecation")
 public class DetailsSupportActivity extends FragmentActivity
 {
     public static final String EXTRA_ITEM = "item";

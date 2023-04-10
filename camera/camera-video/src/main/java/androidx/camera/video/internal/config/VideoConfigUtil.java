@@ -18,11 +18,20 @@ package androidx.camera.video.internal.config;
 
 import android.util.Range;
 import android.util.Rational;
+import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
+import androidx.camera.core.impl.CamcorderProfileProxy;
+import androidx.camera.core.impl.Timebase;
+import androidx.camera.video.MediaSpec;
 import androidx.camera.video.VideoSpec;
+import androidx.camera.video.internal.encoder.VideoEncoderConfig;
+import androidx.core.util.Supplier;
+
+import java.util.Objects;
 
 /**
  * A collection of utilities used for resolving and debugging video configurations.
@@ -31,29 +40,121 @@ import androidx.camera.video.VideoSpec;
 public final class VideoConfigUtil {
     private static final String TAG = "VideoConfigUtil";
 
-    private static final int VIDEO_FRAME_RATE_FIXED_DEFAULT = 30;
-
     // Should not be instantiated.
     private VideoConfigUtil() {
     }
 
-    static int resolveFrameRate(@NonNull VideoSpec videoSpec) {
-        // TODO(b/177918193): We currently cannot communicate the frame rate to the camera,
-        //  so we only support 30fps. This should come from MediaSpec or use
-        //  CamcorderProfile.videoFrameRate if set to AUTO framerate.
-        Range<Integer> videoSpecFrameRateRange = videoSpec.getFrameRate();
-        int resolvedFrameRate = VIDEO_FRAME_RATE_FIXED_DEFAULT;
-        if (VideoSpec.FRAME_RATE_RANGE_AUTO.equals(videoSpecFrameRateRange)
-                || videoSpecFrameRateRange.contains(VIDEO_FRAME_RATE_FIXED_DEFAULT)) {
-            Logger.d(TAG, "Using single supported VIDEO frame rate: " + resolvedFrameRate);
+    /**
+     * Resolves the video mime information into a {@link MimeInfo}.
+     *
+     * @param mediaSpec        the media spec to resolve the mime info.
+     * @param camcorderProfile the camcorder profile to resolve the mime info. It can be null if
+     *                         there is no relevant camcorder profile.
+     * @return the video MimeInfo.
+     */
+    @NonNull
+    public static MimeInfo resolveVideoMimeInfo(@NonNull MediaSpec mediaSpec,
+            @Nullable CamcorderProfileProxy camcorderProfile) {
+        String mediaSpecVideoMime = MediaSpec.outputFormatToVideoMime(mediaSpec.getOutputFormat());
+        String resolvedVideoMime = mediaSpecVideoMime;
+        boolean camcorderProfileIsCompatible = false;
+        if (camcorderProfile != null) {
+            String camcorderProfileVideoMime = camcorderProfile.getVideoCodecMimeType();
+            // Use camcorder profile settings if the media spec's output format
+            // is set to auto or happens to match the CamcorderProfile's output format.
+            if (camcorderProfileVideoMime == null) {
+                Logger.d(TAG, "CamcorderProfile contains undefined VIDEO mime type so cannot be "
+                        + "used. May rely on fallback defaults to derive settings [chosen mime "
+                        + "type: " + resolvedVideoMime + "]");
+            } else if (mediaSpec.getOutputFormat() == MediaSpec.OUTPUT_FORMAT_AUTO) {
+                camcorderProfileIsCompatible = true;
+                resolvedVideoMime = camcorderProfileVideoMime;
+                Logger.d(TAG, "MediaSpec contains OUTPUT_FORMAT_AUTO. Using CamcorderProfile "
+                        + "to derive VIDEO settings [mime type: " + resolvedVideoMime + "]");
+            } else if (Objects.equals(mediaSpecVideoMime, camcorderProfileVideoMime)) {
+                camcorderProfileIsCompatible = true;
+                resolvedVideoMime = camcorderProfileVideoMime;
+                Logger.d(TAG, "MediaSpec video mime matches CamcorderProfile. Using "
+                        + "CamcorderProfile to derive VIDEO settings [mime type: "
+                        + resolvedVideoMime + "]");
+            } else {
+                Logger.d(TAG, "MediaSpec video mime does not match CamcorderProfile, so "
+                        + "CamcorderProfile settings cannot be used. May rely on fallback "
+                        + "defaults to derive VIDEO settings [CamcorderProfile mime type: "
+                        + camcorderProfileVideoMime + ", chosen mime type: "
+                        + resolvedVideoMime + "]");
+            }
         } else {
-            Logger.w(TAG,
-                    "Requested frame rate range does not include single supported frame rate. "
-                            + "Ignoring range. [range: " + videoSpecFrameRateRange + " supported "
-                            + "frame rate: " + resolvedFrameRate + "]");
+            Logger.d(TAG,
+                    "No CamcorderProfile present. May rely on fallback defaults to derive VIDEO "
+                            + "settings [chosen mime type: " + resolvedVideoMime + "]");
         }
 
-        return resolvedFrameRate;
+        MimeInfo.Builder mimeInfoBuilder = MimeInfo.builder(resolvedVideoMime);
+        if (camcorderProfileIsCompatible) {
+            mimeInfoBuilder.setCompatibleCamcorderProfile(camcorderProfile);
+        }
+
+        return mimeInfoBuilder.build();
+    }
+
+    /**
+     * Resolves video related information into a {@link VideoEncoderConfig}.
+     *
+     * @param videoMimeInfo          the video mime info.
+     * @param videoSpec              the video spec.
+     * @param inputTimebase          the timebase of the input frame.
+     * @param surfaceSize            the surface size.
+     * @param expectedFrameRateRange the expected frame rate range. It could be null.
+     * @return a VideoEncoderConfig.
+     */
+    @NonNull
+    public static VideoEncoderConfig resolveVideoEncoderConfig(@NonNull MimeInfo videoMimeInfo,
+            @NonNull Timebase inputTimebase, @NonNull VideoSpec videoSpec,
+            @NonNull Size surfaceSize, @Nullable Range<Integer> expectedFrameRateRange) {
+        Supplier<VideoEncoderConfig> configSupplier;
+        if (videoMimeInfo.getCompatibleCamcorderProfile() != null) {
+            configSupplier = new VideoEncoderConfigCamcorderProfileResolver(
+                    videoMimeInfo.getMimeType(), inputTimebase, videoSpec, surfaceSize,
+                    videoMimeInfo.getCompatibleCamcorderProfile(),
+                    expectedFrameRateRange);
+        } else {
+            configSupplier = new VideoEncoderConfigDefaultResolver(videoMimeInfo.getMimeType(),
+                    inputTimebase, videoSpec, surfaceSize, expectedFrameRateRange);
+        }
+
+        return configSupplier.get();
+    }
+
+    static int resolveFrameRate(@NonNull Range<Integer> preferredRange,
+            int exactFrameRateHint, @Nullable Range<Integer> strictOperatingFpsRange) {
+        Range<Integer> refinedRange;
+        if (strictOperatingFpsRange != null) {
+            // We have a strict operating range. Our frame rate should always be in this
+            // range. Since we can only choose a single frame rate (which acts as a target for
+            // VBR), we can only fine tune our preferences within that range.
+            try {
+                // First, let's try to intersect with the preferred frame rate range since this
+                // could contain intent from the user.
+                refinedRange = strictOperatingFpsRange.intersect(preferredRange);
+            } catch (IllegalArgumentException ex) {
+                // Ranges are disjoint. Choose the closest extreme as our frame rate.
+                if (preferredRange.getUpper() < strictOperatingFpsRange.getLower()) {
+                    // Preferred range is below operating range.
+                    return strictOperatingFpsRange.getLower();
+                } else {
+                    // Preferred range is above operating range.
+                    return strictOperatingFpsRange.getUpper();
+                }
+            }
+        } else {
+            // We only have the preferred range as a hint since the operating range is null.
+            refinedRange = preferredRange;
+        }
+
+        // Finally, try to apply the exact frame rate hint to the refined range since
+        // other settings may expect this number.
+        return refinedRange.clamp(exactFrameRateHint);
     }
 
     static int scaleAndClampBitrate(

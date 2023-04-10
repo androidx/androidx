@@ -19,6 +19,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.leanback.R;
 import androidx.leanback.transition.TransitionHelper;
 import androidx.leanback.util.StateMachine.State;
@@ -76,7 +78,7 @@ public class VerticalGridSupportFragment extends BaseSupportFragment {
     /**
      * Sets the grid presenter.
      */
-    public void setGridPresenter(VerticalGridPresenter gridPresenter) {
+    public void setGridPresenter(@NonNull VerticalGridPresenter gridPresenter) {
         if (gridPresenter == null) {
             throw new IllegalArgumentException("Grid presenter may not be null");
         }
@@ -90,6 +92,7 @@ public class VerticalGridSupportFragment extends BaseSupportFragment {
     /**
      * Returns the grid presenter.
      */
+    @Nullable
     public VerticalGridPresenter getGridPresenter() {
         return mGridPresenter;
     }
@@ -97,7 +100,7 @@ public class VerticalGridSupportFragment extends BaseSupportFragment {
     /**
      * Sets the object adapter for the fragment.
      */
-    public void setAdapter(ObjectAdapter adapter) {
+    public void setAdapter(@Nullable ObjectAdapter adapter) {
         mAdapter = adapter;
         updateAdapter();
     }
@@ -105,6 +108,7 @@ public class VerticalGridSupportFragment extends BaseSupportFragment {
     /**
      * Returns the object adapter.
      */
+    @Nullable
     public ObjectAdapter getAdapter() {
         return mAdapter;
     }
@@ -127,7 +131,12 @@ public class VerticalGridSupportFragment extends BaseSupportFragment {
     final private OnChildLaidOutListener mChildLaidOutListener =
             new OnChildLaidOutListener() {
         @Override
-        public void onChildLaidOut(ViewGroup parent, View view, int position, long id) {
+        public void onChildLaidOut(
+                @NonNull ViewGroup parent,
+                @NonNull View view,
+                int position,
+                long id
+        ) {
             if (position == 0) {
                 showOrHideTitle();
             }
@@ -137,7 +146,7 @@ public class VerticalGridSupportFragment extends BaseSupportFragment {
     /**
      * Sets an item selection listener.
      */
-    public void setOnItemViewSelectedListener(OnItemViewSelectedListener listener) {
+    public void setOnItemViewSelectedListener(@Nullable OnItemViewSelectedListener listener) {
         mOnItemViewSelectedListener = listener;
     }
 
@@ -163,7 +172,7 @@ public class VerticalGridSupportFragment extends BaseSupportFragment {
     /**
      * Sets an item clicked listener.
      */
-    public void setOnItemViewClickedListener(OnItemViewClickedListener listener) {
+    public void setOnItemViewClickedListener(@Nullable OnItemViewClickedListener listener) {
         mOnItemViewClickedListener = listener;
         if (mGridPresenter != null) {
             mGridPresenter.setOnItemViewClickedListener(mOnItemViewClickedListener);
@@ -173,13 +182,15 @@ public class VerticalGridSupportFragment extends BaseSupportFragment {
     /**
      * Returns the item clicked listener.
      */
+    @Nullable
     public OnItemViewClickedListener getOnItemViewClickedListener() {
         return mOnItemViewClickedListener;
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    @NonNull
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.lb_vertical_grid_fragment,
                 container, false);
         ViewGroup gridFrame = (ViewGroup) root.findViewById(R.id.grid_frame);
@@ -242,13 +253,14 @@ public class VerticalGridSupportFragment extends BaseSupportFragment {
     }
 
     @Override
+    @NonNull
     protected Object createEntranceTransition() {
         return TransitionHelper.loadTransition(getContext(),
                 R.transition.lb_vertical_grid_entrance_transition);
     }
 
     @Override
-    protected void runEntranceTransition(Object entranceTransition) {
+    protected void runEntranceTransition(@Nullable Object entranceTransition) {
         TransitionHelper.runTransition(mSceneAfterEntranceTransition, entranceTransition);
     }
 

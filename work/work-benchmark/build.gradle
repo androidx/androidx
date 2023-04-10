@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -28,7 +27,7 @@ dependencies {
     androidTestImplementation(project(":work:work-runtime-ktx"))
     androidTestImplementation(project(":work:work-multiprocess"))
     androidTestImplementation(projectOrArtifact(":benchmark:benchmark-junit4"))
-    androidTestImplementation("androidx.room:room-runtime:2.2.5")
+    androidTestImplementation(projectOrArtifact(":room:room-runtime"))
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -41,7 +40,10 @@ dependencies {
 androidx {
     name = "Android WorkManager Benchmarks"
      publish = Publish.NONE
-    mavenGroup = LibraryGroups.WORK
     inceptionYear = "2019"
     description = "Android WorkManager Benchmark Library"
+}
+
+android {
+    namespace "androidx.work.benchmark"
 }

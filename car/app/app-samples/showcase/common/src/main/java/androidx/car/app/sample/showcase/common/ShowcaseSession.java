@@ -30,13 +30,13 @@ import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.ScreenManager;
 import androidx.car.app.Session;
-import androidx.car.app.sample.showcase.common.misc.RequestPermissionScreen;
-import androidx.car.app.sample.showcase.common.misc.ResultDemoScreen;
-import androidx.car.app.sample.showcase.common.navigation.NavigationNotificationService;
-import androidx.car.app.sample.showcase.common.navigation.NavigationNotificationsDemoScreen;
-import androidx.car.app.sample.showcase.common.navigation.routing.NavigatingDemoScreen;
 import androidx.car.app.sample.showcase.common.renderer.Renderer;
 import androidx.car.app.sample.showcase.common.renderer.SurfaceController;
+import androidx.car.app.sample.showcase.common.screens.ResultDemoScreen;
+import androidx.car.app.sample.showcase.common.screens.navigationdemos.NavigationNotificationService;
+import androidx.car.app.sample.showcase.common.screens.navigationdemos.NavigationNotificationsDemoScreen;
+import androidx.car.app.sample.showcase.common.screens.navigationdemos.navigationtemplates.NavigatingDemoScreen;
+import androidx.car.app.sample.showcase.common.screens.userinteractions.RequestPermissionScreen;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
@@ -74,6 +74,19 @@ public class ShowcaseSession extends Session implements DefaultLifecycleObserver
                     .getCarService(ScreenManager.class)
                     .push(new StartScreen(getCarContext(), this));
             return new ResultDemoScreen(getCarContext());
+        }
+
+        boolean shouldLoadScreen =
+                getCarContext()
+                        .getSharedPreferences(ShowcaseService.SHARED_PREF_KEY, Context.MODE_PRIVATE)
+                        .getBoolean(ShowcaseService.LOADING_KEY, false);
+        if (shouldLoadScreen) {
+            // Reset so that we don't require it next time
+            getCarContext()
+                    .getSharedPreferences(ShowcaseService.SHARED_PREF_KEY, Context.MODE_PRIVATE)
+                    .edit()
+                    .putBoolean(ShowcaseService.LOADING_KEY, false)
+                    .apply();
         }
 
         // For demo purposes this uses a shared preference setting to store whether we should

@@ -22,9 +22,11 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraControl;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
@@ -61,11 +63,11 @@ final class CropRegionZoomImpl implements ZoomControl.ZoomImpl {
         return maxZoom;
     }
 
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     @Override
     public void addRequestOption(@NonNull Camera2ImplConfig.Builder builder) {
         if (mCurrentCropRect != null) {
-            builder.setCaptureRequestOption(CaptureRequest.SCALER_CROP_REGION,
-                    mCurrentCropRect);
+            builder.setCaptureRequestOption(CaptureRequest.SCALER_CROP_REGION, mCurrentCropRect);
         }
     }
 

@@ -76,6 +76,7 @@ final class TestQueryCallback implements ContentPager.QueryRunner.Callback {
         });
     }
 
+    @SuppressWarnings("deprecation")
     public void assertReceivedContent(Uri expectedUri, final int expectedPageId) {
         mReplyLatch.assertHasItem(new Matcher<Pair<Integer, Cursor>>() {
             @Override

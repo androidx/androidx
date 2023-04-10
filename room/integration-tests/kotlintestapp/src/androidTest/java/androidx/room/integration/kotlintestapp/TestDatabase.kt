@@ -18,6 +18,10 @@ package androidx.room.integration.kotlintestapp
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.androidx.room.integration.kotlintestapp.dao.CounterDao
+import androidx.room.androidx.room.integration.kotlintestapp.dao.UsersDao
+import androidx.room.androidx.room.integration.kotlintestapp.vo.Counter
+import androidx.room.androidx.room.integration.kotlintestapp.vo.User
 import androidx.room.integration.kotlintestapp.dao.AbstractDao
 import androidx.room.integration.kotlintestapp.dao.BooksDao
 import androidx.room.integration.kotlintestapp.dao.DependencyDao
@@ -35,12 +39,14 @@ import androidx.room.integration.kotlintestapp.vo.Publisher
     entities = [
         Book::class, Author::class, Publisher::class, BookAuthor::class,
         NoArgClass::class, DataClassFromDependency::class, JavaEntity::class,
-        EntityWithJavaPojoList::class
+        EntityWithJavaPojoList::class, User::class, Counter::class
     ],
     version = 1,
     exportSchema = false
 )
 abstract class TestDatabase : RoomDatabase() {
+
+    abstract fun usersDao(): UsersDao
 
     abstract fun booksDao(): BooksDao
 
@@ -49,4 +55,6 @@ abstract class TestDatabase : RoomDatabase() {
     abstract fun dependencyDao(): DependencyDao
 
     abstract fun abstractDao(): AbstractDao
+
+    abstract fun counterDao(): CounterDao
 }

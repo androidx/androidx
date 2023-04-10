@@ -27,6 +27,7 @@ import android.content.pm.ShortcutManager;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.os.UserHandle;
 import android.text.TextUtils;
@@ -41,6 +42,7 @@ import androidx.core.app.Person;
 import androidx.core.content.LocusIdCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.net.UriCompat;
+import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -66,7 +68,7 @@ public class ShortcutInfoCompat {
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @IntDef({SURFACE_LAUNCHER})
+    @IntDef(flag = true, value = {SURFACE_LAUNCHER})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Surface {}
 
@@ -99,6 +101,7 @@ public class ShortcutInfoCompat {
     int mRank;
 
     PersistableBundle mExtras;
+    Bundle mTransientExtras;
 
     // Read-Only fields
     long mLastChangedTimestamp;
@@ -159,6 +162,9 @@ public class ShortcutInfoCompat {
             // introduced in API 29. On older API versions, we store mPersons and mIsLongLived in
             // the extras field of ShortcutInfo for backwards compatibility.
             builder.setExtras(buildLegacyExtrasBundle());
+        }
+        if (Build.VERSION.SDK_INT >= 33) {
+            Api33Impl.setExcludedFromSurfaces(builder, mExcludedSurfaces);
         }
         return builder.build();
     }
@@ -395,6 +401,17 @@ public class ShortcutInfoCompat {
     }
 
     /**
+     * Get additional extras from the shortcut, which will not be persisted anywhere once the
+     * shortcut is published.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @Nullable
+    public Bundle getTransientExtras() {
+        return mTransientExtras;
+    }
+
+    /**
      * {@link UserHandle} on which the publisher created this shortcut.
      */
     @Nullable
@@ -432,7 +449,7 @@ public class ShortcutInfoCompat {
      * <p>When an app is upgraded and a shortcut is no longer published from AndroidManifest.xml,
      * this will be set to {@code false}.  If the shortcut is not pinned, then it'll disappear.
      * However, if it's pinned, it will still be visible, {@link #isEnabled()} will be
-     * {@code false} and {@link #isEnabled()} will be {@code true}.
+     * {@code false} and {@link #isImmutable()} will be {@code true}.
      */
     public boolean isDeclaredInManifest() {
         return mIsDeclaredInManifest;
@@ -496,8 +513,18 @@ public class ShortcutInfoCompat {
     /**
      * Return true if the shortcut is excluded from specified surface.
      */
-    public boolean isExcludedFrom(@Surface final int surface) {
-        return (mExcludedSurfaces & surface) > 0;
+    public boolean isExcludedFromSurfaces(@Surface int surface) {
+        return (mExcludedSurfaces & surface) != 0;
+    }
+
+    /**
+     * Returns a bitmask of all surfaces this shortcut is excluded from.
+     *
+     * @see ShortcutInfo.Builder#setExcludedFromSurfaces(int)
+     */
+    @Surface
+    public int getExcludedFromSurfaces() {
+        return mExcludedSurfaces;
     }
 
     /**
@@ -822,9 +849,8 @@ public class ShortcutInfoCompat {
          * actually sent to {@link ShortcutManager}. These shortcuts might still be made
          * available to other surfaces via alternative means.
          */
-        @SuppressWarnings("MissingGetterMatchingBuilder")
         @NonNull
-        public Builder setExcludedSurfaces(final int surfaces) {
+        public Builder setExcludedFromSurfaces(final int surfaces) {
             mInfo.mExcludedSurfaces = surfaces;
             return this;
         }
@@ -852,6 +878,16 @@ public class ShortcutInfoCompat {
         @NonNull
         public Builder setExtras(@NonNull PersistableBundle extras) {
             mInfo.mExtras = extras;
+            return this;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @NonNull
+        public Builder setTransientExtras(@NonNull final Bundle transientExtras) {
+            mInfo.mTransientExtras = Preconditions.checkNotNull(transientExtras);
             return this;
         }
 
@@ -974,6 +1010,14 @@ public class ShortcutInfoCompat {
                 }
             }
             return mInfo;
+        }
+    }
+
+    @RequiresApi(33)
+    private static class Api33Impl {
+        static void setExcludedFromSurfaces(@NonNull final ShortcutInfo.Builder builder,
+                final int surfaces) {
+            builder.setExcludedFromSurfaces(surfaces);
         }
     }
 }
