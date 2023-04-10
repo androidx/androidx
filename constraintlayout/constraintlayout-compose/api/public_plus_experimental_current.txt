@@ -645,7 +645,6 @@ package androidx.constraintlayout.compose {
     method @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static inline void MotionLayout(androidx.constraintlayout.compose.ConstraintSet start, androidx.constraintlayout.compose.ConstraintSet end, float progress, optional androidx.compose.ui.Modifier modifier, optional androidx.constraintlayout.compose.Transition? transition, optional int debugFlags, optional int optimizationLevel, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static inline void MotionLayout(androidx.constraintlayout.compose.MotionScene motionScene, float progress, optional androidx.compose.ui.Modifier modifier, optional String transitionName, optional int debugFlags, optional int optimizationLevel, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static inline void MotionLayout(androidx.constraintlayout.compose.MotionScene motionScene, String? constraintSetName, androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? finishedAnimationListener, optional int debugFlags, optional int optimizationLevel, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static inline void MotionLayout(androidx.constraintlayout.compose.MotionScene motionScene, androidx.constraintlayout.compose.MotionLayoutState motionLayoutState, optional androidx.compose.ui.Modifier modifier, optional int optimizationLevel, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
   }
 
   @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.constraintlayout.compose.ExperimentalMotionApi public final class MotionLayoutScope {
@@ -681,20 +680,6 @@ package androidx.constraintlayout.compose {
     method public String id();
     method public int int(String name);
     method public String? tag();
-  }
-
-  @androidx.compose.runtime.Immutable @androidx.constraintlayout.compose.ExperimentalMotionApi public interface MotionLayoutState {
-    method public void animateTo(@FloatRange(from=0.0, to=1.0) float newProgress, androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec);
-    method public float getCurrentProgress();
-    method public boolean isInDebugMode();
-    method public void setDebugMode(androidx.constraintlayout.compose.MotionLayoutDebugFlags motionDebugFlag);
-    method public void snapTo(@FloatRange(from=0.0, to=1.0) float newProgress);
-    property public abstract float currentProgress;
-    property public abstract boolean isInDebugMode;
-  }
-
-  public final class MotionLayoutStateKt {
-    method @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static androidx.constraintlayout.compose.MotionLayoutState rememberMotionLayoutState(optional Object key, optional float initialProgress, optional androidx.constraintlayout.compose.MotionLayoutDebugFlags initialDebugMode);
   }
 
   @androidx.constraintlayout.compose.ExperimentalMotionApi public final class MotionModifierScope {

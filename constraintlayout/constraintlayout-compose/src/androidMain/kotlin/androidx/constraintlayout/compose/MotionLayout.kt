@@ -21,6 +21,7 @@ import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.foundation.layout.LayoutScopeMarker
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -383,26 +384,6 @@ inline fun MotionLayout(
     )
 }
 
-@ExperimentalMotionApi
-@Composable
-inline fun MotionLayout(
-    motionScene: MotionScene,
-    motionLayoutState: MotionLayoutState,
-    modifier: Modifier = Modifier,
-    optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
-    crossinline content: @Composable MotionLayoutScope.() -> Unit
-) {
-    // TODO(b/276981729): Consider removing for 1.1.0, MotionLayoutState is not very useful as it is
-    MotionLayoutCore(
-        modifier = modifier,
-        optimizationLevel = optimizationLevel,
-        motionLayoutState = motionLayoutState as MotionLayoutStateImpl,
-        motionScene = motionScene,
-        transitionName = "default",
-        content = content
-    )
-}
-
 @PublishedApi
 @ExperimentalMotionApi
 @Composable
@@ -475,52 +456,6 @@ internal inline fun MotionLayoutCore(
         informationReceiver = motionScene as? LayoutInformationReceiver,
         modifier = modifier,
         optimizationLevel = optimizationLevel,
-        content = content
-    )
-}
-
-@PublishedApi
-@ExperimentalMotionApi
-@Composable
-@Suppress("UnavailableSymbol")
-internal inline fun MotionLayoutCore(
-    @Suppress("HiddenTypeParameter")
-    motionScene: MotionScene,
-    transitionName: String,
-    motionLayoutState: MotionLayoutStateImpl,
-    optimizationLevel: Int,
-    modifier: Modifier,
-    @Suppress("HiddenTypeParameter")
-    crossinline content: @Composable MotionLayoutScope.() -> Unit
-) {
-    val transition = remember(motionScene, transitionName) {
-        motionScene.getTransitionInstance(transitionName)
-    }
-
-    val start = remember(motionScene, transition) {
-        val startId = transition?.getStartConstraintSetId() ?: "start"
-        motionScene.getConstraintSetInstance(startId)
-    }
-    val end = remember(motionScene, transition) {
-        val endId = transition?.getEndConstraintSetId() ?: "end"
-        motionScene.getConstraintSetInstance(endId)
-    }
-
-    if (start == null || end == null) {
-        return
-    }
-    val showDebug = motionLayoutState.debugMode == MotionLayoutDebugFlags.SHOW_ALL
-    MotionLayoutCore(
-        start = start,
-        end = end,
-        transition = transition as? TransitionImpl,
-        motionProgress = motionLayoutState.motionProgress,
-        informationReceiver = motionScene as? JSONMotionScene,
-        optimizationLevel = optimizationLevel,
-        showBounds = showDebug,
-        showPaths = showDebug,
-        showKeyPositions = showDebug,
-        modifier = modifier,
         content = content
     )
 }
@@ -598,7 +533,7 @@ internal inline fun MotionLayoutCore(
     var doShowPaths = showPaths
     var doShowKeyPositions = showKeyPositions
 
-    if (forcedDebug != null) {
+    if (forcedDebug != null && forcedDebug != MotionLayoutDebugFlags.UNKNOWN) {
         doShowBounds = forcedDebug === MotionLayoutDebugFlags.SHOW_ALL
         doShowPaths = doShowBounds
         doShowKeyPositions = doShowBounds
@@ -1071,6 +1006,37 @@ internal enum class CompositionSource {
      * states.
      */
     Content
+}
+
+/**
+ * Internal representation to read and set values for the progress.
+ */
+@PublishedApi
+internal interface MotionProgress {
+    // TODO: Since this class has no other uses anymore, consider to substitute it with a simple
+    //  MutableState<Float>
+
+    val currentProgress: Float
+
+    fun updateProgress(newProgress: Float)
+
+    companion object {
+        fun fromMutableState(mutableProgress: MutableState<Float>): MotionProgress =
+            fromState(mutableProgress) { mutableProgress.value = it }
+
+        fun fromState(
+            progressState: State<Float>,
+            onUpdate: (newProgress: Float) -> Unit
+        ): MotionProgress =
+            object : MotionProgress {
+                override val currentProgress: Float
+                    get() = progressState.value
+
+                override fun updateProgress(newProgress: Float) {
+                    onUpdate(newProgress)
+                }
+            }
+    }
 }
 
 /**

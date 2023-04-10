@@ -18,6 +18,7 @@
 
 package androidx.constraintlayout.compose.demos
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -42,10 +43,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.DebugFlags
 import androidx.constraintlayout.compose.Dimension
 import androidx.constraintlayout.compose.ExperimentalMotionApi
 import androidx.constraintlayout.compose.MotionLayout
-import androidx.constraintlayout.compose.MotionLayoutDebugFlags
 import androidx.constraintlayout.compose.MotionScene
 import androidx.constraintlayout.compose.OnSwipe
 import androidx.constraintlayout.compose.SwipeDirection
@@ -53,7 +54,6 @@ import androidx.constraintlayout.compose.SwipeMode
 import androidx.constraintlayout.compose.SwipeSide
 import androidx.constraintlayout.compose.SwipeTouchUp
 import androidx.constraintlayout.compose.layoutId
-import androidx.constraintlayout.compose.rememberMotionLayoutState
 
 /**
  * Shows how to define swipe-driven transitions with `KeyPositions` and custom colors using the
@@ -65,8 +65,9 @@ fun SimpleOnSwipe() {
     var mode by remember {
         mutableStateOf("spring")
     }
-    var toEnd by remember { mutableStateOf(true) }
-    val motionLayoutState = rememberMotionLayoutState(key = mode)
+    var animateToEnd by remember { mutableStateOf(false) }
+
+    val debugFlags = remember { mutableStateOf(DebugFlags.None) }
 
     val motionSceneContent = remember(mode) {
         // language=json5
@@ -125,21 +126,16 @@ fun SimpleOnSwipe() {
     }
     Column {
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Button(onClick = { motionLayoutState.snapTo(0f) }) {
-                Text(text = "Reset")
-            }
             Button(onClick = {
-                val target = if (toEnd) 1f else 0f
-                motionLayoutState.animateTo(target, tween(2000))
-                toEnd = !toEnd
+                animateToEnd = !animateToEnd
             }) {
-                Text(text = if (toEnd) "End" else "Start")
+                Text(text = if (animateToEnd) "Start" else "End")
             }
             Button(onClick = {
-                if (motionLayoutState.isInDebugMode) {
-                    motionLayoutState.setDebugMode(MotionLayoutDebugFlags.NONE)
+                if (debugFlags.value == DebugFlags.All) {
+                    debugFlags.value = DebugFlags.None
                 } else {
-                    motionLayoutState.setDebugMode(MotionLayoutDebugFlags.SHOW_ALL)
+                    debugFlags.value = DebugFlags.All
                 }
             }) {
                 Text("Debug")
@@ -157,8 +153,12 @@ fun SimpleOnSwipe() {
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1.0f, fill = true),
-            motionLayoutState = motionLayoutState,
-            motionScene = MotionScene(content = motionSceneContent)
+            progress = animateFloatAsState(
+                targetValue = if (animateToEnd) 1f else 0f,
+                tween(1000)
+            ).value,
+            motionScene = MotionScene(content = motionSceneContent),
+            debugFlags = debugFlags.value
         ) {
             Box(
                 modifier = Modifier
@@ -166,7 +166,6 @@ fun SimpleOnSwipe() {
                     .layoutId("box")
             )
         }
-        Text(text = "Current progress: ${motionLayoutState.currentProgress}")
     }
 }
 

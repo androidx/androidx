@@ -491,23 +491,6 @@ package androidx.constraintlayout.compose {
     property protected final androidx.constraintlayout.compose.State state;
   }
 
-  @kotlin.PublishedApi internal interface MotionAnimationCommand {
-  }
-
-  public static final class MotionAnimationCommand.Animate implements androidx.constraintlayout.compose.MotionAnimationCommand {
-    ctor public MotionAnimationCommand.Animate(float newProgress, androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec);
-    method public androidx.compose.animation.core.AnimationSpec<java.lang.Float> getAnimationSpec();
-    method public float getNewProgress();
-    property public final androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec;
-    property public final float newProgress;
-  }
-
-  public static final class MotionAnimationCommand.Snap implements androidx.constraintlayout.compose.MotionAnimationCommand {
-    ctor public MotionAnimationCommand.Snap(float newProgress);
-    method public float getNewProgress();
-    property public final float newProgress;
-  }
-
   public final class MotionCarouselKt {
     method @androidx.compose.runtime.Composable public static void ItemHolder(int i, String slotPrefix, boolean showSlot, kotlin.jvm.functions.Function0<kotlin.Unit> function);
     method @androidx.compose.runtime.Composable public static void MotionCarousel(androidx.constraintlayout.compose.MotionScene motionScene, int initialSlotIndex, int numSlots, optional String backwardTransition, optional String forwardTransition, optional String slotPrefix, optional boolean showSlots, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionCarouselScope,kotlin.Unit> content);
@@ -567,25 +550,11 @@ package androidx.constraintlayout.compose {
   public final class MotionLayoutKt {
     method @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static inline void MotionLayout(androidx.constraintlayout.compose.ConstraintSet start, androidx.constraintlayout.compose.ConstraintSet end, float progress, optional androidx.compose.ui.Modifier modifier, optional androidx.constraintlayout.compose.Transition? transition, optional int debugFlags, optional androidx.constraintlayout.compose.LayoutInformationReceiver? informationReceiver, optional int optimizationLevel, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static inline void MotionLayoutCore(androidx.constraintlayout.compose.MotionScene motionScene, float progress, String transitionName, int optimizationLevel, int debugFlags, androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static inline void MotionLayoutCore(androidx.constraintlayout.compose.MotionScene motionScene, String transitionName, androidx.constraintlayout.compose.MotionLayoutStateImpl motionLayoutState, int optimizationLevel, androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static inline void MotionLayoutCore(androidx.constraintlayout.compose.ConstraintSet start, androidx.constraintlayout.compose.ConstraintSet end, androidx.constraintlayout.compose.TransitionImpl? transition, androidx.constraintlayout.compose.MotionProgress motionProgress, androidx.constraintlayout.compose.LayoutInformationReceiver? informationReceiver, int optimizationLevel, boolean showBounds, boolean showPaths, boolean showKeyPositions, androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static void UpdateWithForcedIfNoUserChange(androidx.constraintlayout.compose.MotionProgress motionProgress, androidx.constraintlayout.compose.LayoutInformationReceiver? informationReceiver);
     method @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static androidx.constraintlayout.compose.MotionProgress createAndUpdateMotionProgress(float progress);
     method @kotlin.PublishedApi internal static androidx.compose.ui.Modifier motionDebug(androidx.compose.ui.Modifier, androidx.constraintlayout.compose.MotionMeasurer measurer, float scaleFactor, boolean showBounds, boolean showPaths, boolean showKeyPositions);
     method @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy motionLayoutMeasurePolicy(androidx.compose.runtime.State<kotlin.Unit> contentTracker, androidx.compose.ui.node.Ref<androidx.constraintlayout.compose.CompositionSource> compositionSource, androidx.constraintlayout.compose.ConstraintSet constraintSetStart, androidx.constraintlayout.compose.ConstraintSet constraintSetEnd, androidx.constraintlayout.compose.TransitionImpl transition, androidx.constraintlayout.compose.MotionProgress motionProgress, androidx.constraintlayout.compose.MotionMeasurer measurer, int optimizationLevel);
-  }
-
-  @androidx.compose.runtime.Immutable @kotlin.PublishedApi internal final class MotionLayoutStateImpl {
-    ctor public MotionLayoutStateImpl(float initialProgress, androidx.constraintlayout.compose.MotionLayoutDebugFlags initialDebugMode, kotlinx.coroutines.CoroutineScope motionCoroutineScope);
-    method public void animateTo(float newProgress, androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec);
-    method public float getCurrentProgress();
-    method public boolean isInDebugMode();
-    method public void setDebugMode(androidx.constraintlayout.compose.MotionLayoutDebugFlags motionDebugFlag);
-    method public void snapTo(float newProgress);
-    property public float currentProgress;
-    property @kotlin.PublishedApi internal final androidx.constraintlayout.compose.MotionLayoutDebugFlags debugMode;
-    property public boolean isInDebugMode;
-    field @kotlin.PublishedApi internal final androidx.constraintlayout.compose.MotionProgress motionProgress;
   }
 
   @kotlin.PublishedApi internal final class MotionMeasurer extends androidx.constraintlayout.compose.Measurer {
