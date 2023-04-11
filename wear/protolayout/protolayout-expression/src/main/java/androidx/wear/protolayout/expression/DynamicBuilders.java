@@ -150,7 +150,10 @@ public final class DynamicBuilders {
     static final int ARITHMETIC_OP_TYPE_MODULO = 5;
 
     /**
-     * Rounding mode to use when converting a float to an int32.
+     * Rounding mode to use when converting a float to an int32. If the value is larger than {@link
+     * Integer#MAX_VALUE} or smaller than {@link Integer#MIN_VALUE}, the result of this operation
+     * will be invalid and will have an invalid value delivered via
+     * {@link DynamicTypeValueReceiver<T>#onInvalidate()}.
      *
      * @since 1.2
      */
@@ -3051,7 +3054,7 @@ public final class DynamicBuilders {
     /**
      * Interface defining a dynamic string type.
      *
-     * <p> {@link DynamicString} string value is subject to being truncated if it's too long.
+     * <p>{@link DynamicString} string value is subject to being truncated if it's too long.
      *
      * @since 1.2
      */
@@ -3802,7 +3805,13 @@ public final class DynamicBuilders {
             return toDynamicFloatProto().toByteArray();
         }
 
-        /** Creates a constant-valued {@link DynamicFloat}. */
+        /**
+         * Creates a constant-valued {@link DynamicFloat}.
+         *
+         * <p>If {@code Float.isNan(constant)} is true, the value will be invalid. And any
+         * expression that uses this {@link DynamicFloat} will have an invalid result (which will be
+         * delivered through {@link DynamicTypeValueReceiver<T>#onInvalidate()}.
+         */
         @NonNull
         static DynamicFloat constant(float constant) {
             return new FixedFloat.Builder().setValue(constant).build();
@@ -3907,6 +3916,11 @@ public final class DynamicBuilders {
         /**
          * Returns a {@link DynamicInt32} which holds the largest integer value that is smaller than
          * or equal to this {@link DynamicFloat}, i.e. {@code int result = (int) Math.floor(this)}
+         *
+         * <p>If the float value is larger than {@link Integer#MAX_VALUE} or smaller than {@link
+         * Integer#MIN_VALUE}, the result of this operation will be invalid and any expression that
+         * uses the {@link DynamicInt32} will have an invalid result (which will be delivered
+         * through {@link DynamicTypeValueReceiver<T>#onInvalidate()}.
          */
         @NonNull
         default DynamicInt32 asInt() {
@@ -5245,18 +5259,12 @@ public final class DynamicBuilders {
             return new StateBoolSource.Builder().setSourceKey(stateKey).build();
         }
 
-        /** Returns a {@link DynamicBool} that has the same value as this {@link DynamicBool}. */
-        @NonNull
-        default DynamicBool isTrue() {
-            return this;
-        }
-
         /**
          * Returns a {@link DynamicBool} that has the opposite value of this {@link DynamicBool}.
          * i.e. {code result = !this}
          */
         @NonNull
-        default DynamicBool isFalse() {
+        default DynamicBool negate() {
             return new NotBoolOp.Builder().setInput(this).build();
         }
 
