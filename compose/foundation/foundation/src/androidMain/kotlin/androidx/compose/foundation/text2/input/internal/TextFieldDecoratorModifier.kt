@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text2.input.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.detectTapAndPress
 import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -25,7 +26,6 @@ import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.deselect
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusEventModifierNode
 import androidx.compose.ui.focus.FocusManager
@@ -36,9 +36,10 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyInputModifierNode
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.changedToDown
+import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.PointerInputModifierNode
@@ -63,7 +64,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.util.fastAny
 
 /**
  * Modifier element for most of the functionality of [BasicTextField2] that is attached to the
@@ -128,7 +128,7 @@ internal class TextFieldDecoratorModifierNode(
     keyboardOptions: KeyboardOptions,
     var keyboardActions: KeyboardActions,
     var singleLine: Boolean,
-) : Modifier.Node(),
+) : DelegatingNode(),
     SemanticsModifierNode,
     FocusRequesterModifierNode,
     FocusEventModifierNode,
@@ -136,6 +136,19 @@ internal class TextFieldDecoratorModifierNode(
     PointerInputModifierNode,
     KeyInputModifierNode,
     CompositionLocalConsumerModifierNode {
+
+    private val pointerInputNode = SuspendingPointerInputModifierNode {
+        detectTapAndPress(onTap = {
+            if (!isFocused) {
+                requestFocus()
+            } else if (enabled && !readOnly) {
+                textInputSession?.showSoftwareKeyboard()
+            }
+        })
+    }
+        // TODO: remove `.node` after aosp/2462416 lands and merge everything into one delegated
+        //  block
+        .also { delegated { it.node } }
 
     var keyboardOptions: KeyboardOptions = keyboardOptions.withDefaultsFrom(filter?.keyboardOptions)
         private set
@@ -302,13 +315,11 @@ internal class TextFieldDecoratorModifierNode(
         pass: PointerEventPass,
         bounds: IntSize
     ) {
-        if (pass == PointerEventPass.Main && pointerEvent.changes.fastAny { it.changedToDown() }) {
-            requestFocus()
-        }
+        pointerInputNode.onPointerEvent(pointerEvent, pass, bounds)
     }
 
     override fun onCancelPointerInput() {
-        // Nothing to do yet, since onPointerEvent isn't handling any gestures.
+        pointerInputNode.onCancelPointerInput()
     }
 
     override fun onPreKeyEvent(event: KeyEvent): Boolean {
