@@ -19,11 +19,11 @@ package androidx.compose.runtime.collection
 import androidx.compose.runtime.identityHashCode
 
 internal class IdentityArrayIntMap {
-    internal var size = 0
+    var size = 0
         private set
-    internal var keys: Array<Any?> = arrayOfNulls(4)
+    var keys: Array<Any?> = arrayOfNulls(4)
         private set
-    internal var values: IntArray = IntArray(4)
+    var values: IntArray = IntArray(4)
         private set
 
     operator fun get(key: Any): Int {
