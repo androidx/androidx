@@ -153,7 +153,7 @@ fun BasicTextField2(
     val textLayoutState = remember {
         TextLayoutState(
             TextDelegate(
-                text = AnnotatedString(state.value.toString()),
+                text = AnnotatedString(state.text.toString()),
                 style = textStyle,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
@@ -225,7 +225,7 @@ fun BasicTextField2(
 
             Layout(modifier = coreModifiers) { _, constraints ->
                 val result = with(textLayoutState) {
-                    val visualText = state.value.toVisualText(codepointTransformation)
+                    val visualText = state.text.toVisualText(codepointTransformation)
                     layout(
                         text = AnnotatedString(visualText.toString()),
                         textStyle = textStyle,

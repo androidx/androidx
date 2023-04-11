@@ -120,7 +120,7 @@ internal class BasicTextField2Test {
         rule.onNodeWithTag(Tag).performTextInput("World!")
 
         rule.runOnIdle {
-            assertThat(state.value.toString()).isEqualTo("Hello World!")
+            assertThat(state.text.toString()).isEqualTo("Hello World!")
         }
 
         rule.onNodeWithTag(Tag).assertTextEquals("Hello World!")
@@ -329,8 +329,8 @@ internal class BasicTextField2Test {
             performTextReplacement("Compose2")
             assertTextEquals("Compose2")
         }
-        assertThat(state1.value.toString()).isEqualTo("Compose")
-        assertThat(state2.value.toString()).isEqualTo("Compose2")
+        assertThat(state1.text.toString()).isEqualTo("Compose")
+        assertThat(state2.text.toString()).isEqualTo("Compose2")
     }
 
     @Test

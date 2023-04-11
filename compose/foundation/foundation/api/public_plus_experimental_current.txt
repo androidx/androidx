@@ -1446,8 +1446,8 @@ package androidx.compose.foundation.text2.input {
   @androidx.compose.foundation.ExperimentalFoundationApi public final class TextFieldState {
     ctor public TextFieldState(optional String initialText, optional long initialSelectionInChars);
     method public inline void edit(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.text2.input.TextFieldBuffer,? extends androidx.compose.foundation.text2.input.TextEditResult> block);
-    method public androidx.compose.foundation.text2.input.TextFieldCharSequence getValue();
-    property public final androidx.compose.foundation.text2.input.TextFieldCharSequence value;
+    method public androidx.compose.foundation.text2.input.TextFieldCharSequence getText();
+    property public final androidx.compose.foundation.text2.input.TextFieldCharSequence text;
   }
 
   public static final class TextFieldState.Saver implements androidx.compose.runtime.saveable.Saver<androidx.compose.foundation.text2.input.TextFieldState,java.lang.Object> {

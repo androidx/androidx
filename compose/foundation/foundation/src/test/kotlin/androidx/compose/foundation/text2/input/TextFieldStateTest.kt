@@ -32,7 +32,7 @@ class TextFieldStateTest {
 
     @Test
     fun initialValue() {
-        assertThat(state.value.toString()).isEqualTo("")
+        assertThat(state.text.toString()).isEqualTo("")
     }
 
     @Test
@@ -46,7 +46,7 @@ class TextFieldStateTest {
             }
         }
 
-        assertThat(state.value.toString()).isEmpty()
+        assertThat(state.text.toString()).isEmpty()
     }
 
     @Test
@@ -65,14 +65,14 @@ class TextFieldStateTest {
             replace(0, 0, "hello")
             placeCursorAtEnd()
         }
-        assertThat(state.value.toString()).isEqualTo("hello")
+        assertThat(state.text.toString()).isEqualTo("hello")
     }
 
     @Test
     fun edit_replace_doesNotChangeStateUntilReturn() {
         state.edit {
             replace(0, 0, "hello")
-            assertThat(state.value.toString()).isEmpty()
+            assertThat(state.text.toString()).isEmpty()
             placeCursorAtEnd()
         }
     }
@@ -85,10 +85,10 @@ class TextFieldStateTest {
             replace(5, 5, " ")
             replace(6, 11, "Compose")
             assertThat(toString()).isEqualTo("hello Compose")
-            assertThat(state.value.toString()).isEmpty()
+            assertThat(state.text.toString()).isEmpty()
             placeCursorAtEnd()
         }
-        assertThat(state.value.toString()).isEqualTo("hello Compose")
+        assertThat(state.text.toString()).isEqualTo("hello Compose")
     }
 
     @Test
@@ -97,7 +97,7 @@ class TextFieldStateTest {
             replace(0, 0, "hello")
             placeCursorAtEnd()
         }
-        assertThat(state.value.selectionInChars).isEqualTo(TextRange(5))
+        assertThat(state.text.selectionInChars).isEqualTo(TextRange(5))
     }
 
     @Test
@@ -106,7 +106,7 @@ class TextFieldStateTest {
             replace(0, 0, "hello")
             placeCursorBeforeCharAt(2)
         }
-        assertThat(state.value.selectionInChars).isEqualTo(TextRange(2))
+        assertThat(state.text.selectionInChars).isEqualTo(TextRange(2))
     }
 
     @Test
@@ -128,7 +128,7 @@ class TextFieldStateTest {
             replace(0, 0, "hello")
             placeCursorBeforeCodepointAt(2)
         }
-        assertThat(state.value.selectionInChars).isEqualTo(TextRange(2))
+        assertThat(state.text.selectionInChars).isEqualTo(TextRange(2))
     }
 
     @Test
@@ -150,7 +150,7 @@ class TextFieldStateTest {
             replace(0, 0, "hello")
             selectAll()
         }
-        assertThat(state.value.selectionInChars).isEqualTo(TextRange(0, 5))
+        assertThat(state.text.selectionInChars).isEqualTo(TextRange(0, 5))
     }
 
     @Test
@@ -159,7 +159,7 @@ class TextFieldStateTest {
             replace(0, 0, "hello")
             selectCharsIn(TextRange(1, 4))
         }
-        assertThat(state.value.selectionInChars).isEqualTo(TextRange(1, 4))
+        assertThat(state.text.selectionInChars).isEqualTo(TextRange(1, 4))
     }
 
     @Test
@@ -187,7 +187,7 @@ class TextFieldStateTest {
             replace(0, 0, "hello")
             selectCodepointsIn(TextRange(1, 4))
         }
-        assertThat(state.value.selectionInChars).isEqualTo(TextRange(1, 4))
+        assertThat(state.text.selectionInChars).isEqualTo(TextRange(1, 4))
     }
 
     @Test
@@ -221,7 +221,7 @@ class TextFieldStateTest {
             assertThat(toString()).isEqualTo("hello world")
             placeCursorAtEnd()
         }
-        assertThat(state.value.toString()).isEqualTo("hello world")
+        assertThat(state.text.toString()).isEqualTo("hello world")
     }
 
     @Test
@@ -230,7 +230,7 @@ class TextFieldStateTest {
             append('c')
             placeCursorAtEnd()
         }
-        assertThat(state.value.toString()).isEqualTo("c")
+        assertThat(state.text.toString()).isEqualTo("c")
     }
 
     @Test
@@ -239,7 +239,7 @@ class TextFieldStateTest {
             append("hello")
             placeCursorAtEnd()
         }
-        assertThat(state.value.toString()).isEqualTo("hello")
+        assertThat(state.text.toString()).isEqualTo("hello")
     }
 
     @Test
@@ -248,21 +248,21 @@ class TextFieldStateTest {
             append("hello world", 0, 5)
             placeCursorAtEnd()
         }
-        assertThat(state.value.toString()).isEqualTo("hello")
+        assertThat(state.text.toString()).isEqualTo("hello")
     }
 
     @Test
     fun setTextAndPlaceCursorAtEnd_works() {
         state.setTextAndPlaceCursorAtEnd("Hello")
-        assertThat(state.value.toString()).isEqualTo("Hello")
-        assertThat(state.value.selectionInChars).isEqualTo(TextRange(5))
+        assertThat(state.text.toString()).isEqualTo("Hello")
+        assertThat(state.text.selectionInChars).isEqualTo(TextRange(5))
     }
 
     @Test
     fun setTextAndSelectAll_works() {
         state.setTextAndSelectAll("Hello")
-        assertThat(state.value.toString()).isEqualTo("Hello")
-        assertThat(state.value.selectionInChars).isEqualTo(TextRange(0, 5))
+        assertThat(state.text.toString()).isEqualTo("Hello")
+        assertThat(state.text.selectionInChars).isEqualTo(TextRange(0, 5))
     }
 
     @Test

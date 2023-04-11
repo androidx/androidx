@@ -108,7 +108,7 @@ class TextFieldCursorTest {
     private var textLayoutResult: TextLayoutResult? = null
     private val cursorRect: Rect
         // assume selection is collapsed
-        get() = textLayoutResult?.getCursorRect(state.value.selectionInChars.start) ?: Rect.Zero
+        get() = textLayoutResult?.getCursorRect(state.text.selectionInChars.start) ?: Rect.Zero
 
     private val backgroundModifier = Modifier.background(contentColor)
     private val focusModifier = Modifier.onFocusChanged { if (it.isFocused) isFocused = true }
@@ -575,7 +575,7 @@ class TextFieldCursorTest {
                     textStyle = textStyle,
                     modifier = textFieldModifier.layout { measurable, constraints ->
                         // change the state during layout so draw can read the new state
-                        val currValue = state.value
+                        val currValue = state.text
                         if (currValue.isNotEmpty()) {
                             val newText = currValue.dropLast(1)
                             val newValue =

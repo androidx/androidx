@@ -147,8 +147,8 @@ class AndroidTextInputAdapterTest {
 
             connection.commitText("Hello", 0)
 
-            assertThat(state1.value.toString()).isEqualTo("")
-            assertThat(state2.value.toString()).isEqualTo("Hello")
+            assertThat(state1.text.toString()).isEqualTo("")
+            assertThat(state2.text.toString()).isEqualTo("Hello")
         }
     }
 

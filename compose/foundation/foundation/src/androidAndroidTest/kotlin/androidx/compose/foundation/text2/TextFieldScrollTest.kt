@@ -401,7 +401,7 @@ class TextFieldScrollTest {
         // move cursor to the end
         // TODO
         state.editProcessor.reset(
-            TextFieldCharSequence(state.value, selection = TextRange(longText.length))
+            TextFieldCharSequence(state.text, selection = TextRange(longText.length))
         )
 
         rule.runOnIdle {
@@ -426,7 +426,7 @@ class TextFieldScrollTest {
 
         // move cursor to the end
         state.editProcessor.reset(
-            TextFieldCharSequence(state.value, selection = TextRange(longText.length))
+            TextFieldCharSequence(state.text, selection = TextRange(longText.length))
         )
 
         rule.runOnIdle {
@@ -454,7 +454,7 @@ class TextFieldScrollTest {
 
         rule.runOnIdle {
             assertThat(scrollState.value).isEqualTo(scrollState.maxValue)
-            assertThat(state.value.selectionInChars).isEqualTo(TextRange(5))
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(5))
         }
     }
 
