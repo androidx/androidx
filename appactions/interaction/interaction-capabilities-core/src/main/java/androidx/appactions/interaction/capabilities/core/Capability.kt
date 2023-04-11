@@ -17,7 +17,6 @@
 package androidx.appactions.interaction.capabilities.core
 
 import androidx.annotation.RestrictTo
-import androidx.appactions.interaction.capabilities.core.ActionExecutorAsync.Companion.toActionExecutorAsync
 import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.SingleTurnCapabilityImpl
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
@@ -66,7 +65,8 @@ abstract class Capability internal constructor(
             ArgumentsT,
             OutputT,
             ConfirmationT,
-            ExecutionSessionT,>,
+            ExecutionSessionT,
+            >,
         PropertyT,
         ArgumentsT,
         OutputT,
@@ -77,7 +77,7 @@ abstract class Capability internal constructor(
     ) {
         private var id: String? = null
         private var property: PropertyT? = null
-        private var actionExecutorAsync: ActionExecutorAsync<ArgumentsT, OutputT>? = null
+        private var actionExecutor: ActionExecutor<ArgumentsT, OutputT>? = null
         private var sessionFactory: ExecutionSessionFactory<ExecutionSessionT>? = null
 
         /**
@@ -120,7 +120,7 @@ abstract class Capability internal constructor(
          * which accepts the ActionExecutorAsync instead.
          */
         fun setExecutor(actionExecutor: ActionExecutor<ArgumentsT, OutputT>) = asBuilder().apply {
-            this.actionExecutorAsync = actionExecutor.toActionExecutorAsync()
+            this.actionExecutor = actionExecutor
         }
 
         /**
@@ -134,7 +134,7 @@ abstract class Capability internal constructor(
         fun setExecutor(
             actionExecutorAsync: ActionExecutorAsync<ArgumentsT, OutputT>,
         ) = asBuilder().apply {
-            this.actionExecutorAsync = actionExecutorAsync
+            this.actionExecutor = actionExecutorAsync.toActionExecutor()
         }
 
         /**
@@ -154,12 +154,12 @@ abstract class Capability internal constructor(
         open fun build(): Capability {
             val checkedId = requireNotNull(id) { "setId must be called before build" }
             val checkedProperty = requireNotNull(property) { "property must not be null." }
-            if (actionExecutorAsync != null) {
+            if (actionExecutor != null) {
                 return SingleTurnCapabilityImpl(
                     checkedId,
                     actionSpec,
                     checkedProperty,
-                    actionExecutorAsync!!,
+                    actionExecutor!!,
                 )
             } else {
                 val checkedSessionFactory = requireNotNull(sessionFactory) {
