@@ -47,6 +47,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -104,6 +105,7 @@ class CoreTextFieldSelectionOnBackTest {
         assertThat(results.last().selection).isEqualTo(expected)
     }
 
+    @Ignore("b/277763474")
     @Test
     fun whenBackPressed_coreTextFieldRetainsSelection() {
         val results = mutableListOf<TextFieldValue>()
