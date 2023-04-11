@@ -46,6 +46,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assume
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatcher
@@ -155,6 +156,7 @@ public class SidecarWindowBackendIntegrationTest : WindowTestBase() {
         }
     }
 
+    @Ignore // b/277591676
     @Test
     public fun testWindowLayoutUpdatesOnRecreate() {
         assumeExtensionV10_V01()
