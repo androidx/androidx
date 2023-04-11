@@ -40,7 +40,6 @@ import androidx.constraintlayout.core.state.Transition
 import androidx.constraintlayout.core.state.WidgetFrame
 import androidx.constraintlayout.core.widgets.Optimizer
 
-@ExperimentalMotionApi
 internal class MotionMeasurer(density: Density) : Measurer(density) {
     private val DEBUG = false
     private var lastProgressInInterpolation = 0f

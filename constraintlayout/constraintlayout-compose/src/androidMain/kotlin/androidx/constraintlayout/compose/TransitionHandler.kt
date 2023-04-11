@@ -16,18 +16,14 @@
 
 package androidx.constraintlayout.compose
 
-import androidx.compose.runtime.ExperimentalComposeApi
-import androidx.compose.runtime.monotonicFrameClock
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Velocity
-import kotlin.coroutines.coroutineContext
 
 /**
  * Helper class that handles the interactions between Compose and
  * [androidx.constraintlayout.core.state.Transition].
  */
-@OptIn(ExperimentalComposeApi::class)
-@ExperimentalMotionApi
 internal class TransitionHandler(
     private val motionMeasurer: MotionMeasurer,
     private val motionProgress: MotionProgress
@@ -56,7 +52,7 @@ internal class TransitionHandler(
      * swipe at the next frame..
      */
     suspend fun onTouchUp(velocity: Velocity) {
-        coroutineContext.monotonicFrameClock.withFrameNanos { timeNanos ->
+        withFrameNanos { timeNanos ->
             transition.setTouchUp(motionProgress.currentProgress, timeNanos, velocity.x, velocity.y)
         }
     }
@@ -66,7 +62,7 @@ internal class TransitionHandler(
      * touch gestures.
      */
     suspend fun updateProgressWhileTouchUp() {
-        val newProgress = coroutineContext.monotonicFrameClock.withFrameNanos { timeNanos ->
+        val newProgress = withFrameNanos { timeNanos ->
             transition.getTouchUpProgress(timeNanos)
         }
         motionProgress.updateProgress(newProgress)

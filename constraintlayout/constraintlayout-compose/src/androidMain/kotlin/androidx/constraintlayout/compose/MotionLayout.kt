@@ -114,7 +114,6 @@ enum class MotionLayoutDebugFlags {
  * should be bound to an ID defined in the [ConstraintSet]s using
  * [Modifier.layoutId][androidx.compose.ui.layout.layoutId].
  */
-@ExperimentalMotionApi
 @Composable
 inline fun MotionLayout(
     start: ConstraintSet,
@@ -220,7 +219,6 @@ inline fun MotionLayout(
  * should be bound to an ID defined in the [ConstraintSet]s using
  * [Modifier.layoutId][androidx.compose.ui.layout.layoutId].
  */
-@ExperimentalMotionApi
 @Composable
 inline fun MotionLayout(
     motionScene: MotionScene,
@@ -340,7 +338,6 @@ inline fun MotionLayout(
  * should be bound to an ID defined in the [ConstraintSet]s using
  * [Modifier.layoutId][androidx.compose.ui.layout.layoutId].
  */
-@ExperimentalMotionApi
 @Composable
 inline fun MotionLayout(
     motionScene: MotionScene,
@@ -394,7 +391,6 @@ inline fun MotionLayout(
 }
 
 @PublishedApi
-@ExperimentalMotionApi
 @Composable
 internal fun MotionLayoutCore(
     motionScene: MotionScene,
@@ -487,7 +483,6 @@ internal fun MotionLayoutCore(
     )
 }
 
-@ExperimentalMotionApi
 @PublishedApi
 @Composable
 @Suppress("UnavailableSymbol")
@@ -537,7 +532,6 @@ internal fun MotionLayoutCore(
     )
 }
 
-@ExperimentalMotionApi
 @PublishedApi
 @Composable
 @Suppress("UnavailableSymbol")
@@ -635,7 +629,6 @@ internal fun MotionLayoutCore(
 }
 
 @LayoutScopeMarker
-@ExperimentalMotionApi
 class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constructor(
     private val measurer: MotionMeasurer,
     private val motionProgress: MotionProgress
@@ -651,7 +644,6 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constru
      * bounds while ignoring their positioning during animation. Such as when implementing
      * DragAndDrop logic.
      */
-    @ExperimentalMotionApi
     fun Modifier.onStartEndBoundsChanged(
         layoutId: Any,
         onBoundsChanged: (startBounds: Rect, endBounds: Rect) -> Unit
@@ -730,7 +722,6 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constru
         }
     }
 
-    @ExperimentalMotionApi
     inner class CustomProperties internal constructor(private val id: String) {
         /**
          * Return the current [Color] value of the custom property [name], of the [id] layout.
@@ -778,7 +769,7 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constru
         }
     }
 
-    @ExperimentalMotionApi // TODO: Remove for 1.2.0-alphaXX with all dependent functions
+    // TODO: Remove for 1.2.0-alphaXX with all dependent functions
     inner class MotionProperties internal constructor(
         id: String,
         tag: String?
@@ -934,7 +925,6 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constru
     }
 }
 
-@ExperimentalMotionApi
 internal fun motionLayoutMeasurePolicy(
     contentTracker: State<Unit>,
     compositionSource: Ref<CompositionSource>,
@@ -1019,7 +1009,6 @@ internal fun createAndUpdateMotionProgress(progress: Float): MotionProgress {
     return motionProgress
 }
 
-@ExperimentalMotionApi
 internal fun Modifier.motionDebug(
     measurer: MotionMeasurer,
     scaleFactor: Float,
@@ -1106,7 +1095,6 @@ internal interface MotionProgress {
  * @see DebugFlags.None
  * @see DebugFlags.All
  */
-@ExperimentalMotionApi
 @JvmInline
 value class DebugFlags internal constructor(private val flags: Int) {
     /**
