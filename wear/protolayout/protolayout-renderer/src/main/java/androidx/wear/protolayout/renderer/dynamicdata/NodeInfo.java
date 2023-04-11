@@ -123,10 +123,7 @@ class NodeInfo implements TreeNode {
         mResolvedAvds.forEach(ResolvedAvd::unregisterCallback);
     }
 
-    /**
-     * Returns the number of active bound dynamic types.
-     *
-     */
+    /** Returns the number of active bound dynamic types. */
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     @SuppressWarnings("RestrictTo")
     int size() {
@@ -204,10 +201,7 @@ class NodeInfo implements TreeNode {
         return null;
     }
 
-    /**
-     * Returns how many animations are running.
-     *
-     */
+    /** Returns how many animations are running. */
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     @SuppressWarnings("RestrictTo")
     int getRunningAnimationCount() {
