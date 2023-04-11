@@ -16,7 +16,6 @@
 
 package androidx.appactions.interaction.service
 
-import android.content.Context
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal
@@ -27,17 +26,17 @@ import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment
 import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput.OutputValue
-import androidx.appactions.interaction.service.AppInteractionServiceGrpcImpl.ERROR_NO_ACTION_CAPABILITY
-import androidx.appactions.interaction.service.AppInteractionServiceGrpcImpl.ERROR_NO_FULFILLMENT_REQUEST
-import androidx.appactions.interaction.service.AppInteractionServiceGrpcImpl.ERROR_NO_SESSION
-import androidx.appactions.interaction.service.AppInteractionServiceGrpcImpl.ERROR_SESSION_ENDED
+import androidx.appactions.interaction.service.AppInteractionServiceGrpcImpl.Companion.ERROR_NO_ACTION_CAPABILITY
+import androidx.appactions.interaction.service.AppInteractionServiceGrpcImpl.Companion.ERROR_NO_FULFILLMENT_REQUEST
+import androidx.appactions.interaction.service.AppInteractionServiceGrpcImpl.Companion.ERROR_NO_SESSION
+import androidx.appactions.interaction.service.AppInteractionServiceGrpcImpl.Companion.ERROR_SESSION_ENDED
+import androidx.appactions.interaction.service.testing.internal.FakeAppInteractionService
 import androidx.appactions.interaction.service.proto.AppInteractionServiceGrpc
 import androidx.appactions.interaction.service.proto.AppInteractionServiceGrpc.AppInteractionServiceStub
 import androidx.appactions.interaction.service.proto.AppInteractionServiceProto.Request
 import androidx.appactions.interaction.service.proto.AppInteractionServiceProto.StartSessionRequest
 import androidx.appactions.interaction.service.proto.AppInteractionServiceProto.StartSessionResponse
 import androidx.concurrent.futures.await
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import org.mockito.kotlin.any
@@ -48,6 +47,7 @@ import org.mockito.kotlin.never
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.robolectric.Robolectric
 import io.grpc.BindableService
 import io.grpc.ManagedChannel
 import io.grpc.Server
@@ -55,14 +55,11 @@ import io.grpc.ServerInterceptor
 import io.grpc.ServerInterceptors
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
-import io.grpc.binder.SecurityPolicies
-import io.grpc.binder.SecurityPolicy
 import io.grpc.inprocess.InProcessChannelBuilder
 import io.grpc.inprocess.InProcessServerBuilder
 import io.grpc.stub.StreamObserver
 import io.grpc.testing.GrpcCleanupRule
 import java.io.IOException
-import java.util.Collections
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
@@ -77,7 +74,6 @@ class AppInteractionServiceGrpcImplTest {
 
     @get:Rule val grpcCleanup = GrpcCleanupRule()
 
-    private val context = ApplicationProvider.getApplicationContext<Context>()
     private val remoteViewsInterceptor: ServerInterceptor = RemoteViewsOverMetadataInterceptor()
     private val testServerName = InProcessServerBuilder.generateName()
     private val testBiiName = "actions.intent.SAMPLE_BII_NAME"
@@ -102,7 +98,8 @@ class AppInteractionServiceGrpcImplTest {
                     .addOutputValues(OutputValue.newBuilder().setName("bio_arg1")),
             )
             .build()
-    private var capability1 = mock<Capability>()
+    private lateinit var capability1: Capability
+    private lateinit var appInteractionService: FakeAppInteractionService
 
     @Before
     fun before() {
@@ -111,13 +108,17 @@ class AppInteractionServiceGrpcImplTest {
         whenever(capability1.appAction).thenReturn(AppAction.getDefaultInstance())
         val mockCapabilitySession = createMockSession()
         whenever(capability1.createSession(any(), any())).thenReturn(mockCapabilitySession)
+        appInteractionService = Robolectric.buildService(
+            FakeAppInteractionService::class.java
+        ).get()
+        appInteractionService.registeredCapabilities = listOf(capability1)
     }
 
     @Test
     fun startUpSession_validRequest_shouldGetValidStartSessionResponse(): Unit = runBlocking {
         val server =
             createInProcessServer(
-                AppInteractionServiceGrpcImpl(FakeAppInteractionService(listOf(capability1))),
+                AppInteractionServiceGrpcImpl(appInteractionService),
                 remoteViewsInterceptor,
             )
 
@@ -152,7 +153,7 @@ class AppInteractionServiceGrpcImplTest {
     fun startUpSession_shouldFailWhenNoStaticCapability(): Unit = runBlocking {
         val server =
             createInProcessServer(
-                AppInteractionServiceGrpcImpl(FakeAppInteractionService(listOf(capability1))),
+                AppInteractionServiceGrpcImpl(appInteractionService),
                 remoteViewsInterceptor,
             )
 
@@ -186,7 +187,7 @@ class AppInteractionServiceGrpcImplTest {
     fun sendRequestFulfillment_shouldGetValidResponse(): Unit = runBlocking {
         val server =
             createInProcessServer(
-                AppInteractionServiceGrpcImpl(FakeAppInteractionService(listOf(capability1))),
+                AppInteractionServiceGrpcImpl(appInteractionService),
                 remoteViewsInterceptor,
             )
         val channel = createInProcessChannel()
@@ -213,7 +214,7 @@ class AppInteractionServiceGrpcImplTest {
     fun sendRequestFulfillment_shouldFailWhenNoFulfillment(): Unit = runBlocking {
         val server =
             createInProcessServer(
-                AppInteractionServiceGrpcImpl(FakeAppInteractionService(listOf(capability1))),
+                AppInteractionServiceGrpcImpl(appInteractionService),
                 remoteViewsInterceptor,
             )
 
@@ -243,7 +244,7 @@ class AppInteractionServiceGrpcImplTest {
     fun sendRequestFulfillment_shouldFailWhenNoStaticCapability(): Unit = runBlocking {
         val server =
             createInProcessServer(
-                AppInteractionServiceGrpcImpl(FakeAppInteractionService(listOf(capability1))),
+                AppInteractionServiceGrpcImpl(appInteractionService),
                 remoteViewsInterceptor,
             )
 
@@ -278,7 +279,7 @@ class AppInteractionServiceGrpcImplTest {
     fun sendRequestFulfillment_shouldFailWhenNoSession(): Unit = runBlocking {
         val server =
             createInProcessServer(
-                AppInteractionServiceGrpcImpl(FakeAppInteractionService(listOf(capability1))),
+                AppInteractionServiceGrpcImpl(appInteractionService),
                 remoteViewsInterceptor,
             )
 
@@ -310,7 +311,7 @@ class AppInteractionServiceGrpcImplTest {
     fun sendRequestFulfillment_shouldFailWhenSessionEnded(): Unit = runBlocking {
         val server =
             createInProcessServer(
-                AppInteractionServiceGrpcImpl(FakeAppInteractionService(listOf(capability1))),
+                AppInteractionServiceGrpcImpl(appInteractionService),
                 remoteViewsInterceptor,
             )
 
@@ -394,19 +395,5 @@ class AppInteractionServiceGrpcImplTest {
         whenever(mockSession.status).thenReturn(CapabilitySession.Status.UNINITIATED)
         whenever(mockSession.uiHandle).thenReturn(Any())
         return mockSession
-    }
-
-    private inner class FakeAppInteractionService(capabilities: List<Capability>) :
-        AppInteractionService() {
-        override val registeredCapabilities: MutableList<Capability> =
-            capabilities.toMutableList()
-
-        override val securityPolicy: SecurityPolicy = SecurityPolicies.internalOnly()
-
-        override val allowedApps: List<AppVerificationInfo> = Collections.emptyList()
-
-        override fun getApplicationContext(): Context {
-            return context
-        }
     }
 }

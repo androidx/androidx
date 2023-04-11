@@ -35,14 +35,18 @@ import com.google.common.util.concurrent.ListenableFuture
  *
  * <p>Use abstract classes within the library to create instances of the {@link EntityProvider}.
  */
-abstract class EntityProvider<T : Thing> internal constructor(private val typeSpec: TypeSpec<T>) {
+abstract class EntityProvider<T : Thing>
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+constructor(
+    private val typeSpec: TypeSpec<T>
+) {
     private val entityConverter = EntityConverter.of(typeSpec)
 
     /**
      * Unique identifier for this EntityFilter. Must match the shortcuts.xml declaration, which
      * allows different filters to be assigned to types on a per-BII basis.
      */
-    abstract fun getId(): String
+    abstract val id: String
 
     /**
      * Executes the entity lookup.
@@ -116,7 +120,7 @@ abstract class EntityProvider<T : Thing> internal constructor(private val typeSp
     }
 
     private fun convertStatus(
-        @EntityLookupResponse.EntityLookupStatus status: Int,
+        @EntityLookupResponse.EntityLookupStatus status: Int
     ): GroundingResponse.Status {
         return when (status) {
             EntityLookupResponse.CANCELED -> GroundingResponse.Status.CANCELED
