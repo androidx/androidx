@@ -98,7 +98,7 @@ class CreatePublicKeyCredentialRequestTest {
             clientDataHash = null,
             preferImmediatelyAvailableCredentials = false,
             origin = null,
-            defaultProvider = defaultProvider
+            preferDefaultProvider = defaultProvider
         )
 
         assertThat(request.displayInfo.preferDefaultProvider).isEqualTo(defaultProvider)

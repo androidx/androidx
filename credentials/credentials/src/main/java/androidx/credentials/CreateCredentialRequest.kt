@@ -104,9 +104,9 @@ abstract class CreateCredentialRequest internal constructor(
          * understand the credential being created
          * @param preferDefaultProvider the preferred default provider component name to prioritize in the
          * selection UI flows. Your app must have the permission
-         * android.permission.CREDENTIAL_MANAGER_QUERY_CANDIDATE_CREDENTIALS to specify this, or it
-         * would not take effect. Notice that this bit will not take effect for Android API level
-         * 33 and below.
+         * android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS to specify this, or it
+         * would not take effect. Also this bit may not take effect for Android API level 33 and
+         * below, depending on the pre-34 provider(s) you have chosen.
          * @throws IllegalArgumentException If [userId] is empty
          */
         constructor(

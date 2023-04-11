@@ -48,7 +48,8 @@ class CreatePasswordRequestTest {
         val defaultProvider = "com.test/com.test.TestProviderComponent"
 
         val request = CreatePasswordRequest(
-            id = "id", password = "password", origin = null, defaultProvider = defaultProvider)
+            id = "id", password = "password", origin = null, preferDefaultProvider = defaultProvider
+        )
 
         assertThat(request.displayInfo.preferDefaultProvider).isEqualTo(defaultProvider)
     }
