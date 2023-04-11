@@ -20,7 +20,11 @@ import android.text.InputType
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardHelper
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text2.input.TextEditFilter
@@ -30,6 +34,7 @@ import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.AndroidTextInputAdapter
 import androidx.compose.foundation.text2.input.rememberTextFieldState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,7 +60,10 @@ import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextInputSelection
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
@@ -63,6 +71,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -892,6 +901,43 @@ internal class BasicTextField2Test {
         // expect keyboard to show up again.
         keyboardHelper.waitForKeyboardVisibility(true)
         assertThat(keyboardHelper.isSoftwareKeyboardShown()).isTrue()
+    }
+
+    @Test
+    fun swipingThroughTextField_doesNotGainFocus() {
+        rule.setContent {
+            BasicTextField2(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(Tag)
+            )
+        }
+
+        rule.onNodeWithTag(Tag).performTouchInput {
+            // swipe through
+            swipeRight(endX = right + 200, durationMillis = 1000)
+        }
+        rule.onNodeWithTag(Tag).assertIsNotFocused()
+    }
+
+    @Test
+    fun swipingTextFieldInScrollableContainer_doesNotGainFocus() {
+        val scrollState = ScrollState(0)
+        rule.setContent {
+            Column(Modifier.size(100.dp).verticalScroll(scrollState)) {
+                BasicTextField2(
+                    state = rememberTextFieldState(),
+                    modifier = Modifier.testTag(Tag)
+                )
+                Box(Modifier.size(200.dp))
+            }
+        }
+
+        rule.onNodeWithTag(Tag).performTouchInput {
+            // swipe through
+            swipeUp(durationMillis = 1000)
+        }
+        rule.onNodeWithTag(Tag).assertIsNotFocused()
+        assertThat(scrollState.value).isNotEqualTo(0)
     }
 
     private fun requestFocus(tag: String) =
