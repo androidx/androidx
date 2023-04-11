@@ -16,10 +16,13 @@
 
 package androidx.work.impl.background.greedy;
 
+import static androidx.work.WorkRequest.DEFAULT_BACKOFF_DELAY_MILLIS;
 import static androidx.work.impl.model.WorkSpecKt.generationalId;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -115,7 +118,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
                 .setInitialDelay(1000L, TimeUnit.MILLISECONDS)
                 .build();
         mGreedyScheduler.schedule(work.getWorkSpec());
-        verify(mDelayedWorkTracker).schedule(work.getWorkSpec());
+        verify(mDelayedWorkTracker).schedule(eq(work.getWorkSpec()), anyLong());
     }
 
     @Test
@@ -126,7 +129,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
                 .setInitialRunAttemptCount(5)
                 .build();
         mGreedyScheduler.schedule(work.getWorkSpec());
-        verify(mDelayedWorkTracker).schedule(work.getWorkSpec());
+        verify(mDelayedWorkTracker).schedule(eq(work.getWorkSpec()), anyLong());
     }
 
     @Test
@@ -214,5 +217,25 @@ public class GreedySchedulerTest extends WorkManagerTest {
         mGreedyScheduler.schedule(workSpec);
         verify(mMockProcessor, times(0)).addExecutionListener(mGreedyScheduler);
         verify(mMockWorkConstraintsTracker, never()).replace(ArgumentMatchers.<WorkSpec>anyList());
+    }
+
+    @Test
+    @SmallTest
+    public void testGreedyScheduler_throttleWork() {
+        long before = System.currentTimeMillis();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setLastEnqueueTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .setInitialDelay(1000L, TimeUnit.MILLISECONDS)
+                .build();
+        WorkSpec workSpec = work.getWorkSpec();
+        mGreedyScheduler.schedule(workSpec);
+        mGreedyScheduler.onExecuted(generationalId(workSpec), true);
+        WorkSpec updatedRunAttemptCount = new WorkSpec(workSpec.id, workSpec);
+        updatedRunAttemptCount.runAttemptCount = 10;
+        reset(mDelayedWorkTracker);
+        mGreedyScheduler.schedule(updatedRunAttemptCount);
+        ArgumentCaptor<Long> delayCapture = ArgumentCaptor.forClass(Long.class);
+        verify(mDelayedWorkTracker).schedule(eq(updatedRunAttemptCount), delayCapture.capture());
+        assertThat(delayCapture.getValue()).isAtLeast(before + 5 * DEFAULT_BACKOFF_DELAY_MILLIS);
     }
 }

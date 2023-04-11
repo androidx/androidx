@@ -60,8 +60,9 @@ public class DelayedWorkTracker {
      * the {@link WorkSpec}'s scheduled run time.
      *
      * @param workSpec The {@link WorkSpec} corresponding to the {@link androidx.work.WorkRequest}
+     * @param nextRunTime time when work should be executed
      */
-    public void schedule(@NonNull final WorkSpec workSpec) {
+    public void schedule(@NonNull final WorkSpec workSpec, long nextRunTime) {
         Runnable existing = mRunnables.remove(workSpec.id);
         if (existing != null) {
             mRunnableScheduler.cancel(existing);
@@ -77,7 +78,7 @@ public class DelayedWorkTracker {
 
         mRunnables.put(workSpec.id, runnable);
         long now = System.currentTimeMillis();
-        long delay = workSpec.calculateNextRunTime() - now;
+        long delay = nextRunTime - now;
         mRunnableScheduler.scheduleWithDelay(delay, runnable);
     }
 
