@@ -1,3 +1,9 @@
 // Baseline format: 1.0
 AutoBoxing: androidx.compose.material3.DatePickerState#setSelectedDateMillis(Long) parameter #0:
     Must avoid boxed primitives (`java.lang.Long`)
+GetterSetterNames: androidx.compose.material3.SheetState#getHasExpandedState():
+    Getter for boolean property `hasExpandedState` is named `getHasExpandedState` but should match the property name. Use `@get:JvmName` to rename.
+GetterSetterNames: androidx.compose.material3.SheetState#getHasPartiallyExpandedState():
+    Getter for boolean property `hasPartiallyExpandedState` is named `getHasPartiallyExpandedState` but should match the property name. Use `@get:JvmName` to rename.
+GetterSetterNames: field SnackbarVisuals.withDismissAction:
+    Invalid name for boolean property `withDismissAction`. Should start with one of `has`, `can`, `should`, `is`.
