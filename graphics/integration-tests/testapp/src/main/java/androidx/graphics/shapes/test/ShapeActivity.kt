@@ -115,11 +115,11 @@ class ShapeActivity : Activity() {
         val rounding = CornerRounding(.1f, .5f)
         val starRounding = CornerRounding(.05f, .25f)
         shapes.add(RoundedPolygon(numVertices = 4, rounding = rounding))
-        shapes.add(Star(8, .4f, rounding = starRounding))
-        shapes.add(Star(8, innerRadiusRatio = .4f, rounding = starRounding,
+        shapes.add(Star(8, radius = 1f, innerRadius = .4f, rounding = starRounding))
+        shapes.add(Star(8, radius = 1f, innerRadius = .4f, rounding = starRounding,
             innerRounding = CornerRounding.Unrounded))
         shapes.add(
-            MaterialShapes.clover(rounding = .352f, innerRadiusRatio = .1f,
+            MaterialShapes.clover(rounding = .352f, innerRadius = .1f,
             innerRounding = Unrounded))
         shapes.add(RoundedPolygon(3))
     }

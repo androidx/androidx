@@ -65,8 +65,8 @@ class PolygonTest {
         assertInBounds(manualSquare.toCubicShape(), min, max)
 
         val offset = PointF(1f, 2f)
-        val manualSquareOffset =
-            RoundedPolygon(listOf(p0 + offset, p1 + offset, p2 + offset, p3 + offset), offset)
+        val manualSquareOffset = RoundedPolygon(
+            vertices = listOf(p0 + offset, p1 + offset, p2 + offset, p3 + offset), center = offset)
         min = PointF(0f, 1f)
         max = PointF(2f, 3f)
         assertInBounds(manualSquareOffset.toCubicShape(), min, max)

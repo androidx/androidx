@@ -104,18 +104,18 @@ class MaterialShapes {
 
         @JvmStatic
         fun scallop(): RoundedPolygon {
-            return Star(12, .928f, rounding = CornerRounding(radius = .928f))
+            return Star(12, innerRadius = .928f, rounding = CornerRounding(radius = .928f))
         }
 
         @JvmOverloads
         @JvmStatic
         fun clover(
             rounding: Float = .32f,
-            innerRadiusRatio: Float = .352f,
+            innerRadius: Float = .352f,
             innerRounding: CornerRounding? = null,
             scale: Float = 1f
         ): RoundedPolygon {
-            val poly = Star(4, innerRadiusRatio,
+            val poly = Star(4, innerRadius = innerRadius,
                 rounding = CornerRounding(rounding * scale),
                 innerRounding = innerRounding)
             return poly
