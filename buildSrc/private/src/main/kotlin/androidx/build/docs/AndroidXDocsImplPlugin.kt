@@ -98,7 +98,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                 is LibraryPlugin -> {
                     val libraryExtension = project.extensions.getByType<LibraryExtension>()
                     libraryExtension.compileSdkVersion = SupportConfig.COMPILE_SDK_VERSION
-                    libraryExtension.buildToolsVersion = SupportConfig.BUILD_TOOLS_VERSION
+                    libraryExtension.buildToolsVersion = SupportConfig.buildToolsVersion(project)
 
                     // Use a local debug keystore to avoid build server issues.
                     val debugSigningConfig = libraryExtension.signingConfigs.getByName("debug")
