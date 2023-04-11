@@ -17,7 +17,6 @@
 package androidx.car.app.model;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThrows;
 
@@ -92,7 +91,7 @@ public class TabTest {
                 .setContentId("id")
                 .build();
 
-        assertFalse(tab.isActive());
+        assertEquals(tab.getContentId(), "id");
     }
 
     @Test
@@ -103,7 +102,6 @@ public class TabTest {
                         ApplicationProvider.getApplicationContext(),
                         "ic_test_1"))
                 .setContentId("id")
-                .setActive(false)
                 .build();
 
         assertEquals(tab, TEST_TAB);
@@ -137,13 +135,6 @@ public class TabTest {
     @Test
     public void notEquals_differentContentId() {
         Tab tab = TEST_TAB.toBuilder().setContentId("new id").build();
-
-        assertNotEquals(tab, TEST_TAB);
-    }
-
-    @Test
-    public void notEquals_differentActiveState() {
-        Tab tab = TEST_TAB.toBuilder().setActive(true).build();
 
         assertNotEquals(tab, TEST_TAB);
     }
