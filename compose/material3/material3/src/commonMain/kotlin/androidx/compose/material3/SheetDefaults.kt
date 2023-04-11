@@ -18,6 +18,9 @@ package androidx.compose.material3
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.SheetValue.PartiallyExpanded
@@ -215,6 +218,15 @@ class SheetState(
     }
 
     /**
+     * Attempt to snap synchronously. Snapping can happen synchronously when there is no other swipe
+     * transaction like a drag or an animation is progress. If there is another interaction in
+     * progress, the suspending [snapTo] overload needs to be used.
+     *
+     * @return true if the synchronous snap was successful, or false if we couldn't snap synchronous
+     */
+    internal fun trySnapTo(targetValue: SheetValue) = swipeableState.trySnapTo(targetValue)
+
+    /**
      * Find the closest anchor taking into account the velocity and settle at it with an animation.
      */
     internal suspend fun settle(velocity: Float) {
@@ -299,6 +311,13 @@ object BottomSheetDefaults {
      * The default peek height used by [BottomSheetScaffold].
      */
     val SheetPeekHeight = 56.dp
+
+    /**
+     * Default insets to be used and consumed by the [ModalBottomSheet] window.
+     */
+    val windowInsets: WindowInsets
+        @Composable
+        get() = WindowInsets.systemBarsForVisualComponents.only(WindowInsetsSides.Vertical)
 
     /**
      * The optional visual marker placed on top of a bottom sheet to indicate it may be dragged.

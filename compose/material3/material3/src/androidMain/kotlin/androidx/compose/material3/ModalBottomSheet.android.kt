@@ -30,12 +30,17 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.SheetValue.Expanded
 import androidx.compose.material3.SheetValue.Hidden
 import androidx.compose.material3.SheetValue.PartiallyExpanded
@@ -59,8 +64,6 @@ import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.AbstractComposeView
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.ViewRootForInspector
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -72,7 +75,6 @@ import androidx.compose.ui.semantics.popup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import androidx.lifecycle.setViewTreeLifecycleOwner
@@ -112,6 +114,8 @@ import kotlinx.coroutines.launch
  * @param tonalElevation The tonal elevation of this bottom sheet.
  * @param scrimColor Color of the scrim that obscures content when the bottom sheet is open.
  * @param dragHandle Optional visual marker to swipe the bottom sheet.
+ * @param windowInsets window insets to be passed to the bottom sheet window via [PaddingValues]
+ * params.
  * @param content The content to be displayed inside the bottom sheet.
  */
 @Composable
@@ -126,11 +130,9 @@ fun ModalBottomSheet(
     tonalElevation: Dp = BottomSheetDefaults.Elevation,
     scrimColor: Color = BottomSheetDefaults.ScrimColor,
     dragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },
+    windowInsets: WindowInsets = BottomSheetDefaults.windowInsets,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val configuration = LocalConfiguration.current
-    val density = LocalDensity.current
-    val fullHeight = with(density) { configuration.screenHeightDp.dp.toPx() }
     val scope = rememberCoroutineScope()
     val animateToDismiss: () -> Unit = {
         if (sheetState.swipeableState.confirmValueChange(Hidden)) {
@@ -154,7 +156,12 @@ fun ModalBottomSheet(
             animateTo = { target, velocity ->
                 scope.launch { sheetState.animateTo(target, velocity = velocity) }
             },
-            snapTo = { target -> scope.launch { sheetState.snapTo(target) } }
+            snapTo = { target ->
+                val didSnapImmediately = sheetState.trySnapTo(target)
+                if (!didSnapImmediately) {
+                    scope.launch { sheetState.snapTo(target) }
+                }
+            }
         )
     }
 
@@ -165,9 +172,11 @@ fun ModalBottomSheet(
             } else { // Is expanded without collapsed state or is collapsed.
                 scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissRequest() }
             }
-        }
+        },
+        windowInsets = windowInsets,
     ) {
-        Box {
+        BoxWithConstraints(Modifier.fillMaxSize()) {
+            val fullHeight = constraints.maxHeight
             Scrim(
                 color = scrimColor,
                 onDismissRequest = animateToDismiss,
@@ -200,7 +209,7 @@ fun ModalBottomSheet(
                     .modalBottomSheetSwipeable(
                         sheetState = sheetState,
                         anchorChangeHandler = anchorChangeHandler,
-                        screenHeight = fullHeight,
+                        screenHeight = fullHeight.toFloat(),
                         onDragStopped = {
                             settleToDismiss(it)
                         },
@@ -376,7 +385,8 @@ private fun ModalBottomSheetAnchorChangeHandler(
 @Composable
 internal fun ModalBottomSheetPopup(
     onDismissRequest: () -> Unit,
-    content: @Composable () -> Unit
+    windowInsets: WindowInsets,
+    content: @Composable () -> Unit,
 ) {
     val view = LocalView.current
     val id = rememberSaveable { UUID.randomUUID() }
@@ -391,7 +401,12 @@ internal fun ModalBottomSheetPopup(
             setCustomContent(
                 parent = parentComposition,
                 content = {
-                    Box(Modifier.semantics { this.popup() }) {
+                    Box(
+                        Modifier
+                            .semantics { this.popup() }
+                            .windowInsetsPadding(windowInsets)
+                            .imePadding()
+                    ) {
                         currentContent()
                     }
                 }
@@ -437,12 +452,6 @@ private class ModalBottomSheetWindow(
             return (context.resources.configuration.screenWidthDp * density).roundToInt()
         }
 
-    private val displayHeight: Int
-        get() {
-            val density = context.resources.displayMetrics.density
-            return (context.resources.configuration.screenHeightDp * density).roundToInt()
-        }
-
     private val params: WindowManager.LayoutParams =
         WindowManager.LayoutParams().apply {
             // Position bottom sheet from the bottom of the screen
@@ -451,7 +460,7 @@ private class ModalBottomSheetWindow(
             type = WindowManager.LayoutParams.TYPE_APPLICATION_PANEL
             // Fill up the entire app view
             width = displayWidth
-            height = displayHeight
+            height = WindowManager.LayoutParams.MATCH_PARENT
 
             // Format of screen pixels
             format = PixelFormat.TRANSLUCENT
@@ -462,6 +471,14 @@ private class ModalBottomSheetWindow(
             )
             // Get the Window token from the parent view
             token = composeView.applicationWindowToken
+
+            // Flags specific to modal bottom sheet.
+            flags = flags and (
+                WindowManager.LayoutParams.FLAG_IGNORE_CHEEK_PRESSES or
+                WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
+            ).inv()
+
+            flags = flags or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         }
 
     private var content: @Composable () -> Unit by mutableStateOf({})
