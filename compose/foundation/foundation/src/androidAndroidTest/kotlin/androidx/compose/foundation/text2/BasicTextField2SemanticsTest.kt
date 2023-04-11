@@ -290,20 +290,6 @@ class BasicTextField2SemanticsTest {
         }
     }
 
-    @Test
-    fun passwordSemanticsAreSet_accordingToSecureContent() {
-        val state = TextFieldState()
-        rule.setContent {
-            BasicTextField2(
-                state = state,
-                secureContent = true,
-                modifier = Modifier.testTag(Tag)
-            )
-        }
-
-        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Password))
-    }
-
     private fun SemanticsNodeInteraction.assertSelection(expected: TextRange) {
         val selection = fetchSemanticsNode().config
             .getOrNull(SemanticsProperties.TextSelectionRange)
