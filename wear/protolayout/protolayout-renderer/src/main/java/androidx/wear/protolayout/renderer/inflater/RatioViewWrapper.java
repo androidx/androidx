@@ -165,7 +165,7 @@ public class RatioViewWrapper extends ViewGroup {
                 // This should have been picked up by the aspect ratio check above...
                 throw new IllegalStateException(
                         "Neither target width nor target height was smaller than measured"
-                            + " width/height");
+                                + " width/height");
             }
         } else if (widthMeasureMode == MeasureSpec.EXACTLY) {
             // Can't change the width, but can change height.

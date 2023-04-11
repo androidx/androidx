@@ -93,8 +93,7 @@ class SizedArcContainer extends ViewGroup implements ArcLayout.Widget {
         this(context, attrs, 0);
     }
 
-    SizedArcContainer(
-            @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    SizedArcContainer(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
     }
 
