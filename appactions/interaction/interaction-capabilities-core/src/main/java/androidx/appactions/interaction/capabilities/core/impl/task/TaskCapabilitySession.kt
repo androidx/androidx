@@ -48,8 +48,12 @@ internal class TaskCapabilitySession<
         get() = sessionOrchestrator.appDialogState
 
     // single-turn capability does not have status
-    override val status: CapabilitySession.Status
-        get() = sessionOrchestrator.status
+    override val isActive: Boolean
+        get() = when (sessionOrchestrator.status) {
+            TaskOrchestrator.Status.COMPLETED,
+            TaskOrchestrator.Status.DESTROYED -> false
+            else -> true
+        }
 
     override fun destroy() {
         // TODO(b/270751989): cancel current processing request immediately

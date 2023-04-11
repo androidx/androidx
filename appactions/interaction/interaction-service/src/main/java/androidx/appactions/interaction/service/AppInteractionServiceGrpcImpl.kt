@@ -225,9 +225,7 @@ internal class AppInteractionServiceGrpcImpl(
                 responseObserver,
             )
         }
-        if (currentSession.status === CapabilitySession.Status.COMPLETED ||
-            currentSession.status === CapabilitySession.Status.DESTROYED
-        ) {
+        if (!currentSession.isActive) {
             return respondWithError(
                 StatusRuntimeException(
                     Status.FAILED_PRECONDITION.withDescription(ERROR_SESSION_ENDED),
@@ -291,7 +289,7 @@ internal class AppInteractionServiceGrpcImpl(
                 responseObserver,
             )
         }
-        if (currentSession.status === CapabilitySession.Status.COMPLETED) {
+        if (!currentSession.isActive) {
             destroySession(req.getSessionIdentifier())
             return respondWithError(
                 StatusRuntimeException(
@@ -364,7 +362,7 @@ internal class AppInteractionServiceGrpcImpl(
                 responseObserver,
             )
         }
-        if (currentSession.status === CapabilitySession.Status.COMPLETED) {
+        if (!currentSession.isActive) {
             destroySession(req.getSessionIdentifier())
             return respondWithError(
                 StatusRuntimeException(

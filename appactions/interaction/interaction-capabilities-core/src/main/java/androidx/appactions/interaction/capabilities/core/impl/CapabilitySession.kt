@@ -58,19 +58,11 @@ interface CapabilitySession {
     val state: AppDialogState
 
     /** The current status of the CapabilitySession. */
-    val status: Status
+    val isActive: Boolean
 
     /**
      * The developer-provided external object (either a BaseExecutionSession instance or an
      * ActionExecutor instance).
      */
     val uiHandle: Any
-
-    /** This enum describes the current status of the CapabilitySession. */
-    enum class Status {
-        UNINITIATED,
-        IN_PROGRESS,
-        COMPLETED,
-        DESTROYED
-    }
 }

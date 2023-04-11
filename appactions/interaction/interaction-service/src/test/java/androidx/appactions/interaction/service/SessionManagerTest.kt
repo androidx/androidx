@@ -44,8 +44,7 @@ class SessionManagerTest {
             override val state: AppActionsContext.AppDialogState
                 get() = AppActionsContext.AppDialogState.getDefaultInstance()
 
-            override val status: CapabilitySession.Status
-                get() = CapabilitySession.Status.IN_PROGRESS
+            override val isActive: Boolean = true
 
             override fun destroy() {}
         }
@@ -64,8 +63,7 @@ class SessionManagerTest {
             override val state: AppActionsContext.AppDialogState
                 get() = AppActionsContext.AppDialogState.getDefaultInstance()
 
-            override val status: CapabilitySession.Status
-                get() = CapabilitySession.Status.IN_PROGRESS
+            override val isActive: Boolean = true
 
             override fun destroy() {}
         }
