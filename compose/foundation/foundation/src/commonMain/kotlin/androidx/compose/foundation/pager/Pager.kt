@@ -28,6 +28,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.foundation.gestures.snapping.MinFlingVelocityDp
 import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
 import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
 import androidx.compose.foundation.layout.PaddingValues
@@ -285,11 +286,17 @@ object PagerDefaults {
      * @param highVelocityAnimationSpec The animation spec used to approach the target offset. When
      * the fling velocity is large enough. Large enough means large enough to naturally decay.
      * @param snapAnimationSpec The animation spec used to finally snap to the position.
+     * @param snapVelocityThreshold The minimum velocity required for a fling to be considered
+     * high enough to make pages animate through [lowVelocityAnimationSpec] and
+     * [highVelocityAnimationSpec].
      *
      * @return An instance of [FlingBehavior] that will perform Snapping to the next page by
      * default. The animation will be governed by the post scroll velocity and we'll use either
      * [lowVelocityAnimationSpec] or [highVelocityAnimationSpec] to approach the snapped position
-     * and the last step of the animation will be performed by [snapAnimationSpec].
+     * and the last step of the animation will be performed by [snapAnimationSpec]. If a velocity
+     * is not high enough (lower than [snapVelocityThreshold]) the pager will use
+     * [snapAnimationSpec] to reach the snapped position. If the velocity is high enough, we'll
+     * use the logic described in [highVelocityAnimationSpec] and [lowVelocityAnimationSpec].
      */
     @Composable
     fun flingBehavior(
@@ -301,6 +308,7 @@ object PagerDefaults {
         ),
         highVelocityAnimationSpec: DecayAnimationSpec<Float> = rememberSplineBasedDecay(),
         snapAnimationSpec: AnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
+        snapVelocityThreshold: Dp = MinFlingVelocityDp
     ): SnapFlingBehavior {
         val density = LocalDensity.current
 
@@ -322,7 +330,8 @@ object PagerDefaults {
                 lowVelocityAnimationSpec = lowVelocityAnimationSpec,
                 highVelocityAnimationSpec = highVelocityAnimationSpec,
                 snapAnimationSpec = snapAnimationSpec,
-                density = density
+                density = density,
+                shortSnapVelocityThreshold = snapVelocityThreshold
             )
         }
     }
