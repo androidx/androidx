@@ -109,9 +109,11 @@ public abstract class TileService extends Service {
      *
      * @param requestParams Parameters about the request. See {@link ResourcesRequest} for more
      *     info.
+     * @deprecated Use {@link #onTileResourcesRequest} instead.
      */
     @MainThread
     @NonNull
+    @Deprecated
     protected ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources> onResourcesRequest(
             @NonNull ResourcesRequest requestParams) {
         return createFailedFuture(
@@ -306,6 +308,7 @@ public abstract class TileService extends Service {
         }
 
         @Override
+        @SuppressWarnings("deprecation") // for backward compatibility
         public void onResourcesRequest(
                 int tileId, ResourcesRequestData requestParams, ResourcesCallback callback) {
             mHandler.post(

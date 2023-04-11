@@ -21,8 +21,6 @@ import android.widget.RemoteViews
 import androidx.appactions.interaction.service.test.R
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.wear.tiles.LayoutElementBuilders
-import androidx.wear.tiles.ResourceBuilders
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -82,22 +80,27 @@ class UiResponseTest {
     }
 
     @Test
+    @Suppress("deprecation") // For backwards compatibility.
     fun uiResponse_tileLayoutBuilder_success() {
         val layout =
-            LayoutElementBuilders.Layout.Builder()
+            androidx.wear.tiles.LayoutElementBuilders.Layout.Builder()
                 .setRoot(
-                    LayoutElementBuilders.Box.Builder()
+                    androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
                         .addContent(
-                            LayoutElementBuilders.Column.Builder()
+                            androidx.wear.tiles.LayoutElementBuilders.Column.Builder()
                                 .addContent(
-                                    LayoutElementBuilders.Text.Builder().setText("LA8JE92").build()
+                                    androidx.wear.tiles.LayoutElementBuilders.Text.Builder()
+                                        .setText("LA8JE92")
+                                        .build()
                                 )
                                 .build()
                         )
                         .build()
                 )
                 .build()
-        val resources = ResourceBuilders.Resources.Builder().setVersion("1234").build()
+        val resources = androidx.wear.tiles.ResourceBuilders.Resources.Builder()
+            .setVersion("1234")
+            .build()
         val uiResponse: UiResponse =
             UiResponse.TileLayoutBuilder().setTileLayout(layout, resources).build()
 
