@@ -156,7 +156,7 @@ internal actual fun getString(string: Strings): String {
             androidx.compose.material3.R.string.m3c_date_range_input_invalid_range_input
         )
         Strings.BottomSheetPaneTitle -> resources.getString(
-            androidx.compose.material3.R.string.bottom_sheet_pane_title
+            androidx.compose.material3.R.string.m3c_bottom_sheet_pane_title
         )
         Strings.BottomSheetDragHandleDescription -> resources.getString(
             androidx.compose.material3.R.string.m3c_bottom_sheet_drag_handle_description
