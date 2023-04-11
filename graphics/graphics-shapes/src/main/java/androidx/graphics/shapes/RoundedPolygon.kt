@@ -78,34 +78,6 @@ class RoundedPolygon {
      * Constructs a RoundedPolygon object from a given list of vertices, with optional
      * corner-rounding parameters for all corners or per-corner.
      *
-     * @param vertices The list of vertices in this polygon. This should be an ordered list
-     * (with the outline of the shape going from each vertex to the next in order of this
-     * list), otherwise the results will be undefined.
-     * @param center An optionally declared center of the polygon. If null or not supplied, this
-     * will be calculated based on the supplied vertices.
-     */
-    constructor(vertices: List<PointF>, center: PointF? = null) :
-        this(vertices, rounding = CornerRounding.Unrounded, perVertexRounding = null, center)
-
-    /**
-     * This constructor takes the number of vertices in the resulting polygon. These vertices are
-     * positioned on a virtual circle around a given center with each vertex positioned [radius]
-     * distance from that center, equally spaced (with equal angles between them).
-     *
-     * @param numVertices The number of vertices in this polygon.
-     * @param radius The radius of the polygon, in pixels. This radius determines the
-     * initial size of the object, which can be resized later by setting
-     * a [transform matrix][transform].
-     * @param center The center of the polygon, around which all vertices will be placed. The
-     * default center is at (0,0).
-     */
-    constructor(numVertices: Int, radius: Float = 1f, center: PointF = PointF(0f, 0f)) :
-        this(numVertices, radius = radius, center = center, rounding = CornerRounding.Unrounded)
-
-    /**
-     * Constructs a RoundedPolygon object from a given list of vertices, with optional
-     * corner-rounding parameters for all corners or per-corner.
-     *
      * A RoundedPolygon without any rounding parameters is equivalent to a [RoundedPolygon] constructed
      * with the same [vertices] and [center].
      *
