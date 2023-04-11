@@ -44,6 +44,7 @@ dependencies {
     implementation(libs.grpcAndroid)
     implementation(libs.grpcBinder)
     implementation(libs.grpcStub)
+    implementation(libs.kotlinCoroutinesCore)
     implementation(libs.kotlinStdlib)
     implementation(libs.jsr250)
 

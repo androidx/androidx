@@ -22,6 +22,7 @@ import android.os.IBinder
 import android.util.Log
 import androidx.annotation.CallSuper
 import androidx.appactions.interaction.capabilities.core.Capability
+import androidx.appactions.interaction.capabilities.core.entity.EntityProvider
 import androidx.appactions.interaction.service.proto.AppInteractionServiceGrpc
 import io.grpc.Server
 import io.grpc.binder.AndroidComponentAddress
@@ -45,6 +46,13 @@ abstract class AppInteractionService : Service() {
      * @return the list of capabilities that this service supports.
      */
     abstract val registeredCapabilities: List<Capability>
+
+    /**
+     * Called by the system once after the Assistant binds to the service.
+     *
+     * @return the list of EntityProvider that this service supports.
+     */
+    abstract val registeredEntityProviders: List<EntityProvider<*>>
 
     /**
      * A list of [AppVerificationInfo] which define who is allowed to interact with the app's bound
