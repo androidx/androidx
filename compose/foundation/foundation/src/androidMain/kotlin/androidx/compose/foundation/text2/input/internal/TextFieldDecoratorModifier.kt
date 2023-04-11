@@ -53,7 +53,6 @@ import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.imeAction
 import androidx.compose.ui.semantics.insertTextAtCursor
 import androidx.compose.ui.semantics.onClick
-import androidx.compose.ui.semantics.password
 import androidx.compose.ui.semantics.performImeAction
 import androidx.compose.ui.semantics.setSelection
 import androidx.compose.ui.semantics.setText
@@ -84,7 +83,6 @@ internal data class TextFieldDecoratorModifier(
     private val keyboardOptions: KeyboardOptions,
     private val keyboardActions: KeyboardActions,
     private val singleLine: Boolean,
-    private val secureContent: Boolean
 ) : ModifierNodeElement<TextFieldDecoratorModifierNode>() {
     override fun create(): TextFieldDecoratorModifierNode = TextFieldDecoratorModifierNode(
         textFieldState = textFieldState,
@@ -96,7 +94,6 @@ internal data class TextFieldDecoratorModifier(
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
         singleLine = singleLine,
-        secureContent = secureContent,
     )
 
     override fun update(node: TextFieldDecoratorModifierNode): TextFieldDecoratorModifierNode {
@@ -110,7 +107,6 @@ internal data class TextFieldDecoratorModifier(
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
             singleLine = singleLine,
-            secureContent = secureContent,
         )
         return node
     }
@@ -132,7 +128,6 @@ internal class TextFieldDecoratorModifierNode(
     keyboardOptions: KeyboardOptions,
     var keyboardActions: KeyboardActions,
     var singleLine: Boolean,
-    var secureContent: Boolean,
 ) : Modifier.Node(),
     SemanticsModifierNode,
     FocusRequesterModifierNode,
@@ -149,7 +144,6 @@ internal class TextFieldDecoratorModifierNode(
     private var lastText: CharSequence? = null
     private var lastSelection: TextRange? = null
     private var lastEnabled: Boolean = enabled
-    private var lastSecureContent: Boolean = secureContent
 
     private var isFocused: Boolean = false
     private var semanticsConfigurationCache: SemanticsConfiguration? = null
@@ -212,7 +206,6 @@ internal class TextFieldDecoratorModifierNode(
         keyboardOptions: KeyboardOptions,
         keyboardActions: KeyboardActions,
         singleLine: Boolean,
-        secureContent: Boolean,
     ) {
         // Find the diff: current previous and new values before updating current.
         val previousWriteable = this.enabled && !this.readOnly
@@ -230,7 +223,6 @@ internal class TextFieldDecoratorModifierNode(
         this.keyboardOptions = keyboardOptions.withDefaultsFrom(filter?.keyboardOptions)
         this.keyboardActions = keyboardActions
         this.singleLine = singleLine
-        this.secureContent = secureContent
 
         // React to diff.
         // If made writable while focused, or we got a completely new state instance,
@@ -269,8 +261,7 @@ internal class TextFieldDecoratorModifierNode(
             if (localSemantics == null ||
                 !value.contentEquals(lastText) ||
                 lastSelection != value.selectionInChars ||
-                lastEnabled != enabled ||
-                lastSecureContent != secureContent
+                lastEnabled != enabled
             ) {
                 localSemantics = generateSemantics(value, value.selectionInChars)
             }
@@ -352,7 +343,6 @@ internal class TextFieldDecoratorModifierNode(
             textSelectionRange = selection
             imeAction = keyboardOptions.imeAction
             if (!enabled) disabled()
-            if (secureContent) password()
 
             setText { text ->
                 textFieldState.editProcessor.update(
