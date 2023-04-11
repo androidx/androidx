@@ -1049,6 +1049,43 @@ class PostponedTransitionTest() {
     }
 
     @Test
+    fun testTimedPostponeTwiceBeforeAttachedNoLeak() {
+        val beginningFragment = PostponedConstructorFragment(100000)
+        beginningFragment.postponeEnterTransition(1, TimeUnit.HOURS)
+        setupContainer(beginningFragment)
+
+        val fm = activityRule.activity.supportFragmentManager
+        val startBlue = activityRule.findBlue()
+
+        val fragment = TransitionFragment()
+        fm.beginTransaction()
+            .addSharedElement(startBlue, "blueSquare")
+            .replace(R.id.fragmentContainer, fragment)
+            .setReorderingAllowed(true)
+            .commit()
+
+        activityRule.waitForExecution()
+    }
+
+    @Test
+    fun testTimedPostponeBeforeAttachedAndAfterAttachedNoLeak() {
+        val beginningFragment = PostponedConstructorAndAttachFragment(100000)
+        setupContainer(beginningFragment)
+
+        val fm = activityRule.activity.supportFragmentManager
+        val startBlue = activityRule.findBlue()
+
+        val fragment = TransitionFragment()
+        fm.beginTransaction()
+            .addSharedElement(startBlue, "blueSquare")
+            .replace(R.id.fragmentContainer, fragment)
+            .setReorderingAllowed(true)
+            .commit()
+
+        activityRule.waitForExecution()
+    }
+
+    @Test
     fun testTimedPostponeStartOnTestThreadNoLeak() {
         val beginningFragment = PostponedFragment3(100000)
         setupContainer(beginningFragment)
@@ -1417,6 +1454,22 @@ class PostponedTransitionTest() {
         override fun startPostponedEnterTransition() {
             super.startPostponedEnterTransition()
             startPostponedCountDownLatch.countDown()
+        }
+    }
+
+    class PostponedConstructorAndAttachFragment(private val duration: Long = 1000) :
+        TransitionFragment(R.layout.scene2) {
+
+        init {
+            postponeEnterTransition(duration, TimeUnit.MILLISECONDS)
+        }
+
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ) = super.onCreateView(inflater, container, savedInstanceState).also {
+            postponeEnterTransition(duration, TimeUnit.MILLISECONDS)
         }
     }
 
