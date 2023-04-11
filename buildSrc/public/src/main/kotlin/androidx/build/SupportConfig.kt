@@ -24,7 +24,8 @@ import java.io.File
 object SupportConfig {
     const val DEFAULT_MIN_SDK_VERSION = 14
     const val INSTRUMENTATION_RUNNER = "androidx.test.runner.AndroidJUnitRunner"
-    const val BUILD_TOOLS_VERSION = "34.0.0-rc3"
+    private const val INTERNAL_BUILD_TOOLS_VERSION = "34.0.0-rc3"
+    private const val PUBLIC_BUILD_TOOLS_VERSION = "33.0.1"
     const val NDK_VERSION = "23.1.7779620"
 
     /**
@@ -47,6 +48,20 @@ object SupportConfig {
      * set to a pre-release version, tests will only be able to run on pre-release devices.
      */
     const val TARGET_SDK_VERSION = 33
+
+    /**
+     * Returns the build tools version that should be used for the project.
+     *
+     * Note that the value might be different between the internal and external (github) builds.
+     */
+    @JvmStatic
+    fun buildToolsVersion(project: Project): String {
+        return if (ProjectLayoutType.isPlayground(project)) {
+            PUBLIC_BUILD_TOOLS_VERSION
+        } else {
+            INTERNAL_BUILD_TOOLS_VERSION
+        }
+    }
 }
 
 fun Project.getExternalProjectPath(): File {

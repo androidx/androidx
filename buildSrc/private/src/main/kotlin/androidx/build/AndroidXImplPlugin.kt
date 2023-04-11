@@ -19,7 +19,6 @@ package androidx.build
 import androidx.benchmark.gradle.BenchmarkPlugin
 import androidx.build.AndroidXImplPlugin.Companion.TASK_TIMEOUT_MINUTES
 import androidx.build.Release.DEFAULT_PUBLISH_CONFIG
-import androidx.build.SupportConfig.BUILD_TOOLS_VERSION
 import androidx.build.SupportConfig.COMPILE_SDK_VERSION
 import androidx.build.SupportConfig.DEFAULT_MIN_SDK_VERSION
 import androidx.build.SupportConfig.INSTRUMENTATION_RUNNER
@@ -591,7 +590,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         }
 
         compileSdkVersion(COMPILE_SDK_VERSION)
-        buildToolsVersion = BUILD_TOOLS_VERSION
+        buildToolsVersion = SupportConfig.buildToolsVersion(project)
         defaultConfig.targetSdk = TARGET_SDK_VERSION
         ndkVersion = SupportConfig.NDK_VERSION
 
