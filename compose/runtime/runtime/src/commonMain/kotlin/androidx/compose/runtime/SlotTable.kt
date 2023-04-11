@@ -2187,7 +2187,11 @@ internal class SlotWriter(
     fun moveFrom(table: SlotTable, index: Int, removeSourceGroup: Boolean = true): List<Anchor> {
         runtimeCheck(insertCount > 0)
 
-        if (index == 0 && currentGroup == 0 && this.table.groupsSize == 0) {
+        if (
+            index == 0 && currentGroup == 0 &&
+            this.table.groupsSize == 0 &&
+            table.groups.groupSize(index) == table.groupsSize
+        ) {
             // Special case for moving the entire slot table into an empty table. This case occurs
             // during initial composition.
             val myGroups = groups
