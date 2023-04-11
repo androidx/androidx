@@ -22,6 +22,7 @@ import android.os.Bundle
 import android.service.credentials.CallingAppInfo
 import androidx.credentials.CreatePublicKeyCredentialRequest
 import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.BUNDLE_KEY_REQUEST_JSON
+import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.BUNDLE_KEY_CLIENT_DATA_HASH
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.internal.FrameworkClassParsingException
 
@@ -37,19 +38,24 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * parameters to actually register a public key.
  *
  * @property requestJson the request json to be used for registering the public key credential
+ * @property clientDataHash a hash that is used to verify the relying party identity, set only if
+ * [android.service.credentials.CallingAppInfo.getOrigin] is set
  *
  * @see BeginCreateCredentialRequest
  *
  * Note : Credential providers are not expected to utilize the constructor in this class for any
  * production flow. This constructor must only be used for testing purposes.
  */
-class BeginCreatePublicKeyCredentialRequest constructor(
+class BeginCreatePublicKeyCredentialRequest @JvmOverloads constructor(
     val requestJson: String,
     callingAppInfo: CallingAppInfo?,
+    val clientDataHash: ByteArray? = null
 ) : BeginCreateCredentialRequest(
     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-    // TODO ("Use custom version of toCandidateData in this class")
-    toCandidateDataBundle(requestJson),
+    toCandidateDataBundle(
+        requestJson,
+        clientDataHash
+    ),
     callingAppInfo
 ) {
     init {
@@ -63,6 +69,7 @@ class BeginCreatePublicKeyCredentialRequest constructor(
         @JvmStatic
         internal fun toCandidateDataBundle(
             requestJson: String,
+            clientDataHash: ByteArray?
         ): Bundle {
             val bundle = Bundle()
             bundle.putString(
@@ -71,6 +78,7 @@ class BeginCreatePublicKeyCredentialRequest constructor(
                     .BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST
             )
             bundle.putString(BUNDLE_KEY_REQUEST_JSON, requestJson)
+            bundle.putByteArray(BUNDLE_KEY_CLIENT_DATA_HASH, clientDataHash)
             return bundle
         }
 
@@ -80,7 +88,10 @@ class BeginCreatePublicKeyCredentialRequest constructor(
             BeginCreatePublicKeyCredentialRequest {
             try {
                 val requestJson = data.getString(BUNDLE_KEY_REQUEST_JSON)
-                return BeginCreatePublicKeyCredentialRequest(requestJson!!, callingAppInfo)
+                val clientDataHash = data.getByteArray(BUNDLE_KEY_CLIENT_DATA_HASH)
+
+                return BeginCreatePublicKeyCredentialRequest(requestJson!!,
+                    callingAppInfo, clientDataHash)
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()
             }
