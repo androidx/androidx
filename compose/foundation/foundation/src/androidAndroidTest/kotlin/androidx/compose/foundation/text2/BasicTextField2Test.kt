@@ -75,6 +75,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Ignore
@@ -874,6 +875,7 @@ internal class BasicTextField2Test {
         }
     }
 
+    @SdkSuppress(minSdkVersion = 23)
     @Test
     fun textField_showsKeyboardAgainWhenTapped_ifFocused() {
         val keyboardHelper = KeyboardHelper(rule)
