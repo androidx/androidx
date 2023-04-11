@@ -20,6 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldBufferWithSelection
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,12 +44,16 @@ internal class EditProcessor(
     initialValue: TextFieldCharSequence = TextFieldCharSequence("", TextRange.Zero),
 ) {
 
+    private val valueMutableState = mutableStateOf(initialValue)
+
     /**
      * The current state of the internal editing buffer as a [TextFieldCharSequence] backed by
      * snapshot state, so its readers can get updates in composition context.
      */
-    var value: TextFieldCharSequence by mutableStateOf(initialValue)
+    var value: TextFieldCharSequence by valueMutableState
         private set
+
+    val valueState: State<TextFieldCharSequence> get() = valueMutableState
 
     // The editing buffer used for applying editor commands from IME.
     internal var mBuffer: EditingBuffer = EditingBuffer(
