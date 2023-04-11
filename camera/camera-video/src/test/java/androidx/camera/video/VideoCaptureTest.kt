@@ -19,6 +19,7 @@
 package androidx.camera.video
 
 import android.content.Context
+import android.graphics.Matrix
 import android.graphics.Rect
 import android.media.CamcorderProfile.QUALITY_1080P
 import android.media.CamcorderProfile.QUALITY_2160P
@@ -1270,6 +1271,45 @@ class VideoCaptureTest {
         )
     }
 
+    @Test
+    fun adjustCropRectAndRotation_withInProgressTransformationInfo() {
+        // Arrange.
+        val targetCropRect = Rect(0, 0, 1024, 768)
+        val targetRotationDegrees = 90
+        val sourceCropRect = Rect(0, 0, 1920, 1080)
+        val sourceRotationDegrees = 270
+        var surfaceRequest: SurfaceRequest? = null
+        val videoOutput =
+            createVideoOutput(surfaceRequestListener = { request, _ -> surfaceRequest = request })
+        val videoCapture = createVideoCapture(
+            videoOutput = videoOutput
+        )
+        setupCamera(sensorRotation = sourceRotationDegrees)
+        createCameraUseCaseAdapter()
+        videoOutput.updateStreamInfo(StreamInfo.of(
+            StreamInfo.STREAM_ID_ANY,
+            StreamState.INACTIVE,
+            SurfaceRequest.TransformationInfo.of(
+                targetCropRect,
+                targetRotationDegrees,
+                0,
+                false,
+                Matrix()
+            )
+        ))
+        videoCapture.setViewPortCropRect(sourceCropRect)
+
+        // Act.
+        addAndAttachUseCases(videoCapture)
+
+        // Assert.
+        assertThat(surfaceRequest).isNotNull()
+        assertThat(surfaceRequest!!.resolution).isEqualTo(rectToSize(targetCropRect))
+        assertThat(videoCapture.cropRect).isEqualTo(targetCropRect)
+        assertThat(videoCapture.rotationDegrees)
+            .isEqualTo(sourceRotationDegrees - targetRotationDegrees)
+    }
+
     private fun testAdjustCropRectToValidSize(
         quality: Quality = HD, // HD maps to 1280x720 (4:3)
         videoEncoderInfo: VideoEncoderInfo = createVideoEncoderInfo(),
@@ -1429,6 +1469,10 @@ class VideoCaptureTest {
 
         override fun getMediaCapabilities(cameraInfo: CameraInfo): VideoCapabilities {
             return videoCapabilities
+        }
+
+        fun updateStreamInfo(streamInfo: StreamInfo) {
+            streamInfoObservable.setState(streamInfo)
         }
     }
 
