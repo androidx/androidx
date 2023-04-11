@@ -45,6 +45,8 @@ import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.DynamicRange
+import androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT
+import androidx.camera.core.DynamicRange.FORMAT_HLG
 import androidx.camera.core.MirrorMode.MIRROR_MODE_OFF
 import androidx.camera.core.MirrorMode.MIRROR_MODE_ON
 import androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY
@@ -764,6 +766,20 @@ class VideoCaptureTest {
     }
 
     @Test
+    fun defaultDynamicRangeIsSdr() {
+        val videoCapture = createVideoCapture()
+        assertThat(videoCapture.dynamicRange).isEqualTo(DynamicRange.SDR)
+    }
+
+    @Test
+    fun canSetDynamicRange() {
+        val videoCapture = createVideoCapture(
+            dynamicRange = DynamicRange.HDR_UNSPECIFIED_10_BIT
+        )
+        assertThat(videoCapture.dynamicRange).isEqualTo(DynamicRange.HDR_UNSPECIFIED_10_BIT)
+    }
+
+    @Test
     fun defaultMirrorModeIsOff() {
         val videoCapture = createVideoCapture()
         assertThat(videoCapture.mirrorMode).isEqualTo(MIRROR_MODE_OFF)
@@ -1034,6 +1050,16 @@ class VideoCaptureTest {
         )
     }
 
+    @Test
+    fun suggestedStreamSpecDynamicRange_isPropagatedToSurfaceRequest() {
+        // This ensures the dynamic range set on the VideoCapture.Builder is not just directly
+        // propagated to the SurfaceRequest. It should come from the StreamSpec.
+        testSurfaceRequestContainsExpected(
+            requestedDynamicRange = DynamicRange.HDR_UNSPECIFIED_10_BIT,
+            expectedDynamicRange = DynamicRange(FORMAT_HLG, BIT_DEPTH_10_BIT)
+        )
+    }
+
     private fun testSetTargetRotation_transformationInfoUpdated(
         lensFacing: Int = LENS_FACING_BACK,
         sensorRotationDegrees: Int = 0,
@@ -1273,14 +1299,17 @@ class VideoCaptureTest {
         cropRect: Rect? = null,
         expectedCropRect: Rect? = null,
         targetFrameRate: Range<Int>? = null,
-        expectedFrameRate: Range<Int> = SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
+        expectedFrameRate: Range<Int> = SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED,
+        requestedDynamicRange: DynamicRange? = null,
+        expectedDynamicRange: DynamicRange? = null
     ) {
         // Arrange.
         setupCamera()
         createCameraUseCaseAdapter()
         setSuggestedStreamSpec(
             quality,
-            expectedFrameRate = expectedFrameRate
+            expectedFrameRate = expectedFrameRate,
+            dynamicRange = expectedDynamicRange
         )
         var surfaceRequest: SurfaceRequest? = null
         val videoOutput = createVideoOutput(
@@ -1292,7 +1321,8 @@ class VideoCaptureTest {
         val videoCapture = createVideoCapture(
             videoOutput,
             videoEncoderInfoFinder = { videoEncoderInfo },
-            targetFrameRate = targetFrameRate
+            targetFrameRate = targetFrameRate,
+            dynamicRange = requestedDynamicRange
         )
 
         cropRect?.let {
@@ -1312,6 +1342,10 @@ class VideoCaptureTest {
 
         if (expectedFrameRate != StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED) {
             assertThat(surfaceRequest!!.expectedFrameRate).isEqualTo(expectedFrameRate)
+        }
+
+        expectedDynamicRange?.let {
+            assertThat(surfaceRequest!!.dynamicRange).isEqualTo(expectedDynamicRange)
         }
     }
 
@@ -1410,6 +1444,7 @@ class VideoCaptureTest {
         mirrorMode: Int? = null,
         targetResolution: Size? = null,
         targetFrameRate: Range<Int>? = null,
+        dynamicRange: DynamicRange? = null,
         videoEncoderInfoFinder: Function<VideoEncoderConfig, VideoEncoderInfo> =
             Function { createVideoEncoderInfo() },
     ): VideoCapture<VideoOutput> = VideoCapture.Builder(videoOutput)
@@ -1419,6 +1454,7 @@ class VideoCaptureTest {
             mirrorMode?.let { setMirrorMode(it) }
             targetResolution?.let { setTargetResolution(it) }
             targetFrameRate?.let { setTargetFrameRate(it) }
+            dynamicRange?.let { setDynamicRange(it) }
             setVideoEncoderInfoFinder(videoEncoderInfoFinder)
         }.build()
 
@@ -1445,11 +1481,14 @@ class VideoCaptureTest {
 
     private fun setSuggestedStreamSpec(
         quality: Quality,
-        expectedFrameRate: Range<Int> = StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED
+        expectedFrameRate: Range<Int> = StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED,
+        dynamicRange: DynamicRange? = null
     ) {
         setSuggestedStreamSpec(
-            StreamSpec.builder(CAMERA_0_QUALITY_SIZE[quality]!!)
-                .setExpectedFrameRateRange(expectedFrameRate).build()
+            StreamSpec.builder(CAMERA_0_QUALITY_SIZE[quality]!!).apply {
+                setExpectedFrameRateRange(expectedFrameRate)
+                dynamicRange?.let { setDynamicRange(dynamicRange) }
+            }.build()
         )
     }
 

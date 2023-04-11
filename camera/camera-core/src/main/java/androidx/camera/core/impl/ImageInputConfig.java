@@ -64,4 +64,34 @@ public interface ImageInputConfig extends ReadableConfig {
                 DynamicRange.UNSPECIFIED));
     }
 
+    /**
+     * Returns whether a dynamic range was set on this config.
+     *
+     * <p>This method can be used to determine whether a dynamic range has been set to override
+     * the default {@link DynamicRange#UNSPECIFIED}.
+     */
+    default boolean hasDynamicRange() {
+        return containsOption(OPTION_INPUT_DYNAMIC_RANGE);
+    }
+
+    /**
+     * Builder for a {@link ImageInputConfig}.
+     *
+     * @param <B> The top level builder type for which this builder is composed with.
+     */
+    interface Builder<B> {
+        /**
+         * Sets the dynamic range required for images from this configuration.
+         *
+         * <p>Valid values depend on the specific configuration. The default behavior when not
+         * set is to automatically choose a dynamic range based on device capabilities and the
+         * dynamic range requested by other use cases, but use cases should override that
+         * behavior if needed.
+         *
+         * @param dynamicRange The dynamic range required for this configuration.
+         * @return The current Builder.
+         */
+        @NonNull
+        B setDynamicRange(@NonNull DynamicRange dynamicRange);
+    }
 }
