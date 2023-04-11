@@ -23,9 +23,9 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.KeyboardHelper
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldBuffer.ChangeList
 import androidx.compose.foundation.text2.input.TextFieldBufferWithSelection
-import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.AndroidTextInputAdapter
@@ -863,6 +863,35 @@ internal class BasicTextField2Test {
             assertThat(editorInfo.inputType and InputType.TYPE_NUMBER_FLAG_DECIMAL)
                 .isNotEqualTo(0)
         }
+    }
+
+    @Test
+    fun textField_showsKeyboardAgainWhenTapped_ifFocused() {
+        val keyboardHelper = KeyboardHelper(rule)
+        rule.setContent {
+            keyboardHelper.initialize()
+            BasicTextField2(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(Tag)
+            )
+        }
+
+        // make sure keyboard is hidden initially
+        keyboardHelper.hideKeyboardIfShown()
+
+        // click the first time to gain focus.
+        rule.onNodeWithTag(Tag).performClick()
+        keyboardHelper.waitForKeyboardVisibility(true)
+        assertThat(keyboardHelper.isSoftwareKeyboardShown()).isTrue()
+
+        // hide it again.
+        keyboardHelper.hideKeyboardIfShown()
+        rule.onNodeWithTag(Tag).assertIsFocused()
+        rule.onNodeWithTag(Tag).performClick()
+
+        // expect keyboard to show up again.
+        keyboardHelper.waitForKeyboardVisibility(true)
+        assertThat(keyboardHelper.isSoftwareKeyboardShown()).isTrue()
     }
 
     private fun requestFocus(tag: String) =

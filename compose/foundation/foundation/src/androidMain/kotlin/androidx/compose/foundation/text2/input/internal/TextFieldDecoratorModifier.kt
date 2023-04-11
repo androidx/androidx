@@ -303,7 +303,11 @@ internal class TextFieldDecoratorModifierNode(
         bounds: IntSize
     ) {
         if (pass == PointerEventPass.Main && pointerEvent.changes.fastAny { it.changedToDown() }) {
-            requestFocus()
+            if (!isFocused) {
+                requestFocus()
+            } else if (enabled && !readOnly) {
+                textInputSession?.showSoftwareKeyboard()
+            }
         }
     }
 
