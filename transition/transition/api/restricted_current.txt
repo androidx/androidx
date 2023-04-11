@@ -172,6 +172,7 @@ package androidx.transition {
     method public String getName();
     method public androidx.transition.PathMotion getPathMotion();
     method public androidx.transition.TransitionPropagation? getPropagation();
+    method public final androidx.transition.Transition getRootTransition();
     method public long getStartDelay();
     method public java.util.List<java.lang.Integer!> getTargetIds();
     method public java.util.List<java.lang.String!>? getTargetNames();
@@ -179,6 +180,7 @@ package androidx.transition {
     method public java.util.List<android.view.View!> getTargets();
     method public String![]? getTransitionProperties();
     method public androidx.transition.TransitionValues? getTransitionValues(android.view.View, boolean);
+    method public boolean isSeekingSupported();
     method public boolean isTransitionRequired(androidx.transition.TransitionValues?, androidx.transition.TransitionValues?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void pause(android.view.View?);
     method public androidx.transition.Transition removeListener(androidx.transition.Transition.TransitionListener);
@@ -237,6 +239,7 @@ package androidx.transition {
     ctor public TransitionManager();
     method public static void beginDelayedTransition(android.view.ViewGroup);
     method public static void beginDelayedTransition(android.view.ViewGroup, androidx.transition.Transition?);
+    method public static androidx.transition.TransitionSeekController? controlDelayedTransition(android.view.ViewGroup, androidx.transition.Transition);
     method public static void endTransitions(android.view.ViewGroup?);
     method public static void go(androidx.transition.Scene);
     method public static void go(androidx.transition.Scene, androidx.transition.Transition?);
@@ -250,6 +253,17 @@ package androidx.transition {
     method public abstract void captureValues(androidx.transition.TransitionValues);
     method public abstract String![]? getPropagationProperties();
     method public abstract long getStartDelay(android.view.ViewGroup, androidx.transition.Transition, androidx.transition.TransitionValues?, androidx.transition.TransitionValues?);
+  }
+
+  public interface TransitionSeekController {
+    method public void addOnReadyListener(androidx.core.util.Consumer<androidx.transition.TransitionSeekController!>);
+    method public void animateToEnd();
+    method public void animateToStart();
+    method public long getCurrentPlayTimeMillis();
+    method public long getDurationMillis();
+    method public boolean isReady();
+    method public void removeOnReadyListener(androidx.core.util.Consumer<androidx.transition.TransitionSeekController!>);
+    method public void setCurrentPlayTimeMillis(long);
   }
 
   public class TransitionSet extends androidx.transition.Transition {

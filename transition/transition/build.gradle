@@ -8,7 +8,7 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.2.0")
-    api("androidx.core:core:1.1.0")
+    api(project(":core:core"))
     implementation("androidx.collection:collection:1.1.0")
     compileOnly("androidx.fragment:fragment:1.2.5")
     compileOnly("androidx.appcompat:appcompat:1.0.1")
@@ -22,6 +22,7 @@ dependencies {
     androidTestImplementation(libs.espressoCore, excludes.espresso)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.opentest4j)
     androidTestImplementation(project(":fragment:fragment"))
     androidTestImplementation("androidx.appcompat:appcompat:1.1.0")
     androidTestImplementation(project(":internal-testutils-runtime"), {

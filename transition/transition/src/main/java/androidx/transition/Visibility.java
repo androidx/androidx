@@ -436,31 +436,13 @@ public abstract class Visibility extends Transition {
                     ViewGroupUtils.getOverlay(sceneRoot).remove(overlayView);
                 } else {
                     startView.setTag(R.id.save_overlay_view, overlayView);
-                    final View finalOverlayView = overlayView;
-                    final ViewGroup overlayHost = sceneRoot;
-                    addListener(new TransitionListenerAdapter() {
 
-                        @Override
-                        public void onTransitionPause(@NonNull Transition transition) {
-                            ViewGroupUtils.getOverlay(overlayHost).remove(finalOverlayView);
-                        }
+                    OverlayListener listener = new OverlayListener(sceneRoot, overlayView,
+                            startView);
 
-                        @Override
-                        public void onTransitionResume(@NonNull Transition transition) {
-                            if (finalOverlayView.getParent() == null) {
-                                ViewGroupUtils.getOverlay(overlayHost).add(finalOverlayView);
-                            } else {
-                                cancel();
-                            }
-                        }
-
-                        @Override
-                        public void onTransitionEnd(@NonNull Transition transition) {
-                            startView.setTag(R.id.save_overlay_view, null);
-                            ViewGroupUtils.getOverlay(overlayHost).remove(finalOverlayView);
-                            transition.removeListener(this);
-                        }
-                    });
+                    animator.addListener(listener);
+                    AnimatorUtils.addPauseListener(animator, listener);
+                    getRootTransition().addListener(listener);
                 }
             }
             return animator;
@@ -475,7 +457,7 @@ public abstract class Visibility extends Transition {
                         endVisibility, true);
                 animator.addListener(disappearListener);
                 AnimatorUtils.addPauseListener(animator, disappearListener);
-                addListener(disappearListener);
+                getRootTransition().addListener(disappearListener);
             } else {
                 ViewUtils.setTransitionVisibility(viewToKeep, originalVisibility);
             }
@@ -581,13 +563,29 @@ public abstract class Visibility extends Transition {
         }
 
         @Override
+        public void onAnimationStart(@NonNull Animator animation, boolean isReverse) {
+            if (isReverse) {
+                ViewUtils.setTransitionVisibility(mView, View.VISIBLE);
+                if (mParent != null) {
+                    mParent.invalidate();
+                }
+            }
+        }
+
+        @Override
+        public void onAnimationEnd(@NonNull Animator animation, boolean isReverse) {
+            if (!isReverse) {
+                hideViewWhenNotCanceled();
+            }
+        }
+
+        @Override
         public void onTransitionStart(@NonNull Transition transition) {
             // Do nothing
         }
 
         @Override
         public void onTransitionEnd(@NonNull Transition transition) {
-            hideViewWhenNotCanceled();
             transition.removeListener(this);
         }
 
@@ -622,6 +620,84 @@ public abstract class Visibility extends Transition {
                 mLayoutSuppressed = suppress;
                 ViewGroupUtils.suppressLayout(mParent, suppress);
             }
+        }
+    }
+
+    private class OverlayListener extends AnimatorListenerAdapter implements TransitionListener {
+        private final ViewGroup mOverlayHost;
+        private final View mOverlayView;
+        private final View mStartView;
+        private boolean mHasOverlay = true;
+
+        OverlayListener(ViewGroup overlayHost, View overlayView, View startView) {
+            mOverlayHost = overlayHost;
+            mOverlayView = overlayView;
+            mStartView = startView;
+        }
+
+        @Override
+        public void onAnimationPause(Animator animation) {
+            ViewGroupUtils.getOverlay(mOverlayHost).remove(mOverlayView);
+        }
+
+        @Override
+        public void onAnimationResume(Animator animation) {
+            if (mOverlayView.getParent() == null) {
+                ViewGroupUtils.getOverlay(mOverlayHost).add(mOverlayView);
+            } else {
+                cancel();
+            }
+        }
+
+        @Override
+        public void onAnimationStart(@NonNull Animator animation, boolean isReverse) {
+            if (isReverse) {
+                mStartView.setTag(R.id.save_overlay_view, mOverlayView);
+                ViewGroupUtils.getOverlay(mOverlayHost).add(mOverlayView);
+                mHasOverlay = true;
+            }
+        }
+
+        @Override
+        public void onAnimationEnd(Animator animation) {
+            removeFromOverlay();
+        }
+
+        @Override
+        public void onAnimationEnd(@NonNull Animator animation, boolean isReverse) {
+            if (!isReverse) {
+                removeFromOverlay();
+            }
+        }
+
+        @Override
+        public void onTransitionEnd(@NonNull Transition transition) {
+            transition.removeListener(this);
+        }
+
+        @Override
+        public void onTransitionStart(@NonNull Transition transition) {
+        }
+
+        @Override
+        public void onTransitionPause(@NonNull Transition transition) {
+        }
+
+        @Override
+        public void onTransitionResume(@NonNull Transition transition) {
+        }
+
+        @Override
+        public void onTransitionCancel(@NonNull Transition transition) {
+            if (mHasOverlay) {
+                removeFromOverlay();
+            }
+        }
+
+        private void removeFromOverlay() {
+            mStartView.setTag(R.id.save_overlay_view, null);
+            ViewGroupUtils.getOverlay(mOverlayHost).remove(mOverlayView);
+            mHasOverlay = false;
         }
     }
 }

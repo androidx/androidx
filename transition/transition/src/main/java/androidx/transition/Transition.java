@@ -20,13 +20,16 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
 import android.animation.TimeInterpolator;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
 import android.graphics.Path;
 import android.graphics.Rect;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -40,14 +43,19 @@ import android.view.animation.AnimationUtils;
 import android.widget.ListView;
 import android.widget.Spinner;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 import androidx.collection.LongSparseArray;
 import androidx.core.content.res.TypedArrayUtils;
+import androidx.core.os.BuildCompat;
+import androidx.core.util.Consumer;
 import androidx.core.view.ViewCompat;
 
 import java.lang.annotation.Retention;
@@ -200,6 +208,7 @@ public abstract class Transition implements Cloneable {
     private int[] mMatchOrder = DEFAULT_MATCH_ORDER;
     private ArrayList<TransitionValues> mStartValuesList; // only valid after playTransition starts
     private ArrayList<TransitionValues> mEndValuesList; // only valid after playTransitions starts
+    private TransitionListener[] mListenersCache;
 
     // Per-animator information used for later canceling when future transitions overlap
     private static ThreadLocal<ArrayMap<Animator, Transition.AnimationInfo>> sRunningAnimators =
@@ -220,21 +229,21 @@ public abstract class Transition implements Cloneable {
 
     // Number of per-target instances of this Transition currently running. This count is
     // determined by calls to start() and end()
-    private int mNumInstances = 0;
+    int mNumInstances = 0;
 
     // Whether this transition is currently paused, due to a call to pause()
     private boolean mPaused = false;
 
     // Whether this transition has ended. Used to avoid pause/resume on transitions
     // that have completed
-    private boolean mEnded = false;
+    boolean mEnded = false;
 
     // The set of listeners to be sent transition lifecycle events.
     private ArrayList<Transition.TransitionListener> mListeners = null;
 
     // The set of animators collected from calls to createAnimator(),
     // to be run in runAnimators()
-    private ArrayList<Animator> mAnimators = new ArrayList<>();
+    ArrayList<Animator> mAnimators = new ArrayList<>();
 
     // The function for calculating the Animation start delay.
     TransitionPropagation mPropagation;
@@ -250,6 +259,18 @@ public abstract class Transition implements Cloneable {
     // The function used to interpolate along two-dimensional points. Typically used
     // for adding curves to x/y View motion.
     private PathMotion mPathMotion = STRAIGHT_PATH_MOTION;
+
+    // The total duration of this Transition, in milliseconds. This is used only if
+    // TransitionManager.controlDelayedTransition() is called to begin a seekable Transition.
+    long mTotalDuration;
+
+    // The SeekController created in TransitionManager.controlDelayedTransition() on the
+    // root TransitionSet.
+    SeekController mSeekController;
+
+    // For Transitions in a TransitionSet that are played sequentially, this is the offset
+    // (in milliseconds) from the start of the containing TransitionSet of this Transition
+    long mSeekOffsetInParent;
 
     /**
      * Constructs a Transition object with no target objects. A transition with
@@ -325,6 +346,19 @@ public abstract class Transition implements Cloneable {
             index++;
         }
         return matches;
+    }
+
+    /**
+     * If this Transition is not part of a TransitionSet, this is returned. If it is part
+     * of a TransitionSet, the parent TransitionSets are walked until a TransitionSet is found
+     * that isn't contained in another TransitionSet.
+     */
+    @NonNull
+    public final Transition getRootTransition() {
+        if (mParent != null) {
+            return mParent.getRootTransition();
+        }
+        return this;
     }
 
     /**
@@ -484,6 +518,20 @@ public abstract class Transition implements Cloneable {
     public Animator createAnimator(@NonNull ViewGroup sceneRoot,
             @Nullable TransitionValues startValues, @Nullable TransitionValues endValues) {
         return null;
+    }
+
+    /**
+     * Creates and returns a new TransitionSeekController, tied it to this Transition.
+     * This should only be called once on the cloned transition for controlling the
+     * Transition's progress. The Transition will begin without starting any of the
+     * animations.
+     */
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @NonNull
+    TransitionSeekController createSeekController() {
+        mSeekController = new SeekController();
+        addListener(mSeekController);
+        return mSeekController;
     }
 
     /**
@@ -664,6 +712,7 @@ public abstract class Transition implements Cloneable {
         ArrayMap<View, TransitionValues> unmatchedStart = new ArrayMap<>(startValues.mViewValues);
         ArrayMap<View, TransitionValues> unmatchedEnd = new ArrayMap<>(endValues.mViewValues);
 
+        //noinspection ForLoopReplaceableByForEach
         for (int i = 0; i < mMatchOrder.length; i++) {
             switch (mMatchOrder[i]) {
                 case MATCH_INSTANCE:
@@ -695,6 +744,7 @@ public abstract class Transition implements Cloneable {
      * TransitionSet subclass overrides this method and delegates it to
      * each of its children in succession.
      */
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     void createAnimators(@NonNull ViewGroup sceneRoot, @NonNull TransitionValuesMaps startValues,
             @NonNull TransitionValuesMaps endValues,
             @NonNull ArrayList<TransitionValues> startValuesList,
@@ -706,6 +756,7 @@ public abstract class Transition implements Cloneable {
         long minStartDelay = Long.MAX_VALUE;
         SparseIntArray startDelays = new SparseIntArray();
         int startValuesListCount = startValuesList.size();
+        boolean hasSeekController = getRootTransition().mSeekController != null;
         for (int i = 0; i < startValuesListCount; ++i) {
             TransitionValues start = startValuesList.get(i);
             TransitionValues end = endValuesList.get(i);
@@ -780,7 +831,12 @@ public abstract class Transition implements Cloneable {
                             minStartDelay = Math.min(delay, minStartDelay);
                         }
                         AnimationInfo info = new AnimationInfo(view, getName(), this,
-                                ViewUtils.getWindowId(sceneRoot), infoValues);
+                                ViewUtils.getWindowId(sceneRoot), infoValues, animator);
+                        if (hasSeekController) {
+                            AnimatorSet set = new AnimatorSet();
+                            set.play(animator);
+                            animator = set;
+                        }
                         runningAnimators.put(animator, info);
                         mAnimators.add(animator);
                     }
@@ -791,8 +847,10 @@ public abstract class Transition implements Cloneable {
             for (int i = 0; i < startDelays.size(); i++) {
                 int index = startDelays.keyAt(i);
                 Animator animator = mAnimators.get(index);
-                long delay = startDelays.valueAt(i) - minStartDelay + animator.getStartDelay();
-                animator.setStartDelay(delay);
+                AnimationInfo info = runningAnimators.get(animator);
+                long delay = startDelays.valueAt(i) - minStartDelay
+                        + info.mAnimator.getStartDelay();
+                info.mAnimator.setStartDelay(delay);
             }
         }
     }
@@ -801,7 +859,7 @@ public abstract class Transition implements Cloneable {
      * Internal utility method for checking whether a given view/id
      * is valid for this transition, where "valid" means that either
      * the Transition has no target/targetId list (the default, in which
-     * cause the transition should act on all views in the hiearchy), or
+     * cause the transition should act on all views in the hierarchy), or
      * the given view is in the target list or the view id is in the
      * targetId list. If the target parameter is null, then the target list
      * is not checked (this is in the case of ListView items, where the
@@ -861,7 +919,7 @@ public abstract class Transition implements Cloneable {
 
     /**
      * This is called internally once all animations have been set up by the
-     * transition hierarchy. \
+     * transition hierarchy.
      *
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -903,6 +961,42 @@ public abstract class Transition implements Cloneable {
             });
             animate(animator);
         }
+    }
+
+    /**
+     * Configures the animators to be ready for animation.
+     *
+     * The animators' start delay, duration, and interpolator are set based on the Transition's
+     * values. The duration is calculated. It also adds the animators to mCurrentAnimators so that
+     * each animator can support seeking.
+     */
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    void prepareAnimatorsForSeeking() {
+        ArrayMap<Animator, AnimationInfo> runningAnimators = getRunningAnimators();
+        // Now prepare every Animator that was previously created for this transition
+        mTotalDuration = 0;
+        for (int i = 0; i < mAnimators.size(); i++) {
+            Animator anim = mAnimators.get(i);
+            if (DBG) {
+                Log.d(LOG_TAG, "  anim: " + anim);
+            }
+            AnimationInfo info = runningAnimators.get(anim);
+            if (anim != null && info != null) {
+                if (getDuration() >= 0) {
+                    info.mAnimator.setDuration(getDuration());
+                }
+                if (getStartDelay() >= 0) {
+                    info.mAnimator.setStartDelay(
+                            getStartDelay() + info.mAnimator.getStartDelay());
+                }
+                if (getInterpolator() != null) {
+                    info.mAnimator.setInterpolator(getInterpolator());
+                }
+                mCurrentAnimators.add(anim);
+                mTotalDuration = Math.max(mTotalDuration, Impl26.getTotalDuration(anim));
+            }
+        }
+        mAnimators.clear();
     }
 
     /**
@@ -1454,6 +1548,20 @@ public abstract class Transition implements Cloneable {
     }
 
     /**
+     * Returns {@code true} if the Transition can be used by
+     * {@link TransitionManager#controlDelayedTransition(ViewGroup, Transition)}. This means
+     * that any the state must be ready before any {@link Animator} returned by
+     * {@link #createAnimator(ViewGroup, TransitionValues, TransitionValues)} has started and
+     * if the Animator has ended, it must be able to restore the state when starting in reverse.
+     * If a Transition must know when the entire transition has ended, a {@link TransitionListener}
+     * can be added to {@link #getRootTransition()} and it can listen for
+     * {@link TransitionListener#onTransitionEnd(Transition)}.
+     */
+    public boolean isSeekingSupported() {
+        return false;
+    }
+
+    /**
      * Recursive method that captures values for the given view and the
      * hierarchy underneath it.
      *
@@ -1715,14 +1823,7 @@ public abstract class Transition implements Cloneable {
                 Animator animator = mCurrentAnimators.get(i);
                 AnimatorUtils.pause(animator);
             }
-            if (mListeners != null && mListeners.size() > 0) {
-                @SuppressWarnings("unchecked") ArrayList<TransitionListener> tmpListeners =
-                        (ArrayList<TransitionListener>) mListeners.clone();
-                int numListeners = tmpListeners.size();
-                for (int i = 0; i < numListeners; ++i) {
-                    tmpListeners.get(i).onTransitionPause(this);
-                }
-            }
+            notifyListeners(TransitionNotification.ON_PAUSE);
             mPaused = true;
         }
     }
@@ -1742,14 +1843,7 @@ public abstract class Transition implements Cloneable {
                     Animator animator = mCurrentAnimators.get(i);
                     AnimatorUtils.resume(animator);
                 }
-                if (mListeners != null && mListeners.size() > 0) {
-                    @SuppressWarnings("unchecked") ArrayList<TransitionListener> tmpListeners =
-                            (ArrayList<TransitionListener>) mListeners.clone();
-                    int numListeners = tmpListeners.size();
-                    for (int i = 0; i < numListeners; ++i) {
-                        tmpListeners.get(i).onTransitionResume(this);
-                    }
-                }
+                notifyListeners(TransitionNotification.ON_RESUME);
             }
             mPaused = false;
         }
@@ -1760,6 +1854,7 @@ public abstract class Transition implements Cloneable {
      * createAnimators() to set things up and create all of the animations and then
      * runAnimations() to actually start the animations.
      */
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     void playTransition(@NonNull ViewGroup sceneRoot) {
         mStartValuesList = new ArrayList<>();
         mEndValuesList = new ArrayList<>();
@@ -1784,7 +1879,21 @@ public abstract class Transition implements Cloneable {
                     boolean cancel = (startValues != null || endValues != null)
                             && oldInfo.mTransition.isTransitionRequired(oldValues, endValues);
                     if (cancel) {
-                        if (anim.isRunning() || anim.isStarted()) {
+                        Transition transition = oldInfo.mTransition;
+                        if (transition.getRootTransition().mSeekController != null) {
+                            // Seeking, so cancel the transition directly rather than going through
+                            // a listener
+                            anim.cancel();
+                            transition.mCurrentAnimators.remove(anim);
+                            runningAnimators.remove(anim);
+                            if (transition.mCurrentAnimators.size() == 0) {
+                                transition.notifyListeners(TransitionNotification.ON_CANCEL);
+                                if (!transition.mEnded) {
+                                    transition.mEnded = true;
+                                    transition.notifyListeners(TransitionNotification.ON_END);
+                                }
+                            }
+                        } else if (anim.isRunning() || anim.isStarted()) {
                             if (DBG) {
                                 Log.d(LOG_TAG, "Canceling anim " + anim);
                             }
@@ -1801,7 +1910,13 @@ public abstract class Transition implements Cloneable {
         }
 
         createAnimators(sceneRoot, mStartValues, mEndValues, mStartValuesList, mEndValuesList);
-        runAnimators();
+        if (mSeekController == null) {
+            runAnimators();
+        } else if (BuildCompat.isAtLeastU()) {
+            prepareAnimatorsForSeeking();
+            mSeekController.setCurrentPlayTimeMillis(0);
+            mSeekController.ready();
+        }
     }
 
     /**
@@ -1909,14 +2024,7 @@ public abstract class Transition implements Cloneable {
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     protected void start() {
         if (mNumInstances == 0) {
-            if (mListeners != null && mListeners.size() > 0) {
-                @SuppressWarnings("unchecked") ArrayList<TransitionListener> tmpListeners =
-                        (ArrayList<TransitionListener>) mListeners.clone();
-                int numListeners = tmpListeners.size();
-                for (int i = 0; i < numListeners; ++i) {
-                    tmpListeners.get(i).onTransitionStart(this);
-                }
-            }
+            notifyListeners(TransitionNotification.ON_START);
             mEnded = false;
         }
         mNumInstances++;
@@ -1936,14 +2044,7 @@ public abstract class Transition implements Cloneable {
     protected void end() {
         --mNumInstances;
         if (mNumInstances == 0) {
-            if (mListeners != null && mListeners.size() > 0) {
-                @SuppressWarnings("unchecked") ArrayList<TransitionListener> tmpListeners =
-                        (ArrayList<TransitionListener>) mListeners.clone();
-                int numListeners = tmpListeners.size();
-                for (int i = 0; i < numListeners; ++i) {
-                    tmpListeners.get(i).onTransitionEnd(this);
-                }
-            }
+            notifyListeners(TransitionNotification.ON_END);
             for (int i = 0; i < mStartValues.mItemIdValues.size(); ++i) {
                 View view = mStartValues.mItemIdValues.valueAt(i);
                 if (view != null) {
@@ -1996,14 +2097,7 @@ public abstract class Transition implements Cloneable {
             Animator animator = mCurrentAnimators.get(i);
             animator.cancel();
         }
-        if (mListeners != null && mListeners.size() > 0) {
-            @SuppressWarnings("unchecked") ArrayList<TransitionListener> tmpListeners =
-                    (ArrayList<TransitionListener>) mListeners.clone();
-            int numListeners = tmpListeners.size();
-            for (int i = 0; i < numListeners; ++i) {
-                tmpListeners.get(i).onTransitionCancel(this);
-            }
-        }
+        notifyListeners(TransitionNotification.ON_CANCEL);
     }
 
     /**
@@ -2169,6 +2263,7 @@ public abstract class Transition implements Cloneable {
                 return;
             }
             boolean containsAll = true;
+            //noinspection ForLoopReplaceableByForEach
             for (int i = 0; i < propertyNames.length; i++) {
                 if (!transitionValues.values.containsKey(propertyNames[i])) {
                     containsAll = false;
@@ -2201,6 +2296,7 @@ public abstract class Transition implements Cloneable {
             clone.mEndValues = new TransitionValuesMaps();
             clone.mStartValuesList = null;
             clone.mEndValuesList = null;
+            clone.mSeekController = null;
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
@@ -2224,39 +2320,109 @@ public abstract class Transition implements Cloneable {
         return mName;
     }
 
+    /**
+     * Calls notification on each listener.
+     */
+    void notifyListeners(TransitionNotification notification) {
+        if (mListeners != null && !mListeners.isEmpty()) {
+            // Use a cache so that we don't have to keep allocating on every notification
+            int size = mListeners.size();
+            TransitionListener[] listeners = mListenersCache == null
+                    ? new TransitionListener[size] : mListenersCache;
+            mListenersCache = null;
+            listeners = mListeners.toArray(listeners);
+            for (int i = 0; i < size; i++) {
+                notification.notifyListener(listeners[i], Transition.this);
+                listeners[i] = null;
+            }
+            mListenersCache = listeners;
+        }
+    }
+
+    /**
+     * Returns the total duration of this Transition. This is only valid after the transition has
+     * been started.
+     */
+    final long getTotalDurationMillis() {
+        return mTotalDuration;
+    }
+
+    /**
+     * Seek the Transition to playTimeMillis.
+     *
+     * @param playTimeMillis The current time (in milliseconds) of the transition. If it is less
+     *                       than 0, the transition will be set to the beginning. If it is
+     *                       larger than getTotalDurationMillis(), it will be set to the end.
+     * @param lastPlayTimeMillis The previous play time that was set. This can be negative to
+     *                           indicate that the transition hasn't been played yet or larger
+     *                           than getTotalDurationMillis() to indicate that it is playing
+     *                           backwards.
+     */
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    void setCurrentPlayTimeMillis(long playTimeMillis, long lastPlayTimeMillis) {
+        long duration = getTotalDurationMillis();
+        if ((lastPlayTimeMillis < 0 && playTimeMillis >= 0)
+                || (lastPlayTimeMillis > duration && playTimeMillis <= duration)) {
+            mEnded = false;
+            notifyListeners(TransitionNotification.ON_START);
+        }
+        for (int i = 0; i < mCurrentAnimators.size(); i++) {
+            Animator animator = mCurrentAnimators.get(i);
+            long animDuration = Impl26.getTotalDuration(animator);
+            long playTime = Math.min(Math.max(0, playTimeMillis), animDuration);
+            Impl26.setCurrentPlayTime(animator, playTime);
+        }
+
+        if ((playTimeMillis > duration && lastPlayTimeMillis <= duration)
+                || (playTimeMillis < 0 && lastPlayTimeMillis >= 0)
+        ) {
+            mEnded = true;
+            notifyListeners(TransitionNotification.ON_END);
+        }
+    }
+
     String toString(String indent) {
-        String result = indent + getClass().getSimpleName() + "@"
-                + Integer.toHexString(hashCode()) + ": ";
+        StringBuilder result = new StringBuilder(indent)
+                .append(getClass().getSimpleName())
+                .append("@")
+                .append(Integer.toHexString(hashCode()))
+                .append(": ");
         if (mDuration != -1) {
-            result += "dur(" + mDuration + ") ";
+            result.append("dur(")
+                    .append(mDuration)
+                    .append(") ");
         }
         if (mStartDelay != -1) {
-            result += "dly(" + mStartDelay + ") ";
+            result.append("dly(")
+                    .append(mStartDelay)
+                    .append(") ");
         }
         if (mInterpolator != null) {
-            result += "interp(" + mInterpolator + ") ";
+            result.append("interp(")
+                    .append(mInterpolator)
+                    .append(") ");
         }
         if (mTargetIds.size() > 0 || mTargets.size() > 0) {
-            result += "tgts(";
+            result.append("tgts(");
             if (mTargetIds.size() > 0) {
                 for (int i = 0; i < mTargetIds.size(); ++i) {
                     if (i > 0) {
-                        result += ", ";
+                        result.append(", ");
                     }
-                    result += mTargetIds.get(i);
+                    result.append(mTargetIds.get(i));
                 }
             }
             if (mTargets.size() > 0) {
                 for (int i = 0; i < mTargets.size(); ++i) {
                     if (i > 0) {
-                        result += ", ";
+                        result.append(", ");
                     }
-                    result += mTargets.get(i);
+                    result.append(mTargets.get(i));
                 }
             }
-            result += ")";
+            result.append(")");
         }
-        return result;
+        return result.toString();
     }
 
     /**
@@ -2338,13 +2504,16 @@ public abstract class Transition implements Cloneable {
 
         Transition mTransition;
 
+        Animator mAnimator;
+
         AnimationInfo(View view, String name, Transition transition, WindowIdImpl windowId,
-                TransitionValues values) {
+                TransitionValues values, Animator animator) {
             mView = view;
             mName = name;
             mValues = values;
             mWindowId = windowId;
             mTransition = transition;
+            mAnimator = animator;
         }
     }
 
@@ -2420,4 +2589,208 @@ public abstract class Transition implements Cloneable {
         public abstract Rect onGetEpicenter(@NonNull Transition transition);
     }
 
+    /**
+     * Used internally by notifyListener() to call TransitionListener methods for this transition.
+     */
+    interface TransitionNotification {
+        /**
+         * Make a call on a TransitionListener
+         * @param listener The listener that this should call on.
+         * @param transition The Transition making the call.
+         */
+        void notifyListener(
+                @NonNull TransitionListener listener,
+                @NonNull Transition transition
+        );
+
+        /**
+         * Call for TransitionListener#onTransitionStart()
+         */
+        TransitionNotification ON_START = TransitionListener::onTransitionStart;
+
+        /**
+         * Call for TransitionListener#onTransitionEnd()
+         */
+        TransitionNotification ON_END = TransitionListener::onTransitionEnd;
+
+        /**
+         * Call for TransitionListener#onTransitionCancel()
+         */
+        TransitionNotification ON_CANCEL = TransitionListener::onTransitionCancel;
+
+        /**
+         * Call for TransitionListener#onTransitionPause()
+         */
+        TransitionNotification ON_PAUSE = TransitionListener::onTransitionPause;
+
+        /**
+         * Call for TransitionListener#onTransitionResume()
+         */
+        TransitionNotification ON_RESUME = TransitionListener::onTransitionResume;
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private static class Impl26 {
+        @DoNotInline
+        static long getTotalDuration(Animator animator) {
+            return animator.getTotalDuration();
+        }
+
+        @DoNotInline
+        static void setCurrentPlayTime(Animator animator, long playTimeMillis) {
+            ((AnimatorSet) animator).setCurrentPlayTime(playTimeMillis);
+        }
+    }
+
+    /**
+     * Internal implementation of TransitionSeekController.
+     */
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    class SeekController extends TransitionListenerAdapter implements TransitionSeekController,
+            ValueAnimator.AnimatorUpdateListener {
+        private long mCurrentPlayTime = -1;
+        private ArrayList<Consumer<TransitionSeekController>> mOnReadyListeners = null;
+        private boolean mIsReady;
+        private boolean mIsCanceled;
+
+        private ValueAnimator mAnimator;
+        private boolean mIsAnimatingReversed;
+
+        @Override
+        public long getDurationMillis() {
+            return Transition.this.getTotalDurationMillis();
+        }
+
+        @Override
+        public long getCurrentPlayTimeMillis() {
+            return Math.min(getDurationMillis(), Math.max(0, mCurrentPlayTime));
+        }
+
+        @Override
+        public boolean isReady() {
+            return mIsReady;
+        }
+
+        public void ready() {
+            mIsReady = true;
+            if (mOnReadyListeners != null) {
+                ArrayList<Consumer<TransitionSeekController>> onReadyListeners = mOnReadyListeners;
+                mOnReadyListeners = null;
+                for (int i = 0; i < onReadyListeners.size(); i++) {
+                    onReadyListeners.get(i).accept(this);
+                }
+            }
+        }
+
+        @Override
+        public void setCurrentPlayTimeMillis(long playTimeMillis) {
+            if (mAnimator != null) {
+                throw new IllegalStateException("setCurrentPlayTimeMillis() called after animation "
+                        + "has been started");
+            }
+            if (playTimeMillis == mCurrentPlayTime) {
+                return; // no change
+            }
+
+            if (!mIsCanceled) {
+                if (playTimeMillis == 0 && mCurrentPlayTime > 0) {
+                    // Force the transition to end
+                    playTimeMillis = -1;
+                } else {
+                    long duration = getDurationMillis();
+                    // Force the transition to the end
+                    if (playTimeMillis == duration && mCurrentPlayTime < duration) {
+                        playTimeMillis = duration + 1;
+                    }
+                }
+                if (playTimeMillis != mCurrentPlayTime) {
+                    Transition.this.setCurrentPlayTimeMillis(playTimeMillis, mCurrentPlayTime);
+                    mCurrentPlayTime = playTimeMillis;
+                }
+            }
+        }
+
+        @Override
+        public void addOnReadyListener(
+                @NonNull Consumer<TransitionSeekController> onReadyListener
+        ) {
+            if (isReady()) {
+                onReadyListener.accept(this);
+                return;
+            }
+            if (mOnReadyListeners == null) {
+                mOnReadyListeners = new ArrayList<>();
+            }
+            mOnReadyListeners.add(onReadyListener);
+        }
+
+        @Override
+        public void removeOnReadyListener(
+                @NonNull Consumer<TransitionSeekController> onReadyListener
+        ) {
+            if (mOnReadyListeners != null) {
+                mOnReadyListeners.remove(onReadyListener);
+                if (mOnReadyListeners.isEmpty()) {
+                    mOnReadyListeners = null;
+                }
+            }
+        }
+
+        @Override
+        public void onTransitionCancel(@NonNull Transition transition) {
+            mIsCanceled = true;
+        }
+
+        @Override
+        public void onAnimationUpdate(@NonNull ValueAnimator valueAnimator) {
+            long time = Math.max(-1,
+                    Math.min(getDurationMillis() + 1, mAnimator.getCurrentPlayTime())
+            );
+            if (mIsAnimatingReversed) {
+                time = getDurationMillis() - time;
+            }
+            Transition.this.setCurrentPlayTimeMillis(time, mCurrentPlayTime);
+            mCurrentPlayTime = time;
+        }
+
+        private void createAnimator() {
+            long duration = getDurationMillis() + 1;
+            mAnimator = ValueAnimator.ofInt((int) duration);
+            mAnimator.setInterpolator(null);
+            mAnimator.setDuration(duration);
+            mAnimator.addUpdateListener(this);
+        }
+
+        @Override
+        public void animateToEnd() {
+            if (mAnimator != null) {
+                mAnimator.cancel();
+            }
+            final long duration = getDurationMillis();
+            if (mCurrentPlayTime > duration) {
+                return; // we're already at the end
+            }
+            createAnimator();
+            mIsAnimatingReversed = false;
+            mAnimator.setCurrentPlayTime(mCurrentPlayTime);
+            mAnimator.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    notifyListeners(TransitionNotification.ON_END);
+                }
+            });
+            mAnimator.start();
+        }
+
+        @Override
+        public void animateToStart() {
+            if (mAnimator != null) {
+                mAnimator.cancel();
+            }
+            createAnimator();
+            mAnimator.setCurrentPlayTime(getDurationMillis() - mCurrentPlayTime);
+            mIsAnimatingReversed = true;
+            mAnimator.start();
+        }
+    }
 }

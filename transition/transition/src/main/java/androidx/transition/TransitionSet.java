@@ -23,6 +23,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
+import android.os.Build;
 import android.util.AndroidRuntimeException;
 import android.util.AttributeSet;
 import android.view.View;
@@ -31,6 +32,7 @@ import android.view.ViewGroup;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.res.TypedArrayUtils;
 
@@ -77,7 +79,7 @@ public class TransitionSet extends Transition {
      */
     private static final int FLAG_CHANGE_EPICENTER = 0x08;
 
-    private ArrayList<Transition> mTransitions = new ArrayList<>();
+    ArrayList<Transition> mTransitions = new ArrayList<>();
     private boolean mPlayTogether = true;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mCurrentListeners;
@@ -513,6 +515,121 @@ public class TransitionSet extends Transition {
                 childTransition.runAnimators();
             }
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @Override
+    void prepareAnimatorsForSeeking() {
+        mTotalDuration = 0;
+        TransitionListenerAdapter listener = new TransitionListenerAdapter() {
+            @Override
+            public void onTransitionCancel(@NonNull Transition transition) {
+                mTransitions.remove(transition);
+                if (mTransitions.isEmpty()) {
+                    notifyListeners(TransitionNotification.ON_CANCEL);
+                    if (!mEnded) {
+                        mEnded = true;
+                        notifyListeners(TransitionNotification.ON_END);
+                    }
+                }
+            }
+        };
+        for (int i = 0; i < mTransitions.size(); ++i) {
+            Transition transition = mTransitions.get(i);
+            transition.addListener(listener);
+            transition.prepareAnimatorsForSeeking();
+            long duration = transition.getTotalDurationMillis();
+            if (mPlayTogether) {
+                mTotalDuration = Math.max(mTotalDuration, duration);
+            } else {
+                transition.mSeekOffsetInParent = mTotalDuration;
+                mTotalDuration += duration;
+            }
+        }
+    }
+
+    /**
+     * Returns the index of the Transition that is playing at playTime. If no such transition
+     * exists, either because that Transition has been canceled or the TransitionSet is empty,
+     * the index of the one prior, or 0 will be returned.
+     */
+    private int indexOfTransition(long playTime) {
+        for (int i = 1; i < mTransitions.size(); i++) {
+            Transition transition = mTransitions.get(i);
+            if (transition.mSeekOffsetInParent > playTime) {
+                return i - 1;
+            }
+        }
+        return mTransitions.size() - 1;
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @Override
+    void setCurrentPlayTimeMillis(long playTimeMillis, long lastPlayTimeMillis) {
+        long duration = getTotalDurationMillis();
+        if (mParent != null && ((playTimeMillis < 0 && lastPlayTimeMillis < 0)
+                || (playTimeMillis > duration && lastPlayTimeMillis > duration))
+        ) {
+            return;
+        }
+        if ((playTimeMillis >= 0 && lastPlayTimeMillis < 0)
+                || (playTimeMillis <= duration && lastPlayTimeMillis > 0)
+            ) {
+            mEnded = false;
+            notifyListeners(TransitionNotification.ON_START);
+        }
+        if (mPlayTogether) {
+            for (int i = 0; i < mTransitions.size(); i++) {
+                Transition transition = mTransitions.get(i);
+                transition.setCurrentPlayTimeMillis(playTimeMillis, lastPlayTimeMillis);
+            }
+        } else {
+            // find the Transition that lastPlayTimeMillis was using
+            int startIndex = indexOfTransition(lastPlayTimeMillis);
+
+            if (playTimeMillis >= lastPlayTimeMillis) {
+                // move forward through transitions
+                for (int i = startIndex; i < mTransitions.size(); i++) {
+                    Transition transition = mTransitions.get(i);
+                    long transitionStart = transition.mSeekOffsetInParent;
+                    long playTime = playTimeMillis - transitionStart;
+                    if (playTime < 0) {
+                        break; // went past
+                    }
+                    long lastPlayTime = lastPlayTimeMillis - transitionStart;
+                    transition.setCurrentPlayTimeMillis(playTime, lastPlayTime);
+                }
+            } else {
+                // move backwards through transitions
+                for (int i = startIndex; i >= 0; i--) {
+                    Transition transition = mTransitions.get(i);
+                    long transitionStart = transition.mSeekOffsetInParent;
+                    long playTime = playTimeMillis - transitionStart;
+                    long lastPlayTime = lastPlayTimeMillis - transitionStart;
+                    transition.setCurrentPlayTimeMillis(playTime, lastPlayTime);
+                    if (playTime >= 0) {
+                        break;
+                    }
+                }
+            }
+        }
+        if (mParent != null && ((playTimeMillis > duration && lastPlayTimeMillis <= duration)
+                || (playTimeMillis < 0 && lastPlayTimeMillis >= 0))
+        ) {
+            mEnded = true;
+            notifyListeners(TransitionNotification.ON_END);
+        }
+    }
+
+    @Override
+    public boolean isSeekingSupported() {
+        int numTransitions = mTransitions.size();
+        for (int i = 0; i < numTransitions; i++) {
+            if (!mTransitions.get(i).isSeekingSupported()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
