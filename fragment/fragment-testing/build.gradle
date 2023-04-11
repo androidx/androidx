@@ -25,7 +25,7 @@ plugins {
 
 dependencies {
     api(project(":fragment:fragment-ktx"))
-    api(libs.testCore)
+    api("androidx.test:core:1.5.0")
     api(libs.kotlinStdlib)
     api(project(":fragment:fragment-testing-manifest"))
     androidTestImplementation(libs.kotlinStdlib)
