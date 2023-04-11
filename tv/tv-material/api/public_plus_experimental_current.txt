@@ -538,5 +538,23 @@ package androidx.tv.material3 {
     property public final androidx.compose.ui.text.TextStyle titleSmall;
   }
 
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class WideButtonContentColor {
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class WideButtonDefaults {
+    method @androidx.compose.runtime.Composable public void Background(boolean enabled, androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ButtonBorder border(optional androidx.tv.material3.Border border, optional androidx.tv.material3.Border focusedBorder, optional androidx.tv.material3.Border pressedBorder, optional androidx.tv.material3.Border disabledBorder, optional androidx.tv.material3.Border focusedDisabledBorder);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.WideButtonContentColor contentColor(optional long color, optional long focusedColor, optional long pressedColor, optional long disabledColor);
+    method public androidx.tv.material3.ButtonGlow glow(optional androidx.tv.material3.Glow glow, optional androidx.tv.material3.Glow focusedGlow, optional androidx.tv.material3.Glow pressedGlow);
+    method public androidx.tv.material3.ButtonScale scale(optional @FloatRange(from=0.0) float scale, optional @FloatRange(from=0.0) float focusedScale, optional @FloatRange(from=0.0) float pressedScale, optional @FloatRange(from=0.0) float disabledScale, optional @FloatRange(from=0.0) float focusedDisabledScale);
+    method public androidx.tv.material3.ButtonShape shape(optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.graphics.Shape focusedShape, optional androidx.compose.ui.graphics.Shape pressedShape, optional androidx.compose.ui.graphics.Shape disabledShape, optional androidx.compose.ui.graphics.Shape focusedDisabledShape);
+    field public static final androidx.tv.material3.WideButtonDefaults INSTANCE;
+  }
+
+  public final class WideButtonKt {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void WideButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional kotlin.jvm.functions.Function0<kotlin.Unit> background, optional androidx.tv.material3.ButtonScale scale, optional androidx.tv.material3.ButtonGlow glow, optional androidx.tv.material3.ButtonShape shape, optional androidx.tv.material3.WideButtonContentColor contentColor, optional float tonalElevation, optional androidx.tv.material3.ButtonBorder border, optional androidx.compose.foundation.layout.PaddingValues contentPadding, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void WideButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? subtitle, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional kotlin.jvm.functions.Function0<kotlin.Unit> background, optional androidx.tv.material3.ButtonScale scale, optional androidx.tv.material3.ButtonGlow glow, optional androidx.tv.material3.ButtonShape shape, optional androidx.tv.material3.WideButtonContentColor contentColor, optional float tonalElevation, optional androidx.tv.material3.ButtonBorder border, optional androidx.compose.foundation.layout.PaddingValues contentPadding);
+  }
+
 }
 

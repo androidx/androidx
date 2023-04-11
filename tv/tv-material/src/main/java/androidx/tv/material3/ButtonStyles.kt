@@ -122,6 +122,47 @@ class ButtonColors internal constructor(
 }
 
 /**
+ * Defines [Color]s for all TV [Interaction] states of a WideButton
+ */
+@ExperimentalTvMaterial3Api
+@Immutable
+class WideButtonContentColor internal constructor(
+    internal val contentColor: Color,
+    internal val focusedContentColor: Color,
+    internal val pressedContentColor: Color,
+    internal val disabledContentColor: Color,
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as WideButtonContentColor
+
+        if (contentColor != other.contentColor) return false
+        if (focusedContentColor != other.focusedContentColor) return false
+        if (pressedContentColor != other.pressedContentColor) return false
+        if (disabledContentColor != other.disabledContentColor) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = contentColor.hashCode()
+        result = 31 * result + focusedContentColor.hashCode()
+        result = 31 * result + pressedContentColor.hashCode()
+        result = 31 * result + disabledContentColor.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "WideButtonContentColor(contentColor=$contentColor, " +
+            "focusedContentColor=$focusedContentColor, " +
+            "pressedContentColor=$pressedContentColor, " +
+            "disabledContentColor=$disabledContentColor)"
+    }
+}
+
+/**
  * Defines the scale for all TV [Interaction] states of Button.
  */
 @ExperimentalTvMaterial3Api
@@ -264,6 +305,15 @@ internal fun ButtonColors.toClickableSurfaceContainerColor(): ClickableSurfaceCo
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 internal fun ButtonColors.toClickableSurfaceContentColor(): ClickableSurfaceColor =
+    ClickableSurfaceColor(
+        color = contentColor,
+        focusedColor = focusedContentColor,
+        pressedColor = pressedContentColor,
+        disabledColor = disabledContentColor,
+    )
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+internal fun WideButtonContentColor.toClickableSurfaceContentColor(): ClickableSurfaceColor =
     ClickableSurfaceColor(
         color = contentColor,
         focusedColor = focusedContentColor,
