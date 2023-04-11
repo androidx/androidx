@@ -22,10 +22,12 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static java.lang.Integer.MAX_VALUE;
 
+import android.graphics.Color;
 import android.icu.util.ULocale;
 
 import androidx.annotation.NonNull;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter;
@@ -211,6 +213,16 @@ public class DynamicTypeEvaluatorTest {
                             .elseUse(DynamicInt32.constant(10)),
                     10),
             test(
+                    DynamicColor.onCondition(DynamicBool.constant(true))
+                            .use(DynamicColor.constant(Color.BLUE))
+                            .elseUse(DynamicColor.constant(Color.RED)),
+                    Color.BLUE),
+            test(
+                    DynamicColor.onCondition(DynamicBool.constant(false))
+                            .use(DynamicColor.constant(Color.BLUE))
+                            .elseUse(DynamicColor.constant(Color.RED)),
+                    Color.RED),
+            test(
                     DynamicFloat.constant(12.345f)
                             .format(
                                     FloatFormatter.with()
@@ -297,6 +309,17 @@ public class DynamicTypeEvaluatorTest {
             DynamicInt32 bindUnderTest, Integer expectedValue) {
         return new DynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicInt32Proto().toString(),
+                (evaluator, cb) ->
+                        evaluator
+                                .bind(bindUnderTest, new MainThreadExecutor(), cb)
+                                .startEvaluation(),
+                expectedValue);
+    }
+
+    private static DynamicTypeEvaluatorTest.TestCase<Integer> test(
+            DynamicColor bindUnderTest, Integer expectedValue) {
+        return new DynamicTypeEvaluatorTest.TestCase<>(
+                bindUnderTest.toDynamicColorProto().toString(),
                 (evaluator, cb) ->
                         evaluator
                                 .bind(bindUnderTest, new MainThreadExecutor(), cb)
