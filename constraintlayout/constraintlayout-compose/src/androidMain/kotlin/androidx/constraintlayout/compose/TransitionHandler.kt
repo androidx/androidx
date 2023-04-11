@@ -27,7 +27,6 @@ import kotlin.coroutines.coroutineContext
  * [androidx.constraintlayout.core.state.Transition].
  */
 @OptIn(ExperimentalComposeApi::class)
-@PublishedApi
 @ExperimentalMotionApi
 internal class TransitionHandler(
     private val motionMeasurer: MotionMeasurer,

@@ -503,28 +503,6 @@ package androidx.constraintlayout.compose {
     method public void itemsWithProperties(int count, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super androidx.compose.runtime.State<androidx.constraintlayout.compose.MotionLayoutScope.MotionProperties>,kotlin.Unit> itemContent);
   }
 
-  @kotlin.PublishedApi internal final class MotionDragState {
-    ctor public MotionDragState(boolean isDragging, long dragAmount, long velocity);
-    method public boolean component1();
-    method public long component2-F1C5BW0();
-    method public long component3-9UxMQ8M();
-    method internal boolean equals(Object? other);
-    method public long getDragAmount();
-    method public long getVelocity();
-    method internal int hashCode();
-    method public boolean isDragging();
-    method internal String toString();
-    property public final long dragAmount;
-    property public final boolean isDragging;
-    property public final long velocity;
-    field public static final androidx.constraintlayout.compose.MotionDragState.Companion Companion;
-  }
-
-  public static final class MotionDragState.Companion {
-    method public androidx.constraintlayout.compose.MotionDragState onDrag(long dragAmount);
-    method public androidx.constraintlayout.compose.MotionDragState onDragEnd(long velocity);
-  }
-
   public interface MotionItemsProvider {
     method public int count();
     method public kotlin.jvm.functions.Function0<kotlin.Unit> getContent(int index);
@@ -545,41 +523,6 @@ package androidx.constraintlayout.compose {
     method @Deprecated public static androidx.constraintlayout.compose.MotionLayoutFlag[] values();
     enum_constant @Deprecated public static final androidx.constraintlayout.compose.MotionLayoutFlag Default;
     enum_constant @Deprecated public static final androidx.constraintlayout.compose.MotionLayoutFlag FullMeasure;
-  }
-
-  public final class MotionLayoutKt {
-    method @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static inline void MotionLayout(androidx.constraintlayout.compose.ConstraintSet start, androidx.constraintlayout.compose.ConstraintSet end, float progress, optional androidx.compose.ui.Modifier modifier, optional androidx.constraintlayout.compose.Transition? transition, optional int debugFlags, optional androidx.constraintlayout.compose.LayoutInformationReceiver? informationReceiver, optional int optimizationLevel, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static inline void MotionLayoutCore(androidx.constraintlayout.compose.MotionScene motionScene, float progress, String transitionName, int optimizationLevel, int debugFlags, androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static inline void MotionLayoutCore(androidx.constraintlayout.compose.ConstraintSet start, androidx.constraintlayout.compose.ConstraintSet end, androidx.constraintlayout.compose.TransitionImpl? transition, androidx.constraintlayout.compose.MotionProgress motionProgress, androidx.constraintlayout.compose.LayoutInformationReceiver? informationReceiver, int optimizationLevel, boolean showBounds, boolean showPaths, boolean showKeyPositions, androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static void UpdateWithForcedIfNoUserChange(androidx.constraintlayout.compose.MotionProgress motionProgress, androidx.constraintlayout.compose.LayoutInformationReceiver? informationReceiver);
-    method @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static androidx.constraintlayout.compose.MotionProgress createAndUpdateMotionProgress(float progress);
-    method @kotlin.PublishedApi internal static androidx.compose.ui.Modifier motionDebug(androidx.compose.ui.Modifier, androidx.constraintlayout.compose.MotionMeasurer measurer, float scaleFactor, boolean showBounds, boolean showPaths, boolean showKeyPositions);
-    method @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy motionLayoutMeasurePolicy(androidx.compose.runtime.State<kotlin.Unit> contentTracker, androidx.compose.ui.node.Ref<androidx.constraintlayout.compose.CompositionSource> compositionSource, androidx.constraintlayout.compose.ConstraintSet constraintSetStart, androidx.constraintlayout.compose.ConstraintSet constraintSetEnd, androidx.constraintlayout.compose.TransitionImpl transition, androidx.constraintlayout.compose.MotionProgress motionProgress, androidx.constraintlayout.compose.MotionMeasurer measurer, int optimizationLevel);
-  }
-
-  @kotlin.PublishedApi internal final class MotionMeasurer extends androidx.constraintlayout.compose.Measurer {
-    ctor public MotionMeasurer(androidx.compose.ui.unit.Density density);
-    method public void clearConstraintSets();
-    method public void drawDebug(androidx.compose.ui.graphics.drawscope.DrawScope, optional boolean drawBounds, optional boolean drawPaths, optional boolean drawKeyPositions);
-    method public void encodeRoot(StringBuilder json);
-    method public long getCustomColor(String id, String name, float progress);
-    method public float getCustomFloat(String id, String name, float progress);
-    method public androidx.constraintlayout.core.state.Transition getTransition();
-    method public void initWith(androidx.constraintlayout.compose.ConstraintSet start, androidx.constraintlayout.compose.ConstraintSet end, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.constraintlayout.compose.TransitionImpl transition, float progress);
-    method public long performInterpolationMeasure(long constraints, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.constraintlayout.compose.ConstraintSet constraintSetStart, androidx.constraintlayout.compose.ConstraintSet constraintSetEnd, androidx.constraintlayout.compose.TransitionImpl transition, java.util.List<? extends androidx.compose.ui.layout.Measurable> measurables, int optimizationLevel, float progress, androidx.constraintlayout.compose.CompositionSource compositionSource);
-    property public final androidx.constraintlayout.core.state.Transition transition;
-  }
-
-  @kotlin.PublishedApi internal interface MotionProgress {
-    method public float getCurrentProgress();
-    method public void updateProgress(float newProgress);
-    property public abstract float currentProgress;
-    field public static final androidx.constraintlayout.compose.MotionProgress.Companion Companion;
-  }
-
-  public static final class MotionProgress.Companion {
-    method public androidx.constraintlayout.compose.MotionProgress fromMutableState(androidx.compose.runtime.MutableState<java.lang.Float> mutableProgress);
-    method public androidx.constraintlayout.compose.MotionProgress fromState(androidx.compose.runtime.State<java.lang.Float> progressState, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onUpdate);
   }
 
   @kotlin.jvm.JvmInline public final value class Skip {
@@ -614,26 +557,6 @@ package androidx.constraintlayout.compose {
     method public static androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.constraintlayout.compose.DesignInfoProvider> getDesignInfoDataKey();
     property public static final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.constraintlayout.compose.DesignInfoProvider> DesignInfoDataKey;
     field @kotlin.PublishedApi internal static final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.constraintlayout.compose.DesignInfoProvider> designInfoProvider$delegate;
-  }
-
-  @kotlin.PublishedApi internal final class TransitionHandler {
-    ctor public TransitionHandler(androidx.constraintlayout.compose.MotionMeasurer motionMeasurer, androidx.constraintlayout.compose.MotionProgress motionProgress);
-    method public suspend Object? onTouchUp(long velocity, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public boolean pendingProgressWhileTouchUp();
-    method public void updateProgressOnDrag(long dragAmount);
-    method public suspend Object? updateProgressWhileTouchUp(kotlin.coroutines.Continuation<? super kotlin.Unit>);
-  }
-
-  @kotlin.PublishedApi internal final class TransitionImpl {
-    ctor public TransitionImpl(androidx.constraintlayout.core.parser.CLObject parsedTransition);
-    method public void applyAllTo(androidx.constraintlayout.core.state.Transition transition);
-    method public void applyKeyFramesTo(androidx.constraintlayout.core.state.Transition transition);
-    method public String getEndConstraintSetId();
-    method public String getStartConstraintSetId();
-    field @kotlin.PublishedApi internal static final androidx.constraintlayout.compose.TransitionImpl EMPTY;
-  }
-
-  @kotlin.PublishedApi internal static final class TransitionImpl.Companion {
   }
 
   @androidx.compose.runtime.Immutable public final class VerticalAlign {
