@@ -173,7 +173,7 @@ class DecorationBoxTest {
         }
 
         rule.runOnIdle {
-            assertThat(state.value.toString()).isEqualTo("hello")
+            assertThat(state.text.toString()).isEqualTo("hello")
         }
     }
 
@@ -208,7 +208,7 @@ class DecorationBoxTest {
         }
 
         rule.runOnIdle {
-            assertThat(state.value.toString()).isEqualTo("hello")
+            assertThat(state.text.toString()).isEqualTo("hello")
         }
     }
 
@@ -242,7 +242,7 @@ class DecorationBoxTest {
 
         // assertThat selection happened
         rule.runOnIdle {
-            assertThat(state.value.selectionInChars).isEqualTo(TextRange(0, 5))
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(0, 5))
         }
     }
 }

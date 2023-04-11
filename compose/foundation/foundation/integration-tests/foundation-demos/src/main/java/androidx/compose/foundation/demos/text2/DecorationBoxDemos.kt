@@ -49,7 +49,7 @@ fun OutlinedBasicTextField2() {
         textStyle = LocalTextStyle.current,
         decorationBox = @Composable {
             TextFieldDefaults.OutlinedTextFieldDecorationBox(
-                value = state.value.toString(),
+                value = state.text.toString(),
                 visualTransformation = VisualTransformation.None,
                 innerTextField = it,
                 placeholder = null,

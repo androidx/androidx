@@ -40,7 +40,7 @@ class TextFieldState(
     internal var editProcessor =
         EditProcessor(TextFieldCharSequence(initialText, initialSelectionInChars))
 
-    val value: TextFieldCharSequence
+    val text: TextFieldCharSequence
         get() = editProcessor.value
 
     /**
@@ -54,13 +54,13 @@ class TextFieldState(
      * @see setTextAndSelectAll
      */
     inline fun edit(block: TextFieldBuffer.() -> TextEditResult) {
-        val mutableValue = startEdit(value)
+        val mutableValue = startEdit(text)
         val result = mutableValue.block()
         commitEdit(mutableValue, result)
     }
 
     override fun toString(): String =
-        "TextFieldState(selection=${value.selectionInChars}, text=\"$value\")"
+        "TextFieldState(selection=${text.selectionInChars}, text=\"$text\")"
 
     @Suppress("ShowingMemberInHiddenClass")
     @PublishedApi
@@ -70,7 +70,7 @@ class TextFieldState(
     @Suppress("ShowingMemberInHiddenClass")
     @PublishedApi
     internal fun commitEdit(newValue: TextFieldBuffer, result: TextEditResult) {
-        val newSelection = result.calculateSelection(value, newValue)
+        val newSelection = result.calculateSelection(text, newValue)
         val finalValue = newValue.toTextFieldCharSequence(newSelection)
         editProcessor.reset(finalValue)
     }
@@ -84,9 +84,9 @@ class TextFieldState(
     @Suppress("RedundantNullableReturnType")
     object Saver : androidx.compose.runtime.saveable.Saver<TextFieldState, Any> {
         override fun SaverScope.save(value: TextFieldState): Any? = listOf(
-            value.value.toString(),
-            value.value.selectionInChars.start,
-            value.value.selectionInChars.end
+            value.text.toString(),
+            value.text.selectionInChars.start,
+            value.text.selectionInChars.end
         )
 
         override fun restore(value: Any): TextFieldState? {
@@ -146,7 +146,7 @@ fun TextFieldState.setTextAndSelectAll(text: String) {
 
 @OptIn(ExperimentalFoundationApi::class)
 internal fun TextFieldState.deselect() {
-    if (!value.selectionInChars.collapsed) {
+    if (!text.selectionInChars.collapsed) {
         edit {
             selectCharsIn(TextRange.Zero)
         }

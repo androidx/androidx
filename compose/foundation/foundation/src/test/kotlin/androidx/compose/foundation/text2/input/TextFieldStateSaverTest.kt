@@ -35,8 +35,8 @@ class TextFieldStateSaverTest {
         val restoredState = TextFieldState.Saver.restore(saved)
 
         assertNotNull(restoredState)
-        assertThat(restoredState.value.toString()).isEqualTo("hello, world")
-        assertThat(restoredState.value.selectionInChars).isEqualTo(TextRange(0, 5))
+        assertThat(restoredState.text.toString()).isEqualTo("hello, world")
+        assertThat(restoredState.text.selectionInChars).isEqualTo(TextRange(0, 5))
     }
 
     private object TestSaverScope : SaverScope {
