@@ -442,11 +442,11 @@ package androidx.constraintlayout.compose {
     enum_constant public static final androidx.constraintlayout.compose.MotionLayoutDebugFlags UNKNOWN;
   }
 
-  public enum MotionLayoutFlag {
-    method public static androidx.constraintlayout.compose.MotionLayoutFlag valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.constraintlayout.compose.MotionLayoutFlag[] values();
-    enum_constant public static final androidx.constraintlayout.compose.MotionLayoutFlag Default;
-    enum_constant public static final androidx.constraintlayout.compose.MotionLayoutFlag FullMeasure;
+  @Deprecated public enum MotionLayoutFlag {
+    method @Deprecated public static androidx.constraintlayout.compose.MotionLayoutFlag valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method @Deprecated public static androidx.constraintlayout.compose.MotionLayoutFlag[] values();
+    enum_constant @Deprecated public static final androidx.constraintlayout.compose.MotionLayoutFlag Default;
+    enum_constant @Deprecated public static final androidx.constraintlayout.compose.MotionLayoutFlag FullMeasure;
   }
 
   @kotlin.jvm.JvmInline public final value class Skip {
