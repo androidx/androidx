@@ -134,6 +134,11 @@
             android:name="androidx.core.view.inputmethod.ImeSecondarySplitTestActivity"
             android:exported="true" />
 
+        <activity
+            android:name="androidx.core.app.GrammaticalInfectionActivity"
+            android:configChanges="grammaticalGender"
+            android:exported="true" />
+
         <activity-alias
             android:name="androidx.core.app.NavUtilsAliasActivity"
             android:targetActivity="androidx.core.app.NavUtilsActivity">
