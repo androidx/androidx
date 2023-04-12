@@ -5811,6 +5811,170 @@ public final class DynamicBuilders {
     }
 
     /**
+     * A conditional operator which yields a color depending on the boolean operand. This
+     * implements:
+     *
+     * <pre>{@code
+     * color result = condition ? value_if_true : value_if_false
+     * }</pre>
+     *
+     * @since 1.2
+     */
+    static final class ConditionalColorOp implements DynamicColor {
+        private final DynamicProto.ConditionalColorOp mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        ConditionalColorOp(
+                DynamicProto.ConditionalColorOp impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets the condition to use.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public DynamicBool getCondition() {
+            if (mImpl.hasCondition()) {
+                return DynamicBuilders.dynamicBoolFromProto(mImpl.getCondition());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets the color to yield if condition is true.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public DynamicColor getValueIfTrue() {
+            if (mImpl.hasValueIfTrue()) {
+                return DynamicBuilders.dynamicColorFromProto(mImpl.getValueIfTrue());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets the color to yield if condition is false.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public DynamicColor getValueIfFalse() {
+            if (mImpl.hasValueIfFalse()) {
+                return DynamicBuilders.dynamicColorFromProto(mImpl.getValueIfFalse());
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ConditionalColorOp fromProto(
+                @NonNull DynamicProto.ConditionalColorOp proto, @Nullable Fingerprint fingerprint) {
+            return new ConditionalColorOp(proto, fingerprint);
+        }
+
+        @NonNull
+        static ConditionalColorOp fromProto(@NonNull DynamicProto.ConditionalColorOp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        DynamicProto.ConditionalColorOp toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DynamicProto.DynamicColor toDynamicColorProto() {
+            return DynamicProto.DynamicColor.newBuilder().setConditionalOp(mImpl).build();
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "ConditionalColorOp{"
+                    + "condition="
+                    + getCondition()
+                    + ", valueIfTrue="
+                    + getValueIfTrue()
+                    + ", valueIfFalse="
+                    + getValueIfFalse()
+                    + "}";
+        }
+
+        /** Builder for {@link ConditionalColorOp}. */
+        public static final class Builder implements DynamicColor.Builder {
+            private final DynamicProto.ConditionalColorOp.Builder mImpl =
+                    DynamicProto.ConditionalColorOp.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-1961850082);
+
+            public Builder() {}
+
+            /**
+             * Sets the condition to use.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setCondition(@NonNull DynamicBool condition) {
+                mImpl.setCondition(condition.toDynamicBoolProto());
+                mFingerprint.recordPropertyUpdate(
+                        1, checkNotNull(condition.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the color to yield if condition is true.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setValueIfTrue(@NonNull DynamicColor valueIfTrue) {
+                mImpl.setValueIfTrue(valueIfTrue.toDynamicColorProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(valueIfTrue.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the color to yield if condition is false.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setValueIfFalse(@NonNull DynamicColor valueIfFalse) {
+                mImpl.setValueIfFalse(valueIfFalse.toDynamicColorProto());
+                mFingerprint.recordPropertyUpdate(
+                        3, checkNotNull(valueIfFalse.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            @Override
+            @NonNull
+            public ConditionalColorOp build() {
+                return new ConditionalColorOp(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+    /**
      * Interface defining a dynamic color type.
      *
      * @since 1.2
@@ -5946,6 +6110,24 @@ public final class DynamicBuilders {
             return new AnimatableDynamicColor.Builder().setInput(this).build();
         }
 
+        /**
+         * Bind the value of this {@link DynamicColor} to the result of a conditional expression.
+         * This will use the value given in either {@link ConditionScope#use} or {@link
+         * ConditionScopes.IfTrueScope#elseUse} depending on the value yielded from {@code
+         * condition}.
+         */
+        @NonNull
+        static ConditionScope<DynamicColor, Integer> onCondition(@NonNull DynamicBool condition) {
+            return new ConditionScopes.ConditionScope<>(
+                    (trueValue, falseValue) ->
+                            new ConditionalColorOp.Builder()
+                                    .setCondition(condition)
+                                    .setValueIfTrue(trueValue)
+                                    .setValueIfFalse(falseValue)
+                                    .build(),
+                    DynamicColor::constant);
+        }
+
         /** Get the fingerprint for this object or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -5979,6 +6161,9 @@ public final class DynamicBuilders {
         }
         if (proto.hasAnimatableDynamic()) {
             return AnimatableDynamicColor.fromProto(proto.getAnimatableDynamic());
+        }
+        if (proto.hasConditionalOp()) {
+            return ConditionalColorOp.fromProto(proto.getConditionalOp());
         }
         throw new IllegalStateException("Proto was not a recognised instance of DynamicColor");
     }

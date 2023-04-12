@@ -114,6 +114,7 @@ package androidx.wear.protolayout.expression {
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor constant(@ColorInt int);
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor fromByteArray(byte[]);
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor fromState(String);
+    method public static androidx.wear.protolayout.expression.ConditionScopes.ConditionScope<androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor!,java.lang.Integer!> onCondition(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool);
     method public default byte[] toDynamicColorByteArray();
   }
 
