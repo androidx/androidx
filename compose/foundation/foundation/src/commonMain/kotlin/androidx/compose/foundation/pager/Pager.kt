@@ -31,6 +31,7 @@ import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.snapping.MinFlingVelocityDp
 import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
 import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
+import androidx.compose.foundation.gestures.snapping.calculateFinalOffset
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -641,7 +642,7 @@ private fun SnapLayoutInfoProvider(
         val layoutInfo: PagerLayoutInfo
             get() = pagerState.layoutInfo
 
-        override fun Density.calculateSnappingOffsetBounds(): ClosedFloatingPointRange<Float> {
+        override fun Density.calculateSnappingOffset(currentVelocity: Float): Float {
             var lowerBoundOffset = Float.NEGATIVE_INFINITY
             var upperBoundOffset = Float.POSITIVE_INFINITY
 
@@ -663,7 +664,7 @@ private fun SnapLayoutInfoProvider(
                 }
             }
 
-            return lowerBoundOffset.rangeTo(upperBoundOffset)
+            return calculateFinalOffset(currentVelocity, lowerBoundOffset, upperBoundOffset)
         }
 
         override fun Density.calculateSnapStepSize(): Float = layoutInfo.pageSize.toFloat()
