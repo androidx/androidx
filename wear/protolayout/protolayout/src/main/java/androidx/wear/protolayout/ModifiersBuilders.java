@@ -196,7 +196,7 @@ public final class ModifiersBuilders {
     public static final int SEMANTICS_ROLE_NONE = 0;
 
     /**
-     * The element is an {@link androidx.wear.protolayout.LayoutElementBuilders.Image}.
+     * The element is an image.
      *
      * @since 1.2
      */
