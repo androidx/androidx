@@ -18,15 +18,29 @@ package androidx.build.sbom
 
 import androidx.build.BundleInsideHelper
 import androidx.build.GMavenZipTask
+import androidx.build.getPrebuiltsRoot
+import androidx.build.getSupportRootFolder
+import androidx.build.gitclient.MultiGitClient
 import androidx.inspection.gradle.EXPORT_INSPECTOR_DEPENDENCIES
 import androidx.inspection.gradle.IMPORT_INSPECTOR_DEPENDENCIES
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import java.io.File
+import java.net.URI
+import java.util.UUID
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.jvm.tasks.Jar
+import org.gradle.kotlin.dsl.apply
+import org.gradle.kotlin.dsl.getByType
+import org.spdx.sbom.gradle.SpdxSbomExtension
+import org.spdx.sbom.gradle.SpdxSbomTask
+import org.spdx.sbom.gradle.extensions.DefaultSpdxSbomTaskExtension
+import org.spdx.sbom.gradle.project.ProjectInfo
+import org.spdx.sbom.gradle.project.ScmInfo
 
 /**
  * Tells whether the contents of the Configuration with the given name should be listed in our sbom
@@ -44,9 +58,14 @@ fun Project.shouldSbomIncludeConfigurationName(configurationName: String): Boole
             appliesShadowPlugin() && project.configurations.findByName("shadowed") == null
         EXPORT_INSPECTOR_DEPENDENCIES -> true
         IMPORT_INSPECTOR_DEPENDENCIES -> true
+        // https://github.com/spdx/spdx-gradle-plugin/issues/12
+        sbomEmptyConfiguration -> true
         else -> false
     }
 }
+
+// An empty Configuration for the sbom plugin to ensure it has at least one Configuration
+private val sbomEmptyConfiguration = "sbomEmpty"
 
 // some tasks that don't embed configurations having external dependencies
 private val excludeTaskNames = setOf(
@@ -71,7 +90,7 @@ private val excludeTaskNames = setOf(
  * for example, we embed protobuf-javalite into our artifact
  *
  * The purpose of this function is to detect new archive tasks and remind developers to
- * update shouldSbomIncludeConfiguration
+ * update shouldSbomIncludeConfigurationName
  */
 fun Project.listSbomConfigurationNamesForArchive(task: AbstractArchiveTask): List<String> {
     if (task is Jar && !(task is ShadowJar)) {
@@ -134,7 +153,7 @@ fun Project.listSbomConfigurationNamesForArchive(task: AbstractArchiveTask): Lis
         "Not sure which external dependencies are included in $projectPath:$taskName of type " +
         "${task::class.java} (this is used for publishing sboms). Please update " +
         "AndroidXImplPlugin's listSbomConfigurationNamesForArchive and " +
-        "shouldSbomIncludeConfiguration"
+        "shouldSbomIncludeConfigurationName"
     )
 }
 
@@ -182,6 +201,127 @@ fun Project.validateAllArchiveInputsRecognized() {
     project.tasks.withType(ShadowJar::class.java).configureEach { task ->
         project.validateArchiveInputsRecognized(task)
     }
+}
+
+/**
+ * Enables the publishing of an sbom that lists our embedded dependencies
+ */
+fun Project.configureSbomPublishing() {
+    val uuid = project.coordinatesToUUID().toString()
+
+    project.configurations.create(sbomEmptyConfiguration)
+    project.apply(plugin = "org.spdx.sbom")
+    val repos = getRepoPublicUrls()
+    val gitsClient = MultiGitClient.create(project)
+    val supportRootDir = getSupportRootFolder()
+
+    val allowPublicRepos = System.getenv("ALLOW_PUBLIC_REPOS") != null
+
+    project.tasks.withType(SpdxSbomTask::class.java).configureEach { task ->
+        val sbomProjectDir = project.projectDir
+        task.taskExtension.set(object : DefaultSpdxSbomTaskExtension() {
+            override fun mapRepoUri(repoUri: URI, artifact: ModuleVersionIdentifier): URI {
+                val uriString = repoUri.toString()
+                for (repo in repos) {
+                    val ourRepoUrl = repo.key
+                    val publicRepoUrl = repo.value
+                    if (uriString.startsWith(ourRepoUrl)) {
+                        return URI.create(publicRepoUrl)
+                    }
+                    if (allowPublicRepos) {
+                        if (uriString.startsWith(publicRepoUrl)) {
+                            return URI.create(publicRepoUrl)
+                        }
+                    }
+                }
+                throw GradleException(
+                    "Cannot determine public repo url for repo $uriString artifact $artifact"
+                )
+            }
+            override fun mapScmForProject(original: ScmInfo, projectInfo: ProjectInfo): ScmInfo {
+                val gitClient = gitsClient.getGitClient(projectInfo.projectDirectory)
+                val commit = gitClient.getHeadSha()
+                val url = getGitRemoteUrl(projectInfo.projectDirectory, supportRootDir)
+                return ScmInfo.from("git", url, commit)
+            }
+
+            override fun shouldCreatePackageForProject(projectInfo: ProjectInfo): Boolean {
+                // sbom should include the project it describes
+                if (sbomProjectDir.equals(projectInfo.projectDirectory))
+                    return true
+                // sbom doesn't need to list our projects as dependencies;
+                // they're implementation details
+                // Example: glance:glance-appwidget uses glance:glance-appwidget-proto
+                if (pathContains(supportRootDir, projectInfo.projectDirectory))
+                    return false
+                // sbom should list remaining project dependencies
+                return true
+            }
+        })
+    }
+
+    val sbomExtension = project.extensions.getByType<SpdxSbomExtension>()
+    val sbomConfigurations = mutableListOf<String>()
+
+    project.afterEvaluate {
+        project.configurations.configureEach { configuration ->
+            if (shouldSbomIncludeConfigurationName(configuration.name)) {
+               sbomConfigurations.add(configuration.getName())
+            }
+        }
+
+        sbomExtension.targets.create("release") { target ->
+            val googleOrganization = "Organization: Google LLC"
+            val document = target.document
+            document.namespace.set("https://spdx.google.com/$uuid")
+            document.creator.set(googleOrganization)
+            document.packageSupplier.set(googleOrganization)
+
+            target.getConfigurations().set(sbomConfigurations)
+        }
+    }
+}
+
+// Returns a UUID whose contents are based on the project's coordinates (group:artifact:version)
+fun Project.coordinatesToUUID(): UUID {
+    val coordinates = "${project.group}:${project.name}:${project.version}"
+    val bytes = coordinates.toByteArray()
+    return UUID.nameUUIDFromBytes(bytes)
+}
+
+fun pathContains(ancestor: File, child: File): Boolean {
+    val childNormalized = child.getCanonicalPath() + File.separator
+    val ancestorNormalized = ancestor.getCanonicalPath() + File.separator
+    return childNormalized.startsWith(ancestorNormalized)
+}
+
+fun getGitRemoteUrl(dir: File, supportRootDir: File): String {
+    if (pathContains(supportRootDir, dir)) {
+        return "android.googlesource.com/platform/frameworks/support"
+    }
+
+    val notoFontsDir = File("$supportRootDir/../../external/noto-fonts")
+    if (pathContains(notoFontsDir, dir)) {
+        return "android.googlesource.com/platform/external/noto-fonts"
+    }
+
+    val icingDir = File("$supportRootDir/../../external/icing")
+    if (pathContains(icingDir, dir)) {
+        return "android.googlesource.com/platform/external/icing"
+    }
+    throw GradleException("Could not identify git remote url for project at $dir")
+}
+
+/**
+ * Returns a mapping from local repo url to public repo url
+ */
+fun Project.getRepoPublicUrls(): Map<String, String> {
+    return mapOf(
+        "file:${project.getPrebuiltsRoot()}/androidx/external"
+            to "https://repo.maven.apache.org/maven2",
+        "file:${project.getPrebuiltsRoot()}/androidx/internal"
+            to "https://dl.google.com/android/maven2"
+    )
 }
 
 private fun Project.appliesShadowPlugin() =

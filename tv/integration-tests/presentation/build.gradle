@@ -44,6 +44,7 @@ dependencies {
 androidx {
     name = "TV-Compose Test App"
     type = LibraryType.SAMPLES
+    mavenVersion = LibraryVersions.TV
     inceptionYear = "2022"
     description = "Test application for TV libraries"
 }

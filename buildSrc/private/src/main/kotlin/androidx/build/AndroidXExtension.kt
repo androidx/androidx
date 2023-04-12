@@ -336,6 +336,11 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
             type.publish != Publish.UNSET
         )
 
+    fun shouldPublishSbom(): Boolean {
+        // IDE plugins are used by and ship inside Studio
+        return shouldPublish() || type == LibraryType.IDE_PLUGIN
+    }
+
     /**
      * Whether to run API tasks such as tracking and linting. The default value is
      * [RunApiTasks.Auto], which automatically picks based on the project's properties.

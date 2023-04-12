@@ -33,6 +33,7 @@ import androidx.build.docs.AndroidXKmpDocsImplPlugin
 import androidx.build.gradle.isRoot
 import androidx.build.license.configureExternalDependencyLicenseCheck
 import androidx.build.resources.configurePublicResourcesStub
+import androidx.build.sbom.configureSbomPublishing
 import androidx.build.sbom.validateAllArchiveInputsRecognized
 import androidx.build.studio.StudioTask
 import androidx.build.testConfiguration.ModuleInfoGenerator
@@ -155,6 +156,11 @@ class AndroidXImplPlugin @Inject constructor(
         project.configureConstraintsWithinGroup(extension)
         project.validateProjectParser(extension)
         project.validateAllArchiveInputsRecognized()
+        project.afterEvaluate {
+            if (extension.shouldPublishSbom()) {
+                project.configureSbomPublishing()
+            }
+        }
     }
 
     private fun Project.registerProjectOrArtifact() {
