@@ -201,6 +201,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         const val TextClassName = "android.widget.TextView"
         const val LogTag = "AccessibilityDelegate"
         const val ExtraDataTestTagKey = "androidx.compose.ui.semantics.testTag"
+        const val ExtraDataIdKey = "androidx.compose.ui.semantics.id"
 
         /**
          * Intent size limitations prevent sending over a megabyte of data. Limit
@@ -1033,6 +1034,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val extraDataKeys: MutableList<String> = mutableListOf()
+            extraDataKeys.add(ExtraDataIdKey)
             if (!info.text.isNullOrEmpty() &&
                 semanticsNode.unmergedConfig.contains(SemanticsActions.GetTextLayoutResult)
             ) {
@@ -1042,12 +1044,10 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 extraDataKeys.add(ExtraDataTestTagKey)
             }
 
-            if (!extraDataKeys.isEmpty()) {
-                AccessibilityNodeInfoVerificationHelperMethods.setAvailableExtraData(
-                    info.unwrap(),
-                    extraDataKeys
-                )
-            }
+            AccessibilityNodeInfoVerificationHelperMethods.setAvailableExtraData(
+                info.unwrap(),
+                extraDataKeys
+            )
         }
 
         val rangeInfo =
@@ -1866,6 +1866,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             if (testTag != null) {
                 info.extras.putCharSequence(extraDataKey, testTag)
             }
+        } else if (extraDataKey == ExtraDataIdKey) {
+            info.extras.putInt(extraDataKey, node.id)
         }
     }
 

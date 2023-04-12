@@ -560,9 +560,11 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             )
         )
         if (Build.VERSION.SDK_INT >= 26) {
-            assertEquals(
-                listOf(AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY),
-                info.unwrap().availableExtraData
+
+            assertThat(info.unwrap().availableExtraData)
+                .containsExactly(
+                    "androidx.compose.ui.semantics.id",
+                    AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY
             )
         }
     }
