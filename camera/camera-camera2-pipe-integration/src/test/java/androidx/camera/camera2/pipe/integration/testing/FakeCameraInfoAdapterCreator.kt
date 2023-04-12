@@ -28,6 +28,7 @@ import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.EncoderProfilesProviderAdapter
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
+import androidx.camera.camera2.pipe.integration.compat.workaround.AeFpsRange
 import androidx.camera.camera2.pipe.integration.compat.workaround.MeteringRegionCorrection
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpAutoFlashAEModeDisabler
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
@@ -95,9 +96,6 @@ object FakeCameraInfoAdapterCreator {
         zoomControl: ZoomControl = this.zoomControl,
     ): CameraInfoAdapter {
         val fakeUseCaseCamera = FakeUseCaseCamera()
-        val state3AControl = State3AControl(cameraProperties, NoOpAutoFlashAEModeDisabler).apply {
-            useCaseCamera = fakeUseCaseCamera
-        }
         val fakeStreamConfigurationMap = StreamConfigurationMapCompat(
             streamConfigurationMap,
             OutputSizesCorrector(cameraProperties.metadata, streamConfigurationMap)
@@ -106,6 +104,13 @@ object FakeCameraInfoAdapterCreator {
             cameraProperties.metadata,
             fakeStreamConfigurationMap,
         )
+        val state3AControl = State3AControl(
+            cameraProperties,
+            NoOpAutoFlashAEModeDisabler,
+            AeFpsRange(fakeCameraQuirks)
+        ).apply {
+            useCaseCamera = fakeUseCaseCamera
+        }
         return CameraInfoAdapter(
             cameraProperties,
             CameraConfig(cameraId),
