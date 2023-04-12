@@ -92,6 +92,20 @@ package androidx.tv.material3 {
     method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void WideClassicCard(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> image, kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> subtitle, optional kotlin.jvm.functions.Function0<kotlin.Unit> description, optional androidx.tv.material3.CardShape shape, optional androidx.tv.material3.CardColors colors, optional androidx.tv.material3.CardScale scale, optional androidx.tv.material3.CardBorder border, optional androidx.tv.material3.CardGlow glow, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
   }
 
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CardLayoutColors {
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CardLayoutDefaults {
+    method @androidx.compose.runtime.Composable public void ImageCard(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.material3.CardShape shape, optional androidx.tv.material3.CardColors colors, optional androidx.tv.material3.CardScale scale, optional androidx.tv.material3.CardBorder border, optional androidx.tv.material3.CardGlow glow, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.CardLayoutColors contentColor(optional long contentColor, optional long focusedContentColor, optional long pressedContentColor);
+    field public static final androidx.tv.material3.CardLayoutDefaults INSTANCE;
+  }
+
+  public final class CardLayoutKt {
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void StandardCardLayout(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Unit> imageCard, kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> subtitle, optional kotlin.jvm.functions.Function0<kotlin.Unit> description, optional androidx.tv.material3.CardLayoutColors contentColor, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void WideCardLayout(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Unit> imageCard, kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> subtitle, optional kotlin.jvm.functions.Function0<kotlin.Unit> description, optional androidx.tv.material3.CardLayoutColors contentColor, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
+  }
+
   @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CardScale {
   }
 

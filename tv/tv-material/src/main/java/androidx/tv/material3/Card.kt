@@ -30,7 +30,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -325,19 +324,7 @@ fun WideClassicCard(
 }
 
 @Composable
-private fun CardContent(
-    title: @Composable () -> Unit,
-    subtitle: @Composable () -> Unit = {},
-    description: @Composable () -> Unit = {},
-    contentColor: Color
-) {
-    CompositionLocalProvider(LocalContentColor provides contentColor) {
-        CardContent(title, subtitle, description)
-    }
-}
-
-@Composable
-private fun CardContent(
+internal fun CardContent(
     title: @Composable () -> Unit,
     subtitle: @Composable () -> Unit = {},
     description: @Composable () -> Unit = {}
@@ -397,22 +384,6 @@ object CardDefaults {
             Color(red = 28, green = 27, blue = 31, alpha = 204)
         )
     )
-
-    /**
-     * Returns the content color [Color] from the colors [CardColors] for different
-     * interaction states.
-     */
-    internal fun contentColor(
-        focused: Boolean,
-        pressed: Boolean,
-        colors: CardColors
-    ): Color {
-        return when {
-            focused -> colors.focusedContentColor
-            pressed -> colors.pressedContentColor
-            else -> colors.contentColor
-        }
-    }
 
     /**
      * Creates a [CardShape] that represents the default container shapes used in a Card.
