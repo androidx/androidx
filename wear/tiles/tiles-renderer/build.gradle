@@ -35,7 +35,7 @@ dependencies {
     implementation("androidx.core:core:1.7.0")
     implementation "androidx.wear:wear:1.2.0"
 
-    implementation(project(":wear:protolayout:protolayout"))
+    api(project(":wear:protolayout:protolayout"))
     implementation(project(":wear:protolayout:protolayout-expression-pipeline"))
     implementation(project(":wear:protolayout:protolayout-renderer"))
     implementation(project(":wear:tiles:tiles"))
