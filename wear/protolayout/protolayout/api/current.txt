@@ -117,15 +117,15 @@ package androidx.wear.protolayout {
   }
 
   public static final class ActionBuilders.SetStateAction implements androidx.wear.protolayout.ActionBuilders.LocalAction {
-    method public String getTargetKey();
-    method public androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue? getValue();
+    method public androidx.wear.protolayout.expression.AppDataKey<?> getTargetKey();
+    method public androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue? getValue();
   }
 
   public static final class ActionBuilders.SetStateAction.Builder implements androidx.wear.protolayout.ActionBuilders.LocalAction.Builder {
     ctor public ActionBuilders.SetStateAction.Builder();
     method public androidx.wear.protolayout.ActionBuilders.SetStateAction build();
-    method public androidx.wear.protolayout.ActionBuilders.SetStateAction.Builder setTargetKey(String);
-    method public androidx.wear.protolayout.ActionBuilders.SetStateAction.Builder setValue(androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue);
+    method public androidx.wear.protolayout.ActionBuilders.SetStateAction.Builder setTargetKey(androidx.wear.protolayout.expression.AppDataKey<?>);
+    method public androidx.wear.protolayout.ActionBuilders.SetStateAction.Builder setValue(androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue);
   }
 
   public final class ColorBuilders {
@@ -993,13 +993,13 @@ package androidx.wear.protolayout {
   }
 
   public static final class StateBuilders.State {
-    method public java.util.Map<java.lang.String!,androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue!> getIdToValueMapping();
+    method public java.util.Map<java.lang.String!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue!> getIdToValueMapping();
     method public String getLastClickableId();
   }
 
   public static final class StateBuilders.State.Builder {
     ctor public StateBuilders.State.Builder();
-    method public androidx.wear.protolayout.StateBuilders.State.Builder addIdToValueMapping(String, androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue);
+    method public androidx.wear.protolayout.StateBuilders.State.Builder addKeyToValueMapping(androidx.wear.protolayout.expression.AppDataKey<?>, androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue);
     method public androidx.wear.protolayout.StateBuilders.State build();
   }
 

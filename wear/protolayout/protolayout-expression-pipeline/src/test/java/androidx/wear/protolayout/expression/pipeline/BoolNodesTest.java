@@ -31,7 +31,7 @@ import androidx.wear.protolayout.expression.proto.DynamicProto;
 import androidx.wear.protolayout.expression.proto.DynamicProto.LogicalBoolOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.StateBoolSource;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedBool;
-import androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +60,7 @@ public class BoolNodesTest {
         new StateStore(
             ImmutableMap.of(
                 new AppDataKey<DynamicBool>("foo"),
-                StateEntryValue.newBuilder()
+                DynamicDataValue.newBuilder()
                     .setBoolVal(FixedBool.newBuilder().setValue(true))
                     .build()));
 
@@ -80,7 +80,7 @@ public class BoolNodesTest {
         new StateStore(
             ImmutableMap.of(
                 new AppDataKey<DynamicBool>("foo"),
-                StateEntryValue.newBuilder()
+                DynamicDataValue.newBuilder()
                     .setBoolVal(FixedBool.newBuilder().setValue(true))
                     .build()));
 
@@ -92,10 +92,10 @@ public class BoolNodesTest {
 
     results.clear();
 
-    oss.setStateEntryValuesProto(
+    oss.setAppStateEntryValuesProto(
         ImmutableMap.of(
             new AppDataKey<DynamicBool>("foo"),
-            StateEntryValue.newBuilder()
+            DynamicDataValue.newBuilder()
                 .setBoolVal(FixedBool.newBuilder().setValue(false))
                 .build()));
 
@@ -110,7 +110,7 @@ public class BoolNodesTest {
         new StateStore(
             ImmutableMap.of(
                 keyFoo,
-                StateEntryValue.newBuilder()
+                DynamicDataValue.newBuilder()
                     .setBoolVal(FixedBool.newBuilder().setValue(false))
                     .build()));
 
@@ -123,10 +123,10 @@ public class BoolNodesTest {
 
     results.clear();
     node.destroy();
-    oss.setStateEntryValuesProto(
+    oss.setAppStateEntryValuesProto(
         ImmutableMap.of(
                 keyFoo,
-            StateEntryValue.newBuilder()
+                DynamicDataValue.newBuilder()
                 .setBoolVal(FixedBool.newBuilder().setValue(true))
                 .build()));
     assertThat(results).isEmpty();

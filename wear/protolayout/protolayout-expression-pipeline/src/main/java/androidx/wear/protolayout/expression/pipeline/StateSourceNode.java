@@ -22,22 +22,22 @@ import androidx.wear.protolayout.expression.DynamicBuilders.DynamicType;
 import androidx.wear.protolayout.expression.DynamicDataKey;
 import androidx.wear.protolayout.expression.PlatformDataKey;
 import androidx.wear.protolayout.expression.AppDataKey;
-import androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 
 import java.util.function.Function;
 
 class StateSourceNode<T>
         implements DynamicDataSourceNode<T>,
-        DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> {
+        DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue> {
     private final StateStore mStateStore;
     private final DynamicDataKey<?> mKey;
-    private final Function<StateEntryValue, T> mStateExtractor;
+    private final Function<DynamicDataValue, T> mStateExtractor;
     private final DynamicTypeValueReceiverWithPreUpdate<T> mDownstream;
 
     StateSourceNode(
             StateStore stateStore,
             DynamicDataKey<?> key,
-            Function<StateEntryValue, T> stateExtractor,
+            Function<DynamicDataValue, T> stateExtractor,
             DynamicTypeValueReceiverWithPreUpdate<T> downstream) {
         this.mStateStore = stateStore;
         this.mKey = key;
@@ -55,7 +55,7 @@ class StateSourceNode<T>
     @UiThread
     public void init() {
         mStateStore.registerCallback(mKey, this);
-        StateEntryValue item = mStateStore.getStateEntryValuesProto(mKey);
+        DynamicDataValue item = mStateStore.getDynamicDataValuesProto(mKey);
 
         if (item != null) {
             this.onData(item);
@@ -76,7 +76,7 @@ class StateSourceNode<T>
     }
 
     @Override
-    public void onData(@NonNull StateEntryValue newData) {
+    public void onData(@NonNull DynamicDataValue newData) {
         T actualValue = mStateExtractor.apply(newData);
         mDownstream.onData(actualValue);
     }

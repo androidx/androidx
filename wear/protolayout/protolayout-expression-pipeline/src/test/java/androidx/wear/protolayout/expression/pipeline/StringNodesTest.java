@@ -32,7 +32,7 @@ import androidx.wear.protolayout.expression.pipeline.StringNodes.StringConcatOpN
 import androidx.wear.protolayout.expression.proto.DynamicProto.Int32FormatOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.StateStringSource;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedString;
-import androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -110,7 +110,7 @@ public class StringNodesTest {
                 new StateStore(
                         ImmutableMap.of(
                                 KEY_FOO,
-                                StateEntryValue.newBuilder()
+                                DynamicDataValue.newBuilder()
                                         .setStringVal(FixedString.newBuilder().setValue("bar"))
                                         .build()));
 
@@ -133,7 +133,7 @@ public class StringNodesTest {
                 new StateStore(
                         ImmutableMap.of(
                                 KEY_FOO,
-                                StateEntryValue.newBuilder()
+                                DynamicDataValue.newBuilder()
                                         .setStringVal(
                                                 FixedString.newBuilder().setValue(string500chars))
                                         .build()));
@@ -156,7 +156,7 @@ public class StringNodesTest {
                 new StateStore(
                         ImmutableMap.of(
                                 KEY_FOO,
-                                StateEntryValue.newBuilder()
+                                DynamicDataValue.newBuilder()
                                         .setStringVal(FixedString.newBuilder().setValue("bar"))
                                         .build()));
 
@@ -169,10 +169,10 @@ public class StringNodesTest {
 
         results.clear();
 
-        oss.setStateEntryValuesProto(
+        oss.setAppStateEntryValuesProto(
                 ImmutableMap.of(
                         KEY_FOO,
-                        StateEntryValue.newBuilder()
+                        DynamicDataValue.newBuilder()
                                 .setStringVal(FixedString.newBuilder().setValue("baz"))
                                 .build()));
 
@@ -212,7 +212,7 @@ public class StringNodesTest {
                 new StateStore(
                         ImmutableMap.of(
                                 KEY_FOO,
-                                StateEntryValue.newBuilder()
+                                DynamicDataValue.newBuilder()
                                         .setStringVal(FixedString.newBuilder().setValue("bar"))
                                         .build()));
 
@@ -226,10 +226,10 @@ public class StringNodesTest {
 
         results.clear();
         node.destroy();
-        oss.setStateEntryValuesProto(
+        oss.setAppStateEntryValuesProto(
                 ImmutableMap.of(
                         KEY_FOO,
-                        StateEntryValue.newBuilder()
+                        DynamicDataValue.newBuilder()
                                 .setStringVal(FixedString.newBuilder().setValue("baz"))
                                 .build()));
         assertThat(results).isEmpty();

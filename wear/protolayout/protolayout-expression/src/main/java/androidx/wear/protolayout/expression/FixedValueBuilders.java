@@ -24,7 +24,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.expression.proto.DynamicProto;
 import androidx.wear.protolayout.expression.proto.FixedProto;
-import androidx.wear.protolayout.expression.proto.StateEntryProto;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto;
 
 /**
  * Builders for fixed value primitive types that can be used in dynamic expressions and in for state
@@ -39,7 +39,7 @@ final class FixedValueBuilders {
    * @since 1.2
    */
   static final class FixedInt32
-      implements DynamicBuilders.DynamicInt32, StateEntryBuilders.StateEntryValue {
+      implements DynamicBuilders.DynamicInt32, DynamicDataBuilders.DynamicDataValue {
     private final FixedProto.FixedInt32 mImpl;
     @Nullable private final Fingerprint mFingerprint;
 
@@ -92,8 +92,8 @@ final class FixedValueBuilders {
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    public StateEntryProto.StateEntryValue toStateEntryValueProto() {
-      return StateEntryProto.StateEntryValue.newBuilder().setInt32Val(mImpl).build();
+    public DynamicDataProto.DynamicDataValue toDynamicDataValueProto() {
+      return DynamicDataProto.DynamicDataValue.newBuilder().setInt32Val(mImpl).build();
     }
 
     @Override
@@ -105,7 +105,7 @@ final class FixedValueBuilders {
     /** Builder for {@link FixedInt32}. */
     public static final class Builder
         implements DynamicBuilders.DynamicInt32.Builder,
-            StateEntryBuilders.StateEntryValue.Builder {
+            DynamicDataBuilders.DynamicDataValue.Builder {
       private final FixedProto.FixedInt32.Builder mImpl = FixedProto.FixedInt32.newBuilder();
       private final Fingerprint mFingerprint = new Fingerprint(974881783);
 
@@ -137,7 +137,7 @@ final class FixedValueBuilders {
    * @since 1.2
    */
   static final class FixedString
-      implements DynamicBuilders.DynamicString, StateEntryBuilders.StateEntryValue {
+      implements DynamicBuilders.DynamicString, DynamicDataBuilders.DynamicDataValue {
     private final FixedProto.FixedString mImpl;
     @Nullable private final Fingerprint mFingerprint;
 
@@ -191,8 +191,8 @@ final class FixedValueBuilders {
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    public StateEntryProto.StateEntryValue toStateEntryValueProto() {
-      return StateEntryProto.StateEntryValue.newBuilder().setStringVal(mImpl).build();
+    public DynamicDataProto.DynamicDataValue toDynamicDataValueProto() {
+      return DynamicDataProto.DynamicDataValue.newBuilder().setStringVal(mImpl).build();
     }
 
     @Override
@@ -204,7 +204,7 @@ final class FixedValueBuilders {
     /** Builder for {@link FixedString}. */
     public static final class Builder
         implements DynamicBuilders.DynamicString.Builder,
-            StateEntryBuilders.StateEntryValue.Builder {
+            DynamicDataBuilders.DynamicDataValue.Builder {
       private final FixedProto.FixedString.Builder mImpl = FixedProto.FixedString.newBuilder();
       private final Fingerprint mFingerprint = new Fingerprint(1963352072);
 
@@ -236,7 +236,7 @@ final class FixedValueBuilders {
    * @since 1.2
    */
   static final class FixedFloat
-      implements DynamicBuilders.DynamicFloat, StateEntryBuilders.StateEntryValue {
+      implements DynamicBuilders.DynamicFloat, DynamicDataBuilders.DynamicDataValue {
     private final FixedProto.FixedFloat mImpl;
     @Nullable private final Fingerprint mFingerprint;
 
@@ -290,8 +290,8 @@ final class FixedValueBuilders {
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    public StateEntryProto.StateEntryValue toStateEntryValueProto() {
-      return StateEntryProto.StateEntryValue.newBuilder().setFloatVal(mImpl).build();
+    public DynamicDataProto.DynamicDataValue toDynamicDataValueProto() {
+      return DynamicDataProto.DynamicDataValue.newBuilder().setFloatVal(mImpl).build();
     }
 
     @Override
@@ -303,7 +303,7 @@ final class FixedValueBuilders {
     /** Builder for {@link FixedFloat}. */
     public static final class Builder
         implements DynamicBuilders.DynamicFloat.Builder,
-            StateEntryBuilders.StateEntryValue.Builder {
+            DynamicDataBuilders.DynamicDataValue.Builder {
       private final FixedProto.FixedFloat.Builder mImpl = FixedProto.FixedFloat.newBuilder();
       private final Fingerprint mFingerprint = new Fingerprint(-144724541);
 
@@ -338,7 +338,7 @@ final class FixedValueBuilders {
    * @since 1.2
    */
   static final class FixedBool
-      implements DynamicBuilders.DynamicBool, StateEntryBuilders.StateEntryValue {
+      implements DynamicBuilders.DynamicBool, DynamicDataBuilders.DynamicDataValue {
     private final FixedProto.FixedBool mImpl;
     @Nullable private final Fingerprint mFingerprint;
 
@@ -391,8 +391,8 @@ final class FixedValueBuilders {
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    public StateEntryProto.StateEntryValue toStateEntryValueProto() {
-      return StateEntryProto.StateEntryValue.newBuilder().setBoolVal(mImpl).build();
+    public DynamicDataProto.DynamicDataValue toDynamicDataValueProto() {
+      return DynamicDataProto.DynamicDataValue.newBuilder().setBoolVal(mImpl).build();
     }
 
     @Override
@@ -403,7 +403,8 @@ final class FixedValueBuilders {
 
     /** Builder for {@link FixedBool}. */
     public static final class Builder
-        implements DynamicBuilders.DynamicBool.Builder, StateEntryBuilders.StateEntryValue.Builder {
+        implements DynamicBuilders.DynamicBool.Builder,
+            DynamicDataBuilders.DynamicDataValue.Builder {
       private final FixedProto.FixedBool.Builder mImpl = FixedProto.FixedBool.newBuilder();
       private final Fingerprint mFingerprint = new Fingerprint(-665116398);
 
@@ -436,7 +437,7 @@ final class FixedValueBuilders {
    * @since 1.2
    */
   static final class FixedColor
-      implements DynamicBuilders.DynamicColor, StateEntryBuilders.StateEntryValue {
+      implements DynamicBuilders.DynamicColor, DynamicDataBuilders.DynamicDataValue {
     private final FixedProto.FixedColor mImpl;
     @Nullable private final Fingerprint mFingerprint;
 
@@ -490,8 +491,8 @@ final class FixedValueBuilders {
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    public StateEntryProto.StateEntryValue toStateEntryValueProto() {
-      return StateEntryProto.StateEntryValue.newBuilder().setColorVal(mImpl).build();
+    public DynamicDataProto.DynamicDataValue toDynamicDataValueProto() {
+      return DynamicDataProto.DynamicDataValue.newBuilder().setColorVal(mImpl).build();
     }
 
     @Override
@@ -503,7 +504,7 @@ final class FixedValueBuilders {
     /** Builder for {@link FixedColor}. */
     public static final class Builder
         implements DynamicBuilders.DynamicColor.Builder,
-            StateEntryBuilders.StateEntryValue.Builder {
+            DynamicDataBuilders.DynamicDataValue.Builder {
       private final FixedProto.FixedColor.Builder mImpl = FixedProto.FixedColor.newBuilder();
       private final Fingerprint mFingerprint = new Fingerprint(-1895809356);
 

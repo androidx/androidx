@@ -1,4 +1,4 @@
-// State entries of a provider.
+// Dynamic data entries of a provider.
 syntax = "proto3";
 
 package androidx.wear.protolayout.expression.proto;
@@ -6,10 +6,10 @@ package androidx.wear.protolayout.expression.proto;
 import "fixed.proto";
 
 option java_package = "androidx.wear.protolayout.expression.proto";
-option java_outer_classname = "StateEntryProto";
+option java_outer_classname = "DynamicDataProto";
 
-// A state entry value.
-message StateEntryValue {
+// A dynamic data value.
+message DynamicDataValue {
   oneof inner {
     FixedString string_val = 1;
     FixedInt32 int32_val = 2;

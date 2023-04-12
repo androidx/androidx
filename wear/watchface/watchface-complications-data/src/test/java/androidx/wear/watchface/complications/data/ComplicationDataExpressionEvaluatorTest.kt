@@ -25,7 +25,7 @@ import androidx.wear.protolayout.expression.AppDataKey
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
-import androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue
+import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue
 import androidx.wear.protolayout.expression.pipeline.StateStore
 import androidx.wear.protolayout.expression.pipeline.TimeGateway
 import androidx.wear.watchface.complications.data.ComplicationDataExpressionEvaluator.Companion.INVALID_DATA
@@ -76,7 +76,7 @@ class ComplicationDataExpressionEvaluatorTest {
      */
     enum class DataWithExpressionScenario(
         val expressed: WireComplicationData,
-        val states: List<Map<AppDataKey<*>, StateEntryValue>>,
+        val states: List<Map<AppDataKey<*>, DynamicDataValue>>,
         val evaluated: List<WireComplicationData>,
     ) {
         SET_IMMEDIATELY_WHEN_ALL_DATA_AVAILABLE(
@@ -113,13 +113,19 @@ class ComplicationDataExpressionEvaluatorTest {
         SET_ONLY_AFTER_ALL_FIELDS_EVALUATED(
             expressed =
                 WireComplicationData.Builder(TYPE_NO_DATA)
-                    .setRangedValueExpression(DynamicFloat.fromState("ranged_value"))
-                    .setLongText(WireComplicationText(DynamicString.fromState("long_text")))
-                    .setLongTitle(WireComplicationText(DynamicString.fromState("long_title")))
-                    .setShortText(WireComplicationText(DynamicString.fromState("short_text")))
-                    .setShortTitle(WireComplicationText(DynamicString.fromState("short_title")))
+                    .setRangedValueExpression(DynamicFloat.from(AppDataKey("ranged_value")))
+                    .setLongText(WireComplicationText(DynamicString.from(AppDataKey("long_text"))))
+                    .setLongTitle(
+                        WireComplicationText(DynamicString.from(AppDataKey("long_title")))
+                    )
+                    .setShortText(
+                        WireComplicationText(DynamicString.from(AppDataKey("short_text")))
+                    )
+                    .setShortTitle(
+                        WireComplicationText(DynamicString.from(AppDataKey("short_title")))
+                    )
                     .setContentDescription(
-                        WireComplicationText(DynamicString.fromState("description"))
+                        WireComplicationText(DynamicString.from(AppDataKey("description")))
                     )
                     .setPlaceholder(stateData("placeholder"))
                     .setListEntryCollection(listOf(stateData("list")))
@@ -129,36 +135,36 @@ class ComplicationDataExpressionEvaluatorTest {
                 aggregate(
                     // Each map piles on top of the previous ones.
                     mapOf(
-                        AppDataKey<DynamicFloat>("ranged_value") to StateEntryValue.fromFloat(1f)
+                        AppDataKey<DynamicFloat>("ranged_value") to DynamicDataValue.fromFloat(1f)
                     ),
                     mapOf(
                         AppDataKey<DynamicString>("long_text") to
-                            StateEntryValue.fromString("Long Text")
+                            DynamicDataValue.fromString("Long Text")
                     ),
                     mapOf(
                         AppDataKey<DynamicString>("long_title") to
-                            StateEntryValue.fromString("Long Title")
+                            DynamicDataValue.fromString("Long Title")
                     ),
                     mapOf(
                         AppDataKey<DynamicString>("short_text") to
-                            StateEntryValue.fromString("Short Text")
+                            DynamicDataValue.fromString("Short Text")
                     ),
                     mapOf(
                         AppDataKey<DynamicString>("short_title") to
-                            StateEntryValue.fromString("Short Title")
+                            DynamicDataValue.fromString("Short Title")
                     ),
                     mapOf(
                         AppDataKey<DynamicString>("description") to
-                            StateEntryValue.fromString("Description")
+                            DynamicDataValue.fromString("Description")
                     ),
                     mapOf(
                         AppDataKey<DynamicString>("placeholder") to
-                            StateEntryValue.fromString("Placeholder")
+                            DynamicDataValue.fromString("Placeholder")
                     ),
-                    mapOf(AppDataKey<DynamicString>("list") to StateEntryValue.fromString("List")),
+                    mapOf(AppDataKey<DynamicString>("list") to DynamicDataValue.fromString("List")),
                     mapOf(
                         AppDataKey<DynamicString>("timeline") to
-                            StateEntryValue.fromString("Timeline")
+                            DynamicDataValue.fromString("Timeline")
                     ),
                     // Only the last one will trigger an evaluated data.
                 ),
@@ -188,13 +194,13 @@ class ComplicationDataExpressionEvaluatorTest {
         SET_TO_EVALUATED_IF_ALL_FIELDS_VALID(
             expressed =
                 WireComplicationData.Builder(TYPE_SHORT_TEXT)
-                    .setShortTitle(WireComplicationText(DynamicString.fromState("valid")))
-                    .setShortText(WireComplicationText(DynamicString.fromState("valid")))
+                    .setShortTitle(WireComplicationText(DynamicString.from(AppDataKey("valid"))))
+                    .setShortText(WireComplicationText(DynamicString.from(AppDataKey("valid"))))
                     .build(),
             states =
                 listOf(
                     mapOf(
-                        AppDataKey<DynamicString>("valid") to StateEntryValue.fromString("Valid")
+                        AppDataKey<DynamicString>("valid") to DynamicDataValue.fromString("Valid")
                     ),
                 ),
             evaluated =
@@ -209,14 +215,14 @@ class ComplicationDataExpressionEvaluatorTest {
         SET_TO_NO_DATA_IF_FIRST_STATE_IS_INVALID(
             expressed =
                 WireComplicationData.Builder(TYPE_SHORT_TEXT)
-                    .setShortTitle(WireComplicationText(DynamicString.fromState("valid")))
-                    .setShortText(WireComplicationText(DynamicString.fromState("invalid")))
+                    .setShortTitle(WireComplicationText(DynamicString.from(AppDataKey("valid"))))
+                    .setShortText(WireComplicationText(DynamicString.from(AppDataKey("invalid"))))
                     .build(),
             states =
                 listOf(
                     mapOf(),
                     mapOf(
-                        AppDataKey<DynamicString>("valid") to StateEntryValue.fromString("Valid")
+                        AppDataKey<DynamicString>("valid") to DynamicDataValue.fromString("Valid")
                     ),
                 ),
             evaluated =
@@ -227,17 +233,18 @@ class ComplicationDataExpressionEvaluatorTest {
         SET_TO_NO_DATA_IF_LAST_STATE_IS_INVALID(
             expressed =
                 WireComplicationData.Builder(TYPE_SHORT_TEXT)
-                    .setShortTitle(WireComplicationText(DynamicString.fromState("valid")))
-                    .setShortText(WireComplicationText(DynamicString.fromState("invalid")))
+                    .setShortTitle(WireComplicationText(DynamicString.from(AppDataKey("valid"))))
+                    .setShortText(WireComplicationText(DynamicString.from(AppDataKey("invalid"))))
                     .build(),
             states =
                 listOf(
                     mapOf(
-                        AppDataKey<DynamicString>("valid") to StateEntryValue.fromString("Valid"),
-                        AppDataKey<DynamicString>("invalid") to StateEntryValue.fromString("Valid"),
+                        AppDataKey<DynamicString>("valid") to DynamicDataValue.fromString("Valid"),
+                        AppDataKey<DynamicString>("invalid") to
+                            DynamicDataValue.fromString("Valid"),
                     ),
                     mapOf(
-                        AppDataKey<DynamicString>("valid") to StateEntryValue.fromString("Valid")
+                        AppDataKey<DynamicString>("valid") to DynamicDataValue.fromString("Valid")
                     ),
                 ),
             evaluated =
@@ -299,7 +306,7 @@ class ComplicationDataExpressionEvaluatorTest {
                     )
 
             for (state in scenario.states) {
-                stateStore.setStateEntryValues(state)
+                stateStore.setAppStateEntryValues(state)
             }
 
             expect
@@ -415,7 +422,7 @@ class ComplicationDataExpressionEvaluatorTest {
 
         fun stateData(value: String) =
             WireComplicationData.Builder(TYPE_NO_DATA)
-                .setLongText(WireComplicationText(DynamicString.fromState(value)))
+                .setLongText(WireComplicationText(DynamicString.from(AppDataKey(value))))
                 .build()
 
         fun evaluatedData(value: String) =

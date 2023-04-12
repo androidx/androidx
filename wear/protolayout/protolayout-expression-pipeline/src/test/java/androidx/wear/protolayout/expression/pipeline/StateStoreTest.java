@@ -28,9 +28,9 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
-import androidx.wear.protolayout.expression.StateEntryBuilders;
+import androidx.wear.protolayout.expression.DynamicDataBuilders;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedString;
-import androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.truth.Expect;
@@ -54,101 +54,102 @@ public class StateStoreTest {
     private final StateStore mStateStoreUnderTest =
             new StateStore(
                     ImmutableMap.of(
-                            KEY_FOO, buildStateEntry("bar"),
-                            KEY_BAZ, buildStateEntry("foobar")));
+                            KEY_FOO, buildDynamicDataValue("bar"),
+                            KEY_BAZ, buildDynamicDataValue("foobar")));
 
     public StateStoreTest() {}
 
     @Test
     public void setBuilderApi() {
-        mStateStoreUnderTest.setStateEntryValues(
+        mStateStoreUnderTest.setAppStateEntryValues(
                 ImmutableMap.of(
-                        KEY_FOO, StateEntryBuilders.StateEntryValue.fromString("baz")));
+                        KEY_FOO, DynamicDataBuilders.DynamicDataValue.fromString("baz")));
 
-        mExpect.that(mStateStoreUnderTest.getStateEntryValuesProto(KEY_FOO))
-                .isEqualTo(buildStateEntry("baz"));
+        mExpect.that(mStateStoreUnderTest.getDynamicDataValuesProto(KEY_FOO))
+                .isEqualTo(buildDynamicDataValue("baz"));
     }
 
     @Test
     public void initState_largeNumberOfEntries_throws() {
-        Map<AppDataKey<?>, StateEntryBuilders.StateEntryValue> state = new HashMap<>();
+        Map<AppDataKey<?>, DynamicDataBuilders.DynamicDataValue> state = new HashMap<>();
         for (int i = 0; i < StateStore.MAX_STATE_ENTRY_COUNT + 10; i++) {
             state.put(
                     new AppDataKey<DynamicString>(Integer.toString(i)),
-                    StateEntryBuilders.StateEntryValue.fromString("baz"));
+                    DynamicDataBuilders.DynamicDataValue.fromString("baz"));
         }
         assertThrows(IllegalStateException.class, () -> StateStore.create(state));
     }
 
     @Test
     public void newState_largeNumberOfEntries_throws() {
-        Map<AppDataKey<?>, StateEntryBuilders.StateEntryValue> state = new HashMap<>();
+        Map<AppDataKey<?>, DynamicDataBuilders.DynamicDataValue> state = new HashMap<>();
         for (int i = 0; i < StateStore.MAX_STATE_ENTRY_COUNT + 10; i++) {
             state.put(
                     new AppDataKey<DynamicString>(Integer.toString(i)),
-                    StateEntryBuilders.StateEntryValue.fromString("baz"));
+                    DynamicDataBuilders.DynamicDataValue.fromString("baz"));
         }
         assertThrows(
-                IllegalStateException.class, () -> mStateStoreUnderTest.setStateEntryValues(state));
+                IllegalStateException.class,
+                () -> mStateStoreUnderTest.setAppStateEntryValues(state));
     }
 
     @Test
     public void canReadInitialState() {
-        mExpect.that(mStateStoreUnderTest.getStateEntryValuesProto(KEY_FOO))
-                .isEqualTo(buildStateEntry("bar"));
-        mExpect.that(mStateStoreUnderTest.getStateEntryValuesProto(KEY_BAZ))
-                .isEqualTo(buildStateEntry("foobar"));
+        mExpect.that(mStateStoreUnderTest.getDynamicDataValuesProto(KEY_FOO))
+                .isEqualTo(buildDynamicDataValue("bar"));
+        mExpect.that(mStateStoreUnderTest.getDynamicDataValuesProto(KEY_BAZ))
+                .isEqualTo(buildDynamicDataValue("foobar"));
     }
 
     @Test
     public void unsetStateReturnsNull() {
         mExpect.that(
-                mStateStoreUnderTest.getStateEntryValuesProto(new AppDataKey<>("AAAAAA"))
+                mStateStoreUnderTest.getDynamicDataValuesProto(new AppDataKey<>("AAAAAA"))
                 ).isNull();
     }
 
     @Test
     public void canSetNewState() {
         AppDataKey<DynamicString> keyNew = new AppDataKey<>("newKey");
-        mStateStoreUnderTest.setStateEntryValuesProto(
+        mStateStoreUnderTest.setAppStateEntryValuesProto(
                 ImmutableMap.of(
-                        KEY_FOO, buildStateEntry("test"),
-                        keyNew, buildStateEntry("testNewKey")));
+                        KEY_FOO, buildDynamicDataValue("test"),
+                        keyNew, buildDynamicDataValue("testNewKey")));
 
-        mExpect.that(mStateStoreUnderTest.getStateEntryValuesProto(KEY_FOO))
-                .isEqualTo(buildStateEntry("test"));
-        mExpect.that(mStateStoreUnderTest.getStateEntryValuesProto(keyNew))
-                .isEqualTo(buildStateEntry("testNewKey"));
+        mExpect.that(mStateStoreUnderTest.getDynamicDataValuesProto(KEY_FOO))
+                .isEqualTo(buildDynamicDataValue("test"));
+        mExpect.that(mStateStoreUnderTest.getDynamicDataValuesProto(keyNew))
+                .isEqualTo(buildDynamicDataValue("testNewKey"));
 
         // This should have been cleared...
-        mExpect.that(mStateStoreUnderTest.getStateEntryValuesProto(KEY_BAZ)).isNull();
+        mExpect.that(mStateStoreUnderTest.getDynamicDataValuesProto(KEY_BAZ)).isNull();
     }
 
     @Test
     public void setStateFiresListeners() {
-        DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> cb = buildStateUpdateCallbackMock();
+        DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue> cb = buildStateUpdateCallbackMock();
         mStateStoreUnderTest.registerCallback(KEY_FOO, cb);
 
-        mStateStoreUnderTest.setStateEntryValuesProto(
-                ImmutableMap.of(KEY_FOO, buildStateEntry("test")));
+        mStateStoreUnderTest.setAppStateEntryValuesProto(
+                ImmutableMap.of(KEY_FOO, buildDynamicDataValue("test")));
 
         verify(cb).onPreUpdate();
-        verify(cb).onData(buildStateEntry("test"));
+        verify(cb).onData(buildDynamicDataValue("test"));
     }
 
     @Test
     public void setStateFiresOnPreStateUpdateFirst() {
-        DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> cb = buildStateUpdateCallbackMock();
+        DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue> cb = buildStateUpdateCallbackMock();
 
         InOrder inOrder = Mockito.inOrder(cb);
 
         mStateStoreUnderTest.registerCallback(KEY_FOO, cb);
         mStateStoreUnderTest.registerCallback(KEY_BAZ, cb);
 
-        mStateStoreUnderTest.setStateEntryValuesProto(
+        mStateStoreUnderTest.setAppStateEntryValuesProto(
                 ImmutableMap.of(
-                        KEY_FOO, buildStateEntry("testFoo"),
-                        KEY_BAZ, buildStateEntry("testBaz")));
+                        KEY_FOO, buildDynamicDataValue("testFoo"),
+                        KEY_BAZ, buildDynamicDataValue("testBaz")));
 
         inOrder.verify(cb, times(2)).onPreUpdate();
         inOrder.verify(cb, times(2)).onData(any());
@@ -157,43 +158,43 @@ public class StateStoreTest {
 
     @Test
     public void setStateOnlyFiresListenersForChangedData() {
-        DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> cbFoo =
+        DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue> cbFoo =
                 buildStateUpdateCallbackMock();
-        DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> cbBaz =
+        DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue> cbBaz =
                 buildStateUpdateCallbackMock();
         mStateStoreUnderTest.registerCallback(KEY_FOO, cbFoo);
         mStateStoreUnderTest.registerCallback(KEY_BAZ, cbBaz);
 
-        mStateStoreUnderTest.setStateEntryValuesProto(
+        mStateStoreUnderTest.setAppStateEntryValuesProto(
                 ImmutableMap.of(
-                        KEY_FOO, buildStateEntry("test"),
-                        KEY_BAZ, buildStateEntry("foobar")));
+                        KEY_FOO, buildDynamicDataValue("test"),
+                        KEY_BAZ, buildDynamicDataValue("foobar")));
 
         verify(cbFoo).onPreUpdate();
-        verify(cbFoo).onData(buildStateEntry("test"));
+        verify(cbFoo).onData(buildDynamicDataValue("test"));
         verify(cbBaz, never()).onPreUpdate();
-        verify(cbBaz, never()).onData(buildStateEntry("test"));
+        verify(cbBaz, never()).onData(buildDynamicDataValue("test"));
     }
 
     @Test
     public void removeStateFiresInvalidated() {
         AppDataKey<DynamicString> keyInvalidated = new AppDataKey<>("invalidated");
         AppDataKey<DynamicString> keyNotInvalidated = new AppDataKey<>("notInvalidated");
-        mStateStoreUnderTest.setStateEntryValuesProto(
+        mStateStoreUnderTest.setAppStateEntryValuesProto(
                 ImmutableMap.of(
                         keyInvalidated,
-                        buildStateEntry("value"),
+                        buildDynamicDataValue("value"),
                         keyNotInvalidated,
-                        buildStateEntry("value")));
-        DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> invalidated =
+                        buildDynamicDataValue("value")));
+        DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue> invalidated =
                 buildStateUpdateCallbackMock();
-        DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> notInvalidated =
+        DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue> notInvalidated =
                 buildStateUpdateCallbackMock();
         mStateStoreUnderTest.registerCallback(keyInvalidated, invalidated);
         mStateStoreUnderTest.registerCallback(keyNotInvalidated, notInvalidated);
 
-        mStateStoreUnderTest.setStateEntryValuesProto(
-                ImmutableMap.of(keyNotInvalidated, buildStateEntry("value")));
+        mStateStoreUnderTest.setAppStateEntryValuesProto(
+                ImmutableMap.of(keyNotInvalidated, buildDynamicDataValue("value")));
 
         verify(invalidated).onPreUpdate();
         verify(invalidated).onInvalidated();
@@ -204,30 +205,30 @@ public class StateStoreTest {
     @SuppressWarnings("unchecked")
     @Test
     public void canUnregisterListeners() {
-        DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> cb = buildStateUpdateCallbackMock();
+        DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue> cb = buildStateUpdateCallbackMock();
         mStateStoreUnderTest.registerCallback(KEY_FOO, cb);
 
-        mStateStoreUnderTest.setStateEntryValuesProto(
-                ImmutableMap.of(KEY_FOO, buildStateEntry("test")));
+        mStateStoreUnderTest.setAppStateEntryValuesProto(
+                ImmutableMap.of(KEY_FOO, buildDynamicDataValue("test")));
 
         reset(cb);
         mStateStoreUnderTest.unregisterCallback(KEY_FOO, cb);
 
-        mStateStoreUnderTest.setStateEntryValuesProto(
-                ImmutableMap.of(KEY_FOO, buildStateEntry("testAgain")));
+        mStateStoreUnderTest.setAppStateEntryValuesProto(
+                ImmutableMap.of(KEY_FOO, buildDynamicDataValue("testAgain")));
 
         verifyNoInteractions(cb);
     }
 
     @SuppressWarnings("unchecked")
-    private DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> buildStateUpdateCallbackMock() {
+    private DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue> buildStateUpdateCallbackMock() {
         // This needs an unchecked cast because of the generic; this method just centralizes the
         // warning suppression.
         return mock(DynamicTypeValueReceiverWithPreUpdate.class);
     }
 
-    private StateEntryValue buildStateEntry(String value) {
-        return StateEntryValue.newBuilder()
+    private DynamicDataValue buildDynamicDataValue(String value) {
+        return DynamicDataValue.newBuilder()
                 .setStringVal(FixedString.newBuilder().setValue(value))
                 .build();
     }

@@ -48,7 +48,7 @@ public final class DynamicInt32Test {
 
     @Test
     public void stateEntryValueInt32() {
-        DynamicInt32 stateInt32 = DynamicInt32.fromState(STATE_KEY);
+        DynamicInt32 stateInt32 = DynamicInt32.from(new AppDataKey<>(STATE_KEY));
 
         assertThat(stateInt32.toDynamicInt32Proto().getStateSource().getSourceKey())
                 .isEqualTo(STATE_KEY);
@@ -56,7 +56,7 @@ public final class DynamicInt32Test {
 
     @Test
     public void stateToString() {
-        assertThat(DynamicInt32.fromState("key").toString())
+        assertThat(DynamicInt32.from(new AppDataKey<>("key")).toString())
                 .isEqualTo("StateInt32Source{sourceKey=key, sourceNamespace=}");
     }
 

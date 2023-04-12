@@ -35,7 +35,7 @@ import androidx.wear.protolayout.expression.proto.AnimationParameterProto.Animat
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableFixedColor;
 import androidx.wear.protolayout.expression.proto.DynamicProto.StateColorSource;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedColor;
-import androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
@@ -73,7 +73,7 @@ public class ColorNodesTest {
                 new StateStore(
                         ImmutableMap.of(
                                 KEY_FOO,
-                                StateEntryValue.newBuilder()
+                                DynamicDataValue.newBuilder()
                                         .setColorVal(FixedColor.newBuilder().setArgb(FROM_COLOR))
                                         .build()));
 
@@ -94,7 +94,7 @@ public class ColorNodesTest {
                 new StateStore(
                         ImmutableMap.of(
                                 KEY_FOO,
-                                StateEntryValue.newBuilder()
+                                DynamicDataValue.newBuilder()
                                         .setColorVal(FixedColor.newBuilder().setArgb(FROM_COLOR))
                                         .build()));
         StateColorSource protoNode = StateColorSource.newBuilder().setSourceKey("foo").build();
@@ -103,10 +103,10 @@ public class ColorNodesTest {
 
         node.preInit();
         node.init();
-        oss.setStateEntryValuesProto(
+        oss.setAppStateEntryValuesProto(
                 ImmutableMap.of(
                         KEY_FOO,
-                        StateEntryValue.newBuilder()
+                        DynamicDataValue.newBuilder()
                                 .setColorVal(FixedColor.newBuilder().setArgb(TO_COLOR))
                                 .build()));
 
@@ -120,7 +120,7 @@ public class ColorNodesTest {
                 new StateStore(
                         ImmutableMap.of(
                                 KEY_FOO,
-                                StateEntryValue.newBuilder()
+                                DynamicDataValue.newBuilder()
                                         .setColorVal(FixedColor.newBuilder().setArgb(FROM_COLOR))
                                         .build()));
         StateColorSource protoNode = StateColorSource.newBuilder().setSourceKey("foo").build();
@@ -133,10 +133,10 @@ public class ColorNodesTest {
 
         results.clear();
         node.destroy();
-        oss.setStateEntryValuesProto(
+        oss.setAppStateEntryValuesProto(
                 ImmutableMap.of(
                         KEY_FOO,
-                        StateEntryValue.newBuilder()
+                        DynamicDataValue.newBuilder()
                                 .setColorVal(FixedColor.newBuilder().setArgb(TO_COLOR))
                                 .build()));
         assertThat(results).isEmpty();
@@ -217,7 +217,7 @@ public class ColorNodesTest {
                 new StateStore(
                         ImmutableMap.of(
                                 KEY_FOO,
-                                StateEntryValue.newBuilder()
+                                DynamicDataValue.newBuilder()
                                         .setColorVal(
                                                 FixedColor.newBuilder().setArgb(FROM_COLOR).build())
                                         .build()));
@@ -236,10 +236,10 @@ public class ColorNodesTest {
         stateNode.preInit();
         stateNode.init();
 
-        oss.setStateEntryValuesProto(
+        oss.setAppStateEntryValuesProto(
                 ImmutableMap.of(
                         KEY_FOO,
-                        StateEntryValue.newBuilder()
+                        DynamicDataValue.newBuilder()
                                 .setColorVal(FixedColor.newBuilder().setArgb(TO_COLOR))
                                 .build()));
         shadowOf(Looper.getMainLooper()).idle();
@@ -260,7 +260,7 @@ public class ColorNodesTest {
                 new StateStore(
                         ImmutableMap.of(
                                 KEY_FOO,
-                                StateEntryValue.newBuilder()
+                                DynamicDataValue.newBuilder()
                                         .setColorVal(
                                                 FixedColor.newBuilder().setArgb(color1).build())
                                         .build()));
@@ -280,10 +280,10 @@ public class ColorNodesTest {
         stateNode.init();
 
         results.clear();
-        oss.setStateEntryValuesProto(
+        oss.setAppStateEntryValuesProto(
                 ImmutableMap.of(
                         KEY_FOO,
-                        StateEntryValue.newBuilder()
+                        DynamicDataValue.newBuilder()
                                 .setColorVal(FixedColor.newBuilder().setArgb(color2))
                                 .build()));
         shadowOf(Looper.getMainLooper()).idle();
@@ -294,10 +294,10 @@ public class ColorNodesTest {
 
         colorNode.setVisibility(true);
         results.clear();
-        oss.setStateEntryValuesProto(
+        oss.setAppStateEntryValuesProto(
                 ImmutableMap.of(
                         KEY_FOO,
-                        StateEntryValue.newBuilder()
+                        DynamicDataValue.newBuilder()
                                 .setColorVal(FixedColor.newBuilder().setArgb(color3))
                                 .build()));
         shadowOf(Looper.getMainLooper()).idle();
@@ -320,7 +320,7 @@ public class ColorNodesTest {
                 new StateStore(
                         ImmutableMap.of(
                                 KEY_FOO,
-                                StateEntryValue.newBuilder()
+                                DynamicDataValue.newBuilder()
                                         .setColorVal(
                                                 FixedColor.newBuilder().setArgb(color1).build())
                                         .build()));
@@ -342,10 +342,10 @@ public class ColorNodesTest {
         stateNode.init();
 
         results.clear();
-        oss.setStateEntryValuesProto(
+        oss.setAppStateEntryValuesProto(
                 ImmutableMap.of(
                         KEY_FOO,
-                        StateEntryValue.newBuilder()
+                        DynamicDataValue.newBuilder()
                                 .setColorVal(FixedColor.newBuilder().setArgb(color2))
                                 .build()));
         shadowOf(Looper.getMainLooper()).idle();
@@ -355,10 +355,10 @@ public class ColorNodesTest {
         // Release the only quota
         quotaManager.releaseQuota(1);
 
-        oss.setStateEntryValuesProto(
+        oss.setAppStateEntryValuesProto(
                 ImmutableMap.of(
                         KEY_FOO,
-                        StateEntryValue.newBuilder()
+                        DynamicDataValue.newBuilder()
                                 .setColorVal(FixedColor.newBuilder().setArgb(color3))
                                 .build()));
         shadowOf(Looper.getMainLooper()).idle();

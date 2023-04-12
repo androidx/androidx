@@ -72,7 +72,7 @@ import androidx.wear.protolayout.expression.proto.FixedProto.FixedColor;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedFloat;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedInt32;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedString;
-import androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 import androidx.wear.protolayout.proto.ColorProto.ColorProp;
 import androidx.wear.protolayout.proto.DimensionProto.DegreesProp;
 import androidx.wear.protolayout.proto.DimensionProto.DpProp;
@@ -1928,20 +1928,20 @@ public class ProtoLayoutDynamicDataPipelineTest {
     }
 
     private void setFloatStateVal(String key, float val) {
-        mStateStore.setStateEntryValuesProto(
+        mStateStore.setAppStateEntryValuesProto(
                 ImmutableMap.of(
                         new AppDataKey<DynamicBuilders.DynamicFloat>(key),
-                        StateEntryValue.newBuilder()
+                        DynamicDataValue.newBuilder()
                                 .setFloatVal(FixedFloat.newBuilder().setValue(val))
                                 .build()));
         shadowOf(getMainLooper()).idle();
     }
 
     private void setBoolStateVal(String key, boolean val) {
-        mStateStore.setStateEntryValuesProto(
+        mStateStore.setAppStateEntryValuesProto(
                 ImmutableMap.of(
                         new AppDataKey<DynamicBuilders.DynamicBool>(key),
-                        StateEntryValue.newBuilder()
+                        DynamicDataValue.newBuilder()
                                 .setBoolVal(FixedBool.newBuilder().setValue(val))
                                 .build()));
         shadowOf(getMainLooper()).idle();

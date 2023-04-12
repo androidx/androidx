@@ -23,6 +23,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.wear.protolayout.expression.DynamicBuilders;
+import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.proto.DimensionProto;
 
 import org.junit.Test;
@@ -34,23 +35,31 @@ public class DimensionBuildersTest {
     private static final String STATE_KEY = "state-key";
     private static final DimensionBuilders.DpProp DP_PROP =
             new DimensionBuilders.DpProp.Builder(3.14f)
-                    .setDynamicValue(DynamicBuilders.DynamicFloat.fromState(STATE_KEY))
+                    .setDynamicValue(
+                            DynamicBuilders.DynamicFloat.from(
+                                    new AppDataKey<>(STATE_KEY)))
                     .build();
 
     @SuppressWarnings("deprecation")
     private static final DimensionBuilders.DpProp.Builder DP_PROP_WITHOUT_STATIC_VALUE =
             new DimensionBuilders.DpProp.Builder()
-                    .setDynamicValue(DynamicBuilders.DynamicFloat.fromState(STATE_KEY));
+                    .setDynamicValue(
+                            DynamicBuilders.DynamicFloat.from(
+                                    new AppDataKey<>(STATE_KEY)));
 
     private static final DimensionBuilders.DegreesProp DEGREES_PROP =
             new DimensionBuilders.DegreesProp.Builder(3.14f)
-                    .setDynamicValue(DynamicBuilders.DynamicFloat.fromState(STATE_KEY))
+                    .setDynamicValue(
+                            DynamicBuilders.DynamicFloat.from(
+                                    new AppDataKey<>(STATE_KEY)))
                     .build();
 
     @SuppressWarnings("deprecation")
     private static final DimensionBuilders.DegreesProp.Builder DEGREES_PROP_WITHOUT_STATIC_VALUE =
             new DimensionBuilders.DegreesProp.Builder()
-                    .setDynamicValue(DynamicBuilders.DynamicFloat.fromState(STATE_KEY));
+                    .setDynamicValue(
+                            DynamicBuilders.DynamicFloat.from(
+                                    new AppDataKey<>(STATE_KEY)));
 
     @Test
     public void dpPropSupportsDynamicValue() {
@@ -113,7 +122,8 @@ public class DimensionBuildersTest {
     public void wrappedMinSize_throwsWhenSetToDynamicValue() {
         DimensionBuilders.DpProp minSizeDynamic =
                 new DimensionBuilders.DpProp.Builder(42)
-                        .setDynamicValue(DynamicBuilders.DynamicFloat.fromState("some-state"))
+                        .setDynamicValue(DynamicBuilders.DynamicFloat.from(
+                                new AppDataKey<>("some-state")))
                         .build();
         assertThrows(
                 IllegalArgumentException.class,
