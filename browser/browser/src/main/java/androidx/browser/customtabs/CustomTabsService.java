@@ -274,7 +274,7 @@ public abstract class CustomTabsService extends Service {
         public boolean setEngagementSignalsCallback(
                 @NonNull ICustomTabsCallback customTabsCallback, @NonNull IBinder callback,
                 @NonNull Bundle extras) {
-            EngagementSignalsCallbackRemote remote = EngagementSignalsCallbackRemote.fromBinder(
+            EngagementSignalsCallback remote = EngagementSignalsCallbackRemote.fromBinder(
                     callback);
             return CustomTabsService.this.setEngagementSignalsCallback(
                     new CustomTabsSessionToken(customTabsCallback, getSessionIdFromBundle(extras)),
@@ -506,11 +506,11 @@ public abstract class CustomTabsService extends Service {
     }
 
     /**
-     * Sets an {@link EngagementSignalsCallbackRemote} to execute callbacks for events related to
+     * Sets an {@link EngagementSignalsCallback} to execute callbacks for events related to
      * the user's engagement with the webpage within the tab.
      *
      * @param sessionToken The unique identifier for the session.
-     * @param callback The {@link EngagementSignalsCallbackRemote} to execute the callbacks.
+     * @param callback The {@link EngagementSignalsCallback} to execute the callbacks.
      * @param extras Reserved for future use.
      * @return Whether the callback connection is allowed. If false, no callbacks will be called for
      *         this session.
@@ -520,7 +520,7 @@ public abstract class CustomTabsService extends Service {
     @SuppressWarnings("ExecutorRegistration")
     protected boolean setEngagementSignalsCallback(
             @NonNull CustomTabsSessionToken sessionToken,
-            @NonNull EngagementSignalsCallbackRemote callback, @NonNull Bundle extras) {
+            @NonNull EngagementSignalsCallback callback, @NonNull Bundle extras) {
         return false;
     }
 
