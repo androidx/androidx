@@ -335,6 +335,24 @@ package androidx.constraintlayout.compose {
     property public final androidx.constraintlayout.compose.CurveFit Spline;
   }
 
+  @androidx.constraintlayout.compose.ExperimentalMotionApi @kotlin.jvm.JvmInline public final value class DebugFlags {
+    ctor public DebugFlags(optional boolean showBounds, optional boolean showPaths, optional boolean showKeyPositions);
+    method public boolean getShowBounds();
+    method public boolean getShowKeyPositions();
+    method public boolean getShowPaths();
+    property public final boolean showBounds;
+    property public final boolean showKeyPositions;
+    property public final boolean showPaths;
+    field public static final androidx.constraintlayout.compose.DebugFlags.Companion Companion;
+  }
+
+  public static final class DebugFlags.Companion {
+    method public int getAll();
+    method public int getNone();
+    property public final int All;
+    property public final int None;
+  }
+
   public final class DesignElements {
     method public void define(String name, kotlin.jvm.functions.Function2<? super java.lang.String,? super java.util.HashMap<java.lang.String,java.lang.String>,kotlin.Unit> function);
     method public java.util.HashMap<java.lang.String,kotlin.jvm.functions.Function2<java.lang.String,java.util.HashMap<java.lang.String,java.lang.String>,kotlin.Unit>> getMap();
@@ -617,18 +635,18 @@ package androidx.constraintlayout.compose {
     enum_constant public static final androidx.constraintlayout.compose.MotionLayoutDebugFlags UNKNOWN;
   }
 
-  public enum MotionLayoutFlag {
-    method public static androidx.constraintlayout.compose.MotionLayoutFlag valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.constraintlayout.compose.MotionLayoutFlag[] values();
-    enum_constant public static final androidx.constraintlayout.compose.MotionLayoutFlag Default;
-    enum_constant public static final androidx.constraintlayout.compose.MotionLayoutFlag FullMeasure;
+  @Deprecated public enum MotionLayoutFlag {
+    method @Deprecated public static androidx.constraintlayout.compose.MotionLayoutFlag valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method @Deprecated public static androidx.constraintlayout.compose.MotionLayoutFlag[] values();
+    enum_constant @Deprecated public static final androidx.constraintlayout.compose.MotionLayoutFlag Default;
+    enum_constant @Deprecated public static final androidx.constraintlayout.compose.MotionLayoutFlag FullMeasure;
   }
 
   public final class MotionLayoutKt {
-    method @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static inline void MotionLayout(androidx.constraintlayout.compose.ConstraintSet start, androidx.constraintlayout.compose.ConstraintSet end, optional androidx.compose.ui.Modifier modifier, optional androidx.constraintlayout.compose.Transition? transition, float progress, optional java.util.EnumSet<androidx.constraintlayout.compose.MotionLayoutDebugFlags> debug, optional int optimizationLevel, optional java.util.Set<? extends androidx.constraintlayout.compose.MotionLayoutFlag> motionLayoutFlags, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static inline void MotionLayout(androidx.constraintlayout.compose.MotionScene motionScene, float progress, optional androidx.compose.ui.Modifier modifier, optional String transitionName, optional java.util.EnumSet<androidx.constraintlayout.compose.MotionLayoutDebugFlags> debug, optional int optimizationLevel, optional java.util.Set<? extends androidx.constraintlayout.compose.MotionLayoutFlag> motionLayoutFlags, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static inline void MotionLayout(androidx.constraintlayout.compose.MotionScene motionScene, optional androidx.compose.ui.Modifier modifier, optional String? constraintSetName, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional java.util.EnumSet<androidx.constraintlayout.compose.MotionLayoutDebugFlags> debug, optional int optimizationLevel, optional java.util.Set<? extends androidx.constraintlayout.compose.MotionLayoutFlag> motionLayoutFlags, optional kotlin.jvm.functions.Function0<kotlin.Unit>? finishedAnimationListener, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static inline void MotionLayout(androidx.constraintlayout.compose.ConstraintSet start, androidx.constraintlayout.compose.ConstraintSet end, optional androidx.compose.ui.Modifier modifier, optional androidx.constraintlayout.compose.Transition? transition, float progress, optional java.util.EnumSet<androidx.constraintlayout.compose.MotionLayoutDebugFlags> debug, optional androidx.constraintlayout.compose.LayoutInformationReceiver? informationReceiver, optional int optimizationLevel, optional java.util.Set<? extends androidx.constraintlayout.compose.MotionLayoutFlag> motionLayoutFlags, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static inline void MotionLayout(androidx.constraintlayout.compose.ConstraintSet start, androidx.constraintlayout.compose.ConstraintSet end, optional androidx.compose.ui.Modifier modifier, optional androidx.constraintlayout.compose.Transition? transition, float progress, optional int debugFlags, optional int optimizationLevel, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static inline void MotionLayout(androidx.constraintlayout.compose.MotionScene motionScene, float progress, optional androidx.compose.ui.Modifier modifier, optional String transitionName, optional int debugFlags, optional int optimizationLevel, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static inline void MotionLayout(androidx.constraintlayout.compose.MotionScene motionScene, optional androidx.compose.ui.Modifier modifier, optional String? constraintSetName, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional int debugFlags, optional int optimizationLevel, optional kotlin.jvm.functions.Function0<kotlin.Unit>? finishedAnimationListener, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static inline void MotionLayout(androidx.constraintlayout.compose.ConstraintSet start, androidx.constraintlayout.compose.ConstraintSet end, optional androidx.compose.ui.Modifier modifier, optional androidx.constraintlayout.compose.Transition? transition, float progress, optional int debugFlags, optional androidx.constraintlayout.compose.LayoutInformationReceiver? informationReceiver, optional int optimizationLevel, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable @androidx.constraintlayout.compose.ExperimentalMotionApi public static inline void MotionLayout(androidx.constraintlayout.compose.MotionScene motionScene, androidx.constraintlayout.compose.MotionLayoutState motionLayoutState, optional androidx.compose.ui.Modifier modifier, optional int optimizationLevel, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.MotionLayoutScope,kotlin.Unit> content);
   }
 
