@@ -69,6 +69,7 @@ import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamic
 import androidx.wear.protolayout.expression.proto.DynamicProto.ConditionalColorOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ConditionalDurationOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ConditionalFloatOp;
+import androidx.wear.protolayout.expression.proto.DynamicProto.ConditionalInstantOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ConditionalInt32Op;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ConditionalStringOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicBool;
@@ -920,6 +921,25 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                 break;
             case PLATFORM_SOURCE:
                 node = new PlatformTimeSourceNode(mTimeDataSource, consumer);
+                break;
+            case CONDITIONAL_OP:
+                ConditionalOpNode<Instant> conditionalNode = new ConditionalOpNode<>(consumer);
+
+                ConditionalInstantOp op = instantSource.getConditionalOp();
+                bindRecursively(
+                        op.getCondition(),
+                        conditionalNode.getConditionIncomingCallback(),
+                        resultBuilder);
+                bindRecursively(
+                        op.getValueIfTrue(),
+                        conditionalNode.getTrueValueIncomingCallback(),
+                        resultBuilder);
+                bindRecursively(
+                        op.getValueIfFalse(),
+                        conditionalNode.getFalseValueIncomingCallback(),
+                        resultBuilder);
+
+                node = conditionalNode;
                 break;
 
             case INNER_NOT_SET:

@@ -219,6 +219,16 @@ public class DynamicTypeEvaluatorTest {
                             .elseUse(DynamicInt32.constant(10)),
                     10),
             test(
+                    DynamicInstant.onCondition(DynamicBool.constant(true))
+                            .use(DynamicInstant.withSecondsPrecision(Instant.EPOCH))
+                            .elseUse(Instant.ofEpochMilli(1000)),
+                    Instant.EPOCH),
+            test(
+                    DynamicInstant.onCondition(DynamicBool.constant(false))
+                            .use(DynamicInstant.withSecondsPrecision(Instant.EPOCH))
+                            .elseUse(Instant.ofEpochMilli(1000)),
+                    Instant.ofEpochMilli(1000)),
+            test(
                     DynamicColor.onCondition(DynamicBool.constant(true))
                             .use(DynamicColor.constant(Color.BLUE))
                             .elseUse(DynamicColor.constant(Color.RED)),
