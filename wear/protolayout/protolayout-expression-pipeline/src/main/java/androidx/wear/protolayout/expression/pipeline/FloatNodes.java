@@ -38,8 +38,7 @@ class FloatNodes {
         private final DynamicTypeValueReceiverWithPreUpdate<Float> mDownstream;
 
         FixedFloatNode(
-                FixedFloat protoNode,
-                DynamicTypeValueReceiverWithPreUpdate<Float> downstream) {
+                FixedFloat protoNode, DynamicTypeValueReceiverWithPreUpdate<Float> downstream) {
             this.mValue = protoNode.getValue();
             this.mDownstream = downstream;
         }
@@ -53,7 +52,11 @@ class FloatNodes {
         @Override
         @UiThread
         public void init() {
-            mDownstream.onData(mValue);
+            if (Float.isNaN(mValue)) {
+                mDownstream.onInvalidated();
+            } else {
+                mDownstream.onData(mValue);
+            }
         }
 
         @Override

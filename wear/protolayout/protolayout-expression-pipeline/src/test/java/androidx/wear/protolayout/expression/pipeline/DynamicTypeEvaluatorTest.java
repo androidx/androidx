@@ -20,9 +20,12 @@ import static androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.robolectric.Shadows.shadowOf;
+
 import static java.lang.Integer.MAX_VALUE;
 
 import android.icu.util.ULocale;
+import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
@@ -50,6 +53,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
 @RunWith(ParameterizedRobolectricTestRunner.class)
@@ -83,13 +87,16 @@ public class DynamicTypeEvaluatorTest {
             test(DynamicInt32.fromState("state_int_15").div(DynamicFloat.constant(2.0f)), 7.5f),
             test(DynamicInt32.fromState("state_int_15").rem(DynamicFloat.constant(4.5f)), 1.5f),
             test(DynamicFloat.constant(5.0f), 5.0f),
+            testForInvalidValue(DynamicFloat.constant(Float.NaN)),
+            testForInvalidValue(DynamicFloat.constant(Float.NaN).plus(5.0f)),
             test(DynamicFloat.fromState("state_float_1.5"), 1.5f),
             test(DynamicFloat.constant(1234.567f).asInt(), 1234),
             test(DynamicFloat.constant(0.967f).asInt(), 0),
             test(DynamicFloat.constant(-1234.967f).asInt(), -1235),
             test(DynamicFloat.constant(-0.967f).asInt(), -1),
             test(DynamicFloat.constant(Float.MIN_VALUE).asInt(), 0),
-            test(DynamicFloat.constant(Float.MAX_VALUE).asInt(), (int) Float.MAX_VALUE),
+            testForInvalidValue(DynamicFloat.constant(Float.MAX_VALUE).asInt()),
+            testForInvalidValue(DynamicFloat.constant(-Float.MAX_VALUE).asInt()),
             test(DynamicInt32.constant(100).asFloat(), 100.0f),
             test(
                     DynamicInt32.constant(Integer.MIN_VALUE).asFloat(),
@@ -122,10 +129,8 @@ public class DynamicTypeEvaluatorTest {
             test(DynamicFloat.constant(0.6f).gte(0.4f), true),
             test(DynamicFloat.constant(0.1234568f).gte(0.1234562f), true),
             test(DynamicBool.constant(true), true),
-            test(DynamicBool.constant(true).isTrue(), true),
-            test(DynamicBool.constant(false).isTrue(), false),
-            test(DynamicBool.constant(true).isFalse(), false),
-            test(DynamicBool.constant(false).isFalse(), true),
+            test(DynamicBool.constant(true).negate(), false),
+            test(DynamicBool.constant(false).negate(), true),
             test(DynamicBool.constant(true).and(DynamicBool.constant(true)), true),
             test(DynamicBool.constant(true).and(DynamicBool.constant(false)), false),
             test(DynamicBool.constant(false).and(DynamicBool.constant(true)), false),
@@ -308,9 +313,10 @@ public class DynamicTypeEvaluatorTest {
             DynamicInstant bindUnderTest, Instant instant) {
         return new DynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicInstantProto().toString(),
-                (evaluator, cb) -> {
-                    evaluator.bind(bindUnderTest, new MainThreadExecutor(), cb).startEvaluation();
-                },
+                (evaluator, cb) ->
+                        evaluator
+                                .bind(bindUnderTest, new MainThreadExecutor(), cb)
+                                .startEvaluation(),
                 instant);
     }
 
@@ -336,6 +342,26 @@ public class DynamicTypeEvaluatorTest {
                 expectedValue);
     }
 
+    private static DynamicTypeEvaluatorTest.TestCase<Integer> testForInvalidValue(
+            DynamicInt32 bindUnderTest) {
+        return new DynamicTypeEvaluatorTest.TestCase<>(
+                bindUnderTest.toDynamicInt32Proto().toString(),
+                (evaluator, cb) ->
+                        evaluator
+                                .bind(bindUnderTest, new MainThreadExecutor(), cb)
+                                .startEvaluation());
+    }
+
+    private static DynamicTypeEvaluatorTest.TestCase<Float> testForInvalidValue(
+            DynamicFloat bindUnderTest) {
+        return new DynamicTypeEvaluatorTest.TestCase<>(
+                bindUnderTest.toDynamicFloatProto().toString(),
+                (evaluator, cb) ->
+                        evaluator
+                                .bind(bindUnderTest, new MainThreadExecutor(), cb)
+                                .startEvaluation());
+    }
+
     private static class TestCase<T> {
         private final String mName;
         private final BiConsumer<DynamicTypeEvaluator, DynamicTypeValueReceiver<T>>
@@ -351,8 +377,18 @@ public class DynamicTypeEvaluatorTest {
             this.mExpectedValue = expectedValue;
         }
 
+        /** Creates a test case for an expression which expects to result in invalid value. */
+        TestCase(
+                String name,
+                BiConsumer<DynamicTypeEvaluator, DynamicTypeValueReceiver<T>> expressionEvaluator) {
+            this.mName = name;
+            this.mExpressionEvaluator = expressionEvaluator;
+            this.mExpectedValue = null;
+        }
+
         public void runTest(DynamicTypeEvaluator evaluator) {
             List<T> results = new ArrayList<>();
+            AtomicInteger invalidatedCalls = new AtomicInteger(0);
 
             DynamicTypeValueReceiver<T> callback =
                     new DynamicTypeValueReceiver<T>() {
@@ -362,16 +398,25 @@ public class DynamicTypeEvaluatorTest {
                         }
 
                         @Override
-                        public void onInvalidated() {}
+                        public void onInvalidated() {
+                            invalidatedCalls.incrementAndGet();
+                        }
                     };
 
             this.mExpressionEvaluator.accept(evaluator, callback);
+            shadowOf(Looper.getMainLooper()).idle();
 
-            assertThat(results).hasSize(1);
-            assertThat(results).containsExactly(mExpectedValue);
+            if (mExpectedValue != null) {
+                // Test expects an actual value.
+                assertThat(results).hasSize(1);
+                assertThat(results).containsExactly(mExpectedValue);
+            } else {
+                // Test expects an invalid value.
+                assertThat(results).isEmpty();
+                assertThat(invalidatedCalls.get()).isEqualTo(1);
+            }
         }
 
-        @NonNull
         @Override
         public String toString() {
             return mName + " = " + mExpectedValue;
