@@ -34,6 +34,7 @@ import androidx.compose.foundation.text.TextDelegate
 import androidx.compose.foundation.text.heightInLines
 import androidx.compose.foundation.text.textFieldMinSize
 import androidx.compose.foundation.text2.input.CodepointTransformation
+import androidx.compose.foundation.text2.input.SingleLineCodepointTransformation
 import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldLineLimits.MultiLine
@@ -91,7 +92,10 @@ import kotlin.math.roundToInt
  * is called. Note that this IME action may be different from what you specified in
  * [KeyboardOptions.imeAction].
  * @param lineLimits Whether the text field should be [SingleLine], scroll horizontally, and
- * ignore newlines; or [MultiLine] and grow and scroll vertically.
+ * ignore newlines; or [MultiLine] and grow and scroll vertically. If [SingleLine] is passed without
+ * specifying the [codepointTransformation] parameter, a [CodepointTransformation] is automatically
+ * applied. This transformation replaces any newline characters ('\n') within the text with regular
+ * whitespace (' '), ensuring that the contents of the text field are presented in a single line.
  * @param onTextLayout Callback that is executed when a new text layout is calculated. A
  * [TextLayoutResult] object that callback provides contains paragraph information, size of the
  * text, baselines and other details. The callback can be used to add additional decoration or
@@ -225,7 +229,15 @@ fun BasicTextField2(
 
             Layout(modifier = coreModifiers) { _, constraints ->
                 val result = with(textLayoutState) {
-                    val visualText = state.text.toVisualText(codepointTransformation)
+                    // First prefer provided codepointTransformation if not null, e.g.
+                    // BasicSecureTextField would send Password Transformation.
+                    // Second, apply a SingleLineCodepointTransformation if text field is configured
+                    // to be single line.
+                    // Else, don't apply any visual transformation.
+                    val appliedCodepointTransformation = codepointTransformation
+                         ?: SingleLineCodepointTransformation.takeIf { lineLimits == SingleLine }
+
+                    val visualText = state.text.toVisualText(appliedCodepointTransformation)
                     layout(
                         text = AnnotatedString(visualText.toString()),
                         textStyle = textStyle,
