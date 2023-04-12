@@ -22,6 +22,10 @@ import android.os.Bundle
 /**
  * A request to retrieve the user's saved application password from their password provider.
  *
+ * @property allowedUserIds a optional set of user ids with which the credentials associated are
+ * requested; leave as empty if you want to request all the available user credentials
+ * @param allowedUserIds a optional set of user ids with which the credentials associated are
+ * requested; leave as empty if you want to request all the available user credentials
  * @param isAutoSelectAllowed false by default, allows auto selecting a password if there is
  * only one available
  * @param allowedProviders a set of provider service [ComponentName] allowed to receive this
@@ -32,12 +36,13 @@ import android.os.Bundle
  * allowed provider via [library dependencies](https://developer.android.com/training/sign-in/passkeys#add-dependencies).
  */
 class GetPasswordOption @JvmOverloads constructor(
+    val allowedUserIds: Set<String> = emptySet(),
     isAutoSelectAllowed: Boolean = false,
     allowedProviders: Set<ComponentName> = emptySet(),
 ) : CredentialOption(
     type = PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
-    requestData = Bundle(),
-    candidateQueryData = Bundle(),
+    requestData = toBundle(allowedUserIds),
+    candidateQueryData = toBundle(allowedUserIds),
     isSystemProviderRequired = false,
     isAutoSelectAllowed = isAutoSelectAllowed,
     allowedProviders,
@@ -45,16 +50,27 @@ class GetPasswordOption @JvmOverloads constructor(
 
     /** @hide */
     companion object {
-        @Suppress("UNUSED_PARAMETER")
+        internal const val BUNDLE_KEY_ALLOWED_USER_IDS =
+            "androidx.credentials.BUNDLE_KEY_ALLOWED_USER_IDS"
+
         @JvmStatic
         internal fun createFrom(
             data: Bundle,
             allowedProviders: Set<ComponentName>,
         ): GetPasswordOption {
+            val allowUserIdList = data.getStringArrayList(BUNDLE_KEY_ALLOWED_USER_IDS)
             return GetPasswordOption(
+                allowUserIdList?.toSet() ?: emptySet(),
                 data.getBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false),
                 allowedProviders
             )
+        }
+
+        @JvmStatic
+        internal fun toBundle(allowUserIds: Set<String>): Bundle {
+            val bundle = Bundle()
+            bundle.putStringArrayList(BUNDLE_KEY_ALLOWED_USER_IDS, ArrayList(allowUserIds))
+            return bundle
         }
     }
 }

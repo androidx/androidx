@@ -44,6 +44,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.time.Instant;
+import java.util.HashSet;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -56,6 +57,7 @@ public class PasswordCredentialEntryJavaTest {
     private static final Icon ICON = Icon.createWithBitmap(Bitmap.createBitmap(
             100, 100, Bitmap.Config.ARGB_8888));
     private final BeginGetPasswordOption mBeginGetPasswordOption = new BeginGetPasswordOption(
+            new HashSet<>(),
             Bundle.EMPTY, "id");
 
     private final Context mContext = ApplicationProvider.getApplicationContext();

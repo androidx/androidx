@@ -66,7 +66,7 @@ class CredentialProviderBeginSignInControllerTest {
                 .convertRequestToPlayServices(
                     GetCredentialRequest(
                         listOf(
-                            GetPasswordOption(true)
+                            GetPasswordOption(isAutoSelectAllowed = true)
                         )
                     )
                 )

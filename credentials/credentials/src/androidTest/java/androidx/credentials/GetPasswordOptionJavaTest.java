@@ -19,7 +19,6 @@ package androidx.credentials;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.ComponentName;
-import android.os.Bundle;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -39,38 +38,55 @@ public class GetPasswordOptionJavaTest {
         GetPasswordOption option = new GetPasswordOption();
 
         assertThat(option.isAutoSelectAllowed()).isFalse();
+        assertThat(option.getAllowedUserIds()).isEmpty();
+        assertThat(option.getAllowedProviders()).isEmpty();
     }
 
     @Test
     public void construction_setOptionalValues_success() {
         boolean expectedIsAutoSelectAllowed = true;
+        Set<String> expectedAllowedUserIds = ImmutableSet.of("id1", "id2", "id3");
+        Set<ComponentName> expectedAllowedProviders = ImmutableSet.of(
+                new ComponentName("pkg", "cls"),
+                new ComponentName("pkg2", "cls2")
+        );
 
-        GetPasswordOption option = new GetPasswordOption(expectedIsAutoSelectAllowed);
+        GetPasswordOption option = new GetPasswordOption(
+                expectedAllowedUserIds, expectedIsAutoSelectAllowed,
+                expectedAllowedProviders);
 
         assertThat(option.isAutoSelectAllowed()).isEqualTo(expectedIsAutoSelectAllowed);
+        assertThat(option.getAllowedUserIds()).containsExactlyElementsIn(expectedAllowedUserIds);
+        assertThat(option.getAllowedProviders())
+                .containsExactlyElementsIn(expectedAllowedProviders);
     }
 
     @Test
     public void getter_frameworkProperties() {
+        Set<String> expectedAllowedUserIds = ImmutableSet.of("id1", "id2", "id3");
         Set<ComponentName> expectedAllowedProviders = ImmutableSet.of(
                 new ComponentName("pkg", "cls"),
                 new ComponentName("pkg2", "cls2")
         );
         boolean expectedIsAutoSelectAllowed = true;
-        Bundle expectedRequestDataBundle = new Bundle();
-        expectedRequestDataBundle.putBoolean(GetPasswordOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
-                expectedIsAutoSelectAllowed);
 
-        GetPasswordOption option = new GetPasswordOption(
+        GetPasswordOption option = new GetPasswordOption(expectedAllowedUserIds,
                 expectedIsAutoSelectAllowed, expectedAllowedProviders);
 
         assertThat(option.getType()).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL);
-        assertThat(TestUtilsKt.equals(option.getRequestData(), expectedRequestDataBundle)).isTrue();
-        assertThat(TestUtilsKt.equals(option.getCandidateQueryData(),
-                expectedRequestDataBundle)).isTrue();
+        assertThat(option.getRequestData().getBoolean(
+                CredentialOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED)).isTrue();
+        assertThat(option.getRequestData().getStringArrayList(
+                GetPasswordOption.BUNDLE_KEY_ALLOWED_USER_IDS))
+                .containsExactlyElementsIn(expectedAllowedUserIds);
+        assertThat(option.getCandidateQueryData().getBoolean(
+                CredentialOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED)).isTrue();
+        assertThat(option.getCandidateQueryData().getStringArrayList(
+                GetPasswordOption.BUNDLE_KEY_ALLOWED_USER_IDS))
+                .containsExactlyElementsIn(expectedAllowedUserIds);
         assertThat(option.isSystemProviderRequired()).isFalse();
         assertThat(option.getAllowedProviders())
-                .containsAtLeastElementsIn(expectedAllowedProviders);
+                .containsExactlyElementsIn(expectedAllowedProviders);
     }
 
     @Test
@@ -80,7 +96,8 @@ public class GetPasswordOptionJavaTest {
                 new ComponentName("pkg", "cls"),
                 new ComponentName("pkg2", "cls2")
         );
-        GetPasswordOption option = new GetPasswordOption(
+        Set<String> expectedAllowedUserIds = ImmutableSet.of("id1", "id2", "id3");
+        GetPasswordOption option = new GetPasswordOption(expectedAllowedUserIds,
                 expectedIsAutoSelectAllowed, expectedAllowedProviders);
 
         CredentialOption convertedOption = CredentialOption.createFrom(
@@ -92,6 +109,7 @@ public class GetPasswordOptionJavaTest {
         GetPasswordOption getPasswordOption = (GetPasswordOption) convertedOption;
         assertThat(getPasswordOption.isAutoSelectAllowed()).isEqualTo(expectedIsAutoSelectAllowed);
         assertThat(getPasswordOption.getAllowedProviders())
-                .containsAtLeastElementsIn(expectedAllowedProviders);
+                .containsExactlyElementsIn(expectedAllowedProviders);
+        assertThat(option.getAllowedUserIds()).containsExactlyElementsIn(expectedAllowedUserIds);
     }
 }
