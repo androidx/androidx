@@ -21,12 +21,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.IntrinsicMeasurable
@@ -38,7 +36,6 @@ import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.SemanticsModifierNode
-import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.node.invalidateLayer
 import androidx.compose.ui.node.invalidateMeasurements
 import androidx.compose.ui.node.invalidateSemantics
@@ -115,10 +112,11 @@ internal class TextStringSimpleNode(
         fontFamilyResolver: FontFamily.Resolver,
         overflow: TextOverflow
     ): Boolean {
-        var changed: Boolean
-
-        changed = !this.style.hasSameLayoutAffectingAttributes(style)
-        this.style = style
+        var changed = false
+        if (this.style != style) {
+            this.style = style
+            changed = true
+        }
 
         if (this.minLines != minLines) {
             this.minLines = minLines
@@ -171,8 +169,8 @@ internal class TextStringSimpleNode(
                 minLines = minLines
             )
             invalidateMeasurements()
+            invalidateLayer()
         }
-        invalidateDraw()
     }
 
     private var _semanticsConfiguration: SemanticsConfiguration? = null
@@ -303,11 +301,7 @@ internal class TextStringSimpleNode(
                         textDecoration = textDecoration
                     )
                 } else {
-                    val color = if (style.color.isSpecified) {
-                        style.color
-                    } else {
-                        Color.Black
-                    }
+                    val color = style.color
                     localParagraph.paint(
                         canvas = canvas,
                         color = color,
