@@ -45,7 +45,7 @@ import kotlinx.coroutines.launch
 class HomeFragment : Fragment() {
 
     companion object {
-        const val TAG = "HomeFragment"
+        private const val TAG = "HomeFragment"
     }
 
     private var scanResultAdapter: ScanResultAdapter? = null

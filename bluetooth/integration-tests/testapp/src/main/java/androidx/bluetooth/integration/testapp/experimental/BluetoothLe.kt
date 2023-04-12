@@ -42,7 +42,7 @@ import kotlinx.coroutines.flow.callbackFlow
 class BluetoothLe(private val context: Context) {
 
     companion object {
-        const val TAG = "BluetoothLe"
+        private const val TAG = "BluetoothLe"
     }
 
     private val bluetoothManager =
