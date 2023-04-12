@@ -74,8 +74,9 @@ class LazyPagingItemsTest {
             initialLoadSize = 3,
             prefetchDistance = 1,
         ),
+        loadDelay: Long = 0,
         pagingSourceFactory: () -> PagingSource<Int, Int> = {
-            TestPagingSource(items = items, loadDelay = 0)
+            TestPagingSource(items = items, loadDelay = loadDelay)
         }
     ): Pager<Int, Int> {
         return Pager(config = config, pagingSourceFactory = pagingSourceFactory)
@@ -120,10 +121,10 @@ class LazyPagingItemsTest {
         assertThat(loadStates.first()).isEqualTo(expected)
     }
 
-    @Ignore // b/267374463
     @Test
     fun lazyPagingLoadStateAfterRefresh() {
-        val pager = createPager()
+        val pager = createPager(loadDelay = 100)
+
         val loadStates: MutableList<CombinedLoadStates> = mutableListOf()
 
         lateinit var lazyPagingItems: LazyPagingItems<Int>
@@ -132,10 +133,23 @@ class LazyPagingItemsTest {
             loadStates.add(lazyPagingItems.loadState)
         }
 
-        // we only want loadStates after manual refresh
-        loadStates.clear()
-        lazyPagingItems.refresh()
-        rule.waitForIdle()
+        // wait for both compose and paging to complete
+        rule.waitUntil {
+            rule.waitForIdle()
+            lazyPagingItems.loadState.refresh == LoadState.NotLoading(false)
+        }
+
+        rule.runOnIdle {
+            // we only want loadStates after manual refresh
+            loadStates.clear()
+            lazyPagingItems.refresh()
+        }
+
+        // wait for both compose and paging to complete
+        rule.waitUntil {
+            rule.waitForIdle()
+            lazyPagingItems.loadState.refresh == LoadState.NotLoading(false)
+        }
 
         assertThat(loadStates).isNotEmpty()
         val expected = CombinedLoadStates(
