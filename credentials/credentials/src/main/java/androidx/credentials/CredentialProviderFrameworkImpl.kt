@@ -41,7 +41,6 @@ import androidx.credentials.exceptions.GetCredentialUnsupportedException
 import androidx.credentials.exceptions.NoCredentialException
 import androidx.credentials.internal.FrameworkImplHelper
 import java.util.concurrent.Executor
-import java.util.concurrent.Executors
 
 /**
  * Framework credential provider implementation that allows credential
@@ -82,7 +81,7 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
         credentialManager!!.prepareGetCredential(
             convertGetRequestToFrameworkClass(request),
             cancellationSignal,
-            Executors.newSingleThreadExecutor(),
+            executor,
             outcome
         )
     }
@@ -116,7 +115,7 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
             context,
             pendingGetCredentialHandle.frameworkHandle!!,
             cancellationSignal,
-            Executors.newSingleThreadExecutor(),
+            executor,
             outcome
         )
     }
@@ -153,7 +152,7 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
             context,
             convertGetRequestToFrameworkClass(request),
             cancellationSignal,
-            Executors.newSingleThreadExecutor(),
+            executor,
             outcome
         )
     }
@@ -202,7 +201,7 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
             context,
             convertCreateRequestToFrameworkClass(request, context),
             cancellationSignal,
-            Executors.newSingleThreadExecutor(),
+            executor,
             outcome
         )
     }
@@ -358,7 +357,7 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
         credentialManager!!.clearCredentialState(
             createFrameworkClearCredentialRequest(),
             cancellationSignal,
-            Executors.newSingleThreadExecutor(),
+            executor,
             outcome
         )
     }
