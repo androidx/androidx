@@ -40,6 +40,7 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.structuralEqualityPolicy
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.unit.Constraints
@@ -175,6 +176,10 @@ abstract class PagerState(
         }
     }
 
+    /**
+     * Difference between the last up and last down events of a scroll event.
+     */
+    internal var upDownDifference: Offset by mutableStateOf(Offset.Zero)
     internal var snapRemainingScrollOffset by mutableStateOf(0f)
 
     private val scrollPosition = PagerScrollPosition(initialPage, 0)

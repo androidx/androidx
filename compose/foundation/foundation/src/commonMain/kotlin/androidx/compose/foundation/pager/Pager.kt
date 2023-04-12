@@ -31,7 +31,6 @@ import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.snapping.MinFlingVelocityDp
 import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
 import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
-import androidx.compose.foundation.gestures.snapping.calculateFinalOffset
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -496,6 +495,16 @@ object PagerDefaults {
      * @param snapVelocityThreshold The minimum velocity required for a fling to be considered
      * high enough to make pages animate through [lowVelocityAnimationSpec] and
      * [highVelocityAnimationSpec].
+     * @param snapPositionalThreshold If the fling has a low velocity (e.g. slow scroll),
+     * this fling behavior will use this snap threshold in order to determine if the pager should
+     * snap back or move forward. Use a number between 0 and 1 as a fraction of the page size that
+     * needs to be scrolled before we consider it should move to the next page. For instance, if
+     * snapPositionalThreshold = 0.35, it means if this pager is scrolled with a slow velocity and
+     * we scroll more than 35% of the page size, then will jump to the next page, if not we scroll
+     * back. The default value is 50% meaning if we scroll the page more than 50% and let go it will
+     * snap to the next page.
+     * Note that any fling that has high enough velocity will *always* move to the next page
+     * in the direction of the fling.
      *
      * @return An instance of [FlingBehavior] that will perform Snapping to the next page by
      * default. The animation will be governed by the post scroll velocity and we'll use either
@@ -515,10 +524,14 @@ object PagerDefaults {
         ),
         highVelocityAnimationSpec: DecayAnimationSpec<Float> = rememberSplineBasedDecay(),
         snapAnimationSpec: AnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
-        snapVelocityThreshold: Dp = MinFlingVelocityDp
+        snapVelocityThreshold: Dp = MinFlingVelocityDp,
+        snapPositionalThreshold: Float = 0.5f
     ): SnapFlingBehavior {
+        require(snapPositionalThreshold in 0f..1f) {
+            "snapPositionalThreshold should be a number between 0 and 1. " +
+                "You've specified $snapPositionalThreshold"
+        }
         val density = LocalDensity.current
-
         return remember(
             state,
             lowVelocityAnimationSpec,
@@ -531,8 +544,10 @@ object PagerDefaults {
                 SnapLayoutInfoProvider(
                     state,
                     pagerSnapDistance,
-                    highVelocityAnimationSpec
+                    highVelocityAnimationSpec,
+                    snapPositionalThreshold
                 )
+
             SnapFlingBehavior(
                 snapLayoutInfoProvider = snapLayoutInfoProvider,
                 lowVelocityAnimationSpec = lowVelocityAnimationSpec,
@@ -637,11 +652,16 @@ internal class PagerSnapDistanceMaxPages(private val pagesLimit: Int) : PagerSna
 private fun SnapLayoutInfoProvider(
     pagerState: PagerState,
     pagerSnapDistance: PagerSnapDistance,
-    decayAnimationSpec: DecayAnimationSpec<Float>
+    decayAnimationSpec: DecayAnimationSpec<Float>,
+    snapPositionalThreshold: Float
 ): SnapLayoutInfoProvider {
     return object : SnapLayoutInfoProvider {
         val layoutInfo: PagerLayoutInfo
             get() = pagerState.layoutInfo
+
+        fun Float.isValidDistance(): Boolean {
+            return this != Float.POSITIVE_INFINITY && this != Float.NEGATIVE_INFINITY
+        }
 
         override fun Density.calculateSnappingOffset(currentVelocity: Float): Float {
             var lowerBoundOffset = Float.NEGATIVE_INFINITY
@@ -665,7 +685,33 @@ private fun SnapLayoutInfoProvider(
                 }
             }
 
-            return calculateFinalOffset(currentVelocity, lowerBoundOffset, upperBoundOffset)
+            val isForward = pagerState.isScrollingForward()
+
+            val offsetFromSnappedPosition =
+                pagerState.dragGestureDelta() / layoutInfo.pageSize.toFloat()
+
+            val offsetFromSnappedPositionOverflow =
+                offsetFromSnappedPosition - offsetFromSnappedPosition.toInt().toFloat()
+
+            val finalDistance = when (sign(currentVelocity)) {
+                0f -> {
+                    if (offsetFromSnappedPositionOverflow.absoluteValue > snapPositionalThreshold) {
+                        if (isForward) upperBoundOffset else lowerBoundOffset
+                    } else {
+                        if (isForward) lowerBoundOffset else upperBoundOffset
+                    }
+                }
+
+                1f -> upperBoundOffset
+                -1f -> lowerBoundOffset
+                else -> 0f
+            }
+
+            return if (finalDistance.isValidDistance()) {
+                finalDistance
+            } else {
+                0f
+            }
         }
 
         override fun Density.calculateSnapStepSize(): Float = layoutInfo.pageSize.toFloat()
@@ -847,4 +893,14 @@ private inline fun debugLog(generateMsg: () -> String) {
     if (DEBUG) {
         println("Pager: ${generateMsg()}")
     }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+private fun PagerState.isScrollingForward() = dragGestureDelta() < 0
+
+@OptIn(ExperimentalFoundationApi::class)
+private fun PagerState.dragGestureDelta() = if (layoutInfo.orientation == Orientation.Horizontal) {
+    upDownDifference.x
+} else {
+    upDownDifference.y
 }
