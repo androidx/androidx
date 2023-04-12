@@ -40,7 +40,7 @@ interface CalendarEvent : Thing {
         fun setEndDate(endDate: EndDate?): Self
         fun setEndDate(value: LocalDate): Self
         fun addAttendee(attendee: Attendee): Self
-        fun addAllAttendee(value: Iterable<Attendee>): Self
+        fun addAttendees(value: List<Attendee>): Self
 
         override fun build(): CalendarEvent
     }
@@ -54,7 +54,8 @@ private class CalendarEventBuilderImpl : CalendarEvent.Builder<CalendarEventBuil
     private var endDate: EndDate? = null
     private var attendeeList = mutableListOf<Attendee>()
 
-    override fun build() = CalendarEventImpl(identifier, name, startDate, endDate, attendeeList)
+    override fun build() =
+        CalendarEventImpl(identifier, name, startDate, endDate, attendeeList.toList())
 
     override fun setStartDate(startDate: StartDate?): CalendarEventBuilderImpl = apply {
         this.startDate = startDate
@@ -76,7 +77,7 @@ private class CalendarEventBuilderImpl : CalendarEvent.Builder<CalendarEventBuil
         attendeeList.add(attendee)
     }
 
-    override fun addAllAttendee(value: Iterable<Attendee>): CalendarEventBuilderImpl = apply {
+    override fun addAttendees(value: List<Attendee>): CalendarEventBuilderImpl = apply {
         attendeeList.addAll(value)
     }
 
@@ -104,5 +105,5 @@ private class CalendarEventImpl(
             .setName(name)
             .setStartDate(startDate)
             .setEndDate(endDate)
-            .addAllAttendee(attendeeList)
+            .addAttendees(attendeeList)
 }
