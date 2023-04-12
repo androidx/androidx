@@ -40,6 +40,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable;
+import androidx.wear.protolayout.expression.PlatformHealthSources;
 import androidx.wear.protolayout.expression.pipeline.BoundDynamicType;
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest;
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator;
@@ -47,6 +48,7 @@ import androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Evalua
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver;
 import androidx.wear.protolayout.expression.pipeline.FixedQuotaManagerImpl;
 import androidx.wear.protolayout.expression.pipeline.QuotaManager;
+import androidx.wear.protolayout.expression.pipeline.SensorGatewaySingleDataProvider;
 import androidx.wear.protolayout.expression.pipeline.StateStore;
 import androidx.wear.protolayout.expression.pipeline.TimeGatewayImpl;
 import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway;
@@ -65,6 +67,7 @@ import androidx.wear.protolayout.proto.TriggerProto.Trigger;
 import androidx.wear.protolayout.renderer.dynamicdata.NodeInfo.ResolvedAvd;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -145,7 +148,16 @@ public class ProtoLayoutDynamicDataPipeline {
                         .setStateStore(stateStore);
         evaluatorConfigBuilder.setDynamicTypesQuotaManager(dynamicNodeQuotaManager);
         if (sensorGateway != null) {
-            evaluatorConfigBuilder.setSensorGateway(sensorGateway);
+            evaluatorConfigBuilder.addPlatformDataProvider(
+                    new SensorGatewaySingleDataProvider(
+                            sensorGateway, PlatformHealthSources.HEART_RATE_BPM),
+                    Collections.singleton(PlatformHealthSources.HEART_RATE_BPM)
+            );
+            evaluatorConfigBuilder.addPlatformDataProvider(
+                    new SensorGatewaySingleDataProvider(
+                            sensorGateway, PlatformHealthSources.DAILY_STEPS),
+                    Collections.singleton(PlatformHealthSources.DAILY_STEPS)
+            );
         }
         if (enableAnimations) {
             evaluatorConfigBuilder.setAnimationQuotaManager(animationQuotaManager);
