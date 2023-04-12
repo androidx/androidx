@@ -17,12 +17,17 @@
 package androidx.compose.foundation.text2.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text2.input.TextFieldLineLimits.MultiLine
+import androidx.compose.foundation.text2.input.TextFieldLineLimits.SingleLine
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 
 /**
  * Values that specify the text wrapping, scrolling, and height measurement behavior for
  * text fields.
+ *
+ * @see SingleLine
+ * @see MultiLine
  */
 @ExperimentalFoundationApi
 @Stable
@@ -32,9 +37,6 @@ sealed interface TextFieldLineLimits {
      * The text field is always a single line tall, ignores newlines in the
      * text, and scrolls horizontally when the text overflows.
      */
-    // TODO Convert newlines to not newlines once CodepointTransformation is available. Currently
-    //  softwrap is disabled, but new lines disappear below the bottom and there's no way to see
-    //  them.
     object SingleLine : TextFieldLineLimits
 
     /**

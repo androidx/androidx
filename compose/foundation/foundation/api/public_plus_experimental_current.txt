@@ -1358,9 +1358,9 @@ package androidx.compose.foundation.text2.input {
   }
 
   @androidx.compose.foundation.ExperimentalFoundationApi public class TextFieldBuffer implements java.lang.Appendable java.lang.CharSequence {
-    method public Appendable append(char char);
     method public Appendable append(CharSequence? text);
     method public Appendable append(CharSequence? text, int start, int end);
+    method public Appendable append(char char);
     method public operator char get(int index);
     method public final androidx.compose.foundation.text2.input.TextFieldBuffer.ChangeList getChanges();
     method public final int getCodepointLength();
