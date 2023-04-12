@@ -27,6 +27,7 @@ import android.os.Looper
 import android.os.SystemClock
 import android.text.SpannableString
 import android.util.Log
+import android.util.LongSparseArray
 import android.view.MotionEvent
 import android.view.View
 import android.view.accessibility.AccessibilityEvent
@@ -38,6 +39,9 @@ import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTE
 import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX
 import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY
 import android.view.accessibility.AccessibilityNodeProvider
+import android.view.translation.TranslationRequestValue
+import android.view.translation.ViewTranslationRequest
+import android.view.translation.ViewTranslationResponse
 import androidx.annotation.DoNotInline
 import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
@@ -87,6 +91,7 @@ import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMap
+import androidx.core.util.keyIterator
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.ViewCompat.ACCESSIBILITY_LIVE_REGION_ASSERTIVE
@@ -96,11 +101,11 @@ import androidx.core.view.accessibility.AccessibilityEventCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
-import androidx.core.view.children
 import androidx.core.view.contentcapture.ContentCaptureSessionCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import java.util.function.Consumer
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -332,6 +337,15 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
 
     /**
+     * Indicates whether the translated information is show or hide in the [AndroidComposeView].
+     *
+     * See [ViewTranslationCallback](https://cs.android.com/android/platform/superproject/+/refs/heads/master:frameworks/base/core/java/android/view/translation/ViewTranslationCallback.java)
+     * for more details of the View translation API.
+     */
+    enum class TranslateStatus { SHOW_ORIGINAL, SHOW_TRANSLATED }
+    private var translateStatus = TranslateStatus.SHOW_ORIGINAL
+
+    /**
      * True if accessibility service with the touch exploration (e.g. Talkback) is enabled in the
      * system.
      * Note that UIAutomator doesn't request touch exploration therefore returns false
@@ -385,7 +399,9 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             if (currentSemanticsNodesInvalidated) { // first instance of retrieving all nodes
                 currentSemanticsNodesInvalidated = false
                 field = view.semanticsOwner.getAllUncoveredSemanticsNodesToMap()
-                setTraversalValues()
+                if (isEnabledForAccessibility) {
+                    setTraversalValues()
+                }
             }
             return field
         }
@@ -457,11 +473,11 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     }
 
     override fun onStart(owner: LifecycleOwner) {
-        initContentCaptureSemanticsStructureChangeEvents(onStart = true)
+        initContentCapture(onStart = true)
     }
 
     override fun onStop(owner: LifecycleOwner) {
-        initContentCaptureSemanticsStructureChangeEvents(onStart = false)
+        initContentCapture(onStart = false)
     }
 
     /**
@@ -1558,9 +1574,11 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         event.packageName = view.context.packageName
         event.setSource(view, virtualViewId)
 
-        // populate additional information from the node
-        currentSemanticsNodes[virtualViewId]?.let {
-            event.isPassword = it.semanticsNode.isPassword
+        if (isEnabledForAccessibility) {
+            // populate additional information from the node
+            currentSemanticsNodes[virtualViewId]?.let {
+                event.isPassword = it.semanticsNode.isPassword
+            }
         }
 
         return event
@@ -2283,14 +2301,18 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     private fun checkForSemanticsChanges() {
         // Structural change
-        sendAccessibilitySemanticsStructureChangeEvents(
-            view.semanticsOwner.unmergedRootSemanticsNode,
-            previousSemanticsRoot
-        )
-        sendContentCaptureSemanticsStructureChangeEvents(
-            view.semanticsOwner.unmergedRootSemanticsNode,
-            previousSemanticsRoot
-        )
+        if (isEnabledForAccessibility) {
+            sendAccessibilitySemanticsStructureChangeEvents(
+                view.semanticsOwner.unmergedRootSemanticsNode,
+                previousSemanticsRoot
+            )
+        }
+        if (isEnabledForContentCapture) {
+            sendContentCaptureSemanticsStructureChangeEvents(
+                view.semanticsOwner.unmergedRootSemanticsNode,
+                previousSemanticsRoot
+            )
+        }
         // Property change
         sendSemanticsPropertyChangeEvents(currentSemanticsNodes)
         updateSemanticsNodesCopyAndPanes()
@@ -2875,6 +2897,9 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         if (!isEnabledForContentCapture) {
             return
         }
+
+        updateTranslationOnAppeared(node)
+
         bufferContentCaptureViewAppeared(node.id, node.toViewStructure())
         node.replacedChildren.fastForEach { child -> updateContentCaptureBuffersOnAppeared(child) }
     }
@@ -2886,6 +2911,66 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         bufferContentCaptureViewDisappeared(node.id)
         node.replacedChildren.fastForEach {
                 child -> updateContentCaptureBuffersOnDisappeared(child)
+        }
+    }
+
+    private fun updateTranslationOnAppeared(node: SemanticsNode) {
+        val config = node.unmergedConfig
+        val isShowingTextSubstitution = config.getOrNull(
+            SemanticsProperties.IsShowingTextSubstitution)
+
+        if (translateStatus == TranslateStatus.SHOW_ORIGINAL &&
+            isShowingTextSubstitution == true) {
+            config.getOrNull(SemanticsActions.ShowTextSubstitution)?.action?.invoke(false)
+        } else if (translateStatus == TranslateStatus.SHOW_TRANSLATED &&
+            isShowingTextSubstitution == false) {
+            config.getOrNull(SemanticsActions.ShowTextSubstitution)?.action?.invoke(true)
+        }
+    }
+
+    internal fun onShowTranslation() {
+        translateStatus = TranslateStatus.SHOW_TRANSLATED
+        showTranslatedText()
+    }
+
+    internal fun onHideTranslation() {
+        translateStatus = TranslateStatus.SHOW_ORIGINAL
+        hideTranslatedText()
+    }
+
+    internal fun onClearTranslation() {
+        translateStatus = TranslateStatus.SHOW_ORIGINAL
+        clearTranslatedText()
+    }
+
+    private fun showTranslatedText() {
+        for (node in currentSemanticsNodes.values) {
+            val config = node.semanticsNode.unmergedConfig
+            if (config.getOrNull(SemanticsProperties.IsShowingTextSubstitution) == false) {
+                config.getOrNull(SemanticsActions.ShowTextSubstitution)?.action?.invoke(
+                    true
+                )
+            }
+        }
+    }
+
+    private fun hideTranslatedText() {
+        for (node in currentSemanticsNodes.values) {
+            val config = node.semanticsNode.unmergedConfig
+            if (config.getOrNull(SemanticsProperties.IsShowingTextSubstitution) == true) {
+                config.getOrNull(SemanticsActions.ShowTextSubstitution)?.action?.invoke(
+                    false
+                )
+            }
+        }
+    }
+
+    private fun clearTranslatedText() {
+        for (node in currentSemanticsNodes.values) {
+            val config = node.semanticsNode.unmergedConfig
+            if (config.getOrNull(SemanticsProperties.IsShowingTextSubstitution) != null) {
+                config.getOrNull(SemanticsActions.ClearTextSubstitution)?.action?.invoke()
+            }
         }
     }
 
@@ -2922,11 +3007,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
     }
 
-    internal fun initContentCaptureSemanticsStructureChangeEvents(onStart: Boolean) {
-        if (!isEnabledForContentCapture) {
-            return
-        }
-
+    internal fun initContentCapture(onStart: Boolean) {
         if (onStart) {
             updateContentCaptureBuffersOnAppeared(view.semanticsOwner.unmergedRootSemanticsNode)
         } else {
@@ -3306,6 +3387,76 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             }
         }
     }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private object ViewTranslationHelperMethodsS {
+        @DoNotInline
+        @Suppress("UNUSED_PARAMETER")
+        @RequiresApi(Build.VERSION_CODES.S)
+        fun onCreateVirtualViewTranslationRequests(
+            accessibilityDelegateCompat: AndroidComposeViewAccessibilityDelegateCompat,
+            virtualIds: LongArray,
+            supportedFormats: IntArray,
+            requestsCollector: Consumer<ViewTranslationRequest?>
+        ) {
+
+            virtualIds.forEach {
+                val node = accessibilityDelegateCompat.currentSemanticsNodes[it.toInt()]
+                    ?.semanticsNode ?: return@forEach
+                val requestBuilder = ViewTranslationRequest.Builder(
+                    accessibilityDelegateCompat.view.autofillId,
+                    node.id.toLong()
+                )
+
+                var text = node.unmergedConfig.getOrNull(SemanticsProperties.OriginalText)
+                    ?: AnnotatedString(node.getTextForTranslation() ?: return@forEach)
+
+                requestBuilder.setValue(ViewTranslationRequest.ID_TEXT,
+                    TranslationRequestValue.forText(text))
+                requestsCollector.accept(requestBuilder.build())
+            }
+        }
+
+        @DoNotInline
+        @RequiresApi(Build.VERSION_CODES.S)
+        fun onVirtualViewTranslationResponses(
+            accessibilityDelegateCompat: AndroidComposeViewAccessibilityDelegateCompat,
+            response: LongSparseArray<ViewTranslationResponse?>
+        ) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                return
+            }
+
+            for (key in response.keyIterator()) {
+                response.get(key)?.getValue(ViewTranslationRequest.ID_TEXT)?.text?.let {
+                    accessibilityDelegateCompat.currentSemanticsNodes[key.toInt()]
+                        ?.semanticsNode
+                        ?.let { semanticsNode ->
+                            semanticsNode.unmergedConfig
+                                .getOrNull(SemanticsActions.SetTextSubstitution)?.action
+                                ?.invoke(AnnotatedString(it.toString()))
+                        }
+                }
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    internal fun onCreateVirtualViewTranslationRequests(
+        virtualIds: LongArray,
+        supportedFormats: IntArray,
+        requestsCollector: Consumer<ViewTranslationRequest?>
+    ) {
+        ViewTranslationHelperMethodsS.onCreateVirtualViewTranslationRequests(
+            this, virtualIds, supportedFormats, requestsCollector)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    internal fun onVirtualViewTranslationResponses(
+        response: LongSparseArray<ViewTranslationResponse?>
+    ) {
+        ViewTranslationHelperMethodsS.onVirtualViewTranslationResponses(this, response)
+    }
 }
 
 private fun SemanticsNode.enabled() = (config.getOrNull(SemanticsProperties.Disabled) == null)
@@ -3341,6 +3492,9 @@ private val SemanticsNode.getTraversalIndex: Float
     }
 private val SemanticsNode.infoContentDescriptionOrNull get() = this.unmergedConfig.getOrNull(
     SemanticsProperties.ContentDescription)?.firstOrNull()
+
+private fun SemanticsNode.getTextForTranslation(): String? = this.unmergedConfig.getOrNull(
+    SemanticsProperties.Text)?.fastJoinToString("\n")
 
 @OptIn(ExperimentalComposeUiApi::class)
 private fun SemanticsNode.excludeLineAndPageGranularities(): Boolean {

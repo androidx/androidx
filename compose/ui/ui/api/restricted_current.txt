@@ -3154,6 +3154,7 @@ package androidx.compose.ui.semantics {
   }
 
   public final class SemanticsActions {
+    method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> getClearTextSubstitution();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> getCollapse();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> getCopyText();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<java.util.List<androidx.compose.ui.semantics.CustomAccessibilityAction>> getCustomActions();
@@ -3176,6 +3177,9 @@ package androidx.compose.ui.semantics {
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<java.lang.Float,java.lang.Boolean>>> getSetProgress();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function3<java.lang.Integer,java.lang.Integer,java.lang.Boolean,java.lang.Boolean>>> getSetSelection();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<androidx.compose.ui.text.AnnotatedString,java.lang.Boolean>>> getSetText();
+    method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<androidx.compose.ui.text.AnnotatedString,java.lang.Boolean>>> getSetTextSubstitution();
+    method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<java.lang.Boolean,java.lang.Boolean>>> getShowTextSubstitution();
+    property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> ClearTextSubstitution;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> Collapse;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> CopyText;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<java.util.List<androidx.compose.ui.semantics.CustomAccessibilityAction>> CustomActions;
@@ -3198,6 +3202,8 @@ package androidx.compose.ui.semantics {
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<java.lang.Float,java.lang.Boolean>>> SetProgress;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function3<java.lang.Integer,java.lang.Integer,java.lang.Boolean,java.lang.Boolean>>> SetSelection;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<androidx.compose.ui.text.AnnotatedString,java.lang.Boolean>>> SetText;
+    property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<androidx.compose.ui.text.AnnotatedString,java.lang.Boolean>>> SetTextSubstitution;
+    property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function1<java.lang.Boolean,java.lang.Boolean>>> ShowTextSubstitution;
     field public static final androidx.compose.ui.semantics.SemanticsActions INSTANCE;
   }
 
@@ -3293,8 +3299,10 @@ package androidx.compose.ui.semantics {
     method @Deprecated public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getIsContainer();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> getIsDialog();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> getIsPopup();
+    method public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getIsShowingTextSubstitution();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getIsTraversalGroup();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.LiveRegionMode> getLiveRegion();
+    method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.text.AnnotatedString> getOriginalText();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.String> getPaneTitle();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> getPassword();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.ProgressBarRangeInfo> getProgressBarRangeInfo();
@@ -3323,8 +3331,10 @@ package androidx.compose.ui.semantics {
     property @Deprecated public final androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> IsContainer;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> IsDialog;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> IsPopup;
+    property public final androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> IsShowingTextSubstitution;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> IsTraversalGroup;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.LiveRegionMode> LiveRegion;
+    property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.text.AnnotatedString> OriginalText;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.String> PaneTitle;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> Password;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.ProgressBarRangeInfo> ProgressBarRangeInfo;
@@ -3348,6 +3358,7 @@ package androidx.compose.ui.semantics {
   }
 
   public final class SemanticsPropertiesKt {
+    method public static void clearTextSubstitution(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function0<java.lang.Boolean>? action);
     method public static void collapse(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function0<java.lang.Boolean>? action);
     method public static void copyText(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function0<java.lang.Boolean>? action);
     method public static void cutText(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function0<java.lang.Boolean>? action);
@@ -3365,6 +3376,7 @@ package androidx.compose.ui.semantics {
     method public static androidx.compose.ui.semantics.ScrollAxisRange getHorizontalScrollAxisRange(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method @Deprecated public static int getImeAction(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static int getLiveRegion(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
+    method public static androidx.compose.ui.text.AnnotatedString getOriginalText(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static String getPaneTitle(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static androidx.compose.ui.semantics.ProgressBarRangeInfo getProgressBarRangeInfo(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static int getRole(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
@@ -3382,6 +3394,7 @@ package androidx.compose.ui.semantics {
     method public static void insertTextAtCursor(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString,java.lang.Boolean>? action);
     method @androidx.compose.ui.ExperimentalComposeUiApi public static void invisibleToUser(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method @Deprecated public static boolean isContainer(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
+    method public static boolean isShowingTextSubstitution(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static boolean isTraversalGroup(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static void onClick(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function0<java.lang.Boolean>? action);
     method public static void onLongClick(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function0<java.lang.Boolean>? action);
@@ -3407,21 +3420,25 @@ package androidx.compose.ui.semantics {
     method public static void setHorizontalScrollAxisRange(androidx.compose.ui.semantics.SemanticsPropertyReceiver, androidx.compose.ui.semantics.ScrollAxisRange);
     method @Deprecated public static void setImeAction(androidx.compose.ui.semantics.SemanticsPropertyReceiver, int);
     method public static void setLiveRegion(androidx.compose.ui.semantics.SemanticsPropertyReceiver, int);
+    method public static void setOriginalText(androidx.compose.ui.semantics.SemanticsPropertyReceiver, androidx.compose.ui.text.AnnotatedString);
     method public static void setPaneTitle(androidx.compose.ui.semantics.SemanticsPropertyReceiver, String);
     method public static void setProgress(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean>? action);
     method public static void setProgressBarRangeInfo(androidx.compose.ui.semantics.SemanticsPropertyReceiver, androidx.compose.ui.semantics.ProgressBarRangeInfo);
     method public static void setRole(androidx.compose.ui.semantics.SemanticsPropertyReceiver, int);
     method public static void setSelected(androidx.compose.ui.semantics.SemanticsPropertyReceiver, boolean);
     method public static void setSelection(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function3<? super java.lang.Integer,? super java.lang.Integer,? super java.lang.Boolean,java.lang.Boolean>? action);
+    method public static void setShowingTextSubstitution(androidx.compose.ui.semantics.SemanticsPropertyReceiver, boolean);
     method public static void setStateDescription(androidx.compose.ui.semantics.SemanticsPropertyReceiver, String);
     method public static void setTestTag(androidx.compose.ui.semantics.SemanticsPropertyReceiver, String);
     method public static void setText(androidx.compose.ui.semantics.SemanticsPropertyReceiver, androidx.compose.ui.text.AnnotatedString);
     method public static void setText(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString,java.lang.Boolean>? action);
     method public static void setTextSelectionRange(androidx.compose.ui.semantics.SemanticsPropertyReceiver, long);
+    method public static void setTextSubstitution(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString,java.lang.Boolean>? action);
     method public static void setToggleableState(androidx.compose.ui.semantics.SemanticsPropertyReceiver, androidx.compose.ui.state.ToggleableState);
     method public static void setTraversalGroup(androidx.compose.ui.semantics.SemanticsPropertyReceiver, boolean);
     method public static void setTraversalIndex(androidx.compose.ui.semantics.SemanticsPropertyReceiver, float);
     method public static void setVerticalScrollAxisRange(androidx.compose.ui.semantics.SemanticsPropertyReceiver, androidx.compose.ui.semantics.ScrollAxisRange);
+    method public static void showTextSubstitution(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function1<? super java.lang.Boolean,java.lang.Boolean>? action);
   }
 
   public final class SemanticsProperties_androidKt {
