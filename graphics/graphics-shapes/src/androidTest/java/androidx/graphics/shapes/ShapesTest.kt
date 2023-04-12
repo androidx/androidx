@@ -108,24 +108,27 @@ class ShapesTest {
      */
     @Test
     fun starTest() {
-        var star = Star(4, innerRadiusRatio = .5f)
+        var star = Star(4, innerRadius = .5f)
         var shape = star.toCubicShape()
+        var radius = 1f
+        var innerRadius = .5f
         for (cubic in shape.cubics) {
-            assertCubicOnRadii(cubic, 1f, .5f)
+            assertCubicOnRadii(cubic, radius, innerRadius)
         }
 
         val center = PointF(1f, 2f)
-        star = Star(4, innerRadiusRatio = .5f, center = center)
+        star = Star(4, innerRadius = innerRadius, center = center)
         shape = star.toCubicShape()
         for (cubic in shape.cubics) {
-            assertCubicOnRadii(cubic, 1f, .5f, center)
+            assertCubicOnRadii(cubic, radius, innerRadius, center)
         }
 
-        val radius = 4f
-        star = Star(4, radius = radius, innerRadiusRatio = .5f)
+        radius = 4f
+        innerRadius = 2f
+        star = Star(4, radius, innerRadius)
         shape = star.toCubicShape()
         for (cubic in shape.cubics) {
-            assertCubicOnRadii(cubic, radius, .5f * radius)
+            assertCubicOnRadii(cubic, radius, innerRadius)
         }
     }
 
@@ -136,24 +139,28 @@ class ShapesTest {
         val perVtxRounded = listOf<CornerRounding>(rounding, innerRounding, rounding, innerRounding,
             rounding, innerRounding, rounding, innerRounding)
 
-        var star = Star(4, innerRadiusRatio = .5f, rounding = rounding)
+        var star = Star(4, innerRadius = .5f, rounding = rounding)
         val min = PointF(-1f, -1f)
         val max = PointF(1f, 1f)
         assertInBounds(star.toCubicShape(), min, max)
 
-        star = Star(4, innerRadiusRatio = .5f, innerRounding = innerRounding)
+        star = Star(4, innerRadius = .5f, innerRounding = innerRounding)
         assertInBounds(star.toCubicShape(), min, max)
 
-        star = Star(4, innerRadiusRatio = .5f, rounding = rounding,
-            innerRounding = innerRounding)
+        star = Star(
+            4, innerRadius = .5f, rounding = rounding,
+            innerRounding = innerRounding
+        )
         assertInBounds(star.toCubicShape(), min, max)
 
-        star = Star(4, innerRadiusRatio = .5f, perVertexRounding = perVtxRounded)
+        star = Star(4, innerRadius = .5f, perVertexRounding = perVtxRounded)
         assertInBounds(star.toCubicShape(), min, max)
 
         assertThrows(IllegalArgumentException::class.java) {
-            star = Star(6, innerRadiusRatio = .5f,
-                perVertexRounding = perVtxRounded)
+            star = Star(
+                6, innerRadius = .5f,
+                perVertexRounding = perVtxRounded
+            )
         }
     }
 }

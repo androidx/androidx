@@ -17,7 +17,6 @@
 package androidx.graphics.shapes
 
 import android.graphics.PointF
-import androidx.annotation.FloatRange
 
 private const val Sqrt2 = 1.41421356f
 
@@ -36,42 +35,63 @@ fun Circle(radius: Float = 1f, center: PointF = Zero): RoundedPolygon {
 
 /**
  * Creates a star polygon, which is like a regular polygon except every other vertex is
- * on either an inner or outer radius. The two radii are specified in the constructor by
- * providing the [innerRadiusRatio], which is a value representing the proportion (from
- * 0 to 1, non-inclusive) of the inner radius compared to the outer one.
- * @throws IllegalArgumentException if radius ratio not in [0,1]
+ * on either an inner or outer radius. The two radii specified in the constructor must both
+ * both nonzero. If the radii are equal, the result will be a regular (not star) polygon with twice
+ * the number of vertices specified in [numVerticesPerRadius].
+ *
+ * @param numVerticesPerRadius The number of vertices along each of the two radii.
+ * @param radius Outer radius for this star shape, must be greater than 0. Default value is 1.
+ * @param innerRadius Inner radius for this star shape, must be greater than 0 and less
+ * than or equal to [radius]. Note that equal radii would be the same as creating a
+ * [RoundedPolygon] directly, but with 2 * [numVerticesPerRadius] vertices. Default value is .5.
+ * @param rounding The [CornerRounding] properties of every vertex. If some vertices should
+ * have different rounding properties, then use [perVertexRounding] instead. The default
+ * rounding value is [CornerRounding.Unrounded], meaning that the polygon will use the vertices
+ * themselves in the final shape and not curves rounded around the vertices.
+ * @param innerRounding Optional rounding parameters for the vertices on the [innerRadius]. If
+ * null (the default value), inner vertices will use the [rounding] or [perVertexRounding]
+ * parameters instead.
+ * @param perVertexRounding The [CornerRounding] properties of every vertex. If this
+ * parameter is not null, then it must have the same size as 2 * [numVerticesPerRadius]. If this
+ * parameter is null, then the polygon will use the [rounding] parameter for every vertex instead.
+ * The default value is null.
+ * @param center The center of the polygon, around which all vertices will be placed. The
+ * default center is at (0,0).
+ *
+ * @throws IllegalArgumentException if either [radius] or [innerRadius] are <= 0 or
+ * [innerRadius] > [radius].
  */
 @JvmOverloads
 fun Star(
-    numOuterVertices: Int,
-    @FloatRange(from = 0.0, to = 1.0, fromInclusive = false, toInclusive = false)
-    innerRadiusRatio: Float,
+    numVerticesPerRadius: Int,
     radius: Float = 1f,
+    innerRadius: Float = .5f,
     rounding: CornerRounding = CornerRounding.Unrounded,
     innerRounding: CornerRounding? = null,
     perVertexRounding: List<CornerRounding>? = null,
     center: PointF = Zero
 ): RoundedPolygon {
-    if (innerRadiusRatio <= 0f || innerRadiusRatio >= 1f) {
-        throw IllegalArgumentException("Inner radius ratio must be in range (0,1), exclusive" +
-            "of 0 and 1")
+    if (radius <= 0f || innerRadius <= 0f) {
+        throw IllegalArgumentException("Star radii must both be greater than 0")
+    }
+    if (innerRadius >= radius) {
+        throw IllegalArgumentException("innerRadius must be less than radius")
     }
 
     var pvRounding = perVertexRounding
     // If no per-vertex rounding supplied and caller asked for inner rounding,
     // create per-vertex rounding list based on supplied outer/inner rounding parameters
     if (pvRounding == null && innerRounding != null) {
-        pvRounding = (0 until numOuterVertices).flatMap {
+        pvRounding = (0 until numVerticesPerRadius).flatMap {
             listOf(rounding, innerRounding)
         }
     }
     // Star polygon is just a polygon with all vertices supplied (where we generate
     // those vertices to be on the inner/outer radii)
-    return RoundedPolygon((0 until numOuterVertices).flatMap {
+    return RoundedPolygon((0 until numVerticesPerRadius).flatMap {
         listOf(
-            radialToCartesian(radius, (FloatPi / numOuterVertices * 2 * it), center),
-            radialToCartesian(radius * innerRadiusRatio,
-                FloatPi / numOuterVertices * (2 * it + 1), center)
+            radialToCartesian(radius, (FloatPi / numVerticesPerRadius * 2 * it), center),
+            radialToCartesian(innerRadius, FloatPi / numVerticesPerRadius * (2 * it + 1), center)
         )
     }, rounding, pvRounding, center)
 }
