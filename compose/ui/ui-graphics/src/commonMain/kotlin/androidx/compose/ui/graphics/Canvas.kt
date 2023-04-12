@@ -328,6 +328,7 @@ interface Canvas {
      * @param top Top bound of the clip region
      * @param right Right bound of the clip region
      * @param bottom Bottom bound of the clip region
+     * @param clipOp Clipping operation to conduct on the given bounds, defaults to [ClipOp.Intersect]
      */
     fun clipRect(
         left: Float,
@@ -477,6 +478,7 @@ interface Canvas {
      * @param startAngle Starting angle of the arc relative to 3 o'clock
      * @param sweepAngle Sweep angle in degrees clockwise
      * @param useCenter Flag indicating whether or not to include the center of the oval in the
+     * @param paint Paint used to draw the arc.
      * arc, and close it if it is being stroked. This will draw a wedge.
      */
     fun drawArc(
