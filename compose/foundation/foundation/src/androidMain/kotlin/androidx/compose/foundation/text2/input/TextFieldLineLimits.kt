@@ -34,16 +34,15 @@ import androidx.compose.runtime.Stable
 sealed interface TextFieldLineLimits {
 
     /**
-     * The text field is always a single line tall, ignores newlines in the
-     * text, and scrolls horizontally when the text overflows.
+     * The text field is always a single line tall, ignores newlines in the text, and scrolls
+     * horizontally when the text overflows.
      */
     object SingleLine : TextFieldLineLimits
 
     /**
-     * The text field will be at least [minHeightInLines] tall, if the text
-     * overflows it will wrap, and if the text ends up being more than one
-     * line the field will grow until it is [maxHeightInLines] tall and
-     * then start scrolling vertically.
+     * The text field will be at least [minHeightInLines] tall, if the text overflows it will wrap,
+     * and if the text ends up being more than one line the field will grow until it is
+     * [maxHeightInLines] tall and then start scrolling vertically.
      *
      * It is required that 1 ≤ [minHeightInLines] ≤ [maxHeightInLines].
      */

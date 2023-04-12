@@ -51,7 +51,7 @@ fun interface TextEditFilter {
     /**
      * The filter operation. For more information see the documentation on [TextEditFilter].
      *
-     * To reject all changes in [originalValue], call
+     * To reject all changes in [valueWithChanges], call
      * `valueWithChanges.`[revertAllChanges][TextFieldBufferWithSelection.revertAllChanges].
      *
      * @param originalValue The value of the field before the change was performed.
@@ -64,8 +64,8 @@ fun interface TextEditFilter {
 }
 
 /**
- * Creates a filter chain that will run [next] after this. Filters are applied in order – [next]
- * will see any the changes made by this filter.
+ * Creates a filter chain that will run [next] after this. Filters are applied sequentially, so any
+ * changes made by this filter will be visible to [next].
  *
  * @sample androidx.compose.foundation.samples.BasicTextField2FilterChainingSample
  *

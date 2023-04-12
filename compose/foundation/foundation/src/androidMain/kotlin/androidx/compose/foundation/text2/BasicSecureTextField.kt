@@ -65,9 +65,9 @@ import kotlinx.coroutines.launch
  *
  * BasicSecureTextField is specifically designed for password entry fields and is a preconfigured
  * alternative to BasicTextField2. It only supports a single line of content and comes with default
- * settings for KeyboardOptions, filter, and obscureText that are appropriate for entering secure
- * content. Additionally, some context menu actions like cut, copy, and drag are disabled for
- * added security.
+ * settings for KeyboardOptions, filter, and codepointTransformation that are appropriate for
+ * entering secure content. Additionally, some context menu actions like cut, copy, and drag are
+ * disabled for added security.
  *
  * @param state [TextFieldState] object that holds the internal state of a [BasicTextField2].
  * @param modifier optional [Modifier] for this text field.
