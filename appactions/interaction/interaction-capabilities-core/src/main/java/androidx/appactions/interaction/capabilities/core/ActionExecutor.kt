@@ -16,6 +16,9 @@
 
 package androidx.appactions.interaction.capabilities.core
 
+import androidx.annotation.RestrictTo
+import androidx.concurrent.futures.await
+
 /**
  * An interface of executing the action.
  *
@@ -23,6 +26,10 @@ package androidx.appactions.interaction.capabilities.core
  * For a Future-based solution, see ActionExecutorAsync.
  */
 fun interface ActionExecutor<ArgumentsT, OutputT> {
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    val uiHandle: Any
+        get() = this
+
     /**
      * Calls to execute the action.
      *
@@ -30,4 +37,11 @@ fun interface ActionExecutor<ArgumentsT, OutputT> {
      * @return the ExecutionResult
      */
     suspend fun onExecute(arguments: ArgumentsT): ExecutionResult<OutputT>
+}
+
+internal fun <ArgumentsT, OutputT> ActionExecutorAsync<ArgumentsT, OutputT>.toActionExecutor():
+    ActionExecutor<ArgumentsT, OutputT> = object : ActionExecutor<ArgumentsT, OutputT> {
+    override val uiHandle = this@toActionExecutor
+    override suspend fun onExecute(arguments: ArgumentsT): ExecutionResult<OutputT> =
+        this@toActionExecutor.onExecute(arguments).await()
 }
