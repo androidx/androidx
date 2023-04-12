@@ -71,7 +71,7 @@ internal class FakeGraphProcessor(
         _requestQueue.add(requests)
     }
 
-    override suspend fun submit(parameters: Map<*, Any?>): Boolean {
+    override suspend fun trySubmit(parameters: Map<*, Any?>): Boolean {
         if (closed) {
             return false
         }
