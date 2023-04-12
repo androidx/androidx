@@ -14,12 +14,20 @@
  * limitations under the License.
  */
 
+
+import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+}
+
+def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
+
+androidXMultiplatform {
+    android()
+    if (desktopEnabled) desktop()
 }
 
 dependencies {

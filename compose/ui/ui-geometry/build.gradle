@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXComposePlugin
+import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -24,53 +23,69 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
 
-if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    dependencies {
-        /*
-         * When updating dependencies, make sure to make the an an analogous update in the
-         * corresponding block below
-         */
+androidXMultiplatform {
+    android()
+    if (desktopEnabled) desktop()
 
-        api("androidx.annotation:annotation:1.1.0")
-
-        implementation("androidx.compose.runtime:runtime:1.2.1")
-        implementation(project(":compose:ui:ui-util"))
-        implementation(libs.kotlinStdlib)
-
-        testImplementation(libs.junit)
-        testImplementation(libs.truth)
-        testImplementation(libs.kotlinTest)
-    }
-}
-
-if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    androidXComposeMultiplatform {
-        android()
-        desktop()
-    }
-
-    kotlin {
-        /*
-         * When updating dependencies, make sure to make the an an analogous update in the
-         * corresponding block above
-         */
-        sourceSets {
-            commonMain.dependencies {
+    sourceSets {
+        commonMain {
+            dependencies {
                 implementation(libs.kotlinStdlibCommon)
 
-                implementation(project(":compose:runtime:runtime"))
+                implementation("androidx.compose.runtime:runtime:1.2.1")
                 implementation(project(":compose:ui:ui-util"))
             }
-            jvmMain.dependencies {
+        }
+
+        commonTest {
+            dependencies {
+                implementation(kotlin("test-junit"))
+            }
+        }
+
+        jvmMain {
+            dependencies {
                 implementation(libs.kotlinStdlib)
             }
-            androidMain.dependencies {
+        }
+
+
+        androidMain {
+            dependsOn(jvmMain)
+            dependencies {
                 api("androidx.annotation:annotation:1.1.0")
             }
-            commonTest.dependencies {
-                implementation(kotlin("test-junit"))
+        }
+
+        if (desktopEnabled) {
+            desktopMain {
+                dependsOn(jvmMain)
+                dependencies {
+                    implementation(project(":compose:runtime:runtime"))
+                }
+            }
+        }
+
+        jvmTest {
+            dependencies {
+            }
+        }
+
+        androidAndroidTest {
+            dependsOn(jvmTest)
+            dependencies {
+            }
+        }
+
+        androidTest {
+            dependsOn(jvmTest)
+        }
+
+        if (desktopEnabled) {
+            desktopTest {
+                dependsOn(jvmTest)
             }
         }
     }

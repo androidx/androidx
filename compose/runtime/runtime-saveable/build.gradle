@@ -15,9 +15,8 @@
  */
 
 
-import androidx.build.AndroidXComposePlugin
+import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -25,77 +24,54 @@ plugins {
     id("com.android.library")
 }
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
 
-dependencies {
+androidXMultiplatform {
+    android()
+    if (desktopEnabled) desktop()
 
-    if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-        /* When updating dependencies, make sure to make the an an analogous update in the
-            corresponding block below */
-        api project(":compose:runtime:runtime")
-        api "androidx.annotation:annotation:1.1.0"
-
-        implementation(libs.kotlinStdlib)
-
-        testImplementation(libs.junit)
-        testImplementation(libs.truth)
-        testImplementation(libs.testCore)
-        testImplementation(libs.testRules)
-
-        androidTestImplementation projectOrArtifact(':compose:ui:ui')
-        androidTestImplementation projectOrArtifact(":compose:ui:ui-test-junit4")
-        androidTestImplementation projectOrArtifact(":compose:test-utils")
-        androidTestImplementation "androidx.fragment:fragment:1.3.0"
-        androidTestImplementation projectOrArtifact(":activity:activity-compose")
-        androidTestImplementation(libs.testUiautomator)
-        androidTestImplementation(libs.testCore)
-        androidTestImplementation(libs.testRules)
-        androidTestImplementation(libs.testRunner)
-        androidTestImplementation(libs.espressoCore)
-        androidTestImplementation(libs.junit)
-        androidTestImplementation(libs.truth)
-        androidTestImplementation(libs.dexmakerMockito)
-        androidTestImplementation(libs.mockitoCore)
-
-        lintPublish(project(":compose:runtime:runtime-saveable-lint"))
-
-        samples(projectOrArtifact(":compose:runtime:runtime-saveable:runtime-saveable-samples"))
-    }
-}
-
-if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    androidXComposeMultiplatform {
-        android()
-        desktop()
-    }
-
-    kotlin {
-        /* When updating dependencies, make sure to make the an an analogous update in the
-            corresponding block above */
-        sourceSets {
-            commonMain.dependencies {
+    sourceSets {
+        commonMain {
+            dependencies {
                 implementation(libs.kotlinStdlibCommon)
 
                 api project(":compose:runtime:runtime")
             }
+        }
 
-            androidMain.dependencies {
+        commonTest {
+            dependencies {
+            }
+        }
+
+        jvmMain {
+            dependencies {
+            }
+        }
+
+
+        androidMain {
+            dependsOn(jvmMain)
+            dependencies {
                 implementation(libs.kotlinStdlib)
                 api "androidx.annotation:annotation:1.1.0"
             }
+        }
 
-            // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
-            //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
-            //  level dependencies block instead:
-            //  `dependencies { testImplementation(libs.robolectric) }`
-            androidTest.dependencies {
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-                implementation(libs.truth)
+        if (desktopEnabled) {
+            desktopMain {
+                dependsOn(jvmMain)
             }
+        }
 
-            androidAndroidTest.dependencies {
+        jvmTest {
+            dependencies {
+            }
+        }
+
+        androidAndroidTest {
+            dependsOn(jvmTest)
+            dependencies {
                 implementation project(':compose:ui:ui')
                 implementation project(":compose:ui:ui-test-junit4")
                 implementation project(":compose:test-utils")
@@ -112,10 +88,32 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(libs.mockitoCore)
             }
         }
+
+        // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
+        //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
+        //  level dependencies block instead:
+        //  `dependencies { testImplementation(libs.robolectric) }`
+        androidTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.testRules)
+                implementation(libs.testRunner)
+                implementation(libs.junit)
+                implementation(libs.truth)
+            }
+        }
+
+        if (desktopEnabled) {
+            desktopTest {
+                dependsOn(jvmTest)
+            }
+        }
     }
-    dependencies {
-        samples(projectOrArtifact(":compose:runtime:runtime-saveable:runtime-saveable-samples"))
-    }
+}
+
+dependencies {
+    samples(projectOrArtifact(":compose:runtime:runtime-saveable:runtime-saveable-samples"))
+    lintPublish(project(":compose:runtime:runtime-saveable-lint"))
 }
 
 androidx {
