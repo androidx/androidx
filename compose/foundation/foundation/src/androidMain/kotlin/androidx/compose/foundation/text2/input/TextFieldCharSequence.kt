@@ -18,13 +18,14 @@ package androidx.compose.foundation.text2.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.constrain
 
 /**
- * An immutable snapshot of the contents of a [TextFieldCharSequence] at a point in time.
+ * An immutable snapshot of the contents of a [TextFieldState].
  *
  * This class is a [CharSequence] and directly represents the text being edited. It also stores
- * the current [selectionInChars] of the field, which may either represent the cursor (if the selection is
- * [collapsed][TextRange.collapsed]) or the selection range.
+ * the current [selectionInChars] of the field, which may either represent the cursor (if the
+ * selection is [collapsed][TextRange.collapsed]) or the selection range.
  *
  * This class also may contain the range being composed by the IME, if any, although this is not
  * exposed.
@@ -40,16 +41,14 @@ sealed interface TextFieldCharSequence : CharSequence {
     val selectionInChars: TextRange
 
     /**
-     * Composition range created by  IME. If null, there is no composition range.
+     * Composition range created by IME. If null, there is no composition range.
      *
      * Input service composition is an instance of text produced by IME. An example visual for the
      * composition is that the currently composed word is visually separated from others with
      * underline, or text background. For description of composition please check
      * [W3C IME Composition](https://www.w3.org/TR/ime-api/#ime-composition)
      *
-     * Composition can be set on the by the system, however it is possible to apply an existing
-     * composition by setting the value to null. Applying a composition will accept the changes
-     * that were still being composed by IME.
+     * Composition can only be set by the system.
      */
     val compositionInChars: TextRange?
 
@@ -122,15 +121,5 @@ private class TextFieldCharSequenceWrapper(
         result = 31 * result + selectionInChars.hashCode()
         result = 31 * result + (compositionInChars?.hashCode() ?: 0)
         return result
-    }
-
-    // TODO make this function public in ui-text, use that instead.
-    private fun TextRange.constrain(minimumValue: Int, maximumValue: Int): TextRange {
-        val newStart = start.coerceIn(minimumValue, maximumValue)
-        val newEnd = end.coerceIn(minimumValue, maximumValue)
-        if (newStart != start || newEnd != end) {
-            return TextRange(newStart, newEnd)
-        }
-        return this
     }
 }

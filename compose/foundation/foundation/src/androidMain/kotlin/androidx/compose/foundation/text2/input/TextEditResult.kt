@@ -43,6 +43,8 @@ sealed class TextEditResult {
     /**
      * Returns the [TextRange] to set as the new selection. If the selection is collapsed, it will
      * set the cursor instead.
+     *
+     * @return The new range of the selection, in character offsets.
      */
     internal abstract fun calculateSelection(
         oldValue: TextFieldCharSequence,

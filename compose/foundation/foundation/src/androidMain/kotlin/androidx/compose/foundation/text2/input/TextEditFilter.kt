@@ -34,6 +34,7 @@ import androidx.compose.runtime.Stable
  * Prebuilt filters are provided for common filter operations. See:
  *  - `TextEditFilter`.[maxLengthInChars]`()`
  *  - `TextEditFilter`.[maxLengthInCodepoints]`()`
+ *  - `TextEditFilter`.[allCaps]`()`
  *
  * @sample androidx.compose.foundation.samples.BasicTextField2CustomFilterSample
  */
@@ -50,8 +51,8 @@ fun interface TextEditFilter {
     /**
      * The filter operation. For more information see the documentation on [TextEditFilter].
      *
-     * To reject all changes in [newState], call
-     * `newState.`[revertAllChanges][MutableTextFieldValueWithSelection.revertAllChanges].
+     * To reject all changes in [originalValue], call
+     * `valueWithChanges.`[revertAllChanges][TextFieldBufferWithSelection.revertAllChanges].
      *
      * @param originalValue The value of the field before the change was performed.
      * @param valueWithChanges The value of the field after the change. This value can be changed
