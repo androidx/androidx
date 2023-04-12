@@ -14,21 +14,9 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <item
-        android:id="@+id/navigation_home"
-        android:icon="@drawable/ic_bluetooth_24"
-        android:title="@string/title_home" />
-
-    <item
-        android:id="@+id/navigation_scanner"
-        android:icon="@drawable/baseline_bluetooth_searching_24"
-        android:title="@string/title_scanner" />
-
-    <item
-        android:id="@+id/navigation_advertiser"
-        android:icon="@drawable/baseline_wb_iridescent_24"
-        android:title="@string/title_advertiser" />
-
-</menu>
+</androidx.constraintlayout.widget.ConstraintLayout>
