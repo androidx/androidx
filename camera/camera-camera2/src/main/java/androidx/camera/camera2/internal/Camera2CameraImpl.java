@@ -1185,7 +1185,7 @@ final class Camera2CameraImpl implements CameraInternal {
         Map<DeferrableSurface, Long> streamUseCaseMap = new HashMap<>();
         StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
                 mUseCaseAttachState.getAttachedSessionConfigs(),
-                streamUseCaseMap, mCameraCharacteristicsCompat, false);
+                streamUseCaseMap, mCameraCharacteristicsCompat, true);
 
         mCaptureSession.setStreamUseCaseMap(streamUseCaseMap);
 

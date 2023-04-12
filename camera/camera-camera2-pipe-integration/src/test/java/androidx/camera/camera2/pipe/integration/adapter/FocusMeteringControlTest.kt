@@ -34,6 +34,7 @@ import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
+import androidx.camera.camera2.pipe.integration.compat.workaround.AeFpsRange
 import androidx.camera.camera2.pipe.integration.compat.workaround.MeteringRegionCorrection
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpAutoFlashAEModeDisabler
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpMeteringRegionCorrection
@@ -1584,6 +1585,18 @@ class FocusMeteringControlTest {
     ) = State3AControl(
         properties,
         NoOpAutoFlashAEModeDisabler,
+        AeFpsRange(
+            CameraQuirks(
+                FakeCameraMetadata(),
+                StreamConfigurationMapCompat(
+                    StreamConfigurationMapBuilder.newBuilder().build(),
+                    OutputSizesCorrector(
+                        FakeCameraMetadata(),
+                        StreamConfigurationMapBuilder.newBuilder().build()
+                    )
+                )
+            )
+        )
     ).apply {
         this.useCaseCamera = useCaseCamera
     }
