@@ -111,11 +111,11 @@ internal class TextAnnotatedStringNode(
         fontFamilyResolver: FontFamily.Resolver,
         overflow: TextOverflow
     ): Boolean {
-        var changed: Boolean
-
-        changed = !this.style.hasSameLayoutAffectingAttributes(style)
-        this.style = style
-
+        var changed = false
+        if (this.style != style) {
+            this.style = style
+            changed = true
+        }
         if (this.placeholders != placeholders) {
             this.placeholders = placeholders
             changed = true
@@ -201,8 +201,8 @@ internal class TextAnnotatedStringNode(
                 placeholders = placeholders
             )
             invalidateMeasurements()
+            invalidateDraw()
         }
-        invalidateDraw()
     }
 
     private var _semanticsConfiguration: SemanticsConfiguration? = null

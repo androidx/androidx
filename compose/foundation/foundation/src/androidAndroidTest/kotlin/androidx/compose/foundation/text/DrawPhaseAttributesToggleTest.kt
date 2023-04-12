@@ -32,7 +32,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
@@ -181,43 +180,6 @@ class DrawPhaseAttributesToggleTest(private val config: Config) {
                 "TextPainter",
                 style = style,
                 modifier = Modifier.testTag(textTag)
-            )
-        }
-
-        rule.waitForIdle()
-        val initialBitmap = rule.onNodeWithTag(textTag).captureToImage().asAndroidBitmap()
-
-        style = config.updateStyle(style)
-
-        rule.waitForIdle()
-        val updatedBitmap = rule.onNodeWithTag(textTag).captureToImage().asAndroidBitmap()
-        assertThat(initialBitmap).isNotEqualToBitmap(updatedBitmap)
-
-        style = config.initializeStyle(style)
-
-        rule.waitForIdle()
-        val finalBitmap = rule.onNodeWithTag(textTag).captureToImage().asAndroidBitmap()
-        assertThat(finalBitmap).isNotEqualToBitmap(updatedBitmap)
-
-        assertThat(finalBitmap).isEqualToBitmap(initialBitmap)
-    }
-
-    @Test
-    fun basicText_annotatedString() {
-        var style by mutableStateOf(
-            TextStyle(
-                color = Color.Black,
-                textDecoration = null,
-                shadow = null
-            ).let(config.initializeStyle)
-        )
-
-        rule.setContent {
-            BasicText(
-                AnnotatedString("TextPainter"),
-                style = style,
-                modifier = Modifier.testTag(textTag),
-                onTextLayout = {} /* force to non-null */
             )
         }
 
