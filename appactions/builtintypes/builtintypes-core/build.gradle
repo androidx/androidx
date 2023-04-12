@@ -15,6 +15,7 @@
  */
 
 import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -29,6 +30,12 @@ dependencies {
 
 android {
     namespace "androidx.appactions.builtintypes.core"
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    compilerOptions {
+        freeCompilerArgs.add("-Xjvm-default=all")
+    }
 }
 
 androidx {
