@@ -99,8 +99,7 @@ package androidx.wear.protolayout.expression {
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool constant(boolean);
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool fromByteArray(byte[]);
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool fromState(String);
-    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool isFalse();
-    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool isTrue();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool negate();
     method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool or(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool);
     method public default byte[] toDynamicBoolByteArray();
   }

@@ -47,8 +47,7 @@ class Int32Nodes {
         private final DynamicTypeValueReceiverWithPreUpdate<Integer> mDownstream;
 
         FixedInt32Node(
-                FixedInt32 protoNode,
-                DynamicTypeValueReceiverWithPreUpdate<Integer> downstream) {
+                FixedInt32 protoNode, DynamicTypeValueReceiverWithPreUpdate<Integer> downstream) {
             this.mValue = protoNode.getValue();
             this.mDownstream = downstream;
         }
@@ -202,7 +201,8 @@ class Int32Nodes {
                             default:
                                 throw new IllegalArgumentException("Unknown rounding mode");
                         }
-                    });
+                    },
+                    x -> x - 1 < Integer.MAX_VALUE && x >= Integer.MIN_VALUE);
         }
     }
 
