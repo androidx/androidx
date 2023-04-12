@@ -39,7 +39,7 @@ open class BeginGetCredentialOption internal constructor(
             BeginGetCredentialOption {
             return when (type) {
                 PasswordCredential.TYPE_PASSWORD_CREDENTIAL -> {
-                    BeginGetPasswordOption(candidateQueryData, id)
+                    BeginGetPasswordOption.createFrom(candidateQueryData, id)
                 }
 
                 PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL -> {

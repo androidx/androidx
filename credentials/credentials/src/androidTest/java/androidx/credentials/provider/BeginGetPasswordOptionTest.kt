@@ -18,6 +18,7 @@ package androidx.credentials.provider
 import android.os.Bundle
 import androidx.annotation.RequiresApi
 import androidx.core.os.BuildCompat
+import androidx.credentials.GetPasswordOption
 import androidx.credentials.PasswordCredential
 import androidx.credentials.equals
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -40,13 +41,19 @@ class BeginGetPasswordOptionTest {
         if (!BuildCompat.isAtLeastU()) {
             return
         }
+        val expectedAllowedUserIds: Set<String> = setOf("id1", "id2", "id3")
         val bundle = Bundle()
+        bundle.putStringArrayList(
+            GetPasswordOption.BUNDLE_KEY_ALLOWED_USER_IDS,
+            ArrayList(expectedAllowedUserIds)
+        )
 
-        val option = BeginGetPasswordOption(bundle, BUNDLE_ID)
+        val option = BeginGetPasswordOption(expectedAllowedUserIds, bundle, BUNDLE_ID)
 
         bundle.putString(BUNDLE_ID_KEY, BUNDLE_ID)
         assertThat(option.type).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL)
         assertThat(equals(option.candidateQueryData, bundle)).isTrue()
+        assertThat(option.allowedUserIds).containsExactlyElementsIn(expectedAllowedUserIds)
     }
 
     // TODO ("Add framework conversion, createFrom tests")

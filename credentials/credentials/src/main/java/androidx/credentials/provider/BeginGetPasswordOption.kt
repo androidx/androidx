@@ -18,6 +18,7 @@ package androidx.credentials.provider
 
 import android.os.Bundle
 import android.service.credentials.BeginGetCredentialResponse
+import androidx.credentials.GetPasswordOption
 import androidx.credentials.PasswordCredential
 
 /**
@@ -29,10 +30,14 @@ import androidx.credentials.PasswordCredential
  *
  * Note : Credential providers are not expected to utilize the constructor in this class for any
  * production flow. This constructor must only be used for testing purposes.
+ *
+ * @property allowedUserIds a optional set of user ids with which the credentials associated are
+ * requested; left as empty if the caller app wants to request all the available user credentials
  */
 class BeginGetPasswordOption constructor(
+    val allowedUserIds: Set<String>,
     candidateQueryData: Bundle,
-    id: String
+    id: String,
 ) : BeginGetCredentialOption(
     id,
     PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
@@ -45,13 +50,17 @@ class BeginGetPasswordOption constructor(
         /** @hide */
         @JvmStatic
         internal fun createFrom(data: Bundle, id: String): BeginGetPasswordOption {
-            return BeginGetPasswordOption(data, id)
+            val allowUserIdList = data.getStringArrayList(
+                GetPasswordOption.BUNDLE_KEY_ALLOWED_USER_IDS)
+            return BeginGetPasswordOption(allowUserIdList?.toSet() ?: emptySet(), data, id)
         }
 
         /** @hide */
         @JvmStatic
         internal fun createFromEntrySlice(data: Bundle, id: String): BeginGetPasswordOption {
-            return BeginGetPasswordOption(data, id)
+            val allowUserIdList = data.getStringArrayList(
+                GetPasswordOption.BUNDLE_KEY_ALLOWED_USER_IDS)
+            return BeginGetPasswordOption(allowUserIdList?.toSet() ?: emptySet(), data, id)
         }
     }
 }

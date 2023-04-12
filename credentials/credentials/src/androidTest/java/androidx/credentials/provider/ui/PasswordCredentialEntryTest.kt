@@ -195,6 +195,7 @@ class PasswordCredentialEntryTest {
         private val TYPE_DISPLAY_NAME: CharSequence = "Password"
         private val LAST_USED_TIME = Instant.now()
         private val BEGIN_OPTION = BeginGetPasswordOption(
+            emptySet<String>(),
             Bundle.EMPTY, "id")
         private val ICON = Icon.createWithBitmap(
             Bitmap.createBitmap(

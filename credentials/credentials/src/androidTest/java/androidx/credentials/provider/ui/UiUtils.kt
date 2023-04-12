@@ -53,7 +53,7 @@ class UiUtils {
             )
         )
         private val BEGIN_OPTION = BeginGetPasswordOption(
-            Bundle.EMPTY, "id"
+            setOf(), Bundle.EMPTY, "id"
         )
 
         /**
