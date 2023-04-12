@@ -28,6 +28,13 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class PasswordCredentialTest {
+
+    @Test
+    fun typeConstant() {
+        assertThat(PasswordCredential.TYPE_PASSWORD_CREDENTIAL)
+            .isEqualTo("android.credentials.TYPE_PASSWORD_CREDENTIAL")
+    }
+
     @Test
     fun constructor_emptyPassword_throws() {
         assertThrows<IllegalArgumentException> {

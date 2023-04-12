@@ -33,6 +33,12 @@ import org.junit.runner.RunWith
 class PublicKeyCredentialTest {
 
     @Test
+    fun typeConstant() {
+        assertThat(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
+            .isEqualTo("androidx.credentials.TYPE_PUBLIC_KEY_CREDENTIAL")
+    }
+
+    @Test
     fun constructor_emptyJson_throwsIllegalArgumentException() {
         Assert.assertThrows(
             "Expected empty Json to throw IllegalArgumentException",
