@@ -105,7 +105,7 @@ class VideoEncoderTest(
         @Parameterized.Parameters(name = "{0}")
         fun data() = listOf(
             arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-//            arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+            arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
         )
 
         private val INPUT_TIMEBASE = Timebase.UPTIME
