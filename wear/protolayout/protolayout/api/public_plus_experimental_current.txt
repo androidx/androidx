@@ -351,6 +351,7 @@ package androidx.wear.protolayout {
     field public static final int TEXT_ALIGN_START = 1; // 0x1
     field public static final int TEXT_ALIGN_UNDEFINED = 0; // 0x0
     field public static final int TEXT_OVERFLOW_ELLIPSIZE_END = 2; // 0x2
+    field @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final int TEXT_OVERFLOW_MARQUEE = 3; // 0x3
     field public static final int TEXT_OVERFLOW_TRUNCATE = 1; // 0x1
     field public static final int TEXT_OVERFLOW_UNDEFINED = 0; // 0x0
     field public static final int VERTICAL_ALIGN_BOTTOM = 3; // 0x3
@@ -734,6 +735,7 @@ package androidx.wear.protolayout {
 
   public static final class LayoutElementBuilders.Spannable implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement {
     method public androidx.wear.protolayout.DimensionBuilders.SpProp? getLineHeight();
+    method @IntRange(from=0xffffffff) @androidx.wear.protolayout.expression.ProtoLayoutExperimental public int getMarqueeIterations();
     method public androidx.wear.protolayout.TypeBuilders.Int32Prop? getMaxLines();
     method public androidx.wear.protolayout.ModifiersBuilders.Modifiers? getModifiers();
     method public androidx.wear.protolayout.LayoutElementBuilders.HorizontalAlignmentProp? getMultilineAlignment();
@@ -746,6 +748,7 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.LayoutElementBuilders.Spannable.Builder addSpan(androidx.wear.protolayout.LayoutElementBuilders.Span);
     method public androidx.wear.protolayout.LayoutElementBuilders.Spannable build();
     method public androidx.wear.protolayout.LayoutElementBuilders.Spannable.Builder setLineHeight(androidx.wear.protolayout.DimensionBuilders.SpProp);
+    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.LayoutElementBuilders.Spannable.Builder setMarqueeIterations(@IntRange(from=0xffffffff) int);
     method public androidx.wear.protolayout.LayoutElementBuilders.Spannable.Builder setMaxLines(androidx.wear.protolayout.TypeBuilders.Int32Prop);
     method public androidx.wear.protolayout.LayoutElementBuilders.Spannable.Builder setMaxLines(@IntRange(from=1) int);
     method public androidx.wear.protolayout.LayoutElementBuilders.Spannable.Builder setModifiers(androidx.wear.protolayout.ModifiersBuilders.Modifiers);
@@ -760,6 +763,7 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.LayoutElementBuilders.FontStyle? getFontStyle();
     method public androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint? getLayoutConstraintsForDynamicText();
     method public androidx.wear.protolayout.DimensionBuilders.SpProp? getLineHeight();
+    method @IntRange(from=0xffffffff) @androidx.wear.protolayout.expression.ProtoLayoutExperimental public int getMarqueeIterations();
     method public androidx.wear.protolayout.TypeBuilders.Int32Prop? getMaxLines();
     method public androidx.wear.protolayout.ModifiersBuilders.Modifiers? getModifiers();
     method public androidx.wear.protolayout.LayoutElementBuilders.TextAlignmentProp? getMultilineAlignment();
@@ -774,6 +778,7 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.LayoutElementBuilders.Text.Builder setFontStyle(androidx.wear.protolayout.LayoutElementBuilders.FontStyle);
     method public androidx.wear.protolayout.LayoutElementBuilders.Text.Builder setLayoutConstraintsForDynamicText(androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint);
     method public androidx.wear.protolayout.LayoutElementBuilders.Text.Builder setLineHeight(androidx.wear.protolayout.DimensionBuilders.SpProp);
+    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.LayoutElementBuilders.Text.Builder setMarqueeIterations(@IntRange(from=0xffffffff) int);
     method public androidx.wear.protolayout.LayoutElementBuilders.Text.Builder setMaxLines(androidx.wear.protolayout.TypeBuilders.Int32Prop);
     method public androidx.wear.protolayout.LayoutElementBuilders.Text.Builder setMaxLines(@IntRange(from=1) int);
     method public androidx.wear.protolayout.LayoutElementBuilders.Text.Builder setModifiers(androidx.wear.protolayout.ModifiersBuilders.Modifiers);
