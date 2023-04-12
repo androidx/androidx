@@ -83,6 +83,8 @@ private class BufferedImagePainter(val image: BufferedImage) : Painter() {
  * [density] also will be used to rasterize the default image, which can be used by some implementations
  * (Tray icon on macOs, disabled icon for menu items)
  *
+ * @param density density will be used to convert [dp] units
+ * @param layoutDirection direction for layout when drawing
  * @param size the size of the [Image]
  */
 @Deprecated(
@@ -106,6 +108,8 @@ fun Painter.asAwtImage(
  * they don't use absolute '.dp' values to draw, they use values which are relative
  * to their viewport.
  *
+ * @param density density will be used to convert [dp] units when drawing
+ * @param layoutDirection direction for layout when drawing
  * @param size the size of the [Image]
  */
 fun Painter.toAwtImage(
