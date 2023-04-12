@@ -19,7 +19,7 @@ package androidx.appactions.interaction.capabilities.core.impl
 import android.util.SizeF
 import androidx.appactions.interaction.capabilities.core.ActionExecutor
 import androidx.appactions.interaction.capabilities.core.ActionExecutorAsync
-import androidx.appactions.interaction.capabilities.core.ActionExecutorAsync.Companion.toActionExecutorAsync
+import androidx.appactions.interaction.capabilities.core.toActionExecutor
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
@@ -70,12 +70,12 @@ class SingleTurnCapabilityTest {
                 actionSpec = ACTION_SPEC,
                 property =
                 Properties.newBuilder()
-                        .setRequiredEntityField(
-                            Property.Builder<Entity>().build(),
-                        )
-                        .setOptionalStringField(Property.prohibited())
-                        .build(),
-                actionExecutorAsync = actionExecutor.toActionExecutorAsync(),
+                    .setRequiredEntityField(
+                        Property.Builder<Entity>().build(),
+                    )
+                    .setOptionalStringField(Property.prohibited())
+                    .build(),
+                actionExecutor = actionExecutor,
             )
 
         val capabilitySession = capability.createSession(fakeSessionId, hostProperties)
@@ -124,12 +124,12 @@ class SingleTurnCapabilityTest {
                 actionSpec = ACTION_SPEC,
                 property =
                 Properties.newBuilder()
-                        .setRequiredEntityField(
-                            Property.Builder<Entity>().build(),
-                        )
-                        .setOptionalStringField(Property.prohibited())
-                        .build(),
-                actionExecutorAsync = actionExecutor.toActionExecutorAsync(),
+                    .setRequiredEntityField(
+                        Property.Builder<Entity>().build(),
+                    )
+                    .setOptionalStringField(Property.prohibited())
+                    .build(),
+                actionExecutor = actionExecutor,
             )
 
         val capabilitySession = capability.createSession(fakeSessionId, hostProperties)
@@ -163,7 +163,7 @@ class SingleTurnCapabilityTest {
                         Property.Builder<Entity>().build(),
                     )
                     .build(),
-                actionExecutorAsync = actionExecutor.toActionExecutorAsync(),
+                actionExecutor = actionExecutor,
             )
         val session = capability.createSession(fakeSessionId, hostProperties)
         assertThat(session.uiHandle).isSameInstanceAs(actionExecutor)
@@ -185,7 +185,7 @@ class SingleTurnCapabilityTest {
                         Property.Builder<Entity>().build(),
                     )
                     .build(),
-                actionExecutorAsync = actionExecutorAsync,
+                actionExecutor = actionExecutorAsync.toActionExecutor(),
             )
         val session = capability.createSession(fakeSessionId, hostProperties)
         assertThat(session.uiHandle).isSameInstanceAs(actionExecutorAsync)
@@ -207,7 +207,7 @@ class SingleTurnCapabilityTest {
             property = Properties.newBuilder().setRequiredEntityField(
                 Property.Builder<Entity>().build(),
             ).build(),
-            actionExecutorAsync = actionExecutor.toActionExecutorAsync(),
+            actionExecutor = actionExecutor,
         )
         val session1 = capability.createSession("session1", hostProperties)
         val session2 = capability.createSession("session2", hostProperties)

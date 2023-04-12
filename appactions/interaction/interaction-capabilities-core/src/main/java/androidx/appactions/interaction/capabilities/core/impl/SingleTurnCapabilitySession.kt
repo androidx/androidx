@@ -17,13 +17,12 @@
 package androidx.appactions.interaction.capabilities.core.impl
 
 import androidx.annotation.RestrictTo
-import androidx.appactions.interaction.capabilities.core.ActionExecutorAsync
+import androidx.appactions.interaction.capabilities.core.ActionExecutor
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
 import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.ParamValue
-import androidx.concurrent.futures.await
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
@@ -39,10 +38,10 @@ import kotlinx.coroutines.sync.Mutex
 internal class SingleTurnCapabilitySession<
     ArgumentsT,
     OutputT,
->(
+    >(
     override val sessionId: String,
     private val actionSpec: ActionSpec<*, ArgumentsT, OutputT>,
-    private val actionExecutorAsync: ActionExecutorAsync<ArgumentsT, OutputT>,
+    private val actionExecutor: ActionExecutor<ArgumentsT, OutputT>,
     private val mutex: Mutex,
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
 ) : CapabilitySession {
@@ -55,7 +54,7 @@ internal class SingleTurnCapabilitySession<
             throw UnsupportedOperationException()
         }
 
-    override val uiHandle: Any = actionExecutorAsync.uiHandle
+    override val uiHandle: Any = actionExecutor.uiHandle
 
     override fun destroy() {}
 
@@ -75,7 +74,7 @@ internal class SingleTurnCapabilitySession<
             try {
                 mutex.lock(owner = this@SingleTurnCapabilitySession)
                 UiHandleRegistry.registerUiHandle(uiHandle, sessionId)
-                val output = actionExecutorAsync.onExecute(arguments).await()
+                val output = actionExecutor.onExecute(arguments)
                 callback.onSuccess(convertToFulfillmentResponse(output))
             } catch (t: Throwable) {
                 callback.onError(ErrorStatusInternal.CANCELLED)
