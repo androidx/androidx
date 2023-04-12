@@ -21,6 +21,7 @@ import android.os.Build
 import android.os.Looper.getMainLooper
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.core.SystemTimeSource
 import androidx.camera.camera2.pipe.core.TimeSource
 import androidx.camera.camera2.pipe.core.Timestamps
@@ -127,22 +128,24 @@ internal class VirtualCameraStateTest {
         // This tests that a listener attached to the virtualCamera.state property will receive all
         // of the events, starting from CameraStateUnopened.
         val virtualCamera = VirtualCameraState(cameraId, graphListener)
+        val androidCameraDevice = AndroidCameraDevice(
+            testCamera.metadata,
+            testCamera.cameraDevice,
+            testCamera.cameraId,
+            cameraErrorListener,
+        )
+        val cameraStateClosing = CameraStateClosing()
+        val cameraStateClosed =
+            CameraStateClosed(
+                cameraId,
+                ClosedReason.CAMERA2_ERROR,
+                cameraErrorCode = CameraError.ERROR_CAMERA_SERVICE
+            )
         val states =
             listOf(
-                CameraStateOpen(
-                    AndroidCameraDevice(
-                        testCamera.metadata,
-                        testCamera.cameraDevice,
-                        testCamera.cameraId,
-                        cameraErrorListener,
-                    )
-                ),
-                CameraStateClosing(),
-                CameraStateClosed(
-                    cameraId,
-                    ClosedReason.CAMERA2_ERROR,
-                    cameraErrorCode = CameraError.ERROR_CAMERA_SERVICE
-                )
+                CameraStateOpen(androidCameraDevice),
+                cameraStateClosing,
+                cameraStateClosed
             )
 
         val events = mutableListOf<CameraState>()
@@ -159,8 +162,54 @@ internal class VirtualCameraStateTest {
         advanceUntilIdle()
         job.cancelAndJoin()
 
-        val expectedStates = listOf(CameraStateUnopened).plus(states)
-        assertThat(events).containsExactlyElementsIn(expectedStates)
+        assertThat(events[0]).isSameInstanceAs(CameraStateUnopened)
+
+        assertThat(events[1]).isInstanceOf(CameraStateOpen::class.java)
+        val deviceWrapper = (events[1] as CameraStateOpen).cameraDevice
+        assertThat(deviceWrapper).isInstanceOf(VirtualAndroidCameraDevice::class.java)
+        val androidCameraStateInside =
+            (deviceWrapper as VirtualAndroidCameraDevice).androidCameraDevice
+
+        assertThat(androidCameraStateInside).isSameInstanceAs(androidCameraDevice)
+        assertThat(events[2]).isSameInstanceAs(cameraStateClosing)
+        assertThat(events[3]).isSameInstanceAs(cameraStateClosed)
+    }
+
+    @Test
+    fun virtualAndroidCameraDeviceRejectsCallsWhenVirtualCameraStateIsDisconnected() = runTest {
+        val virtualCamera = VirtualCameraState(cameraId, graphListener)
+        val cameraState =
+            flowOf(
+                CameraStateOpen(
+                    AndroidCameraDevice(
+                        testCamera.metadata,
+                        testCamera.cameraDevice,
+                        testCamera.cameraId,
+                        cameraErrorListener,
+                    )
+                )
+            )
+        virtualCamera.connect(
+            cameraState,
+            object : Token {
+                override fun release(): Boolean {
+                    return true
+                }
+            })
+
+        virtualCamera.state.first { it !is CameraStateUnopened }
+
+        val virtualCameraState = virtualCamera.value
+        assertThat(virtualCameraState).isInstanceOf(CameraStateOpen::class.java)
+        val deviceWrapper = (virtualCameraState as CameraStateOpen).cameraDevice
+        assertThat(deviceWrapper).isInstanceOf(VirtualAndroidCameraDevice::class.java)
+
+        val virtualAndroidCameraState = deviceWrapper as VirtualAndroidCameraDevice
+        val result1 = virtualAndroidCameraState.createCaptureRequest(RequestTemplate(2))
+        virtualCamera.disconnect()
+        val result2 = virtualAndroidCameraState.createCaptureRequest(RequestTemplate(2))
+        assertThat(result1).isNotNull()
+        assertThat(result2).isNull()
     }
 }
 
