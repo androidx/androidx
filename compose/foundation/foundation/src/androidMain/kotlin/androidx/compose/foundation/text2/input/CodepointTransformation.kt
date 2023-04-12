@@ -77,6 +77,31 @@ private class MaskCodepointTransformation(val character: Char) : CodepointTransf
     }
 }
 
+/**
+ * [CodepointTransformation] that converts all line breaks (\n) into white space(U+0020) and
+ * carriage returns(\r) to zero-width no-break space (U+FEFF). This transformation forces any
+ * content to appear as single line.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+internal object SingleLineCodepointTransformation : CodepointTransformation {
+
+    private const val LINE_FEED = '\n'.code
+    private const val CARRIAGE_RETURN = '\r'.code
+
+    private const val WHITESPACE = ' '.code
+    private const val ZERO_WIDTH_SPACE = '\uFEFF'.code
+
+    override fun transform(codepointIndex: Int, codepoint: Int): Int {
+        if (codepoint == LINE_FEED) return WHITESPACE
+        if (codepoint == CARRIAGE_RETURN) return ZERO_WIDTH_SPACE
+        return codepoint
+    }
+
+    override fun toString(): String {
+        return "SingleLineCodepointTransformation"
+    }
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 internal fun CharSequence.toVisualText(
     codepointTransformation: CodepointTransformation?
