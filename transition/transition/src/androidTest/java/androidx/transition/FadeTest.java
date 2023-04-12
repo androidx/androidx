@@ -29,6 +29,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
@@ -128,7 +129,7 @@ public class FadeTest extends BaseTest {
         float[] valuesOut = new float[2];
         final InterruptibleFade fadeOut = new InterruptibleFade(Fade.MODE_OUT, interrupt,
                 valuesOut);
-        final Transition.TransitionListener listenerOut = mock(Transition.TransitionListener.class);
+        final Transition.TransitionListener listenerOut = spy(new TransitionListenerAdapter());
         fadeOut.addListener(listenerOut);
         changeVisibility(fadeOut, mRoot, mView, View.INVISIBLE);
         verify(listenerOut, timeout(3000)).onTransitionStart(any(Transition.class));
@@ -139,7 +140,7 @@ public class FadeTest extends BaseTest {
         // Fade in
         float[] valuesIn = new float[2];
         final InterruptibleFade fadeIn = new InterruptibleFade(Fade.MODE_IN, null, valuesIn);
-        final Transition.TransitionListener listenerIn = mock(Transition.TransitionListener.class);
+        final Transition.TransitionListener listenerIn = spy(new TransitionListenerAdapter());
         fadeIn.addListener(listenerIn);
         changeVisibility(fadeIn, mRoot, mView, View.VISIBLE);
         verify(listenerOut, timeout(3000)).onTransitionPause(any(Transition.class));
@@ -164,7 +165,7 @@ public class FadeTest extends BaseTest {
         final Runnable interrupt = mock(Runnable.class);
         float[] valuesIn = new float[2];
         final InterruptibleFade fadeIn = new InterruptibleFade(Fade.MODE_IN, interrupt, valuesIn);
-        final Transition.TransitionListener listenerIn = mock(Transition.TransitionListener.class);
+        final Transition.TransitionListener listenerIn = spy(new TransitionListenerAdapter());
         fadeIn.addListener(listenerIn);
         changeVisibility(fadeIn, mRoot, mView, View.VISIBLE);
         verify(listenerIn, timeout(3000)).onTransitionStart(any(Transition.class));
@@ -175,7 +176,7 @@ public class FadeTest extends BaseTest {
         // Fade out
         float[] valuesOut = new float[2];
         final InterruptibleFade fadeOut = new InterruptibleFade(Fade.MODE_OUT, null, valuesOut);
-        final Transition.TransitionListener listenerOut = mock(Transition.TransitionListener.class);
+        final Transition.TransitionListener listenerOut = spy(new TransitionListenerAdapter());
         fadeOut.addListener(listenerOut);
         changeVisibility(fadeOut, mRoot, mView, View.INVISIBLE);
         verify(listenerIn, timeout(3000)).onTransitionPause(any(Transition.class));
@@ -201,14 +202,14 @@ public class FadeTest extends BaseTest {
         });
         // Fade out
         final Fade fadeOut = new Fade(Fade.OUT);
-        final Transition.TransitionListener listenerOut = mock(Transition.TransitionListener.class);
+        final Transition.TransitionListener listenerOut = spy(new TransitionListenerAdapter());
         fadeOut.addListener(listenerOut);
         changeVisibility(fadeOut, mRoot, mView, View.INVISIBLE);
         verify(listenerOut, timeout(3000)).onTransitionStart(any(Transition.class));
         verify(listenerOut, timeout(3000)).onTransitionEnd(any(Transition.class));
         // Fade in
         final Fade fadeIn = new Fade(Fade.IN);
-        final Transition.TransitionListener listenerIn = mock(Transition.TransitionListener.class);
+        final Transition.TransitionListener listenerIn = spy(new TransitionListenerAdapter());
         fadeIn.addListener(listenerIn);
         changeVisibility(fadeIn, mRoot, mView, View.VISIBLE);
         verify(listenerIn, timeout(3000)).onTransitionStart(any(Transition.class));
@@ -239,7 +240,7 @@ public class FadeTest extends BaseTest {
         // We don't really care how short the duration is, so let's make it really short
         final Fade fade = new Fade();
         fade.setDuration(1);
-        Transition.TransitionListener listener = mock(Transition.TransitionListener.class);
+        Transition.TransitionListener listener = spy(new TransitionListenerAdapter());
         fade.addListener(listener);
 
         rule.runOnUiThread(new Runnable() {

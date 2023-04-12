@@ -25,7 +25,6 @@ import static org.mockito.AdditionalMatchers.gt;
 import static org.mockito.AdditionalMatchers.lt;
 import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -81,7 +80,7 @@ public class SlideEdgeTest extends BaseTransitionTest {
             int slideEdge = SLIDE_EDGES.get(i).first;
             final Slide slide = new Slide(slideEdge);
             final Transition.TransitionListener listener =
-                    mock(Transition.TransitionListener.class);
+                    spy(new TransitionListenerAdapter());
             slide.addListener(listener);
 
             final View redSquare = spy(new View(rule.getActivity()));
@@ -149,7 +148,7 @@ public class SlideEdgeTest extends BaseTransitionTest {
             int slideEdge = pair.first;
             final Slide slide = new Slide(slideEdge);
             final Transition.TransitionListener listener =
-                    mock(Transition.TransitionListener.class);
+                    spy(new TransitionListenerAdapter());
             slide.addListener(listener);
 
 
