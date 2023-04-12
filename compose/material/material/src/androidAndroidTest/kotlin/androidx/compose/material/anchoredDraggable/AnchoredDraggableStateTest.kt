@@ -26,15 +26,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.material.AnchoredDraggableState.AnchorChangedCallback
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.AnchoredDraggableDefaults
 import androidx.compose.material.AnchoredDraggableState
-import androidx.compose.material.rememberAnchoredDraggableState
+import androidx.compose.material.AnchoredDraggableState.AnchorChangedCallback
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.anchoredDraggable
 import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.A
 import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.B
 import androidx.compose.material.anchoredDraggable.AnchoredDraggableTestValue.C
-import androidx.compose.material.anchoredDraggable
+import androidx.compose.material.animateTo
+import androidx.compose.material.rememberAnchoredDraggableState
+import androidx.compose.material.snapTo
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.runtime.SideEffect
@@ -43,6 +45,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -64,7 +67,9 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Ignore
@@ -660,8 +665,8 @@ class AnchoredDraggableStateTest {
         var anchorChangeHandlerInvoked = false
         val testAnchorChangeHandler =
             AnchorChangedCallback<AnchoredDraggableTestValue> { _, _, _ ->
-            anchorChangeHandlerInvoked = true
-        }
+                anchorChangeHandlerInvoked = true
+            }
         val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
@@ -677,8 +682,8 @@ class AnchoredDraggableStateTest {
         var anchorChangeHandlerInvoked = false
         val testAnchorChangedCallback =
             AnchorChangedCallback<AnchoredDraggableTestValue> { _, _, _ ->
-            anchorChangeHandlerInvoked = true
-        }
+                anchorChangeHandlerInvoked = true
+            }
         val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
@@ -694,8 +699,8 @@ class AnchoredDraggableStateTest {
         var anchorChangeHandlerInvoked = false
         val testAnchorChangedCallback =
             AnchorChangedCallback<AnchoredDraggableTestValue> { _, _, _ ->
-            anchorChangeHandlerInvoked = true
-        }
+                anchorChangeHandlerInvoked = true
+            }
         val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
@@ -711,6 +716,96 @@ class AnchoredDraggableStateTest {
     }
 
     @Test
+    fun anchoredDraggable_customDrag_updatesOffset() = runBlocking {
+
+        val state = AnchoredDraggableState(
+            initialValue = A,
+            positionalThreshold = defaultPositionalThreshold,
+            velocityThreshold = defaultVelocityThreshold
+        )
+        val anchors = mapOf(A to 0f, B to 200f, C to 300f)
+
+        state.updateAnchors(anchors)
+        state.anchoredDrag {
+            dragTo(150f)
+        }
+
+        assertThat(state.requireOffset()).isEqualTo(150f)
+
+        state.anchoredDrag {
+            dragTo(250f)
+        }
+        assertThat(state.requireOffset()).isEqualTo(250f)
+    }
+
+    @Test
+    fun anchoredDraggable_customDrag_updatesVelocity() = runBlocking {
+
+        val state = AnchoredDraggableState(
+            initialValue = A,
+            positionalThreshold = defaultPositionalThreshold,
+            velocityThreshold = defaultVelocityThreshold
+        )
+        val anchors = mapOf(A to 0f, B to 200f, C to 300f)
+
+        state.updateAnchors(anchors)
+        state.anchoredDrag {
+            dragTo(150f, lastKnownVelocity = 454f)
+        }
+        assertThat(state.lastVelocity).isEqualTo(454f)
+    }
+
+    @Test
+    fun anchoredDraggable_customDrag_targetValueUpdate() = runBlocking {
+        val clock = HandPumpTestFrameClock()
+        val dragScope = CoroutineScope(clock)
+
+        val state = AnchoredDraggableState(
+            initialValue = A,
+            positionalThreshold = defaultPositionalThreshold,
+            velocityThreshold = defaultVelocityThreshold
+        )
+        val anchors = mapOf(A to 0f, B to 200f, C to 300f)
+
+        state.updateAnchors(anchors)
+        dragScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            state.anchoredDrag(targetValue = C) {
+                while (isActive) {
+                    withFrameNanos {
+                        dragTo(200f)
+                    }
+                }
+            }
+        }
+        clock.advanceByFrame()
+        assertThat(state.targetValue).isEqualTo(C)
+        dragScope.cancel()
+    }
+
+    @Test
+    fun anchoredDraggable_customDrag_anchorsPropagation() = runBlocking {
+        val clock = HandPumpTestFrameClock()
+        val dragScope = CoroutineScope(clock)
+
+        val state = AnchoredDraggableState(
+            initialValue = A,
+            positionalThreshold = defaultPositionalThreshold,
+            velocityThreshold = defaultVelocityThreshold
+        )
+        val anchors = mapOf(A to 0f, B to 200f, C to 300f)
+        var providedAnchors = emptyMap<AnchoredDraggableTestValue, Float>()
+
+        state.updateAnchors(anchors)
+        dragScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            state.anchoredDrag(targetValue = C) { anchors ->
+                providedAnchors = anchors
+            }
+        }
+        clock.advanceByFrame()
+        assertThat(providedAnchors).isEqualTo(anchors)
+    }
+
+    @Test
     fun anchoredDraggable_updateAnchors_ongoingOffsetMutation_shouldNotUpdate() = runBlocking {
         val clock = HandPumpTestFrameClock()
         val animationScope = CoroutineScope(clock)
@@ -719,8 +814,8 @@ class AnchoredDraggableStateTest {
         var anchorChangeHandlerInvoked = false
         val testAnchorChangedCallback =
             AnchorChangedCallback<AnchoredDraggableTestValue> { _, _, _ ->
-            anchorChangeHandlerInvoked = true
-        }
+                anchorChangeHandlerInvoked = true
+            }
         val state = AnchoredDraggableState(
             initialValue = A,
             animationSpec = tween(animationDuration),
