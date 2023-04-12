@@ -150,7 +150,10 @@ public final class DynamicBuilders {
     static final int ARITHMETIC_OP_TYPE_MODULO = 5;
 
     /**
-     * Rounding mode to use when converting a float to an int32.
+     * Rounding mode to use when converting a float to an int32. If the value is larger than {@link
+     * Integer#MAX_VALUE} or smaller than {@link Integer#MIN_VALUE}, the result of this operation
+     * will be invalid and will have an invalid value delivered via
+     * {@link DynamicTypeValueReceiver<T>#onInvalidate()}.
      *
      * @since 1.2
      */
@@ -2219,72 +2222,126 @@ public final class DynamicBuilders {
 
         /**
          * Returns a {@link DynamicString} that contains the formatted value of this {@link
-         * DynamicInt32} (with default formatting parameters). As an example, in the English locale,
-         * the following is equal to {@code DynamicString.constant("12")}
+         * DynamicInt32} (with default formatting parameters). As an example, for locale en_US, the
+         * following is equal to {@code DynamicString.constant("12")}
          *
          * <pre>
          *   DynamicInt32.constant(12).format()
          * </pre>
+         *
+         * The resulted {@link DynamicString} is subject to being truncated if it's too long.
          */
         @NonNull
         default DynamicString format() {
-            return IntFormatter.with().buildForInput(this);
+            return new IntFormatter.Builder().build().getInt32FormatOp(this);
         }
 
         /**
          * Returns a {@link DynamicString} that contains the formatted value of this {@link
-         * DynamicInt32}. As an example, in the English locale, the following is equal to {@code
+         * DynamicInt32}. As an example, for locale en_US, the following is equal to {@code
          * DynamicString.constant("0,012")}
          *
          * <pre>
          *   DynamicInt32.constant(12)
          *            .format(
-         *                IntFormatter.with().minIntegerDigits(4).groupingUsed(true));
+         *                new IntFormatter.Builder()
+         *                                .setMinIntegerDigits(4)
+         *                                .setGroupingUsed(true)
+         *                                .build());
          * </pre>
          *
          * @param formatter The formatting parameter.
          */
         @NonNull
         default DynamicString format(@NonNull IntFormatter formatter) {
-            return formatter.buildForInput(this);
+            return formatter.getInt32FormatOp(this);
         }
 
         /** Allows formatting {@link DynamicInt32} into a {@link DynamicString}. */
         class IntFormatter {
-            private final Int32FormatOp.Builder builder;
+            private final Int32FormatOp.Builder mInt32FormatOpBuilder;
+            private final Int32FormatOp mInt32FormatOp;
 
-            private IntFormatter() {
-                builder = new Int32FormatOp.Builder();
-            }
-
-            /** Creates an instance of {@link IntFormatter} with default configuration. */
-            @NonNull
-            public static IntFormatter with() {
-                return new IntFormatter();
-            }
-
-            /**
-             * Sets minimum number of integer digits for the formatter. Defaults to one if not
-             * specified.
-             */
-            @NonNull
-            public IntFormatter minIntegerDigits(@IntRange(from = 0) int minIntegerDigits) {
-                builder.setMinIntegerDigits(minIntegerDigits);
-                return this;
-            }
-
-            /**
-             * Sets whether grouping is used for the formatter. Defaults to false if not specified.
-             */
-            @NonNull
-            public IntFormatter groupingUsed(boolean groupingUsed) {
-                builder.setGroupingUsed(groupingUsed);
-                return this;
+            IntFormatter(@NonNull Int32FormatOp.Builder int32FormatOpBuilder) {
+                mInt32FormatOpBuilder = int32FormatOpBuilder;
+                mInt32FormatOp = int32FormatOpBuilder.build();
             }
 
             @NonNull
-            Int32FormatOp buildForInput(@NonNull DynamicInt32 dynamicInt32) {
-                return builder.setInput(dynamicInt32).build();
+            Int32FormatOp getInt32FormatOp(@NonNull DynamicInt32 dynamicInt32) {
+                return mInt32FormatOpBuilder.setInput(dynamicInt32).build();
+            }
+
+            /** Returns the minimum number of digits allowed in the integer portion of a number. */
+            @IntRange(from = 0)
+            public int getMinIntegerDigits() {
+                return mInt32FormatOp.getMinIntegerDigits();
+            }
+
+            /** Returns whether digit grouping is used or not. */
+            public boolean isGroupingUsed() {
+                return mInt32FormatOp.getGroupingUsed();
+            }
+
+            /** Builder to create {@link IntFormatter} objects. */
+            public static final class Builder {
+                private static final int MAX_INTEGER_PART_LENGTH = 15;
+                final Int32FormatOp.Builder mBuilder;
+
+                public Builder() {
+                    mBuilder = new Int32FormatOp.Builder();
+                }
+
+                /**
+                 * Sets minimum number of integer digits for the formatter. Defaults to one if not
+                 * specified. If minIntegerDigits is zero and the -1 < input < 1, the Integer
+                 * part will not appear.
+                 */
+                @NonNull
+                public Builder setMinIntegerDigits(@IntRange(from = 0) int minIntegerDigits) {
+                    mBuilder.setMinIntegerDigits(minIntegerDigits);
+                    return this;
+                }
+
+                /**
+                 * Sets whether grouping is used for the formatter. Defaults to false if not
+                 * specified. If grouping is used, digits will be grouped into digit groups using a
+                 * separator. Digit group size and used separator can vary in different
+                 * countries/regions. As an example, for locale en_US, the following is equal to
+                 * {@code * DynamicString.constant("1,234")}
+                 *
+                 * <pre>
+                 *   DynamicInt32.constant(1234)
+                 *       .format(
+                 *           new IntFormatter.Builder()
+                 *                           .setGroupingUsed(true).build());
+                 * </pre>
+                 */
+                @NonNull
+                public Builder setGroupingUsed(boolean groupingUsed) {
+                    mBuilder.setGroupingUsed(groupingUsed);
+                    return this;
+                }
+
+                /** Builds an instance with values accumulated in this Builder. */
+                @NonNull
+                public IntFormatter build() {
+                    throwIfExceedingMaxValue(
+                            "MinIntegerDigits",
+                            mBuilder.build().getMinIntegerDigits(),
+                            MAX_INTEGER_PART_LENGTH);
+                    return new IntFormatter(mBuilder);
+                }
+
+                private static void throwIfExceedingMaxValue(
+                        String paramName, int value, int maxValue) {
+                    if (value > maxValue) {
+                        throw new IllegalArgumentException(
+                                String.format(
+                                        "%s (%d) is too large. Maximum value for %s is %d",
+                                        paramName, value, paramName, maxValue));
+                    }
+                }
             }
         }
 
@@ -2370,8 +2427,8 @@ public final class DynamicBuilders {
 
         /**
          * Gets minimum integer digits. Sign and grouping characters are not considered when
-         * applying minIntegerDigits constraint. If not defined, defaults to one. For example,in the
-         * English locale, applying minIntegerDigit=4 to 12 would yield "0012".
+         * applying minIntegerDigits constraint. If not defined, defaults to one. For example, for
+         * locale en_US, applying minIntegerDigit=4 to 12 would yield "0012".
          *
          * @since 1.2
          */
@@ -2382,8 +2439,8 @@ public final class DynamicBuilders {
 
         /**
          * Gets digit grouping used. Grouping size and grouping character depend on the current
-         * locale. If not defined, defaults to false. For example, in the English locale, using
-         * grouping with 1234 would yield "1,234".
+         * locale. If not defined, defaults to false. For example, for locale en_US, using grouping
+         * with 1234 would yield "1,234".
          *
          * @since 1.2
          */
@@ -2430,7 +2487,7 @@ public final class DynamicBuilders {
 
         /** Builder for {@link Int32FormatOp}. */
         public static final class Builder implements DynamicString.Builder {
-            private final DynamicProto.Int32FormatOp.Builder mImpl =
+            final DynamicProto.Int32FormatOp.Builder mImpl =
                     DynamicProto.Int32FormatOp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(196209833);
 
@@ -2451,8 +2508,8 @@ public final class DynamicBuilders {
 
             /**
              * Sets minimum integer digits. Sign and grouping characters are not considered when
-             * applying minIntegerDigits constraint. If not defined, defaults to one. For example,in
-             * the English locale, applying minIntegerDigit=4 to 12 would yield "0012".
+             * applying minIntegerDigits constraint. If not defined, defaults to one. For example,
+             * for locale en_US, applying minIntegerDigit=4 to 12 would yield "0012".
              *
              * @since 1.2
              */
@@ -2465,7 +2522,7 @@ public final class DynamicBuilders {
 
             /**
              * Sets digit grouping used. Grouping size and grouping character depend on the current
-             * locale. If not defined, defaults to false. For example, in the English locale, using
+             * locale. If not defined, defaults to false. For example, for locale en_US, using
              * grouping with 1234 would yield "1,234".
              *
              * @since 1.2
@@ -2894,8 +2951,8 @@ public final class DynamicBuilders {
 
         /**
          * Gets minimum integer digits. Sign and grouping characters are not considered when
-         * applying minIntegerDigits constraint. If not defined, defaults to one. For example, in
-         * the English locale, applying minIntegerDigit=4 to 12.34 would yield "0012.34".
+         * applying minIntegerDigits constraint. If not defined, defaults to one. For example, for
+         * locale en_US, applying minIntegerDigit=4 to 12.34 would yield "0012.34".
          *
          * @since 1.2
          */
@@ -2906,8 +2963,8 @@ public final class DynamicBuilders {
 
         /**
          * Gets digit grouping used. Grouping size and grouping character depend on the current
-         * locale. If not defined, defaults to false. For example, in the English locale, using
-         * grouping with 1234.56 would yield "1,234.56".
+         * locale. If not defined, defaults to false. For example, for locale en_US, using grouping
+         * with 1234.56 would yield "1,234.56".
          *
          * @since 1.2
          */
@@ -3010,7 +3067,7 @@ public final class DynamicBuilders {
             /**
              * Sets minimum integer digits. Sign and grouping characters are not considered when
              * applying minIntegerDigits constraint. If not defined, defaults to one. For example,
-             * in the English locale, applying minIntegerDigit=4 to 12.34 would yield "0012.34".
+             * for locale en_US, applying minIntegerDigit=4 to 12.34 would yield "0012.34".
              *
              * @since 1.2
              */
@@ -3023,7 +3080,7 @@ public final class DynamicBuilders {
 
             /**
              * Sets digit grouping used. Grouping size and grouping character depend on the current
-             * locale. If not defined, defaults to false. For example, in the English locale, using
+             * locale. If not defined, defaults to false. For example, for locale en_US, using
              * grouping with 1234.56 would yield "1,234.56".
              *
              * @since 1.2
@@ -3046,6 +3103,8 @@ public final class DynamicBuilders {
 
     /**
      * Interface defining a dynamic string type.
+     *
+     * <p>{@link DynamicString} string value is subject to being truncated if it's too long.
      *
      * @since 1.2
      */
@@ -3077,14 +3136,18 @@ public final class DynamicBuilders {
             return toDynamicStringProto().toByteArray();
         }
 
-        /** Creates a constant-valued {@link DynamicString}. */
+        /**
+         * Creates a constant-valued {@link DynamicString}. The resulted {@link DynamicString} is
+         * subject to being truncated if it's too long.
+         */
         @NonNull
         static DynamicString constant(@NonNull String constant) {
             return new FixedString.Builder().setValue(constant).build();
         }
 
         /**
-         * Creates a {@link DynamicString} that is bound to the value of an item of the State.
+         * Creates a {@link DynamicString} that is bound to the value of an item of the State. The
+         * resulted {@link DynamicString} is subject to being truncated if it's too long.
          *
          * @param stateKey The key to a {@link StateEntryValue} with a string value from the
          *     provider's state.
@@ -3116,7 +3179,8 @@ public final class DynamicBuilders {
 
         /**
          * Returns a new {@link DynamicString} that has the result of concatenating this {@link
-         * DynamicString} with {@code other}. i.e. {@code result = this + other}
+         * DynamicString} with {@code other}. i.e. {@code result = this + other} The resulted {@link
+         * DynamicString} is subject to being truncated if it's too long.
          *
          * @param other The right hand side operand of the concatenation.
          */
@@ -3791,7 +3855,13 @@ public final class DynamicBuilders {
             return toDynamicFloatProto().toByteArray();
         }
 
-        /** Creates a constant-valued {@link DynamicFloat}. */
+        /**
+         * Creates a constant-valued {@link DynamicFloat}.
+         *
+         * <p>If {@code Float.isNan(constant)} is true, the value will be invalid. And any
+         * expression that uses this {@link DynamicFloat} will have an invalid result (which will be
+         * delivered through {@link DynamicTypeValueReceiver<T>#onInvalidate()}.
+         */
         @NonNull
         static DynamicFloat constant(float constant) {
             return new FixedFloat.Builder().setValue(constant).build();
@@ -3896,6 +3966,11 @@ public final class DynamicBuilders {
         /**
          * Returns a {@link DynamicInt32} which holds the largest integer value that is smaller than
          * or equal to this {@link DynamicFloat}, i.e. {@code int result = (int) Math.floor(this)}
+         *
+         * <p>If the float value is larger than {@link Integer#MAX_VALUE} or smaller than {@link
+         * Integer#MIN_VALUE}, the result of this operation will be invalid and any expression that
+         * uses the {@link DynamicInt32} will have an invalid result (which will be delivered
+         * through {@link DynamicTypeValueReceiver<T>#onInvalidate()}.
          */
         @NonNull
         default DynamicInt32 asInt() {
@@ -4456,95 +4531,170 @@ public final class DynamicBuilders {
 
         /**
          * Returns a {@link DynamicString} that contains the formatted value of this {@link
-         * DynamicFloat} (with default formatting parameters). As an example, in the English locale,
-         * the following is equal to {@code DynamicString.constant("12.346")}
+         * DynamicFloat} (with default formatting parameters). As an example, for locale en_US, the
+         * following is equal to {@code DynamicString.constant("12.346")}
          *
          * <pre>
          *   DynamicFloat.constant(12.34567f).format();
          * </pre>
+         *
+         * The resulted {@link DynamicString} is subject to being truncated if it's too long.
          */
         @NonNull
         default DynamicString format() {
-            return FloatFormatter.with().buildForInput(this);
+            return new FloatFormatter.Builder().build().getFloatFormatOp(this);
         }
 
         /**
          * Returns a {@link DynamicString} that contains the formatted value of this {@link
-         * DynamicFloat}. As an example, in the English locale, the following is equal to {@code
+         * DynamicFloat}. As an example, for locale en_US, the following is equal to {@code
          * DynamicString.constant("0,012.34")}
          *
          * <pre>
          *   DynamicFloat.constant(12.345f)
          *       .format(
-         *           FloatFormatter.with().maxFractionDigits(2).minIntegerDigits(4)
-         *                         .groupingUsed(true));
+         *           new FloatFormatter.Builder().setMaxFractionDigits(2).setMinIntegerDigits(4)
+         *                             .setGroupingUsed(true).build());
          * </pre>
+         *
+         * The resulted {@link DynamicString} is subject to being truncated if it's too long.
          *
          * @param formatter The formatting parameter.
          */
         @NonNull
         default DynamicString format(@NonNull FloatFormatter formatter) {
-            return formatter.buildForInput(this);
+            return formatter.getFloatFormatOp(this);
         }
 
         /** Allows formatting {@link DynamicFloat} into a {@link DynamicString}. */
         class FloatFormatter {
-            private final FloatFormatOp.Builder builder;
+            private final FloatFormatOp.Builder mFloatFormatOpBuilder;
+            private final FloatFormatOp mFloatFormatOp;
 
-            private FloatFormatter() {
-                builder = new FloatFormatOp.Builder();
-            }
-
-            /** Creates an instance of {@link FloatFormatter} with default configuration. */
-            @NonNull
-            public static FloatFormatter with() {
-                return new FloatFormatter();
-            }
-
-            /**
-             * Sets minimum number of fraction digits for the formatter. Defaults to zero if not
-             * specified. minimumFractionDigits must be <= maximumFractionDigits. If the condition
-             * is not satisfied, then minimumFractionDigits will be used for both fields.
-             */
-            @NonNull
-            public FloatFormatter minFractionDigits(@IntRange(from = 0) int minFractionDigits) {
-                builder.setMinFractionDigits(minFractionDigits);
-                return this;
-            }
-
-            /**
-             * Sets maximum number of fraction digits for the formatter. Defaults to three if not
-             * specified. minimumFractionDigits must be <= maximumFractionDigits. If the condition
-             * is not satisfied, then minimumFractionDigits will be used for both fields.
-             */
-            @NonNull
-            public FloatFormatter maxFractionDigits(@IntRange(from = 0) int maxFractionDigits) {
-                builder.setMaxFractionDigits(maxFractionDigits);
-                return this;
-            }
-
-            /**
-             * Sets minimum number of integer digits for the formatter. Defaults to one if not
-             * specified.
-             */
-            @NonNull
-            public FloatFormatter minIntegerDigits(@IntRange(from = 0) int minIntegerDigits) {
-                builder.setMinIntegerDigits(minIntegerDigits);
-                return this;
-            }
-
-            /**
-             * Sets whether grouping is used for the formatter. Defaults to false if not specified.
-             */
-            @NonNull
-            public FloatFormatter groupingUsed(boolean groupingUsed) {
-                builder.setGroupingUsed(groupingUsed);
-                return this;
+            FloatFormatter(FloatFormatOp.Builder floatFormatOpBuilder) {
+                mFloatFormatOpBuilder = floatFormatOpBuilder;
+                mFloatFormatOp = floatFormatOpBuilder.build();
             }
 
             @NonNull
-            FloatFormatOp buildForInput(@NonNull DynamicFloat dynamicFloat) {
-                return builder.setInput(dynamicFloat).build();
+            FloatFormatOp getFloatFormatOp(@NonNull DynamicFloat dynamicFloat) {
+                return mFloatFormatOpBuilder.setInput(dynamicFloat).build();
+            }
+
+            /** Returns the minimum number of digits allowed in the fraction portion of a number. */
+            @IntRange(from = 0)
+            public int getMinFractionDigits() {
+                return mFloatFormatOp.getMinFractionDigits();
+            }
+
+            /** Returns the maximum number of digits allowed in the fraction portion of a number. */
+            @IntRange(from = 0)
+            public int getMaxFractionDigits() {
+                return mFloatFormatOp.getMaxFractionDigits();
+            }
+
+            /** Returns the minimum number of digits allowed in the integer portion of a number. */
+            @IntRange(from = 0)
+            public int getMinIntegerDigits() {
+                return mFloatFormatOp.getMinIntegerDigits();
+            }
+
+            /** Returns whether digit grouping is used or not. */
+            public boolean isGroupingUsed() {
+                return mFloatFormatOp.getGroupingUsed();
+            }
+
+            /** Builder to create {@link FloatFormatter} objects. */
+            public static final class Builder {
+                private static final int MAX_INTEGER_PART_LENGTH = 15;
+                private static final int MAX_FRACTION_PART_LENGTH = 15;
+                final FloatFormatOp.Builder mBuilder;
+
+                public Builder() {
+                    mBuilder = new FloatFormatOp.Builder();
+                }
+
+                /**
+                 * Sets minimum number of fraction digits for the formatter. Defaults to zero if not
+                 * specified. minimumFractionDigits must be <= maximumFractionDigits. If the
+                 * condition is not satisfied, then minimumFractionDigits will be used for both
+                 * fields.
+                 */
+                @NonNull
+                public Builder setMinFractionDigits(@IntRange(from = 0) int minFractionDigits) {
+                    mBuilder.setMinFractionDigits(minFractionDigits);
+                    return this;
+                }
+
+                /**
+                 * Sets maximum number of fraction digits for the formatter. Defaults to three if
+                 * not specified. minimumFractionDigits must be <= maximumFractionDigits. If the
+                 * condition is not satisfied, then minimumFractionDigits will be used for both
+                 * fields.
+                 */
+                @NonNull
+                public Builder setMaxFractionDigits(@IntRange(from = 0) int maxFractionDigits) {
+                    mBuilder.setMaxFractionDigits(maxFractionDigits);
+                    return this;
+                }
+
+                /**
+                 * Sets minimum number of integer digits for the formatter. Defaults to one if not
+                 * specified. If minIntegerDigits is zero and the -1 < input < 1, the Integer
+                 * part will not appear.
+                 */
+                @NonNull
+                public Builder setMinIntegerDigits(@IntRange(from = 0) int minIntegerDigits) {
+                    mBuilder.setMinIntegerDigits(minIntegerDigits);
+                    return this;
+                }
+
+                /**
+                 * Sets whether grouping is used for the formatter. Defaults to false if not
+                 * specified. If grouping is used, digits will be grouped into digit groups using a
+                 * separator. Digit group size and used separator can vary in different
+                 * countries/regions. As an example, for locale en_US, the following is equal to
+                 * {@code * DynamicString.constant("1,234")}
+                 *
+                 * <pre>
+                 *   DynamicFloat.constant(1234)
+                 *       .format(
+                 *           new FloatFormatter.Builder()
+                 *                           .setGroupingUsed(true).build());
+                 * </pre>
+                 */
+                @NonNull
+                public Builder setGroupingUsed(boolean groupingUsed) {
+                    mBuilder.setGroupingUsed(groupingUsed);
+                    return this;
+                }
+
+                /** Builds an instance with values accumulated in this Builder. */
+                @NonNull
+                public FloatFormatter build() {
+                    FloatFormatOp op = mBuilder.build();
+                    throwIfExceedingMaxValue(
+                            "MinFractionDigits",
+                            op.getMinFractionDigits(),
+                            MAX_FRACTION_PART_LENGTH);
+                    throwIfExceedingMaxValue(
+                            "MaxFractionDigits",
+                            op.getMaxFractionDigits(),
+                            MAX_FRACTION_PART_LENGTH);
+                    throwIfExceedingMaxValue(
+                            "MinIntegerDigits", op.getMinIntegerDigits(), MAX_INTEGER_PART_LENGTH);
+                    return new FloatFormatter(mBuilder);
+                }
+
+                private static void throwIfExceedingMaxValue(
+                        String paramName, int value, int maxValue) {
+                    if (value > maxValue) {
+                        throw new IllegalArgumentException(
+                                String.format(
+                                        "%s (%d) is too large. Maximum value for %s is %d",
+                                        paramName, value, paramName, maxValue));
+                    }
+                }
             }
         }
 
@@ -5230,18 +5380,12 @@ public final class DynamicBuilders {
             return new StateBoolSource.Builder().setSourceKey(stateKey).build();
         }
 
-        /** Returns a {@link DynamicBool} that has the same value as this {@link DynamicBool}. */
-        @NonNull
-        default DynamicBool isTrue() {
-            return this;
-        }
-
         /**
          * Returns a {@link DynamicBool} that has the opposite value of this {@link DynamicBool}.
          * i.e. {code result = !this}
          */
         @NonNull
-        default DynamicBool isFalse() {
+        default DynamicBool negate() {
             return new NotBoolOp.Builder().setInput(this).build();
         }
 
@@ -5667,6 +5811,170 @@ public final class DynamicBuilders {
     }
 
     /**
+     * A conditional operator which yields a color depending on the boolean operand. This
+     * implements:
+     *
+     * <pre>{@code
+     * color result = condition ? value_if_true : value_if_false
+     * }</pre>
+     *
+     * @since 1.2
+     */
+    static final class ConditionalColorOp implements DynamicColor {
+        private final DynamicProto.ConditionalColorOp mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        ConditionalColorOp(
+                DynamicProto.ConditionalColorOp impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets the condition to use.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public DynamicBool getCondition() {
+            if (mImpl.hasCondition()) {
+                return DynamicBuilders.dynamicBoolFromProto(mImpl.getCondition());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets the color to yield if condition is true.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public DynamicColor getValueIfTrue() {
+            if (mImpl.hasValueIfTrue()) {
+                return DynamicBuilders.dynamicColorFromProto(mImpl.getValueIfTrue());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets the color to yield if condition is false.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public DynamicColor getValueIfFalse() {
+            if (mImpl.hasValueIfFalse()) {
+                return DynamicBuilders.dynamicColorFromProto(mImpl.getValueIfFalse());
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ConditionalColorOp fromProto(
+                @NonNull DynamicProto.ConditionalColorOp proto, @Nullable Fingerprint fingerprint) {
+            return new ConditionalColorOp(proto, fingerprint);
+        }
+
+        @NonNull
+        static ConditionalColorOp fromProto(@NonNull DynamicProto.ConditionalColorOp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        DynamicProto.ConditionalColorOp toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DynamicProto.DynamicColor toDynamicColorProto() {
+            return DynamicProto.DynamicColor.newBuilder().setConditionalOp(mImpl).build();
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "ConditionalColorOp{"
+                    + "condition="
+                    + getCondition()
+                    + ", valueIfTrue="
+                    + getValueIfTrue()
+                    + ", valueIfFalse="
+                    + getValueIfFalse()
+                    + "}";
+        }
+
+        /** Builder for {@link ConditionalColorOp}. */
+        public static final class Builder implements DynamicColor.Builder {
+            private final DynamicProto.ConditionalColorOp.Builder mImpl =
+                    DynamicProto.ConditionalColorOp.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-1961850082);
+
+            public Builder() {}
+
+            /**
+             * Sets the condition to use.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setCondition(@NonNull DynamicBool condition) {
+                mImpl.setCondition(condition.toDynamicBoolProto());
+                mFingerprint.recordPropertyUpdate(
+                        1, checkNotNull(condition.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the color to yield if condition is true.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setValueIfTrue(@NonNull DynamicColor valueIfTrue) {
+                mImpl.setValueIfTrue(valueIfTrue.toDynamicColorProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(valueIfTrue.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the color to yield if condition is false.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setValueIfFalse(@NonNull DynamicColor valueIfFalse) {
+                mImpl.setValueIfFalse(valueIfFalse.toDynamicColorProto());
+                mFingerprint.recordPropertyUpdate(
+                        3, checkNotNull(valueIfFalse.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            @Override
+            @NonNull
+            public ConditionalColorOp build() {
+                return new ConditionalColorOp(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+    /**
      * Interface defining a dynamic color type.
      *
      * @since 1.2
@@ -5802,6 +6110,24 @@ public final class DynamicBuilders {
             return new AnimatableDynamicColor.Builder().setInput(this).build();
         }
 
+        /**
+         * Bind the value of this {@link DynamicColor} to the result of a conditional expression.
+         * This will use the value given in either {@link ConditionScope#use} or {@link
+         * ConditionScopes.IfTrueScope#elseUse} depending on the value yielded from {@code
+         * condition}.
+         */
+        @NonNull
+        static ConditionScope<DynamicColor, Integer> onCondition(@NonNull DynamicBool condition) {
+            return new ConditionScopes.ConditionScope<>(
+                    (trueValue, falseValue) ->
+                            new ConditionalColorOp.Builder()
+                                    .setCondition(condition)
+                                    .setValueIfTrue(trueValue)
+                                    .setValueIfFalse(falseValue)
+                                    .build(),
+                    DynamicColor::constant);
+        }
+
         /** Get the fingerprint for this object or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -5835,6 +6161,9 @@ public final class DynamicBuilders {
         }
         if (proto.hasAnimatableDynamic()) {
             return AnimatableDynamicColor.fromProto(proto.getAnimatableDynamic());
+        }
+        if (proto.hasConditionalOp()) {
+            return ConditionalColorOp.fromProto(proto.getConditionalOp());
         }
         throw new IllegalStateException("Proto was not a recognised instance of DynamicColor");
     }

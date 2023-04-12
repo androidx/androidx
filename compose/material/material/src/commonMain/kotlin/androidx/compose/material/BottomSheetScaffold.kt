@@ -167,6 +167,8 @@ class BottomSheetState(
 
     internal suspend fun snapTo(target: BottomSheetValue) = swipeableState.snapTo(target)
 
+    internal fun trySnapTo(target: BottomSheetValue) = swipeableState.trySnapTo(target)
+
     internal val isAnimationRunning: Boolean get() = swipeableState.isAnimationRunning
 
     companion object {
@@ -333,9 +335,8 @@ fun BottomSheetScaffold(
             topBar = topBar,
             body = content,
             bottomSheet = { layoutHeight ->
-                BottomSheet(
-                    state = scaffoldState.bottomSheetState,
-                    modifier = Modifier
+                val nestedScroll = if (sheetGesturesEnabled) {
+                    Modifier
                         .nestedScroll(
                             remember(scaffoldState.bottomSheetState.swipeableState) {
                                 ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
@@ -344,6 +345,10 @@ fun BottomSheetScaffold(
                                 )
                             }
                         )
+                } else Modifier
+                BottomSheet(
+                    state = scaffoldState.bottomSheetState,
+                    modifier = nestedScroll
                         .fillMaxWidth()
                         .requiredHeightIn(min = sheetPeekHeight),
                     anchors = { state, sheetSize ->
@@ -415,7 +420,12 @@ private fun BottomSheet(
         BottomSheetScaffoldAnchorChangeHandler(
             state = state,
             animateTo = { target -> scope.launch { state.animateTo(target) } },
-            snapTo = { target -> scope.launch { state.snapTo(target) } }
+            snapTo = { target ->
+                val didSnapImmediately = state.trySnapTo(target)
+                if (!didSnapImmediately) {
+                    scope.launch { state.snapTo(target) }
+                }
+            }
         )
     }
     Surface(

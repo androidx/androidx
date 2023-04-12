@@ -37,9 +37,6 @@ public class AddToListCallback<T> implements DynamicTypeValueReceiver<T> {
     }
 
     @Override
-    public void onPreUpdate() {}
-
-    @Override
     public void onData(@NonNull T newData) {
         mListToUpdate.add(newData);
     }

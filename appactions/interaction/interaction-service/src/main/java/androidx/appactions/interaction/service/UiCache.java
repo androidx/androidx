@@ -22,7 +22,7 @@ import android.widget.RemoteViewsService.RemoteViewsFactory;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
-import androidx.appactions.interaction.capabilities.core.BaseSession;
+import androidx.appactions.interaction.capabilities.core.BaseExecutionSession;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -65,7 +65,7 @@ final class UiCache {
     private boolean mUnreadUiResponse;
 
     /**
-     * Caches a UiResponse for this particular {@link BaseSession}.
+     * Caches a UiResponse for this particular {@link BaseExecutionSession}.
      */
     public void updateUiInternal(@NonNull UiResponse uiResponse) {
         synchronized (mLock) {

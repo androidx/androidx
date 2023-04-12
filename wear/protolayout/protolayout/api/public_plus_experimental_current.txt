@@ -351,12 +351,23 @@ package androidx.wear.protolayout {
     field public static final int TEXT_ALIGN_START = 1; // 0x1
     field public static final int TEXT_ALIGN_UNDEFINED = 0; // 0x0
     field public static final int TEXT_OVERFLOW_ELLIPSIZE_END = 2; // 0x2
+    field @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final int TEXT_OVERFLOW_MARQUEE = 3; // 0x3
     field public static final int TEXT_OVERFLOW_TRUNCATE = 1; // 0x1
     field public static final int TEXT_OVERFLOW_UNDEFINED = 0; // 0x0
     field public static final int VERTICAL_ALIGN_BOTTOM = 3; // 0x3
     field public static final int VERTICAL_ALIGN_CENTER = 2; // 0x2
     field public static final int VERTICAL_ALIGN_TOP = 1; // 0x1
     field public static final int VERTICAL_ALIGN_UNDEFINED = 0; // 0x0
+  }
+
+  @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final class LayoutElementBuilders.AndroidTextStyle {
+    method public boolean getExcludeFontPadding();
+  }
+
+  public static final class LayoutElementBuilders.AndroidTextStyle.Builder {
+    ctor public LayoutElementBuilders.AndroidTextStyle.Builder();
+    method public androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle build();
+    method public androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle.Builder setExcludeFontPadding(boolean);
   }
 
   public static final class LayoutElementBuilders.Arc implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement {
@@ -696,6 +707,7 @@ package androidx.wear.protolayout {
   }
 
   public static final class LayoutElementBuilders.SpanText implements androidx.wear.protolayout.LayoutElementBuilders.Span {
+    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle? getAndroidTextStyle();
     method public androidx.wear.protolayout.LayoutElementBuilders.FontStyle? getFontStyle();
     method public androidx.wear.protolayout.ModifiersBuilders.SpanModifiers? getModifiers();
     method public androidx.wear.protolayout.TypeBuilders.StringProp? getText();
@@ -704,6 +716,7 @@ package androidx.wear.protolayout {
   public static final class LayoutElementBuilders.SpanText.Builder implements androidx.wear.protolayout.LayoutElementBuilders.Span.Builder {
     ctor public LayoutElementBuilders.SpanText.Builder();
     method public androidx.wear.protolayout.LayoutElementBuilders.SpanText build();
+    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.LayoutElementBuilders.SpanText.Builder setAndroidTextStyle(androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle);
     method public androidx.wear.protolayout.LayoutElementBuilders.SpanText.Builder setFontStyle(androidx.wear.protolayout.LayoutElementBuilders.FontStyle);
     method public androidx.wear.protolayout.LayoutElementBuilders.SpanText.Builder setModifiers(androidx.wear.protolayout.ModifiersBuilders.SpanModifiers);
     method public androidx.wear.protolayout.LayoutElementBuilders.SpanText.Builder setText(androidx.wear.protolayout.TypeBuilders.StringProp);
@@ -722,6 +735,7 @@ package androidx.wear.protolayout {
 
   public static final class LayoutElementBuilders.Spannable implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement {
     method public androidx.wear.protolayout.DimensionBuilders.SpProp? getLineHeight();
+    method @IntRange(from=0xffffffff) @androidx.wear.protolayout.expression.ProtoLayoutExperimental public int getMarqueeIterations();
     method public androidx.wear.protolayout.TypeBuilders.Int32Prop? getMaxLines();
     method public androidx.wear.protolayout.ModifiersBuilders.Modifiers? getModifiers();
     method public androidx.wear.protolayout.LayoutElementBuilders.HorizontalAlignmentProp? getMultilineAlignment();
@@ -734,6 +748,7 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.LayoutElementBuilders.Spannable.Builder addSpan(androidx.wear.protolayout.LayoutElementBuilders.Span);
     method public androidx.wear.protolayout.LayoutElementBuilders.Spannable build();
     method public androidx.wear.protolayout.LayoutElementBuilders.Spannable.Builder setLineHeight(androidx.wear.protolayout.DimensionBuilders.SpProp);
+    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.LayoutElementBuilders.Spannable.Builder setMarqueeIterations(@IntRange(from=0xffffffff) int);
     method public androidx.wear.protolayout.LayoutElementBuilders.Spannable.Builder setMaxLines(androidx.wear.protolayout.TypeBuilders.Int32Prop);
     method public androidx.wear.protolayout.LayoutElementBuilders.Spannable.Builder setMaxLines(@IntRange(from=1) int);
     method public androidx.wear.protolayout.LayoutElementBuilders.Spannable.Builder setModifiers(androidx.wear.protolayout.ModifiersBuilders.Modifiers);
@@ -744,9 +759,11 @@ package androidx.wear.protolayout {
   }
 
   public static final class LayoutElementBuilders.Text implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement {
+    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle? getAndroidTextStyle();
     method public androidx.wear.protolayout.LayoutElementBuilders.FontStyle? getFontStyle();
     method public androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint? getLayoutConstraintsForDynamicText();
     method public androidx.wear.protolayout.DimensionBuilders.SpProp? getLineHeight();
+    method @IntRange(from=0xffffffff) @androidx.wear.protolayout.expression.ProtoLayoutExperimental public int getMarqueeIterations();
     method public androidx.wear.protolayout.TypeBuilders.Int32Prop? getMaxLines();
     method public androidx.wear.protolayout.ModifiersBuilders.Modifiers? getModifiers();
     method public androidx.wear.protolayout.LayoutElementBuilders.TextAlignmentProp? getMultilineAlignment();
@@ -757,9 +774,11 @@ package androidx.wear.protolayout {
   public static final class LayoutElementBuilders.Text.Builder implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement.Builder {
     ctor public LayoutElementBuilders.Text.Builder();
     method public androidx.wear.protolayout.LayoutElementBuilders.Text build();
+    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.LayoutElementBuilders.Text.Builder setAndroidTextStyle(androidx.wear.protolayout.LayoutElementBuilders.AndroidTextStyle);
     method public androidx.wear.protolayout.LayoutElementBuilders.Text.Builder setFontStyle(androidx.wear.protolayout.LayoutElementBuilders.FontStyle);
     method public androidx.wear.protolayout.LayoutElementBuilders.Text.Builder setLayoutConstraintsForDynamicText(androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint);
     method public androidx.wear.protolayout.LayoutElementBuilders.Text.Builder setLineHeight(androidx.wear.protolayout.DimensionBuilders.SpProp);
+    method @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.LayoutElementBuilders.Text.Builder setMarqueeIterations(@IntRange(from=0xffffffff) int);
     method public androidx.wear.protolayout.LayoutElementBuilders.Text.Builder setMaxLines(androidx.wear.protolayout.TypeBuilders.Int32Prop);
     method public androidx.wear.protolayout.LayoutElementBuilders.Text.Builder setMaxLines(@IntRange(from=1) int);
     method public androidx.wear.protolayout.LayoutElementBuilders.Text.Builder setModifiers(androidx.wear.protolayout.ModifiersBuilders.Modifiers);
@@ -802,6 +821,12 @@ package androidx.wear.protolayout {
   }
 
   public final class ModifiersBuilders {
+    field public static final int SEMANTICS_ROLE_BUTTON = 2; // 0x2
+    field public static final int SEMANTICS_ROLE_CHECKBOX = 3; // 0x3
+    field public static final int SEMANTICS_ROLE_IMAGE = 1; // 0x1
+    field public static final int SEMANTICS_ROLE_NONE = 0; // 0x0
+    field public static final int SEMANTICS_ROLE_RADIOBUTTON = 5; // 0x5
+    field public static final int SEMANTICS_ROLE_SWITCH = 4; // 0x4
     field @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final int SLIDE_DIRECTION_BOTTOM_TO_TOP = 4; // 0x4
     field @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final int SLIDE_DIRECTION_LEFT_TO_RIGHT = 1; // 0x1
     field @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final int SLIDE_DIRECTION_RIGHT_TO_LEFT = 2; // 0x2
@@ -992,13 +1017,18 @@ package androidx.wear.protolayout {
   }
 
   public static final class ModifiersBuilders.Semantics {
-    method public String getContentDescription();
+    method public androidx.wear.protolayout.TypeBuilders.StringProp? getContentDescription();
+    method public int getRole();
+    method public androidx.wear.protolayout.TypeBuilders.StringProp? getStateDescription();
   }
 
   public static final class ModifiersBuilders.Semantics.Builder {
     ctor public ModifiersBuilders.Semantics.Builder();
     method public androidx.wear.protolayout.ModifiersBuilders.Semantics build();
     method public androidx.wear.protolayout.ModifiersBuilders.Semantics.Builder setContentDescription(String);
+    method public androidx.wear.protolayout.ModifiersBuilders.Semantics.Builder setContentDescription(androidx.wear.protolayout.TypeBuilders.StringProp);
+    method public androidx.wear.protolayout.ModifiersBuilders.Semantics.Builder setRole(int);
+    method public androidx.wear.protolayout.ModifiersBuilders.Semantics.Builder setStateDescription(androidx.wear.protolayout.TypeBuilders.StringProp);
   }
 
   @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static interface ModifiersBuilders.SlideBound {

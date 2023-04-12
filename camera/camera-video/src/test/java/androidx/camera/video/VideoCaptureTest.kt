@@ -43,9 +43,9 @@ import androidx.camera.core.CameraSelector.DEFAULT_FRONT_CAMERA
 import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
 import androidx.camera.core.CameraXConfig
-import androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY
 import androidx.camera.core.MirrorMode.MIRROR_MODE_OFF
 import androidx.camera.core.MirrorMode.MIRROR_MODE_ON
+import androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CameraFactory
@@ -1038,6 +1038,27 @@ class VideoCaptureTest {
         )
     }
 
+    @Test
+    fun suggestedStreamSpecFrameRate_isPropagatedToSurfaceRequest() {
+        // [24, 24] is what will be chosen by the stream spec. By setting the target to another
+        // value, this ensures the SurfaceRequest is getting what comes from the stream spec rather
+        // than just from the target.
+        testSurfaceRequestContainsExpected(
+            targetFrameRate = FRAME_RATE_RANGE_FIXED_30,
+            expectedFrameRate = FRAME_RATE_RANGE_FIXED_24
+        )
+    }
+
+    @Test
+    fun unspecifiedStreamSpecFrameRate_sendsDefaultFrameRateToSurfaceRequest() {
+        // Currently we assume a fixed [30, 30] for VideoCapture since that is typically the fixed
+        // frame rate that most devices will choose for a video template. In the future we may
+        // try to query the device for this default frame rate.
+        testSurfaceRequestContainsExpected(
+            expectedFrameRate = FRAME_RATE_RANGE_FIXED_30
+        )
+    }
+
     private fun testSetTargetRotation_transformationInfoUpdated(
         lensFacing: Int = LENS_FACING_BACK,
         sensorRotationDegrees: Int = 0,
@@ -1260,34 +1281,63 @@ class VideoCaptureTest {
     private fun testAdjustCropRectToValidSize(
         quality: Quality = HD, // HD maps to 1280x720 (4:3)
         videoEncoderInfo: VideoEncoderInfo = createVideoEncoderInfo(),
-        cropRect: Rect,
-        expectedCropRect: Rect,
+        cropRect: Rect? = null,
+        expectedCropRect: Rect? = null
+    ) {
+        testSurfaceRequestContainsExpected(
+            quality = quality,
+            videoEncoderInfo = videoEncoderInfo,
+            cropRect = cropRect,
+            expectedCropRect = expectedCropRect
+        )
+    }
+
+    private fun testSurfaceRequestContainsExpected(
+        quality: Quality = HD, // HD maps to 1280x720 (4:3)
+        videoEncoderInfo: VideoEncoderInfo = createVideoEncoderInfo(),
+        cropRect: Rect? = null,
+        expectedCropRect: Rect? = null,
+        targetFrameRate: Range<Int>? = null,
+        expectedFrameRate: Range<Int> = SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
     ) {
         // Arrange.
         setupCamera()
         createCameraUseCaseAdapter()
-        setSuggestedStreamSpec(quality)
+        setSuggestedStreamSpec(
+            quality,
+            expectedFrameRate = expectedFrameRate
+        )
         var surfaceRequest: SurfaceRequest? = null
         val videoOutput = createVideoOutput(
             mediaSpec = MediaSpec.builder().configureVideo {
                 it.setQualitySelector(QualitySelector.from(quality))
             }.build(),
-            surfaceRequestListener = { request, _ -> surfaceRequest = request }
+            surfaceRequestListener = { request, _ -> surfaceRequest = request },
         )
         val videoCapture = createVideoCapture(
             videoOutput,
-            videoEncoderInfoFinder = { videoEncoderInfo }
+            videoEncoderInfoFinder = { videoEncoderInfo },
+            targetFrameRate = targetFrameRate
         )
-        cameraUseCaseAdapter.setEffects(listOf(createFakeEffect()))
-        videoCapture.setViewPortCropRect(cropRect)
+
+        cropRect?.let {
+            cameraUseCaseAdapter.setEffects(listOf(createFakeEffect()))
+            videoCapture.setViewPortCropRect(it)
+        }
 
         // Act.
         addAndAttachUseCases(videoCapture)
 
         // Assert.
         assertThat(surfaceRequest).isNotNull()
-        assertThat(surfaceRequest!!.resolution).isEqualTo(rectToSize(expectedCropRect))
-        assertThat(videoCapture.cropRect).isEqualTo(expectedCropRect)
+        expectedCropRect?.let {
+            assertThat(surfaceRequest!!.resolution).isEqualTo(rectToSize(it))
+            assertThat(videoCapture.cropRect).isEqualTo(it)
+        }
+
+        if (expectedFrameRate != StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED) {
+            assertThat(surfaceRequest!!.expectedFrameRate).isEqualTo(expectedFrameRate)
+        }
     }
 
     private fun assertCustomOrderedResolutions(
@@ -1377,6 +1427,7 @@ class VideoCaptureTest {
         targetRotation: Int? = null,
         mirrorMode: Int? = null,
         targetResolution: Size? = null,
+        targetFrameRate: Range<Int>? = null,
         videoEncoderInfoFinder: Function<VideoEncoderConfig, VideoEncoderInfo> =
             Function { createVideoEncoderInfo() },
     ): VideoCapture<VideoOutput> = VideoCapture.Builder(videoOutput)
@@ -1385,6 +1436,7 @@ class VideoCaptureTest {
             targetRotation?.let { setTargetRotation(it) }
             mirrorMode?.let { setMirrorMode(it) }
             targetResolution?.let { setTargetResolution(it) }
+            targetFrameRate?.let { setTargetFrameRate(it) }
             setVideoEncoderInfoFinder(videoEncoderInfoFinder)
         }.build()
 
@@ -1409,8 +1461,14 @@ class VideoCaptureTest {
         return handler
     }
 
-    private fun setSuggestedStreamSpec(quality: Quality) {
-        setSuggestedStreamSpec(StreamSpec.builder(CAMERA_0_QUALITY_SIZE[quality]!!).build())
+    private fun setSuggestedStreamSpec(
+        quality: Quality,
+        expectedFrameRate: Range<Int> = StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED
+    ) {
+        setSuggestedStreamSpec(
+            StreamSpec.builder(CAMERA_0_QUALITY_SIZE[quality]!!)
+                .setExpectedFrameRateRange(expectedFrameRate).build()
+        )
     }
 
     private fun setSuggestedStreamSpec(streamSpec: StreamSpec) {
@@ -1475,6 +1533,9 @@ class VideoCaptureTest {
             LOWEST to RESOLUTION_720P,
             HIGHEST to RESOLUTION_2160P,
         )
+
+        private val FRAME_RATE_RANGE_FIXED_24 = Range(24, 24)
+        private val FRAME_RATE_RANGE_FIXED_30 = Range(30, 30)
 
         private val CAMERA_0_SUPPORTED_RESOLUTION_MAP = mapOf(
             ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE to listOf(

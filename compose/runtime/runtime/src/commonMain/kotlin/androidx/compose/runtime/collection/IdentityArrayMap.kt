@@ -19,11 +19,11 @@ package androidx.compose.runtime.collection
 import androidx.compose.runtime.identityHashCode
 
 internal class IdentityArrayMap<Key : Any, Value : Any?>(capacity: Int = 16) {
-    internal var keys = arrayOfNulls<Any?>(capacity)
+    var keys = arrayOfNulls<Any?>(capacity)
         private set
-    internal var values = arrayOfNulls<Any?>(capacity)
+    var values = arrayOfNulls<Any?>(capacity)
         private set
-    internal var size = 0
+    var size = 0
         private set
 
     fun isEmpty() = size == 0

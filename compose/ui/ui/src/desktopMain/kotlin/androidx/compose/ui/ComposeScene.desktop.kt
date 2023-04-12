@@ -62,6 +62,7 @@ internal actual fun pointerInputEvent(
         eventType,
         timeMillis,
         listOf(
+            @OptIn(ExperimentalComposeUiApi::class)
             PointerInputEventData(
                 PointerId(pointerId),
                 timeMillis,

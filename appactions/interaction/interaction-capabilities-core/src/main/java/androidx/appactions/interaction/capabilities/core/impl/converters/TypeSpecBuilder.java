@@ -38,22 +38,35 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /** Builder for {@link TypeSpec}. */
-final class TypeSpecBuilder<T, BuilderT extends BuilderOf<T>> {
+final class TypeSpecBuilder<T, BuilderT> {
     private final List<FieldBinding<T, BuilderT>> mBindings = new ArrayList<>();
     private final Supplier<BuilderT> mBuilderSupplier;
+    private final Function<BuilderT, T> mBuilderFinalizer;
     private CheckedInterfaces.Consumer<Struct> mStructValidator;
     private Function<T, Optional<String>> mIdentifierGetter = (unused) -> Optional.empty();
 
-    private TypeSpecBuilder(Supplier<BuilderT> builderSupplier) {
+    private TypeSpecBuilder(
+            String typeName,
+            Supplier<BuilderT> builderSupplier,
+            Function<BuilderT, T> builderFinalizer) {
         this.mBuilderSupplier = builderSupplier;
+        this.mBuilderFinalizer = builderFinalizer;
+        this.bindStringField("@type", (unused) -> Optional.of(typeName), (builder, val) -> {})
+                .setStructValidator(
+                        struct -> {
+                            if (!getFieldFromStruct(struct, "@type")
+                                    .getStringValue()
+                                    .equals(typeName)) {
+                                throw new StructConversionException(
+                                        String.format(
+                                                "Struct @type field must be equal to %s.",
+                                                typeName));
+                            }
+                        });
     }
 
     private static Value getStringValue(String string) {
         return Value.newBuilder().setStringValue(string).build();
-    }
-
-    private static Value getStructValue(Struct struct) {
-        return Value.newBuilder().setStructValue(struct).build();
     }
 
     private static Value getListValue(List<Value> values) {
@@ -81,19 +94,7 @@ final class TypeSpecBuilder<T, BuilderT extends BuilderOf<T>> {
 
     static <T, BuilderT extends BuilderOf<T>> TypeSpecBuilder<T, BuilderT> newBuilder(
             String typeName, Supplier<BuilderT> builderSupplier) {
-        return new TypeSpecBuilder<>(builderSupplier)
-                .bindStringField("@type", (unused) -> Optional.of(typeName), (builder, val) -> {})
-                .setStructValidator(
-                        struct -> {
-                            if (!getFieldFromStruct(struct, "@type")
-                                    .getStringValue()
-                                    .equals(typeName)) {
-                                throw new StructConversionException(
-                                        String.format(
-                                                "Struct @type field must be equal to %s.",
-                                                typeName));
-                            }
-                        });
+        return new TypeSpecBuilder<>(typeName, builderSupplier, BuilderT::build);
     }
 
     /**
@@ -108,6 +109,31 @@ final class TypeSpecBuilder<T, BuilderT extends BuilderOf<T>> {
                 .bindIdentifier(T::getId)
                 .bindStringField("identifier", T::getId, BuilderT::setId)
                 .bindStringField("name", T::getName, BuilderT::setName);
+    }
+
+    /**
+     * Creates a new TypeSpecBuilder for a child class of Thing (temporary BuiltInTypes).
+     *
+     * <p>Comes with bindings for Thing fields.
+     */
+    static <T extends androidx.appactions.builtintypes.types.Thing,
+            BuilderT extends androidx.appactions.builtintypes.types.Thing.Builder<?>>
+            TypeSpecBuilder<T, BuilderT> newBuilderForThing(
+                    String typeName,
+                    Supplier<BuilderT> builderSupplier,
+                    Function<BuilderT, T> builderFinalizer) {
+        return new TypeSpecBuilder<>(typeName, builderSupplier, builderFinalizer)
+                .bindIdentifier(thing -> Optional.ofNullable(thing.getIdentifier()))
+                .bindStringField(
+                        "identifier",
+                        thing -> Optional.ofNullable(thing.getIdentifier()),
+                        BuilderT::setIdentifier)
+                .bindStringField(
+                        "name",
+                        thing ->
+                                Optional.ofNullable(thing.getName())
+                                        .flatMap(name -> Optional.ofNullable(name.asText())),
+                        BuilderT::setName);
     }
 
     private TypeSpecBuilder<T, BuilderT> setStructValidator(
@@ -285,11 +311,10 @@ final class TypeSpecBuilder<T, BuilderT extends BuilderOf<T>> {
                                 // throws error stating that the
                                 // input to toStruct is nullable. This is a workaround to avoid
                                 // the error from the analyzer.
-                                .map(spec::toStruct)
-                                .map(TypeSpecBuilder::getStructValue),
+                                .map(spec::toValue),
                 (builder, value) -> {
                     if (value.isPresent()) {
-                        valueSetter.accept(builder, spec.fromStruct(value.get().getStructValue()));
+                        valueSetter.accept(builder, spec.fromValue(value.get()));
                     }
                 });
     }
@@ -304,17 +329,16 @@ final class TypeSpecBuilder<T, BuilderT extends BuilderOf<T>> {
                 name,
                 valueGetter,
                 valueSetter,
-                (element) ->
-                        Optional.ofNullable(element)
-                                .map(value -> getStructValue(spec.toStruct(value))),
-                (value) -> spec.fromStruct(value.getStructValue()));
+                (element) -> Optional.ofNullable(element).map(spec::toValue),
+                (value) -> spec.fromValue(value));
     }
 
     TypeSpec<T> build() {
-        return new TypeSpecImpl<>(
+        return new TypeSpecImpl<T, BuilderT>(
                 mIdentifierGetter,
                 mBindings,
                 mBuilderSupplier,
+                mBuilderFinalizer,
                 Optional.ofNullable(mStructValidator));
     }
 }

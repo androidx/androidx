@@ -17,24 +17,23 @@ package androidx.wear.compose.materialcore
 
 import androidx.annotation.RestrictTo
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.ProvidedValue
 import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 
@@ -51,38 +50,35 @@ import androidx.compose.ui.unit.Dp
  * @param modifier Modifier to be applied to the button.
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
  * be clickable.
- * @param backgroundColor Resolves the background for this button in different states.
+ * @param background Resolves the background for this button in different states.
  * @param interactionSource The [MutableInteractionSource] representing the stream of
  * [Interaction]s for this Button. You can create and pass in your own remembered
  * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
  * appearance / behavior of this Button in different [Interaction]s.
  * @param shape Defines the button's shape.
  * @param border Resolves the border for this button in different states.
- * @param minButtonSize The default, minimum size of the button unless overridden by Modifier.size.
- * @param contentProviderValues Values of CompositionLocal providers such as LocalContentColor,
- * LocalContentAlpha, LocalTextStyle which are dependent on a specific material design version
- * and are not part of this material-agnostic library.
+ * @param buttonSize The default size of the button unless overridden by Modifier.size.
  * @param content The content displayed on the [Button] such as text, icon or image.
+ * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
-public fun Button(
+fun Button(
     onClick: () -> Unit,
     modifier: Modifier,
     enabled: Boolean,
-    backgroundColor: @Composable (enabled: Boolean) -> State<Color>,
+    background: @Composable (enabled: Boolean) -> State<Painter>,
     interactionSource: MutableInteractionSource,
     shape: Shape,
     border: @Composable (enabled: Boolean) -> State<BorderStroke?>?,
-    minButtonSize: Dp,
-    contentProviderValues: Array<ProvidedValue<*>>,
+    buttonSize: Dp,
     content: @Composable BoxScope.() -> Unit,
 ) {
     val borderStroke = border(enabled)?.value
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .clip(shape)
+            .clip(shape) // Clip for the touch area (e.g. for Ripple).
             .clickable(
                 onClick = onClick,
                 enabled = enabled,
@@ -95,23 +91,16 @@ public fun Button(
                 // so that the ripple applies to the entire button shape and size.
                 modifier
             )
-            .defaultMinSize(
-                minWidth = minButtonSize,
-                minHeight = minButtonSize
+            .size(buttonSize)
+            .clip(shape) // Clip for the painted background area after size has been applied.
+            .paint(
+                painter = background(enabled).value,
+                contentScale = ContentScale.Crop
             )
             .then(
                 if (borderStroke != null) Modifier.border(border = borderStroke, shape = shape)
                 else Modifier
-            )
-            .background(
-                color = backgroundColor(enabled).value,
-                shape = shape
-            )
-    ) {
-        CompositionLocalProvider(
-            values = contentProviderValues
-        ) {
-            content()
-        }
-    }
+            ),
+        content = content
+    )
 }

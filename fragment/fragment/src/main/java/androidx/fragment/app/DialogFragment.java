@@ -96,7 +96,7 @@ import java.lang.annotation.RetentionPolicy;
  * <p>The simplest use of DialogFragment is as a floating container for the
  * fragment's view hierarchy.  A simple implementation may look like this:
  *
- * <pre>{@code
+ * <pre>
  * public class MyDialogFragment extends DialogFragment {
  *     int mNum;
  *
@@ -153,11 +153,11 @@ import java.lang.annotation.RetentionPolicy;
  *         getDialog().setTitle("Dialog #" + mNum);
  *     }
  * }
- * }</pre>
+ * </pre>
  *
  * <p>An example showDialog() method on the Activity could be:
  *
- * <pre>{@code
+ * <pre>
  * public void showDialog() {
  *     mStackLevel++;
  *
@@ -175,7 +175,7 @@ import java.lang.annotation.RetentionPolicy;
  *     DialogFragment newFragment = MyDialogFragment.newInstance(mStackLevel);
  *     newFragment.show(ft, "dialog");
  * }
- * }</pre>
+ * </pre>
  *
  * <p>This removes any currently shown dialog, creates a new DialogFragment
  * with an argument, and shows it as a new state on the back stack.  When the
@@ -195,7 +195,7 @@ import java.lang.annotation.RetentionPolicy;
  * to display standard alerts to the user that are managed by a fragment.
  * A simple example implementation of this is:
  *
- * <pre>{@code
+ * <pre>
  * public static class MyAlertDialogFragment extends DialogFragment {
  *
  *     public static MyAlertDialogFragment newInstance(int title) {
@@ -220,12 +220,12 @@ import java.lang.annotation.RetentionPolicy;
  *         return super.onCreateDialog(savedInstanceState);
  *     }
  * }
- * }</pre>
+ * </pre>
  *
  * <p>The activity creating this fragment may have the following methods to
  * show the dialog and receive results from it:
  *
- * <pre>{@code
+ * <pre>
  * void showDialog() {
  *     DialogFragment newFragment = MyAlertDialogFragment.newInstance(
  *             R.string.alert_dialog_two_buttons_title);
@@ -241,7 +241,7 @@ import java.lang.annotation.RetentionPolicy;
  *     // Do stuff here.
  *     Log.i("MainActivity", "Negative click!");
  * }
- * }</pre>
+ * </pre>
  *
  * <p>Note that in this case the fragment is not placed on the back stack, it
  * is just added as an indefinitely running fragment.  Because dialogs normally
@@ -260,7 +260,7 @@ import java.lang.annotation.RetentionPolicy;
  *
  * <p>For example, here is a simple dialog fragment:
  *
- * <pre>{@code
+ * <pre>
  * public static class MyDialogFragment extends DialogFragment {
  *     static MyDialogFragment newInstance() {
  *         return new MyDialogFragment();
@@ -283,26 +283,26 @@ import java.lang.annotation.RetentionPolicy;
  *         return v;
  *     }
  * }
- * }</pre>
+ * </pre>
  *
  * <p>An instance of this fragment can be created and shown as a dialog:
  *
- * <pre>{@code
+ * <pre>
  * void showDialog() {
  *     // Create the fragment and show it as a dialog.
  *     DialogFragment newFragment = MyDialogFragment.newInstance();
  *     newFragment.show(getSupportFragmentManager(), "dialog");
  * }
- * }</pre>
+ * </pre>
  *
  * <p>It can also be added as content in a view hierarchy:
  *
- * <pre>{@code
+ * <pre>
  * FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
  * DialogFragment newFragment = MyDialogFragment.newInstance();
  * ft.add(R.id.embedded, newFragment);
  * ft.commit();
- * }</pre>
+ * </pre>
  */
 public class DialogFragment extends Fragment
         implements DialogInterface.OnCancelListener, DialogInterface.OnDismissListener {

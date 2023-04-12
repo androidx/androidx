@@ -10,6 +10,10 @@ package androidx.glance.appwidget {
     method public static androidx.glance.GlanceModifier appWidgetBackground(androidx.glance.GlanceModifier);
   }
 
+  public final class AppWidgetComposerKt {
+    method public static suspend Object? compose(androidx.glance.appwidget.GlanceAppWidget, android.content.Context context, androidx.glance.GlanceId id, optional android.os.Bundle? options, optional androidx.compose.ui.unit.DpSize? size, optional Object? state, optional kotlin.coroutines.Continuation<? super android.widget.RemoteViews>);
+  }
+
   public final class BackgroundKt {
     method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, long day, long night);
   }
@@ -243,38 +247,6 @@ package androidx.glance.appwidget.state {
     method public static suspend <T> Object? getAppWidgetState(androidx.glance.appwidget.GlanceAppWidget, android.content.Context context, androidx.glance.GlanceId glanceId, kotlin.coroutines.Continuation<? super T>);
     method public static suspend <T> Object? updateAppWidgetState(android.content.Context context, androidx.glance.state.GlanceStateDefinition<T> definition, androidx.glance.GlanceId glanceId, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super T>,?> updateState, kotlin.coroutines.Continuation<? super T>);
     method public static suspend Object? updateAppWidgetState(android.content.Context context, androidx.glance.GlanceId glanceId, kotlin.jvm.functions.Function2<? super androidx.datastore.preferences.core.MutablePreferences,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> updateState, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-  }
-
-}
-
-package androidx.glance.appwidget.template {
-
-  public final class FreeformTemplateLayoutsKt {
-    method @androidx.compose.runtime.Composable public static void FreeformTemplate(androidx.glance.template.FreeformTemplateData data);
-  }
-
-  public final class GalleryTemplateLayoutsKt {
-    method @androidx.compose.runtime.Composable public static void GalleryTemplate(androidx.glance.template.GalleryTemplateData data);
-  }
-
-  public abstract class GlanceTemplateAppWidget extends androidx.glance.appwidget.GlanceAppWidget {
-    ctor public GlanceTemplateAppWidget();
-    method @androidx.compose.runtime.Composable @androidx.glance.GlanceComposable public abstract void TemplateContent();
-    method public final suspend Object? provideGlance(android.content.Context context, androidx.glance.GlanceId id, kotlin.coroutines.Continuation<?>);
-    property public androidx.glance.appwidget.SizeMode sizeMode;
-    property public androidx.glance.state.GlanceStateDefinition<?>? stateDefinition;
-    field public static final androidx.glance.appwidget.template.GlanceTemplateAppWidget.Companion Companion;
-  }
-
-  public static final class GlanceTemplateAppWidget.Companion {
-  }
-
-  @androidx.glance.GlanceComposable public final class ListTemplateLayoutsKt {
-    method @androidx.compose.runtime.Composable public static void ListTemplate(androidx.glance.template.ListTemplateData data);
-  }
-
-  public final class SingleEntityTemplateLayoutsKt {
-    method @androidx.compose.runtime.Composable public static void SingleEntityTemplate(androidx.glance.template.SingleEntityTemplateData data);
   }
 
 }

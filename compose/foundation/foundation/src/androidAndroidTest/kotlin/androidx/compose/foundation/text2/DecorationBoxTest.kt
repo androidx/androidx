@@ -26,7 +26,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.click
@@ -38,9 +40,11 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -63,7 +67,6 @@ class DecorationBoxTest {
 
     @Test
     fun focusIsAppliedOnDecoratedComposable() {
-        // create a decorated BasicTextField2
         val state = TextFieldState()
         rule.setContent {
             BasicTextField2(
@@ -91,8 +94,7 @@ class DecorationBoxTest {
 
     @Test
     fun semanticsAreAppliedOnDecoratedComposable() {
-        // create a decorated BasicTextField2
-        val state = TextFieldState(TextFieldValue("hello"))
+        val state = TextFieldState("hello")
         rule.setContent {
             BasicTextField2(
                 state = state,
@@ -119,8 +121,7 @@ class DecorationBoxTest {
 
     @Test
     fun clickGestureIsAppliedOnDecoratedComposable() {
-        // create a decorated BasicTextField2
-        val state = TextFieldState(TextFieldValue("hello"))
+        val state = TextFieldState("hello")
         rule.setContent {
             BasicTextField2(
                 state = state,
@@ -148,11 +149,74 @@ class DecorationBoxTest {
         rule.onNodeWithTag(Tag).assertIsFocused()
     }
 
+    @Test
+    fun nonPlacedInnerTextField_stillAcceptsTextInput() {
+        val state = TextFieldState()
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                modifier = Modifier.testTag(Tag),
+                decorationBox = {
+                    Box(
+                        modifier = Modifier
+                            .border(BorderStroke(2.dp, SolidColor(Color.Red)))
+                            .padding(16.dp)
+                    )
+                }
+            )
+        }
+
+        // requestFocus on node
+        with(rule.onNodeWithTag(Tag)) {
+            performClick()
+            performTextInput("hello")
+        }
+
+        rule.runOnIdle {
+            assertThat(state.text.toString()).isEqualTo("hello")
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun nonPlacedInnerTextField_stillAcceptsKeyInput() {
+        val state = TextFieldState()
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                modifier = Modifier.testTag(Tag),
+                decorationBox = {
+                    Box(
+                        modifier = Modifier
+                            .border(BorderStroke(2.dp, SolidColor(Color.Red)))
+                            .padding(16.dp)
+                    )
+                }
+            )
+        }
+
+        // requestFocus on node
+        with(rule.onNodeWithTag(Tag)) {
+            performClick()
+            performKeyInput {
+                pressKey(Key.H)
+                pressKey(Key.E)
+                pressKey(Key.L)
+                pressKey(Key.L)
+                pressKey(Key.O)
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(state.text.toString()).isEqualTo("hello")
+        }
+    }
+
     @Ignore // TODO(halilibo): enable when pointerInput gestures are enabled
     @Test
     fun longClickGestureIsAppliedOnDecoratedComposable() {
         // create a decorated BasicTextField2
-        val state = TextFieldState(TextFieldValue("hello"))
+        val state = TextFieldState("hello")
         rule.setContent {
             BasicTextField2(
                 state = state,
@@ -178,7 +242,7 @@ class DecorationBoxTest {
 
         // assertThat selection happened
         rule.runOnIdle {
-            assertThat(state.value.selection).isEqualTo(TextRange(0, 5))
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(0, 5))
         }
     }
 }

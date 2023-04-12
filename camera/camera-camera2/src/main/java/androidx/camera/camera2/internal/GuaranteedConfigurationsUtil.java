@@ -538,6 +538,81 @@ public final class GuaranteedConfigurationsUtil {
     }
 
     /**
+     * Returns the minimally guaranteed stream combinations when one or more
+     * streams are configured as a 10-bit input.
+     */
+    @NonNull
+    public static List<SurfaceCombination> get10BitSupportedCombinationList() {
+        List<SurfaceCombination> combinationList = new ArrayList<>();
+
+        // (PRIV, MAXIMUM)
+        SurfaceCombination surfaceCombination1 = new SurfaceCombination();
+        surfaceCombination1.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.MAXIMUM));
+        combinationList.add(surfaceCombination1);
+
+        // (YUV, MAXIMUM)
+        SurfaceCombination surfaceCombination2 = new SurfaceCombination();
+        surfaceCombination2.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.MAXIMUM));
+        combinationList.add(surfaceCombination2);
+
+        // (PRIV, PREVIEW) + (JPEG, MAXIMUM)
+        SurfaceCombination surfaceCombination3 = new SurfaceCombination();
+        surfaceCombination3.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
+        surfaceCombination3.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM));
+        combinationList.add(surfaceCombination3);
+
+        // (PRIV, PREVIEW) + (YUV, MAXIMUM)
+        SurfaceCombination surfaceCombination4 = new SurfaceCombination();
+        surfaceCombination4.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
+        surfaceCombination4.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.MAXIMUM));
+        combinationList.add(surfaceCombination4);
+
+        // (YUV, PREVIEW) + (YUV, MAXIMUM)
+        SurfaceCombination surfaceCombination5 = new SurfaceCombination();
+        surfaceCombination5.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.PREVIEW));
+        surfaceCombination5.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.MAXIMUM));
+        combinationList.add(surfaceCombination5);
+
+        // (PRIV, PREVIEW) + (PRIV, RECORD)
+        SurfaceCombination surfaceCombination6 = new SurfaceCombination();
+        surfaceCombination6.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
+        surfaceCombination6.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.RECORD));
+        combinationList.add(surfaceCombination6);
+
+        // (PRIV, PREVIEW) + (PRIV, RECORD) + (YUV, RECORD)
+        SurfaceCombination surfaceCombination7 = new SurfaceCombination();
+        surfaceCombination7.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
+        surfaceCombination7.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.RECORD));
+        surfaceCombination7.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.RECORD));
+        combinationList.add(surfaceCombination7);
+
+        // (PRIV, PREVIEW) + (PRIV, RECORD) + (JPEG, RECORD)
+        SurfaceCombination surfaceCombination8 = new SurfaceCombination();
+        surfaceCombination8.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
+        surfaceCombination8.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.RECORD));
+        surfaceCombination8.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.RECORD));
+        combinationList.add(surfaceCombination8);
+
+        return combinationList;
+    }
+
+    /**
      * Returns the at least supported stream combinations for concurrent cameras.
      */
     @NonNull

@@ -17,43 +17,66 @@
 package androidx.appactions.interaction.capabilities.core.entity
 
 import androidx.annotation.RestrictTo
+import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
+import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.appactions.interaction.capabilities.core.impl.converters.SearchActionConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeSpec
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
 import androidx.appactions.interaction.capabilities.core.values.SearchAction
 import androidx.appactions.interaction.capabilities.core.values.Thing
-import androidx.appactions.interaction.proto.Entity
 import androidx.appactions.interaction.proto.GroundingRequest
 import androidx.appactions.interaction.proto.GroundingResponse
+import androidx.concurrent.futures.await
+import com.google.common.util.concurrent.ListenableFuture
 
 /**
  * EntityProvider could provide candidates for assistant's search actions.
  *
  * <p>Use abstract classes within the library to create instances of the {@link EntityProvider}.
  */
-abstract class EntityProvider<T : Thing> internal constructor(private val typeSpec: TypeSpec<T>) {
+abstract class EntityProvider<T : Thing>
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+constructor(
+    private val typeSpec: TypeSpec<T>
+) {
+    private val entityConverter = EntityConverter.of(typeSpec)
+
     /**
      * Unique identifier for this EntityFilter. Must match the shortcuts.xml declaration, which
      * allows different filters to be assigned to types on a per-BII basis.
      */
-    abstract fun getId(): String
+    abstract val id: String
 
     /**
      * Executes the entity lookup.
      *
      * @param request The request includes e.g. entity, search metadata, etc.
+     * @return an [EntityLookupResponse] instance
      */
-    abstract fun lookup(request: EntityLookupRequest<T>): EntityLookupResponse<T>
+    open suspend fun lookup(request: EntityLookupRequest<T>): EntityLookupResponse<T> {
+        return lookupAsync(request).await()
+    }
+
+    /**
+     * Executes the entity lookup.
+     *
+     * @param request The request includes e.g. entity, search metadata, etc.
+     * @return a [ListenableFuture] containing a default [EntityLookupResponse] instance
+     */
+    open fun lookupAsync(request: EntityLookupRequest<T>):
+        ListenableFuture<EntityLookupResponse<T>> {
+        return Futures.immediateFuture(EntityLookupResponse.Builder<T>().build())
+    }
 
     /**
      * Internal method to lookup untyped entity, which will be used by service library to handle
      * {@link GroundingRequest}.
      *
-     * @hide
+     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun lookupInternal(request: GroundingRequest): GroundingResponse {
+    suspend fun lookupInternal(request: GroundingRequest): GroundingResponse {
         val converter: SearchActionConverter<T> =
             TypeConverters.createSearchActionConverter(this.typeSpec)
         val searchAction: SearchAction<T> =
@@ -69,10 +92,10 @@ abstract class EntityProvider<T : Thing> internal constructor(private val typeSp
                 .setPageToken(request.request.pageToken)
                 .build()
         val response = lookup(lookupRequest)
-        @EntityLookupResponse.EntityLookupStatus val status: Int = response.status
-        return if (status == EntityLookupResponse.SUCCESS) {
-            createResponse(response)
-        } else createResponse(convertStatus(status))
+        return when (response.status) {
+            EntityLookupResponse.SUCCESS -> createResponse(response)
+            else -> createResponse(convertStatus(response.status))
+        }
     }
 
     private fun createResponse(status: GroundingResponse.Status): GroundingResponse {
@@ -88,7 +111,7 @@ abstract class EntityProvider<T : Thing> internal constructor(private val typeSp
             builder.addCandidates(
                 GroundingResponse.Candidate.newBuilder()
                     .setGroundedEntity(
-                        Entity.newBuilder().setStructValue(typeSpec.toStruct(candidate.candidate))
+                        entityConverter.convert(candidate.candidate)
                     )
                     .build()
             )

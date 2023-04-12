@@ -3325,9 +3325,9 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     public void tvExtenderSetGetSuppressShowOverApps() {
         NotificationCompat.TvExtender tvExtender = new NotificationCompat.TvExtender();
         tvExtender.setSuppressShowOverApps(true);
-        assertTrue(tvExtender.getSuppressShowOverApps());
+        assertTrue(tvExtender.isSuppressShowOverApps());
         tvExtender.setSuppressShowOverApps(false);
-        assertFalse(tvExtender.getSuppressShowOverApps());
+        assertFalse(tvExtender.isSuppressShowOverApps());
     }
 
     @Test
@@ -3394,7 +3394,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertEquals("My cool channel", recoveredExtender.getChannelId());
         assertEquals(contentIntent, recoveredExtender.getContentIntent());
         assertEquals(deleteIntent, recoveredExtender.getDeleteIntent());
-        assertTrue(recoveredExtender.getSuppressShowOverApps());
+        assertTrue(recoveredExtender.isSuppressShowOverApps());
         assertTrue(recoveredExtender.isAvailableOnTv());
     }
 

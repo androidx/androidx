@@ -40,8 +40,11 @@
   <uses-permission android:name="androidx.car.app.NAVIGATION_TEMPLATES"/>
   <uses-permission android:name="androidx.car.app.ACCESS_SURFACE"/>
 
+  <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+
   <!-- For Access to Car Hardware. -->
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
   <uses-permission android:name="android.car.permission.CAR_MILEAGE"/>
   <uses-permission android:name="android.car.permission.CAR_SPEED"/>
   <uses-permission android:name="android.car.permission.CAR_INFO"/>

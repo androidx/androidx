@@ -105,7 +105,7 @@ package androidx.appsearch.builtintypes {
   }
 
   @androidx.appsearch.annotation.Document(name="builtin:ImageObject") public final class ImageObject extends androidx.appsearch.builtintypes.Thing {
-    method public java.util.List<androidx.appsearch.builtintypes.properties.Keywords!> getKeywordsList();
+    method public java.util.List<androidx.appsearch.builtintypes.properties.Keyword!> getKeywords();
     method public String? getSha256();
     method public String? getThumbnailSha256();
   }
@@ -113,15 +113,12 @@ package androidx.appsearch.builtintypes {
   public static final class ImageObject.Builder {
     ctor public ImageObject.Builder(String, String);
     ctor public ImageObject.Builder(androidx.appsearch.builtintypes.ImageObject);
-    method public androidx.appsearch.builtintypes.ImageObject.Builder addAllKeywords(Iterable<androidx.appsearch.builtintypes.properties.Keywords!>);
     method public androidx.appsearch.builtintypes.ImageObject.Builder addAlternateName(String);
-    method public androidx.appsearch.builtintypes.ImageObject.Builder addKeywords(String);
-    method public androidx.appsearch.builtintypes.ImageObject.Builder addKeywords(androidx.appsearch.builtintypes.properties.Keywords);
+    method public androidx.appsearch.builtintypes.ImageObject.Builder addKeyword(String);
+    method public androidx.appsearch.builtintypes.ImageObject.Builder addKeyword(androidx.appsearch.builtintypes.properties.Keyword);
+    method public androidx.appsearch.builtintypes.ImageObject.Builder addKeywords(Iterable<androidx.appsearch.builtintypes.properties.Keyword!>);
     method public androidx.appsearch.builtintypes.ImageObject build();
     method public androidx.appsearch.builtintypes.ImageObject.Builder clearAlternateNames();
-    method public androidx.appsearch.builtintypes.ImageObject.Builder clearKeywords();
-    method public androidx.appsearch.builtintypes.ImageObject.Builder clearSha256();
-    method public androidx.appsearch.builtintypes.ImageObject.Builder clearThumbnailSha256();
     method public androidx.appsearch.builtintypes.ImageObject.Builder setCreationTimestampMillis(long);
     method public androidx.appsearch.builtintypes.ImageObject.Builder setDescription(String?);
     method public androidx.appsearch.builtintypes.ImageObject.Builder setDocumentScore(int);
@@ -322,8 +319,8 @@ package androidx.appsearch.builtintypes {
 
 package androidx.appsearch.builtintypes.properties {
 
-  @androidx.appsearch.annotation.Document public final class Keywords {
-    ctor public Keywords(String);
+  @androidx.appsearch.annotation.Document public final class Keyword {
+    ctor public Keyword(String);
     method public String? asText();
   }
 

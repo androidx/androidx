@@ -16,6 +16,7 @@
 
 package androidx.datastore.core.okio
 
+import androidx.datastore.core.InterProcessCoordinator
 import androidx.datastore.core.ReadScope
 import androidx.datastore.core.Storage
 import androidx.datastore.core.StorageConnection
@@ -36,10 +37,20 @@ import okio.use
 
 /**
  * OKIO implementation of the Storage interface, providing cross platform IO using the OKIO library.
+ *
+ * @param fileSystem The file system to perform IO operations on.
+ * @param serializer The serializer for `T`.
+ * @param coordinatorProducer The producer to provide [InterProcessCoordinator] that coordinates IO
+ * operations across processes if needed. By default it provides single process coordinator, which
+ * doesn't support cross process use cases.
+ * @param producePath The file producer that returns the file path that will be read and written.
  */
 public class OkioStorage<T>(
     private val fileSystem: FileSystem,
     private val serializer: OkioSerializer<T>,
+    private val coordinatorProducer: (Path, FileSystem) -> InterProcessCoordinator = { _, _ ->
+        createSingleProcessCoordinator()
+    },
     private val producePath: () -> Path
 ) : Storage<T> {
     private val canonicalPath by lazy {
@@ -63,7 +74,12 @@ public class OkioStorage<T>(
                 activeFiles.add(path)
             }
         }
-        return OkioStorageConnection(fileSystem, canonicalPath, serializer) {
+        return OkioStorageConnection(
+            fileSystem,
+            canonicalPath,
+            serializer,
+            coordinatorProducer(canonicalPath, fileSystem)
+        ) {
             synchronized(activeFilesLock) {
                 activeFiles.remove(canonicalPath.toString())
             }
@@ -74,6 +90,7 @@ public class OkioStorage<T>(
         internal val activeFiles = mutableSetOf<String>()
 
         class Sync : SynchronizedObject()
+
         internal val activeFilesLock = Sync()
     }
 }
@@ -82,13 +99,14 @@ internal class OkioStorageConnection<T>(
     private val fileSystem: FileSystem,
     private val path: Path,
     private val serializer: OkioSerializer<T>,
+    override val coordinator: InterProcessCoordinator,
     private val onClose: () -> Unit
 ) : StorageConnection<T> {
 
     private val closed = AtomicBoolean(false)
+
     // TODO:(b/233402915) support multiple readers
     private val transactionMutex = Mutex()
-    override val coordinator = createSingleProcessCoordinator()
 
     override suspend fun <R> readScope(
         block: suspend ReadScope<T>.(locked: Boolean) -> R
@@ -178,6 +196,7 @@ internal open class OkioReadScope<T>(
     override fun close() {
         closed = true
     }
+
     protected fun checkClose() {
         check(!closed) { "This scope has already been closed." }
     }

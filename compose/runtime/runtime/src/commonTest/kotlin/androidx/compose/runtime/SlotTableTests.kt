@@ -1401,6 +1401,56 @@ class SlotTableTests {
     }
 
     @Test
+    fun testMovingFromMultiRootGroup() {
+        val sourceTable = SlotTable()
+        val destinationTable = SlotTable()
+
+        val anchors = mutableListOf<Anchor>()
+        sourceTable.write { writer ->
+            writer.insert {
+                writer.group(10) {
+                    anchors.add(writer.anchor(writer.parent))
+                    writer.group(100) {
+                        writer.group(1000) { }
+                        writer.group(1001) { }
+                        writer.group(1002) { }
+                        writer.group(10003) { }
+                    }
+                }
+                writer.group(20) {
+                    anchors.add(writer.anchor(writer.parent))
+                    writer.group(200) {
+                        writer.group(2000) { }
+                        writer.group(2001) { }
+                        writer.group(2002) { }
+                        writer.group(20003) { }
+                    }
+                }
+                writer.group(30) {
+                    anchors.add(writer.anchor(writer.parent))
+                    writer.group(300) {
+                        writer.group(3000) { }
+                        writer.group(3001) { }
+                        writer.group(3002) { }
+                        writer.group(30003) { }
+                    }
+                }
+            }
+        }
+        sourceTable.verifyWellFormed()
+
+        destinationTable.write { writer ->
+            for (anchor in anchors) {
+                writer.insert {
+                    writer.moveFrom(sourceTable, sourceTable.anchorIndex(anchor))
+                    sourceTable.verifyWellFormed()
+                }
+            }
+        }
+        destinationTable.verifyWellFormed()
+    }
+
+    @Test
     fun testToIndexFor() {
         val (slots, anchors) = narrowTrees()
         val indexes = anchors.map { it.toIndexFor(slots) }

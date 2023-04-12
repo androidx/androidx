@@ -35,7 +35,7 @@ public class ConditionalOpNodeTest {
     private static final String FALSE_STRING = "FALSE";
 
     @Rule public MockitoRule mMockitoRule = MockitoJUnit.rule();
-    @Mock private DynamicTypeValueReceiver<String> mUpdateCallback;
+    @Mock private DynamicTypeValueReceiverWithPreUpdate<String> mUpdateCallback;
 
     private ConditionalOpNode<String> mOpUnderTest;
 

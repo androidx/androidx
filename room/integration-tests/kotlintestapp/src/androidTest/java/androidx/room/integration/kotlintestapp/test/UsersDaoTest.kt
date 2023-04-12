@@ -16,10 +16,10 @@
 
 package androidx.room.integration.kotlintestapp.test
 
+import androidx.kruth.assertThat
 import androidx.room.integration.kotlintestapp.vo.Email
 import androidx.room.integration.kotlintestapp.vo.User
 import androidx.test.filters.MediumTest
-import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 @MediumTest

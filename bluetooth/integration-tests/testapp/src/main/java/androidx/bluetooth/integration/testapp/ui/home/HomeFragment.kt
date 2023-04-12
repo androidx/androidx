@@ -29,7 +29,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.bluetooth.integration.testapp.R
-import androidx.bluetooth.integration.testapp.data.SampleAdvertiseData
 import androidx.bluetooth.integration.testapp.databinding.FragmentHomeBinding
 import androidx.bluetooth.integration.testapp.experimental.AdvertiseResult
 import androidx.bluetooth.integration.testapp.experimental.BluetoothLe
@@ -185,7 +184,6 @@ class HomeFragment : Fragment() {
             .build()
 
         val advertiseData = AdvertiseData.Builder()
-            .addServiceUuid(SampleAdvertiseData.testUUID)
             .setIncludeDeviceName(true)
             .build()
 

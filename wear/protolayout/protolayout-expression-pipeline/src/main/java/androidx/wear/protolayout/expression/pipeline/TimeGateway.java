@@ -17,7 +17,6 @@
 package androidx.wear.protolayout.expression.pipeline;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.UiThread;
 
 import java.util.concurrent.Executor;
 

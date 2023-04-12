@@ -124,32 +124,14 @@ public final class AnimationParameterBuilders {
     }
 
     /**
-     * Gets the duration of the animation in milliseconds.
-     *
-     * @since 1.2
-     */
-    public int getDurationMillis() {
-      return mImpl.getDurationMillis();
-    }
-
-    /**
-     * Gets the delay to start the animation in milliseconds.
-     *
-     * @since 1.2
-     */
-    public int getStartDelayMillis() {
-      return mImpl.getStartDelayMillis();
-    }
-
-    /**
-     * Gets the easing to be used for adjusting an animation's fraction.
+     * Gets animation parameters including duration, easing and repeat delay.
      *
      * @since 1.2
      */
     @Nullable
-    public Easing getEasing() {
-      if (mImpl.hasEasing()) {
-        return AnimationParameterBuilders.easingFromProto(mImpl.getEasing());
+    public AnimationParameters getAnimationParameters() {
+      if (mImpl.hasAnimationParameters()) {
+        return AnimationParameters.fromProto(mImpl.getAnimationParameters());
       } else {
         return null;
       }
@@ -215,12 +197,8 @@ public final class AnimationParameterBuilders {
     @NonNull
     public String toString() {
       return "AnimationSpec{"
-          + "durationMillis="
-          + getDurationMillis()
-          + ", startDelayMillis="
-          + getStartDelayMillis()
-          + ", easing="
-          + getEasing()
+          + "animationParameters="
+          + getAnimationParameters()
           + ", repeatable="
           + getRepeatable()
           + "}";
@@ -235,40 +213,15 @@ public final class AnimationParameterBuilders {
       public Builder() {}
 
       /**
-       * Sets the duration of the animation in milliseconds. If not set, defaults to 300ms.
+       * Sets animation parameters including duration, easing and repeat delay.
        *
        * @since 1.2
        */
       @NonNull
-      public Builder setDurationMillis(int durationMillis) {
-        mImpl.setDurationMillis(durationMillis);
-        mFingerprint.recordPropertyUpdate(1, durationMillis);
-        return this;
-      }
-
-      /**
-       * Sets the delay to start the animation in milliseconds. If not set, defaults to 0.
-       *
-       * @since 1.2
-       */
-      @NonNull
-      public Builder setStartDelayMillis(int startDelayMillis) {
-        mImpl.setStartDelayMillis(startDelayMillis);
-        mFingerprint.recordPropertyUpdate(2, startDelayMillis);
-        return this;
-      }
-
-      /**
-       * Sets the easing to be used for adjusting an animation's fraction. If not set, defaults to
-       * Linear Interpolator.
-       *
-       * @since 1.2
-       */
-      @NonNull
-      public Builder setEasing(@NonNull Easing easing) {
-        mImpl.setEasing(easing.toEasingProto());
+      public Builder setAnimationParameters(@NonNull AnimationParameters animationParameters) {
+        mImpl.setAnimationParameters(animationParameters.toProto());
         mFingerprint.recordPropertyUpdate(
-            3, checkNotNull(easing.getFingerprint()).aggregateValueAsInt());
+            4, checkNotNull(animationParameters.getFingerprint()).aggregateValueAsInt());
         return this;
       }
 
@@ -299,6 +252,153 @@ public final class AnimationParameterBuilders {
       @NonNull
       public AnimationSpec build() {
         return new AnimationSpec(mImpl.build(), mFingerprint);
+      }
+    }
+  }
+
+  /**
+   * Animation specs of duration, easing and repeat delay.
+   *
+   * @since 1.2
+   */
+  public static final class AnimationParameters {
+    private final AnimationParameterProto.AnimationParameters mImpl;
+    @Nullable private final Fingerprint mFingerprint;
+
+    AnimationParameters(
+        AnimationParameterProto.AnimationParameters impl, @Nullable Fingerprint fingerprint) {
+      this.mImpl = impl;
+      this.mFingerprint = fingerprint;
+    }
+
+    /**
+     * Gets the duration of the animation in milliseconds.
+     *
+     * @since 1.2
+     */
+    public int getDurationMillis() {
+      return mImpl.getDurationMillis();
+    }
+
+    /**
+     * Gets the easing to be used for adjusting an animation's fraction.
+     *
+     * @since 1.2
+     */
+    @Nullable
+    public Easing getEasing() {
+      if (mImpl.hasEasing()) {
+        return AnimationParameterBuilders.easingFromProto(mImpl.getEasing());
+      } else {
+        return null;
+      }
+    }
+
+    /**
+     * Gets animation delay in millis. When used outside repeatable, this is the delay to start the
+     * animation in milliseconds. When set inside repeatable, this is the delay before repeating
+     * animation in milliseconds.
+     *
+     * @since 1.2
+     */
+    public int getDelayMillis() {
+      return mImpl.getDelayMillis();
+    }
+
+    /** Get the fingerprint for this object, or null if unknown. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Fingerprint getFingerprint() {
+      return mFingerprint;
+    }
+
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static AnimationParameters fromProto(
+        @NonNull AnimationParameterProto.AnimationParameters proto,
+        @Nullable Fingerprint fingerprint) {
+      return new AnimationParameters(proto, fingerprint);
+    }
+
+    @NonNull
+    static AnimationParameters fromProto(
+        @NonNull AnimationParameterProto.AnimationParameters proto) {
+      return fromProto(proto, null);
+    }
+
+    /** Returns the internal proto instance. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public AnimationParameterProto.AnimationParameters toProto() {
+      return mImpl;
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "AnimationParameters{"
+          + "durationMillis="
+          + getDurationMillis()
+          + ", easing="
+          + getEasing()
+          + ", delayMillis="
+          + getDelayMillis()
+          + "}";
+    }
+
+    /** Builder for {@link AnimationParameters} */
+    public static final class Builder {
+      private final AnimationParameterProto.AnimationParameters.Builder mImpl =
+          AnimationParameterProto.AnimationParameters.newBuilder();
+      private final Fingerprint mFingerprint = new Fingerprint(-1301308590);
+
+      public Builder() {}
+
+      /**
+       * Sets the duration of the animation in milliseconds. If not set, defaults to 300ms.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setDurationMillis(int durationMillis) {
+        mImpl.setDurationMillis(durationMillis);
+        mFingerprint.recordPropertyUpdate(1, durationMillis);
+        return this;
+      }
+
+      /**
+       * Sets the easing to be used for adjusting an animation's fraction. If not set, defaults to
+       * Linear Interpolator.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setEasing(@NonNull Easing easing) {
+        mImpl.setEasing(easing.toEasingProto());
+        mFingerprint.recordPropertyUpdate(
+            2, checkNotNull(easing.getFingerprint()).aggregateValueAsInt());
+        return this;
+      }
+
+      /**
+       * Sets animation delay in millis. When used outside repeatable, this is the delay to start
+       * the animation in milliseconds. When set inside repeatable, this is the delay before
+       * repeating animation in milliseconds. If not set, no delay will be applied.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setDelayMillis(int delayMillis) {
+        mImpl.setDelayMillis(delayMillis);
+        mFingerprint.recordPropertyUpdate(3, delayMillis);
+        return this;
+      }
+
+      /** Builds an instance from accumulated values. */
+      @NonNull
+      public AnimationParameters build() {
+        return new AnimationParameters(mImpl.build(), mFingerprint);
       }
     }
   }
@@ -599,27 +699,34 @@ public final class AnimationParameterBuilders {
     }
 
     /**
-     * Gets the delay before the forward part of the repeat in milliseconds.
+     * Gets optional custom parameters for the forward passes of animation.
      *
      * @since 1.2
      */
-    public int getForwardRepeatDelayMillis() {
-      return mImpl.getForwardRepeatDelayMillis();
+    @Nullable
+    public AnimationParameters getForwardRepeatOverride() {
+      if (mImpl.hasForwardRepeatOverride()) {
+        return AnimationParameters.fromProto(mImpl.getForwardRepeatOverride());
+      } else {
+        return null;
+      }
     }
 
     /**
-     * Gets the delay before the reverse part of repeat in milliseconds.
+     * Gets optional custom parameters for the reverse passes of animation.
      *
      * @since 1.2
      */
-    public int getReverseRepeatDelayMillis() {
-      return mImpl.getReverseRepeatDelayMillis();
+    @Nullable
+    public AnimationParameters getReverseRepeatOverride() {
+      if (mImpl.hasReverseRepeatOverride()) {
+        return AnimationParameters.fromProto(mImpl.getReverseRepeatOverride());
+      } else {
+        return null;
+      }
     }
 
-    /**
-     * Get the fingerprint for this object, or null if unknown.
-     *
-     */
+    /** Get the fingerprint for this object, or null if unknown. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public Fingerprint getFingerprint() {
@@ -664,10 +771,10 @@ public final class AnimationParameterBuilders {
           + getIterations()
           + ", repeatMode="
           + getRepeatMode()
-          + ", forwardRepeatDelayMillis="
-          + getForwardRepeatDelayMillis()
-          + ", reverseRepeatDelayMillis="
-          + getReverseRepeatDelayMillis()
+          + ", forwardRepeatOverride="
+          + getForwardRepeatOverride()
+          + ", reverseRepeatOverride="
+          + getReverseRepeatOverride()
           + "}";
     }
 
@@ -706,28 +813,32 @@ public final class AnimationParameterBuilders {
       }
 
       /**
-       * Sets the delay before the forward part of the repeat in milliseconds. If not set,
-       * defaults to 0.
+       * Sets optional custom parameters for the forward passes of animation. If not set, use the
+       * main animation parameters set outside of {@link Repeatable}.
        *
        * @since 1.2
        */
       @NonNull
-      public Builder setForwardRepeatDelayMillis(int forwardRepeatDelayMillis) {
-        mImpl.setForwardRepeatDelayMillis(forwardRepeatDelayMillis);
-        mFingerprint.recordPropertyUpdate(3, forwardRepeatDelayMillis);
+      public Builder setForwardRepeatOverride(
+          @NonNull AnimationParameters forwardRepeatOverride) {
+        mImpl.setForwardRepeatOverride(forwardRepeatOverride.toProto());
+        mFingerprint.recordPropertyUpdate(
+            6, checkNotNull(forwardRepeatOverride.getFingerprint()).aggregateValueAsInt());
         return this;
       }
 
       /**
-       * Sets the delay before the reverse part of the repeat in milliseconds. This delay will
-       * not be used when the repeat mode is restart. If not set, defaults to 0.
+       * Sets optional custom parameters for the reverse passes of animation. If not set, use the
+       * main animation parameters set outside of {@link Repeatable}.
        *
        * @since 1.2
        */
       @NonNull
-      public Builder setReverseRepeatDelayMillis(int reverseRepeatDelayMillis) {
-        mImpl.setReverseRepeatDelayMillis(reverseRepeatDelayMillis);
-        mFingerprint.recordPropertyUpdate(4, reverseRepeatDelayMillis);
+      public Builder setReverseRepeatOverride(
+          @NonNull AnimationParameters reverseRepeatOverride) {
+        mImpl.setReverseRepeatOverride(reverseRepeatOverride.toProto());
+        mFingerprint.recordPropertyUpdate(
+            7, checkNotNull(reverseRepeatOverride.getFingerprint()).aggregateValueAsInt());
         return this;
       }
 

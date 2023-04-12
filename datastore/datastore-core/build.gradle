@@ -121,6 +121,10 @@ androidXMultiplatform {
             }
         }
 
+        androidAndroidTest {
+            dependsOn(androidTest)
+        }
+
         if (enableNative) {
             nativeMain {
                 dependsOn(commonMain)

@@ -17,6 +17,7 @@
 package androidx.camera.core.impl;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import java.lang.annotation.Retention;
@@ -30,7 +31,6 @@ import java.lang.annotation.RetentionPolicy;
  *   <li> Default mode
  *   <li> Concurrent mode
  *   <li> Maximum resolution sensor pixel mode
- *   <li> HDR 10-bit mode
  * </ul>
  *
  * <p>The surface combination that is used depends on the camera mode. The defined constants are
@@ -54,6 +54,18 @@ public final class CameraMode {
     @IntDef({DEFAULT, CONCURRENT_CAMERA, ULTRA_HIGH_RESOLUTION_CAMERA})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Mode {
+    }
+
+    /**
+     * Returns a string representation of the CameraMode integer enum.
+     */
+    @NonNull
+    public static String toLabelString(@Mode int mode) {
+        switch (mode) {
+            case CONCURRENT_CAMERA: return "CONCURRENT_CAMERA";
+            case ULTRA_HIGH_RESOLUTION_CAMERA: return "ULTRA_HIGH_RESOLUTION_CAMERA";
+            default: return "DEFAULT";
+        }
     }
 
     private CameraMode() {

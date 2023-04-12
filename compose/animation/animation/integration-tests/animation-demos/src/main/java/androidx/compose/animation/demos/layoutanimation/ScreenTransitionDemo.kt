@@ -25,7 +25,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.with
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -88,22 +88,22 @@ fun ScreenTransitionDemo() {
                 if (TestScreens.Screen1 isTransitioningTo TestScreens.Screen2 ||
                     TestScreens.Screen2 isTransitioningTo TestScreens.Screen1
                 ) {
-                    (expandHorizontally(animationSpec = tween(500)) + fadeIn()).with(
+                    (expandHorizontally(animationSpec = tween(500)) + fadeIn()).togetherWith(
                         shrinkVertically(animationSpec = tween(500)) +
                             fadeOut(animationSpec = tween(500))
                     )
                 } else if (TestScreens.Screen2 isTransitioningTo TestScreens.Screen3) {
-                    slideIntoContainer(towards = SlideDirection.Left) with
+                    slideIntoContainer(towards = SlideDirection.Left) togetherWith
                         slideOutOfContainer(towards = SlideDirection.Left)
                 } else if (TestScreens.Screen3 isTransitioningTo TestScreens.Screen2) {
-                    slideIntoContainer(towards = SlideDirection.Right) with
+                    slideIntoContainer(towards = SlideDirection.Right) togetherWith
                         slideOutOfContainer(towards = SlideDirection.Right)
                 } else {
                     // Material fade through
                     fadeIn(animationSpec = tween(220, delayMillis = 90)) +
                         scaleIn(
                             initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)
-                        ) with fadeOut(animationSpec = tween(90))
+                        ) togetherWith fadeOut(animationSpec = tween(90))
                 }
             }
         ) {

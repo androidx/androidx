@@ -228,7 +228,7 @@ internal interface Owner {
     /**
      * Makes sure the passed [layoutNode] and its subtree is remeasured and has the final sizes.
      */
-    fun forceMeasureTheSubtree(layoutNode: LayoutNode)
+    fun forceMeasureTheSubtree(layoutNode: LayoutNode, affectsLookahead: Boolean = false)
 
     /**
      * Creates an [OwnedLayer] which will be drawing the passed [drawBlock].

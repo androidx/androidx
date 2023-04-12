@@ -883,7 +883,6 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
         }
     }
 
-    @Ignore("b/273482617")
     @Test
     fun addWatchFaceReadyListener_alreadyReady() {
         val wallpaperService = TestExampleCanvasAnalogWatchFaceService(context, surfaceHolder)
@@ -898,7 +897,9 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
                 { runnable -> runnable.run() },
                 { wfReady.complete(Unit) }
             )
-            assertThat(wfReady.isCompleted).isTrue()
+
+            // This should happen quickly, but it can sometimes be slow.
+            awaitWithTimeout(wfReady, 1000)
         } finally {
             interactiveInstance.close()
         }

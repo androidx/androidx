@@ -31,9 +31,11 @@ class ColorNodes {
     /** Dynamic color node that has a fixed value. */
     static class FixedColorNode implements DynamicDataSourceNode<Integer> {
         private final int mValue;
-        private final DynamicTypeValueReceiver<Integer> mDownstream;
+        private final DynamicTypeValueReceiverWithPreUpdate<Integer> mDownstream;
 
-        FixedColorNode(FixedColor protoNode, DynamicTypeValueReceiver<Integer> downstream) {
+        FixedColorNode(
+                FixedColor protoNode,
+                DynamicTypeValueReceiverWithPreUpdate<Integer> downstream) {
             this.mValue = protoNode.getArgb();
             this.mDownstream = downstream;
         }
@@ -59,7 +61,7 @@ class ColorNodes {
         StateColorSourceNode(
                 StateStore stateStore,
                 StateColorSource protoNode,
-                DynamicTypeValueReceiver<Integer> downstream) {
+                DynamicTypeValueReceiverWithPreUpdate<Integer> downstream) {
             super(
                     stateStore,
                     protoNode.getSourceKey(),
@@ -73,11 +75,11 @@ class ColorNodes {
             implements DynamicDataSourceNode<Integer> {
 
         private final AnimatableFixedColor mProtoNode;
-        private final DynamicTypeValueReceiver<Integer> mDownstream;
+        private final DynamicTypeValueReceiverWithPreUpdate<Integer> mDownstream;
 
         AnimatableFixedColorNode(
                 AnimatableFixedColor protoNode,
-                DynamicTypeValueReceiver<Integer> downstream,
+                DynamicTypeValueReceiverWithPreUpdate<Integer> downstream,
                 QuotaManager quotaManager) {
 
             super(quotaManager, protoNode.getAnimationSpec(), ARGB_EVALUATOR);
@@ -111,8 +113,8 @@ class ColorNodes {
     static class DynamicAnimatedColorNode extends AnimatableNode
             implements DynamicDataNode<Integer> {
 
-        final DynamicTypeValueReceiver<Integer> mDownstream;
-        private final DynamicTypeValueReceiver<Integer> mInputCallback;
+        final DynamicTypeValueReceiverWithPreUpdate<Integer> mDownstream;
+        private final DynamicTypeValueReceiverWithPreUpdate<Integer> mInputCallback;
 
         @Nullable Integer mCurrentValue = null;
         int mPendingCalls = 0;
@@ -121,7 +123,7 @@ class ColorNodes {
         // initialization but mInputCallback is only used after the constructor is finished.
         @SuppressWarnings("method.invocation.invalid")
         DynamicAnimatedColorNode(
-                DynamicTypeValueReceiver<Integer> downstream,
+                DynamicTypeValueReceiverWithPreUpdate<Integer> downstream,
                 @NonNull AnimationSpec spec,
                 QuotaManager quotaManager) {
 
@@ -135,7 +137,7 @@ class ColorNodes {
                         }
                     });
             this.mInputCallback =
-                    new DynamicTypeValueReceiver<Integer>() {
+                    new DynamicTypeValueReceiverWithPreUpdate<Integer>() {
                         @Override
                         public void onPreUpdate() {
                             mPendingCalls++;
@@ -176,7 +178,7 @@ class ColorNodes {
                     };
         }
 
-        public DynamicTypeValueReceiver<Integer> getInputCallback() {
+        public DynamicTypeValueReceiverWithPreUpdate<Integer> getInputCallback() {
             return mInputCallback;
         }
     }

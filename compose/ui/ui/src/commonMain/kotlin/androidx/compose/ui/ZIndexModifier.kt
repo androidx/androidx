@@ -17,13 +17,12 @@
 package androidx.compose.ui
 
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.platform.InspectorValueInfo
-import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Constraints
 
 /**
@@ -39,21 +38,20 @@ import androidx.compose.ui.unit.Constraints
  * @sample androidx.compose.ui.samples.ZIndexModifierSample
  */
 @Stable
-fun Modifier.zIndex(zIndex: Float): Modifier = this.then(
-    ZIndexModifier(
-        zIndex = zIndex,
-        inspectorInfo = debugInspectorInfo {
-            name = "zIndex"
-            value = zIndex
-        }
-    )
-)
+fun Modifier.zIndex(zIndex: Float): Modifier = this then ZIndexElement(zIndex = zIndex)
 
-private class ZIndexModifier(
-    private val zIndex: Float,
-    inspectorInfo: InspectorInfo.() -> Unit
-) : LayoutModifier, InspectorValueInfo(inspectorInfo) {
+internal data class ZIndexElement(val zIndex: Float) : ModifierNodeElement<ZIndexModifier>() {
+    override fun create() = ZIndexModifier(zIndex)
+    override fun update(node: ZIndexModifier) = node.also {
+        it.zIndex = zIndex
+    }
+    override fun InspectorInfo.inspectableProperties() {
+        name = "zIndex"
+        properties["zIndex"] = zIndex
+    }
+}
 
+internal class ZIndexModifier(var zIndex: Float) : LayoutModifierNode, Modifier.Node() {
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
@@ -62,13 +60,6 @@ private class ZIndexModifier(
         return layout(placeable.width, placeable.height) {
             placeable.place(0, 0, zIndex = zIndex)
         }
-    }
-
-    override fun hashCode(): Int = zIndex.hashCode()
-
-    override fun equals(other: Any?): Boolean {
-        val otherModifier = other as? ZIndexModifier ?: return false
-        return zIndex == otherModifier.zIndex
     }
 
     override fun toString(): String = "ZIndexModifier(zIndex=$zIndex)"

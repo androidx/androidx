@@ -273,6 +273,12 @@ fun interface ImageDiffer {
             windowWidth: Int,
             windowHeight: Int
         ): DoubleArray {
+            if (windowHeight == 1 && windowWidth == 1) {
+                // There is only one item. The variance of a single item would be 0.
+                // Since Bessel's correction is used below, it will return NaN instead of 0.
+                return doubleArrayOf(0.0, 0.0, 0.0)
+            }
+
             var var0 = 0.0
             var var1 = 0.0
             var varBoth = 0.0
@@ -286,9 +292,11 @@ fun interface ImageDiffer {
                     varBoth += v0 * v1
                 }
             }
-            var0 /= windowWidth * windowHeight - 1.toDouble()
-            var1 /= windowWidth * windowHeight - 1.toDouble()
-            varBoth /= windowWidth * windowHeight - 1.toDouble()
+            // Using Bessel's correction. Hence, subtracting one.
+            val denominatorWithBesselsCorrection = windowWidth * windowHeight - 1.0
+            var0 /= denominatorWithBesselsCorrection
+            var1 /= denominatorWithBesselsCorrection
+            varBoth /= denominatorWithBesselsCorrection
             return doubleArrayOf(var0, var1, varBoth)
         }
 

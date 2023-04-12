@@ -467,7 +467,7 @@ private fun SearchBarInputField(
         keyboardActions = KeyboardActions(onSearch = { onSearch(query) }),
         interactionSource = interactionSource,
         decorationBox = @Composable { innerTextField ->
-            TextFieldDefaults.TextFieldDecorationBox(
+            TextFieldDefaults.DecorationBox(
                 value = query,
                 innerTextField = innerTextField,
                 enabled = enabled,
@@ -483,7 +483,7 @@ private fun SearchBarInputField(
                 } },
                 shape = SearchBarDefaults.inputFieldShape,
                 colors = colors,
-                contentPadding = TextFieldDefaults.textFieldWithoutLabelPadding(),
+                contentPadding = TextFieldDefaults.contentPaddingWithoutLabel(),
                 container = {},
             )
         }
@@ -578,7 +578,7 @@ object SearchBarDefaults {
         disabledPlaceholderColor: Color = FilledTextFieldTokens.DisabledInputColor.toColor()
             .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
     ): TextFieldColors =
-        TextFieldDefaults.textFieldColors(
+        TextFieldDefaults.colors(
             focusedTextColor = focusedTextColor,
             unfocusedTextColor = unfocusedTextColor,
             disabledTextColor = disabledTextColor,

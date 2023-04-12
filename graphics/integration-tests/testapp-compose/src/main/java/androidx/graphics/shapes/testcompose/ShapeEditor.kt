@@ -47,7 +47,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.plus
 import androidx.graphics.shapes.CornerRounding
-import androidx.graphics.shapes.Polygon
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.Star
 import kotlin.math.cos
@@ -64,7 +63,7 @@ internal fun debugLog(message: String) {
 
 data class ShapeItem(
     val name: String,
-    val shapegen: () -> Polygon,
+    val shapegen: () -> RoundedPolygon,
     val debugDump: () -> Unit,
     val usesSides: Boolean = true,
     val usesInnerRatio: Boolean = true,
@@ -76,7 +75,7 @@ private val PointZero = PointF(0f, 0f)
 
 class ShapeParameters(
     sides: Int = 5,
-    innerRadiusRatio: Float = 0.5f,
+    innerRadius: Float = 0.5f,
     roundness: Float = 0f,
     smooth: Float = 0f,
     innerRoundness: Float = roundness,
@@ -85,7 +84,7 @@ class ShapeParameters(
     shapeId: ShapeId = ShapeId.Polygon
 ) {
     internal val sides = mutableStateOf(sides.toFloat())
-    internal val innerRadiusRatio = mutableStateOf(innerRadiusRatio)
+    internal val innerRadius = mutableStateOf(innerRadius)
     internal val roundness = mutableStateOf(roundness)
     internal val smooth = mutableStateOf(smooth)
     internal val innerRoundness = mutableStateOf(innerRoundness)
@@ -96,7 +95,7 @@ class ShapeParameters(
 
     fun copy() = ShapeParameters(
         this.sides.value.roundToInt(),
-        this.innerRadiusRatio.value,
+        this.innerRadius.value,
         this.roundness.value,
         this.smooth.value,
         this.innerRoundness.value,
@@ -125,8 +124,8 @@ class ShapeParameters(
     internal val shapes = listOf(
         ShapeItem("Star", shapegen = {
                 Star(
-                    numOuterVertices = this.sides.value.roundToInt(),
-                    innerRadiusRatio = this.innerRadiusRatio.value,
+                    numVerticesPerRadius = this.sides.value.roundToInt(),
+                    innerRadius = this.innerRadius.value,
                     rounding = CornerRounding(this.roundness.value, this.smooth.value),
                     innerRounding = CornerRounding(
                         this.innerRoundness.value,
@@ -137,7 +136,7 @@ class ShapeParameters(
             debugDump = {
                 debugLog(
                     "ShapeParameters(sides = ${this.sides.value.roundToInt()}, " +
-                        "innerRadiusRatio = ${this.innerRadiusRatio.value}f, " +
+                        "innerRadius = ${this.innerRadius.value}f, " +
                         "roundness = ${this.roundness.value}f, " +
                         "smooth = ${this.smooth.value}f, " +
                         "innerRoundness = ${this.innerRoundness.value}f, " +
@@ -168,7 +167,7 @@ class ShapeParameters(
                 val points = listOf(
                     radialToCartesian(1f, 270f.toRadians()),
                     radialToCartesian(1f, 30f.toRadians()),
-                    radialToCartesian(this.innerRadiusRatio.value, 90f.toRadians()),
+                    radialToCartesian(this.innerRadius.value, 90f.toRadians()),
                     radialToCartesian(1f, 150f.toRadians()),
                 )
                 RoundedPolygon(
@@ -179,7 +178,7 @@ class ShapeParameters(
             },
             debugDump = {
                 debugLog(
-                    "ShapeParameters(innerRadiusRatio = ${this.innerRadiusRatio.value}f, " +
+                    "ShapeParameters(innerRadius = ${this.innerRadius.value}f, " +
                         "smooth = ${this.smooth.value}f, " +
                         rotationAsString() +
                         "shapeId = ShapeParameters.ShapeId.Triangle)"
@@ -189,7 +188,7 @@ class ShapeParameters(
         ),
         ShapeItem(
             "Blob", shapegen = {
-                val sx = this.innerRadiusRatio.value.coerceAtLeast(0.1f)
+                val sx = this.innerRadius.value.coerceAtLeast(0.1f)
                 val sy = this.roundness.value.coerceAtLeast(0.1f)
                 RoundedPolygon(
                     listOf(
@@ -284,11 +283,11 @@ fun ShapeEditor(params: ShapeParameters, onClose: () -> Unit) {
         }
         MySlider("Sides", 3f, 20f, 1f, params.sides, shapeParams.usesSides)
         MySlider(
-            "InnerRadiusRatio",
+            "InnerRadius",
             0.1f,
             0.999f,
             0f,
-            params.innerRadiusRatio,
+            params.innerRadius,
             shapeParams.usesInnerRatio
         )
         MySlider("RoundRadius", 0f, 1f, 0f, params.roundness, shapeParams.usesRoundness)

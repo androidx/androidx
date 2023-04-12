@@ -26,7 +26,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.with
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
@@ -412,7 +412,7 @@ object CarouselDefaults {
     val contentTransform: ContentTransform
     @Composable get() =
         fadeIn(animationSpec = tween(100))
-            .with(fadeOut(animationSpec = tween(100)))
+            .togetherWith(fadeOut(animationSpec = tween(100)))
 
     /**
      * An indicator showing the position of the current active item among the items of the

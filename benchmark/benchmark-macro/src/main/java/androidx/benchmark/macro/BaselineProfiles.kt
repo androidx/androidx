@@ -27,6 +27,7 @@ import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
 import androidx.benchmark.userspaceTrace
+import androidx.core.os.BuildCompat
 import java.io.File
 
 /**
@@ -147,7 +148,8 @@ fun collectStableBaselineProfile(
                     // Don't reset for subsequent iterations
                     Log.d(TAG, "Killing package $packageName")
                     killProcessBlock()
-                    mode.compileImpl(packageName = packageName,
+                    mode.compileImpl(
+                        packageName = packageName,
                         killProcessBlock = killProcessBlock
                     ) {
                         scope.iteration = iteration
@@ -172,7 +174,8 @@ fun collectStableBaselineProfile(
                 lastProfile = unfilteredProfile
                 stableCount = 1
             } else {
-                Log.d(TAG,
+                Log.d(
+                    TAG,
                     "Profiles stable in iteration $iteration (for $stableCount iterations)"
                 )
                 stableCount += 1
@@ -295,10 +298,22 @@ private fun reportResults(
  * Does not require root.
  */
 @RequiresApi(33)
+@androidx.annotation.OptIn(BuildCompat.PrereleaseSdkCheck::class)
 private fun extractProfile(packageName: String): String {
-    Shell.executeScriptSilent(
-        "pm dump-profiles --dump-classes-and-methods $packageName"
-    )
+
+    val dumpCommand = "pm dump-profiles --dump-classes-and-methods $packageName"
+    if (BuildCompat.isAtLeastU()) {
+        // On api 34 this will produce an output like:
+        // Profile saved to '/data/misc/profman/<PACKAGE_NAME>-primary.prof.txt'
+        val stdout = Shell.executeScriptCaptureStdout(dumpCommand).trim()
+        val expected = "Profile saved to '/data/misc/profman/$packageName-primary.prof.txt'"
+        check(stdout == expected) {
+            "Expected `pm dump-profiles` stdout to be $expected but was $stdout"
+        }
+    } else {
+        // On api 33 and below this command does not produce any output
+        Shell.executeScriptSilent(dumpCommand)
+    }
     val fileName = "$packageName-primary.prof.txt"
     Shell.executeScriptSilent(
         "mv /data/misc/profman/$fileName ${Outputs.dirUsableByAppAndShell}/"

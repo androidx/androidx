@@ -177,10 +177,10 @@ internal class LayoutNode(
     }
 
     internal val childMeasurables: List<Measurable>
-        get() = measurePassDelegate.childMeasurables
+        get() = measurePassDelegate.childDelegates
 
     internal val childLookaheadMeasurables: List<Measurable>
-        get() = lookaheadPassDelegate!!.childMeasurables
+        get() = lookaheadPassDelegate!!.childDelegates
 
     // when the list of our children is modified it will be set to true if we are a virtual node
     // or it will be set to true on a parent if the parent is a virtual node
@@ -1342,6 +1342,8 @@ internal class LayoutNode(
         } else {
             resetModifierState()
         }
+        // resetModifierState detaches all nodes, so we need to re-attach them upon reuse.
+        nodes.attach()
     }
 
     override fun onDeactivate() {

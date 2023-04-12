@@ -503,6 +503,330 @@ class NavHostTest {
     }
 
     @Test
+    fun setSameGraph_replacesGraphDestination() {
+        lateinit var graph1: NavGraph
+        lateinit var graph2: NavGraph
+        lateinit var navController: NavHostController
+
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            graph1 = navController.createGraph(startDestination = "First") {
+                composable("First") { }
+                composable("Second") { }
+            }
+            graph2 = navController.createGraph(startDestination = "First") {
+                composable("First") { }
+                composable("Second") { }
+            }
+            NavHost(navController, graph1)
+        }
+
+        composeTestRule.runOnIdle {
+            // check current graph is graph1
+            assertThat(navController.graph).isSameInstanceAs(graph1)
+            // make sure the two graphs are equal but different instances
+            assertThat(graph1).isEqualTo(graph2)
+            assertThat(graph1).isNotSameInstanceAs(graph2)
+        }
+
+        // copy to assert later on that graph1 nodes replaced by graph2 nodes instead of vice versa
+        val graph2Nodes = graph2.toMutableList()
+        navController.setGraph(graph2, null)
+
+        composeTestRule.runOnIdle {
+            // make sure navController didn't replace graph1 with graph2 since they are considered
+            // same graphs
+            assertThat(navController.graph).isSameInstanceAs(graph1)
+            assertThat(navController.graph).isNotSameInstanceAs(graph2)
+
+            // even though we didn't replace graph1, graph1's entry destinations should be
+            // replaced with graph2's new destination instances
+            graph1.onEachIndexed { index, node ->
+                val otherNode = graph2Nodes[index]
+                assertThat(node).isEqualTo(otherNode)
+                assertThat(node).isSameInstanceAs(otherNode)
+            }
+        }
+    }
+
+    @Test
+    fun setSameGraphWithRoutes_replacesGraphDestination() {
+        lateinit var graph1: NavGraph
+        lateinit var graph2: NavGraph
+        lateinit var navController: NavHostController
+
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            graph1 = navController.createGraph(route = "route", startDestination = "First") {
+                composable("First") { }
+                composable("Second") { }
+            }
+            graph2 = navController.createGraph(route = "route", startDestination = "First") {
+                composable("First") { }
+                composable("Second") { }
+            }
+            NavHost(navController, graph1)
+        }
+
+        composeTestRule.runOnIdle {
+            // check current graph is graph1
+            assertThat(navController.graph).isSameInstanceAs(graph1)
+            // make sure the two graphs are equal but different instances
+            assertThat(graph1).isEqualTo(graph2)
+            assertThat(graph1).isNotSameInstanceAs(graph2)
+        }
+
+        // copy to assert later on that graph1 nodes replaced by graph2 nodes instead of vice versa
+        val graph2Nodes = graph2.toMutableList()
+        navController.setGraph(graph2, null)
+
+        composeTestRule.runOnIdle {
+            // make sure navController didn't replace graph1 with graph2 since they are considered
+            // same graphs
+            assertThat(navController.graph).isSameInstanceAs(graph1)
+            assertThat(navController.graph).isNotSameInstanceAs(graph2)
+
+            // even though we didn't replace graph1, graph1's entry destinations should be
+            // replaced with graph2's new destination instances
+            graph1.onEachIndexed { index, node ->
+                val otherNode = graph2Nodes[index]
+                assertThat(node).isEqualTo(otherNode)
+                assertThat(node).isSameInstanceAs(otherNode)
+            }
+        }
+    }
+
+    @Test
+    fun setSameGraphWithNestedGraph_replacesNestedGraphDestinations() {
+        lateinit var graph1: NavGraph
+        lateinit var graph2: NavGraph
+        lateinit var navController: NavHostController
+
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            graph1 = navController.createGraph(startDestination = "First") {
+                composable("First") { }
+                navigation(startDestination = "Third", route = "Second") {
+                    composable("Third") { }
+                    composable("Fourth") { }
+                }
+            }
+            graph2 = navController.createGraph(startDestination = "First") {
+                composable("First") { }
+                navigation(startDestination = "Third", route = "Second") {
+                    composable("Third") { }
+                    composable("Fourth") { }
+                }
+            }
+            NavHost(navController, graph1)
+        }
+
+        composeTestRule.runOnIdle {
+            // check current graph is graph1
+            assertThat(navController.graph).isSameInstanceAs(graph1)
+        }
+
+        // copy to assert later on that graph1 nodes replaced by graph2 nodes instead of vice versa
+        val graph2Nodes = graph2.toMutableList()
+        navController.setGraph(graph2, null)
+
+        composeTestRule.runOnIdle {
+            // make sure navController didn't replace graph1 with graph2 since they are considered
+            // same graphs
+            assertThat(navController.graph).isSameInstanceAs(graph1)
+
+            // even though we didn't replace graph1, graph1's entry destinations should be
+            // replaced with graph2's new destination instances
+            graph1.onEachIndexed { index, node ->
+                val otherNode = graph2Nodes[index]
+                assertThat(node).isEqualTo(otherNode)
+                assertThat(node).isSameInstanceAs(otherNode)
+            }
+
+            // check that nested graphs/destinations are also replaced
+            val graph2NestedNodes = (graph2Nodes.get(1) as NavGraph).toMutableList()
+            (graph1.nodes.valueAt(1) as NavGraph).onEachIndexed { index, node ->
+                val otherNode = graph2NestedNodes[index]
+                assertThat(node).isEqualTo(otherNode)
+                assertThat(node).isSameInstanceAs(otherNode)
+            }
+        }
+    }
+
+    @Test
+    fun setSameGraphWithNestedGraph_updatesNavControllerBackstack() {
+        lateinit var graph1: NavGraph
+        lateinit var graph2: NavGraph
+        lateinit var navController: NavHostController
+
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            graph1 = navController.createGraph(route = "Root", startDestination = "First") {
+                composable("First") { }
+                navigation(route = "Second", startDestination = "Third") {
+                    composable("Third") { }
+                    composable("Fourth") { }
+                }
+            }
+            graph2 = navController.createGraph(route = "Root", startDestination = "First") {
+                composable("First") { }
+                navigation(route = "Second", startDestination = "Third") {
+                    composable("Third") { }
+                    composable("Fourth") { }
+                }
+            }
+            NavHost(navController, graph1)
+        }
+
+        composeTestRule.runOnIdle {
+            navController.navigate("Fourth")
+            assertThat(navController.currentBackStackEntry?.destination?.route)
+                .isEqualTo("Fourth")
+            // Root, First, Second, Fourth
+            assertThat(navController.currentBackStack.value.size).isEqualTo(4)
+        }
+
+        // copy to assert later on that graph1 nodes replaced by graph2 nodes instead of vice versa
+        val graph2Nodes = graph2.toMutableList()
+        navController.setGraph(graph2, null)
+
+        composeTestRule.runOnIdle {
+            // make sure NavController backQueue is updated with new nested destinations
+            val entryDestinations = navController.currentBackStack.value.filter {
+                !it.destination.route.equals("Root")
+            }.map { it.destination }
+
+            val entryRoutes = entryDestinations.map { it.route }
+            assertThat(entryRoutes).containsExactlyElementsIn(
+                listOf("First", "Second", "Fourth")
+            ).inOrder()
+
+            assertThat(entryDestinations[0]).isSameInstanceAs(graph2Nodes[0]) // First
+            assertThat(entryDestinations[1]).isSameInstanceAs(graph2Nodes[1]) // Second
+            // make sure nested node is updated
+            val nestedNode = (graph2Nodes[1] as NavGraph).nodes.valueAt(1)
+            assertThat(nestedNode.route).isEqualTo("Fourth")
+            assertThat(entryDestinations[2]).isSameInstanceAs(nestedNode)
+        }
+    }
+
+    @Test
+    fun setSameGraphWithNestedGraphDuplicatedRoutes_updatesNavControllerBackstack() {
+        lateinit var graph1: NavGraph
+        lateinit var graph2: NavGraph
+        lateinit var navController: NavHostController
+
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            graph1 = navController.createGraph(route = "Root", startDestination = "First") {
+                composable("First") { }
+                navigation(route = "Second", startDestination = "Third") {
+                    composable("Third") { }
+                    navigation(route = "Fourth", startDestination = "First") {
+                        composable("First") { }
+                    }
+                }
+            }
+            graph2 = navController.createGraph(route = "Root", startDestination = "First") {
+                composable("First") { }
+                navigation(route = "Second", startDestination = "Third") {
+                    composable("Third") { }
+                    navigation(route = "Fourth", startDestination = "First") {
+                        composable("First") { }
+                    }
+                }
+            }
+            NavHost(navController, graph1)
+        }
+
+        composeTestRule.runOnIdle {
+            assertThat(navController.currentBackStackEntry?.destination?.route)
+                .isEqualTo("First")
+
+            // navigate to duplicated destination
+            navController.navigate("Fourth")
+            // Root, First, Second, Fourth, First
+            assertThat(navController.currentBackStack.value.size).isEqualTo(5)
+            assertThat(navController.currentBackStackEntry?.destination?.route)
+                .isEqualTo("First")
+            // make sure current destination's parent is the nested graph
+            assertThat(navController.currentBackStackEntry?.destination?.parent?.route)
+                .isEqualTo("Fourth")
+        }
+
+        // copy to assert later on that graph1 nodes replaced by graph2 nodes instead of vice versa
+        val graph2Nodes = graph2.toMutableList()
+        navController.setGraph(graph2, null)
+
+        composeTestRule.runOnIdle {
+            val entryDestinations = navController.currentBackStack.value.filter {
+                !it.destination.route.equals("Root")
+            }.map { it.destination }
+
+            val entryRoutes = entryDestinations.map { it.route }
+            assertThat(entryRoutes).containsExactlyElementsIn(
+                listOf("First", "Second", "Fourth", "First")
+            ).inOrder()
+
+            // make sure duplicated nodes are updated with correct instances
+            val dup1 = graph2Nodes[0]
+            assertThat(dup1.route).isEqualTo("First")
+            assertThat(entryDestinations[0]).isSameInstanceAs(dup1)
+
+            val dup2 = ((graph2Nodes[1] as NavGraph).nodes.valueAt(1) as NavGraph)
+                .nodes.valueAt(0)
+            assertThat(dup2.route).isEqualTo("First")
+            assertThat(entryDestinations[3]).isSameInstanceAs(dup2)
+        }
+    }
+
+    @Test
+    fun setSameGraph_findsExistingHierarchyWhenNavigating() {
+        lateinit var graph1: NavGraph
+        lateinit var graph2: NavGraph
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            graph1 = navController.createGraph(route = "Root", startDestination = "First") {
+                composable("First") { }
+                composable("Second") { }
+            }
+            graph2 = navController.createGraph(route = "Root", startDestination = "First") {
+                composable("First") { }
+                composable("Second") { }
+            }
+
+            NavHost(navController, graph1)
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("Current destination should be First")
+                .that(navController.currentDestination?.route)
+                .isEqualTo("First")
+        }
+
+        // set same graph
+        navController.setGraph(graph2, null)
+
+        composeTestRule.runOnIdle {
+            // When navigating to Second, NavController should find an instance of it already
+            // within current NavGraph and does not rebuild its hierarchy when navigating
+            navController.navigate("Second")
+
+            assertWithMessage("Current destination should be Second")
+                .that(navController.currentDestination?.route)
+                .isEqualTo("Second")
+        }
+        // Root, First, Second
+        assertThat(navController.currentBackStack.value.size).isEqualTo(3)
+        val entryRoutes = navController.currentBackStack.value.map { it.destination.route }
+        // ensure that Root did not get added a second time
+        assertThat(entryRoutes).containsExactlyElementsIn(
+            listOf("Root", "First", "Second")
+        ).inOrder()
+    }
+
+    @Test
     fun testNavHostCrossFade() {
         lateinit var navController: NavHostController
 

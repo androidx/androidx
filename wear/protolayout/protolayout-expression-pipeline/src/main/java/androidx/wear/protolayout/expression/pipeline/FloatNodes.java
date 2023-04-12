@@ -35,9 +35,10 @@ class FloatNodes {
     /** Dynamic float node that has a fixed value. */
     static class FixedFloatNode implements DynamicDataSourceNode<Float> {
         private final float mValue;
-        private final DynamicTypeValueReceiver<Float> mDownstream;
+        private final DynamicTypeValueReceiverWithPreUpdate<Float> mDownstream;
 
-        FixedFloatNode(FixedFloat protoNode, DynamicTypeValueReceiver<Float> downstream) {
+        FixedFloatNode(
+                FixedFloat protoNode, DynamicTypeValueReceiverWithPreUpdate<Float> downstream) {
             this.mValue = protoNode.getValue();
             this.mDownstream = downstream;
         }
@@ -51,7 +52,11 @@ class FloatNodes {
         @Override
         @UiThread
         public void init() {
-            mDownstream.onData(mValue);
+            if (Float.isNaN(mValue)) {
+                mDownstream.onInvalidated();
+            } else {
+                mDownstream.onData(mValue);
+            }
         }
 
         @Override
@@ -64,7 +69,7 @@ class FloatNodes {
         StateFloatSourceNode(
                 StateStore stateStore,
                 StateFloatSource protoNode,
-                DynamicTypeValueReceiver<Float> downstream) {
+                DynamicTypeValueReceiverWithPreUpdate<Float> downstream) {
             super(
                     stateStore,
                     protoNode.getSourceKey(),
@@ -78,7 +83,8 @@ class FloatNodes {
         private static final String TAG = "ArithmeticFloatNode";
 
         ArithmeticFloatNode(
-                ArithmeticFloatOp protoNode, DynamicTypeValueReceiver<Float> downstream) {
+                ArithmeticFloatOp protoNode,
+                DynamicTypeValueReceiverWithPreUpdate<Float> downstream) {
             super(
                     downstream,
                     (lhs, rhs) -> {
@@ -113,7 +119,7 @@ class FloatNodes {
     /** Dynamic float node that gets value from INTEGER. */
     static class Int32ToFloatNode extends DynamicDataTransformNode<Integer, Float> {
 
-        Int32ToFloatNode(DynamicTypeValueReceiver<Float> downstream) {
+        Int32ToFloatNode(DynamicTypeValueReceiverWithPreUpdate<Float> downstream) {
             super(downstream, i -> (float) i);
         }
     }
@@ -123,11 +129,11 @@ class FloatNodes {
             implements DynamicDataSourceNode<Float> {
 
         private final AnimatableFixedFloat mProtoNode;
-        private final DynamicTypeValueReceiver<Float> mDownstream;
+        private final DynamicTypeValueReceiverWithPreUpdate<Float> mDownstream;
 
         AnimatableFixedFloatNode(
                 AnimatableFixedFloat protoNode,
-                DynamicTypeValueReceiver<Float> downstream,
+                DynamicTypeValueReceiverWithPreUpdate<Float> downstream,
                 QuotaManager quotaManager) {
 
             super(quotaManager, protoNode.getAnimationSpec());
@@ -160,8 +166,8 @@ class FloatNodes {
     /** Dynamic float node that gets animatable value from dynamic source. */
     static class DynamicAnimatedFloatNode extends AnimatableNode implements DynamicDataNode<Float> {
 
-        final DynamicTypeValueReceiver<Float> mDownstream;
-        private final DynamicTypeValueReceiver<Float> mInputCallback;
+        final DynamicTypeValueReceiverWithPreUpdate<Float> mDownstream;
+        private final DynamicTypeValueReceiverWithPreUpdate<Float> mInputCallback;
 
         @Nullable Float mCurrentValue = null;
         int mPendingCalls = 0;
@@ -170,7 +176,7 @@ class FloatNodes {
         // initialization but mInputCallback is only used after the constructor is finished.
         @SuppressWarnings("method.invocation.invalid")
         DynamicAnimatedFloatNode(
-                DynamicTypeValueReceiver<Float> downstream,
+                DynamicTypeValueReceiverWithPreUpdate<Float> downstream,
                 @NonNull AnimationSpec spec,
                 QuotaManager quotaManager) {
 
@@ -184,7 +190,7 @@ class FloatNodes {
                         }
                     });
             this.mInputCallback =
-                    new DynamicTypeValueReceiver<Float>() {
+                    new DynamicTypeValueReceiverWithPreUpdate<Float>() {
                         @Override
                         public void onPreUpdate() {
                             mPendingCalls++;
@@ -225,7 +231,7 @@ class FloatNodes {
                     };
         }
 
-        public DynamicTypeValueReceiver<Float> getInputCallback() {
+        public DynamicTypeValueReceiverWithPreUpdate<Float> getInputCallback() {
             return mInputCallback;
         }
     }

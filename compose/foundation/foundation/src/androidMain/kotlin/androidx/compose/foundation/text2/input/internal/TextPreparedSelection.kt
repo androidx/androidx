@@ -29,6 +29,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.style.ResolvedTextDirection
+import kotlin.math.abs
 
 /**
  * [TextFieldPreparedSelection] provides a scope for many selection-related operations. However,
@@ -77,17 +78,17 @@ internal class TextFieldPreparedSelection(
      * [TextFieldPreparedSelection]. It is also used to make comparison between the initial state
      * and the modified state of selection and content.
      */
-    val initialValue = Snapshot.withoutReadObservation { state.value }
+    val initialValue = Snapshot.withoutReadObservation { state.text }
 
     /**
      * Current active selection in the context of this [TextFieldPreparedSelection]
      */
-    var selection = initialValue.selection
+    var selection = initialValue.selectionInChars
 
     /**
      * Initial text value.
      */
-    private val text = initialValue.text
+    private val text: String = initialValue.toString()
 
     /**
      * If there is a non-collapsed selection, delete its contents. Or execute the given [or] block.
@@ -128,11 +129,22 @@ internal class TextFieldPreparedSelection(
         val visibleInnerTextFieldRect = innerTextFieldCoordinates?.let { inner ->
             decorationBoxCoordinates?.localBoundingBoxOf(inner)
         } ?: Rect.Zero
-        val currentOffset = initialValue.selection.end
+        val currentOffset = initialValue.selectionInChars.end
         val currentPos = value.getCursorRect(currentOffset)
-        val x = currentPos.left
-        val y = currentPos.top + visibleInnerTextFieldRect.size.height * pagesAmount
-        return value.getOffsetForPosition(Offset(x, y))
+        val newPos = currentPos.translate(
+            translateX = 0f,
+            translateY = visibleInnerTextFieldRect.size.height * pagesAmount
+        )
+        // which line does the new cursor position belong?
+        val topLine = value.getLineForVerticalPosition(newPos.top)
+        val lineSeparator = value.getLineBottom(topLine)
+        return if (abs(newPos.top - lineSeparator) > abs(newPos.bottom - lineSeparator)) {
+            // most of new cursor is on top line
+            value.getOffsetForPosition(newPos.topLeft)
+        } else {
+            // most of new cursor is on bottom line
+            value.getOffsetForPosition(newPos.bottomLeft)
+        }
     }
 
     /**
@@ -317,7 +329,7 @@ internal class TextFieldPreparedSelection(
 
     // it selects a text from the original selection start to a current selection end
     fun selectMovement() = applyIfNotEmpty(false) {
-        selection = TextRange(initialValue.selection.start, selection.end)
+        selection = TextRange(initialValue.selectionInChars.start, selection.end)
     }
 
     private fun isLtr(): Boolean {
@@ -328,8 +340,8 @@ internal class TextFieldPreparedSelection(
     private tailrec fun TextLayoutResult.getNextWordOffsetForLayout(
         currentOffset: Int = selection.end
     ): Int {
-        if (currentOffset >= initialValue.text.length) {
-            return initialValue.text.length
+        if (currentOffset >= initialValue.length) {
+            return initialValue.length
         }
         val currentWord = getWordBoundary(charOffset(currentOffset))
         return if (currentWord.end <= currentOffset) {

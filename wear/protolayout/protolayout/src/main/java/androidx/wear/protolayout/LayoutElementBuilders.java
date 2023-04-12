@@ -24,6 +24,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.ColorBuilders.ColorProp;
@@ -131,26 +132,53 @@ public final class LayoutElementBuilders {
      */
     public static final int SPAN_VERTICAL_ALIGN_TEXT_BASELINE = 2;
 
-    /** How text that will not fit inside the bounds of a {@link Text} element will be handled. */
+    /**
+     * How text that will not fit inside the bounds of a {@link Text} element will be handled.
+     *
+     * @since 1.0
+     */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef({TEXT_OVERFLOW_UNDEFINED, TEXT_OVERFLOW_TRUNCATE, TEXT_OVERFLOW_ELLIPSIZE_END})
+    @IntDef({
+        TEXT_OVERFLOW_UNDEFINED,
+        TEXT_OVERFLOW_TRUNCATE,
+        TEXT_OVERFLOW_ELLIPSIZE_END,
+        TEXT_OVERFLOW_MARQUEE
+    })
     @Retention(RetentionPolicy.SOURCE)
+    @OptIn(markerClass = ProtoLayoutExperimental.class)
     public @interface TextOverflow {}
 
-    /** Overflow behavior is undefined. */
+    /**
+     * Overflow behavior is undefined.
+     *
+     * @since 1.0
+     */
     public static final int TEXT_OVERFLOW_UNDEFINED = 0;
 
     /**
      * Truncate the text to fit inside of the {@link Text} element's bounds. If text is truncated,
      * it will be truncated on a word boundary.
+     *
+     * @since 1.0
      */
     public static final int TEXT_OVERFLOW_TRUNCATE = 1;
 
     /**
      * Truncate the text to fit in the {@link Text} element's bounds, but add an ellipsis (i.e. ...)
      * to the end of the text if it has been truncated.
+     *
+     * @since 1.0
      */
     public static final int TEXT_OVERFLOW_ELLIPSIZE_END = 2;
+
+    /**
+     * Enable marquee animation for texts that don't fit inside the {@link Text} element. This is
+     * only applicable for single line texts; if the text has multiple lines, the behavior is
+     * equivalent to TEXT_OVERFLOW_TRUNCATE.
+     *
+     * @since 1.2
+     */
+    @ProtoLayoutExperimental public static final int TEXT_OVERFLOW_MARQUEE = 3;
 
     /**
      * How content which does not match the dimensions of its bounds (e.g. an image resource being
@@ -639,7 +667,11 @@ public final class LayoutElementBuilders {
         }
     }
 
-    /** An extensible {@code TextOverflow} property. */
+    /**
+     * An extensible {@code TextOverflow} property.
+     *
+     * @since 1.0
+     */
     public static final class TextOverflowProp {
         private final LayoutElementProto.TextOverflowProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -650,7 +682,11 @@ public final class LayoutElementBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /** Gets the value. Intended for testing purposes only. */
+        /**
+         * Gets the value.
+         *
+         * @since 1.0
+         */
         @TextOverflow
         public int getValue() {
             return mImpl.getValue().getNumber();
@@ -663,25 +699,46 @@ public final class LayoutElementBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static TextOverflowProp fromProto(@NonNull LayoutElementProto.TextOverflowProp proto) {
-            return new TextOverflowProp(proto, null);
+        public static TextOverflowProp fromProto(
+                @NonNull LayoutElementProto.TextOverflowProp proto,
+                @Nullable Fingerprint fingerprint) {
+            return new TextOverflowProp(proto, fingerprint);
         }
 
         @NonNull
-        LayoutElementProto.TextOverflowProp toProto() {
+        static TextOverflowProp fromProto(@NonNull LayoutElementProto.TextOverflowProp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.TextOverflowProp toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "TextOverflowProp{" + "value=" + getValue() + "}";
         }
 
         /** Builder for {@link TextOverflowProp} */
         public static final class Builder {
             private final LayoutElementProto.TextOverflowProp.Builder mImpl =
                     LayoutElementProto.TextOverflowProp.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(1183432233);
+            private final Fingerprint mFingerprint = new Fingerprint(-1542057565);
 
             public Builder() {}
 
-            /** Sets the value. */
+            /**
+             * Sets the value.
+             *
+             * @since 1.0
+             */
             @NonNull
             public Builder setValue(@TextOverflow int value) {
                 mImpl.setValue(LayoutElementProto.TextOverflow.forNumber(value));
@@ -693,6 +750,187 @@ public final class LayoutElementBuilders {
             @NonNull
             public TextOverflowProp build() {
                 return new TextOverflowProp(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+    /**
+     * Parameters for Marquee animation. Only applies for TEXT_OVERFLOW_MARQUEE.
+     *
+     * @since 1.2
+     */
+    @ProtoLayoutExperimental
+    static final class MarqueeParameters {
+        private final LayoutElementProto.MarqueeParameters mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        MarqueeParameters(
+                LayoutElementProto.MarqueeParameters impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets the number of times to repeat the Marquee animation. Set to -1 to repeat
+         * indefinitely. Defaults to repeat indefinitely.
+         *
+         * @since 1.2
+         */
+        @ProtoLayoutExperimental
+        public int getIterations() {
+            return mImpl.getIterations();
+        }
+
+        /** Get the fingerprint for this object, or null if unknown. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static MarqueeParameters fromProto(
+                @NonNull LayoutElementProto.MarqueeParameters proto,
+                @Nullable Fingerprint fingerprint) {
+            return new MarqueeParameters(proto, fingerprint);
+        }
+
+        @NonNull
+        static MarqueeParameters fromProto(@NonNull LayoutElementProto.MarqueeParameters proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.MarqueeParameters toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "MarqueeParameters{" + "iterations=" + getIterations() + "}";
+        }
+
+        /** Builder for {@link MarqueeParameters} */
+        public static final class Builder {
+            private final LayoutElementProto.MarqueeParameters.Builder mImpl =
+                    LayoutElementProto.MarqueeParameters.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(1405971293);
+
+            public Builder() {}
+
+            /**
+             * Sets the number of times to repeat the Marquee animation. Set to -1 to repeat
+             * indefinitely. Defaults to repeat indefinitely.
+             *
+             * @since 1.2
+             */
+            @ProtoLayoutExperimental
+            @NonNull
+            public Builder setIterations(int iterations) {
+                mImpl.setIterations(iterations);
+                mFingerprint.recordPropertyUpdate(1, iterations);
+                return this;
+            }
+
+            /** Builds an instance from accumulated values. */
+            @NonNull
+            public MarqueeParameters build() {
+                return new MarqueeParameters(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+    /**
+     * An Android platform specific text style configuration options for styling and compatibility.
+     *
+     * @since 1.2
+     */
+    @ProtoLayoutExperimental
+    public static final class AndroidTextStyle {
+        private final LayoutElementProto.AndroidTextStyle mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        AndroidTextStyle(LayoutElementProto.AndroidTextStyle impl,
+                @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets whether the {@link Text} excludes padding specified by the font, i.e. extra top and
+         * bottom padding above the normal ascent and descent. The default is false.
+         *
+         * @since 1.2
+         */
+        public boolean getExcludeFontPadding() {
+            return mImpl.getExcludeFontPadding();
+        }
+
+        /** Get the fingerprint for this object, or null if unknown. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static AndroidTextStyle fromProto(
+                @NonNull LayoutElementProto.AndroidTextStyle proto,
+                @Nullable Fingerprint fingerprint) {
+            return new AndroidTextStyle(proto, fingerprint);
+        }
+
+        @NonNull
+        static AndroidTextStyle fromProto(@NonNull LayoutElementProto.AndroidTextStyle proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.AndroidTextStyle toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "AndroidTextStyle{" + "excludeFontPadding=" + getExcludeFontPadding() + "}";
+        }
+
+        /** Builder for {@link AndroidTextStyle} */
+        public static final class Builder {
+            private final LayoutElementProto.AndroidTextStyle.Builder mImpl =
+                    LayoutElementProto.AndroidTextStyle.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(408674745);
+
+            public Builder() {}
+
+            /**
+             * Sets whether the {@link Text} excludes padding specified by the font, i.e. extra
+             * top and bottom padding above the normal ascent and descent. The default is false.
+             *
+             * @since 1.2
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder setExcludeFontPadding(boolean excludeFontPadding) {
+                mImpl.setExcludeFontPadding(excludeFontPadding);
+                mFingerprint.recordPropertyUpdate(1, Boolean.hashCode(excludeFontPadding));
+                return this;
+            }
+
+            /** Builds an instance from accumulated values. */
+            @NonNull
+            public AndroidTextStyle build() {
+                return new AndroidTextStyle(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -816,6 +1054,34 @@ public final class LayoutElementBuilders {
             } else {
                 return null;
             }
+        }
+
+        /**
+         * Gets an Android platform specific text style configuration options for styling and
+         * compatibility.
+         *
+         * @since 1.2
+         */
+        @ProtoLayoutExperimental
+        @Nullable
+        public AndroidTextStyle getAndroidTextStyle() {
+            if (mImpl.hasAndroidTextStyle()) {
+                return AndroidTextStyle.fromProto(mImpl.getAndroidTextStyle());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets the number of times to repeat the Marquee animation. Only applies when overflow is
+         * TEXT_OVERFLOW_MARQUEE. Set to -1 to repeat indefinitely. Defaults to repeat indefinitely.
+         *
+         * @since 1.2
+         */
+        @ProtoLayoutExperimental
+        @IntRange(from = -1)
+        public int getMarqueeIterations() {
+            return mImpl.getMarqueeParameters().getIterations();
         }
 
         @Override
@@ -1014,6 +1280,38 @@ public final class LayoutElementBuilders {
                 mImpl.setLineHeight(lineHeight.toProto());
                 mFingerprint.recordPropertyUpdate(
                         7, checkNotNull(lineHeight.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets an Android platform specific text style configuration options for styling and
+             * compatibility.
+             *
+             * @since 1.2
+             */
+            @ProtoLayoutExperimental
+            @NonNull
+            public Builder setAndroidTextStyle(@NonNull AndroidTextStyle androidTextStyle) {
+                mImpl.setAndroidTextStyle(androidTextStyle.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        8, checkNotNull(androidTextStyle.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the number of times to repeat the Marquee animation. Only applies when overflow
+             * is TEXT_OVERFLOW_MARQUEE. Set to -1 to repeat indefinitely. Defaults to repeat
+             * indefinitely.
+             *
+             * @since 1.2
+             */
+            @ProtoLayoutExperimental
+            @NonNull
+            public Builder setMarqueeIterations(@IntRange(from = -1) int marqueeIterations) {
+                mImpl.setMarqueeParameters(
+                        LayoutElementProto.MarqueeParameters.newBuilder()
+                                .setIterations(marqueeIterations));
+                mFingerprint.recordPropertyUpdate(9, marqueeIterations);
                 return this;
             }
 
@@ -1897,6 +2195,22 @@ public final class LayoutElementBuilders {
             }
         }
 
+        /**
+         * Gets an Android platform specific text style configuration options for styling and
+         * compatibility.
+         *
+         * @since 1.2
+         */
+        @ProtoLayoutExperimental
+        @Nullable
+        public AndroidTextStyle getAndroidTextStyle() {
+            if (mImpl.hasAndroidTextStyle()) {
+                return AndroidTextStyle.fromProto(mImpl.getAndroidTextStyle());
+            } else {
+                return null;
+            }
+        }
+
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -1974,6 +2288,21 @@ public final class LayoutElementBuilders {
                 mImpl.setModifiers(modifiers.toProto());
                 mFingerprint.recordPropertyUpdate(
                         3, checkNotNull(modifiers.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets an Android platform specific text style configuration options for styling and
+             * compatibility.
+             *
+             * @since 1.2
+             */
+            @ProtoLayoutExperimental
+            @NonNull
+            public Builder setAndroidTextStyle(@NonNull AndroidTextStyle androidTextStyle) {
+                mImpl.setAndroidTextStyle(androidTextStyle.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        4, checkNotNull(androidTextStyle.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
@@ -2314,6 +2643,18 @@ public final class LayoutElementBuilders {
             }
         }
 
+        /**
+         * Gets the number of times to repeat the Marquee animation. Only applies when overflow is
+         * TEXT_OVERFLOW_MARQUEE. Set to -1 to repeat indefinitely. Defaults to repeat indefinitely.
+         *
+         * @since 1.2
+         */
+        @ProtoLayoutExperimental
+        @IntRange(from = -1)
+        public int getMarqueeIterations() {
+            return mImpl.getMarqueeParameters().getIterations();
+        }
+
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -2460,6 +2801,23 @@ public final class LayoutElementBuilders {
                 mImpl.setLineHeight(lineHeight.toProto());
                 mFingerprint.recordPropertyUpdate(
                         7, checkNotNull(lineHeight.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the number of times to repeat the Marquee animation. Only applies when overflow
+             * is TEXT_OVERFLOW_MARQUEE. Set to -1 to repeat indefinitely. Defaults to repeat
+             * indefinitely.
+             *
+             * @since 1.2
+             */
+            @ProtoLayoutExperimental
+            @NonNull
+            public Builder setMarqueeIterations(@IntRange(from = -1) int marqueeIterations) {
+                mImpl.setMarqueeParameters(
+                        LayoutElementProto.MarqueeParameters.newBuilder()
+                                .setIterations(marqueeIterations));
+                mFingerprint.recordPropertyUpdate(8, marqueeIterations);
                 return this;
             }
 

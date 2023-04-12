@@ -60,6 +60,7 @@ import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.TextureView;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -225,8 +226,12 @@ public final class Preview extends UseCase {
         // Close previous session's deferrable surface before creating new one
         clearPipeline();
 
-        final SurfaceRequest surfaceRequest = new SurfaceRequest(streamSpec.getResolution(),
-                getCamera(), this::notifyReset);
+        final SurfaceRequest surfaceRequest = new SurfaceRequest(
+                streamSpec.getResolution(),
+                getCamera(),
+                streamSpec.getDynamicRange(),
+                streamSpec.getExpectedFrameRateRange(),
+                this::notifyReset);
         mCurrentSurfaceRequest = surfaceRequest;
 
         if (mSurfaceProvider != null) {
@@ -302,6 +307,20 @@ public final class Preview extends UseCase {
         if (camera == getCamera()) {
             mCurrentSurfaceRequest = appEdge.createSurfaceRequest(camera);
             sendSurfaceRequest();
+        }
+    }
+
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    @IntRange(from = 0, to = 359)
+    protected int getRelativeRotation(@NonNull CameraInternal cameraInternal,
+            boolean requireMirroring) {
+        if (cameraInternal.getHasTransform()) {
+            return super.getRelativeRotation(cameraInternal, requireMirroring);
+        } else {
+            // If there is a virtual parent camera, the buffer is already rotated because
+            // SurfaceView cannot handle additional rotation.
+            return 0;
         }
     }
 
@@ -543,7 +562,6 @@ public final class Preview extends UseCase {
      * <p>This setting is set when constructing an ImageCapture using
      * {@link Builder#setResolutionSelector(ResolutionSelector)}.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public ResolutionSelector getResolutionSelector() {
         return ((ImageOutputConfig) getCurrentConfig()).getResolutionSelector(null);
@@ -916,6 +934,8 @@ public final class Preview extends UseCase {
          *
          * @param aspectRatio The desired Preview {@link AspectRatio}
          * @return The current Builder.
+         * @deprecated use {@link ResolutionSelector} with {@link AspectRatioStrategy} to specify
+         * the preferred aspect ratio settings instead.
          */
         @NonNull
         @Override
@@ -1014,6 +1034,8 @@ public final class Preview extends UseCase {
          *
          * @param resolution The target resolution to choose from supported output sizes list.
          * @return The current Builder.
+         * @deprecated use {@link ResolutionSelector} with {@link ResolutionStrategy} to specify
+         * the preferred resolution settings instead.
          */
         @NonNull
         @Override
@@ -1086,7 +1108,6 @@ public final class Preview extends UseCase {
          *
          * @return The current Builder.
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
         public Builder setResolutionSelector(@NonNull ResolutionSelector resolutionSelector) {

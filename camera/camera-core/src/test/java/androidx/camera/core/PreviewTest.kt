@@ -203,6 +203,15 @@ class PreviewTest {
     }
 
     @Test
+    fun surfaceRequestFrameRateRange_isUnspecified() {
+        // Target frame rate range isn't specified, so SurfaceRequest
+        // expected frame rate range should be unspecified.
+        assertThat(bindToLifecycleAndGetSurfaceRequest().expectedFrameRate).isEqualTo(
+            SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
+        )
+    }
+
+    @Test
     fun defaultMirrorModeIsOnFrontOnly() {
         val preview = Preview.Builder().build()
         assertThat(preview.mirrorModeInternal).isEqualTo(MIRROR_MODE_ON_FRONT_ONLY)
@@ -416,7 +425,7 @@ class PreviewTest {
     }
 
     @Test
-    fun noCameraTransform_rotationDegreesFlipped() {
+    fun noCameraTransform_rotationDegreesIsZero() {
         // Act: create preview with hasCameraTransform == false
         frontCamera.hasTransform = false
         val preview = createPreview(
@@ -424,8 +433,8 @@ class PreviewTest {
             frontCamera,
             targetRotation = Surface.ROTATION_90
         )
-        // Assert: rotationDegrees is flipped
-        assertThat(preview.cameraEdge.rotationDegrees).isEqualTo(270)
+        // Assert: rotationDegrees is 0.
+        assertThat(preview.cameraEdge.rotationDegrees).isEqualTo(0)
     }
 
     @Test
@@ -631,6 +640,7 @@ class PreviewTest {
         assertThat(receivedAfterAttach).isTrue()
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun throwException_whenSetBothTargetResolutionAndAspectRatio() {
         Assert.assertThrows(IllegalArgumentException::class.java) {
@@ -639,6 +649,7 @@ class PreviewTest {
         }
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun throwException_whenSetTargetResolutionWithResolutionSelector() {
         Assert.assertThrows(IllegalArgumentException::class.java) {
@@ -648,6 +659,7 @@ class PreviewTest {
         }
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun throwException_whenSetTargetAspectRatioWithResolutionSelector() {
         Assert.assertThrows(IllegalArgumentException::class.java) {

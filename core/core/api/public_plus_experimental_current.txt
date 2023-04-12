@@ -699,6 +699,21 @@ package androidx.core.app {
     method public void setBuilder(androidx.core.app.NotificationCompat.Builder?);
   }
 
+  public static final class NotificationCompat.TvExtender implements androidx.core.app.NotificationCompat.Extender {
+    ctor public NotificationCompat.TvExtender();
+    ctor public NotificationCompat.TvExtender(android.app.Notification);
+    method public androidx.core.app.NotificationCompat.Builder extend(androidx.core.app.NotificationCompat.Builder);
+    method public String? getChannelId();
+    method public android.app.PendingIntent? getContentIntent();
+    method public android.app.PendingIntent? getDeleteIntent();
+    method public boolean isAvailableOnTv();
+    method public boolean isSuppressShowOverApps();
+    method public androidx.core.app.NotificationCompat.TvExtender setChannelId(String?);
+    method public androidx.core.app.NotificationCompat.TvExtender setContentIntent(android.app.PendingIntent?);
+    method public androidx.core.app.NotificationCompat.TvExtender setDeleteIntent(android.app.PendingIntent?);
+    method public androidx.core.app.NotificationCompat.TvExtender setSuppressShowOverApps(boolean);
+  }
+
   public static final class NotificationCompat.WearableExtender implements androidx.core.app.NotificationCompat.Extender {
     ctor public NotificationCompat.WearableExtender();
     ctor public NotificationCompat.WearableExtender(android.app.Notification);
@@ -1427,6 +1442,7 @@ package androidx.core.graphics {
     method @ColorInt public static int HSLToColor(float[]);
     method @ColorInt public static int LABToColor(@FloatRange(from=0.0f, to=100) double, @FloatRange(from=0xffffff80, to=127) double, @FloatRange(from=0xffffff80, to=127) double);
     method public static void LABToXYZ(@FloatRange(from=0.0f, to=100) double, @FloatRange(from=0xffffff80, to=127) double, @FloatRange(from=0xffffff80, to=127) double, double[]);
+    method @ColorInt public static int M3HCTtoColor(float, float, float);
     method public static void RGBToHSL(@IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, float[]);
     method public static void RGBToLAB(@IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, double[]);
     method public static void RGBToXYZ(@IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, @IntRange(from=0, to=255) int, double[]);
@@ -1440,6 +1456,7 @@ package androidx.core.graphics {
     method public static int calculateMinimumAlpha(@ColorInt int, @ColorInt int, float);
     method public static void colorToHSL(@ColorInt int, float[]);
     method public static void colorToLAB(@ColorInt int, double[]);
+    method public static void colorToM3HCT(@ColorInt int, float[]);
     method public static void colorToXYZ(@ColorInt int, double[]);
     method public static int compositeColors(@ColorInt int, @ColorInt int);
     method @RequiresApi(26) public static android.graphics.Color compositeColors(android.graphics.Color, android.graphics.Color);
@@ -1822,8 +1839,9 @@ package androidx.core.os {
     method @Deprecated @ChecksSdkIntAtLeast(api=android.os.Build.VERSION_CODES.R) public static boolean isAtLeastR();
     method @Deprecated @ChecksSdkIntAtLeast(api=31, codename="S") public static boolean isAtLeastS();
     method @Deprecated @ChecksSdkIntAtLeast(api=32, codename="Sv2") @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static boolean isAtLeastSv2();
-    method @ChecksSdkIntAtLeast(api=33, codename="Tiramisu") @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static boolean isAtLeastT();
-    method @ChecksSdkIntAtLeast(codename="UpsideDownCake") @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static boolean isAtLeastU();
+    method @Deprecated @ChecksSdkIntAtLeast(api=33, codename="Tiramisu") @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static boolean isAtLeastT();
+    method @ChecksSdkIntAtLeast(api=34, codename="UpsideDownCake") @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static boolean isAtLeastU();
+    method @ChecksSdkIntAtLeast(codename="VanillaIceCream") @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static boolean isAtLeastV();
     field @ChecksSdkIntAtLeast(extension=android.os.ext.SdkExtensions.AD_SERVICES) public static final int AD_SERVICES_EXTENSION_INT;
     field @ChecksSdkIntAtLeast(extension=android.os.Build.VERSION_CODES.R) public static final int R_EXTENSION_INT;
     field @ChecksSdkIntAtLeast(extension=android.os.Build.VERSION_CODES.S) public static final int S_EXTENSION_INT;

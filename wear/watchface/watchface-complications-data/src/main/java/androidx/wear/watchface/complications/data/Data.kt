@@ -398,7 +398,15 @@ public class NotConfiguredComplicationData :
  * displayed. If the complication is drawn with a single color it's recommended to choose
  * [monochromaticImage] and apply a tint. If the complication is rendered with multiple colors it's
  * recommended to choose the [smallImage]. It's best practice for a ComplicationDataSource to
- * specify both a [monochromaticImage] and a [smallImage].
+ * specify both a [monochromaticImage] and a [smallImage]
+ *
+ * A data source that wants to serve a ShortTextComplicationData must include the following
+ * meta data in its manifest (NB the value is a comma separated list):
+ *
+ * ```
+ * <meta-data android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+ *    android:value="SHORT_TEXT"/>
+ * ```
  *
  * @property text The body [ComplicationText] of the complication. The length of the text, including
  *   any time-dependent values at any valid time, is expected to not exceed seven characters. When
@@ -456,8 +464,10 @@ internal constructor(
      * You must at a minimum set the [text] and [contentDescription] fields.
      *
      * @param text The main localized [ComplicationText]. This must be less than 7 characters long
-     * @param contentDescription Localized description for use by screen readers. Please do not
-     *   include the word 'complication' in the description.
+     * @param contentDescription Defines localized text that briefly describes content of the
+     * complication. This property is used primarily for accessibility. Since some complications do
+     * not have textual representation this attribute can be used for providing such. Please do not
+     * include the word 'complication' in the description.
      */
     public class Builder(
         private val text: ComplicationText,
@@ -580,6 +590,14 @@ internal constructor(
  * recommended to choose the [smallImage]. It's best practice for a ComplicationDataSource to
  * specify both a [monochromaticImage] and a [smallImage].
  *
+ * A data source that wants to serve a LongTextComplicationData must include the following
+ * meta data in its manifest (NB the value is a comma separated list):
+ *
+ * ```
+ * <meta-data android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+ *    android:value="LONG_TEXT"/>
+ * ```
+ *
  * @property text The body [ComplicationText] of the complication. If the text is equal to
  *   [ComplicationText.PLACEHOLDER] the renderer must treat it as a placeholder rather than
  *   rendering normally, its suggested it should be rendered as a light grey box.
@@ -627,8 +645,10 @@ internal constructor(
      *
      * @param text Localized main [ComplicationText] to display within the complication. There isn't
      *   an explicit character limit but text may be truncated if too long
-     * @param contentDescription Localized description for use by screen readers. Please do not
-     *   include the word 'complication' in the description.
+     * @param contentDescription Defines localized text that briefly describes content of the
+     * complication. This property is used primarily for accessibility. Since some complications do
+     * not have textual representation this attribute can be used for providing such. Please do not
+     * include the word 'complication' in the description.
      */
     public class Builder(
         private val text: ComplicationText,
@@ -800,6 +820,14 @@ public class ColorRamp(
  * recommended to choose the [smallImage]. It's best practice for a ComplicationDataSource to
  * specify both a [monochromaticImage] and a [smallImage].
  *
+ * A data source that wants to serve a RangedValueComplicationData must include the following
+ * meta data in its manifest (NB the value is a comma separated list):
+ *
+ * ```
+ * <meta-data android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+ *    android:value="GOAL_PROGRESS"/>
+ * ```
+ *
  * @property value The [Float] value of this complication which is >= [min] and <= [max] or equal to
  *   [PLACEHOLDER]. If it's equal to [PLACEHOLDER] the renderer must treat it as a placeholder
  *   rather than rendering normally, its suggested to be drawn as a grey arc with a percentage value
@@ -904,8 +932,10 @@ internal constructor(
          * @param min The minimum value. For [TYPE_PERCENTAGE] this must be 0f.
          * @param max The maximum value. This must be less than [Float.MAX_VALUE]. For
          *   [TYPE_PERCENTAGE] this must be 0f.
-         * @param contentDescription Localized description for use by screen readers. Please do not
-         *   include the word 'complication' in the description.
+         * @param contentDescription Defines localized text that briefly describes content of the
+         * complication. This property is used primarily for accessibility. Since some complications
+         * do not have textual representation this attribute can be used for providing such. Please
+         * do not include the word 'complication' in the description.
          */
         public constructor(
             value: Float,
@@ -923,8 +953,10 @@ internal constructor(
          * @param min The minimum value. For [TYPE_PERCENTAGE] this must be 0f.
          * @param max The maximum value. This must be less than [Float.MAX_VALUE]. For
          *   [TYPE_PERCENTAGE] this must be 0f.
-         * @param contentDescription Localized description for use by screen readers. Please do not
-         *   include the word 'complication' in the description.
+         * @param contentDescription Defines localized text that briefly describes content of the
+         * complication. This property is used primarily for accessibility. Since some complications
+         * do not have textual representation this attribute can be used for providing such. Please
+         * do not include the word 'complication' in the description.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public constructor(
@@ -1154,6 +1186,14 @@ internal constructor(
  * [RangedValueComplicationData.TYPE_RATING] into
  * [RangedValueComplicationData.Builder.setValueType].
  *
+ * A data source that wants to serve a SmallImageComplicationData must include the following
+ * meta data in its manifest (NB the value is a comma separated list):
+ *
+ * ```
+ * <meta-data android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+ *        android:value="GOAL_PROGRESS"/>
+ * ```
+ *
  * @property value The [Float] value of this complication which is >= 0f, this value may be larger
  *   than [targetValue]. If it's equal to [PLACEHOLDER] the renderer must treat it as a placeholder
  *   rather than rendering normally, its suggested to be drawn as a grey arc with a percentage value
@@ -1246,8 +1286,10 @@ internal constructor(
          *
          * @param value The value of the goal complication which should be >= 0.
          * @param targetValue The target value. This must be less than [Float.MAX_VALUE].
-         * @param contentDescription Localized description for use by screen readers. Please do not
-         *   include the word 'complication' in the description.
+         * @param contentDescription Defines localized text that briefly describes content of the
+         * complication. This property is used primarily for accessibility. Since some complications
+         * do not have textual representation this attribute can be used for providing such. Please
+         * do not include the word 'complication' in the description.
          */
         public constructor(
             value: Float,
@@ -1261,8 +1303,10 @@ internal constructor(
          * @param valueExpression The [DynamicFloat] of the goal complication which will be
          *   evaluated into a value dynamically, and should be >= 0.
          * @param targetValue The target value. This must be less than [Float.MAX_VALUE].
-         * @param contentDescription Localized description for use by screen readers. Please do not
-         *   include the word 'complication' in the description.
+         * @param contentDescription Defines localized text that briefly describes content of the
+         * complication. This property is used primarily for accessibility. Since some complications
+         * do not have textual representation this attribute can be used for providing such. Please
+         * do not include the word 'complication' in the description.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public constructor(
@@ -1449,6 +1493,14 @@ internal constructor(
  * recommended to choose the [smallImage]. It's best practice for a ComplicationDataSource to
  * specify both a [monochromaticImage] and a [smallImage].
  *
+ * A data source that wants to serve a SmallImageComplicationData must include the following
+ * meta data in its manifest (NB the value is a comma separated list):
+ *
+ * ```
+ * <meta-data android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+ *    android:value="WEIGHTED_ELEMENTS"/>
+ * ```
+ *
  * @property elements The breakdown of the subject into various [Element]s (e.g. the proportion of
  *   calories consumed which were carbohydrates, fats, etc.). The colors need to be meaningful to
  *   the user (e.g. blue is cold, yellow/red is worm), and should be consistent with the experience
@@ -1564,8 +1616,10 @@ internal constructor(
      *   calories consumed which were carbohydrates, fats etc... The [tapAction] must take the user
      *   to an experience where the color key becomes obvious. The maximum valid size of this list
      *   is provided by [getMaxElements].
-     * @param contentDescription Localized description for use by screen readers. Please do not
-     *   include the word 'complication' in the description.
+     * @param contentDescription Defines localized text that briefly describes content of the
+     * complication. This property is used primarily for accessibility. Since some complications
+     * do not have textual representation this attribute can be used for providing such. Please
+     * do not include the word 'complication' in the description.
      */
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     public class Builder(
@@ -1739,6 +1793,14 @@ internal constructor(
  *
  * The image is expected to always be displayed.
  *
+ * A data source that wants to serve a MonochromaticImageComplicationData must include the following
+ * meta data in its manifest (NB the value is a comma separated list):
+ *
+ * ```
+ * <meta-data android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+ *    android:value="ICON"/>
+ * ```
+ *
  * @property monochromaticImage A simple [MonochromaticImage] image that can be tinted by the watch
  *   face (typically with SRC_IN). If the monochromaticImage is equal to
  *   [MonochromaticImage.PLACEHOLDER] the renderer must treat it as a placeholder rather than
@@ -1775,8 +1837,10 @@ internal constructor(
      * You must at a minimum set the [monochromaticImage] and [contentDescription] fields.
      *
      * @param monochromaticImage The [MonochromaticImage] to be displayed
-     * @param contentDescription Localized description for use by screen readers. Please do not
-     *   include the word 'complication' in the description.
+     * @param contentDescription Defines localized text that briefly describes content of the
+     * complication. This property is used primarily for accessibility. Since some complications
+     * do not have textual representation this attribute can be used for providing such. Please
+     * do not include the word 'complication' in the description.
      */
     public class Builder(
         private val monochromaticImage: MonochromaticImage,
@@ -1846,6 +1910,14 @@ internal constructor(
  *
  * The image is expected to always be displayed.
  *
+ * A data source that wants to serve a SmallImageComplicationData must include the following
+ * meta data in its manifest (NB the value is a comma separated list):
+ *
+ * ```
+ * <meta-data android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+ *    android:value="SMALL_IMAGE"/>
+ * ```
+ *
  * @property smallImage The [SmallImage] that is expected to cover a small fraction of a watch face
  *   occupied by a single complication. If the smallImage is equal to [SmallImage.PLACEHOLDER] the
  *   renderer must treat it as a placeholder rather than rendering normally, its suggested it should
@@ -1882,8 +1954,10 @@ internal constructor(
      * You must at a minimum set the [smallImage] and [contentDescription] fields.
      *
      * @param smallImage The [SmallImage] to be displayed
-     * @param contentDescription Localized description for use by screen readers. Please do not
-     *   include the word 'complication' in the description.
+     * @param contentDescription Defines localized text that briefly describes content of the
+     * complication. This property is used primarily for accessibility. Since some complications
+     * do not have textual representation this attribute can be used for providing such. Please
+     * do not include the word 'complication' in the description.
      */
     public class Builder(
         private val smallImage: SmallImage,
@@ -1957,6 +2031,14 @@ internal constructor(
  * part of the watch face or within a complication. The image is large enough to be cover the entire
  * screen. The image may be cropped to fit the watch face or complication.
  *
+ * A data source that wants to serve a PhotoImageComplicationData must include the following
+ * meta data in its manifest (NB the value is a comma separated list):
+ *
+ * ```
+ * <meta-data android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+ *    android:value="LARGE_IMAGE"/>
+ * ```
+ *
  * @property photoImage The [Icon] that is expected to fill a large part of the watch face, large
  *   enough to be shown as either a background or as part of a high resolution complication. This
  *   must not be tinted. If the photoImage is equal to [PhotoImageComplicationData.PLACEHOLDER] the
@@ -1994,8 +2076,10 @@ internal constructor(
      * You must at a minimum set the [photoImage] and [contentDescription] fields.
      *
      * @param photoImage The [Icon] to be displayed
-     * @param contentDescription Localized description for use by screen readers. Please do not
-     *   include the word 'complication' in the description.
+     * @param contentDescription Defines localized text that briefly describes content of the
+     * complication. This property is used primarily for accessibility. Since some complications
+     * do not have textual representation this attribute can be used for providing such. Please
+     * do not include the word 'complication' in the description.
      */
     public class Builder(
         private val photoImage: Icon,

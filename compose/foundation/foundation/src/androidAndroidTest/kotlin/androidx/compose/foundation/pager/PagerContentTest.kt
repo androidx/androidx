@@ -17,13 +17,19 @@
 package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
@@ -33,6 +39,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.google.common.truth.Truth
 import kotlin.test.assertContentEquals
 import kotlin.test.assertTrue
 import org.junit.Test
@@ -103,6 +110,58 @@ class PagerContentTest : SingleOrientationPagerTest(Orientation.Horizontal) {
 
         rule.runOnIdle {
             assertContentEquals(drawingList, listOf(1, 3, 5, 7, 9, 0, 2, 4, 6, 8))
+        }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun scrollableState_isScrollableWhenChangingPages() {
+        val states = mutableMapOf<Int, ScrollState>()
+        val pagerState = PagerState()
+        rule.setContent {
+            HorizontalPager(
+                pageCount = 2,
+                state = pagerState,
+                modifier = Modifier
+                    .testTag("pager")
+                    .fillMaxSize()
+            ) { page ->
+                Column(
+                    modifier = Modifier
+                        .testTag("$page")
+                        .verticalScroll(rememberScrollState().also {
+                            states[page] = it
+                        })
+                ) {
+                    repeat(100) {
+                        Box(
+                            modifier = Modifier
+                                .height(200.dp)
+                                .fillMaxWidth()
+                        )
+                    }
+                }
+            }
+        }
+        rule.onNodeWithTag("0").performTouchInput {
+            swipe(bottomCenter, topCenter)
+        }
+        rule.runOnIdle {
+            Truth.assertThat(states[0]!!.value).isNotEqualTo(0f)
+        }
+        val previousScrollStateValue = states[0]!!.value
+        rule.onNodeWithTag("pager").performTouchInput {
+            swipe(centerRight, centerLeft)
+        }
+
+        rule.onNodeWithTag("pager").performTouchInput {
+            swipe(centerLeft, centerRight)
+        }
+        rule.onNodeWithTag("0").performTouchInput {
+            swipe(bottomCenter, topCenter)
+        }
+        rule.runOnIdle {
+            Truth.assertThat(previousScrollStateValue).isNotEqualTo(states[0]!!.value)
         }
     }
 }

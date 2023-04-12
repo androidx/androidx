@@ -17,38 +17,43 @@
 package androidx.appactions.interaction.capabilities.core.impl
 
 import androidx.annotation.RestrictTo
-import androidx.appactions.interaction.capabilities.core.ActionCapability
-import androidx.appactions.interaction.capabilities.core.ActionExecutorAsync
+import androidx.appactions.interaction.capabilities.core.ActionExecutor
+import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 import androidx.appactions.interaction.proto.TaskInfo
+import kotlinx.coroutines.sync.Mutex
 
-/** @hide */
+/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class SingleTurnCapabilityImpl<
     PropertyT,
-    ArgumentT,
+    ArgumentsT,
     OutputT,
     > constructor(
-    override val id: String,
-    val actionSpec: ActionSpec<PropertyT, ArgumentT, OutputT>,
+    id: String,
+    val actionSpec: ActionSpec<PropertyT, ArgumentsT, OutputT>,
     val property: PropertyT,
-    val actionExecutorAsync: ActionExecutorAsync<ArgumentT, OutputT>,
-) : ActionCapability {
-    override val supportsMultiTurnTask = false
+    val actionExecutor: ActionExecutor<ArgumentsT, OutputT>,
+) : Capability(id) {
+    private val mutex = Mutex()
 
-    override fun getAppAction(): AppAction {
-        return actionSpec.convertPropertyToProto(property).toBuilder()
+    override val appAction: AppAction =
+        actionSpec.convertPropertyToProto(property).toBuilder()
             .setTaskInfo(TaskInfo.newBuilder().setSupportsPartialFulfillment(false))
             .setIdentifier(id)
             .build()
-    }
 
-    override fun createSession(hostProperties: HostProperties): ActionCapabilitySession {
+    override fun createSession(
+        sessionId: String,
+        hostProperties: HostProperties,
+    ): CapabilitySession {
         return SingleTurnCapabilitySession(
+            sessionId,
             actionSpec,
-            actionExecutorAsync,
+            actionExecutor,
+            mutex,
         )
     }
 }

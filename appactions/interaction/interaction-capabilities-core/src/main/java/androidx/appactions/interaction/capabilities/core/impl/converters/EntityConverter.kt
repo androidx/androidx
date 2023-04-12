@@ -16,6 +16,7 @@
 package androidx.appactions.interaction.capabilities.core.impl.converters
 
 import androidx.appactions.interaction.proto.Entity
+import androidx.appactions.interaction.protobuf.Value
 
 /**
  * Converter from any Type to the Entity proto. This converter is usually used in the direction from
@@ -28,15 +29,30 @@ import androidx.appactions.interaction.proto.Entity
 fun interface EntityConverter<T> {
 
     /** Converter to an Entity proto. */
-    fun convert(type: T): Entity
+    fun convert(obj: T): Entity
 
     companion object {
+        /**
+         * @param typeSpec the TypeSpec of the structured type.
+         */
         fun <T> of(typeSpec: TypeSpec<T>): EntityConverter<T> {
-            return EntityConverter { entity ->
-                val builder = Entity.newBuilder().setStructValue(typeSpec.toStruct(entity))
-                typeSpec.getIdentifier(entity)?.let { builder.setIdentifier(it) }
+            return EntityConverter { obj ->
+                val builder = valueToEntity(typeSpec.toValue(obj)).toBuilder()
+                typeSpec.getIdentifier(obj)?.let { builder.setIdentifier(it) }
                 builder.build()
             }
+        }
+
+        internal fun valueToEntity(value: Value): Entity {
+            val builder = Entity.newBuilder()
+            when {
+                value.hasStringValue() -> builder.setStringValue(value.getStringValue())
+                value.hasBoolValue() -> builder.setBoolValue(value.getBoolValue())
+                value.hasNumberValue() -> builder.setNumberValue(value.getNumberValue())
+                value.hasStructValue() -> builder.setStructValue(value.getStructValue())
+                else -> throw IllegalStateException("cannot convert $value into Entity.")
+            }
+            return builder.build()
         }
     }
 }

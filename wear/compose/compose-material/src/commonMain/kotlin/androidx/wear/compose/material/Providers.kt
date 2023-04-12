@@ -17,18 +17,17 @@
 package androidx.wear.compose.material
 
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 
-internal fun provideContent(
+internal fun <T> provideScopeContent(
     contentColor: State<Color>,
     textStyle: TextStyle,
-    content: (@Composable RowScope.() -> Unit)
-): (@Composable RowScope.() -> Unit) = {
+    content: (@Composable T.() -> Unit)
+): (@Composable T.() -> Unit) = {
     val color = contentColor.value
     CompositionLocalProvider(
         LocalContentColor provides color,

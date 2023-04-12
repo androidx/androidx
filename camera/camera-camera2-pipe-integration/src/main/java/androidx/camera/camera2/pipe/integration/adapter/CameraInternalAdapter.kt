@@ -70,7 +70,6 @@ class CameraInternalAdapter @Inject constructor(
     }
 
     override fun release(): ListenableFuture<Void> {
-        // TODO(b/185207100): Implement when CameraState is ready.
         return threads.scope.launch { useCaseManager.close() }.asListenableFuture()
     }
 

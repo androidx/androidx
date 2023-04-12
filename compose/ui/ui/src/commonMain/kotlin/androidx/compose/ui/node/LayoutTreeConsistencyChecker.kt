@@ -66,6 +66,7 @@ internal class LayoutTreeConsistencyChecker(
             if (measurePending) {
                 return relayoutNodes.contains(this) ||
                     parent?.measurePending == true ||
+                    parent?.lookaheadMeasurePending == true ||
                     parentLayoutState == LayoutNode.LayoutState.Measuring
             }
             if (layoutPending) {

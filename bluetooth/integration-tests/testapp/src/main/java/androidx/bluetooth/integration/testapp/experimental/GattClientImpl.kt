@@ -39,6 +39,7 @@ import kotlinx.coroutines.launch
 internal class GattClientImpl {
     companion object {
         private const val TAG = "GattClientImpl"
+        private const val GATT_MAX_MTU = 517
     }
     private data class ClientTask(
         val taskBlock: () -> Unit
@@ -75,11 +76,21 @@ internal class GattClientImpl {
         val callback = object : BluetoothGattCallback() {
             override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
                 if (newState == BluetoothGatt.STATE_CONNECTED) {
+                    gatt?.requestMtu(GATT_MAX_MTU)
+                } else {
+                    connectResult.complete(false)
+                    // TODO(b/270492198): throw precise exception
+                    finished.completeExceptionally(IllegalStateException("connect failed"))
+                }
+            }
+
+            override fun onMtuChanged(gatt: BluetoothGatt?, mtu: Int, status: Int) {
+                if (status == GATT_SUCCESS) {
                     gatt?.discoverServices()
                 } else {
                     connectResult.complete(false)
-                    // TODO: throw precise exception
-                    finished.completeExceptionally(IllegalStateException("??"))
+                    // TODO(b/270492198): throw precise exception
+                    finished.completeExceptionally(IllegalStateException("mtu request failed"))
                 }
             }
 

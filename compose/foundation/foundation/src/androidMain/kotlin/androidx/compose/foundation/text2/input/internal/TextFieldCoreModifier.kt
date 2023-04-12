@@ -77,7 +77,7 @@ internal data class TextFieldCoreModifier(
     private val cursorBrush: Brush,
     private val writeable: Boolean,
     private val scrollState: ScrollState,
-    private val orientation: Orientation
+    private val orientation: Orientation,
 ) : ModifierNodeElement<TextFieldCoreModifierNode>() {
 
     override fun create(): TextFieldCoreModifierNode = TextFieldCoreModifierNode(
@@ -87,7 +87,7 @@ internal data class TextFieldCoreModifier(
         cursorBrush = cursorBrush,
         writable = writeable,
         scrollState = scrollState,
-        orientation = orientation
+        orientation = orientation,
     )
 
     override fun update(node: TextFieldCoreModifierNode): TextFieldCoreModifierNode {
@@ -98,7 +98,7 @@ internal data class TextFieldCoreModifier(
             cursorBrush = cursorBrush,
             writeable = writeable,
             scrollState = scrollState,
-            orientation = orientation
+            orientation = orientation,
         )
         return node
     }
@@ -117,7 +117,7 @@ internal class TextFieldCoreModifierNode(
     private var cursorBrush: Brush,
     private var writable: Boolean,
     private var scrollState: ScrollState,
-    private var orientation: Orientation
+    private var orientation: Orientation,
 ) : Modifier.Node(),
     LayoutModifierNode,
     DrawModifierNode,
@@ -158,7 +158,7 @@ internal class TextFieldCoreModifierNode(
         cursorBrush: Brush,
         writeable: Boolean,
         scrollState: ScrollState,
-        orientation: Orientation
+        orientation: Orientation,
     ) {
         val wasFocused = this.isFocused
         val previousTextFieldState = this.textFieldState
@@ -181,7 +181,7 @@ internal class TextFieldCoreModifierNode(
             changeObserverJob = coroutineScope.launch {
                 // Animate the cursor even when animations are disabled by the system.
                 withContext(FixedMotionDurationScale) {
-                    snapshotFlow { textFieldState.value }
+                    snapshotFlow { textFieldState.text }
                         .collectLatest {
                             // ensure that the value is always 1f _this_ frame by calling snapTo
                             cursorAlpha.snapTo(1f)
@@ -204,14 +204,14 @@ internal class TextFieldCoreModifierNode(
 
     override fun ContentDrawScope.draw() {
         drawContent()
-        val value = textFieldState.value
+        val value = textFieldState.text
         val textLayoutResult = textLayoutState.layoutResult ?: return
 
-        if (value.selection.collapsed) {
+        if (value.selectionInChars.collapsed) {
             drawText(textLayoutResult)
-            drawCursor(value.selection, textLayoutResult)
+            drawCursor(value.selectionInChars, textLayoutResult)
         } else {
-            drawSelection(value.selection, textLayoutResult)
+            drawSelection(value.selectionInChars, textLayoutResult)
             drawText(textLayoutResult)
         }
     }
@@ -224,7 +224,7 @@ internal class TextFieldCoreModifierNode(
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult {
-        val currSelection = textFieldState.value.selection
+        val currSelection = textFieldState.text.selectionInChars
         val offsetToFollow = when {
             currSelection.start != previousSelection.start -> currSelection.start
             currSelection.end != previousSelection.end -> currSelection.end
@@ -260,13 +260,13 @@ internal class TextFieldCoreModifierNode(
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult {
-        val value = textFieldState.value
+        val value = textFieldState.text
         val offsetToFollow = when {
-            value.selection.start != previousSelection.start -> value.selection.start
-            value.selection.end != previousSelection.end -> value.selection.end
-            else -> value.selection.min
+            value.selectionInChars.start != previousSelection.start -> value.selectionInChars.start
+            value.selectionInChars.end != previousSelection.end -> value.selectionInChars.end
+            else -> value.selectionInChars.min
         }
-        previousSelection = value.selection
+        previousSelection = value.selectionInChars
 
         // If the maxIntrinsicWidth of the children is already smaller than the constraint, pass
         // the original constraints so that the children has more information to determine its

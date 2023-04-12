@@ -44,6 +44,8 @@ internal class EditingBuffer(
 
     private val gapBuffer = PartialGapBuffer(text.text)
 
+    val changeTracker = ChangeTracker()
+
     /**
      * The inclusive selection start offset
      */
@@ -165,6 +167,7 @@ internal class EditingBuffer(
      * @throws IllegalArgumentException if start is larger than end. (reversed range)
      */
     fun replace(start: Int, end: Int, text: String) {
+        changeTracker.trackChange(TextRange(start, end), text.length)
 
         if (start < 0 || start > gapBuffer.length) {
             throw IndexOutOfBoundsException(
@@ -206,6 +209,7 @@ internal class EditingBuffer(
      * Instead, preserve the selection with adjusting the deleted text.
      */
     fun delete(start: Int, end: Int) {
+        changeTracker.trackChange(TextRange(start, end), 0)
         val deleteRange = TextRange(start, end)
 
         gapBuffer.replace(start, end, "")

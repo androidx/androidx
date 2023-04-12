@@ -20,8 +20,12 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.demos.text.TagLine
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text2.BasicTextField2
+import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -30,11 +34,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.core.text.isDigitsOnly
 
 @Composable
 fun BasicTextField2Demos() {
-    Column {
+    Column(
+        Modifier
+            .imePadding()
+            .verticalScroll(rememberScrollState())
+    ) {
         TagLine(tag = "Plain BasicTextField2")
         PlainBasicTextField2()
 
@@ -43,9 +50,6 @@ fun BasicTextField2Demos() {
 
         TagLine(tag = "State toggling BasicTextField2")
         StateTogglingBasicTextField2()
-
-        TagLine(tag = "Digits Only BasicTextField2")
-        DigitsOnlyBasicTextField2()
     }
 }
 
@@ -64,7 +68,7 @@ fun SingleLineBasicTextField2() {
         state = state,
         modifier = demoTextFieldModifiers,
         textStyle = LocalTextStyle.current,
-        maxLines = 1
+        lineLimits = TextFieldLineLimits.SingleLine
     )
 }
 
@@ -79,16 +83,5 @@ fun StateTogglingBasicTextField2() {
         counter %= 2
     })
 
-    BasicTextField2(state, demoTextFieldModifiers, textStyle = LocalTextStyle.current)
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun DigitsOnlyBasicTextField2() {
-    val state = remember {
-        TextFieldState { old, new ->
-            if (new.text.isDigitsOnly()) new else old
-        }
-    }
     BasicTextField2(state, demoTextFieldModifiers, textStyle = LocalTextStyle.current)
 }

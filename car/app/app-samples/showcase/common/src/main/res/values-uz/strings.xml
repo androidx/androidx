@@ -34,7 +34,7 @@
     <string name="checked_action_title" msgid="906023941445896399">"Belgilandi"</string>
     <string name="unchecked_action_title" msgid="802503415474307811">"Belgi olib tashlandi"</string>
     <string name="on_action_title" msgid="4129601573763429611">"Yoniq"</string>
-    <string name="off_action_title" msgid="8669201170189204848">"Yoqilmagan"</string>
+    <string name="off_action_title" msgid="8669201170189204848">"Oʻchiq"</string>
     <string name="settings_action_title" msgid="8616900063253887861">"Sozlamalar"</string>
     <string name="accept_action_title" msgid="4899660585470647578">"Qabul qilish"</string>
     <string name="reject_action_title" msgid="6730366705938402668">"Rad etish"</string>

@@ -206,12 +206,15 @@ package androidx.browser.customtabs {
     ctor public CustomTabsService();
     method protected boolean cleanUpSession(androidx.browser.customtabs.CustomTabsSessionToken);
     method protected abstract android.os.Bundle? extraCommand(String, android.os.Bundle?);
+    method @IntRange(from=0, to=100) protected int getGreatestScrollPercentage(androidx.browser.customtabs.CustomTabsSessionToken, android.os.Bundle);
+    method protected boolean isEngagementSignalsApiAvailable(androidx.browser.customtabs.CustomTabsSessionToken, android.os.Bundle);
     method protected abstract boolean mayLaunchUrl(androidx.browser.customtabs.CustomTabsSessionToken, android.net.Uri?, android.os.Bundle?, java.util.List<android.os.Bundle!>?);
     method protected abstract boolean newSession(androidx.browser.customtabs.CustomTabsSessionToken);
     method public android.os.IBinder onBind(android.content.Intent?);
     method @androidx.browser.customtabs.CustomTabsService.Result protected abstract int postMessage(androidx.browser.customtabs.CustomTabsSessionToken, String, android.os.Bundle?);
     method protected abstract boolean receiveFile(androidx.browser.customtabs.CustomTabsSessionToken, android.net.Uri, int, android.os.Bundle?);
     method protected abstract boolean requestPostMessageChannel(androidx.browser.customtabs.CustomTabsSessionToken, android.net.Uri);
+    method protected boolean setEngagementSignalsCallback(androidx.browser.customtabs.CustomTabsSessionToken, androidx.browser.customtabs.EngagementSignalsCallback, android.os.Bundle);
     method protected abstract boolean updateVisuals(androidx.browser.customtabs.CustomTabsSessionToken, android.os.Bundle?);
     method protected abstract boolean validateRelationship(androidx.browser.customtabs.CustomTabsSessionToken, @androidx.browser.customtabs.CustomTabsService.Relation int, android.net.Uri, android.os.Bundle?);
     method protected abstract boolean warmup(long);
@@ -246,11 +249,15 @@ package androidx.browser.customtabs {
 
   public final class CustomTabsSession {
     method @VisibleForTesting public static androidx.browser.customtabs.CustomTabsSession createMockSessionForTesting(android.content.ComponentName);
+    method @IntRange(from=0, to=100) @RequiresFeature(name=androidx.browser.customtabs.CustomTabsFeatures.ENGAGEMENT_SIGNALS, enforcement="androidx.browser.customtabs.CustomTabsSession#isEngagementSignalsApiAvailable") public int getGreatestScrollPercentage(android.os.Bundle) throws android.os.RemoteException;
+    method public boolean isEngagementSignalsApiAvailable(android.os.Bundle) throws android.os.RemoteException;
     method public boolean mayLaunchUrl(android.net.Uri?, android.os.Bundle?, java.util.List<android.os.Bundle!>?);
     method @androidx.browser.customtabs.CustomTabsService.Result public int postMessage(String, android.os.Bundle?);
     method public boolean receiveFile(android.net.Uri, int, android.os.Bundle?);
     method public boolean requestPostMessageChannel(android.net.Uri);
     method public boolean setActionButton(android.graphics.Bitmap, String);
+    method @RequiresFeature(name=androidx.browser.customtabs.CustomTabsFeatures.ENGAGEMENT_SIGNALS, enforcement="androidx.browser.customtabs.CustomTabsSession#isEngagementSignalsApiAvailable") public boolean setEngagementSignalsCallback(androidx.browser.customtabs.EngagementSignalsCallback, android.os.Bundle) throws android.os.RemoteException;
+    method @RequiresFeature(name=androidx.browser.customtabs.CustomTabsFeatures.ENGAGEMENT_SIGNALS, enforcement="androidx.browser.customtabs.CustomTabsSession#isEngagementSignalsApiAvailable") public boolean setEngagementSignalsCallback(java.util.concurrent.Executor, androidx.browser.customtabs.EngagementSignalsCallback, android.os.Bundle) throws android.os.RemoteException;
     method public boolean setSecondaryToolbarViews(android.widget.RemoteViews?, int[]?, android.app.PendingIntent?);
     method @Deprecated public boolean setToolbarItem(int, android.graphics.Bitmap, String);
     method public boolean validateRelationship(@androidx.browser.customtabs.CustomTabsService.Relation int, android.net.Uri, android.os.Bundle?);
@@ -261,6 +268,12 @@ package androidx.browser.customtabs {
     method public androidx.browser.customtabs.CustomTabsCallback? getCallback();
     method public static androidx.browser.customtabs.CustomTabsSessionToken? getSessionTokenFromIntent(android.content.Intent);
     method public boolean isAssociatedWith(androidx.browser.customtabs.CustomTabsSession);
+  }
+
+  public interface EngagementSignalsCallback {
+    method public default void onGreatestScrollPercentageIncreased(@IntRange(from=1, to=100) int, android.os.Bundle);
+    method public default void onSessionEnded(boolean, android.os.Bundle);
+    method public default void onVerticalScrollEvent(boolean, android.os.Bundle);
   }
 
   public class PostMessageService extends android.app.Service {

@@ -17,7 +17,6 @@
 package androidx.compose.foundation.lazy.staggeredgrid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.fastFold
 import androidx.compose.foundation.fastMaxOfOrNull
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
@@ -1013,9 +1012,9 @@ private class LazyStaggeredGridMeasuredItem(
 ) {
     var isVisible = true
 
-    val mainAxisSize: Int = placeables.fastFold(0) { size, placeable ->
-        size + if (isVertical) placeable.height else placeable.width
-    }
+    val mainAxisSize: Int = placeables.fastMaxOfOrNull { placeable ->
+        if (isVertical) placeable.height else placeable.width
+    } ?: 0
 
     val sizeWithSpacings: Int = (mainAxisSize + spacing).coerceAtLeast(0)
 

@@ -52,7 +52,7 @@ class DelayedWorkTrackerTest {
         builder.setLastEnqueueTime(now, TimeUnit.MILLISECONDS)
         builder.setInitialDelay(delay, TimeUnit.MILLISECONDS)
         val request = builder.build()
-        mDelayedWorkTracker.schedule(request.workSpec)
+        mDelayedWorkTracker.schedule(request.workSpec, now + delay)
 
         verify(mRunnableScheduler).scheduleWithDelay(
             anyLong(),

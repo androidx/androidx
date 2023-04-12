@@ -16,14 +16,12 @@ b * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 
 package androidx.appactions.interaction.capabilities.productivity
 
-import androidx.appactions.interaction.capabilities.core.ActionCapability
-import androidx.appactions.interaction.capabilities.core.BaseSession
-import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
+import androidx.appactions.interaction.capabilities.core.Capability
+import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
-import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
+import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
 import androidx.appactions.interaction.capabilities.core.values.SuccessStatus
 import androidx.appactions.interaction.proto.ParamValue
@@ -36,15 +34,15 @@ private const val CAPABILITY_NAME = "actions.intent.PAUSE_TIMER"
 
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setDescriptor(PauseTimer.Property::class.java)
-        .setArgument(PauseTimer.Argument::class.java, PauseTimer.Argument::Builder)
+        .setDescriptor(PauseTimer.Properties::class.java)
+        .setArguments(PauseTimer.Arguments::class.java, PauseTimer.Arguments::Builder)
         .setOutput(PauseTimer.Output::class.java)
         .bindRepeatedParameter(
             "timer",
             { property -> Optional.ofNullable(property.timerList) },
-            PauseTimer.Argument.Builder::setTimerList,
-            TimerValue.FROM_PARAM_VALUE,
-            TimerValue.TO_ENTITY_VALUE
+            PauseTimer.Arguments.Builder::setTimerList,
+            TimerValue.PARAM_VALUE_CONVERTER,
+            TimerValue.ENTITY_CONVERTER
         )
         .bindOptionalOutput(
             "executionStatus",
@@ -57,25 +55,24 @@ private val ACTION_SPEC =
 class PauseTimer private constructor() {
 
     class CapabilityBuilder :
-        CapabilityBuilderBase<
+        Capability.Builder<
             CapabilityBuilder,
-            Property,
-            Argument,
+            Properties,
+            Arguments,
             Output,
             Confirmation,
-            TaskUpdater,
-            Session,
+            ExecutionSession,
         >(ACTION_SPEC) {
-        override fun build(): ActionCapability {
-            super.setProperty(Property.Builder().build())
+        override fun build(): Capability {
+            super.setProperty(Properties.Builder().build())
             return super.build()
         }
     }
 
     // TODO(b/268369632): Remove Property from public capability APIs.
-    class Property
+    class Properties
     internal constructor(
-        val timerList: TypeProperty<TimerValue>?,
+        val timerList: Property<TimerValue>?,
     ) {
         override fun toString(): String {
             return "Property(timerList=$timerList}"
@@ -85,7 +82,7 @@ class PauseTimer private constructor() {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
 
-            other as Property
+            other as Properties
 
             if (timerList != other.timerList) return false
 
@@ -97,29 +94,29 @@ class PauseTimer private constructor() {
         }
 
         class Builder {
-            private var timerList: TypeProperty<TimerValue>? = null
+            private var timerList: Property<TimerValue>? = null
 
-            fun setTimerList(timerList: TypeProperty<TimerValue>): Builder = apply {
+            fun setTimerList(timerList: Property<TimerValue>): Builder = apply {
                 this.timerList = timerList
             }
 
-            fun build(): Property = Property(timerList)
+            fun build(): Properties = Properties(timerList)
         }
     }
 
-    class Argument
+    class Arguments
     internal constructor(
         val timerList: List<TimerValue>?,
     ) {
         override fun toString(): String {
-            return "Argument(timerList=$timerList)"
+            return "Arguments(timerList=$timerList)"
         }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
 
-            other as Argument
+            other as Arguments
 
             if (timerList != other.timerList) return false
 
@@ -130,14 +127,14 @@ class PauseTimer private constructor() {
             return timerList.hashCode()
         }
 
-        class Builder : BuilderOf<Argument> {
+        class Builder : BuilderOf<Arguments> {
             private var timerList: List<TimerValue>? = null
 
             fun setTimerList(timerList: List<TimerValue>): Builder = apply {
                 this.timerList = timerList
             }
 
-            override fun build(): Argument = Argument(timerList)
+            override fun build(): Arguments = Arguments(timerList)
         }
     }
 
@@ -203,7 +200,5 @@ class PauseTimer private constructor() {
 
     class Confirmation internal constructor()
 
-    class TaskUpdater internal constructor() : AbstractTaskUpdater()
-
-    sealed interface Session : BaseSession<Argument, Output>
+    sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 }

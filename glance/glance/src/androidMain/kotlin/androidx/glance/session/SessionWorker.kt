@@ -59,7 +59,6 @@ internal class SessionWorker(
             ?: error("SessionWorker must be started with a key")
 
     @Deprecated("Deprecated by super class, replacement in progress, see b/245353737")
-    @OptIn(ExperimentalStdlibApi::class)
     override val coroutineContext = Dispatchers.Main
 
     override suspend fun doWork(): Result = withTimeoutOrNull(defaultTimeout) {

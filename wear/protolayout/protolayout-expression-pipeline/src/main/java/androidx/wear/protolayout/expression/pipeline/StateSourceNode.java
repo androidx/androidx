@@ -23,17 +23,18 @@ import androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValu
 import java.util.function.Function;
 
 class StateSourceNode<T>
-        implements DynamicDataSourceNode<T>, DynamicTypeValueReceiver<StateEntryValue> {
+        implements DynamicDataSourceNode<T>,
+        DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> {
     private final StateStore mStateStore;
     private final String mBindKey;
     private final Function<StateEntryValue, T> mStateExtractor;
-    private final DynamicTypeValueReceiver<T> mDownstream;
+    private final DynamicTypeValueReceiverWithPreUpdate<T> mDownstream;
 
     StateSourceNode(
             StateStore stateStore,
             String bindKey,
             Function<StateEntryValue, T> stateExtractor,
-            DynamicTypeValueReceiver<T> downstream) {
+            DynamicTypeValueReceiverWithPreUpdate<T> downstream) {
         this.mStateStore = stateStore;
         this.mBindKey = bindKey;
         this.mStateExtractor = stateExtractor;

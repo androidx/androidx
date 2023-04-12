@@ -44,13 +44,13 @@ import androidx.wear.protolayout.LayoutElementBuilders.Box;
 import androidx.wear.protolayout.LayoutElementBuilders.ColorFilter;
 import androidx.wear.protolayout.LayoutElementBuilders.Image;
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
-import androidx.wear.protolayout.ModifiersBuilders;
 import androidx.wear.protolayout.ModifiersBuilders.Background;
 import androidx.wear.protolayout.ModifiersBuilders.Clickable;
 import androidx.wear.protolayout.ModifiersBuilders.Corner;
 import androidx.wear.protolayout.ModifiersBuilders.ElementMetadata;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
 import androidx.wear.protolayout.ModifiersBuilders.Semantics;
+import androidx.wear.protolayout.TypeBuilders.StringProp;
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.material.Typography.TypographyName;
 import androidx.wear.protolayout.proto.LayoutElementProto;
@@ -315,7 +315,7 @@ public class Button implements LayoutElement {
                                             .build());
             if (mContentDescription.length() > 0) {
                 modifiers.setSemantics(
-                        new ModifiersBuilders.Semantics.Builder()
+                        new Semantics.Builder()
                                 .setContentDescription(mContentDescription.toString())
                                 .build());
             }
@@ -476,7 +476,11 @@ public class Button implements LayoutElement {
         if (semantics == null) {
             return null;
         }
-        return semantics.getContentDescription();
+        StringProp contentDescriptionProp = semantics.getContentDescription();
+        if (contentDescriptionProp == null) {
+            return null;
+        }
+        return contentDescriptionProp.getValue();
     }
 
     /** Returns size for this Button. */

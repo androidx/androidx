@@ -25,6 +25,7 @@ import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.Timebase
 import androidx.camera.testing.CameraPipeConfigTestRule
@@ -165,7 +166,7 @@ class EncoderFinderTest(
             videoSpec,
             resolution!!,
             videoProfile,
-            /*expectedFrameRateRange=*/null
+            SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
         ).get().toMediaFormat()
 
         // Act.

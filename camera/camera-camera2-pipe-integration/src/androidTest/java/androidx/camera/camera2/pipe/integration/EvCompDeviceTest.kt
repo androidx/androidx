@@ -43,6 +43,7 @@ import java.util.concurrent.TimeoutException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assume
 import org.junit.Before
@@ -98,9 +99,11 @@ class EvCompDeviceTest {
     }
 
     @After
-    fun tearDown() {
+    fun tearDown(): Unit = runBlocking {
         if (::camera.isInitialized) {
-            camera.detachUseCases()
+            withContext(Dispatchers.Main) {
+                camera.removeUseCases(camera.useCases)
+            }
         }
 
         CameraXUtil.shutdown()[10000, TimeUnit.MILLISECONDS]

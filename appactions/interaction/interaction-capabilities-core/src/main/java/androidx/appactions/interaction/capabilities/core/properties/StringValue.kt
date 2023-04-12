@@ -17,7 +17,7 @@
 package androidx.appactions.interaction.capabilities.core.properties
 
 /**
- * One of the possible possible values for [ParamProperty].
+ * One of the possible possible values for [Property].
  */
 class StringValue internal constructor(
     val name: String,

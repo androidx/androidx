@@ -51,7 +51,7 @@ import kotlin.math.max
  */
 @Composable
 @ExperimentalLayoutApi
-fun FlowRow(
+inline fun FlowRow(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
@@ -101,7 +101,7 @@ fun FlowRow(
  */
 @Composable
 @ExperimentalLayoutApi
-fun FlowColumn(
+inline fun FlowColumn(
     modifier: Modifier = Modifier,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
@@ -136,8 +136,9 @@ private fun getHorizontalArrangement(horizontalArrangement: Arrangement.Horizont
         }
     }
 
+@PublishedApi
 @Composable
-private fun rowMeasurementHelper(
+internal fun rowMeasurementHelper(
     horizontalArrangement: Arrangement.Horizontal,
     verticalArrangement: Arrangement.Vertical,
     maxItemsInMainAxis: Int,
@@ -156,8 +157,9 @@ private fun rowMeasurementHelper(
     }
 }
 
+@PublishedApi
 @Composable
-private fun columnMeasurementHelper(
+internal fun columnMeasurementHelper(
     verticalArrangement: Arrangement.Vertical,
     horizontalArrangement: Arrangement.Horizontal,
     maxItemsInMainAxis: Int,

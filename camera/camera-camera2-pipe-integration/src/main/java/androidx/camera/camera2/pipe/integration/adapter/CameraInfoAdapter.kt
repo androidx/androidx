@@ -171,7 +171,7 @@ class CameraInfoAdapter @Inject constructor(
     override fun isFocusMeteringSupported(action: FocusMeteringAction) =
         focusMeteringControl.isFocusMeteringSupported(action)
 
-    override fun getSupportedFpsRanges(): List<Range<Int>> {
+    override fun getSupportedFrameRateRanges(): List<Range<Int>> {
         return cameraProperties
             .metadata[CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES]?.toList()
             ?: listOf()

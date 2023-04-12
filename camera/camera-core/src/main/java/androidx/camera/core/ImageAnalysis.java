@@ -298,7 +298,7 @@ public final class ImageAnalysis extends UseCase {
             ResolutionSelector.Builder resolutionSelectorBuilder =
                     ResolutionSelector.Builder.fromResolutionSelector(resolutionSelector);
             resolutionSelectorBuilder.setResolutionStrategy(
-                    ResolutionStrategy.create(analyzerResolution,
+                    new ResolutionStrategy(analyzerResolution,
                             ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER));
             builder.getMutableConfig().insertOption(OPTION_RESOLUTION_SELECTOR,
                     resolutionSelectorBuilder.build());
@@ -735,7 +735,6 @@ public final class ImageAnalysis extends UseCase {
      * <p>This setting is set when constructing an ImageCapture using
      * {@link Builder#setResolutionSelector(ResolutionSelector)}.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public ResolutionSelector getResolutionSelector() {
         return ((ImageOutputConfig) getCurrentConfig()).getResolutionSelector(null);
@@ -1008,7 +1007,7 @@ public final class ImageAnalysis extends UseCase {
         private static final ResolutionSelector DEFAULT_RESOLUTION_SELECTOR =
                 new ResolutionSelector.Builder().setAspectRatioStrategy(
                         AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY).setResolutionStrategy(
-                        ResolutionStrategy.create(SizeUtil.RESOLUTION_VGA,
+                        new ResolutionStrategy(SizeUtil.RESOLUTION_VGA,
                                 ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER))
                         .build();
 
@@ -1289,6 +1288,8 @@ public final class ImageAnalysis extends UseCase {
          *
          * @param aspectRatio The desired ImageAnalysis {@link AspectRatio}
          * @return The current Builder.
+         * @deprecated use {@link ResolutionSelector} with {@link AspectRatioStrategy} to specify
+         * the preferred aspect ratio settings instead.
          */
         @NonNull
         @Override
@@ -1392,6 +1393,8 @@ public final class ImageAnalysis extends UseCase {
          *
          * @param resolution The target resolution to choose from supported output sizes list.
          * @return The current Builder.
+         * @deprecated use {@link ResolutionSelector} with {@link ResolutionStrategy} to specify
+         * the preferred resolution settings instead.
          */
         @NonNull
         @Override
@@ -1483,7 +1486,6 @@ public final class ImageAnalysis extends UseCase {
          *
          * @return The current Builder.
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
         public Builder setResolutionSelector(@NonNull ResolutionSelector resolutionSelector) {

@@ -125,7 +125,7 @@ constructor(
         lazy(LazyThreadSafetyMode.PUBLICATION) {
             try {
                 Debug.trace("Camera-${camera.value}#keys") {
-                    @Suppress("UselessCallOnNotNull") characteristics.keys.orEmpty().toSet()
+                    characteristics.keys.orEmpty().toSet()
                 }
             } catch (e: AssertionError) {
                 Log.warn(e) {
@@ -139,7 +139,6 @@ constructor(
         lazy(LazyThreadSafetyMode.PUBLICATION) {
             try {
                 Debug.trace("Camera-${camera.value}#availableCaptureRequestKeys") {
-                    @Suppress("UselessCallOnNotNull")
                     characteristics.availableCaptureRequestKeys.orEmpty().toSet()
                 }
             } catch (e: AssertionError) {
@@ -154,7 +153,6 @@ constructor(
         lazy(LazyThreadSafetyMode.PUBLICATION) {
             try {
                 Debug.trace("Camera-${camera.value}#availableCaptureResultKeys") {
-                    @Suppress("UselessCallOnNotNull")
                     characteristics.availableCaptureResultKeys.orEmpty().toSet()
                 }
             } catch (e: AssertionError) {

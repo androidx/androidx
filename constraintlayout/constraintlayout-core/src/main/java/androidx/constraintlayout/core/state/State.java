@@ -205,16 +205,36 @@ public class State {
 
     /**
      * Set whether the layout direction is left to right (Ltr).
+     *
+     * @deprecated For consistency, use {@link #setRtl(boolean)} instead.
      */
+    @Deprecated
     public void setLtr(boolean isLtr) {
         mIsLtr = isLtr;
     }
 
     /**
      * Returns true if layout direction is left to right. False for right to left.
+     *
+     * @deprecated For consistency, use {@link #isRtl()} instead.
      */
+    @Deprecated
     public boolean isLtr() {
         return mIsLtr;
+    }
+
+    /**
+     * Set whether the layout direction is right to left (Rtl).
+     */
+    public void setRtl(boolean isRtl) {
+        mIsLtr = !isRtl;
+    }
+
+    /**
+     * Returns true if layout direction is right to left. False for left to right.
+     */
+    public boolean isRtl() {
+        return !mIsLtr;
     }
 
     /**

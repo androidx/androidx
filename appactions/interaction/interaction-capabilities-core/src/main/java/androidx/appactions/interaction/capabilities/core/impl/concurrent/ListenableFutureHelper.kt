@@ -8,18 +8,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 // TODO(b/269525385): merge this into Futures utility class once it's migrated to Kotlin.
-/** @hide */
+/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun <T> convertToListenableFuture(
     tag: String,
     block: suspend CoroutineScope.() -> T,
 ): ListenableFuture<T> {
-    val scope = CoroutineScope(Dispatchers.Default)
     return CallbackToFutureAdapter.getFuture { completer ->
-        val job =
-            scope.launch {
+        val job = CoroutineScope(Dispatchers.Unconfined).launch {
                 try {
-                    completer.set(scope.block())
+                    completer.set(block())
                 } catch (t: Throwable) {
                     completer.setException(t)
                 }

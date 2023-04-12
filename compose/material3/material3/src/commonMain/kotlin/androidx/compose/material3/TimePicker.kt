@@ -488,6 +488,7 @@ value class TimePickerLayoutType internal constructor(internal val value: Int) {
  *  or `true` for 24 hour format without toggle.
  */
 @Stable
+@ExperimentalMaterial3Api
 class TimePickerState(
     initialHour: Int,
     initialMinute: Int,
@@ -1395,8 +1396,9 @@ private fun TimePickerTextField(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val focusRequester = remember { FocusRequester() }
-    val textFieldColors = TextFieldDefaults.outlinedTextFieldColors(
-        containerColor = colors.timeSelectorContainerColor(true),
+    val textFieldColors = OutlinedTextFieldDefaults.colors(
+        focusedContainerColor = colors.timeSelectorContainerColor(true),
+        unfocusedContainerColor = colors.timeSelectorContainerColor(true),
         focusedTextColor = colors.timeSelectorContentColor(true),
     )
     val selected = selection == state.selection
@@ -1444,7 +1446,7 @@ private fun TimePickerTextField(
                     1.00f to Color.Transparent
                 )
             ) {
-                TextFieldDefaults.OutlinedTextFieldDecorationBox(
+                OutlinedTextFieldDefaults.DecorationBox(
                     value = value.text,
                     visualTransformation = VisualTransformation.None,
                     innerTextField = it,
@@ -1454,7 +1456,7 @@ private fun TimePickerTextField(
                     interactionSource = interactionSource,
                     contentPadding = PaddingValues(0.dp),
                     container = {
-                        TextFieldDefaults.OutlinedBorderContainerBox(
+                        OutlinedTextFieldDefaults.ContainerBox(
                             enabled = true,
                             isError = false,
                             interactionSource = interactionSource,

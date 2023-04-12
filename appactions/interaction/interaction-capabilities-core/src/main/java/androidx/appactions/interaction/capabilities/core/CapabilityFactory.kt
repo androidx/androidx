@@ -18,9 +18,9 @@ package androidx.appactions.interaction.capabilities.core
 
 import androidx.annotation.RestrictTo
 
-/** Annotates a class for creating some ActionCapability.
+/** Annotates a class for creating some Capability.
  *
- * @hide
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Target(AnnotationTarget.CLASS)

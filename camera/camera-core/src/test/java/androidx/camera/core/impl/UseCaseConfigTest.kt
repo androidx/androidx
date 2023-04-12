@@ -36,7 +36,7 @@ class UseCaseConfigTest {
         val useCaseBuilder = FakeUseCaseConfig.Builder()
         val range = Range(10, 20)
         useCaseBuilder.mutableConfig.insertOption(UseCaseConfig.OPTION_TARGET_FRAME_RATE, range)
-        Truth.assertThat(useCaseBuilder.useCaseConfig.targetFramerate).isEqualTo(range)
+        Truth.assertThat(useCaseBuilder.useCaseConfig.targetFrameRate).isEqualTo(range)
     }
 
     @Test

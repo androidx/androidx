@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.annotation.ColorInt;
+import androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationParameters;
 import androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec;
 import androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor;
@@ -34,8 +35,11 @@ public final class DynamicColorTest {
   @ColorInt private static final int CONSTANT_VALUE = 0xff00ff00;
   private static final AnimationSpec SPEC =
       new AnimationSpec.Builder()
-          .setStartDelayMillis(1)
-          .setDurationMillis(2)
+          .setAnimationParameters(
+                  new AnimationParameters.Builder()
+                          .setDurationMillis(2)
+                          .setDelayMillis(1)
+                          .build())
           .setRepeatable(
               new Repeatable.Builder().setRepeatMode(REPEAT_MODE_REVERSE).setIterations(10).build())
           .build();
@@ -90,12 +94,12 @@ public final class DynamicColorTest {
             DynamicColor.animate(
                     /* start= */ 0x00000001,
                     /* end= */ 0x00000002,
-                    new AnimationSpec.Builder().setStartDelayMillis(0).build())
+                    new AnimationSpec.Builder().build())
                 .toString())
         .isEqualTo(
             "AnimatableFixedColor{"
                 + "fromArgb=1, toArgb=2, animationSpec=AnimationSpec{"
-                + "durationMillis=0, startDelayMillis=0, easing=null, repeatable=null}}");
+                + "animationParameters=null, repeatable=null}}");
   }
 
   @Test
@@ -121,12 +125,16 @@ public final class DynamicColorTest {
     assertThat(
             DynamicColor.animate(
                     /* stateKey= */ "key",
-                    new AnimationSpec.Builder().setStartDelayMillis(1).build())
+                    new AnimationSpec.Builder()
+                            .setAnimationParameters(
+                                    new AnimationParameters.Builder().setDelayMillis(1).build())
+                            .build())
                 .toString())
         .isEqualTo(
             "AnimatableDynamicColor{"
                 + "input=StateColorSource{sourceKey=key}, animationSpec=AnimationSpec{"
-                + "durationMillis=0, startDelayMillis=1, easing=null, repeatable=null}}");
+                + "animationParameters=AnimationParameters{durationMillis=0, easing=null, "
+                + "delayMillis=1}, repeatable=null}}");
   }
 
   @Test

@@ -54,9 +54,16 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
@@ -621,6 +628,28 @@ class CompositionTests {
         scope?.invalidate()
         expectChanges()
         validate()
+    }
+
+    @Test
+    fun testSkippingNestedLambda() = compositionTest {
+        val data = mutableStateOf(0)
+
+        itemRendererCalls = 0
+        scrollingListCalls = 0
+        compose {
+            TestSkippingContent(data = data)
+        }
+
+        data.value++
+        advance()
+
+        data.value++
+        advance()
+
+        data.value++
+        advance()
+
+        assertTrue(itemRendererCalls < scrollingListCalls)
     }
 
     @Test
@@ -3732,6 +3761,71 @@ class CompositionTests {
             Text("Scoped")
         }
     }
+
+    @Test(timeout = 10000)
+    fun testCompositionAndRecomposerDeadlock() {
+        runBlocking {
+            withGlobalSnapshotManager {
+                repeat(100) {
+                    val job = Job(parent = coroutineContext[Job])
+                    val coroutineContext = Dispatchers.Unconfined + job
+                    val recomposer = Recomposer(coroutineContext)
+
+                    launch(
+                        coroutineContext + BroadcastFrameClock(),
+                        start = CoroutineStart.UNDISPATCHED
+                    ) {
+                        recomposer.runRecomposeAndApplyChanges()
+                    }
+
+                    val composition = Composition(EmptyApplier(), recomposer)
+                    composition.setContent {
+
+                        val innerComposition = Composition(
+                            EmptyApplier(),
+                            rememberCompositionContext(),
+                        )
+
+                        DisposableEffect(composition) {
+                            onDispose {
+                                innerComposition.dispose()
+                            }
+                        }
+                    }
+
+                    var value by mutableStateOf(1)
+                    launch(Dispatchers.Default + job) {
+                        while (true) {
+                            value += 1
+                            delay(1)
+                        }
+                    }
+
+                    composition.dispose()
+                    recomposer.close()
+                    job.cancel()
+                }
+            }
+        }
+    }
+
+    private inline fun CoroutineScope.withGlobalSnapshotManager(block: CoroutineScope.() -> Unit) {
+        val channel = Channel<Unit>(Channel.CONFLATED)
+        val job = launch {
+            channel.consumeEach {
+                Snapshot.sendApplyNotifications()
+            }
+        }
+        val unregisterToken = Snapshot.registerGlobalWriteObserver {
+            channel.trySend(Unit)
+        }
+        try {
+            block()
+        } finally {
+            unregisterToken.dispose()
+            job.cancel()
+        }
+    }
 }
 
 class SomeUnstableClass(val a: Any = "abc")
@@ -3987,3 +4081,56 @@ private inline fun InlineSubcomposition(
 
 @Composable
 operator fun <T> CompositionLocal<T>.getValue(thisRef: Any?, property: KProperty<*>) = current
+
+// for 274185312
+
+var itemRendererCalls = 0
+var scrollingListCalls = 0
+
+@Composable
+fun TestSkippingContent(data: State<Int>) {
+    ScrollingList { viewItem ->
+        Text("${data.value}")
+        scrollingListCalls++
+        ItemRenderer(viewItem)
+    }
+}
+
+@Composable
+fun ItemRenderer(viewItem: ListViewItem) {
+    itemRendererCalls++
+    Text("${viewItem.id}")
+}
+
+@Composable
+private fun ScrollingList(
+    itemRenderer: @Composable (ListViewItem) -> Unit,
+) {
+    ListContent(
+        viewItems = remember { listOf(ListViewItem(0), ListViewItem(1)) },
+        itemRenderer = itemRenderer
+    )
+}
+
+@Composable
+fun ListContent(
+    viewItems: List<ListViewItem>,
+    itemRenderer: @Composable (ListViewItem) -> Unit
+) {
+    viewItems.forEach { viewItem ->
+        ListContentItem(
+            viewItem = viewItem,
+            itemRenderer = itemRenderer
+        )
+    }
+}
+
+@Composable
+fun ListContentItem(
+    viewItem: ListViewItem,
+    itemRenderer: @Composable (ListViewItem) -> Unit
+) {
+    itemRenderer(viewItem)
+}
+
+data class ListViewItem(val id: Int)

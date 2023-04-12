@@ -23,6 +23,7 @@ import android.os.Build
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.rule.GrantPermissionRule
 import junit.framework.TestCase.assertEquals
+import org.junit.Assume
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -47,11 +48,12 @@ class BluetoothDeviceTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val bluetoothManager: BluetoothManager =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-    private val bluetoothAdapter: BluetoothAdapter = bluetoothManager.adapter
+    private val bluetoothAdapter: BluetoothAdapter? = bluetoothManager.adapter
 
     @Test
     fun constructorWithFwkInstance() {
-        val fwkBluetoothDevice = bluetoothAdapter.getRemoteDevice("00:01:02:03:04:05")
+        Assume.assumeNotNull(bluetoothAdapter) // Bluetooth is not available if adapter is null
+        val fwkBluetoothDevice = bluetoothAdapter!!.getRemoteDevice("00:01:02:03:04:05")
 
         val bluetoothDevice = BluetoothDevice(fwkBluetoothDevice)
 

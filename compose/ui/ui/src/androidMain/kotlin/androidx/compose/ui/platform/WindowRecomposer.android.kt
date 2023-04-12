@@ -344,7 +344,9 @@ fun View.createLifecycleAwareWindowRecomposer(
 
     val contextWithClockAndMotionScale =
         baseContext + (pausableClock ?: EmptyCoroutineContext) + motionDurationScale
-    val recomposer = Recomposer(contextWithClockAndMotionScale)
+    val recomposer = Recomposer(contextWithClockAndMotionScale).also {
+        it.pauseCompositionFrameClock()
+    }
     val runRecomposeScope = CoroutineScope(contextWithClockAndMotionScale)
     val viewTreeLifecycle =
         checkNotNull(lifecycle ?: findViewTreeLifecycleOwner()?.lifecycle) {
@@ -399,8 +401,22 @@ fun View.createLifecycleAwareWindowRecomposer(
                             }
                         }
                     }
-                    Lifecycle.Event.ON_START -> pausableClock?.resume()
-                    Lifecycle.Event.ON_STOP -> pausableClock?.pause()
+                    Lifecycle.Event.ON_START -> {
+                        // The clock starts life as paused so resume it when starting. If it is
+                        // already running (this ON_START is after an ON_STOP) then the resume is
+                        // ignored.
+                        pausableClock?.resume()
+
+                        // Resumes the frame clock dispatching If this is an ON_START after an
+                        // ON_STOP that paused it. If the recomposer is not paused  calling
+                        // `resumeFrameClock()` is ignored.
+                        recomposer.resumeCompositionFrameClock()
+                    }
+                    Lifecycle.Event.ON_STOP -> {
+                        // Pause the recomposer's frame clock which will pause all calls to
+                        // `withFrameNanos` (e.g. animations) while the window is stopped.
+                        recomposer.pauseCompositionFrameClock()
+                    }
                     Lifecycle.Event.ON_DESTROY -> {
                         recomposer.cancel()
                     }

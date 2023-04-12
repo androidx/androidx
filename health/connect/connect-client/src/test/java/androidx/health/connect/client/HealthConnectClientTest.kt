@@ -54,7 +54,7 @@ class HealthConnectClientTest {
         assertThat(HealthConnectClient.isApiSupported()).isTrue()
         assertThat(HealthConnectClient.isProviderAvailable(context, PROVIDER_PACKAGE_NAME))
             .isFalse()
-        assertThat(HealthConnectClient.sdkStatus(context, PROVIDER_PACKAGE_NAME))
+        assertThat(HealthConnectClient.getSdkStatus(context, PROVIDER_PACKAGE_NAME))
             .isEqualTo(HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED)
         assertThrows(IllegalStateException::class.java) {
             HealthConnectClient.getOrCreate(context, PROVIDER_PACKAGE_NAME)
@@ -68,7 +68,7 @@ class HealthConnectClientTest {
         installPackage(context, PROVIDER_PACKAGE_NAME, versionCode = 35001, enabled = false)
         assertThat(HealthConnectClient.isProviderAvailable(context, PROVIDER_PACKAGE_NAME))
             .isFalse()
-        assertThat(HealthConnectClient.sdkStatus(context, PROVIDER_PACKAGE_NAME))
+        assertThat(HealthConnectClient.getSdkStatus(context, PROVIDER_PACKAGE_NAME))
             .isEqualTo(HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED)
         assertThrows(IllegalStateException::class.java) {
             HealthConnectClient.getOrCreate(context, PROVIDER_PACKAGE_NAME)
@@ -82,7 +82,7 @@ class HealthConnectClientTest {
         installPackage(context, PROVIDER_PACKAGE_NAME, versionCode = 35001, enabled = true)
         assertThat(HealthConnectClient.isProviderAvailable(context, PROVIDER_PACKAGE_NAME))
             .isFalse()
-        assertThat(HealthConnectClient.sdkStatus(context, PROVIDER_PACKAGE_NAME))
+        assertThat(HealthConnectClient.getSdkStatus(context, PROVIDER_PACKAGE_NAME))
             .isEqualTo(HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED)
         assertThrows(IllegalStateException::class.java) {
             HealthConnectClient.getOrCreate(context, PROVIDER_PACKAGE_NAME)
@@ -101,7 +101,7 @@ class HealthConnectClientTest {
         installService(context, HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME)
 
         assertThat(HealthConnectClient.isProviderAvailable(context)).isFalse()
-        assertThat(HealthConnectClient.sdkStatus(context, PROVIDER_PACKAGE_NAME))
+        assertThat(HealthConnectClient.getSdkStatus(context, PROVIDER_PACKAGE_NAME))
             .isEqualTo(HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED)
         assertThrows(IllegalStateException::class.java) {
             HealthConnectClient.getOrCreate(context)
@@ -120,7 +120,7 @@ class HealthConnectClientTest {
         installService(context, HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME)
 
         assertThat(HealthConnectClient.isProviderAvailable(context)).isTrue()
-        assertThat(HealthConnectClient.sdkStatus(
+        assertThat(HealthConnectClient.getSdkStatus(
             context, HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME))
             .isEqualTo(HealthConnectClient.SDK_AVAILABLE)
         HealthConnectClient.getOrCreate(context)
@@ -133,7 +133,7 @@ class HealthConnectClientTest {
         assertThat(HealthConnectClient.isApiSupported()).isFalse()
         assertThat(HealthConnectClient.isProviderAvailable(context, PROVIDER_PACKAGE_NAME))
             .isFalse()
-        assertThat(HealthConnectClient.sdkStatus(context, PROVIDER_PACKAGE_NAME))
+        assertThat(HealthConnectClient.getSdkStatus(context, PROVIDER_PACKAGE_NAME))
             .isEqualTo(HealthConnectClient.SDK_UNAVAILABLE)
         assertThrows(UnsupportedOperationException::class.java) {
             HealthConnectClient.getOrCreate(context, PROVIDER_PACKAGE_NAME)

@@ -120,7 +120,7 @@ private fun applyColorFilter(
                 rv.setImageViewImageAlpha(viewDef.mainViewId, android.graphics.Color.alpha(color))
             } else {
                 throw IllegalStateException(
-                    "The is no use case yet to support this colorFilter in S+ versions."
+                    "There is no use case yet to support this colorFilter in S+ versions."
                 )
             }
         }

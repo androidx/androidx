@@ -152,8 +152,7 @@ object GlanceState : ConfigManager {
 }
 
 /**
- * Base class helping the creation of a state using DataStore's [Preferences] with an optional
- * CoroutineScope for [DataStore].
+ * Base class helping the creation of a state using DataStore's [Preferences].
  */
 object PreferencesGlanceStateDefinition : GlanceStateDefinition<Preferences> {
     private var coroutineScope: CoroutineScope? = null

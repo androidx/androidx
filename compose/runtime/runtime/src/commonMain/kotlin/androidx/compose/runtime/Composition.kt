@@ -623,7 +623,6 @@ internal class CompositionImpl(
                         }
                         applier.clear()
                         manager.dispatchRememberObservers()
-                        manager.dispatchNodeCallbacks()
                     }
                     manager.dispatchAbandons()
                 }
@@ -797,7 +796,6 @@ internal class CompositionImpl(
             writer.removeCurrentGroup(manager)
         }
         manager.dispatchRememberObservers()
-        manager.dispatchNodeCallbacks()
     }
 
     private fun applyChangesInLocked(changes: MutableList<Change>) {
@@ -822,7 +820,6 @@ internal class CompositionImpl(
             // that implement RememberObserver receive onRemembered before a side effect
             // that captured it and operates on it can run.
             manager.dispatchRememberObservers()
-            manager.dispatchNodeCallbacks()
             manager.dispatchSideEffects()
 
             if (pendingInvalidScopes) {
@@ -1102,6 +1099,18 @@ internal class CompositionImpl(
         }
 
         fun dispatchRememberObservers() {
+            // Send node deactivations
+            val deactivating = deactivating
+            if (!deactivating.isNullOrEmpty()) {
+                trace("Compose:deactivations") {
+                    for (i in deactivating.size - 1 downTo 0) {
+                        val instance = deactivating[i]
+                        instance.onDeactivate()
+                    }
+                }
+                deactivating.clear()
+            }
+
             // Send forgets
             if (forgetting.isNotEmpty()) {
                 trace("Compose:onForgotten") {
@@ -1122,6 +1131,20 @@ internal class CompositionImpl(
                         instance.onRemembered()
                     }
                 }
+            }
+
+            // Send node releases
+            val releasing = releasing
+            if (!releasing.isNullOrEmpty()) {
+                // note that in contrast with objects from `forgetting` we will invoke the callback
+                // even for objects being abandoned.
+                trace("Compose:releases") {
+                    for (i in releasing.size - 1 downTo 0) {
+                        val instance = releasing[i]
+                        instance.onRelease()
+                    }
+                }
+                releasing.clear()
             }
         }
 
@@ -1146,32 +1169,6 @@ internal class CompositionImpl(
                         instance.onAbandoned()
                     }
                 }
-            }
-        }
-
-        fun dispatchNodeCallbacks() {
-            val deactivating = deactivating
-            if (!deactivating.isNullOrEmpty()) {
-                trace("Compose:deactivations") {
-                    for (i in deactivating.size - 1 downTo 0) {
-                        val instance = deactivating[i]
-                        instance.onDeactivate()
-                    }
-                }
-                deactivating.clear()
-            }
-
-            val releasing = releasing
-            if (!releasing.isNullOrEmpty()) {
-                // note that in contrast with objects from `forgetting` we will invoke the callback
-                // even for objects being abandoned.
-                trace("Compose:releases") {
-                    for (i in releasing.size - 1 downTo 0) {
-                        val instance = releasing[i]
-                        instance.onRelease()
-                    }
-                }
-                releasing.clear()
             }
         }
     }

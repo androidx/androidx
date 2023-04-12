@@ -16,17 +16,17 @@
 
 package androidx.appactions.interaction.capabilities.communication
 
-import androidx.appactions.interaction.capabilities.core.ActionCapability
-import androidx.appactions.interaction.capabilities.core.BaseSession
-import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
+import androidx.appactions.interaction.capabilities.core.Capability
+import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
+import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
+import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.CALL_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.PARTICIPANT_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
-import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
+import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.values.Call
 import androidx.appactions.interaction.capabilities.core.values.Call.CallFormat
 import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
@@ -41,27 +41,27 @@ private const val CAPABILITY_NAME: String = "actions.intent.CREATE_CALL"
 
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setDescriptor(CreateCall.Property::class.java)
-        .setArgument(CreateCall.Argument::class.java, CreateCall.Argument::Builder)
+        .setDescriptor(CreateCall.Properties::class.java)
+        .setArguments(CreateCall.Arguments::class.java, CreateCall.Arguments::Builder)
         .setOutput(CreateCall.Output::class.java)
         .bindOptionalParameter(
             "call.callFormat",
             { property -> Optional.ofNullable(property.callFormat) },
-            CreateCall.Argument.Builder::setCallFormat,
+            CreateCall.Arguments.Builder::setCallFormat,
             TypeConverters.CALL_FORMAT_PARAM_VALUE_CONVERTER,
-            TypeConverters::toEntity
+            TypeConverters.CALL_FORMAT_ENTITY_CONVERTER
         )
         .bindRepeatedParameter(
             "call.participant",
             { property -> Optional.ofNullable(property.participant) },
-            CreateCall.Argument.Builder::setParticipantList,
-            ParticipantValue.FROM_PARAM_VALUE,
+            CreateCall.Arguments.Builder::setParticipantList,
+            ParticipantValue.PARAM_VALUE_CONVERTER,
             EntityConverter.of(PARTICIPANT_TYPE_SPEC)
         )
         .bindOptionalOutput(
             "call",
             { output -> Optional.ofNullable(output.call) },
-            TypeConverters::toParamValue
+            ParamValueConverter.of(CALL_TYPE_SPEC)::toParamValue
         )
         .bindOptionalOutput(
             "executionStatus",
@@ -73,22 +73,22 @@ private val ACTION_SPEC =
 @CapabilityFactory(name = CAPABILITY_NAME)
 class CreateCall private constructor() {
     class CapabilityBuilder :
-        CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session
-        >(ACTION_SPEC) {
-        override fun build(): ActionCapability {
-            super.setProperty(Property.Builder().build())
+        Capability.Builder<
+            CapabilityBuilder, Properties, Arguments, Output, Confirmation, ExecutionSession
+            >(ACTION_SPEC) {
+        override fun build(): Capability {
+            super.setProperty(Properties.Builder().build())
             // TODO(b/268369632): No-op remove empty property builder after Property is removed.
-            super.setProperty(Property.Builder().build())
+            super.setProperty(Properties.Builder().build())
             return super.build()
         }
     }
 
     // TODO(b/268369632): Remove Property from public capability APIs.
-    class Property
+    class Properties
     internal constructor(
-        val callFormat: TypeProperty<CallFormat>?,
-        val participant: TypeProperty<Participant>?
+        val callFormat: Property<CallFormat>?,
+        val participant: Property<Participant>?
     ) {
         override fun toString(): String {
             return "Property(callFormat=$callFormat, participant=$participant)"
@@ -98,7 +98,7 @@ class CreateCall private constructor() {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
 
-            other as Property
+            other as Properties
 
             if (callFormat != other.callFormat) return false
             if (participant != other.participant) return false
@@ -113,32 +113,32 @@ class CreateCall private constructor() {
         }
 
         class Builder {
-            private var callFormat: TypeProperty<CallFormat>? = null
+            private var callFormat: Property<CallFormat>? = null
 
-            private var participant: TypeProperty<Participant>? = null
+            private var participant: Property<Participant>? = null
 
-            fun setCallFormat(callFormat: TypeProperty<CallFormat>): Builder = apply {
+            fun setCallFormat(callFormat: Property<CallFormat>): Builder = apply {
                 this.callFormat = callFormat
             }
 
-            fun build(): Property = Property(callFormat, participant)
+            fun build(): Properties = Properties(callFormat, participant)
         }
     }
 
-    class Argument
+    class Arguments
     internal constructor(
         val callFormat: CallFormat?,
         val participantList: List<ParticipantValue>,
     ) {
         override fun toString(): String {
-            return "Argument(callFormat=$callFormat, participantList=$participantList)"
+            return "Arguments(callFormat=$callFormat, participantList=$participantList)"
         }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
 
-            other as Argument
+            other as Arguments
 
             if (callFormat != other.callFormat) return false
             if (participantList != other.participantList) return false
@@ -152,7 +152,7 @@ class CreateCall private constructor() {
             return result
         }
 
-        class Builder : BuilderOf<Argument> {
+        class Builder : BuilderOf<Arguments> {
             private var callFormat: CallFormat? = null
             private var participantList: List<ParticipantValue> = mutableListOf()
 
@@ -164,7 +164,7 @@ class CreateCall private constructor() {
                 this.participantList = participantList
             }
 
-            override fun build(): Argument = Argument(callFormat, participantList)
+            override fun build(): Arguments = Arguments(callFormat, participantList)
         }
     }
 
@@ -236,7 +236,5 @@ class CreateCall private constructor() {
 
     class Confirmation internal constructor()
 
-    class TaskUpdater internal constructor() : AbstractTaskUpdater()
-
-    sealed interface Session : BaseSession<Argument, Output>
+    sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 }

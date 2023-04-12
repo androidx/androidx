@@ -107,7 +107,7 @@ value class CameraError private constructor(val value: Int) {
                 is IllegalArgumentException -> ERROR_ILLEGAL_ARGUMENT_EXCEPTION
                 is SecurityException -> ERROR_SECURITY_EXCEPTION
                 else -> {
-                    if (Build.VERSION.SDK_INT == 28 && isDoNotDisturbException(throwable)) {
+                    if (shouldHandleDoNotDisturbException(throwable)) {
                         ERROR_DO_NOT_DISTURB_ENABLED
                     } else {
                         throw IllegalArgumentException("Unexpected throwable: $throwable")
@@ -143,6 +143,9 @@ value class CameraError private constructor(val value: Int) {
                 }
             }
 
+        internal fun shouldHandleDoNotDisturbException(throwable: Throwable): Boolean =
+            Build.VERSION.SDK_INT == 28 && isDoNotDisturbException(throwable)
+
         /**
          * The full stack trace of the Do Not Disturb exception on API level 28 is as follows:
          *
@@ -167,3 +170,6 @@ value class CameraError private constructor(val value: Int) {
         }
     }
 }
+
+// TODO(b/276918807): When we have CameraProperties, handle the exception on a more granular level.
+class DoNotDisturbException(message: String) : RuntimeException(message)

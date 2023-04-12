@@ -16,13 +16,11 @@
 
 package androidx.appactions.interaction.capabilities.safety
 
-import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
-import androidx.appactions.interaction.capabilities.core.ActionCapability
-import androidx.appactions.interaction.capabilities.core.BaseSession
+import androidx.appactions.interaction.capabilities.core.Capability
+import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
 import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
 import androidx.appactions.interaction.capabilities.core.values.SuccessStatus
 import androidx.appactions.interaction.capabilities.core.values.executionstatus.NoInternetConnection
@@ -39,10 +37,10 @@ private const val CAPABILITY_NAME = "actions.intent.START_EMERGENCY_SHARING"
 
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setDescriptor(StartEmergencySharing.Property::class.java)
-        .setArgument(
-            StartEmergencySharing.Argument::class.java,
-            StartEmergencySharing.Argument::Builder
+        .setDescriptor(StartEmergencySharing.Properties::class.java)
+        .setArguments(
+            StartEmergencySharing.Arguments::class.java,
+            StartEmergencySharing.Arguments::Builder
         )
         .setOutput(StartEmergencySharing.Output::class.java)
         .bindOptionalOutput(
@@ -56,21 +54,21 @@ private val ACTION_SPEC =
 class StartEmergencySharing private constructor() {
     // TODO(b/267805819): Update to include the SessionFactory once Session API is ready.
     class CapabilityBuilder :
-        CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session,
+        Capability.Builder<
+            CapabilityBuilder, Properties, Arguments, Output, Confirmation, ExecutionSession,
             >(ACTION_SPEC) {
-        override fun build(): ActionCapability {
-            super.setProperty(Property())
+        override fun build(): Capability {
+            super.setProperty(Properties())
             return super.build()
         }
     }
 
     // TODO(b/268369632): Remove Property from public capability APIs.
-    class Property internal constructor()
+    class Properties internal constructor()
 
-    class Argument internal constructor() {
-        class Builder : BuilderOf<Argument> {
-            override fun build(): Argument = Argument()
+    class Arguments internal constructor() {
+        class Builder : BuilderOf<Arguments> {
+            override fun build(): Arguments = Arguments()
         }
     }
 
@@ -169,7 +167,5 @@ class StartEmergencySharing private constructor() {
 
     class Confirmation internal constructor()
 
-    class TaskUpdater internal constructor() : AbstractTaskUpdater()
-
-    sealed interface Session : BaseSession<Argument, Output>
+    sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 }

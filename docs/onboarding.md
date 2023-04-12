@@ -97,7 +97,7 @@ much as possible. All feature development occurs in the public
 [androidx-main](https://android.googlesource.com/platform/frameworks/support/+/androidx-main)
 branch of the Android Open Source Project.
 
-As of 2020/03/20, you will need about 38 GB for a fully-built checkout.
+As of 2023/03/30, you will need about 42 GB for a fully-built checkout.
 
 ### Synchronize the branch {#source-checkout}
 

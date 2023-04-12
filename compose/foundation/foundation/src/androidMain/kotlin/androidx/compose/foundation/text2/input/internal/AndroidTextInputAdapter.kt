@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package androidx.compose.foundation.text2.input.internal
 
 import android.os.Looper
@@ -24,7 +26,11 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
+import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text2.input.TextEditFilter
+import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.text.input.ImeAction
@@ -33,14 +39,17 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PlatformTextInput
 import androidx.compose.ui.text.input.PlatformTextInputAdapter
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.core.view.inputmethod.EditorInfoCompat
 import java.util.concurrent.Executor
+import org.jetbrains.annotations.TestOnly
 
-private const val DEBUG = true
-private const val TAG = "BasicTextInputAdapter"
+/**
+ * Enable to print logs during debugging, see [logDebug].
+ */
+@VisibleForTesting
+internal const val TIA_DEBUG = false
+private const val TAG = "AndroidTextInputAdapter"
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class AndroidTextInputAdapter constructor(
     view: View,
     private val platformTextInput: PlatformTextInput
@@ -52,40 +61,75 @@ internal class AndroidTextInputAdapter constructor(
 
     private val textInputCommandExecutor = TextInputCommandExecutor(view, inputMethodManager)
 
+    private val resetListener = EditProcessor.ResetListener { old, new ->
+        val needUpdateSelection = (old.selectionInChars != new.selectionInChars) ||
+            old.compositionInChars != new.compositionInChars
+        if (needUpdateSelection) {
+            inputMethodManager.updateSelection(
+                selectionStart = new.selectionInChars.min,
+                selectionEnd = new.selectionInChars.max,
+                compositionStart = new.compositionInChars?.min ?: -1,
+                compositionEnd = new.compositionInChars?.max ?: -1
+            )
+        }
+
+        if (!old.contentEquals(new)) {
+            inputMethodManager.restartInput()
+        }
+    }
+
     override fun createInputConnection(outAttrs: EditorInfo): InputConnection {
         logDebug { "createInputConnection" }
-        val value = currentTextInputSession?.value ?: TextFieldValue()
+        val value = currentTextInputSession?.value ?: TextFieldCharSequence()
         val imeOptions = currentTextInputSession?.imeOptions ?: ImeOptions.Default
 
         logDebug { "createInputConnection.value = $value" }
 
         outAttrs.update(value, imeOptions)
 
-        return StatelessInputConnection(
+        val inputConnection = StatelessInputConnection(
             activeSessionProvider = { currentTextInputSession }
         )
+        testInputConnectionCreatedListener?.invoke(outAttrs, inputConnection)
+        return inputConnection
     }
 
-    private val resetListener = EditProcessor.ResetListener { old, new ->
-        val needUpdateSelection = (old.selection != new.selection) ||
-            old.composition != new.composition
-        if (needUpdateSelection) {
-            inputMethodManager.updateSelection(
-                selectionStart = new.selection.min,
-                selectionEnd = new.selection.max,
-                compositionStart = new.composition?.min ?: -1,
-                compositionEnd = new.composition?.max ?: -1
-            )
-        }
-
-        if (old.text != new.text) {
-            inputMethodManager.restartInput()
-        }
+    /**
+     * Clear the resources before being disposed. Any active session should be stopped from
+     * receiving any more input.
+     */
+    override fun onDisposed() {
+        currentTextInputSession?.dispose()
     }
 
+    /**
+     * Start a new input session and close the active session if there is one. This session will
+     * be responsible for maintaining an agreement between text editor and lower level platform
+     * APIs to agree on where to direct incoming requests. If there are multiple text editors on a
+     * screen, only the active(focused) one should receive inputs from the platform input
+     * connection.
+     *
+     * Each session is tied with a [TextFieldState] from the start. The current editing state of
+     * the text editor is read and written via platform calls as long as the session is active.
+     * [ImeOptions] are used to initialize an [InputConnection] when [createInputConnection] is
+     * called. Any change in [ImeOptions] should start a new session. Regularly starting a new input
+     * session also instructs the platform to request a new [InputConnection] but that's not
+     * guaranteed. [AndroidTextInputAdapter] behaves as a bridge to establish a stable communication
+     * channel between active [TextInputSession] in this class and the [InputConnection] used by
+     * the platform.
+     *
+     * @param state Text editing state
+     * @param imeOptions How to configure the IME when creating new [InputConnection]s
+     * @param initialFilter The initial [TextEditFilter]. The filter can be changed after the
+     * session is started by calling [TextInputSession.setFilter].
+     * @param onImeActionPerformed A callback to pass received editor action from IME.
+     * @return A handle to manage active session between Adapter and platform APIs.
+     */
     fun startInputSession(
         state: TextFieldState,
-        imeOptions: ImeOptions
+        imeOptions: ImeOptions,
+        initialFilter: TextEditFilter?,
+        onImeActionPerformed: (ImeAction) -> Unit
     ): TextInputSession {
         if (!isMainThread()) {
             throw IllegalStateException("Input sessions can only be started from the main thread.")
@@ -94,36 +138,77 @@ internal class AndroidTextInputAdapter constructor(
         platformTextInput.requestInputFocus()
         textInputCommandExecutor.send(TextInputCommand.StartInput)
 
-        val nextSession = object : EditableTextInputSession {
-            init {
-                state.editProcessor.addResetListener(resetListener)
-            }
-
-            override val value: TextFieldValue
-                get() = state.value
-
-            override val imeOptions: ImeOptions = imeOptions
-
-            override fun requestEdits(editCommands: List<EditCommand>) {
-                state.editProcessor.update(editCommands)
-            }
-
-            override fun sendKeyEvent(keyEvent: KeyEvent) {
-                inputMethodManager.sendKeyEvent(keyEvent)
-            }
-
-            override val isOpen: Boolean
-                get() = currentTextInputSession == this
-
-            override fun dispose() {
-                state.editProcessor.removeResetListener(resetListener)
-                stopInputSession(this)
-            }
-        }
+        val nextSession = createEditableTextInputSession(
+            state = state,
+            imeOptions = imeOptions,
+            initialFilter = initialFilter,
+            onImeActionPerformed = onImeActionPerformed
+        )
         currentTextInputSession = nextSession
         return nextSession
     }
 
+    private fun createEditableTextInputSession(
+        state: TextFieldState,
+        imeOptions: ImeOptions,
+        initialFilter: TextEditFilter?,
+        onImeActionPerformed: (ImeAction) -> Unit
+    ) = object : EditableTextInputSession {
+
+        // Immediately start listening to reset events.
+        init {
+            state.editProcessor.addResetListener(resetListener)
+        }
+
+        // region TextInputSession
+        override val isOpen: Boolean
+            get() = currentTextInputSession == this
+
+        override fun showSoftwareKeyboard() {
+            if (isOpen) {
+                textInputCommandExecutor.send(TextInputCommand.ShowKeyboard)
+            }
+        }
+
+        override fun hideSoftwareKeyboard() {
+            if (isOpen) {
+                textInputCommandExecutor.send(TextInputCommand.HideKeyboard)
+            }
+        }
+
+        override fun dispose() {
+            state.editProcessor.removeResetListener(resetListener)
+            stopInputSession(this)
+        }
+        // endregion
+
+        // region EditableTextInputSession
+        override val value: TextFieldCharSequence
+            get() = state.text
+
+        private var filter: TextEditFilter? = initialFilter
+
+        override fun setFilter(filter: TextEditFilter?) {
+            this.filter = filter
+        }
+
+        override fun requestEdits(editCommands: List<EditCommand>) {
+            state.editProcessor.update(editCommands, filter)
+        }
+
+        override fun sendKeyEvent(keyEvent: KeyEvent) {
+            inputMethodManager.sendKeyEvent(keyEvent)
+        }
+
+        override val imeOptions: ImeOptions = imeOptions
+
+        override fun onImeAction(imeAction: ImeAction) = onImeActionPerformed(imeAction)
+        // endregion
+    }
+
+    /**
+     * Stop the given [session] if it's active and clear resources.
+     */
     private fun stopInputSession(session: TextInputSession) {
         if (!isMainThread()) {
             throw IllegalStateException("Input sessions can only be stopped from the main thread.")
@@ -132,6 +217,24 @@ internal class AndroidTextInputAdapter constructor(
             currentTextInputSession = null
             platformTextInput.releaseInputFocus()
             textInputCommandExecutor.send(TextInputCommand.StopInput)
+        }
+    }
+
+    companion object {
+        private var testInputConnectionCreatedListener: ((EditorInfo, InputConnection) -> Unit)? =
+            null
+
+        /**
+         * Set a function to be called when an [AndroidTextInputAdapter] returns from
+         * [createInputConnection]. This method should only be used to assert on the [EditorInfo]
+         * and grab the [InputConnection] to inject commands.
+         */
+        @TestOnly
+        @RestrictTo(RestrictTo.Scope.TESTS)
+        fun setInputConnectionCreatedListenerForTests(
+            listener: ((EditorInfo, InputConnection) -> Unit)?
+        ) {
+            testInputConnectionCreatedListener = listener
         }
     }
 }
@@ -289,7 +392,7 @@ private fun Choreographer.asExecutor(): Executor = Executor { runnable ->
 /**
  * Fills necessary info of EditorInfo.
  */
-internal fun EditorInfo.update(textFieldValue: TextFieldValue, imeOptions: ImeOptions) {
+internal fun EditorInfo.update(textFieldValue: TextFieldCharSequence, imeOptions: ImeOptions) {
     this.imeOptions = when (imeOptions.imeAction) {
         ImeAction.Default -> {
             if (imeOptions.singleLine) {
@@ -369,10 +472,10 @@ internal fun EditorInfo.update(textFieldValue: TextFieldValue, imeOptions: ImeOp
         }
     }
 
-    this.initialSelStart = textFieldValue.selection.start
-    this.initialSelEnd = textFieldValue.selection.end
+    this.initialSelStart = textFieldValue.selectionInChars.start
+    this.initialSelEnd = textFieldValue.selectionInChars.end
 
-    EditorInfoCompat.setInitialSurroundingText(this, textFieldValue.text)
+    EditorInfoCompat.setInitialSurroundingText(this, textFieldValue)
 
     this.imeOptions = this.imeOptions or EditorInfo.IME_FLAG_NO_FULLSCREEN
 }
@@ -380,7 +483,7 @@ internal fun EditorInfo.update(textFieldValue: TextFieldValue, imeOptions: ImeOp
 private fun hasFlag(bits: Int, flag: Int): Boolean = (bits and flag) == flag
 
 private fun logDebug(tag: String = TAG, content: () -> String) {
-    if (DEBUG) {
+    if (TIA_DEBUG) {
         Log.d(tag, content())
     }
 }
