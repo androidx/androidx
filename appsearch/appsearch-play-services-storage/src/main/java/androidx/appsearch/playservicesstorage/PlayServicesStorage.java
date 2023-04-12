@@ -135,7 +135,7 @@ public final class PlayServicesStorage {
                 .createAppSearchClient(context.mContext);
         return AppSearchTaskFutures.toListenableFuture(
                 appSearchClientTask,
-                task -> new SearchSessionImpl(task, new FeaturesImpl()));
+                task -> new SearchSessionImpl(task, new FeaturesImpl(), context.mDatabaseName));
     }
 
     /**

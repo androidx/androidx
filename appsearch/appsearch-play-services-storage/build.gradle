@@ -23,6 +23,7 @@ plugins {
 
 dependencies {
     implementation project(":appsearch:appsearch")
+    // TODO(b/278583111) Swap with the core library version in which Function gets added.
     implementation project(":core:core")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation('androidx.collection:collection:1.2.0')

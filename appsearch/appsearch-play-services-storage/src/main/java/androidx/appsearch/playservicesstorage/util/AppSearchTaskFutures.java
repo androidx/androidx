@@ -39,7 +39,10 @@ public class AppSearchTaskFutures {
     private AppSearchTaskFutures() {}
 
     /**
-     * Returns the error result code associated with the exception.
+     * Converts a {@link Task} to a {@link ListenableFuture} to more easily interact with other
+     * androidx apis.
+     * <p>Note: Calling {@link java.util.concurrent.Future#cancel(boolean)} on the returned result
+     * is a no-op since {@link Task} has no equivalent method.
      */
     @NonNull
     public static <GmsType, JetpackType> ListenableFuture<JetpackType> toListenableFuture(
@@ -61,7 +64,12 @@ public class AppSearchTaskFutures {
                         }));
     }
 
-    private static Exception toJetpackException(Exception exception) {
+    /**
+     * Converts the given Exception to AppSearchException if from PlayServicesAppSearch otherwise
+     * just returns it.
+     */
+    @NonNull
+    private static Exception toJetpackException(@NonNull Exception exception) {
         if (exception instanceof com.google.android.gms.appsearch.exceptions.AppSearchException) {
             com.google.android.gms.appsearch.exceptions.AppSearchException
                     gmsException =
@@ -83,5 +91,4 @@ public class AppSearchTaskFutures {
         Log.w(TAG, "Failed to call PlayServicesAppSearch", exception);
         return exception;
     }
-
 }

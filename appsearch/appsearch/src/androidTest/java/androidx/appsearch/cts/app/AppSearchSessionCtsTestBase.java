@@ -94,10 +94,10 @@ public abstract class AppSearchSessionCtsTestBase {
     private AppSearchSession mDb2;
 
     protected abstract ListenableFuture<AppSearchSession> createSearchSessionAsync(
-            @NonNull String dbName);
+            @NonNull String dbName) throws Exception;
 
     protected abstract ListenableFuture<AppSearchSession> createSearchSessionAsync(
-            @NonNull String dbName, @NonNull ExecutorService executor);
+            @NonNull String dbName, @NonNull ExecutorService executor) throws Exception;
 
     @Before
     public void setUp() throws Exception {
