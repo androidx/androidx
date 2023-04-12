@@ -32,7 +32,7 @@ interface Message : Thing, CreativeWork {
     interface Builder<Self : Builder<Self>> : Thing.Builder<Self>, CreativeWork.Builder<Self> {
         fun addRecipient(person: Person): Self
         fun addRecipient(recipient: Recipient): Self
-        fun addAllRecipient(value: Iterable<Recipient>): Self
+        fun addRecipients(value: List<Recipient>): Self
 
         override fun build(): Message
     }
@@ -55,7 +55,7 @@ private class MessageBuilderImpl : Message.Builder<MessageBuilderImpl> {
         recipientList.add(recipient)
     }
 
-    override fun addAllRecipient(value: Iterable<Recipient>): MessageBuilderImpl = apply {
+    override fun addRecipients(value: List<Recipient>): MessageBuilderImpl = apply {
         recipientList.addAll(value)
     }
 
@@ -83,5 +83,5 @@ private class MessageImpl(
             .setIdentifier(identifier)
             .setName(name)
             .setText(text)
-            .addAllRecipient(recipientList)
+            .addRecipients(recipientList)
 }
