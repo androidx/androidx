@@ -23,11 +23,11 @@ import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.SnapshotThreadLocal
 import androidx.compose.runtime.collection.IdentityArraySet
+import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
 import androidx.compose.runtime.synchronized
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
-import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
 
 /**
  * A snapshot of the values return by mutable states and other state objects. All state object
@@ -850,7 +850,7 @@ open class MutableSnapshot internal constructor(
             // id to be forgotten as no state records will refer to it.
             this.modified = null
             val id = id
-            for (state in modified) {
+            modified.fastForEach { state ->
                 var current: StateRecord? = state.firstStateRecord
                 while (current != null) {
                     if (current.snapshotId == id || current.snapshotId in previousIds) {
@@ -885,12 +885,12 @@ open class MutableSnapshot internal constructor(
         val start = this.invalid.set(id).or(this.previousIds)
         val modified = modified!!
         var statesToRemove: MutableList<StateObject>? = null
-        for (state in modified) {
+        modified.fastForEach { state ->
             val first = state.firstStateRecord
             // If either current or previous cannot be calculated the object was created
             // in a nested snapshot that was committed then changed.
-            val current = readable(first, snapshotId, invalidSnapshots) ?: continue
-            val previous = readable(first, id, start) ?: continue
+            val current = readable(first, snapshotId, invalidSnapshots) ?: return@fastForEach
+            val previous = readable(first, id, start) ?: return@fastForEach
             if (current != previous) {
                 val applied = readable(first, id, this.invalid) ?: readError()
                 val merged = optimisticMerges?.get(current) ?: run {
@@ -1403,12 +1403,12 @@ internal class NestedMutableSnapshot(
                 val result = innerApplyLocked(parent.id, optimisticMerges, parent.invalid)
                 if (result != SnapshotApplyResult.Success) return result
 
-                // Add all modified objects in this set to the parent
-                (
-                    parent.modified ?: IdentityArraySet<StateObject>().also {
+                parent.modified?.apply { addAll(modified) }
+                    ?: modified.also {
+                        // Ensure modified reference is only used by one snapshot
                         parent.modified = it
+                        this.modified = null
                     }
-                ).addAll(modified)
             }
 
             // Ensure the parent is newer than the current snapshot
@@ -2176,10 +2176,10 @@ private fun optimisticMerges(
     if (modified == null) return null
     val start = applyingSnapshot.invalid.set(applyingSnapshot.id).or(applyingSnapshot.previousIds)
     var result: MutableMap<StateRecord, StateRecord>? = null
-    for (state in modified) {
+    modified.fastForEach { state ->
         val first = state.firstStateRecord
-        val current = readable(first, id, invalidSnapshots) ?: continue
-        val previous = readable(first, id, start) ?: continue
+        val current = readable(first, id, invalidSnapshots) ?: return@fastForEach
+        val previous = readable(first, id, start) ?: return@fastForEach
         if (current != previous) {
             // Try to produce a merged state record
             val applied = readable(first, applyingSnapshot.id, applyingSnapshot.invalid)
