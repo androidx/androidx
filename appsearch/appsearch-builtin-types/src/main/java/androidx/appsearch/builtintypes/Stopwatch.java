@@ -77,11 +77,12 @@ public class Stopwatch extends Thing {
     Stopwatch(@NonNull String namespace, @NonNull String id, int documentScore,
             long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
             @Nullable List<String> alternateNames, @Nullable String description,
-            @Nullable String image, @Nullable String url, long baseTimeMillis,
-            long baseTimeMillisInElapsedRealtime, int bootCount, int status,
+            @Nullable String image, @Nullable String url,
+            @NonNull List<PotentialAction> potentialActions,
+            long baseTimeMillis, long baseTimeMillisInElapsedRealtime, int bootCount, int status,
             long accumulatedDurationMillis, @NonNull List<StopwatchLap> laps) {
         super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
-                alternateNames, description, image, url);
+                alternateNames, description, image, url, potentialActions);
         mBaseTimeMillis = baseTimeMillis;
         mBaseTimeMillisInElapsedRealtime = baseTimeMillisInElapsedRealtime;
         mBootCount = bootCount;
@@ -318,6 +319,7 @@ public class Stopwatch extends Thing {
         public Stopwatch build() {
             return new Stopwatch(mNamespace, mId, mDocumentScore, mCreationTimestampMillis,
                     mDocumentTtlMillis, mName, mAlternateNames, mDescription, mImage, mUrl,
+                    mPotentialActions,
                     mBaseTimeMillis, mBaseTimeMillisInElapsedRealtime, mBootCount, mStatus,
                     mAccumulatedDurationMillis, mLaps);
         }
