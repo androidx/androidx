@@ -22,10 +22,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
-import androidx.car.app.annotations.KeepFields;
 
 import java.util.Objects;
 
@@ -84,7 +84,9 @@ public final class Tab implements Content {
      * Indicates if this is the currently active tab.
      *
      * @see Tab.Builder#setActive(boolean)
+     * @deprecated use {@link TabTemplate#getActiveTabContentId()} instead.
      */
+    @Deprecated
     public boolean isActive() {
         return mIsActive;
     }
@@ -226,8 +228,11 @@ public final class Tab implements Content {
 
         /**
          * Sets the active state of the tab.
+         *
+         * @deprecated use {@link TabTemplate.Builder#setActiveTabContentId(String)} instead.
          */
         @NonNull
+        @Deprecated
         public Tab.Builder setActive(boolean isActive) {
             mIsActive = isActive;
             return this;

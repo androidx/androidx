@@ -22,7 +22,9 @@ import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Tab;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Encapsulates the constraints to apply when creating {@link TabTemplate}.
@@ -51,29 +53,36 @@ public class TabsConstraints {
      *
      * @throws IllegalArgumentException if the constraints are not met
      */
-    public void validateOrThrow(@NonNull List<Tab> tabs) {
+    public void validateOrThrow(@NonNull List<Tab> tabs, @NonNull String activeTabContentId) {
         if (tabs.size() < mMinTabs) {
             throw new IllegalArgumentException(
-                    "Number of tabs set do not meet the minimum requirement of " + mMinTabs
-                            + " tabs");
+                    "There must be at least " + mMinTabs + " tab(s) added, but only found "
+                            + tabs.size());
         }
 
         if (tabs.size() > mMaxTabs) {
             throw new IllegalArgumentException(
-                    "Number of tabs set exceed the maximum allowed size of " + mMaxTabs);
+                    "There cannot be more than " + mMaxTabs + " tabs added, found " + tabs.size());
         }
 
-        int numOfActiveTabs = 0;
+        boolean hasTabWithActiveTabContentId = false;
+        Set<String> contentIdSet = new HashSet<>();
         for (Tab tab : tabs) {
-            if (tab.isActive()) {
-                numOfActiveTabs++;
+            if (activeTabContentId.equals(tab.getContentId())) {
+                hasTabWithActiveTabContentId = true;
+            }
+            if (!contentIdSet.add(tab.getContentId())) {
+                throw new IllegalArgumentException(
+                        "Found duplicate tab ID: " + tab.getContentId() + ". Each tab must have a"
+                                + " unique ID."
+                );
             }
         }
-        if (numOfActiveTabs == 0) {
-            throw new IllegalArgumentException("An active tab is required");
-        }
-        if (numOfActiveTabs > 1) {
-            throw new IllegalArgumentException("Only one active tab is allowed");
+
+        if (!hasTabWithActiveTabContentId) {
+            throw new IllegalArgumentException(
+                    "There is no tab with content ID matching the active tab content ID set on "
+                            + "the template");
         }
     }
 
