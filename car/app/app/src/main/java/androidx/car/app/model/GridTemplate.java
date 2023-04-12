@@ -66,8 +66,6 @@ public final class GridTemplate implements Template {
      * <p>The host decides how to map these size buckets to dimensions. The grid item image size
      * and grid item width will vary by bucket, and the number of items per row
      * will be adjusted according to bucket and screen size.
-     *
-     * @hide
      */
     @ExperimentalCarApi
     @RequiresCarApi(7)
@@ -109,6 +107,43 @@ public final class GridTemplate implements Template {
     @RequiresCarApi(7)
     public static final int ITEM_SIZE_LARGE = (1 << 2);
 
+    /**
+     * The shape of each grid item image contained within this GridTemplate.
+     *
+     * <p>Grid item images will be cropped by the host to match the shape type.
+     */
+    @ExperimentalCarApi
+    @RequiresCarApi(7)
+    @IntDef(
+            value = {
+                    ITEM_IMAGE_SHAPE_UNSET,
+                    ITEM_IMAGE_SHAPE_CIRCLE,
+            })
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(LIBRARY)
+    public @interface ItemImageShape {
+    }
+
+    /**
+     * Represents a preference to keep the images as-is without modifying their shape.
+     *
+     * <p>This is the default setting.
+     *
+     * @see GridTemplate.Builder#setItemImageShape(int)
+     */
+    @ExperimentalCarApi
+    @RequiresCarApi(7)
+    public static final int ITEM_IMAGE_SHAPE_UNSET = (1 << 0);
+
+    /**
+     * Represents a preference to crop all grid item images into the shape of a circle.
+     *
+     * @see GridTemplate.Builder#setItemImageShape(int)
+     */
+    @ExperimentalCarApi
+    @RequiresCarApi(7)
+    public static final int ITEM_IMAGE_SHAPE_CIRCLE = (1 << 1);
+
     private final boolean mIsLoading;
     @Nullable
     private final CarText mTitle;
@@ -121,6 +156,8 @@ public final class GridTemplate implements Template {
     private final List<Action> mActions;
     @ItemSize
     private final int mItemSize;
+    @ItemImageShape
+    private final int mItemImageShape;
 
     /**
      * Returns the title of the template or {@code null} if not set.
@@ -197,6 +234,20 @@ public final class GridTemplate implements Template {
         return mItemSize;
     }
 
+    /**
+     * Returns the item image shape.
+     *
+     * <p>All item images in the grid are cropped into the specified shape.
+     *
+     * @see GridTemplate.Builder#setItemImageShape(int)
+     */
+    @ExperimentalCarApi
+    @ItemImageShape
+    @RequiresCarApi(7)
+    public int getItemImageShape() {
+        return mItemImageShape;
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -206,7 +257,7 @@ public final class GridTemplate implements Template {
     @Override
     public int hashCode() {
         return Objects.hash(mIsLoading, mTitle, mHeaderAction, mSingleList, mActionStrip,
-                mItemSize);
+                mItemSize, mItemImageShape);
     }
 
     @Override
@@ -225,7 +276,8 @@ public final class GridTemplate implements Template {
                 && Objects.equals(mSingleList, otherTemplate.mSingleList)
                 && Objects.equals(mActionStrip, otherTemplate.mActionStrip)
                 && Objects.equals(mActions, otherTemplate.mActions)
-                && mItemSize == otherTemplate.mItemSize;
+                && mItemSize == otherTemplate.mItemSize
+                && mItemImageShape == otherTemplate.mItemImageShape;
     }
 
     GridTemplate(Builder builder) {
@@ -236,6 +288,7 @@ public final class GridTemplate implements Template {
         mActionStrip = builder.mActionStrip;
         mActions = CollectionUtils.unmodifiableCopy(builder.mActions);
         mItemSize = builder.mItemSize;
+        mItemImageShape = builder.mItemImageShape;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -248,6 +301,7 @@ public final class GridTemplate implements Template {
         mActionStrip = null;
         mActions = Collections.emptyList();
         mItemSize = ITEM_SIZE_SMALL;
+        mItemImageShape = ITEM_IMAGE_SHAPE_UNSET;
     }
 
     /** A builder of {@link GridTemplate}. */
@@ -265,6 +319,7 @@ public final class GridTemplate implements Template {
         final List<Action> mActions = new ArrayList<>();
         @ItemSize
         int mItemSize = ITEM_SIZE_SMALL;
+        @ItemImageShape int mItemImageShape = ITEM_IMAGE_SHAPE_UNSET;
 
         /**
          * Sets whether the template is in a loading state.
@@ -389,6 +444,22 @@ public final class GridTemplate implements Template {
         @RequiresCarApi(7)
         public Builder setItemSize(@ItemSize int gridItemSize) {
             mItemSize = gridItemSize;
+            return this;
+        }
+
+        /**
+         * Sets the item image shape for this template.
+         *
+         * <p>Grid item images will all be cropped to the specified shape. If set to
+         * ITEM_IMAGE_SHAPE_UNSET, the images will be rendered as-is without changing the shape.
+         *
+         * <p>If not set, default to ITEM_IMAGE_SHAPE_UNSET.
+         */
+        @ExperimentalCarApi
+        @NonNull
+        @RequiresCarApi(7)
+        public Builder setItemImageShape(@ItemImageShape int itemImageShape) {
+            mItemImageShape = itemImageShape;
             return this;
         }
 
