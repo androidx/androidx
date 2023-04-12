@@ -62,13 +62,13 @@ class TextFieldState(
      * changes.
      *
      * To observe changes to this property outside a restartable function, see [forEachTextValue]
-     * and [textValues].
+     * and [textAsFlow].
      *
      * @sample androidx.compose.foundation.samples.BasicTextField2TextDerivedStateSample
      *
      * @see edit
      * @see forEachTextValue
-     * @see textValues
+     * @see textAsFlow
      */
     val text: TextFieldCharSequence
         get() = editProcessor.value
@@ -160,7 +160,17 @@ fun rememberTextFieldState(): TextFieldState =
  * Sets the text in this [TextFieldState] to [text], replacing any text that was previously there,
  * and places the cursor at the end of the new text.
  *
- * To perform more complicated edits on the text, call [TextFieldState.edit].
+ * To perform more complicated edits on the text, call [TextFieldState.edit]. This function is
+ * equivalent to calling:
+ * ```
+ * edit {
+ *   replace(0, length, text)
+ *   placeCursorAtEnd()
+ * }
+ * ```
+ *
+ * @see setTextAndSelectAll
+ * @see TextFieldBuffer.placeCursorAtEnd
  */
 @ExperimentalFoundationApi
 fun TextFieldState.setTextAndPlaceCursorAtEnd(text: String) {
@@ -174,7 +184,17 @@ fun TextFieldState.setTextAndPlaceCursorAtEnd(text: String) {
  * Sets the text in this [TextFieldState] to [text], replacing any text that was previously there,
  * and selects all the text.
  *
- * To perform more complicated edits on the text, call [TextFieldState.edit].
+ * To perform more complicated edits on the text, call [TextFieldState.edit]. This function is
+ * equivalent to calling:
+ * ```
+ * edit {
+ *   replace(0, length, text)
+ *   selectAll()
+ * }
+ * ```
+ *
+ * @see setTextAndPlaceCursorAtEnd
+ * @see TextFieldBuffer.selectAll
  */
 @ExperimentalFoundationApi
 fun TextFieldState.setTextAndSelectAll(text: String) {

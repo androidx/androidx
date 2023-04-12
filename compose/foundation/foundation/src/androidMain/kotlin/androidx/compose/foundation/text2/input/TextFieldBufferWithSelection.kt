@@ -103,10 +103,10 @@ class TextFieldBufferWithSelection internal constructor(
      * If [index] is inside an invalid run, the cursor will be placed at the nearest later index.
      *
      * To place the cursor at the end of the field, after the last character, pass index
-     * [MutableTextFieldValue.codepointLength] or call [placeCursorAtEnd].
+     * [TextFieldBuffer.codepointLength] or call [placeCursorAtEnd].
      *
      * @param index Codepoint index to place cursor after, should be in range 0 to
-     * [MutableTextFieldValue.codepointLength], inclusive.
+     * [TextFieldBuffer.codepointLength], inclusive.
      *
      * @see placeCursorAfterCharAt
      * @see placeCursorBeforeCodepointAt
@@ -124,10 +124,10 @@ class TextFieldBufferWithSelection internal constructor(
      * nearest later index.
      *
      * To place the cursor at the end of the field, after the last character, pass index
-     * [MutableTextFieldValue.length] or call [placeCursorAtEnd].
+     * [TextFieldBuffer.length] or call [placeCursorAtEnd].
      *
      * @param index Character index to place cursor after, should be in range 0 to
-     * [MutableTextFieldValue.length], inclusive.
+     * [TextFieldBuffer.length], inclusive.
      *
      * @see placeCursorAfterCodepointAt
      * @see placeCursorBeforeCharAt
@@ -139,14 +139,16 @@ class TextFieldBufferWithSelection internal constructor(
 
     /**
      * Places the cursor at the end of the text.
+     *
+     * @see placeCursorBeforeFirstChange
+     * @see placeCursorAfterLastChange
      */
     fun placeCursorAtEnd() {
         selectionInChars = TextRange(length)
     }
 
     /**
-     * Returns a [TextEditResult] that places the cursor after the last change made to this
-     * [TextFieldBuffer].
+     * Places the cursor after the last change made to this [TextFieldBufferWithSelection].
      *
      * @see placeCursorAtEnd
      * @see placeCursorBeforeFirstChange
@@ -158,8 +160,7 @@ class TextFieldBufferWithSelection internal constructor(
     }
 
     /**
-     * Returns a [TextEditResult] that places the cursor before the first change made to this
-     * [TextFieldBuffer].
+     * Places the cursor before the first change made to this [TextFieldBufferWithSelection].
      *
      * @see placeCursorAfterLastChange
      */
@@ -213,14 +214,15 @@ class TextFieldBufferWithSelection internal constructor(
 
     /**
      * Places the selection around all the text.
+     *
+     * @see selectAllChanges
      */
     fun selectAll() {
         selectionInChars = TextRange(0, length)
     }
 
     /**
-     * Returns a [TextEditResult] that places the selection before the first change and after the
-     * last change.
+     * Places the selection before the first change and after the last change.
      *
      * @see selectAll
      */
@@ -236,9 +238,10 @@ class TextFieldBufferWithSelection internal constructor(
     }
 
     /**
-     * Revert all changes made to this value since it was created. After calling this method, this
-     * object will be in the same state it was when it was initially created, and [changes] will be
-     * empty.
+     * Revert all changes made to this value since it was created.
+     *
+     * After calling this method, this object will be in the same state it was when it was initially
+     * created, and [changes] will be empty.
      */
     fun revertAllChanges() {
         replace(0, length, sourceValue.toString())
