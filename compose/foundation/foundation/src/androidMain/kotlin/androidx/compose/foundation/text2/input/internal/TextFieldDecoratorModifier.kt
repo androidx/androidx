@@ -268,7 +268,7 @@ internal class TextFieldDecoratorModifierNode(
     override val semanticsConfiguration: SemanticsConfiguration
         get() {
             var localSemantics = semanticsConfigurationCache
-            val value = textFieldState.value
+            val value = textFieldState.text
             // Cache invalidation is done here instead of only in updateNode because the text or
             // selection might change without triggering a modifier update.
             if (localSemantics == null ||
@@ -380,7 +380,7 @@ internal class TextFieldDecoratorModifierNode(
                     // reset is required to make sure IME gets the update.
                     textFieldState.editProcessor.reset(
                         TextFieldCharSequence(
-                            text = textFieldState.value,
+                            text = textFieldState.text,
                             selection = TextRange(start, end)
                         )
                     )

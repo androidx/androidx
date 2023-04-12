@@ -78,7 +78,7 @@ internal class TextFieldPreparedSelection(
      * [TextFieldPreparedSelection]. It is also used to make comparison between the initial state
      * and the modified state of selection and content.
      */
-    val initialValue = Snapshot.withoutReadObservation { state.value }
+    val initialValue = Snapshot.withoutReadObservation { state.text }
 
     /**
      * Current active selection in the context of this [TextFieldPreparedSelection]

@@ -181,7 +181,7 @@ internal class TextFieldCoreModifierNode(
             changeObserverJob = coroutineScope.launch {
                 // Animate the cursor even when animations are disabled by the system.
                 withContext(FixedMotionDurationScale) {
-                    snapshotFlow { textFieldState.value }
+                    snapshotFlow { textFieldState.text }
                         .collectLatest {
                             // ensure that the value is always 1f _this_ frame by calling snapTo
                             cursorAlpha.snapTo(1f)
@@ -204,7 +204,7 @@ internal class TextFieldCoreModifierNode(
 
     override fun ContentDrawScope.draw() {
         drawContent()
-        val value = textFieldState.value
+        val value = textFieldState.text
         val textLayoutResult = textLayoutState.layoutResult ?: return
 
         if (value.selectionInChars.collapsed) {
@@ -224,7 +224,7 @@ internal class TextFieldCoreModifierNode(
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult {
-        val currSelection = textFieldState.value.selectionInChars
+        val currSelection = textFieldState.text.selectionInChars
         val offsetToFollow = when {
             currSelection.start != previousSelection.start -> currSelection.start
             currSelection.end != previousSelection.end -> currSelection.end
@@ -260,7 +260,7 @@ internal class TextFieldCoreModifierNode(
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult {
-        val value = textFieldState.value
+        val value = textFieldState.text
         val offsetToFollow = when {
             value.selectionInChars.start != previousSelection.start -> value.selectionInChars.start
             value.selectionInChars.end != previousSelection.end -> value.selectionInChars.end

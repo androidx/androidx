@@ -228,7 +228,7 @@ class BasicTextField2SemanticsTest {
         rule.onNodeWithTag(Tag).performTextInputSelection(TextRange(2))
 
         rule.runOnIdle {
-            assertThat(state.value.selectionInChars).isEqualTo(TextRange(2))
+            assertThat(state.text.selectionInChars).isEqualTo(TextRange(2))
         }
     }
 

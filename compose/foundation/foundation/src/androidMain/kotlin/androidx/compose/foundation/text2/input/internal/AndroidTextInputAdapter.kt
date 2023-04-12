@@ -184,7 +184,7 @@ internal class AndroidTextInputAdapter constructor(
 
         // region EditableTextInputSession
         override val value: TextFieldCharSequence
-            get() = state.value
+            get() = state.text
 
         private var filter: TextEditFilter? = initialFilter
 
