@@ -18,6 +18,7 @@ package androidx.wear.protolayout.expression.pipeline;
 
 import static java.util.Collections.emptyMap;
 
+import android.annotation.SuppressLint;
 import android.icu.util.ULocale;
 import android.os.Handler;
 import android.os.Looper;
@@ -26,7 +27,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.collection.ArrayMap;
 import androidx.wear.protolayout.expression.DynamicBuilders;
+import androidx.wear.protolayout.expression.PlatformDataKey;
 import androidx.wear.protolayout.expression.pipeline.BoolNodes.ComparisonFloatNode;
 import androidx.wear.protolayout.expression.pipeline.BoolNodes.ComparisonInt32Node;
 import androidx.wear.protolayout.expression.pipeline.BoolNodes.FixedBoolNode;
@@ -82,6 +85,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 /**
@@ -142,18 +147,23 @@ public class DynamicTypeEvaluator {
         @Nullable private final TimeGateway mTimeGateway;
         @Nullable private final SensorGateway mSensorGateway;
         @Nullable private final QuotaManager mDynamicTypesQuotaManager;
+        @NonNull private final Map<PlatformDataKey<?>, PlatformDataProvider>
+                mSourceKeyToDataProviders = new ArrayMap<>();
 
         Config(
                 @Nullable StateStore stateStore,
                 @Nullable QuotaManager animationQuotaManager,
                 @Nullable QuotaManager dynamicTypesQuotaManager,
                 @Nullable TimeGateway timeGateway,
-                @Nullable SensorGateway sensorGateway) {
+                @Nullable SensorGateway sensorGateway,
+                @NonNull Map<PlatformDataKey<?>, PlatformDataProvider>
+                        sourceKeyToDataProviders) {
             this.mStateStore = stateStore;
             this.mAnimationQuotaManager = animationQuotaManager;
             this.mTimeGateway = timeGateway;
             this.mSensorGateway = sensorGateway;
             this.mDynamicTypesQuotaManager = dynamicTypesQuotaManager;
+            this.mSourceKeyToDataProviders.putAll(sourceKeyToDataProviders);
         }
 
         /** Builds a {@link DynamicTypeEvaluator.Config}. */
@@ -162,8 +172,9 @@ public class DynamicTypeEvaluator {
             @Nullable private QuotaManager mAnimationQuotaManager = null;
             @Nullable private QuotaManager mDynamicTypesQuotaManager;
             @Nullable private TimeGateway mTimeGateway = null;
-
             @Nullable private SensorGateway mSensorGateway = null;
+            @NonNull private final Map<PlatformDataKey<?>, PlatformDataProvider>
+                    mSourceKeyToDataProviders = new ArrayMap<>();
 
             /**
              * Sets the state store that will be used for dereferencing the state keys in the
@@ -227,6 +238,38 @@ public class DynamicTypeEvaluator {
                 return this;
             }
 
+            /**
+             * Add a platform data provider and specify the keys it can provide dynamic data for.
+             *
+             * <p> The provider must support at least one key. If the provider supports multiple
+             * keys, they should not be independent, as their values should always update together.
+             * One data key must not have multiple providers, or an exception will be thrown.
+             *
+             * @throws IllegalArgumentException If a PlatformDataProvider supports an empty key
+             * set or if a key has multiple data providers.
+             */
+            @SuppressLint("MissingGetterMatchingBuilder")
+            @NonNull
+            public Builder addPlatformDataProvider(
+                    @NonNull PlatformDataProvider platformDataProvider,
+                    @NonNull Set<PlatformDataKey<?>> supportedDataKeys
+            ) {
+                if (supportedDataKeys.isEmpty()) {
+                    throw new IllegalArgumentException(
+                            "The PlatformDataProvider must support at least one key");
+                }
+                for (PlatformDataKey<?> dataKey : supportedDataKeys) {
+                    // Throws exception when one data key has multiple providers.
+                    if (mSourceKeyToDataProviders.containsKey(dataKey)) {
+                        throw new IllegalArgumentException(String.format(
+                                "Multiple data providers for PlatformDataKey (%s)", dataKey));
+                    }
+                    mSourceKeyToDataProviders.put(dataKey, platformDataProvider);
+                }
+
+                return this;
+            }
+
             @NonNull
             public Config build() {
                 return new Config(
@@ -234,7 +277,8 @@ public class DynamicTypeEvaluator {
                         mAnimationQuotaManager,
                         mDynamicTypesQuotaManager,
                         mTimeGateway,
-                        mSensorGateway);
+                        mSensorGateway,
+                        mSourceKeyToDataProviders);
             }
         }
 
@@ -285,6 +329,15 @@ public class DynamicTypeEvaluator {
         public TimeGateway getTimeGateway() {
             return mTimeGateway;
         }
+
+        /**
+         * Returns any available mapping between source key and its data provider.
+         */
+        @NonNull
+        public Map<PlatformDataKey<?>, PlatformDataProvider> getPlatformDataProviders() {
+            return new ArrayMap<>(
+                    (ArrayMap<PlatformDataKey<?>, PlatformDataProvider>) mSourceKeyToDataProviders);
+        }
     }
 
     /** Constructs a {@link DynamicTypeEvaluator}. */
@@ -313,6 +366,8 @@ public class DynamicTypeEvaluator {
         } else {
             this.mSensorGatewayDataSource = null;
         }
+
+        this.mStateStore.putAllPlatformProviders(config.getPlatformDataProviders());
     }
 
     /**
@@ -528,10 +583,8 @@ public class DynamicTypeEvaluator {
                 }
             case STATE_SOURCE:
                 {
-                    node =
-                            new StateStringNode(
-                                    mStateStore, stringSource.getStateSource(), consumer);
-                    break;
+                   node = new StateStringNode(mStateStore, stringSource.getStateSource(), consumer);
+                   break;
                 }
             case CONDITIONAL_OP:
                 {
@@ -621,9 +674,8 @@ public class DynamicTypeEvaluator {
                 }
             case STATE_SOURCE:
                 {
-                    node =
-                            new StateInt32SourceNode(
-                                    mStateStore, int32Source.getStateSource(), consumer);
+                    node = new StateInt32SourceNode(
+                            mStateStore, int32Source.getStateSource(), consumer);
                     break;
                 }
             case CONDITIONAL_OP:
@@ -819,9 +871,8 @@ public class DynamicTypeEvaluator {
                 node = new FixedFloatNode(floatSource.getFixed(), consumer);
                 break;
             case STATE_SOURCE:
-                node =
-                        new StateFloatSourceNode(
-                                mStateStore, floatSource.getStateSource(), consumer);
+                node = new StateFloatSourceNode(
+                        mStateStore, floatSource.getStateSource(), consumer);
                 break;
             case ARITHMETIC_OPERATION:
                 {
@@ -920,9 +971,8 @@ public class DynamicTypeEvaluator {
                 node = new FixedColorNode(colorSource.getFixed(), consumer);
                 break;
             case STATE_SOURCE:
-                node =
-                        new StateColorSourceNode(
-                                mStateStore, colorSource.getStateSource(), consumer);
+                node = new StateColorSourceNode(
+                        mStateStore, colorSource.getStateSource(), consumer);
                 break;
             case ANIMATABLE_FIXED:
                 // We don't have to check if enableAnimations is true, because if it's false and
