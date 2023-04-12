@@ -22,7 +22,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.text.TextRange
 
 /**
- * A value to be returned from [TextFieldState.edit] that specifies where the place the cursor or
+ * A value to be returned from [TextFieldState.edit] that specifies where to place the cursor or
  * selection.
  *
  * Predefined results include:
@@ -85,8 +85,8 @@ fun TextFieldBuffer.placeCursorBeforeCodepointAt(index: Int): TextEditResult =
  * To place the cursor at the end of the field, after the last character, pass index
  * [TextFieldBuffer.codepointLength] or call [placeCursorAtEnd].
  *
- * @param index Codepoint index to place cursor after, should be in range 0 to
- * [TextFieldBuffer.codepointLength], inclusive.
+ * @param index Codepoint index to place cursor after, should be in range 0 (inclusive) to
+ * [TextFieldBuffer.codepointLength] (exclusive).
  *
  * @see placeCursorBeforeCharAt
  * @see placeCursorAfterCodepointAt
@@ -132,8 +132,8 @@ fun TextFieldBuffer.placeCursorBeforeCharAt(index: Int): TextEditResult =
  * To place the cursor at the end of the field, after the last character, pass index
  * [TextFieldBuffer.length] or call [placeCursorAtEnd].
  *
- * @param index Character index to place cursor after, should be in range 0 to
- * [TextFieldBuffer.length], inclusive.
+ * @param index Character index to place cursor after, should be in range 0 (inclusive) to
+ * [TextFieldBuffer.length] (exclusive).
  *
  * @see placeCursorAfterCodepointAt
  * @see placeCursorBeforeCharAt

@@ -21,7 +21,7 @@ import androidx.compose.foundation.text2.input.internal.ChangeTracker
 import androidx.compose.ui.text.TextRange
 
 /**
- * A [TextFieldBuffer] that also provides both read and write access to the current selection
+ * A [TextFieldBuffer] that also provides both read and write access to the current selection,
  * used by [TextEditFilter.filter].
  */
 @ExperimentalFoundationApi
@@ -35,6 +35,8 @@ class TextFieldBufferWithSelection internal constructor(
     /**
      * True if the selection range has non-zero length. If this is false, then the selection
      * represents the cursor.
+     *
+     * @see selectionInChars
      */
     val hasSelection: Boolean
         get() = !selectionInChars.collapsed
@@ -105,8 +107,8 @@ class TextFieldBufferWithSelection internal constructor(
      * To place the cursor at the end of the field, after the last character, pass index
      * [TextFieldBuffer.codepointLength] or call [placeCursorAtEnd].
      *
-     * @param index Codepoint index to place cursor after, should be in range 0 to
-     * [TextFieldBuffer.codepointLength], inclusive.
+     * @param index Codepoint index to place cursor after, should be in range 0 (inclusive) to
+     * [TextFieldBuffer.codepointLength] (exclusive).
      *
      * @see placeCursorAfterCharAt
      * @see placeCursorBeforeCodepointAt
@@ -126,8 +128,8 @@ class TextFieldBufferWithSelection internal constructor(
      * To place the cursor at the end of the field, after the last character, pass index
      * [TextFieldBuffer.length] or call [placeCursorAtEnd].
      *
-     * @param index Character index to place cursor after, should be in range 0 to
-     * [TextFieldBuffer.length], inclusive.
+     * @param index Character index to place cursor after, should be in range 0 (inclusive) to
+     * [TextFieldBuffer.length] (exclusive).
      *
      * @see placeCursorAfterCodepointAt
      * @see placeCursorBeforeCharAt
@@ -205,7 +207,7 @@ class TextFieldBufferWithSelection internal constructor(
      * @param range Codepoint range of the selection, should be in range 0 to
      * [TextFieldBuffer.length], inclusive.
      *
-     * @see selectCharsIn
+     * @see selectCodepointsIn
      */
     fun selectCharsIn(range: TextRange) {
         requireValidRange(range, inCodepoints = false)

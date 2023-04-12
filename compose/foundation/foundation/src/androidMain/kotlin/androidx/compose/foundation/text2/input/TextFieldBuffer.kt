@@ -61,9 +61,9 @@ open class TextFieldBuffer internal constructor(
     val codepointLength: Int get() = buffer.codePointCount(0, length)
 
     /**
-     * The [ChangeList] that represents the changes made to this value. The returned [ChangeList]
-     * will always represent the total list of changes made to this value, including changes made
-     * after this property is read.
+     * The [ChangeList] represents the changes made to this value and is inherently mutable. This
+     * means that the returned [ChangeList] always reflects the complete list of changes made to
+     * this value at any given time, even those made after reading this property.
      *
      * @sample androidx.compose.foundation.samples.BasicTextField2ChangeIterationSample
      * @sample androidx.compose.foundation.samples.BasicTextField2ChangeReverseIterationSample
@@ -212,7 +212,8 @@ open class TextFieldBuffer internal constructor(
 }
 
 /**
- * Insert [text] at the given [index] in this value.
+ * Insert [text] at the given [index] in this value. Pass 0 to insert [text] at the beginning of
+ * this buffer, and pass [TextFieldBuffer.length] to insert [text] at the end of this buffer.
  *
  * This is equivalent to calling `replace(index, index, text)`.
  *
@@ -229,7 +230,8 @@ fun TextFieldBuffer.insert(index: Int, text: String) {
 }
 
 /**
- * Delete the text between [start] (inclusive) and [end] (exclusive).
+ * Delete the text between [start] (inclusive) and [end] (exclusive). Pass 0 as [start] and
+ * [TextFieldBuffer.length] as [end] to delete everything in this buffer.
  *
  * @param start The character offset of the first character to delete.
  * @param end The character offset of the first character after the deleted range.
