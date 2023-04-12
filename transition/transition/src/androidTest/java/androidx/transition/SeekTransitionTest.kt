@@ -625,6 +625,7 @@ class SeekTransitionTest : BaseTest() {
             assertThat(runningTransitions[root]).isEmpty()
         }
     }
+
     @Test
     fun animateToStartTransitionSet() {
         if (!BuildCompat.isAtLeastU()) return
@@ -753,6 +754,70 @@ class SeekTransitionTest : BaseTest() {
             assertThat(view2.transitionAlpha).isEqualTo(1f)
 
             verify(listener, times(1)).onTransitionEnd(any())
+        }
+    }
+
+    @Test
+    fun pauseResumeOnSeek() {
+        if (!BuildCompat.isAtLeastU()) return
+        var pauseCount = 0
+        var resumeCount = 0
+        var setPauseCount = 0
+        var setResumeCount = 0
+        val set = TransitionSet().also {
+            it.addTransition(Fade().apply {
+                addListener(object : TransitionListenerAdapter() {
+                    override fun onTransitionPause(transition: Transition) {
+                        pauseCount++
+                    }
+
+                    override fun onTransitionResume(transition: Transition) {
+                        resumeCount++
+                    }
+                })
+            })
+            it.addListener(object : TransitionListenerAdapter() {
+                override fun onTransitionPause(transition: Transition) {
+                    setPauseCount++
+                }
+
+                override fun onTransitionResume(transition: Transition) {
+                    setResumeCount++
+                }
+            })
+        }
+        transition = TransitionSet().also {
+            it.addTransition(AlwaysTransition("before"))
+            it.addTransition(set)
+            it.setOrdering(TransitionSet.ORDERING_SEQUENTIAL)
+        }
+
+        lateinit var seekController: TransitionSeekController
+        lateinit var view: View
+
+        rule.runOnUiThread {
+            seekController = TransitionManager.controlDelayedTransition(root, transition)!!
+            view = View(rule.activity)
+            root.addView(view, ViewGroup.LayoutParams(100, 100))
+        }
+
+        rule.runOnUiThread {
+            assertThat(view.visibility).isEqualTo(View.VISIBLE)
+            assertThat(view.transitionAlpha).isEqualTo(0f)
+
+            // Move it to the end and then back to the beginning:
+            seekController.currentPlayTimeMillis = 600
+            seekController.currentPlayTimeMillis = 0
+
+            seekController = TransitionManager.controlDelayedTransition(root, transition)!!
+            view.visibility = View.GONE
+        }
+
+        rule.runOnUiThread {
+            assertThat(pauseCount).isEqualTo(1)
+            assertThat(resumeCount).isEqualTo(1)
+            assertThat(setPauseCount).isEqualTo(1)
+            assertThat(setResumeCount).isEqualTo(1)
         }
     }
 }
