@@ -156,9 +156,10 @@ abstract class CredentialProviderController<T1 : Any, T2 : Any, R2 : Any, R1 : A
         val errType = resultData.getString(EXCEPTION_TYPE_TAG)
         val errMsg = resultData.getString(EXCEPTION_MESSAGE_TAG)
         val exception = conversionFn(errType, errMsg)
-        cancelOrCallbackExceptionOrResult(cancellationSignal) {
+        cancelOrCallbackExceptionOrResult(cancellationSignal = cancellationSignal,
+            onResultOrException = {
             executor.execute { callback.onError(exception) }
-        }
+        })
         return true
     }
 
