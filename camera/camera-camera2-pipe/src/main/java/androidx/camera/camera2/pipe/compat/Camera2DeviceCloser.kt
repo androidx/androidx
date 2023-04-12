@@ -49,6 +49,7 @@ internal class Camera2DeviceCloserImpl @Inject constructor(
         cameraDevice: CameraDevice?,
         androidCameraState: AndroidCameraState,
     ) {
+        Log.debug { "Closing $cameraDeviceWrapper and/or $cameraDevice" }
         val unwrappedCameraDevice = cameraDeviceWrapper?.unwrapAs(CameraDevice::class)
         if (unwrappedCameraDevice != null) {
             cameraDevice?.let {
@@ -86,7 +87,7 @@ internal class Camera2DeviceCloserImpl @Inject constructor(
             if (androidCameraState.awaitCameraDeviceClosed(timeoutMillis = 2000)) {
                 Log.debug { "Camera device is closed" }
             } else {
-                Log.warn { "Failed to wait for camera device to close after 1500ms" }
+                Log.warn { "Failed to wait for camera device to close after 2000ms" }
             }
         }
     }
