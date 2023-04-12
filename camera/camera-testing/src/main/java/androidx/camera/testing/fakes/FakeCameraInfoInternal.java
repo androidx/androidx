@@ -63,11 +63,12 @@ import java.util.concurrent.Executor;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class FakeCameraInfoInternal implements CameraInfoInternal {
-    private static final List<Range<Integer>> FAKE_FPS_RANGES = Collections.unmodifiableList(
-            Arrays.asList(
+    private static final Set<Range<Integer>> FAKE_FPS_RANGES = Collections.unmodifiableSet(
+            new HashSet<>(Arrays.asList(
                     new Range<>(12, 30),
                     new Range<>(30, 30),
                     new Range<>(60, 60))
+            )
     );
     private static final Set<DynamicRange> DEFAULT_DYNAMIC_RANGES = Collections.singleton(SDR);
     private final String mCameraId;
@@ -239,7 +240,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
     @NonNull
     @Override
-    public List<Range<Integer>> getSupportedFrameRateRanges() {
+    public Set<Range<Integer>> getSupportedFrameRateRanges() {
         return FAKE_FPS_RANGES;
     }
 

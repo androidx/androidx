@@ -171,11 +171,9 @@ class CameraInfoAdapter @Inject constructor(
     override fun isFocusMeteringSupported(action: FocusMeteringAction) =
         focusMeteringControl.isFocusMeteringSupported(action)
 
-    override fun getSupportedFrameRateRanges(): List<Range<Int>> {
-        return cameraProperties
-            .metadata[CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES]?.toList()
-            ?: listOf()
-    }
+    override fun getSupportedFrameRateRanges(): Set<Range<Int>> = cameraProperties
+        .metadata[CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES]?.toSet()
+        ?: emptySet()
 
     override fun isZslSupported(): Boolean {
         Log.warn { "TODO: isZslSupported are not yet supported." }
