@@ -452,30 +452,22 @@ data class WorkSpec(
                         .toLong()
                 lastEnqueueTime + delay.coerceAtMost(WorkRequest.MAX_BACKOFF_MILLIS)
             } else if (isPeriodic) {
-                val start =
-                    if (periodCount == 0) lastEnqueueTime + initialDelay else lastEnqueueTime
+                // The first run of a periodic work request is immediate in JobScheduler, so
+                // don't apply intervalDuration to the first run.
+                var schedule =
+                    if (periodCount == 0) lastEnqueueTime + initialDelay
+                    else lastEnqueueTime + intervalDuration
+
                 val isFlexApplicable = flexDuration != intervalDuration
-                if (isFlexApplicable) {
-                    // To correctly emulate flex, we need to set it
-                    // to now, so the PeriodicWorkRequest has an initial delay of
-                    // initialDelay + (interval - flex).
-
-                    // The subsequent runs will only add the interval duration and no flex.
-                    // This gives us the following behavior:
-                    // 1 => now + (interval - flex) + initialDelay = firstRunTime
-                    // 2 => firstRunTime + 2 * interval - flex
-                    // 3 => firstRunTime + 3 * interval - flex
-                    val offset = if (periodCount == 0) -1 * flexDuration else 0
-                    start + intervalDuration + offset
-                } else {
-                    // Don't use flexDuration for determining next run time for PeriodicWork
-                    // This is because intervalDuration could equal flexDuration.
-
-                    // The first run of a periodic work request is immediate in JobScheduler, and we
-                    // need to emulate this behavior.
-                    val offset = if (periodCount == 0) 0 else intervalDuration
-                    start + offset
+                // Flex only applies to the first run of a Periodic worker, to avoid
+                // repeatedly pushing the schedule forward on every period.
+                if (isFlexApplicable && periodCount == 0) {
+                    // With flex, the first run does not run immediately, but instead respects
+                    // the first interval duration.
+                    schedule += (intervalDuration - flexDuration)
                 }
+
+                schedule
             } else if (lastEnqueueTime == 0L) {
                 // If never enqueued, we aren't scheduled to run.
                 Long.MAX_VALUE // 200 million years.

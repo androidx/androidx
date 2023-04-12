@@ -26,6 +26,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.content.res.CamColor;
 
 import java.util.Objects;
 
@@ -679,6 +680,39 @@ public final class ColorUtils {
         outResult[0] = lab1[0] * inverseRatio + lab2[0] * ratio;
         outResult[1] = lab1[1] * inverseRatio + lab2[1] * ratio;
         outResult[2] = lab1[2] * inverseRatio + lab2[2] * ratio;
+    }
+
+    /**
+     * Generate an ARGB color using M3HCT color parameters (Hue, Chroma, and Tone).
+     *
+     * @param hue is Hue in M3HCT [0, 360); invalid values are corrected.
+     * @param chroma is Chroma in M3HCT [0, ?); Chroma may decrease because chroma has a
+     *               different maximum for any given hue and tone.
+     * @param tone is Tone in M3HCT [0, 100]; invalid values are corrected.
+     */
+    @SuppressWarnings("AcronymName")
+    @ColorInt
+    public static int M3HCTtoColor(float hue, float chroma, float tone) {
+        return CamColor.toColor(hue, chroma, tone);
+    }
+
+    /**
+     * Generate a M3HCT color from an ARGB color.
+     *
+     * <ul>
+     * <li>outM3HCT[0] is Hue in M3HCT [0, 360); invalid values are corrected.</li>
+     * <li>outM3HCT[1] is Chroma in M3HCT [0, ?); Chroma may decrease because chroma has a
+     * different maximum for any given hue and tone.</li>
+     * <li>outM3HCT[2] is Tone in M3HCT [0, 100]; invalid values are corrected.</li>
+     * </ul>
+     *
+     * @param color is the ARGB color value we use to get its respective M3HCT values.
+     * @param outM3HCT 3-element array which holds the resulting M3HCT components (Hue, Chroma,
+     *                 Tone).
+     */
+    @SuppressWarnings("AcronymName")
+    public static void colorToM3HCT(@ColorInt int color, @NonNull float[] outM3HCT) {
+        CamColor.getM3HCTfromColor(color, outM3HCT);
     }
 
     @VisibleForTesting

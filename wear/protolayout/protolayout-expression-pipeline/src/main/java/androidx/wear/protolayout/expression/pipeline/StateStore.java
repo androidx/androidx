@@ -44,8 +44,8 @@ public class StateStore {
     @NonNull private final Map<String, StateEntryValue> mCurrentState = new ArrayMap<>();
 
     @NonNull
-    private final Map<String, Set<DynamicTypeValueReceiver<StateEntryValue>>> mRegisteredCallbacks =
-            new ArrayMap<>();
+    private final Map<String, Set<DynamicTypeValueReceiverWithPreUpdate<StateEntryValue>>>
+            mRegisteredCallbacks = new ArrayMap<>();
 
     /** Creates a {@link StateStore}. */
     @NonNull
@@ -85,9 +85,10 @@ public class StateStore {
         Stream.concat(removedKeys.stream(), changedEntries.keySet().stream())
                 .forEach(
                         key -> {
-                            for (DynamicTypeValueReceiver<StateEntryValue> callback :
-                                    mRegisteredCallbacks.getOrDefault(
-                                            key, Collections.emptySet())) {
+                            for (DynamicTypeValueReceiverWithPreUpdate<StateEntryValue>
+                                    callback :
+                                            mRegisteredCallbacks.getOrDefault(
+                                                    key, Collections.emptySet())) {
                                 callback.onPreUpdate();
                             }
                         });
@@ -96,23 +97,20 @@ public class StateStore {
         mCurrentState.putAll(newState);
 
         for (String key : removedKeys) {
-            for (DynamicTypeValueReceiver<StateEntryValue> callback :
+            for (DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> callback :
                     mRegisteredCallbacks.getOrDefault(key, Collections.emptySet())) {
                 callback.onInvalidated();
             }
         }
         for (Entry<String, StateEntryValue> entry : changedEntries.entrySet()) {
-            for (DynamicTypeValueReceiver<StateEntryValue> callback :
+            for (DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> callback :
                     mRegisteredCallbacks.getOrDefault(entry.getKey(), Collections.emptySet())) {
                 callback.onData(entry.getValue());
             }
         }
     }
 
-    /**
-     * Gets state with the given key.
-     *
-     */
+    /** Gets state with the given key. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @UiThread
     @Nullable
@@ -127,15 +125,18 @@ public class StateStore {
      */
     @UiThread
     void registerCallback(
-            @NonNull String key, @NonNull DynamicTypeValueReceiver<StateEntryValue> callback) {
+            @NonNull String key,
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> callback) {
         mRegisteredCallbacks.computeIfAbsent(key, k -> new ArraySet<>()).add(callback);
     }
 
     /** Unregisters from receiving the updates. */
     @UiThread
     void unregisterCallback(
-            @NonNull String key, @NonNull DynamicTypeValueReceiver<StateEntryValue> callback) {
-        Set<DynamicTypeValueReceiver<StateEntryValue>> callbackSet = mRegisteredCallbacks.get(key);
+            @NonNull String key,
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> callback) {
+        Set<DynamicTypeValueReceiverWithPreUpdate<StateEntryValue>> callbackSet =
+                mRegisteredCallbacks.get(key);
         if (callbackSet != null) {
             callbackSet.remove(callback);
         }

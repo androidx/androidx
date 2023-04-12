@@ -283,6 +283,18 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      */
     private static final float FLING_DESTRETCH_FACTOR = 4f;
 
+    /**
+     * A {@link android.content.pm.PackageManager} feature specifying if a device's rotary encoder
+     * has low resolution. Low resolution rotary encoders produce small number of
+     * {@link MotionEvent}s per a 360 degree rotation, meaning that each {@link MotionEvent} has
+     * large scroll values, which make {@link #scrollBy(int, int)} calls feel broken (due to the
+     * fact that each event produces large scrolls, and scrolling with large pixels causes a visible
+     * jump that does not feel smooth). As such, we will try adjusting our handling of generic
+     * motion caused by such low resolution rotary encoders differently to make the scrolling
+     * experience smooth.
+     */
+    static final String LOW_RES_ROTARY_ENCODER_FEATURE = "android.hardware.rotaryencoder.lowres";
+
     static final boolean DISPATCH_TEMP_DETACH = false;
 
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -690,6 +702,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     private int mLastAutoMeasureNonExactMeasuredHeight = 0;
 
     /**
+     * Whether or not the device has {@link #LOW_RES_ROTARY_ENCODER_FEATURE}. Computed once and
+     * cached, since it's a static value that would not change on consecutive calls.
+     */
+    @VisibleForTesting boolean mLowResRotaryEncoderFeature;
+
+    /**
      * The callback to convert view info diffs into animations.
      */
     private final ViewInfoStore.ProcessCallback mViewInfoProcessCallback =
@@ -798,6 +816,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                     horizontalThumbDrawable, horizontalTrackDrawable);
         }
         a.recycle();
+
+        mLowResRotaryEncoderFeature =
+                context.getPackageManager().hasSystemFeature(LOW_RES_ROTARY_ENCODER_FEATURE);
 
         // Create the layoutManager if specified.
         createLayoutManager(context, layoutManagerName, attrs, defStyleAttr, 0);
@@ -3948,6 +3969,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         if (mLayoutSuppressed) {
             return false;
         }
+
+        boolean useSmoothScroll = false;
         if (event.getAction() == MotionEvent.ACTION_SCROLL) {
             final float vScroll, hScroll;
             if ((event.getSource() & InputDeviceCompat.SOURCE_CLASS_POINTER) != 0) {
@@ -3977,14 +4000,25 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                     vScroll = 0f;
                     hScroll = 0f;
                 }
+                // Use smooth scrolling for low resolution rotary encoders to avoid the visible
+                // pixel jumps that would be caused by doing regular scrolling.
+                useSmoothScroll = mLowResRotaryEncoderFeature;
             } else {
                 vScroll = 0f;
                 hScroll = 0f;
             }
 
-            if (vScroll != 0 || hScroll != 0) {
-                nestedScrollByInternal((int) (hScroll * mScaledHorizontalScrollFactor),
-                        (int) (vScroll * mScaledVerticalScrollFactor), event, TYPE_NON_TOUCH);
+            int scaledVScroll = (int) (vScroll * mScaledVerticalScrollFactor);
+            int scaledHScroll = (int) (hScroll * mScaledHorizontalScrollFactor);
+            if (useSmoothScroll) {
+                OverScroller overScroller = mViewFlinger.mOverScroller;
+                // Account for any remaining scroll from a previous generic motion event.
+                scaledVScroll += overScroller.getFinalY() - overScroller.getCurrY();
+                scaledHScroll += overScroller.getFinalX() - overScroller.getCurrX();
+                smoothScrollBy(scaledHScroll, scaledVScroll, /* interpolator= */ null,
+                        UNDEFINED_DURATION, /* withNestedScrolling= */ true);
+            } else {
+                nestedScrollByInternal(scaledHScroll, scaledVScroll, event, TYPE_NON_TOUCH);
             }
         }
         return false;

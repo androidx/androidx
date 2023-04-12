@@ -52,6 +52,8 @@ import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+import java.util.Collection;
+
 /** Tests for {@link ScreenManager}. */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
@@ -122,7 +124,7 @@ public final class ScreenManagerTest {
         inOrder.verify(mMockScreen1).dispatchLifecycleEvent(Event.ON_RESUME);
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).hasSize(1);
+        assertThat(mScreenManager.getScreenStackInternal()).hasSize(1);
     }
 
     @Test
@@ -134,7 +136,7 @@ public final class ScreenManagerTest {
         inOrder.verify(mMockScreen1).dispatchLifecycleEvent(Event.ON_CREATE);
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).hasSize(1);
+        assertThat(mScreenManager.getScreenStackInternal()).hasSize(1);
     }
 
     @Test
@@ -160,7 +162,7 @@ public final class ScreenManagerTest {
         inOrder.verify(mMockScreen2).dispatchLifecycleEvent(Event.ON_RESUME);
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).hasSize(2);
+        assertThat(mScreenManager.getScreenStackInternal()).hasSize(2);
     }
 
     @Test
@@ -195,7 +197,7 @@ public final class ScreenManagerTest {
 
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).hasSize(2);
+        assertThat(mScreenManager.getScreenStackInternal()).hasSize(2);
     }
 
     @Test
@@ -223,7 +225,7 @@ public final class ScreenManagerTest {
 
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).hasSize(2);
+        assertThat(mScreenManager.getScreenStackInternal()).hasSize(2);
     }
 
     @Test
@@ -256,7 +258,7 @@ public final class ScreenManagerTest {
 
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).hasSize(1);
+        assertThat(mScreenManager.getScreenStackInternal()).hasSize(1);
         assertThat(mScreen1.getLifecycle().getCurrentState()).isEqualTo(State.RESUMED);
     }
 
@@ -294,7 +296,7 @@ public final class ScreenManagerTest {
 
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).hasSize(1);
+        assertThat(mScreenManager.getScreenStackInternal()).hasSize(1);
         assertThat(mScreen1.getLifecycle().getCurrentState()).isEqualTo(State.RESUMED);
     }
 
@@ -334,7 +336,7 @@ public final class ScreenManagerTest {
 
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).hasSize(1);
+        assertThat(mScreenManager.getScreenStackInternal()).hasSize(1);
         assertThat(mScreen1.getLifecycle().getCurrentState()).isEqualTo(State.RESUMED);
     }
 
@@ -371,7 +373,7 @@ public final class ScreenManagerTest {
         inOrder.verify(mMockScreen2).dispatchLifecycleEvent(Event.ON_RESUME);
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).hasSize(2);
+        assertThat(mScreenManager.getScreenStackInternal()).hasSize(2);
     }
 
     @Test
@@ -433,7 +435,7 @@ public final class ScreenManagerTest {
 
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).hasSize(1);
+        assertThat(mScreenManager.getScreenStackInternal()).hasSize(1);
     }
 
     @Test
@@ -458,7 +460,7 @@ public final class ScreenManagerTest {
 
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).isEmpty();
+        assertThat(mScreenManager.getScreenStackInternal()).isEmpty();
     }
 
     @Test
@@ -478,7 +480,7 @@ public final class ScreenManagerTest {
 
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).hasSize(1);
+        assertThat(mScreenManager.getScreenStackInternal()).hasSize(1);
     }
 
     @Test
@@ -515,7 +517,7 @@ public final class ScreenManagerTest {
 
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).hasSize(1);
+        assertThat(mScreenManager.getScreenStackInternal()).hasSize(1);
     }
 
     @Test
@@ -530,7 +532,7 @@ public final class ScreenManagerTest {
 
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).isEmpty();
+        assertThat(mScreenManager.getScreenStackInternal()).isEmpty();
     }
 
     @Test
@@ -552,7 +554,7 @@ public final class ScreenManagerTest {
 
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).hasSize(1);
+        assertThat(mScreenManager.getScreenStackInternal()).hasSize(1);
     }
 
     @Test
@@ -575,7 +577,7 @@ public final class ScreenManagerTest {
 
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).hasSize(1);
+        assertThat(mScreenManager.getScreenStackInternal()).hasSize(1);
     }
 
     @Test
@@ -615,7 +617,7 @@ public final class ScreenManagerTest {
 
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).hasSize(1);
+        assertThat(mScreenManager.getScreenStackInternal()).hasSize(1);
     }
 
     @Test
@@ -665,7 +667,7 @@ public final class ScreenManagerTest {
 
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).hasSize(1);
+        assertThat(mScreenManager.getScreenStackInternal()).hasSize(1);
     }
 
     @Test
@@ -718,7 +720,7 @@ public final class ScreenManagerTest {
 
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).hasSize(1);
+        assertThat(mScreenManager.getScreenStackInternal()).hasSize(1);
     }
 
     @Test
@@ -769,7 +771,7 @@ public final class ScreenManagerTest {
 
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).hasSize(2);
+        assertThat(mScreenManager.getScreenStackInternal()).hasSize(2);
     }
 
     @Test
@@ -781,7 +783,7 @@ public final class ScreenManagerTest {
 
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).isEmpty();
+        assertThat(mScreenManager.getScreenStackInternal()).isEmpty();
     }
 
     @Test
@@ -801,7 +803,7 @@ public final class ScreenManagerTest {
 
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).hasSize(1);
+        assertThat(mScreenManager.getScreenStackInternal()).hasSize(1);
     }
 
     @Test
@@ -838,7 +840,7 @@ public final class ScreenManagerTest {
 
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).hasSize(1);
+        assertThat(mScreenManager.getScreenStackInternal()).hasSize(1);
     }
 
     @Test
@@ -888,7 +890,7 @@ public final class ScreenManagerTest {
 
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).hasSize(1);
+        assertThat(mScreenManager.getScreenStackInternal()).hasSize(1);
     }
 
     @Test
@@ -960,7 +962,7 @@ public final class ScreenManagerTest {
 
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).hasSize(1);
+        assertThat(mScreenManager.getScreenStackInternal()).hasSize(1);
     }
 
     @Test
@@ -1035,7 +1037,7 @@ public final class ScreenManagerTest {
 
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).hasSize(1);
+        assertThat(mScreenManager.getScreenStackInternal()).hasSize(1);
     }
 
     @Test
@@ -1047,7 +1049,7 @@ public final class ScreenManagerTest {
 
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).isEmpty();
+        assertThat(mScreenManager.getScreenStackInternal()).isEmpty();
     }
 
     @Test
@@ -1068,7 +1070,7 @@ public final class ScreenManagerTest {
 
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).hasSize(1);
+        assertThat(mScreenManager.getScreenStackInternal()).hasSize(1);
     }
 
     @Test
@@ -1106,7 +1108,7 @@ public final class ScreenManagerTest {
 
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).hasSize(1);
+        assertThat(mScreenManager.getScreenStackInternal()).hasSize(1);
     }
 
     @Test
@@ -1138,7 +1140,7 @@ public final class ScreenManagerTest {
 
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).hasSize(1);
+        assertThat(mScreenManager.getScreenStackInternal()).hasSize(1);
     }
 
     @Test
@@ -1167,7 +1169,7 @@ public final class ScreenManagerTest {
 
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(mScreenManager.getScreenStack()).hasSize(2);
+        assertThat(mScreenManager.getScreenStackInternal()).hasSize(2);
     }
 
     @Test
@@ -1420,6 +1422,28 @@ public final class ScreenManagerTest {
         mScreenManager.push(mScreen2);
         mScreenManager.push(mScreen3);
         assertThat(mScreenManager.getStackSize()).isEqualTo(3);
+    }
+
+    @Test
+    public void getScreenStack_adjustOrderInCopy_originalStackKeeps() {
+        mScreenManager.push(mScreen1);
+        mScreenManager.push(mScreen2);
+        mScreenManager.push(mScreen3);
+
+        Collection<Screen> screenStack = mScreenManager.getScreenStack();
+        // remove the copied stack item from top
+        screenStack.remove(mScreen3);
+
+        //check the original stack still persist the order
+        assertThat(mScreenManager.getStackSize()).isEqualTo(3);
+        assertThat(mScreenManager.getTop()).isEqualTo(mScreen3);
+
+        // remove the original stack item from top
+        mScreenManager.pop();
+
+        //check the original stack get changed
+        assertThat(mScreenManager.getStackSize()).isEqualTo(2);
+        assertThat(mScreenManager.getTop()).isEqualTo(mScreen2);
     }
 
     @Test

@@ -60,6 +60,7 @@ import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.ceil
 import kotlin.math.floor
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -305,6 +306,7 @@ class TextFieldCursorTest {
             )
     }
 
+    @Ignore // b/271927667
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun cursorNotBlinking_whileTyping() = with(rule.density) {

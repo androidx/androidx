@@ -31,6 +31,7 @@ import android.util.Range;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.impl.AttachedSurfaceInfo;
 import androidx.camera.core.impl.CameraMode;
@@ -103,6 +104,7 @@ public class FakeCameraDeviceSurfaceManagerTest {
                         SurfaceConfig.create(YUV, PREVIEW),
                         YUV_420_888,
                         new Size(1, 1),
+                        DynamicRange.SDR,
                         new Range<>(30, 30));
         mFakeCameraDeviceSurfaceManager.getSuggestedStreamSpecs(
                 CameraMode.DEFAULT,

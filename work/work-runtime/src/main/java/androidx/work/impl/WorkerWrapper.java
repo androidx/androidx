@@ -33,6 +33,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
+import androidx.work.Clock;
 import androidx.work.Configuration;
 import androidx.work.Data;
 import androidx.work.InputMerger;
@@ -90,6 +91,7 @@ public class WorkerWrapper implements Runnable {
     ListenableWorker.Result mResult = ListenableWorker.Result.failure();
 
     private Configuration mConfiguration;
+    private Clock mClock;
     private ForegroundProcessor mForegroundProcessor;
     private WorkDatabase mWorkDatabase;
     private WorkSpecDao mWorkSpecDao;
@@ -120,6 +122,7 @@ public class WorkerWrapper implements Runnable {
         mWorker = builder.mWorker;
 
         mConfiguration = builder.mConfiguration;
+        mClock = builder.mConfiguration.getClock();
         mWorkDatabase = builder.mWorkDatabase;
         mWorkSpecDao = mWorkDatabase.workSpecDao();
         mDependencyDao = mWorkDatabase.dependencyDao();
@@ -177,7 +180,7 @@ public class WorkerWrapper implements Runnable {
             // Also potential bugs in the platform may cause a Job to run more than once.
 
             if (mWorkSpec.isPeriodic() || mWorkSpec.isBackedOff()) {
-                long now = System.currentTimeMillis();
+                long now = mClock.currentTimeMillis();
                 if (now < mWorkSpec.calculateNextRunTime()) {
                     Logger.get().debug(TAG,
                             String.format(
@@ -533,7 +536,7 @@ public class WorkerWrapper implements Runnable {
         mWorkDatabase.beginTransaction();
         try {
             mWorkSpecDao.setState(ENQUEUED, mWorkSpecId);
-            mWorkSpecDao.setLastEnqueueTime(mWorkSpecId, System.currentTimeMillis());
+            mWorkSpecDao.setLastEnqueueTime(mWorkSpecId, mClock.currentTimeMillis());
             mWorkSpecDao.markWorkSpecScheduled(mWorkSpecId, SCHEDULE_NOT_REQUESTED_YET);
             mWorkDatabase.setTransactionSuccessful();
         } finally {
@@ -549,7 +552,7 @@ public class WorkerWrapper implements Runnable {
             // Therefore we always use the current time to determine the next run time of a Worker.
             // This way, the Schedulers will correctly schedule the next instance of the
             // PeriodicWork in the future. This happens in calculateNextRunTime() in WorkSpec.
-            mWorkSpecDao.setLastEnqueueTime(mWorkSpecId, System.currentTimeMillis());
+            mWorkSpecDao.setLastEnqueueTime(mWorkSpecId, mClock.currentTimeMillis());
             mWorkSpecDao.setState(ENQUEUED, mWorkSpecId);
             mWorkSpecDao.resetWorkSpecRunAttemptCount(mWorkSpecId);
             mWorkSpecDao.incrementPeriodCount(mWorkSpecId);
@@ -571,7 +574,7 @@ public class WorkerWrapper implements Runnable {
             mWorkSpecDao.setOutput(mWorkSpecId, output);
 
             // Unblock Dependencies and set Period Start Time
-            long currentTimeMillis = System.currentTimeMillis();
+            long currentTimeMillis = mClock.currentTimeMillis();
             List<String> dependentWorkIds = mDependencyDao.getDependentWorkIds(mWorkSpecId);
             for (String dependentWorkId : dependentWorkIds) {
                 if (mWorkSpecDao.getState(dependentWorkId) == BLOCKED

@@ -143,7 +143,8 @@ abstract class DataMigrationInitializerTest<F : TestFile, IOE : Throwable>
         )
 
         val storage = testIO.getStorage(
-            TestingSerializerConfig(failingWrite = true)
+            TestingSerializerConfig(failingWrite = true),
+            { createSingleProcessCoordinator() }
         ) { testIO.newTempFile() }
         val store = newDataStore(
             initTasksList = listOf(
@@ -194,7 +195,8 @@ abstract class DataMigrationInitializerTest<F : TestFile, IOE : Throwable>
     private fun newDataStore(
         initTasksList: List<suspend (api: InitializerApi<Byte>) -> Unit> = listOf(),
         storage: Storage<Byte> = testIO.getStorage(
-            TestingSerializerConfig()
+            TestingSerializerConfig(),
+            { createSingleProcessCoordinator() }
         )
     ): DataStore<Byte> {
         return DataStoreImpl(

@@ -22,7 +22,7 @@ import io.grpc.BindableService
 /**
  * Factory for returning a [BindableService] from an []AppInteractionService].
  *
- * @hide
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object AppInteractionServiceFactory {

@@ -1,5 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+<issues format="6" by="lint 8.1.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.1.0-alpha07">
+
+    <issue
+        id="BanHideAnnotation"
+        message="@hide is not allowed in Javadoc"
+        errorLine1="    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val boundingArc: BoundingArc?"
+        errorLine2="                                                           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/ComplicationSlot.kt"/>
+    </issue>
+
+    <issue
+        id="BanHideAnnotation"
+        message="@hide is not allowed in Javadoc"
+        errorLine1="    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val boundingArc: BoundingArc?"
+        errorLine2="                                                           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/ComplicationSlot.kt"/>
+    </issue>
+
+    <issue
+        id="BanHideAnnotation"
+        message="@hide is not allowed in Javadoc"
+        errorLine1="    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val boundingArc: BoundingArc?"
+        errorLine2="                                                           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/ComplicationSlot.kt"/>
+    </issue>
+
+    <issue
+        id="BanHideAnnotation"
+        message="@hide is not allowed in Javadoc"
+        errorLine1="    public lateinit var watchState: WatchState"
+        errorLine2="                        ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/ComplicationSlotsManager.kt"/>
+    </issue>
+
+    <issue
+        id="BanHideAnnotation"
+        message="@hide is not allowed in Javadoc"
+        errorLine1="    public var configExtrasChangeCallback: WatchFace.ComplicationSlotConfigExtrasChangeCallback? ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/ComplicationSlotsManager.kt"/>
+    </issue>
+
+    <issue
+        id="BanHideAnnotation"
+        message="@hide is not allowed in Javadoc"
+        errorLine1="public annotation class CanvasType {"
+        errorLine2="                        ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/Renderer.kt"/>
+    </issue>
 
     <issue
         id="SupportAnnotationUsage"

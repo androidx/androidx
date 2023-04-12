@@ -20,7 +20,10 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.processing.SurfaceProcessorInternal;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.Executor;
 
@@ -32,6 +35,7 @@ public class FakeSurfaceProcessorInternal extends FakeSurfaceProcessor implement
         SurfaceProcessorInternal {
 
     private boolean mIsReleased;
+    private boolean mIsSnapshotTriggered = false;
 
     /**
      * {@inheritDoc}
@@ -56,5 +60,16 @@ public class FakeSurfaceProcessorInternal extends FakeSurfaceProcessor implement
     @Override
     public void release() {
         mIsReleased = true;
+    }
+
+    @Override
+    @NonNull
+    public ListenableFuture<Void> snapshot() {
+        mIsSnapshotTriggered = true;
+        return Futures.immediateFuture(null);
+    }
+
+    public boolean isSnapshotTriggered() {
+        return mIsSnapshotTriggered;
     }
 }

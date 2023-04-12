@@ -92,7 +92,8 @@ class SystemForegroundDispatcherTest {
             .build()
         taskExecutor = InstantWorkTaskExecutor()
         val scheduler = mock(Scheduler::class.java)
-        workDatabase = WorkDatabase.create(context, taskExecutor.serialTaskExecutor, true)
+        workDatabase = WorkDatabase.create(
+            context, taskExecutor.serialTaskExecutor, config.clock, true)
         processor = spy(Processor(context, config, taskExecutor, workDatabase))
         workManager = spy(
             WorkManagerImpl(
@@ -300,6 +301,43 @@ class SystemForegroundDispatcherTest {
         verify(dispatcherCallback, times(1))
             .cancelNotification(eq(secondId))
         assertThat(dispatcher.mForegroundInfoById.count(), `is`(2))
+    }
+
+    @Test
+    fun testRestartFromEmpty() {
+        val firstWorkSpecId = WorkGenerationalId("first", 0)
+        val firstId = 1
+        val notification = mock(Notification::class.java)
+        val firstInfo = ForegroundInfo(firstId, notification)
+        val firstIntent = createNotifyIntent(context, firstWorkSpecId, firstInfo)
+
+        val secondWorkSpecId = WorkGenerationalId("second", 0)
+        val secondId = 2
+        val secondInfo = ForegroundInfo(secondId, notification)
+        val secondIntent = createNotifyIntent(context, secondWorkSpecId, secondInfo)
+
+        dispatcher.onStartCommand(firstIntent)
+        assertThat(dispatcher.mCurrentForegroundId, `is`(firstWorkSpecId))
+        verify(dispatcherCallback, times(1))
+            .startForeground(eq(firstId), eq(0), any<Notification>())
+
+        dispatcher.onExecuted(firstWorkSpecId, false)
+
+        verify(dispatcherCallback, times(1))
+            .cancelNotification(firstId)
+
+        assertThat(dispatcher.mForegroundInfoById.count(), `is`(0))
+        reset(dispatcherCallback)
+
+        dispatcher.onStartCommand(secondIntent)
+        assertThat(dispatcher.mCurrentForegroundId, `is`(secondWorkSpecId))
+        verify(dispatcherCallback, times(1))
+            .startForeground(eq(secondId), eq(0), any<Notification>())
+
+        dispatcher.onExecuted(secondWorkSpecId, false)
+        verify(dispatcherCallback, times(1))
+            .cancelNotification(secondId)
+        assertThat(dispatcher.mForegroundInfoById.count(), `is`(0))
     }
 
     @Test

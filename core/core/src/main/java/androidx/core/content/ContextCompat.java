@@ -591,7 +591,7 @@ public class ContextCompat {
     @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public static int checkSelfPermission(@NonNull Context context, @NonNull String permission) {
         ObjectsCompat.requireNonNull(permission, "permission must be non-null");
-        if (!BuildCompat.isAtLeastT()
+        if (Build.VERSION.SDK_INT < 33
                 && TextUtils.equals(android.Manifest.permission.POST_NOTIFICATIONS, permission)) {
             return NotificationManagerCompat.from(context).areNotificationsEnabled()
                     ? PackageManager.PERMISSION_GRANTED

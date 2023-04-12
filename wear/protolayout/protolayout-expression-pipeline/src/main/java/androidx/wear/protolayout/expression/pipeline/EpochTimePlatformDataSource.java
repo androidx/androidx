@@ -26,7 +26,8 @@ import java.util.concurrent.Executor;
 class EpochTimePlatformDataSource {
     private final Executor mUiExecutor;
     private final TimeGateway mGateway;
-    private final SimpleArrayMap<DynamicTypeValueReceiver<Instant>, TimeCallback>
+    private final SimpleArrayMap<
+            DynamicTypeValueReceiverWithPreUpdate<Instant>, TimeCallback>
             mConsumerToTimeCallback = new SimpleArrayMap<>();
 
     EpochTimePlatformDataSource(Executor uiExecutor, TimeGateway gateway) {
@@ -34,7 +35,7 @@ class EpochTimePlatformDataSource {
         mGateway = gateway;
     }
 
-    public void registerForData(DynamicTypeValueReceiver<Instant> consumer) {
+    public void registerForData(DynamicTypeValueReceiverWithPreUpdate<Instant> consumer) {
         TimeCallback timeCallback =
                 new TimeCallback() {
                     @Override
@@ -51,7 +52,7 @@ class EpochTimePlatformDataSource {
         mConsumerToTimeCallback.put(consumer, timeCallback);
     }
 
-    public void unregisterForData(DynamicTypeValueReceiver<Instant> consumer) {
+    public void unregisterForData(DynamicTypeValueReceiverWithPreUpdate<Instant> consumer) {
         TimeCallback timeCallback = mConsumerToTimeCallback.remove(consumer);
         if (timeCallback != null) {
             mGateway.unregisterForUpdates(timeCallback);

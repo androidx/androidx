@@ -122,6 +122,47 @@ class ButtonColors internal constructor(
 }
 
 /**
+ * Defines [Color]s for all TV [Interaction] states of a WideButton
+ */
+@ExperimentalTvMaterial3Api
+@Immutable
+class WideButtonContentColor internal constructor(
+    internal val contentColor: Color,
+    internal val focusedContentColor: Color,
+    internal val pressedContentColor: Color,
+    internal val disabledContentColor: Color,
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as WideButtonContentColor
+
+        if (contentColor != other.contentColor) return false
+        if (focusedContentColor != other.focusedContentColor) return false
+        if (pressedContentColor != other.pressedContentColor) return false
+        if (disabledContentColor != other.disabledContentColor) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = contentColor.hashCode()
+        result = 31 * result + focusedContentColor.hashCode()
+        result = 31 * result + pressedContentColor.hashCode()
+        result = 31 * result + disabledContentColor.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "WideButtonContentColor(contentColor=$contentColor, " +
+            "focusedContentColor=$focusedContentColor, " +
+            "pressedContentColor=$pressedContentColor, " +
+            "disabledContentColor=$disabledContentColor)"
+    }
+}
+
+/**
  * Defines the scale for all TV [Interaction] states of Button.
  */
 @ExperimentalTvMaterial3Api
@@ -243,3 +284,64 @@ class ButtonGlow internal constructor(
         return "ButtonGlow(glow=$glow, focusedGlow=$focusedGlow, pressedGlow=$pressedGlow)"
     }
 }
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+internal fun ButtonShape.toClickableSurfaceShape(): ClickableSurfaceShape = ClickableSurfaceShape(
+    shape = shape,
+    focusedShape = focusedShape,
+    pressedShape = pressedShape,
+    disabledShape = disabledShape,
+    focusedDisabledShape = focusedDisabledShape
+)
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+internal fun ButtonColors.toClickableSurfaceContainerColor(): ClickableSurfaceColor =
+    ClickableSurfaceColor(
+        color = containerColor,
+        focusedColor = focusedContainerColor,
+        pressedColor = pressedContainerColor,
+        disabledColor = disabledContainerColor,
+    )
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+internal fun ButtonColors.toClickableSurfaceContentColor(): ClickableSurfaceColor =
+    ClickableSurfaceColor(
+        color = contentColor,
+        focusedColor = focusedContentColor,
+        pressedColor = pressedContentColor,
+        disabledColor = disabledContentColor,
+    )
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+internal fun WideButtonContentColor.toClickableSurfaceContentColor(): ClickableSurfaceColor =
+    ClickableSurfaceColor(
+        color = contentColor,
+        focusedColor = focusedContentColor,
+        pressedColor = pressedContentColor,
+        disabledColor = disabledContentColor,
+    )
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+internal fun ButtonScale.toClickableSurfaceScale() = ClickableSurfaceScale(
+    scale = scale,
+    focusedScale = focusedScale,
+    pressedScale = pressedScale,
+    disabledScale = disabledScale,
+    focusedDisabledScale = focusedDisabledScale
+)
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+internal fun ButtonBorder.toClickableSurfaceBorder() = ClickableSurfaceBorder(
+    border = border,
+    focusedBorder = focusedBorder,
+    pressedBorder = pressedBorder,
+    disabledBorder = disabledBorder,
+    focusedDisabledBorder = focusedDisabledBorder
+)
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+internal fun ButtonGlow.toClickableSurfaceGlow() = ClickableSurfaceGlow(
+    glow = glow,
+    focusedGlow = focusedGlow,
+    pressedGlow = pressedGlow
+)

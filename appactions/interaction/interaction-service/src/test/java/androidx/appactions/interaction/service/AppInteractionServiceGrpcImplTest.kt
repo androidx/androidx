@@ -16,9 +16,8 @@
 
 package androidx.appactions.interaction.service
 
-import android.content.Context
-import androidx.appactions.interaction.capabilities.core.ActionCapability
-import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySession
+import androidx.appactions.interaction.capabilities.core.Capability
+import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
@@ -27,17 +26,17 @@ import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment
 import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput.OutputValue
-import androidx.appactions.interaction.service.AppInteractionServiceGrpcImpl.ERROR_NO_ACTION_CAPABILITY
-import androidx.appactions.interaction.service.AppInteractionServiceGrpcImpl.ERROR_NO_FULFILLMENT_REQUEST
-import androidx.appactions.interaction.service.AppInteractionServiceGrpcImpl.ERROR_NO_SESSION
-import androidx.appactions.interaction.service.AppInteractionServiceGrpcImpl.ERROR_SESSION_ENDED
+import androidx.appactions.interaction.service.AppInteractionServiceGrpcImpl.Companion.ERROR_NO_ACTION_CAPABILITY
+import androidx.appactions.interaction.service.AppInteractionServiceGrpcImpl.Companion.ERROR_NO_FULFILLMENT_REQUEST
+import androidx.appactions.interaction.service.AppInteractionServiceGrpcImpl.Companion.ERROR_NO_SESSION
+import androidx.appactions.interaction.service.AppInteractionServiceGrpcImpl.Companion.ERROR_SESSION_ENDED
+import androidx.appactions.interaction.service.testing.internal.FakeAppInteractionService
 import androidx.appactions.interaction.service.proto.AppInteractionServiceGrpc
 import androidx.appactions.interaction.service.proto.AppInteractionServiceGrpc.AppInteractionServiceStub
 import androidx.appactions.interaction.service.proto.AppInteractionServiceProto.Request
 import androidx.appactions.interaction.service.proto.AppInteractionServiceProto.StartSessionRequest
 import androidx.appactions.interaction.service.proto.AppInteractionServiceProto.StartSessionResponse
 import androidx.concurrent.futures.await
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import org.mockito.kotlin.any
@@ -48,6 +47,7 @@ import org.mockito.kotlin.never
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.robolectric.Robolectric
 import io.grpc.BindableService
 import io.grpc.ManagedChannel
 import io.grpc.Server
@@ -55,14 +55,11 @@ import io.grpc.ServerInterceptor
 import io.grpc.ServerInterceptors
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
-import io.grpc.binder.SecurityPolicies
-import io.grpc.binder.SecurityPolicy
 import io.grpc.inprocess.InProcessChannelBuilder
 import io.grpc.inprocess.InProcessServerBuilder
 import io.grpc.stub.StreamObserver
 import io.grpc.testing.GrpcCleanupRule
 import java.io.IOException
-import java.util.Collections
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
@@ -77,7 +74,6 @@ class AppInteractionServiceGrpcImplTest {
 
     @get:Rule val grpcCleanup = GrpcCleanupRule()
 
-    private val context = ApplicationProvider.getApplicationContext<Context>()
     private val remoteViewsInterceptor: ServerInterceptor = RemoteViewsOverMetadataInterceptor()
     private val testServerName = InProcessServerBuilder.generateName()
     private val testBiiName = "actions.intent.SAMPLE_BII_NAME"
@@ -102,22 +98,27 @@ class AppInteractionServiceGrpcImplTest {
                     .addOutputValues(OutputValue.newBuilder().setName("bio_arg1")),
             )
             .build()
-    private var capability1 = mock<ActionCapability>()
+    private lateinit var capability1: Capability
+    private lateinit var appInteractionService: FakeAppInteractionService
 
     @Before
     fun before() {
         capability1 = mock()
         whenever(capability1.id).thenReturn(capabilityId)
-        whenever(capability1.getAppAction()).thenReturn(AppAction.getDefaultInstance())
-        val mockActionCapabilitySession = createMockSession()
-        whenever(capability1.createSession(any())).thenReturn(mockActionCapabilitySession)
+        whenever(capability1.appAction).thenReturn(AppAction.getDefaultInstance())
+        val mockCapabilitySession = createMockSession()
+        whenever(capability1.createSession(any(), any())).thenReturn(mockCapabilitySession)
+        appInteractionService = Robolectric.buildService(
+            FakeAppInteractionService::class.java
+        ).get()
+        appInteractionService.registeredCapabilities = listOf(capability1)
     }
 
     @Test
     fun startUpSession_validRequest_shouldGetValidStartSessionResponse(): Unit = runBlocking {
         val server =
             createInProcessServer(
-                AppInteractionServiceGrpcImpl(FakeAppInteractionService(listOf(capability1))),
+                AppInteractionServiceGrpcImpl(appInteractionService),
                 remoteViewsInterceptor,
             )
 
@@ -152,7 +153,7 @@ class AppInteractionServiceGrpcImplTest {
     fun startUpSession_shouldFailWhenNoStaticCapability(): Unit = runBlocking {
         val server =
             createInProcessServer(
-                AppInteractionServiceGrpcImpl(FakeAppInteractionService(listOf(capability1))),
+                AppInteractionServiceGrpcImpl(appInteractionService),
                 remoteViewsInterceptor,
             )
 
@@ -177,7 +178,7 @@ class AppInteractionServiceGrpcImplTest {
             .isEqualTo(Status.Code.FAILED_PRECONDITION)
         assertThat(Status.fromThrowable(exceptionCaptor.firstValue).description)
             .isEqualTo(ERROR_NO_ACTION_CAPABILITY)
-        verify(capability1, never()).createSession(any())
+        verify(capability1, never()).createSession(any(), any())
 
         server.shutdownNow()
     }
@@ -186,14 +187,14 @@ class AppInteractionServiceGrpcImplTest {
     fun sendRequestFulfillment_shouldGetValidResponse(): Unit = runBlocking {
         val server =
             createInProcessServer(
-                AppInteractionServiceGrpcImpl(FakeAppInteractionService(listOf(capability1))),
+                AppInteractionServiceGrpcImpl(appInteractionService),
                 remoteViewsInterceptor,
             )
         val channel = createInProcessChannel()
         val stub = AppInteractionServiceGrpc.newStub(channel)
         val futureStub = AppInteractionServiceGrpc.newFutureStub(channel)
         assertStartupSession(stub)
-        verify(capability1, times(1)).createSession(any())
+        verify(capability1, times(1)).createSession(any(), any())
 
         // Send fulfillment request
         val request =
@@ -213,7 +214,7 @@ class AppInteractionServiceGrpcImplTest {
     fun sendRequestFulfillment_shouldFailWhenNoFulfillment(): Unit = runBlocking {
         val server =
             createInProcessServer(
-                AppInteractionServiceGrpcImpl(FakeAppInteractionService(listOf(capability1))),
+                AppInteractionServiceGrpcImpl(appInteractionService),
                 remoteViewsInterceptor,
             )
 
@@ -221,7 +222,7 @@ class AppInteractionServiceGrpcImplTest {
         val stub = AppInteractionServiceGrpc.newStub(channel)
         val futureStub = AppInteractionServiceGrpc.newFutureStub(channel)
         assertStartupSession(stub)
-        verify(capability1, times(1)).createSession(any())
+        verify(capability1, times(1)).createSession(any(), any())
 
         // Ensure a failed future is returned when missing fulfillment
         val requestWithMissingFulfillment =
@@ -243,7 +244,7 @@ class AppInteractionServiceGrpcImplTest {
     fun sendRequestFulfillment_shouldFailWhenNoStaticCapability(): Unit = runBlocking {
         val server =
             createInProcessServer(
-                AppInteractionServiceGrpcImpl(FakeAppInteractionService(listOf(capability1))),
+                AppInteractionServiceGrpcImpl(appInteractionService),
                 remoteViewsInterceptor,
             )
 
@@ -251,7 +252,7 @@ class AppInteractionServiceGrpcImplTest {
         val stub = AppInteractionServiceGrpc.newStub(channel)
         val futureStub = AppInteractionServiceGrpc.newFutureStub(channel)
         assertStartupSession(stub)
-        verify(capability1, times(1)).createSession(any())
+        verify(capability1, times(1)).createSession(any(), any())
 
         val requestWithUnknownFulfillmentId =
             Request.newBuilder()
@@ -278,7 +279,7 @@ class AppInteractionServiceGrpcImplTest {
     fun sendRequestFulfillment_shouldFailWhenNoSession(): Unit = runBlocking {
         val server =
             createInProcessServer(
-                AppInteractionServiceGrpcImpl(FakeAppInteractionService(listOf(capability1))),
+                AppInteractionServiceGrpcImpl(appInteractionService),
                 remoteViewsInterceptor,
             )
 
@@ -286,7 +287,7 @@ class AppInteractionServiceGrpcImplTest {
         val stub = AppInteractionServiceGrpc.newStub(channel)
         val futureStub = AppInteractionServiceGrpc.newFutureStub(channel)
         assertStartupSession(stub)
-        verify(capability1, times(1)).createSession(any())
+        verify(capability1, times(1)).createSession(any(), any())
 
         val requestWithUnknownFulfillmentId =
             Request.newBuilder()
@@ -310,7 +311,7 @@ class AppInteractionServiceGrpcImplTest {
     fun sendRequestFulfillment_shouldFailWhenSessionEnded(): Unit = runBlocking {
         val server =
             createInProcessServer(
-                AppInteractionServiceGrpcImpl(FakeAppInteractionService(listOf(capability1))),
+                AppInteractionServiceGrpcImpl(appInteractionService),
                 remoteViewsInterceptor,
             )
 
@@ -320,10 +321,10 @@ class AppInteractionServiceGrpcImplTest {
 
         // Verify capability session is created
         val mockSession = createMockSession()
-        whenever(mockSession.status).thenReturn(ActionCapabilitySession.Status.COMPLETED)
-        whenever(capability1.createSession(any())).thenReturn(mockSession)
+        whenever(mockSession.status).thenReturn(CapabilitySession.Status.COMPLETED)
+        whenever(capability1.createSession(any(), any())).thenReturn(mockSession)
         assertStartupSession(stub)
-        verify(capability1, times(1)).createSession(any())
+        verify(capability1, times(1)).createSession(any(), any())
 
         // Send request to completed session.
         val requestToEndedSession =
@@ -384,28 +385,15 @@ class AppInteractionServiceGrpcImplTest {
         )
     }
 
-    private fun createMockSession(): ActionCapabilitySession {
-        val mockSession = mock<ActionCapabilitySession>()
+    private fun createMockSession(): CapabilitySession {
+        val mockSession = mock<CapabilitySession>()
         whenever(mockSession.execute(any(), any())).thenAnswer { invocation ->
             (invocation.arguments[1] as CallbackInternal).onSuccess(testFulfillmentResponse)
         }
+        whenever(mockSession.sessionId).thenReturn(sessionId)
         whenever(mockSession.state).thenReturn(AppDialogState.getDefaultInstance())
-        whenever(mockSession.status).thenReturn(ActionCapabilitySession.Status.UNINITIATED)
+        whenever(mockSession.status).thenReturn(CapabilitySession.Status.UNINITIATED)
         whenever(mockSession.uiHandle).thenReturn(Any())
         return mockSession
-    }
-
-    private inner class FakeAppInteractionService(capabilities: List<ActionCapability>) :
-        AppInteractionService() {
-        override val registeredCapabilities: MutableList<ActionCapability> =
-            capabilities.toMutableList()
-
-        override val securityPolicy: SecurityPolicy = SecurityPolicies.internalOnly()
-
-        override val allowedApps: List<AppVerificationInfo> = Collections.emptyList()
-
-        override fun getApplicationContext(): Context {
-            return context
-        }
     }
 }

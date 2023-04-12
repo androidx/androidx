@@ -135,7 +135,22 @@ interface CameraGraph : AutoCloseable {
     data class Flags(
         val configureBlankSessionOnStop: Boolean = false,
         val abortCapturesOnStop: Boolean = false,
-        val allowMultipleActiveCameras: Boolean = false
+        val allowMultipleActiveCameras: Boolean = false,
+
+        /**
+         * A quirk that waits for the last repeating capture request to start before stopping the
+         * current capture session. Please refer to the bugs linked here, or
+         * [androidx.camera.camera2.pipe.compat.Camera2Quirks.shouldWaitForRepeatingRequest] for
+         * more information.
+         *
+         * This flag provides the overrides for you to override the default behavior (CameraPipe
+         * would turn on/off the quirk automatically based on device information).
+         *
+         * - Bug(s): b/146773463, b/267557892
+         * - Device(s): Camera devices on hardware level LEGACY
+         * - API levels: All
+         */
+        val quirkWaitForRepeatingRequestOnDisconnect: Boolean? = null,
     )
 
     enum class OperatingMode {

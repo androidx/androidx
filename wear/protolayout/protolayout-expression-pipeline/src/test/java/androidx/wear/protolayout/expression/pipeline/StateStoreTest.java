@@ -88,7 +88,8 @@ public class StateStoreTest {
 
     @Test
     public void setStateFiresListeners() {
-        DynamicTypeValueReceiver<StateEntryValue> cb = buildStateUpdateCallbackMock();
+        DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> cb =
+                buildStateUpdateCallbackMock();
         mStateStoreUnderTest.registerCallback("foo", cb);
 
         mStateStoreUnderTest.setStateEntryValuesProto(
@@ -100,7 +101,8 @@ public class StateStoreTest {
 
     @Test
     public void setStateFiresOnPreStateUpdateFirst() {
-        DynamicTypeValueReceiver<StateEntryValue> cb = buildStateUpdateCallbackMock();
+        DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> cb =
+                buildStateUpdateCallbackMock();
 
         InOrder inOrder = Mockito.inOrder(cb);
 
@@ -119,8 +121,10 @@ public class StateStoreTest {
 
     @Test
     public void setStateOnlyFiresListenersForChangedData() {
-        DynamicTypeValueReceiver<StateEntryValue> cbFoo = buildStateUpdateCallbackMock();
-        DynamicTypeValueReceiver<StateEntryValue> cbBaz = buildStateUpdateCallbackMock();
+        DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> cbFoo =
+                buildStateUpdateCallbackMock();
+        DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> cbBaz =
+                buildStateUpdateCallbackMock();
         mStateStoreUnderTest.registerCallback("foo", cbFoo);
         mStateStoreUnderTest.registerCallback("baz", cbBaz);
 
@@ -143,8 +147,10 @@ public class StateStoreTest {
                         buildStateEntry("value"),
                         "notInvalidated",
                         buildStateEntry("value")));
-        DynamicTypeValueReceiver<StateEntryValue> invalidated = buildStateUpdateCallbackMock();
-        DynamicTypeValueReceiver<StateEntryValue> notInvalidated = buildStateUpdateCallbackMock();
+        DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> invalidated =
+                buildStateUpdateCallbackMock();
+        DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> notInvalidated =
+                buildStateUpdateCallbackMock();
         mStateStoreUnderTest.registerCallback("invalidated", invalidated);
         mStateStoreUnderTest.registerCallback("notInvalidated", notInvalidated);
 
@@ -160,7 +166,8 @@ public class StateStoreTest {
     @SuppressWarnings("unchecked")
     @Test
     public void canUnregisterListeners() {
-        DynamicTypeValueReceiver<StateEntryValue> cb = buildStateUpdateCallbackMock();
+        DynamicTypeValueReceiverWithPreUpdate<StateEntryValue> cb =
+                buildStateUpdateCallbackMock();
         mStateStoreUnderTest.registerCallback("foo", cb);
 
         mStateStoreUnderTest.setStateEntryValuesProto(
@@ -176,10 +183,11 @@ public class StateStoreTest {
     }
 
     @SuppressWarnings("unchecked")
-    private DynamicTypeValueReceiver<StateEntryValue> buildStateUpdateCallbackMock() {
+    private DynamicTypeValueReceiverWithPreUpdate<StateEntryValue>
+            buildStateUpdateCallbackMock() {
         // This needs an unchecked cast because of the generic; this method just centralizes the
         // warning suppression.
-        return mock(DynamicTypeValueReceiver.class);
+        return mock(DynamicTypeValueReceiverWithPreUpdate.class);
     }
 
     private StateEntryValue buildStateEntry(String value) {

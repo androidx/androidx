@@ -17,19 +17,25 @@
 package androidx.compose.foundation.text2.input.internal
 
 import android.view.KeyEvent
+import android.view.inputmethod.EditorInfo
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text2.input.TextEditFilter
+import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@OptIn(ExperimentalFoundationApi::class)
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class StatelessInputConnectionTest {
@@ -41,10 +47,11 @@ class StatelessInputConnectionTest {
     private var activeSession: EditableTextInputSession? = null
 
     private var isOpen: Boolean = true
-    private var value: TextFieldValue = TextFieldValue()
+    private var value: TextFieldCharSequence = TextFieldCharSequence()
     private var imeOptions: ImeOptions = ImeOptions.Default
     private var onRequestEdits: ((List<EditCommand>) -> Unit)? = null
     private var onSendKeyEvent: ((KeyEvent) -> Unit)? = null
+    private var onImeAction: ((ImeAction) -> Unit)? = null
 
     private val activeSessionProvider: () -> EditableTextInputSession? = { activeSession }
 
@@ -55,11 +62,27 @@ class StatelessInputConnectionTest {
             override val isOpen: Boolean
                 get() = this@StatelessInputConnectionTest.isOpen
 
-            override val value: TextFieldValue
+            override val value: TextFieldCharSequence
                 get() = this@StatelessInputConnectionTest.value
 
             override val imeOptions: ImeOptions
                 get() = this@StatelessInputConnectionTest.imeOptions
+
+            override fun setFilter(filter: TextEditFilter?) {
+                // Noop.
+            }
+
+            override fun showSoftwareKeyboard() {
+                // noop
+            }
+
+            override fun hideSoftwareKeyboard() {
+                // noop
+            }
+
+            override fun onImeAction(imeAction: ImeAction) {
+                this@StatelessInputConnectionTest.onImeAction?.invoke(imeAction)
+            }
 
             override fun requestEdits(editCommands: List<EditCommand>) {
                 onRequestEdits?.invoke(editCommands)
@@ -81,7 +104,7 @@ class StatelessInputConnectionTest {
         assertThat(ic.getTextAfterCursor(100, 0)).isEqualTo("")
 
         // Set "Hello, World", and place the cursor at the beginning of the text.
-        value = TextFieldValue(
+        value = TextFieldCharSequence(
             text = "Hello, World",
             selection = TextRange.Zero
         )
@@ -90,7 +113,7 @@ class StatelessInputConnectionTest {
         assertThat(ic.getTextAfterCursor(100, 0)).isEqualTo("Hello, World")
 
         // Set "Hello, World", and place the cursor between "H" and "e".
-        value = TextFieldValue(
+        value = TextFieldCharSequence(
             text = "Hello, World",
             selection = TextRange(1)
         )
@@ -99,7 +122,7 @@ class StatelessInputConnectionTest {
         assertThat(ic.getTextAfterCursor(100, 0)).isEqualTo("ello, World")
 
         // Set "Hello, World", and place the cursor at the end of the text.
-        value = TextFieldValue(
+        value = TextFieldCharSequence(
             text = "Hello, World",
             selection = TextRange(12)
         )
@@ -111,7 +134,7 @@ class StatelessInputConnectionTest {
     @Test
     fun getTextBeforeAndAfterCursorTest_maxCharTest() {
         // Set "Hello, World", and place the cursor at the beginning of the text.
-        value = TextFieldValue(
+        value = TextFieldCharSequence(
             text = "Hello, World",
             selection = TextRange.Zero
         )
@@ -120,7 +143,7 @@ class StatelessInputConnectionTest {
         assertThat(ic.getTextAfterCursor(5, 0)).isEqualTo("Hello")
 
         // Set "Hello, World", and place the cursor between "H" and "e".
-        value = TextFieldValue(
+        value = TextFieldCharSequence(
             text = "Hello, World",
             selection = TextRange(1)
         )
@@ -129,7 +152,7 @@ class StatelessInputConnectionTest {
         assertThat(ic.getTextAfterCursor(5, 0)).isEqualTo("ello,")
 
         // Set "Hello, World", and place the cursor at the end of the text.
-        value = TextFieldValue(
+        value = TextFieldCharSequence(
             text = "Hello, World",
             selection = TextRange(12)
         )
@@ -141,7 +164,7 @@ class StatelessInputConnectionTest {
     @Test
     fun getSelectedTextTest() {
         // Set "Hello, World", and place the cursor at the beginning of the text.
-        value = TextFieldValue(
+        value = TextFieldCharSequence(
             text = "Hello, World",
             selection = TextRange.Zero
         )
@@ -149,7 +172,7 @@ class StatelessInputConnectionTest {
         assertThat(ic.getSelectedText(0)).isNull()
 
         // Set "Hello, World", and place the cursor between "H" and "e".
-        value = TextFieldValue(
+        value = TextFieldCharSequence(
             text = "Hello, World",
             selection = TextRange(0, 1)
         )
@@ -157,7 +180,7 @@ class StatelessInputConnectionTest {
         assertThat(ic.getSelectedText(0)).isEqualTo("H")
 
         // Set "Hello, World", and place the cursor at the end of the text.
-        value = TextFieldValue(
+        value = TextFieldCharSequence(
             text = "Hello, World",
             selection = TextRange(0, 12)
         )
@@ -173,7 +196,7 @@ class StatelessInputConnectionTest {
             requestEditsCalled++
             editCommands = it
         }
-        value = TextFieldValue(text = "", selection = TextRange.Zero)
+        value = TextFieldCharSequence(text = "", selection = TextRange.Zero)
 
         // Inserting "Hello, " into the empty text field.
         assertThat(ic.commitText("Hello, ", 1)).isTrue()
@@ -191,7 +214,7 @@ class StatelessInputConnectionTest {
             requestEditsCalled++
             editCommands = it
         }
-        value = TextFieldValue(text = "", selection = TextRange.Zero)
+        value = TextFieldCharSequence(text = "", selection = TextRange.Zero)
 
         // IME set text "Hello, World." with two commitText API within the single batch session.
         // Do not callback to listener during batch session.
@@ -219,7 +242,7 @@ class StatelessInputConnectionTest {
             requestEditsCalled++
             editCommands = it
         }
-        value = TextFieldValue(text = "Hello, World.", selection = TextRange.Zero)
+        value = TextFieldCharSequence(text = "Hello, World.", selection = TextRange.Zero)
 
         // Mark first "H" as composition.
         assertThat(ic.setComposingRegion(0, 1)).isTrue()
@@ -237,7 +260,7 @@ class StatelessInputConnectionTest {
             requestEditsCalled++
             editCommands = it
         }
-        value = TextFieldValue(text = "Hello, World", selection = TextRange.Zero)
+        value = TextFieldCharSequence(text = "Hello, World", selection = TextRange.Zero)
 
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
@@ -264,7 +287,7 @@ class StatelessInputConnectionTest {
             requestEditsCalled++
             editCommands = it
         }
-        value = TextFieldValue(text = "", selection = TextRange.Zero)
+        value = TextFieldCharSequence(text = "", selection = TextRange.Zero)
 
         // Inserting "Hello, " into the empty text field.
         assertThat(ic.setComposingText("Hello, ", 1)).isTrue()
@@ -282,7 +305,7 @@ class StatelessInputConnectionTest {
             requestEditsCalled++
             editCommands = it
         }
-        value = TextFieldValue(text = "", selection = TextRange.Zero)
+        value = TextFieldCharSequence(text = "", selection = TextRange.Zero)
 
         // IME set text "Hello, World." with two setComposingText API within the single batch
         // session. Do not callback to listener during batch session.
@@ -310,7 +333,7 @@ class StatelessInputConnectionTest {
             requestEditsCalled++
             editCommands = it
         }
-        value = TextFieldValue(text = "Hello, World.", selection = TextRange.Zero)
+        value = TextFieldCharSequence(text = "Hello, World.", selection = TextRange.Zero)
 
         // Delete first "Hello, " characters
         assertTrue(ic.deleteSurroundingText(0, 6))
@@ -328,7 +351,7 @@ class StatelessInputConnectionTest {
             requestEditsCalled++
             editCommands = it
         }
-        value = TextFieldValue(text = "Hello, World", selection = TextRange.Zero)
+        value = TextFieldCharSequence(text = "Hello, World", selection = TextRange.Zero)
 
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
@@ -355,7 +378,7 @@ class StatelessInputConnectionTest {
             requestEditsCalled++
             editCommands = it
         }
-        value = TextFieldValue(text = "Hello, World.", selection = TextRange.Zero)
+        value = TextFieldCharSequence(text = "Hello, World.", selection = TextRange.Zero)
 
         // Delete first "Hello, " characters
         assertThat(ic.deleteSurroundingTextInCodePoints(0, 6)).isTrue()
@@ -373,7 +396,7 @@ class StatelessInputConnectionTest {
             requestEditsCalled++
             editCommands = it
         }
-        value = TextFieldValue(text = "Hello, World", selection = TextRange.Zero)
+        value = TextFieldCharSequence(text = "Hello, World", selection = TextRange.Zero)
 
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
@@ -400,7 +423,7 @@ class StatelessInputConnectionTest {
             requestEditsCalled++
             editCommands = it
         }
-        value = TextFieldValue(text = "Hello, World.", selection = TextRange.Zero)
+        value = TextFieldCharSequence(text = "Hello, World.", selection = TextRange.Zero)
 
         // Select "Hello, "
         assertThat(ic.setSelection(0, 6)).isTrue()
@@ -418,7 +441,7 @@ class StatelessInputConnectionTest {
             requestEditsCalled++
             editCommands = it
         }
-        value = TextFieldValue(text = "Hello, World", selection = TextRange.Zero)
+        value = TextFieldCharSequence(text = "Hello, World", selection = TextRange.Zero)
 
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
@@ -445,7 +468,7 @@ class StatelessInputConnectionTest {
             requestEditsCalled++
             editCommands = it
         }
-        value = TextFieldValue(text = "Hello, World.", selection = TextRange.Zero)
+        value = TextFieldCharSequence(text = "Hello, World.", selection = TextRange.Zero)
 
         // Cancel any ongoing composition. In this example, there is no composition range, but
         // should record the API call
@@ -464,7 +487,7 @@ class StatelessInputConnectionTest {
             requestEditsCalled++
             editCommands = it
         }
-        value = TextFieldValue(text = "Hello, World", selection = TextRange.Zero)
+        value = TextFieldCharSequence(text = "Hello, World", selection = TextRange.Zero)
 
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
@@ -491,7 +514,7 @@ class StatelessInputConnectionTest {
             requestEditsCalled++
             editCommands = it
         }
-        value = TextFieldValue(text = "", selection = TextRange.Zero)
+        value = TextFieldCharSequence(text = "", selection = TextRange.Zero)
 
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
@@ -569,5 +592,64 @@ class StatelessInputConnectionTest {
         ic.sendKeyEvent(keyEvent2)
 
         assertThat(keyEvents.size).isEqualTo(0)
+    }
+
+    @Test
+    fun performImeAction_whenIMERequests() {
+        val receivedImeActions = mutableListOf<ImeAction>()
+        onImeAction = {
+            receivedImeActions += it
+        }
+        ic.performEditorAction(EditorInfo.IME_ACTION_DONE)
+        ic.performEditorAction(EditorInfo.IME_ACTION_GO)
+        ic.performEditorAction(EditorInfo.IME_ACTION_NEXT)
+        ic.performEditorAction(EditorInfo.IME_ACTION_NONE)
+        ic.performEditorAction(EditorInfo.IME_ACTION_PREVIOUS)
+        ic.performEditorAction(EditorInfo.IME_ACTION_SEARCH)
+        ic.performEditorAction(EditorInfo.IME_ACTION_SEND)
+        ic.performEditorAction(EditorInfo.IME_ACTION_UNSPECIFIED)
+        ic.performEditorAction(-1)
+
+        assertThat(receivedImeActions).isEqualTo(listOf(
+            ImeAction.Done,
+            ImeAction.Go,
+            ImeAction.Next,
+            ImeAction.Default, // None is evaluated back to Default.
+            ImeAction.Previous,
+            ImeAction.Search,
+            ImeAction.Send,
+            ImeAction.Default, // Unspecified is evaluated back to Default.
+            ImeAction.Default // Unrecognized is evaluated back to Default.
+        ))
+    }
+
+    @Test
+    fun performImeAction_noActiveSession() {
+        val receivedImeActions = mutableListOf<ImeAction>()
+        onImeAction = {
+            receivedImeActions += it
+        }
+        activeSession = null
+        ic.performEditorAction(EditorInfo.IME_ACTION_DONE)
+        ic.performEditorAction(EditorInfo.IME_ACTION_GO)
+        ic.performEditorAction(EditorInfo.IME_ACTION_NEXT)
+        ic.performEditorAction(EditorInfo.IME_ACTION_NONE)
+        ic.performEditorAction(EditorInfo.IME_ACTION_PREVIOUS)
+        ic.performEditorAction(EditorInfo.IME_ACTION_SEARCH)
+        ic.performEditorAction(EditorInfo.IME_ACTION_SEND)
+        ic.performEditorAction(EditorInfo.IME_ACTION_UNSPECIFIED)
+        ic.performEditorAction(-1)
+
+        assertThat(receivedImeActions).isEqualTo(listOf<ImeAction>())
+    }
+
+    @Test
+    fun debugMode_isDisabled() {
+        // run this in presubmit to check that we are not accidentally enabling logs on prod
+        assertFalse(
+            SIC_DEBUG,
+            "Oops, looks like you accidentally enabled logging. Don't worry, we've all " +
+                "been there. Just remember to turn it off before you deploy your code."
+        )
     }
 }

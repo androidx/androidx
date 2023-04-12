@@ -34,7 +34,6 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.core.resolutionselector.HighResolution
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraPipeConfigTestRule
@@ -259,6 +258,7 @@ internal class ImageAnalysisTest(
         assertThat(config.targetAspectRatio).isEqualTo(AspectRatio.RATIO_4_3)
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun defaultAspectRatioWillBeSet_whenRatioDefaultIsSet() = runBlocking {
         val useCase = ImageAnalysis.Builder()
@@ -271,6 +271,7 @@ internal class ImageAnalysisTest(
         assertThat(config.targetAspectRatio).isEqualTo(AspectRatio.RATIO_4_3)
     }
 
+    @Suppress("DEPRECATION") // legacy resolution API
     @Test
     fun defaultAspectRatioWontBeSet_whenTargetResolutionIsSet() = runBlocking {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
@@ -300,6 +301,7 @@ internal class ImageAnalysisTest(
         assertThat(imageAnalysis.targetRotation).isEqualTo(Surface.ROTATION_90)
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun targetResolutionIsUpdatedAfterTargetRotationIsUpdated() = runBlocking {
         val imageAnalysis = ImageAnalysis.Builder()
@@ -431,7 +433,7 @@ internal class ImageAnalysisTest(
         assumeTrue(maxHighResolutionOutputSize != null)
 
         val resolutionSelector = ResolutionSelector.Builder()
-            .setHighResolutionEnabledFlags(HighResolution.FLAG_DEFAULT_MODE_ON)
+            .setHighResolutionEnabledFlag(ResolutionSelector.HIGH_RESOLUTION_FLAG_ON)
             .setResolutionFilter { _, _ ->
                 listOf(maxHighResolutionOutputSize)
             }

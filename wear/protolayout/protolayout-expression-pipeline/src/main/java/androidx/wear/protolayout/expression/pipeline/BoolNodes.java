@@ -32,9 +32,11 @@ class BoolNodes {
     /** Dynamic boolean node that has a fixed value. */
     static class FixedBoolNode implements DynamicDataSourceNode<Boolean> {
         private final boolean mValue;
-        private final DynamicTypeValueReceiver<Boolean> mDownstream;
+        private final DynamicTypeValueReceiverWithPreUpdate<Boolean> mDownstream;
 
-        FixedBoolNode(FixedBool protoNode, DynamicTypeValueReceiver<Boolean> downstream) {
+        FixedBoolNode(
+                FixedBool protoNode,
+                DynamicTypeValueReceiverWithPreUpdate<Boolean> downstream) {
             mValue = protoNode.getValue();
             mDownstream = downstream;
         }
@@ -61,7 +63,7 @@ class BoolNodes {
         StateBoolNode(
                 StateStore stateStore,
                 StateBoolSource protoNode,
-                DynamicTypeValueReceiver<Boolean> downstream) {
+                DynamicTypeValueReceiverWithPreUpdate<Boolean> downstream) {
             super(
                     stateStore,
                     protoNode.getSourceKey(),
@@ -75,7 +77,8 @@ class BoolNodes {
         private static final String TAG = "ComparisonInt32Node";
 
         ComparisonInt32Node(
-                ComparisonInt32Op protoNode, DynamicTypeValueReceiver<Boolean> downstream) {
+                ComparisonInt32Op protoNode,
+                DynamicTypeValueReceiverWithPreUpdate<Boolean> downstream) {
             super(
                     downstream,
                     (lhs, rhs) -> {
@@ -109,7 +112,8 @@ class BoolNodes {
         public static final float EPSILON = 1e-6f;
 
         ComparisonFloatNode(
-                ComparisonFloatOp protoNode, DynamicTypeValueReceiver<Boolean> downstream) {
+                ComparisonFloatOp protoNode,
+                DynamicTypeValueReceiverWithPreUpdate<Boolean> downstream) {
             super(
                     downstream,
                     (lhs, rhs) -> {
@@ -147,7 +151,7 @@ class BoolNodes {
 
     /** Dynamic boolean node that gets opposite value from another boolean node. */
     static class NotBoolOp extends DynamicDataTransformNode<Boolean, Boolean> {
-        NotBoolOp(DynamicTypeValueReceiver<Boolean> downstream) {
+        NotBoolOp(DynamicTypeValueReceiverWithPreUpdate<Boolean> downstream) {
             super(downstream, b -> !b);
         }
     }
@@ -158,7 +162,7 @@ class BoolNodes {
 
         LogicalBoolOp(
                 DynamicProto.LogicalBoolOp protoNode,
-                DynamicTypeValueReceiver<Boolean> downstream) {
+                DynamicTypeValueReceiverWithPreUpdate<Boolean> downstream) {
             super(
                     downstream,
                     (a, b) -> {

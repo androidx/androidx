@@ -74,6 +74,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable;
 import androidx.wear.protolayout.expression.pipeline.FixedQuotaManagerImpl;
 import androidx.wear.protolayout.expression.pipeline.StateStore;
+import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationParameters;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.Repeatable;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicFloat;
@@ -130,6 +131,7 @@ import androidx.wear.protolayout.proto.LayoutElementProto.FontStyle;
 import androidx.wear.protolayout.proto.LayoutElementProto.Image;
 import androidx.wear.protolayout.proto.LayoutElementProto.Layout;
 import androidx.wear.protolayout.proto.LayoutElementProto.LayoutElement;
+import androidx.wear.protolayout.proto.LayoutElementProto.MarqueeParameters;
 import androidx.wear.protolayout.proto.LayoutElementProto.Row;
 import androidx.wear.protolayout.proto.LayoutElementProto.Spacer;
 import androidx.wear.protolayout.proto.LayoutElementProto.Span;
@@ -1804,6 +1806,7 @@ public class ProtoLayoutInflaterTest {
         expect.that(tv.getEllipsize()).isEqualTo(TruncateAt.MARQUEE);
         expect.that(tv.isSelected()).isTrue();
         expect.that(tv.isHorizontalFadingEdgeEnabled()).isTrue();
+        expect.that(tv.getMarqueeRepeatLimit()).isEqualTo(-1); // Default value.
         if (VERSION.SDK_INT >= VERSION_CODES.Q) {
             expect.that(tv.isSingleLine()).isTrue();
         }
@@ -1836,6 +1839,37 @@ public class ProtoLayoutInflaterTest {
     }
 
     @Test
+    public void inflate_textView_marqueeAnimation_repeatLimit() {
+        String textContents = "Marquee Animation";
+        int marqueeIterations = 5;
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setText(
+                                Text.newBuilder()
+                                        .setText(string(textContents))
+                                        .setMaxLines(Int32Prop.newBuilder().setValue(1))
+                                        .setOverflow(
+                                                TextOverflowProp.newBuilder()
+                                                        .setValue(
+                                                                TextOverflow.TEXT_OVERFLOW_MARQUEE)
+                                                        .build())
+                                        .setMarqueeParameters(
+                                                MarqueeParameters.newBuilder()
+                                                        .setIterations(marqueeIterations)))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+        TextView tv = (TextView) rootLayout.getChildAt(0);
+        expect.that(tv.getEllipsize()).isEqualTo(TruncateAt.MARQUEE);
+        expect.that(tv.isSelected()).isTrue();
+        expect.that(tv.isHorizontalFadingEdgeEnabled()).isTrue();
+        expect.that(tv.getMarqueeRepeatLimit()).isEqualTo(marqueeIterations);
+        if (VERSION.SDK_INT >= VERSION_CODES.Q) {
+            expect.that(tv.isSingleLine()).isTrue();
+        }
+    }
+
+    @Test
     public void inflate_spannable_marqueeAnimation() {
         String text = "Marquee Animation";
         LayoutElement root =
@@ -1859,6 +1893,41 @@ public class ProtoLayoutInflaterTest {
         expect.that(tv.getEllipsize()).isEqualTo(TruncateAt.MARQUEE);
         expect.that(tv.isSelected()).isTrue();
         expect.that(tv.isHorizontalFadingEdgeEnabled()).isTrue();
+        expect.that(tv.getMarqueeRepeatLimit()).isEqualTo(-1); // Default value.
+        if (VERSION.SDK_INT >= VERSION_CODES.Q) {
+            expect.that(tv.isSingleLine()).isTrue();
+        }
+    }
+
+    @Test
+    public void inflate_spannable_marqueeAnimation_repeatLimit() {
+        String text = "Marquee Animation";
+        int marqueeIterations = 5;
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setSpannable(
+                                Spannable.newBuilder()
+                                        .addSpans(
+                                                Span.newBuilder()
+                                                        .setText(
+                                                                SpanText.newBuilder()
+                                                                        .setText(string(text))))
+                                        .setOverflow(
+                                                TextOverflowProp.newBuilder()
+                                                        .setValue(
+                                                                TextOverflow.TEXT_OVERFLOW_MARQUEE))
+                                        .setMarqueeParameters(
+                                                MarqueeParameters.newBuilder()
+                                                        .setIterations(marqueeIterations))
+                                        .setMaxLines(Int32Prop.newBuilder().setValue(1)))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+        TextView tv = (TextView) rootLayout.getChildAt(0);
+        expect.that(tv.getEllipsize()).isEqualTo(TruncateAt.MARQUEE);
+        expect.that(tv.isSelected()).isTrue();
+        expect.that(tv.isHorizontalFadingEdgeEnabled()).isTrue();
+        expect.that(tv.getMarqueeRepeatLimit()).isEqualTo(marqueeIterations);
         if (VERSION.SDK_INT >= VERSION_CODES.Q) {
             expect.that(tv.isSingleLine()).isTrue();
         }
@@ -4042,7 +4111,9 @@ public class ProtoLayoutInflaterTest {
     @NonNull
     private static FadeInTransition.Builder fadeIn(int delay) {
         return FadeInTransition.newBuilder()
-                .setAnimationSpec(AnimationSpec.newBuilder().setStartDelayMillis(delay));
+                .setAnimationSpec(
+                        AnimationSpec.newBuilder().setAnimationParameters(
+                                AnimationParameters.newBuilder().setDelayMillis(delay)));
     }
 
     private LayoutElement textFadeInSlideIn(String text) {

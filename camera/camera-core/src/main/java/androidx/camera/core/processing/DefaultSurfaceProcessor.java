@@ -161,6 +161,12 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
         });
     }
 
+    @NonNull
+    @Override
+    public ListenableFuture<Void> snapshot() {
+        throw new UnsupportedOperationException("Unsupported operation.");
+    }
+
     /**
      * {@inheritDoc}
      */

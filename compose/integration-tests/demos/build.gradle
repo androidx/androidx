@@ -13,6 +13,7 @@ dependencies {
     implementation(project(":compose:material:material:integration-tests:material-demos"))
     implementation(project(":compose:material3:material3:integration-tests:material3-demos"))
     implementation(project(":navigation:navigation-compose:integration-tests:navigation-demos"))
+    implementation(project(":paging:paging-compose:integration-tests:paging-demos"))
     implementation(project(":compose:ui:ui:integration-tests:ui-demos"))
 
     implementation(libs.kotlinReflect)

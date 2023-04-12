@@ -79,9 +79,6 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
     ): Config? {
         debug { "Creating config for $captureType" }
 
-        // TODO: quirks for ImageCapture are not ready for the UseCaseConfigFactory. Will need to
-        //  move the quirk related item to this change.
-
         val mutableConfig = MutableOptionsBundle.create()
         val sessionBuilder = SessionConfig.Builder()
         when (captureType) {
@@ -138,7 +135,7 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
             mutableConfig.insertOption(
                 OPTION_RESOLUTION_SELECTOR,
                 ResolutionSelector.Builder().setResolutionStrategy(
-                    ResolutionStrategy.create(
+                    ResolutionStrategy(
                         previewSize,
                         ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER
                     )

@@ -18,6 +18,7 @@
 
 package androidx.camera.camera2.pipe.integration
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraDevice
@@ -27,8 +28,11 @@ import android.os.Build
 import android.os.HandlerThread
 import android.view.Surface
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraSurfaceManager
+import androidx.camera.camera2.pipe.integration.compat.workaround.InactiveSurfaceCloserImpl
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
+import androidx.camera.camera2.pipe.integration.impl.UseCaseSurfaceManager
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.testing.TestUseCaseCamera
 import androidx.camera.core.impl.DeferrableSurface
@@ -219,6 +223,35 @@ class UseCaseSurfaceManagerDeviceTest {
         assertThat(cameraOpenedUsageCount).isEqualTo(2)
         assertThat(cameraDisconnectedUsageCount).isEqualTo(2)
         assertThat(cameraClosedUsageCount).isEqualTo(1)
+    }
+
+    @Test
+    fun closingUseCaseSurfaceManagerClosesDeferrableSurface() = runBlocking {
+        // Arrange.
+        testSessionParameters = TestSessionParameters()
+        val useCases = listOf(createFakeUseCase().apply {
+            setupSessionConfig(testSessionParameters.sessionConfig)
+        })
+
+        val context: Context = ApplicationProvider.getApplicationContext()
+        val cameraPipe = CameraPipe(CameraPipe.Config(context))
+        testUseCaseCamera = TestUseCaseCamera(
+            context = context,
+            cameraId = cameraId,
+            useCases = useCases,
+            threads = useCaseThreads,
+            cameraPipe = cameraPipe,
+            useCaseSurfaceManager = UseCaseSurfaceManager(
+                useCaseThreads, cameraPipe, InactiveSurfaceCloserImpl(),
+            )
+        )
+
+        // Act.
+        testUseCaseCamera.useCaseCameraGraphConfig.graph.close()
+        testUseCaseCamera.useCaseSurfaceManager.stopAsync().awaitWithTimeout()
+
+        // Assert, verify the DeferrableSurface is closed.
+        assertThat(testSessionParameters.deferrableSurface.isClosed).isTrue()
     }
 
     private fun createFakeUseCase() = object : FakeUseCase(

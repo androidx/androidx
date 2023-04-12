@@ -39,7 +39,8 @@ function hashOutDir() {
   (cd $OUT_DIR && find -type f | grep -v "$hashFile" | xargs --no-run-if-empty -P 32 -n 64 sha1sum > $DIST_DIR/$hashFile)
   echo "done hashing out dir"
 }
-hashOutDir
+# disable temporarily b/276812697
+# hashOutDir
 
 # If we encounter a failure in postsubmit, we try a few things to determine if the failure is
 # reproducible

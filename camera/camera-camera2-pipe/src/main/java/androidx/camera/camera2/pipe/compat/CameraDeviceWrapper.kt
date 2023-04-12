@@ -108,13 +108,6 @@ internal interface CameraDeviceWrapper : UnsafeWrapper {
     fun onDeviceClosed()
 }
 
-internal fun CameraDeviceWrapper?.closeWithTrace() {
-    this?.let {
-        it.unwrapAs(CameraDevice::class).closeWithTrace()
-        it.onDeviceClosed()
-    }
-}
-
 internal fun CameraDevice?.closeWithTrace() {
     val timeSource = SystemTimeSource()
     this?.let {

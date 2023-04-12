@@ -19,6 +19,7 @@ package androidx.wear.watchface.complications.data
 import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.support.wearable.complications.ComplicationText as WireComplicationText
 import android.icu.util.ULocale
+import android.support.wearable.complications.ComplicationData
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
@@ -75,7 +76,7 @@ class ComplicationDataExpressionEvaluator(
                                 it.invalidReceivers.isNotEmpty() -> INVALID_DATA
                                 // Emitting the data if all pending receivers are done and all
                                 // pre-updates are satisfied.
-                                it.pendingReceivers.isEmpty() && it.preUpdateCount == 0 -> it.data
+                                it.pendingReceivers.isEmpty() -> it.data
                                 // Skipping states that are not ready for be emitted.
                                 else -> null
                             }
@@ -160,31 +161,21 @@ class ComplicationDataExpressionEvaluator(
      * [ComplicationEvaluationResultReceiver] that are evaluating it.
      */
     private inner class State(
-        val data: WireComplicationData,
+        val data: ComplicationData,
         val pendingReceivers: Set<ComplicationEvaluationResultReceiver<out Any>> = setOf(),
         val invalidReceivers: Set<ComplicationEvaluationResultReceiver<out Any>> = setOf(),
         val completeReceivers: Set<ComplicationEvaluationResultReceiver<out Any>> = setOf(),
-        val preUpdateCount: Int = 0,
     ) : AutoCloseable {
         lateinit var evaluator: DynamicTypeEvaluator
 
-        init {
-            require(preUpdateCount >= 0) {
-                "DynamicTypeValueReceiver invoked onData() more times than onPreUpdate()."
-            }
-        }
-
         fun withPendingReceiver(receiver: ComplicationEvaluationResultReceiver<out Any>) =
             copy(pendingReceivers = pendingReceivers + receiver)
-
-        fun withPreUpdate() = copy(preUpdateCount = preUpdateCount + 1)
 
         fun withInvalidReceiver(receiver: ComplicationEvaluationResultReceiver<out Any>) =
             copy(
                 pendingReceivers = pendingReceivers - receiver,
                 invalidReceivers = invalidReceivers + receiver,
                 completeReceivers = completeReceivers - receiver,
-                preUpdateCount = preUpdateCount - 1,
             )
 
         fun withUpdatedData(
@@ -196,7 +187,6 @@ class ComplicationDataExpressionEvaluator(
                 pendingReceivers = pendingReceivers - receiver,
                 invalidReceivers = invalidReceivers - receiver,
                 completeReceivers = completeReceivers + receiver,
-                preUpdateCount = preUpdateCount - 1,
             )
 
         /**
@@ -249,14 +239,12 @@ class ComplicationDataExpressionEvaluator(
                 this.invalidReceivers,
             completeReceivers: Set<ComplicationEvaluationResultReceiver<out Any>> =
                 this.completeReceivers,
-            preUpdateCount: Int = this.preUpdateCount,
         ) =
             State(
                 data = data,
                 pendingReceivers = pendingReceivers,
                 invalidReceivers = invalidReceivers,
                 completeReceivers = completeReceivers,
-                preUpdateCount = preUpdateCount,
             )
     }
 
@@ -282,10 +270,6 @@ class ComplicationDataExpressionEvaluator(
         @MainThread
         override fun close() {
             boundDynamicType.close()
-        }
-
-        override fun onPreUpdate() {
-            state.update { it.withPreUpdate() }
         }
 
         override fun onData(newData: T) {

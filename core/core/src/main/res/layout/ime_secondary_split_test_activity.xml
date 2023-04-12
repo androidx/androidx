@@ -23,6 +23,7 @@
         android:id="@+id/edit_text_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:inputType="text"
         android:minHeight="200px"
         android:gravity="center"
         android:text="EditText"/>

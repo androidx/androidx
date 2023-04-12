@@ -24,15 +24,15 @@ import androidx.core.graphics.plus
  * MeasuredFeatures contains a list of all features in a polygon along with the [0..1] progress
  * at that feature
  */
-internal typealias MeasuredFeatures = List<Pair<Float, Polygon.Feature>>
+internal typealias MeasuredFeatures = List<Pair<Float, RoundedPolygon.Feature>>
 
 /**
  * featureMapper creates a mapping between the "features" (rounded corners) of two shapes
  */
 internal fun featureMapper(features1: MeasuredFeatures, features2: MeasuredFeatures): DoubleMapper {
     // We only use corners for this mapping.
-    val filteredFeatures1 = features1.filter { it.second is Polygon.Corner }
-    val filteredFeatures2 = features2.filter { it.second is Polygon.Corner }
+    val filteredFeatures1 = features1.filter { it.second is RoundedPolygon.Corner }
+    val filteredFeatures2 = features2.filter { it.second is RoundedPolygon.Corner }
 
     val (m1, m2) = if (filteredFeatures1.size > filteredFeatures2.size) {
         doMapping(filteredFeatures2, filteredFeatures1) to filteredFeatures2
@@ -58,10 +58,10 @@ internal fun featureMapper(features1: MeasuredFeatures, features2: MeasuredFeatu
  * This information is used to determine how to map features (and the curves that make up
  * those features).
  */
-internal fun featureDistSquared(f1: Polygon.Feature, f2: Polygon.Feature): Float {
+internal fun featureDistSquared(f1: RoundedPolygon.Feature, f2: RoundedPolygon.Feature): Float {
     // TODO: We might want to enable concave-convex matching in some situations. If so, the
     //  approach below will not work
-    if (f1 is Polygon.Corner && f2 is Polygon.Corner && f1.convex != f2.convex) {
+    if (f1 is RoundedPolygon.Corner && f2 is RoundedPolygon.Corner && f1.convex != f2.convex) {
         // Simple hack to force all features to map only to features of the same concavity, by
         // returning an infinitely large distance in that case
         debugLog(LOG_TAG) { "*** Feature distance ∞ for convex-vs-concave corners" }

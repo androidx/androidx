@@ -298,8 +298,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"अतिरिक्त टेक्स्ट"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"चुनी जा सकने वाली सूची का सैंपल"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"टास्क पर लगी पाबंदी से जुड़ा डेमो"</string>
-    <!-- no translation found for task_limit_reached_msg (7162842196382260992) -->
-    <skip />
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"क्लिक करने पर चरणों की संख्या, तय सीमा से ज़्यादा हो जाएगी और आपको एक नई स्क्रीन पर ले जाया जाएगा."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"टास्क के %2$d चरणों में से %1$d चरण"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"आगे जाने के लिए क्लिक करें"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"कृपया अलग-अलग टेंप्लेट पर जाकर, यह पक्का करें कि कार ड्राइविंग मोड में है"</string>

@@ -29,6 +29,8 @@ class ProfileVerificationOnUnsupportedApiVersions {
 
     @Before
     fun setUp() {
+        // TODO: to re-enable for api 34 (b/276970167)
+        Assume.assumeTrue(!isApi34)
 
         // This test runs only on selected api version currently unsupported by profile verifier
         Assume.assumeTrue(

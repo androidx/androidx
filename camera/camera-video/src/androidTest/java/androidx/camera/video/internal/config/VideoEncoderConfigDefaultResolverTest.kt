@@ -17,6 +17,7 @@
 package androidx.camera.video.internal.config
 
 import android.util.Range
+import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.Timebase
 import androidx.camera.testing.EncoderProfilesUtil
 import androidx.camera.video.VideoSpec
@@ -37,10 +38,10 @@ class VideoEncoderConfigDefaultResolverTest {
         val TIMEBASE = Timebase.UPTIME
         const val FRAME_RATE_30 = 30
         const val FRAME_RATE_45 = 45
-        const val FRAME_RATE_60 = 60
+        val DEFAULT_VIDEO_SPEC: VideoSpec by lazy {
+            VideoSpec.builder().build()
+        }
     }
-
-    private val defaultVideoSpec = VideoSpec.builder().build()
 
     @Test
     fun defaultVideoSpecProducesValidSettings_forDifferentSurfaceSizes() {
@@ -54,7 +55,7 @@ class VideoEncoderConfigDefaultResolverTest {
             VideoEncoderConfigDefaultResolver(
                 MIME_TYPE,
                 TIMEBASE,
-                defaultVideoSpec,
+                DEFAULT_VIDEO_SPEC,
                 surfaceSizeCif,
                 expectedFrameRateRange
             )
@@ -62,7 +63,7 @@ class VideoEncoderConfigDefaultResolverTest {
             VideoEncoderConfigDefaultResolver(
                 MIME_TYPE,
                 TIMEBASE,
-                defaultVideoSpec,
+                DEFAULT_VIDEO_SPEC,
                 surfaceSize720p,
                 expectedFrameRateRange
             )
@@ -70,7 +71,7 @@ class VideoEncoderConfigDefaultResolverTest {
             VideoEncoderConfigDefaultResolver(
                 MIME_TYPE,
                 TIMEBASE,
-                defaultVideoSpec,
+                DEFAULT_VIDEO_SPEC,
                 surfaceSize1080p,
                 expectedFrameRateRange
             )
@@ -103,9 +104,9 @@ class VideoEncoderConfigDefaultResolverTest {
             VideoEncoderConfigDefaultResolver(
                 MIME_TYPE,
                 TIMEBASE,
-                defaultVideoSpec,
+                DEFAULT_VIDEO_SPEC,
                 surfaceSize720p,
-                /*expectedFrameRateRange=*/null
+                SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
             ).get()
         val defaultBitrate = defaultConfig.bitrate
 
@@ -124,7 +125,7 @@ class VideoEncoderConfigDefaultResolverTest {
                 TIMEBASE,
                 higherVideoSpec,
                 surfaceSize720p,
-                /*expectedFrameRateRange=*/null
+                SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
             ).get().bitrate
         ).isEqualTo(higherBitrate)
 
@@ -134,74 +135,45 @@ class VideoEncoderConfigDefaultResolverTest {
                 TIMEBASE,
                 lowerVideoSpec,
                 surfaceSize720p,
-                /*expectedFrameRateRange=*/null
+                SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
             ).get().bitrate
         ).isEqualTo(lowerBitrate)
     }
 
     @Test
-    fun frameRateIsChosenFromVideoSpec_whenNoExpectedRangeProvided() {
-        // Give a VideoSpec with a frame rate higher than 30
-        val videoSpec =
-            VideoSpec.builder().setFrameRate(Range(FRAME_RATE_60, FRAME_RATE_60)).build()
+    fun frameRateIsDefault_whenNoExpectedRangeProvided() {
         val size = EncoderProfilesUtil.RESOLUTION_1080P
 
         assertThat(
             VideoEncoderConfigDefaultResolver(
                 MIME_TYPE,
                 TIMEBASE,
-                videoSpec,
+                DEFAULT_VIDEO_SPEC,
                 size,
-                /*expectedFrameRateRange=*/null
+                SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
             ).get().frameRate
         ).isEqualTo(
-            FRAME_RATE_60
+            VideoEncoderConfigDefaultResolver.VIDEO_FRAME_RATE_FIXED_DEFAULT
         )
     }
 
     @Test
-    fun frameRateIsChosenFromExpectedRange_whenNoOverlapWithVideoSpec() {
-        // Give a VideoSpec with a frame rate higher than 30
-        val videoSpec =
-            VideoSpec.builder().setFrameRate(Range(FRAME_RATE_60, FRAME_RATE_60)).build()
+    fun frameRateIsChosenFromUpperOfExpectedRange_whenProvided() {
         val size = EncoderProfilesUtil.RESOLUTION_1080P
 
-        val expectedFrameRateRange = Range(FRAME_RATE_30, FRAME_RATE_30)
+        val expectedFrameRateRange = Range(FRAME_RATE_30, FRAME_RATE_45)
 
         // Expected frame rate range takes precedence over VideoSpec
         assertThat(
             VideoEncoderConfigDefaultResolver(
                 MIME_TYPE,
                 TIMEBASE,
-                videoSpec,
+                DEFAULT_VIDEO_SPEC,
                 size,
                 expectedFrameRateRange
             ).get().frameRate
         ).isEqualTo(
-            FRAME_RATE_30
+            FRAME_RATE_45
         )
-    }
-
-    @Test
-    fun frameRateIsChosenFromOverlapOfExpectedRangeAndVideoSpec() {
-        // Give a VideoSpec with a frame rate higher than 30
-        val videoSpec =
-            VideoSpec.builder().setFrameRate(Range(FRAME_RATE_30, FRAME_RATE_45)).build()
-        val size = EncoderProfilesUtil.RESOLUTION_1080P
-
-        val expectedFrameRateRange = Range(FRAME_RATE_30, FRAME_RATE_60)
-
-        val intersection = expectedFrameRateRange.intersect(videoSpec.frameRate)
-
-        // Expected frame rate range takes precedence over VideoSpec
-        assertThat(
-            VideoEncoderConfigDefaultResolver(
-                MIME_TYPE,
-                TIMEBASE,
-                videoSpec,
-                size,
-                expectedFrameRateRange
-            ).get().frameRate
-        ).isIn(com.google.common.collect.Range.closed(intersection.lower, intersection.upper))
     }
 }

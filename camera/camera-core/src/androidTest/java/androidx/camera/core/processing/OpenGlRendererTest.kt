@@ -19,11 +19,17 @@ package androidx.camera.core.processing
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraDevice
 import android.opengl.Matrix
+import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
+import android.os.Looper
+import android.util.Size
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.TestImageUtil.createBitmap
+import androidx.camera.testing.TestImageUtil.getAverageDiff
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -31,10 +37,12 @@ import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import java.util.Locale
 import kotlin.coroutines.ContinuationInterceptor
+import kotlin.coroutines.resume
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Before
@@ -125,6 +133,41 @@ class OpenGlRendererTest {
         if (::glThread.isInitialized) {
             glThread.quitSafely()
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    @Test
+    fun drawInputSurface_snapshotReturnsTheSame(): Unit = runBlocking(glDispatcher) {
+        // Arrange: set up renderer and Surface.
+        createOpenGlRendererAndInit()
+        val surfaceTexture = SurfaceTexture(glRenderer.textureName).apply {
+            setDefaultBufferSize(WIDTH, HEIGHT)
+            surfaceTexturesToRelease.add(this)
+        }
+        val inputSurface = Surface(surfaceTexture).apply {
+            surfacesToRelease.add(this)
+        }
+        // Create Bitmap for drawing
+        val inputImage = createBitmap(WIDTH, HEIGHT)
+        // Draw bitmap to inputSurface.
+        val canvas = inputSurface.lockHardwareCanvas()
+        canvas.drawBitmap(inputImage, 0f, 0f, null)
+        inputSurface.unlockCanvasAndPost(canvas)
+        // Wait for frame available and update texture.
+        suspendCancellableCoroutine { continuation ->
+            surfaceTexture.setOnFrameAvailableListener({
+                continuation.resume(Unit)
+            }, Handler(Looper.getMainLooper()))
+        }
+        surfaceTexture.updateTexImage()
+
+        // Act: take a snapshot.
+        val matrix = FloatArray(16)
+        Matrix.setIdentityM(matrix, 0)
+        val result = glRenderer.snapshot(Size(WIDTH, HEIGHT), matrix)
+
+        // Assert: the result is identical to the input.
+        assertThat(getAverageDiff(result, inputImage)).isEqualTo(0)
     }
 
     @Test

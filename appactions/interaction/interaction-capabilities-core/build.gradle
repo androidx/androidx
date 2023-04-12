@@ -35,6 +35,7 @@ dependencies {
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
 
     testAnnotationProcessor(libs.autoValue)
+    testImplementation(project(":appactions:interaction:interaction-capabilities-testing"))
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.testCore)
@@ -53,7 +54,7 @@ android {
     }
     defaultConfig {
         // TODO(b/266649259): lower minSdk version to 19.
-        minSdkVersion 33
+        minSdkVersion 26
         resValue "string", "appactions_interaction_library_version", androidx.LibraryVersions.APPACTIONS_INTERACTION.toString()
     }
 

@@ -51,7 +51,7 @@ class EntityLookupResponse<T> internal constructor(
         return result
     }
 
-    /** Builder class for [Entity]. */
+    /** Builder class for [EntityLookupResponse]. */
     class Builder<T> {
         private var candidateList: List<EntityLookupCandidate<T>> = listOf()
 

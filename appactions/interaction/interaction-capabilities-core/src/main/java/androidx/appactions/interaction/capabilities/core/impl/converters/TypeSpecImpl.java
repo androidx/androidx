@@ -18,7 +18,6 @@ package androidx.appactions.interaction.capabilities.core.impl.converters;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
 import androidx.appactions.interaction.protobuf.Struct;
 import androidx.appactions.interaction.protobuf.Value;
@@ -30,8 +29,11 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/** TypeSpecImpl is used to convert between java objects in capabilities/values and Struct proto. */
-final class TypeSpecImpl<T, BuilderT extends BuilderOf<T>> implements TypeSpec<T> {
+/**
+ * TypeSpecImpl is used to convert between java/kotlin objects in capabilities/values and Value
+ * proto.
+ */
+final class TypeSpecImpl<T, BuilderT> implements TypeSpec<T> {
     /* The function to retrieve the identifier. */
     final Function<T, Optional<String>> mIdentifierGetter;
 
@@ -44,15 +46,20 @@ final class TypeSpecImpl<T, BuilderT extends BuilderOf<T>> implements TypeSpec<T
     /** Supplies BuilderT instances. */
     final Supplier<BuilderT> mBuilderSupplier;
 
+    /** Builds the object instance. */
+    final Function<BuilderT, T> mBuilderFinalizer;
+
     TypeSpecImpl(
             Function<T, Optional<String>> identifierGetter,
             List<FieldBinding<T, BuilderT>> bindings,
             Supplier<BuilderT> builderSupplier,
+            Function<BuilderT, T> builderFinalizer,
             Optional<CheckedInterfaces.Consumer<Struct>> structValidator) {
         this.mIdentifierGetter = identifierGetter;
         this.mBindings = Collections.unmodifiableList(bindings);
         this.mBuilderSupplier = builderSupplier;
         this.mStructValidator = structValidator;
+        this.mBuilderFinalizer = builderFinalizer;
     }
 
     @Nullable
@@ -64,15 +71,14 @@ final class TypeSpecImpl<T, BuilderT extends BuilderOf<T>> implements TypeSpec<T
     /** Converts a java object into a Struct proto using List of FieldBinding. */
     @NonNull
     @Override
-    public Struct toStruct(@NonNull T obj) {
-        Struct.Builder builder = Struct.newBuilder();
+    public Value toValue(@NonNull T obj) {
+        Struct.Builder structBuilder = Struct.newBuilder();
         for (FieldBinding<T, BuilderT> binding : mBindings) {
-            binding
-                    .valueGetter()
+            binding.valueGetter()
                     .apply(obj)
-                    .ifPresent(value -> builder.putFields(binding.name(), value));
+                    .ifPresent(value -> structBuilder.putFields(binding.name(), value));
         }
-        return builder.build();
+        return Value.newBuilder().setStructValue(structBuilder).build();
     }
 
     /**
@@ -82,7 +88,12 @@ final class TypeSpecImpl<T, BuilderT extends BuilderOf<T>> implements TypeSpec<T
      */
     @NonNull
     @Override
-    public T fromStruct(@NonNull Struct struct) throws StructConversionException {
+    public T fromValue(@NonNull Value value) throws StructConversionException {
+        Struct struct = value.getStructValue();
+        if (struct == null) {
+            throw new StructConversionException(
+                    String.format("TypeSpecImpl cannot deserializes non-Struct value: %s", value));
+        }
         if (mStructValidator.isPresent()) {
             mStructValidator.get().accept(struct);
         }
@@ -90,9 +101,9 @@ final class TypeSpecImpl<T, BuilderT extends BuilderOf<T>> implements TypeSpec<T
         BuilderT builder = mBuilderSupplier.get();
         Map<String, Value> fieldsMap = struct.getFieldsMap();
         for (FieldBinding<T, BuilderT> binding : mBindings) {
-            Optional<Value> value = Optional.ofNullable(fieldsMap.get(binding.name()));
-            binding.valueSetter().accept(builder, value);
+            Optional<Value> fieldValue = Optional.ofNullable(fieldsMap.get(binding.name()));
+            binding.valueSetter().accept(builder, fieldValue);
         }
-        return builder.build();
+        return mBuilderFinalizer.apply(builder);
     }
 }

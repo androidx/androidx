@@ -28,10 +28,7 @@ import androidx.collection.ArrayMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
-/**
- * Default implementation of {@link TimeGateway} using Android's clock.
- *
- */
+/** Default implementation of {@link TimeGateway} using Android's clock. */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class TimeGatewayImpl implements TimeGateway, AutoCloseable {
     private final Handler uiHandler;

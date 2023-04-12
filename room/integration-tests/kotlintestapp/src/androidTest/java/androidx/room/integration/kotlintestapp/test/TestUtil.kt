@@ -70,11 +70,12 @@ class TestUtil {
         val BOOK_AUTHOR_2_2 = BookAuthor(BOOK_2.bookId, AUTHOR_2.authorId)
 
         fun createPet(id: Int): Pet {
-            val pet = Pet()
-            pet.mPetId = id
-            pet.mName = UUID.randomUUID().toString()
-            pet.mAdoptionDate = Date()
-            return pet
+            return Pet(
+                mPetId = id,
+                mUserId = id,
+                mName = UUID.randomUUID().toString(),
+                mAdoptionDate = Date()
+            )
         }
     }
 }

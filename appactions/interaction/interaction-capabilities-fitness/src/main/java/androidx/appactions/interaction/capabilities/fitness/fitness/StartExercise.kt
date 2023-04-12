@@ -16,17 +16,14 @@
 
 package androidx.appactions.interaction.capabilities.fitness.fitness
 
-import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
-import androidx.appactions.interaction.capabilities.core.ActionCapability
-import androidx.appactions.interaction.capabilities.core.BaseSession
+import androidx.appactions.interaction.capabilities.core.Capability
+import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
-import androidx.appactions.interaction.capabilities.core.impl.converters.PropertyConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
-import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
-import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
+import androidx.appactions.interaction.capabilities.core.properties.Property
 import java.time.Duration
 import java.util.Optional
 
@@ -36,52 +33,52 @@ private const val CAPABILITY_NAME = "actions.intent.START_EXERCISE"
 // TODO(b/273602015): Update to use Name property from builtintype library.
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setDescriptor(StartExercise.Property::class.java)
-        .setArgument(StartExercise.Argument::class.java, StartExercise.Argument::Builder)
+        .setDescriptor(StartExercise.Properties::class.java)
+        .setArguments(StartExercise.Arguments::class.java, StartExercise.Arguments::Builder)
         .setOutput(StartExercise.Output::class.java)
         .bindOptionalParameter(
             "exercise.duration",
             { property -> Optional.ofNullable(property.duration) },
-            StartExercise.Argument.Builder::setDuration,
+            StartExercise.Arguments.Builder::setDuration,
             TypeConverters.DURATION_PARAM_VALUE_CONVERTER,
-            TypeConverters::toEntity
+            TypeConverters.DURATION_ENTITY_CONVERTER
         )
         .bindOptionalParameter(
             "exercise.name",
             { property -> Optional.ofNullable(property.name) },
-            StartExercise.Argument.Builder::setName,
+            StartExercise.Arguments.Builder::setName,
             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-            PropertyConverter::stringValueToProto
+            TypeConverters.STRING_VALUE_ENTITY_CONVERTER
         )
         .build()
 
 @CapabilityFactory(name = CAPABILITY_NAME)
 class StartExercise private constructor() {
     class CapabilityBuilder :
-        CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session
+        Capability.Builder<
+            CapabilityBuilder, Properties, Arguments, Output, Confirmation, ExecutionSession
             >(ACTION_SPEC) {
-        fun setDurationProperty(duration: TypeProperty<Duration>): CapabilityBuilder =
+        fun setDurationProperty(duration: Property<Duration>): CapabilityBuilder =
             apply {
-                Property.Builder().setDuration(duration).build()
+                Properties.Builder().setDuration(duration).build()
             }
 
-        fun setNameProperty(name: TypeProperty<StringValue>): CapabilityBuilder =
+        fun setNameProperty(name: Property<StringValue>): CapabilityBuilder =
             apply {
-                Property.Builder().setName(name).build()
+                Properties.Builder().setName(name).build()
             }
 
-        override fun build(): ActionCapability {
+        override fun build(): Capability {
             // TODO(b/268369632): No-op remove empty property builder after Property od removed
-            super.setProperty(Property.Builder().build())
+            super.setProperty(Properties.Builder().build())
             return super.build()
         }
     }
 
     // TODO(b/268369632): Remove Property from public capability APIs.
-    class Property internal constructor(
-        val duration: TypeProperty<Duration>?,
-        val name: TypeProperty<StringValue>?
+    class Properties internal constructor(
+        val duration: Property<Duration>?,
+        val name: Property<StringValue>?
     ) {
         override fun toString(): String {
             return "Property(duration=$duration, name=$name)"
@@ -91,7 +88,7 @@ class StartExercise private constructor() {
             if (this === other) return true
             if (javaClass !== other?.javaClass) return false
 
-            other as Property
+            other as Properties
 
             if (duration != other.duration) return false
             if (name != other.name) return false
@@ -106,32 +103,32 @@ class StartExercise private constructor() {
         }
 
         class Builder {
-            private var duration: TypeProperty<Duration>? = null
-            private var name: TypeProperty<StringValue>? = null
+            private var duration: Property<Duration>? = null
+            private var name: Property<StringValue>? = null
 
-            fun setDuration(duration: TypeProperty<Duration>): Builder =
+            fun setDuration(duration: Property<Duration>): Builder =
                 apply { this.duration = duration }
 
-            fun setName(name: TypeProperty<StringValue>): Builder =
+            fun setName(name: Property<StringValue>): Builder =
                 apply { this.name = name }
 
-            fun build(): Property = Property(duration, name)
+            fun build(): Properties = Properties(duration, name)
         }
     }
 
-    class Argument internal constructor(
+    class Arguments internal constructor(
         val duration: Duration?,
         val name: String?
     ) {
         override fun toString(): String {
-            return "Argument(duration=$duration, name=$name)"
+            return "Arguments(duration=$duration, name=$name)"
         }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass !== other?.javaClass) return false
 
-            other as Argument
+            other as Arguments
 
             if (duration != other.duration) return false
             if (name != other.name) return false
@@ -145,7 +142,7 @@ class StartExercise private constructor() {
             return result
         }
 
-        class Builder : BuilderOf<Argument> {
+        class Builder : BuilderOf<Arguments> {
             private var duration: Duration? = null
             private var name: String? = null
 
@@ -155,7 +152,7 @@ class StartExercise private constructor() {
             fun setName(name: String): Builder =
                 apply { this.name = name }
 
-            override fun build(): Argument = Argument(duration, name)
+            override fun build(): Arguments = Arguments(duration, name)
         }
     }
 
@@ -163,7 +160,5 @@ class StartExercise private constructor() {
 
     class Confirmation internal constructor()
 
-    class TaskUpdater internal constructor() : AbstractTaskUpdater()
-
-    sealed interface Session : BaseSession<Argument, Output>
+    sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 }

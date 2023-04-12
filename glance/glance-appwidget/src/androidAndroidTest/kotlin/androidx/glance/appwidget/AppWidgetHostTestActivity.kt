@@ -43,6 +43,8 @@ import java.util.Locale
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
+private const val TAG = "AppWidgetHostTestActivity"
+
 @RequiresApi(26)
 class AppWidgetHostTestActivity : Activity() {
     private var mHost: AppWidgetHost? = null
@@ -66,12 +68,12 @@ class AppWidgetHostTestActivity : Activity() {
         try {
             mHost?.stopListening()
         } catch (ex: Throwable) {
-            Log.w("AppWidgetHostTestActivity", "Error stopping listening", ex)
+            Log.w(TAG, "Error stopping listening", ex)
         }
         try {
             mHost?.deleteHost()
         } catch (t: Throwable) {
-            Log.w("AppWidgetHostTestActivity", "Error deleting Host", t)
+            Log.w(TAG, "Error deleting Host", t)
         }
         mHost = null
         super.onDestroy()
@@ -151,6 +153,16 @@ class TestAppWidgetHost(context: Context, hostId: Int) : AppWidgetHost(context, 
         appWidgetId: Int,
         appWidget: AppWidgetProviderInfo?
     ): AppWidgetHostView = TestAppWidgetHostView(context)
+
+    override fun onProviderChanged(appWidgetId: Int, appWidget: AppWidgetProviderInfo?) {
+        // In tests, we aren't testing anything specific to how widget behaves on PACKAGE_CHANGED.
+        // In a few SDK versions (http://shortn/_PpxiDuRnvb, http://shortn/_TysXctaGMI),
+        // onProviderChange resets the widget with null value - which happens in middle of test
+        // in-deterministically. For example, in local emulators it doesn't get called sometimes.
+        // So we override this method to prevent reset.
+        // TODO: Make this conditional or find a way to avoid PACKAGE_CHANGED in middle of the test.
+        Log.w(TAG, "Ignoring onProviderChanged for $appWidgetId.")
+    }
 }
 
 @RequiresApi(26)

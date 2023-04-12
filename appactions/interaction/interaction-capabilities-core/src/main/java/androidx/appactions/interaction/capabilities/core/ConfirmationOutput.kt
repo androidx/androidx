@@ -46,11 +46,4 @@ class ConfirmationOutput<ConfirmationT> internal constructor(val confirmation: C
         /** Builds and returns the ConfirmationOutput instance. */
         fun build() = ConfirmationOutput(confirmation)
     }
-
-    companion object {
-        /** Returns a default ExecutionResult instance. */
-        @JvmStatic
-        fun <ConfirmationT> getDefaultInstance() = ConfirmationOutput.Builder<ConfirmationT>()
-            .build()
-    }
 }

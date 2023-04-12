@@ -49,7 +49,8 @@ class SchedulersTest {
     val factory = TrackingWorkerFactory()
     val configuration = Configuration.Builder().setWorkerFactory(factory).build()
     val taskExecutor = WorkManagerTaskExecutor(configuration.taskExecutor)
-    val db = WorkDatabase.create(context, taskExecutor.serialTaskExecutor, true)
+    val db = WorkDatabase.create(
+        context, taskExecutor.serialTaskExecutor, configuration.clock, true)
     val processor = Processor(context, configuration, taskExecutor, db)
     val launcher = WorkLauncherImpl(processor, taskExecutor)
     val trackers = Trackers(context, taskExecutor)

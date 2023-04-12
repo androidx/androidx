@@ -20,12 +20,17 @@ import static androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.robolectric.Shadows.shadowOf;
+
 import static java.lang.Integer.MAX_VALUE;
 
+import android.graphics.Color;
 import android.icu.util.ULocale;
+import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter;
@@ -50,6 +55,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
 @RunWith(ParameterizedRobolectricTestRunner.class)
@@ -83,13 +89,16 @@ public class DynamicTypeEvaluatorTest {
             test(DynamicInt32.fromState("state_int_15").div(DynamicFloat.constant(2.0f)), 7.5f),
             test(DynamicInt32.fromState("state_int_15").rem(DynamicFloat.constant(4.5f)), 1.5f),
             test(DynamicFloat.constant(5.0f), 5.0f),
+            testForInvalidValue(DynamicFloat.constant(Float.NaN)),
+            testForInvalidValue(DynamicFloat.constant(Float.NaN).plus(5.0f)),
             test(DynamicFloat.fromState("state_float_1.5"), 1.5f),
             test(DynamicFloat.constant(1234.567f).asInt(), 1234),
             test(DynamicFloat.constant(0.967f).asInt(), 0),
             test(DynamicFloat.constant(-1234.967f).asInt(), -1235),
             test(DynamicFloat.constant(-0.967f).asInt(), -1),
             test(DynamicFloat.constant(Float.MIN_VALUE).asInt(), 0),
-            test(DynamicFloat.constant(Float.MAX_VALUE).asInt(), (int) Float.MAX_VALUE),
+            testForInvalidValue(DynamicFloat.constant(Float.MAX_VALUE).asInt()),
+            testForInvalidValue(DynamicFloat.constant(-Float.MAX_VALUE).asInt()),
             test(DynamicInt32.constant(100).asFloat(), 100.0f),
             test(
                     DynamicInt32.constant(Integer.MIN_VALUE).asFloat(),
@@ -122,10 +131,8 @@ public class DynamicTypeEvaluatorTest {
             test(DynamicFloat.constant(0.6f).gte(0.4f), true),
             test(DynamicFloat.constant(0.1234568f).gte(0.1234562f), true),
             test(DynamicBool.constant(true), true),
-            test(DynamicBool.constant(true).isTrue(), true),
-            test(DynamicBool.constant(false).isTrue(), false),
-            test(DynamicBool.constant(true).isFalse(), false),
-            test(DynamicBool.constant(false).isFalse(), true),
+            test(DynamicBool.constant(true).negate(), false),
+            test(DynamicBool.constant(false).negate(), true),
             test(DynamicBool.constant(true).and(DynamicBool.constant(true)), true),
             test(DynamicBool.constant(true).and(DynamicBool.constant(false)), false),
             test(DynamicBool.constant(false).and(DynamicBool.constant(true)), false),
@@ -211,44 +218,71 @@ public class DynamicTypeEvaluatorTest {
                             .elseUse(DynamicInt32.constant(10)),
                     10),
             test(
+                    DynamicColor.onCondition(DynamicBool.constant(true))
+                            .use(DynamicColor.constant(Color.BLUE))
+                            .elseUse(DynamicColor.constant(Color.RED)),
+                    Color.BLUE),
+            test(
+                    DynamicColor.onCondition(DynamicBool.constant(false))
+                            .use(DynamicColor.constant(Color.BLUE))
+                            .elseUse(DynamicColor.constant(Color.RED)),
+                    Color.RED),
+            test(
                     DynamicFloat.constant(12.345f)
                             .format(
-                                    FloatFormatter.with()
-                                            .maxFractionDigits(2)
-                                            .minIntegerDigits(4)
-                                            .groupingUsed(true)),
+                                    new FloatFormatter.Builder()
+                                            .setMaxFractionDigits(2)
+                                            .setMinIntegerDigits(4)
+                                            .setGroupingUsed(true)
+                                            .build()),
                     "0,012.35"),
             test(
                     DynamicFloat.constant(12.345f)
                             .format(
-                                    FloatFormatter.with()
-                                            .minFractionDigits(4)
-                                            .minIntegerDigits(4)
-                                            .groupingUsed(false)),
+                                    new FloatFormatter.Builder()
+                                            .setMinFractionDigits(4)
+                                            .setMinIntegerDigits(4)
+                                            .setGroupingUsed(false)
+                                            .build()),
                     "0012.3450"),
             test(
                     DynamicFloat.constant(12.345f)
-                            .format(FloatFormatter.with().maxFractionDigits(1).groupingUsed(true))
+                            .format(
+                                    new FloatFormatter.Builder()
+                                            .setMaxFractionDigits(1)
+                                            .setGroupingUsed(true)
+                                            .build())
                             .concat(DynamicString.constant("°")),
                     "12.3°"),
             test(
                     DynamicFloat.constant(12.345678f)
                             .format(
-                                    FloatFormatter.with()
-                                            .minFractionDigits(4)
-                                            .maxFractionDigits(2)
-                                            .groupingUsed(true)),
+                                    new FloatFormatter.Builder()
+                                            .setMinFractionDigits(4)
+                                            .setMaxFractionDigits(2)
+                                            .setGroupingUsed(true)
+                                            .build()),
                     "12.3457"),
             test(
                     DynamicFloat.constant(12.345678f)
-                            .format(FloatFormatter.with().minFractionDigits(2).groupingUsed(true)),
+                            .format(
+                                    new FloatFormatter.Builder()
+                                            .setMinFractionDigits(2)
+                                            .setGroupingUsed(true)
+                                            .build()),
                     "12.346"),
-            test(DynamicFloat.constant(12.3456f).format(FloatFormatter.with()), "12.346"),
+            test(
+                    DynamicFloat.constant(12.3456f).format(new FloatFormatter.Builder().build()),
+                    "12.346"),
             test(
                     DynamicInt32.constant(12)
-                            .format(IntFormatter.with().minIntegerDigits(4).groupingUsed(true)),
+                            .format(
+                                    new IntFormatter.Builder()
+                                            .setMinIntegerDigits(4)
+                                            .setGroupingUsed(true)
+                                            .build()),
                     "0,012"),
-            test(DynamicInt32.constant(12).format(IntFormatter.with()), "12")
+            test(DynamicInt32.constant(12).format(new IntFormatter.Builder().build()), "12")
         };
         ImmutableList.Builder<Object[]> immutableListBuilder = new ImmutableList.Builder<>();
         for (DynamicTypeEvaluatorTest.TestCase<?> testCase : testCases) {
@@ -283,8 +317,12 @@ public class DynamicTypeEvaluatorTest {
         return new DynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicStringProto().toString(),
                 (evaluator, cb) ->
-                        evaluator.bind(
-                                bindUnderTest, ULocale.getDefault(), new MainThreadExecutor(), cb)
+                        evaluator
+                                .bind(
+                                        bindUnderTest,
+                                        ULocale.getDefault(),
+                                        new MainThreadExecutor(),
+                                        cb)
                                 .startEvaluation(),
                 expectedValue);
     }
@@ -293,8 +331,21 @@ public class DynamicTypeEvaluatorTest {
             DynamicInt32 bindUnderTest, Integer expectedValue) {
         return new DynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicInt32Proto().toString(),
-                (evaluator, cb) -> evaluator.bind(bindUnderTest, new MainThreadExecutor(), cb)
-                        .startEvaluation(),
+                (evaluator, cb) ->
+                        evaluator
+                                .bind(bindUnderTest, new MainThreadExecutor(), cb)
+                                .startEvaluation(),
+                expectedValue);
+    }
+
+    private static DynamicTypeEvaluatorTest.TestCase<Integer> test(
+            DynamicColor bindUnderTest, Integer expectedValue) {
+        return new DynamicTypeEvaluatorTest.TestCase<>(
+                bindUnderTest.toDynamicColorProto().toString(),
+                (evaluator, cb) ->
+                        evaluator
+                                .bind(bindUnderTest, new MainThreadExecutor(), cb)
+                                .startEvaluation(),
                 expectedValue);
     }
 
@@ -302,10 +353,10 @@ public class DynamicTypeEvaluatorTest {
             DynamicInstant bindUnderTest, Instant instant) {
         return new DynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicInstantProto().toString(),
-                (evaluator, cb) -> {
-                    evaluator.bind(bindUnderTest, new MainThreadExecutor(), cb)
-                            .startEvaluation();
-                },
+                (evaluator, cb) ->
+                        evaluator
+                                .bind(bindUnderTest, new MainThreadExecutor(), cb)
+                                .startEvaluation(),
                 instant);
     }
 
@@ -313,8 +364,10 @@ public class DynamicTypeEvaluatorTest {
             DynamicFloat bindUnderTest, Float expectedValue) {
         return new DynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicFloatProto().toString(),
-                (evaluator, cb) -> evaluator.bind(bindUnderTest, new MainThreadExecutor(), cb)
-                        .startEvaluation(),
+                (evaluator, cb) ->
+                        evaluator
+                                .bind(bindUnderTest, new MainThreadExecutor(), cb)
+                                .startEvaluation(),
                 expectedValue);
     }
 
@@ -322,9 +375,31 @@ public class DynamicTypeEvaluatorTest {
             DynamicBool bindUnderTest, Boolean expectedValue) {
         return new DynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicBoolProto().toString(),
-                (evaluator, cb) -> evaluator.bind(bindUnderTest, new MainThreadExecutor(), cb)
-                        .startEvaluation(),
+                (evaluator, cb) ->
+                        evaluator
+                                .bind(bindUnderTest, new MainThreadExecutor(), cb)
+                                .startEvaluation(),
                 expectedValue);
+    }
+
+    private static DynamicTypeEvaluatorTest.TestCase<Integer> testForInvalidValue(
+            DynamicInt32 bindUnderTest) {
+        return new DynamicTypeEvaluatorTest.TestCase<>(
+                bindUnderTest.toDynamicInt32Proto().toString(),
+                (evaluator, cb) ->
+                        evaluator
+                                .bind(bindUnderTest, new MainThreadExecutor(), cb)
+                                .startEvaluation());
+    }
+
+    private static DynamicTypeEvaluatorTest.TestCase<Float> testForInvalidValue(
+            DynamicFloat bindUnderTest) {
+        return new DynamicTypeEvaluatorTest.TestCase<>(
+                bindUnderTest.toDynamicFloatProto().toString(),
+                (evaluator, cb) ->
+                        evaluator
+                                .bind(bindUnderTest, new MainThreadExecutor(), cb)
+                                .startEvaluation());
     }
 
     private static class TestCase<T> {
@@ -342,30 +417,46 @@ public class DynamicTypeEvaluatorTest {
             this.mExpectedValue = expectedValue;
         }
 
+        /** Creates a test case for an expression which expects to result in invalid value. */
+        TestCase(
+                String name,
+                BiConsumer<DynamicTypeEvaluator, DynamicTypeValueReceiver<T>> expressionEvaluator) {
+            this.mName = name;
+            this.mExpressionEvaluator = expressionEvaluator;
+            this.mExpectedValue = null;
+        }
+
         public void runTest(DynamicTypeEvaluator evaluator) {
             List<T> results = new ArrayList<>();
+            AtomicInteger invalidatedCalls = new AtomicInteger(0);
 
             DynamicTypeValueReceiver<T> callback =
                     new DynamicTypeValueReceiver<T>() {
-                        @Override
-                        public void onPreUpdate() {}
-
                         @Override
                         public void onData(@NonNull T newData) {
                             results.add(newData);
                         }
 
                         @Override
-                        public void onInvalidated() {}
+                        public void onInvalidated() {
+                            invalidatedCalls.incrementAndGet();
+                        }
                     };
 
             this.mExpressionEvaluator.accept(evaluator, callback);
+            shadowOf(Looper.getMainLooper()).idle();
 
-            assertThat(results).hasSize(1);
-            assertThat(results).containsExactly(mExpectedValue);
+            if (mExpectedValue != null) {
+                // Test expects an actual value.
+                assertThat(results).hasSize(1);
+                assertThat(results).containsExactly(mExpectedValue);
+            } else {
+                // Test expects an invalid value.
+                assertThat(results).isEmpty();
+                assertThat(invalidatedCalls.get()).isEqualTo(1);
+            }
         }
 
-        @NonNull
         @Override
         public String toString() {
             return mName + " = " + mExpectedValue;

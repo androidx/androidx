@@ -21,13 +21,13 @@ import android.util.Size
 import androidx.annotation.RequiresApi
 
 @RequiresApi(23)
-internal class StreamConfigurationMapCompatApi23Impl(map: StreamConfigurationMap) :
+internal class StreamConfigurationMapCompatApi23Impl(map: StreamConfigurationMap?) :
     StreamConfigurationMapCompatBaseImpl(map) {
     override fun getOutputSizes(format: Int): Array<Size>? {
-        return streamConfigurationMap.getOutputSizes(format)
+        return streamConfigurationMap?.getOutputSizes(format)
     }
 
     override fun getHighResolutionOutputSizes(format: Int): Array<Size>? {
-        return streamConfigurationMap.getHighResolutionOutputSizes(format)
+        return streamConfigurationMap?.getHighResolutionOutputSizes(format)
     }
 }

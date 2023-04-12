@@ -17,8 +17,10 @@
 package androidx.wear.protolayout.expression.pipeline;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * Dynamic data node that can perform a transformation from an upstream node. This should be created
@@ -28,17 +30,25 @@ import java.util.function.Function;
  * @param <O> The data type that this node emits.
  */
 class DynamicDataTransformNode<I, O> implements DynamicDataNode<O> {
-    private final DynamicTypeValueReceiver<I> mCallback;
+    private final DynamicTypeValueReceiverWithPreUpdate<I> mCallback;
 
-    final DynamicTypeValueReceiver<O> mDownstream;
+    final DynamicTypeValueReceiverWithPreUpdate<O> mDownstream;
     final Function<I, O> mTransformer;
 
-    DynamicDataTransformNode(DynamicTypeValueReceiver<O> downstream, Function<I, O> transformer) {
+    DynamicDataTransformNode(
+            DynamicTypeValueReceiverWithPreUpdate<O> downstream, Function<I, O> transformer) {
+        this(downstream, transformer, /* validator= */ null);
+    }
+
+    DynamicDataTransformNode(
+            DynamicTypeValueReceiverWithPreUpdate<O> downstream,
+            Function<I, O> transformer,
+            @Nullable Predicate<I> validator) {
         this.mDownstream = downstream;
         this.mTransformer = transformer;
 
         mCallback =
-                new DynamicTypeValueReceiver<I>() {
+                new DynamicTypeValueReceiverWithPreUpdate<I>() {
                     @Override
                     public void onPreUpdate() {
                         // Don't need to do anything here; just relay.
@@ -47,6 +57,10 @@ class DynamicDataTransformNode<I, O> implements DynamicDataNode<O> {
 
                     @Override
                     public void onData(@NonNull I newData) {
+                        if (validator != null && !validator.test(newData)) {
+                            mDownstream.onInvalidated();
+                            return;
+                        }
                         O result = mTransformer.apply(newData);
                         mDownstream.onData(result);
                     }
@@ -58,7 +72,7 @@ class DynamicDataTransformNode<I, O> implements DynamicDataNode<O> {
                 };
     }
 
-    public DynamicTypeValueReceiver<I> getIncomingCallback() {
+    public DynamicTypeValueReceiverWithPreUpdate<I> getIncomingCallback() {
         return mCallback;
     }
 }

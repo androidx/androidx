@@ -98,14 +98,13 @@ public final class DynamicBoolTest {
   public void negateOpBool() {
     DynamicBool firstBool = DynamicBool.constant(true);
 
-    assertThat(firstBool.isTrue().toDynamicBoolProto()).isEqualTo(firstBool.toDynamicBoolProto());
-    assertThat(firstBool.isFalse().toDynamicBoolProto().getNotOp().getInput())
+    assertThat(firstBool.negate().toDynamicBoolProto().getNotOp().getInput())
         .isEqualTo(firstBool.toDynamicBoolProto());
   }
 
   @Test
   public void logicalToString() {
-    assertThat(DynamicBool.constant(true).isFalse().toString())
+    assertThat(DynamicBool.constant(true).negate().toString())
         .isEqualTo("NotBoolOp{input=FixedBool{value=true}}");
   }
 

@@ -25,6 +25,7 @@ import com.google.protobuf.gradle.ProtobufPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.type.ArtifactTypeDefinition
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.tasks.StopExecutionException
 import org.gradle.kotlin.dsl.apply
@@ -56,6 +57,15 @@ class InspectionPlugin : Plugin<Project> {
             it.isCanBeConsumed = true
             it.isCanBeResolved = false
             it.setupNonDexedInspectorAttribute()
+        }
+
+        project.configurations.create(EXPORT_INSPECTOR_DEPENDENCIES) {
+            // to allow including these dependencies in an SBOM
+            it.description = "Re-publishes dependencies of the inspector"
+            it.isCanBeConsumed = true
+            it.isCanBeResolved = false
+            it.extendsFrom(project.configurations.getByName("implementation"))
+            it.setupReleaseAttribute()
         }
 
         project.pluginManager.withPlugin("com.android.library") {
@@ -190,6 +200,18 @@ fun packageInspector(libraryProject: Project, inspectorProjectPath: String) {
             }
         }
     }
+
+    libraryProject.configurations.create(IMPORT_INSPECTOR_DEPENDENCIES) {
+        it.setupReleaseAttribute()
+    }
+    libraryProject.dependencies.add(IMPORT_INSPECTOR_DEPENDENCIES,
+        libraryProject.dependencies.project(
+            mapOf(
+                "path" to inspectorProjectPath,
+                "configuration" to EXPORT_INSPECTOR_DEPENDENCIES
+            )
+        )
+    )
 }
 
 fun Project.createConsumeInspectionConfiguration(): Configuration =
@@ -214,6 +236,25 @@ private fun Configuration.setupNonDexedInspectorAttribute() {
     }
 }
 
+private fun Configuration.setupReleaseAttribute() {
+    attributes {
+        it.attribute(
+            Attribute.of(
+                "com.android.build.api.attributes.BuildTypeAttr",
+                String::class.java
+            ),
+            "release"
+        )
+        it.attribute(
+            Attribute.of(
+                "artifactType",
+                String::class.java
+            ),
+            ArtifactTypeDefinition.JAR_TYPE
+        )
+    }
+}
+
 @ExperimentalStdlibApi
 private fun generateProguardDetectionFile(libraryProject: Project) {
     val libExtension = libraryProject.extensions.getByType(LibraryExtension::class.java)
@@ -223,6 +264,8 @@ private fun generateProguardDetectionFile(libraryProject: Project) {
 }
 
 const val EXTENSION_NAME = "inspection"
+const val EXPORT_INSPECTOR_DEPENDENCIES = "exportInspectorImplementation"
+const val IMPORT_INSPECTOR_DEPENDENCIES = "importInspectorImplementation"
 
 open class InspectionExtension(@Suppress("UNUSED_PARAMETER") project: Project) {
     /**

@@ -592,7 +592,8 @@ public final class CameraUseCaseAdapter implements Camera {
                             useCase.getAttachedSurfaceResolution());
             existingSurfaces.add(AttachedSurfaceInfo.create(surfaceConfig,
                     useCase.getImageFormat(), useCase.getAttachedSurfaceResolution(),
-                    useCase.getCurrentConfig().getTargetFramerate(null)));
+                    Preconditions.checkNotNull(useCase.getAttachedStreamSpec()).getDynamicRange(),
+                    useCase.getCurrentConfig().getTargetFrameRate(null)));
             suggestedStreamSpecs.put(useCase, useCase.getAttachedStreamSpec());
         }
 

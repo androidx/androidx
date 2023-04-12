@@ -1185,17 +1185,30 @@ public open class NavController(
             _graph = graph
             onGraphCreated(startDestinationArgs)
         } else {
+            // first we update _graph with new instances from graph
             for (i in 0 until graph.nodes.size()) {
                 val newDestination = graph.nodes.valueAt(i)
-                _graph!!.nodes.replace(i, newDestination)
-                backQueue.filter { currentEntry ->
-                    // Necessary since CI builds against ToT, can be removed once
-                    // androidx.collection is updated to >= 1.3.*
-                    @Suppress("UNNECESSARY_SAFE_CALL", "SAFE_CALL_WILL_CHANGE_NULLABILITY")
-                    currentEntry.destination.id == newDestination?.id
-                }.forEach { entry ->
-                    entry.destination = newDestination
+                val key = _graph!!.nodes.keyAt(i)
+                _graph!!.nodes.replace(key, newDestination)
+            }
+            // then we update backstack with the new instances
+            backQueue.forEach { entry ->
+                // we will trace this hierarchy in new graph to get new destination instance
+                val hierarchy = entry.destination.hierarchy.toList().asReversed()
+                val newDestination = hierarchy.fold(_graph!!) {
+                        newDest: NavDestination, oldDest: NavDestination ->
+                    if (oldDest == _graph && newDest == graph) {
+                        // if root graph, it is already the node that matches with oldDest
+                        newDest
+                    } else if (newDest is NavGraph) {
+                        // otherwise we walk down the hierarchy to the next child
+                        newDest.findNode(oldDest.id)!!
+                    } else {
+                        // final leaf node found
+                        newDest
+                    }
                 }
+                entry.destination = newDestination
             }
         }
     }

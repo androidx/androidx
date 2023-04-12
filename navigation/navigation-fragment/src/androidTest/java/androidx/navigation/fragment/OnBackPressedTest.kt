@@ -17,6 +17,10 @@
 package androidx.navigation.fragment
 
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.test.EmptyFragment
 import androidx.navigation.fragment.test.NavigationActivity
@@ -183,6 +187,36 @@ class OnBackPressedTest(
             }
         }
     }
+
+    @Test
+    fun testOnBackPressedToNullViewFragment() {
+        with(ActivityScenario.launch(activityClass)) {
+            withActivity {
+                navController.setGraph(R.navigation.nav_simple)
+
+                val navigator = navController.navigatorProvider.getNavigator(
+                    FragmentNavigator::class.java
+                )
+                val fragment = supportFragmentManager.findFragmentById(R.id.nav_host)
+
+                navController.navigate(R.id.null_view_fragment, null, null)
+                fragment?.childFragmentManager?.executePendingTransactions()
+
+                navController.navigate(R.id.empty_fragment, null, null)
+                fragment?.childFragmentManager?.executePendingTransactions()
+
+                onBackPressed()
+                fragment?.childFragmentManager?.executePendingTransactions()
+
+                assertWithMessage("onBackPressed() should trigger NavController.popBackStack()")
+                    .that(navController.currentDestination?.id)
+                    .isEqualTo(R.id.null_view_fragment)
+                assertWithMessage("navigator back stack should contain 1 entry")
+                    .that(navigator.backStack.value.size)
+                    .isEqualTo(2)
+            }
+        }
+    }
 }
 
 class ChildBackStackFragment : EmptyFragment() {
@@ -194,5 +228,20 @@ class ChildBackStackFragment : EmptyFragment() {
             .add(Fragment(), "child")
             .addToBackStack(null)
             .commit()
+    }
+}
+
+class NullViewFragment : EmptyFragment() {
+    var viewAlreadyCreated = false
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        if (viewAlreadyCreated) {
+            return null
+        }
+        viewAlreadyCreated = true
+        return FrameLayout(requireContext())
     }
 }

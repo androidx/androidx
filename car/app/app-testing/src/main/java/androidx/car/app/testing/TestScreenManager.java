@@ -52,7 +52,7 @@ public class TestScreenManager extends ScreenManager {
      * Resets the values tracked by this {@link TestScreenManager} and the {@link Screen} stack.
      */
     public void reset() {
-        getScreenStack().clear();
+        getScreenStackInternal().clear();
         mScreensPushed.clear();
         mScreensRemoved.clear();
     }
@@ -149,7 +149,7 @@ public class TestScreenManager extends ScreenManager {
     }
 
     private Set<Screen> getScreensInStack() {
-        return new HashSet<>(getScreenStack());
+        return new HashSet<>(getScreenStackInternal());
     }
 
     TestScreenManager(TestCarContext testCarContext) {

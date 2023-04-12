@@ -13,50 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.appactions.interaction.capabilities.core.task.impl
+package androidx.appactions.interaction.capabilities.core.impl.task
 
 import android.util.SizeF
-import androidx.appactions.interaction.capabilities.core.ActionCapability
-import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
+import androidx.appactions.interaction.capabilities.core.AppEntityListener
+import androidx.appactions.interaction.capabilities.core.Capability
+import androidx.appactions.interaction.capabilities.core.EntitySearchResult
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
+import androidx.appactions.interaction.capabilities.core.ExecutionSessionFactory
 import androidx.appactions.interaction.capabilities.core.HostProperties
-import androidx.appactions.interaction.capabilities.core.InitArg
-import androidx.appactions.interaction.capabilities.core.SessionFactory
-import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySession
+import androidx.appactions.interaction.capabilities.core.SessionContext
+import androidx.appactions.interaction.capabilities.core.ValidationResult
+import androidx.appactions.interaction.capabilities.core.ValueListener
+import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal
+import androidx.appactions.interaction.capabilities.core.impl.UiHandleRegistry
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
-import androidx.appactions.interaction.capabilities.core.impl.converters.PropertyConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.SearchActionConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters.LIST_ITEM_TYPE_SPEC
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
-import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
-import androidx.appactions.interaction.capabilities.core.task.AppEntityListener
-import androidx.appactions.interaction.capabilities.core.task.EntitySearchResult
-import androidx.appactions.interaction.capabilities.core.task.ValidationResult
-import androidx.appactions.interaction.capabilities.core.task.ValueListener
-import androidx.appactions.interaction.capabilities.core.testing.ArgumentUtils.buildRequestArgs
-import androidx.appactions.interaction.capabilities.core.testing.ArgumentUtils.buildSearchActionParamValue
-import androidx.appactions.interaction.capabilities.core.testing.TestingUtils.CB_TIMEOUT
-import androidx.appactions.interaction.capabilities.core.testing.TestingUtils.buildActionCallback
-import androidx.appactions.interaction.capabilities.core.testing.TestingUtils.buildActionCallbackWithFulfillmentResponse
-import androidx.appactions.interaction.capabilities.core.testing.TestingUtils.buildErrorActionCallback
-import androidx.appactions.interaction.capabilities.core.testing.spec.Argument
+import androidx.appactions.interaction.capabilities.core.properties.Property
+import androidx.appactions.interaction.capabilities.core.testing.spec.Arguments
 import androidx.appactions.interaction.capabilities.core.testing.spec.CapabilityStructFill
 import androidx.appactions.interaction.capabilities.core.testing.spec.CapabilityTwoEntityValues
 import androidx.appactions.interaction.capabilities.core.testing.spec.Confirmation
+import androidx.appactions.interaction.capabilities.core.testing.spec.ExecutionSession
 import androidx.appactions.interaction.capabilities.core.testing.spec.Output
-import androidx.appactions.interaction.capabilities.core.testing.spec.Property
-import androidx.appactions.interaction.capabilities.core.testing.spec.Session
-import androidx.appactions.interaction.capabilities.core.testing.spec.SettableFutureWrapper
 import androidx.appactions.interaction.capabilities.core.testing.spec.TestEnum
+import androidx.appactions.interaction.capabilities.core.testing.spec.Properties
 import androidx.appactions.interaction.capabilities.core.values.EntityValue
 import androidx.appactions.interaction.capabilities.core.values.ListItem
 import androidx.appactions.interaction.capabilities.core.values.SearchAction
+import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils.buildRequestArgs
+import androidx.appactions.interaction.capabilities.testing.internal.ArgumentUtils.buildSearchActionParamValue
+import androidx.appactions.interaction.capabilities.testing.internal.FakeCallbackInternal
+import androidx.appactions.interaction.capabilities.testing.internal.TestingUtils.awaitSync
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
 import androidx.appactions.interaction.proto.AppActionsContext.DialogParameter
@@ -67,7 +63,6 @@ import androidx.appactions.interaction.proto.Entity
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.Type.SYNC
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.Type.TERMINATE
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.Type.UNKNOWN_TYPE
-import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput.OutputValue
 import androidx.appactions.interaction.proto.ParamValue
@@ -76,39 +71,41 @@ import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
-import java.util.concurrent.TimeUnit.MILLISECONDS
-import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.atomic.AtomicReference
-import java.util.function.Supplier
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
+import java.util.function.Supplier
 
 @RunWith(JUnit4::class)
 class TaskCapabilityImplTest {
-    val capability: ActionCapability =
+    private val capability: Capability =
         createCapability<EmptyTaskUpdater>(
             SINGLE_REQUIRED_FIELD_PROPERTY,
             sessionFactory =
-                SessionFactory {
-                    object : Session {
-                        override fun onFinishAsync(argument: Argument) =
-                            Futures.immediateFuture(ExecutionResult.getDefaultInstance<Output>())
-                    }
-                },
-            sessionBridge = SessionBridge { TaskHandler.Builder<Confirmation>().build() },
+            {
+                object : ExecutionSession {
+                    override fun onExecuteAsync(arguments: Arguments) =
+                        Futures.immediateFuture(ExecutionResult.Builder<Output>().build())
+                }
+            },
+            sessionBridge = { TaskHandler.Builder<Confirmation>().build() },
             sessionUpdaterSupplier = ::EmptyTaskUpdater,
         )
-    val hostProperties: HostProperties =
+    private val hostProperties: HostProperties =
         HostProperties.Builder()
             .setMaxHostSizeDp(
                 SizeF(300f, 500f),
             )
             .build()
+    private val fakeSessionId = "fakeSessionId"
 
     @Test
     fun getAppAction_smokeTest() {
-        assertThat(capability.getAppAction())
+        assertThat(capability.appAction)
             .isEqualTo(
                 AppAction.newBuilder()
                     .setName("actions.intent.TEST")
@@ -124,64 +121,64 @@ class TaskCapabilityImplTest {
     }
 
     @Test
-    fun actionCapabilitySession_getUiHandle() {
-        val externalSession = object : Session {}
+    fun capabilitySession_getUiHandle() {
+        val externalSession = object : ExecutionSession {}
         val capability =
             createCapability(
                 SINGLE_REQUIRED_FIELD_PROPERTY,
-                SessionFactory { externalSession },
-                SessionBridge { TaskHandler.Builder<Confirmation>().build() },
+                { externalSession },
+                { TaskHandler.Builder<Confirmation>().build() },
                 ::EmptyTaskUpdater,
             )
-        val session = capability.createSession(hostProperties)
+        val session = capability.createSession(fakeSessionId, hostProperties)
         assertThat(session.uiHandle).isSameInstanceAs(externalSession)
     }
 
     @Test
     @kotlin.Throws(Exception::class)
-    fun onInitInvoked_invokedOnce() {
-        val onSuccessInvocationCount = AtomicInteger(0)
-        val capability: ActionCapability =
+    fun onCreateInvoked_invokedOnce() {
+        val onCreateInvocationCount = AtomicInteger(0)
+        val capability: Capability =
             createCapability(
                 SINGLE_REQUIRED_FIELD_PROPERTY,
                 sessionFactory =
-                    SessionFactory {
-                        object : Session {
-                            override fun onInit(initArg: InitArg) {
-                                onSuccessInvocationCount.incrementAndGet()
-                            }
-                            override fun onFinishAsync(argument: Argument) =
-                                Futures.immediateFuture(
-                                    ExecutionResult.getDefaultInstance<Output>(),
-                                )
+                ExecutionSessionFactory {
+                    object : ExecutionSession {
+                        override fun onCreate(sessionContext: SessionContext) {
+                            onCreateInvocationCount.incrementAndGet()
                         }
-                    },
+                        override fun onExecuteAsync(arguments: Arguments) =
+                            Futures.immediateFuture(
+                                ExecutionResult.Builder<Output>().build(),
+                            )
+                    }
+                },
                 sessionBridge = SessionBridge { TaskHandler.Builder<Confirmation>().build() },
                 sessionUpdaterSupplier = ::EmptyTaskUpdater,
             )
-        val session = capability.createSession(hostProperties)
+        val session = capability.createSession(fakeSessionId, hostProperties)
 
         // TURN 1.
-        val onSuccessInvoked: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        val callback = FakeCallbackInternal()
         session.execute(
             buildRequestArgs(SYNC, "unknownArgName", "foo"),
-            buildActionCallback(onSuccessInvoked),
+            callback,
         )
-        assertThat(onSuccessInvoked.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
-        assertThat(onSuccessInvocationCount.get()).isEqualTo(1)
+        assertThat(callback.receiveResponse().fulfillmentResponse).isNotNull()
+        assertThat(onCreateInvocationCount.get()).isEqualTo(1)
 
         // TURN 2.
-        val onSuccessInvoked2: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        val callback2 = FakeCallbackInternal()
         session.execute(
             buildRequestArgs(
                 SYNC,
                 "required",
                 ParamValue.newBuilder().setIdentifier("foo").setStringValue("foo").build(),
             ),
-            buildActionCallback(onSuccessInvoked2),
+            callback2,
         )
-        assertThat(onSuccessInvoked2.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
-        assertThat(onSuccessInvocationCount.get()).isEqualTo(1)
+        assertThat(callback2.receiveResponse().fulfillmentResponse).isNotNull()
+        assertThat(onCreateInvocationCount.get()).isEqualTo(1)
     }
 
     class RequiredTaskUpdater : AbstractTaskUpdater() {
@@ -190,7 +187,7 @@ class TaskCapabilityImplTest {
                 mapOf(
                     "required" to
                         listOf(
-                            TypeConverters.ENTITY_PARAM_VALUE_CONVERTER.toParamValue(entityValue)
+                            TypeConverters.ENTITY_PARAM_VALUE_CONVERTER.toParamValue(entityValue),
                         ),
                 ),
             )
@@ -214,35 +211,69 @@ class TaskCapabilityImplTest {
                     mCompleterRef.getAndSet(
                         newCompleter,
                     )
-                if (oldCompleter != null) {
-                    oldCompleter.setCancelled()
-                }
+                oldCompleter?.setCancelled()
                 "waiting for setValidationResult"
             }
         }
     }
 
     @Test
+    fun duringExecution_uiHandleRegistered(): Unit = runBlocking {
+        val onExecuteReached = CompletableDeferred<Unit>()
+        val onExecuteResult = CompletableDeferred<ExecutionResult<Output>>()
+        val externalSession = object : ExecutionSession {
+            override suspend fun onExecute(arguments: Arguments): ExecutionResult<Output> {
+                onExecuteReached.complete(Unit)
+                return onExecuteResult.await()
+            }
+        }
+        val capability: Capability = createCapability(
+            SINGLE_REQUIRED_FIELD_PROPERTY,
+            sessionFactory = ExecutionSessionFactory { externalSession },
+            sessionBridge = SessionBridge { TaskHandler.Builder<Confirmation>().build() },
+            sessionUpdaterSupplier = ::RequiredTaskUpdater,
+        )
+        val session = capability.createSession("mySessionId", hostProperties)
+        val callback = FakeCallbackInternal()
+        session.execute(
+            buildRequestArgs(
+                SYNC,
+                "required",
+                "hello",
+            ),
+            callback,
+        )
+        onExecuteReached.await()
+        assertThat(UiHandleRegistry.getSessionIdFromUiHandle(externalSession)).isEqualTo(
+            "mySessionId",
+        )
+
+        onExecuteResult.complete(ExecutionResult.Builder<Output>().build())
+        assertThat(callback.receiveResponse().fulfillmentResponse).isNotNull()
+        assertThat(UiHandleRegistry.getSessionIdFromUiHandle(externalSession)).isNull()
+    }
+
+    @Test
     @kotlin.Throws(Exception::class)
     fun fulfillmentType_unknown_errorReported() {
-        val capability: ActionCapability =
+        val capability: Capability =
             createCapability(
                 SINGLE_REQUIRED_FIELD_PROPERTY,
                 sessionFactory =
-                    SessionFactory {
-                        object : Session {
-                            override fun onFinishAsync(argument: Argument) =
-                                Futures.immediateFuture(
-                                    ExecutionResult.getDefaultInstance<Output>(),
-                                )
-                        }
-                    },
+                ExecutionSessionFactory {
+                    object : ExecutionSession {
+                        override fun onExecuteAsync(arguments: Arguments) =
+                            Futures.immediateFuture(
+                                ExecutionResult.Builder<Output>().build(),
+                            )
+                    }
+                },
                 sessionBridge = SessionBridge { TaskHandler.Builder<Confirmation>().build() },
                 sessionUpdaterSupplier = ::RequiredTaskUpdater,
             )
-        val session = capability.createSession(hostProperties)
+        val session = capability.createSession(fakeSessionId, hostProperties)
 
-        assertThat(capability.getAppAction())
+        assertThat(capability.appAction)
             .isEqualTo(
                 AppAction.newBuilder()
                     .setName("actions.intent.TEST")
@@ -257,41 +288,41 @@ class TaskCapabilityImplTest {
             )
 
         // TURN 1 (UNKNOWN).
-        val errorCb: SettableFutureWrapper<ErrorStatusInternal> = SettableFutureWrapper()
-        session.execute(buildRequestArgs(UNKNOWN_TYPE), buildErrorActionCallback(errorCb))
-        assertThat(errorCb.getFuture().get(CB_TIMEOUT, MILLISECONDS))
+        val callback = FakeCallbackInternal()
+        session.execute(buildRequestArgs(UNKNOWN_TYPE), callback)
+        assertThat(callback.receiveResponse().errorStatus)
             .isEqualTo(ErrorStatusInternal.INVALID_REQUEST_TYPE)
     }
 
     @Test
     fun slotFilling_getStatus_smokeTest() {
-        val property: CapabilityTwoEntityValues.Property =
-            CapabilityTwoEntityValues.Property.newBuilder()
+        val property: CapabilityTwoEntityValues.Properties =
+            CapabilityTwoEntityValues.Properties.newBuilder()
                 .setSlotA(
-                    TypeProperty.Builder<
-                            androidx.appactions.interaction.capabilities.core.properties.Entity
+                    Property.Builder<
+                        androidx.appactions.interaction.capabilities.core.properties.Entity,
                         >()
                         .setRequired(true)
-                        .build()
+                        .build(),
                 )
                 .setSlotB(
-                    TypeProperty.Builder<
-                            androidx.appactions.interaction.capabilities.core.properties.Entity
+                    Property.Builder<
+                        androidx.appactions.interaction.capabilities.core.properties.Entity,
                         >()
                         .setRequired(true)
-                        .build()
+                        .build(),
                 )
                 .build()
         val sessionFactory =
-            SessionFactory<CapabilityTwoEntityValues.Session> {
-                object : CapabilityTwoEntityValues.Session {
-                    override suspend fun onFinish(
-                        argument: CapabilityTwoEntityValues.Argument,
-                    ): ExecutionResult<Void> = ExecutionResult.getDefaultInstance()
+            ExecutionSessionFactory<CapabilityTwoEntityValues.ExecutionSession> {
+                object : CapabilityTwoEntityValues.ExecutionSession {
+                    override suspend fun onExecute(
+                        arguments: CapabilityTwoEntityValues.Arguments,
+                    ): ExecutionResult<Void> = ExecutionResult.Builder<Void>().build()
                 }
             }
         val sessionBridge =
-            SessionBridge<CapabilityTwoEntityValues.Session, Void> {
+            SessionBridge<CapabilityTwoEntityValues.ExecutionSession, Void> {
                 TaskHandler.Builder<Void>()
                     .registerValueTaskParam(
                         "slotA",
@@ -305,7 +336,7 @@ class TaskCapabilityImplTest {
                     )
                     .build()
             }
-        val capability: ActionCapability =
+        val capability: Capability =
             TaskCapabilityImpl(
                 "fakeId",
                 CapabilityTwoEntityValues.ACTION_SPEC,
@@ -315,24 +346,24 @@ class TaskCapabilityImplTest {
                 ::EmptyTaskUpdater,
             )
 
-        val session = capability.createSession(hostProperties)
-        assertThat(session.status).isEqualTo(ActionCapabilitySession.Status.UNINITIATED)
+        val session = capability.createSession(fakeSessionId, hostProperties)
+        assertThat(session.status).isEqualTo(CapabilitySession.Status.UNINITIATED)
 
         // turn 1
-        val turn1Success: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        val callback = FakeCallbackInternal()
         session.execute(
             buildRequestArgs(
                 SYNC,
                 "slotA",
                 ParamValue.newBuilder().setIdentifier("foo").setStringValue("foo").build(),
             ),
-            buildActionCallback(turn1Success),
+            callback,
         )
-        assertThat(turn1Success.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
-        assertThat(session.status).isEqualTo(ActionCapabilitySession.Status.IN_PROGRESS)
+        assertThat(callback.receiveResponse().fulfillmentResponse).isNotNull()
+        assertThat(session.status).isEqualTo(CapabilitySession.Status.IN_PROGRESS)
 
         // turn 2
-        val turn2Success: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        val callback2 = FakeCallbackInternal()
         session.execute(
             buildRequestArgs(
                 SYNC,
@@ -341,55 +372,55 @@ class TaskCapabilityImplTest {
                 "slotB",
                 ParamValue.newBuilder().setIdentifier("bar").setStringValue("bar").build(),
             ),
-            buildActionCallback(turn2Success),
+            callback2,
         )
-        assertThat(turn2Success.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
-        assertThat(session.status).isEqualTo(ActionCapabilitySession.Status.COMPLETED)
+        assertThat(callback2.receiveResponse().fulfillmentResponse).isNotNull()
+        assertThat(session.status).isEqualTo(CapabilitySession.Status.COMPLETED)
 
         // turn 3
-        val turn3Success: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        val callback3 = FakeCallbackInternal()
         session.execute(
             buildRequestArgs(TERMINATE),
-            buildActionCallback(turn3Success),
+            callback3,
         )
-        assertThat(turn3Success.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
-        assertThat(session.status).isEqualTo(ActionCapabilitySession.Status.DESTROYED)
+        assertThat(callback3.receiveResponse().fulfillmentResponse).isNotNull()
+        assertThat(session.status).isEqualTo(CapabilitySession.Status.DESTROYED)
     }
 
     @Test
     @kotlin.Throws(Exception::class)
     fun slotFilling_optionalButRejectedParam_onFinishNotInvoked() {
-        val onFinishInvocationCount = AtomicInteger(0)
-        val property: CapabilityTwoEntityValues.Property =
-            CapabilityTwoEntityValues.Property.newBuilder()
+        val onExecuteInvocationCount = AtomicInteger(0)
+        val property: CapabilityTwoEntityValues.Properties =
+            CapabilityTwoEntityValues.Properties.newBuilder()
                 .setSlotA(
-                    TypeProperty.Builder<
-                            androidx.appactions.interaction.capabilities.core.properties.Entity
+                    Property.Builder<
+                        androidx.appactions.interaction.capabilities.core.properties.Entity,
                         >()
                         .setRequired(true)
-                        .build()
+                        .build(),
                 )
                 .setSlotB(
-                    TypeProperty.Builder<
-                            androidx.appactions.interaction.capabilities.core.properties.Entity
+                    Property.Builder<
+                        androidx.appactions.interaction.capabilities.core.properties.Entity,
                         >()
                         .setRequired(false)
-                        .build()
+                        .build(),
                 )
                 .build()
         val sessionFactory =
-            SessionFactory<CapabilityTwoEntityValues.Session> {
-                object : CapabilityTwoEntityValues.Session {
-                    override suspend fun onFinish(
-                        argument: CapabilityTwoEntityValues.Argument,
+            ExecutionSessionFactory<CapabilityTwoEntityValues.ExecutionSession> {
+                object : CapabilityTwoEntityValues.ExecutionSession {
+                    override suspend fun onExecute(
+                        arguments: CapabilityTwoEntityValues.Arguments,
                     ): ExecutionResult<Void> {
-                        onFinishInvocationCount.incrementAndGet()
-                        return ExecutionResult.getDefaultInstance()
+                        onExecuteInvocationCount.incrementAndGet()
+                        return ExecutionResult.Builder<Void>().build()
                     }
                 }
             }
         val sessionBridge =
-            SessionBridge<CapabilityTwoEntityValues.Session, Void> {
+            SessionBridge<CapabilityTwoEntityValues.ExecutionSession, Void> {
                 TaskHandler.Builder<Void>()
                     .registerValueTaskParam(
                         "slotA",
@@ -403,7 +434,7 @@ class TaskCapabilityImplTest {
                     )
                     .build()
             }
-        val capability: ActionCapability =
+        val capability: Capability =
             TaskCapabilityImpl(
                 "fakeId",
                 CapabilityTwoEntityValues.ACTION_SPEC,
@@ -412,10 +443,10 @@ class TaskCapabilityImplTest {
                 sessionBridge,
                 ::EmptyTaskUpdater,
             )
-        val session = capability.createSession(hostProperties)
+        val session = capability.createSession(fakeSessionId, hostProperties)
 
         // TURN 1.
-        val onSuccessInvoked: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        val callback = FakeCallbackInternal()
         session.execute(
             buildRequestArgs(
                 SYNC,
@@ -424,10 +455,10 @@ class TaskCapabilityImplTest {
                 "slotB",
                 ParamValue.newBuilder().setIdentifier("bar").setStringValue("bar").build(),
             ),
-            buildActionCallback(onSuccessInvoked),
+            callback,
         )
-        assertThat(onSuccessInvoked.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
-        assertThat(onFinishInvocationCount.get()).isEqualTo(0)
+        assertThat(callback.receiveResponse().fulfillmentResponse).isNotNull()
+        assertThat(onExecuteInvocationCount.get()).isEqualTo(0)
         assertThat(getCurrentValues("slotA", session.state))
             .containsExactly(
                 CurrentValue.newBuilder()
@@ -451,42 +482,42 @@ class TaskCapabilityImplTest {
     @Test
     @kotlin.Throws(Exception::class)
     fun slotFilling_assistantRemovedParam_clearInSdkState() {
-        val property: Property =
-            Property.newBuilder()
+        val property: Properties =
+            Properties.newBuilder()
                 .setRequiredEntityField(
-                    TypeProperty.Builder<
-                            androidx.appactions.interaction.capabilities.core.properties.Entity
+                    Property.Builder<
+                        androidx.appactions.interaction.capabilities.core.properties.Entity,
                         >()
                         .setRequired(true)
                         .build(),
                 )
                 .setEnumField(
-                    TypeProperty.Builder<TestEnum>()
+                    Property.Builder<TestEnum>()
                         .setPossibleValues(TestEnum.VALUE_1, TestEnum.VALUE_2)
                         .setRequired(true)
                         .build(),
                 )
                 .build()
-        val capability: ActionCapability =
+        val capability: Capability =
             createCapability(
                 property,
-                sessionFactory = SessionFactory { Session.DEFAULT },
+                sessionFactory = ExecutionSessionFactory { ExecutionSession.DEFAULT },
                 sessionBridge = SessionBridge { TaskHandler.Builder<Confirmation>().build() },
                 sessionUpdaterSupplier = ::EmptyTaskUpdater,
             )
-        val session = capability.createSession(hostProperties)
+        val session = capability.createSession(fakeSessionId, hostProperties)
 
         // TURN 1.
-        val onSuccessInvoked: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        val callback = FakeCallbackInternal()
         session.execute(
             buildRequestArgs(
                 SYNC,
                 "required",
                 ParamValue.newBuilder().setIdentifier("foo").setStringValue("foo").build(),
             ),
-            buildActionCallback(onSuccessInvoked),
+            callback,
         )
-        assertThat(onSuccessInvoked.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
+        assertThat(callback.receiveResponse()).isNotNull()
         assertThat(getCurrentValues("required", session.state))
             .containsExactly(
                 CurrentValue.newBuilder()
@@ -499,12 +530,12 @@ class TaskCapabilityImplTest {
         assertThat(getCurrentValues("optionalEnum", session.state)).isEmpty()
 
         // TURN 2.
-        val onSuccessInvoked2: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        val callback2 = FakeCallbackInternal()
         session.execute(
             buildRequestArgs(SYNC, "optionalEnum", TestEnum.VALUE_2),
-            buildActionCallback(onSuccessInvoked2),
+            callback2,
         )
-        assertThat(onSuccessInvoked2.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
+        assertThat(callback2.receiveResponse().fulfillmentResponse).isNotNull()
         assertThat(getCurrentValues("required", session.state)).isEmpty()
         assertThat(getCurrentValues("optionalEnum", session.state))
             .containsExactly(
@@ -519,13 +550,20 @@ class TaskCapabilityImplTest {
     @kotlin.Throws(Exception::class)
     @Suppress("DEPRECATION") // TODO(b/269638788) migrate session state to AppDialogState message
     fun disambig_singleParam_disambigEntitiesInContext() {
-        val capability: ActionCapability =
+        val entityConverter: EntityConverter<EntityValue> = EntityConverter { entityValue ->
+            Entity.newBuilder()
+                .setIdentifier(entityValue.id.get())
+                .setName(entityValue.value)
+                .build()
+        }
+        val capability: Capability =
             createCapability(
                 SINGLE_REQUIRED_FIELD_PROPERTY,
                 sessionFactory = {
-                    object : Session {
-                        override suspend fun onFinish(argument: Argument) =
-                            ExecutionResult.getDefaultInstance<Output>()
+                    object : ExecutionSession {
+                        override suspend fun onExecute(arguments: Arguments) =
+                            ExecutionResult.Builder<Output>().build()
+
                         override fun getRequiredEntityListener() =
                             object : AppEntityListener<EntityValue> {
                                 override fun lookupAndRenderAsync(
@@ -549,31 +587,31 @@ class TaskCapabilityImplTest {
                     }
                 },
                 sessionBridge =
-                    SessionBridge<Session, Confirmation> { session ->
-                        val builder = TaskHandler.Builder<Confirmation>()
-                        session.getRequiredEntityListener()?.let {
-                            listener: AppEntityListener<EntityValue> ->
+                SessionBridge<ExecutionSession, Confirmation> { session ->
+                    val builder = TaskHandler.Builder<Confirmation>()
+                    session.getRequiredEntityListener()
+                        ?.let { listener: AppEntityListener<EntityValue> ->
                             builder.registerAppEntityTaskParam(
                                 "required",
                                 listener,
                                 TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
-                                TypeConverters::toEntity,
+                                entityConverter,
                                 getTrivialSearchActionConverter(),
                             )
                         }
-                        builder.build()
-                    },
+                    builder.build()
+                },
                 sessionUpdaterSupplier = ::EmptyTaskUpdater,
             )
-        val session = capability.createSession(hostProperties)
+        val session = capability.createSession(fakeSessionId, hostProperties)
 
         // TURN 1.
-        val onSuccessInvoked: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        val callback = FakeCallbackInternal()
         session.execute(
             buildRequestArgs(SYNC, "required", buildSearchActionParamValue("invalid")),
-            buildActionCallback(onSuccessInvoked),
+            callback,
         )
-        assertThat(onSuccessInvoked.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
+        assertThat(callback.receiveResponse().fulfillmentResponse).isNotNull()
         assertThat(session.state)
             .isEqualTo(
                 AppDialogState.newBuilder()
@@ -598,7 +636,7 @@ class TaskCapabilityImplTest {
                                                     )
                                                     .setName(
                                                         "valid1",
-                                                    )
+                                                    ),
                                             )
                                             .addEntities(
                                                 Entity.newBuilder()
@@ -611,21 +649,20 @@ class TaskCapabilityImplTest {
                                             ),
                                     ),
                             ),
-                    )
-                    .build()
+                    ).build(),
             )
 
         // TURN 2.
-        val turn2SuccessInvoked: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        val callback2 = FakeCallbackInternal()
         session.execute(
             buildRequestArgs(
                 SYNC,
                 "required",
                 ParamValue.newBuilder().setIdentifier("valid2").setStringValue("valid2").build(),
             ),
-            buildActionCallback(turn2SuccessInvoked),
+            callback2,
         )
-        assertThat(turn2SuccessInvoked.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
+        assertThat(callback2.receiveResponse().fulfillmentResponse).isNotNull()
         assertThat(session.state)
             .isEqualTo(
                 AppDialogState.newBuilder()
@@ -649,7 +686,7 @@ class TaskCapabilityImplTest {
                                     ),
                             ),
                     )
-                    .build()
+                    .build(),
             )
     }
 
@@ -660,29 +697,29 @@ class TaskCapabilityImplTest {
     @Test
     @kotlin.Throws(Exception::class)
     @Suppress("DEPRECATION") // TODO(b/269638788) migrate session state to AppDialogState message
-    fun identifierOnly_refillsStruct() {
-        val property: CapabilityStructFill.Property =
-            CapabilityStructFill.Property.newBuilder()
-                .setListItem(TypeProperty.Builder<ListItem>().setRequired(true).build())
-                .setAnyString(TypeProperty.Builder<StringValue>().setRequired(true).build())
+    fun identifierOnly_refillsStruct() = runBlocking<Unit> {
+        val property: CapabilityStructFill.Properties =
+            CapabilityStructFill.Properties.newBuilder()
+                .setListItem(Property.Builder<ListItem>().setRequired(true).build())
+                .setAnyString(Property.Builder<StringValue>().setRequired(true).build())
                 .build()
         val item1: ListItem = ListItem.newBuilder().setName("red apple").setId("item1").build()
         val item2: ListItem = ListItem.newBuilder().setName("green apple").setId("item2").build()
-        val onReceivedCb: SettableFutureWrapper<ListItem> = SettableFutureWrapper()
-        val onFinishListItemCb: SettableFutureWrapper<ListItem> = SettableFutureWrapper()
-        val onFinishStringCb: SettableFutureWrapper<String> = SettableFutureWrapper()
+        val onReceivedDeferred = CompletableDeferred<ListItem>()
+        val onExecuteListItemDeferred = CompletableDeferred<ListItem>()
+        val onExecuteStringDeferred = CompletableDeferred<String>()
 
         val sessionFactory =
-            SessionFactory<CapabilityStructFill.Session> {
-                object : CapabilityStructFill.Session {
-                    override suspend fun onFinish(
-                        argument: CapabilityStructFill.Argument,
+            ExecutionSessionFactory<CapabilityStructFill.ExecutionSession> {
+                object : CapabilityStructFill.ExecutionSession {
+                    override suspend fun onExecute(
+                        arguments: CapabilityStructFill.Arguments,
                     ): ExecutionResult<Void> {
-                        val listItem: ListItem = argument.listItem().orElse(null)
-                        val string: String = argument.anyString().orElse(null)
-                        onFinishListItemCb.set(listItem)
-                        onFinishStringCb.set(string)
-                        return ExecutionResult.getDefaultInstance<Void>()
+                        val listItem: ListItem = arguments.listItem().orElse(null)
+                        val string: String = arguments.anyString().orElse(null)
+                        onExecuteListItemDeferred.complete(listItem)
+                        onExecuteStringDeferred.complete(string)
+                        return ExecutionResult.Builder<Void>().build()
                     }
 
                     override fun getListItemListener() =
@@ -690,7 +727,7 @@ class TaskCapabilityImplTest {
                             override fun onReceivedAsync(
                                 value: ListItem,
                             ): ListenableFuture<ValidationResult> {
-                                onReceivedCb.set(value)
+                                onReceivedDeferred.complete(value)
                                 return Futures.immediateFuture(ValidationResult.newAccepted())
                             }
 
@@ -707,7 +744,7 @@ class TaskCapabilityImplTest {
                 }
             }
         val sessionBridge =
-            SessionBridge<CapabilityStructFill.Session, Void> { session ->
+            SessionBridge<CapabilityStructFill.ExecutionSession, Void> { session ->
                 TaskHandler.Builder<Void>()
                     .registerAppEntityTaskParam(
                         "listItem",
@@ -719,7 +756,7 @@ class TaskCapabilityImplTest {
                     .build()
             }
 
-        val capability: ActionCapability =
+        val capability: Capability =
             TaskCapabilityImpl(
                 "selectListItem",
                 CapabilityStructFill.ACTION_SPEC,
@@ -728,17 +765,17 @@ class TaskCapabilityImplTest {
                 sessionBridge,
                 ::EmptyTaskUpdater,
             )
-        val session = capability.createSession(hostProperties)
+        val session = capability.createSession(fakeSessionId, hostProperties)
 
         // first sync request
-        val firstTurnSuccess: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        val callback = FakeCallbackInternal()
         session.execute(
             buildRequestArgs(SYNC, "listItem", buildSearchActionParamValue("apple")),
-            buildActionCallback(firstTurnSuccess),
+            callback,
         )
-        assertThat(firstTurnSuccess.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
-        assertThat(onReceivedCb.getFuture().isDone()).isFalse()
-        assertThat(onFinishListItemCb.getFuture().isDone()).isFalse()
+        assertThat(callback.receiveResponse().fulfillmentResponse).isNotNull()
+        assertThat(onReceivedDeferred.isCompleted).isFalse()
+        assertThat(onExecuteListItemDeferred.isCompleted).isFalse()
         assertThat(session.state)
             .isEqualTo(
                 AppDialogState.newBuilder()
@@ -771,25 +808,25 @@ class TaskCapabilityImplTest {
                             .build(),
                     )
                     .addParams(DialogParameter.newBuilder().setName("string").build())
-                    .build()
+                    .build(),
             )
 
         // second sync request, sending grounded ParamValue with identifier only
-        val secondTurnSuccess: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        val callback2 = FakeCallbackInternal()
         session.execute(
             buildRequestArgs(
                 SYNC,
                 "listItem",
                 ParamValue.newBuilder().setIdentifier("item2").build(),
             ),
-            buildActionCallback(secondTurnSuccess),
+            callback2,
         )
-        assertThat(secondTurnSuccess.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
-        assertThat(onReceivedCb.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isEqualTo(item2)
-        assertThat(onFinishListItemCb.getFuture().isDone()).isFalse()
+        assertThat(callback2.receiveResponse().fulfillmentResponse).isNotNull()
+        assertThat(onReceivedDeferred.awaitSync()).isEqualTo(item2)
+        assertThat(onExecuteListItemDeferred.isCompleted).isFalse()
 
         // third sync request, sending grounded ParamValue with identifier only, completes task
-        val thirdTurnSuccess: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        val callback3 = FakeCallbackInternal()
         session.execute(
             buildRequestArgs(
                 SYNC,
@@ -798,26 +835,20 @@ class TaskCapabilityImplTest {
                 "string",
                 "unused",
             ),
-            buildActionCallback(thirdTurnSuccess),
+            callback3,
         )
-        assertThat(thirdTurnSuccess.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
-        assertThat(onFinishListItemCb.getFuture().get(CB_TIMEOUT, MILLISECONDS))
-            .isEqualTo(
-                item2,
-            )
-        assertThat(
-                onFinishStringCb.getFuture().get(CB_TIMEOUT, MILLISECONDS),
-            )
-            .isEqualTo("unused")
+        assertThat(callback3.receiveResponse().fulfillmentResponse).isNotNull()
+        assertThat(onExecuteListItemDeferred.awaitSync()).isEqualTo(item2)
+        assertThat(onExecuteStringDeferred.awaitSync()).isEqualTo("unused")
     }
 
     @Test
     @kotlin.Throws(Exception::class)
     fun executionResult_resultReturned() {
         val sessionFactory =
-            SessionFactory<Session> {
-                object : Session {
-                    override suspend fun onFinish(argument: Argument) =
+            ExecutionSessionFactory<ExecutionSession> {
+                object : ExecutionSession {
+                    override suspend fun onExecute(arguments: Arguments) =
                         ExecutionResult.Builder<Output>()
                             .setOutput(
                                 Output.builder()
@@ -831,9 +862,9 @@ class TaskCapabilityImplTest {
                 }
             }
         val capability =
-            CapabilityBuilder().setId("fakeId").setSessionFactory(sessionFactory).build()
-        val session = capability.createSession(hostProperties)
-        val onSuccessInvoked: SettableFutureWrapper<FulfillmentResponse> = SettableFutureWrapper()
+            CapabilityBuilder().setId("fakeId").setExecutionSessionFactory(sessionFactory).build()
+        val session = capability.createSession(fakeSessionId, hostProperties)
+        val callback = FakeCallbackInternal()
         val expectedOutput: StructuredOutput =
             StructuredOutput.newBuilder()
                 .addOutputValues(
@@ -862,46 +893,71 @@ class TaskCapabilityImplTest {
                 "required",
                 ParamValue.newBuilder().setIdentifier("foo").setStringValue("foo").build(),
             ),
-            buildActionCallbackWithFulfillmentResponse(onSuccessInvoked),
+            callback,
         )
         assertThat(
-                onSuccessInvoked
-                    .getFuture()
-                    .get(CB_TIMEOUT, MILLISECONDS)
-                    .getExecutionOutput()
-                    .getOutputValuesList(),
-            )
+            callback.receiveResponse()
+                .fulfillmentResponse!!
+                .getExecutionOutput()
+                .getOutputValuesList(),
+        )
             .containsExactlyElementsIn(expectedOutput.getOutputValuesList())
     }
 
+    @Test
+    @kotlin.Throws(Exception::class)
+    fun executionResult_shouldStartDictation_resultReturned() {
+        val sessionFactory =
+            ExecutionSessionFactory<ExecutionSession> {
+                object : ExecutionSession {
+                    override suspend fun onExecute(arguments: Arguments) =
+                        ExecutionResult.Builder<Output>()
+                            .setStartDictation(true)
+                            .build()
+                }
+            }
+        val capability =
+            CapabilityBuilder().setId("fakeId").setExecutionSessionFactory(sessionFactory).build()
+        val session = capability.createSession(fakeSessionId, hostProperties)
+        val callback = FakeCallbackInternal()
+
+        session.execute(
+            buildRequestArgs(
+                SYNC, /* args...= */
+                "required",
+                ParamValue.newBuilder().setIdentifier("foo").setStringValue("foo").build(),
+            ),
+            callback,
+        )
+
+        assertThat(callback.receiveResponse().fulfillmentResponse!!.startDictation).isTrue()
+    }
+
     /**
-     * an implementation of CapabilityBuilderBase using Argument. Output, etc. defined under
+     * an implementation of Capability.Builder using Argument. Output, etc. defined under
      * testing/spec
      */
     class CapabilityBuilder :
-        CapabilityBuilderBase<
+        Capability.Builder<
             CapabilityBuilder,
-            Property,
-            Argument,
+            Properties,
+            Arguments,
             Output,
             Confirmation,
-            RequiredTaskUpdater,
-            Session,
-        >(ACTION_SPEC) {
+            ExecutionSession,
+            >(ACTION_SPEC) {
 
         init {
             setProperty(SINGLE_REQUIRED_FIELD_PROPERTY)
         }
-        override val sessionBridge: SessionBridge<Session, Confirmation> = SessionBridge {
+
+        override val sessionBridge: SessionBridge<ExecutionSession, Confirmation> = SessionBridge {
             TaskHandler.Builder<Confirmation>().build()
         }
-        override val sessionUpdaterSupplier: Supplier<RequiredTaskUpdater> = Supplier {
-            RequiredTaskUpdater()
-        }
 
-        public override fun setSessionFactory(
-            sessionFactory: SessionFactory<Session>,
-        ): CapabilityBuilder = super.setSessionFactory(sessionFactory)
+        public override fun setExecutionSessionFactory(
+            sessionFactory: ExecutionSessionFactory<ExecutionSession>,
+        ): CapabilityBuilder = super.setExecutionSessionFactory(sessionFactory)
     }
 
     companion object {
@@ -954,44 +1010,44 @@ class TaskCapabilityImplTest {
                     return TestEnum.VALUE_1
                 }
 
-                override fun toParamValue(value: TestEnum): ParamValue {
+                override fun toParamValue(obj: TestEnum): ParamValue {
                     return ParamValue.newBuilder().build()
                 }
             }
-        private val ACTION_SPEC: ActionSpec<Property, Argument, Output> =
+        private val ACTION_SPEC: ActionSpec<Properties, Arguments, Output> =
             ActionSpecBuilder.ofCapabilityNamed(
-                    CAPABILITY_NAME,
-                )
-                .setDescriptor(Property::class.java)
-                .setArgument(Argument::class.java, Argument::newBuilder)
+                CAPABILITY_NAME,
+            )
+                .setDescriptor(Properties::class.java)
+                .setArguments(Arguments::class.java, Arguments::newBuilder)
                 .setOutput(Output::class.java)
                 .bindParameter(
                     "required",
-                    Property::requiredEntityField,
-                    Argument.Builder::setRequiredEntityField,
+                    Properties::requiredEntityField,
+                    Arguments.Builder::setRequiredEntityField,
                     TypeConverters.ENTITY_PARAM_VALUE_CONVERTER,
-                    PropertyConverter::entityToProto
+                    TypeConverters.ENTITY_ENTITY_CONVERTER,
                 )
                 .bindOptionalParameter(
                     "optional",
-                    Property::optionalStringField,
-                    Argument.Builder::setOptionalStringField,
+                    Properties::optionalStringField,
+                    Arguments.Builder::setOptionalStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                    PropertyConverter::stringValueToProto
+                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER,
                 )
                 .bindOptionalParameter(
                     "optionalEnum",
-                    Property::enumField,
-                    Argument.Builder::setEnumField,
+                    Properties::enumField,
+                    Arguments.Builder::setEnumField,
                     ENUM_CONVERTER,
-                    { Entity.newBuilder().setIdentifier(it.toString()).build() }
+                    { Entity.newBuilder().setIdentifier(it.toString()).build() },
                 )
                 .bindRepeatedParameter(
                     "repeated",
-                    Property::repeatedStringField,
-                    Argument.Builder::setRepeatedStringField,
+                    Properties::repeatedStringField,
+                    Arguments.Builder::setRepeatedStringField,
                     TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                    PropertyConverter::stringValueToProto
+                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER,
                 )
                 .bindOptionalOutput(
                     "optionalStringOutput",
@@ -1005,20 +1061,20 @@ class TaskCapabilityImplTest {
                 )
                 .build()
 
-        private val SINGLE_REQUIRED_FIELD_PROPERTY: Property =
-            Property.newBuilder()
+        private val SINGLE_REQUIRED_FIELD_PROPERTY: Properties =
+            Properties.newBuilder()
                 .setRequiredEntityField(
-                    TypeProperty.Builder<
-                            androidx.appactions.interaction.capabilities.core.properties.Entity
+                    Property.Builder<
+                        androidx.appactions.interaction.capabilities.core.properties.Entity,
                         >()
                         .setRequired(true)
-                        .build()
+                        .build(),
                 )
                 .build()
 
         private fun getCurrentValues(
             argName: String,
-            appDialogState: AppDialogState
+            appDialogState: AppDialogState,
         ): List<CurrentValue> {
             return appDialogState
                 .getParamsList()
@@ -1034,18 +1090,18 @@ class TaskCapabilityImplTest {
          * etc., defined under ../../testing/spec
          */
         private fun <SessionUpdaterT : AbstractTaskUpdater> createCapability(
-            property: Property,
-            sessionFactory: SessionFactory<Session>,
-            sessionBridge: SessionBridge<Session, Confirmation>,
+            property: Properties,
+            sessionFactory: ExecutionSessionFactory<ExecutionSession>,
+            sessionBridge: SessionBridge<ExecutionSession, Confirmation>,
             sessionUpdaterSupplier: Supplier<SessionUpdaterT>,
         ): TaskCapabilityImpl<
-            Property,
-            Argument,
+            Properties,
+            Arguments,
             Output,
-            Session,
+            ExecutionSession,
             Confirmation,
             SessionUpdaterT,
-        > {
+            > {
             return TaskCapabilityImpl(
                 "id",
                 ACTION_SPEC,

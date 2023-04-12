@@ -31,6 +31,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -154,22 +155,20 @@ public fun Button(
     border: ButtonBorder = ButtonDefaults.buttonBorder(),
     content: @Composable BoxScope.() -> Unit,
 ) {
-    val contentColor = colors.contentColor(enabled = enabled).value
     androidx.wear.compose.materialcore.Button(
         onClick = onClick,
         modifier = modifier,
         enabled = enabled,
-        backgroundColor = { colors.backgroundColor(enabled = it) },
+        background = { rememberUpdatedState(ColorPainter(colors.backgroundColor(it).value)) },
         interactionSource = interactionSource,
         shape = shape,
         border = { border.borderStroke(enabled = it) },
-        minButtonSize = ButtonDefaults.DefaultButtonSize,
-        contentProviderValues = arrayOf(
-            LocalContentColor provides contentColor,
-            LocalContentAlpha provides contentColor.alpha,
-            LocalTextStyle provides MaterialTheme.typography.button
-        ),
-        content = content
+        buttonSize = ButtonDefaults.DefaultButtonSize,
+        content = provideScopeContent(
+            colors.contentColor(enabled = enabled),
+            MaterialTheme.typography.button,
+            content
+        )
     )
 }
 
@@ -336,24 +335,22 @@ public fun CompactButton(
     border: ButtonBorder = ButtonDefaults.buttonBorder(),
     content: @Composable BoxScope.() -> Unit,
 ) {
-    val contentColor = colors.contentColor(enabled = enabled).value
     androidx.wear.compose.materialcore.Button(
         onClick = onClick,
         modifier = modifier
             .padding(backgroundPadding)
             .requiredSize(ButtonDefaults.ExtraSmallButtonSize),
         enabled = enabled,
-        backgroundColor = { colors.backgroundColor(enabled = it) },
+        background = { rememberUpdatedState(ColorPainter(colors.backgroundColor(it).value)) },
         interactionSource = interactionSource,
         shape = shape,
         border = { border.borderStroke(it) },
-        minButtonSize = ButtonDefaults.ExtraSmallButtonSize,
-        contentProviderValues = arrayOf(
-            LocalContentColor provides contentColor,
-            LocalContentAlpha provides contentColor.alpha,
-            LocalTextStyle provides MaterialTheme.typography.button,
-        ),
-        content = content
+        buttonSize = ButtonDefaults.ExtraSmallButtonSize,
+        content = provideScopeContent(
+            colors.contentColor(enabled = enabled),
+            MaterialTheme.typography.button,
+            content
+        )
     )
 }
 
@@ -479,6 +476,9 @@ public object ButtonDefaults {
         backgroundColor: Color = MaterialTheme.colors.primary,
         contentColor: Color = contentColorFor(backgroundColor)
     ): ButtonColors {
+        // For light background colors, the default disabled content colors do not provide
+        // sufficient contrast. Instead, we default to using background for disabled content.
+        // See b/254025377
         return buttonColors(
             backgroundColor = backgroundColor,
             contentColor = contentColor,

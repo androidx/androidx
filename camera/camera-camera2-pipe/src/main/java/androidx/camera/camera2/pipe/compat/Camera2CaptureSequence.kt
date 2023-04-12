@@ -33,6 +33,7 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.StreamId
+import kotlinx.coroutines.CompletableDeferred
 
 /**
  * This class responds to events from a set of one or more requests. It uses the tag field on a
@@ -51,6 +52,7 @@ internal class Camera2CaptureSequence(
     private val surfaceMap: Map<Surface, StreamId>,
 ) : CameraCaptureSession.CaptureCallback(), CaptureSequence<CaptureRequest> {
     private val debugId = captureSequenceDebugIds.incrementAndGet()
+    private val hasStarted = CompletableDeferred<Unit>()
 
     @Volatile
     private var _sequenceNumber: Int? = null
@@ -92,6 +94,7 @@ internal class Camera2CaptureSequence(
         // normal circumstances this should never happen.
         val request = readRequestMetadata(requestNumber)
 
+        hasStarted.complete(Unit)
         invokeOnRequest(request) { it.onStarted(request, frameNumber, timestamp) }
     }
 
@@ -200,6 +203,7 @@ internal class Camera2CaptureSequence(
                 "$captureSequenceId!"
         }
 
+        hasStarted.complete(Unit)
         invokeOnRequests { request, _, listener -> listener.onRequestSequenceAborted(request) }
     }
 
@@ -211,6 +215,8 @@ internal class Camera2CaptureSequence(
             "Unable to find the request for $requestNumber!"
         }
     }
+
+    internal suspend fun awaitStarted() = hasStarted.await()
 
     override fun toString(): String = "Camera2CaptureSequence-$debugId"
 }

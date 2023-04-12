@@ -64,7 +64,8 @@ public class BundleCompatTest {
     }
 
     @Test
-    public void getParcelableArray_postU() {
+    @SdkSuppress(minSdkVersion = 33)
+    public void getParcelableArray_post33() {
         if (!BuildCompat.isAtLeastU()) return;
         Bundle bundle = new Bundle();
         bundle.putParcelableArray("array", new Intent[] { new Intent() });
@@ -75,7 +76,8 @@ public class BundleCompatTest {
     }
 
     @Test
-    public void getParcelableArray_returnsNullOnClassMismatch_postU() {
+    @SdkSuppress(minSdkVersion = 33)
+    public void getParcelableArray_returnsNullOnClassMismatch_post33() {
         if (!BuildCompat.isAtLeastU()) return;
         Bundle bundle = new Bundle();
         bundle.putParcelableArray("array", new Intent[] { new Intent() });
@@ -85,7 +87,8 @@ public class BundleCompatTest {
     }
 
     @Test
-    public void getParcelableArray_preU() {
+    @SdkSuppress(maxSdkVersion = 32)
+    public void getParcelableArray_pre33() {
         if (BuildCompat.isAtLeastU()) return;
         Bundle bundle = new Bundle();
         bundle.putParcelableArray("array", new Intent[] { new Intent() });
@@ -114,7 +117,8 @@ public class BundleCompatTest {
     }
 
     @Test
-    public void getParcelableArrayList_returnsNullOnClassMismatch_postU() {
+    @SdkSuppress(minSdkVersion = 33)
+    public void getParcelableArrayList_returnsNullOnClassMismatch_post33() {
         if (!BuildCompat.isAtLeastU()) return;
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList("array", Lists.newArrayList(new Intent()));
@@ -124,7 +128,8 @@ public class BundleCompatTest {
     }
 
     @Test
-    public void getParcelableArrayList_noTypeCheck_preU() {
+    @SdkSuppress(maxSdkVersion = 32)
+    public void getParcelableArrayList_noTypeCheck_pre33() {
         if (BuildCompat.isAtLeastU()) return;
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList("array", Lists.newArrayList(new Intent()));
@@ -150,8 +155,8 @@ public class BundleCompatTest {
     }
 
     @Test
-    @SdkSuppress(codeName = "UpsideDownCake")
-    public void getSparseParcelableArray_returnsNullOnClassMismatch_postU() {
+    @SdkSuppress(minSdkVersion = 33)
+    public void getSparseParcelableArray_returnsNullOnClassMismatch_post33() {
         if (!BuildCompat.isAtLeastU()) return;
         Bundle bundle = new Bundle();
         SparseArray<Intent> array = new SparseArray<>();
@@ -163,7 +168,8 @@ public class BundleCompatTest {
     }
 
     @Test
-    public void getSparseParcelableArray_noTypeCheck_preU() {
+    @SdkSuppress(maxSdkVersion = 32)
+    public void getSparseParcelableArray_noTypeCheck_pre33() {
         if (BuildCompat.isAtLeastU()) return;
         Bundle bundle = new Bundle();
         SparseArray<Intent> array = new SparseArray<>();

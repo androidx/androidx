@@ -109,8 +109,8 @@ private class FakeOwner(
         delegate.measureAndLayout(layoutNode, constraints)
     }
 
-    override fun forceMeasureTheSubtree(layoutNode: LayoutNode) {
-        delegate.forceMeasureTheSubtree(layoutNode)
+    override fun forceMeasureTheSubtree(layoutNode: LayoutNode, affectsLookahead: Boolean) {
+        delegate.forceMeasureTheSubtree(layoutNode, affectsLookahead)
     }
 
     override val snapshotObserver: OwnerSnapshotObserver = OwnerSnapshotObserver { it.invoke() }

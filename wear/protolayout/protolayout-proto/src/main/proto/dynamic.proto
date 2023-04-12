@@ -507,6 +507,20 @@ message AnimatableDynamicColor {
   AnimationSpec animation_spec = 3;
 }
 
+// A conditional operator which yields a color depending on the boolean
+// operand. This implements:
+// ```color result = condition ? value_if_true : value_if_false```
+message ConditionalColorOp {
+    // The condition to use.
+  DynamicBool condition = 1;
+
+  // The color to yield if condition is true.
+  DynamicColor value_if_true = 2;
+
+  // The color to yield if condition is false.
+  DynamicColor value_if_false = 3;
+}
+
 // A dynamic color type.
 message DynamicColor {
   oneof inner {
@@ -514,6 +528,7 @@ message DynamicColor {
     StateColorSource state_source = 2;
     AnimatableFixedColor animatable_fixed = 3;
     AnimatableDynamicColor animatable_dynamic = 4;
+    ConditionalColorOp conditional_op = 5;
   }
 }
 

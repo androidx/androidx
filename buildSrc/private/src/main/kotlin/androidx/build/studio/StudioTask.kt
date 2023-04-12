@@ -16,9 +16,14 @@
 
 package androidx.build.studio
 
+import androidx.build.OperatingSystem
 import androidx.build.ProjectLayoutType
+import androidx.build.getOperatingSystem
+import androidx.build.getSdkPath
 import androidx.build.getSupportRootFolder
 import androidx.build.getVersionByName
+import androidx.build.hasSupportRootFolder
+import androidx.build.setSupportRootFolder
 import com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
 import java.io.File
 import java.nio.file.Files
@@ -170,6 +175,56 @@ abstract class StudioTask : DefaultTask() {
     }
 
     /**
+     * Attempts to symlink the system-images and emulator SDK directories to a canonical SDK.
+     */
+    private fun setupSymlinksIfNeeded() {
+        val paths = listOf("system-images", "emulator")
+
+        // The support root folder may not have been set yet, in which case we'll optimistically
+        // assume that it matches the root project. This won't work for ui or Playground, but we'll
+        // fail gracefully later.
+        val hadSupportRootFolder = project.hasSupportRootFolder()
+        if (!hadSupportRootFolder) {
+            project.setSupportRootFolder(project.rootDir)
+        }
+        val localSdkPath = project.getSdkPath()
+        if (!hadSupportRootFolder) {
+            project.setSupportRootFolder(null)
+        }
+        if (!localSdkPath.exists()) {
+            // We probably got the support root folder wrong. Fail gracefully.
+            return
+        }
+
+        val relativeSdkPath = when (val osType = getOperatingSystem()) {
+            OperatingSystem.MAC -> "Library/Android/sdk"
+            OperatingSystem.LINUX -> "Android/Sdk"
+            else -> {
+                println("Failed to locate canonical SDK, unsupported operating system: $osType")
+                return
+            }
+        }
+
+        val canonicalSdkPath = File(File(System.getProperty("user.home")).parent, relativeSdkPath)
+        if (!canonicalSdkPath.exists()) {
+            // In the future, we might want to try a little harder to locate a canonical SDK path.
+            println("Failed to locate canonical SDK, not found at: $canonicalSdkPath")
+            return
+        }
+
+        paths.forEach { path ->
+            val link = File(localSdkPath, path)
+            val target = File(canonicalSdkPath, path)
+            if (!target.exists()) {
+                println("Skipping canonical SDK symlink creation, not found at: $target")
+            } else if (!link.exists()) {
+                println("Creating canonical SDK symlink for $target...")
+                Files.createSymbolicLink(link.toPath(), target.toPath())
+            }
+        }
+    }
+
+    /**
      * Launches Studio if the user accepts / has accepted the license agreement.
      */
     private fun launch() {
@@ -184,6 +239,10 @@ abstract class StudioTask : DefaultTask() {
                     """.trimIndent()
                 )
             }
+
+            // This seems like as good a time as any to set up SDK symlinks...
+            setupSymlinksIfNeeded()
+
             println("Launching studio...")
             launchStudio()
         } else {

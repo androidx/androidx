@@ -242,7 +242,7 @@ class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
                 "PIXEL 7 PRO"
             )
 
-        fun load(): Boolean {
+        fun isEnabled(): Boolean {
             return (isSamsungS7 || supportExtraFullConfigurationsSamsungDevice() ||
                 supportExtraLevel3ConfigurationsGoogleDevice())
         }

@@ -24,6 +24,7 @@ internal val MAX_AGP_VERSION_REQUIRED = AndroidPluginVersion(8, 2, 0)
 
 // Prefix for the build type baseline profile
 internal const val BUILD_TYPE_BASELINE_PROFILE_PREFIX = "nonMinified"
+internal const val BUILD_TYPE_BENCHMARK_PREFIX = "benchmark"
 
 // Configuration consumed by this plugin that carries the baseline profile HRF file.
 internal const val CONFIGURATION_NAME_BASELINE_PROFILES = "baselineProfile"

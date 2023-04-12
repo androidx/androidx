@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.core.impl.Quirk
@@ -29,7 +30,7 @@ import javax.inject.Inject
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 @CameraScope
 class CameraQuirks @Inject constructor(
-    private val cameraMetadata: CameraMetadata,
+    private val cameraMetadata: CameraMetadata?,
     private val streamConfigurationMapCompat: StreamConfigurationMapCompat
 ) {
 
@@ -39,13 +40,20 @@ class CameraQuirks @Inject constructor(
      */
     val quirks: Quirks by lazy {
         val quirks: MutableList<Quirk> = mutableListOf()
+        if (cameraMetadata == null) {
+            Log.error { "Failed to enable quirks: camera metadata injection failed" }
+            return@lazy Quirks(quirks)
+        }
 
         // Go through all defined camera quirks in lexicographical order,
         // and add them to `quirks` if they should be loaded
+        if (AeFpsRangeLegacyQuirk.isEnabled(cameraMetadata)) {
+            quirks.add(AeFpsRangeLegacyQuirk(cameraMetadata))
+        }
         if (AfRegionFlipHorizontallyQuirk.isEnabled(cameraMetadata)) {
             quirks.add(AfRegionFlipHorizontallyQuirk())
         }
-        if (AspectRatioLegacyApi21Quirk.load(cameraMetadata)) {
+        if (AspectRatioLegacyApi21Quirk.isEnabled(cameraMetadata)) {
             quirks.add(AspectRatioLegacyApi21Quirk())
         }
         if (CamcorderProfileResolutionQuirk.isEnabled(cameraMetadata)) {
@@ -53,6 +61,9 @@ class CameraQuirks @Inject constructor(
         }
         if (CameraNoResponseWhenEnablingFlashQuirk.isEnabled(cameraMetadata)) {
             quirks.add(CameraNoResponseWhenEnablingFlashQuirk())
+        }
+        if (ConfigureSurfaceToSecondarySessionFailQuirk.isEnabled(cameraMetadata)) {
+            quirks.add(ConfigureSurfaceToSecondarySessionFailQuirk())
         }
         if (FlashTooSlowQuirk.isEnabled(cameraMetadata)) {
             quirks.add(FlashTooSlowQuirk())
@@ -72,8 +83,17 @@ class CameraQuirks @Inject constructor(
         if (JpegHalCorruptImageQuirk.isEnabled()) {
             quirks.add(JpegHalCorruptImageQuirk())
         }
+        if (PreviewOrientationIncorrectQuirk.isEnabled(cameraMetadata)) {
+            quirks.add(PreviewOrientationIncorrectQuirk())
+        }
+        if (TextureViewIsClosedQuirk.isEnabled(cameraMetadata)) {
+            quirks.add(TextureViewIsClosedQuirk())
+        }
         if (YuvImageOnePixelShiftQuirk.isEnabled()) {
             quirks.add(YuvImageOnePixelShiftQuirk())
+        }
+        if (CaptureSessionStuckQuirk.isEnabled()) {
+            quirks.add(CaptureSessionStuckQuirk())
         }
 
         Quirks(quirks)

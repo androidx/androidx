@@ -17,7 +17,7 @@
 package androidx.appactions.interaction.capabilities.core.properties
 
 /**
- * Entities are used defining possible values for [ParamProperty].
+ * Entities are used defining possible values for [Property].
  */
 class Entity internal constructor(
     val id: String?,

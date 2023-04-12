@@ -18,8 +18,12 @@ package androidx.camera.core.processing;
 
 import static android.opengl.GLES11Ext.GL_TEXTURE_EXTERNAL_OES;
 
+import static androidx.camera.core.ImageProcessingUtil.copyByteBufferToBitmap;
+import static androidx.core.util.Preconditions.checkArgument;
+
 import static java.util.Objects.requireNonNull;
 
+import android.graphics.Bitmap;
 import android.opengl.EGL14;
 import android.opengl.EGLConfig;
 import android.opengl.EGLContext;
@@ -37,6 +41,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.camera.core.Logger;
+import androidx.camera.core.SurfaceOutput;
 import androidx.core.util.Preconditions;
 
 import com.google.auto.value.AutoValue;
@@ -64,6 +69,7 @@ public final class OpenGlRenderer {
 
     private static final String VAR_TEXTURE_COORD = "vTextureCoord";
     private static final String VAR_TEXTURE = "sTexture";
+    private static final int PIXEL_STRIDE = 4;
 
     private static final String DEFAULT_VERTEX_SHADER = String.format(Locale.US,
             "uniform mat4 uTexMatrix;\n"
@@ -262,6 +268,132 @@ public final class OpenGlRenderer {
                     EGL14.eglGetError()));
             removeOutputSurfaceInternal(surface, false);
         }
+    }
+
+    /**
+     * Takes a snapshot of the current external texture and returns a Bitmap.
+     *
+     * @param size             the size of the output {@link Bitmap}.
+     * @param textureTransform the transformation matrix.
+     *                         See: {@link SurfaceOutput#updateTransformMatrix(float[], float[])}
+     */
+    @NonNull
+    public Bitmap snapshot(@NonNull Size size, @NonNull float[] textureTransform) {
+        // Allocate buffer.
+        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(
+                size.getWidth() * size.getHeight() * PIXEL_STRIDE);
+        // Take a snapshot.
+        snapshot(byteBuffer, size, textureTransform);
+        // Create a Bitmap and copy the bytes over.
+        Bitmap bitmap = Bitmap.createBitmap(
+                size.getWidth(), size.getHeight(), Bitmap.Config.ARGB_8888);
+        byteBuffer.rewind();
+        copyByteBufferToBitmap(bitmap, byteBuffer, size.getWidth() * PIXEL_STRIDE);
+        return bitmap;
+    }
+
+    /**
+     * Takes a snapshot of the current external texture and stores it in the given byte buffer.
+     *
+     * <p> The image is stored as RGBA with pixel stride of 4 bytes and row stride of width * 4
+     * bytes.
+     *
+     * @param byteBuffer       the byte buffer to store the snapshot.
+     * @param size             the size of the output image.
+     * @param textureTransform the transformation matrix.
+     *                         See: {@link SurfaceOutput#updateTransformMatrix(float[], float[])}
+     */
+    private void snapshot(@NonNull ByteBuffer byteBuffer, @NonNull Size size,
+            @NonNull float[] textureTransform) {
+        checkArgument(byteBuffer.capacity() == size.getWidth() * size.getHeight() * 4,
+                "ByteBuffer capacity is not equal to width * height * 4.");
+        checkArgument(byteBuffer.isDirect(), "ByteBuffer is not direct.");
+
+        // Create and initialize intermediate texture.
+        int texture = generateTexture();
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
+        checkGlErrorOrThrow("glActiveTexture");
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture);
+        checkGlErrorOrThrow("glBindTexture");
+        // Configure the texture.
+        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGB, size.getWidth(),
+                size.getHeight(), 0, GLES20.GL_RGB, GLES20.GL_UNSIGNED_BYTE, null);
+        checkGlErrorOrThrow("glTexImage2D");
+        GLES20.glTexParameteri(
+                GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+        GLES20.glTexParameteri(
+                GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+
+        // Create FBO.
+        int fbo = generateFbo();
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fbo);
+        checkGlErrorOrThrow("glBindFramebuffer");
+
+        // Attach the intermediate texture to the FBO
+        GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0,
+                GLES20.GL_TEXTURE_2D, texture, 0);
+        checkGlErrorOrThrow("glFramebufferTexture2D");
+
+        // Bind external texture (camera output).
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+        checkGlErrorOrThrow("glActiveTexture");
+        GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, mExternalTextureId);
+        checkGlErrorOrThrow("glBindTexture");
+
+        // Set scissor and viewport.
+        mCurrentSurface = null;
+        GLES20.glViewport(0, 0, size.getWidth(), size.getHeight());
+        GLES20.glScissor(0, 0, size.getWidth(), size.getHeight());
+
+        // Upload transform matrix.
+        GLES20.glUniformMatrix4fv(mTexMatrixLoc, /*count=*/1, /*transpose=*/false, textureTransform,
+                /*offset=*/0);
+        checkGlErrorOrThrow("glUniformMatrix4fv");
+
+        // Draw the external texture to the intermediate texture.
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /*firstVertex=*/0, /*vertexCount=*/4);
+        checkGlErrorOrThrow("glDrawArrays");
+
+        // Read the pixels from the framebuffer
+        GLES20.glReadPixels(0, 0, size.getWidth(), size.getHeight(), GLES20.GL_RGBA,
+                GLES20.GL_UNSIGNED_BYTE,
+                byteBuffer);
+        checkGlErrorOrThrow("glReadPixels");
+
+        // Clean up
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
+        deleteTexture(texture);
+        deleteFbo(fbo);
+        // Set the external texture to be active.
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+        GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, mExternalTextureId);
+    }
+
+
+    private static int generateFbo() {
+        int[] fbos = new int[1];
+        GLES20.glGenFramebuffers(1, fbos, 0);
+        checkGlErrorOrThrow("glGenFramebuffers");
+        return fbos[0];
+    }
+
+    private static int generateTexture() {
+        int[] textures = new int[1];
+        GLES20.glGenTextures(1, textures, 0);
+        checkGlErrorOrThrow("glGenTextures");
+        return textures[0];
+    }
+
+    private static void deleteTexture(int texture) {
+        int[] textures = {texture};
+        GLES20.glDeleteTextures(1, textures, 0);
+        checkGlErrorOrThrow("glDeleteTextures");
+    }
+
+    private static void deleteFbo(int fbo) {
+        int[] fbos = {fbo};
+        GLES20.glDeleteFramebuffers(1, fbos, 0);
+        checkGlErrorOrThrow("glDeleteFramebuffers");
     }
 
     private void createEglContext() {

@@ -55,6 +55,7 @@ public inline fun <reified VM : ViewModel> Fragment.hiltNavGraphViewModels(
         VM::class, storeProducer,
         factoryProducer = {
             HiltViewModelFactory(requireActivity(), backStackEntry.defaultViewModelProviderFactory)
-        }
+        },
+        extrasProducer = { backStackEntry.defaultViewModelCreationExtras }
     )
 }

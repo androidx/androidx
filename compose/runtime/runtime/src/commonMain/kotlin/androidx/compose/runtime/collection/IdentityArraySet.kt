@@ -29,8 +29,7 @@ internal class IdentityArraySet<T : Any> : Set<T> {
     override var size = 0
         private set
 
-    @PublishedApi
-    internal var values: Array<Any?> = arrayOfNulls(16)
+    var values: Array<Any?> = arrayOfNulls(16)
         private set
 
     /**

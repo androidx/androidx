@@ -40,14 +40,17 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertIs
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -207,7 +210,6 @@ class LazyColumnTest {
         }
     }
 
-    @Ignore // b/270621933
     @Test
     fun itemContent_defaultAlignment_doesNotWrapItem() {
         TestGlanceAppWidget.uiDefinition = {
@@ -282,7 +284,6 @@ class LazyColumnTest {
         }
     }
 
-    @Ignore("b/273482357")
     @Test
     fun itemContent_multipleViews() {
         TestGlanceAppWidget.uiDefinition = {
@@ -386,7 +387,6 @@ class LazyColumnTest {
         }
     }
 
-    @OptIn(FlowPreview::class)
     @Test
     @SdkSuppress(minSdkVersion = 31)
     fun clickTriggersOnlyOneLambda() = runBlocking {
@@ -422,7 +422,6 @@ class LazyColumnTest {
         }
     }
 
-    @OptIn(FlowPreview::class)
     @Test
     @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 30)
     fun clickTriggersOnlyOneLambda_backportButton() = runBlocking {
@@ -465,13 +464,23 @@ internal fun AppWidgetHostRule.waitForListViewChildren(action: (list: ListView) 
     runAndObserveUntilDraw(condition = "ListView did not load in time") {
         mHostView.let { host ->
             val list = host.findChildByType<ListView>()
-            host.childCount > 0 &&
-                list?.let { it.childCount > 0 && it.adapter != null } ?: false
+            host.childCount > 0 && list?.areItemsFullyLoaded() ?: false
         }
     }
 
     onUnboxedHostView(action)
 }
+
+/**
+ * Returns a flow that mirrors the original flow, but filters out values that are followed by the
+ * newer values within the given timeout.
+ */
+fun <T> Flow<T>.debounce(timeout: Duration): Flow<T> = channelFlow {
+    collectLatest {
+        delay(timeout)
+        send(it)
+    }
+}.buffer(0)
 
 internal inline fun <reified T : View> ListView.getUnboxedListItem(position: Int): T {
     val remoteViewFrame = assertIs<FrameLayout>(getChildAt(position))

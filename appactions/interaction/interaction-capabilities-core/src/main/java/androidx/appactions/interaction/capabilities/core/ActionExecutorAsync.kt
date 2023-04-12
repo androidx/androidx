@@ -16,35 +16,15 @@
 
 package androidx.appactions.interaction.capabilities.core
 
-import androidx.annotation.RestrictTo
-import androidx.appactions.interaction.capabilities.core.impl.concurrent.convertToListenableFuture
 import com.google.common.util.concurrent.ListenableFuture
 
 /** An ListenableFuture-based interface of executing an action. */
-fun interface ActionExecutorAsync<ArgumentT, OutputT> {
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    val uiHandle: Any
-        get() = this
-
+fun interface ActionExecutorAsync<ArgumentsT, OutputT> {
     /**
      * Calls to execute the action.
      *
-     * @param argument the argument for this action.
+     * @param arguments the argument for this action.
      * @return A ListenableFuture containing the ExecutionResult
      */
-    fun execute(argument: ArgumentT): ListenableFuture<ExecutionResult<OutputT>>
-
-    companion object {
-        fun <ArgumentT, OutputT> ActionExecutor<ArgumentT, OutputT>.toActionExecutorAsync():
-            ActionExecutorAsync<ArgumentT, OutputT> =
-            object : ActionExecutorAsync<ArgumentT, OutputT> {
-                override val uiHandle = this@toActionExecutorAsync
-                override fun execute(
-                    argument: ArgumentT,
-                ): ListenableFuture<ExecutionResult<OutputT>> =
-                    convertToListenableFuture("ActionExecutor#execute") {
-                        this@toActionExecutorAsync.execute(argument)
-                    }
-            }
-    }
+    fun onExecute(arguments: ArgumentsT): ListenableFuture<ExecutionResult<OutputT>>
 }

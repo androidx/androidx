@@ -19,7 +19,6 @@ package androidx.build
 import androidx.benchmark.gradle.BenchmarkPlugin
 import androidx.build.AndroidXImplPlugin.Companion.TASK_TIMEOUT_MINUTES
 import androidx.build.Release.DEFAULT_PUBLISH_CONFIG
-import androidx.build.SupportConfig.BUILD_TOOLS_VERSION
 import androidx.build.SupportConfig.COMPILE_SDK_VERSION
 import androidx.build.SupportConfig.DEFAULT_MIN_SDK_VERSION
 import androidx.build.SupportConfig.INSTRUMENTATION_RUNNER
@@ -53,7 +52,6 @@ import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.TestExtension
 import com.android.build.gradle.TestPlugin
 import com.android.build.gradle.TestedExtension
-import com.android.build.gradle.internal.tasks.CheckAarMetadataTask
 import com.android.build.gradle.internal.tasks.ListingFileRedirectTask
 import java.io.File
 import java.time.Duration
@@ -62,7 +60,7 @@ import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
-import org.gradle.api.JavaVersion.VERSION_11
+import org.gradle.api.JavaVersion.VERSION_17
 import org.gradle.api.JavaVersion.VERSION_1_8
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -137,13 +135,6 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         }
         project.tasks.withType(Test::class.java) {
                 task -> configureJvmTestTask(project, task)
-        }
-
-        // Disable AAR verification in the platform branch until b/271291033 is fixed.
-        if (!project.isCheckAarMetadataEnabled()) {
-            project.tasks.withType(CheckAarMetadataTask::class.java).configureEach { task ->
-                task.enabled = false
-            }
         }
 
         project.configureTaskTimeouts()
@@ -285,7 +276,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
                 if (extension.type.compilationTarget == CompilationTarget.HOST &&
                     extension.type != LibraryType.ANNOTATION_PROCESSOR_UTILS
                 ) {
-                    task.kotlinOptions.jvmTarget = "11"
+                    task.kotlinOptions.jvmTarget = "17"
                 } else {
                     task.kotlinOptions.jvmTarget = "1.8"
                 }
@@ -297,14 +288,6 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
                     kotlinCompilerArgs += "-Xjvm-default=all"
                 }
                 task.kotlinOptions.freeCompilerArgs += kotlinCompilerArgs
-            }
-
-            // If no one else is going to register a source jar, then we should.
-            // This cross-plugin hands-off logic shouldn't be necessary once we clean up sourceSet
-            // logic (b/235828421)
-            if (!project.plugins.hasPlugin(LibraryPlugin::class.java) &&
-                !project.plugins.hasPlugin(JavaPlugin::class.java)) {
-                project.configureSourceJarForJava()
             }
 
             val isAndroidProject = project.plugins.hasPlugin(LibraryPlugin::class.java) ||
@@ -492,19 +475,11 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
             androidXExtension
         )
 
-        // Disable AAR verification when we're forcing max dep versions.
-        if (project.usingMaxDepVersions()) {
-            project.tasks.withType(CheckAarMetadataTask::class.java).configureEach { task ->
-                task.enabled = false
-            }
-        }
-
         project.addToProjectMap(androidXExtension)
     }
 
     private fun configureWithJavaPlugin(project: Project, extension: AndroidXExtension) {
         project.configureErrorProneForJava()
-        project.configureSourceJarForJava()
 
         // Force Java 1.8 source- and target-compatibility for all Java libraries.
         val javaExtension = project.extensions.getByType<JavaPluginExtension>()
@@ -513,14 +488,17 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
                 extension.type != LibraryType.ANNOTATION_PROCESSOR_UTILS
             ) {
                 javaExtension.apply {
-                    sourceCompatibility = VERSION_11
-                    targetCompatibility = VERSION_11
+                    sourceCompatibility = VERSION_17
+                    targetCompatibility = VERSION_17
                 }
             } else {
                 javaExtension.apply {
                     sourceCompatibility = VERSION_1_8
                     targetCompatibility = VERSION_1_8
                 }
+            }
+            if (!project.plugins.hasPlugin(KotlinBasePluginWrapper::class.java)) {
+                project.configureSourceJarForJava()
             }
         }
 
@@ -612,7 +590,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         }
 
         compileSdkVersion(COMPILE_SDK_VERSION)
-        buildToolsVersion = BUILD_TOOLS_VERSION
+        buildToolsVersion = SupportConfig.buildToolsVersion(project)
         defaultConfig.targetSdk = TARGET_SDK_VERSION
         ndkVersion = SupportConfig.NDK_VERSION
 

@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import android.graphics.ImageFormat;
+import android.util.Range;
 import android.view.Surface;
 
 import androidx.annotation.FloatRange;
@@ -32,6 +33,8 @@ import androidx.lifecycle.Observer;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * An interface for retrieving camera information.
@@ -265,6 +268,28 @@ public interface CameraInfo {
     @ExperimentalZeroShutterLag
     default boolean isZslSupported() {
         return false;
+    }
+
+    /**
+     * Returns a list of the frame rate ranges, in frames per second, supported by this device's
+     * AE algorithm.
+     *
+     * <p>These are the frame rate ranges that the AE algorithm on the device can support. When
+     * CameraX is configured to run with the camera2 implementation, this list will be derived
+     * from {@link android.hardware.camera2.CameraCharacteristics
+     * #CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES}, though ranges may be added or removed for
+     * compatibility reasons.
+     *
+     * <p>There is no guarantee that these ranges can be used for every size surface or
+     * combination of use cases. If attempting to run the device using an unsupported range, there
+     * may be stability issues or the device may quietly choose another frame rate operating range.
+     *
+     * @return The list of FPS ranges supported by the device's AE algorithm
+     * @see androidx.camera.video.VideoCapture.Builder#setTargetFrameRate(Range)
+     */
+    @NonNull
+    default List<Range<Integer>> getSupportedFrameRateRanges() {
+        return Collections.emptyList();
     }
 
     /**

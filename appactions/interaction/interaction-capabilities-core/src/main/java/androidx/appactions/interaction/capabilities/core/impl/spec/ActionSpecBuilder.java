@@ -22,10 +22,9 @@ import androidx.annotation.NonNull;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter;
-import androidx.appactions.interaction.capabilities.core.impl.converters.PropertyConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.SlotTypeConverter;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ParamBinding.ArgumentSetter;
-import androidx.appactions.interaction.capabilities.core.properties.TypeProperty;
+import androidx.appactions.interaction.capabilities.core.properties.Property;
 import androidx.appactions.interaction.proto.AppActionsContext.IntentParameter;
 import androidx.appactions.interaction.proto.ParamValue;
 
@@ -43,28 +42,28 @@ import java.util.function.Supplier;
  * A builder for the {@code ActionSpec}.
  *
  * @param <PropertyT>
- * @param <ArgumentT>
- * @param <ArgumentBuilderT>
+ * @param <ArgumentsT>
+ * @param <ArgumentsBuilderT>
  * @param <OutputT>
  */
 public final class ActionSpecBuilder<
-        PropertyT, ArgumentT, ArgumentBuilderT extends BuilderOf<ArgumentT>, OutputT> {
+        PropertyT, ArgumentsT, ArgumentsBuilderT extends BuilderOf<ArgumentsT>, OutputT> {
 
     private final String mCapabilityName;
-    private final Supplier<ArgumentBuilderT> mArgumentBuilderSupplier;
-    private final ArrayList<ParamBinding<PropertyT, ArgumentT, ArgumentBuilderT>>
+    private final Supplier<ArgumentsBuilderT> mArgumentBuilderSupplier;
+    private final ArrayList<ParamBinding<PropertyT, ArgumentsT, ArgumentsBuilderT>>
             mParamBindingList = new ArrayList<>();
     private final Map<String, Function<OutputT, List<ParamValue>>> mOutputBindings =
             new HashMap<>();
 
     private ActionSpecBuilder(
-            String capabilityName, Supplier<ArgumentBuilderT> argumentBuilderSupplier) {
+            String capabilityName, Supplier<ArgumentsBuilderT> argumentBuilderSupplier) {
         this.mCapabilityName = capabilityName;
         this.mArgumentBuilderSupplier = argumentBuilderSupplier;
     }
 
     /**
-     * Creates an empty {@code ActionSpecBuilder} with the given capability name. ArgumentT is set
+     * Creates an empty {@code ActionSpecBuilder} with the given capability name. ArgumentsT is set
      * to Object as a placeholder, which must be replaced by calling setArgument.
      */
     @NonNull
@@ -76,23 +75,23 @@ public final class ActionSpecBuilder<
     /** Sets the property type and returns a new {@code ActionSpecBuilder}. */
     @NonNull
     public <NewPropertyT>
-            ActionSpecBuilder<NewPropertyT, ArgumentT, ArgumentBuilderT, OutputT> setDescriptor(
+            ActionSpecBuilder<NewPropertyT, ArgumentsT, ArgumentsBuilderT, OutputT> setDescriptor(
                     @NonNull Class<NewPropertyT> unused) {
         return new ActionSpecBuilder<>(this.mCapabilityName, this.mArgumentBuilderSupplier);
     }
 
     /** Sets the argument type and its builder and returns a new {@code ActionSpecBuilder}. */
     @NonNull
-    public <NewArgumentT, NewArgumentBuilderT extends BuilderOf<NewArgumentT>>
-            ActionSpecBuilder<PropertyT, NewArgumentT, NewArgumentBuilderT, OutputT> setArgument(
-                    @NonNull Class<NewArgumentT> unused,
-                    @NonNull Supplier<NewArgumentBuilderT> argumentBuilderSupplier) {
+    public <NewArgumentsT, NewArgumentsBuilderT extends BuilderOf<NewArgumentsT>>
+            ActionSpecBuilder<PropertyT, NewArgumentsT, NewArgumentsBuilderT, OutputT> setArguments(
+                    @NonNull Class<NewArgumentsT> unused,
+                    @NonNull Supplier<NewArgumentsBuilderT> argumentBuilderSupplier) {
         return new ActionSpecBuilder<>(this.mCapabilityName, argumentBuilderSupplier);
     }
 
     @NonNull
     public <NewOutputT>
-            ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, NewOutputT> setOutput(
+            ActionSpecBuilder<PropertyT, ArgumentsT, ArgumentsBuilderT, NewOutputT> setOutput(
                     @NonNull Class<NewOutputT> unused) {
         return new ActionSpecBuilder<>(this.mCapabilityName, this.mArgumentBuilderSupplier);
     }
@@ -106,23 +105,23 @@ public final class ActionSpecBuilder<
      * @return the builder itself.
      */
     @NonNull
-    private ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT>
+    private ActionSpecBuilder<PropertyT, ArgumentsT, ArgumentsBuilderT, OutputT>
             bindParameterInternal(
                     @NonNull String paramName,
                     @NonNull Function<? super PropertyT, Optional<IntentParameter>> paramGetter,
-                    @NonNull ArgumentSetter<ArgumentBuilderT> argumentSetter) {
+                    @NonNull ArgumentSetter<ArgumentsBuilderT> argumentSetter) {
         mParamBindingList.add(ParamBinding.create(paramName, paramGetter, argumentSetter));
         return this;
     }
 
     /**
-     * Binds the parameter name, getter, and setter for a {@link TypeProperty}.
+     * Binds the parameter name, getter, and setter for a {@link Property}.
      *
      * <p>This parameter is required for any capability built from the generated {@link ActionSpec}.
      *
      * @param paramName the name of this action' parameter.
-     * @param propertyGetter a getter of the TypeProperty from the property, which must be able to
-     *     fetch a non-null {@code TypeProperty} from {@code PropertyT}.
+     * @param propertyGetter a getter of the Property from the property, which must be able to
+     *     fetch a non-null {@code Property} from {@code PropertyT}.
      * @param paramConsumer a setter to set the string value in the argument builder.
      * @param paramValueConverter converter FROM assistant ParamValue proto
      * @param entityConverter converter TO assistant Entity proto
@@ -130,12 +129,12 @@ public final class ActionSpecBuilder<
      */
     @NonNull
     public <T, PossibleValueT>
-            ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT> bindParameter(
+            ActionSpecBuilder<PropertyT, ArgumentsT, ArgumentsBuilderT, OutputT> bindParameter(
                     @NonNull String paramName,
                     @NonNull
-                            Function<? super PropertyT, TypeProperty<PossibleValueT>>
+                            Function<? super PropertyT, Property<PossibleValueT>>
                                     propertyGetter,
-                    @NonNull BiConsumer<? super ArgumentBuilderT, T> paramConsumer,
+                    @NonNull BiConsumer<? super ArgumentsBuilderT, T> paramConsumer,
                     @NonNull ParamValueConverter<T> paramValueConverter,
                     @NonNull EntityConverter<PossibleValueT> entityConverter) {
         return bindOptionalParameter(
@@ -147,16 +146,16 @@ public final class ActionSpecBuilder<
     }
 
     /**
-     * Binds the parameter name, getter, and setter for a {@link TypeProperty}.
+     * Binds the parameter name, getter, and setter for a {@link Property}.
      *
      * <p>This parameter is optional for any capability built from the generated {@link ActionSpec}.
      * If the Property Optional is not set, this parameter will not exist in the parameter
      * definition of the capability.
      *
      * @param paramName the name of this action' parameter.
-     * @param optionalPropertyGetter an optional getter of the TypeProperty from the property, which
-     *     may be able to fetch a non-null {@code TypeProperty} from {@code PropertyT}, or get
-     *     {@link Optional#empty}.
+     * @param optionalPropertyGetter an optional getter of the Property from the property,
+     *     which may be able to fetch a non-null {@code Property} from {@code PropertyT},
+     *     or get {@link Optional#empty}.
      * @param paramConsumer a setter to set the string value in the argument builder.
      * @param paramValueConverter converter FROM assistant ParamValue proto
      * @param entityConverter converter TO assistant Entity proto
@@ -164,15 +163,15 @@ public final class ActionSpecBuilder<
      */
     @NonNull
     public <T, PossibleValueT>
-            ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT>
+            ActionSpecBuilder<PropertyT, ArgumentsT, ArgumentsBuilderT, OutputT>
                     bindOptionalParameter(
                             @NonNull String paramName,
                             @NonNull
                                     Function<
                                                     ? super PropertyT,
-                                                    Optional<TypeProperty<PossibleValueT>>>
+                                                    Optional<Property<PossibleValueT>>>
                                             optionalPropertyGetter,
-                            @NonNull BiConsumer<? super ArgumentBuilderT, T> paramConsumer,
+                            @NonNull BiConsumer<? super ArgumentsBuilderT, T> paramConsumer,
                             @NonNull ParamValueConverter<T> paramValueConverter,
                             @NonNull EntityConverter<PossibleValueT> entityConverter) {
         return bindParameterInternal(
@@ -180,10 +179,7 @@ public final class ActionSpecBuilder<
                 property ->
                         optionalPropertyGetter
                                 .apply(property)
-                                .map(
-                                        p ->
-                                                PropertyConverter.getIntentParameter(
-                                                        paramName, p, entityConverter)),
+                                .map(p -> buildIntentParameter(paramName, p, entityConverter)),
                 (argBuilder, paramList) -> {
                     if (!paramList.isEmpty()) {
                         paramConsumer.accept(
@@ -204,15 +200,15 @@ public final class ActionSpecBuilder<
      */
     @NonNull
     public <T, PossibleValueT>
-            ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT>
+            ActionSpecBuilder<PropertyT, ArgumentsT, ArgumentsBuilderT, OutputT>
                     bindRepeatedParameter(
                             @NonNull String paramName,
                             @NonNull
                                     Function<
                                                     ? super PropertyT,
-                                                    Optional<TypeProperty<PossibleValueT>>>
+                                                    Optional<Property<PossibleValueT>>>
                                             optionalPropertyGetter,
-                            @NonNull BiConsumer<? super ArgumentBuilderT, List<T>> paramConsumer,
+                            @NonNull BiConsumer<? super ArgumentsBuilderT, List<T>> paramConsumer,
                             @NonNull ParamValueConverter<T> paramValueConverter,
                             @NonNull EntityConverter<PossibleValueT> entityConverter) {
         return bindParameterInternal(
@@ -220,10 +216,7 @@ public final class ActionSpecBuilder<
                 property ->
                         optionalPropertyGetter
                                 .apply(property)
-                                .map(
-                                        p ->
-                                                PropertyConverter.getIntentParameter(
-                                                        paramName, p, entityConverter)),
+                                .map(p -> buildIntentParameter(paramName, p, entityConverter)),
                 (argBuilder, paramList) ->
                         paramConsumer.accept(
                                 argBuilder,
@@ -241,16 +234,20 @@ public final class ActionSpecBuilder<
     @NonNull
     @SuppressWarnings("JdkCollectors")
     public <T>
-            ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT> bindOptionalOutput(
+            ActionSpecBuilder<PropertyT, ArgumentsT, ArgumentsBuilderT, OutputT> bindOptionalOutput(
                     @NonNull String name,
                     @NonNull Function<OutputT, Optional<T>> outputGetter,
                     @NonNull Function<T, ParamValue> converter) {
         mOutputBindings.put(
                 name,
-                output ->
-                        outputGetter.apply(output).stream()
-                                .map(converter)
-                                .collect(toImmutableList()));
+                output -> {
+                    Optional<T> optionalOut = outputGetter.apply(output);
+                    List<ParamValue> paramValues = new ArrayList<>();
+                    if (optionalOut.isPresent()) {
+                        paramValues.add(converter.apply(optionalOut.get()));
+                    }
+                    return Collections.unmodifiableList(paramValues);
+                });
         return this;
     }
 
@@ -264,7 +261,7 @@ public final class ActionSpecBuilder<
     @NonNull
     @SuppressWarnings("JdkCollectors")
     public <T>
-            ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT> bindRepeatedOutput(
+            ActionSpecBuilder<PropertyT, ArgumentsT, ArgumentsBuilderT, OutputT> bindRepeatedOutput(
                     @NonNull String name,
                     @NonNull Function<OutputT, List<T>> outputGetter,
                     @NonNull Function<T, ParamValue> converter) {
@@ -279,11 +276,28 @@ public final class ActionSpecBuilder<
 
     /** Builds an {@code ActionSpec} from this builder. */
     @NonNull
-    public ActionSpec<PropertyT, ArgumentT, OutputT> build() {
+    public ActionSpec<PropertyT, ArgumentsT, OutputT> build() {
         return new ActionSpecImpl<>(
                 mCapabilityName,
                 mArgumentBuilderSupplier,
                 Collections.unmodifiableList(mParamBindingList),
                 mOutputBindings);
+    }
+
+    /** Create IntentParameter proto from a Property. */
+    @NonNull
+    private static <T> IntentParameter buildIntentParameter(
+            @NonNull String paramName,
+            @NonNull Property<T> property,
+            @NonNull EntityConverter<T> entityConverter) {
+        IntentParameter.Builder builder = IntentParameter.newBuilder()
+                .setName(paramName)
+                .setIsRequired(property.isRequired())
+                .setEntityMatchRequired(property.isValueMatchRequired())
+                .setIsProhibited(property.isProhibited());
+        property.getPossibleValues().stream()
+                .map(entityConverter::convert)
+                .forEach(builder::addPossibleEntities);
+        return builder.build();
     }
 }

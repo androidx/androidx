@@ -23,8 +23,10 @@ import androidx.compose.foundation.text.appendCodePointX
 import androidx.compose.foundation.text.isTypedEvent
 import androidx.compose.foundation.text.platformDefaultKeyMapping
 import androidx.compose.foundation.text.showCharacterPalette
+import androidx.compose.foundation.text2.input.TextEditFilter
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.internal.TextFieldPreparedSelection.Companion.NoCharacterFound
+import androidx.compose.foundation.text2.input.selectCharsIn
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.type
@@ -38,6 +40,11 @@ internal class TextFieldKeyEventHandler {
     private val preparedSelectionState = TextFieldPreparedSelectionState()
     private val deadKeyCombiner = DeadKeyCombiner()
     private val keyMapping = platformDefaultKeyMapping
+    private var filter: TextEditFilter? = null
+
+    fun setFilter(filter: TextEditFilter?) {
+        this.filter = filter
+    }
 
     fun onKeyEvent(
         event: KeyEvent,
@@ -210,12 +217,12 @@ internal class TextFieldKeyEventHandler {
             textPreparedSelectionState = preparedSelectionState
         )
         preparedSelection.block()
-        if (preparedSelection.selection != preparedSelection.initialValue.selection) {
+        if (preparedSelection.selection != preparedSelection.initialValue.selectionInChars) {
             // update the editProcessor with the latest selection state.
             // this has to be a reset because EditCommands do not inform IME.
-            state.editProcessor.reset(
-                preparedSelection.initialValue.copy(selection = preparedSelection.selection)
-            )
+            state.edit {
+                selectCharsIn(preparedSelection.selection)
+            }
         }
     }
 
@@ -226,11 +233,12 @@ internal class TextFieldKeyEventHandler {
         state.editProcessor.update(
             this.toMutableList().apply {
                 add(0, FinishComposingTextCommand)
-            }
+            },
+            filter
         )
     }
 
     private fun EditCommand.applyOnto(state: TextFieldState) {
-        state.editProcessor.update(listOf(FinishComposingTextCommand, this))
+        state.editProcessor.update(listOf(FinishComposingTextCommand, this), filter)
     }
 }

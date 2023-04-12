@@ -49,7 +49,7 @@ class Nexus4AndroidLTargetAspectRatioQuirk : Quirk {
             "NEXUS 4" // b/158749159
         )
 
-        fun load(): Boolean {
+        fun isEnabled(): Boolean {
             return "GOOGLE".equals(
                 Build.BRAND,
                 ignoreCase = true

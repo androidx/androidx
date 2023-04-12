@@ -276,7 +276,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
      * this configuration
      */
     @Nullable
-    default Range<Integer> getTargetFramerate(@Nullable Range<Integer> valueIfMissing) {
+    default Range<Integer> getTargetFrameRate(@Nullable Range<Integer> valueIfMissing) {
         return retrieveOption(OPTION_TARGET_FRAME_RATE, valueIfMissing);
     }
 
@@ -287,7 +287,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @NonNull
-    default Range<Integer> getTargetFramerate() {
+    default Range<Integer> getTargetFrameRate() {
         return retrieveOption(OPTION_TARGET_FRAME_RATE);
     }
 

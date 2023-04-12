@@ -52,19 +52,19 @@ object DeviceQuirksLoader {
         if (InvalidVideoProfilesQuirk.isEnabled()) {
             quirks.add(InvalidVideoProfilesQuirk())
         }
-        if (ExcludedSupportedSizesQuirk.load()) {
+        if (ExcludedSupportedSizesQuirk.isEnabled()) {
             quirks.add(ExcludedSupportedSizesQuirk())
         }
-        if (ExtraCroppingQuirk.load()) {
+        if (ExtraCroppingQuirk.isEnabled()) {
             quirks.add(ExtraCroppingQuirk())
         }
-        if (ExtraSupportedOutputSizeQuirk.load()) {
+        if (ExtraSupportedOutputSizeQuirk.isEnabled()) {
             quirks.add(ExtraSupportedOutputSizeQuirk())
         }
-        if (ExtraSupportedSurfaceCombinationsQuirk.load()) {
+        if (ExtraSupportedSurfaceCombinationsQuirk.isEnabled()) {
             quirks.add(ExtraSupportedSurfaceCombinationsQuirk())
         }
-        if (Nexus4AndroidLTargetAspectRatioQuirk.load()) {
+        if (Nexus4AndroidLTargetAspectRatioQuirk.isEnabled()) {
             quirks.add(Nexus4AndroidLTargetAspectRatioQuirk())
         }
         if (PreviewPixelHDRnetQuirk.isEnabled()) {
@@ -79,8 +79,11 @@ object DeviceQuirksLoader {
         if (TorchIsClosedAfterImageCapturingQuirk.isEnabled()) {
             quirks.add(TorchIsClosedAfterImageCapturingQuirk())
         }
-        if (SurfaceOrderQuirk.load()) {
+        if (SurfaceOrderQuirk.isEnabled()) {
             quirks.add(SurfaceOrderQuirk())
+        }
+        if (CaptureSessionOnClosedNotCalledQuirk.isEnabled()) {
+            quirks.add(CaptureSessionOnClosedNotCalledQuirk())
         }
         return quirks
     }

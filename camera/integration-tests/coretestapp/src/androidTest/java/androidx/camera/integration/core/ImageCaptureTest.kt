@@ -62,7 +62,6 @@ import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.utils.CameraOrientationUtil
 import androidx.camera.core.impl.utils.Exif
 import androidx.camera.core.internal.compat.workaround.ExifRotationAvailability
-import androidx.camera.core.resolutionselector.HighResolution
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.integration.core.util.CameraPipeUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -166,6 +165,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         }
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun capturedImageHasCorrectSize() = runBlocking {
         val useCase = ImageCapture.Builder()
@@ -802,6 +802,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         assertThat(config.targetAspectRatio).isEqualTo(AspectRatio.RATIO_4_3)
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun defaultAspectRatioWillBeSet_whenRatioDefaultIsSet() = runBlocking {
         val useCase = ImageCapture.Builder().setTargetAspectRatio(AspectRatio.RATIO_DEFAULT).build()
@@ -813,6 +814,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         assertThat(config.targetAspectRatio).isEqualTo(AspectRatio.RATIO_4_3)
     }
 
+    @Suppress("DEPRECATION") // legacy resolution API
     @Test
     fun defaultAspectRatioWontBeSet_whenTargetResolutionIsSet() = runBlocking {
         val useCase = ImageCapture.Builder()
@@ -845,6 +847,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         assertThat(imageCapture.targetRotation).isEqualTo(Surface.ROTATION_90)
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun targetResolutionIsUpdatedAfterTargetRotationIsUpdated() = runBlocking {
         val imageCapture = ImageCapture.Builder()
@@ -865,6 +868,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         assertThat(newConfig.targetResolution).isEqualTo(expectedTargetResolution)
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun capturedImageHasCorrectCroppingSizeWithoutSettingRotation() {
         val useCase = ImageCapture.Builder()
@@ -879,6 +883,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         )
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun capturedImageHasCorrectCroppingSizeSetRotationBuilder() {
         // Checks camera device sensor degrees to set correct target rotation value to make sure
@@ -898,6 +903,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         )
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun capturedImageHasCorrectCroppingSize_setUseCaseRotation90FromRotationInBuilder() {
         // Checks camera device sensor degrees to set correct target rotation value to make sure
@@ -1602,7 +1608,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         assumeTrue(maxHighResolutionOutputSize != null)
 
         val resolutionSelector = ResolutionSelector.Builder()
-            .setHighResolutionEnabledFlags(HighResolution.FLAG_DEFAULT_MODE_ON)
+            .setHighResolutionEnabledFlag(ResolutionSelector.HIGH_RESOLUTION_FLAG_ON)
             .setResolutionFilter { _, _ ->
                 listOf(maxHighResolutionOutputSize)
             }

@@ -57,7 +57,7 @@ constructor(
     private val captureSequenceProcessorFactory: Camera2CaptureSequenceProcessorFactory,
     private val virtualCameraManager: VirtualCameraManager,
     private val cameraSurfaceManager: CameraSurfaceManager,
-    private val timeSource: TimeSource
+    private val timeSource: TimeSource,
 ) : CameraController {
     override val cameraId: CameraId
         get() = config.camera

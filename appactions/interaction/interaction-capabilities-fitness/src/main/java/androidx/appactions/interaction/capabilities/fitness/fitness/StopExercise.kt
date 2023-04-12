@@ -16,17 +16,14 @@
 
 package androidx.appactions.interaction.capabilities.fitness.fitness
 
-import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
-import androidx.appactions.interaction.capabilities.core.ActionCapability
-import androidx.appactions.interaction.capabilities.core.BaseSession
+import androidx.appactions.interaction.capabilities.core.Capability
+import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
-import androidx.appactions.interaction.capabilities.core.impl.converters.PropertyConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
+import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
-import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
 import java.util.Optional
 
 /** StopExercise.kt in interaction-capabilities-fitness */
@@ -35,31 +32,31 @@ private const val CAPABILITY_NAME = "actions.intent.PAUSE_EXERCISE"
 // TODO(b/273602015): Update to use Name property from builtintype library.
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setDescriptor(StopExercise.Property::class.java)
-        .setArgument(StopExercise.Argument::class.java, StopExercise.Argument::Builder)
+        .setDescriptor(StopExercise.Properties::class.java)
+        .setArguments(StopExercise.Arguments::class.java, StopExercise.Arguments::Builder)
         .setOutput(StopExercise.Output::class.java)
         .bindOptionalParameter(
             "exercise.name",
             { property -> Optional.ofNullable(property.name) },
-            StopExercise.Argument.Builder::setName,
+            StopExercise.Arguments.Builder::setName,
             TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-            PropertyConverter::stringValueToProto
+            TypeConverters.STRING_VALUE_ENTITY_CONVERTER
         )
         .build()
 
 @CapabilityFactory(name = CAPABILITY_NAME)
 class StopExercise private constructor() {
     class CapabilityBuilder :
-        CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session
+        Capability.Builder<
+            CapabilityBuilder, Properties, Arguments, Output, Confirmation, ExecutionSession
             >(ACTION_SPEC) {
-        private var propertyBuilder: Property.Builder = Property.Builder()
-        fun setNameProperty(name: TypeProperty<StringValue>): CapabilityBuilder =
+        private var propertyBuilder: Properties.Builder = Properties.Builder()
+        fun setNameProperty(name: Property<StringValue>): CapabilityBuilder =
             apply {
                 propertyBuilder.setName(name)
             }
 
-        override fun build(): ActionCapability {
+        override fun build(): Capability {
             // TODO(b/268369632): Clean this up after Property is removed
             super.setProperty(propertyBuilder.build())
             return super.build()
@@ -67,8 +64,8 @@ class StopExercise private constructor() {
     }
 
     // TODO(b/268369632): Remove Property from public capability APIs.
-    class Property internal constructor(
-        val name: TypeProperty<StringValue>?,
+    class Properties internal constructor(
+        val name: Property<StringValue>?,
     ) {
         override fun toString(): String {
             return "Property(name=$name)"
@@ -78,7 +75,7 @@ class StopExercise private constructor() {
             if (this === other) return true
             if (javaClass !== other?.javaClass) return false
 
-            other as Property
+            other as Properties
 
             if (name != other.name) return false
 
@@ -90,27 +87,27 @@ class StopExercise private constructor() {
         }
 
         class Builder {
-            private var name: TypeProperty<StringValue>? = null
+            private var name: Property<StringValue>? = null
 
-            fun setName(name: TypeProperty<StringValue>): Builder =
+            fun setName(name: Property<StringValue>): Builder =
                 apply { this.name = name }
 
-            fun build(): Property = Property(name)
+            fun build(): Properties = Properties(name)
         }
     }
 
-    class Argument internal constructor(
+    class Arguments internal constructor(
         val name: String?
     ) {
         override fun toString(): String {
-            return "Argument(name=$name)"
+            return "Arguments(name=$name)"
         }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass !== other?.javaClass) return false
 
-            other as Argument
+            other as Arguments
 
             if (name != other.name) return false
 
@@ -121,13 +118,13 @@ class StopExercise private constructor() {
             return name.hashCode()
         }
 
-        class Builder : BuilderOf<Argument> {
+        class Builder : BuilderOf<Arguments> {
             private var name: String? = null
 
             fun setName(name: String): Builder =
                 apply { this.name = name }
 
-            override fun build(): Argument = Argument(name)
+            override fun build(): Arguments = Arguments(name)
         }
     }
 
@@ -135,7 +132,5 @@ class StopExercise private constructor() {
 
     class Confirmation internal constructor()
 
-    class TaskUpdater internal constructor() : AbstractTaskUpdater()
-
-    sealed interface Session : BaseSession<Argument, Output>
+    sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 }

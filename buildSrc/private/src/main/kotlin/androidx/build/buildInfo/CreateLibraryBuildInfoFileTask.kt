@@ -156,9 +156,8 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
         libraryBuildInfoFile.projectZipPath = projectZipPath.get()
         libraryBuildInfoFile.kotlinVersion = kotlinVersion.orNull
         libraryBuildInfoFile.checks = ArrayList()
-        libraryBuildInfoFile.dependencies = ArrayList(
-            dependencyList.get() + dependencyConstraintList.get()
-        )
+        libraryBuildInfoFile.dependencies = ArrayList(dependencyList.get())
+        libraryBuildInfoFile.dependencyConstraints = ArrayList(dependencyConstraintList.get())
         return libraryBuildInfoFile
     }
 

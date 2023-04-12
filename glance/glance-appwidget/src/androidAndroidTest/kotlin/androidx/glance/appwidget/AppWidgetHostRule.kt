@@ -196,13 +196,15 @@ class AppWidgetHostRule(
                 onHostActivity {
                     val boxingView = assertIs<ViewGroup>(mHostView.getChildAt(0))
                     val childCount = boxingView.childCount
-
-                    if (childCount != 0) {
+                    if (childCount != 0 && !boxingView.isLoading()) {
                         if (i > 1) Log.i(RECEIVER_TEST_TAG, "...now we have children")
                         block(boxingView.children.single().getTargetView())
                         found = true
                     } else {
-                        Log.i(RECEIVER_TEST_TAG, "$i Boxing view is empty, waiting...")
+                        Log.i(
+                            RECEIVER_TEST_TAG,
+                            "$i Boxing view is empty or is still loading, waiting..."
+                        )
                         Log.i(RECEIVER_TEST_TAG, "Boxing view: $boxingView")
                         Thread.sleep(500)
                     }

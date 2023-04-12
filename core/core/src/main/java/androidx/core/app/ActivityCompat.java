@@ -529,7 +529,7 @@ public class ActivityCompat extends ContextCompat {
                         + Arrays.toString(permissions) + " must not contain null or empty values");
             }
 
-            if (!BuildCompat.isAtLeastT()) {
+            if (Build.VERSION.SDK_INT < 33) {
                 if (TextUtils.equals(permissions[i], Manifest.permission.POST_NOTIFICATIONS)) {
                     indicesOfPermissionsToRemove.add(i);
                 }
@@ -592,7 +592,7 @@ public class ActivityCompat extends ContextCompat {
     @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public static boolean shouldShowRequestPermissionRationale(@NonNull Activity activity,
             @NonNull String permission) {
-        if (!BuildCompat.isAtLeastT()
+        if (Build.VERSION.SDK_INT < 33
                 && TextUtils.equals(Manifest.permission.POST_NOTIFICATIONS, permission)) {
             // notification permission doesn't exist before T
             return false;

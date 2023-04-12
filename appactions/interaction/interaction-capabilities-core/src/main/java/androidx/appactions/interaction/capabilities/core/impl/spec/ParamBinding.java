@@ -32,18 +32,18 @@ import java.util.function.Function;
  * A binding between a parameter and its Property converter / Argument setter.
  *
  * @param <PropertyT>
- * @param <ArgumentT>
- * @param <ArgumentBuilderT>
+ * @param <ArgumentsT>
+ * @param <ArgumentsBuilderT>
  */
 @AutoValue
 public abstract class ParamBinding<
-        PropertyT, ArgumentT, ArgumentBuilderT extends BuilderOf<ArgumentT>> {
+        PropertyT, ArgumentsT, ArgumentsBuilderT extends BuilderOf<ArgumentsT>> {
 
-    static <PropertyT, ArgumentT, ArgumentBuilderT extends BuilderOf<ArgumentT>>
-            ParamBinding<PropertyT, ArgumentT, ArgumentBuilderT> create(
+    static <PropertyT, ArgumentsT, ArgumentsBuilderT extends BuilderOf<ArgumentsT>>
+            ParamBinding<PropertyT, ArgumentsT, ArgumentsBuilderT> create(
                     String name,
                     Function<? super PropertyT, Optional<IntentParameter>> paramGetter,
-                    ArgumentSetter<ArgumentBuilderT> argumentSetter) {
+                    ArgumentSetter<ArgumentsBuilderT> argumentSetter) {
         return new AutoValue_ParamBinding<>(name, paramGetter, argumentSetter);
     }
 
@@ -59,21 +59,23 @@ public abstract class ParamBinding<
     public abstract Function<? super PropertyT, Optional<IntentParameter>> paramGetter();
 
     /**
-     * Populates the {@code ArgumentBuilderT} for this param with the {@code ParamValue} sent from
+     * Populates the {@code ArgumentsBuilderT} for this param with the {@code ParamValue} sent from
      * Assistant in Fulfillment.
      */
     @NonNull
-    public abstract ArgumentSetter<ArgumentBuilderT> argumentSetter();
+    public abstract ArgumentSetter<ArgumentsBuilderT> argumentSetter();
 
     /**
-     * Givne a {@code List<ParamValue>}, convert it to user-visible type and set it into
+     * Given a {@code List<ParamValue>}, convert it to user-visible type and set it into
      * ArgumentBuilder.
      *
-     * @param <ArgumentBuilderT>
+     * @param <ArgumentsBuilderT>
      */
     @FunctionalInterface
-    public interface ArgumentSetter<ArgumentBuilderT> {
-        void setArgument(@NonNull ArgumentBuilderT builder, @NonNull List<ParamValue> paramValues)
+    public interface ArgumentSetter<ArgumentsBuilderT> {
+
+        /** Conversion from protos to user-visible type. */
+        void setArguments(@NonNull ArgumentsBuilderT builder, @NonNull List<ParamValue> paramValues)
                 throws StructConversionException;
     }
 }

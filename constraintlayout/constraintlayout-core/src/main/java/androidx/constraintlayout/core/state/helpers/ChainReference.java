@@ -172,14 +172,14 @@ public class ChainReference extends HelperReference {
         return 0;
     }
 
-    protected float getPostGoneMargin(@NonNull String id) {
+    float getPostGoneMargin(@NonNull String id) {
         if (mMapPostGoneMargin != null && mMapPostGoneMargin.containsKey(id)) {
             return mMapPostGoneMargin.get(id);
         }
         return 0;
     }
 
-    protected float getPreGoneMargin(@NonNull String id) {
+    float getPreGoneMargin(@NonNull String id) {
         if (mMapPreGoneMargin != null && mMapPreGoneMargin.containsKey(id)) {
             return mMapPreGoneMargin.get(id);
         }

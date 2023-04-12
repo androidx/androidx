@@ -163,6 +163,12 @@ private fun Any?.compareForEquality(expected: Any?): Boolean {
         this == null && expected == null -> true
         this == null || expected == null -> false
         this is ByteArray && expected is ByteArray -> contentEquals(expected)
+        this is IntArray && expected is IntArray -> contentEquals(expected)
+        this is LongArray && expected is LongArray -> contentEquals(expected)
+        this is FloatArray && expected is FloatArray -> contentEquals(expected)
+        this is DoubleArray && expected is DoubleArray -> contentEquals(expected)
+        this is ShortArray && expected is ShortArray -> contentEquals(expected)
+        this is CharArray && expected is CharArray -> contentEquals(expected)
         this is Array<*> && expected is Array<*> -> contentDeepEquals(expected)
         isIntegralBoxedPrimitive() && expected.isIntegralBoxedPrimitive() -> {
             integralValue() == expected.integralValue()

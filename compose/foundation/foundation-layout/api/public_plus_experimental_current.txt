@@ -115,8 +115,8 @@ package androidx.compose.foundation.layout {
   }
 
   public final class FlowLayoutKt {
-    method @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable public static void FlowColumn(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, optional int maxItemsInEachColumn, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
-    method @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable public static void FlowRow(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional int maxItemsInEachRow, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
+    method @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable public static inline void FlowColumn(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, optional int maxItemsInEachColumn, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
+    method @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.runtime.Composable public static inline void FlowRow(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional int maxItemsInEachRow, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
   }
 
   public final class IntrinsicKt {

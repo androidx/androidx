@@ -157,10 +157,11 @@ fun ChipGroupSingleLineSample() {
     }
 }
 
+@Sampled
 @OptIn(ExperimentalMaterialApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun ChipGroupReflowSample() {
-    Column() {
+    Column {
         FlowRow(
             Modifier
                 .fillMaxWidth(1f)

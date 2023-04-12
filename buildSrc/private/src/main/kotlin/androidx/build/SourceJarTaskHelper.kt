@@ -63,6 +63,18 @@ fun Project.configureSourceJarForAndroid(extension: LibraryExtension) {
             it.duplicatesStrategy = DuplicatesStrategy.FAIL
         }
         registerSourcesVariant(sourceJar)
+
+        // b/272214715
+        configurations.whenObjectAdded {
+            if (it.name == "debugSourcesElements" || it.name == "releaseSourcesElements") {
+                it.artifacts.whenObjectAdded { _ ->
+                    it.attributes.attribute(
+                        DocsType.DOCS_TYPE_ATTRIBUTE,
+                        project.objects.named(DocsType::class.java, "fake-sources")
+                    )
+                }
+            }
+        }
     }
     project.afterEvaluate {
         // we can only tell if a project is multiplatform after it is configured

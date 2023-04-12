@@ -1,3 +1,4 @@
+import com.android.build.api.artifact.SingleArtifact
 import org.gradle.work.DisableCachingByDefault
 
 import static androidx.baselineprofile.gradle.utils.UtilsKt.camelCase

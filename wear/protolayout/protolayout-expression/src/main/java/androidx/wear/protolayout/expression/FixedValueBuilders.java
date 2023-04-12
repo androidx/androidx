@@ -230,7 +230,8 @@ final class FixedValueBuilders {
     }
 
     /**
-     * Gets the value.
+     * Gets the value. Note that a NaN value is considered invalid and any expression with this node
+     * will have an invalid value delivered via {@link DynamicTypeValueReceiver<T>#onInvalidate()}.
      *
      * @since 1.2
      */
@@ -284,8 +285,11 @@ final class FixedValueBuilders {
 
       public Builder() {}
 
+
       /**
-       * Sets the value.
+       * Sets the value. Note that a NaN value is considered invalid and any expression with this
+       * node will have an invalid value delivered via
+       * {@link DynamicTypeValueReceiver<T>#onInvalidate()}.
        *
        * @since 1.2
        */

@@ -63,9 +63,10 @@ public class ResolutionSelectorUtil {
             builder.setResolutionFilter(resolutionSelectorToOverride.getResolutionFilter());
         }
 
-        if (resolutionSelectorToOverride.getHighResolutionEnabledFlags() != 0) {
-            builder.setHighResolutionEnabledFlags(
-                    resolutionSelectorToOverride.getHighResolutionEnabledFlags());
+        if (resolutionSelectorToOverride.getHighResolutionEnabledFlag()
+                != ResolutionSelector.HIGH_RESOLUTION_FLAG_OFF) {
+            builder.setHighResolutionEnabledFlag(
+                    resolutionSelectorToOverride.getHighResolutionEnabledFlag());
         }
 
         return builder.build();

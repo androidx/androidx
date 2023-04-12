@@ -155,7 +155,7 @@ class Camera2CameraInfoTest {
                 throw NotImplementedError("Not used in testing")
             }
 
-            override fun getSupportedFpsRanges(): MutableList<Range<Int>> {
+            override fun getSupportedFrameRateRanges(): MutableList<Range<Int>> {
                 throw NotImplementedError("Not used in testing")
             }
 

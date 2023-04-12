@@ -18,6 +18,7 @@ package androidx.tv.material3
 
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.text.NewTextRendering1_5
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
@@ -105,6 +106,10 @@ fun Text(
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current
 ) {
+    // TODO: Remove this flag if the issue (b/277778635) is fixed or it's deprecated
+    @Suppress("DEPRECATION")
+    NewTextRendering1_5 = false
+
     val textColor = color.takeOrElse {
         style.color.takeOrElse {
             LocalContentColor.current
@@ -206,6 +211,10 @@ fun Text(
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current
 ) {
+    // TODO: Remove this flag if the issue (b/277778635) is fixed or it's deprecated
+    @Suppress("DEPRECATION")
+    NewTextRendering1_5 = false
+
     val textColor = color.takeOrElse {
         style.color.takeOrElse {
             LocalContentColor.current

@@ -34,7 +34,7 @@ import org.mockito.junit.MockitoRule;
 @RunWith(AndroidJUnit4.class)
 public class DynamicDataBiTransformNodeTest {
     @Rule public MockitoRule mMockitoRule = MockitoJUnit.rule();
-    @Mock private DynamicTypeValueReceiver<Integer> mMockCallback;
+    @Mock private DynamicTypeValueReceiverWithPreUpdate<Integer> mMockCallback;
 
     private DynamicDataBiTransformNode<Integer, Integer, Integer> mNodeUnderTest;
 

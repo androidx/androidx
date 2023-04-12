@@ -1570,7 +1570,11 @@ public abstract class WatchFaceService : WallpaperService() {
         @UiThread
         internal suspend fun addWatchfaceReadyListener(listener: IWatchfaceReadyListener) {
             deferredWatchFaceImpl.await()
-            listener.onWatchfaceReady()
+            try {
+                listener.onWatchfaceReady()
+            } catch (e: Exception) {
+                Log.e(TAG, "listener.onWatchfaceReady failed", e)
+            }
         }
 
         @UiThread
@@ -2722,7 +2726,11 @@ public abstract class WatchFaceService : WallpaperService() {
 
             uiThreadCoroutineScope.launch {
                 deferredWatchFaceImpl.await()
-                listener.onWatchfaceReady()
+                try {
+                    listener.onWatchfaceReady()
+                } catch (e: Exception) {
+                    Log.e(TAG, "listener.onWatchfaceReady failed", e)
+                }
             }
         }
 

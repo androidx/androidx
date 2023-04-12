@@ -27,7 +27,6 @@ import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -49,14 +48,13 @@ import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import org.mockito.kotlin.mock
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.mock
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalComposeUiApi::class)
 class HardwareKeyboardTest {
     @get:Rule
     val rule = createComposeRule()
@@ -242,16 +240,77 @@ class HardwareKeyboardTest {
 
     @Test
     fun textField_lineEndStart() {
-        keysSequenceTest(initText = "hello world\nhi") {
+        keysSequenceTest(initText = "hi\nhello world\nhi") {
+            Key.MoveEnd.downAndUp()
+            Key.DirectionRight.downAndUp()
+            Key.Zero.downAndUp()
+            expectedText("hi\n0hello world\nhi")
             Key.MoveEnd.downAndUp()
             Key.Zero.downAndUp()
-            expectedText("hello world0\nhi")
-            Key.MoveEnd.downAndUp()
+            expectedText("hi\n0hello world0\nhi")
+            Key.MoveHome.downAndUp(META_SHIFT_ON)
+            expectedSelection(TextRange(16, 3))
             Key.MoveHome.downAndUp()
-            Key.Zero.downAndUp()
-            expectedText("0hello world0\nhi")
+            Key.DirectionRight.downAndUp()
             Key.MoveEnd.downAndUp(META_SHIFT_ON)
-            expectedSelection(TextRange(1, 16))
+            expectedSelection(TextRange(4, 16))
+            expectedText("hi\n0hello world0\nhi")
+        }
+    }
+
+    @Test
+    fun textField_altLineLeftRight() {
+        keysSequenceTest(initText = "hi\nhello world\nhi") {
+            Key.DirectionRight.downAndUp(META_ALT_ON)
+            Key.DirectionRight.downAndUp()
+            Key.Zero.downAndUp()
+            expectedText("hi\n0hello world\nhi")
+            Key.DirectionRight.downAndUp(META_ALT_ON)
+            Key.Zero.downAndUp()
+            expectedText("hi\n0hello world0\nhi")
+            Key.DirectionLeft.downAndUp(META_ALT_ON or META_SHIFT_ON)
+            expectedSelection(TextRange(16, 3))
+            Key.DirectionLeft.downAndUp(META_ALT_ON)
+            Key.DirectionRight.downAndUp()
+            Key.DirectionRight.downAndUp(META_ALT_ON or META_SHIFT_ON)
+            expectedSelection(TextRange(4, 16))
+            expectedText("hi\n0hello world0\nhi")
+        }
+    }
+
+    @Test
+    fun textField_altTop() {
+        keysSequenceTest(initText = "hi\nhello world\nhi") {
+            Key.MoveEnd.downAndUp()
+            repeat(3) { Key.DirectionRight.downAndUp() }
+            Key.Zero.downAndUp()
+            expectedText("hi\nhe0llo world\nhi")
+            Key.DirectionUp.downAndUp(META_ALT_ON)
+            Key.Zero.downAndUp()
+            expectedText("0hi\nhe0llo world\nhi")
+            Key.MoveEnd.downAndUp()
+            repeat(3) { Key.DirectionRight.downAndUp() }
+            Key.DirectionUp.downAndUp(META_ALT_ON or META_SHIFT_ON)
+            expectedSelection(TextRange(6, 0))
+            expectedText("0hi\nhe0llo world\nhi")
+        }
+    }
+
+    @Test
+    fun textField_altBottom() {
+        keysSequenceTest(initText = "hi\nhello world\nhi") {
+            Key.MoveEnd.downAndUp()
+            repeat(3) { Key.DirectionRight.downAndUp() }
+            Key.Zero.downAndUp()
+            expectedText("hi\nhe0llo world\nhi")
+            Key.DirectionDown.downAndUp(META_ALT_ON or META_SHIFT_ON)
+            expectedSelection(TextRange(6, 18))
+            Key.DirectionLeft.downAndUp()
+            Key.Zero.downAndUp()
+            expectedText("hi\nhe00llo world\nhi")
+            Key.DirectionDown.downAndUp(META_ALT_ON)
+            Key.Zero.downAndUp()
+            expectedText("hi\nhe00llo world\nhi0")
         }
     }
 

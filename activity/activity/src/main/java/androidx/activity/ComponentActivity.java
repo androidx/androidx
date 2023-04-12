@@ -172,7 +172,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 }
             });
 
-    private final ReportFullyDrawnExecutor mReportFullyDrawnExecutor = createFullyDrawnExecutor();
+    final ReportFullyDrawnExecutor mReportFullyDrawnExecutor = createFullyDrawnExecutor();
 
     @NonNull
     final FullyDrawnReporter mFullyDrawnReporter = new FullyDrawnReporter(
@@ -314,6 +314,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                     if (!isChangingConfigurations()) {
                         getViewModelStore().clear();
                     }
+                    mReportFullyDrawnExecutor.activityDestroyed();
                 }
             }
         });
@@ -1150,6 +1151,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     private interface ReportFullyDrawnExecutor extends Executor {
         void viewCreated(@NonNull View view);
+
+        void activityDestroyed();
     }
 
     static class ReportFullyDrawnExecutorApi1 implements ReportFullyDrawnExecutor {
@@ -1157,6 +1160,10 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
         @Override
         public void viewCreated(@NonNull View view) {
+        }
+
+        @Override
+        public void activityDestroyed() {
         }
 
         /**
@@ -1189,6 +1196,12 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 mOnDrawScheduled = true;
                 view.getViewTreeObserver().addOnDrawListener(this);
             }
+        }
+
+        @Override
+        public void activityDestroyed() {
+            getWindow().getDecorView().removeCallbacks(this);
+            getWindow().getDecorView().getViewTreeObserver().removeOnDrawListener(this);
         }
 
         /**

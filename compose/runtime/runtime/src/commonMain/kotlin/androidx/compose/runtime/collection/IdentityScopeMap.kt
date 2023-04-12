@@ -30,28 +30,27 @@ internal class IdentityScopeMap<T : Any> {
      * in the [IdentityScopeMap]. The length of the used values is [size], and all remaining values
      * are the unused indices in [values] and [scopeSets].
      */
-    @PublishedApi
-    internal var valueOrder: IntArray = IntArray(50) { it }
+    var valueOrder: IntArray = IntArray(50) { it }
+        private set
 
     /**
      * The [identityHashCode] for the keys in the collection. We never use the actual
      * values
      */
-    @PublishedApi
-    internal var values: Array<Any?> = arrayOfNulls(50)
+    var values: Array<Any?> = arrayOfNulls(50)
+        private set
 
     /**
      * The [IdentityArraySet]s for values, in the same index order as [values], indexed
      * by [valueOrder]. The consumed values may extend beyond [size] if a value has been removed.
      */
-    @PublishedApi
-    internal var scopeSets: Array<IdentityArraySet<T>?> = arrayOfNulls(50)
+    var scopeSets: Array<IdentityArraySet<T>?> = arrayOfNulls(50)
+        private set
 
     /**
      * The number of values in the map.
      */
-    @PublishedApi
-    internal var size = 0
+    var size = 0
 
     /**
      * Returns the [IdentityArraySet] for the value at the given [index] order in the map.

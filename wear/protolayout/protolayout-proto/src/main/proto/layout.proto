@@ -46,6 +46,9 @@ enum FontVariant {
 
   // Font variant suited for body text.
   FONT_VARIANT_BODY = 2;
+
+  // Font variant suited for Vendor specified use.
+  FONT_VARIANT_VENDOR_1 = 3;
 }
 
 // An extensible FontVariant property.
@@ -139,11 +142,20 @@ message TextOverflowProp {
   TextOverflow value = 1;
 }
 
+// Parameters for Marquee animation. Only applies for TEXT_OVERFLOW_MARQUEE.
+message MarqueeParameters {
+  oneof optional_iterations {
+    // The number of times to repeat the Marquee animation. Set to -1 to repeat
+    // indefinitely. Defaults to repeat indefinitely.
+    int32 iterations = 1;
+  }
+}
+
 // An Android platform specific text style configuration options for styling and
 // compatibility.
 message AndroidTextStyle {
-  // Whether the Text excludes extra top and bottom padding above the normal
-  // ascent and descent. The default is false.
+  // Whether the Text excludes padding specified by the font, i.e. extra top and bottom padding
+  // above the normal ascent and descent. The default is false.
   bool exclude_font_padding = 1;
 }
 
@@ -176,6 +188,10 @@ message Text {
   // render all of its text, the text which cannot fit inside its container will
   // be truncated. If not defined, defaults to TEXT_OVERFLOW_TRUNCATE.
   TextOverflowProp overflow = 6;
+
+  // Parameters for Marquee animation. Only applies when overflow is
+  // TEXT_OVERFLOW_MARQUEE.
+  MarqueeParameters marquee_parameters = 9;
 
   // The explicit height between lines of text. This is equivalent to the
   // vertical distance between subsequent baselines. If not specified, defaults
@@ -384,6 +400,10 @@ message Spannable {
   // TEXT_OVERFLOW_TRUNCATE.
   TextOverflowProp overflow = 5;
 
+  // Parameters for Marquee animation. Only applies when overflow is
+  // TEXT_OVERFLOW_MARQUEE.
+  MarqueeParameters marquee_parameters = 8;
+
   // Extra spacing to add between each line. This will apply to all
   // spans regardless of their font size. This is in addition to original
   // line heights. Note that this won't add any additional space before the
@@ -576,6 +596,30 @@ message ArcAdapter {
   BoolProp rotate_contents = 2;
 }
 
+// A layout element which can be defined by a vendor renderer extension. The
+// payload in this message will be passed verbatim to any registered vendor
+// extension in the layout renderer. It is then expected that the extension can
+// parse this message, and emit the relevant element.
+//
+// If a vendor extension is not installed, this resource will not render
+// any element, although the specified space will still be occupied. If the
+// payload cannot be parsed by the vendor extension, then still nothing should
+// be rendered, although this behaviour is defined by the vendor extension.
+message VendorExtension {
+  // The content of the vendor extension. This can be any data; it is expected
+  // that the vendor extension knows how to parse this field.
+  bytes payload = 1;
+
+  // The Vendor ID that this extension is for.
+  string vendor_id = 2;
+
+  // The width of this element.
+  VendorExtensionDimension width = 3;
+
+  // The height of this element.
+  VendorExtensionDimension height = 4;
+}
+
 // The root of all layout elements. This exists to act as a holder for all of
 // the actual layout elements above.
 message LayoutElement {
@@ -588,6 +632,7 @@ message LayoutElement {
     Image image = 6;
     Arc arc = 7;
     Spannable spannable = 8;
+    VendorExtension vendor_extension = 1000;
   }
 }
 

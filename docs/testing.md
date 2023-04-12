@@ -256,17 +256,16 @@ optionally followed by `\#testName` if you want to execute a single test in that
 file
 
 If you want to run a specific unit test, you can do it using
-[`--tests` filtering](https://docs.gradle.org/current/userguide/java_testing.html#test_filtering)
+[`--tests` filtering](https://docs.gradle.org/current/userguide/java_testing.html#test_filtering):
+
 ```shell
-
 # Run a test for an Android library on a connected device
-
 ./gradlew <project-name>:test --tests androidx.core.view.DisplayCompatTest
 
 # Run a test for a JVM library
-
 ./gradlew <project-name>:testDebugUnitTest --tests
-androidx.core.view.DisplayCompatTest ```
+androidx.core.view.DisplayCompatTest
+```
 
 ## Test apps {#testapps}
 

@@ -82,7 +82,8 @@ class WorkerWrapperForegroundTest {
 
         taskExecutor = WorkManagerTaskExecutor(internalExecutor)
 
-        workDatabase = WorkDatabase.create(context, taskExecutor.serialTaskExecutor, true)
+        workDatabase = WorkDatabase.create(
+            context, taskExecutor.serialTaskExecutor, config.clock, true)
         workManager = WorkManagerImpl(
                 context = context,
                 configuration = config,

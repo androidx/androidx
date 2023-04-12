@@ -21,7 +21,7 @@ import androidx.annotation.Nullable;
 
 import java.util.List;
 
-public class AddToListCallback<T> implements DynamicTypeValueReceiver<T> {
+public class AddToListCallback<T> implements DynamicTypeValueReceiverWithPreUpdate<T> {
     private final List<T> mListToUpdate;
     @Nullable private final List<Boolean> mInvalidListToUpdate;
 

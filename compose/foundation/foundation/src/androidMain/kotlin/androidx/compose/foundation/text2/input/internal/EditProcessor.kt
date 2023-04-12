@@ -18,6 +18,8 @@ package androidx.compose.foundation.text2.input.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.TextEditFilter
+import androidx.compose.foundation.text2.input.TextFieldBufferWithSelection
+import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,25 +40,20 @@ import androidx.compose.ui.util.fastForEach
  */
 @OptIn(ExperimentalFoundationApi::class)
 internal class EditProcessor(
-    initialValue: TextFieldValue = TextFieldValue(
-        EmptyAnnotatedString,
-        TextRange.Zero,
-        null
-    ),
-    private val filter: TextEditFilter = TextEditFilter { _, new -> new }
+    initialValue: TextFieldCharSequence = TextFieldCharSequence("", TextRange.Zero),
 ) {
 
     /**
-     * The current state of the internal editing buffer as a [TextFieldValue] backed by Snapshot
-     * state, so its readers can get updates in composition context.
+     * The current state of the internal editing buffer as a [TextFieldCharSequence] backed by
+     * snapshot state, so its readers can get updates in composition context.
      */
-    var value: TextFieldValue by mutableStateOf(initialValue)
+    var value: TextFieldCharSequence by mutableStateOf(initialValue)
         private set
 
     // The editing buffer used for applying editor commands from IME.
     internal var mBuffer: EditingBuffer = EditingBuffer(
-        text = initialValue.annotatedString,
-        selection = initialValue.selection
+        text = initialValue.toString(),
+        selection = initialValue.selectionInChars
     )
         private set
 
@@ -85,8 +82,8 @@ internal class EditProcessor(
      * gain a new responsibility in the cases where developer filters the input or adds a template.
      * This would again introduce a need for sync between internal buffer and the state value.
      */
-    fun reset(newValue: TextFieldValue) {
-        val bufferState = TextFieldValue(
+    fun reset(newValue: TextFieldCharSequence) {
+        val bufferState = TextFieldCharSequence(
             mBuffer.toString(),
             mBuffer.selection,
             mBuffer.composition
@@ -94,21 +91,21 @@ internal class EditProcessor(
 
         var textChanged = false
         var selectionChanged = false
-        val compositionChanged = newValue.composition != mBuffer.composition
+        val compositionChanged = newValue.compositionInChars != mBuffer.composition
 
-        if (bufferState.annotatedString != newValue.annotatedString) {
+        if (!bufferState.contentEquals(newValue)) {
             // reset the buffer in its entirety
             mBuffer = EditingBuffer(
-                text = newValue.annotatedString,
-                selection = newValue.selection
+                text = newValue.toString(),
+                selection = newValue.selectionInChars
             )
             textChanged = true
-        } else if (bufferState.selection != newValue.selection) {
-            mBuffer.setSelection(newValue.selection.min, newValue.selection.max)
+        } else if (bufferState.selectionInChars != newValue.selectionInChars) {
+            mBuffer.setSelection(newValue.selectionInChars.min, newValue.selectionInChars.max)
             selectionChanged = true
         }
 
-        val composition = newValue.composition
+        val composition = newValue.compositionInChars
         if (composition == null || composition.collapsed) {
             mBuffer.commitComposition()
         } else {
@@ -119,12 +116,10 @@ internal class EditProcessor(
         //  communicate composing region changes back to IME.
         if (textChanged || (!selectionChanged && compositionChanged)) {
             mBuffer.commitComposition()
-            newValue.copy(composition = null)
         }
 
-        val finalValue = TextFieldValue(
-            // do not call toString on current buffer unnecessarily.
-            if (textChanged) newValue.annotatedString else bufferState.annotatedString,
+        val finalValue = TextFieldCharSequence(
+            if (textChanged) newValue else bufferState,
             mBuffer.selection,
             mBuffer.composition
         )
@@ -144,8 +139,9 @@ internal class EditProcessor(
      *
      * @return the [TextFieldValue] representation of the final buffer state.
      */
-    fun update(editCommands: List<EditCommand>) {
+    fun update(editCommands: List<EditCommand>, filter: TextEditFilter?) {
         var lastCommand: EditCommand? = null
+        mBuffer.changeTracker.clearChanges()
         try {
             editCommands.fastForEach {
                 lastCommand = it
@@ -155,20 +151,32 @@ internal class EditProcessor(
             throw RuntimeException(generateBatchErrorMessage(editCommands, lastCommand), e)
         }
 
-        val newValue = TextFieldValue(
-            annotatedString = mBuffer.toAnnotatedString(),
+        val proposedValue = TextFieldCharSequence(
+            text = mBuffer.toString(),
             selection = mBuffer.selection,
             composition = mBuffer.composition
         )
 
-        val oldValue = value
-
-        val filteredValue = filter.filter(oldValue, newValue)
-        if (filteredValue == newValue) {
-            value = filteredValue
+        @Suppress("NAME_SHADOWING")
+        val filter = filter
+        if (filter == null) {
+            value = proposedValue
         } else {
-            // reset the buffer to new given state.
-            reset(filteredValue)
+            val oldValue = value
+            val mutableValue = TextFieldBufferWithSelection(
+                value = proposedValue,
+                sourceValue = oldValue,
+                initialChanges = mBuffer.changeTracker
+            )
+            filter.filter(originalValue = oldValue, valueWithChanges = mutableValue)
+            // If neither the text nor the selection changed, we want to preserve the composition.
+            // Otherwise, the IME will reset it anyway.
+            val newValue = mutableValue.toTextFieldCharSequence(proposedValue.compositionInChars)
+            if (newValue == proposedValue) {
+                value = newValue
+            } else {
+                reset(newValue)
+            }
         }
     }
 
@@ -206,7 +214,7 @@ internal class EditProcessor(
      */
     internal fun interface ResetListener {
 
-        fun onReset(oldValue: TextFieldValue, newValue: TextFieldValue)
+        fun onReset(oldValue: TextFieldCharSequence, newValue: TextFieldCharSequence)
     }
 }
 

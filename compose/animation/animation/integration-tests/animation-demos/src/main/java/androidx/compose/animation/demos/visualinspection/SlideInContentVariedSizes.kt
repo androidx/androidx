@@ -23,7 +23,7 @@ import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.Up
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.with
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -85,21 +85,21 @@ fun SlideInContentVariedSizes() {
                 transitionSpec = {
                     if (targetState < initialState) {
                         if (horizontal) {
-                            slideIntoContainer(towards = Right) with slideOutOfContainer(
+                            slideIntoContainer(towards = Right) togetherWith slideOutOfContainer(
                                 towards = Right
                             )
                         } else {
-                            slideIntoContainer(towards = Down) with slideOutOfContainer(
+                            slideIntoContainer(towards = Down) togetherWith slideOutOfContainer(
                                 towards = Down
                             )
                         }
                     } else {
                         if (horizontal) {
-                            slideIntoContainer(towards = Left).with(
+                            slideIntoContainer(towards = Left).togetherWith(
                                 slideOutOfContainer(towards = Left)
                             )
                         } else {
-                            slideIntoContainer(towards = Up).with(
+                            slideIntoContainer(towards = Up).togetherWith(
                                 slideOutOfContainer(towards = Up)
                             )
                         }

@@ -175,7 +175,7 @@ public fun Chip(
         shape = shape,
         interactionSource = interactionSource,
         role = role,
-        content = provideContent(
+        content = provideScopeContent(
             colors.contentColor(enabled = enabled),
             MaterialTheme.typography.button,
             content
@@ -341,14 +341,14 @@ public fun Chip(
 ) {
     androidx.wear.compose.materialcore.Chip(
         modifier = modifier.height(ChipDefaults.Height),
-        label = provideContent(
+        label = provideScopeContent(
             colors.contentColor(enabled = enabled),
             MaterialTheme.typography.button,
             label
         ),
         onClick = onClick,
         background = { colors.background(enabled = it) },
-        secondaryLabel = secondaryLabel?.let { provideContent(
+        secondaryLabel = secondaryLabel?.let { provideScopeContent(
             colors.secondaryContentColor(enabled = enabled),
             textStyle = MaterialTheme.typography.caption2,
             secondaryLabel
@@ -629,7 +629,7 @@ public fun CompactChip(
         modifier = modifier.height(ChipDefaults.CompactChipHeight),
         onClick = onClick,
         background = { colors.background(enabled = it) },
-        label = label?.let { provideContent(
+        label = label?.let { provideScopeContent(
             colors.contentColor(enabled = enabled),
             MaterialTheme.typography.caption1,
             label
