@@ -25,9 +25,8 @@ plugins {
 dependencies {
     annotationProcessor(libs.nullaway)
     api("androidx.annotation:annotation:1.2.0")
-    implementation(project(":wear:protolayout:protolayout"))
+    api(project(":wear:protolayout:protolayout"))
     implementation(project(":wear:protolayout:protolayout-proto"))
-    implementation(project(":wear:protolayout:protolayout-expression"))
     implementation("androidx.annotation:annotation-experimental:1.3.0")
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testCore)
