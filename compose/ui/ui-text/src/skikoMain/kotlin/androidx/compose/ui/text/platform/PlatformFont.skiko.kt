@@ -112,6 +112,7 @@ internal class SkiaBackedTypeface(
  * Returns a Compose [Typeface] from Skia [SkTypeface].
  *
  * @param typeface Android Typeface instance
+ * @param alias a shorter name that is used as an alternative to the full font name
  */
 fun Typeface(typeface: SkTypeface, alias: String? = null): Typeface {
     return SkiaBackedTypeface(alias, typeface)
