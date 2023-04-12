@@ -17,6 +17,7 @@
 package androidx.bluetooth.integration.testapp.ui.home
 
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothGattCharacteristic.PROPERTY_NOTIFY
 import android.bluetooth.BluetoothGattCharacteristic.PROPERTY_READ
 import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.AdvertiseSettings
@@ -39,6 +40,7 @@ import androidx.lifecycle.ViewModelProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 
@@ -150,14 +152,19 @@ class HomeFragment : Fragment() {
                     val jobs = ArrayList<Job>()
                     for (srv in getServices()) {
                         for (char in srv.characteristics) {
-                            Log.d(TAG, "trying to read characteristic ${char.uuid}")
                             if (char.properties.and(PROPERTY_READ) == 0) continue
                             jobs.add(launch {
-                                val value = read(char).getOrNull()
+                                val value = readCharacteristic(char).getOrNull()
                                 if (value != null) {
                                     Log.d(TAG, "Successfully read characteristic value=$value")
                                 }
                             })
+                            if (char.properties.and(PROPERTY_NOTIFY) != 0) {
+                                jobs.add(launch {
+                                    val value = subscribeToCharacteristic(char).first()
+                                    Log.d(TAG, "Successfully get characteristic value=$value")
+                                })
+                            }
                         }
                     }
                     jobs.joinAll()
