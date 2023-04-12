@@ -24,7 +24,6 @@ import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattService
 import android.content.Context
-import android.os.Build
 import android.util.Log
 import java.util.UUID
 import kotlinx.coroutines.CompletableDeferred
@@ -165,19 +164,14 @@ internal class GattClientImpl {
                 }
             }
 
-            @Suppress("deprecation", "ClassVerificationFailure")
+            @Suppress("ClassVerificationFailure")
             override suspend fun write(
                 characteristic: BluetoothGattCharacteristic,
                 value: ByteArray,
                 writeType: Int
             ): Result<Unit> {
                val task = ClientTask {
-                   if (Build.VERSION.SDK_INT < 33) {
-                       characteristic.setValue(value)
-                       bluetoothGatt.writeCharacteristic(characteristic)
-                   } else {
-                       bluetoothGatt.writeCharacteristic(characteristic, value, writeType)
-                   }
+                   bluetoothGatt.writeCharacteristic(characteristic, value, writeType)
                 }
                 tasks.send(task)
                 while (true) {
