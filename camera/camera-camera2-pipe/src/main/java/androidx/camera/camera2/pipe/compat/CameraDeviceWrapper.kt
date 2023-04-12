@@ -27,6 +27,7 @@ import android.hardware.camera2.params.OutputConfiguration
 import android.os.Build
 import android.os.Handler
 import android.view.Surface
+import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
@@ -332,4 +333,155 @@ internal class AndroidCameraDevice(
             CameraDevice::class -> cameraDevice as T
             else -> null
         }
+}
+
+/**
+ * VirtualAndroidCameraDevice creates a simple wrapper around a [AndroidCameraDevice], augmenting
+ * it by enabling it to reject further capture session/request calls when it is "disconnected'.
+ */
+internal class VirtualAndroidCameraDevice(
+    internal val androidCameraDevice: AndroidCameraDevice,
+) : CameraDeviceWrapper {
+    private val lock = Any()
+
+    @GuardedBy("lock")
+    private var disconnected = false
+
+    override val cameraId: CameraId
+        get() = androidCameraDevice.cameraId
+
+    override fun createCaptureSession(
+        outputs: List<Surface>,
+        stateCallback: CameraCaptureSessionWrapper.StateCallback,
+        handler: Handler?
+    ) = synchronized(lock) {
+        if (disconnected) {
+            Log.warn { "createCaptureSession failed: Virtual device disconnected" }
+            false
+        } else {
+            androidCameraDevice.createCaptureSession(outputs, stateCallback, handler)
+        }
+    }
+
+    @RequiresApi(23)
+    override fun createReprocessableCaptureSession(
+        input: InputConfiguration,
+        outputs: List<Surface>,
+        stateCallback: CameraCaptureSessionWrapper.StateCallback,
+        handler: Handler?
+    ) = synchronized(lock) {
+        if (disconnected) {
+            Log.warn { "createReprocessableCaptureSession failed: Virtual device disconnected" }
+            false
+        } else {
+            androidCameraDevice.createReprocessableCaptureSession(
+                input,
+                outputs,
+                stateCallback,
+                handler
+            )
+        }
+    }
+
+    @RequiresApi(23)
+    override fun createConstrainedHighSpeedCaptureSession(
+        outputs: List<Surface>,
+        stateCallback: CameraCaptureSessionWrapper.StateCallback,
+        handler: Handler?
+    ) = synchronized(lock) {
+        if (disconnected) {
+            Log.warn {
+                "createConstrainedHighSpeedCaptureSession failed: Virtual device disconnected"
+            }
+            false
+        } else {
+            androidCameraDevice.createConstrainedHighSpeedCaptureSession(
+                outputs,
+                stateCallback,
+                handler
+            )
+        }
+    }
+
+    @RequiresApi(24)
+    override fun createCaptureSessionByOutputConfigurations(
+        outputConfigurations: List<OutputConfigurationWrapper>,
+        stateCallback: CameraCaptureSessionWrapper.StateCallback,
+        handler: Handler?
+    ) = synchronized(lock) {
+        if (disconnected) {
+            Log.warn {
+                "createCaptureSessionByOutputConfigurations failed: Virtual device disconnected"
+            }
+            false
+        } else {
+            androidCameraDevice.createCaptureSessionByOutputConfigurations(
+                outputConfigurations,
+                stateCallback,
+                handler
+            )
+        }
+    }
+
+    @RequiresApi(24)
+    override fun createReprocessableCaptureSessionByConfigurations(
+        inputConfig: InputConfigData,
+        outputs: List<OutputConfigurationWrapper>,
+        stateCallback: CameraCaptureSessionWrapper.StateCallback,
+        handler: Handler?
+    ) = synchronized(lock) {
+        if (disconnected) {
+            Log.warn {
+                "createReprocessableCaptureSessionByConfigurations failed: " +
+                    "Virtual device disconnected"
+            }
+            false
+        } else {
+            androidCameraDevice.createReprocessableCaptureSessionByConfigurations(
+                inputConfig,
+                outputs,
+                stateCallback,
+                handler
+            )
+        }
+    }
+
+    @RequiresApi(28)
+    override fun createCaptureSession(config: SessionConfigData) = synchronized(lock) {
+        if (disconnected) {
+            Log.warn { "createCaptureSession failed: Virtual device disconnected" }
+            false
+        } else {
+            androidCameraDevice.createCaptureSession(config)
+        }
+    }
+
+    override fun createCaptureRequest(template: RequestTemplate) = synchronized(lock) {
+        if (disconnected) {
+            Log.warn { "createCaptureRequest failed: Virtual device disconnected" }
+            null
+        } else {
+            androidCameraDevice.createCaptureRequest(template)
+        }
+    }
+
+    @RequiresApi(23)
+    override fun createReprocessCaptureRequest(
+        inputResult: TotalCaptureResult
+    ) = synchronized(lock) {
+        if (disconnected) {
+            Log.warn { "createReprocessCaptureRequest failed: Virtual device disconnected" }
+            null
+        } else {
+            androidCameraDevice.createReprocessCaptureRequest(inputResult)
+        }
+    }
+
+    override fun onDeviceClosed() = androidCameraDevice.onDeviceClosed()
+
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? = androidCameraDevice.unwrapAs(type)
+
+    internal fun disconnect() = synchronized(lock) {
+        disconnected = true
+    }
 }

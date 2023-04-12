@@ -127,6 +127,9 @@ internal class VirtualCameraState(
     @GuardedBy("lock")
     private var closed = false
 
+    @GuardedBy("lock")
+    private var currentVirtualAndroidCamera: VirtualAndroidCameraDevice? = null
+
     // This is intended so that it will only ever replay the most recent event to new subscribers,
     // but to never drop events for existing subscribers.
     private val _stateFlow = MutableSharedFlow<CameraState>(replay = 1, extraBufferCapacity = 3)
@@ -134,6 +137,7 @@ internal class VirtualCameraState(
 
     @GuardedBy("lock")
     private var _lastState: CameraState = CameraStateUnopened
+
     override val state: Flow<CameraState>
         get() = _states
 
@@ -155,12 +159,40 @@ internal class VirtualCameraState(
                 return@coroutineScope
             }
 
+            // Here we generally relay what we receive from AndroidCameraState's state flow, except
+            // for CameraStateOpen. When the AndroidCameraDevice is provided through
+            // CameraStateOpen, we create a wrapper (VirtualAndroidCameraDevice) around it,
+            // allowing the AndroidCameraDevice to be "disconnected". This prevents additional calls
+            // such as createCaptureSession() from being executed on the camera device.
+            //
+            // Why it's needed: When 2 CameraGraphs are created and started in quick succession, say
+            // we have CameraGraph-1 and CameraGraph-2, it is possible for CameraGraph-2 to create
+            // its capture session _earlier_ than CameraGraph-1, as they run on separate threads.
+            // Because the two createCaptureSession() calls happen out of order, the more recent
+            // call wins, causing the session for CameraGraph-1 to succeed (even when it's already
+            // closed) and the session for CameraGraph-2 to fail (even though it was started most
+            // recently).
+            //
+            // Relevant bug: b/269619541
             job =
                 launch(EmptyCoroutineContext) {
                     state.collect {
                         synchronized(lock) {
                             if (!closed) {
-                                emitState(it)
+                                if (it is CameraStateOpen) {
+                                    val virtualAndroidCamera = VirtualAndroidCameraDevice(
+                                        it.cameraDevice as AndroidCameraDevice
+                                    )
+                                    // The ordering here is important. We need to set the current
+                                    // VirtualAndroidCameraDevice before emitting it out. Otherwise,
+                                    // the capture session can be started while we still don't have
+                                    // the current VirtualAndroidCameraDevice to disconnect when
+                                    // VirtualCameraState.disconnect() is called in parallel.
+                                    currentVirtualAndroidCamera = virtualAndroidCamera
+                                    emitState(CameraStateOpen(virtualAndroidCamera))
+                                } else {
+                                    emitState(it)
+                                }
                             }
                         }
                     }
@@ -178,6 +210,7 @@ internal class VirtualCameraState(
 
             Log.info { "Disconnecting $this" }
 
+            currentVirtualAndroidCamera?.disconnect()
             job?.cancel()
             wakelockToken?.release()
 
