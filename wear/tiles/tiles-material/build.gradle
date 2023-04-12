@@ -26,7 +26,7 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.2.0")
-    implementation(project(":wear:tiles:tiles"))
+    api(project(":wear:tiles:tiles"))
     implementation(project(":wear:tiles:tiles-proto"))
 
     androidTestImplementation(libs.junit)
