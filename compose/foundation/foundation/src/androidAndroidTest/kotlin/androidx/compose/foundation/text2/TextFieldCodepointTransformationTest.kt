@@ -19,6 +19,7 @@ package androidx.compose.foundation.text2
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.text2.input.CodepointTransformation
+import androidx.compose.foundation.text2.input.TextFieldLineLimits
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.mask
 import androidx.compose.foundation.text2.input.setTextAndPlaceCursorAtEnd
@@ -158,6 +159,54 @@ class TextFieldCodepointTransformationTest {
         rule.waitForIdle()
         rule.onNodeWithTag(Tag).performTextInput(", World!")
         assertLayoutText("*".repeat("Hello, World!".length))
+    }
+
+    @Test
+    fun textField_singleLine_removesLineFeedViaCodepointTransformation() {
+        val state = TextFieldState()
+        state.setTextAndPlaceCursorAtEnd("Hello\nWorld")
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                lineLimits = TextFieldLineLimits.SingleLine,
+                modifier = Modifier.testTag(Tag)
+            )
+        }
+
+        assertLayoutText("Hello World")
+        rule.onNodeWithTag(Tag).performTextInput("\n")
+        assertLayoutText("Hello World ")
+    }
+
+    @Test
+    fun textField_singleLine_removesCarriageReturnViaCodepointTransformation() {
+        val state = TextFieldState()
+        state.setTextAndPlaceCursorAtEnd("Hello\rWorld")
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                lineLimits = TextFieldLineLimits.SingleLine,
+                modifier = Modifier.testTag(Tag)
+            )
+        }
+
+        assertLayoutText("Hello\uFEFFWorld")
+    }
+
+    @Test
+    fun textField_singleLine_doesNotOverrideGivenCodepointTransformation() {
+        val state = TextFieldState()
+        state.setTextAndPlaceCursorAtEnd("Hello\nWorld")
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                lineLimits = TextFieldLineLimits.SingleLine,
+                codepointTransformation = CodepointTransformation.None,
+                modifier = Modifier.testTag(Tag)
+            )
+        }
+
+        assertLayoutText("Hello\nWorld")
     }
 
     // TODO: add more tests when selection is added
