@@ -410,6 +410,18 @@ package androidx.tv.material3 {
     field public static final androidx.tv.material3.OutlinedIconButtonDefaults INSTANCE;
   }
 
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class RadioButtonColors {
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class RadioButtonDefaults {
+    method @androidx.compose.runtime.Composable public androidx.tv.material3.RadioButtonColors colors(optional long selectedColor, optional long unselectedColor, optional long disabledSelectedColor, optional long disabledUnselectedColor);
+    field public static final androidx.tv.material3.RadioButtonDefaults INSTANCE;
+  }
+
+  public final class RadioButtonKt {
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void RadioButton(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.tv.material3.RadioButtonColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
+  }
+
   @androidx.tv.material3.ExperimentalTvMaterial3Api public sealed interface ScrollPauseHandle {
     method public void resumeAutoScroll();
   }
