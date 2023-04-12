@@ -78,13 +78,6 @@ class SemanticsNode internal constructor(
 
     internal val unmergedConfig = outerSemanticsNode.collapsedSemanticsConfiguration()
 
-    internal var isUnmergedLeafNode =
-        !isFake && replacedChildren.isEmpty() && layoutNode.findClosestParentNode {
-            it.outerSemantics
-                ?.collapsedSemanticsConfiguration()
-                ?.isMergingSemanticsOfDescendants == true
-        } == null
-
     /**
      * The [LayoutInfo] that this is associated with.
      */
