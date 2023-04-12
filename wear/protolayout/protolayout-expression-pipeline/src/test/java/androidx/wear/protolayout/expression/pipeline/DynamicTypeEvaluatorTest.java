@@ -218,42 +218,59 @@ public class DynamicTypeEvaluatorTest {
             test(
                     DynamicFloat.constant(12.345f)
                             .format(
-                                    FloatFormatter.with()
-                                            .maxFractionDigits(2)
-                                            .minIntegerDigits(4)
-                                            .groupingUsed(true)),
+                                    new FloatFormatter.Builder()
+                                            .setMaxFractionDigits(2)
+                                            .setMinIntegerDigits(4)
+                                            .setGroupingUsed(true)
+                                            .build()),
                     "0,012.35"),
             test(
                     DynamicFloat.constant(12.345f)
                             .format(
-                                    FloatFormatter.with()
-                                            .minFractionDigits(4)
-                                            .minIntegerDigits(4)
-                                            .groupingUsed(false)),
+                                    new FloatFormatter.Builder()
+                                            .setMinFractionDigits(4)
+                                            .setMinIntegerDigits(4)
+                                            .setGroupingUsed(false)
+                                            .build()),
                     "0012.3450"),
             test(
                     DynamicFloat.constant(12.345f)
-                            .format(FloatFormatter.with().maxFractionDigits(1).groupingUsed(true))
+                            .format(
+                                    new FloatFormatter.Builder()
+                                            .setMaxFractionDigits(1)
+                                            .setGroupingUsed(true)
+                                            .build())
                             .concat(DynamicString.constant("°")),
                     "12.3°"),
             test(
                     DynamicFloat.constant(12.345678f)
                             .format(
-                                    FloatFormatter.with()
-                                            .minFractionDigits(4)
-                                            .maxFractionDigits(2)
-                                            .groupingUsed(true)),
+                                    new FloatFormatter.Builder()
+                                            .setMinFractionDigits(4)
+                                            .setMaxFractionDigits(2)
+                                            .setGroupingUsed(true)
+                                            .build()),
                     "12.3457"),
             test(
                     DynamicFloat.constant(12.345678f)
-                            .format(FloatFormatter.with().minFractionDigits(2).groupingUsed(true)),
+                            .format(
+                                    new FloatFormatter.Builder()
+                                            .setMinFractionDigits(2)
+                                            .setGroupingUsed(true)
+                                            .build()),
                     "12.346"),
-            test(DynamicFloat.constant(12.3456f).format(FloatFormatter.with()), "12.346"),
+            test(
+                    DynamicFloat.constant(12.3456f).format(new FloatFormatter.Builder().build()),
+                    "12.346"),
             test(
                     DynamicInt32.constant(12)
-                            .format(IntFormatter.with().minIntegerDigits(4).groupingUsed(true)),
+                            .format(
+                                    new IntFormatter.Builder()
+                                            .setMinIntegerDigits(4)
+                                            .setGroupingUsed(true)
+                                            .build()),
                     "0,012"),
-            test(DynamicInt32.constant(12).format(IntFormatter.with()), "12")
+            test(DynamicInt32.constant(12).format(new IntFormatter.Builder().build()), "12")
         };
         ImmutableList.Builder<Object[]> immutableListBuilder = new ImmutableList.Builder<>();
         for (DynamicTypeEvaluatorTest.TestCase<?> testCase : testCases) {

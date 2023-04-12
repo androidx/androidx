@@ -804,6 +804,7 @@ public abstract void jvmInsert\(@org\.jetbrains\.annotations\.NotNull.*
 public abstract java\.util\.List<androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameEntity> jvmQuery\(\);
 public abstract androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameDao jvmDao\(\);
 \^
+Note: \$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/TitleChip\.java has additional uses or overrides of a deprecated API\.
 \$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/layouts/PrimaryLayout\.java:[0-9]+: warning: \[deprecation\] CompactChip in androidx\.wear\.tiles\.material has been deprecated
 Note: \$SUPPORT/wear/tiles/tiles\-material/src/main/java/androidx/wear/tiles/material/Button\.java has additional uses or overrides of a deprecated API\.
 \$SUPPORT/wear/tiles/tiles\-material/src/androidTest/java/androidx/wear/tiles/material/layouts/TestCasesGenerator\.java:[0-9]+: warning: \[deprecation\] ButtonDefaults in androidx\.wear\.tiles\.material has been deprecated
