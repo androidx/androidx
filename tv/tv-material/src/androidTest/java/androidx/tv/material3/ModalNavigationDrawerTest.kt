@@ -109,8 +109,8 @@ class ModalNavigationDrawerTest {
                 drawerState = navigationDrawerValue,
                 drawerContent = {
                     BasicText(
-                        text =
-                        if (it == DrawerValue.Open) "Opened" else "Closed"
+                        modifier = Modifier.focusable(),
+                        text = if (it == DrawerValue.Open) "Opened" else "Closed"
                     )
                 }) { BasicText("other content") }
         }
@@ -138,7 +138,10 @@ class ModalNavigationDrawerTest {
                         .focusable(false),
                     drawerState = navigationDrawerValue,
                     drawerContent = {
-                        BasicText(text = if (it == DrawerValue.Open) "Opened" else "Closed")
+                        BasicText(
+                            modifier = Modifier.focusable(),
+                            text = if (it == DrawerValue.Open) "Opened" else "Closed"
+                        )
                     }) {
                     Box(modifier = Modifier.focusable()) {
                         BasicText("Button")
@@ -154,7 +157,7 @@ class ModalNavigationDrawerTest {
         rule.onAllNodesWithText("Closed").assertAnyAreDisplayed()
     }
 
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     @Test
     fun modalNavigationDrawer_focusMovesIntoDrawer_openStateComposableDisplayed() {
         InstrumentationRegistry.getInstrumentation().setInTouchMode(false)

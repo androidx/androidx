@@ -105,8 +105,8 @@ class NavigationDrawerTest {
                 drawerState = navigationDrawerValue,
                 drawerContent = {
                     BasicText(
-                        text =
-                        if (it == DrawerValue.Open) "Opened" else "Closed"
+                        modifier = Modifier.focusable(),
+                        text = if (it == DrawerValue.Open) "Opened" else "Closed"
                     )
                 }) { BasicText("other content") }
         }
@@ -132,7 +132,10 @@ class NavigationDrawerTest {
                     modifier = Modifier.focusRequester(drawerFocusRequester),
                     drawerState = navigationDrawerValue,
                     drawerContent = {
-                        BasicText(text = if (it == DrawerValue.Open) "Opened" else "Closed")
+                        BasicText(
+                            text = if (it == DrawerValue.Open) "Opened" else "Closed",
+                            modifier = Modifier.focusable()
+                        )
                     }) {
                     Box(modifier = Modifier.focusable()) {
                         BasicText("Button")
@@ -335,7 +338,10 @@ class NavigationDrawerTest {
                 modifier = Modifier.focusRequester(drawerFocusRequester),
                 drawerState = navigationDrawerValue,
                 drawerContent = {
-                    BasicText(text = if (it == DrawerValue.Open) "Opened" else "Closed")
+                    BasicText(
+                        modifier = Modifier.focusable(),
+                        text = if (it == DrawerValue.Open) "Opened" else "Closed"
+                    )
                 }) { BasicText("other content") }
         }
 
