@@ -2855,6 +2855,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     public final void postponeEnterTransition(long duration, @NonNull TimeUnit timeUnit) {
         ensureAnimationInfo().mEnterTransitionPostponed = true;
+        if (mPostponedHandler != null) {
+            mPostponedHandler.removeCallbacks(mPostponedDurationRunnable);
+        }
         if (mFragmentManager != null) {
             mPostponedHandler = mFragmentManager.getHost().getHandler();
         } else {
