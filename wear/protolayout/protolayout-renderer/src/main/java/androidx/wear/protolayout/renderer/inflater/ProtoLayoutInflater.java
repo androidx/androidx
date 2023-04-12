@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -126,6 +126,7 @@ import androidx.wear.protolayout.proto.LayoutElementProto.FontStyle;
 import androidx.wear.protolayout.proto.LayoutElementProto.Image;
 import androidx.wear.protolayout.proto.LayoutElementProto.Layout;
 import androidx.wear.protolayout.proto.LayoutElementProto.LayoutElement;
+import androidx.wear.protolayout.proto.LayoutElementProto.MarqueeParameters;
 import androidx.wear.protolayout.proto.LayoutElementProto.Row;
 import androidx.wear.protolayout.proto.LayoutElementProto.Spacer;
 import androidx.wear.protolayout.proto.LayoutElementProto.Span;
@@ -2105,11 +2106,16 @@ public final class ProtoLayoutInflater {
                         .applyPendingChildLayoutParams(layoutParams));
     }
 
-    private static void applyTextOverflow(TextView textView, TextOverflowProp overflow) {
+    private static void applyTextOverflow(
+            TextView textView, TextOverflowProp overflow, MarqueeParameters marqueeParameters) {
         textView.setEllipsize(textTruncationToEllipsize(overflow));
         if (overflow.getValue() == TextOverflow.TEXT_OVERFLOW_MARQUEE
                 && textView.getMaxLines() == 1) {
-            textView.setMarqueeRepeatLimit(-1); // Repeat indefinitely.
+            int marqueeIterations =
+                    marqueeParameters.hasIterations()
+                            ? marqueeParameters.getIterations()
+                            : -1; // Defaults to repeat indefinitely (-1).
+            textView.setMarqueeRepeatLimit(marqueeIterations);
             textView.setSelected(true);
             textView.setSingleLine();
             textView.setHorizontalFadingEdgeEnabled(true);
@@ -2158,7 +2164,7 @@ public final class ProtoLayoutInflater {
         } else {
             textView.setMaxLines(TEXT_MAX_LINES_DEFAULT);
         }
-        applyTextOverflow(textView, text.getOverflow());
+        applyTextOverflow(textView, text.getOverflow(), text.getMarqueeParameters());
 
         // Setting colours **must** go after setting the Text Appearance, otherwise it will get
         // immediately overridden.
@@ -2966,7 +2972,7 @@ public final class ProtoLayoutInflater {
         } else {
             tv.setMaxLines(TEXT_MAX_LINES_DEFAULT);
         }
-        applyTextOverflow(tv, spannable.getOverflow());
+        applyTextOverflow(tv, spannable.getOverflow(), spannable.getMarqueeParameters());
 
         if (spannable.hasLineHeight()) {
             // We use a Span here instead of just calling TextViewCompat#setLineHeight.
