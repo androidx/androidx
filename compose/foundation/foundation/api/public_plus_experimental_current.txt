@@ -1443,7 +1443,7 @@ package androidx.compose.foundation.text2.input {
     field public static final androidx.compose.foundation.text2.input.TextFieldLineLimits.SingleLine INSTANCE;
   }
 
-  @androidx.compose.foundation.ExperimentalFoundationApi public final class TextFieldState {
+  @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public final class TextFieldState {
     ctor public TextFieldState(optional String initialText, optional long initialSelectionInChars);
     method public inline void edit(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.text2.input.TextFieldBuffer,? extends androidx.compose.foundation.text2.input.TextEditResult> block);
     method public androidx.compose.foundation.text2.input.TextFieldCharSequence getText();
@@ -1457,9 +1457,11 @@ package androidx.compose.foundation.text2.input {
   }
 
   public final class TextFieldStateKt {
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static suspend Object? forEachTextValue(androidx.compose.foundation.text2.input.TextFieldState, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.text2.input.TextFieldCharSequence,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<?>);
     method @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static androidx.compose.foundation.text2.input.TextFieldState rememberTextFieldState();
     method @androidx.compose.foundation.ExperimentalFoundationApi public static void setTextAndPlaceCursorAtEnd(androidx.compose.foundation.text2.input.TextFieldState, String text);
     method @androidx.compose.foundation.ExperimentalFoundationApi public static void setTextAndSelectAll(androidx.compose.foundation.text2.input.TextFieldState, String text);
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static kotlinx.coroutines.flow.Flow<androidx.compose.foundation.text2.input.TextFieldCharSequence> textAsFlow(androidx.compose.foundation.text2.input.TextFieldState);
   }
 
   @androidx.compose.foundation.ExperimentalFoundationApi @kotlin.jvm.JvmInline public final value class TextObfuscationMode {

@@ -21,25 +21,55 @@ package androidx.compose.foundation.text2.input
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.internal.EditProcessor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.text.TextRange
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
 
 /**
- * The editable text state of a text field, including both the text itself and position of the
+ * The editable text state of a text field, including both the [text] itself and position of the
  * cursor or selection.
  *
- * To change the state, call [edit].
+ * To change the text field contents programmatically, call [edit], [setTextAndSelectAll], or
+ * [setTextAndPlaceCursorAtEnd]. To observe the value of the field over time, call
+ * [forEachTextValue] or [textAsFlow].
+ *
+ * When instantiating this class from a composable, use [rememberTextFieldState] to automatically
+ * save and restore the field state. For more advanced use cases, pass [TextFieldState.Saver] to
+ * [rememberSaveable].
+ *
+ * @sample androidx.compose.foundation.samples.BasicTextField2StateCompleteSample
  */
 @ExperimentalFoundationApi
+@Stable
 class TextFieldState(
     initialText: String = "",
     initialSelectionInChars: TextRange = TextRange.Zero
 ) {
-
     internal var editProcessor =
         EditProcessor(TextFieldCharSequence(initialText, initialSelectionInChars))
 
+    /**
+     * The current text and selection. This value will automatically update when the user enters
+     * text or otherwise changes the text field contents. To change it programmatically, call
+     * [edit].
+     *
+     * This is backed by snapshot state, so reading this property in a restartable function (e.g.
+     * a composable function) will cause the function to restart when the text field's value
+     * changes.
+     *
+     * To observe changes to this property outside a restartable function, see [forEachTextValue]
+     * and [textValues].
+     *
+     * @sample androidx.compose.foundation.samples.BasicTextField2TextDerivedStateSample
+     *
+     * @see edit
+     * @see forEachTextValue
+     * @see textValues
+     */
     val text: TextFieldCharSequence
         get() = editProcessor.value
 
@@ -50,6 +80,7 @@ class TextFieldState(
      * [TextEditResult] for the full list of prebuilt results).
      *
      * @sample androidx.compose.foundation.samples.BasicTextField2StateEditSample
+     *
      * @see setTextAndPlaceCursorAtEnd
      * @see setTextAndSelectAll
      */
@@ -60,7 +91,7 @@ class TextFieldState(
     }
 
     override fun toString(): String =
-        "TextFieldState(selection=${text.selectionInChars}, text=\"$text\")"
+        "TextFieldState(selectionInChars=${text.selectionInChars}, text=\"$text\")"
 
     @Suppress("ShowingMemberInHiddenClass")
     @PublishedApi
@@ -103,6 +134,15 @@ class TextFieldState(
 }
 
 /**
+ * Returns a [Flow] of the values of [TextFieldState.text] as seen from the global snapshot.
+ * The initial value is emitted immediately when the flow is collected.
+ *
+ * @sample androidx.compose.foundation.samples.BasicTextField2TextValuesSample
+ */
+@ExperimentalFoundationApi
+fun TextFieldState.textAsFlow(): Flow<TextFieldCharSequence> = snapshotFlow { text }
+
+/**
  * Create and remember a [TextFieldState]. The state is remembered using [rememberSaveable] and so
  * will be saved and restored with the composition.
  *
@@ -142,6 +182,27 @@ fun TextFieldState.setTextAndSelectAll(text: String) {
         replace(0, length, text)
         selectAll()
     }
+}
+
+/**
+ * Invokes [block] with the value of [TextFieldState.text], and every time the value is changed.
+ *
+ * The caller will be suspended until its coroutine is cancelled. If the text is changed while
+ * [block] is suspended, [block] will be cancelled and re-executed with the new value immediately.
+ * [block] will never be executed concurrently with itself.
+ *
+ * To get access to a [Flow] of [TextFieldState.text] over time, use [textAsFlow].
+ *
+ * @sample androidx.compose.foundation.samples.BasicTextField2ForEachTextValueSample
+ *
+ * @see textAsFlow
+ */
+@ExperimentalFoundationApi
+suspend fun TextFieldState.forEachTextValue(
+    block: suspend (TextFieldCharSequence) -> Unit
+): Nothing {
+    textAsFlow().collectLatest(block)
+    error("textAsFlow expected not to complete without exception")
 }
 
 @OptIn(ExperimentalFoundationApi::class)
