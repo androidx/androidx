@@ -23,6 +23,7 @@ import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.snapping.MinFlingVelocityDp
 import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -119,6 +120,7 @@ open class BasePagerTest(private val config: ParamConfig) :
         contentPadding: PaddingValues = config.mainAxisContentPadding,
         pageSpacing: Dp = config.pageSpacing,
         reverseLayout: Boolean = config.reverseLayout,
+        snapVelocityThreshold: Dp = MinFlingVelocityDp,
         key: ((index: Int) -> Any)? = null,
         pageContent: @Composable (page: Int) -> Unit = { Page(index = it) }
     ) {
@@ -129,7 +131,8 @@ open class BasePagerTest(private val config: ParamConfig) :
             val flingBehavior =
                 PagerDefaults.flingBehavior(
                     state = state,
-                    pagerSnapDistance = snappingPage
+                    pagerSnapDistance = snappingPage,
+                    snapVelocityThreshold = snapVelocityThreshold
                 )
             CompositionLocalProvider(
                 LocalLayoutDirection provides config.layoutDirection,
