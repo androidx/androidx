@@ -136,7 +136,7 @@ class HierarchicalFocusCoordinatorTest {
         val numItems = 3
         var focused = BooleanArray(numItems * numItems)
         val topSelected = mutableStateOf(0)
-        val bottomSelected = Array(numItems) { mutableStateOf(0) }
+        val bottomSelected = Array<MutableState<Int>>(numItems) { mutableStateOf(0) }
 
         rule.setContent {
             Box {

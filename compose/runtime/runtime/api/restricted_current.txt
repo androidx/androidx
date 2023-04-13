@@ -282,6 +282,13 @@ package androidx.compose.runtime {
     method public inline androidx.compose.runtime.DisposableEffectResult onDispose(kotlin.jvm.functions.Function0<kotlin.Unit> onDisposeEffect);
   }
 
+  @androidx.compose.runtime.Stable @kotlin.jvm.JvmDefaultWithCompatibility public interface DoubleState extends androidx.compose.runtime.State<java.lang.Double> {
+    method public double getDoubleValue();
+    method public default Double getValue();
+    property public abstract double doubleValue;
+    property public default Double value;
+  }
+
   public final class EffectsKt {
     method @Deprecated @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void DisposableEffect(kotlin.jvm.functions.Function1<? super androidx.compose.runtime.DisposableEffectScope,? extends androidx.compose.runtime.DisposableEffectResult> effect);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void DisposableEffect(Object? key1, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.DisposableEffectScope,? extends androidx.compose.runtime.DisposableEffectResult> effect);
@@ -305,7 +312,28 @@ package androidx.compose.runtime {
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface ExplicitGroupsComposable {
   }
 
+  @androidx.compose.runtime.Stable @kotlin.jvm.JvmDefaultWithCompatibility public interface FloatState extends androidx.compose.runtime.State<java.lang.Float> {
+    method public float getFloatValue();
+    method public default Float getValue();
+    property public abstract float floatValue;
+    property public default Float value;
+  }
+
   @androidx.compose.runtime.StableMarker @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface Immutable {
+  }
+
+  @androidx.compose.runtime.Stable @kotlin.jvm.JvmDefaultWithCompatibility public interface IntState extends androidx.compose.runtime.State<java.lang.Integer> {
+    method public int getIntValue();
+    method public default Integer getValue();
+    property public abstract int intValue;
+    property public default Integer value;
+  }
+
+  @androidx.compose.runtime.Stable @kotlin.jvm.JvmDefaultWithCompatibility public interface LongState extends androidx.compose.runtime.State<java.lang.Long> {
+    method public long getLongValue();
+    method public default Long getValue();
+    property public abstract long longValue;
+    property public default Long value;
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface MonotonicFrameClock extends kotlin.coroutines.CoroutineContext.Element {
@@ -337,6 +365,34 @@ package androidx.compose.runtime {
     method public static <R, P1, P2, P3> kotlin.jvm.functions.Function4<R,P1,P2,P3,kotlin.Unit> movableContentWithReceiverOf(kotlin.jvm.functions.Function4<? super R,? super P1,? super P2,? super P3,kotlin.Unit> content);
   }
 
+  @androidx.compose.runtime.Stable @kotlin.jvm.JvmDefaultWithCompatibility public interface MutableDoubleState extends androidx.compose.runtime.DoubleState androidx.compose.runtime.MutableState<java.lang.Double> {
+    method public void setDoubleValue(double);
+    method public default void setValue(double);
+    property public abstract double doubleValue;
+    property public default Double value;
+  }
+
+  @androidx.compose.runtime.Stable @kotlin.jvm.JvmDefaultWithCompatibility public interface MutableFloatState extends androidx.compose.runtime.FloatState androidx.compose.runtime.MutableState<java.lang.Float> {
+    method public void setFloatValue(float);
+    method public default void setValue(float);
+    property public abstract float floatValue;
+    property public default Float value;
+  }
+
+  @androidx.compose.runtime.Stable @kotlin.jvm.JvmDefaultWithCompatibility public interface MutableIntState extends androidx.compose.runtime.IntState androidx.compose.runtime.MutableState<java.lang.Integer> {
+    method public void setIntValue(int);
+    method public default void setValue(int);
+    property public abstract int intValue;
+    property public default Integer value;
+  }
+
+  @androidx.compose.runtime.Stable @kotlin.jvm.JvmDefaultWithCompatibility public interface MutableLongState extends androidx.compose.runtime.LongState androidx.compose.runtime.MutableState<java.lang.Long> {
+    method public void setLongValue(long);
+    method public default void setValue(long);
+    property public abstract long longValue;
+    property public default Long value;
+  }
+
   @androidx.compose.runtime.Stable public interface MutableState<T> extends androidx.compose.runtime.State<T> {
     method public operator T! component1();
     method public operator kotlin.jvm.functions.Function1<T,kotlin.Unit> component2();
@@ -357,6 +413,12 @@ package androidx.compose.runtime {
     method public void resume();
     method public suspend <R> Object? withFrameNanos(kotlin.jvm.functions.Function1<? super java.lang.Long,? extends R> onFrame, kotlin.coroutines.Continuation<? super R>);
     property public final boolean isPaused;
+  }
+
+  public final class PrimitiveSnapshotStateKt {
+    method public static inline operator float getValue(androidx.compose.runtime.FloatState, Object? thisObj, kotlin.reflect.KProperty<?> property);
+    method public static androidx.compose.runtime.MutableFloatState mutableStateOf(float value);
+    method public static inline operator void setValue(androidx.compose.runtime.MutableFloatState, Object? thisObj, kotlin.reflect.KProperty<?> property, float value);
   }
 
   public interface ProduceStateScope<T> extends androidx.compose.runtime.MutableState<T> kotlinx.coroutines.CoroutineScope {
@@ -455,9 +517,34 @@ package androidx.compose.runtime {
     method public inline void update(kotlin.jvm.functions.Function1<? super androidx.compose.runtime.Updater<T>,kotlin.Unit> block);
   }
 
+  public final class SnapshotDoubleStateKt {
+    method public static inline operator double getValue(androidx.compose.runtime.DoubleState, Object? thisObj, kotlin.reflect.KProperty<?> property);
+    method public static androidx.compose.runtime.MutableDoubleState mutableStateOf(double value);
+    method public static inline operator void setValue(androidx.compose.runtime.MutableDoubleState, Object? thisObj, kotlin.reflect.KProperty<?> property, double value);
+  }
+
+  public final class SnapshotIntStateKt {
+    method public static inline operator int getValue(androidx.compose.runtime.IntState, Object? thisObj, kotlin.reflect.KProperty<?> property);
+    method public static androidx.compose.runtime.MutableIntState mutableStateOf(int value);
+    method public static inline operator void setValue(androidx.compose.runtime.MutableIntState, Object? thisObj, kotlin.reflect.KProperty<?> property, int value);
+  }
+
+  public final class SnapshotLongStateKt {
+    method public static inline operator long getValue(androidx.compose.runtime.LongState, Object? thisObj, kotlin.reflect.KProperty<?> property);
+    method public static androidx.compose.runtime.MutableLongState mutableStateOf(long value);
+    method public static inline operator void setValue(androidx.compose.runtime.MutableLongState, Object? thisObj, kotlin.reflect.KProperty<?> property, long value);
+  }
+
   @kotlin.jvm.JvmDefaultWithCompatibility public interface SnapshotMutationPolicy<T> {
     method public boolean equivalent(T? a, T? b);
     method public default T? merge(T? previous, T? current, T? applied);
+  }
+
+  public final class SnapshotStateExtensionsKt {
+    method @androidx.compose.runtime.Stable public static androidx.compose.runtime.DoubleState asDoubleState(androidx.compose.runtime.State<java.lang.Double>);
+    method @androidx.compose.runtime.Stable public static androidx.compose.runtime.FloatState asFloatState(androidx.compose.runtime.State<java.lang.Float>);
+    method @androidx.compose.runtime.Stable public static androidx.compose.runtime.IntState asIntState(androidx.compose.runtime.State<java.lang.Integer>);
+    method @androidx.compose.runtime.Stable public static androidx.compose.runtime.LongState asLongState(androidx.compose.runtime.State<java.lang.Long>);
   }
 
   public final class SnapshotStateKt {
