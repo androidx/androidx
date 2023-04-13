@@ -24,9 +24,10 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation-experimental:1.3.0")
     implementation("androidx.core:core:1.3.2")
     api("androidx.fragment:fragment:1.1.0")
-    api(project(":recyclerview:recyclerview"))
+    api(project(":recyclerview:recyclerview")) // TODO(191302495): pin to RV 1.3.1 once in prebuilts
     implementation("androidx.collection:collection:1.1.0")
 
     androidTestImplementation(libs.multidex)
