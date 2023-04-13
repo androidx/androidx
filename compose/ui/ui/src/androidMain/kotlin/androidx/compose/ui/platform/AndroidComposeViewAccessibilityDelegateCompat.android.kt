@@ -25,6 +25,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
+import android.text.SpannableString
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
@@ -723,6 +724,17 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
     }
 
+    private fun isScreenReaderFocusable(
+        node: SemanticsNode
+    ): Boolean {
+        val isSpeakingNode = node.infoContentDescriptionOrNull != null ||
+            getInfoText(node) != null || getInfoStateDescriptionOrNull(node) != null ||
+            getInfoIsCheckable(node)
+
+        return node.unmergedConfig.isMergingSemanticsOfDescendants ||
+            node.isUnmergedLeafNode && isSpeakingNode
+    }
+
     @VisibleForTesting
     @OptIn(ExperimentalComposeUiApi::class)
     fun populateAccessibilityNodeInfoProperties(
@@ -730,15 +742,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         info: AccessibilityNodeInfoCompat,
         semanticsNode: SemanticsNode
     ) {
-        val isUnmergedLeafNode =
-            !semanticsNode.isFake &&
-                semanticsNode.replacedChildren.isEmpty() &&
-                semanticsNode.layoutNode.findClosestParentNode {
-                    it.outerSemantics
-                        ?.collapsedSemanticsConfiguration()
-                        ?.isMergingSemanticsOfDescendants == true
-                } == null
-
         // set classname
         info.className = ClassName
         val role = semanticsNode.unmergedConfig.getOrNull(SemanticsProperties.Role)
@@ -753,7 +756,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     // Images are often minor children of larger widgets, so we only want to
                     // announce the Image role when the image itself is focusable.
                     if (role != Role.Image ||
-                        isUnmergedLeafNode ||
+                        semanticsNode.isUnmergedLeafNode ||
                         semanticsNode.unmergedConfig.isMergingSemanticsOfDescendants
                     ) {
                         info.className = className
@@ -798,39 +801,17 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
         setText(semanticsNode, info)
         setContentInvalid(semanticsNode, info)
+        setStateDescription(semanticsNode, info)
+        setIsCheckable(semanticsNode, info)
 
-        info.stateDescription =
-            semanticsNode.unmergedConfig.getOrNull(SemanticsProperties.StateDescription)
         val toggleState = semanticsNode.unmergedConfig.getOrNull(
             SemanticsProperties.ToggleableState
         )
         toggleState?.let {
-            info.isCheckable = true
-            when (it) {
-                ToggleableState.On -> {
-                    info.isChecked = true
-                    // Unfortunately, talback has a bug of using "checked", so we set state
-                    // description here
-                    if (role == Role.Switch && info.stateDescription == null) {
-                        info.stateDescription = view.context.resources.getString(R.string.on)
-                    }
-                }
-
-                ToggleableState.Off -> {
-                    info.isChecked = false
-                    // Unfortunately, talkback has a bug of using "not checked", so we set state
-                    // description here
-                    if (role == Role.Switch && info.stateDescription == null) {
-                        info.stateDescription = view.context.resources.getString(R.string.off)
-                    }
-                }
-
-                ToggleableState.Indeterminate -> {
-                    if (info.stateDescription == null) {
-                        info.stateDescription =
-                            view.context.resources.getString(R.string.indeterminate)
-                    }
-                }
+            if (toggleState == ToggleableState.On) {
+                info.isChecked = true
+            } else if (toggleState == ToggleableState.Off) {
+                info.isChecked = false
             }
         }
         semanticsNode.unmergedConfig.getOrNull(SemanticsProperties.Selected)?.let {
@@ -838,18 +819,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 // Tab in native android uses selected property
                 info.isSelected = it
             } else {
-                info.isCheckable = true
                 info.isChecked = it
-                if (info.stateDescription == null) {
-                    // If a radio entry (radio button + text) is selectable, it won't have the role
-                    // RadioButton, so if we use info.isCheckable/info.isChecked, talkback will say
-                    // "checked/not checked" instead "selected/note selected".
-                    info.stateDescription = if (it) {
-                        view.context.resources.getString(R.string.selected)
-                    } else {
-                        view.context.resources.getString(R.string.not_selected)
-                    }
-                }
             }
         }
 
@@ -858,9 +828,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             // content description for such nodes
             semanticsNode.replacedChildren.isEmpty()
         ) {
-            info.contentDescription = semanticsNode.unmergedConfig.getOrNull(
-                SemanticsProperties.ContentDescription
-            )?.firstOrNull()
+            info.contentDescription = semanticsNode.infoContentDescriptionOrNull
         }
 
         // Map testTag to resourceName if testTagsAsResourceId == true (which can be set by an ancestor)
@@ -1065,29 +1033,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     rangeInfo.range.endInclusive,
                     rangeInfo.current
                 )
-                // let's set state description here and use state description change events.
-                // otherwise, we need to send out type_view_selected event, as the old android
-                // versions do. But the support for type_view_selected event for progress bars
-                // maybe deprecated in talkback in the future.
-                if (info.stateDescription == null) {
-                    val valueRange = rangeInfo.range
-                    val progress = (
-                        if (valueRange.endInclusive - valueRange.start == 0f) 0f
-                        else (rangeInfo.current - valueRange.start) /
-                            (valueRange.endInclusive - valueRange.start)
-                        ).coerceIn(0f, 1f)
-
-                    // We only display 0% or 100% when it is exactly 0% or 100%.
-                    val percent = when (progress) {
-                        0f -> 0
-                        1f -> 100
-                        else -> (progress * 100).roundToInt().coerceIn(1, 99)
-                    }
-                    info.stateDescription =
-                        view.context.resources.getString(R.string.template_percent, percent)
-                }
-            } else if (info.stateDescription == null) {
-                info.stateDescription = view.context.resources.getString(R.string.in_progress)
             }
             if (semanticsNode.unmergedConfig.contains(SemanticsActions.SetProgress) &&
                 semanticsNode.enabled()
@@ -1263,12 +1208,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             }
         }
 
-        val isSpeakingNode = info.contentDescription != null || info.text != null ||
-            info.hintText != null || info.stateDescription != null || info.isCheckable
-
-        info.isScreenReaderFocusable =
-            semanticsNode.unmergedConfig.isMergingSemanticsOfDescendants ||
-                isUnmergedLeafNode && isSpeakingNode
+        info.isScreenReaderFocusable = isScreenReaderFocusable(semanticsNode)
 
         if (idToBeforeMap[virtualViewId] != null) {
             idToBeforeMap[virtualViewId]?.let { info.setTraversalBefore(view, it) }
@@ -1293,10 +1233,131 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
     }
 
-    private fun setText(
+    private fun getInfoStateDescriptionOrNull(
+        node: SemanticsNode
+    ): String? {
+        var stateDescription = node.unmergedConfig.getOrNull(SemanticsProperties.StateDescription)
+        val toggleState = node.unmergedConfig.getOrNull(SemanticsProperties.ToggleableState)
+        val role = node.unmergedConfig.getOrNull(SemanticsProperties.Role)
+
+        // Check toggle state and retrieve description accordingly
+        toggleState?.let {
+            when (it) {
+                ToggleableState.On -> {
+                    // Unfortunately, talkback has a bug of using "checked", so we set state
+                    // description here
+                    if (role == Role.Switch && stateDescription == null) {
+                        stateDescription = view.context.resources.getString(R.string.on)
+                    }
+                }
+
+                ToggleableState.Off -> {
+                    // Unfortunately, talkback has a bug of using "not checked", so we set state
+                    // description here
+                    if (role == Role.Switch && stateDescription == null) {
+                        stateDescription = view.context.resources.getString(R.string.off)
+                    }
+                }
+
+                ToggleableState.Indeterminate -> {
+                    if (stateDescription == null) {
+                        stateDescription =
+                            view.context.resources.getString(R.string.indeterminate)
+                    }
+                }
+            }
+        }
+
+        // Check Selected property and retrieve description accordingly
+        node.unmergedConfig.getOrNull(SemanticsProperties.Selected)?.let {
+            if (role != Role.Tab) {
+                if (stateDescription == null) {
+                    // If a radio entry (radio button + text) is selectable, it won't have the role
+                    // RadioButton, so if we use info.isCheckable/info.isChecked, talkback will say
+                    // "checked/not checked" instead "selected/note selected".
+                    stateDescription = if (it) {
+                        view.context.resources.getString(R.string.selected)
+                    } else {
+                        view.context.resources.getString(R.string.not_selected)
+                    }
+                }
+            }
+        }
+
+        // Check if a node has progress bar range info and retrieve description accordingly
+        val rangeInfo =
+            node.unmergedConfig.getOrNull(SemanticsProperties.ProgressBarRangeInfo)
+        rangeInfo?.let {
+            // let's set state description here and use state description change events.
+            // otherwise, we need to send out type_view_selected event, as the old android
+            // versions do. But the support for type_view_selected event for progress bars
+            // maybe deprecated in talkback in the future.
+            if (rangeInfo !== ProgressBarRangeInfo.Indeterminate) {
+                if (stateDescription == null) {
+                    val valueRange = rangeInfo.range
+                    val progress = (
+                        if (valueRange.endInclusive - valueRange.start == 0f) 0f
+                        else (rangeInfo.current - valueRange.start) /
+                            (valueRange.endInclusive - valueRange.start)
+                        ).coerceIn(0f, 1f)
+
+                    // We only display 0% or 100% when it is exactly 0% or 100%.
+                    val percent = when (progress) {
+                        0f -> 0
+                        1f -> 100
+                        else -> (progress * 100).roundToInt().coerceIn(1, 99)
+                    }
+                    stateDescription =
+                        view.context.resources.getString(R.string.template_percent, percent)
+                }
+            } else if (stateDescription == null) {
+                stateDescription = view.context.resources.getString(R.string.in_progress)
+            }
+        }
+
+        return stateDescription
+    }
+
+    private fun setStateDescription(
         node: SemanticsNode,
         info: AccessibilityNodeInfoCompat,
     ) {
+        info.stateDescription = getInfoStateDescriptionOrNull(node)
+    }
+
+    private fun getInfoIsCheckable(
+        node: SemanticsNode
+    ): Boolean {
+        var isCheckable = false
+        val toggleState = node.unmergedConfig.getOrNull(SemanticsProperties.ToggleableState)
+        val role = node.unmergedConfig.getOrNull(SemanticsProperties.Role)
+
+        toggleState?.let {
+            isCheckable = true
+        }
+
+        node.unmergedConfig.getOrNull(SemanticsProperties.Selected)?.let {
+            if (role != Role.Tab) {
+                isCheckable = true
+            }
+        }
+
+        return isCheckable
+    }
+
+    private fun setIsCheckable(
+        node: SemanticsNode,
+        info: AccessibilityNodeInfoCompat
+    ) {
+        info.isCheckable = getInfoIsCheckable(node)
+    }
+
+    // This needs to be here instead of around line 3000 because we need access to the `view`
+    // that is inside the `AndroidComposeViewAccessibilityDelegateCompat` class
+    @OptIn(InternalTextApi::class)
+    private fun getInfoText(
+        node: SemanticsNode
+    ): SpannableString? {
         val fontFamilyResolver: FontFamily.Resolver = view.fontFamilyResolver
         val editableTextToAssign = trimToSize(
             node.unmergedConfig.getTextForTextField()
@@ -1317,8 +1378,14 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 ),
             ParcelSafeTextLength
         )
+        return editableTextToAssign ?: textToAssign
+    }
 
-        info.text = editableTextToAssign ?: textToAssign
+    private fun setText(
+        node: SemanticsNode,
+        info: AccessibilityNodeInfoCompat,
+    ) {
+        info.text = getInfoText(node)
     }
 
     /**
@@ -3207,6 +3274,9 @@ private val SemanticsNode.semanticsNodeIsStructurallySignificant: Boolean
         }
         return false
     }
+
+private val SemanticsNode.infoContentDescriptionOrNull get() = this.unmergedConfig.getOrNull(
+    SemanticsProperties.ContentDescription)?.firstOrNull()
 
 @OptIn(ExperimentalComposeUiApi::class)
 private fun SemanticsNode.excludeLineAndPageGranularities(): Boolean {
