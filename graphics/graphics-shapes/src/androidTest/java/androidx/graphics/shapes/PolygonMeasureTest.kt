@@ -23,7 +23,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 @SmallTest
-class RoundedPolygonMeasureTest {
+class PolygonMeasureTest {
     @Test
     fun triangleAngleMeasure() = polygonAngleMeasure(3)
 

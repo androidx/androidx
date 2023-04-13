@@ -38,6 +38,12 @@ internal class MeasuredPolygon : AbstractList<MeasuredPolygon.MeasuredCubic> {
         this.measurer = measurer
         this.features = features
 
+        if (DEBUG) {
+            debugLog(LOG_TAG) {
+                "CTOR: cubics = " + cubics.joinToString() +
+                    "\nCTOR: op = " + outlineProgress.joinToString()
+            }
+        }
         val measuredCubics = mutableListOf<MeasuredCubic>()
         var startOutlineProgress = 0f
         cubics.forEachIndexed { index, cubic ->
@@ -83,20 +89,13 @@ internal class MeasuredPolygon : AbstractList<MeasuredPolygon.MeasuredCubic> {
         var endOutlineProgress = endOutlineProgress
             private set
 
-        fun updateProgressRange(
+        internal fun updateProgressRange(
             startOutlineProgress: Float = this.startOutlineProgress,
             endOutlineProgress: Float = this.endOutlineProgress
         ) {
             require(endOutlineProgress >= startOutlineProgress)
             this.startOutlineProgress = startOutlineProgress
             this.endOutlineProgress = endOutlineProgress
-        }
-
-        // Modify both startProgress and endProgress by the given delta.
-        // Is the caller's responsibility to keep it in the [0..1] range
-        internal fun shift(delta: Float) {
-            startOutlineProgress += delta
-            endOutlineProgress += delta
         }
 
         /**
@@ -130,8 +129,6 @@ internal class MeasuredPolygon : AbstractList<MeasuredPolygon.MeasuredCubic> {
             return MeasuredCubic(c1, startOutlineProgress, cutOutlineProgress) to
                 MeasuredCubic(c2, cutOutlineProgress, endOutlineProgress)
         }
-
-        fun isNotEmpty() = measuredSize > DistanceEpsilon
 
         override fun toString(): String {
             return "MeasuredCubic(outlineProgress=" +
@@ -167,6 +164,8 @@ internal class MeasuredPolygon : AbstractList<MeasuredPolygon.MeasuredCubic> {
         cuttingPoint: Float
     ): MeasuredPolygon {
         require(cuttingPoint in 0f..1f)
+        if (cuttingPoint < DistanceEpsilon) return this
+
         val n = cubics.size
         // Find the index of cubic we want to cut
         val targetIndex = cubics.indexOfFirst {

@@ -20,13 +20,14 @@ import android.graphics.PointF
 import androidx.core.graphics.plus
 import androidx.core.graphics.times
 import androidx.test.filters.SmallTest
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 @SmallTest
 class RoundedPolygonTest {
 
     val rounding = CornerRounding(.1f)
-    val perVtxRounded = listOf<CornerRounding>(rounding, rounding, rounding, rounding)
+    val perVtxRounded = listOf(rounding, rounding, rounding, rounding)
 
     @Test
     fun numVertsConstructorTest() {
@@ -36,8 +37,8 @@ class RoundedPolygonTest {
         assertInBounds(square.toCubicShape(), min, max)
 
         val doubleSquare = RoundedPolygon(4, 2f)
-        min = min * 2f
-        max = max * 2f
+        min *= 2f
+        max *= 2f
         assertInBounds(doubleSquare.toCubicShape(), min, max)
 
         val squareRounded = RoundedPolygon(4, rounding = rounding)
@@ -79,5 +80,33 @@ class RoundedPolygonTest {
         min = PointF(-1f, -1f)
         max = PointF(1f, 1f)
         assertInBounds(manualSquarePVRounded.toCubicShape(), min, max)
+    }
+
+    @Test
+    fun roundingSpaceUsageTest() {
+        val p0 = PointF(0f, 0f)
+        val p1 = PointF(1f, 0f)
+        val p2 = PointF(0.5f, 1f)
+        val pvRounding = listOf(
+            CornerRounding(1f, 0f),
+            CornerRounding(1f, 1f),
+            CornerRounding.Unrounded,
+        )
+        val polygon = RoundedPolygon(
+            vertices = listOf(p0, p1, p2),
+            perVertexRounding = pvRounding
+        )
+
+        // Since there is not enough room in the p0 -> p1 side even for the roundings, we shouldn't
+        // take smoothing into account, so the corners should end in the middle point.
+        val lowerEdgeFeature = polygon.features.first { it is RoundedPolygon.Edge }
+            as RoundedPolygon.Edge
+        assertEquals(1, lowerEdgeFeature.cubics.size)
+
+        val lowerEdge = lowerEdgeFeature.cubics.first()
+        assertEqualish(0.5f, lowerEdge.p0.x)
+        assertEqualish(0.0f, lowerEdge.p0.y)
+        assertEqualish(0.5f, lowerEdge.p3.x)
+        assertEqualish(0.0f, lowerEdge.p3.y)
     }
 }

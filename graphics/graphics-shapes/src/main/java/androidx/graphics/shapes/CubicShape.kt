@@ -42,7 +42,6 @@ class CubicShape internal constructor() {
     constructor(cubics: List<Cubic>) : this() {
         val copy = mutableListOf<Cubic>()
         var prevCubic = cubics[cubics.size - 1]
-        var index = 0
         for (cubic in cubics) {
             if (cubic.p0 != prevCubic.p3) {
                 throw IllegalArgumentException("CubicShapes must be contiguous, with the anchor " +
@@ -51,7 +50,6 @@ class CubicShape internal constructor() {
             }
             prevCubic = cubic
             copy.add(Cubic(cubic.p0, cubic.p1, cubic.p2, cubic.p3))
-            index++
         }
         updateCubics(copy)
     }
@@ -133,7 +131,7 @@ class CubicShape internal constructor() {
      */
     private fun updatePath() {
         path.rewind()
-        if (cubics.size > 0) {
+        if (cubics.isNotEmpty()) {
             path.moveTo(cubics[0].p0.x, cubics[0].p0.y)
             for (bezier in cubics) {
                 path.cubicTo(
@@ -187,17 +185,7 @@ class CubicShape internal constructor() {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as CubicShape
-
-        val otherCubics = other.cubics
-        if (cubics.size != otherCubics.size) return false
-        for (i in 0 until cubics.size) {
-            val cubic = cubics[i]
-            val otherCubic = otherCubics[i]
-            if (!cubic.equals(otherCubic)) return false
-        }
-
-        return true
+        return cubics == (other as CubicShape).cubics
     }
 
     override fun hashCode(): Int {
