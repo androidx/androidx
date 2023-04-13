@@ -2297,6 +2297,9 @@ public abstract class Transition implements Cloneable {
             clone.mStartValuesList = null;
             clone.mEndValuesList = null;
             clone.mSeekController = null;
+            if (mListeners != null) {
+                clone.mListeners = new ArrayList<>(mListeners);
+            }
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
@@ -2376,7 +2379,11 @@ public abstract class Transition implements Cloneable {
         if ((playTimeMillis > duration && lastPlayTimeMillis <= duration)
                 || (playTimeMillis < 0 && lastPlayTimeMillis >= 0)
         ) {
-            mEnded = true;
+            if (playTimeMillis > duration) {
+                // Only mark it as finished after the end. Otherwise, it won't
+                // receive pause/resume calls.
+                mEnded = true;
+            }
             notifyListeners(TransitionNotification.ON_END);
         }
     }

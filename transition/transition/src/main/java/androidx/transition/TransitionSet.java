@@ -616,7 +616,9 @@ public class TransitionSet extends Transition {
         if (mParent != null && ((playTimeMillis > duration && lastPlayTimeMillis <= duration)
                 || (playTimeMillis < 0 && lastPlayTimeMillis >= 0))
         ) {
-            mEnded = true;
+            if (playTimeMillis > duration) {
+                mEnded = true;
+            }
             notifyListeners(TransitionNotification.ON_END);
         }
     }
