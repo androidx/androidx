@@ -298,7 +298,11 @@ internal class LookaheadScopeImpl(
 ) : LookaheadScope {
     override fun LayoutCoordinates.toLookaheadCoordinates(): LayoutCoordinates {
         return this as? LookaheadLayoutCoordinatesImpl
-            ?: (this as NodeCoordinator).lookaheadDelegate!!.lookaheadLayoutCoordinates
+            ?: (this as NodeCoordinator).let {
+                // If the coordinator has no lookahead delegate. Its
+                // lookahead coords is the same as its coords
+                it.lookaheadDelegate?.lookaheadLayoutCoordinates ?: it
+            }
     }
 
     override val Placeable.PlacementScope.lookaheadScopeCoordinates: LayoutCoordinates

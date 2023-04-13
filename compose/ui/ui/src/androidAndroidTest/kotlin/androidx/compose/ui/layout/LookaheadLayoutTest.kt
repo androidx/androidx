@@ -117,31 +117,34 @@ class LookaheadLayoutTest {
         }
 
         val root = node {
-            generateRandomPlaceOrder()
             add(LayoutNode(isVirtual = true).apply {
                 isVirtualLookaheadRoot = true
-                add(nodeList[0])
-                add(LayoutNode(isVirtual = true).apply {
-                    repeat(4) {
-                        add(nodeList[it + 1])
+                add(node {
+                    generateRandomPlaceOrder()
+                    add(nodeList[0])
+                    add(LayoutNode(isVirtual = true).apply {
+                        repeat(4) {
+                            add(nodeList[it + 1])
+                        }
+                    })
+                    add(LayoutNode(isVirtual = true).apply {
+                        repeat(5) {
+                            add(nodeList[5 + it])
+                        }
+                    })
+                    measurePolicy = MeasurePolicy { measurables, constraints ->
+                        assertEquals(10, measurables.size)
+                        val placeables = measurables.fastMap { it.measure(constraints) }
+                        assertEquals(10, placeables.size)
+                        layout(100, 100) {
+                            placementOrder.fastForEach { id ->
+                                placeables[id].place(0, 0)
+                            }
+                        }
                     }
                 })
-                add(LayoutNode(isVirtual = true).apply {
-                    repeat(5) {
-                        add(nodeList[5 + it])
-                    }
-                })
-            })
-            measurePolicy = MeasurePolicy { measurables, constraints ->
-                assertEquals(10, measurables.size)
-                val placeables = measurables.fastMap { it.measure(constraints) }
-                assertEquals(10, placeables.size)
-                layout(100, 100) {
-                    placementOrder.fastForEach { id ->
-                        placeables[id].place(0, 0)
-                    }
-                }
             }
+            )
         }
         val delegate = createDelegate(root)
         repeat(5) {
@@ -150,7 +153,7 @@ class LookaheadLayoutTest {
                 assertEquals(placeOrder, nodeList[nodeId].measurePassDelegate.placeOrder)
             }
             generateRandomPlaceOrder()
-            root.requestLookaheadRemeasure()
+            root.children[0].requestLookaheadRemeasure()
             delegate.measureAndLayout()
         }
     }
@@ -1052,15 +1055,15 @@ class LookaheadLayoutTest {
         var fraction: Float by mutableStateOf(0f)
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                Row(
-                    Modifier
-                        .height(IntrinsicSize.Max)
-                        .onGloballyPositioned {
-                            rowHeight = it.size.height
-                        }
-                        .fillMaxWidth()
-                ) {
-                    LookaheadScope {
+                LookaheadScope {
+                    Row(
+                        Modifier
+                            .height(IntrinsicSize.Max)
+                            .onGloballyPositioned {
+                                rowHeight = it.size.height
+                            }
+                            .fillMaxWidth()
+                    ) {
                         Box(
                             Modifier
                                 .intermediateLayout { measurable, constraints ->
@@ -1102,15 +1105,15 @@ class LookaheadLayoutTest {
         var fraction: Float by mutableStateOf(0f)
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                Row(
-                    Modifier
-                        .height(IntrinsicSize.Min)
-                        .onGloballyPositioned {
-                            rowHeight = it.size.height
-                        }
-                        .fillMaxWidth()
-                ) {
-                    LookaheadScope {
+                LookaheadScope {
+                    Row(
+                        Modifier
+                            .height(IntrinsicSize.Min)
+                            .onGloballyPositioned {
+                                rowHeight = it.size.height
+                            }
+                            .fillMaxWidth()
+                    ) {
                         Box(
                             Modifier
                                 .intermediateLayout { measurable, constraints ->
@@ -1152,15 +1155,15 @@ class LookaheadLayoutTest {
         var fraction: Float by mutableStateOf(0f)
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                Column(
-                    Modifier
-                        .width(IntrinsicSize.Min)
-                        .onGloballyPositioned {
-                            rowWidth = it.size.width
-                        }
-                        .height(50.dp)
-                ) {
-                    LookaheadScope {
+                LookaheadScope {
+                    Column(
+                        Modifier
+                            .width(IntrinsicSize.Min)
+                            .onGloballyPositioned {
+                                rowWidth = it.size.width
+                            }
+                            .height(50.dp)
+                    ) {
                         Box(
                             Modifier
                                 .intermediateLayout { measurable, constraints ->
@@ -1209,14 +1212,14 @@ class LookaheadLayoutTest {
         var fraction: Float by mutableStateOf(0f)
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                Box(
-                    Modifier
-                        .height(50.dp)
-                        .width(IntrinsicSize.Max)
-                        .onGloballyPositioned {
-                            boxSize = it.size
-                        }) {
-                    LookaheadScope {
+                LookaheadScope {
+                    Box(
+                        Modifier
+                            .height(50.dp)
+                            .width(IntrinsicSize.Max)
+                            .onGloballyPositioned {
+                                boxSize = it.size
+                            }) {
                         Box(
                             Modifier
                                 .intermediateLayout { measurable, constraints ->
@@ -2063,8 +2066,31 @@ class LookaheadLayoutTest {
                             Offset.Zero
                         )
                     )
+                    // Also check that localPositionOf with non-zero offset works
+                    // correctly for lookahead coordinates and LayoutCoordinates.
+                    val randomOffset = Offset(
+                        Random.nextInt(0, 1000).toFloat(),
+                        Random.nextInt(0, 1000).toFloat()
+                    )
+                    assertEquals(
+                        lookaheadLayoutCoordinates!!.toLookaheadCoordinates().localPositionOf(
+                            onPlacedCoordinates!!.toLookaheadCoordinates(),
+                            randomOffset
+                            ),
+                        lookaheadLayoutCoordinates!!.localPositionOf(
+                            onPlacedCoordinates!!,
+                            randomOffset
+                        )
+                    )
                 }
         }
+    }
+
+    // This is needed because Offset comparison would fail when comparing -0.0f to 0.0f in one
+    // or both of its dimensions.
+    private fun assertEquals(expected: Offset, actual: Offset?) {
+        assertEquals(expected.x, actual!!.x, 0f)
+        assertEquals(expected.y, actual.y, 0f)
     }
 
     private fun Modifier.trackSizeAndPosition(
