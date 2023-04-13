@@ -43,6 +43,7 @@ public class InvalidVideoProfilesQuirk implements Quirk {
     static final List<String> AFFECTED_MODELS = Arrays.asList(
             "pixel 4",
             "pixel 4a",
+            "pixel 4a (5g)",
             "pixel 4 xl",
             "pixel 5",
             "pixel 5a",
