@@ -151,9 +151,15 @@ def create_file(path):
 
 def generate_package_name(group_id, artifact_id):
     final_group_id_word = group_id.split(".")[-1]
-    artifact_id_suffix = artifact_id.replace(final_group_id_word, "")
+    artifact_id_suffix = re.sub(r"\b%s\b" % final_group_id_word, "", artifact_id)
     artifact_id_suffix = artifact_id_suffix.replace("-", ".")
-    return group_id + artifact_id_suffix
+    if (final_group_id_word == artifact_id):
+      return group_id +  artifact_id_suffix
+    elif (final_group_id_word != artifact_id):
+      if ("." in artifact_id_suffix):
+        return group_id +  artifact_id_suffix
+      else:
+        return group_id + "." + artifact_id_suffix
 
 def validate_name(group_id, artifact_id):
     if not group_id.startswith("androidx."):
