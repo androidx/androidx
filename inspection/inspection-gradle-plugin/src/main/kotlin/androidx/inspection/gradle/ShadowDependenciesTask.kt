@@ -39,7 +39,7 @@ fun Project.registerShadowDependenciesTask(
 ): TaskProvider<ShadowJar> {
     val versionTask = project.registerGenerateInspectionPlatformVersionTask(variant)
     return tasks.register(
-        variant.taskName("shadowDependencies"),
+        variant.taskName("inspectionShadowDependencies"),
         ShadowJar::class.java
     ) {
         it.dependsOn(versionTask)

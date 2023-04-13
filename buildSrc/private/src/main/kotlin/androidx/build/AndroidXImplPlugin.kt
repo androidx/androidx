@@ -34,6 +34,7 @@ import androidx.build.docs.AndroidXKmpDocsImplPlugin
 import androidx.build.gradle.isRoot
 import androidx.build.license.configureExternalDependencyLicenseCheck
 import androidx.build.resources.configurePublicResourcesStub
+import androidx.build.sbom.validateAllArchiveInputsRecognized
 import androidx.build.studio.StudioTask
 import androidx.build.testConfiguration.addAppApkToTestConfigGeneration
 import androidx.build.testConfiguration.addToTestZips
@@ -154,6 +155,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         }
         project.configureConstraintsWithinGroup(extension)
         project.validateProjectParser(extension)
+        project.validateAllArchiveInputsRecognized()
     }
 
     private fun Project.registerProjectOrArtifact() {
