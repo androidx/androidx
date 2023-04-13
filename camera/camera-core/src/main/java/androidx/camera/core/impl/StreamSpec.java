@@ -16,10 +16,12 @@
 
 package androidx.camera.core.impl;
 
+import android.hardware.camera2.CameraMetadata;
 import android.util.Range;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.DynamicRange;
 
@@ -59,6 +61,14 @@ public abstract class StreamSpec {
      */
     @NonNull
     public abstract Range<Integer> getExpectedFrameRateRange();
+
+    /**
+     * Returns the implementation options associated with this stream
+     * specification.
+     * @return the implementation options for the stream.
+     */
+    @Nullable
+    public abstract Config getImplementationOptions();
 
     /** Returns a build for a stream configuration that takes a required resolution. */
     @NonNull
@@ -100,6 +110,15 @@ public abstract class StreamSpec {
          */
         @NonNull
         public abstract Builder setExpectedFrameRateRange(@NonNull Range<Integer> range);
+
+        /**
+         * Sets the implementation options.
+         *
+         * <p>If not set, the default expected frame rate range is
+         * {@link CameraMetadata#SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT}.
+         */
+        @NonNull
+        public abstract Builder setImplementationOptions(@NonNull Config config);
 
         /** Builds the stream specification */
         @NonNull

@@ -20,6 +20,9 @@ import android.os.Build
 import android.util.Range
 import android.util.Size
 import androidx.camera.core.DynamicRange
+import androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT
+import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
+import androidx.camera.testing.fakes.FakeUseCaseConfig
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -70,8 +73,30 @@ class StreamSpecTest {
         assertThat(streamSpec.expectedFrameRateRange).isEqualTo(TEST_EXPECTED_FRAME_RATE_RANGE)
     }
 
+    @Test
+    fun defaultImplementationOptionsIsNull() {
+        val streamSpec = StreamSpec.builder(TEST_RESOLUTION).build()
+
+        assertThat(streamSpec.implementationOptions)
+            .isNull()
+    }
+
+    @Test
+    fun canRetrieveStreamUseCase() {
+        val streamSpec = StreamSpec.builder(TEST_RESOLUTION)
+            .setImplementationOptions(TEST_IMPLEMENTATION_OPTION)
+            .build()
+
+        assertThat(streamSpec.implementationOptions!!.containsOption(OPTION_INPUT_FORMAT)).isTrue()
+        assertThat(streamSpec.implementationOptions!!.retrieveOption(OPTION_INPUT_FORMAT))
+            .isEqualTo(TEST_INPUT_FORMAT)
+    }
+
     companion object {
         private val TEST_RESOLUTION = Size(640, 480)
         private val TEST_EXPECTED_FRAME_RATE_RANGE = Range(30, 30)
+        private const val TEST_INPUT_FORMAT = 1
+        private val TEST_IMPLEMENTATION_OPTION =
+            FakeUseCaseConfig.Builder(CaptureType.PREVIEW, TEST_INPUT_FORMAT).useCaseConfig.config
     }
 }

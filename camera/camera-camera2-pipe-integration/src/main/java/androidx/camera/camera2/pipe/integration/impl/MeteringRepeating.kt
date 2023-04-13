@@ -78,7 +78,7 @@ class MeteringRepeating(
     override fun onSuggestedStreamSpecUpdated(suggestedStreamSpec: StreamSpec): StreamSpec {
         updateSessionConfig(createPipeline(meteringSurfaceSize).build())
         notifyActive()
-        return StreamSpec.builder(meteringSurfaceSize).build()
+        return suggestedStreamSpec.toBuilder().setResolution(meteringSurfaceSize).build()
     }
 
     override fun onUnbind() {
