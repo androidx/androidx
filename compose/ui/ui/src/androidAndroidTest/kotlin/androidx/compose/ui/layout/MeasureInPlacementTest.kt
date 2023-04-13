@@ -109,8 +109,8 @@ class MeasureInPlacementTest {
     }
 
     /**
-     * Make sure that measurement in the layout modifier's placement block doesn't crash when
-     * LookaheadLayout is used.
+     * Make sure that measurement in the layout modifier's placement block doesn't crash in
+     * lookahead scope.
      */
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
@@ -141,8 +141,8 @@ class MeasureInPlacementTest {
     }
 
     /**
-     * Make sure that measurement in the layout's placement block doesn't crash when
-     * LookaheadLayout is used.
+     * Make sure that measurement in the layout's placement block doesn't crash in
+     * lookahead scope.
      */
     @OptIn(ExperimentalComposeUiApi::class)
     @Test

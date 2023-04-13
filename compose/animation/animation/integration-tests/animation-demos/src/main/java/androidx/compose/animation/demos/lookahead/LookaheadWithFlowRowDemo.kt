@@ -65,7 +65,7 @@ fun LookaheadWithFlowRowDemo() {
                 .background(Color(0xfffdedac), RoundedCornerShape(10))
                 .padding(10.dp)
         ) {
-            Text("LookaheadLayout + Modifier.animateBounds")
+            Text("LookaheadScope + Modifier.animateBounds")
             LookaheadScope {
                 MyFlowRow(
                     modifier = Modifier
