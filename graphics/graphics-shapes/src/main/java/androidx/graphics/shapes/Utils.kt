@@ -85,10 +85,6 @@ internal val Zero = PointF(0f, 0f)
 
 internal val FloatPi = Math.PI.toFloat()
 
-internal fun Float.toRadians(): Float {
-    return this / 360f * TwoPi
-}
-
 internal val TwoPi: Float = 2 * Math.PI.toFloat()
 
 internal fun directionVector(angleRadians: Float) = PointF(cos(angleRadians), sin(angleRadians))
@@ -102,8 +98,6 @@ internal fun PointF.angle() = ((atan2(y, x) + TwoPi) % TwoPi)
 
 internal fun radialToCartesian(radius: Float, angleRadians: Float, center: PointF = Zero) =
     directionVector(angleRadians) * radius + center
-
-internal fun <T> Iterable<T>.sumOf(f: (T) -> Float) = map(f).sum()
 
 internal fun positiveModule(num: Float, mod: Float) = (num % mod + mod) % mod
 

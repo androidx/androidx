@@ -86,6 +86,7 @@ fun Star(
             listOf(rounding, innerRounding)
         }
     }
+
     // Star polygon is just a polygon with all vertices supplied (where we generate
     // those vertices to be on the inner/outer radii)
     return RoundedPolygon((0 until numVerticesPerRadius).flatMap {
