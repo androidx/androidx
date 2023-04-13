@@ -321,7 +321,7 @@ class AppInteractionServiceGrpcImplTest {
 
         // Verify capability session is created
         val mockSession = createMockSession()
-        whenever(mockSession.status).thenReturn(CapabilitySession.Status.COMPLETED)
+        whenever(mockSession.isActive).thenReturn(false)
         whenever(capability1.createSession(any(), any())).thenReturn(mockSession)
         assertStartupSession(stub)
         verify(capability1, times(1)).createSession(any(), any())
@@ -392,7 +392,7 @@ class AppInteractionServiceGrpcImplTest {
         }
         whenever(mockSession.sessionId).thenReturn(sessionId)
         whenever(mockSession.state).thenReturn(AppDialogState.getDefaultInstance())
-        whenever(mockSession.status).thenReturn(CapabilitySession.Status.UNINITIATED)
+        whenever(mockSession.isActive).thenReturn(true)
         whenever(mockSession.uiHandle).thenReturn(Any())
         return mockSession
     }
