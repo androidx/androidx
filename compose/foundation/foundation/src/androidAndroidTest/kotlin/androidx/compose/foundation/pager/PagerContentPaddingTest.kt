@@ -74,10 +74,12 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
 
     @Test
     fun contentPaddingIsApplied() {
+        val state = PagerState()
         val containerSize = pageTotalSize * 2
         val largePaddingSize = pageTotalSize
 
         createPager(
+            state = state,
             modifier = Modifier
                 .requiredSize(containerSize)
                 .testTag(PagerTag),
@@ -102,7 +104,7 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
             .assertCrossAxisSizeIsEqualTo(containerSize - smallPaddingSize * 2)
             .assertMainAxisSizeIsEqualTo(pageTotalSize)
 
-        pagerState.scrollBy(largePaddingSize)
+        state.scrollBy(largePaddingSize)
 
         rule.onNodeWithTag(PageTag)
             .assertStartPositionInRootIsEqualTo(0.dp)
@@ -111,7 +113,10 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
 
     @Test
     fun contentPaddingIsNotAffectingScrollPosition() {
+        val state = PagerState()
+
         createPager(
+            state = state,
             modifier = Modifier
                 .requiredSize(pageTotalSize * 2)
                 .testTag(PagerTag),
@@ -127,17 +132,19 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
             )
         }
 
-        pagerState.assertScrollPosition(0, 0.dp)
+        state.assertScrollPosition(0, 0.dp)
 
-        pagerState.scrollBy(pageTotalSize)
+        state.scrollBy(pageTotalSize)
 
-        pagerState.assertScrollPosition(0, pageTotalSize)
+        state.assertScrollPosition(0, pageTotalSize)
     }
 
     @Test
     fun scrollForwardItemWithinStartPaddingDisplayed() {
+        val state = PagerState()
         val padding = pageTotalSize * 1.5f
         createPager(
+            state = state,
             modifier = Modifier
                 .requiredSize(padding * 2 + pageTotalSize)
                 .testTag(PagerTag),
@@ -159,9 +166,9 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
         rule.onNodeWithTag("2")
             .assertStartPositionInRootIsEqualTo(pageTotalSize * 2 + padding)
 
-        pagerState.scrollBy(padding)
+        state.scrollBy(padding)
 
-        pagerState.assertScrollPosition(1, padding - pageTotalSize)
+        state.assertScrollPosition(1, padding - pageTotalSize)
 
         rule.onNodeWithTag("0")
             .assertStartPositionInRootIsEqualTo(0.dp)
@@ -175,8 +182,10 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
 
     @Test
     fun scrollBackwardItemWithinStartPaddingDisplayed() {
+        val state = PagerState()
         val padding = pageTotalSize * 1.5f
         createPager(
+            state = state,
             modifier = Modifier
                 .requiredSize(padding * 2 + pageTotalSize)
                 .testTag(PagerTag),
@@ -191,10 +200,10 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
             )
         }
 
-        pagerState.scrollBy(pageTotalSize * 3)
-        pagerState.scrollBy(-pageTotalSize * 1.5f)
+        state.scrollBy(pageTotalSize * 3)
+        state.scrollBy(-pageTotalSize * 1.5f)
 
-        pagerState.assertScrollPosition(1, pageTotalSize * 0.5f)
+        state.assertScrollPosition(1, pageTotalSize * 0.5f)
 
         rule.onNodeWithTag("0")
             .assertStartPositionInRootIsEqualTo(pageTotalSize * 1.5f - padding)
@@ -208,8 +217,10 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
 
     @Test
     fun scrollForwardTillTheEnd() {
+        val state = PagerState()
         val padding = pageTotalSize * 1.5f
         createPager(
+            state = state,
             modifier = Modifier
                 .requiredSize(padding * 2 + pageTotalSize)
                 .testTag(PagerTag),
@@ -224,9 +235,9 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
             )
         }
 
-        pagerState.scrollBy(pageTotalSize * 3)
+        state.scrollBy(pageTotalSize * 3)
 
-        pagerState.assertScrollPosition(3, 0.dp)
+        state.assertScrollPosition(3, 0.dp)
 
         rule.onNodeWithTag("1")
             .assertStartPositionInRootIsEqualTo(pageTotalSize - padding)
@@ -236,9 +247,9 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
             .assertStartPositionInRootIsEqualTo(pageTotalSize * 3 - padding)
 
         // there are no space to scroll anymore, so it should change nothing
-        pagerState.scrollBy(10.dp)
+        state.scrollBy(10.dp)
 
-        pagerState.assertScrollPosition(3, 0.dp)
+        state.assertScrollPosition(3, 0.dp)
 
         rule.onNodeWithTag("1")
             .assertStartPositionInRootIsEqualTo(pageTotalSize - padding)
@@ -250,8 +261,10 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
 
     @Test
     fun scrollForwardTillTheEndAndABitBack() {
+        val state = PagerState()
         val padding = pageTotalSize * 1.5f
         createPager(
+            state = state,
             modifier = Modifier
                 .requiredSize(padding * 2 + pageTotalSize)
                 .testTag(PagerTag),
@@ -266,10 +279,10 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
             )
         }
 
-        pagerState.scrollBy(pageTotalSize * 3)
-        pagerState.scrollBy(-pageTotalSize / 2)
+        state.scrollBy(pageTotalSize * 3)
+        state.scrollBy(-pageTotalSize / 2)
 
-        pagerState.assertScrollPosition(2, pageTotalSize / 2)
+        state.assertScrollPosition(2, pageTotalSize / 2)
 
         rule.onNodeWithTag("1")
             .assertStartPositionInRootIsEqualTo(pageTotalSize * 1.5f - padding)
@@ -282,16 +295,15 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
     @Test
     fun contentPaddingAndWrapContent() {
         rule.setContent {
-            val state = rememberPagerState { 1 }
             Box(modifier = Modifier.testTag(ContainerTag)) {
                 HorizontalOrVerticalPager(
-                    state = state,
                     contentPadding = PaddingValues(
                         beforeContentCrossAxis = 2.dp,
                         beforeContent = 4.dp,
                         afterContentCrossAxis = 6.dp,
                         afterContent = 8.dp
                     ),
+                    pageCount = 1,
                     pageSize = PageSize.Fixed(pageTotalSize)
                 ) {
                     Spacer(
@@ -319,16 +331,15 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
     @Test
     fun contentPaddingAndNoContent() {
         rule.setContent {
-            val state = rememberPagerState { 0 }
             Box(modifier = Modifier.testTag(ContainerTag)) {
                 HorizontalOrVerticalPager(
-                    state = state,
                     contentPadding = PaddingValues(
                         beforeContentCrossAxis = 2.dp,
                         beforeContent = 4.dp,
                         afterContentCrossAxis = 6.dp,
                         afterContent = 8.dp
                     ),
+                    pageCount = 0,
                     pageSize = PageSize.Fixed(pageTotalSize)
                 ) { }
             }
@@ -344,16 +355,15 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
     @Test
     fun contentPaddingAndZeroSizedItem() {
         rule.setContent {
-            val state = rememberPagerState { 1 }
             Box(modifier = Modifier.testTag(ContainerTag)) {
                 HorizontalOrVerticalPager(
-                    state = state,
                     contentPadding = PaddingValues(
                         beforeContentCrossAxis = 2.dp,
                         beforeContent = 4.dp,
                         afterContentCrossAxis = 6.dp,
                         afterContent = 8.dp
                     ),
+                    pageCount = 1,
                     pageSize = PageSize.Fixed(0.dp)
                 ) {
                     Box { }
@@ -373,8 +383,10 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
         val topPadding = pageTotalSize * 2
         val bottomPadding = pageTotalSize / 2
         val listSize = pageTotalSize * 3
+        val state = PagerState()
         createPager(
             reverseLayout = true,
+            state = state,
             modifier = Modifier.requiredSize(listSize),
             contentPadding = PaddingValues(
                 beforeContent = topPadding,
@@ -399,7 +411,7 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
             .assertStartPositionInRootIsEqualTo(-pageTotalSize / 2)
 
         // Scroll to the top.
-        pagerState.scrollBy(pageTotalSize * 2.5f)
+        state.scrollBy(pageTotalSize * 2.5f)
 
         rule.onNodeWithTag("2").assertStartPositionInRootIsEqualTo(topPadding)
         // Shouldn't be visible
@@ -412,8 +424,10 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
         val topPadding = pageTotalSize * 2
         val bottomPadding = pageTotalSize * 2
         val listSize = pageTotalSize * 3
+        val state = PagerState()
         createPager(
             reverseLayout = true,
+            state = state,
             modifier = Modifier.requiredSize(listSize),
             contentPadding = PaddingValues(
                 beforeContent = topPadding,
@@ -435,7 +449,7 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
         rule.onNodeWithTag("1").assertDoesNotExist()
 
         // Scroll to the top.
-        pagerState.scrollBy(pageTotalSize * 5f)
+        state.scrollBy(pageTotalSize * 5f)
 
         rule.onNodeWithTag("2").assertStartPositionInRootIsEqualTo(topPadding)
         // Shouldn't be visible
@@ -447,7 +461,7 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
     fun overscrollWithContentPadding() {
         lateinit var state: PagerState
         rule.setContent {
-            state = rememberPagerState { 2 }
+            state = rememberPagerState()
             Box(
                 modifier = Modifier
                     .testTag(ContainerTag)
@@ -456,6 +470,7 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
                 HorizontalOrVerticalPager(
                     state = state,
                     contentPadding = PaddingValues(mainAxis = smallPaddingSize),
+                    pageCount = 2,
                     pageSize = PageSize.Fixed(pageTotalSize)
                 ) {
                     Box(
@@ -497,7 +512,7 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
     fun totalPaddingLargerParentSize_initialState() {
         lateinit var state: PagerState
         rule.setContent {
-            state = rememberPagerState() { 4 }
+            state = rememberPagerState()
             Box(
                 modifier = Modifier
                     .testTag(ContainerTag)
@@ -506,6 +521,7 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
                 HorizontalOrVerticalPager(
                     state = state,
                     contentPadding = PaddingValues(mainAxis = pageTotalSize),
+                    pageCount = 4,
                     pageSize = PageSize.Fixed(pageTotalSize)
                 ) {
                     Box(
@@ -534,7 +550,7 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
     fun totalPaddingLargerParentSize_scrollByPadding() {
         lateinit var state: PagerState
         rule.setContent {
-            state = rememberPagerState { 4 }
+            state = rememberPagerState()
             Box(
                 modifier = Modifier
                     .testTag(ContainerTag)
@@ -543,6 +559,7 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
                 HorizontalOrVerticalPager(
                     state = state,
                     contentPadding = PaddingValues(mainAxis = pageTotalSize),
+                    pageCount = 4,
                     pageSize = PageSize.Fixed(pageTotalSize)
                 ) {
                     Box(
@@ -575,7 +592,7 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
     fun totalPaddingLargerParentSize_scrollToLastItem() {
         lateinit var state: PagerState
         rule.setContent {
-            state = rememberPagerState { 4 }
+            state = rememberPagerState()
             Box(
                 modifier = Modifier
                     .testTag(ContainerTag)
@@ -584,6 +601,7 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
                 HorizontalOrVerticalPager(
                     state = state,
                     contentPadding = PaddingValues(mainAxis = pageTotalSize),
+                    pageCount = 4,
                     pageSize = PageSize.Fixed(pageTotalSize)
                 ) {
                     Box(
@@ -616,7 +634,7 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
     fun totalPaddingLargerParentSize_scrollToLastItemByDelta() {
         lateinit var state: PagerState
         rule.setContent {
-            state = rememberPagerState { 4 }
+            state = rememberPagerState()
             Box(
                 modifier = Modifier
                     .testTag(ContainerTag)
@@ -626,6 +644,7 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
                     state = state,
                     contentPadding = PaddingValues(mainAxis = pageTotalSize),
                     pageSize = PageSize.Fixed(pageTotalSize),
+                    pageCount = 4
                 ) {
                     Box(
                         Modifier
@@ -658,7 +677,7 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
         // the whole end content padding is displayed
         lateinit var state: PagerState
         rule.setContent {
-            state = rememberPagerState { 4 }
+            state = rememberPagerState()
             Box(
                 modifier = Modifier
                     .testTag(ContainerTag)
@@ -667,7 +686,8 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
                 HorizontalOrVerticalPager(
                     state = state,
                     contentPadding = PaddingValues(mainAxis = pageTotalSize),
-                    pageSize = PageSize.Fixed(pageTotalSize)
+                    pageSize = PageSize.Fixed(pageTotalSize),
+                    pageCount = 4
                 ) {
                     Box(
                         Modifier
@@ -696,7 +716,7 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
     fun eachPaddingLargerParentSize_initialState() {
         lateinit var state: PagerState
         rule.setContent {
-            state = rememberPagerState { 4 }
+            state = rememberPagerState()
             Box(
                 modifier = Modifier
                     .testTag(ContainerTag)
@@ -705,7 +725,8 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
                 HorizontalOrVerticalPager(
                     state = state,
                     contentPadding = PaddingValues(mainAxis = pageTotalSize * 2),
-                    pageSize = PageSize.Fixed(pageTotalSize)
+                    pageSize = PageSize.Fixed(pageTotalSize),
+                    pageCount = 4
                 ) {
                     Box(
                         Modifier
@@ -730,7 +751,7 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
     fun eachPaddingLargerParentSize_scrollByPadding() {
         lateinit var state: PagerState
         rule.setContent {
-            state = rememberPagerState { 4 }
+            state = rememberPagerState()
             Box(
                 modifier = Modifier
                     .testTag(ContainerTag)
@@ -739,7 +760,8 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
                 HorizontalOrVerticalPager(
                     state = state,
                     contentPadding = PaddingValues(mainAxis = pageTotalSize * 2),
-                    pageSize = PageSize.Fixed(pageTotalSize)
+                    pageSize = PageSize.Fixed(pageTotalSize),
+                    pageCount = 4
                 ) {
                     Box(
                         Modifier
@@ -771,7 +793,7 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
     fun eachPaddingLargerParentSize_scrollToLastItem() {
         lateinit var state: PagerState
         rule.setContent {
-            state = rememberPagerState { 4 }
+            state = rememberPagerState()
             Box(
                 modifier = Modifier
                     .testTag(ContainerTag)
@@ -780,7 +802,8 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
                 HorizontalOrVerticalPager(
                     state = state,
                     contentPadding = PaddingValues(mainAxis = pageTotalSize * 2),
-                    pageSize = PageSize.Fixed(pageTotalSize)
+                    pageSize = PageSize.Fixed(pageTotalSize),
+                    pageCount = 4
                 ) {
                     Box(
                         Modifier
@@ -815,7 +838,7 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
     fun eachPaddingLargerParentSize_scrollToLastItemByDelta() {
         lateinit var state: PagerState
         rule.setContent {
-            state = rememberPagerState { 4 }
+            state = rememberPagerState()
             Box(
                 modifier = Modifier
                     .testTag(ContainerTag)
@@ -824,7 +847,8 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
                 HorizontalOrVerticalPager(
                     state = state,
                     contentPadding = PaddingValues(mainAxis = pageTotalSize * 2),
-                    pageSize = PageSize.Fixed(pageTotalSize)
+                    pageSize = PageSize.Fixed(pageTotalSize),
+                    pageCount = 4
                 ) {
                     Box(
                         Modifier
@@ -860,7 +884,7 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
         // only the end content padding is displayed
         lateinit var state: PagerState
         rule.setContent {
-            state = rememberPagerState { 4 }
+            state = rememberPagerState()
             Box(
                 modifier = Modifier
                     .testTag(ContainerTag)
@@ -869,7 +893,8 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
                 HorizontalOrVerticalPager(
                     state = state,
                     contentPadding = PaddingValues(mainAxis = pageTotalSize * 2),
-                    pageSize = PageSize.Fixed(pageTotalSize)
+                    pageSize = PageSize.Fixed(pageTotalSize),
+                    pageCount = 4
                 ) {
                     Box(
                         Modifier
@@ -900,7 +925,7 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
         val padding = PaddingValues(start = 20.dp, end = 8.dp)
         lateinit var state: PagerState
         rule.setContent {
-            state = rememberPagerState { 4 }
+            state = rememberPagerState()
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 HorizontalOrVerticalPager(
                     modifier = Modifier
@@ -908,6 +933,7 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
                         .mainAxisSize(pageTotalSize * 2),
                     state = state,
                     contentPadding = padding,
+                    pageCount = 4,
                     pageSize = PageSize.Fixed(pageTotalSize)
                 ) {
                     Box(
