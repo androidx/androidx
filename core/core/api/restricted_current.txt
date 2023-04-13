@@ -2547,6 +2547,14 @@ package androidx.core.text {
 
 }
 
+package androidx.core.text.method {
+
+  public class LinkMovementMethodCompat extends android.text.method.LinkMovementMethod {
+    method public static androidx.core.text.method.LinkMovementMethodCompat getInstance();
+  }
+
+}
+
 package androidx.core.text.util {
 
   public final class LinkifyCompat {
