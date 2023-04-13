@@ -19,7 +19,7 @@ package androidx.appactions.interaction.service
 import android.content.Context
 import android.util.SizeF
 import android.widget.RemoteViews
-import androidx.appactions.interaction.capabilities.core.ActionExecutor
+import androidx.appactions.interaction.capabilities.core.CapabilityExecutor
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.ExecutionSessionFactory
@@ -249,11 +249,11 @@ class UiSessionsTest {
     }
 
     @Test
-    fun actionExecutor_hasUpdateUiExtension() {
+    fun capabilityExecutor_hasUpdateUiExtension() {
         assertThat(UiSessions.getUiCacheOrNull(sessionId)).isNull()
         val oneShotCapability = FakeCapability.CapabilityBuilder().setId(
             "oneShotCapability",
-        ).setExecutor(object : ActionExecutor<Arguments, Output> {
+        ).setExecutor(object : CapabilityExecutor<Arguments, Output> {
             override suspend fun onExecute(arguments: Arguments): ExecutionResult<Output> {
                 this.updateUi(remoteViewsUiResponse)
                 return ExecutionResult.Builder<Output>().build()

@@ -16,7 +16,7 @@
 
 package androidx.appactions.interaction.capabilities.testing.internal
 
-import androidx.appactions.interaction.capabilities.core.ActionExecutorAsync
+import androidx.appactions.interaction.capabilities.core.CapabilityExecutorAsync
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import kotlinx.coroutines.Deferred
@@ -26,13 +26,15 @@ import kotlinx.coroutines.withTimeout
 object TestingUtils {
     // use this timeout for things that should take negligible time.
     const val CB_TIMEOUT = 1000L
+
     // use this timeout for waiting an arbitrary period of time.
     const val BLOCKING_TIMEOUT = 300L
 
-    fun <ArgumentsT, OutputT> createFakeActionExecutor(): ActionExecutorAsync<ArgumentsT, OutputT> {
-        return ActionExecutorAsync { _: ArgumentsT ->
+    fun <ArgumentsT, OutputT> createFakeCapabilityExecutor():
+        CapabilityExecutorAsync<ArgumentsT, OutputT> {
+        return CapabilityExecutorAsync { _: ArgumentsT ->
             Futures.immediateFuture(
-                ExecutionResult.Builder<OutputT>().build(),
+                ExecutionResult.Builder<OutputT>().build()
             )
         }
     }
