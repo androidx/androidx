@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 
 import androidx.build.LibraryType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -26,25 +25,17 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
 
-    testImplementation(libs.junit)
-    testImplementation(libs.truth)
-
-    samples(project(":appactions:builtintypes:builtintypes-core:builtintypes-core-samples"))
+    compileOnly(project(":annotation:annotation-sampled"))
+    implementation(project(":appactions:builtintypes:builtintypes-core"))
 }
 
 android {
-    namespace "androidx.appactions.builtintypes.core"
-}
-
-tasks.withType(KotlinCompile).configureEach {
-    compilerOptions {
-        freeCompilerArgs.add("-Xjvm-default=all")
-    }
+    namespace "androidx.appactions.builtintypes.core.samples"
 }
 
 androidx {
-    name = "androidx.appactions.builtintypes:builtintypes-core"
-    type = LibraryType.PUBLISHED_LIBRARY
+    name = "Built-in Types Core Samples"
+    type = LibraryType.SAMPLES
     inceptionYear = "2023"
-    description = "This library exposes a core set of data types based on schema.org definitions."
+    description = "Samples for AndroidX Built-in Types Core Library"
 }
